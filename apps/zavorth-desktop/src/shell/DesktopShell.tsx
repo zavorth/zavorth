@@ -59,6 +59,7 @@ import {
   type RightRailState,
   type RightRailTab,
 } from './rightRail';
+import { $rightRailOpenRequest } from '../store/layout';
 
 import type { DesktopPanel } from '../slashCommands';
 import { ThreadView } from '../thread/ThreadView';
@@ -83,14 +84,10 @@ import type { DesktopReceipt } from '../desktop-state/receiptsLedger';
 import { appendReceipt } from '../desktop-state/receiptsLedger';
 import { buildHomeTrustSummary } from '../desktop-state/homeTrustModel';
 import type { DesktopRiskBudgetState } from '../desktop-state/riskBudgetBridge';
-import {
-  loadTrustedOperator,
-  toggleTrustedOperator,
-} from '../trust/trustedOperator';
+import { loadTrustedOperator, toggleTrustedOperator } from '../trust/trustedOperator';
 import type { HunkReceipt } from '../trust/hunkApproval';
 import { useCodeBridge } from '../desktop-state/useCodeBridge';
 import { CodeBridgeChecksPanel } from '../components/CodeBridgeChecksPanel';
-
 
 export function DesktopShell(props: {
   accent: ZavorthAccent;
@@ -137,7 +134,11 @@ export function DesktopShell(props: {
   onEncryptionAction(action: 'preview' | 'apply' | 'rollback'): void | Promise<void>;
   onInput(value: string): void;
   onLearningDecision(id: string, decision: 'approve' | 'reject' | 'forget'): void | Promise<void>;
-  onMemoryControlAction(input: { action: 'forget' | 'updatePreference'; id: string; content?: string }): void | Promise<void>;
+  onMemoryControlAction(input: {
+    action: 'forget' | 'updatePreference';
+    id: string;
+    content?: string;
+  }): void | Promise<void>;
   onChannelSetupAction(input: {
     action: 'applyScaffold' | 'doctor' | 'testConnection';
     channelId?: string | null;
@@ -157,7 +158,11 @@ export function DesktopShell(props: {
     decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
   ): void | Promise<void>;
   onRuntimeStart(): void | Promise<void>;
-  onRuntimeStateAction(input: { domain: string; operation: string; metadata?: Record<string, unknown> }): void | Promise<void>;
+  onRuntimeStateAction(input: {
+    domain: string;
+    operation: string;
+    metadata?: Record<string, unknown>;
+  }): void | Promise<void>;
   onSidebarCollapsed(updater: (value: boolean) => boolean): void;
   onSubmit(value?: string): unknown | Promise<unknown>;
   onTheme(value: 'light' | 'dark' | 'system'): void;
@@ -254,7 +259,9 @@ export function DesktopShell(props: {
   onRefreshVoiceAgent?: () => void | Promise<void>;
 }) {
   const isMac = navigator.userAgent.includes('Macintosh');
-  const [systemDark, setSystemDark] = useState(() => window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? true);
+  const [systemDark, setSystemDark] = useState(
+    () => window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? true,
+  );
   const resolvedTheme = props.theme === 'system' ? (systemDark ? 'dark' : 'light') : props.theme;
   const sidebarSide = localStorage.getItem('zvd:sidebar-side') || 'left';
   const density = props.density || 'comfortable';
@@ -276,7 +283,9 @@ export function DesktopShell(props: {
     `density-${density}`,
     isMac ? 'is-mac' : '',
     `zvd-sidebar-side-${sidebarSide}`,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
   const [localCommandCenterOpen, setLocalCommandCenterOpen] = useState(false);
   const [constellationOpen, setConstellationOpen] = useState(false);
   const [trustedOperator, setTrustedOperator] = useState(() =>
@@ -290,32 +299,42 @@ export function DesktopShell(props: {
   const onSubmitRef = useRef(props.onSubmit);
   onSubmitRef.current = props.onSubmit;
 
-  const updateRightRail = useCallback(
-    (patch: Partial<RightRailState>) => {
-      setRightRail(current => {
-        const next = { ...current, ...patch, width: clampRightRailWidth(patch.width ?? current.width) };
-        writeStoredRightRailState(
-          next,
-          typeof localStorage !== 'undefined' ? localStorage : null,
-        );
-        return next;
-      });
-    },
-    [],
-  );
+  const updateRightRail = useCallback((patch: Partial<RightRailState>) => {
+    setRightRail((current) => {
+      const next = { ...current, ...patch, width: clampRightRailWidth(patch.width ?? current.width) };
+      writeStoredRightRailState(next, typeof localStorage !== 'undefined' ? localStorage : null);
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    return $rightRailOpenRequest.subscribe((request) => {
+      if (!request) return;
+      updateRightRail({ open: true, tab: request.tab });
+    });
+  }, [updateRightRail]);
+
   const commandCenterOpen = props.commandCenterOpen ?? localCommandCenterOpen;
-  const setCommandCenterOpen = useCallback((open: boolean) => {
-    if (props.onCommandCenter) {
-      props.onCommandCenter(open);
-      return;
-    }
-    setLocalCommandCenterOpen(open);
-  }, [props.onCommandCenter]);
-  const activeModel = (props.modelOptions || []).find(model => model.id === props.selectedModel) || props.modelOptions?.[0];
-  const homeTrust = useMemo(() => buildHomeTrustSummary({
-    approvals: props.approvals,
-    receipts: props.receipts,
-  }), [props.approvals, props.receipts]);
+  const setCommandCenterOpen = useCallback(
+    (open: boolean) => {
+      if (props.onCommandCenter) {
+        props.onCommandCenter(open);
+        return;
+      }
+      setLocalCommandCenterOpen(open);
+    },
+    [props.onCommandCenter],
+  );
+  const activeModel =
+    (props.modelOptions || []).find((model) => model.id === props.selectedModel) || props.modelOptions?.[0];
+  const homeTrust = useMemo(
+    () =>
+      buildHomeTrustSummary({
+        approvals: props.approvals,
+        receipts: props.receipts,
+      }),
+    [props.approvals, props.receipts],
+  );
   const pendingApprovalCount = homeTrust.pendingApprovalCount;
 
   // Touch once on mount and keep clock in React state so day-1 eligibility
@@ -333,9 +352,12 @@ export function DesktopShell(props: {
     const remembered = readRememberedDesktopSession();
     const providerReady = Boolean(props.runtimeCapabilities?.providers?.connected?.length);
     // Prefer return continuity only when returning to a prior session, not the active one.
-    const lastSessionId = remembered.id && remembered.id !== props.currentSessionId
-      ? remembered.id
-      : (props.currentSessionId ? null : remembered.id);
+    const lastSessionId =
+      remembered.id && remembered.id !== props.currentSessionId
+        ? remembered.id
+        : props.currentSessionId
+          ? null
+          : remembered.id;
     const learningPending = (props.learning || []).filter((item: LearningItem) => {
       const status = String(item.status || '').toLowerCase();
       return status !== 'promoted' && status !== 'accepted' && status !== 'rejected';
@@ -406,7 +428,7 @@ export function DesktopShell(props: {
 
   const activeToolCount = useMemo(() => {
     if (!props.busy) return 0;
-    return (props.messages || []).filter(message => message.role === 'tool').length;
+    return (props.messages || []).filter((message) => message.role === 'tool').length;
   }, [props.busy, props.messages]);
 
   const streamingAssistant = useMemo(() => {
@@ -494,9 +516,12 @@ export function DesktopShell(props: {
     rightRail.tab,
   ]);
 
-  const openRightRailTab = useCallback((tab: RightRailTab) => {
-    updateRightRail({ open: true, tab });
-  }, [updateRightRail]);
+  const openRightRailTab = useCallback(
+    (tab: RightRailTab) => {
+      updateRightRail({ open: true, tab });
+    },
+    [updateRightRail],
+  );
 
   const handleOpenPath = useCallback(
     (path: string, opts?: { line?: number; kind?: 'file' | 'diff' }) => {
@@ -564,54 +589,50 @@ export function DesktopShell(props: {
     [props.onPanel],
   );
 
-  const handleCommandCenterAction = useCallback((action: CommandCenterAction) => {
-    setCommandCenterOpen(false);
-    if (action.type === 'close') {
-      return;
-    }
-    if (action.type === 'constellation') {
-      setConstellationOpen(true);
-      return;
-    }
-    if (action.type === 'panel') {
-      props.onPanel(action.panel);
-      return;
-    }
-    if (action.type === 'settings') {
-      try {
-        const url = new URL(window.location.href);
-        url.searchParams.set('settingsTab', action.tab);
-        window.history.replaceState({}, '', url.toString());
-      } catch {
-        // ignore
+  const handleCommandCenterAction = useCallback(
+    (action: CommandCenterAction) => {
+      setCommandCenterOpen(false);
+      if (action.type === 'close') {
+        return;
       }
-      if (props.onOpenSettingsOverlay) {
-        props.onOpenSettingsOverlay();
-      } else {
-        props.onPanel('settings');
+      if (action.type === 'constellation') {
+        setConstellationOpen(true);
+        return;
       }
-      return;
-    }
-    if (action.type === 'rail') {
-      openRightRailTab(action.tab);
-      return;
-    }
-    if (action.type === 'insert') {
-      props.onPanel('chat');
-      props.onInput(action.value);
-      return;
-    }
-    if (action.type === 'run') {
-      void props.onSubmit(action.value);
-    }
-  }, [
-    openRightRailTab,
-    props.onInput,
-    props.onOpenSettingsOverlay,
-    props.onPanel,
-    props.onSubmit,
-    setCommandCenterOpen,
-  ]);
+      if (action.type === 'panel') {
+        props.onPanel(action.panel);
+        return;
+      }
+      if (action.type === 'settings') {
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.set('settingsTab', action.tab);
+          window.history.replaceState({}, '', url.toString());
+        } catch {
+          // ignore
+        }
+        if (props.onOpenSettingsOverlay) {
+          props.onOpenSettingsOverlay();
+        } else {
+          props.onPanel('settings');
+        }
+        return;
+      }
+      if (action.type === 'rail') {
+        openRightRailTab(action.tab);
+        return;
+      }
+      if (action.type === 'insert') {
+        props.onPanel('chat');
+        props.onInput(action.value);
+        return;
+      }
+      if (action.type === 'run') {
+        void props.onSubmit(action.value);
+      }
+    },
+    [openRightRailTab, props.onInput, props.onOpenSettingsOverlay, props.onPanel, props.onSubmit, setCommandCenterOpen],
+  );
 
   const voiceToggleRef = useRef(voice.toggle);
   voiceToggleRef.current = voice.toggle;
@@ -642,61 +663,65 @@ export function DesktopShell(props: {
 
   const analyticsSessions = useMemo(() => {
     if (!props.messages.length) return [];
-    const firstTimestamp = Date.parse(props.messages.find(message => message.at)?.at || '');
-    const lastTimestamp = Date.parse([...props.messages].reverse().find(message => message.at)?.at || '');
+    const firstTimestamp = Date.parse(props.messages.find((message) => message.at)?.at || '');
+    const lastTimestamp = Date.parse([...props.messages].reverse().find((message) => message.at)?.at || '');
     const startedAt = Number.isFinite(firstTimestamp) ? firstTimestamp : Date.now();
-    return [{
-      id: props.currentSessionId || 'desktop-main',
-      startedAt,
-      endedAt: props.busy ? undefined : (Number.isFinite(lastTimestamp) ? lastTimestamp : Date.now()),
-      status: props.busy ? 'active' as const : 'completed' as const,
-      model: props.selectedModel,
-    }];
+    return [
+      {
+        id: props.currentSessionId || 'desktop-main',
+        startedAt,
+        endedAt: props.busy ? undefined : Number.isFinite(lastTimestamp) ? lastTimestamp : Date.now(),
+        status: props.busy ? ('active' as const) : ('completed' as const),
+        model: props.selectedModel,
+      },
+    ];
   }, [props.busy, props.currentSessionId, props.messages, props.selectedModel]);
 
-  const analyticsToolCalls = useMemo(() => props.messages
-    .filter(message => message.role === 'tool')
-    .map(message => ({
-      name: message.title || 'Runtime tool',
-      success: !/\b(error|failed|failure)\b/i.test(message.content),
-      timestamp: Number.isFinite(Date.parse(message.at || '')) ? Date.parse(message.at || '') : undefined,
-    })), [props.messages]);
+  const analyticsToolCalls = useMemo(
+    () =>
+      props.messages
+        .filter((message) => message.role === 'tool')
+        .map((message) => ({
+          name: message.title || 'Runtime tool',
+          success: !/\b(error|failed|failure)\b/i.test(message.content),
+          timestamp: Number.isFinite(Date.parse(message.at || '')) ? Date.parse(message.at || '') : undefined,
+        })),
+    [props.messages],
+  );
 
   useEffect(() => {
-    setTrustedOperator(
-      loadTrustedOperator(typeof localStorage !== 'undefined' ? localStorage : null),
-    );
+    setTrustedOperator(loadTrustedOperator(typeof localStorage !== 'undefined' ? localStorage : null));
   }, []);
 
   const handleToggleTrustedOperator = useCallback(() => {
-    const next = toggleTrustedOperator(
-      typeof localStorage !== 'undefined' ? localStorage : null,
-      trustedOperator,
-    );
+    const next = toggleTrustedOperator(typeof localStorage !== 'undefined' ? localStorage : null, trustedOperator);
     setTrustedOperator(next);
   }, [trustedOperator]);
 
-  const handleHunkReceipt = useCallback((receipt: HunkReceipt) => {
-    const payload: Omit<DesktopReceipt, 'id' | 'at'> & { id?: string; at?: string } = {
-      kind: 'approval',
-      title: receipt.summary,
-      summary: `${receipt.decision} · ${receipt.path}`,
-      status: receipt.decision === 'approve' ? 'ok' : 'info',
-      id: receipt.id,
-      at: receipt.at,
-      metadata: {
-        hunkId: receipt.hunkId,
-        path: receipt.path,
-        decision: receipt.decision,
-      },
-    };
-    if (props.onRecordReceipt) {
-      props.onRecordReceipt(payload);
-      return;
-    }
-    // Fallback when parent does not own receipts state (tests / isolated shells).
-    appendReceipt(Array.isArray(props.receipts) ? props.receipts : [], payload);
-  }, [props.onRecordReceipt, props.receipts]);
+  const handleHunkReceipt = useCallback(
+    (receipt: HunkReceipt) => {
+      const payload: Omit<DesktopReceipt, 'id' | 'at'> & { id?: string; at?: string } = {
+        kind: 'approval',
+        title: receipt.summary,
+        summary: `${receipt.decision} · ${receipt.path}`,
+        status: receipt.decision === 'approve' ? 'ok' : 'info',
+        id: receipt.id,
+        at: receipt.at,
+        metadata: {
+          hunkId: receipt.hunkId,
+          path: receipt.path,
+          decision: receipt.decision,
+        },
+      };
+      if (props.onRecordReceipt) {
+        props.onRecordReceipt(payload);
+        return;
+      }
+      // Fallback when parent does not own receipts state (tests / isolated shells).
+      appendReceipt(Array.isArray(props.receipts) ? props.receipts : [], payload);
+    },
+    [props.onRecordReceipt, props.receipts],
+  );
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -739,9 +764,7 @@ export function DesktopShell(props: {
       data-density={density}
       style={{
         ...zavorthThemePresets[props.accent]?.cssVars,
-        ...(rightRail.open
-          ? ({ '--zvd-right-rail-width': `${rightRail.width}px` } as CSSProperties)
-          : null),
+        ...(rightRail.open ? ({ '--zvd-right-rail-width': `${rightRail.width}px` } as CSSProperties) : null),
       }}
     >
       <a className="zvd-skip-link" href="#zvd-main-content">
@@ -758,7 +781,7 @@ export function DesktopShell(props: {
         onOpenCommandCenter={() => setCommandCenterOpen(true)}
         workspaceScope={props.workspaceScope}
         workspaceScopes={props.workspaceScopes}
-        onToggle={() => props.onSidebarCollapsed(value => !value)}
+        onToggle={() => props.onSidebarCollapsed((value) => !value)}
         onWorkspaceFolder={props.onWorkspaceFolder}
         onWorkspaceScope={props.onWorkspaceScope}
         activeMandate={props.activeMandate}
@@ -850,7 +873,7 @@ export function DesktopShell(props: {
                 onOpenReview={() => props.onPanel('approvals')}
                 onOpenProof={() => props.onPanel('receipts')}
                 recentReceiptCount={props.receipts?.length ?? 0}
-                onSuggestion={value => void props.onSubmit(value)}
+                onSuggestion={(value) => void props.onSubmit(value)}
                 onOpenPath={handleOpenPath}
                 onApprovePlan={handleApprovePlan}
                 onRejectPlan={handleRejectPlan}
@@ -871,7 +894,9 @@ export function DesktopShell(props: {
                 onModel={props.onModel}
                 onProviderSetup={() => props.onOpenSettingsOverlay?.() ?? props.onPanel('settings')}
                 onStop={() => void props.onSubmit('/stop')}
-                onSubmit={async value => { await props.onSubmit(value); }}
+                onSubmit={async (value) => {
+                  await props.onSubmit(value);
+                }}
                 onVoice={voice.toggle}
                 voiceListening={voice.listening}
                 onVoiceCall={toggleVoiceCall}
@@ -887,14 +912,14 @@ export function DesktopShell(props: {
                 streamingAssistant={streamingAssistant}
                 justCompleted={justCompleted}
                 queue={composerQueue}
-                onQueuePrompt={text => {
-                  setComposerQueue(current => enqueuePrompt(current, text));
+                onQueuePrompt={(text) => {
+                  setComposerQueue((current) => enqueuePrompt(current, text));
                 }}
-                onQueueRemove={id => {
-                  setComposerQueue(current => removeQueuedPrompt(current, id));
+                onQueueRemove={(id) => {
+                  setComposerQueue((current) => removeQueuedPrompt(current, id));
                 }}
                 onQueueClear={() => {
-                  setComposerQueue(current => clearQueue(current));
+                  setComposerQueue((current) => clearQueue(current));
                 }}
                 sessionId={props.currentSessionId}
               />
@@ -997,7 +1022,13 @@ export function DesktopShell(props: {
               updateStatusMessage={props.updateStatusMessage}
               updateStatus={props.updateStatus}
               voiceAgentStatus={props.voiceAgentStatus}
-              onCheckUpdates={props.onCheckUpdates ? async () => { await props.onCheckUpdates?.(); } : undefined}
+              onCheckUpdates={
+                props.onCheckUpdates
+                  ? async () => {
+                      await props.onCheckUpdates?.();
+                    }
+                  : undefined
+              }
               onDownloadUpdate={props.onDownloadUpdate}
               onInstallUpdate={props.onInstallUpdate}
               onDeferUpdate={props.onDeferUpdate}
@@ -1009,7 +1040,6 @@ export function DesktopShell(props: {
               onRefreshVoiceAgent={props.onRefreshVoiceAgent}
             />
           )}
-
         </section>
 
         <DesktopStatusbar
@@ -1023,10 +1053,12 @@ export function DesktopShell(props: {
           onOpenSettings={() => props.onOpenSettingsOverlay?.() ?? props.onPanel('settings')}
           onRuntimeStateAction={props.onRuntimeStateAction}
           onPanel={props.onPanel}
-          onToggleBottomPanel={() => updateRightRail({
-            open: !(rightRail.open && (rightRail.tab === 'terminal' || rightRail.tab === 'logs')),
-            tab: rightRail.tab === 'logs' ? 'logs' : 'terminal',
-          })}
+          onToggleBottomPanel={() =>
+            updateRightRail({
+              open: !(rightRail.open && (rightRail.tab === 'terminal' || rightRail.tab === 'logs')),
+              tab: rightRail.tab === 'logs' ? 'logs' : 'terminal',
+            })
+          }
           onOpenCodeBridge={() => setCodeBridgeOpen(true)}
         />
       </section>
@@ -1051,8 +1083,10 @@ export function DesktopShell(props: {
         onPanel={props.onPanel}
         onResizeMouseDown={handleRightRailResizeMouseDown}
         onRuntimeStateAction={props.onRuntimeStateAction}
-        onSubmit={async value => { await props.onSubmit(value); }}
-        onTab={tab => updateRightRail({ open: true, tab })}
+        onSubmit={async (value) => {
+          await props.onSubmit(value);
+        }}
+        onTab={(tab) => updateRightRail({ open: true, tab })}
       />
 
       <DesktopInspector
@@ -1077,11 +1111,7 @@ export function DesktopShell(props: {
         onStart={props.onRuntimeStart}
       />
 
-      <CodeBridgeChecksPanel
-        open={codeBridgeOpen}
-        summary={codeBridge}
-        onClose={() => setCodeBridgeOpen(false)}
-      />
+      <CodeBridgeChecksPanel open={codeBridgeOpen} summary={codeBridge} onClose={() => setCodeBridgeOpen(false)} />
 
       <CommandPalette
         activePanel={props.activePanel}
@@ -1090,7 +1120,9 @@ export function DesktopShell(props: {
         onClose={() => props.onCommandPalette(false)}
         onInsert={props.onInput}
         onPanel={props.onPanel}
-        onRun={async value => { await props.onSubmit(value); }}
+        onRun={async (value) => {
+          await props.onSubmit(value);
+        }}
         onSwitchSession={props.onSwitchSession}
         onNewSession={props.onNewSession}
         onOpenSettings={() => props.onOpenSettingsOverlay?.() ?? props.onPanel('settings')}

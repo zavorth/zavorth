@@ -1,56 +1,41 @@
-/**
- * Phase 8 / 8.1 / 8.2 — Incremental React dashboard islands for the Vite control shell.
- *
- * These components render static structure with the same data-* hooks that
- * runtime-bridge / dashboard-live-view already fill. No big-bang rewrite:
- * Work, Review, Proof, Channels, Sessions, Cron, Agents, Skills, Config.
- */
-import type { ReactNode } from "react";
-import { CONTROL_LOCALES, readControlLocalePreference } from "../locale";
+import type { ReactNode } from 'react';
+import { CONTROL_LOCALES, readControlLocalePreference } from '../locale';
 import {
   listUserSelectionChannels,
   listUserSelectionProviders,
-} from "../../../../src/services/selection/UserSelectionCatalog";
+} from '../../../../src/services/selection/UserSelectionCatalog';
 
-export const DASHBOARD_REACT_ISLAND_VERSION = "zavorth-control-react-islands/2026-07-12" as const;
+export const DASHBOARD_REACT_ISLAND_VERSION = 'zavorth-control-react-islands/2026-07-12' as const;
 
 export type DashboardReactIslandId =
-  | "overview"
-  | "sales-os"
-  | "instances"
-  | "channels"
-  | "sessions"
-  | "cron"
-  | "agents"
-  | "skills"
-  | "config";
+  | 'overview'
+  | 'sales-os'
+  | 'instances'
+  | 'channels'
+  | 'sessions'
+  | 'cron'
+  | 'agents'
+  | 'skills'
+  | 'config';
 
 export const DASHBOARD_REACT_ISLANDS: ReadonlyArray<{
   id: DashboardReactIslandId;
   sectorElementId: string;
   label: string;
-  engine: "react-ssr";
+  engine: 'react-ssr';
 }> = [
-  { id: "overview", sectorElementId: "sector-overview", label: "Work", engine: "react-ssr" },
-  { id: "sales-os", sectorElementId: "sector-sales-os", label: "Review", engine: "react-ssr" },
-  { id: "instances", sectorElementId: "sector-instances", label: "Proof", engine: "react-ssr" },
-  { id: "channels", sectorElementId: "sector-channels", label: "Channels", engine: "react-ssr" },
-  { id: "sessions", sectorElementId: "sector-sessions", label: "Sessions", engine: "react-ssr" },
-  { id: "cron", sectorElementId: "sector-cron", label: "Cron", engine: "react-ssr" },
-  { id: "agents", sectorElementId: "sector-agents", label: "Agents", engine: "react-ssr" },
-  { id: "skills", sectorElementId: "sector-skills", label: "Skills", engine: "react-ssr" },
-  { id: "config", sectorElementId: "sector-config", label: "Settings", engine: "react-ssr" },
+  { id: 'overview', sectorElementId: 'sector-overview', label: 'Work', engine: 'react-ssr' },
+  { id: 'sales-os', sectorElementId: 'sector-sales-os', label: 'Review', engine: 'react-ssr' },
+  { id: 'instances', sectorElementId: 'sector-instances', label: 'Proof', engine: 'react-ssr' },
+  { id: 'channels', sectorElementId: 'sector-channels', label: 'Channels', engine: 'react-ssr' },
+  { id: 'sessions', sectorElementId: 'sector-sessions', label: 'Sessions', engine: 'react-ssr' },
+  { id: 'cron', sectorElementId: 'sector-cron', label: 'Cron', engine: 'react-ssr' },
+  { id: 'agents', sectorElementId: 'sector-agents', label: 'Agents', engine: 'react-ssr' },
+  { id: 'skills', sectorElementId: 'sector-skills', label: 'Skills', engine: 'react-ssr' },
+  { id: 'config', sectorElementId: 'sector-config', label: 'Settings', engine: 'react-ssr' },
 ];
 
-function DailyHeader({
-  title,
-  subtitle,
-  actions,
-}: {
-  title: string;
-  subtitle?: string;
-  actions?: ReactNode;
-}) {
+function DailyHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
   return (
     <header className="daily-header">
       <div>
@@ -62,15 +47,7 @@ function DailyHeader({
   );
 }
 
-function DailyMetric({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: ReactNode;
-  sub: ReactNode;
-}) {
+function DailyMetric({ label, value, sub }: { label: string; value: ReactNode; sub: ReactNode }) {
   return (
     <article className="daily-metric">
       <span>{label}</span>
@@ -80,18 +57,10 @@ function DailyMetric({
   );
 }
 
-function SectorButton({
-  sector,
-  children,
-  primary,
-}: {
-  sector: string;
-  children: ReactNode;
-  primary?: boolean;
-}) {
+function SectorButton({ sector, children, primary }: { sector: string; children: ReactNode; primary?: boolean }) {
   return (
     <button
-      className={primary ? "daily-button daily-button--primary" : "daily-button"}
+      className={primary ? 'daily-button daily-button--primary' : 'daily-button'}
       type="button"
       data-dashboard-sector={sector}
       data-zavorthControl-sector={sector}
@@ -113,17 +82,12 @@ function PromptButton({
   ghost?: boolean;
 }) {
   const className = primary
-    ? "daily-button daily-button--primary"
+    ? 'daily-button daily-button--primary'
     : ghost
-      ? "daily-button daily-button--ghost"
-      : "daily-button";
+      ? 'daily-button daily-button--ghost'
+      : 'daily-button';
   return (
-    <button
-      className={className}
-      type="button"
-      data-dashboard-prompt={prompt}
-      data-zavorthControl-prompt={prompt}
-    >
+    <button className={className} type="button" data-dashboard-prompt={prompt} data-zavorthControl-prompt={prompt}>
       {children}
     </button>
   );
@@ -141,7 +105,7 @@ function ChannelRow({
   name: string;
   subtitle: string;
   status: string;
-  tone: "ok" | "warn" | "info";
+  tone: 'ok' | 'warn' | 'info';
   primary: string;
   secondary: string;
   prompt: string;
@@ -158,10 +122,7 @@ function ChannelRow({
       <span className={`daily-status daily-status--${tone}`}>{status}</span>
       <div className="daily-row__actions">
         <PromptButton prompt={prompt}>{primary}</PromptButton>
-        <PromptButton
-          ghost
-          prompt={`Show setup status, last error and next step for ${name}.`}
-        >
+        <PromptButton ghost prompt={`Show setup status, last error and next step for ${name}.`}>
           {secondary}
         </PromptButton>
       </div>
@@ -182,7 +143,9 @@ export function WorkOverviewIsland() {
         title="Work"
         actions={
           <>
-            <SectorButton sector="terminal" primary>Open chat</SectorButton>
+            <SectorButton sector="terminal" primary>
+              Open chat
+            </SectorButton>
             <SectorButton sector="sales-os">Review</SectorButton>
             <SectorButton sector="instances">Proof</SectorButton>
             <button className="daily-button" type="button" data-dashboard-doctor="">
@@ -201,19 +164,33 @@ export function WorkOverviewIsland() {
               Nothing needs you
             </h2>
           </div>
-          <SectorButton sector="sales-os" primary>Review</SectorButton>
+          <SectorButton sector="sales-os" primary>
+            Review
+          </SectorButton>
         </div>
         <div data-attention-list="" className="daily-list">
           <p className="daily-muted">Nothing needs you</p>
         </div>
       </section>
       <section className="daily-action-row" aria-label="Primary actions">
-        <button type="button" data-dashboard-sector="terminal" data-zavorthControl-sector="terminal">New chat</button>
-        <button type="button" data-dashboard-sector="sales-os" data-zavorthControl-sector="sales-os">Review</button>
-        <button type="button" data-dashboard-sector="instances" data-zavorthControl-sector="instances">Proof</button>
-        <button type="button" data-dashboard-doctor="">Doctor</button>
-        <button type="button" data-dashboard-sector="channels" data-zavorthControl-sector="channels">Channels</button>
-        <button type="button" data-dashboard-sector="usage" data-zavorthControl-sector="usage">Models</button>
+        <button type="button" data-dashboard-sector="terminal" data-zavorthControl-sector="terminal">
+          New chat
+        </button>
+        <button type="button" data-dashboard-sector="sales-os" data-zavorthControl-sector="sales-os">
+          Review
+        </button>
+        <button type="button" data-dashboard-sector="instances" data-zavorthControl-sector="instances">
+          Proof
+        </button>
+        <button type="button" data-dashboard-doctor="">
+          Doctor
+        </button>
+        <button type="button" data-dashboard-sector="channels" data-zavorthControl-sector="channels">
+          Channels
+        </button>
+        <button type="button" data-dashboard-sector="usage" data-zavorthControl-sector="usage">
+          Models
+        </button>
       </section>
       <section className="daily-stat-row daily-stat-row--compact" aria-label="Work status">
         <DailyMetric
@@ -231,17 +208,12 @@ export function WorkOverviewIsland() {
           value={<span data-dashboard-metric="receipts">0</span>}
           sub={<span data-inbox-metric="receipts">0</span>}
         />
-        <DailyMetric
-          label="Errors"
-          value={<span data-dashboard-metric="errors">0</span>}
-          sub="Trace"
-        />
+        <DailyMetric label="Errors" value={<span data-dashboard-metric="errors">0</span>} sub="Trace" />
         <DailyMetric
           label="Trust"
           value={
             <span className="session-trust-score" data-session-trust-score="">
-              <strong data-session-trust-value="">—</strong>{" "}
-              <span data-session-trust-label="" />
+              <strong data-session-trust-value="">—</strong> <span data-session-trust-label="" />
             </span>
           }
           sub="Session"
@@ -250,15 +222,21 @@ export function WorkOverviewIsland() {
       <section className="workboard-lite" data-workboard-lite="" aria-label="Workboard">
         <div className="workboard-lite__col" data-workboard-col="pending">
           <h3>Pending</h3>
-          <ul data-workboard-list="pending"><li className="daily-muted">—</li></ul>
+          <ul data-workboard-list="pending">
+            <li className="daily-muted">—</li>
+          </ul>
         </div>
         <div className="workboard-lite__col" data-workboard-col="running">
           <h3>Running</h3>
-          <ul data-workboard-list="running"><li className="daily-muted">—</li></ul>
+          <ul data-workboard-list="running">
+            <li className="daily-muted">—</li>
+          </ul>
         </div>
         <div className="workboard-lite__col" data-workboard-col="done">
           <h3>Done</h3>
-          <ul data-workboard-list="done"><li className="daily-muted">—</li></ul>
+          <ul data-workboard-list="done">
+            <li className="daily-muted">—</li>
+          </ul>
         </div>
       </section>
       <div className="agent-os-live-summary" hidden aria-hidden="true">
@@ -290,7 +268,9 @@ export function WorkOverviewIsland() {
               <div className="zavorth-console-header">
                 <span className="zavorth-console-dot" />
                 <span className="zavorth-console-title">Live log</span>
-                <button className="zavorth-console-clear" type="button">Clear</button>
+                <button className="zavorth-console-clear" type="button">
+                  Clear
+                </button>
               </div>
               <div className="zavorth-console-body" id="zavorth-console-events">
                 <div className="zavorth-console-line zavorth-console-line--system">
@@ -305,14 +285,42 @@ export function WorkOverviewIsland() {
         <aside className="daily-stack">
           <article className="daily-panel">
             <div className="daily-panel__head">
-              <div><span>System</span><h2>Connection</h2></div>
+              <div>
+                <span>System</span>
+                <h2>Connection</h2>
+              </div>
             </div>
             <div className="daily-key-value">
-              <div className="daily-key-value__row"><span>Runtime</span><strong><span data-live-runtime-state="">Ready</span></strong></div>
-              <div className="daily-key-value__row"><span>Gateway</span><strong><span data-live-gateway-state="">Local</span></strong></div>
-              <div className="daily-key-value__row"><span>Route</span><strong><span data-live-gateway-detail="">Web</span></strong></div>
-              <div className="daily-key-value__row"><span>Sync</span><strong><span data-live-sync-detail="">Starting</span></strong></div>
-              <div className="daily-key-value__row"><span>Mode</span><strong><span data-runtime-engine-active="">Lite</span></strong></div>
+              <div className="daily-key-value__row">
+                <span>Runtime</span>
+                <strong>
+                  <span data-live-runtime-state="">Ready</span>
+                </strong>
+              </div>
+              <div className="daily-key-value__row">
+                <span>Gateway</span>
+                <strong>
+                  <span data-live-gateway-state="">Local</span>
+                </strong>
+              </div>
+              <div className="daily-key-value__row">
+                <span>Route</span>
+                <strong>
+                  <span data-live-gateway-detail="">Web</span>
+                </strong>
+              </div>
+              <div className="daily-key-value__row">
+                <span>Sync</span>
+                <strong>
+                  <span data-live-sync-detail="">Starting</span>
+                </strong>
+              </div>
+              <div className="daily-key-value__row">
+                <span>Mode</span>
+                <strong>
+                  <span data-runtime-engine-active="">Lite</span>
+                </strong>
+              </div>
             </div>
             <p className="daily-muted" hidden data-dashboard-approval-text="" data-zavorthControl-approval-text="">
               Nothing pending.
@@ -320,7 +328,10 @@ export function WorkOverviewIsland() {
           </article>
           <article className="daily-panel" data-policy-simulator="">
             <div className="daily-panel__head">
-              <div><span>Policy</span><h2>Simulator</h2></div>
+              <div>
+                <span>Policy</span>
+                <h2>Simulator</h2>
+              </div>
             </div>
             <div className="policy-sim-row">
               <input
@@ -467,82 +478,82 @@ export function ChannelsIsland() {
     name: string;
     subtitle: string;
     status: string;
-    tone: "ok" | "warn";
+    tone: 'ok' | 'warn';
     primary: string;
     secondary: string;
     prompt: string;
   }> = [
     {
-      name: "Dashboard",
-      subtitle: "Local",
-      status: "Ready",
-      tone: "ok",
-      primary: "Open",
-      secondary: "Test",
-      prompt: "Open the local dashboard chat.",
+      name: 'Dashboard',
+      subtitle: 'Local',
+      status: 'Ready',
+      tone: 'ok',
+      primary: 'Open',
+      secondary: 'Test',
+      prompt: 'Open the local dashboard chat.',
     },
     {
-      name: "Telegram",
-      subtitle: "Bot token",
-      status: "Set up",
-      tone: "warn",
-      primary: "Connect",
-      secondary: "Test",
-      prompt: "Connect Telegram. Show only missing credentials.",
+      name: 'Telegram',
+      subtitle: 'Bot token',
+      status: 'Set up',
+      tone: 'warn',
+      primary: 'Connect',
+      secondary: 'Test',
+      prompt: 'Connect Telegram. Show only missing credentials.',
     },
     {
-      name: "Discord",
-      subtitle: "Bot / app",
-      status: "Set up",
-      tone: "warn",
-      primary: "Connect",
-      secondary: "Test",
-      prompt: "Connect Discord. Show only missing credentials.",
+      name: 'Discord',
+      subtitle: 'Bot / app',
+      status: 'Set up',
+      tone: 'warn',
+      primary: 'Connect',
+      secondary: 'Test',
+      prompt: 'Connect Discord. Show only missing credentials.',
     },
     {
-      name: "Slack",
-      subtitle: "Workspace",
-      status: "Set up",
-      tone: "warn",
-      primary: "Connect",
-      secondary: "Test",
-      prompt: "Connect Slack. Show only missing credentials.",
+      name: 'Slack',
+      subtitle: 'Workspace',
+      status: 'Set up',
+      tone: 'warn',
+      primary: 'Connect',
+      secondary: 'Test',
+      prompt: 'Connect Slack. Show only missing credentials.',
     },
     {
-      name: "WhatsApp",
-      subtitle: "Bridge",
-      status: "Set up",
-      tone: "warn",
-      primary: "Connect",
-      secondary: "Test",
-      prompt: "Connect WhatsApp. Show only missing credentials.",
+      name: 'WhatsApp',
+      subtitle: 'Bridge',
+      status: 'Set up',
+      tone: 'warn',
+      primary: 'Connect',
+      secondary: 'Test',
+      prompt: 'Connect WhatsApp. Show only missing credentials.',
     },
     {
-      name: "Email",
-      subtitle: "Mailbox",
-      status: "Set up",
-      tone: "warn",
-      primary: "Connect",
-      secondary: "Test",
-      prompt: "Connect email. Show only missing credentials.",
+      name: 'Email',
+      subtitle: 'Mailbox',
+      status: 'Set up',
+      tone: 'warn',
+      primary: 'Connect',
+      secondary: 'Test',
+      prompt: 'Connect email. Show only missing credentials.',
     },
     {
-      name: "Signal",
-      subtitle: "Bridge",
-      status: "Set up",
-      tone: "warn",
-      primary: "Connect",
-      secondary: "Test",
-      prompt: "Connect Signal. Show only missing credentials.",
+      name: 'Signal',
+      subtitle: 'Bridge',
+      status: 'Set up',
+      tone: 'warn',
+      primary: 'Connect',
+      secondary: 'Test',
+      prompt: 'Connect Signal. Show only missing credentials.',
     },
     {
-      name: "Teams",
-      subtitle: "App",
-      status: "Set up",
-      tone: "warn",
-      primary: "Connect",
-      secondary: "Test",
-      prompt: "Connect Teams. Show only missing credentials.",
+      name: 'Teams',
+      subtitle: 'App',
+      status: 'Set up',
+      tone: 'warn',
+      primary: 'Connect',
+      secondary: 'Test',
+      prompt: 'Connect Teams. Show only missing credentials.',
     },
   ];
 
@@ -556,10 +567,7 @@ export function ChannelsIsland() {
         title="Channels"
         actions={
           <>
-            <PromptButton
-              primary
-              prompt="Connect a channel. Show only missing credentials and the next setup step."
-            >
+            <PromptButton primary prompt="Connect a channel. Show only missing credentials and the next setup step.">
               Connect
             </PromptButton>
             <PromptButton prompt="Test configured channels and show only failures or missing credentials.">
@@ -602,15 +610,14 @@ export function SessionsIsland() {
     >
       <DailyHeader
         title="Sessions"
-        actions={<SectorButton sector="terminal" primary>Open chat</SectorButton>}
+        actions={
+          <SectorButton sector="terminal" primary>
+            Open chat
+          </SectorButton>
+        }
       />
       <section className="daily-toolbar" aria-label="Session filters">
-        <input
-          type="search"
-          placeholder="Search sessions"
-          aria-label="Search sessions"
-          data-session-search=""
-        />
+        <input type="search" placeholder="Search sessions" aria-label="Search sessions" data-session-search="" />
       </section>
       <section className="daily-panel daily-panel--flush">
         <div className="data-table-wrap">
@@ -656,10 +663,7 @@ export function CronIsland() {
       <DailyHeader
         title="Cron"
         actions={
-          <PromptButton
-            primary
-            prompt="List scheduled jobs and what runs next."
-          >
+          <PromptButton primary prompt="List scheduled jobs and what runs next.">
             List jobs
           </PromptButton>
         }
@@ -725,11 +729,7 @@ export function AgentsIsland() {
         title="Agents"
         subtitle="Use local runtime adapters through governed policies."
         actions={
-          <button
-            className="daily-button daily-button--primary"
-            type="button"
-            data-runtime-adapter-action="refresh"
-          >
+          <button className="daily-button daily-button--primary" type="button" data-runtime-adapter-action="refresh">
             Sync
           </button>
         }
@@ -837,11 +837,7 @@ export function AgentsIsland() {
                 <span>Root</span>
                 <input name="root" type="text" placeholder="C:\\project" />
               </label>
-              <button
-                className="daily-button daily-button--wide"
-                type="button"
-                data-runtime-adapter-action="register"
-              >
+              <button className="daily-button daily-button--wide" type="button" data-runtime-adapter-action="register">
                 Register
               </button>
             </form>
@@ -869,8 +865,7 @@ export function AgentsIsland() {
                 />
               </label>
               <label className="runtime-adapter-check">
-                <input data-runtime-adapter-approve-execution="" type="checkbox" />{" "}
-                <span>Approve this run</span>
+                <input data-runtime-adapter-approve-execution="" type="checkbox" /> <span>Approve this run</span>
               </label>
               <div className="runtime-adapter-actions">
                 <button type="button" data-runtime-adapter-action="preview">
@@ -912,12 +907,12 @@ function SkillRow({
   name: string;
   status: string;
   detail: string;
-  tone: "ok" | "info" | "warn";
-  filter: "ready" | "setup" | "approval";
+  tone: 'ok' | 'info' | 'warn';
+  filter: 'ready' | 'setup' | 'approval';
   prompt: string;
 }) {
   const search = `${name} ${status} ${detail}`.toLowerCase();
-  const enabled = filter === "ready";
+  const enabled = filter === 'ready';
   const togglePrompt = enabled
     ? `Disable ${name} after confirming impact.`
     : `Enable or configure ${name}. Show only the missing setup and risk.`;
@@ -936,8 +931,8 @@ function SkillRow({
       <button
         type="button"
         className="daily-skill-toggle"
-        aria-pressed={enabled ? "true" : "false"}
-        aria-label={`${enabled ? "Disable" : "Enable"} ${name}`}
+        aria-pressed={enabled ? 'true' : 'false'}
+        aria-label={`${enabled ? 'Disable' : 'Enable'} ${name}`}
         data-dashboard-prompt={togglePrompt}
         data-zavorthControl-prompt={togglePrompt}
       >
@@ -961,49 +956,49 @@ export function SkillsIsland() {
     name: string;
     status: string;
     detail: string;
-    tone: "ok" | "info" | "warn";
-    filter: "ready" | "setup" | "approval";
+    tone: 'ok' | 'info' | 'warn';
+    filter: 'ready' | 'setup' | 'approval';
     prompt: string;
   }> = [
     {
-      name: "Review workspace",
-      status: "Ready",
-      detail: "Reads the project and highlights risks without editing files.",
-      tone: "ok",
-      filter: "ready",
-      prompt: "Review my workspace in read-only mode and show the highest-risk items first.",
+      name: 'Review workspace',
+      status: 'Ready',
+      detail: 'Reads the project and highlights risks without editing files.',
+      tone: 'ok',
+      filter: 'ready',
+      prompt: 'Review my workspace in read-only mode and show the highest-risk items first.',
     },
     {
-      name: "Understand files",
-      status: "Needs scope",
-      detail: "Uses only approved folders to explain documents.",
-      tone: "info",
-      filter: "setup",
-      prompt: "Show me how to configure a safe folder scope for file memory.",
+      name: 'Understand files',
+      status: 'Needs scope',
+      detail: 'Uses only approved folders to explain documents.',
+      tone: 'info',
+      filter: 'setup',
+      prompt: 'Show me how to configure a safe folder scope for file memory.',
     },
     {
-      name: "Tool curator",
-      status: "Preview",
-      detail: "Suggests improvements before anything changes.",
-      tone: "info",
-      filter: "approval",
-      prompt: "Open the tool curator in preview mode and show only safe suggestions.",
+      name: 'Tool curator',
+      status: 'Preview',
+      detail: 'Suggests improvements before anything changes.',
+      tone: 'info',
+      filter: 'approval',
+      prompt: 'Open the tool curator in preview mode and show only safe suggestions.',
     },
     {
-      name: "Transactions",
-      status: "Simulation",
-      detail: "Previews and audits transactions; real money stays blocked.",
-      tone: "warn",
-      filter: "approval",
-      prompt: "Simulate a transaction and list risks without executing anything real.",
+      name: 'Transactions',
+      status: 'Simulation',
+      detail: 'Previews and audits transactions; real money stays blocked.',
+      tone: 'warn',
+      filter: 'approval',
+      prompt: 'Simulate a transaction and list risks without executing anything real.',
     },
     {
-      name: "Connect adapter",
-      status: "Consent",
-      detail: "Creates a profile only from a path you provide.",
-      tone: "info",
-      filter: "approval",
-      prompt: "Explain how to connect an runtime adapter with consent and a limited scope.",
+      name: 'Connect adapter',
+      status: 'Consent',
+      detail: 'Creates a profile only from a path you provide.',
+      tone: 'info',
+      filter: 'approval',
+      prompt: 'Explain how to connect an runtime adapter with consent and a limited scope.',
     },
   ];
 
@@ -1026,12 +1021,7 @@ export function SkillsIsland() {
         }
       />
       <section className="daily-toolbar skill-toolbar skill-toolbar--quiet">
-        <input
-          type="search"
-          placeholder="Search skills"
-          aria-label="Search skills"
-          data-skill-search=""
-        />
+        <input type="search" placeholder="Search skills" aria-label="Search skills" data-skill-search="" />
         <button type="button" className="is-active" data-skill-filter="all">
           All
         </button>
@@ -1063,22 +1053,13 @@ export function SkillsIsland() {
       </section>
 
       {/* Operator registry ops — live data via data-* hooks filled by skill-registry-ops-ui */}
-      <section
-        className="daily-panel daily-panel--list"
-        data-skill-registry-ops=""
-        aria-label="Skill registry ops"
-      >
+      <section className="daily-panel daily-panel--list" data-skill-registry-ops="" aria-label="Skill registry ops">
         <div className="daily-panel__head">
           <div>
             <span>Operator</span>
             <h2>Registry ops</h2>
           </div>
-          <button
-            className="daily-button"
-            type="button"
-            data-skill-registry-refresh=""
-            title="GET /api/skill-registry"
-          >
+          <button className="daily-button" type="button" data-skill-registry-refresh="" title="GET /api/skill-registry">
             Refresh
           </button>
         </div>
@@ -1109,7 +1090,7 @@ export function SkillsIsland() {
             Connect runtime and press Refresh (GET /api/skill-registry). Fixture: skills/registry-ops-fixture
           </p>
         </div>
-        <div className="daily-action-row" aria-label="Registry actions" style={{ marginTop: "0.75rem" }}>
+        <div className="daily-action-row" aria-label="Registry actions" style={{ marginTop: '0.75rem' }}>
           <button type="button" data-skill-registry-action="verify" disabled>
             Verify selected
           </button>
@@ -1123,11 +1104,14 @@ export function SkillsIsland() {
             Trusted hosts
           </button>
         </div>
-        <label className="daily-muted" style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.5rem" }}>
+        <label
+          className="daily-muted"
+          style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.5rem' }}
+        >
           <input type="checkbox" data-skill-registry-operator-confirm="" />
           Operator confirm (required for Sign)
         </label>
-        <div className="daily-action-row" style={{ marginTop: "0.35rem" }}>
+        <div className="daily-action-row" style={{ marginTop: '0.35rem' }}>
           <button type="button" data-skill-registry-action="sign" disabled>
             Sign selected
           </button>
@@ -1135,9 +1119,9 @@ export function SkillsIsland() {
         <pre
           className="daily-muted mono"
           data-skill-registry-log=""
-          style={{ marginTop: "0.75rem", whiteSpace: "pre-wrap", fontSize: "0.8rem", minHeight: "2rem" }}
+          style={{ marginTop: '0.75rem', whiteSpace: 'pre-wrap', fontSize: '0.8rem', minHeight: '2rem' }}
         />
-        <p className="daily-muted" style={{ fontSize: "0.75rem", marginTop: "0.5rem" }}>
+        <p className="daily-muted" style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>
           Docs: docs/product/skill-registry-ops.md · Live push remains CLI only
         </p>
       </section>
@@ -1153,12 +1137,7 @@ function SettingsLinkRow({ name, action }: { name: string; action: string }) {
         <strong>{name}</strong>
         <span>Optional channel</span>
       </div>
-      <button
-        className="daily-button"
-        type="button"
-        data-dashboard-prompt={prompt}
-        data-zavorthControl-prompt={prompt}
-      >
+      <button className="daily-button" type="button" data-dashboard-prompt={prompt} data-zavorthControl-prompt={prompt}>
         {action}
       </button>
     </div>
@@ -1229,9 +1208,7 @@ export function ConfigIsland() {
           <section className="daily-settings-group" id="settings-model">
             <div className="daily-settings-group__head">
               <h2>Model</h2>
-              <PromptButton prompt="Test the active model route with sanitized proof.">
-                Test
-              </PromptButton>
+              <PromptButton prompt="Test the active model route with sanitized proof.">Test</PromptButton>
             </div>
             <div className="daily-settings-row">
               <div>
@@ -1256,13 +1233,7 @@ export function ConfigIsland() {
               </label>
               <label className="settings-minimal-select">
                 <span>Primary model</span>
-                <input
-                  id="pref-model"
-                  name="modelId"
-                  type="text"
-                  placeholder="e.g. gpt-4o-mini"
-                  autoComplete="off"
-                />
+                <input id="pref-model" name="modelId" type="text" placeholder="e.g. gpt-4o-mini" autoComplete="off" />
               </label>
               <label className="settings-minimal-select">
                 <span>Secondary model</span>
@@ -1276,13 +1247,7 @@ export function ConfigIsland() {
               </label>
               <label className="settings-minimal-select">
                 <span>Route id (optional)</span>
-                <input
-                  id="pref-route"
-                  name="routeId"
-                  type="text"
-                  placeholder="optional route id"
-                  autoComplete="off"
-                />
+                <input id="pref-route" name="routeId" type="text" placeholder="optional route id" autoComplete="off" />
               </label>
               <label className="settings-minimal-select">
                 <span>Primary channel</span>
@@ -1305,6 +1270,9 @@ export function ConfigIsland() {
               </div>
               <div id="pref-result-panel" className="daily-route-result" hidden aria-live="polite" />
             </form>
+            <div id="llm-roles-status" className="daily-route-result" aria-live="polite" />
+            <div id="learned-knowledge-hub" className="daily-route-result" aria-live="polite" />
+            <div id="learning-loop-status" className="daily-route-result" aria-live="polite" />
             <details className="daily-disclosure">
               <summary>Provider catalog</summary>
               <div className="daily-provider-summary" data-provider-model-catalog-summary="">
@@ -1368,12 +1336,7 @@ export function ConfigIsland() {
                 <form className="trusted-workspace-form" data-trusted-workspace-form="">
                   <label>
                     <span>Folder path</span>
-                    <input
-                      name="path"
-                      type="text"
-                      placeholder="C:\\projects\\playground"
-                      autoComplete="off"
-                    />
+                    <input name="path" type="text" placeholder="C:\\projects\\playground" autoComplete="off" />
                   </label>
                   <label>
                     <span>Label</span>
@@ -1453,23 +1416,23 @@ export function ConfigIsland() {
 
 export function renderDashboardReactIsland(id: DashboardReactIslandId): ReactNode {
   switch (id) {
-    case "overview":
+    case 'overview':
       return <WorkOverviewIsland />;
-    case "sales-os":
+    case 'sales-os':
       return <ReviewApprovalsIsland />;
-    case "instances":
+    case 'instances':
       return <ProofReceiptsIsland />;
-    case "channels":
+    case 'channels':
       return <ChannelsIsland />;
-    case "sessions":
+    case 'sessions':
       return <SessionsIsland />;
-    case "cron":
+    case 'cron':
       return <CronIsland />;
-    case "agents":
+    case 'agents':
       return <AgentsIsland />;
-    case "skills":
+    case 'skills':
       return <SkillsIsland />;
-    case "config":
+    case 'config':
       return <ConfigIsland />;
     default:
       return null;

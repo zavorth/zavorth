@@ -1,20 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Plus, Server, Edit2, Trash2, Key, CheckCircle2, XCircle, ChevronRight, HelpCircle } from 'lucide-react';
+import {
+  Settings,
+  Plus,
+  Server,
+  Edit2,
+  Trash2,
+  Key,
+  CheckCircle2,
+  XCircle,
+  ChevronRight,
+  HelpCircle,
+} from 'lucide-react';
 import { ProviderConfigPayload } from '../components/ProviderSetupModal.js';
 import { errorMessage } from '../lib/errors';
 import { UserRouteSelectionPanel } from './UserRouteSelectionPanel.js';
 import { listUserSelectionProviders } from '../selection/userSelectionCatalog';
+import { LlmRolesPanel } from './LlmRolesPanel.js';
 
 export function ProviderSettingsPanel() {
   const [providers, setProviders] = useState<ProviderConfigPayload[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Selection state for Master/Detail
   const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
   // Mode: 'view' or 'edit' or 'create'
   const [detailMode, setDetailMode] = useState<'view' | 'edit' | 'create'>('view');
-  
+
   // Tab state: 'keys' or 'accounts'
   const [activeTab, setActiveTab] = useState<'keys' | 'accounts'>('keys');
 
@@ -40,7 +52,7 @@ export function ProviderSettingsPanel() {
     google: 'https://generativelanguage.googleapis.com/v1beta',
     openrouter: 'https://openrouter.ai/api/v1',
     ollama: 'http://localhost:11434',
-    'openai-compatible': ''
+    'openai-compatible': '',
   };
 
   const fetchProviders = async () => {
@@ -50,7 +62,7 @@ export function ProviderSettingsPanel() {
       const data = await res.json();
       const list = data.data || [];
       setProviders(list);
-      
+
       // Select the first one by default if nothing is selected yet
       if (list.length > 0 && !selectedProviderId) {
         setSelectedProviderId(list[0].providerId);
@@ -92,12 +104,15 @@ export function ProviderSettingsPanel() {
 
   const handleTypeChange = (newType: ProviderConfigPayload['type']) => {
     const isLocal = newType === 'ollama';
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       type: newType,
       baseUrl: DEFAULT_URLS[newType] || '',
       requiresApiKey: !isLocal,
-      displayName: prev.displayName && prev.displayName !== 'New Provider' ? prev.displayName : (newType.charAt(0).toUpperCase() + newType.slice(1)),
+      displayName:
+        prev.displayName && prev.displayName !== 'New Provider'
+          ? prev.displayName
+          : newType.charAt(0).toUpperCase() + newType.slice(1),
     }));
   };
 
@@ -108,7 +123,7 @@ export function ProviderSettingsPanel() {
       const res = await fetch('/api/v2/providers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
       if (!res.ok) {
         const errData = await res.json().catch(() => null);
@@ -116,7 +131,7 @@ export function ProviderSettingsPanel() {
       }
       const savedRes = await res.json();
       const savedProvider = savedRes.data;
-      
+
       // Reset selected ID and reload
       const newId = savedProvider?.providerId || formData.providerId;
       if (newId) {
@@ -135,10 +150,10 @@ export function ProviderSettingsPanel() {
     if (!confirm('Are you sure you want to remove this provider? The key will be deleted.')) return;
     try {
       const res = await fetch(`/api/v2/providers/${providerId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       });
       if (!res.ok) throw new Error('Failed to delete provider');
-      
+
       setSelectedProviderId(null);
       await fetchProviders();
     } catch (err: unknown) {
@@ -153,7 +168,7 @@ export function ProviderSettingsPanel() {
       const res = await fetch('/api/v2/providers/test-connection', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ providerId })
+        body: JSON.stringify({ providerId }),
       });
       const data = await res.json();
       if (data.ok && data.data?.ok) {
@@ -168,7 +183,7 @@ export function ProviderSettingsPanel() {
     }
   };
 
-  const selectedProvider = providers.find(p => p.providerId === selectedProviderId);
+  const selectedProvider = providers.find((p) => p.providerId === selectedProviderId);
 
   const styles = `
     .zvd-providers-layout {
@@ -483,27 +498,25 @@ export function ProviderSettingsPanel() {
     <div className="flex flex-col gap-4 mt-4 w-full">
       <style>{styles}</style>
 
+      <LlmRolesPanel userId="desktop" />
+
       <UserRouteSelectionPanel />
-      
-      {error && (
-        <div className="bg-red-900/20 border border-red-500/50 text-red-400 p-4 rounded-lg mb-4">
-          {error}
-        </div>
-      )}
+
+      {error && <div className="bg-red-900/20 border border-red-500/50 text-red-400 p-4 rounded-lg mb-4">{error}</div>}
 
       <div className="zvd-providers-layout">
         {/* Left Column (Master List) */}
         <div className="zvd-providers-master">
           <div className="zvd-providers-master-header">
             <div className="zvd-providers-tabs">
-              <button 
+              <button
                 type="button"
                 className={`zvd-providers-tab-btn ${activeTab === 'keys' ? 'zvd-providers-tab-btn--active' : ''}`}
                 onClick={() => setActiveTab('keys')}
               >
                 API Keys
               </button>
-              <button 
+              <button
                 type="button"
                 className={`zvd-providers-tab-btn ${activeTab === 'accounts' ? 'zvd-providers-tab-btn--active' : ''}`}
                 onClick={() => setActiveTab('accounts')}
@@ -516,14 +529,16 @@ export function ProviderSettingsPanel() {
           {activeTab === 'keys' ? (
             <>
               <div className="zvd-providers-list">
-                {providers.map(p => (
+                {providers.map((p) => (
                   <button
                     key={p.providerId}
                     type="button"
                     className={`zvd-provider-item ${selectedProviderId === p.providerId ? 'zvd-provider-item--active' : ''}`}
                     onClick={() => handleSelectProvider(p)}
                   >
-                    <div className={`zvd-provider-item-dot ${p.enabled ? 'zvd-provider-item-dot--active' : 'zvd-provider-item-dot--inactive'}`} />
+                    <div
+                      className={`zvd-provider-item-dot ${p.enabled ? 'zvd-provider-item-dot--active' : 'zvd-provider-item-dot--inactive'}`}
+                    />
                     <div className="zvd-provider-item-info">
                       <div className="zvd-provider-item-name">{p.displayName}</div>
                       <div className="zvd-provider-item-type">{p.type}</div>
@@ -533,11 +548,7 @@ export function ProviderSettingsPanel() {
                 ))}
               </div>
               <div className="zvd-providers-master-footer">
-                <button 
-                  type="button"
-                  className="zvd-providers-add-btn" 
-                  onClick={handleNewProvider}
-                >
+                <button type="button" className="zvd-providers-add-btn" onClick={handleNewProvider}>
                   <Plus size={16} />
                   Add Provider
                 </button>
@@ -564,17 +575,13 @@ export function ProviderSettingsPanel() {
                     <p>Type: {selectedProvider.type}</p>
                   </div>
                   <div className="zvd-providers-detail-actions">
-                    <button 
-                      type="button"
-                      className="zvd-btn zvd-btn-secondary" 
-                      onClick={() => setDetailMode('edit')}
-                    >
+                    <button type="button" className="zvd-btn zvd-btn-secondary" onClick={() => setDetailMode('edit')}>
                       <Edit2 size={14} />
                       Edit
                     </button>
-                    <button 
+                    <button
                       type="button"
-                      className="zvd-btn zvd-btn-danger" 
+                      className="zvd-btn zvd-btn-danger"
                       onClick={() => handleDelete(selectedProvider.providerId!)}
                     >
                       <Trash2 size={14} />
@@ -586,7 +593,10 @@ export function ProviderSettingsPanel() {
                 <div className="zvd-providers-detail-body">
                   <div className="zvd-field-group">
                     <label>Base URL</label>
-                    <div className="zvd-input" style={{ display: 'flex', alignItems: 'center', background: 'var(--zvd-border-soft)' }}>
+                    <div
+                      className="zvd-input"
+                      style={{ display: 'flex', alignItems: 'center', background: 'var(--zvd-border-soft)' }}
+                    >
                       {selectedProvider.baseUrl || 'Default URL'}
                     </div>
                   </div>
@@ -594,7 +604,10 @@ export function ProviderSettingsPanel() {
                   {selectedProvider.defaultModel && (
                     <div className="zvd-field-group">
                       <label>Default Model</label>
-                      <div className="zvd-input" style={{ display: 'flex', alignItems: 'center', background: 'var(--zvd-border-soft)' }}>
+                      <div
+                        className="zvd-input"
+                        style={{ display: 'flex', alignItems: 'center', background: 'var(--zvd-border-soft)' }}
+                      >
                         {selectedProvider.defaultModel}
                       </div>
                     </div>
@@ -630,14 +643,16 @@ export function ProviderSettingsPanel() {
                     </button>
 
                     {testResult && (
-                      <div className={`zvd-test-result-box ${testResult.ok ? 'zvd-test-result-box--success' : 'zvd-test-result-box--error'}`}>
+                      <div
+                        className={`zvd-test-result-box ${testResult.ok ? 'zvd-test-result-box--success' : 'zvd-test-result-box--error'}`}
+                      >
                         {testResult.message}
                       </div>
                     )}
                   </div>
                 </div>
               </>
-            ) : (detailMode === 'edit' || detailMode === 'create') ? (
+            ) : detailMode === 'edit' || detailMode === 'create' ? (
               // Edit / Create mode form
               <>
                 <div className="zvd-providers-detail-header">
@@ -646,18 +661,13 @@ export function ProviderSettingsPanel() {
                     <p>Specify connection options and model endpoints.</p>
                   </div>
                   <div className="zvd-providers-detail-actions">
-                    <button 
-                      type="button"
-                      disabled={saving}
-                      className="zvd-btn zvd-btn-primary" 
-                      onClick={handleSave}
-                    >
+                    <button type="button" disabled={saving} className="zvd-btn zvd-btn-primary" onClick={handleSave}>
                       {saving ? 'Saving...' : 'Save'}
                     </button>
-                    <button 
+                    <button
                       type="button"
                       disabled={saving}
-                      className="zvd-btn zvd-btn-secondary" 
+                      className="zvd-btn zvd-btn-secondary"
                       onClick={() => {
                         if (detailMode === 'create' && providers.length > 0) {
                           setSelectedProviderId(providers[0].providerId || null);
@@ -678,15 +688,15 @@ export function ProviderSettingsPanel() {
                     <select
                       className="zvd-select"
                       value={formData.type}
-                      onChange={e => {
+                      onChange={(e) => {
                         const next = e.target.value;
                         if (
-                          next === 'openai'
-                          || next === 'anthropic'
-                          || next === 'google'
-                          || next === 'openrouter'
-                          || next === 'ollama'
-                          || next === 'openai-compatible'
+                          next === 'openai' ||
+                          next === 'anthropic' ||
+                          next === 'google' ||
+                          next === 'openrouter' ||
+                          next === 'ollama' ||
+                          next === 'openai-compatible'
                         ) {
                           handleTypeChange(next);
                         }
@@ -694,11 +704,22 @@ export function ProviderSettingsPanel() {
                     >
                       {/* Keep API payload types; labels come from shared catalog where possible. */}
                       <option value="openai">{catalogTypes.find((e) => e.id === 'openai')?.label || 'OpenAI'}</option>
-                      <option value="anthropic">{catalogTypes.find((e) => e.id === 'anthropic')?.label || 'Anthropic'}</option>
-                      <option value="google">{catalogTypes.find((e) => e.id === 'gemini')?.label || 'Google Gemini'}</option>
-                      <option value="openrouter">{catalogTypes.find((e) => e.id === 'openrouter')?.label || 'OpenRouter'}</option>
-                      <option value="ollama">{catalogTypes.find((e) => e.id === 'ollama')?.label || 'Ollama (Local)'}</option>
-                      <option value="openai-compatible">{catalogTypes.find((e) => e.id === 'custom-openai-compatible')?.label || 'Custom (OpenAI Compatible)'}</option>
+                      <option value="anthropic">
+                        {catalogTypes.find((e) => e.id === 'anthropic')?.label || 'Anthropic'}
+                      </option>
+                      <option value="google">
+                        {catalogTypes.find((e) => e.id === 'gemini')?.label || 'Google Gemini'}
+                      </option>
+                      <option value="openrouter">
+                        {catalogTypes.find((e) => e.id === 'openrouter')?.label || 'OpenRouter'}
+                      </option>
+                      <option value="ollama">
+                        {catalogTypes.find((e) => e.id === 'ollama')?.label || 'Ollama (Local)'}
+                      </option>
+                      <option value="openai-compatible">
+                        {catalogTypes.find((e) => e.id === 'custom-openai-compatible')?.label ||
+                          'Custom (OpenAI Compatible)'}
+                      </option>
                     </select>
                   </div>
 
@@ -708,7 +729,7 @@ export function ProviderSettingsPanel() {
                       type="text"
                       className="zvd-input"
                       value={formData.displayName}
-                      onChange={e => setFormData({ ...formData, displayName: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
                       placeholder="e.g. OpenAI Production"
                     />
                   </div>
@@ -719,7 +740,7 @@ export function ProviderSettingsPanel() {
                       type="text"
                       className="zvd-input"
                       value={formData.baseUrl || ''}
-                      onChange={e => setFormData({ ...formData, baseUrl: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, baseUrl: e.target.value })}
                       placeholder="e.g. https://api.openai.com/v1"
                     />
                   </div>
@@ -730,7 +751,7 @@ export function ProviderSettingsPanel() {
                       type="text"
                       className="zvd-input"
                       value={formData.defaultModel || ''}
-                      onChange={e => setFormData({ ...formData, defaultModel: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, defaultModel: e.target.value })}
                       placeholder="e.g. gpt-4o"
                     />
                   </div>
@@ -742,7 +763,7 @@ export function ProviderSettingsPanel() {
                         type="password"
                         className="zvd-input"
                         value={formData.apiKey || ''}
-                        onChange={e => setFormData({ ...formData, apiKey: e.target.value })}
+                        onChange={(e) => setFormData({ ...formData, apiKey: e.target.value })}
                         placeholder={detailMode === 'edit' ? '•••••••• (Leave blank to keep current)' : 'sk-...'}
                       />
                     </div>
@@ -753,7 +774,7 @@ export function ProviderSettingsPanel() {
                       <input
                         type="checkbox"
                         checked={formData.enabled}
-                        onChange={e => setFormData({ ...formData, enabled: e.target.checked })}
+                        onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
                       />
                       <span>Enable this provider</span>
                     </label>
@@ -762,7 +783,7 @@ export function ProviderSettingsPanel() {
                       <input
                         type="checkbox"
                         checked={formData.requiresApiKey}
-                        onChange={e => setFormData({ ...formData, requiresApiKey: e.target.checked })}
+                        onChange={(e) => setFormData({ ...formData, requiresApiKey: e.target.checked })}
                       />
                       <span>Requires API Key authentication</span>
                     </label>
@@ -791,7 +812,9 @@ export function ProviderSettingsPanel() {
                       <h4>Nous Profile</h4>
                       <p>Sync all provider keys and settings configurations in one click.</p>
                     </div>
-                    <button type="button" className="zvd-btn zvd-btn-secondary">Connect</button>
+                    <button type="button" className="zvd-btn zvd-btn-secondary">
+                      Connect
+                    </button>
                   </div>
 
                   <div className="zvd-oauth-row">
@@ -799,7 +822,9 @@ export function ProviderSettingsPanel() {
                       <h4>Google Account</h4>
                       <p>Used to read and write context files and search indexes on Drive.</p>
                     </div>
-                    <button type="button" className="zvd-btn zvd-btn-secondary">Connect</button>
+                    <button type="button" className="zvd-btn zvd-btn-secondary">
+                      Connect
+                    </button>
                   </div>
 
                   <div className="zvd-oauth-row">
@@ -807,7 +832,9 @@ export function ProviderSettingsPanel() {
                       <h4>GitHub OAuth</h4>
                       <p>Authorize repository push, pull, and issue editing permissions.</p>
                     </div>
-                    <button type="button" className="zvd-btn zvd-btn-secondary">Connect</button>
+                    <button type="button" className="zvd-btn zvd-btn-secondary">
+                      Connect
+                    </button>
                   </div>
                 </div>
               </div>

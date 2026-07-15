@@ -291,15 +291,21 @@ export type RuntimeCapabilitiesSnapshot = {
     pending?: Array<{ id?: string; label?: string; reason?: string }>;
   };
   permissions?: {
-    domains?: Record<string, {
-      label?: string;
-      actions?: Record<string, {
-        default?: string;
-        requiresApproval?: boolean;
-        scope?: string;
-        reason?: string;
-      }>;
-    }>;
+    domains?: Record<
+      string,
+      {
+        label?: string;
+        actions?: Record<
+          string,
+          {
+            default?: string;
+            requiresApproval?: boolean;
+            scope?: string;
+            reason?: string;
+          }
+        >;
+      }
+    >;
   };
   modelSpecs?: {
     selectedSpecId?: string;
@@ -453,15 +459,19 @@ export async function repairAccess(): Promise<RuntimeStatus> {
   return bridge().repairAccess();
 }
 
-export async function createDesktopSession(
-  input: DesktopSessionCreateInput = {},
-): Promise<DesktopSessionCreateResult> {
+export async function createDesktopSession(input: DesktopSessionCreateInput = {}): Promise<DesktopSessionCreateResult> {
   const { sessionId, label, surface, workspaceId } = normalizeSessionCreateInput(input);
 
-  if (window.zavorthDesktop && 'createSession' in window.zavorthDesktop && typeof (window.zavorthDesktop as { createSession?: unknown }).createSession === 'function') {
-    const result = await (window.zavorthDesktop as {
-      createSession(input: DesktopSessionCreateInput): Promise<DesktopApiResult<DesktopSessionCreateResult>>;
-    }).createSession({ sessionId, label, surface, workspaceId });
+  if (
+    window.zavorthDesktop &&
+    'createSession' in window.zavorthDesktop &&
+    typeof (window.zavorthDesktop as { createSession?: unknown }).createSession === 'function'
+  ) {
+    const result = await (
+      window.zavorthDesktop as {
+        createSession(input: DesktopSessionCreateInput): Promise<DesktopApiResult<DesktopSessionCreateResult>>;
+      }
+    ).createSession({ sessionId, label, surface, workspaceId });
     if (result.ok && result.data?.sessionId) {
       return {
         sessionId: String(result.data.sessionId),
@@ -634,9 +644,7 @@ export async function loadVoicePreference(): Promise<DesktopVoicePreferenceRespo
   return requireOk(result, 'Could not load voice preference.');
 }
 
-export async function saveVoicePreference(
-  body: Record<string, unknown>,
-): Promise<DesktopVoicePreferenceResponse> {
+export async function saveVoicePreference(body: Record<string, unknown>): Promise<DesktopVoicePreferenceResponse> {
   const result = await apiRequest<DesktopVoicePreferenceResponse>({
     method: 'PUT',
     path: '/api/experience/voice/preference',
@@ -746,9 +754,7 @@ export type DesktopVoiceIceConfig = {
   source?: string;
 };
 
-export async function loadVoiceMediaPlane(): Promise<
-  DesktopVoiceMediaPlane & { ice?: DesktopVoiceIceConfig }
-> {
+export async function loadVoiceMediaPlane(): Promise<DesktopVoiceMediaPlane & { ice?: DesktopVoiceIceConfig }> {
   const result = await apiRequest<{
     ok?: boolean;
     plane?: DesktopVoiceMediaPlane;
@@ -765,10 +771,7 @@ export async function loadVoiceMediaPlane(): Promise<
   return plane;
 }
 
-export async function playVoiceAudioBase64(
-  mimeType: string,
-  audioBase64: string,
-): Promise<void> {
+export async function playVoiceAudioBase64(mimeType: string, audioBase64: string): Promise<void> {
   if (typeof window === 'undefined' || !audioBase64) return;
   const binary = atob(audioBase64);
   const bytes = new Uint8Array(binary.length);
@@ -789,13 +792,8 @@ export async function playVoiceAudioBase64(
   }
 }
 
-
-export async function resolveApproval(
-  approvalId: string,
-  decision: ApprovalChoice,
-): Promise<unknown> {
-  const choice =
-    decision === 'approve' ? 'once' : decision === 'reject' ? 'deny' : decision;
+export async function resolveApproval(approvalId: string, decision: ApprovalChoice): Promise<unknown> {
+  const choice = decision === 'approve' ? 'once' : decision === 'reject' ? 'deny' : decision;
   const result = await apiRequest({
     method: 'POST',
     path: `/api/experience/approvals/${encodeURIComponent(approvalId)}/decision`,
@@ -869,12 +867,14 @@ export async function loadMemoryEncryptionStatus(): Promise<MemoryEncryptionStat
   return result.data?.status || null;
 }
 
-export async function loadControlMemory(input: {
-  query?: string;
-  type?: string;
-  semantic?: boolean;
-  limit?: number;
-} = {}): Promise<ControlMemorySnapshot | null> {
+export async function loadControlMemory(
+  input: {
+    query?: string;
+    type?: string;
+    semantic?: boolean;
+    limit?: number;
+  } = {},
+): Promise<ControlMemorySnapshot | null> {
   const result = await apiRequest<ControlMemorySnapshot>({
     method: 'GET',
     path: '/api/web/zavorthControl/memory',
@@ -903,10 +903,12 @@ export async function mutateControlMemory(input: {
   return requireOk(result, 'Could not update memory.');
 }
 
-export async function loadChannelSetup(input: {
-  channelId?: string | null;
-  mode?: string | null;
-} = {}): Promise<ChannelSetupSnapshot | null> {
+export async function loadChannelSetup(
+  input: {
+    channelId?: string | null;
+    mode?: string | null;
+  } = {},
+): Promise<ChannelSetupSnapshot | null> {
   const result = await apiRequest<ChannelSetupSnapshot>({
     method: 'GET',
     path: '/api/web/zavorthControl/channels/setup',
@@ -923,7 +925,12 @@ export async function mutateChannelSetup(input: {
   channelId?: string | null;
   mode?: string | null;
   extraEntries?: Array<{ key: string; value: string }>;
-}): Promise<{ action?: string; receipt?: MutationReceipt; result?: { assistant?: ChannelSetupSnapshot['assistant'] }; [key: string]: unknown }> {
+}): Promise<{
+  action?: string;
+  receipt?: MutationReceipt;
+  result?: { assistant?: ChannelSetupSnapshot['assistant'] };
+  [key: string]: unknown;
+}> {
   const result = await apiRequest<{
     action?: string;
     receipt?: MutationReceipt;
@@ -1103,10 +1110,7 @@ export async function loadWorkspaceWriteApprovalPayload(
   return requireOk(result, 'Could not load workspace write approval payload.');
 }
 
-export async function resolveWorkspaceWriteApproval(
-  operationId: string,
-  decision: 'approve' | 'deny',
-): Promise<void> {
+export async function resolveWorkspaceWriteApproval(operationId: string, decision: 'approve' | 'deny'): Promise<void> {
   const result = await apiRequest<void>({
     method: 'POST',
     path: '/api/v2/workspace/approvals/resolve',
@@ -1181,7 +1185,10 @@ export async function loadActiveMandate(workspaceId: string): Promise<TaskMandat
   return data.active ?? null;
 }
 
-export async function resolveProposedMandate(workspaceId: string, approved: boolean): Promise<MutationReceipt | Record<string, unknown>> {
+export async function resolveProposedMandate(
+  workspaceId: string,
+  approved: boolean,
+): Promise<MutationReceipt | Record<string, unknown>> {
   const result = await apiRequest<MutationReceipt | Record<string, unknown>>({
     method: 'POST',
     path: '/api/v2/workspace/task-mandates/resolve',
@@ -1263,7 +1270,11 @@ export async function executeHostCommand(workspaceId: string, operationId: strin
   return requireOk(result, 'Could not execute host command.');
 }
 
-export async function getPtyOutput(workspaceId: string, sessionId: string, afterSeq: number): Promise<PtyOutputChunk[]> {
+export async function getPtyOutput(
+  workspaceId: string,
+  sessionId: string,
+  afterSeq: number,
+): Promise<PtyOutputChunk[]> {
   const result = await apiRequest<{ data?: PtyOutputChunk[] } | PtyOutputChunk[]>({
     method: 'GET',
     path: '/api/v2/workspace/pty/output',
@@ -1283,7 +1294,26 @@ export async function sendPtyInput(workspaceId: string, sessionId: string, data:
 }
 
 export type PluginOsActionBody = {
-  action: 'enable' | 'disable' | 'trust' | 'uninstall' | 'inspect' | 'refresh' | 'recommend' | 'suggest' | 'catalog-apply' | 'metrics-persist' | 'telemetry-sample' | 'onboarding-plan' | 'onboarding-apply' | 'onboarding-undo' | 'preview-permissions' | 'prompt-preview' | 'receipts-timeline' | 'inject-prefs' | string;
+  action:
+    | 'enable'
+    | 'disable'
+    | 'trust'
+    | 'uninstall'
+    | 'inspect'
+    | 'refresh'
+    | 'recommend'
+    | 'suggest'
+    | 'catalog-apply'
+    | 'metrics-persist'
+    | 'telemetry-sample'
+    | 'onboarding-plan'
+    | 'onboarding-apply'
+    | 'onboarding-undo'
+    | 'preview-permissions'
+    | 'prompt-preview'
+    | 'receipts-timeline'
+    | 'inject-prefs'
+    | string;
   pluginId?: string;
   trust?: 'review' | 'trusted' | 'blocked' | string;
   approved?: boolean;
@@ -1354,9 +1384,7 @@ export async function getPluginOsSnapshot(): Promise<DesktopApiResult<PluginOsSn
 }
 
 /** Live Plugin OS action (POST /api/plugin-os/actions). */
-export async function postPluginOsAction(
-  body: PluginOsActionBody,
-): Promise<DesktopApiResult<PluginOsActionResponse>> {
+export async function postPluginOsAction(body: PluginOsActionBody): Promise<DesktopApiResult<PluginOsActionResponse>> {
   return apiRequest<PluginOsActionResponse>({
     method: 'POST',
     path: '/api/plugin-os/actions',
@@ -1369,11 +1397,13 @@ export async function postPluginOsAction(
 }
 
 /** Human receipts timeline (GET /api/plugin-os/receipts). Soft-fails on 404. */
-export async function getPluginOsReceipts(limit = 20): Promise<DesktopApiResult<{
-  ok?: boolean;
-  timeline?: { entries?: PluginOsReceiptEntry[]; text?: string };
-  error?: string;
-}>> {
+export async function getPluginOsReceipts(limit = 20): Promise<
+  DesktopApiResult<{
+    ok?: boolean;
+    timeline?: { entries?: PluginOsReceiptEntry[]; text?: string };
+    error?: string;
+  }>
+> {
   return apiRequest({
     method: 'GET',
     path: `/api/plugin-os/receipts?limit=${encodeURIComponent(String(limit))}`,
@@ -1474,4 +1504,147 @@ export async function postSkillRegistryAction(
     },
     timeoutMs: 30000,
   });
+}
+
+// ── Cost savings + memory graph (Priority 3 desktop surfaces) ──
+
+export type CostSavingsDashboardData = {
+  generatedAt?: string;
+  source?: string;
+  storageDir?: string;
+  sessionsScanned?: number;
+  totals?: {
+    calls?: number;
+    inputTokens?: number;
+    outputTokens?: number;
+    estimatedCostUsd?: number;
+    estimatedSavingsUsd?: number;
+    backgroundRouteCalls?: number;
+  };
+  byModel?: Array<{
+    modelKey?: string;
+    calls?: number;
+    inputTokens?: number;
+    outputTokens?: number;
+    estimatedCostUsd?: number;
+  }>;
+  backgroundRouteHint?: string;
+  narrative?: string;
+};
+
+export type MemoryGraphNodeData = {
+  id?: string;
+  type?: string;
+  label?: string;
+  content?: string;
+  importance?: number;
+  metadata?: Record<string, unknown>;
+};
+
+export type MemoryGraphEdgeData = {
+  id?: string;
+  source_id?: string;
+  target_id?: string;
+  sourceId?: string;
+  targetId?: string;
+  relation?: string;
+  weight?: number;
+};
+
+export type MemoryGraphData = {
+  nodes?: MemoryGraphNodeData[];
+  edges?: MemoryGraphEdgeData[];
+  stats?: {
+    nodeCount?: number;
+    edgeCount?: number;
+    byType?: Record<string, number>;
+  };
+};
+
+/** Cost savings dashboard snapshot (GET /api/v2/cost-savings). Soft-fails when offline. */
+export async function loadCostSavingsDashboard(): Promise<CostSavingsDashboardData | null> {
+  const result = await apiRequest<{ ok?: boolean; data?: CostSavingsDashboardData } | CostSavingsDashboardData>({
+    method: 'GET',
+    path: '/api/v2/cost-savings',
+    timeoutMs: 15000,
+  });
+  if (!result.ok) return null;
+  const payload = result.data as
+    | { ok?: boolean; data?: CostSavingsDashboardData }
+    | CostSavingsDashboardData
+    | null
+    | undefined;
+  if (!payload || typeof payload !== 'object') return null;
+  if ('data' in payload && payload.data && typeof payload.data === 'object') {
+    return payload.data;
+  }
+  if ('totals' in payload) {
+    return payload as CostSavingsDashboardData;
+  }
+  return null;
+}
+
+/** Memory knowledge graph (GET /api/v2/memory-graph). Soft-fails when offline. */
+export async function loadMemoryGraph(): Promise<MemoryGraphData | null> {
+  const result = await apiRequest<{ ok?: boolean; data?: MemoryGraphData } | MemoryGraphData>({
+    method: 'GET',
+    path: '/api/v2/memory-graph',
+    timeoutMs: 15000,
+  });
+  if (!result.ok) return null;
+  const payload = result.data as { ok?: boolean; data?: MemoryGraphData } | MemoryGraphData | null | undefined;
+  if (!payload || typeof payload !== 'object') return null;
+  if ('data' in payload && payload.data && typeof payload.data === 'object') {
+    return payload.data;
+  }
+  if ('nodes' in payload || 'edges' in payload) {
+    return payload as MemoryGraphData;
+  }
+  return null;
+}
+
+export type SessionExportData = {
+  status?: string;
+  format?: string;
+  messageCount?: number;
+  body?: string;
+  bodyPreview?: string;
+  safety?: { secretsRedacted?: boolean; redactDefaultOn?: boolean };
+  exportPath?: string | null;
+};
+
+/**
+ * Session transcript export (POST /api/v2/session-export).
+ * Redact is ON by default — only pass redact:false for explicit opt-out.
+ */
+export async function exportSessionTranscript(input: {
+  sessionId?: string;
+  format?: 'markdown' | 'html' | 'prompt';
+  title?: string;
+  messages?: Array<{ role: string; content: string }>;
+  redact?: boolean;
+}): Promise<SessionExportData | null> {
+  const result = await apiRequest<{ ok?: boolean; data?: SessionExportData } | SessionExportData>({
+    method: 'POST',
+    path: '/api/v2/session-export',
+    body: {
+      sessionId: input.sessionId,
+      format: input.format || 'markdown',
+      title: input.title,
+      messages: input.messages,
+      // Redact defaults on server when omitted; only send false for opt-out.
+      ...(input.redact === false ? { redact: false } : {}),
+    },
+    timeoutMs: 30000,
+  });
+  if (!result.ok) return null;
+  const payload = result.data as { ok?: boolean; data?: SessionExportData } | SessionExportData | null | undefined;
+  if (!payload || typeof payload !== 'object') return null;
+  if ('data' in payload && payload.data && typeof payload.data === 'object') {
+    return payload.data;
+  }
+  if ('status' in payload || 'body' in payload) {
+    return payload as SessionExportData;
+  }
+  return null;
 }

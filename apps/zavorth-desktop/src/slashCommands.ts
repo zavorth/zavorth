@@ -1,4 +1,20 @@
-export type DesktopPanel = 'chat' | 'approvals' | 'memory' | 'skills' | 'channels' | 'settings' | 'files' | 'preview' | 'automations' | 'agents' | 'profiles' | 'analytics' | 'marketplace' | 'workboard' | 'receipts';
+export type DesktopPanel =
+  | 'chat'
+  | 'approvals'
+  | 'memory'
+  | 'skills'
+  | 'channels'
+  | 'settings'
+  | 'files'
+  | 'preview'
+  | 'automations'
+  | 'agents'
+  | 'profiles'
+  | 'analytics'
+  | 'marketplace'
+  | 'workboard'
+  | 'receipts'
+  | 'vibe';
 
 export type SlashCommandDefinition = {
   name: string;
@@ -13,6 +29,7 @@ export type ParsedSlashCommand =
   | { kind: 'set-effort'; effort: string }
   | { kind: 'set-profile'; profile: string }
   | { kind: 'send'; text: string }
+  | { kind: 'llm-roles'; command: string; args: string }
   | { kind: 'stop' }
   | { kind: 'help' };
 
@@ -24,8 +41,23 @@ export const slashCommands: SlashCommandDefinition[] = [
   },
   {
     name: '/model',
-    description: 'Open model and provider controls.',
-    usage: '/model',
+    description: 'LLM roles + model controls (status|setup|default|strong).',
+    usage: '/model [status|setup|default <p/m>|strong <p/m>]',
+  },
+  {
+    name: '/strong',
+    description: 'Force strong LLM role on or off for upcoming turns.',
+    usage: '/strong [on|off]',
+  },
+  {
+    name: '/learn',
+    description: 'Skill drafts from multi-tool workflows (not candidates — use /learning).',
+    usage: '/learn [status|list|search <query>|show 1|run 1|promote 1|forget 1]',
+  },
+  {
+    name: '/learning',
+    description: 'Learning plane candidates: list/approve/reject/promote/forget (not skill drafts — use /learn).',
+    usage: '/learning [list|approve 1|reject 1|promote 1|forget 1]',
   },
   {
     name: '/effort',
@@ -83,6 +115,11 @@ export const slashCommands: SlashCommandDefinition[] = [
     usage: '/files',
   },
   {
+    name: '/vibe',
+    description: 'Open the create/test apps loop (terminal + preview + scaffold hints).',
+    usage: '/vibe',
+  },
+  {
     name: '/help',
     description: 'Show available commands.',
     usage: '/help',
@@ -106,6 +143,9 @@ const panels: Record<string, DesktopPanel> = {
   '/receipts': 'receipts',
   '/proof': 'receipts',
   '/history': 'receipts',
+  '/vibe': 'vibe',
+  '/coding': 'vibe',
+  '/scaffold': 'vibe',
 };
 
 const allowedEfforts = new Set(['low', 'medium', 'high', 'ultra']);
@@ -129,6 +169,38 @@ export function parseSlashCommand(value: string): ParsedSlashCommand {
     return { kind: 'stop' };
   }
 
+  if (name === '/model' || name === '/strong') {
+    // With args: send as slash so runtime shared-surface / agent handles multi-surface roles.
+    // Bare /model still opens settings panel for desktop UI.
+    if (name === '/model' && !args) {
+      return { kind: 'panel', panel: 'settings' };
+    }
+    return { kind: 'llm-roles', command: name.slice(1), args };
+  }
+
+  if (name === '/learn' || name === '/learning-loop') {
+    // Forward to chat so shared-surface /learn handlers can reply with skill drafts.
+    return {
+      kind: 'send',
+      text: args ? `${name} ${args}` : name,
+    };
+  }
+
+  if (name === '/learning') {
+    // Learning plane candidates (not skill drafts).
+    return {
+      kind: 'send',
+      text: args ? `/learning ${args}` : '/learning list',
+    };
+  }
+
+  if (name === '/knowledge' || name === '/lk' || name === '/learned-knowledge') {
+    return {
+      kind: 'send',
+      text: args ? `/knowledge ${args}` : '/knowledge status',
+    };
+  }
+
   if (name === '/effort') {
     const effort = args.toLowerCase();
     if (allowedEfforts.has(effort)) {
@@ -142,7 +214,10 @@ export function parseSlashCommand(value: string): ParsedSlashCommand {
     if (allowedProfiles.has(profile)) {
       return { kind: 'set-profile', profile };
     }
-    return { kind: 'send', text: 'Set the profile. Valid options are personal, creator, developer, business and power.' };
+    return {
+      kind: 'send',
+      text: 'Set the profile. Valid options are personal, creator, developer, business and power.',
+    };
   }
 
   if (name === '/steer') {

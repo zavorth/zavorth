@@ -2,16 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { SessionEntry } from '../global';
 import { t, panelLabel } from '../i18n';
 import { slashCommands, type DesktopPanel } from '../slashCommands';
-import {
-  PANEL_NAV_GROUP_ORDER,
-  PANEL_NAV_GROUPS,
-  type PanelNavGroup,
-} from '../navigation/navConfig';
+import { PANEL_NAV_GROUP_ORDER, PANEL_NAV_GROUPS, type PanelNavGroup } from '../navigation/navConfig';
 
 const ALL_PANELS: DesktopPanel[] = [
   'chat',
   'approvals',
   'memory',
+  'vibe',
   'skills',
   'channels',
   'settings',
@@ -78,7 +75,7 @@ export function CommandPalette(props: {
       try {
         const data = await window.zavorthDesktop?.listSessions?.();
         if (!cancelled && Array.isArray(data)) {
-          setSessions(data.filter(session => !String(session.id || '').startsWith('cron_')));
+          setSessions(data.filter((session) => !String(session.id || '').startsWith('cron_')));
         }
       } catch {
         if (!cancelled) setSessions([]);
@@ -113,10 +110,7 @@ export function CommandPalette(props: {
         action: 'settings',
       });
     }
-    if (
-      props.onOpenCommandCenter
-      && matchesQuery(`${t('nav.commandCenter')} command center central comandos`, query)
-    ) {
+    if (props.onOpenCommandCenter && matchesQuery(`${t('nav.commandCenter')} command center central comandos`, query)) {
       next.push({
         kind: 'action',
         id: 'action:command-center',
@@ -151,9 +145,7 @@ export function CommandPalette(props: {
           kind: 'panel',
           id: `panel:${panel}`,
           title,
-          subtitle: panel === props.activePanel
-            ? `${t('palette.openPanel')} · current`
-            : t('palette.openPanel'),
+          subtitle: panel === props.activePanel ? `${t('palette.openPanel')} · current` : t('palette.openPanel'),
           panel,
         });
       }
@@ -161,16 +153,14 @@ export function CommandPalette(props: {
 
     // Any remaining panels not in a nav group
     for (const panel of ALL_PANELS) {
-      if (next.some(item => item.kind === 'panel' && item.panel === panel)) continue;
+      if (next.some((item) => item.kind === 'panel' && item.panel === panel)) continue;
       const title = panelLabel(panel);
       if (!matchesQuery(`${panel} ${title}`, query)) continue;
       next.push({
         kind: 'panel',
         id: `panel:${panel}`,
         title,
-        subtitle: panel === props.activePanel
-          ? `${t('palette.openPanel')} · current`
-          : t('palette.openPanel'),
+        subtitle: panel === props.activePanel ? `${t('palette.openPanel')} · current` : t('palette.openPanel'),
         panel,
       });
     }
@@ -200,35 +190,38 @@ export function CommandPalette(props: {
     }
   }, [items.length, selectedIndex]);
 
-  const runItem = useCallback((item: PaletteItem) => {
-    props.onClose();
-    if (item.kind === 'session') {
-      props.onSwitchSession?.(item.sessionId);
-      props.onPanel('chat');
-      return;
-    }
-    if (item.kind === 'panel') {
-      props.onPanel(item.panel);
-      return;
-    }
-    if (item.kind === 'action') {
-      if (item.action === 'new-chat') {
-        props.onNewSession?.();
+  const runItem = useCallback(
+    (item: PaletteItem) => {
+      props.onClose();
+      if (item.kind === 'session') {
+        props.onSwitchSession?.(item.sessionId);
+        props.onPanel('chat');
         return;
       }
-      if (item.action === 'command-center') {
-        props.onOpenCommandCenter?.();
+      if (item.kind === 'panel') {
+        props.onPanel(item.panel);
         return;
       }
-      props.onOpenSettings?.();
-      return;
-    }
-    if (item.usage.includes('|') || item.usage.endsWith(' ')) {
-      props.onInsert(item.usage);
-      return;
-    }
-    void props.onRun(item.usage.split(' ')[0]);
-  }, [props]);
+      if (item.kind === 'action') {
+        if (item.action === 'new-chat') {
+          props.onNewSession?.();
+          return;
+        }
+        if (item.action === 'command-center') {
+          props.onOpenCommandCenter?.();
+          return;
+        }
+        props.onOpenSettings?.();
+        return;
+      }
+      if (item.usage.includes('|') || item.usage.endsWith(' ')) {
+        props.onInsert(item.usage);
+        return;
+      }
+      void props.onRun(item.usage.split(' ')[0]);
+    },
+    [props],
+  );
 
   useEffect(() => {
     if (!props.open) return;
@@ -241,12 +234,12 @@ export function CommandPalette(props: {
       }
       if (event.key === 'ArrowDown') {
         event.preventDefault();
-        setSelectedIndex(index => Math.min(items.length - 1, index + 1));
+        setSelectedIndex((index) => Math.min(items.length - 1, index + 1));
         return;
       }
       if (event.key === 'ArrowUp') {
         event.preventDefault();
-        setSelectedIndex(index => Math.max(0, index - 1));
+        setSelectedIndex((index) => Math.max(0, index - 1));
         return;
       }
       if (event.key === 'Enter' && items[selectedIndex]) {
@@ -263,19 +256,19 @@ export function CommandPalette(props: {
     return null;
   }
 
-  const sessionItems = items.filter(item => item.kind === 'session');
-  const commandItems = items.filter(item => item.kind === 'command');
-  const actionItems = items.filter(item => item.kind === 'action');
-  const panelItems = items.filter(item => item.kind === 'panel');
+  const sessionItems = items.filter((item) => item.kind === 'session');
+  const commandItems = items.filter((item) => item.kind === 'command');
+  const actionItems = items.filter((item) => item.kind === 'action');
+  const panelItems = items.filter((item) => item.kind === 'panel');
 
   function panelsInGroup(group: PanelNavGroup): PaletteItem[] {
     const panels = PANEL_NAV_GROUPS[group];
-    return panelItems.filter(item => item.kind === 'panel' && panels.includes(item.panel));
+    return panelItems.filter((item) => item.kind === 'panel' && panels.includes(item.panel));
   }
 
-  const ungroupedPanels = panelItems.filter(item => {
+  const ungroupedPanels = panelItems.filter((item) => {
     if (item.kind !== 'panel') return false;
-    return !PANEL_NAV_GROUP_ORDER.some(group => PANEL_NAV_GROUPS[group].includes(item.panel));
+    return !PANEL_NAV_GROUP_ORDER.some((group) => PANEL_NAV_GROUPS[group].includes(item.panel));
   });
 
   function renderGroup(label: string, groupItems: PaletteItem[]) {
@@ -283,15 +276,17 @@ export function CommandPalette(props: {
     return (
       <div className="zvd-command-group">
         <span>{label}</span>
-        {groupItems.map(item => {
-          const globalIndex = items.findIndex(candidate => candidate.id === item.id);
+        {groupItems.map((item) => {
+          const globalIndex = items.findIndex((candidate) => candidate.id === item.id);
           return (
             <button
               className={[
                 props.activePanel && item.kind === 'panel' && item.panel === props.activePanel ? 'is-active' : '',
                 globalIndex === selectedIndex ? 'is-selected' : '',
                 item.kind === 'session' && item.sessionId === props.currentSessionId ? 'is-current' : '',
-              ].filter(Boolean).join(' ')}
+              ]
+                .filter(Boolean)
+                .join(' ')}
               key={item.id}
               onClick={() => runItem(item)}
               onMouseEnter={() => setSelectedIndex(globalIndex)}
@@ -311,26 +306,22 @@ export function CommandPalette(props: {
       <section
         className="zvd-command-palette"
         aria-label="Command palette"
-        onMouseDown={event => event.stopPropagation()}
+        onMouseDown={(event) => event.stopPropagation()}
       >
         <input
           autoFocus
           value={query}
-          onChange={event => setQuery(event.target.value)}
+          onChange={(event) => setQuery(event.target.value)}
           placeholder={t('palette.placeholder')}
           aria-label={t('palette.placeholder')}
         />
         {items.length === 0 ? (
-          <div className="zvd-command-empty">
-            {loadingSessions ? '…' : t('palette.empty')}
-          </div>
+          <div className="zvd-command-empty">{loadingSessions ? '…' : t('palette.empty')}</div>
         ) : (
           <>
             {renderGroup(t('palette.actions'), actionItems)}
             {renderGroup(t('palette.sessions'), sessionItems)}
-            {PANEL_NAV_GROUP_ORDER.map(group =>
-              renderGroup(t(PANEL_GROUP_I18N[group]), panelsInGroup(group)),
-            )}
+            {PANEL_NAV_GROUP_ORDER.map((group) => renderGroup(t(PANEL_GROUP_I18N[group]), panelsInGroup(group)))}
             {renderGroup(t('palette.panels'), ungroupedPanels)}
             {renderGroup(t('palette.commands'), commandItems)}
           </>

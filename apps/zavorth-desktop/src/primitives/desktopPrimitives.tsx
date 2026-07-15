@@ -1,11 +1,5 @@
 import type { ReactNode } from 'react';
-import type {
-  ApprovalItem,
-  ChatMessage,
-  LearningItem,
-  MemoryItem,
-  ToolItem,
-} from '../apiClient';
+import type { ApprovalItem, ChatMessage, LearningItem, MemoryItem, ToolItem } from '../apiClient';
 import type { DesktopPanel } from '../slashCommands';
 
 export const profileLabels = ['personal', 'creator', 'developer', 'business', 'power'] as const;
@@ -35,18 +29,18 @@ export const panelLabels: Record<DesktopPanel, string> = {
   marketplace: 'Marketplace',
   workboard: 'Workboard',
   receipts: 'Proof',
+  vibe: 'Vibe coding',
 };
 
 export function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
 }
 
 export function normalizeMessage(raw: unknown, index: number): ChatMessage {
   const record = asRecord(raw);
   const role = String(record.role || record.kind || 'assistant');
-  const normalizedRole: ChatMessage['role'] = role === 'user' || role === 'system' || role === 'tool'
-    ? role
-    : 'assistant';
+  const normalizedRole: ChatMessage['role'] =
+    role === 'user' || role === 'system' || role === 'tool' ? role : 'assistant';
   const content = String(record.content || record.text || record.message || record.markdown || '').trim();
   return {
     id: String(record.id || record.messageId || `message-${index}-${Date.now()}`),
@@ -61,11 +55,16 @@ export function normalizeMessages(value: unknown): ChatMessage[] {
   if (!Array.isArray(value)) {
     return [];
   }
-  return value.map(normalizeMessage).filter(message => message.content);
+  return value.map(normalizeMessage).filter((message) => message.content);
 }
 
 export function itemId(item: ApprovalItem | LearningItem | MemoryItem | ToolItem, fallback: string): string {
-  return String(item.id ?? ('approvalId' in item ? item.approvalId : undefined) ?? ('candidateId' in item ? item.candidateId : undefined) ?? fallback);
+  return String(
+    item.id ??
+      ('approvalId' in item ? item.approvalId : undefined) ??
+      ('candidateId' in item ? item.candidateId : undefined) ??
+      fallback,
+  );
 }
 
 export function PanelScaffold(props: { title: string; subtitle: string; children: ReactNode }) {
@@ -81,7 +80,6 @@ export function PanelScaffold(props: { title: string; subtitle: string; children
 }
 
 export function EmptyPanel(props: { text: string; title?: string }) {
-
   if (props.title) {
     return (
       <div className="zvd-empty">

@@ -4,6 +4,7 @@ import { translate } from './locale';
 
 const log = createShellLogger('model-pref');
 const API_BASE = '/api/providers/preference';
+const LLM_ROLES_API = '/api/llm-roles';
 
 type ModelPreferenceInput = {
   providerId: string;
@@ -61,6 +62,25 @@ function showResult(panel: HTMLElement, title: string, body: string, meta = ''):
   `;
 }
 
+export async function fetchLlmRoles(userId = 'control'): Promise<any> {
+  const res = await fetch(`${LLM_ROLES_API}?userId=${encodeURIComponent(userId)}`);
+  if (!res.ok) throw new Error(`Failed to fetch LLM roles: ${res.status}`);
+  return res.json();
+}
+
+export async function updateLlmRoles(body: Record<string, unknown>, userId = 'control'): Promise<any> {
+  const res = await fetch(`${LLM_ROLES_API}?userId=${encodeURIComponent(userId)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const payload = await res.json().catch(() => ({}));
+    throw new Error(payload?.error || `Failed to update LLM roles: ${res.status}`);
+  }
+  return res.json();
+}
+
 export function bindModelPreferenceEvents(refreshCallback: () => void): void {
   if (document.documentElement.dataset.modelPrefBound === '1') return;
 
@@ -68,6 +88,72 @@ export function bindModelPreferenceEvents(refreshCallback: () => void): void {
   const resultPanel = document.getElementById('pref-result-panel');
   if (!form || !resultPanel) return;
   document.documentElement.dataset.modelPrefBound = '1';
+
+  // Multi-surface roles card — same store as agent free-text setup on any surface.
+  const ensureRolesHost = (): HTMLElement | null => {
+    let host = document.getElementById('llm-roles-status');
+    if (host) return host;
+    const form = document.getElementById('model-preference-form');
+    if (!form?.parentElement) return null;
+    host = document.createElement('div');
+    host.id = 'llm-roles-status';
+    host.className = 'daily-route-result';
+    host.setAttribute('aria-live', 'polite');
+    form.parentElement.insertBefore(host, form.nextSibling);
+    return host;
+  };
+
+  const renderRolesCard = (data: any): void => {
+    const host = ensureRolesHost();
+    if (!host) return;
+    const health = Array.isArray(data?.health) ? data.health : [];
+    host.innerHTML = `
+      <p><strong>${escapeHtml(translate('LLM roles'))}</strong>
+        <span class="daily-route-result__meta">(${escapeHtml(String(data?.surface || 'control'))})</span>
+      </p>
+      <pre class="daily-route-result__meta">${escapeHtml(String(data?.statusText || ''))}</pre>
+      ${health.length ? `<p>${escapeHtml(translate('Health'))}: ${escapeHtml(health.map((h: any) => h.message).join(' | '))}</p>` : ''}
+      <div class="cron-actions">
+        <button class="cron-action-btn" type="button" id="btn-llm-roles-refresh">${escapeHtml(translate('Refresh roles'))}</button>
+        <button class="cron-action-btn" type="button" id="btn-llm-roles-setup">${escapeHtml(translate('Start role setup'))}</button>
+        <button class="cron-action-btn" type="button" id="btn-llm-roles-strong">${escapeHtml(translate('Force strong on'))}</button>
+        <button class="cron-action-btn" type="button" id="btn-llm-roles-default">${escapeHtml(translate('Force strong off'))}</button>
+      </div>
+    `;
+    document.getElementById('btn-llm-roles-refresh')?.addEventListener('click', () => {
+      fetchLlmRoles()
+        .then(renderRolesCard)
+        .catch((error) => log.error('failed to refresh llm roles', error));
+    });
+    document.getElementById('btn-llm-roles-setup')?.addEventListener('click', async () => {
+      try {
+        await updateLlmRoles({ action: 'setup' });
+        const next = await fetchLlmRoles();
+        renderRolesCard(next);
+        refreshCallback();
+      } catch (error) {
+        log.error('failed to start role setup', error);
+      }
+    });
+    document.getElementById('btn-llm-roles-strong')?.addEventListener('click', async () => {
+      await updateLlmRoles({ action: 'forceStrong', enabled: true });
+      const next = await fetchLlmRoles();
+      renderRolesCard(next);
+      refreshCallback();
+    });
+    document.getElementById('btn-llm-roles-default')?.addEventListener('click', async () => {
+      await updateLlmRoles({ action: 'forceStrong', enabled: false });
+      const next = await fetchLlmRoles();
+      renderRolesCard(next);
+      refreshCallback();
+    });
+  };
+
+  fetchLlmRoles()
+    .then(renderRolesCard)
+    .catch((error) => {
+      log.error('failed to load llm roles', error);
+    });
 
   fetchModelPreference()
     .then((data) => {

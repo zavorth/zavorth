@@ -5,14 +5,7 @@ import type { RightRailTab } from '../shell/rightRail';
 import { slashCommands } from '../slashCommands';
 
 /** User-facing command center groups aligned with product IA. */
-export type CommandCenterCategory =
-  | 'Daily'
-  | 'Trust'
-  | 'Reach'
-  | 'Power'
-  | 'Workspace'
-  | 'Settings'
-  | 'Slash Commands';
+export type CommandCenterCategory = 'Daily' | 'Trust' | 'Reach' | 'Power' | 'Workspace' | 'Settings' | 'Slash Commands';
 
 export type CommandCenterAction =
   | { type: 'settings'; tab: SettingsModuleId }
@@ -143,7 +136,14 @@ const panelCommands: PanelCommandDef[] = [
     category: 'Workspace',
     title: 'Open memory',
     subtitle: 'Absorb durable context and review learned candidates',
-    keywords: ['memory', 'absorb', 'learn', 'candidates', 'context'],
+    keywords: ['memory', 'absorb', 'learn', 'candidates', 'context', 'graph'],
+  },
+  {
+    panel: 'vibe',
+    category: 'Workspace',
+    title: 'Open vibe coding loop',
+    subtitle: 'Terminal, web preview, and scaffold hints for local create/test apps',
+    keywords: ['vibe', 'coding', 'preview', 'scaffold', 'vite', 'localhost', 'dev', 'terminal'],
   },
   {
     panel: 'skills',
@@ -191,8 +191,8 @@ const panelCommands: PanelCommandDef[] = [
     panel: 'analytics',
     category: 'Power',
     title: 'Open analytics',
-    subtitle: 'Usage, readiness, and local runtime signals',
-    keywords: ['analytics', 'usage', 'readiness', 'metrics', 'runtime'],
+    subtitle: 'Usage, readiness, cost savings, and local runtime signals',
+    keywords: ['analytics', 'usage', 'readiness', 'metrics', 'runtime', 'cost', 'savings'],
   },
   {
     panel: 'settings',
@@ -206,11 +206,11 @@ const panelCommands: PanelCommandDef[] = [
 export function buildCommandCenterItems(input: CommandCenterInput): CommandCenterItem[] {
   const settingsModules = flattenSettingsModules(input.settingsGroups);
   const settingsItems = preferredSettings
-    .map(id => settingsModules.find(module => module.id === id))
+    .map((id) => settingsModules.find((module) => module.id === id))
     .filter((module): module is SettingsModule => Boolean(module))
-    .map(module => settingsModuleToCommand(module));
+    .map((module) => settingsModuleToCommand(module));
 
-  const panelItems = panelCommands.map(def => ({
+  const panelItems = panelCommands.map((def) => ({
     id: `panel:${def.panel}`,
     category: def.category,
     title: def.title,
@@ -220,7 +220,7 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
     action: { type: 'panel' as const, panel: def.panel },
   }));
 
-  const slashItems = slashCommands.map(command => ({
+  const slashItems = slashCommands.map((command) => ({
     id: `slash:${command.name}`,
     category: 'Slash Commands' as const,
     title: command.name,
@@ -246,7 +246,9 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       id: 'workspace:files',
       category: 'Workspace',
       title: 'Open workspace files rail',
-      subtitle: input.workspaceLabel ? `Browse ${input.workspaceLabel} in the side rail` : 'Browse the active workspace in the side rail',
+      subtitle: input.workspaceLabel
+        ? `Browse ${input.workspaceLabel} in the side rail`
+        : 'Browse the active workspace in the side rail',
       keywords: ['workspace', 'files', 'file', 'explorer', 'project', 'side rail'],
       statusLabel: 'Rail',
       action: { type: 'rail', tab: 'files' },
@@ -271,31 +273,31 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
           ? `${input.providerCount} provider(s) in catalog`
           : 'Connect OpenAI, local or compatible providers',
       keywords: ['provider', 'modelo', 'api key', 'llm', 'openai', 'local'],
-      statusLabel: input.providerLiveCount
-        ? 'Live'
-        : input.providerCount
-          ? 'Catalog only'
-          : 'Needs setup',
+      statusLabel: input.providerLiveCount ? 'Live' : input.providerCount ? 'Catalog only' : 'Needs setup',
       action: { type: 'settings', tab: 'providers' },
     },
     ...(input.audience === 'personal'
       ? []
-      : [{
-        id: 'mcp:trust',
-        category: 'Trust' as const,
-        title: input.mcpServerCount ? 'Review MCP trust' : 'Connect MCP server',
-        subtitle: input.mcpServerCount
-          ? `${input.mcpServerCount} MCP server(s) detected`
-          : 'Add tools and review server permissions',
-        keywords: ['mcp', 'tool', 'trust', 'server', 'permission', 'readiness'],
-        statusLabel: input.mcpServerCount ? 'Review' : 'No servers',
-        action: { type: 'settings' as const, tab: 'mcp' as SettingsModuleId },
-      }]),
+      : [
+          {
+            id: 'mcp:trust',
+            category: 'Trust' as const,
+            title: input.mcpServerCount ? 'Review MCP trust' : 'Connect MCP server',
+            subtitle: input.mcpServerCount
+              ? `${input.mcpServerCount} MCP server(s) detected`
+              : 'Add tools and review server permissions',
+            keywords: ['mcp', 'tool', 'trust', 'server', 'permission', 'readiness'],
+            statusLabel: input.mcpServerCount ? 'Review' : 'No servers',
+            action: { type: 'settings' as const, tab: 'mcp' as SettingsModuleId },
+          },
+        ]),
     {
       id: 'automations:create',
       category: 'Power',
       title: 'Create scheduled task',
-      subtitle: input.automationCount ? `${input.automationCount} automation(s) active` : 'Schedule recurring local work with clear receipts',
+      subtitle: input.automationCount
+        ? `${input.automationCount} automation(s) active`
+        : 'Schedule recurring local work with clear receipts',
       keywords: ['automation', 'scheduler', 'cron', 'recurring', 'task', 'receipts'],
       statusLabel: input.automationCount ? 'Active' : 'New',
       action: { type: 'panel', panel: 'automations' },
@@ -313,7 +315,9 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       id: 'profiles:identity',
       category: 'Settings',
       title: 'Apply Identity Studio to this session',
-      subtitle: input.customProfileCount ? `${input.customProfileCount} custom profile(s) available` : 'Use voice, rules and memory presets',
+      subtitle: input.customProfileCount
+        ? `${input.customProfileCount} custom profile(s) available`
+        : 'Use voice, rules and memory presets',
       keywords: ['identity studio', 'perfil', 'persona', 'voz', 'regras', 'absorb'],
       statusLabel: 'Session preset',
       action: { type: 'settings', tab: 'identity' },
@@ -323,7 +327,7 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       category: 'Workspace',
       title: 'Open Web Preview',
       subtitle: 'Detect local dev servers, reload, inspect console state and open externally',
-      keywords: ['preview', 'web', 'browser', 'dev server', 'localhost', 'live reload'],
+      keywords: ['preview', 'web', 'browser', 'dev server', 'localhost', 'live reload', 'vibe', 'coding'],
       statusLabel: input.rightRailOpen && input.rightRailTab === 'preview' ? 'Open' : 'Rail',
       action: { type: 'rail', tab: 'preview' },
     },
@@ -332,9 +336,18 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       category: 'Workspace',
       title: 'Open workspace terminal',
       subtitle: 'Persistent terminal session for this workspace with search, copy and trust state',
-      keywords: ['terminal', 'shell', 'pty', 'workspace', 'command', 'session'],
+      keywords: ['terminal', 'shell', 'pty', 'workspace', 'command', 'session', 'vibe', 'scaffold'],
       statusLabel: input.rightRailOpen && input.rightRailTab === 'terminal' ? 'Open' : 'Rail',
       action: { type: 'rail', tab: 'terminal' },
+    },
+    {
+      id: 'vibe:scaffold',
+      category: 'Workspace',
+      title: 'Open scaffold hints',
+      subtitle: 'Copy governed create/test app steps without auto-running risky commands',
+      keywords: ['scaffold', 'vibe', 'coding', 'vite', 'npm create', 'preview'],
+      statusLabel: 'Hints',
+      action: { type: 'panel', panel: 'vibe' },
     },
     {
       id: 'git:open-rail',
@@ -367,7 +380,9 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       id: 'runtime:start',
       category: 'Power',
       title: input.runtimeRunning ? 'Refresh runtime' : 'Start runtime',
-      subtitle: input.runtimeRunning ? 'Sync runtime health, readiness and capabilities' : 'Start local services and repair readiness',
+      subtitle: input.runtimeRunning
+        ? 'Sync runtime health, readiness and capabilities'
+        : 'Start local services and repair readiness',
       keywords: ['runtime', 'start', 'sync', 'health', 'local', 'reparar', 'readiness'],
       statusLabel: input.runtimeRunning ? 'Online' : 'Offline',
       action: { type: 'run', value: '/usage' },
@@ -410,19 +425,19 @@ export function filterCommandCenterItems(items: CommandCenterItem[], query: stri
   }
 
   return items
-    .map(item => ({ item, score: scoreItem(item, tokens) }))
-    .filter(entry => entry.score > 0)
+    .map((item) => ({ item, score: scoreItem(item, tokens) }))
+    .filter((entry) => entry.score > 0)
     .sort((a, b) => b.score - a.score)
-    .map(entry => entry.item);
+    .map((entry) => entry.item);
 }
 
 export function groupCommandCenterItems(items: CommandCenterItem[]): CommandCenterGroup[] {
   return categoryOrder
-    .map(category => ({
+    .map((category) => ({
       category,
-      items: items.filter(item => item.category === category),
+      items: items.filter((item) => item.category === category),
     }))
-    .filter(group => group.items.length > 0);
+    .filter((group) => group.items.length > 0);
 }
 
 function settingsModuleToCommand(module: SettingsModule): CommandCenterItem {
@@ -439,16 +454,11 @@ function settingsModuleToCommand(module: SettingsModule): CommandCenterItem {
 
 function scoreItem(item: CommandCenterItem, tokens: string[]): number {
   const title = normalize(item.title);
-  const haystack = normalize([
-    item.id,
-    item.category,
-    item.title,
-    item.subtitle,
-    item.statusLabel || '',
-    ...item.keywords,
-  ].join(' '));
+  const haystack = normalize(
+    [item.id, item.category, item.title, item.subtitle, item.statusLabel || '', ...item.keywords].join(' '),
+  );
 
-  if (tokens.length > 1 && !tokens.every(token => haystack.includes(token))) {
+  if (tokens.length > 1 && !tokens.every((token) => haystack.includes(token))) {
     return 0;
   }
 
@@ -477,5 +487,8 @@ function tokenize(value: string): string[] {
 }
 
 function normalize(value: string): string {
-  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 }

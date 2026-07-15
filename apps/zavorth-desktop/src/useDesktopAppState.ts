@@ -70,49 +70,78 @@ import {
 import { useDesktopProduct } from './desktop-state/useDesktopProduct';
 import { trackDesktopEvent } from './desktop-state/localTelemetry';
 import {
-  $status, setStatus,
-  $snapshot, setSnapshot,
-  $messages, setMessages,
-  $busy, setBusy,
-  $notice, setNotice,
-  $selectedModel, setSelectedModel,
-  $effort, setEffort,
-  $experienceProfile, setExperienceProfile,
+  $status,
+  setStatus,
+  $snapshot,
+  setSnapshot,
+  $messages,
+  setMessages,
+  $busy,
+  setBusy,
+  $notice,
+  setNotice,
+  $selectedModel,
+  setSelectedModel,
+  $effort,
+  setEffort,
+  $experienceProfile,
+  setExperienceProfile,
   $sessionId,
   setSessionIdOverride,
-  $events, addEvent,
-  
-  $activePanel, setActivePanel,
-  $commandPaletteOpen, setCommandPaletteOpen,
-  $sidebarCollapsed, setSidebarCollapsed,
-  $inspectorOpen, setInspectorOpen,
-  
-  $approvals, setApprovals,
-  $workspaceWriteApprovals, setWorkspaceWriteApprovals,
-  $proposedMandate, setProposedMandate,
-  $activeMandate, setActiveMandate,
-  $pendingHostCommands, setPendingHostCommands,
-  $showTrustPrompt, setShowTrustPrompt,
-  $trustLoading, setTrustLoading,
-  
-  $learning, setLearning,
-  $tools, setTools,
-  $controlMemory, setControlMemory,
-  $memoryEncryptionStatus, setMemoryEncryptionStatus,
-  $memoryEncryptionReceipt, setMemoryEncryptionReceipt,
-  
-  $themeMode, setThemeMode,
-  $accentPreset, setAccentPreset,
-  $density, setDensity,
-  
-  $composerInput, setComposerInput,
-  
-  $workspaceScopes, setWorkspaceScopes,
-  $workspaceScopeId, setWorkspaceScopeId,
-  $nexusStatus, setNexusStatus,
-  $channelSetup, setChannelSetup,
-  $gatewayResilience, setGatewayResilience,
-  $runtimeCapabilities, setRuntimeCapabilities,
+  $events,
+  addEvent,
+  $activePanel,
+  setActivePanel,
+  $commandPaletteOpen,
+  setCommandPaletteOpen,
+  $sidebarCollapsed,
+  setSidebarCollapsed,
+  $inspectorOpen,
+  setInspectorOpen,
+  $approvals,
+  setApprovals,
+  $workspaceWriteApprovals,
+  setWorkspaceWriteApprovals,
+  $proposedMandate,
+  setProposedMandate,
+  $activeMandate,
+  setActiveMandate,
+  $pendingHostCommands,
+  setPendingHostCommands,
+  $showTrustPrompt,
+  setShowTrustPrompt,
+  $trustLoading,
+  setTrustLoading,
+  $learning,
+  setLearning,
+  $tools,
+  setTools,
+  $controlMemory,
+  setControlMemory,
+  $memoryEncryptionStatus,
+  setMemoryEncryptionStatus,
+  $memoryEncryptionReceipt,
+  setMemoryEncryptionReceipt,
+  $themeMode,
+  setThemeMode,
+  $accentPreset,
+  setAccentPreset,
+  $density,
+  setDensity,
+  $composerInput,
+  setComposerInput,
+  $workspaceScopes,
+  setWorkspaceScopes,
+  $workspaceScopeId,
+  setWorkspaceScopeId,
+  $nexusStatus,
+  setNexusStatus,
+  $channelSetup,
+  setChannelSetup,
+  $gatewayResilience,
+  setGatewayResilience,
+  $runtimeCapabilities,
+  setRuntimeCapabilities,
 } from './store';
 
 import { parseSlashCommand, slashCommands } from './slashCommands';
@@ -137,7 +166,6 @@ import {
   type ActiveSubagent,
 } from './desktop-state/subagents';
 
-
 import {
   appendReceipt,
   extractReceiptsFromSnapshot,
@@ -153,7 +181,6 @@ import { asErrorLike } from './lib/errors';
 export type { ActiveSubagent } from './desktop-state/subagents';
 export type { AgentProfile } from './desktop-state/agentProfiles';
 export type { ScheduledTask } from './desktop-state/useDesktopAutomations';
-
 
 export function useDesktopAppState() {
   const status = useStore($status);
@@ -206,7 +233,7 @@ export function useDesktopAppState() {
   const responseProfile = responseProfileByExperience[experienceProfile] || 'short';
   const allProfiles = useMemo(() => mergeProfiles(customProfiles), [customProfiles]);
   const activeAgentProfile = useMemo(
-    () => allProfiles.find(profile => profile.id === experienceProfile) || allProfiles[0],
+    () => allProfiles.find((profile) => profile.id === experienceProfile) || allProfiles[0],
     [allProfiles, experienceProfile],
   );
 
@@ -215,10 +242,10 @@ export function useDesktopAppState() {
       return modelOptionsFromRuntimeCapabilities(runtimeCapabilities);
     }
     const connectedIds = new Set(defaultConnectedModelIds());
-    return modelOptions.filter(model => model.connected !== false);
+    return modelOptions.filter((model) => model.connected !== false);
   }, [runtimeCapabilities]);
 
-  const activeWorkspaceScope = workspaceScopes.find(scope => scope.id === workspaceScopeId) || workspaceScopes[0];
+  const activeWorkspaceScope = workspaceScopes.find((scope) => scope.id === workspaceScopeId) || workspaceScopes[0];
 
   const automations = useDesktopAutomations({
     workspaceScope: activeWorkspaceScope,
@@ -228,7 +255,7 @@ export function useDesktopAppState() {
   });
 
   const recordReceipt = useCallback((input: Parameters<typeof appendReceipt>[1]) => {
-    setReceipts(current => appendReceipt(current, input));
+    setReceipts((current) => appendReceipt(current, input));
   }, []);
 
   const product = useDesktopProduct({
@@ -250,9 +277,9 @@ export function useDesktopAppState() {
   useEffect(() => {
     const fromSnapshot = extractReceiptsFromSnapshot(snapshot);
     if (fromSnapshot.length === 0) return;
-    setReceipts(current => {
-      const ids = new Set(current.map(item => item.id));
-      const merged = [...fromSnapshot.filter(item => !ids.has(item.id)), ...current];
+    setReceipts((current) => {
+      const ids = new Set(current.map((item) => item.id));
+      const merged = [...fromSnapshot.filter((item) => !ids.has(item.id)), ...current];
       return persistReceipts(merged);
     });
   }, [snapshot]);
@@ -318,40 +345,48 @@ export function useDesktopAppState() {
     }
   }, [approvals.length]);
 
-  const applyRuntimeStateProjection = useCallback((home: ExperienceSnapshot | null) => {
-    const runtimeState = runtimeStateFromSnapshot(home);
-    const projections = asRecord(runtimeState.projections);
-    const commandBar = asRecord(projections.commandBar);
-    const projectedConnectedModelIds = Array.isArray(commandBar.connectedModelIds)
-      ? commandBar.connectedModelIds.map(value => String(value || '').trim()).filter(Boolean)
-      : [];
-    const state = runtimeStateState(home);
-    const model = asRecord(state.model);
-    const effortState = asRecord(state.effort);
-    const workspace = asRecord(state.workspace);
-    const runtimeModelId = String(model.id || '').trim();
-    const modelConnected = projectedConnectedModelIds.length > 0
-      ? projectedConnectedModelIds.includes(runtimeModelId)
-      : connectedModelOptions.some(option => option.id === runtimeModelId);
-    if (runtimeModelId && modelConnected) {
-      setSelectedModel(runtimeModelId);
-    }
-    if (effortState.level) {
-      setEffort(desktopEffortFromRuntime(effortState.level));
-    }
-    const workspaceId = String(workspace.id || '').trim();
-    if (workspaceId) {
-      const nextScope: DesktopWorkspaceScope = {
-        id: workspaceId,
-        label: String(workspace.label || workspaceId),
-        shortLabel: String(workspace.label || workspaceId),
-        kind: String(workspace.kind || '').toLowerCase() === 'chat' ? 'chat' : 'folder',
-        path: workspace.path ? String(workspace.path) : null,
-      };
-      setWorkspaceScopes(workspaceScopes.some(scope => scope.id === nextScope.id) ? workspaceScopes : [...workspaceScopes, nextScope]);
-      setWorkspaceScopeId(workspaceId);
-    }
-  }, [connectedModelOptions, workspaceScopes]);
+  const applyRuntimeStateProjection = useCallback(
+    (home: ExperienceSnapshot | null) => {
+      const runtimeState = runtimeStateFromSnapshot(home);
+      const projections = asRecord(runtimeState.projections);
+      const commandBar = asRecord(projections.commandBar);
+      const projectedConnectedModelIds = Array.isArray(commandBar.connectedModelIds)
+        ? commandBar.connectedModelIds.map((value) => String(value || '').trim()).filter(Boolean)
+        : [];
+      const state = runtimeStateState(home);
+      const model = asRecord(state.model);
+      const effortState = asRecord(state.effort);
+      const workspace = asRecord(state.workspace);
+      const runtimeModelId = String(model.id || '').trim();
+      const modelConnected =
+        projectedConnectedModelIds.length > 0
+          ? projectedConnectedModelIds.includes(runtimeModelId)
+          : connectedModelOptions.some((option) => option.id === runtimeModelId);
+      if (runtimeModelId && modelConnected) {
+        setSelectedModel(runtimeModelId);
+      }
+      if (effortState.level) {
+        setEffort(desktopEffortFromRuntime(effortState.level));
+      }
+      const workspaceId = String(workspace.id || '').trim();
+      if (workspaceId) {
+        const nextScope: DesktopWorkspaceScope = {
+          id: workspaceId,
+          label: String(workspace.label || workspaceId),
+          shortLabel: String(workspace.label || workspaceId),
+          kind: String(workspace.kind || '').toLowerCase() === 'chat' ? 'chat' : 'folder',
+          path: workspace.path ? String(workspace.path) : null,
+        };
+        setWorkspaceScopes(
+          workspaceScopes.some((scope) => scope.id === nextScope.id)
+            ? workspaceScopes
+            : [...workspaceScopes, nextScope],
+        );
+        setWorkspaceScopeId(workspaceId);
+      }
+    },
+    [connectedModelOptions, workspaceScopes],
+  );
 
   const refreshRuntime = useCallback(async () => {
     if (!bridgeReady) {
@@ -407,23 +442,26 @@ export function useDesktopAppState() {
     }
   }, [sessionId, activeWorkspaceScope]);
 
-  const refreshHome = useCallback(async (explicitSessionId?: string) => {
-    try {
-      const targetSessionId = String(explicitSessionId || sessionId || '').trim() || 'desktop-main';
-      const home = await loadHome(targetSessionId, responseProfile);
-      setSnapshot(home);
-      applyRuntimeStateProjection(home);
-      const homeMessages = normalizeMessages(home.chat?.messages);
-      setMessages(homeMessages);
-      setNotice('');
-      return home;
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
+  const refreshHome = useCallback(
+    async (explicitSessionId?: string) => {
+      try {
+        const targetSessionId = String(explicitSessionId || sessionId || '').trim() || 'desktop-main';
+        const home = await loadHome(targetSessionId, responseProfile);
+        setSnapshot(home);
+        applyRuntimeStateProjection(home);
+        const homeMessages = normalizeMessages(home.chat?.messages);
+        setMessages(homeMessages);
+        setNotice('');
+        return home;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? err.message : 'Could not reach the local runtime.');
-      return null;
-    }
-  }, [responseProfile, sessionId, applyRuntimeStateProjection]);
+        setNotice(error instanceof Error ? err.message : 'Could not reach the local runtime.');
+        return null;
+      }
+    },
+    [responseProfile, sessionId, applyRuntimeStateProjection],
+  );
 
   useEffect(() => {
     if (!bridgeReady) {
@@ -435,7 +473,7 @@ export function useDesktopAppState() {
       .then(() => (mounted ? refreshHome() : null))
       .then(() => (mounted ? refreshPanels() : null))
       .catch(() => undefined);
-    const off = window.zavorthDesktop!.onBootEvent(event => {
+    const off = window.zavorthDesktop!.onBootEvent((event) => {
       addEvent(event);
     });
 
@@ -455,18 +493,26 @@ export function useDesktopAppState() {
         .then((wRes) => {
           setWorkspaceWriteApprovals(wRes);
         })
-        .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+        .catch((err) => {
+          logger.warn('[auto-fix] Empty catch block', err);
+        });
 
       if (activeWorkspaceScope.id && activeWorkspaceScope.kind === 'folder') {
         loadProposedMandate(activeWorkspaceScope.id)
           .then(setProposedMandate)
-          .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+          .catch((err) => {
+            logger.warn('[auto-fix] Empty catch block', err);
+          });
         loadActiveMandate(activeWorkspaceScope.id)
           .then(setActiveMandate)
-          .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+          .catch((err) => {
+            logger.warn('[auto-fix] Empty catch block', err);
+          });
         getPendingHostCommands(activeWorkspaceScope.id)
           .then(setPendingHostCommands)
-          .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+          .catch((err) => {
+            logger.warn('[auto-fix] Empty catch block', err);
+          });
       }
     }, 3000);
 
@@ -482,7 +528,7 @@ export function useDesktopAppState() {
           if (res.ok) {
             if (!res.trusted && !promptedWorkspaces.has(activeWorkspaceScope.id)) {
               setShowTrustPrompt(true);
-              setPromptedWorkspaces(prev => {
+              setPromptedWorkspaces((prev) => {
                 const next = new Set(prev);
                 next.add(activeWorkspaceScope.id!);
                 return next;
@@ -492,7 +538,9 @@ export function useDesktopAppState() {
             }
           }
         })
-        .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+        .catch((err) => {
+          logger.warn('[auto-fix] Empty catch block', err);
+        });
     } else {
       setShowTrustPrompt(false);
     }
@@ -501,7 +549,7 @@ export function useDesktopAppState() {
   const handleTrustWorkspaceFromPrompt = async (
     allowRiskUpTo: 'LOW' | 'MEDIUM',
     allowPackageInstall: boolean,
-    allowNetwork: boolean
+    allowNetwork: boolean,
   ) => {
     setTrustLoading(true);
     try {
@@ -619,7 +667,11 @@ export function useDesktopAppState() {
       }
       if (result.receipt) {
         setMemoryEncryptionReceipt(result.receipt);
-        appendLocalMessage(setMessages, 'system', `Memory protection ${result.receipt.status}: ${result.receipt.reason}`);
+        appendLocalMessage(
+          setMessages,
+          'system',
+          `Memory protection ${result.receipt.status}: ${result.receipt.reason}`,
+        );
       }
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -639,7 +691,11 @@ export function useDesktopAppState() {
     setBusy(true);
     try {
       const result = await mutateControlMemory(input);
-      appendLocalMessage(setMessages, 'system', `Memory ${input.action}: ${result?.receipt?.receiptId || 'receipt created'}.`);
+      appendLocalMessage(
+        setMessages,
+        'system',
+        `Memory ${input.action}: ${result?.receipt?.receiptId || 'receipt created'}.`,
+      );
       await refreshPanels();
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -662,7 +718,11 @@ export function useDesktopAppState() {
       if (result?.result?.assistant) {
         setChannelSetup({ ok: true, assistant: result.result.assistant });
       }
-      appendLocalMessage(setMessages, 'system', `Channel ${input.action}: ${result?.receipt?.receiptId || result?.action || 'done'}.`);
+      appendLocalMessage(
+        setMessages,
+        'system',
+        `Channel ${input.action}: ${result?.receipt?.receiptId || result?.action || 'done'}.`,
+      );
       await refreshPanels();
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -680,7 +740,11 @@ export function useDesktopAppState() {
       if (result?.resilience) {
         setGatewayResilience(result.resilience);
       }
-      appendLocalMessage(setMessages, 'system', `Gateway resilience: ${result?.receipt?.receiptId || result?.status || 'updated'}.`);
+      appendLocalMessage(
+        setMessages,
+        'system',
+        `Gateway resilience: ${result?.receipt?.receiptId || result?.status || 'updated'}.`,
+      );
       await refreshPanels();
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -704,7 +768,11 @@ export function useDesktopAppState() {
     setNotice('');
 
     if (parsed.kind === 'help') {
-      appendLocalMessage(setMessages, 'system', slashCommands.map(command => `${command.usage} - ${command.description}`).join('\n'));
+      appendLocalMessage(
+        setMessages,
+        'system',
+        slashCommands.map((command) => `${command.usage} - ${command.description}`).join('\n'),
+      );
       return { ok: true };
     }
     if (parsed.kind === 'panel') {
@@ -736,7 +804,7 @@ export function useDesktopAppState() {
           responseProfile,
           effort,
           model: selectedModel,
-          connectedModelIds: connectedModelOptions.map(model => model.id),
+          connectedModelIds: connectedModelOptions.map((model) => model.id),
           profile: experienceProfile,
           profileConfig: {
             id: activeAgentProfile.id,
@@ -758,6 +826,78 @@ export function useDesktopAppState() {
       return { ok: true };
     }
 
+    if (parsed.kind === 'llm-roles') {
+      const slashText = `/${parsed.command}${parsed.args ? ` ${parsed.args}` : ''}`.trim();
+      appendLocalMessage(setMessages, 'user', slashText);
+      setBusy(true);
+      try {
+        // Prefer Control API (same store as other surfaces), fall back to chat slash text.
+        const isStrong = parsed.command === 'strong';
+        const body = isStrong
+          ? { action: 'forceStrong', enabled: !/^(off|default|0|false)$/i.test(parsed.args || 'on') }
+          : /setup/i.test(parsed.args)
+            ? { action: 'setup' }
+            : null;
+        if (body) {
+          const res = await fetch('/api/llm-roles?userId=desktop&surface=desktop', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          const payload = await res.json().catch(() => ({}));
+          if (res.ok) {
+            appendLocalMessage(
+              setMessages,
+              'assistant',
+              String(payload?.statusText || payload?.prompt || (isStrong ? 'Force-strong updated.' : 'Roles updated.')),
+            );
+            return { ok: true };
+          }
+        }
+        const statusRes = await fetch('/api/llm-roles?userId=desktop&surface=desktop');
+        if (statusRes.ok && (!parsed.args || /status|show/i.test(parsed.args))) {
+          const payload = await statusRes.json();
+          appendLocalMessage(setMessages, 'assistant', String(payload?.statusText || 'LLM roles loaded.'));
+          return { ok: true };
+        }
+        // Fall through: send slash to experience runtime so shared-surface can handle roles.
+        const result = await sendExperienceMessage({
+          text: slashText,
+          sessionId,
+          responseProfile,
+          effort,
+          model: selectedModel,
+          connectedModelIds: connectedModelOptions.map((model) => model.id),
+          profile: experienceProfile,
+          profileConfig: {
+            id: activeAgentProfile.id,
+            name: activeAgentProfile.name,
+            systemPrompt: activeAgentProfile.systemPrompt,
+            effort: activeAgentProfile.effort,
+            costLimit: activeAgentProfile.costLimit,
+          },
+          workspace: workspaceScopeForMetadata(activeWorkspaceScope),
+        });
+        const projectedSnapshot = result.snapshot || snapshot;
+        setSnapshot(projectedSnapshot);
+        applyRuntimeStateProjection(projectedSnapshot);
+        const replies = result.replies || result.messages || [];
+        if (replies.length === 0 && result.error) {
+          appendLocalMessage(setMessages, 'system', result.error);
+        }
+      } catch (err: unknown) {
+        appendLocalMessage(
+          setMessages,
+          'system',
+          err instanceof Error ? err.message : 'Could not run LLM role command.',
+        );
+      } finally {
+        setBusy(false);
+        void refreshPanels();
+      }
+      return { ok: true };
+    }
+
     const outbound = parsed.kind === 'send' ? parsed.text : parsed.text;
     appendLocalMessage(setMessages, 'user', outbound);
     setBusy(true);
@@ -768,7 +908,7 @@ export function useDesktopAppState() {
         responseProfile,
         effort,
         model: selectedModel,
-        connectedModelIds: connectedModelOptions.map(model => model.id),
+        connectedModelIds: connectedModelOptions.map((model) => model.id),
         profile: experienceProfile,
         profileConfig: {
           id: activeAgentProfile.id,
@@ -788,10 +928,10 @@ export function useDesktopAppState() {
       let assistantText = '';
       if (nextMessages.length > 0) {
         setMessages(nextMessages);
-        assistantText = [...nextMessages].reverse().find(message => message.role === 'assistant')?.content || '';
+        assistantText = [...nextMessages].reverse().find((message) => message.role === 'assistant')?.content || '';
       } else if (replies.length > 0) {
-        setMessages(current => [...current, ...replies]);
-        assistantText = [...replies].reverse().find(message => message.role === 'assistant')?.content || '';
+        setMessages((current) => [...current, ...replies]);
+        assistantText = [...replies].reverse().find((message) => message.role === 'assistant')?.content || '';
       } else {
         const fallback = result.error || 'Zavorth received the request.';
         appendLocalMessage(setMessages, 'assistant', fallback);
@@ -835,52 +975,55 @@ export function useDesktopAppState() {
     setReceipts(persistReceipts([]));
   }, []);
 
-  const checkDesktopUpdates = useCallback(async (options?: { silent?: boolean }) => {
-    const silent = Boolean(options?.silent);
-    try {
-      const result = await window.zavorthDesktop?.checkUpdates?.();
-      const status = buildDesktopUpdateStatus({
-        currentVersion: result?.version || '0.1.0',
-        latestVersion: result?.latestVersion || result?.version || '0.1.0',
-        providerConfigured: result?.providerConfigured !== false,
-        downloaded: Boolean(result?.downloaded),
-        deferredUntil: result?.deferredUntil || null,
-        rollbackVersion: result?.rollbackVersion || null,
-        channel: result?.channel || 'github',
-        source: result?.source || result?.channel || 'github',
-        githubRepo: result?.githubRepo || 'zavorth/zavorth',
-        releaseUrl: result?.releaseUrl || null,
-        releaseNotes: result?.changelog ? [result.changelog] : [],
-        error: result?.error || (!result ? 'Update bridge unavailable.' : null),
-      });
-      setUpdateStatus(status);
-      if (!silent) {
-        setNotice(status.message);
-        recordReceipt({
-          kind: 'system',
-          title: 'Update check',
-          summary: status.message,
-          status: status.state === 'error' ? 'failed' : 'info',
-          source: 'zavorth-desktop-update',
+  const checkDesktopUpdates = useCallback(
+    async (options?: { silent?: boolean }) => {
+      const silent = Boolean(options?.silent);
+      try {
+        const result = await window.zavorthDesktop?.checkUpdates?.();
+        const status = buildDesktopUpdateStatus({
+          currentVersion: result?.version || '0.1.0',
+          latestVersion: result?.latestVersion || result?.version || '0.1.0',
+          providerConfigured: result?.providerConfigured !== false,
+          downloaded: Boolean(result?.downloaded),
+          deferredUntil: result?.deferredUntil || null,
+          rollbackVersion: result?.rollbackVersion || null,
+          channel: result?.channel || 'github',
+          source: result?.source || result?.channel || 'github',
+          githubRepo: result?.githubRepo || 'zavorth/zavorth',
+          releaseUrl: result?.releaseUrl || null,
+          releaseNotes: result?.changelog ? [result.changelog] : [],
+          error: result?.error || (!result ? 'Update bridge unavailable.' : null),
         });
-      } else if (status.state === 'available' || status.state === 'ready-to-install' || status.state === 'error') {
-        // Background check only surfaces noteworthy states.
-        setNotice(status.message);
-      }
-      trackDesktopEvent('update_check', { state: status.state, silent });
-      return status;
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
+        setUpdateStatus(status);
+        if (!silent) {
+          setNotice(status.message);
+          recordReceipt({
+            kind: 'system',
+            title: 'Update check',
+            summary: status.message,
+            status: status.state === 'error' ? 'failed' : 'info',
+            source: 'zavorth-desktop-update',
+          });
+        } else if (status.state === 'available' || status.state === 'ready-to-install' || status.state === 'error') {
+          // Background check only surfaces noteworthy states.
+          setNotice(status.message);
+        }
+        trackDesktopEvent('update_check', { state: status.state, silent });
+        return status;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
 
-      const status = buildDesktopUpdateStatus({
-        currentVersion: '0.1.0',
-        providerConfigured: false,
-        error: error instanceof Error ? err.message : 'Update check failed.',
-      });
-      setUpdateStatus(status);
-      return status;
-    }
-  }, [recordReceipt]);
+        const status = buildDesktopUpdateStatus({
+          currentVersion: '0.1.0',
+          providerConfigured: false,
+          error: error instanceof Error ? err.message : 'Update check failed.',
+        });
+        setUpdateStatus(status);
+        return status;
+      }
+    },
+    [recordReceipt],
+  );
 
   const downloadDesktopUpdate = useCallback(async () => {
     const result = await window.zavorthDesktop?.downloadUpdate?.();
@@ -927,8 +1070,8 @@ export function useDesktopAppState() {
   }, [recordReceipt]);
 
   const openGithubReleases = useCallback(async () => {
-    const result = await window.zavorthDesktop?.openGithubReleases?.()
-      || await window.zavorthDesktop?.downloadUpdate?.();
+    const result =
+      (await window.zavorthDesktop?.openGithubReleases?.()) || (await window.zavorthDesktop?.downloadUpdate?.());
     setNotice(result?.message || result?.error || 'Opened GitHub Releases.');
     trackDesktopEvent('open_github_releases', { ok: Boolean(result?.ok !== false) });
   }, []);
@@ -1034,97 +1177,111 @@ export function useDesktopAppState() {
     }
   }
 
-  const requestRuntimeInstrument = useCallback(async (input: {
-    domain: string;
-    operation: string;
-    metadata?: Record<string, unknown>;
-  }) => {
-    try {
-      const actionInput = runtimeInstrumentActionInput(input);
-      await dispatchRuntimeStateAction({
-        type: actionInput.type,
-        approved: true,
-        sessionId,
-        source: 'zavorth-desktop-statusbar',
-        payload: actionInput.payload,
+  const requestRuntimeInstrument = useCallback(
+    async (input: { domain: string; operation: string; metadata?: Record<string, unknown> }) => {
+      try {
+        const actionInput = runtimeInstrumentActionInput(input);
+        await dispatchRuntimeStateAction({
+          type: actionInput.type,
+          approved: true,
+          sessionId,
+          source: 'zavorth-desktop-statusbar',
+          payload: actionInput.payload,
+        });
+        await refreshHome();
+        await refreshPanels();
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+
+        setNotice(error instanceof Error ? err.message : 'Could not update runtime control.');
+      }
+    },
+    [refreshHome, refreshPanels, sessionId],
+  );
+
+  const applyRuntimeSelection = useCallback(
+    async (input: {
+      type: 'set-effort' | 'route-model' | 'set-workspace';
+      payload: Record<string, unknown>;
+      connectedModelIds?: string[];
+    }) => {
+      try {
+        await dispatchRuntimeStateAction({
+          type: input.type,
+          approved: true,
+          sessionId,
+          source: 'zavorth-desktop-bridge',
+          connectedModelIds: input.connectedModelIds,
+          payload: {
+            ...input.payload,
+            metadata: {
+              trustedDesktopBridge: true,
+              requestedFrom: 'desktop-command-bar',
+            },
+          },
+        });
+        await refreshHome();
+        await refreshPanels();
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+
+        setNotice(error instanceof Error ? err.message : 'Could not persist runtime selection.');
+      }
+    },
+    [refreshHome, refreshPanels, sessionId],
+  );
+
+  const handleEffortSelection = useCallback(
+    async (value: string) => {
+      setEffort(value);
+      await applyRuntimeSelection({
+        type: 'set-effort',
+        payload: { effort: value },
       });
-      await refreshHome();
-      await refreshPanels();
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
+    },
+    [applyRuntimeSelection],
+  );
 
-      setNotice(error instanceof Error ? err.message : 'Could not update runtime control.');
-    }
-  }, [refreshHome, refreshPanels, sessionId]);
-
-  const applyRuntimeSelection = useCallback(async (input: {
-    type: 'set-effort' | 'route-model' | 'set-workspace';
-    payload: Record<string, unknown>;
-    connectedModelIds?: string[];
-  }) => {
-    try {
-      await dispatchRuntimeStateAction({
-        type: input.type,
-        approved: true,
-        sessionId,
-        source: 'zavorth-desktop-bridge',
-        connectedModelIds: input.connectedModelIds,
+  const handleModelSelection = useCallback(
+    async (value: string) => {
+      setSelectedModel(value);
+      const model = connectedModelOptions.find((option) => option.id === value);
+      await applyRuntimeSelection({
+        type: 'route-model',
+        connectedModelIds: connectedModelOptions.map((option) => option.id),
         payload: {
-          ...input.payload,
-          metadata: {
-            trustedDesktopBridge: true,
-            requestedFrom: 'desktop-command-bar',
+          dynamicRouting: {
+            modelId: value,
+            providerId: model?.family || value.split(':')[0] || 'runtime',
+            intent: 'desktop-model-picker',
+            reason: `Desktop selected ${model?.label || value}.`,
+            fallbackModelIds: connectedModelOptions
+              .map((option) => option.id)
+              .filter((id) => id !== value)
+              .slice(0, 4),
+            risk: 'low',
           },
         },
       });
-      await refreshHome();
-      await refreshPanels();
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
+    },
+    [applyRuntimeSelection, connectedModelOptions],
+  );
 
-      setNotice(error instanceof Error ? err.message : 'Could not persist runtime selection.');
-    }
-  }, [refreshHome, refreshPanels, sessionId]);
-
-  const handleEffortSelection = useCallback(async (value: string) => {
-    setEffort(value);
-    await applyRuntimeSelection({
-      type: 'set-effort',
-      payload: { effort: value },
-    });
-  }, [applyRuntimeSelection]);
-
-  const handleModelSelection = useCallback(async (value: string) => {
-    setSelectedModel(value);
-    const model = connectedModelOptions.find(option => option.id === value);
-    await applyRuntimeSelection({
-      type: 'route-model',
-      connectedModelIds: connectedModelOptions.map(option => option.id),
-      payload: {
-        dynamicRouting: {
-          modelId: value,
-          providerId: model?.family || value.split(':')[0] || 'runtime',
-          intent: 'desktop-model-picker',
-          reason: `Desktop selected ${model?.label || value}.`,
-          fallbackModelIds: connectedModelOptions.map(option => option.id).filter(id => id !== value).slice(0, 4),
-          risk: 'low',
+  const handleWorkspaceScopeSelection = useCallback(
+    async (value: string) => {
+      const scope = workspaceScopes.find((candidate) => candidate.id === value);
+      if (!scope) {
+        return;
+      }
+      await applyRuntimeSelection({
+        type: 'set-workspace',
+        payload: {
+          workspace: workspaceScopeForMetadata(scope),
         },
-      },
-    });
-  }, [applyRuntimeSelection, connectedModelOptions]);
-
-  const handleWorkspaceScopeSelection = useCallback(async (value: string) => {
-    const scope = workspaceScopes.find(candidate => candidate.id === value);
-    if (!scope) {
-      return;
-    }
-    await applyRuntimeSelection({
-      type: 'set-workspace',
-      payload: {
-        workspace: workspaceScopeForMetadata(scope),
-      },
-    });
-  }, [applyRuntimeSelection, workspaceScopes]);
+      });
+    },
+    [applyRuntimeSelection, workspaceScopes],
+  );
 
   const handleWorkspaceFolderSelection = useCallback(async () => {
     const result = await window.zavorthDesktop?.selectWorkspaceFolder();
@@ -1152,7 +1309,11 @@ export function useDesktopAppState() {
       await resolveWorkspaceWriteApproval(operationId, decision);
       const wRes = await loadWorkspaceWriteApprovals(sessionId);
       setWorkspaceWriteApprovals(wRes);
-      appendLocalMessage(setMessages, 'system', `Workspace approval ${decision === 'approve' ? 'allowed' : 'blocked'}.`);
+      appendLocalMessage(
+        setMessages,
+        'system',
+        `Workspace approval ${decision === 'approve' ? 'allowed' : 'blocked'}.`,
+      );
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
@@ -1198,185 +1359,197 @@ export function useDesktopAppState() {
     }
   }
 
-  const handleHostCommandResolve = useCallback(async (
-    operationId: string,
-    decision: 'approve' | 'deny',
-    strongPhrase?: string,
-  ) => {
-    setBusy(true);
-    try {
-      await resolveHostCommand(operationId, decision, strongPhrase);
-      setPendingHostCommands(pendingHostCommands.filter(cmd =>
-        cmd.operation_id !== operationId && cmd.operationId !== operationId,
-      ));
-      appendLocalMessage(setMessages, 'system', `Host command proposal ${decision}d.`);
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-
-      setNotice(error instanceof Error ? err.message : 'Could not resolve host command proposal.');
-    } finally {
-      setBusy(false);
-    }
-  }, [pendingHostCommands]);
-
-  const handleSwitchSession = useCallback(async (nextSessionId: string) => {
-    const id = String(nextSessionId || '').trim();
-    if (!id) return;
-    setBusy(true);
-    try {
-      setSessionIdOverride(id);
-      setMessages([]);
-      setComposerInput('');
-      await switchDesktopSession(id);
-      await refreshHome(id);
-      await refreshPanels();
-      setActivePanel('chat');
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-
-      setNotice(err instanceof Error ? err.message : 'Error switching session.');
-    } finally {
-      setBusy(false);
-    }
-  }, [refreshHome, refreshPanels]);
-
-  const handleNewSession = useCallback(async (workspaceId?: string) => {
-    setBusy(true);
-    try {
-      const targetWorkspaceId = String(workspaceId || '').trim();
-      if (targetWorkspaceId && targetWorkspaceId !== 'chat') {
-        const scope = workspaceScopes.find(candidate => candidate.id === targetWorkspaceId);
-        if (scope) {
-          await applyRuntimeSelection({
-            type: 'set-workspace',
-            payload: { workspace: workspaceScopeForMetadata(scope) },
-          });
-        }
-      } else if (targetWorkspaceId === 'chat') {
-        const chatScope = workspaceScopes.find(scope => scope.kind === 'chat') || workspaceScopes[0];
-        if (chatScope) {
-          await applyRuntimeSelection({
-            type: 'set-workspace',
-            payload: { workspace: workspaceScopeForMetadata(chatScope) },
-          });
-        }
-      }
-
-      const surface = targetWorkspaceId && targetWorkspaceId !== 'chat'
-        ? targetWorkspaceId
-        : (activeWorkspaceScope?.label || activeWorkspaceScope?.id || 'desktop');
-
-      const created = await createDesktopSession({
-        label: 'New Chat',
-        surface,
-        workspaceId: targetWorkspaceId && targetWorkspaceId !== 'chat' ? targetWorkspaceId : activeWorkspaceScope?.id || null,
-      });
-
-      setSessionIdOverride(created.sessionId);
-      setMessages([]);
-      setComposerInput('');
-      setActivePanel('chat');
-
+  const handleHostCommandResolve = useCallback(
+    async (operationId: string, decision: 'approve' | 'deny', strongPhrase?: string) => {
+      setBusy(true);
       try {
-        await switchDesktopSession(created.sessionId);
-      } catch {
-        // Runtime may lazy-create on first home load.
+        await resolveHostCommand(operationId, decision, strongPhrase);
+        setPendingHostCommands(
+          pendingHostCommands.filter((cmd) => cmd.operation_id !== operationId && cmd.operationId !== operationId),
+        );
+        appendLocalMessage(setMessages, 'system', `Host command proposal ${decision}d.`);
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+
+        setNotice(error instanceof Error ? err.message : 'Could not resolve host command proposal.');
+      } finally {
+        setBusy(false);
       }
+    },
+    [pendingHostCommands],
+  );
 
-      await refreshHome(created.sessionId);
-      await refreshPanels();
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
+  const handleSwitchSession = useCallback(
+    async (nextSessionId: string) => {
+      const id = String(nextSessionId || '').trim();
+      if (!id) return;
+      setBusy(true);
+      try {
+        setSessionIdOverride(id);
+        setMessages([]);
+        setComposerInput('');
+        await switchDesktopSession(id);
+        await refreshHome(id);
+        await refreshPanels();
+        setActivePanel('chat');
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
 
-      setNotice(err instanceof Error ? err.message : 'Could not create a new session.');
-      // Local fallback so the user still gets a clean thread.
-      const fallbackId = `desktop-local-${Date.now().toString(36)}`;
-      setSessionIdOverride(fallbackId);
-      setMessages([]);
-      setComposerInput('');
-      setActivePanel('chat');
-    } finally {
-      setBusy(false);
-    }
-  }, [
-    activeWorkspaceScope?.id,
-    activeWorkspaceScope?.label,
-    applyRuntimeSelection,
-    refreshHome,
-    refreshPanels,
-    workspaceScopes,
-  ]);
+        setNotice(err instanceof Error ? err.message : 'Error switching session.');
+      } finally {
+        setBusy(false);
+      }
+    },
+    [refreshHome, refreshPanels],
+  );
+
+  const handleNewSession = useCallback(
+    async (workspaceId?: string) => {
+      setBusy(true);
+      try {
+        const targetWorkspaceId = String(workspaceId || '').trim();
+        if (targetWorkspaceId && targetWorkspaceId !== 'chat') {
+          const scope = workspaceScopes.find((candidate) => candidate.id === targetWorkspaceId);
+          if (scope) {
+            await applyRuntimeSelection({
+              type: 'set-workspace',
+              payload: { workspace: workspaceScopeForMetadata(scope) },
+            });
+          }
+        } else if (targetWorkspaceId === 'chat') {
+          const chatScope = workspaceScopes.find((scope) => scope.kind === 'chat') || workspaceScopes[0];
+          if (chatScope) {
+            await applyRuntimeSelection({
+              type: 'set-workspace',
+              payload: { workspace: workspaceScopeForMetadata(chatScope) },
+            });
+          }
+        }
+
+        const surface =
+          targetWorkspaceId && targetWorkspaceId !== 'chat'
+            ? targetWorkspaceId
+            : activeWorkspaceScope?.label || activeWorkspaceScope?.id || 'desktop';
+
+        const created = await createDesktopSession({
+          label: 'New Chat',
+          surface,
+          workspaceId:
+            targetWorkspaceId && targetWorkspaceId !== 'chat' ? targetWorkspaceId : activeWorkspaceScope?.id || null,
+        });
+
+        setSessionIdOverride(created.sessionId);
+        setMessages([]);
+        setComposerInput('');
+        setActivePanel('chat');
+
+        try {
+          await switchDesktopSession(created.sessionId);
+        } catch {
+          // Runtime may lazy-create on first home load.
+        }
+
+        await refreshHome(created.sessionId);
+        await refreshPanels();
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+
+        setNotice(err instanceof Error ? err.message : 'Could not create a new session.');
+        // Local fallback so the user still gets a clean thread.
+        const fallbackId = `desktop-local-${Date.now().toString(36)}`;
+        setSessionIdOverride(fallbackId);
+        setMessages([]);
+        setComposerInput('');
+        setActivePanel('chat');
+      } finally {
+        setBusy(false);
+      }
+    },
+    [
+      activeWorkspaceScope?.id,
+      activeWorkspaceScope?.label,
+      applyRuntimeSelection,
+      refreshHome,
+      refreshPanels,
+      workspaceScopes,
+    ],
+  );
 
   const handleAddSubagent = useCallback((role: string, typeName: string) => {
-    setSubagents(current => persistSubagents([...current, createSubagent(role, typeName)]));
+    setSubagents((current) => persistSubagents([...current, createSubagent(role, typeName)]));
   }, []);
 
   const handleDeleteSubagent = useCallback((id: string) => {
-    setSubagents(current => persistSubagents(deleteSubagent(current, id)));
+    setSubagents((current) => persistSubagents(deleteSubagent(current, id)));
   }, []);
 
   async function handleTriggerSubagentTask(id: string, task: string) {
-    const agent = subagents.find(item => item.id === id);
+    const agent = subagents.find((item) => item.id === id);
     if (!agent || !task.trim()) return;
     const safeTask = task.trim();
     const queued = $busy.get();
-    setSubagents(current => persistSubagents(queued
-      ? queueSubagentTask(current, id, safeTask)
-      : appendSubagentTask(current, id, safeTask)));
+    setSubagents((current) =>
+      persistSubagents(queued ? queueSubagentTask(current, id, safeTask) : appendSubagentTask(current, id, safeTask)),
+    );
     setActivePanel('chat');
     if (queued) {
       const ready = await waitForSubagentIdle(() => $busy.get());
       if (!ready) {
-        setSubagents(current => persistSubagents(blockSubagentTask(
-          current,
-          id,
-          'A tarefa continua na fila porque a execução atual ainda não terminou.',
-        )));
+        setSubagents((current) =>
+          persistSubagents(
+            blockSubagentTask(current, id, 'A tarefa continua na fila porque a execução atual ainda não terminou.'),
+          ),
+        );
         return;
       }
-      setSubagents(current => persistSubagents(startQueuedSubagentTask(current, id)));
+      setSubagents((current) => persistSubagents(startQueuedSubagentTask(current, id)));
     }
     if ($busy.get()) {
       const ready = await waitForSubagentIdle(() => $busy.get());
       if (!ready) {
-        setSubagents(current => persistSubagents(failSubagentTask(
-          current,
-          id,
-          'O runtime ainda está ocupado. Tente novamente em instantes.',
-        )));
+        setSubagents((current) =>
+          persistSubagents(
+            failSubagentTask(current, id, 'O runtime ainda está ocupado. Tente novamente em instantes.'),
+          ),
+        );
         return;
       }
     }
     const delivery = await sendMessage(
       `[Agente especializado: ${agent.role} / ${agent.typeName}]\n\nExecute esta tarefa e responda com evidências claras:\n${safeTask}`,
     );
-    setSubagents(current => persistSubagents(delivery.ok
-      ? completeSubagentTask(current, id, safeTask, delivery.assistantText)
-      : failSubagentTask(current, id, 'O runtime não recebeu a tarefa. Verifique a conexão e tente novamente.')));
+    setSubagents((current) =>
+      persistSubagents(
+        delivery.ok
+          ? completeSubagentTask(current, id, safeTask, delivery.assistantText)
+          : failSubagentTask(current, id, 'O runtime não recebeu a tarefa. Verifique a conexão e tente novamente.'),
+      ),
+    );
   }
 
-  const handleAddCustomProfile = useCallback((
-    name: string,
-    prompt: string,
-    effortValue: AgentProfile['effort'],
-    costLimit: number,
-  ) => {
-    const profile = createCustomProfile({
-      name,
-      systemPrompt: prompt,
-      effort: effortValue,
-      costLimit,
-    });
-    setCustomProfiles(current => persistCustomProfiles(addCustomProfile(current, profile)));
-  }, []);
+  const handleAddCustomProfile = useCallback(
+    (name: string, prompt: string, effortValue: AgentProfile['effort'], costLimit: number) => {
+      const profile = createCustomProfile({
+        name,
+        systemPrompt: prompt,
+        effort: effortValue,
+        costLimit,
+      });
+      setCustomProfiles((current) => persistCustomProfiles(addCustomProfile(current, profile)));
+    },
+    [],
+  );
 
-  const handleDeleteCustomProfile = useCallback((id: string) => {
-    setCustomProfiles(current => persistCustomProfiles(deleteCustomProfile(current, id)));
-    if (experienceProfile === id) {
-      setExperienceProfile('personal');
-      setEffort('medium');
-    }
-  }, [experienceProfile]);
+  const handleDeleteCustomProfile = useCallback(
+    (id: string) => {
+      setCustomProfiles((current) => persistCustomProfiles(deleteCustomProfile(current, id)));
+      if (experienceProfile === id) {
+        setExperienceProfile('personal');
+        setEffort('medium');
+      }
+    },
+    [experienceProfile],
+  );
 
   const handleActivateProfile = useCallback((profile: AgentProfile) => {
     setExperienceProfile(profile.id);
@@ -1396,7 +1569,7 @@ export function useDesktopAppState() {
         x: screenWidth - 260,
         y: screenHeight - 280,
         width: 240,
-        height: 240
+        height: 240,
       });
       setKaelActive(true);
     }

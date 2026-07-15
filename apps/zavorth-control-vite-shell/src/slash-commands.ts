@@ -203,9 +203,9 @@ export const SLASH_COMMANDS: SlashCommandDefinition[] = [
   {
     key: 'approvals',
     name: 'approvals',
-    aliases: ['approve', 'deny'],
-    description: 'Show or decide approvals by id',
-    args: '[approve|deny] <id> [permission|task|agent-run]',
+    aliases: ['approve', 'deny', 'reject'],
+    description: 'Show pending approvals or decide with /approve · /approve 1 (prefer card buttons)',
+    args: '[approve|deny|reject] [1|2|…] [permission|task|agent-run]',
     category: 'tools',
     executeLocal: true,
     queueWhenBusy: false,
@@ -396,11 +396,10 @@ export function getSlashCommandSuggestions(query: string, limit = 8) {
   const normalized = normalizeSlashIdentifier(query);
   const haystack = normalized.startsWith('/') ? normalized.slice(1) : normalized;
   const seen = new Set<string>();
-  return SLASH_COMMANDS
-    .filter((command) => {
-      const names = [command.name, command.key, ...(command.aliases || [])].map(normalizeSlashIdentifier);
-      return names.some((name) => name.startsWith(haystack));
-    })
+  return SLASH_COMMANDS.filter((command) => {
+    const names = [command.name, command.key, ...(command.aliases || [])].map(normalizeSlashIdentifier);
+    return names.some((name) => name.startsWith(haystack));
+  })
     .filter((command) => {
       if (seen.has(command.key)) return false;
       seen.add(command.key);
@@ -414,7 +413,9 @@ export function renderSlashCommandHelp(commands: SlashCommandDefinition[] = SLAS
     'Available dashboard commands:',
     '',
     ...commands.map((command) => {
-      const aliases = command.aliases?.length ? ` aliases: ${command.aliases.map((alias) => `/${alias}`).join(', ')}` : '';
+      const aliases = command.aliases?.length
+        ? ` aliases: ${command.aliases.map((alias) => `/${alias}`).join(', ')}`
+        : '';
       const args = command.args ? ` ${command.args}` : '';
       return `\`/${command.name}${args}\` - ${command.description}${aliases}`;
     }),

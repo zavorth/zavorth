@@ -25,6 +25,7 @@ import {
   ChartBar,
   Store,
   LayoutGrid,
+  Sparkles,
   type IconComponent,
 } from '../icons';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
@@ -60,6 +61,7 @@ const itemMeta: Record<DesktopPanel, { labelKey: string; Icon: IconComponent }> 
   files: { labelKey: 'files', Icon: Folder },
   workboard: { labelKey: 'workboard', Icon: LayoutGrid },
   memory: { labelKey: 'memory', Icon: Memory },
+  vibe: { labelKey: 'vibe', Icon: Sparkles },
   skills: { labelKey: 'skills', Icon: Skills },
   marketplace: { labelKey: 'marketplace', Icon: Store },
   channels: { labelKey: 'channels', Icon: Channels },
@@ -72,7 +74,7 @@ const itemMeta: Record<DesktopPanel, { labelKey: string; Icon: IconComponent }> 
 };
 
 function toSidebarItems(panels: DesktopPanel[]): SidebarItem[] {
-  return panels.map(panel => ({
+  return panels.map((panel) => ({
     panel,
     labelKey: itemMeta[panel].labelKey,
     Icon: itemMeta[panel].Icon,
@@ -139,39 +141,50 @@ export function DesktopSidebar(props: {
     saveSessionChrome(storage, next);
   }, []);
 
-  const handleRenameSession = useCallback((session: SessionEntry) => {
-    const current = getSessionLabel(sessionChrome, session.id, session.label || session.id);
-    const nextLabel = window.prompt(t('session.renamePrompt'), current);
-    if (nextLabel == null) {
+  const handleRenameSession = useCallback(
+    (session: SessionEntry) => {
+      const current = getSessionLabel(sessionChrome, session.id, session.label || session.id);
+      const nextLabel = window.prompt(t('session.renamePrompt'), current);
+      if (nextLabel == null) {
+        setMenuSessionId(null);
+        return;
+      }
+      persistChrome(renameSession(sessionChrome, session.id, nextLabel));
       setMenuSessionId(null);
-      return;
-    }
-    persistChrome(renameSession(sessionChrome, session.id, nextLabel));
-    setMenuSessionId(null);
-  }, [persistChrome, sessionChrome]);
+    },
+    [persistChrome, sessionChrome],
+  );
 
-  const handlePinSession = useCallback((session: SessionEntry) => {
-    const pinned = Boolean(sessionChrome[session.id]?.pinned);
-    persistChrome(pinSession(sessionChrome, session.id, !pinned));
-    setMenuSessionId(null);
-  }, [persistChrome, sessionChrome]);
+  const handlePinSession = useCallback(
+    (session: SessionEntry) => {
+      const pinned = Boolean(sessionChrome[session.id]?.pinned);
+      persistChrome(pinSession(sessionChrome, session.id, !pinned));
+      setMenuSessionId(null);
+    },
+    [persistChrome, sessionChrome],
+  );
 
-  const handleArchiveSession = useCallback((session: SessionEntry) => {
-    const archived = Boolean(sessionChrome[session.id]?.archived);
-    persistChrome(archiveSession(sessionChrome, session.id, !archived));
-    setMenuSessionId(null);
-  }, [persistChrome, sessionChrome]);
+  const handleArchiveSession = useCallback(
+    (session: SessionEntry) => {
+      const archived = Boolean(sessionChrome[session.id]?.archived);
+      persistChrome(archiveSession(sessionChrome, session.id, !archived));
+      setMenuSessionId(null);
+    },
+    [persistChrome, sessionChrome],
+  );
 
   const loadSessions = useCallback(async () => {
     try {
       if (window.zavorthDesktop?.listSessions) {
         const data = await window.zavorthDesktop.listSessions();
         if (Array.isArray(data)) {
-          const filtered = data.filter(s => !s.id?.startsWith('cron_'));
+          const filtered = data.filter((s) => !s.id?.startsWith('cron_'));
           setSessions(filtered);
         }
       }
-    } catch (error: unknown) { const err = asErrorLike(error); logger.error(err);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.error(err);
     }
   }, []);
 
@@ -215,36 +228,42 @@ export function DesktopSidebar(props: {
     );
   };
 
-  const badgeFor = useCallback((panel: DesktopPanel): number | undefined => {
-    if (panel === 'approvals') return props.pendingApprovals;
-    if (panel === 'receipts') return 0;
-    return undefined;
-  }, [props.pendingApprovals]);
+  const badgeFor = useCallback(
+    (panel: DesktopPanel): number | undefined => {
+      if (panel === 'approvals') return props.pendingApprovals;
+      if (panel === 'receipts') return 0;
+      return undefined;
+    },
+    [props.pendingApprovals],
+  );
 
-  const renderNavButton = useCallback((item: SidebarItem) => {
-    const count = badgeFor(item.panel);
-    return (
-      <button
-        aria-current={props.activePanel === item.panel ? 'page' : undefined}
-        className={props.activePanel === item.panel ? 'is-active' : ''}
-        data-panel={item.panel}
-        key={item.panel}
-        onClick={() => props.onPanel(item.panel)}
-        type="button"
-      >
-        <item.Icon className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
-        <span className="zvd-nav-label">{t(item.labelKey)}</span>
-        {count ? <span className="zvd-nav-count">{count}</span> : null}
-      </button>
-    );
-  }, [badgeFor, props]);
+  const renderNavButton = useCallback(
+    (item: SidebarItem) => {
+      const count = badgeFor(item.panel);
+      return (
+        <button
+          aria-current={props.activePanel === item.panel ? 'page' : undefined}
+          className={props.activePanel === item.panel ? 'is-active' : ''}
+          data-panel={item.panel}
+          key={item.panel}
+          onClick={() => props.onPanel(item.panel)}
+          type="button"
+        >
+          <item.Icon className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
+          <span className="zvd-nav-label">{t(item.labelKey)}</span>
+          {count ? <span className="zvd-nav-count">{count}</span> : null}
+        </button>
+      );
+    },
+    [badgeFor, props],
+  );
 
   const secondaryActive = useMemo(
-    () => secondaryItems.some(item => item.panel === props.activePanel),
+    () => secondaryItems.some((item) => item.panel === props.activePanel),
     [props.activePanel],
   );
 
-  const projectScopes = props.workspaceScopes.filter(scope => scope.kind === 'folder');
+  const projectScopes = props.workspaceScopes.filter((scope) => scope.kind === 'folder');
 
   const sortedSessions = useMemo(
     () => sortSessionsForSidebar(sessions, sessionChrome, { includeArchived: showArchived }),
@@ -252,71 +271,67 @@ export function DesktopSidebar(props: {
   );
 
   const chatSessions = useMemo(
-    () => sortedSessions.filter(s => !projectScopes.some(scope => matchesProject(s, scope))),
+    () => sortedSessions.filter((s) => !projectScopes.some((scope) => matchesProject(s, scope))),
     [sortedSessions, projectScopes],
   );
 
-  const renderSessionThread = useCallback((session: SessionEntry) => {
-    const label = getSessionLabel(sessionChrome, session.id, session.label || session.id);
-    const pinned = Boolean(sessionChrome[session.id]?.pinned);
-    const archived = Boolean(sessionChrome[session.id]?.archived);
-    const menuOpen = menuSessionId === session.id;
+  const renderSessionThread = useCallback(
+    (session: SessionEntry) => {
+      const label = getSessionLabel(sessionChrome, session.id, session.label || session.id);
+      const pinned = Boolean(sessionChrome[session.id]?.pinned);
+      const archived = Boolean(sessionChrome[session.id]?.archived);
+      const menuOpen = menuSessionId === session.id;
 
-    return (
-      <div
-        key={session.id}
-        className={`zvd-sidebar-thread-row ${session.id === props.currentSessionId ? 'is-active' : ''} ${archived ? 'is-archived' : ''} ${pinned ? 'is-pinned' : ''}`}
-      >
-        <button
-          className={`zvd-sidebar-thread-item ${session.id === props.currentSessionId ? 'is-active' : ''}`}
-          onClick={() => props.onSwitchSession?.(session.id)}
-          type="button"
+      return (
+        <div
+          key={session.id}
+          className={`zvd-sidebar-thread-row ${session.id === props.currentSessionId ? 'is-active' : ''} ${archived ? 'is-archived' : ''} ${pinned ? 'is-pinned' : ''}`}
         >
-          {pinned ? (
-            <span className="zvd-thread-pin" aria-label={t('session.pinned')} title={t('session.pinned')}>
-              📌
-            </span>
+          <button
+            className={`zvd-sidebar-thread-item ${session.id === props.currentSessionId ? 'is-active' : ''}`}
+            onClick={() => props.onSwitchSession?.(session.id)}
+            type="button"
+          >
+            {pinned ? (
+              <span className="zvd-thread-pin" aria-label={t('session.pinned')} title={t('session.pinned')}>
+                📌
+              </span>
+            ) : null}
+            <span className="zvd-thread-title">{label}</span>
+            <small className="zvd-thread-age">{formatRelativeTime(session.createdAt)}</small>
+          </button>
+          <button
+            type="button"
+            className={`zvd-thread-menu-btn ${menuOpen ? 'is-open' : ''}`}
+            aria-label={t('session.moreActions')}
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            title={t('session.moreActions')}
+            onClick={(event) => {
+              event.stopPropagation();
+              setMenuSessionId((current) => (current === session.id ? null : session.id));
+            }}
+          >
+            ⋯
+          </button>
+          {menuOpen ? (
+            <div className="zvd-session-menu" role="menu">
+              <button type="button" role="menuitem" onClick={() => handleRenameSession(session)}>
+                {t('session.rename')}
+              </button>
+              <button type="button" role="menuitem" onClick={() => handlePinSession(session)}>
+                {pinned ? t('session.unpin') : t('session.pin')}
+              </button>
+              <button type="button" role="menuitem" onClick={() => handleArchiveSession(session)}>
+                {archived ? t('session.unarchive') : t('session.archive')}
+              </button>
+            </div>
           ) : null}
-          <span className="zvd-thread-title">{label}</span>
-          <small className="zvd-thread-age">{formatRelativeTime(session.createdAt)}</small>
-        </button>
-        <button
-          type="button"
-          className={`zvd-thread-menu-btn ${menuOpen ? 'is-open' : ''}`}
-          aria-label={t('session.moreActions')}
-          aria-haspopup="menu"
-          aria-expanded={menuOpen}
-          title={t('session.moreActions')}
-          onClick={event => {
-            event.stopPropagation();
-            setMenuSessionId(current => (current === session.id ? null : session.id));
-          }}
-        >
-          ⋯
-        </button>
-        {menuOpen ? (
-          <div className="zvd-session-menu" role="menu">
-            <button type="button" role="menuitem" onClick={() => handleRenameSession(session)}>
-              {t('session.rename')}
-            </button>
-            <button type="button" role="menuitem" onClick={() => handlePinSession(session)}>
-              {pinned ? t('session.unpin') : t('session.pin')}
-            </button>
-            <button type="button" role="menuitem" onClick={() => handleArchiveSession(session)}>
-              {archived ? t('session.unarchive') : t('session.archive')}
-            </button>
-          </div>
-        ) : null}
-      </div>
-    );
-  }, [
-    handleArchiveSession,
-    handlePinSession,
-    handleRenameSession,
-    menuSessionId,
-    props,
-    sessionChrome,
-  ]);
+        </div>
+      );
+    },
+    [handleArchiveSession, handlePinSession, handleRenameSession, menuSessionId, props, sessionChrome],
+  );
 
   return (
     <aside className={`zvd-sidebar ${props.collapsed ? 'is-collapsed' : ''}`} aria-label="Desktop navigation">
@@ -387,12 +402,14 @@ export function DesktopSidebar(props: {
             className={`zvd-sidebar-more-toggle zvd-nav-secondary-link ${moreOpen ? 'is-open' : ''}`}
             type="button"
             aria-expanded={moreOpen}
-            onClick={() => setMoreOpen(open => !open)}
+            onClick={() => setMoreOpen((open) => !open)}
             title={t('nav.more')}
           >
-            {moreOpen
-              ? <ChevronDown className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
-              : <ChevronRight className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />}
+            {moreOpen ? (
+              <ChevronDown className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
+            ) : (
+              <ChevronRight className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
+            )}
             <span className="zvd-nav-label">{t('nav.more')}</span>
           </button>
           {moreOpen ? (
@@ -418,78 +435,82 @@ export function DesktopSidebar(props: {
           )}
         </div>
         <div className="zvd-sidebar-projects-list">
-        {projectScopes.map(scope => {
-          const isActiveProject = props.workspaceScope.id === scope.id;
-          const projectSess = sessions.filter(s => matchesProject(s, scope));
+          {projectScopes.map((scope) => {
+            const isActiveProject = props.workspaceScope.id === scope.id;
+            const projectSess = sessions.filter((s) => matchesProject(s, scope));
 
-          return (
-            <div key={scope.id} className={`zvd-project-group ${isActiveProject ? 'is-active' : ''}`}>
-              <div
-                className={`zvd-project-root ${isActiveProject ? 'is-active' : ''}`}
-                title={scope.path || scope.label}
-              >
-                <button
-                  className="zvd-project-btn"
-                  type="button"
-                  onClick={() => {
-                    props.onWorkspaceScope(scope.id);
-                    props.onPanel('chat');
-                  }}
+            return (
+              <div key={scope.id} className={`zvd-project-group ${isActiveProject ? 'is-active' : ''}`}>
+                <div
+                  className={`zvd-project-root ${isActiveProject ? 'is-active' : ''}`}
+                  title={scope.path || scope.label}
                 >
-                  <Folder className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
-                  <span>{scope.label}</span>
-                </button>
-                <button
-                  className="zvd-project-add-session"
-                  type="button"
-                  title="New conversation"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    props.onNewSessionWithWorkspace?.(scope.id);
-                  }}
-                >
-                  <Plus aria-hidden="true" size={14} stroke={2} />
-                </button>
-              </div>
-
-              {isActiveProject && !props.collapsed && (
-                <div className="zvd-project-sub-sessions">
-                  {(() => {
-                    const projectVisible = sortSessionsForSidebar(projectSess, sessionChrome, {
-                      includeArchived: showArchived,
-                    });
-                    if (projectVisible.length === 0) {
-                      return <div className="zvd-sidebar-no-threads">{t('nav.noConversations')}</div>;
-                    }
-                    return projectVisible.map(renderSessionThread);
-                  })()}
-
-                  {/* Trust controls nested inside active project */}
-                  {props.workspaceScope.path && (
-                    <div style={{ padding: '8px 4px', display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid var(--zvd-border-soft)' }}>
-                      <WorkspaceTrustControl
-                        workspaceId={props.workspaceScope.id}
-                        workspaceRoot={props.workspaceScope.path}
-                      />
-                      {props.activeMandate !== undefined && (
-                        <WorkspaceTaskMandateStatus
-                          activeMandate={props.activeMandate}
-                          onRevoke={props.onRevokeMandate || (async () => {})}
-                        />
-                      )}
-                      <TemporaryDirectoryTrustStatus
-                        workspaceId={props.workspaceScope.id}
-                      />
-                      <HostPowerModeControl
-                        workspaceId={props.workspaceScope.id}
-                      />
-                    </div>
-                  )}
+                  <button
+                    className="zvd-project-btn"
+                    type="button"
+                    onClick={() => {
+                      props.onWorkspaceScope(scope.id);
+                      props.onPanel('chat');
+                    }}
+                  >
+                    <Folder className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
+                    <span>{scope.label}</span>
+                  </button>
+                  <button
+                    className="zvd-project-add-session"
+                    type="button"
+                    title="New conversation"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      props.onNewSessionWithWorkspace?.(scope.id);
+                    }}
+                  >
+                    <Plus aria-hidden="true" size={14} stroke={2} />
+                  </button>
                 </div>
-              )}
-            </div>
-          );
-        })}
+
+                {isActiveProject && !props.collapsed && (
+                  <div className="zvd-project-sub-sessions">
+                    {(() => {
+                      const projectVisible = sortSessionsForSidebar(projectSess, sessionChrome, {
+                        includeArchived: showArchived,
+                      });
+                      if (projectVisible.length === 0) {
+                        return <div className="zvd-sidebar-no-threads">{t('nav.noConversations')}</div>;
+                      }
+                      return projectVisible.map(renderSessionThread);
+                    })()}
+
+                    {/* Trust controls nested inside active project */}
+                    {props.workspaceScope.path && (
+                      <div
+                        style={{
+                          padding: '8px 4px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '8px',
+                          borderTop: '1px solid var(--zvd-border-soft)',
+                        }}
+                      >
+                        <WorkspaceTrustControl
+                          workspaceId={props.workspaceScope.id}
+                          workspaceRoot={props.workspaceScope.path}
+                        />
+                        {props.activeMandate !== undefined && (
+                          <WorkspaceTaskMandateStatus
+                            activeMandate={props.activeMandate}
+                            onRevoke={props.onRevokeMandate || (async () => {})}
+                          />
+                        )}
+                        <TemporaryDirectoryTrustStatus workspaceId={props.workspaceScope.id} />
+                        <HostPowerModeControl workspaceId={props.workspaceScope.id} />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -518,7 +539,7 @@ export function DesktopSidebar(props: {
           <button
             type="button"
             className={`zvd-sidebar-archived-toggle ${showArchived ? 'is-active' : ''}`}
-            onClick={() => setShowArchived(value => !value)}
+            onClick={() => setShowArchived((value) => !value)}
           >
             {showArchived ? t('session.hideArchived') : t('session.showArchived')}
           </button>

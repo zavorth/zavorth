@@ -1,14 +1,32 @@
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useStore } from '@nanostores/react';
 import { IconArrowLeft, IconArrowRight, IconRefresh, IconExternalLink } from '@tabler/icons-react';
+import { $previewRefreshNonce, $previewUrl, setPreviewUrl } from '../store/preview';
+import { DEFAULT_PREVIEW_URL, normalizePreviewUrl } from '../vibe/vibeScaffoldHints';
 
 export function WebPreviewView(_props: {
   mode?: 'page' | 'rail';
   runtimeCapabilities?: unknown;
   workspaceScope?: unknown;
 }) {
-  const [url, setUrl] = useState('http://localhost:5173');
-  const [inputUrl, setInputUrl] = useState('http://localhost:5173');
+  const storeUrl = useStore($previewUrl);
+  const refreshNonce = useStore($previewRefreshNonce);
+  const [url, setUrl] = useState(storeUrl || DEFAULT_PREVIEW_URL);
+  const [inputUrl, setInputUrl] = useState(storeUrl || DEFAULT_PREVIEW_URL);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    const next = storeUrl || DEFAULT_PREVIEW_URL;
+    setUrl(next);
+    setInputUrl(next);
+  }, [storeUrl]);
+
+  useEffect(() => {
+    if (!refreshNonce) return;
+    if (iframeRef.current) {
+      iframeRef.current.src = url;
+    }
+  }, [refreshNonce, url]);
 
   const handleRefresh = () => {
     if (iframeRef.current) {
@@ -18,16 +36,18 @@ export function WebPreviewView(_props: {
 
   const handleGo = (e: React.FormEvent) => {
     e.preventDefault();
-    let formatted = inputUrl.trim();
-    if (!/^https?:\/\//i.test(formatted)) {
-      formatted = 'http://' + formatted;
-    }
+    const formatted = normalizePreviewUrl(inputUrl, DEFAULT_PREVIEW_URL);
     setUrl(formatted);
     setInputUrl(formatted);
+    setPreviewUrl(formatted);
   };
 
   return (
-    <section className="zvd-page" aria-label="Web Preview" style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <section
+      className="zvd-page"
+      aria-label="Web Preview"
+      style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', height: '100%' }}
+    >
       <style>{`
         .zvd-preview-container {
           display: flex;
@@ -92,13 +112,13 @@ export function WebPreviewView(_props: {
       `}</style>
       <div className="zvd-preview-container">
         <div className="zvd-preview-toolbar">
-          <button type="button" className="zvd-preview-btn" onClick={() => window.history.back()} title="Voltar">
+          <button type="button" className="zvd-preview-btn" onClick={() => window.history.back()} title="Back">
             <IconArrowLeft size={16} />
           </button>
           <button type="button" className="zvd-preview-btn" onClick={() => window.history.forward()} title="Forward">
             <IconArrowRight size={16} />
           </button>
-          <button type="button" className="zvd-preview-btn" onClick={handleRefresh} title="Atualizar">
+          <button type="button" className="zvd-preview-btn" onClick={handleRefresh} title="Refresh">
             <IconRefresh size={16} />
           </button>
 
@@ -107,12 +127,12 @@ export function WebPreviewView(_props: {
               type="text"
               className="zvd-preview-address-input"
               value={inputUrl}
-              onChange={e => setInputUrl(e.target.value)}
-              placeholder="Digite a URL local ou externa..."
+              onChange={(e) => setInputUrl(e.target.value)}
+              placeholder="Local or external preview URL..."
             />
           </form>
 
-          <a href={url} target="_blank" rel="noreferrer" className="zvd-preview-btn" title="Abrir no Navegador">
+          <a href={url} target="_blank" rel="noreferrer" className="zvd-preview-btn" title="Open in browser">
             <IconExternalLink size={16} />
           </a>
         </div>
