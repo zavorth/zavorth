@@ -162,10 +162,12 @@ describe('SkillWorkerMeshDemo J1+J2', () => {
  });
 
  it('product surface: daily-ops prefers mesh tools + guidance brand-safe', () => {
- expect(isDailyOpsPreferredTool('zavorth_skill_marketplace')).toBe(true);
+ // Bulk marketplace is deferred from lean daily-ops (reach via plugin_suggest / miss path).
+ expect(isDailyOpsPreferredTool('zavorth_skill_marketplace')).toBe(false);
+ expect(isDailyOpsPreferredTool('plugin_suggest')).toBe(true);
  expect(isDailyOpsPreferredTool('agent_manager')).toBe(true);
  const guidance = formatAgentToolModelGuidance();
- expect(guidance).toMatch(/zavorth_skill_marketplace/);
+ expect(guidance).toMatch(/plugin_suggest|zavorth_skill_marketplace|agent_manager/);
  expect(guidance).toMatch(/agent_manager/);
  const creds = formatCredentialReadinessBlock();
  expect(creds).not.toMatch(/sk-[a-z0-9]{10}/i);

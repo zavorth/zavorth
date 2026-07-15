@@ -39,10 +39,9 @@ describe('Approval bypass guardrails (S4)', () => {
 
   it('RiskBudget observer blocks mutation spends and does not unfreeze via trusted operator', () => {
     const service = new RiskBudgetService({
-      mode: 'observer',
-      persist: false,
       trustedOperator: { isEnabled: () => true },
     });
+    service.setMode('observer');
     const blocked = service.spend({
       dimension: 'diskMutations',
       amount: 1,
