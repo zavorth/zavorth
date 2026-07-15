@@ -3,6 +3,11 @@
 Mnemos is Zavorth's governed local memory layer. It keeps useful context across
 sessions without turning memory into a hidden black box.
 
+In the product map this is the **Knowledge** pillar of the
+[Learned Knowledge Plane](./product/learned-knowledge-plane.md) (project facts /
+wiki FTS). Conversation continuum and experience skill drafts are sibling pillars,
+not replacements for Mnemos.
+
 ## What It Does
 
 - Maintains working, episodic, semantic and procedural memory layers.
@@ -17,12 +22,12 @@ sessions without turning memory into a hidden black box.
 
 ## Memory Tiers
 
-| Tier | Purpose |
-| --- | --- |
-| Working | Active session context and recent turns. |
-| Episodic | Receipts, run summaries, timelines and failures. |
-| Semantic | Project facts, architecture decisions and workspace wiki pages. |
-| Procedural | Operator preferences and governed habits. |
+| Tier       | Purpose                                                         |
+| ---------- | --------------------------------------------------------------- |
+| Working    | Active session context and recent turns.                        |
+| Episodic   | Receipts, run summaries, timelines and failures.                |
+| Semantic   | Project facts, architecture decisions and workspace wiki pages. |
+| Procedural | Operator preferences and governed habits.                       |
 
 ## Core Commands
 

@@ -13,7 +13,12 @@ import { ChannelPolicyManager } from '../channels/policies/ChannelPolicyManager.
 import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import type { ChannelAdapterStatus, ChannelFeatureSet } from '../contracts/ChannelMeshContract.js';
-import type { PlatformReadiness, PlatformImplementationState, PlatformTransport, PlatformKey } from '../contracts/PlatformContract.js';
+import type {
+  PlatformReadiness,
+  PlatformImplementationState,
+  PlatformTransport,
+  PlatformKey,
+} from '../contracts/PlatformContract.js';
 import type { IMessageContext } from '../contracts/core/IMessageBroker.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
@@ -55,7 +60,9 @@ export type WebhookGatewayOptions = {
 };
 
 interface WebhookBroker {
-  processMessage(ctx: Pick<IMessageContext, 'platform' | 'userId' | 'chatId' | 'messageId' | 'isGroup' | 'rawText' | 'reply'>): Promise<void>;
+  processMessage(
+    ctx: Pick<IMessageContext, 'platform' | 'userId' | 'chatId' | 'messageId' | 'isGroup' | 'rawText' | 'reply'>,
+  ): Promise<void>;
 }
 
 interface OutboundPayload {
@@ -109,7 +116,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
 
   constructor(options: WebhookGatewayOptions | Record<string, unknown>) {
     const isOptionsObj = options && typeof options === 'object' && 'eventBus' in options;
-    const opts = isOptionsObj ? options as WebhookGatewayOptions : null;
+    const opts = isOptionsObj ? (options as WebhookGatewayOptions) : null;
 
     this.eventBus = opts?.eventBus || new GatewayEventBus();
     this.policyManager = opts?.policyManager || new ChannelPolicyManager();
@@ -146,7 +153,10 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     }
     try {
       return JSON.parse(fs.readFileSync(this.statusFile, 'utf8')) as WebhookGatewayStatusSnapshot;
-    } catch (error: unknown) {logger.warn('[Webhook way] JSON parse failed', error); return null; }
+    } catch (error: unknown) {
+      logger.warn('[Webhook way] JSON parse failed', error);
+      return null;
+    }
   }
 
   public abstract describe(): ChannelAdapterStatus;
@@ -178,13 +188,27 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     const chatId = String(extracted.chatId || '').trim() || this.id;
     let rawText = String(extracted.rawText || '').trim();
 
+    const isAllowed = await this.policyManager.verifyAccess(this.id, userId);
+    if (!isAllowed) {
+      this.auditLogger.logChannelAccessDecision({
+        event: 'channel_message_blocked',
+        decision: 'blocked',
+        channel: this.id,
+        chatId,
+        isGroup: Boolean(extracted.isGroup),
+        channelUserId: userId,
+        channelUserIdAllowed: false,
+        reason: 'unauthorized_user',
+        triggerType: 'none',
+      });
+      return false;
+    }
+
     // Gap 5 — voice notes on messaging webhooks (WhatsApp/Slack/etc.) when payload carries audio URL
     try {
-      const {
-        extractAudioMediaFromPayload,
-        ingestMessagingVoiceFromUrl,
-        mergeMessagingVoiceText,
-      } = await import('../services/voice/MessagingChannelVoiceIngest.js');
+      const { extractAudioMediaFromPayload, ingestMessagingVoiceFromUrl, mergeMessagingVoiceText } = await import(
+        '../services/voice/MessagingChannelVoiceIngest.js'
+      );
       let resolvedMedia = extractAudioMediaFromPayload(webhookPayload);
       const extractedMediaUrl = String((extracted as { mediaUrl?: string }).mediaUrl || '').trim();
       if (!resolvedMedia?.url && extractedMediaUrl) {
@@ -222,22 +246,6 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
       scale.recordActivity(this.id);
     } catch {
       // Activity tracking must never block message delivery.
-    }
-
-    const isAllowed = await this.policyManager.verifyAccess(this.id, userId);
-    if (!isAllowed) {
-      this.auditLogger.logChannelAccessDecision({
-        event: 'channel_message_blocked',
-        decision: 'blocked',
-        channel: this.id,
-        chatId,
-        isGroup: Boolean(extracted.isGroup),
-        channelUserId: userId,
-        channelUserIdAllowed: false,
-        reason: 'unauthorized_user',
-        triggerType: 'none',
-      });
-      return false;
     }
 
     this.lastInboundAt = this.now().toISOString();
@@ -314,30 +322,32 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
           reply: async (text: string) => {
             await this.sendMessage({ chatId, text });
           },
-        }
+        },
       );
     }
 
-    await this.eventBus.emit(buildInboundChannelEvent({
-      platform: this.id as CanonicalChannelPlatform,
-      userId,
-      chatId,
-      rawText,
-      messageId: extracted.messageId || null,
-      now: this.now(),
-      fields: extracted.fields || {},
-    }));
+    await this.eventBus.emit(
+      buildInboundChannelEvent({
+        platform: this.id as CanonicalChannelPlatform,
+        userId,
+        chatId,
+        rawText,
+        messageId: extracted.messageId || null,
+        now: this.now(),
+        fields: extracted.fields || {},
+      }),
+    );
     return true;
   }
 
   public async sendMessage(outboundPayload: Record<string, unknown> | string): Promise<ChannelGatewayDeliveryResult> {
-    const message = typeof outboundPayload === 'string'
-      ? outboundPayload
-      : String(outboundPayload?.text || outboundPayload?.message || '').trim();
+    const message =
+      typeof outboundPayload === 'string'
+        ? outboundPayload
+        : String(outboundPayload?.text || outboundPayload?.message || '').trim();
 
-    const recipients = isOutboundPayload(outboundPayload) && Array.isArray(outboundPayload.recipients)
-      ? outboundPayload.recipients
-      : [];
+    const recipients =
+      isOutboundPayload(outboundPayload) && Array.isArray(outboundPayload.recipients) ? outboundPayload.recipients : [];
 
     if (this.resolveConfigured() && this.fetchImpl) {
       const live = await this.dispatchLive(message, recipients, outboundPayload);
@@ -353,14 +363,25 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
           transport: `${this.mode}-configured`,
           recipients,
           message,
-          payload: outboundPayload && typeof outboundPayload === 'object' ? outboundPayload as Record<string, unknown> : null,
+          payload:
+            outboundPayload && typeof outboundPayload === 'object'
+              ? (outboundPayload as Record<string, unknown>)
+              : null,
           now: this.now(),
           fields: {
-            chatId: String((outboundPayload as OutboundPayload)?.chatId || (outboundPayload as OutboundPayload)?.to || '').trim() || null,
+            chatId:
+              String(
+                (outboundPayload as OutboundPayload)?.chatId || (outboundPayload as OutboundPayload)?.to || '',
+              ).trim() || null,
           },
         });
         persistChannelOutboxEnvelope(this.outboxDir, envelope);
-        return { ok: false, status: 'queued', transport: 'local-outbox', reason: `Transient error (${live.reason}), queued for retry.` };
+        return {
+          ok: false,
+          status: 'queued',
+          transport: 'local-outbox',
+          reason: `Transient error (${live.reason}), queued for retry.`,
+        };
       }
 
       return live;
@@ -371,10 +392,14 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
       transport: this.resolveConfigured() ? `${this.mode}-configured` : 'local-outbox',
       recipients,
       message,
-      payload: outboundPayload && typeof outboundPayload === 'object' ? outboundPayload as Record<string, unknown> : null,
+      payload:
+        outboundPayload && typeof outboundPayload === 'object' ? (outboundPayload as Record<string, unknown>) : null,
       now: this.now(),
       fields: {
-        chatId: String((outboundPayload as OutboundPayload)?.chatId || (outboundPayload as OutboundPayload)?.to || '').trim() || null,
+        chatId:
+          String(
+            (outboundPayload as OutboundPayload)?.chatId || (outboundPayload as OutboundPayload)?.to || '',
+          ).trim() || null,
       },
     });
 
@@ -394,19 +419,36 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
       return false;
     }
     const transientKeywords = [
-      'fetch failed', 'timeout', 'econnrefused', 'enotfound', 'etimedout',
-      'network error', 'socket hung up', 'aborted', 'failed to fetch'
+      'fetch failed',
+      'timeout',
+      'econnrefused',
+      'enotfound',
+      'etimedout',
+      'network error',
+      'socket hung up',
+      'aborted',
+      'failed to fetch',
     ];
     const reason = String(result.reason || '').toLowerCase();
-    return transientKeywords.some(keyword => reason.includes(keyword));
+    return transientKeywords.some((keyword) => reason.includes(keyword));
   }
 
-  public async retrySendLive(message: string, recipients: unknown[], rawPayload: Record<string, unknown> | string): Promise<ChannelGatewayDeliveryResult> {
+  public async retrySendLive(
+    message: string,
+    recipients: unknown[],
+    rawPayload: Record<string, unknown> | string,
+  ): Promise<ChannelGatewayDeliveryResult> {
     return this.dispatchLive(message, recipients, rawPayload);
   }
 
-  private async dispatchLive(message: string, recipients: unknown[], rawPayload: Record<string, unknown> | string): Promise<ChannelGatewayDeliveryResult> {
-    const target = String((rawPayload as OutboundPayload)?.chatId || (rawPayload as OutboundPayload)?.to || recipients[0] || '').trim();
+  private async dispatchLive(
+    message: string,
+    recipients: unknown[],
+    rawPayload: Record<string, unknown> | string,
+  ): Promise<ChannelGatewayDeliveryResult> {
+    const target = String(
+      (rawPayload as OutboundPayload)?.chatId || (rawPayload as OutboundPayload)?.to || recipients[0] || '',
+    ).trim();
     const plan = ChannelLiveTransportRegistry.plan({
       channelId: this.id,
       message,
@@ -434,7 +476,12 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     }
 
     if (!this.fetchImpl) {
-      return { ok: false, status: 'failed', transport: this.mode, reason: 'No fetch implementation available for live send.' };
+      return {
+        ok: false,
+        status: 'failed',
+        transport: this.mode,
+        reason: 'No fetch implementation available for live send.',
+      };
     }
 
     try {
@@ -445,7 +492,13 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
       });
       return response.ok
         ? { ok: true, status: 'delivered', transport: `${this.mode}:${plan.kind}`, httpStatus: response.status }
-        : { ok: false, status: 'failed', transport: `${this.mode}:${plan.kind}`, httpStatus: response.status, reason: `HTTP ${response.status}` };
+        : {
+            ok: false,
+            status: 'failed',
+            transport: `${this.mode}:${plan.kind}`,
+            httpStatus: response.status,
+            reason: `HTTP ${response.status}`,
+          };
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[WebhookGateway] live transport request failed', error);
@@ -615,11 +668,15 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
   }
 
   public handleCommandDeck(rawText: string): string | null {
-    const text = String(rawText || '').trim().toLowerCase();
+    const text = String(rawText || '')
+      .trim()
+      .toLowerCase();
     if (!text.startsWith('/')) return null;
     const cmd = text.split(/\s+/)[0];
     if (cmd === '/help' || cmd === '/commands') {
-      return this.commandDeckMin().map((entry) => `${entry.command} — ${entry.summary}`).join('\n');
+      return this.commandDeckMin()
+        .map((entry) => `${entry.command} — ${entry.summary}`)
+        .join('\n');
     }
     if (cmd === '/status' || cmd === '/gateway') {
       const doctor = this.doctorSnapshot();
@@ -676,7 +733,10 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     }
   }
 
-  public async mockOutbound(text = 'zavorth mock outbound', chatId?: string | null): Promise<ChannelGatewayDeliveryResult> {
+  public async mockOutbound(
+    text = 'zavorth mock outbound',
+    chatId?: string | null,
+  ): Promise<ChannelGatewayDeliveryResult> {
     const target = String(chatId || `${this.id}-mock`).trim();
     return this.sendMessage({
       text: this.redactSecrets(text) || 'zavorth mock outbound',
@@ -689,7 +749,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     if (value == null) return null;
     return String(value)
       .replace(/(token|secret|password|api[_-]?key|authorization|bearer)\s*[:=]\s*([^\s,;]+)/gi, '$1=***')
-      .replace(/\b[A-Za-z0-9_-]{24,}\b/g, (match) => (match.length > 32 ? `${match.slice(0, 4)}…***` : match));
+      .replace(/\b[A-Za-z0-9_-]{24}\b/g, (match) => (match.length > 32 ? `${match.slice(0, 4)}…***` : match));
   }
 }
 

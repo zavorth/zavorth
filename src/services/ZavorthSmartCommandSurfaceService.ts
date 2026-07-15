@@ -230,7 +230,11 @@ export class ZavorthSmartCommandSurfaceService {
   }
 
   public listCommands(): ZavorthSmartCommandResolution[] {
-    return SMART_COMMANDS.map((entry) => ({ ...entry, aliases: [...entry.aliases], supportedSurfaces: [...entry.supportedSurfaces] }));
+    return SMART_COMMANDS.map((entry) => ({
+      ...entry,
+      aliases: [...entry.aliases],
+      supportedSurfaces: [...entry.supportedSurfaces],
+    }));
   }
 
   public canHandle(rawText: string): boolean {
@@ -259,11 +263,13 @@ export class ZavorthSmartCommandSurfaceService {
       providers,
     };
     const status = command ? statusFor(command, ctx) : 'not-handled';
-    const reply = command ? replyFor(command, ctx) : {
-      title: 'Comando nao reconhecido',
-      body: 'Esse texto deve seguir pelo runtime natural-first como conversa normal.',
-      hints: ['Use /status ou /skills para comandos diretos.'],
-    };
+    const reply = command
+      ? replyFor(command, ctx)
+      : {
+          title: 'Comando nao reconhecido',
+          body: 'Esse texto deve seguir pelo runtime natural-first como conversa normal.',
+          hints: ['Use /status ou /skills para comandos diretos.'],
+        };
 
     return {
       generatedAt: this.now().toISOString(),
@@ -281,8 +287,12 @@ export class ZavorthSmartCommandSurfaceService {
       sessionId,
       reply,
       action: {
-        performed: command ? command.executionMode === 'session-local' && (command.id === 'new' || command.id === 'reset') : false,
-        requiresApproval: command ? command.executionMode === 'approval-gated' || (command.executionMode === 'state-preview' && ctx.apply) : false,
+        performed: command
+          ? command.executionMode === 'session-local' && (command.id === 'new' || command.id === 'reset')
+          : false,
+        requiresApproval: command
+          ? command.executionMode === 'approval-gated' || (command.executionMode === 'state-preview' && ctx.apply)
+          : false,
         approvalReason: command ? approvalReasonFor(command, ctx) : null,
         nextCommand: command ? nextCommandFor(command, ctx) : null,
       },
@@ -335,9 +345,7 @@ export class ZavorthSmartCommandSurfaceService {
       return { id: null, args: '' };
     }
     const first = normalizeKey(normalized.split(/\s+/)[0] || '');
-    const args = stripSmartCommandRuntimeFlags(
-      normalized.slice((normalized.split(/\s+/)[0] || '').length).trim(),
-    );
+    const args = stripSmartCommandRuntimeFlags(normalized.slice((normalized.split(/\s+/)[0] || '').length).trim());
     const command = COMMAND_BY_ALIAS.get(first) || null;
     return {
       id: command?.id || null,
@@ -362,13 +370,14 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
     return {
       title: command.id === 'new' ? 'Nova conversa pronta' : 'Conversa reiniciada',
       body: 'O canal atual recebeu um novo contexto de conversa. Memoria e receipts historicos continuam auditaveis.',
-      hints: ['Escreva seu proximo pedido em texto livre.', 'Use /history para revisar conversas anteriores quando disponivel.'],
+      hints: [
+        'Escreva seu proximo pedido em texto livre.',
+        'Use /history para revisar conversas anteriores quando disponivel.',
+      ],
     };
   }
   if (command.id === 'model') {
-    const current = ctx.providers
-      ? `${ctx.providers.activeProvider}/${ctx.providers.activeModel}`
-      : 'provider atual';
+    const current = ctx.providers ? `${ctx.providers.activeProvider}/${ctx.providers.activeModel}` : 'provider atual';
     return {
       title: args ? 'Troca de modelo preparada' : 'Modelo atual',
       body: args
@@ -379,7 +388,7 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
   }
   if (command.id === 'personality') {
     return {
-      title: args ? 'Persona preparada' : 'Personas do Zavorth',
+      title: args ? 'Persona prepared' : 'Zavorth personas',
       body: args
         ? `Persona "${args}" ficou em preview. Aplicar persona altera comportamento persistente e exige approval.`
         : 'Use /personality <nome> para propor uma persona ou tom de trabalho.',
@@ -397,7 +406,10 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
     return {
       title: 'Rollback preparado',
       body: 'Vou procurar receipt reversivel e gerar preview de rollback. Desfazer escrita ou acao externa exige approval.',
-      hints: ['Use /undo <receipt-id> quando souber o recibo.', 'Rollback inexistente vira explicacao, nao tentativa cega.'],
+      hints: [
+        'Use /undo <receipt-id> quando souber o recibo.',
+        'Rollback inexistente vira explicacao, nao tentativa cega.',
+      ],
     };
   }
   if (command.id === 'compress') {
@@ -409,7 +421,7 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
   }
   if (command.id === 'usage') {
     return {
-      title: 'Uso do Zavorth',
+      title: 'Zavorth usage',
       body: `Comandos inteligentes: ${SMART_COMMANDS.length}. Skills conhecidas: ${ctx.skills.length}. Providers catalogados: ${ctx.providers?.summary?.providerRoutes || 0}.`,
       hints: ['Use /insights para leitura dos ultimos dias.', 'Use /model para rota de provider/modelo.'],
     };
@@ -423,13 +435,18 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
   }
   if (command.id === 'skills') {
     const matches = args
-      ? ctx.skills.filter((skill) => `${skill.name} ${skill.description} ${skill.searchText}`.toLowerCase().includes(args.toLowerCase())).slice(0, 5)
+      ? ctx.skills
+          .filter((skill) =>
+            `${skill.name} ${skill.description} ${skill.searchText}`.toLowerCase().includes(args.toLowerCase()),
+          )
+          .slice(0, 5)
       : ctx.skills.slice(0, 5);
     return {
-      title: args ? 'Skills encontradas' : 'Skills do Zavorth',
-      body: matches.length > 0
-        ? matches.map((skill) => `${skill.name}: ${skill.description}`).join('\n')
-        : 'Nenhuma skill exata apareceu. O Capability Mesh pode criar draft ou buscar capacidade em agente conectado com approval.',
+      title: args ? 'Skills found' : 'Zavorth skills',
+      body:
+        matches.length > 0
+          ? matches.map((skill) => `${skill.name}: ${skill.description}`).join('\n')
+          : 'Nenhuma skill exata apareceu. O Capability Mesh pode criar draft ou buscar capacidade em agente conectado com approval.',
       hints: ['zavorth capability-mesh --request "<pedido>"', 'zavorth skill-curator'],
     };
   }
@@ -442,7 +459,7 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
   }
   if (command.id === 'platforms') {
     return {
-      title: 'Plataformas do Zavorth',
+      title: 'Zavorth platforms',
       body: 'Superficies suportadas: CLI, zavorthControl, Telegram, Discord, WhatsApp/API e canais externos governados.',
       hints: ['zavorth connectors doctor', 'zavorth capability-mesh --request "<pedido>"'],
     };
@@ -464,8 +481,8 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
     };
   }
   return {
-    title: 'Status do Zavorth',
-    body: 'Use Zavorth Ready To Go para readiness completo ou /usage para um resumo leve.',
+    title: 'Zavorth status',
+    body: 'Use Zavorth Ready To Go for full readiness or /usage for a light summary.',
     hints: ['zavorth ready-to-go', 'zavorth doctor'],
   };
 }
@@ -482,17 +499,21 @@ function approvalReasonFor(command: ZavorthSmartCommandResolution, ctx: CommandC
 
 function nextCommandFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): string | null {
   const args = ctx.args ? ` ${ctx.args}` : '';
-  if (command.id === 'model') return ctx.args ? `zavorth provider-selection ${ctx.args}` : 'zavorth provider-model-catalog';
+  if (command.id === 'model')
+    return ctx.args ? `zavorth provider-selection ${ctx.args}` : 'zavorth provider-model-catalog';
   if (command.id === 'skills') return `zavorth capability-mesh --request "${escapeQuote(ctx.args || 'listar skills')}"`;
   if (command.id === 'platforms') return 'zavorth connectors doctor';
   if (command.id === 'status') return 'zavorth ready-to-go';
   if (command.id === 'sethome') return `zavorth smart-command /sethome${args} --apply --approval-id <approval-id>`;
-  if (command.executionMode === 'approval-gated') return `zavorth smart-command ${command.canonicalSlash.split(' ')[0]}${args} --approval-id <approval-id>`;
+  if (command.executionMode === 'approval-gated')
+    return `zavorth smart-command ${command.canonicalSlash.split(' ')[0]}${args} --approval-id <approval-id>`;
   return null;
 }
 
 function cleanRaw(value: unknown): string {
-  return String(value || '').trim().slice(0, 2000);
+  return String(value || '')
+    .trim()
+    .slice(0, 2000);
 }
 
 function clean(value: unknown): string | null {
@@ -535,11 +556,17 @@ function extractSmartCommandInlineValue(rawText: string, name: string): string |
 function safeRead<T>(reader: () => T, fallback: T): T {
   try {
     return reader();
-  } catch (error: unknown) {logger.warn('[Zavorth Smart Command Surface] string operation failed', error); return fallback; }
+  } catch (error: unknown) {
+    logger.warn('[Zavorth Smart Command Surface] string operation failed', error);
+    return fallback;
+  }
 }
 
 async function safeReadAsync<T>(reader: () => Promise<T>, fallback: T): Promise<T> {
   try {
     return await reader();
-  } catch (error: unknown) {logger.warn('[Zavorth Smart Command Surface] string operation failed', error); return fallback; }
+  } catch (error: unknown) {
+    logger.warn('[Zavorth Smart Command Surface] string operation failed', error);
+    return fallback;
+  }
 }

@@ -1,4 +1,3 @@
-
 import { BatchTrajectoryTool } from '../../src/tools/BatchTrajectoryTool';
 import { ProviderFactory } from '../../src/providers/ProviderFactory';
 
@@ -43,7 +42,7 @@ describe('BatchTrajectoryTool', () => {
   it('returns error for empty trajectories array', async () => {
     const result = await tool.execute({ trajectories: '[]' });
     expect(result).toContain('Erro');
-    expect(result).toContain('pelo menos uma trajetoria');
+    expect(result).toContain('at least one trajectory');
   });
 
   it('returns error for invalid JSON', async () => {
@@ -75,7 +74,7 @@ describe('BatchTrajectoryTool', () => {
       comparison_metric: 'invalid',
     });
     expect(result).toContain('Erro');
-    expect(result).toContain('metrica');
+    expect(result).toContain('metric');
   });
 
   it('refuses to fabricate outputs when live execution is disabled', async () => {
@@ -94,7 +93,7 @@ describe('BatchTrajectoryTool', () => {
       trajectories: JSON.stringify([{ prompt: 'Hello world', provider: 'openai' }]),
     });
 
-    expect(result).toContain('Comparacao de 1 trajetorias');
+    expect(result).toContain('Comparison of 1 trajectories');
     expect(result).toContain('OK');
     expect(result).toContain('Melhor resultado');
     expect(ProviderFactory.create).toHaveBeenCalledWith('openai');
@@ -110,7 +109,7 @@ describe('BatchTrajectoryTool', () => {
       comparison_metric: 'length',
     });
 
-    expect(result).toContain('Comparacao de 2 trajetorias');
+    expect(result).toContain('Comparison of 2 trajectories');
     expect(result).toContain('openai');
     expect(result).toContain('anthropic');
   });
@@ -121,21 +120,16 @@ describe('BatchTrajectoryTool', () => {
       trajectories: [{ prompt: 'Test prompt' }],
     });
 
-    expect(result).toContain('Comparacao de 1 trajetorias');
+    expect(result).toContain('Comparison of 1 trajectories');
   });
 
   it('respects max_concurrent parameter', async () => {
     process.env.ZAVORTH_BATCH_TRAJECTORY_ALLOW_LIVE = 'true';
     const result = await tool.execute({
-      trajectories: JSON.stringify([
-        { prompt: 'A' },
-        { prompt: 'B' },
-        { prompt: 'C' },
-        { prompt: 'D' },
-      ]),
+      trajectories: JSON.stringify([{ prompt: 'A' }, { prompt: 'B' }, { prompt: 'C' }, { prompt: 'D' }]),
       max_concurrent: 2,
     });
 
-    expect(result).toContain('Comparacao de 4 trajetorias');
+    expect(result).toContain('Comparison of 4 trajectories');
   });
 });

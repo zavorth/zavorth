@@ -9,9 +9,7 @@ import {
   type SurfaceCommandBoundary,
 } from '../api/internal/InternalSurfaceApiCompat.js';
 import { DiscordSurfacePolicyService } from '../services/DiscordSurfacePolicyService.js';
-import {
-  SurfaceOperationalIntentService,
-} from '../services/SurfaceOperationalIntentService.js';
+import { SurfaceOperationalIntentService } from '../services/SurfaceOperationalIntentService.js';
 import { randomUUID } from 'crypto';
 
 import {
@@ -30,6 +28,7 @@ import type {
   UniversalReplyPort,
   ZavorthAgentGateway,
 } from '../runtime/agent/index.js';
+import { canActorWriteLearning } from '../services/ZavorthLearningWriteAuth.js';
 import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 type ParsedCoreCommand = ReturnType<CommandParser['parse']>;
 
@@ -67,7 +66,10 @@ export class CoreOrchestrator implements IMessageBroker {
   constructor(
     private logRepo: LogRepository,
     discordSurfacePolicyService: DiscordSurfacePolicyService = new DiscordSurfacePolicyService(),
-    surfaceOperationalIntentService: Pick<SurfaceOperationalIntentService, 'decideResponse'> = new SurfaceOperationalIntentService(),
+    surfaceOperationalIntentService: Pick<
+      SurfaceOperationalIntentService,
+      'decideResponse'
+    > = new SurfaceOperationalIntentService(),
   ) {
     this.discordSurfacePolicyService = discordSurfacePolicyService;
     this.surfaceOperationalIntentService = surfaceOperationalIntentService;
@@ -126,7 +128,11 @@ export class CoreOrchestrator implements IMessageBroker {
       }
     }
 
-    this.logRepo.log('info', 'CoreOrchestrator', `Processing message from ${ctx.platform} (User: ${ctx.userId}): ${ctx.rawText.substring(0, 50)}`);
+    this.logRepo.log(
+      'info',
+      'CoreOrchestrator',
+      `Processing message from ${ctx.platform} (User: ${ctx.userId}): ${ctx.rawText.substring(0, 50)}`,
+    );
     if (await this.tryHandleNaturalMessageThroughAgentGateway(ctx, rawText)) {
       return;
     }
@@ -156,13 +162,13 @@ export class CoreOrchestrator implements IMessageBroker {
       this.logRepo.log(
         'info',
         'NaturalRouter',
-        `[${ctx.platform}] Intent: ${route.intentCategory} | Trivial: ${route.isTrivialChat} | FastModel: ${route.useFastModel} | ${route.firewallStats}`,
+        `[${ctx.platform}] Intent: ${route.intentCategory} | FastModel: ${route.useFastModel} | ${route.firewallStats}`,
       );
 
       // Enrich context with classification for downstream use
       ctx.__naturalRoute = route;
     }
-    
+
     if (ctx.rawText === '/ping') {
       await ctx.reply(`Sovereign responding through ${ctx.platform}! Pong!`);
       return;
@@ -228,7 +234,11 @@ export class CoreOrchestrator implements IMessageBroker {
     const normalizedRoles = Array.from(
       new Set(
         (roles || [])
-          .map((role) => String(role || '').trim().toLowerCase())
+          .map((role) =>
+            String(role || '')
+              .trim()
+              .toLowerCase(),
+          )
           .filter(Boolean),
       ),
     );
@@ -236,8 +246,7 @@ export class CoreOrchestrator implements IMessageBroker {
     for (const [platform, gateway] of this.gateways.entries()) {
       if (typeof gateway.broadcast === 'function') {
         const roleAware =
-          gateway.supportsRoleAwareBroadcast === true ||
-          typeof gateway.resolveBroadcastRecipients === 'function';
+          gateway.supportsRoleAwareBroadcast === true || typeof gateway.resolveBroadcastRecipients === 'function';
 
         if (normalizedRoles.length > 0 && !roleAware) {
           this.logRepo.log(
@@ -277,9 +286,7 @@ export class CoreOrchestrator implements IMessageBroker {
     ].sort((left, right) => left.priority - right.priority);
   }
 
-  private async handleSharedSurfaceCommandApi(
-    state: CoreOrchestratorPipelineState,
-  ): Promise<boolean> {
+  private async handleSharedSurfaceCommandApi(state: CoreOrchestratorPipelineState): Promise<boolean> {
     const { ctx, rawText, parsed } = state;
     if (!rawText || !parsed) {
       return false;
@@ -316,9 +323,7 @@ export class CoreOrchestrator implements IMessageBroker {
     return true;
   }
 
-  private async handleDiscordPublicServerGate(
-    state: CoreOrchestratorPipelineState,
-  ): Promise<boolean> {
+  private async handleDiscordPublicServerGate(state: CoreOrchestratorPipelineState): Promise<boolean> {
     const { ctx, rawText } = state;
     if (
       !rawText ||
@@ -336,9 +341,7 @@ export class CoreOrchestrator implements IMessageBroker {
     return true;
   }
 
-  private async handleUnsupportedSlashCommandGate(
-    state: CoreOrchestratorPipelineState,
-  ): Promise<boolean> {
+  private async handleUnsupportedSlashCommandGate(state: CoreOrchestratorPipelineState): Promise<boolean> {
     const { ctx, rawText, parsed } = state;
     if (!rawText.startsWith('/') || !parsed || this.isSharedSurfaceCommand(parsed.command_type)) {
       return false;
@@ -357,14 +360,13 @@ export class CoreOrchestrator implements IMessageBroker {
       return false;
     }
 
-    const platform = String(ctx.platform || '').trim().toLowerCase();
+    const platform = String(ctx.platform || '')
+      .trim()
+      .toLowerCase();
     return platform === 'discord';
   }
 
-  private async tryHandleNaturalMessageThroughAgentGateway(
-    ctx: IMessageContext,
-    rawText: string,
-  ): Promise<boolean> {
+  private async tryHandleNaturalMessageThroughAgentGateway(ctx: IMessageContext, rawText: string): Promise<boolean> {
     const text = String(rawText || '').trim();
     if (!this.agentGateway || !text || text.startsWith('/')) {
       return false;
@@ -375,7 +377,7 @@ export class CoreOrchestrator implements IMessageBroker {
       this.logRepo.log(
         'info',
         'NaturalRouter',
-        `[${ctx.platform}] Intent: ${route.intentCategory} | Trivial: ${route.isTrivialChat} | FastModel: ${route.useFastModel} | ${route.firewallStats}`,
+        `[${ctx.platform}] Intent: ${route.intentCategory} | FastModel: ${route.useFastModel} | ${route.firewallStats}`,
       );
       ctx.__naturalRoute = route;
     }
@@ -390,48 +392,57 @@ export class CoreOrchestrator implements IMessageBroker {
       capabilityIds: this.resolveComposerCapabilityIds(ctx.composerPayload),
     });
     const shouldBridgeToSurfaceDispatcher = this.shouldBridgeAgentRunToSurfaceDispatcher(responseDecision.responsePath);
-    const executor = shouldBridgeToSurfaceDispatcher && this.surfaceTaskDispatcher
-      ? this.createSurfaceTaskDispatcherExecutor(ctx, text, responseDecision)
-      : undefined;
+    const executor =
+      shouldBridgeToSurfaceDispatcher && this.surfaceTaskDispatcher
+        ? this.createSurfaceTaskDispatcherExecutor(ctx, text, responseDecision)
+        : undefined;
 
     let result: UniversalAgentRunResult;
     try {
-      result = await this.agentGateway.handle({
-        requestId: ctx.messageId || undefined,
-        traceId: null,
-        userId: ctx.userId,
-        channel,
-        sessionId,
-        text,
-        workspace: null,
-        replyPort: this.buildAgentReplyPort(ctx, channel),
-        requestedTools: responseDecision.requestedTools,
-        modelProfile: {
-          routingPolicy: 'gateway',
-          supportsTools: true,
+      result = await this.agentGateway.handle(
+        {
+          requestId: ctx.messageId || undefined,
+          traceId: null,
+          userId: ctx.userId,
+          channel,
+          sessionId,
+          text,
+          workspace: null,
+          replyPort: this.buildAgentReplyPort(ctx, channel),
+          requestedTools: responseDecision.requestedTools,
+          modelProfile: {
+            routingPolicy: 'gateway',
+            supportsTools: true,
+          },
+          metadata: {
+            source: 'core-orchestrator',
+            platform: ctx.platform,
+            transport: ctx.transport || 'text',
+            chatId: ctx.chatId,
+            channelId: ctx.channelId || null,
+            threadId: ctx.threadId || null,
+            messageId: ctx.messageId || null,
+            isGroup: ctx.isGroup,
+            attachments: ctx.attachments || [],
+            inlineDataCount: ctx.inlineData?.length || 0,
+            nativeCommand: ctx.nativeCommand || null,
+            composerPayload: ctx.composerPayload || null,
+            naturalRoute: ctx.__naturalRoute || null,
+            responseDecision,
+            artifactPolicy: responseDecision.artifactPolicy,
+            legacyUnifiedGatewayAvailable: Boolean(this.legacyUnifiedGateway),
+            legacyUnifiedGatewayBypassed: Boolean(this.legacyUnifiedGateway),
+            surfaceTaskDispatcherAvailable: Boolean(this.surfaceTaskDispatcher),
+            surfaceTaskDispatcherDeferred: shouldBridgeToSurfaceDispatcher,
+            allowLearningWrite: canActorWriteLearning({
+              surface: String(ctx.platform || channel || 'unknown'),
+              userId: ctx.userId,
+              chatId: ctx.chatId,
+            }),
+          },
         },
-        metadata: {
-          source: 'core-orchestrator',
-          platform: ctx.platform,
-          transport: ctx.transport || 'text',
-          chatId: ctx.chatId,
-          channelId: ctx.channelId || null,
-          threadId: ctx.threadId || null,
-          messageId: ctx.messageId || null,
-          isGroup: ctx.isGroup,
-          attachments: ctx.attachments || [],
-          inlineDataCount: ctx.inlineData?.length || 0,
-          nativeCommand: ctx.nativeCommand || null,
-          composerPayload: ctx.composerPayload || null,
-          naturalRoute: ctx.__naturalRoute || null,
-          responseDecision,
-          artifactPolicy: responseDecision.artifactPolicy,
-          legacyUnifiedGatewayAvailable: Boolean(this.legacyUnifiedGateway),
-          legacyUnifiedGatewayBypassed: Boolean(this.legacyUnifiedGateway),
-          surfaceTaskDispatcherAvailable: Boolean(this.surfaceTaskDispatcher),
-          surfaceTaskDispatcherDeferred: shouldBridgeToSurfaceDispatcher,
-        },
-      }, executor ? { executor } : {});
+        executor ? { executor } : {},
+      );
     } catch (error: unknown) {
       const err = asErrorLike(error);
       this.logRepo.log(
@@ -447,9 +458,7 @@ export class CoreOrchestrator implements IMessageBroker {
   }
 
   private shouldBridgeAgentRunToSurfaceDispatcher(responsePath: string): boolean {
-    return responsePath === 'agent-runtime'
-      || responsePath === 'approval-gate'
-      || responsePath === 'local-inspector';
+    return responsePath === 'agent-runtime' || responsePath === 'approval-gate' || responsePath === 'local-inspector';
   }
 
   private createSurfaceTaskDispatcherExecutor(
@@ -527,25 +536,29 @@ export class CoreOrchestrator implements IMessageBroker {
     result: UniversalAgentRunResult,
     rawInput: string,
   ): Promise<void> {
-    const primaryReply = String(result.replies[0]?.text || '').trim()
-      || String(result.run.summary || '').trim()
-      || 'Pedido processado pelo runtime universal.';
+    const primaryReply =
+      String(result.replies[0]?.text || '').trim() ||
+      String(result.run.summary || '').trim() ||
+      'Pedido processado pelo runtime universal.';
     await this.deliverOutput(ctx, primaryReply, rawInput);
   }
 
   private resolveUniversalAgentChannel(platform: PlatformKey | string): UniversalAgentChannel {
-    const normalized = String(platform || '').trim().toLowerCase().replace(/[\s_]+/g, '-');
+    const normalized = String(platform || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_]+/g, '-');
     if (
-      normalized === 'telegram'
-      || normalized === 'web'
-      || normalized === 'cli'
-      || normalized === 'discord'
-      || normalized === 'slack'
-      || normalized === 'whatsapp'
-      || normalized === 'signal'
-      || normalized === 'email'
-      || normalized === 'teams'
-      || normalized === 'api'
+      normalized === 'telegram' ||
+      normalized === 'web' ||
+      normalized === 'cli' ||
+      normalized === 'discord' ||
+      normalized === 'slack' ||
+      normalized === 'whatsapp' ||
+      normalized === 'signal' ||
+      normalized === 'email' ||
+      normalized === 'teams' ||
+      normalized === 'api'
     ) {
       return normalized;
     }
@@ -578,7 +591,9 @@ export class CoreOrchestrator implements IMessageBroker {
   }
 
   private humanizeSurfaceLabel(platform: string): string {
-    const normalized = String(platform || '').trim().toLowerCase();
+    const normalized = String(platform || '')
+      .trim()
+      .toLowerCase();
     switch (normalized) {
       case 'discord':
         return 'Discord';
@@ -607,19 +622,15 @@ export class CoreOrchestrator implements IMessageBroker {
 
   private hasAttachmentPayload(ctx: IMessageContext): boolean {
     return Boolean(
-      (ctx.attachments?.length || 0) > 0
-      || (ctx.inlineData?.length || 0) > 0
-      || (Array.isArray(ctx.composerPayload?.attachments) && ctx.composerPayload.attachments.length > 0),
+      (ctx.attachments?.length || 0) > 0 ||
+        (ctx.inlineData?.length || 0) > 0 ||
+        (Array.isArray(ctx.composerPayload?.attachments) && ctx.composerPayload.attachments.length > 0),
     );
   }
 
   private resolveComposerCapabilityIds(composerPayload?: Record<string, any> | null): string[] {
-    const selectedSkills = Array.isArray(composerPayload?.selectedSkills)
-      ? composerPayload!.selectedSkills
-      : [];
-    return selectedSkills
-      .map((skill: any) => String(skill?.id || skill?.capabilityId || '').trim())
-      .filter(Boolean);
+    const selectedSkills = Array.isArray(composerPayload?.selectedSkills) ? composerPayload!.selectedSkills : [];
+    return selectedSkills.map((skill: any) => String(skill?.id || skill?.capabilityId || '').trim()).filter(Boolean);
   }
 
   private resolveDispatchedTaskId(task: any): string | null {
@@ -630,7 +641,9 @@ export class CoreOrchestrator implements IMessageBroker {
     linkedBy: string;
     verificationMethod: string;
   } {
-    const normalizedPlatform = String(platform || '').trim().toLowerCase();
+    const normalizedPlatform = String(platform || '')
+      .trim()
+      .toLowerCase();
     const gateway = this.gateways.get(normalizedPlatform as PlatformKey);
     const gatewayHints = gateway?.getIdentityHints?.();
     if (gatewayHints?.linkedBy && gatewayHints?.verificationMethod) {

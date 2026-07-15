@@ -8,6 +8,7 @@ describe('StructuredPlanner', () => {
     geminiApiKey: (config as any).geminiApiKey,
     geminiApiKeys: (config as any).geminiApiKeys,
     deepseekApiKey: (config as any).deepseekApiKey,
+    echoLlmFallbackOrder: (config as any).echoLlmFallbackOrder,
   };
 
   afterEach(() => {
@@ -16,6 +17,7 @@ describe('StructuredPlanner', () => {
     (config as any).geminiApiKey = originalConfig.geminiApiKey;
     (config as any).geminiApiKeys = originalConfig.geminiApiKeys;
     (config as any).deepseekApiKey = originalConfig.deepseekApiKey;
+    (config as any).echoLlmFallbackOrder = originalConfig.echoLlmFallbackOrder;
   });
 
   it('falls back to another provider when the primary one fails', async () => {
@@ -57,6 +59,7 @@ describe('StructuredPlanner', () => {
     (config as any).geminiApiKey = 'gemini-key';
     (config as any).geminiApiKeys = ['gemini-key'];
     (config as any).deepseekApiKey = 'deepseek-key';
+    (config as any).echoLlmFallbackOrder = ['deepseek'];
 
     const planner = new StructuredPlanner();
     const task = {
@@ -72,10 +75,7 @@ describe('StructuredPlanner', () => {
     expect(result.fallbackUsed).toBe(true);
     expect(result.decisionTrace.intent.executionRoute).toBe('planner.structured');
     expect(result.plan.notes).toEqual(
-      expect.arrayContaining([
-        'decision.route=planner.structured',
-        'decision.provider_used=deepseek',
-      ]),
+      expect.arrayContaining(['decision.route=planner.structured', 'decision.provider_used=deepseek']),
     );
     expect(deepseekProvider.chat).toHaveBeenCalled();
   });

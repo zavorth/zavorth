@@ -110,7 +110,9 @@ export type NativeToolLoopResult = {
   evidenceTexts: string[];
   toolReceiptCount: number;
   stats: NativeToolLoopStats;
-  events: Array<Omit<UniversalAgentEvent, 'runId' | 'createdAt' | 'id'> & Partial<Pick<UniversalAgentEvent, 'id' | 'createdAt'>>>;
+  events: Array<
+    Omit<UniversalAgentEvent, 'runId' | 'createdAt' | 'id'> & Partial<Pick<UniversalAgentEvent, 'id' | 'createdAt'>>
+  >;
 };
 
 type Runtime = {
@@ -166,18 +168,20 @@ export class AgentRunNativeToolLoopService {
     this.llmRuntime = runtime.llmRuntime;
     this.toolRuntime = runtime.toolRuntime;
     this.requestBuilder = runtime.requestBuilder;
-    this.mutationPlane = runtime.mutationPlaneService === null
-      ? null
-      : runtime.mutationPlaneService || new ZavorthMutationPlaneService();
-    this.speculativeAutonomy = runtime.speculativeAutonomyService === null
-      ? null
-      : runtime.speculativeAutonomyService || new ZavorthSpeculativeAutonomyService();
-    this.canvasSessions = runtime.canvasSessionService === null
-      ? null
-      : runtime.canvasSessionService || resolveCanvasSessionServiceForRuntime();
-    this.terminalBackends = runtime.terminalBackendsService === null
-      ? null
-      : runtime.terminalBackendsService || new ZavorthTerminalBackendsService();
+    this.mutationPlane =
+      runtime.mutationPlaneService === null ? null : runtime.mutationPlaneService || new ZavorthMutationPlaneService();
+    this.speculativeAutonomy =
+      runtime.speculativeAutonomyService === null
+        ? null
+        : runtime.speculativeAutonomyService || new ZavorthSpeculativeAutonomyService();
+    this.canvasSessions =
+      runtime.canvasSessionService === null
+        ? null
+        : runtime.canvasSessionService || resolveCanvasSessionServiceForRuntime();
+    this.terminalBackends =
+      runtime.terminalBackendsService === null
+        ? null
+        : runtime.terminalBackendsService || new ZavorthTerminalBackendsService();
     this.continuityKernel = runtime.continuityKernel || new OperatorContinuityKernel();
   }
   public maxRounds(): number {
@@ -185,9 +189,10 @@ export class AgentRunNativeToolLoopService {
   }
   public maxRoundsFor(run: UniversalAgentRun, request?: UniversalAgentRequest): number {
     const profileLimit = this.resolveRuntimePolicyBundle(run)?.maxToolRounds;
-    const requestedLimit = numberFromUnknown(request?.metadata?.nativeToolMaxRounds)
-      || numberFromUnknown(run.metadata.nativeToolMaxRounds)
-      || numberFromUnknown(process.env.ZAVORTH_NATIVE_TOOL_MAX_ROUNDS);
+    const requestedLimit =
+      numberFromUnknown(request?.metadata?.nativeToolMaxRounds) ||
+      numberFromUnknown(run.metadata.nativeToolMaxRounds) ||
+      numberFromUnknown(process.env.ZAVORTH_NATIVE_TOOL_MAX_ROUNDS);
     const raw = profileLimit || requestedLimit || this.inferAdaptiveRoundBudget(run, request);
     const max = Math.max(MAX_NATIVE_TOOL_ROUNDS, raw || MAX_NATIVE_TOOL_ROUNDS);
     return Math.min(HARD_NATIVE_TOOL_ROUNDS, max);
@@ -210,19 +215,19 @@ export class AgentRunNativeToolLoopService {
       const isApproved = aliases.some((alias) => approved.has(alias));
       const profileDecision = runtimePolicy
         ? this.applyProfileToolPolicy({
-          run,
-          runtimePolicy,
-          toolName: tool.name,
-          aliases,
-        })
+            run,
+            runtimePolicy,
+            toolName: tool.name,
+            aliases,
+          })
         : 'neutral';
       if (profileDecision === 'blocked') {
         return false;
       }
       if (
-        profileDecision === 'requires_approval'
-        && !isApproved
-        && !aliases.some((alias) => isProfileAlwaysExpose(exposureProfile, alias))
+        profileDecision === 'requires_approval' &&
+        !isApproved &&
+        !aliases.some((alias) => isProfileAlwaysExpose(exposureProfile, alias))
       ) {
         return false;
       }
@@ -262,9 +267,10 @@ export class AgentRunNativeToolLoopService {
     const rankedTools = this.rankNativeTools(allowedTools, run, request, exposureProfile);
     const syntheticTools = this.buildSyntheticToolDefinitions(rankedTools.length, maxExposedTools);
     const maxRealTools = Math.max(1, maxExposedTools - syntheticTools.length);
-    const exposedTools = rankedTools.length > maxRealTools
-      ? [...rankedTools.slice(0, maxRealTools), ...syntheticTools]
-      : [...rankedTools, ...syntheticTools.filter((tool) => rankedTools.length > 1)];
+    const exposedTools =
+      rankedTools.length > maxRealTools
+        ? [...rankedTools.slice(0, maxRealTools), ...syntheticTools]
+        : [...rankedTools, ...syntheticTools.filter((tool) => rankedTools.length > 1)];
     const uniqueTools = uniqueToolDefinitions(exposedTools);
     this.toolCatalogByRun.set(run.id, {
       allTools: uniqueToolDefinitions([...rankedTools, ...syntheticTools]),
@@ -327,20 +333,29 @@ export class AgentRunNativeToolLoopService {
           result = recovery.result;
           stopReasonRecoveryUsed = true;
           stats.stopReasonRecoveries += 1;
-          events.push(buildToolEvent(input.run, 'llm.stop_reason_recovery', 'Continuation requested after an incomplete provider stop reason.', 'done', {
-            reason: 'stop-reason-recovery',
-            finishReason: recovery.previousFinishReason,
-          }));
+          events.push(
+            buildToolEvent(
+              input.run,
+              'llm.stop_reason_recovery',
+              'Continuation requested after an incomplete provider stop reason.',
+              'done',
+              {
+                reason: 'stop-reason-recovery',
+                finishReason: recovery.previousFinishReason,
+              },
+            ),
+          );
         }
         const declaredToolCalls = result.response.toolCalls || [];
-        const fallbackToolCalls = declaredToolCalls.length === 0
-          ? buildProviderNativeFallbackToolCalls({
-            result,
-            run: input.run,
-            request: input.request,
-            knownToolNames,
-          })
-          : [];
+        const fallbackToolCalls =
+          declaredToolCalls.length === 0
+            ? buildProviderNativeFallbackToolCalls({
+                result,
+                run: input.run,
+                request: input.request,
+                knownToolNames,
+              })
+            : [];
         const rawToolCalls = declaredToolCalls.length > 0 ? declaredToolCalls : fallbackToolCalls;
         const repairs = rawToolCalls.map((toolCall) => this.repairToolCall(toolCall, knownToolNames));
         const toolCalls = repairs.map((repair) => repair.toolCall);
@@ -374,11 +389,13 @@ export class AgentRunNativeToolLoopService {
               knownToolNames = new Set(input.tools.map((tool) => tool.name));
             }
             toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, catalogResult.output));
-            events.push(buildToolEvent(input.run, toolCall.name, catalogResult.output, 'done', {
-              reason: 'compact-tool-catalog',
-              toolCallId: toolCall.id,
-              materializedTools: catalogResult.materializedTools,
-            }));
+            events.push(
+              buildToolEvent(input.run, toolCall.name, catalogResult.output, 'done', {
+                reason: 'compact-tool-catalog',
+                toolCallId: toolCall.id,
+                materializedTools: catalogResult.materializedTools,
+              }),
+            );
             continue;
           }
           if (toolCall.name === TOOL_PLANNER_NAME) {
@@ -390,10 +407,12 @@ export class AgentRunNativeToolLoopService {
             });
             stats.planningCalls += 1;
             toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, plan));
-            events.push(buildToolEvent(input.run, toolCall.name, plan, 'done', {
-              reason: 'agent-run-tool-planning',
-              toolCallId: toolCall.id,
-            }));
+            events.push(
+              buildToolEvent(input.run, toolCall.name, plan, 'done', {
+                reason: 'agent-run-tool-planning',
+                toolCallId: toolCall.id,
+              }),
+            );
             continue;
           }
           if (!knownToolNames.has(toolCall.name)) {
@@ -401,16 +420,18 @@ export class AgentRunNativeToolLoopService {
             stats.unknownToolCalls += 1;
             const denied = `Tool ${toolCall.name} nao esta exposta para este run.${repair?.reason ? ` ${repair.reason}` : ''}`;
             toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, denied));
-            events.push(buildToolEvent(input.run, toolCall.name, denied, 'failed', {
-              reason: 'tool-not-exposed',
-              toolCallId: toolCall.id,
-              candidates: this.findToolCandidates(toolCall.name, knownToolNames).slice(0, 5),
-            }));
+            events.push(
+              buildToolEvent(input.run, toolCall.name, denied, 'failed', {
+                reason: 'tool-not-exposed',
+                toolCallId: toolCall.id,
+                candidates: this.findToolCandidates(toolCall.name, knownToolNames).slice(0, 5),
+              }),
+            );
             continue;
           }
 
-          const influencedByUntrustedContent = containsUntrustedContentMarker(input.messages)
-            || containsUntrustedContentMarker(toolCall.arguments);
+          const influencedByUntrustedContent =
+            containsUntrustedContentMarker(input.messages) || containsUntrustedContentMarker(toolCall.arguments);
           const sourceTrust = influencedByUntrustedContent ? 'untrusted-content' : 'trusted-user';
           const effectMapping = mapToolCallToEffectDecision({
             toolCall,
@@ -422,9 +443,10 @@ export class AgentRunNativeToolLoopService {
               sandboxAvailable: true,
             },
           });
-          const safeObservation = effectMapping.decision.action === 'allow'
-            && effectMapping.analysis.readOnly
-            && isSafeObservationTool(toolCall.name, TOOL_EFFECT_REGISTRY);
+          const safeObservation =
+            effectMapping.decision.action === 'allow' &&
+            effectMapping.analysis.readOnly &&
+            isSafeObservationTool(toolCall.name, TOOL_EFFECT_REGISTRY);
           if (safeObservation) {
             stats.safeObservations += 1;
           } else if (effectMapping.decision.action === 'deny') {
@@ -439,13 +461,15 @@ export class AgentRunNativeToolLoopService {
               summary: denied,
             });
             toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, denied));
-            events.push(buildToolEvent(input.run, toolCall.name, denied, 'failed', {
-              reason: 'effect-boundary-deny',
-              toolCallId: toolCall.id,
-              sourceTrust,
-              effectBoundary: buildToolEffectBoundaryMetadata(effectMapping),
-              operatorContinuity: this.continuityKernel.toPublicView(continuity),
-            }));
+            events.push(
+              buildToolEvent(input.run, toolCall.name, denied, 'failed', {
+                reason: 'effect-boundary-deny',
+                toolCallId: toolCall.id,
+                sourceTrust,
+                effectBoundary: buildToolEffectBoundaryMetadata(effectMapping),
+                operatorContinuity: this.continuityKernel.toPublicView(continuity),
+              }),
+            );
             continue;
           } else {
             stats.denied += 1;
@@ -470,18 +494,28 @@ export class AgentRunNativeToolLoopService {
               mutationPlanId: deferredPlan.mutationPlan?.id || null,
             });
             toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, deferred));
-            events.push(buildToolEvent(input.run, toolCall.name, deferred, 'failed', {
-              reason: 'effect-boundary-deferred',
-              toolCallId: toolCall.id,
-              sourceTrust,
-              effectBoundary: buildToolEffectBoundaryMetadata(effectMapping),
-              effectRehearsal: rehearsalEnvelope,
-              operatorContinuity: this.continuityKernel.toPublicView(continuity),
-              ...(deferredPlan.mutationPlan ? { mutationPlan: buildMutationPlanMetadata(deferredPlan.mutationPlan) } : {}),
-              ...(deferredPlan.speculativeAutonomy ? { superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(deferredPlan.speculativeAutonomy) } : {}),
-              ...(deferredPlan.zCanvasSession ? { zCanvasSession: deferredPlan.zCanvasSession } : {}),
-              ...(deferredPlan.terminalBackendPlan ? { terminalBackendPlan: deferredPlan.terminalBackendPlan } : {}),
-            }));
+            events.push(
+              buildToolEvent(input.run, toolCall.name, deferred, 'failed', {
+                reason: 'effect-boundary-deferred',
+                toolCallId: toolCall.id,
+                sourceTrust,
+                effectBoundary: buildToolEffectBoundaryMetadata(effectMapping),
+                effectRehearsal: rehearsalEnvelope,
+                operatorContinuity: this.continuityKernel.toPublicView(continuity),
+                ...(deferredPlan.mutationPlan
+                  ? { mutationPlan: buildMutationPlanMetadata(deferredPlan.mutationPlan) }
+                  : {}),
+                ...(deferredPlan.speculativeAutonomy
+                  ? {
+                      superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(
+                        deferredPlan.speculativeAutonomy,
+                      ),
+                    }
+                  : {}),
+                ...(deferredPlan.zCanvasSession ? { zCanvasSession: deferredPlan.zCanvasSession } : {}),
+                ...(deferredPlan.terminalBackendPlan ? { terminalBackendPlan: deferredPlan.terminalBackendPlan } : {}),
+              }),
+            );
             continue;
           }
 
@@ -517,31 +551,30 @@ export class AgentRunNativeToolLoopService {
             stats.executed += 1;
             evidenceTexts.push(`${toolCall.name}:\n${clampText(toolResult, 6000)}`);
             toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, toolResult));
-            events.push(buildToolEvent(input.run, toolCall.name, toolResult, 'done', {
-              toolCallId: toolCall.id,
-              sourceTrust,
-              ...(repair?.repaired ? { toolCallRepair: repair.reason || 'normalized-tool-call' } : {}),
-              effectBoundary: buildToolEffectBoundaryMetadata(effectMapping),
-              operatorContinuity: this.buildAppliedToolContinuityView({
-                seed: continuitySeed,
-                toolName: toolCall.name,
-                ok: true,
-                summary: `${toolCall.name} applied`,
+            events.push(
+              buildToolEvent(input.run, toolCall.name, toolResult, 'done', {
+                toolCallId: toolCall.id,
+                sourceTrust,
+                ...(repair?.repaired ? { toolCallRepair: repair.reason || 'normalized-tool-call' } : {}),
+                effectBoundary: buildToolEffectBoundaryMetadata(effectMapping),
+                operatorContinuity: this.buildAppliedToolContinuityView({
+                  seed: continuitySeed,
+                  toolName: toolCall.name,
+                  ok: true,
+                  summary: `${toolCall.name} applied`,
+                }),
+                ...(toolCall.arguments?.providerNativeFallback
+                  ? { providerNativeFallback: toolCall.arguments.providerNativeFallback }
+                  : {}),
               }),
-              ...(toolCall.arguments?.providerNativeFallback
-                ? { providerNativeFallback: toolCall.arguments.providerNativeFallback }
-                : {}),
-            }));
+            );
           } catch (error: unknown) {
             const err = asErrorLike(error);
             stats.failed += 1;
             if (isTransientToolError(error)) {
               stats.retriedToolCalls += 1;
             }
-            const failureMessage = clampText(
-              error instanceof Error ? err.message : String(error),
-              400,
-            );
+            const failureMessage = clampText(error instanceof Error ? err.message : String(error), 400);
             const recoveryPlan = buildStructuredToolFailurePlan({
               toolName: toolCall.name,
               errorMessage: failureMessage,
@@ -555,21 +588,25 @@ export class AgentRunNativeToolLoopService {
                 ? `recovery.preferredAlternative=${recoveryPlan.preferredAlternative}`
                 : null,
               recoveryPlan.userVisibleSummary,
-            ].filter(Boolean).join('\n');
+            ]
+              .filter(Boolean)
+              .join('\n');
             evidenceTexts.push(`${toolCall.name}:\n${message}`);
             toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, message));
-            events.push(buildToolEvent(input.run, toolCall.name, message, 'failed', {
-              toolCallId: toolCall.id,
-              sourceTrust,
-              effectBoundary: buildToolEffectBoundaryMetadata(effectMapping),
-              operatorContinuity: this.buildAppliedToolContinuityView({
-                seed: continuitySeed,
-                toolName: toolCall.name,
-                ok: false,
-                summary: message,
+            events.push(
+              buildToolEvent(input.run, toolCall.name, message, 'failed', {
+                toolCallId: toolCall.id,
+                sourceTrust,
+                effectBoundary: buildToolEffectBoundaryMetadata(effectMapping),
+                operatorContinuity: this.buildAppliedToolContinuityView({
+                  seed: continuitySeed,
+                  toolName: toolCall.name,
+                  ok: false,
+                  summary: message,
+                }),
+                recoveryPlan,
               }),
-              recoveryPlan,
-            }));
+            );
           }
         }
 
@@ -578,7 +615,11 @@ export class AgentRunNativeToolLoopService {
         if (input.options.signal?.aborted) {
           break;
         }
-        const compaction = await this.compactMessagesForNextTurn(input.messages, this.resolveContextBudgetChars(input.run, input.request), input.options);
+        const compaction = await this.compactMessagesForNextTurn(
+          input.messages,
+          this.resolveContextBudgetChars(input.run, input.request),
+          input.options,
+        );
         stats.compactions += compaction.compacted ? 1 : 0;
         stats.truncatedToolMessages += compaction.truncatedToolMessages;
         result = await this.llmRuntime.chatDetailed(input.messages, input.tools, input.options);
@@ -595,10 +636,11 @@ export class AgentRunNativeToolLoopService {
   }
 
   private resolveRuntimePolicyBundle(run: UniversalAgentRun): RuntimePolicyBundle | null {
-    const bundle = recordOrNull(run.metadata.profileBundle)?.runtimePolicyBundle
-      || run.metadata.runtimePolicyBundle
-      || recordOrNull(run.metadata.profileRuntimeBundle)?.runtimePolicyBundle
-      || recordOrNull(run.metadata.profile)?.runtimePolicyBundle;
+    const bundle =
+      recordOrNull(run.metadata.profileBundle)?.runtimePolicyBundle ||
+      run.metadata.runtimePolicyBundle ||
+      recordOrNull(run.metadata.profileRuntimeBundle)?.runtimePolicyBundle ||
+      recordOrNull(run.metadata.profile)?.runtimePolicyBundle;
     if (!bundle || typeof bundle !== 'object' || Array.isArray(bundle)) {
       return null;
     }
@@ -619,19 +661,47 @@ export class AgentRunNativeToolLoopService {
     const requireApproval = input.runtimePolicy.requireApproval || [];
     const allow = input.runtimePolicy.allow || [];
     if (matchesAnyAlias(input.aliases, deny)) {
-      this.emitProfileToolReceipt(input.run, input.runtimePolicy, input.toolName, input.aliases, 'hidden', 'profile-deny-list');
+      this.emitProfileToolReceipt(
+        input.run,
+        input.runtimePolicy,
+        input.toolName,
+        input.aliases,
+        'hidden',
+        'profile-deny-list',
+      );
       return 'blocked';
     }
     if (input.runtimePolicy.approvalMode === 'always' || matchesAnyAlias(input.aliases, requireApproval)) {
-      this.emitProfileToolReceipt(input.run, input.runtimePolicy, input.toolName, input.aliases, 'requires_approval', 'profile-requires-approval');
+      this.emitProfileToolReceipt(
+        input.run,
+        input.runtimePolicy,
+        input.toolName,
+        input.aliases,
+        'requires_approval',
+        'profile-requires-approval',
+      );
       return 'requires_approval';
     }
     if (allow.length > 0) {
       if (matchesAnyAlias(input.aliases, allow)) {
-        this.emitProfileToolReceipt(input.run, input.runtimePolicy, input.toolName, input.aliases, 'allowed', 'profile-allow-list');
+        this.emitProfileToolReceipt(
+          input.run,
+          input.runtimePolicy,
+          input.toolName,
+          input.aliases,
+          'allowed',
+          'profile-allow-list',
+        );
         return 'allowed';
       }
-      this.emitProfileToolReceipt(input.run, input.runtimePolicy, input.toolName, input.aliases, 'hidden', 'not-in-profile-allow-list');
+      this.emitProfileToolReceipt(
+        input.run,
+        input.runtimePolicy,
+        input.toolName,
+        input.aliases,
+        'hidden',
+        'not-in-profile-allow-list',
+      );
       return 'blocked';
     }
     return 'neutral';
@@ -654,9 +724,11 @@ export class AgentRunNativeToolLoopService {
       runId: run.id,
       createdAt: run.updatedAt || run.createdAt,
     });
-    const exists = run.events.some((event) =>
-      event.metadata?.profileEnforcementReceipt
-      && (event.metadata.profileEnforcementReceipt as { id?: string }).id === receipt.id);
+    const exists = run.events.some(
+      (event) =>
+        event.metadata?.profileEnforcementReceipt &&
+        (event.metadata.profileEnforcementReceipt as { id?: string }).id === receipt.id,
+    );
     if (exists) return;
     run.events.push({
       id: `${receipt.id}:${run.events.length}`,
@@ -679,34 +751,38 @@ export class AgentRunNativeToolLoopService {
     request: UniversalAgentRequest,
     exposureProfile: ToolExposureProfileName = 'safe',
   ): ToolDefinition[] {
-    const requestText = normalizeText(`${request.text} ${run.input} ${(request.requestedTools || []).join(' ')}`).toLowerCase();
+    const requestText = normalizeText(
+      `${request.text} ${run.input} ${(request.requestedTools || []).join(' ')}`,
+    ).toLowerCase();
     const requested = new Set((request.requestedTools || []).flatMap((tool) => resolveToolAliases(tool)));
     return [...tools].sort((left, right) => scoreTool(right) - scoreTool(left));
 
     function scoreTool(tool: ToolDefinition): number {
       const name = tool.name.toLowerCase();
-      const haystack = `${tool.name} ${tool.description || ''} ${tool.category || ''}`.toLowerCase();
       let score = 0;
+      // Structured requestedTools only — never free-text token overlap against descriptions.
       if (requested.has(name)) score += 80;
-      if (requestText.includes(name)) score += 50;
+      // Exact tool-name mention as a whole token in the request payload (id-like), not word soft-match.
+      if (new RegExp(`(?:^|\\s)${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|$)`, 'i').test(requestText)) {
+        score += 50;
+      }
       if (name === 'zavorth_action') score += 45;
       if (name === 'read_file' || name === 'list_directory') score += 30;
-      if (name === 'get_datetime' && /\b(time|date|hora|data|agora|today|now)\b/i.test(requestText)) score += 45;
-      if (name === 'web_search' && thisRequestLikelyNeedsExternalKnowledge(requestText)) score += 40;
       score += rankingBoostForProfile(exposureProfile, name);
-      for (const token of requestText.split(/\s+/).filter((entry) => entry.length > 3).slice(0, 24)) {
-        if (haystack.includes(token)) score += 2;
-      }
       return score;
     }
   }
 
-  private buildSyntheticToolDefinitions(realToolCount: number, maxExposedTools: number = MAX_EXPOSED_NATIVE_TOOLS): ToolDefinition[] {
+  private buildSyntheticToolDefinitions(
+    realToolCount: number,
+    maxExposedTools: number = MAX_EXPOSED_NATIVE_TOOLS,
+  ): ToolDefinition[] {
     const tools: ToolDefinition[] = [];
     if (realToolCount > 1) {
       tools.push({
         name: TOOL_PLANNER_NAME,
-        description: 'Plan which governed Zavorth tools or subagent lanes should be used before executing a multi-step request.',
+        description:
+          'Plan which governed Zavorth tools or subagent lanes should be used before executing a multi-step request.',
         category: 'agent-runtime',
         dangerLevel: 'safe',
         requiresPermission: false,
@@ -723,7 +799,8 @@ export class AgentRunNativeToolLoopService {
     if (realToolCount > maxExposedTools - 1) {
       tools.push({
         name: COMPACT_TOOL_CATALOG_NAME,
-        description: 'Search or describe the compact catalog of governed tools. A search can materialize matching tools for the next native tool round.',
+        description:
+          'Search or describe the compact catalog of governed tools. A search can materialize matching tools for the next native tool round.',
         category: 'agent-runtime',
         dangerLevel: 'safe',
         requiresPermission: false,
@@ -755,7 +832,9 @@ export class AgentRunNativeToolLoopService {
   }
 
   private isFullProfileExposableTool(toolName: string, aliases: string[]): boolean {
-    const names = Array.from(new Set([toolName, ...aliases].map((entry) => String(entry || '').trim()).filter(Boolean)));
+    const names = Array.from(
+      new Set([toolName, ...aliases].map((entry) => String(entry || '').trim()).filter(Boolean)),
+    );
     for (const name of names) {
       if (isDestructiveExposureTool(name)) return false;
     }
@@ -793,7 +872,8 @@ export class AgentRunNativeToolLoopService {
     }
 
     const aliasMatch = [...knownToolNames].find((name) =>
-      resolveToolAliases(name).some((alias) => normalizeToolKey(alias) === normalized));
+      resolveToolAliases(name).some((alias) => normalizeToolKey(alias) === normalized),
+    );
     if (aliasMatch) {
       return {
         toolCall: { ...toolCall, name: aliasMatch, arguments: args },
@@ -840,16 +920,23 @@ export class AgentRunNativeToolLoopService {
     const args = normalizeToolArguments(input.toolCall.arguments);
     const operation = normalizeText(args.operation || 'search').toLowerCase();
     const query = normalizeText(args.query || args.domain || input.request?.text || input.run.input);
-    const limit = Math.min(MAX_CATALOG_MATERIALIZED_TOOLS, Math.max(1, numberFromUnknown(args.limit) || MAX_CATALOG_MATERIALIZED_TOOLS));
+    const limit = Math.min(
+      MAX_CATALOG_MATERIALIZED_TOOLS,
+      Math.max(1, numberFromUnknown(args.limit) || MAX_CATALOG_MATERIALIZED_TOOLS),
+    );
     const state = this.toolCatalogByRun.get(input.run.id) || {
       allTools: input.tools,
       exposedToolNames: input.knownToolNames,
     };
-    const ranked = this.rankCatalogTools(state.allTools, query).filter((tool) => ![COMPACT_TOOL_CATALOG_NAME, TOOL_PLANNER_NAME].includes(tool.name));
+    const ranked = this.rankCatalogTools(state.allTools, query).filter(
+      (tool) => ![COMPACT_TOOL_CATALOG_NAME, TOOL_PLANNER_NAME].includes(tool.name),
+    );
 
     if (operation === 'describe') {
       const toolName = normalizeText(args.toolName || query);
-      const tool = ranked.find((entry) => entry.name === toolName || normalizeToolKey(entry.name) === normalizeToolKey(toolName));
+      const tool = ranked.find(
+        (entry) => entry.name === toolName || normalizeToolKey(entry.name) === normalizeToolKey(toolName),
+      );
       return {
         materializedTools: 0,
         output: {
@@ -877,9 +964,10 @@ export class AgentRunNativeToolLoopService {
         status: 'ok',
         query,
         materializedTools: matches.map(summarizeToolDefinition),
-        note: materializedTools > 0
-          ? 'Matching governed tools were materialized for the next native tool round.'
-          : 'Matching governed tools were already exposed.',
+        note:
+          materializedTools > 0
+            ? 'Matching governed tools were materialized for the next native tool round.'
+            : 'Matching governed tools were already exposed.',
       },
     };
   }
@@ -910,12 +998,19 @@ export class AgentRunNativeToolLoopService {
     const objective = normalizeText(args.objective || input.request?.text || input.run.input || input.run.title);
     const mode = normalizeText(args.mode || 'mixed').toLowerCase();
     const state = this.toolCatalogByRun.get(input.run.id);
-    const allTools = state?.allTools || [...input.knownToolNames].map((name) => ({ name, description: name, parameters: { type: 'object' as const, properties: {} } }));
+    const allTools =
+      state?.allTools ||
+      [...input.knownToolNames].map((name) => ({
+        name,
+        description: name,
+        parameters: { type: 'object' as const, properties: {} },
+      }));
     const ranked = this.rankCatalogTools(allTools, objective)
       .filter((tool) => ![COMPACT_TOOL_CATALOG_NAME, TOOL_PLANNER_NAME].includes(tool.name))
       .slice(0, 6)
       .map(summarizeToolDefinition);
-    const subagentRecommended = /\b(audit|review|deep|compare|complex|large|arquitetura|profundo|subagent|subagente|paralel)\b/i.test(objective);
+    const requestedSubagents = numberFromUnknown(args.subagentCount || args.subagents);
+    const subagentRecommended = requestedSubagents > 0 || mode === 'parallel';
     return {
       status: 'planned',
       objective,
@@ -958,7 +1053,8 @@ export class AgentRunNativeToolLoopService {
     });
     input.input.messages.push({
       role: 'user',
-      content: 'Continue exactly from the interrupted response. If you intended to call a tool, emit only the valid governed tool call; otherwise finish the answer concisely.',
+      content:
+        'Continue exactly from the interrupted response. If you intended to call a tool, emit only the valid governed tool call; otherwise finish the answer concisely.',
     });
     const recovered = await this.llmRuntime.chatDetailed(input.input.messages, input.input.tools, input.input.options);
     return {
@@ -968,7 +1064,10 @@ export class AgentRunNativeToolLoopService {
     };
   }
 
-  private async executeToolWithRetry(toolName: string, args: Record<string, unknown>): Promise<ExecuteToolAttemptResult> {
+  private async executeToolWithRetry(
+    toolName: string,
+    args: Record<string, unknown>,
+  ): Promise<ExecuteToolAttemptResult> {
     if (!this.toolRuntime) {
       throw new Error('Tool runtime unavailable.');
     }
@@ -991,8 +1090,10 @@ export class AgentRunNativeToolLoopService {
 
   private listAlternateToolNames(failedToolName: string): string[] {
     const failed = normalizeToolKey(failedToolName);
-    const definitions = Array.isArray((this.toolRuntime as { listTools?: () => ToolDefinition[] } | null)?.listTools?.())
-      ? ((this.toolRuntime as unknown as { listTools: () => ToolDefinition[] }).listTools() || [])
+    const definitions = Array.isArray(
+      (this.toolRuntime as { listTools?: () => ToolDefinition[] } | null)?.listTools?.(),
+    )
+      ? (this.toolRuntime as unknown as { listTools: () => ToolDefinition[] }).listTools() || []
       : [];
     if (definitions.length > 0) {
       return definitions
@@ -1014,14 +1115,15 @@ export class AgentRunNativeToolLoopService {
     }
     let truncatedToolMessages = 0;
 
-    const toCompactionMessages = () => messages.map((m, index) => ({
-      id: `native-msg-${index + 1}`,
-      role: m.role as any,
-      content: m.content || '',
-      toolName: m.toolName || null,
-      toolCallId: m.toolCallId || null,
-      toolCalls: m.toolCalls || null,
-    })) as import('../../services/ContextCompactionService.js').ContextCompactionMessage[];
+    const toCompactionMessages = () =>
+      messages.map((m, index) => ({
+        id: `native-msg-${index + 1}`,
+        role: m.role as any,
+        content: m.content || '',
+        toolName: m.toolName || null,
+        toolCallId: m.toolCallId || null,
+        toolCalls: m.toolCalls || null,
+      })) as import('../../services/ContextCompactionService.js').ContextCompactionMessage[];
 
     const applyCompactionMessages = (
       compacted: import('../../services/ContextCompactionService.js').ContextCompactionMessage[],
@@ -1032,24 +1134,27 @@ export class AgentRunNativeToolLoopService {
           originalsByToolCallId.set(original.toolCallId, original);
         }
       }
-      const mappedMessages: ChatMessage[] = compacted.map((entry) => {
-        const prior = entry.toolCallId ? originalsByToolCallId.get(entry.toolCallId) : undefined;
-        const role = (entry.role === 'system' || entry.role === 'user' || entry.role === 'assistant' || entry.role === 'tool')
-          ? entry.role
-          : (prior?.role || 'system');
-        const mapped: ChatMessage = {
-          role,
-          content: typeof entry.content === 'string' ? entry.content : (prior?.content ?? ''),
-        };
-        const toolName = entry.toolName || prior?.toolName;
-        const toolCallId = entry.toolCallId || prior?.toolCallId;
-        const toolCalls = entry.toolCalls || prior?.toolCalls;
-        if (toolName) mapped.toolName = toolName;
-        if (toolCallId) mapped.toolCallId = toolCallId;
-        if (toolCalls) mapped.toolCalls = toolCalls;
-        if (prior?.inlineData) mapped.inlineData = prior.inlineData;
-        return mapped;
-      }).filter((message) => Boolean(message.content) || Boolean(message.toolCalls?.length));
+      const mappedMessages: ChatMessage[] = compacted
+        .map((entry) => {
+          const prior = entry.toolCallId ? originalsByToolCallId.get(entry.toolCallId) : undefined;
+          const role =
+            entry.role === 'system' || entry.role === 'user' || entry.role === 'assistant' || entry.role === 'tool'
+              ? entry.role
+              : prior?.role || 'system';
+          const mapped: ChatMessage = {
+            role,
+            content: typeof entry.content === 'string' ? entry.content : (prior?.content ?? ''),
+          };
+          const toolName = entry.toolName || prior?.toolName;
+          const toolCallId = entry.toolCallId || prior?.toolCallId;
+          const toolCalls = entry.toolCalls || prior?.toolCalls;
+          if (toolName) mapped.toolName = toolName;
+          if (toolCallId) mapped.toolCallId = toolCallId;
+          if (toolCalls) mapped.toolCalls = toolCalls;
+          if (prior?.inlineData) mapped.inlineData = prior.inlineData;
+          return mapped;
+        })
+        .filter((message) => Boolean(message.content) || Boolean(message.toolCalls?.length));
       if (mappedMessages.length === 0) {
         return;
       }
@@ -1067,7 +1172,11 @@ export class AgentRunNativeToolLoopService {
           reservedTokenBuffer: 0,
           recentVerbatimTurns: 4,
         });
-        if (structural.triggered && Array.isArray(structural.compactedMessages) && structural.compactedMessages.length > 0) {
+        if (
+          structural.triggered &&
+          Array.isArray(structural.compactedMessages) &&
+          structural.compactedMessages.length > 0
+        ) {
           applyCompactionMessages(structural.compactedMessages);
           return Number(structural.clearedToolOutputs || 0) + Number(structural.compactedOlderMessages || 0);
         }
@@ -1130,7 +1239,8 @@ export class AgentRunNativeToolLoopService {
     if (estimateMessagesChars(messages) > maxChars) {
       const compactNotice: ChatMessage = {
         role: 'system',
-        content: 'Earlier native tool-loop context was compacted. Preserve user intent, receipts, approvals and latest tool observations; request catalog search again if you need a hidden tool.',
+        content:
+          'Earlier native tool-loop context was compacted. Preserve user intent, receipts, approvals and latest tool observations; request catalog search again if you need a hidden tool.',
       };
       messages.splice(1, 0, compactNotice);
     }
@@ -1140,28 +1250,20 @@ export class AgentRunNativeToolLoopService {
   private resolveContextBudgetChars(run: UniversalAgentRun, request?: UniversalAgentRequest): number {
     return Math.max(
       12_000,
-      numberFromUnknown(request?.metadata?.nativeToolContextChars)
-      || numberFromUnknown(run.metadata.nativeToolContextChars)
-      || numberFromUnknown(process.env.ZAVORTH_NATIVE_TOOL_CONTEXT_CHARS)
-      || NATIVE_TOOL_CONTEXT_CHARS,
+      numberFromUnknown(request?.metadata?.nativeToolContextChars) ||
+        numberFromUnknown(run.metadata.nativeToolContextChars) ||
+        numberFromUnknown(process.env.ZAVORTH_NATIVE_TOOL_CONTEXT_CHARS) ||
+        NATIVE_TOOL_CONTEXT_CHARS,
     );
   }
 
   private inferAdaptiveRoundBudget(run: UniversalAgentRun, request?: UniversalAgentRequest): number {
-    const text = normalizeText(`${request?.text || ''} ${run.input} ${run.title}`).toLowerCase();
     let rounds = MAX_NATIVE_TOOL_ROUNDS;
-    if (/\b(deep|audit|review|compare|implement|fix|migrate|refactor|profundo|auditoria|comparar|implemente|corrija|migre)\b/.test(text)) {
-      rounds = 8;
-    }
-    if (/\b(subagent|subagente|multi[- ]?step|multi[- ]?round|repo inteiro|entire repo|tudo|all)\b/.test(text)) {
-      rounds = 10;
-    }
     if ((request?.requestedTools || []).length >= 3 || run.toolExposure.tools.length >= 8) {
       rounds = Math.max(rounds, 8);
     }
     return rounds;
   }
-
 
   private async createPlanForDeferredEffect(input: {
     run: UniversalAgentRun;
@@ -1210,9 +1312,10 @@ export class AgentRunNativeToolLoopService {
       };
     }
     const effect = input.mapping.analysis.effect;
-    const hasProcessEffect = effect.processSpawn.length > 0
-      || effect.deletes.some((resource) => resource.kind === 'process')
-      || commands.length > 0;
+    const hasProcessEffect =
+      effect.processSpawn.length > 0 ||
+      effect.deletes.some((resource) => resource.kind === 'process') ||
+      commands.length > 0;
     const rollbackSteps = input.rehearsalEnvelope.rehearsal.rollbackPlan.steps
       .map((step) => step.summary)
       .filter(Boolean);
@@ -1247,37 +1350,47 @@ export class AgentRunNativeToolLoopService {
       resourceImpact: {
         diskMb: Math.max(1, workspaceWrites.length),
         processCount: hasProcessEffect ? 1 : 0,
-        externalExposure: effect.humanVisibleSend.length > 0
-          ? 'public'
-          : effect.networkEgress.length > 0
-            ? 'network'
-            : hasProcessEffect
-              ? 'local'
-              : 'none',
+        externalExposure:
+          effect.humanVisibleSend.length > 0
+            ? 'public'
+            : effect.networkEgress.length > 0
+              ? 'network'
+              : hasProcessEffect
+                ? 'local'
+                : 'none',
         recurring: false,
-        notes: ['Created from deferred LLM native tool side effect.', `Effect policy rule: ${input.mapping.decision.rule}`],
+        notes: [
+          'Created from deferred LLM native tool side effect.',
+          `Effect policy rule: ${input.mapping.decision.rule}`,
+        ],
       },
-      readinessGates: [{
-        id: `${input.rehearsalEnvelope.id}:readiness`,
-        status: input.mapping.decision.action === 'require_admin_policy'
-          ? 'blocked'
-          : input.rehearsalEnvelope.rehearsal.status === 'prepared'
-            ? 'warning'
-            : 'blocked',
-        canProceed: input.mapping.decision.action !== 'require_admin_policy'
-          && input.rehearsalEnvelope.rehearsal.status === 'prepared',
-        scope: 'effect-boundary-rehearsal',
-        reasons: input.mapping.decision.reasons,
-        warnings: ['Mutation plan requires sandbox/rehearsal validation before apply.'],
-        blockers: input.rehearsalEnvelope.rehearsal.blockers,
-        checkedAt: new Date().toISOString(),
-        nextActions: ['Review mutation plan', 'Run sandbox validation', 'Approve only after preview matches intent'],
-      }],
+      readinessGates: [
+        {
+          id: `${input.rehearsalEnvelope.id}:readiness`,
+          status:
+            input.mapping.decision.action === 'require_admin_policy'
+              ? 'blocked'
+              : input.rehearsalEnvelope.rehearsal.status === 'prepared'
+                ? 'warning'
+                : 'blocked',
+          canProceed:
+            input.mapping.decision.action !== 'require_admin_policy' &&
+            input.rehearsalEnvelope.rehearsal.status === 'prepared',
+          scope: 'effect-boundary-rehearsal',
+          reasons: input.mapping.decision.reasons,
+          warnings: ['Mutation plan requires sandbox/rehearsal validation before apply.'],
+          blockers: input.rehearsalEnvelope.rehearsal.blockers,
+          checkedAt: new Date().toISOString(),
+          nextActions: ['Review mutation plan', 'Run sandbox validation', 'Approve only after preview matches intent'],
+        },
+      ],
       validationPlan: ['Run sandbox validation before applying this mutation plan.'],
       rollbackPlan: rollbackSteps.length > 0 ? rollbackSteps : ['Review rollback evidence before commit.'],
       payload: {
         ...payload,
-        ...(speculativeAutonomy ? { superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(speculativeAutonomy) } : {}),
+        ...(speculativeAutonomy
+          ? { superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(speculativeAutonomy) }
+          : {}),
         ...(zCanvasSession ? { zCanvasSession } : {}),
         ...(terminalBackendPlan ? { terminalBackendPlan } : {}),
       },
@@ -1321,7 +1434,8 @@ export class AgentRunNativeToolLoopService {
     };
     try {
       return await this.speculativeAutonomy.prepare(preparedInput);
-    } catch (error: unknown) {return null;
+    } catch (error: unknown) {
+      return null;
     }
   }
 
@@ -1354,10 +1468,10 @@ export class AgentRunNativeToolLoopService {
         reason: snapshot.plan.reason,
         nextSafeAction: snapshot.nextSafeAction,
       };
-    } catch (error: unknown) {return null;
+    } catch (error: unknown) {
+      return null;
     }
   }
-
 
   private buildAppliedToolContinuityView(input: {
     seed: ReturnType<OperatorContinuityKernel['begin']>;
@@ -1368,9 +1482,8 @@ export class AgentRunNativeToolLoopService {
     const child = this.toolRuntime?.getLastContinuityEnvelope?.() || null;
     let continuity = this.continuityKernel.correlate(input.seed, {
       parentContinuityId: input.seed.ids.continuityId,
-      policyBrokerReceiptId: child?.ids.correlation?.policyBrokerReceiptId
-        || child?.decision?.brokerReceipt?.receiptId
-        || null,
+      policyBrokerReceiptId:
+        child?.ids.correlation?.policyBrokerReceiptId || child?.decision?.brokerReceipt?.receiptId || null,
       toolCallId: input.seed.ids.correlation?.toolCallId || null,
       runId: input.seed.ids.correlation?.runId || null,
       sessionId: input.seed.ids.correlation?.sessionId || null,
@@ -1400,11 +1513,14 @@ export class AgentRunNativeToolLoopService {
     if (child?.result) {
       continuity = this.continuityKernel.attachResult(continuity, { ...child.result });
     } else {
-      continuity = this.continuityKernel.attachResult(continuity, resultFromToolOutcome({
-        ok: input.ok,
-        status: input.ok ? 'applied' : 'failed',
-        summary: input.summary,
-      }));
+      continuity = this.continuityKernel.attachResult(
+        continuity,
+        resultFromToolOutcome({
+          ok: input.ok,
+          status: input.ok ? 'applied' : 'failed',
+          summary: input.summary,
+        }),
+      );
     }
     continuity = this.continuityKernel.finalizeReceipt(continuity, {
       receiptId: child?.receipt?.receiptId || child?.ids.receiptId || undefined,
@@ -1449,14 +1565,17 @@ export class AgentRunNativeToolLoopService {
         mutationPlanId: input.mutationPlanId || null,
       }),
     );
-    continuity = this.continuityKernel.attachResult(continuity, resultFromToolOutcome({
-      ok: false,
-      status: input.status,
-      summary: input.summary,
-      data: {
-        ...(input.mutationPlanId ? { mutationPlanId: input.mutationPlanId } : {}),
-      },
-    }));
+    continuity = this.continuityKernel.attachResult(
+      continuity,
+      resultFromToolOutcome({
+        ok: false,
+        status: input.status,
+        summary: input.summary,
+        data: {
+          ...(input.mutationPlanId ? { mutationPlanId: input.mutationPlanId } : {}),
+        },
+      }),
+    );
     return this.continuityKernel.finalizeReceipt(continuity);
   }
 
@@ -1477,23 +1596,7 @@ export class AgentRunNativeToolLoopService {
       ...run.metadata,
       ...(request.metadata || {}),
     };
-    if (truthy(metadata.enableWebTools) || truthy(metadata.webSearchEnabled) || truthy(metadata.allowWebSearch)) {
-      return true;
-    }
-    return this.requestLikelyNeedsExternalKnowledge(request.text);
+    // Structured flags only — free-text never auto-exposes web_search.
+    return truthy(metadata.enableWebTools) || truthy(metadata.webSearchEnabled) || truthy(metadata.allowWebSearch);
   }
-
-  private requestLikelyNeedsExternalKnowledge(text: string): boolean {
-    const normalized = normalizeText(text).toLowerCase();
-    if (!normalized) {
-      return false;
-    }
-    return /\b(today|latest|recent|current|now|news|search|browse|web|internet|source|sources|link|links|price|weather|release|version|changelog|who won|where can i find)\b/.test(normalized)
-      || /\b(hoje|agora|atual|atuais|recente|recentes|ultim[ao]s?|noticia|noticias|pesquis|busc|internet|web|fonte|fontes|link|links|preco|cotacao|clima|tempo|lancamento|versao)\b/.test(normalized);
-  }
-}
-
-function thisRequestLikelyNeedsExternalKnowledge(text: string): boolean {
-  return /\b(today|latest|recent|current|now|news|search|browse|web|internet|source|sources|link|links|price|weather|release|version|changelog|who won|where can i find)\b/.test(text)
-    || /\b(hoje|agora|atual|atuais|recente|recentes|ultim[ao]s?|noticia|noticias|pesquis|busc|internet|web|fonte|fontes|link|links|preco|cotacao|clima|tempo|lancamento|versao)\b/.test(text);
 }

@@ -48,7 +48,6 @@ const ALL_TOOLS: ToolDefinition[] = [
 ];
 
 describe('Cognitive Firewall — Full Integration', () => {
-
   // ──────────────────────────────────────────────────────────────
   // B) Lazy Tool Definition — Integration with CognitiveFirewall
   // ──────────────────────────────────────────────────────────────
@@ -147,7 +146,7 @@ describe('Cognitive Firewall — Full Integration', () => {
       cache.get('web_search', { query: 'a' }); // hit
       cache.get('web_search', { query: 'a' }); // hit
       cache.get('web_search', { query: 'c' }); // miss
-      cache.get('read_file', { path: 'x' });   // miss
+      cache.get('read_file', { path: 'x' }); // miss
 
       const stats = cache.getStats();
       expect(stats.hits).toBe(2);
@@ -312,7 +311,6 @@ describe('Cognitive Firewall — Full Integration', () => {
         category: 'file_operation',
         confidence: 0.8,
         reason: 'test',
-        isTrivialChat: false,
         isHardDecision: false,
         downgradedBy: [],
         secondPass: {

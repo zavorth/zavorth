@@ -55,10 +55,7 @@ export class TelegramExecutionGatewaySubmissionService {
     return this.submitPlanViaGateway(task, plan, isDryRun);
   }
 
-  public async executeStoredGatewayPlan(
-    task: Task,
-    isDryRun: boolean,
-  ): Promise<{ output: string; success: boolean }> {
+  public async executeStoredGatewayPlan(task: Task, isDryRun: boolean): Promise<{ output: string; success: boolean }> {
     const plan = task.metadata?.gateway_plan as Plan | undefined;
     if (!plan) {
       return this.deps.executePlannedTask(task);
@@ -91,12 +88,10 @@ export class TelegramExecutionGatewaySubmissionService {
       const agentRole = this.deps.gatewayPlanService.resolveRuntimeAdapterRole(task);
       const tenantMetadata = TenantContextService.buildPermissionMetadataMatchFromTask(task);
       const approvedBindings = [
-        ...(await this.deps.permissionService.listApprovedRequests(
-          EXTERNAL_EXECUTOR_ID,
-          'agent_binding',
-          workspace,
-          { agent_role: agentRole, ...tenantMetadata },
-        )),
+        ...(await this.deps.permissionService.listApprovedRequests(EXTERNAL_EXECUTOR_ID, 'agent_binding', workspace, {
+          agent_role: agentRole,
+          ...tenantMetadata,
+        })),
         ...(await this.deps.permissionService.listApprovedRequests(
           LEGACY_EXTERNAL_EXECUTOR_ID,
           'agent_binding',
@@ -134,7 +129,7 @@ export class TelegramExecutionGatewaySubmissionService {
       const followup =
         task.approval_status === 'approved'
           ? 'I already recorded the previous approval, so this indicates that another confirmation is still pending in the flow.'
-          : `Use /approve ${task.task_id} to allow this plan execution.`;
+          : 'Use /approve, /approve 1, or tap Approve — not a long id.';
       return {
         output: `One confirmation is still required before execution.\nReason: ${decision.reason}\n${followup}`,
         success: false,
@@ -153,16 +148,13 @@ export class TelegramExecutionGatewaySubmissionService {
 
     if (
       isExternalExecutor(executor) &&
-      (
-        isExternalWorkspaceMismatchError(decision.execution_result?.error_code) ||
-        isExternalPathAccessRequiredError(decision.execution_result?.error_code)
-      )
+      (isExternalWorkspaceMismatchError(decision.execution_result?.error_code) ||
+        isExternalPathAccessRequiredError(decision.execution_result?.error_code))
     ) {
       const permission = await this.deps.createExternalExecutorPermissionRequest(task, decision.execution_result);
-      const intro =
-        isExternalPathAccessRequiredError(decision.execution_result?.error_code)
-          ? `${EXTERNAL_EXECUTOR_LABEL} needs extra access to a specific folder or path before continuing.`
-          : `${EXTERNAL_EXECUTOR_LABEL} stopped because the current agent is pinned to another workspace.`;
+      const intro = isExternalPathAccessRequiredError(decision.execution_result?.error_code)
+        ? `${EXTERNAL_EXECUTOR_LABEL} needs extra access to a specific folder or path before continuing.`
+        : `${EXTERNAL_EXECUTOR_LABEL} stopped because the current agent is pinned to another workspace.`;
       return {
         output: [intro, '', this.deps.formatPermissionCreatedMessage(permission)].join('\n'),
         success: false,
@@ -171,10 +163,8 @@ export class TelegramExecutionGatewaySubmissionService {
 
     if (
       executor === 'aistudio' &&
-      (
-        decision.execution_result?.error_code === 'AISTUDIO_BUILTIN_TOOL_PERMISSION_REQUIRED' ||
-        decision.execution_result?.error_code === 'AISTUDIO_SERVICE_ACCESS_REQUIRED'
-      )
+      (decision.execution_result?.error_code === 'AISTUDIO_BUILTIN_TOOL_PERMISSION_REQUIRED' ||
+        decision.execution_result?.error_code === 'AISTUDIO_SERVICE_ACCESS_REQUIRED')
     ) {
       const permission = await this.deps.createAiStudioPermissionRequest(task, decision.execution_result);
       const intro =
@@ -187,10 +177,7 @@ export class TelegramExecutionGatewaySubmissionService {
       };
     }
 
-    if (
-      executor === 'aistudio' &&
-      decision.execution_result?.error_code === 'AISTUDIO_EXTERNAL_SERVICE_UNSUPPORTED'
-    ) {
+    if (executor === 'aistudio' && decision.execution_result?.error_code === 'AISTUDIO_EXTERNAL_SERVICE_UNSUPPORTED') {
       return {
         output: [
           'Google AI Studio requested an external service, but this Zavorth supports only native Gemini API tools in /aistudio.',
@@ -223,7 +210,9 @@ export class TelegramExecutionGatewaySubmissionService {
           decision.execution_result.metadata?.jules_session_id
             ? `SessionId: ${decision.execution_result.metadata.jules_session_id}`
             : '',
-        ].filter(Boolean).join('\n'),
+        ]
+          .filter(Boolean)
+          .join('\n'),
         success: false,
       };
     }
@@ -245,7 +234,9 @@ export class TelegramExecutionGatewaySubmissionService {
           decision.execution_result.metadata?.jules_session_id
             ? `SessionId: ${decision.execution_result.metadata.jules_session_id}`
             : '',
-        ].filter(Boolean).join('\n'),
+        ]
+          .filter(Boolean)
+          .join('\n'),
         success: false,
       };
     }

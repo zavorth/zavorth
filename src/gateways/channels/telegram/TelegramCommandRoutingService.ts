@@ -108,6 +108,7 @@ export type TelegramCommandRoutingServiceDeps = {
   };
   providerController: {
     handleModel: (ctx: Context, args: string) => Promise<void>;
+    handleStrong: (ctx: Context, args: string) => Promise<void>;
   };
   permissionController: GatewayPermissionBrokerDeps['permissionController'];
   echoApprovalController?: GatewayPermissionBrokerDeps['echoApprovalController'];
@@ -283,6 +284,9 @@ export class TelegramCommandRoutingService {
       case '/model':
         await this.deps.providerController.handleModel(ctx, parsed.command_args);
         return true;
+      case '/strong':
+        await this.deps.providerController.handleStrong(ctx, parsed.command_args);
+        return true;
       case '/profile':
         await this.deps.opsController.handleProfile(ctx, parsed.command_args);
         return true;
@@ -356,8 +360,7 @@ export class TelegramCommandRoutingService {
         await this.deps.zavorthBridgeController.handleWindowAction(
           ctx,
           'paste-and-submit',
-          parsed.command_args ||
-            'Continue a tarefa atual do Zavorth e conclua a resposta.',
+          parsed.command_args || 'Continue a tarefa atual do Zavorth e conclua a resposta.',
         );
         return true;
       case '/agbridge':
@@ -383,12 +386,14 @@ export class TelegramCommandRoutingService {
         await this.handleEchoCommand(ctx, parsed.command_args);
         return true;
       case '/board': {
-        const { KanbanSQLiteDispatcherService } = await import('../../../services/plugins/KanbanSQLiteDispatcherService.js');
+        const { KanbanSQLiteDispatcherService } = await import(
+          '../../../services/plugins/KanbanSQLiteDispatcherService.js'
+        );
         const kanban = new KanbanSQLiteDispatcherService();
         try {
           kanban.createBoard('Default Board');
           const boardStr = kanban.getBoard('default_board');
-          
+
           const { InlineKeyboard } = await import('grammy');
           const inlineKeyboard = new InlineKeyboard()
             .text('📝 Adicionar Task', 'kanban:add_prompt')
@@ -409,7 +414,9 @@ export class TelegramCommandRoutingService {
           await ctx.reply('Uso: /triage <titulo da task>');
           return true;
         }
-        const { KanbanSQLiteDispatcherService } = await import('../../../services/plugins/KanbanSQLiteDispatcherService.js');
+        const { KanbanSQLiteDispatcherService } = await import(
+          '../../../services/plugins/KanbanSQLiteDispatcherService.js'
+        );
         const kanban = new KanbanSQLiteDispatcherService();
         try {
           kanban.createBoard('Default Board');
@@ -428,7 +435,9 @@ export class TelegramCommandRoutingService {
           await ctx.reply('Uso: /move <card_id> <coluna_destino>\nExemplo: /move card_123 in_progress');
           return true;
         }
-        const { KanbanSQLiteDispatcherService } = await import('../../../services/plugins/KanbanSQLiteDispatcherService.js');
+        const { KanbanSQLiteDispatcherService } = await import(
+          '../../../services/plugins/KanbanSQLiteDispatcherService.js'
+        );
         const kanban = new KanbanSQLiteDispatcherService();
         try {
           const result = kanban.moveCard('default_board', cardId, destCol, 'Moved via Telegram Command');
@@ -460,27 +469,16 @@ export class TelegramCommandRoutingService {
     if (
       ctx.chat?.type === 'private' &&
       parsed.command_type === '/task' &&
-      this.deps.fileDeliveryController.shouldHandleFreeForm(
-        parsed.command_args || effectiveText,
-        userId,
-      )
+      this.deps.fileDeliveryController.shouldHandleFreeForm(parsed.command_args || effectiveText, userId)
     ) {
-      await this.deps.fileDeliveryController.handleFreeForm(
-        ctx,
-        parsed.command_args || effectiveText,
-        userId,
-      );
+      await this.deps.fileDeliveryController.handleFreeForm(ctx, parsed.command_args || effectiveText, userId);
       return true;
     }
 
     return false;
   }
 
-  public async dispatchGroupCommand(
-    ctx: Context,
-    command: string,
-    args: string,
-  ): Promise<boolean> {
+  public async dispatchGroupCommand(ctx: Context, command: string, args: string): Promise<boolean> {
     if (this.isFunCommand(command)) {
       await this.deps.funController.handle(ctx, command, args);
       return true;
@@ -667,7 +665,9 @@ export class TelegramCommandRoutingService {
       return;
     }
 
-    const subcommand = String(args || '').trim().toLowerCase();
+    const subcommand = String(args || '')
+      .trim()
+      .toLowerCase();
 
     const operatorUserId = ctx.from?.id?.toString() || null;
 
@@ -675,8 +675,8 @@ export class TelegramCommandRoutingService {
       await store.setEchoMode(true, operatorUserId);
       await ctx.reply(
         '🎙️ *Modo Echo ativado.*\n\n' +
-        'A partir de agora, responderei com audio alem do texto.\n' +
-        'Use `/echo off` para desativar.',
+          'A partir de agora, responderei com audio alem do texto.\n' +
+          'Use `/echo off` para desativar.',
         { parse_mode: 'Markdown' },
       );
       return;
@@ -684,10 +684,7 @@ export class TelegramCommandRoutingService {
 
     if (subcommand === 'off' || subcommand === 'desligar' || subcommand === 'desativar') {
       await store.setEchoMode(false, operatorUserId);
-      await ctx.reply(
-        '🔇 *Modo Echo desativado.*\n\nVoltei ao modo texto padrao.',
-        { parse_mode: 'Markdown' },
-      );
+      await ctx.reply('🔇 *Modo Echo desativado.*\n\nVoltei ao modo texto padrao.', { parse_mode: 'Markdown' });
       return;
     }
 
@@ -696,10 +693,10 @@ export class TelegramCommandRoutingService {
     const statusText = isActive ? 'ATIVADO' : 'DESATIVADO';
     await ctx.reply(
       `${statusEmoji} *Modo Echo: ${statusText}*\n\n` +
-      'Comandos:\n' +
-      '- `/echo on` — ativa resposta por voz\n' +
-      '- `/echo off` — desativa resposta por voz\n' +
-      '- `/echo` — mostra o status atual',
+        'Comandos:\n' +
+        '- `/echo on` — ativa resposta por voz\n' +
+        '- `/echo off` — desativa resposta por voz\n' +
+        '- `/echo` — mostra o status atual',
       { parse_mode: 'Markdown' },
     );
   }

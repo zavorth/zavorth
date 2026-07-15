@@ -41,10 +41,7 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
     }
   }
 
-  public async handleRuntimeMaintenanceIntent(
-    ctx: IMessageContext,
-    intent: RuntimeMaintenanceIntent,
-  ): Promise<void> {
+  public async handleRuntimeMaintenanceIntent(ctx: IMessageContext, intent: RuntimeMaintenanceIntent): Promise<void> {
     if (intent.action === 'changes') {
       await this.handleChanges(ctx);
       return;
@@ -69,8 +66,8 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
     const summary = this.deps.supervisedRuntimeService.summarizeRecentChanges();
     await this.replyRuntimeSurface(ctx, {
       id: 'shared-runtime-changes',
-      title: 'Mudancas do Zavorth',
-      summary: firstSurfaceLine(summary) || 'Resumo de mudancas recentes.',
+      title: 'Zavorth changes',
+      summary: firstSurfaceLine(summary) || 'Recent changes summary.',
       text: summary,
       status: 'done',
       metadata: {
@@ -80,7 +77,9 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
   }
 
   private async handleReload(ctx: IMessageContext, args: string): Promise<void> {
-    const normalized = String(args || '').trim().toLowerCase();
+    const normalized = String(args || '')
+      .trim()
+      .toLowerCase();
 
     if (normalized === 'status' || normalized === 'summary' || normalized === 'changes' || normalized === 'resumo') {
       await this.handleChanges(ctx);
@@ -118,14 +117,16 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
   }
 
   private async handleAutoRepair(ctx: IMessageContext, args: string): Promise<void> {
-    const normalized = String(args || '').trim().toLowerCase();
+    const normalized = String(args || '')
+      .trim()
+      .toLowerCase();
 
     if (normalized === 'status' || normalized === 'summary' || normalized === 'resumo' || normalized === 'last') {
       const summary = this.deps.autoRepairService.summarizeLastRun();
       await this.replyRuntimeSurface(ctx, {
         id: 'shared-autorepair-status',
-        title: 'Autoreparo do Zavorth',
-        summary: firstSurfaceLine(summary) || 'Ultimo estado do autoreparo.',
+        title: 'Zavorth autorepair',
+        summary: firstSurfaceLine(summary) || 'Last autorepair state.',
         text: summary,
         status: 'done',
         metadata: {
@@ -146,18 +147,18 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
 
     await ctx.reply(
       dryRun
-        ? 'Montando um plano seguro de autoreparo right now.'
+        ? 'Building a safe autorepair plan right now.'
         : improve
-          ? 'Iniciando autoreparo com foco em melhoria segura e validada.'
-          : 'Iniciando autoreparo completo do Zavorth right now.',
+          ? 'Starting autorepair focused on safe, validated improvement.'
+          : 'Starting full Zavorth autorepair right now.',
     );
 
     const result = await this.deps.autoRepairService.run({
       reason: improve
-        ? `Melhoria segura do Zavorth solicitada via ${ctx.platform}.`
+        ? `Safe Zavorth improvement requested via ${ctx.platform}.`
         : dryRun
-          ? `Planejamento de autoreparo solicitado via ${ctx.platform}.`
-          : `Autoreparo solicitado via ${ctx.platform}.`,
+          ? `Autorepair planning requested via ${ctx.platform}.`
+          : `Autorepair requested via ${ctx.platform}.`,
       requestedBy: String(ctx.userId || 'unknown').trim() || 'unknown',
       notifyChatId: ctx.platform === 'telegram' ? String(ctx.chatId || '').trim() || null : null,
       dryRun,
@@ -167,7 +168,7 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
 
     await this.replyRuntimeSurface(ctx, {
       id: `shared-autorepair-${result.status || 'run'}`,
-      title: 'Autoreparo concluido',
+      title: 'Autorepair completed',
       summary: result.summary,
       text: result.summary,
       status: mapBooleanReceiptStatus(result.success),
@@ -205,5 +206,10 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
 }
 
 function firstSurfaceLine(value: string): string {
-  return String(value || '').split(/\r?\n/).map((line) => line.trim()).find(Boolean) || '';
+  return (
+    String(value || '')
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .find(Boolean) || ''
+  );
 }

@@ -47,7 +47,12 @@ try {
 
   const contractText = readFileSync(join(root, 'src/contracts/ZavorthTransactionConnectorContract.ts'), 'utf8');
   const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionConnectorRegistryService.ts'), 'utf8');
-  for (const marker of ['zavorth-transaction-connector/checkpoint-4', 'externalSideEffects: false', 'supportsLive: false', 'approval_grant_required']) {
+  for (const marker of [
+    'zavorth-transaction-connector/checkpoint-4',
+    'externalSideEffects: false',
+    'supportsLive: false',
+    'approval_grant_required',
+  ]) {
     if (!contractText.includes(marker) && !serviceText.includes(marker)) {
       failures.push(`missing marker: ${marker}`);
     }
@@ -58,7 +63,11 @@ try {
     '--ledger-file',
     ledgerFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--mode',
     'paper',
   ]);
@@ -71,7 +80,11 @@ try {
     '--ledger-file',
     ledgerFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--approve',
     '--mode',
     'paper',
@@ -79,10 +92,17 @@ try {
   if (approvedTrade.result.status !== 'simulated') {
     failures.push(`approved trade should simulate, got ${approvedTrade.result.status}`);
   }
-  if (approvedTrade.result.connector.kind !== 'exchange' || approvedTrade.result.payload.method !== 'SIMULATE_TRADE_ORDER') {
+  if (
+    approvedTrade.result.connector.kind !== 'exchange' ||
+    approvedTrade.result.payload.method !== 'SIMULATE_TRADE_ORDER'
+  ) {
     failures.push('approved trade connector payload mismatch');
   }
-  if (approvedTrade.result.externalSideEffects !== false || approvedTrade.result.liveActionApplied !== false || approvedTrade.result.executableNow !== false) {
+  if (
+    approvedTrade.result.externalSideEffects !== false ||
+    approvedTrade.result.liveActionApplied !== false ||
+    approvedTrade.result.executableNow !== false
+  ) {
     failures.push('approved dry-run must remain side-effect-free');
   }
 
@@ -91,12 +111,18 @@ try {
     '--ledger-file',
     ledgerFile,
     '--text',
-    'Monitore notebook abaixo de R$3500 e me avise.',
+    'Monitor notebook below R$3500 and notify me.',
+    '--kind',
+    'monitor-price',
+    '--action-kind',
+    'price-monitor',
     '--mode',
     'sandbox',
   ]);
   if (monitor.result.status !== 'simulated' || monitor.result.connector.kind !== 'market-data') {
-    failures.push(`monitor should simulate through market-data, got ${monitor.result.status}/${monitor.result.connector?.kind}`);
+    failures.push(
+      `monitor should simulate through market-data, got ${monitor.result.status}/${monitor.result.connector?.kind}`,
+    );
   }
 
   const rawCredential = runConnector([
@@ -104,7 +130,11 @@ try {
     '--ledger-file',
     ledgerFile,
     '--text',
-    'Monitore notebook abaixo de R$3500 e me avise.',
+    'Monitor notebook below R$3500 and notify me.',
+    '--kind',
+    'monitor-price',
+    '--action-kind',
+    'price-monitor',
     '--credential-ref',
     'api_key=sk-super-secret-value-123456',
   ]);

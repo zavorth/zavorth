@@ -62,47 +62,47 @@ type BuildOnboardingSnapshotInput = {
 export class NodeOnboardingService {
   public buildOnboardingSnapshot(input: BuildOnboardingSnapshotInput = {}): NodeOnboardingSnapshot {
     const now = input.now || new Date();
-    const selected = this.resolveSelectedNode(input.nodeMeshSnapshot || null, input.selectedNodeId)
-      || (input.bootstrapDraft?.entry as NodeMeshRegistryEntry | undefined)
-      || null;
+    const selected =
+      this.resolveSelectedNode(input.nodeMeshSnapshot || null, input.selectedNodeId) ||
+      (input.bootstrapDraft?.entry as NodeMeshRegistryEntry | undefined) ||
+      null;
     const bootstrap = this.resolveBootstrap(input.bootstrapDraft || null);
     const pairingDraftReady = Boolean(selected && selected.pairingStatus === 'pending');
     const paired = Boolean(selected?.paired || selected?.pairingStatus === 'paired');
     const firstHeartbeat = Boolean(selected?.lastSeenAt || selected?.status === 'online');
     const ready = Boolean(
-      (selected && 'canInvoke' in selected && selected.canInvoke) ||
-      (selected?.status === 'online' && paired)
+      (selected && 'canInvoke' in selected && selected.canInvoke) || (selected?.status === 'online' && paired),
     );
     const blocked = Boolean(selected?.status === 'blocked' || selected?.pairingStatus === 'revoked');
     const declaredCapabilities = Array.isArray(selected?.capabilityIds) ? selected.capabilityIds.length : 0;
-    const approvedCapabilities = Array.isArray(selected?.approvedCapabilityIds) ? selected.approvedCapabilityIds.length : 0;
+    const approvedCapabilities = Array.isArray(selected?.approvedCapabilityIds)
+      ? selected.approvedCapabilityIds.length
+      : 0;
     const needsPolicyReview = declaredCapabilities > 0 && approvedCapabilities === 0;
     const steps: NodeOnboardingStep[] = [
       {
         id: 'select_profile',
-        label: 'Escolher perfil',
+        label: 'Choose profile',
         status: selected ? 'completed' : 'current',
         summary: selected
-          ? `Perfil ${selected.profileId || selected.kind || 'node'} selecionado.`
-          : 'Escolha desktop, headless, browser ou mobile antes de gerar o pairing.',
-        actionHint: selected ? null : 'Crie um pairing draft com o perfil mais proximo do device real.',
+          ? `Profile ${selected.profileId || selected.kind || 'node'} selected.`
+          : 'Choose desktop, headless, browser, or mobile before generating pairing.',
+        actionHint: selected ? null : 'Create a pairing draft with the profile closest to the real device.',
       },
       {
         id: 'create_pairing_draft',
-        label: 'Gerar pairing',
-        status: selected
-          ? (pairingDraftReady || paired ? 'completed' : 'current')
-          : 'pending',
+        label: 'Create pairing',
+        status: selected ? (pairingDraftReady || paired ? 'completed' : 'current') : 'pending',
         summary: pairingDraftReady
-          ? 'Pairing draft ativo e pronto para bootstrap.'
+          ? 'Pairing draft active and ready for bootstrap.'
           : paired
-            ? 'Pairing ja foi consumido pelo companion.'
-            : 'Gere um codigo de pairing para este node.',
-        actionHint: pairingDraftReady || paired ? null : 'Use /api/web/nodes/pairing-draft ou o wizard do painel.',
+            ? 'Pairing was already consumed by the companion.'
+            : 'Generate a pairing code for this node.',
+        actionHint: pairingDraftReady || paired ? null : 'Use /api/web/nodes/pairing-draft or the panel wizard.',
       },
       {
         id: 'download_companion',
-        label: 'Preparar companion',
+        label: 'Prepare companion',
         status: !selected
           ? 'pending'
           : bootstrap.available
@@ -113,41 +113,31 @@ export class NodeOnboardingService {
                 ? 'completed'
                 : 'pending',
         summary: bootstrap.available
-          ? 'Bootstrap canonico disponivel para iniciar o companion.'
-          : 'Baixe ou execute o companion oficial no device alvo.',
-        actionHint: bootstrap.command || 'Use o bundle oficial do companion quando estiver disponivel.',
+          ? 'Canonical bootstrap available to start the companion.'
+          : 'Download or run the official companion on the target device.',
+        actionHint: bootstrap.command || 'Use the official companion bundle when available.',
       },
       {
         id: 'claim_pairing',
-        label: 'Consumir pairing',
-        status: !selected
-          ? 'pending'
-          : paired
-            ? 'completed'
-            : pairingDraftReady
-              ? 'current'
-              : 'blocked',
+        label: 'Claim pairing',
+        status: !selected ? 'pending' : paired ? 'completed' : pairingDraftReady ? 'current' : 'blocked',
         summary: paired
-          ? 'Companion concluiu claim e recebeu shared secret.'
-          : 'Execute o companion com o pairing token para concluir o claim.',
+          ? 'Companion completed claim and received the shared secret.'
+          : 'Run the companion with the pairing token to complete the claim.',
         actionHint: paired ? null : bootstrap.command,
       },
       {
         id: 'first_heartbeat',
-        label: 'Primeiro heartbeat',
-        status: !paired
-          ? 'pending'
-          : firstHeartbeat
-            ? 'completed'
-            : 'current',
+        label: 'First heartbeat',
+        status: !paired ? 'pending' : firstHeartbeat ? 'completed' : 'current',
         summary: firstHeartbeat
-          ? 'Node publicou heartbeat e ja aparece no mesh.'
-          : 'Waiting for heartbeat do companion pareado.',
-        actionHint: firstHeartbeat ? null : 'Mantenha o companion rodando ate o status mudar para online.',
+          ? 'Node published heartbeat and already appears in the mesh.'
+          : 'Waiting for heartbeat from the paired companion.',
+        actionHint: firstHeartbeat ? null : 'Keep the companion running until status changes to online.',
       },
       {
         id: 'approve_capabilities',
-        label: 'Revisar capabilities',
+        label: 'Review capabilities',
         status: !selected
           ? 'pending'
           : needsPolicyReview
@@ -156,26 +146,20 @@ export class NodeOnboardingService {
               ? 'completed'
               : 'pending',
         summary: needsPolicyReview
-          ? 'Capabilities declaradas ainda precisam de allowlist explicita.'
-          : `${approvedCapabilities || declaredCapabilities} capability(s) prontas para policy local.`,
-        actionHint: needsPolicyReview ? 'Aprove apenas as capabilities necessarias para este device.' : null,
+          ? 'Declared capabilities still need an explicit allowlist.'
+          : `${approvedCapabilities || declaredCapabilities} capability(s) ready for local policy.`,
+        actionHint: needsPolicyReview ? 'Approve only the capabilities needed for this device.' : null,
       },
       {
         id: 'verify_ready',
-        label: 'Validar pronto',
-        status: blocked
-          ? 'blocked'
-          : ready
-            ? 'completed'
-            : firstHeartbeat
-              ? 'current'
-              : 'pending',
+        label: 'Validate ready',
+        status: blocked ? 'blocked' : ready ? 'completed' : firstHeartbeat ? 'current' : 'pending',
         summary: ready
-          ? 'Node pronto para receber invocacoes.'
+          ? 'Node ready to receive invocations.'
           : blocked
-            ? 'Node bloqueado ou pairing revogado.'
-            : 'Rode device.info ou node.maintenance para validar a primeira invocacao.',
-        actionHint: ready ? null : 'Teste device.info antes de usar capabilities mais sensiveis.',
+            ? 'Node blocked or pairing revoked.'
+            : 'Run device.info or node.maintenance to validate the first invocation.',
+        actionHint: ready ? null : 'Test device.info before using more sensitive capabilities.',
       },
     ];
     const completed = steps.filter((step) => step.status === 'completed').length;
@@ -204,9 +188,7 @@ export class NodeOnboardingService {
       nextStep,
       narrative: {
         headline: this.buildHeadline(state),
-        operatorSummary: nextStep
-          ? `${nextStep.label}: ${nextStep.summary}`
-          : 'Onboarding do node esta completo.',
+        operatorSummary: nextStep ? `${nextStep.label}: ${nextStep.summary}` : 'Node onboarding is complete.',
       },
     };
   }
@@ -217,12 +199,12 @@ export class NodeOnboardingService {
   ): (NodeMeshSnapshotEntry | NodeMeshRegistryEntry) | null {
     const normalizedId = String(selectedNodeId || '').trim();
     const entries = Array.isArray(snapshot?.entries) ? snapshot.entries : [];
-    return (normalizedId
-      ? entries.find((entry) => String(entry?.id || '').trim() === normalizedId)
-      : null)
-      || snapshot?.selected
-      || entries[0]
-      || null;
+    return (
+      (normalizedId ? entries.find((entry) => String(entry?.id || '').trim() === normalizedId) : null) ||
+      snapshot?.selected ||
+      entries[0] ||
+      null
+    );
   }
 
   private resolveBootstrap(draft: Partial<NodeMeshPairingDraft> | null): NodeOnboardingSnapshot['bootstrap'] {
@@ -272,17 +254,17 @@ export class NodeOnboardingService {
   private buildHeadline(state: NodeOnboardingSnapshot['state']): string {
     switch (state) {
       case 'ready':
-        return 'Node pronto para operar.';
+        return 'Node ready to operate.';
       case 'online':
-        return 'Node online aguardando validacao final.';
+        return 'Node online, waiting for final validation.';
       case 'paired':
-        return 'Pairing completed, aguardando heartbeat.';
+        return 'Pairing completed, waiting for heartbeat.';
       case 'draft':
-        return 'Pairing draft pronto para bootstrap.';
+        return 'Pairing draft ready for bootstrap.';
       case 'blocked':
-        return 'Node bloqueado ou pairing revogado.';
+        return 'Node blocked or pairing revoked.';
       default:
-        return 'Onboarding de Node Mesh pronto para iniciar.';
+        return 'Node Mesh onboarding ready to start.';
     }
   }
 }

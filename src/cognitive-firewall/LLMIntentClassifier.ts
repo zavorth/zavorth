@@ -1,11 +1,10 @@
 import { asErrorLike } from '../utils/errorLike';
 /**
- * LLMIntentClassifier — optional second opinion for trivial vs non-trivial free text.
+ * LLMIntentClassifier — optional second opinion for free-text cost routing.
  *
  * Free-text capability choice is model-owned. This classifier must not map words to
- * tool categories. It only distinguishes cheap trivial chat from full_toolset.
- * Prefer the zero-token IntentClassifier; enable this only when an async path
- * needs LLM language coverage for greetings.
+ * tool categories. Prefer the zero-token IntentClassifier; enable this only when an
+ * async path needs LLM language coverage.
  */
 
 import type { ILlmProvider, ChatMessage } from '../providers/ILlmProvider.js';
@@ -101,10 +100,7 @@ export class LLMIntentClassifier {
     }
   }
 
-  private async classifyWithLLM(
-    provider: ILlmProvider,
-    userMessage: string,
-  ): Promise<IntentClassification> {
+  private async classifyWithLLM(provider: ILlmProvider, userMessage: string): Promise<IntentClassification> {
     const messages: ChatMessage[] = [
       { role: 'system', content: INTENT_CLASSIFICATION_PROMPT },
       { role: 'user', content: userMessage },
@@ -126,15 +122,15 @@ export class LLMIntentClassifier {
         confidence?: number;
         reason?: string;
       };
-      const raw = String(parsed.category || '').toLowerCase().trim();
+      const raw = String(parsed.category || '')
+        .toLowerCase()
+        .trim();
       const category: IntentCategory = raw === 'conversation' ? 'conversation' : 'full_toolset';
       const confidence = Math.max(0, Math.min(1, Number(parsed.confidence) || 0.5));
-      const isTrivialChat = category === 'conversation' && confidence >= 0.85;
       return {
         category,
         confidence,
         reason: String(parsed.reason || 'LLM free-text cost routing hint.'),
-        isTrivialChat,
         isHardDecision: false,
         downgradedBy: [],
         secondPass: {
@@ -159,7 +155,6 @@ export class LLMIntentClassifier {
       category: 'full_toolset',
       confidence: 0.3,
       reason,
-      isTrivialChat: false,
       isHardDecision: false,
       downgradedBy: [],
       secondPass: {
@@ -195,7 +190,10 @@ export class LLMIntentClassifier {
   }
 
   private getCacheKey(message: string): string {
-    return String(message || '').trim().toLowerCase().slice(0, 500);
+    return String(message || '')
+      .trim()
+      .toLowerCase()
+      .slice(0, 500);
   }
 
   private evictOldEntries(): void {

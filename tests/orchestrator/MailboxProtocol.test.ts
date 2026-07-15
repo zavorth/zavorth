@@ -59,7 +59,7 @@ describe('MailboxProtocol', () => {
       throw new Error('payload should have been rejected');
     }
 
-    expect(result.reason).toContain('assinatura invalida');
+    expect(result.reason).toContain('invalid signature');
   });
 
   it('rejects legacy unsigned payloads by default', () => {

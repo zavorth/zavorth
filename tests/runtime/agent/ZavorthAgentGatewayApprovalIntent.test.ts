@@ -1,7 +1,4 @@
-import {
-  ZavorthAgentGateway,
-  type UniversalAgentExecutor,
-} from '../../../src/runtime/agent/index.js';
+import { ZavorthAgentGateway, type UniversalAgentExecutor } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
   let index = 0;
@@ -12,11 +9,11 @@ function createIdFactory() {
 }
 
 describe('ZavorthAgentGateway approval intent resolver', () => {
-  it('approves and resumes a pending run from natural text', async () => {
+  it('approves and resumes a pending run from structured slash/command text with explicit ref', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Executado apos aprovacao natural.',
-      replyText: 'Aprovado por texto natural.',
+      summary: 'Executed after structured approval.',
+      replyText: 'Approved via /approve.',
     }));
     const gateway = new ZavorthAgentGateway({
       now: () => new Date('2026-05-12T12:00:00.000Z'),
@@ -28,13 +25,16 @@ describe('ZavorthAgentGateway approval intent resolver', () => {
       userId: 'grey',
       channel: 'telegram',
       sessionId: 'telegram:grey',
-      text: 'rode npm test',
+      text: 'run npm test',
       requestedTools: ['shell.exec'],
     });
+    const approvalId = pending.run.approvals[0].id;
 
+    // Free-text "Aprovo" alone is intentionally not an approval intent (purity).
+    // Structured slash /approve + ref owns the control path.
     const resolved = await gateway.resolveApprovalIntent({
-      text: 'Aprovo',
-      source: 'text',
+      text: `/approve ${approvalId}`,
+      source: 'slash-command',
       channel: 'telegram',
       userId: 'grey',
       sessionId: 'telegram:grey',
@@ -42,19 +42,19 @@ describe('ZavorthAgentGateway approval intent resolver', () => {
 
     expect(resolved.ok).toBe(true);
     expect(resolved.resolution.status).toBe('resolved');
-    expect(resolved.resolution.ref).toBe(pending.run.approvals[0].id);
+    expect(resolved.resolution.ref).toBe(approvalId);
     expect(resolved.result?.decision).toBe('approved');
     expect(resolved.result?.run.status).toBe('completed');
     expect(executor).toHaveBeenCalledTimes(1);
   });
 
-  it('does not guess when natural text matches multiple pending approvals', async () => {
+  it('does not treat bare free-text as approval intent', async () => {
     const gateway = new ZavorthAgentGateway({
       now: () => new Date('2026-05-12T12:05:00.000Z'),
       idFactory: createIdFactory(),
       executor: () => ({
         status: 'completed',
-        summary: 'Nao deveria executar.',
+        summary: 'Should not execute from free-text alone.',
       }),
     });
 
@@ -62,35 +62,44 @@ describe('ZavorthAgentGateway approval intent resolver', () => {
       userId: 'grey',
       channel: 'telegram',
       sessionId: 'telegram:one',
-      text: 'rode npm test',
+      text: 'run npm test',
       requestedTools: ['shell.exec'],
     });
     await gateway.handle({
       userId: 'grey',
       channel: 'discord',
       sessionId: 'discord:two',
-      text: 'abra o browser',
+      text: 'open the browser',
       requestedTools: ['filesystem.write'],
     });
 
-    const resolved = await gateway.resolveApprovalIntent({
+    const bare = await gateway.resolveApprovalIntent({
       text: 'continue',
       source: 'text',
       channel: 'whatsapp',
       userId: 'grey',
     });
+    expect(bare.ok).toBe(false);
+    expect(bare.resolution.status).toBe('not_approval_intent');
+    expect(bare.result).toBeNull();
 
-    expect(resolved.ok).toBe(false);
-    expect(resolved.resolution.status).toBe('ambiguous');
-    expect(resolved.resolution.candidates).toHaveLength(2);
-    expect(resolved.result).toBeNull();
+    // Ambiguity only after a real structured decision token without unique ref.
+    const ambiguous = await gateway.resolveApprovalIntent({
+      text: '/approve',
+      source: 'slash-command',
+      channel: 'telegram',
+      userId: 'grey',
+    });
+    expect(ambiguous.ok).toBe(false);
+    expect(['ambiguous', 'not_found', 'confirmation_required']).toContain(ambiguous.resolution.status);
+    expect(ambiguous.result).toBeNull();
   });
 
   it('allows dashboard buttons to approve danger approvals by explicit ref', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Danger tool executado apos botao autenticado.',
-      replyText: 'Aprovado no dashboard.',
+      summary: 'Danger tool executed after authenticated button.',
+      replyText: 'Approved on dashboard.',
     }));
     const gateway = new ZavorthAgentGateway({
       now: () => new Date('2026-05-12T12:10:00.000Z'),
@@ -102,7 +111,7 @@ describe('ZavorthAgentGateway approval intent resolver', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'web:grey',
-      text: 'rode rm build em preview governado',
+      text: 'run rm build in governed preview',
       requestedTools: ['shell.exec'],
     });
 

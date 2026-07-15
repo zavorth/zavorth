@@ -1,4 +1,5 @@
 import {
+  presentUniversalApprovalIntentDecision,
   renderUniversalApprovalIntentDecisionResult,
 } from '../runtime/agent/index.js';
 import { config } from '../config/index.js';
@@ -20,10 +21,7 @@ import {
 import type { TaskResourceImpact } from '../contracts/TaskResourcePlannerContract.js';
 import type { ZavorthResponseDecision } from '../contracts/ZavorthResponseDecisionContract.js';
 import type { TaskResourcePlannerService } from './TaskResourcePlannerService.js';
-import type {
-  ModeEscalationEvaluation,
-  ModeEscalationSnapshot,
-} from '../contracts/ModeEscalationContract.js';
+import type { ModeEscalationEvaluation, ModeEscalationSnapshot } from '../contracts/ModeEscalationContract.js';
 import type { ModeEscalationService } from './ModeEscalationService.js';
 import type {
   ZavorthAgentGateway,
@@ -33,7 +31,6 @@ import type {
 } from '../runtime/agent/index.js';
 
 import { SurfaceOperationalIntentService } from './SurfaceOperationalIntentService.js';
-import { FileInspectionService } from './FileInspectionService.js';
 import { AttachmentIntelligenceService, type AttachmentTextProfile } from './AttachmentIntelligenceService.js';
 import { ZavorthUserResponseRendererService } from './ZavorthUserResponseRendererService.js';
 import { MediaUnderstandingService } from './MediaUnderstandingService.js';
@@ -41,10 +38,7 @@ import type { WebComposerAttachment } from '../contracts/WebComposer.js';
 import type { MediaAnalysisType } from '../contracts/MediaUnderstandingContract.js';
 import { AudioTranscriptionService } from './AudioTranscriptionService.js';
 import type { ExecutionEngineDecision, ExecutionEngineId } from '../contracts/ExecutionEngineContract.js';
-import type {
-  ExecutionEngineRouteOperation,
-  ExecutionEngineRouterService,
-} from './ExecutionEngineRouterService.js';
+import type { ExecutionEngineRouteOperation, ExecutionEngineRouterService } from './ExecutionEngineRouterService.js';
 
 import { resolveComposerModelRouteOverride } from './WebAppComposerModelRoute.js';
 import {
@@ -84,7 +78,6 @@ export class WebAppConversationService {
   private composerActions: ComposerActionService | null = null;
   private readonly composerContext = new ComposerContextService();
   private readonly composerPayload = new ComposerPayloadService();
-  private readonly fileInspectionService = new FileInspectionService();
   private readonly attachmentIntelligence = new AttachmentIntelligenceService();
   private readonly mediaUnderstanding = new MediaUnderstandingService();
   private readonly audioTranscription = new AudioTranscriptionService({
@@ -102,7 +95,8 @@ export class WebAppConversationService {
       attachmentIntelligence: this.attachmentIntelligence,
       realtime: deps.realtime,
     });
-    this.surfaceOperationalIntentService = deps.surfaceOperationalIntentService || new SurfaceOperationalIntentService();
+    this.surfaceOperationalIntentService =
+      deps.surfaceOperationalIntentService || new SurfaceOperationalIntentService();
   }
 
   public createWebContext(sessionId: string): Record<string, unknown> {
@@ -126,7 +120,8 @@ export class WebAppConversationService {
     if (!this.composerCatalog) {
       this.composerCatalog = new ComposerCatalogService({
         taskManager: this.deps.runtime.taskManager as unknown as ComposerCatalogOptions['taskManager'],
-        permissionService: this.deps.runtime.permissionService as unknown as ComposerCatalogOptions['permissionService'],
+        permissionService: this.deps.runtime
+          .permissionService as unknown as ComposerCatalogOptions['permissionService'],
       });
     }
 
@@ -141,6 +136,11 @@ export class WebAppConversationService {
     modeEscalation: ModeEscalationSnapshot | null;
     responseDecision?: ZavorthResponseDecision | null;
     executionEngineDecision?: ExecutionEngineDecision | null;
+    onboarding?: {
+      status: 'collecting' | 'awaiting_confirmation' | 'applied' | 'confirmation_invalid';
+      confirmationToken: string | null;
+      preview: Record<string, unknown> | null;
+    };
   }> {
     const normalizedComposerPayload = this.composerPayload.normalize(body);
     const message = normalizedComposerPayload.messageText;
@@ -161,19 +161,30 @@ export class WebAppConversationService {
     const sessionId = String(body.sessionId || '').trim() || this.deps.realtime.createSession();
     this.deps.realtime.ensureSession(sessionId);
     const resourceImpact = await this.planResourceImpact(message);
-    this.deps.realtime.recordUserMessage(
-      sessionId,
-      message,
-      null,
-      normalizedComposerPayload.mentions,
-    );
+    this.deps.realtime.recordUserMessage(sessionId, message, null, normalizedComposerPayload.mentions);
+
+    // Deterministic shared-surface commands must remain available during first run.
+    // Onboarding is a conversational fallback, not an authorization boundary, and
+    // must not shadow governed commands such as /status or /codexremote.
+    const sharedSurfaceHandled = this.composerContext.hasContextualMentions(normalizedComposerPayload.mentions)
+      ? false
+      : await this.maybeHandleSharedSurface(sessionId, message);
+    if (sharedSurfaceHandled) {
+      return {
+        sessionId,
+        taskId: null,
+        snapshot: await this.deps.realtime.getResolvedSnapshot(sessionId),
+        resourceImpact,
+        modeEscalation: this.deps.modeEscalation?.buildSnapshot(sessionId) || null,
+      };
+    }
 
     const personalizationService = new FirstRunPersonalizationService({ projectRoot: this.deps.runtime.projectRoot });
     const personalizationStatus = personalizationService.getStatus();
     if (personalizationStatus.pending) {
       const firstBootService = new ZavorthFirstBootDetectionService({ cwd: this.deps.runtime.projectRoot });
       const workspace = firstBootService.detectWorkspace();
-      
+
       const sessionSnapshot = await this.deps.realtime.getResolvedSnapshot(sessionId);
       const chatHistory: ChatMessage[] = sessionSnapshot.messages.map((msg) => ({
         role: msg.role === 'user' ? 'user' : 'assistant',
@@ -184,14 +195,13 @@ export class WebAppConversationService {
         personalization: personalizationService,
       });
 
-      const { reply, finished } = await setupService.runFirstMessageIntake(sessionId, chatHistory, workspace);
-      
-      this.deps.realtime.recordAssistantMessage(
-        sessionId,
-        reply,
-        null,
-        'conversational-setup-reply'
-      );
+      const intake = await setupService.runFirstMessageIntake(sessionId, chatHistory, workspace, {
+        locale: String(body.locale || body.deviceLocale || '').trim() || null,
+        confirmPreviewToken: String(body.onboardingConfirmationToken || '').trim() || null,
+      });
+      const { reply, finished } = intake;
+
+      this.deps.realtime.recordAssistantMessage(sessionId, reply, null, 'conversational-setup-reply');
 
       if (finished) {
         const tipsService = new ZavorthContextualTipsService();
@@ -201,7 +211,7 @@ export class WebAppConversationService {
             sessionId,
             await tipsService.formatTip(tip),
             null,
-            'contextual-tip'
+            'contextual-tip',
           );
         }
       }
@@ -212,6 +222,11 @@ export class WebAppConversationService {
         snapshot: await this.deps.realtime.getResolvedSnapshot(sessionId),
         resourceImpact: null,
         modeEscalation: null,
+        onboarding: {
+          status: intake.status,
+          confirmationToken: intake.confirmationToken || null,
+          preview: intake.preview ? { ...intake.preview } : null,
+        },
       };
     }
     const executionEngineDecision = this.decideExecutionEngine({
@@ -246,7 +261,7 @@ export class WebAppConversationService {
       return {
         sessionId,
         taskId: actionResult.taskId || null,
-        snapshot: actionResult.snapshot || await this.deps.realtime.getResolvedSnapshot(sessionId),
+        snapshot: actionResult.snapshot || (await this.deps.realtime.getResolvedSnapshot(sessionId)),
         resourceImpact,
         modeEscalation: this.deps.modeEscalation?.buildSnapshot(sessionId) || null,
       };
@@ -285,19 +300,6 @@ export class WebAppConversationService {
       };
     }
 
-    const sharedSurfaceHandled = this.composerContext.hasContextualMentions(normalizedComposerPayload.mentions)
-      ? false
-      : await this.maybeHandleSharedSurface(sessionId, message);
-    if (sharedSurfaceHandled) {
-      return {
-        sessionId,
-        taskId: null,
-        snapshot: await this.deps.realtime.getResolvedSnapshot(sessionId),
-        resourceImpact,
-        modeEscalation: this.deps.modeEscalation?.buildSnapshot(sessionId) || null,
-      };
-    }
-
     const modeEscalation = this.deps.modeEscalation
       ? this.deps.modeEscalation.evaluateChatRequest({
           sessionId,
@@ -325,41 +327,31 @@ export class WebAppConversationService {
       resourceImpact,
     });
 
-    if (responseDecision.responsePath === 'local-inspector') {
-      const fileInspectionHandled = await this.maybeHandleFileInspection(sessionId, message);
-      if (fileInspectionHandled) {
-        return {
-          sessionId,
-          taskId: null,
-          snapshot: await this.deps.realtime.getResolvedSnapshot(sessionId),
-          resourceImpact,
-          modeEscalation: modeEscalation?.snapshot || this.deps.modeEscalation?.buildSnapshot(sessionId) || null,
-          responseDecision,
-        };
-      }
-    }
+    // agent-first: free text never steals to local-inspector via keyword NLU.
+    // File inspection is model-owned (agent tools) or explicit slash/composer actions.
 
-    const universalRuntimeHandled = this.composerContext.hasContextualMentions(normalizedComposerPayload.mentions)
-      || this.composerContext.hasCommandMention(normalizedComposerPayload.mentions)
-      || (responseDecision.responsePath !== 'agent-runtime' && responseDecision.responsePath !== 'approval-gate')
-      ? null
-      : await this.maybeHandleUniversalAgentRuntime({
-          sessionId,
-          message,
-          mentions: normalizedComposerPayload.mentions,
-          composerPayload: {
+    const universalRuntimeHandled =
+      this.composerContext.hasContextualMentions(normalizedComposerPayload.mentions) ||
+      this.composerContext.hasCommandMention(normalizedComposerPayload.mentions) ||
+      (responseDecision.responsePath !== 'agent-runtime' && responseDecision.responsePath !== 'approval-gate')
+        ? null
+        : await this.maybeHandleUniversalAgentRuntime({
+            sessionId,
+            message,
             mentions: normalizedComposerPayload.mentions,
-            attachments: normalizedComposerPayload.attachments,
-            selectedSkills: normalizedComposerPayload.selectedSkills,
-            voice: normalizedComposerPayload.voice,
-            ...providerRouteOverride,
-            ...composerRuntimeHints,
-          },
-          resourceImpact,
-          requestedTools: responseDecision.requestedTools,
-          responseDecision,
-          executionEngineDecision,
-        });
+            composerPayload: {
+              mentions: normalizedComposerPayload.mentions,
+              attachments: normalizedComposerPayload.attachments,
+              selectedSkills: normalizedComposerPayload.selectedSkills,
+              voice: normalizedComposerPayload.voice,
+              ...providerRouteOverride,
+              ...composerRuntimeHints,
+            },
+            resourceImpact,
+            requestedTools: responseDecision.requestedTools,
+            responseDecision,
+            executionEngineDecision,
+          });
     if (universalRuntimeHandled) {
       await this.deps.realtime.captureBaseline(sessionId);
       return {
@@ -372,26 +364,27 @@ export class WebAppConversationService {
       };
     }
 
-    const directConversationHandled = this.composerContext.hasContextualMentions(normalizedComposerPayload.mentions)
-      || responseDecision.responsePath !== 'fast-chat'
-      ? null
-      : await this.maybeHandleDirectAgentConversation({
-          sessionId,
-          message,
-          requestedTools: responseDecision.requestedTools,
-          responseDecision,
-          composerPayload: {
-            mentions: normalizedComposerPayload.mentions,
-            attachments: normalizedComposerPayload.attachments,
-            selectedSkills: normalizedComposerPayload.selectedSkills,
-            voice: normalizedComposerPayload.voice,
-            ...providerRouteOverride,
-            ...composerRuntimeHints,
-          },
-          resourceImpact,
-          kind: 'universal-agent-runtime',
-          executionEngineDecision,
-        });
+    const directConversationHandled =
+      this.composerContext.hasContextualMentions(normalizedComposerPayload.mentions) ||
+      responseDecision.responsePath !== 'fast-chat'
+        ? null
+        : await this.maybeHandleDirectAgentConversation({
+            sessionId,
+            message,
+            requestedTools: responseDecision.requestedTools,
+            responseDecision,
+            composerPayload: {
+              mentions: normalizedComposerPayload.mentions,
+              attachments: normalizedComposerPayload.attachments,
+              selectedSkills: normalizedComposerPayload.selectedSkills,
+              voice: normalizedComposerPayload.voice,
+              ...providerRouteOverride,
+              ...composerRuntimeHints,
+            },
+            resourceImpact,
+            kind: 'universal-agent-runtime',
+            executionEngineDecision,
+          });
     if (directConversationHandled) {
       await this.deps.realtime.captureBaseline(sessionId);
       return {
@@ -404,22 +397,18 @@ export class WebAppConversationService {
       };
     }
 
-    const legacyUnifiedGatewayHandled = this.composerContext.hasContextualMentions(normalizedComposerPayload.mentions)
-      || responseDecision.responsePath !== 'fast-chat'
-      ? false
-      : await this.maybeHandleLegacyUnifiedGatewayIngress(
-          sessionId,
-          message,
-          responseDecision,
-          {
+    const legacyUnifiedGatewayHandled =
+      this.composerContext.hasContextualMentions(normalizedComposerPayload.mentions) ||
+      responseDecision.responsePath !== 'fast-chat'
+        ? false
+        : await this.maybeHandleLegacyUnifiedGatewayIngress(sessionId, message, responseDecision, {
             mentions: normalizedComposerPayload.mentions,
             attachments: normalizedComposerPayload.attachments,
             selectedSkills: normalizedComposerPayload.selectedSkills,
             voice: normalizedComposerPayload.voice,
             ...providerRouteOverride,
             ...composerRuntimeHints,
-          },
-        );
+          });
     if (legacyUnifiedGatewayHandled) {
       await this.deps.realtime.captureBaseline(sessionId);
       return {
@@ -432,10 +421,7 @@ export class WebAppConversationService {
       };
     }
 
-    const executionMessage = this.composerContext.buildExecutionText(
-      message,
-      normalizedComposerPayload.mentions,
-    );
+    const executionMessage = this.composerContext.buildExecutionText(message, normalizedComposerPayload.mentions);
     const task = await this.deps.getGatewaySessionTools().sendToSession({
       userId: this.deps.runtime.webUserId,
       platform: 'web',
@@ -475,9 +461,8 @@ export class WebAppConversationService {
     if (!router) return null;
     const targetPath = this.resolveExecutionEngineTargetPath(input.body, input.payload);
     const command = typeof input.body.command === 'string' ? input.body.command : null;
-    const content = typeof input.body.content === 'string'
-      ? input.body.content
-      : this.firstAttachmentText(input.payload);
+    const content =
+      typeof input.body.content === 'string' ? input.body.content : this.firstAttachmentText(input.payload);
     return router.decide({
       prompt: input.message,
       operation: this.inferExecutionEngineOperation(input.message, input.body.operation),
@@ -491,20 +476,27 @@ export class WebAppConversationService {
     });
   }
 
-  private inferExecutionEngineOperation(
-    message: string,
-    explicit: unknown,
-  ): ExecutionEngineRouteOperation {
+  private inferExecutionEngineOperation(message: string, explicit: unknown): ExecutionEngineRouteOperation {
     if (
-      explicit === 'chat' || explicit === 'read' || explicit === 'summarize' || explicit === 'code-question'
-      || explicit === 'write' || explicit === 'delete' || explicit === 'shell' || explicit === 'network'
-      || explicit === 'deploy' || explicit === 'transaction'
+      explicit === 'chat' ||
+      explicit === 'read' ||
+      explicit === 'summarize' ||
+      explicit === 'code-question' ||
+      explicit === 'write' ||
+      explicit === 'delete' ||
+      explicit === 'shell' ||
+      explicit === 'network' ||
+      explicit === 'deploy' ||
+      explicit === 'transaction'
     ) {
       return explicit;
     }
     if (/\b(rm\s+-rf|remove-item|del\s+\/s|git\s+reset|git\s+clean)\b/i.test(message)) return 'shell';
     if (/\b(deploy|release|publish)\b/i.test(message)) return 'deploy';
-    if (/\b(create|edit|write|modify|patch|apply|delete|remove|rename|move|criar|editar|apagar|remover)\b/i.test(message)) return 'write';
+    if (
+      /\b(create|edit|write|modify|patch|apply|delete|remove|rename|move|criar|editar|apagar|remover)\b/i.test(message)
+    )
+      return 'write';
     if (/\b(read|summari[sz]e|resuma|summary)\b/i.test(message)) return 'summarize';
     if (/\b(code|function|class|bug|error|stack|typescript|react|vite)\b/i.test(message)) return 'code-question';
     return 'chat';
@@ -518,19 +510,16 @@ export class WebAppConversationService {
     const metadata = this.recordOrNull(body.metadata) || {};
     const composerSettings = this.recordOrNull(body.composerSettings);
     const rawExperienceProfile = body.experienceProfile ?? metadata.experienceProfile;
-    const experienceProfile = typeof rawExperienceProfile === 'string'
-      ? rawExperienceProfile.trim()
-      : this.recordOrNull(rawExperienceProfile);
+    const experienceProfile =
+      typeof rawExperienceProfile === 'string' ? rawExperienceProfile.trim() : this.recordOrNull(rawExperienceProfile);
     const workflowIntent = this.recordOrNull(body.workflowIntent) || this.recordOrNull(metadata.workflowIntent);
     const engineDecision = this.recordOrNull(body.engineDecision);
-    const profileForEffort = typeof experienceProfile === 'string'
-      ? experienceProfile
-      : experienceProfile?.id || experienceProfile?.label || null;
+    const profileForEffort =
+      typeof experienceProfile === 'string'
+        ? experienceProfile
+        : experienceProfile?.id || experienceProfile?.label || null;
     const effortLevel = this.resolveComposerEffortLevel(
-      composerSettings?.effort
-      || workflowIntent?.effort
-      || body.effort
-      || metadata.effort,
+      composerSettings?.effort || workflowIntent?.effort || body.effort || metadata.effort,
     );
     const effortControl = this.effortControl.buildSnapshot({
       level: effortLevel,
@@ -538,9 +527,10 @@ export class WebAppConversationService {
       profile: profileForEffort,
     });
     const requestedFanout = Number(workflowIntent?.maxFanout);
-    const maxFanout = Number.isFinite(requestedFanout) && requestedFanout > 0
-      ? Math.min(Math.max(1, Math.floor(requestedFanout)), effortControl.budget.maxSubagents)
-      : effortControl.budget.maxSubagents;
+    const maxFanout =
+      Number.isFinite(requestedFanout) && requestedFanout > 0
+        ? Math.min(Math.max(1, Math.floor(requestedFanout)), effortControl.budget.maxSubagents)
+        : effortControl.budget.maxSubagents;
     const dynamicWorkflow = workflowIntent
       ? {
           source: workflowIntent.source || 'zavorthControl',
@@ -567,7 +557,10 @@ export class WebAppConversationService {
   }
 
   private resolveComposerEffortLevel(value: unknown): 'low' | 'standard' | 'high' | 'ultra-code' {
-    const normalized = String(value || '').trim().toLowerCase().replace(/_/g, '-');
+    const normalized = String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/_/g, '-');
     if (normalized === 'low' || normalized === 'fast' || normalized === 'light') return 'low';
     if (normalized === 'deep' || normalized === 'high' || normalized === 'heavy') return 'high';
     if (normalized === 'ultra' || normalized === 'ultra-code' || normalized === 'max') return 'ultra-code';
@@ -575,24 +568,14 @@ export class WebAppConversationService {
   }
 
   private recordOrNull(value: unknown): RuntimeRecord | null {
-    return value && typeof value === 'object' && !Array.isArray(value)
-      ? value as RuntimeRecord
-      : null;
+    return value && typeof value === 'object' && !Array.isArray(value) ? (value as RuntimeRecord) : null;
   }
 
-  private resolveExecutionEngineTargetPath(
-    body: RuntimeRecord,
-    payload: NormalizedComposerPayload,
-  ): string | null {
+  private resolveExecutionEngineTargetPath(body: RuntimeRecord, payload: NormalizedComposerPayload): string | null {
     if (typeof body.targetPath === 'string' && body.targetPath.trim()) return body.targetPath;
     for (const attachment of payload.attachments) {
       const record = attachment as unknown as RuntimeRecord;
-      const candidate = String(
-        record.localPath
-        || record.path
-        || attachment.name
-        || '',
-      ).trim();
+      const candidate = String(record.localPath || record.path || attachment.name || '').trim();
       if (candidate) return candidate;
     }
     return null;
@@ -607,16 +590,26 @@ export class WebAppConversationService {
     return value === 'lite' || value === 'velocity' || value === 'shield' ? value : null;
   }
 
+  /**
+   * Explicit slash / structured callback only — never free-text phrase approve/reject.
+   */
   private async maybeResolveUniversalApprovalIntent(sessionId: string, message: string): Promise<boolean> {
     const agentGateway = this.deps.agentGateway || null;
     const text = String(message || '').trim();
-    if (!agentGateway || !text || text.startsWith('/')) {
+    if (!agentGateway || !text) {
+      return false;
+    }
+    // Free text stays agent-owned; only deterministic slash/callback tokens may resolve here.
+    if (
+      !/^\/(approve|reject|aprovar|rejeitar)\b/i.test(text) &&
+      !/\b(?:approval|agent|run|task):?(approve|reject|aprovar|rejeitar):/i.test(text)
+    ) {
       return false;
     }
 
     const intentResult: UniversalApprovalIntentDecisionResult = await agentGateway.resolveApprovalIntent({
       text,
-      source: 'text',
+      source: text.startsWith('/') ? 'slash-command' : 'callback',
       channel: 'web',
       userId: this.deps.runtime.webUserId,
       sessionId,
@@ -625,40 +618,20 @@ export class WebAppConversationService {
       return false;
     }
 
-    await this.deliverWebOutput(
-      sessionId,
-      renderUniversalApprovalIntentDecisionResult(intentResult),
-      'universal-approval-intent',
-      text,
-    );
-    return true;
-  }
-
-  private async maybeHandleFileInspection(sessionId: string, message: string): Promise<boolean> {
-    if (!this.fileInspectionService.shouldHandleNaturalQuery(message)) {
-      return false;
+    // SurfaceProfile (web = rich-app) drives buttons vs numbered text — not free-text NLU.
+    const presentation = presentUniversalApprovalIntentDecision(intentResult, 'web');
+    let body = presentation.text || renderUniversalApprovalIntentDecisionResult(intentResult);
+    // Web clients that understand action rows can use metadata; text always stays complete.
+    if (presentation.actions.length > 0 && presentation.usedNativeButtons) {
+      const actionHints = presentation.actions
+        .slice(0, 12)
+        .map((a) => `• ${a.label}${a.command ? `  (${a.command})` : ''}`)
+        .join('\n');
+      if (actionHints && !body.includes('/approve 1')) {
+        body = `${body}\n\nActions:\n${actionHints}`;
+      }
     }
-    const plan = await this.fileInspectionService.prepare(message);
-    if (plan.kind === 'permission') {
-      this.deps.realtime.recordAssistantMessage(
-        sessionId,
-        [
-          'Para analisar essa pasta, preciso de autorizacao de acesso local.',
-          '',
-          `Pasta solicitada: ${plan.previewPath}`,
-          plan.reason,
-        ].filter(Boolean).join('\n'),
-        null,
-        'file-inspection-permission',
-      );
-      return true;
-    }
-    this.deps.realtime.recordAssistantMessage(
-      sessionId,
-      plan.text,
-      null,
-      'file-inspection',
-    );
+    await this.deliverWebOutput(sessionId, body, 'universal-approval-intent', text);
     return true;
   }
 
@@ -745,8 +718,11 @@ export class WebAppConversationService {
     }
 
     const prompt = this.buildMediaAttachmentPrompt(message, mediaAttachments);
-    const results = await Promise.all(mediaAttachments.slice(0, 3).map((attachment) =>
-      this.analyzeInlineMediaAttachment(sessionId, attachment, message)));
+    const results = await Promise.all(
+      mediaAttachments
+        .slice(0, 3)
+        .map((attachment) => this.analyzeInlineMediaAttachment(sessionId, attachment, message)),
+    );
     const successful = results.filter((result) => result.ok);
 
     if (successful.length > 0) {
@@ -812,18 +788,21 @@ export class WebAppConversationService {
     return true;
   }
 
-  private async analyzeInlineMediaAttachment(
-    sessionId: string,
-    attachment: WebComposerAttachment,
-    message: string,
-  ) {
+  private async analyzeInlineMediaAttachment(sessionId: string, attachment: WebComposerAttachment, message: string) {
     return this.mediaSupport.analyzeInlineMediaAttachment(sessionId, attachment, message);
   }
 
   private renderMediaUnderstandingReply(
     message: string,
     attachments: WebComposerAttachment[],
-    results: Array<{ ok: boolean; name: string; type: string; summary: string; text: string | null; error: string | null }>,
+    results: Array<{
+      ok: boolean;
+      name: string;
+      type: string;
+      summary: string;
+      text: string | null;
+      error: string | null;
+    }>,
   ): string {
     return this.mediaSupport.renderMediaUnderstandingReply(message, attachments, results);
   }
@@ -885,7 +864,10 @@ export class WebAppConversationService {
         }),
       ]);
       return result;
-    } catch (error: unknown) {logger.warn('[Web App Conversation] cache operation failed', error); return null; } finally {
+    } catch (error: unknown) {
+      logger.warn('[Web App Conversation] cache operation failed', error);
+      return null;
+    } finally {
       if (timeoutHandle) {
         clearTimeout(timeoutHandle);
       }
@@ -930,10 +912,7 @@ export class WebAppConversationService {
 
     const requestedTools = input.requestedTools;
     const executor: UniversalAgentExecutor = async ({ run }) => {
-      const executionMessage = this.composerContext.buildExecutionText(
-        text,
-        input.mentions,
-      );
+      const executionMessage = this.composerContext.buildExecutionText(text, input.mentions);
       const task = await this.deps.getGatewaySessionTools().sendToSession({
         userId: this.deps.runtime.webUserId,
         platform: 'web',
@@ -981,36 +960,39 @@ export class WebAppConversationService {
       };
     };
 
-    const result = await agentGateway.handle({
-      userId: this.deps.runtime.webUserId,
-      channel: 'web',
-      sessionId: input.sessionId,
-      text,
-      workspace: resourceWorkspace(input.resourceImpact),
-      requestedTools,
-      modelProfile: {
-        providerLabel: this.resolveCurrentProviderLabel(),
-        modelLabel: this.resolveCurrentModelLabel(),
-        routingPolicy: 'gateway',
-        supportsTools: true,
-      },
-      metadata: {
-        transport: 'web',
+    const result = await agentGateway.handle(
+      {
+        userId: this.deps.runtime.webUserId,
+        channel: 'web',
         sessionId: input.sessionId,
-        resourceImpact: input.resourceImpact,
-        responseDecision: input.responseDecision,
-        artifactPolicy: input.responseDecision.artifactPolicy,
-        composerPayload: input.composerPayload,
-        effortControl: input.composerPayload?.effortControl || null,
-        workflowIntent: input.composerPayload?.workflowIntent || null,
-        dynamicWorkflow: input.composerPayload?.dynamicWorkflow || null,
-        providerName: input.composerPayload?.providerName || null,
-        modelName: input.composerPayload?.modelName || null,
-        allowProviderFallback: input.composerPayload?.allowProviderFallback !== false,
+        text,
+        workspace: resourceWorkspace(input.resourceImpact),
+        requestedTools,
+        modelProfile: {
+          providerLabel: this.resolveCurrentProviderLabel(),
+          modelLabel: this.resolveCurrentModelLabel(),
+          routingPolicy: 'gateway',
+          supportsTools: true,
+        },
+        metadata: {
+          transport: 'web',
+          sessionId: input.sessionId,
+          resourceImpact: input.resourceImpact,
+          responseDecision: input.responseDecision,
+          artifactPolicy: input.responseDecision.artifactPolicy,
+          composerPayload: input.composerPayload,
+          effortControl: input.composerPayload?.effortControl || null,
+          workflowIntent: input.composerPayload?.workflowIntent || null,
+          dynamicWorkflow: input.composerPayload?.dynamicWorkflow || null,
+          providerName: input.composerPayload?.providerName || null,
+          modelName: input.composerPayload?.modelName || null,
+          allowProviderFallback: input.composerPayload?.allowProviderFallback !== false,
+        },
       },
-    }, {
-      executor,
-    });
+      {
+        executor,
+      },
+    );
 
     const primaryReply = result.replies[0]?.text;
     if (primaryReply) {
@@ -1112,15 +1094,13 @@ export class WebAppConversationService {
 
   private resolveCurrentProviderLabel(): string {
     const runtimeProvider = String(
-      runtimeField(this.deps.runtime, 'providerLabel')
-      || runtimeField(this.deps.runtime, 'provider')
-      || '',
+      runtimeField(this.deps.runtime, 'providerLabel') || runtimeField(this.deps.runtime, 'provider') || '',
     ).trim();
     if (runtimeProvider) {
       return runtimeProvider;
     }
 
-    switch (this.normalizeProviderName((config.llmProvider || ''))) {
+    switch (this.normalizeProviderName(config.llmProvider || '')) {
       case 'aigateway':
         return 'Zavorth Gateway';
       case 'gemini':
@@ -1147,15 +1127,13 @@ export class WebAppConversationService {
 
   private resolveCurrentModelLabel(): string {
     const runtimeModel = String(
-      runtimeField(this.deps.runtime, 'modelLabel')
-      || runtimeField(this.deps.runtime, 'model')
-      || '',
+      runtimeField(this.deps.runtime, 'modelLabel') || runtimeField(this.deps.runtime, 'model') || '',
     ).trim();
     if (runtimeModel) {
       return runtimeModel;
     }
 
-    switch (this.normalizeProviderName((config.llmProvider || ''))) {
+    switch (this.normalizeProviderName(config.llmProvider || '')) {
       case 'aigateway':
         return config.AIGatewayModel || 'modelo atual nao informado';
       case 'gemini':
@@ -1179,15 +1157,20 @@ export class WebAppConversationService {
   }
 
   private normalizeProviderName(provider: string): string {
-    return String(provider || '').trim().toLowerCase().replace(/[\s_-]+/g, '');
+    return String(provider || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, '');
   }
 
   private getComposerActions(): ComposerActionService {
     if (!this.composerActions) {
       this.composerActions = new ComposerActionService({
         taskManager: this.deps.runtime.taskManager as unknown as ComposerActionOptions['taskManager'],
-        permissionController: this.deps.runtime.permissionController as unknown as ComposerActionOptions['permissionController'],
-        workflowController: this.deps.runtime.workflowController as unknown as ComposerActionOptions['workflowController'],
+        permissionController: this.deps.runtime
+          .permissionController as unknown as ComposerActionOptions['permissionController'],
+        workflowController: this.deps.runtime
+          .workflowController as unknown as ComposerActionOptions['workflowController'],
         realtime: this.deps.realtime,
       });
     }
@@ -1244,12 +1227,7 @@ export class WebAppConversationService {
       return false;
     }
     if (!result.ok && result.messages.length === 0 && result.summary) {
-      this.deps.realtime.recordAssistantMessage(
-        sessionId,
-        result.summary,
-        null,
-        'shared-surface-error',
-      );
+      this.deps.realtime.recordAssistantMessage(sessionId, result.summary, null, 'shared-surface-error');
     }
     return true;
   }
@@ -1306,39 +1284,46 @@ export class WebAppConversationService {
       return;
     }
     const request = evaluation.request;
-    const reasons = request.reasons.slice(0, 3).map((entry) => `- ${entry}`);
-    this.deps.realtime.recordAssistantMessage(
-      sessionId,
-      [
-        `Para seguir com isso, eu preciso elevar do modo ${request.effectiveMode.id} para ${request.requiredMode.id}.`,
+    // Surface-agnostic card text (web has no native TG keyboard; still lists actions).
+    let body: string;
+    try {
+      const { buildModeEscalationPendingCard } =
+        require('./ModeEscalationPresentation.js') as typeof import('./ModeEscalationPresentation.js');
+      const card = buildModeEscalationPendingCard({
+        request: request as any,
+        channel: 'web',
+      });
+      body = card.text;
+      const actions = card.surfaceResponse?.actions || [];
+      if (actions.length) {
+        body = [body, '', 'Actions:', ...actions.map((a) => `• ${a.label}${a.command ? `  (${a.command})` : ''}`)].join(
+          '\n',
+        );
+      }
+    } catch {
+      const reasons = request.reasons.slice(0, 3).map((entry) => `- ${entry}`);
+      body = [
+        `To continue, I need to elevate mode ${request.effectiveMode.id} → ${request.requiredMode.id}.`,
         '',
         request.summary,
         '',
         ...reasons,
         '',
-        `Escopo sugerido: ${request.recommendedScope}.`,
-        `Fallback leve: ${request.fallback}`,
-        `Aprovacao rapida: /mode approve ${request.id} [once|session|host]`,
-      ].filter(Boolean).join('\n'),
-      null,
-      'mode-escalation',
-    );
+        `Suggested scope: ${request.recommendedScope}.`,
+        `Light fallback: ${request.fallback}`,
+        'Quick approve: /mode approve  [once|session|host]  ·  or  /mode approve 1',
+        'Reject: /mode reject  ·  or  /mode reject 1',
+      ]
+        .filter(Boolean)
+        .join('\n');
+    }
+    this.deps.realtime.recordAssistantMessage(sessionId, body, null, 'mode-escalation');
   }
 
-  private async deliverWebOutput(
-    sessionId: string,
-    text: string,
-    kind: string,
-    rawInput: string,
-  ): Promise<void> {
+  private async deliverWebOutput(sessionId: string, text: string, kind: string, rawInput: string): Promise<void> {
     const outputStage = this.deps.runtime.echoOutputStage || null;
     if (!outputStage) {
-      this.deps.realtime.recordAssistantMessage(
-        sessionId,
-        String(text || '').trim() || '(mensagem vazia)',
-        null,
-        kind,
-      );
+      this.deps.realtime.recordAssistantMessage(sessionId, String(text || '').trim() || '(mensagem vazia)', null, kind);
       return;
     }
 
@@ -1363,7 +1348,7 @@ export class WebAppConversationService {
 }
 
 function asRuntimeRecord(value: unknown): RuntimeRecord | null {
-  return value && typeof value === 'object' && !Array.isArray(value) ? value as RuntimeRecord : null;
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as RuntimeRecord) : null;
 }
 
 function runtimeField(value: unknown, key: string): unknown {

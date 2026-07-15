@@ -144,11 +144,6 @@ export class AdaptivePersonaEngine {
   public resolve(classification: IntentClassification): PersonaResolution {
     const { category, confidence } = classification;
 
-    // Trivial chat → conversational, no ambiguity
-    if (classification.isTrivialChat) {
-      return this.buildResolution(PERSONA_REGISTRY.conversational, category, confidence, false, false);
-    }
-
     // Get the threshold for this category
     const threshold = CONFIDENCE_THRESHOLDS[category];
 

@@ -1,8 +1,4 @@
-import type {
-  ExperienceAction,
-  ExperiencePlan,
-  ExperienceTrustLens,
-} from './ExperienceContracts.js';
+import type { ExperienceAction, ExperiencePlan, ExperienceTrustLens } from './ExperienceContracts.js';
 import type { UniversalAgentRun, UniversalApprovalRequest } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
 
 function makeAction(input: {
@@ -28,65 +24,69 @@ function makeAction(input: {
 }
 
 export class TrustLensService {
-  public build(input: {
-    plan?: ExperiencePlan | null;
-    activeRun?: UniversalAgentRun | null;
-    approvals?: UniversalApprovalRequest[];
-    sandboxMode?: string | null;
-  } = {}): ExperienceTrustLens {
+  public build(
+    input: {
+      plan?: ExperiencePlan | null;
+      activeRun?: UniversalAgentRun | null;
+      approvals?: UniversalApprovalRequest[];
+      sandboxMode?: string | null;
+    } = {},
+  ): ExperienceTrustLens {
     const approvals = input.approvals || input.activeRun?.approvals || [];
     const pending = approvals.filter((approval) => approval.status === 'pending');
     const planRisk = input.plan?.risk || 'safe';
     const runRisk = this.highestApprovalRisk(approvals);
-    const risk = runRisk === 'danger' || planRisk === 'danger'
-      ? 'danger'
-      : runRisk === 'attention' || planRisk === 'attention'
+    const risk =
+      runRisk === 'danger' || planRisk === 'danger'
+        ? 'danger'
+        : runRisk === 'attention' || planRisk === 'attention'
+          ? 'attention'
+          : 'safe';
+    const status =
+      pending.length > 0 || risk === 'danger'
         ? 'attention'
-        : 'safe';
-    const status = pending.length > 0 || risk === 'danger'
-      ? 'attention'
-      : input.activeRun?.status === 'failed'
-        ? 'blocked'
-        : 'ready';
+        : input.activeRun?.status === 'failed'
+          ? 'blocked'
+          : 'ready';
     const sandboxMode = input.sandboxMode || String(input.activeRun?.metadata?.sandboxIsolation || 'governed-local');
 
     return {
       status,
-      title: pending.length > 0 ? 'Aprovacao pendente' : 'Trust Lens ativo',
-      summary: pending.length > 0
-        ? `${pending.length} acao(oes) aguardando sua decisao.`
-        : 'Acoes sensiveis continuam passando por preview, policy e receipts.',
+      title: pending.length > 0 ? 'Pending approval' : 'Trust Lens active',
+      summary:
+        pending.length > 0
+          ? `${pending.length} action(s) waiting for your decision.`
+          : 'Sensitive actions continue to pass through preview, policy, and receipts.',
       risk,
       approvalCount: pending.length,
       sandbox: {
         mode: sandboxMode,
         available: sandboxMode !== 'none',
-        detail: sandboxMode === 'none'
-          ? 'Sandbox nao anunciado para esta jornada.'
-          : `Execucao governada por ${sandboxMode}.`,
+        detail:
+          sandboxMode === 'none' ? 'Sandbox not announced for this journey.' : `Governed execution via ${sandboxMode}.`,
       },
       preferences: [
         {
           id: 'workspace.read.always',
-          label: 'Sempre permitir leitura neste workspace',
+          label: 'Always allow reads in this workspace',
           enabled: false,
           revocable: true,
         },
         {
           id: 'shell.ask.always',
-          label: 'Sempre pedir antes de shell',
+          label: 'Always ask before shell',
           enabled: true,
           revocable: true,
         },
         {
           id: 'mutation.sandbox.always',
-          label: 'Sempre usar sandbox para mutacoes',
+          label: 'Always use sandbox for mutations',
           enabled: true,
           revocable: true,
         },
         {
           id: 'external.never.raw',
-          label: 'Nunca enviar dados externos sem aprovacao',
+          label: 'Never send external data without approval',
           enabled: true,
           revocable: true,
         },
@@ -95,7 +95,7 @@ export class TrustLensService {
         ...pending.slice(0, 3).flatMap((approval) => [
           makeAction({
             id: `approval.approve.${approval.id}`,
-            label: `Aprovar ${approval.title}`,
+            label: `Approve ${approval.title}`,
             kind: 'approval',
             command: `zavorth approve ${approval.id}`,
             risk: approval.risk,
@@ -103,20 +103,20 @@ export class TrustLensService {
           }),
           makeAction({
             id: `approval.reject.${approval.id}`,
-            label: `Rejeitar ${approval.title}`,
+            label: `Reject ${approval.title}`,
             kind: 'approval',
             command: `zavorth reject ${approval.id}`,
             risk: approval.risk,
-            reason: 'Mantem a acao bloqueada e registra receipt de decisao.',
+            reason: 'Keeps the action blocked and records a decision receipt.',
           }),
         ]),
         makeAction({
           id: 'trust.review',
-          label: 'Revisar seguranca',
+          label: 'Review security',
           kind: 'safety',
           command: 'zavorth trust',
           risk,
-          reason: 'Mostra escopo, policy e preferencias revogaveis.',
+          reason: 'Shows scope, policy, and revocable preferences.',
         }),
       ],
     };

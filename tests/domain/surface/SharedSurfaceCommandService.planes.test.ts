@@ -14,7 +14,9 @@ describe('SharedSurfaceCommandService', () => {
   let smartCommandSurfaceSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    smartCommandSurfaceSpy = jest.spyOn(ZavorthSmartCommandSurfaceService.prototype, 'canHandle').mockReturnValue(false);
+    smartCommandSurfaceSpy = jest
+      .spyOn(ZavorthSmartCommandSurfaceService.prototype, 'canHandle')
+      .mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -111,7 +113,7 @@ describe('SharedSurfaceCommandService', () => {
         buildSnapshot: jest.fn(() => ({
           summary: { mcpProfile: 'trusted' },
         })),
-        renderReport: jest.fn(() => 'Trust Plane do Zavorth'),
+        renderReport: jest.fn(() => 'Zavorth Trust Plane'),
       } as any,
       trustPlaneActionService: trustPlaneActionService as any,
     });
@@ -194,10 +196,10 @@ describe('SharedSurfaceCommandService', () => {
         selectedId: 'node-host',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Remote Transport Plane do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth Remote Transport Plane'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Node host transport'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/nodepair headless'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Telemetria:'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Telemetry:'));
   });
 
   it('executes remote transport actions through /transports subcommands', async () => {
@@ -252,7 +254,7 @@ describe('SharedSurfaceCommandService', () => {
       editMessage: jest.fn(async () => undefined),
     };
     const channelMeshService = {
-      renderReport: jest.fn(() => 'Channel Mesh do Zavorth\n\nDiscord [partial]'),
+      renderReport: jest.fn(() => 'Zavorth Channel Mesh\n\nDiscord [partial]'),
     };
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
@@ -265,7 +267,7 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(channelMeshService.renderReport).toHaveBeenCalledWith({ selectedId: 'discord' });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Channel Mesh do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth Channel Mesh'));
   });
 
   it('executes channel mesh actions through /channels subcommands', async () => {
@@ -355,9 +357,7 @@ describe('SharedSurfaceCommandService', () => {
           operatorSummary: 'WhatsApp pareado.',
           actionHint: 'Use /channels login-qr whatsapp quando precisar parear.',
           tags: [],
-          statusRows: [
-            { label: 'Conexao', value: 'connected', tone: 'success' },
-          ],
+          statusRows: [{ label: 'Conexao', value: 'connected', tone: 'success' }],
           actions: [
             {
               id: 'whatsapp:status',
@@ -490,9 +490,7 @@ describe('SharedSurfaceCommandService', () => {
         allowedMentions: { parse: [] },
         components: expect.arrayContaining([
           expect.objectContaining({
-            components: expect.arrayContaining([
-              expect.objectContaining({ label: 'Status' }),
-            ]),
+            components: expect.arrayContaining([expect.objectContaining({ label: 'Status' })]),
           }),
         ]),
       }),
@@ -597,13 +595,15 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(ctx.reply.mock.calls[0][0]).toContain('Paridade de experiencia por canal do Zavorth');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Zavorth per-channel experience parity');
     expect(ctx.reply.mock.calls[0][0]).toContain('WhatsApp');
-    expect(ctx.reply.mock.calls[0][1]).toEqual(expect.objectContaining({
-      reply_markup: expect.objectContaining({
-        inline_keyboard: expect.any(Array),
+    expect(ctx.reply.mock.calls[0][1]).toEqual(
+      expect.objectContaining({
+        reply_markup: expect.objectContaining({
+          inline_keyboard: expect.any(Array),
+        }),
       }),
-    }));
+    );
   });
 
   it('executes WhatsApp QR actions through /channels subcommands', async () => {
@@ -618,19 +618,19 @@ describe('SharedSurfaceCommandService', () => {
     };
     const channelActionService = {
       execute: jest.fn(async () => ({
-        summary: 'QR de login do WhatsApp pronto para exibicao no operador.',
-        details: ['Mostre a imagem para o usuario autorizado escanear no WhatsApp.'],
+        summary: 'WhatsApp login QR ready for the operator display.',
+        details: ['Show the image so the authorized user can scan it in WhatsApp.'],
         loginQr: {
           supported: true,
           state: 'ready',
           dataUrl: 'data:image/png;base64,abc123',
           expiresAt: null,
           updatedAt: '2026-04-02T12:00:00.000Z',
-          nextStep: 'Escaneie o QR.',
+          nextStep: 'Scan the QR.',
         },
         snapshot: {
           narrative: {
-            operatorSummary: '2 canais prontos.',
+            operatorSummary: '2 channels ready.',
           },
         },
       })),
@@ -653,8 +653,8 @@ describe('SharedSurfaceCommandService', () => {
         requestedBy: 'telegram-user',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('QR de login do WhatsApp pronto'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('QR pronto'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('WhatsApp login QR ready'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('2 channels ready'));
   });
 
   it('can late-bind Discord broadcast gateways for /channels broadcast-test discord', async () => {
@@ -718,7 +718,7 @@ describe('SharedSurfaceCommandService', () => {
         },
         featuredIds: ['discord'],
         narrative: {
-          headline: 'Channel Mesh do Zavorth',
+          headline: 'Zavorth Channel Mesh',
           operatorSummary: '2 canais prontos.',
         },
       })),
@@ -742,7 +742,10 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(resolveBroadcastRecipients).toHaveBeenCalledWith(['admin', 'operator']);
-    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Teste do Channel Mesh em Discord'), ['admin', 'operator']);
+    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Teste do Channel Mesh em Discord'), [
+      'admin',
+      'operator',
+    ]);
     expect(ctx.reply.mock.calls[0][0]).toContain('Teste de broadcast enviado para Discord.');
   });
 
@@ -807,7 +810,7 @@ describe('SharedSurfaceCommandService', () => {
         },
         featuredIds: ['whatsapp'],
         narrative: {
-          headline: 'Channel Mesh do Zavorth',
+          headline: 'Zavorth Channel Mesh',
           operatorSummary: '2 canais prontos.',
         },
       })),
@@ -896,7 +899,7 @@ describe('SharedSurfaceCommandService', () => {
         },
         featuredIds: ['slack'],
         narrative: {
-          headline: 'Channel Mesh do Zavorth',
+          headline: 'Zavorth Channel Mesh',
           operatorSummary: '1 canal pronto e 1 parcial.',
         },
       })),
@@ -963,7 +966,9 @@ describe('SharedSurfaceCommandService', () => {
         requestedBy: 'telegram-user',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Slack preparado para o proximo passo do Channel Mesh.'));
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Slack preparado para o proximo passo do Channel Mesh.'),
+    );
   });
 
   it('executes plugin plane actions through /plugins subcommands', async () => {
@@ -978,11 +983,11 @@ describe('SharedSurfaceCommandService', () => {
     };
     const pluginActionService = {
       execute: jest.fn(() => ({
-        summary: 'OpenRouter marcado como trusted.',
-        details: ['Nenhum segredo foi alterado.'],
+        summary: 'OpenRouter marked as trusted.',
+        details: ['No secrets were changed.'],
         snapshot: {
           narrative: {
-            operatorSummary: '1 registrado e 1 trusted.',
+            operatorSummary: '1 registered and 1 trusted.',
           },
         },
       })),
@@ -1004,7 +1009,7 @@ describe('SharedSurfaceCommandService', () => {
         actionId: 'trust',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('OpenRouter marcado como trusted.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('OpenRouter marked as trusted.'));
   });
 
   it('executes doctor actions through /plugins subcommands', async () => {
@@ -1019,11 +1024,11 @@ describe('SharedSurfaceCommandService', () => {
     };
     const pluginActionService = {
       execute: jest.fn(() => ({
-        summary: 'Doctor de OpenRouter pronto.',
+        summary: 'OpenRouter doctor ready.',
         details: ['Readiness: ready', 'Trust: trusted'],
         snapshot: {
           narrative: {
-            operatorSummary: '1 registrado e 1 trusted.',
+            operatorSummary: '1 registered and 1 trusted.',
           },
         },
       })),
@@ -1045,7 +1050,7 @@ describe('SharedSurfaceCommandService', () => {
         actionId: 'doctor',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Doctor de OpenRouter pronto.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('OpenRouter doctor ready.'));
   });
 
   it('executes next/open actions through /plugins subcommands', async () => {
@@ -1060,11 +1065,11 @@ describe('SharedSurfaceCommandService', () => {
     };
     const pluginActionService = {
       execute: jest.fn(() => ({
-        summary: 'OpenRouter: proximo passo pronto.',
-        details: ['Atalho recomendado: /integrations openrouter'],
+        summary: 'OpenRouter: next step ready.',
+        details: ['Recommended shortcut: /integrations openrouter'],
         snapshot: {
           narrative: {
-            operatorSummary: '1 registrado e 1 trusted.',
+            operatorSummary: '1 registered and 1 trusted.',
           },
         },
       })),
@@ -1086,7 +1091,7 @@ describe('SharedSurfaceCommandService', () => {
         actionId: 'next',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('OpenRouter: proximo passo pronto.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('OpenRouter: next step ready.'));
   });
 
   it('renders the unified platform plane through /platform', async () => {
@@ -1100,7 +1105,7 @@ describe('SharedSurfaceCommandService', () => {
       editMessage: jest.fn(async () => undefined),
     };
     const platformRegistryService = {
-      renderCatalogReport: jest.fn(() => 'Platform plane do Zavorth\n\nzavorthBridge'),
+      renderCatalogReport: jest.fn(() => 'Zavorth platform plane\n\nzavorthBridge'),
     };
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
@@ -1118,7 +1123,7 @@ describe('SharedSurfaceCommandService', () => {
         query: 'skill:zavorthBridge',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Platform plane do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth platform plane'));
   });
 
   it('syncs the remote platform registry through /platform sync', async () => {
@@ -1149,7 +1154,7 @@ describe('SharedSurfaceCommandService', () => {
         sync,
       } as any,
       platformRegistryService: {
-        renderCatalogReport: jest.fn(() => 'Platform plane do Zavorth'),
+        renderCatalogReport: jest.fn(() => 'Zavorth platform plane'),
       } as any,
     });
 
@@ -1190,7 +1195,7 @@ describe('SharedSurfaceCommandService', () => {
         execute,
       } as any,
       platformRegistryService: {
-        renderCatalogReport: jest.fn(() => 'Platform plane do Zavorth\n\nUI Debug Onboarding'),
+        renderCatalogReport: jest.fn(() => 'Zavorth platform plane\n\nUI Debug Onboarding'),
       } as any,
     });
 
@@ -1291,7 +1296,7 @@ describe('SharedSurfaceCommandService', () => {
         },
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Invocacao do Node Mesh enfileirada.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Node Mesh invocation queued.'));
   });
 
   it('renders the provider doctor and profile summary through /models', async () => {
@@ -1321,11 +1326,13 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply.mock.calls[0][0]).toContain('Providers ready now');
-    expect(ctx.reply.mock.calls[0][0]).toContain('Perfil recomendado para esta etapa');
-    expect(ctx.reply.mock.calls[0][0]).toContain('Targets aceitos em /model');
-    expect(ctx.reply.mock.calls[0][1]).toEqual(expect.objectContaining({
-      reply_markup: expect.any(Object),
-    }));
+    expect(ctx.reply.mock.calls[0][0]).toContain('Recommended profile for this stage');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Accepted targets in /model');
+    expect(ctx.reply.mock.calls[0][1]).toEqual(
+      expect.objectContaining({
+        reply_markup: expect.any(Object),
+      }),
+    );
   });
 
   it('renders the shared command catalog as a rich command deck', async () => {
@@ -1347,13 +1354,15 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(ctx.reply.mock.calls[0][0]).toContain('Catalogo de comandos do Zavorth');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Zavorth command catalog');
     expect(ctx.reply.mock.calls[0][0]).toContain('/channels');
-    expect(ctx.reply.mock.calls[0][1]).toEqual(expect.objectContaining({
-      reply_markup: expect.objectContaining({
-        inline_keyboard: expect.any(Array),
+    expect(ctx.reply.mock.calls[0][1]).toEqual(
+      expect.objectContaining({
+        reply_markup: expect.objectContaining({
+          inline_keyboard: expect.any(Array),
+        }),
       }),
-    }));
+    );
   });
 
   it('renders the team catalog through /teams with surface availability', async () => {
@@ -1426,7 +1435,7 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Teams e workflows compostos do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth composite teams and workflows'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Telegram: available'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Discord owner DM: owner_only'));
   });
@@ -1489,7 +1498,9 @@ describe('SharedSurfaceCommandService', () => {
       chatId: 'telegram:chat-1',
       limit: 12,
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Replay learning: Replay, artifacts e learning loop'));
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Replay learning: Replay, artifacts e learning loop'),
+    );
   });
 
   it('renders the Eval observability eval control plane through /evals', async () => {
@@ -1569,5 +1580,4 @@ describe('SharedSurfaceCommandService', () => {
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Eval observability: Eval + Observability'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Telemetry: active'));
   });
-
 });

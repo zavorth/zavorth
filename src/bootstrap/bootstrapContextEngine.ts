@@ -18,6 +18,7 @@ import { ContextEngine } from '../context-engine/ContextEngine.js';
 import { LegacyUnifiedGatewayAdapter } from '../context-engine/LegacyUnifiedGatewayAdapter.js';
 import { SkillLoader, type SkillLoadResult } from '../context-engine/SkillLoader.js';
 import { EpisodicMemoryBridge } from '../context-engine/EpisodicMemoryBridge.js';
+import { canActorWriteLearning } from '../services/ZavorthLearningWriteAuth.js';
 import type { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import type { ToolRuntimeService } from '../services/tools/ToolRuntimeService.js';
 import type { LogRepository } from '../storage/LogRepository.js';
@@ -39,10 +40,7 @@ type LegacyUnifiedGatewayAgentRuntime = {
   getLlmRuntime(): LlmRuntimeService;
 };
 
-export function createContextEngineRuntime(
-  logRepo: LogRepository,
-  basePath?: string,
-): ContextEngineRuntime {
+export function createContextEngineRuntime(logRepo: LogRepository, basePath?: string): ContextEngineRuntime {
   const root = basePath || process.cwd();
 
   // 1. Scan dynamic skills.
@@ -57,18 +55,14 @@ export function createContextEngineRuntime(
   );
 
   for (const [category, toolNames] of Object.entries(skillLoadResult.categoryMap)) {
-    logRepo.log(
-      'info',
-      'ContextEngine',
-      `  Category [${category}]: ${toolNames.join(', ')}`,
-    );
+    logRepo.log('info', 'ContextEngine', `  Category [${category}]: ${toolNames.join(', ')}`);
   }
 
   // 2. Create the ContextEngine with all cognitive firewall improvements enabled.
   const contextEngine = new ContextEngine({
-    compactMode: true,    // Lazy tool definitions (~80% fewer tokens per tool)
-    clusterMode: true,    // Tool clustering (group related tools)
-    cacheEnabled: true,   // Tool result caching (avoid re-execution)
+    compactMode: true, // Lazy tool definitions (~80% fewer tokens per tool)
+    clusterMode: true, // Tool clustering (group related tools)
+    cacheEnabled: true, // Tool result caching (avoid re-execution)
   });
 
   // 3. Create the legacy conversational adapter connected to ContextEngine.
@@ -103,31 +97,50 @@ export function wireLegacyUnifiedGatewayAgentCallback(input: {
 }): void {
   const { logRepo, contextEngine, legacyUnifiedGateway, runtimeComposition } = input;
 
-  legacyUnifiedGateway.setAgentCallback(
-    async (message, userId, chatId, surface, _tools, inlineData, metadata) => {
-      const isVoiceInput =
-        metadata?.isVoiceInput === true ||
-        Boolean(inlineData?.some((entry) => String(entry.mimeType || '').startsWith('audio/')));
-      const voiceReplyRequested = isExplicitVoiceReplyRequest(message);
-      const preferredLanguageCode =
-        typeof metadata?.preferredLanguageCode === 'string' && metadata.preferredLanguageCode.trim().length > 0
-          ? metadata.preferredLanguageCode.trim()
-          : null;
-      const convAgent = new ConversationalAgent({
-        llmRuntime: runtimeComposition.getLlmRuntime(),
-        toolRuntime: runtimeComposition.getToolRuntime(),
-        contextEngine,
-      });
-      const response = await convAgent.chat(message, inlineData, {
-        mode: 'direct',
-        requireContextEngine: true,
+  legacyUnifiedGateway.setAgentCallback(async (message, userId, chatId, surface, _tools, inlineData, metadata) => {
+    const isVoiceInput =
+      metadata?.isVoiceInput === true ||
+      Boolean(inlineData?.some((entry) => String(entry.mimeType || '').startsWith('audio/')));
+    const voiceFlow =
+      metadata?.voiceFlow && typeof metadata.voiceFlow === 'object'
+        ? (metadata.voiceFlow as Record<string, unknown>)
+        : null;
+    // Structured flags only (voice UI / slash / session mode / dictation ingress). Free text alone never enables voice-reply product behavior.
+    const voiceReplyRequested = isExplicitVoiceReplyRequest({
+      preferVoiceReply: metadata?.preferVoiceReply === true,
+      replyWithAudio: metadata?.replyWithAudio === true,
+      forceVoice: metadata?.forceVoice === true,
+      ttsReplyDesired: metadata?.ttsReplyDesired === true,
+      voiceMode: typeof metadata?.voiceMode === 'string' ? metadata.voiceMode : null,
+      voiceFlow,
+    });
+    const preferredLanguageCode =
+      typeof metadata?.preferredLanguageCode === 'string' && metadata.preferredLanguageCode.trim().length > 0
+        ? metadata.preferredLanguageCode.trim()
+        : null;
+    const convAgent = new ConversationalAgent({
+      llmRuntime: runtimeComposition.getLlmRuntime(),
+      toolRuntime: runtimeComposition.getToolRuntime(),
+      contextEngine,
+    });
+    const resolvedSurface = String(surface || 'unknown');
+    const response = await convAgent.chat(message, inlineData, {
+      mode: 'direct',
+      requireContextEngine: true,
+      userId,
+      chatId,
+      // Pass-through of the originating surface (telegram, discord, whatsapp, desktop, future…).
+      // Role setup is asked on this surface when the agent decides it is needed.
+      surface: resolvedSurface,
+      allowLearningWrite: canActorWriteLearning({
+        surface: resolvedSurface,
         userId,
         chatId,
-        surface,
-        workspaceContext: resolveLegacyUnifiedGatewayWorkspaceContext(metadata),
-        styleHints: [
-          ...(isVoiceInput
-            ? [
+      }),
+      workspaceContext: resolveLegacyUnifiedGatewayWorkspaceContext(metadata),
+      styleHints: [
+        ...(isVoiceInput
+          ? [
               "Reply in the same language as the user's current audio transcript unless explicitly asked otherwise.",
               'Your final answer must be monolingual and stay in the user language from start to finish unless the user explicitly asked for bilingual output.',
               'Do not switch languages mid-response unless the user did.',
@@ -136,53 +149,55 @@ export function wireLegacyUnifiedGatewayAgentCallback(input: {
               ...(preferredLanguageCode ? [`Use ${preferredLanguageCode} as the reply language for this turn.`] : []),
               'Treat voice as natural language, not as a small command grammar. The same tool access and reasoning standards used for text also apply to audio.',
             ]
-            : []),
-          ...(voiceReplyRequested
-            ? [
-                'The Telegram output stage can synthesize your final answer as a voice message. If the user asks for audio or voice, do not claim you cannot send audio; answer normally and keep the answer concise for speech.',
-              ]
-            : []),
-        ],
-      });
+          : []),
+        ...(voiceReplyRequested
+          ? [
+              'The Telegram output stage can synthesize your final answer as a voice message. If the user asks for audio or voice, do not claim you cannot send audio; answer normally and keep the answer concise for speech.',
+            ]
+          : []),
+      ],
+    });
 
-      return {
-        text: String(response.text || '').trim() || 'No agent response.',
-        action: response.action,
-      };
-    },
-  );
+    return {
+      text: String(response.text || '').trim() || 'No agent response.',
+      action: response.action,
+    };
+  });
 
-  logRepo.log(
-    'info',
-    'ContextEngine',
-    'LegacyUnifiedGatewayAdapter agent callback connected in central bootstrap.',
-  );
+  logRepo.log('info', 'ContextEngine', 'LegacyUnifiedGatewayAdapter agent callback connected in central bootstrap.');
 }
 
 function resolveLegacyUnifiedGatewayWorkspaceContext(metadata?: Record<string, unknown>): string | null {
   const workspaceContext = metadata?.workspaceContext;
-  return typeof workspaceContext === 'string' && workspaceContext.trim().length > 0
-    ? workspaceContext.trim()
-    : null;
+  return typeof workspaceContext === 'string' && workspaceContext.trim().length > 0 ? workspaceContext.trim() : null;
 }
 
-function isExplicitVoiceReplyRequest(message: string): boolean {
-  const normalized = String(message || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^\p{L}\p{N}\s]+/gu, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  if (!normalized) {
-    return false;
-  }
+/**
+ * Voice-reply product activation is structured-only.
+ * Free-text phrases like "reply in audio" must not flip voice mode.
+ */
+function isExplicitVoiceReplyRequest(
+  options: {
+    preferVoiceReply?: boolean;
+    replyWithAudio?: boolean;
+    forceVoice?: boolean;
+    ttsReplyDesired?: boolean;
+    voiceMode?: string | null;
+    voiceFlow?: Record<string, unknown> | null;
+  } = {},
+): boolean {
+  if (options.preferVoiceReply === true) return true;
+  if (options.replyWithAudio === true) return true;
+  if (options.forceVoice === true) return true;
+  if (options.ttsReplyDesired === true) return true;
+  if (options.voiceMode === 'conversation') return true;
 
-  return (
-    /\b(respond[ae]r?|responda|responde|fale|mande|envie)\b.{0,40}\b(audio|voz)\b/.test(normalized)
-    || /\b(audio|voz)\b.{0,40}\b(resposta|reply|answer|response|responder|responda|responde)\b/.test(normalized)
-    || /\b(reply|answer|respond|send)\b.{0,40}\b(audio|voice)\b/.test(normalized)
-    || /\b(audio|voice)\b.{0,40}\b(reply|answer|response)\b/.test(normalized)
-    || /\b(respuesta|responde|respondeme|enviame|mandame)\b.{0,40}\b(audio|voz)\b/.test(normalized)
-  );
+  const flow = options.voiceFlow || {};
+  if (flow.preferVoiceReply === true) return true;
+  if (flow.replyWithAudio === true) return true;
+  if (flow.forceVoice === true) return true;
+  if (flow.ttsReplyDesired === true) return true;
+  if (flow.dictationMode === 'conversation') return true;
+
+  return false;
 }

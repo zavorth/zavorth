@@ -1,8 +1,15 @@
 import { ActionCardService } from './ActionCardService.js';
 import { defaultZavorthSpeculativeAutonomyCancellationRegistry } from '../../autonomy/ZavorthSpeculativeAutonomyService.js';
 import { ZavorthRuntimeStateBusService } from '../ZavorthRuntimeStateBusService.js';
-import { ZavorthRuntimeCapabilitiesService, type ZavorthRuntimeCapabilitiesSnapshot } from '../ZavorthRuntimeCapabilitiesService.js';
-import { ZavorthRuntimeOperationalSpineService, type ZavorthRuntimeOperationalSpineSyncInput, type ZavorthRuntimeOperationalSpineSyncResult } from '../ZavorthRuntimeOperationalSpineService.js';
+import {
+  ZavorthRuntimeCapabilitiesService,
+  type ZavorthRuntimeCapabilitiesSnapshot,
+} from '../ZavorthRuntimeCapabilitiesService.js';
+import {
+  ZavorthRuntimeOperationalSpineService,
+  type ZavorthRuntimeOperationalSpineSyncInput,
+  type ZavorthRuntimeOperationalSpineSyncResult,
+} from '../ZavorthRuntimeOperationalSpineService.js';
 import { ZavorthRuntimeSecureIntegrationService } from '../ZavorthRuntimeSecureIntegrationService.js';
 
 import { logger } from '../../logger.js';
@@ -41,21 +48,40 @@ import { NaturalCommandRouterService } from './NaturalCommandRouterService.js';
 import { ReasoningSummaryService } from './ReasoningSummaryService.js';
 import { ResponseProfilePreferenceService } from './ResponseProfilePreferenceService.js';
 import { TrustLensService } from './TrustLensService.js';
-import type { UniversalAgentModelProfile, UniversalAgentRun, UniversalAgentRunResult, UniversalApprovalRequest } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
-import type { ZavorthAgentGateway, ZavorthAgentGatewaySnapshot, ZavorthAgentGatewaySnapshotOptions } from '../../runtime/agent/ZavorthAgentGateway.js';
+import type {
+  UniversalAgentModelProfile,
+  UniversalAgentRun,
+  UniversalAgentRunResult,
+  UniversalApprovalRequest,
+} from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
+import type {
+  ZavorthAgentGateway,
+  ZavorthAgentGatewaySnapshot,
+  ZavorthAgentGatewaySnapshotOptions,
+} from '../../runtime/agent/ZavorthAgentGateway.js';
 
 import { ZavorthProviderReadinessMatrixService } from '../ZavorthProviderReadinessMatrixService.js';
 import { ZavorthSelfHealingUxService } from '../ZavorthSelfHealingUxService.js';
-import { ZavorthSelfHealingReceiptService, type ZavorthSelfHealingReceipt } from '../ZavorthSelfHealingReceiptService.js';
+import {
+  ZavorthSelfHealingReceiptService,
+  type ZavorthSelfHealingReceipt,
+} from '../ZavorthSelfHealingReceiptService.js';
 import type { ZavorthMemoryPlaneService } from '../ZavorthMemoryPlaneService.js';
 import type { ZavorthLearningPlaneService } from '../ZavorthLearningPlaneService.js';
 import type { RuntimeAccessReadinessService } from '../../runtime/access/RuntimeAccessReadinessService.js';
-import type { ZavorthSelfHealingAction, ZavorthSelfHealingProjection } from '../../contracts/ZavorthSelfHealingUxContract.js';
+import type {
+  ZavorthSelfHealingAction,
+  ZavorthSelfHealingProjection,
+} from '../../contracts/ZavorthSelfHealingUxContract.js';
 import type { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
 import type { UniversalAgentRequest } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
 import { ZavorthAgentMaturityService, type ZavorthAgentMaturitySnapshot } from '../ZavorthAgentMaturityService.js';
 
-import type { ZavorthRuntimeStateBusActionInput, ZavorthRuntimeStateBusDispatchResult, ZavorthRuntimeStateBusSnapshot } from '../../contracts/ZavorthRuntimeStateBusContract.js';
+import type {
+  ZavorthRuntimeStateBusActionInput,
+  ZavorthRuntimeStateBusDispatchResult,
+  ZavorthRuntimeStateBusSnapshot,
+} from '../../contracts/ZavorthRuntimeStateBusContract.js';
 import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
 type AgentGatewayLike = Pick<ZavorthAgentGateway, 'handle' | 'buildSnapshot' | 'approve' | 'reject'>;
 
@@ -80,7 +106,12 @@ function normalizeKey(value: unknown): string {
 }
 
 function isProviderHealingIssue(issue: string): boolean {
-  return issue === 'provider_auth' || issue === 'provider_quota' || issue === 'provider_timeout' || issue === 'provider_unavailable';
+  return (
+    issue === 'provider_auth' ||
+    issue === 'provider_quota' ||
+    issue === 'provider_timeout' ||
+    issue === 'provider_unavailable'
+  );
 }
 
 function isLiveRunStatus(status: unknown): boolean {
@@ -109,8 +140,12 @@ function isSimpleDateTimeQuestion(text: string): boolean {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
-  const asksTime = /\b(que\s+horas|hora\s+atual|horas\s+sao|what\s+time|current\s+time|tell\s+me\s+the\s+time)\b/.test(normalized);
-  const asksDate = /\b(que\s+dia|data\s+atual|dia\s+de\s+hoje|what\s+date|today'?s\s+date|current\s+date)\b/.test(normalized);
+  const asksTime = /\b(que\s+horas|hora\s+atual|horas\s+sao|what\s+time|current\s+time|tell\s+me\s+the\s+time)\b/.test(
+    normalized,
+  );
+  const asksDate = /\b(que\s+dia|data\s+atual|dia\s+de\s+hoje|what\s+date|today'?s\s+date|current\s+date)\b/.test(
+    normalized,
+  );
   return asksTime || asksDate;
 }
 
@@ -118,7 +153,7 @@ function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
   if (!isSimpleDateTimeQuestion(text)) return null;
   const timeZone = inferRequestedTimeZone(text);
   try {
-    const formatted = new Intl.DateTimeFormat('pt-BR', {
+    const formatted = new Intl.DateTimeFormat('en-US', {
       timeZone,
       weekday: 'long',
       year: 'numeric',
@@ -129,14 +164,23 @@ function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
       second: '2-digit',
       timeZoneName: 'short',
     }).format(now);
-    return `Agora in ${timeZone} é ${formatted}.`;
+    return `It is now ${formatted} in ${timeZone}.`;
   } catch (error: unknown) {
     logger.warn(`[ExperienceCore] Intl.DateTimeFormat failed for timezone ${timeZone}:`, error);
-    return `Agora são ${now.toLocaleString('pt-BR')} no fuso local do sistema.`;
+    return `It is now ${now.toLocaleString('en-US')} in the system local timezone.`;
   }
 }
 
-function action(input: { id: string; label: string; kind: ExperienceAction['kind']; reason: string; command?: string | null; route?: string | null; risk?: ExperienceAction['risk']; requiresApproval?: boolean }): ExperienceAction {
+function action(input: {
+  id: string;
+  label: string;
+  kind: ExperienceAction['kind'];
+  reason: string;
+  command?: string | null;
+  route?: string | null;
+  risk?: ExperienceAction['risk'];
+  requiresApproval?: boolean;
+}): ExperienceAction {
   return {
     id: input.id,
     label: input.label,
@@ -152,13 +196,19 @@ function action(input: { id: string; label: string; kind: ExperienceAction['kind
 export class ExperienceActionDecisionSupport {
   public constructor(private readonly owner: ExperienceCoreService) {}
 
-  public async handleActionCardDecision(command: ExperienceCommand, plan: ReturnType<NaturalCommandRouterService['route']>): Promise<ExperienceCommandResult | null> {
+  public async handleActionCardDecision(
+    command: ExperienceCommand,
+    plan: ReturnType<NaturalCommandRouterService['route']>,
+  ): Promise<ExperienceCommandResult | null> {
     const actionId = command.actionCardDecision?.actionId || '';
     const approvalMatch = /^(approve|reject):(.+)$/.exec(actionId);
     if (approvalMatch) {
       const decision = approvalMatch[1] as 'approve' | 'reject';
       const approvalId = approvalMatch[2];
-      const result = decision === 'approve' ? await this.owner.agentGateway?.approve(approvalId) : await this.owner.agentGateway?.reject(approvalId);
+      const result =
+        decision === 'approve'
+          ? await this.owner.agentGateway?.approve(approvalId)
+          : await this.owner.agentGateway?.reject(approvalId);
       this.owner.publishRuntimeApprovalDecision(
         {
           ...command,
@@ -168,7 +218,9 @@ export class ExperienceActionDecisionSupport {
       );
       const snapshot = this.owner.buildHome(command);
       const reply = this.owner.replyFromText(
-        result ? `Action card resolvido: ${decision === 'approve' ? 'aprovado' : 'rejeitado'} ${approvalId}.` : `Not found approval pending to ${approvalId}.`,
+        result
+          ? `Action card resolved: ${decision === 'approve' ? 'approved' : 'rejected'} ${approvalId}.`
+          : `No pending approval found for ${approvalId}.`,
         command,
         result?.run?.id || snapshot.agent.activeRunId,
       );
@@ -193,7 +245,9 @@ export class ExperienceActionDecisionSupport {
       if (key === 'surface') service.applyStep({ surface: value });
       if (key === 'learning') service.applyStep({ allowLearning: /^(sim|yes|true|1|on)$/i.test(value) });
       const home = this.owner.buildHome(command);
-      const summary = service.needsOnboarding() ? service.buildSnapshot().nextPrompt || snapshotBefore.nextPrompt || 'Continue o setup.' : service.buildSnapshot().welcomeLines.join('\n');
+      const summary = service.needsOnboarding()
+        ? service.buildSnapshot().nextPrompt || snapshotBefore.nextPrompt || 'Continue o setup.'
+        : service.buildSnapshot().welcomeLines.join('\n');
       return {
         ok: true,
         handled: true,
@@ -272,7 +326,8 @@ export class ExperienceActionDecisionSupport {
             kind: 'channel-setup',
             title: 'Channel setup',
             summary: 'Connect a communication surface inside the conversation.',
-            nextSafeAction: 'Tell me the surface to connect, then provide token, webhook or pairing details only when asked.',
+            nextSafeAction:
+              'Tell me the surface to connect, then provide token, webhook or pairing details only when asked.',
           }),
         );
       }
@@ -282,7 +337,13 @@ export class ExperienceActionDecisionSupport {
         handled: true,
         plan,
         snapshot,
-        replies: [this.owner.replyFromText('I have the recovery action. Send the original request again and I will retry with the prepared fallback or ask only for the missing input.', command, snapshot.agent.activeRunId)],
+        replies: [
+          this.owner.replyFromText(
+            'I have the recovery action. Send the original request again and I will retry with the prepared fallback or ask only for the missing input.',
+            command,
+            snapshot.agent.activeRunId,
+          ),
+        ],
         receipts: snapshot.receipts,
         error: null,
       });
@@ -298,7 +359,13 @@ export class ExperienceActionDecisionSupport {
         handled: true,
         plan,
         snapshot,
-        replies: [this.owner.replyFromText('Pedido de cancelamento do auto-healing registrado. O loop especulativo deve parar e exibir o last erro in vez de consumir mais budget.', command, snapshot.agent.activeRunId)],
+        replies: [
+          this.owner.replyFromText(
+            'Auto-healing cancellation recorded. The speculative loop should stop and show the last error instead of consuming more budget.',
+            command,
+            snapshot.agent.activeRunId,
+          ),
+        ],
         receipts: snapshot.receipts,
         error: null,
       };
@@ -310,13 +377,22 @@ export class ExperienceActionDecisionSupport {
       handled: true,
       plan,
       snapshot,
-      replies: [this.owner.replyFromText(`Action card ${command.actionCardDecision?.cardId} selecionado. Action ${actionId} exige a surface apropriada ou novo plano governado.`, command, snapshot.agent.activeRunId)],
+      replies: [
+        this.owner.replyFromText(
+          `Action card ${command.actionCardDecision?.cardId} selected. Action ${actionId} requires the appropriate surface or a new governed plan.`,
+          command,
+          snapshot.agent.activeRunId,
+        ),
+      ],
       receipts: snapshot.receipts,
       error: null,
     };
   }
 
-  public buildContextualSetupResult(command: ExperienceCommand, plan: ReturnType<NaturalCommandRouterService['route']>): ExperienceCommandResult {
+  public buildContextualSetupResult(
+    command: ExperienceCommand,
+    plan: ReturnType<NaturalCommandRouterService['route']>,
+  ): ExperienceCommandResult {
     const snapshot = this.owner.buildHome(command);
     const target = plan.kind === 'provider-setup' ? 'provider' : 'channel';
     const replyText =
@@ -351,21 +427,37 @@ export class ExperienceActionDecisionSupport {
     };
   }
 
-  public contextualSetupKind(command: ExperienceCommand, plan: ReturnType<NaturalCommandRouterService['route']>): 'provider-setup' | 'channel-setup' | null {
+  public contextualSetupKind(
+    command: ExperienceCommand,
+    plan: ReturnType<NaturalCommandRouterService['route']>,
+  ): 'provider-setup' | 'channel-setup' | null {
     if (plan.kind === 'provider-setup' || plan.kind === 'channel-setup') return plan.kind;
     const text = normalizeKey(command.text);
-    const explicitSetup = command.intent === 'setup' || /\b(connect|configure|setup|pair|use)\b/.test(command.text.toLowerCase());
+    const explicitSetup =
+      command.intent === 'setup' || /\b(connect|configure|setup|pair|use)\b/.test(command.text.toLowerCase());
     if (!explicitSetup) return null;
-    if (/\b(openai|gemini|google|anthropic|claude|openrouter|ollama|lmstudio|groq|mistral|deepseek|provider|model|api-key|key)\b/.test(text)) {
+    if (
+      /\b(openai|gemini|google|anthropic|claude|openrouter|ollama|lmstudio|groq|mistral|deepseek|provider|model|api-key|key)\b/.test(
+        text,
+      )
+    ) {
       return 'provider-setup';
     }
-    if (/\b(telegram|discord|slack|signal|whatsapp|matrix|email|teams|line|irc|twitch|nostr|channel|surface|webhook|pair)\b/.test(text)) {
+    if (
+      /\b(telegram|discord|slack|signal|whatsapp|matrix|email|teams|line|irc|twitch|nostr|channel|surface|webhook|pair)\b/.test(
+        text,
+      )
+    ) {
       return 'channel-setup';
     }
     return null;
   }
 
-  public async maybeRetryProviderFallback(command: ExperienceCommand, plan: ReturnType<NaturalCommandRouterService['route']>, firstResult: UniversalAgentRunResult): Promise<UniversalAgentRunResult> {
+  public async maybeRetryProviderFallback(
+    command: ExperienceCommand,
+    plan: ReturnType<NaturalCommandRouterService['route']>,
+    firstResult: UniversalAgentRunResult,
+  ): Promise<UniversalAgentRunResult> {
     if (firstResult.ok !== false || !this.owner.agentGateway) return firstResult;
 
     const firstSnapshot = this.owner.buildHome({
@@ -417,18 +509,22 @@ export class ExperienceActionDecisionSupport {
       });
       this.owner.selfHealingReceipts.append({
         projection,
-        action: projection.actions.find((candidate) => candidate.kind === 'retry_fallback') || projection.actions[0] || null,
+        action:
+          projection.actions.find((candidate) => candidate.kind === 'retry_fallback') || projection.actions[0] || null,
         status: retryResult.ok ? 'applied' : 'failed',
         applied: true,
         fallbackProvider,
-        summary: retryResult.ok ? `Provider fallback retried through ${fallbackProvider} after ${projection.issue}.` : `Provider fallback through ${fallbackProvider} was attempted but still failed.`,
+        summary: retryResult.ok
+          ? `Provider fallback retried through ${fallbackProvider} after ${projection.issue}.`
+          : `Provider fallback through ${fallbackProvider} was attempted but still failed.`,
       });
       return retryResult.ok ? retryResult : firstResult;
     } catch (error: unknown) {
       const err = asErrorLike(error);
       this.owner.selfHealingReceipts.append({
         projection,
-        action: projection.actions.find((candidate) => candidate.kind === 'retry_fallback') || projection.actions[0] || null,
+        action:
+          projection.actions.find((candidate) => candidate.kind === 'retry_fallback') || projection.actions[0] || null,
         status: 'failed',
         applied: true,
         fallbackProvider,
@@ -460,7 +556,10 @@ export class ExperienceActionDecisionSupport {
     const snapshot: ExperienceSnapshot = {
       ...result.snapshot,
       actionCards: this.owner.mergeActionCards(selfHealingCards, result.snapshot.actionCards || []),
-      receipts: this.owner.mergeExperienceReceipts([this.owner.selfHealingReceiptToExperienceReceipt(receipt)], result.snapshot.receipts),
+      receipts: this.owner.mergeExperienceReceipts(
+        [this.owner.selfHealingReceiptToExperienceReceipt(receipt)],
+        result.snapshot.receipts,
+      ),
       raw: {
         ...(result.snapshot.raw || {}),
         selfHealing: projection,
@@ -474,7 +573,10 @@ export class ExperienceActionDecisionSupport {
     };
   }
 
-  public buildSelfHealingActionCards(projection: ZavorthSelfHealingProjection, receipt: ZavorthSelfHealingReceipt): ExperienceActionCard[] {
+  public buildSelfHealingActionCards(
+    projection: ZavorthSelfHealingProjection,
+    receipt: ZavorthSelfHealingReceipt,
+  ): ExperienceActionCard[] {
     if (projection.issue === 'none') return [];
     return [
       {
@@ -488,10 +590,14 @@ export class ExperienceActionDecisionSupport {
         scope: projection.setup?.target || 'current request',
         sandbox: projection.setup?.target === 'sandbox' ? 'required' : 'not required',
         affectedFiles: [],
-        affectedCommands: projection.actions.map((candidate) => candidate.command).filter((entry): entry is string => Boolean(entry)),
+        affectedCommands: projection.actions
+          .map((candidate) => candidate.command)
+          .filter((entry): entry is string => Boolean(entry)),
         ttlSeconds: 3600,
         receiptHint: receipt.id,
-        actions: projection.actions.slice(0, 4).map((candidate) => this.owner.selfHealingActionToExperienceAction(projection, candidate)),
+        actions: projection.actions
+          .slice(0, 4)
+          .map((candidate) => this.owner.selfHealingActionToExperienceAction(projection, candidate)),
         createdAt: receipt.createdAt,
       },
     ];
@@ -499,7 +605,9 @@ export class ExperienceActionDecisionSupport {
 
   public buildSelfHealingCardsFromReceipts(receipts: ZavorthSelfHealingReceipt[]): ExperienceActionCard[] {
     return receipts
-      .filter((receipt) => receipt.status === 'proposed' || receipt.status === 'needs_user' || receipt.status === 'failed')
+      .filter(
+        (receipt) => receipt.status === 'proposed' || receipt.status === 'needs_user' || receipt.status === 'failed',
+      )
       .slice(0, 3)
       .map((receipt) => {
         const target = receipt.issue.startsWith('channel_')
@@ -588,7 +696,10 @@ export class ExperienceActionDecisionSupport {
     ];
   }
 
-  public selfHealingActionToExperienceAction(projection: ZavorthSelfHealingProjection, healingAction: ZavorthSelfHealingAction): ExperienceAction {
+  public selfHealingActionToExperienceAction(
+    projection: ZavorthSelfHealingProjection,
+    healingAction: ZavorthSelfHealingAction,
+  ): ExperienceAction {
     return action({
       id: `self-healing:${projection.issue}:${healingAction.id}`,
       label: healingAction.label,
@@ -605,7 +716,14 @@ export class ExperienceActionDecisionSupport {
       id: receipt.id,
       title: receipt.applied ? `Self-healing applied: ${receipt.issue}` : `Self-healing prepared: ${receipt.issue}`,
       detail: receipt.summary,
-      status: receipt.status === 'applied' || receipt.status === 'skipped' ? 'ready' : receipt.status === 'failed' ? 'failed' : receipt.status === 'blocked' ? 'blocked' : 'pending',
+      status:
+        receipt.status === 'applied' || receipt.status === 'skipped'
+          ? 'ready'
+          : receipt.status === 'failed'
+            ? 'failed'
+            : receipt.status === 'blocked'
+              ? 'blocked'
+              : 'pending',
       source: 'self-healing',
       createdAt: receipt.createdAt,
     };
@@ -663,7 +781,10 @@ export class ExperienceActionDecisionSupport {
     }
   }
 
-  public selectFallbackProvider(projection: ZavorthSelfHealingProjection, attemptedProvider: string | null | undefined): string | null {
+  public selectFallbackProvider(
+    projection: ZavorthSelfHealingProjection,
+    attemptedProvider: string | null | undefined,
+  ): string | null {
     const attempted = normalizeKey(attemptedProvider);
     for (const candidate of projection.fallback?.candidates || []) {
       if (normalizeKey(candidate) && normalizeKey(candidate) !== attempted) return candidate;

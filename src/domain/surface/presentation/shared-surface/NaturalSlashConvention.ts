@@ -59,9 +59,28 @@ const GLOBAL_CONTROL_ALIASES: Record<string, string> = {
 export const DEFAULT_NATURAL_SLASH_POLICY: NaturalSlashPolicy = {
   emptyRewrite: '',
   controlVerbs: [
-    'help', 'status', 'show', 'open', 'list', 'ls', 'preview',
-    'apply', 'run', 'start', 'stop', 'cancel', 'create', 'delete',
-    'add', 'remove', 'set', 'get', 'doctor', 'sync', 'enable', 'disable',
+    'help',
+    'status',
+    'show',
+    'open',
+    'list',
+    'ls',
+    'preview',
+    'apply',
+    'run',
+    'start',
+    'stop',
+    'cancel',
+    'create',
+    'delete',
+    'add',
+    'remove',
+    'set',
+    'get',
+    'doctor',
+    'sync',
+    'enable',
+    'disable',
   ],
   freeText: 'passthrough',
   controlAliases: GLOBAL_CONTROL_ALIASES,
@@ -77,8 +96,16 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
   '/status': { emptyRewrite: '', freeText: 'passthrough' },
   '/changes': { emptyRewrite: '', freeText: 'passthrough' },
   '/reload': { emptyRewrite: '', freeText: 'passthrough' },
-  '/selfupdate': { emptyRewrite: 'status', freeText: 'passthrough', controlVerbs: ['status', 'apply', 'preview', 'help'] },
-  '/autorepair': { emptyRewrite: 'status', freeText: 'passthrough', controlVerbs: ['status', 'apply', 'preview', 'run', 'help'] },
+  '/selfupdate': {
+    emptyRewrite: 'status',
+    freeText: 'passthrough',
+    controlVerbs: ['status', 'apply', 'preview', 'help'],
+  },
+  '/autorepair': {
+    emptyRewrite: 'status',
+    freeText: 'passthrough',
+    controlVerbs: ['status', 'apply', 'preview', 'run', 'help'],
+  },
 
   '/task': {
     emptyRewrite: '',
@@ -110,8 +137,27 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
   },
   '/model': {
     emptyRewrite: 'status',
-    controlVerbs: ['status', 'usage', 'clear', 'help', 'list'],
-    freeText: 'passthrough', // free text = model name
+    controlVerbs: [
+      'status',
+      'usage',
+      'clear',
+      'help',
+      'list',
+      'show',
+      'setup',
+      'roles',
+      'default',
+      'strong',
+      'background',
+      'fallback',
+    ],
+    freeText: 'passthrough', // free text = model name or natural role assignment
+    multiWordControlPrefixes: ['default ', 'strong ', 'background ', 'clear strong', 'fallback '],
+  },
+  '/strong': {
+    emptyRewrite: 'on',
+    controlVerbs: ['on', 'off', 'default', 'help', 'status'],
+    freeText: 'passthrough',
   },
   '/export': {
     emptyRewrite: 'markdown',
@@ -124,6 +170,95 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
     controlVerbs: ['help', 'preview', 'status', 'home', 'run', 'save-profile', 'save_profile', 'profile-save'],
     freeText: 'passthrough',
   },
+  '/knowledge': {
+    emptyRewrite: 'status',
+    controlVerbs: [
+      'status',
+      'home',
+      'hub',
+      'pack',
+      'compose',
+      'recall',
+      'chat',
+      'facts',
+      'fact',
+      'wiki',
+      'about',
+      'profile',
+      'me',
+      'workflows',
+      'learn',
+      'consolidate',
+      'dream',
+      'story',
+      'week',
+      'this-week',
+      'timeline',
+      'advanced',
+      'adv',
+      'file-index',
+      'vault',
+      'help',
+    ],
+    freeText: 'passthrough',
+    multiWordControlPrefixes: ['pack ', 'compose ', 'recall ', 'chat ', 'facts ', 'fact ', 'about '],
+  },
+  '/lk': {
+    emptyRewrite: 'status',
+    controlVerbs: [
+      'status',
+      'home',
+      'hub',
+      'pack',
+      'compose',
+      'recall',
+      'chat',
+      'facts',
+      'about',
+      'workflows',
+      'story',
+      'advanced',
+      'help',
+    ],
+    freeText: 'passthrough',
+    multiWordControlPrefixes: ['pack ', 'recall ', 'facts ', 'about '],
+  },
+  '/learn': {
+    emptyRewrite: 'status',
+    controlVerbs: [
+      'status',
+      'list',
+      'search',
+      'show',
+      'promote',
+      'promote-preview',
+      'preview',
+      'forget',
+      'run',
+      'help',
+      'home',
+    ],
+    freeText: 'passthrough',
+    multiWordControlPrefixes: ['search ', 'show ', 'promote ', 'promote-preview ', 'forget ', 'run '],
+  },
+  '/learning-loop': {
+    emptyRewrite: 'status',
+    controlVerbs: [
+      'status',
+      'list',
+      'search',
+      'show',
+      'promote',
+      'promote-preview',
+      'preview',
+      'forget',
+      'run',
+      'help',
+      'home',
+    ],
+    freeText: 'passthrough',
+    multiWordControlPrefixes: ['search ', 'show ', 'promote ', 'promote-preview ', 'forget ', 'run '],
+  },
   '/learn-skill': {
     emptyRewrite: '',
     controlVerbs: ['help', 'apply', 'preview'],
@@ -133,16 +268,34 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
   '/skills': {
     emptyRewrite: '',
     controlVerbs: [
-      'library', 'bridge', 'run', 'live', 'origin', 'plan', 'recipe',
-      'recommend', 'mcp', 'list', 'help', 'search', 'id',
+      'library',
+      'bridge',
+      'run',
+      'live',
+      'origin',
+      'plan',
+      'recipe',
+      'recommend',
+      'mcp',
+      'list',
+      'help',
+      'search',
+      'id',
     ],
     freeText: { kind: 'prefix', verb: 'recommend' }, // natural goal → recommend
   },
   '/learning': {
     emptyRewrite: '',
     controlVerbs: [
-      'approve', 'reject', 'promote', 'forget', 'promote-skill',
-      'promote-procedure', 'candidates', 'status', 'help',
+      'approve',
+      'reject',
+      'promote',
+      'forget',
+      'promote-skill',
+      'promote-procedure',
+      'candidates',
+      'status',
+      'help',
     ],
     freeText: 'passthrough',
   },
@@ -225,16 +378,11 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
         const allowSite = trimmed.match(/^(?:allow\s+site|permitir\s+site|liberar\s+site|allow-site)\s+(.+)$/i);
         if (allowSite) return `allow-site ${allowSite[1].trim()}`;
         // Incomplete verbs left for pack usage guidance
-        if (
-          lower === 'allow-app'
-          || lower === 'allow-site'
-          || lower === 'allow app'
-          || lower === 'allow site'
-        ) {
+        if (lower === 'allow-app' || lower === 'allow-site' || lower === 'allow app' || lower === 'allow site') {
           return lower.startsWith('allow site') || lower === 'allow-site' ? 'allow-site' : 'allow-app';
         }
         // Host-like free text → allow-site; otherwise window name → allow-app
-        if (/^https?:\/\//i.test(trimmed) || /^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:\/\S*)?$/i.test(trimmed)) {
+        if (/^https?:\/\//i.test(trimmed) || /^[a-z0-9][a-z0-9.-]*\.[a-z]{2}(?:\/\S*)?$/i.test(trimmed)) {
           return `allow-site ${trimmed}`;
         }
         return `allow-app ${trimmed}`;
@@ -245,16 +393,28 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
     emptyRewrite: 'status',
     // Keep every pack head-token here so free prompts do not swallow control verbs
     controlVerbs: [
-      'status', 'help', 'summary', 'resumo',
-      'start', 'run',
+      'status',
+      'help',
+      'summary',
+      'resumo',
+      'start',
+      'run',
       'stop',
-      'profile', 'profiles',
-      'list', 'sessions',
-      'approvals', 'approval',
-      'approve', 'reject',
-      'inspect', 'show', 'tail', 'logs',
+      'profile',
+      'profiles',
+      'list',
+      'sessions',
+      'approvals',
+      'approval',
+      'approve',
+      'reject',
+      'inspect',
+      'show',
+      'tail',
+      'logs',
       'resume',
-      'web', 'attach',
+      'web',
+      'attach',
     ],
     multiWordControlPrefixes: ['profile ', 'start ', 'run '],
     freeText: {
@@ -346,7 +506,20 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
   },
   '/plugins': {
     emptyRewrite: 'list',
-    controlVerbs: ['list', 'status', 'install', 'remove', 'help', 'search'],
+    controlVerbs: [
+      'list',
+      'status',
+      'install',
+      'remove',
+      'help',
+      'search',
+      'open',
+      'next',
+      'doctor',
+      'trust',
+      'review',
+      'update',
+    ],
     freeText: { kind: 'prefix', verb: 'search' },
   },
   '/integrations': {
@@ -486,13 +659,15 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
 };
 
 export function getNaturalSlashPolicy(commandType: string): NaturalSlashPolicy {
-  const key = String(commandType || '').trim().toLowerCase();
+  const key = String(commandType || '')
+    .trim()
+    .toLowerCase();
   // Preserve case-sensitive entries like /AIGateway via direct + lower lookup
   return (
-    NATURAL_SLASH_POLICIES[commandType]
-    || NATURAL_SLASH_POLICIES[key]
-    || NATURAL_SLASH_POLICIES[`/${key.replace(/^\//, '')}`]
-    || DEFAULT_NATURAL_SLASH_POLICY
+    NATURAL_SLASH_POLICIES[commandType] ||
+    NATURAL_SLASH_POLICIES[key] ||
+    NATURAL_SLASH_POLICIES[`/${key.replace(/^\//, '')}`] ||
+    DEFAULT_NATURAL_SLASH_POLICY
   );
 }
 
@@ -508,8 +683,7 @@ export function naturalizeSharedSurfaceArgs(
   const trimmed = original.trim();
   const policy = getNaturalSlashPolicy(commandType);
   const controlVerbs = new Set(
-    (policy.controlVerbs || DEFAULT_NATURAL_SLASH_POLICY.controlVerbs || [])
-      .map((v) => v.toLowerCase()),
+    (policy.controlVerbs || DEFAULT_NATURAL_SLASH_POLICY.controlVerbs || []).map((v) => v.toLowerCase()),
   );
   const aliases = {
     ...GLOBAL_CONTROL_ALIASES,
@@ -585,10 +759,7 @@ export function naturalizeSharedSurfaceArgs(
 /**
  * Register or override a policy (for tests / plugins / future packs).
  */
-export function registerNaturalSlashPolicy(
-  commandType: string,
-  policy: NaturalSlashPolicy,
-): void {
+export function registerNaturalSlashPolicy(commandType: string, policy: NaturalSlashPolicy): void {
   const key = String(commandType || '').trim();
   if (!key.startsWith('/')) {
     NATURAL_SLASH_POLICIES[`/${key}`] = policy;

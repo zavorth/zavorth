@@ -1,44 +1,66 @@
 import type { DynamicHierarchyLaunchResult } from '../../domain/execution/infrastructure/DynamicHierarchySwarmService.js';
 import type { SelfModificationPreviewResult } from '../../services/SelfModificationCommandService.js';
 import type { WatchModeRunSnapshot } from '../../services/ComputerUseWatchModeService.js';
-import type { TrustSliderLevel, TrustSliderPolicyDecision, UniversalIntentUserRole } from '../uni/UniversalIntentContracts.js';
+import type {
+  TrustSliderLevel,
+  TrustSliderPolicyDecision,
+  UniversalIntentUserRole,
+} from '../uni/UniversalIntentContracts.js';
 import type { CapabilityNegotiationSnapshot } from './CapabilityNegotiationService.js';
 import type { ToolRehearsalSnapshot } from './ToolRehearsalService.js';
-import type { UniversalAgentExecutor, UniversalAgentRequest, UniversalAgentRun, UniversalAgentRunResult, UniversalApprovalRequest } from './UniversalAgentRuntimeTypes.js';
+import type {
+  UniversalAgentExecutor,
+  UniversalAgentRequest,
+  UniversalAgentRun,
+  UniversalAgentRunResult,
+  UniversalApprovalRequest,
+} from './UniversalAgentRuntimeTypes.js';
 import { assessSwarmWorkload } from './SwarmWorkloadAssessmentService.js';
-import { type AgentRunFlowHost, hasRequestedTool, normalizeStringList, normalizeText, recordOrNull } from './AgentRunSpecializedFlowUtils.js';
+import {
+  type AgentRunFlowHost,
+  hasRequestedTool,
+  normalizeStringList,
+  normalizeText,
+  recordOrNull,
+} from './AgentRunSpecializedFlowUtils.js';
+import { decorateResultWithWaitingApprovalCard } from './UniversalApprovalPickerPresentation.js';
 
 export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: AgentRunFlowHost }): void {
   const proto = AgentRunServiceClass.prototype;
 
-  proto.resolveTrustSliderDecision = function (this: AgentRunFlowHost, input: UniversalAgentRequest): TrustSliderPolicyDecision {
+  proto.resolveTrustSliderDecision = function (
+    this: AgentRunFlowHost,
+    input: UniversalAgentRequest,
+  ): TrustSliderPolicyDecision {
     const metadata = input.metadata || {};
     const trustSlider = recordOrNull(metadata.trustSlider) || recordOrNull(metadata.trust);
     const responseDecision = recordOrNull(metadata.responseDecision);
     const responseDiagnostics = recordOrNull(responseDecision?.diagnostics);
     const responseTrustSlider = recordOrNull(responseDiagnostics?.trustSlider);
-    const universalIntent = recordOrNull(metadata.universalIntent)
-      || recordOrNull(responseDiagnostics?.universalIntent);
+    const universalIntent =
+      recordOrNull(metadata.universalIntent) || recordOrNull(responseDiagnostics?.universalIntent);
     const universalTrustSlider = recordOrNull(universalIntent?.trustSlider);
-    const requestedTools = Array.from(new Set([
-      ...(input.requestedTools || []),
-      ...normalizeStringList(responseDecision?.requestedTools),
-      ...normalizeStringList(universalIntent?.capabilityRequired),
-    ]));
+    const requestedTools = Array.from(
+      new Set([
+        ...(input.requestedTools || []),
+        ...normalizeStringList(responseDecision?.requestedTools),
+        ...normalizeStringList(universalIntent?.capabilityRequired),
+      ]),
+    );
 
     return this.trustSliderPolicy.evaluate({
       level: this.resolveTrustSliderLevel(
-        trustSlider?.level
-        || metadata.trustMode
-        || metadata.trustSliderLevel
-        || universalTrustSlider?.level
-        || responseTrustSlider?.level,
+        trustSlider?.level ||
+          metadata.trustMode ||
+          metadata.trustSliderLevel ||
+          universalTrustSlider?.level ||
+          responseTrustSlider?.level,
       ),
       previousLevel: this.resolveTrustSliderLevel(
-        trustSlider?.previousLevel
-        || trustSlider?.fromLevel
-        || metadata.previousTrustMode
-        || metadata.previousTrustSliderLevel
+        trustSlider?.previousLevel ||
+          trustSlider?.fromLevel ||
+          metadata.previousTrustMode ||
+          metadata.previousTrustSliderLevel,
       ),
       userRole: this.resolveTrustSliderUserRole(input, metadata, trustSlider),
       ownerConfirmed: this.resolveBooleanFlag(
@@ -51,17 +73,11 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
         metadata.killSwitchActive,
         metadata.overlordKillSwitchActive,
       ),
-      workspaceRoot: normalizeText(
-        trustSlider?.workspaceRoot
-        || metadata.workspaceRoot
-        || metadata.workspacePath
-        || input.workspace,
-      ) || null,
-      targetPath: normalizeText(
-        trustSlider?.targetPath
-        || metadata.targetPath
-        || metadata.filePath,
-      ) || null,
+      workspaceRoot:
+        normalizeText(
+          trustSlider?.workspaceRoot || metadata.workspaceRoot || metadata.workspacePath || input.workspace,
+        ) || null,
+      targetPath: normalizeText(trustSlider?.targetPath || metadata.targetPath || metadata.filePath) || null,
       hostScopeRequested: this.resolveBooleanFlag(
         trustSlider?.hostScopeRequested,
         metadata.hostScopeRequested,
@@ -72,7 +88,10 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.serializeTrustSliderDecision = function (this: AgentRunFlowHost, decision: TrustSliderPolicyDecision): Record<string, unknown> {
+  proto.serializeTrustSliderDecision = function (
+    this: AgentRunFlowHost,
+    decision: TrustSliderPolicyDecision,
+  ): Record<string, unknown> {
     return {
       schemaVersion: decision.schemaVersion,
       generatedAt: decision.generatedAt,
@@ -106,16 +125,13 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     return null;
   };
 
-  proto.resolveTrustSliderUserRole = function (this: AgentRunFlowHost, 
+  proto.resolveTrustSliderUserRole = function (
+    this: AgentRunFlowHost,
     input: UniversalAgentRequest,
     metadata: Record<string, unknown>,
     trustSlider: Record<string, unknown> | null,
   ): UniversalIntentUserRole {
-    const explicit = normalizeText(
-      trustSlider?.userRole
-      || metadata.userRole
-      || metadata.operatorRole,
-    );
+    const explicit = normalizeText(trustSlider?.userRole || metadata.userRole || metadata.operatorRole);
     if (explicit) {
       return explicit;
     }
@@ -126,7 +142,8 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     return values.some((value) => value === true || value === 'true' || value === 1 || value === '1');
   };
 
-  proto.createUniversalPreviewResultIfRequested = function (this: AgentRunFlowHost, 
+  proto.createUniversalPreviewResultIfRequested = function (
+    this: AgentRunFlowHost,
     run: UniversalAgentRun,
     input: UniversalAgentRequest,
   ): UniversalAgentRunResult | null {
@@ -175,15 +192,12 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     const narrative = this.applySafetyNarrative(run, now);
     return this.replyPipeline.buildResult({
       run,
-      text: [
-        this.buildUniversalPreviewReply(run),
-        '',
-        narrative.userMessage,
-      ].join('\n'),
+      text: [this.buildUniversalPreviewReply(run), '', narrative.userMessage].join('\n'),
     });
   };
 
-  proto.createCapabilityNegotiationProposalIfNeeded = function (this: AgentRunFlowHost, 
+  proto.createCapabilityNegotiationProposalIfNeeded = function (
+    this: AgentRunFlowHost,
     run: UniversalAgentRun,
     input: UniversalAgentRequest,
   ): UniversalAgentRunResult | null {
@@ -193,7 +207,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
 
     const existing = recordOrNull(run.metadata.capabilityNegotiation);
     const snapshot = existing
-      ? existing as unknown as CapabilityNegotiationSnapshot
+      ? (existing as unknown as CapabilityNegotiationSnapshot)
       : this.applyCapabilityNegotiation(run, input, run.updatedAt);
     if (!snapshot || snapshot.status !== 'proposal') {
       if (snapshot?.status === 'blocked') {
@@ -222,9 +236,9 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       },
       proposal: snapshot.proposal
         ? {
-          ...snapshot.proposal,
-          approvalId: approval.id,
-        }
+            ...snapshot.proposal,
+            approvalId: approval.id,
+          }
         : null,
       policy: {
         ...snapshot.policy,
@@ -282,17 +296,20 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
 
     this.applyCapabilityLoopGovernance(run, input);
     const narrative = this.applySafetyNarrative(run, now);
-    return this.replyPipeline.buildResult({
-      run,
-      text: [
-        this.buildCapabilityNegotiationReply(updatedSnapshot, approval.id),
-        '',
-        narrative.userMessage,
-      ].join('\n'),
-    });
+    return decorateResultWithWaitingApprovalCard(
+      this.replyPipeline.buildResult({
+        run,
+        text: [this.buildCapabilityNegotiationReply(updatedSnapshot, approval.id), '', narrative.userMessage].join(
+          '\n',
+        ),
+      }),
+      approval,
+      run.channel,
+    );
   };
 
-  proto.createCapabilityNegotiationBlockedResult = function (this: AgentRunFlowHost, 
+  proto.createCapabilityNegotiationBlockedResult = function (
+    this: AgentRunFlowHost,
     run: UniversalAgentRun,
     input: UniversalAgentRequest,
     snapshot: CapabilityNegotiationSnapshot,
@@ -323,31 +340,29 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     const narrative = this.applySafetyNarrative(run, now);
     return this.replyPipeline.buildResult({
       run,
-      text: [
-        this.buildCapabilityNegotiationReply(snapshot, null),
-        '',
-        narrative.userMessage,
-      ].join('\n'),
+      text: [this.buildCapabilityNegotiationReply(snapshot, null), '', narrative.userMessage].join('\n'),
     });
   };
 
-  proto.createToolRehearsalProposalIfNeeded = function (this: AgentRunFlowHost, 
+  proto.createToolRehearsalProposalIfNeeded = function (
+    this: AgentRunFlowHost,
     run: UniversalAgentRun,
     input: UniversalAgentRequest,
   ): UniversalAgentRunResult | null {
-    const toolRehearsalRequested = this.resolveBooleanFlag(
-      input.metadata?.toolRehearsalRequired,
-      recordOrNull(input.metadata?.toolRehearsal)?.required,
-      run.metadata?.toolRehearsalRequired,
-      recordOrNull(run.metadata?.toolRehearsal)?.required,
-    ) || this.hasResolvedTool(input, 'echo_hands', run);
+    const toolRehearsalRequested =
+      this.resolveBooleanFlag(
+        input.metadata?.toolRehearsalRequired,
+        recordOrNull(input.metadata?.toolRehearsal)?.required,
+        run.metadata?.toolRehearsalRequired,
+        recordOrNull(run.metadata?.toolRehearsal)?.required,
+      ) || this.hasResolvedTool(input, 'echo_hands', run);
     if (!toolRehearsalRequested) {
       return null;
     }
 
     const existing = recordOrNull(run.metadata.toolRehearsal);
     const snapshot = existing
-      ? existing as unknown as ToolRehearsalSnapshot
+      ? (existing as unknown as ToolRehearsalSnapshot)
       : this.applyToolRehearsal(run, input, run.updatedAt);
     if (!snapshot || snapshot.status !== 'proposal') {
       if (snapshot?.status === 'blocked') {
@@ -429,15 +444,12 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     const narrative = this.applySafetyNarrative(run, now);
     return this.replyPipeline.buildResult({
       run,
-      text: [
-        this.buildToolRehearsalReply(updatedSnapshot, approval.id),
-        '',
-        narrative.userMessage,
-      ].join('\n'),
+      text: [this.buildToolRehearsalReply(updatedSnapshot, approval.id), '', narrative.userMessage].join('\n'),
     });
   };
 
-  proto.createToolRehearsalBlockedResult = function (this: AgentRunFlowHost, 
+  proto.createToolRehearsalBlockedResult = function (
+    this: AgentRunFlowHost,
     run: UniversalAgentRun,
     input: UniversalAgentRequest,
     snapshot: ToolRehearsalSnapshot,
@@ -468,15 +480,12 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     const narrative = this.applySafetyNarrative(run, now);
     return this.replyPipeline.buildResult({
       run,
-      text: [
-        this.buildToolRehearsalReply(snapshot, null),
-        '',
-        narrative.userMessage,
-      ].join('\n'),
+      text: [this.buildToolRehearsalReply(snapshot, null), '', narrative.userMessage].join('\n'),
     });
   };
 
-  proto.canExecute = function (this: AgentRunFlowHost, 
+  proto.canExecute = function (
+    this: AgentRunFlowHost,
     options: { executor?: UniversalAgentExecutor | null; toolRuntime?: unknown | null } = {},
     request?: UniversalAgentRequest,
   ): boolean {
@@ -501,24 +510,26 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     if (this.llmRuntimeExecutor.isAvailable()) {
       return true;
     }
-    return request
-      ? this.echoHandsExecutor.canExecute(request, options.toolRuntime ?? this.toolRuntime)
-      : false;
+    return request ? this.echoHandsExecutor.canExecute(request, options.toolRuntime ?? this.toolRuntime) : false;
   };
 
-  proto.shouldBypassCapabilityNegotiationForSpecializedFlow = function (this: AgentRunFlowHost, 
+  proto.shouldBypassCapabilityNegotiationForSpecializedFlow = function (
+    this: AgentRunFlowHost,
     run: UniversalAgentRun,
     input: UniversalAgentRequest,
   ): boolean {
-    return (this.selfModificationService && this.shouldCreateSelfModificationPreview(input, run))
-      || Boolean(this.resolveSelfModificationActionRequest(input))
-      || this.shouldProposeSwarmEscalation(input, run)
-      || Boolean(this.resolveWatchModeVisualRequest(input, run))
-      || this.hasResolvedTool(input, 'echo_hands', run)
-      || this.shouldUseNaturalCapabilityDiscoveryWithoutNegotiation(run, input);
+    return (
+      (this.selfModificationService && this.shouldCreateSelfModificationPreview(input, run)) ||
+      Boolean(this.resolveSelfModificationActionRequest(input)) ||
+      this.shouldProposeSwarmEscalation(input, run) ||
+      Boolean(this.resolveWatchModeVisualRequest(input, run)) ||
+      this.hasResolvedTool(input, 'echo_hands', run) ||
+      this.shouldUseNaturalCapabilityDiscoveryWithoutNegotiation(run, input)
+    );
   };
 
-  proto.shouldProposeSwarmEscalation = function (this: AgentRunFlowHost, 
+  proto.shouldProposeSwarmEscalation = function (
+    this: AgentRunFlowHost,
     input: UniversalAgentRequest,
     run?: UniversalAgentRun | null,
   ): boolean {
@@ -527,14 +538,17 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       requestedTools: input.requestedTools || [],
       metadata: input.metadata || {},
     });
-    return this.hasResolvedTool(input, 'swarm.run', run)
-      || this.hasResolvedTool(input, 'swarm.scale', run)
-      || this.hasResolvedTool(input, 'swarm.massive', run)
-      || this.hasResolvedTool(input, 'swarm.scale.live', run)
-      || assessment.shouldUseSwarm;
+    return (
+      this.hasResolvedTool(input, 'swarm.run', run) ||
+      this.hasResolvedTool(input, 'swarm.scale', run) ||
+      this.hasResolvedTool(input, 'swarm.massive', run) ||
+      this.hasResolvedTool(input, 'swarm.scale.live', run) ||
+      assessment.shouldUseSwarm
+    );
   };
 
-  proto.shouldCreateSelfModificationPreview = function (this: AgentRunFlowHost, 
+  proto.shouldCreateSelfModificationPreview = function (
+    this: AgentRunFlowHost,
     input: UniversalAgentRequest,
     run?: UniversalAgentRun | null,
   ): boolean {
@@ -544,7 +558,8 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     return this.hasResolvedTool(input, 'selfmod.preview', run);
   };
 
-  proto.shouldUseNaturalCapabilityDiscoveryWithoutNegotiation = function (this: AgentRunFlowHost, 
+  proto.shouldUseNaturalCapabilityDiscoveryWithoutNegotiation = function (
+    this: AgentRunFlowHost,
     run: UniversalAgentRun,
     input: UniversalAgentRequest,
   ): boolean {
@@ -554,20 +569,28 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     }
     const requestNegotiation = recordOrNull(input.metadata?.capabilityNegotiation);
     const runNegotiation = recordOrNull(run.metadata?.capabilityNegotiation);
-    if (this.resolveBooleanFlag(
-      input.metadata?.capabilityNegotiationRequired,
-      requestNegotiation?.required,
-      run.metadata?.capabilityNegotiationRequired,
-      runNegotiation?.required,
-    )) {
+    if (
+      this.resolveBooleanFlag(
+        input.metadata?.capabilityNegotiationRequired,
+        requestNegotiation?.required,
+        run.metadata?.capabilityNegotiationRequired,
+        runNegotiation?.required,
+      )
+    ) {
       return false;
     }
-    return run.toolExposure.tools.length > 0
-      && !run.toolExposure.blockedTools?.length
-      && run.toolExposure.tools.every((tool: { id?: unknown; risk?: unknown; requiresApproval?: unknown }) => tool.risk === 'safe' && !tool.requiresApproval);
+    return (
+      run.toolExposure.tools.length > 0 &&
+      !run.toolExposure.blockedTools?.length &&
+      run.toolExposure.tools.every(
+        (tool: { id?: unknown; risk?: unknown; requiresApproval?: unknown }) =>
+          tool.risk === 'safe' && !tool.requiresApproval,
+      )
+    );
   };
 
-  proto.hasResolvedTool = function (this: AgentRunFlowHost, 
+  proto.hasResolvedTool = function (
+    this: AgentRunFlowHost,
     input: UniversalAgentRequest,
     toolId: string,
     run?: UniversalAgentRun | null,
@@ -576,36 +599,49 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       return true;
     }
     const normalized = normalizeText(toolId).toLowerCase();
-    return this.collectResolvedToolIds(input, run).some((tool: { id?: unknown; risk?: unknown; requiresApproval?: unknown }) => tool === normalized);
+    return this.collectResolvedToolIds(input, run).some(
+      (tool: { id?: unknown; risk?: unknown; requiresApproval?: unknown }) => tool === normalized,
+    );
   };
 
-  proto.collectResolvedToolIds = function (this: AgentRunFlowHost, 
+  proto.collectResolvedToolIds = function (
+    this: AgentRunFlowHost,
     input: UniversalAgentRequest,
     run?: UniversalAgentRun | null,
   ): string[] {
     const responseDecision = recordOrNull(input.metadata?.responseDecision);
-    return Array.from(new Set([
-      ...(input.requestedTools || []),
-      ...normalizeStringList(responseDecision?.requestedTools),
-      ...this.collectNaturalCapabilityToolIds(input.metadata),
-      ...this.collectNaturalCapabilityToolIds(run?.metadata),
-      ...(run?.toolExposure.tools.map((tool: { id?: unknown; risk?: unknown; requiresApproval?: unknown }) => tool.id) || []),
-    ].map((tool: { id?: unknown; risk?: unknown; requiresApproval?: unknown }) => normalizeText(tool).toLowerCase()).filter(Boolean)));
+    return Array.from(
+      new Set(
+        [
+          ...(input.requestedTools || []),
+          ...normalizeStringList(responseDecision?.requestedTools),
+          ...this.collectNaturalCapabilityToolIds(input.metadata),
+          ...this.collectNaturalCapabilityToolIds(run?.metadata),
+          ...(run?.toolExposure.tools.map(
+            (tool: { id?: unknown; risk?: unknown; requiresApproval?: unknown }) => tool.id,
+          ) || []),
+        ]
+          .map((tool: { id?: unknown; risk?: unknown; requiresApproval?: unknown }) =>
+            normalizeText(tool).toLowerCase(),
+          )
+          .filter(Boolean),
+      ),
+    );
   };
 
-  proto.collectNaturalCapabilityToolIds = function (this: AgentRunFlowHost, metadata?: Record<string, unknown>): string[] {
+  proto.collectNaturalCapabilityToolIds = function (
+    this: AgentRunFlowHost,
+    metadata?: Record<string, unknown>,
+  ): string[] {
     const discovery = recordOrNull(metadata?.naturalCapabilityDiscovery);
     const recommendations = discovery?.recommendations;
     const recommendationTools = Array.isArray(recommendations)
       ? recommendations.flatMap((entry) => {
-        const recommendation = recordOrNull(entry);
-        return normalizeStringList(recommendation?.toolIds);
-      })
+          const recommendation = recordOrNull(entry);
+          return normalizeStringList(recommendation?.toolIds);
+        })
       : [];
-    return Array.from(new Set([
-      ...normalizeStringList(discovery?.recommendedToolNames),
-      ...recommendationTools,
-    ]));
+    return Array.from(new Set([...normalizeStringList(discovery?.recommendedToolNames), ...recommendationTools]));
   };
 
   proto.buildUniversalPreviewReply = function (this: AgentRunFlowHost, run: UniversalAgentRun): string {
@@ -628,14 +664,17 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
 
     for (const rawStep of planSteps.slice(0, 6)) {
       const step = recordOrNull(rawStep) || {};
-      lines.push(`- ${normalizeText(step.label, 'Etapa')} [${normalizeText(step.risk, 'unknown')}] ${normalizeText(step.action)}`);
+      lines.push(
+        `- ${normalizeText(step.label, 'Etapa')} [${normalizeText(step.risk, 'unknown')}] ${normalizeText(step.action)}`,
+      );
     }
 
     lines.push('', `Next step: ${nextSafeAction}`);
     return lines.join('\n');
   };
 
-  proto.buildCapabilityNegotiationReply = function (this: AgentRunFlowHost, 
+  proto.buildCapabilityNegotiationReply = function (
+    this: AgentRunFlowHost,
     snapshot: CapabilityNegotiationSnapshot,
     approvalId: string | null,
   ): string {
@@ -645,11 +684,11 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       snapshot.proposal?.summary || snapshot.scope.summary,
       `Status: ${snapshot.status}`,
       `Risco: ${snapshot.summary.highestRisk}`,
-      `Approval requerido: ${String(snapshot.summary.approvalRequired)}`,
-      `Preview requerido: ${String(snapshot.summary.previewRequired)}`,
-      approvalId ? `Approval: ${approvalId}` : '',
+      `Approval required: ${String(snapshot.summary.approvalRequired)}`,
+      `Preview required: ${String(snapshot.summary.previewRequired)}`,
+      approvalId ? 'Approval: waiting — tap Approve/Reject or /approve / /reject' : '',
       '',
-      'Escopo',
+      'Scope',
       `- tools permitidas: ${snapshot.scope.allowedToolIds.join(', ') || 'nenhuma'}`,
       `- tools bloqueadas: ${snapshot.scope.blockedToolIds.join(', ') || 'nenhuma'}`,
       `- paths: ${snapshot.scope.pathHints.join(', ') || 'not declarados'}`,
@@ -668,7 +707,8 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     return lines.join('\n');
   };
 
-  proto.buildToolRehearsalReply = function (this: AgentRunFlowHost, 
+  proto.buildToolRehearsalReply = function (
+    this: AgentRunFlowHost,
     snapshot: ToolRehearsalSnapshot,
     approvalId: string | null,
   ): string {

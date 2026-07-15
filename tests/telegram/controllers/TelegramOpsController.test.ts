@@ -9,30 +9,24 @@ describe('TelegramOpsController', () => {
       {
         getRecentEvents: jest.fn().mockResolvedValue([]),
         logEvent: jest.fn().mockResolvedValue(undefined),
-        ...overrides.auditLogger,
-      } as any,
+        ...overrides.auditLogger} as any,
       {
         getModeManager: jest.fn().mockReturnValue({
           getMode: jest.fn().mockReturnValue('WORKSPACE'),
           getPermissions: jest.fn().mockReturnValue({
             read: true,
             write: true,
-            build: false,
-          }),
-          setMode: jest.fn(),
-        }),
-        ...overrides.executionGateway,
-      } as any,
+            build: false}),
+          setMode: jest.fn()}),
+        ...overrides.executionGateway} as any,
       {
         getPreferredModel: jest.fn().mockResolvedValue(null),
-        ...overrides.zavorthBridgePreferenceStore,
-      } as any,
+        ...overrides.zavorthBridgePreferenceStore} as any,
       {
         start: jest.fn().mockResolvedValue('http://127.0.0.1:3030'),
         getUrl: jest.fn().mockReturnValue('http://127.0.0.1:3030'),
         getPublicBaseUrl: jest.fn().mockReturnValue(null),
-        ...overrides.dashboardService,
-      } as any,
+        ...overrides.dashboardService} as any,
       {
         getStatus: jest.fn().mockReturnValue({
           enabled: true,
@@ -40,30 +34,25 @@ describe('TelegramOpsController', () => {
           updatedAt: '2026-03-28T08:00:00.000Z',
           updatedBy: '42',
           note: 'Activated via Telegram.',
-          nextPlannedAt: '2026-03-29T09:00:00.000Z',
-        }),
+          nextPlannedAt: '2026-03-29T09:00:00.000Z'}),
         enable: jest.fn().mockReturnValue({
           enabled: true,
           lastSentAt: null,
           updatedAt: '2026-03-28T10:00:00.000Z',
           updatedBy: '42',
           note: 'Activated via Telegram.',
-          nextPlannedAt: '2026-03-29T09:00:00.000Z',
-        }),
+          nextPlannedAt: '2026-03-29T09:00:00.000Z'}),
         disable: jest.fn().mockReturnValue({
           enabled: false,
           lastSentAt: '2026-03-28T09:00:00.000Z',
           updatedAt: '2026-03-28T11:00:00.000Z',
           updatedBy: '42',
           note: 'Deactivated via Telegram.',
-          nextPlannedAt: '2026-03-29T09:00:00.000Z',
-        }),
+          nextPlannedAt: '2026-03-29T09:00:00.000Z'}),
         sendNow: jest.fn().mockResolvedValue({
           sent: true,
-          message: 'Relatorio diario enviado agora.',
-        }),
-        ...overrides.dailyReportService,
-      } as any,
+          message: 'Relatorio diario enviado agora.'}),
+        ...overrides.dailyReportService} as any,
       {
         isEnabled: jest.fn().mockReturnValue(false),
         getStatus: jest.fn().mockReturnValue({
@@ -71,91 +60,75 @@ describe('TelegramOpsController', () => {
           updatedAt: null,
           updatedBy: null,
           note: null,
-          autoPresentationEnabled: false,
-        }),
+          autoPresentationEnabled: false}),
         enable: jest.fn().mockReturnValue({
           enabled: true,
           updatedAt: '2026-03-28T10:00:00.000Z',
           updatedBy: '42',
           note: 'Activated via Telegram.',
-          autoPresentationEnabled: true,
-        }),
+          autoPresentationEnabled: true}),
         disable: jest.fn().mockReturnValue({
           enabled: false,
           updatedAt: '2026-03-28T11:00:00.000Z',
           updatedBy: '42',
           note: 'Deactivated via Telegram.',
-          autoPresentationEnabled: false,
-        }),
-        ...overrides.demoModeService,
-      } as any,
+          autoPresentationEnabled: false}),
+        ...overrides.demoModeService} as any,
       {
         getSession: jest.fn().mockReturnValue(null),
         start: jest.fn().mockReturnValue({
           currentIndex: 0,
           startedAt: '2026-03-28T10:00:00.000Z',
           updatedAt: '2026-03-28T10:00:00.000Z',
-          completed: false,
-        }),
+          completed: false}),
         next: jest.fn().mockReturnValue({
           currentIndex: 1,
           startedAt: '2026-03-28T10:00:00.000Z',
           updatedAt: '2026-03-28T10:02:00.000Z',
-          completed: false,
-        }),
+          completed: false}),
         reset: jest.fn().mockReturnValue(true),
-        ...overrides.demoGuideService,
-      } as any,
+        ...overrides.demoGuideService} as any,
       {
         isEnabled: jest.fn().mockReturnValue(false),
         getStatus: jest.fn().mockReturnValue({
           enabled: false,
           updatedAt: null,
           updatedBy: null,
-          note: null,
-        }),
+          note: null}),
         enable: jest.fn().mockReturnValue({
           enabled: true,
           updatedAt: '2026-03-28T10:00:00.000Z',
           updatedBy: '42',
-          note: 'Activated via Telegram.',
-        }),
+          note: 'Activated via Telegram.'}),
         disable: jest.fn().mockReturnValue({
           enabled: false,
           updatedAt: '2026-03-28T11:00:00.000Z',
           updatedBy: '42',
-          note: 'Deactivated via Telegram.',
-        }),
-        ...overrides.operatorModeService,
-      } as any,
+          note: 'Deactivated via Telegram.'}),
+        ...overrides.operatorModeService} as any,
       {
         isEnabled: jest.fn().mockReturnValue(false),
         getStatus: jest.fn().mockReturnValue({
           enabled: false,
           updatedAt: null,
           updatedBy: null,
-          note: null,
-        }),
+          note: null}),
         enable: jest.fn().mockReturnValue({
           enabled: true,
           updatedAt: '2026-03-28T10:00:00.000Z',
           updatedBy: '42',
-          note: 'Activated via Telegram.',
-        }),
+          note: 'Activated via Telegram.'}),
         disable: jest.fn().mockReturnValue({
           enabled: false,
           updatedAt: '2026-03-28T11:00:00.000Z',
           updatedBy: '42',
-          note: 'Deactivated via Telegram.',
-        }),
-        ...overrides.presentationModeService,
-      } as any,
+          note: 'Deactivated via Telegram.'}),
+        ...overrides.presentationModeService} as any,
       {
         activate: jest.fn().mockResolvedValue({ active: true, message: 'activated' }),
         restore: jest.fn().mockResolvedValue({ active: false, message: 'restaurado' }),
         status: jest.fn().mockResolvedValue({ active: false, message: 'inativo' }),
-        ...overrides.remoteModeManager,
-      } as any,
+        ...overrides.remoteModeManager} as any,
       {
         writeSnapshot: jest.fn().mockReturnValue({
           process: {
@@ -163,55 +136,43 @@ describe('TelegramOpsController', () => {
             rssMb: 256,
             heapMb: 96,
             platform: 'win32',
-            cpuArch: 'x64',
-          },
+            cpuArch: 'x64'},
           runtime: {
             hostSupervisor: { pid: 111, alive: true },
-            telegramWorker: { pid: 222, alive: true },
-          },
+            telegramWorker: { pid: 222, alive: true }},
           tasks: {
             activeCount: 2,
             byStatus: { running: 1, waiting_approval: 1 },
-            recentFailures: [],
-          },
-        }),
-        ...overrides.runtimeDiagnostics,
-      } as any,
+            recentFailures: []}}),
+        ...overrides.runtimeDiagnostics} as any,
       {
         status: jest.fn().mockResolvedValue({
           ok: true,
           action: 'status',
           message: 'WSL operacional.',
           distros: [],
-          warnings: [],
-        }),
-        ...overrides.wslControl,
-      } as any,
+          warnings: []}),
+        ...overrides.wslControl} as any,
       {
         summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth\n\nBuild: em dia.'),
         requestReload: jest.fn().mockResolvedValue({
           accepted: true,
           requestId: 'reload-123',
-          summary: 'O host supervisor aceitou o handoff do reload.',
-        }),
-        ...overrides.supervisedRuntimeService,
-      } as any,
+          summary: 'O host supervisor aceitou o handoff do reload.'}),
+        ...overrides.supervisedRuntimeService} as any,
       {
         summarizeLastRun: jest.fn().mockReturnValue('Autoreparo do Zavorth\n\nStatus: noop.'),
         run: jest.fn().mockResolvedValue({
           success: true,
           status: 'reloaded',
           summary: 'Autoreparo do Zavorth\n\nStatus final: reloaded.',
-          report: {} as any,
-        }),
-        ...overrides.autoRepairService,
-      } as any,
+          report: {} as any}),
+        ...overrides.autoRepairService} as any,
       {
         renderCatalogReport: jest.fn().mockReturnValue('Zavorth Integration Hub\n\nConectores em destaque:'),
         renderManifestReport: jest.fn().mockReturnValue('Integracao selecionada'),
         renderConnectReport: jest.fn().mockReturnValue('Conexao preparada:\n\ncustomizado em Docker'),
-        ...overrides.integrationHubService,
-      } as any,
+        ...overrides.integrationHubService} as any,
       {
         buildSnapshot: jest.fn().mockResolvedValue({
           generatedAt: '2026-04-02T10:10:00.000Z',
@@ -224,51 +185,40 @@ describe('TelegramOpsController', () => {
             workflowRuns: 0,
             resumableWorkflowRuns: 0,
             artifacts: 0,
-            approvals: 0,
-          },
+            approvals: 0},
           routes: {
             strategies: [],
             taskKinds: [],
-            taskSubtypes: [],
-          },
+            taskSubtypes: []},
           surfaces: {
-            sources: [],
-          },
+            sources: []},
           workflows: {
             active: 0,
             resumable: 0,
             completed: 0,
             failed: 0,
-            recent: [],
-          },
+            recent: []},
           executors: {
             top: [],
-            friction: [],
-          },
+            friction: []},
           approvals: {
             pending: 0,
             approved: 0,
             rejected: 0,
             highRisk: 0,
             permissionPending: 0,
-            permissionRejected: 0,
-          },
+            permissionRejected: 0},
           artifacts: {
             topKinds: [],
-            recent: [],
-          },
+            recent: []},
           learning: {
             routes: {
               topSuccessful: [],
-              highestFriction: [],
-            },
+              highestFriction: []},
             approvedPolicies: [],
-            workflowResumeStages: [],
-          },
-          insights: [],
-        }),
-        ...overrides.productObservabilityService,
-      } as any,
+            workflowResumeStages: []},
+          insights: []}),
+        ...overrides.productObservabilityService} as any,
       {
         buildSnapshot: jest.fn().mockReturnValue({
           profile: 'core',
@@ -276,16 +226,14 @@ describe('TelegramOpsController', () => {
             profile: '/profile [core|ops|full]',
             capabilities: '/capabilities',
             enable: '/enable <capability> [once|session|host]',
-            disable: '/disable <capability>',
-          },
+            disable: '/disable <capability>'},
           summary: {
             total: 1,
             builtinCapabilities: 1,
             registeredCommands: 1,
             active: 1,
             dormant: 0,
-            requiringApproval: 0,
-          },
+            requiringApproval: 0},
           capabilities: [
             {
               capabilityId: 'skill-plane',
@@ -298,15 +246,10 @@ describe('TelegramOpsController', () => {
               estimatedFootprint: {
                 ramIdleMb: 64,
                 diskMb: 1,
-                processCount: 0,
-              },
+                processCount: 0},
               fallbackBehavior: 'usar comandos nativos',
-              notes: 'Skill plane pronto.',
-            },
-          ],
-        }),
-        ...overrides.capabilityLifecycleService,
-      } as any,
+              notes: 'Skill plane pronto.'}]}),
+        ...overrides.capabilityLifecycleService} as any,
       {
         buildManifest: jest.fn().mockResolvedValue({
           generatedAt: '2026-04-05T10:00:00.000Z',
@@ -316,20 +259,17 @@ describe('TelegramOpsController', () => {
             baseUrl: 'http://127.0.0.1:33333',
             appUrl: 'http://127.0.0.1:33333/app',
             dashboardUrl: 'http://127.0.0.1:33333/',
-            apiBaseUrl: 'http://127.0.0.1:33333/api/web',
-          },
+            apiBaseUrl: 'http://127.0.0.1:33333/api/web'},
           remote: {
             ready: false,
             baseUrl: null,
             appUrl: null,
-            requiresHttps: false,
-          },
+            requiresHttps: false},
           auth: {
             required: true,
             source: 'env',
             tokenFile: 'C:/tmp/web-token.txt',
-            authorizedHost: true,
-          },
+            authorizedHost: true},
           commands: {
             install: 'npm run ops:install',
             bootstrap: 'npm run ops:bootstrap -- --repair',
@@ -337,19 +277,15 @@ describe('TelegramOpsController', () => {
             access: 'npm run ops:access',
             remote: 'npm run ops:remote',
             manifest: 'npm run ops:manifest',
-            trust: '/hostauth trust',
-          },
+            trust: '/hostauth trust'},
           journey: [],
           surfaces: [],
           guides: {
             local: ['Use http://127.0.0.1:33333/app.'],
-            remote: ['Defina ZAVORTH_PUBLIC_BASE_URL.'],
-          },
+            remote: ['Defina ZAVORTH_PUBLIC_BASE_URL.']},
           warnings: [],
-          nextSteps: [],
-        }),
-        ...overrides.runtimeAccessManifestService,
-      } as any,
+          nextSteps: []}),
+        ...overrides.runtimeAccessManifestService} as any,
       {
         inspectLive: jest.fn().mockResolvedValue({
           checkedAt: '2026-04-05T10:00:00.000Z',
@@ -358,12 +294,10 @@ describe('TelegramOpsController', () => {
             envFilePresent: true,
             llmProvider: 'gemini',
             llmCredentialReady: true,
-            issues: [],
-          },
+            issues: []},
           dependencies: {
             installRequired: false,
-            buildRequired: false,
-          },
+            buildRequired: false},
           platforms: [],
           supervisedRuntime: {
             installRequired: false,
@@ -371,22 +305,16 @@ describe('TelegramOpsController', () => {
             accessReadiness: {
               local: { ready: true },
               remote: { ready: false },
-              nextSteps: [],
-            },
-          },
+              nextSteps: []}},
           actions: [
             {
               id: 'configure-public-base-url',
               title: 'Configure public URL',
               command: 'definir ZAVORTH_PUBLIC_BASE_URL',
               reason: 'Falta URL publica.',
-              blocking: false,
-            },
-          ],
-          summary: 'Bootstrap basico fechado: Zavorth pronto para uso local.',
-        }),
-        ...overrides.runtimeBootstrapService,
-      } as any,
+              blocking: false}],
+          summary: 'Bootstrap basico fechado: Zavorth pronto para uso local.'}),
+        ...overrides.runtimeBootstrapService} as any,
       {
         inspect: jest.fn().mockResolvedValue({
           summary: 'Acesso remoto oficial do Zavorth',
@@ -394,45 +322,35 @@ describe('TelegramOpsController', () => {
             ready: false,
             baseUrl: null,
             appUrl: null,
-            issues: ['Defina uma URL publica.'],
-          },
+            issues: ['Defina uma URL publica.']},
           rollout: {
             activeId: null,
-            candidates: [],
-          },
+            candidates: []},
           actions: {
             recommendedProvider: null,
-            recommendedAction: 'configure-public-base-url',
-          },
-          nextSteps: ['npm run ops:manifest'],
-        }),
+            recommendedAction: 'configure-public-base-url'},
+          nextSteps: ['npm run ops:manifest']}),
         runAction: jest.fn().mockResolvedValue({
           summary: 'Acesso remoto oficial do Zavorth',
           remote: {
             ready: false,
             baseUrl: null,
             appUrl: null,
-            issues: [],
-          },
+            issues: []},
           rollout: {
             activeId: null,
-            candidates: [],
-          },
+            candidates: []},
           actions: {
             recommendedProvider: null,
-            recommendedAction: null,
-          },
-          nextSteps: [],
-        }),
-        ...overrides.runtimeOfficialRemoteAccessService,
-      } as any,
+            recommendedAction: null},
+          nextSteps: []}),
+        ...overrides.runtimeOfficialRemoteAccessService} as any,
     );
   }
 
   it('includes task/runtime diagnostics in the status reply', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     const controller = createController({
       runtimeDiagnostics: {
@@ -442,12 +360,10 @@ describe('TelegramOpsController', () => {
             rssMb: 320,
             heapMb: 110,
             platform: 'win32',
-            cpuArch: 'x64',
-          },
+            cpuArch: 'x64'},
           runtime: {
             hostSupervisor: { pid: 9001, alive: true },
-            telegramWorker: { pid: 9002, alive: true },
-          },
+            telegramWorker: { pid: 9002, alive: true }},
           tasks: {
             activeCount: 3,
             byStatus: { running: 2, waiting_approval: 1 },
@@ -456,21 +372,15 @@ describe('TelegramOpsController', () => {
                 taskId: 'abcdef123456',
                 executor: 'external_executor',
                 commandType: 'external_executor',
-                errorSummary: 'gateway timeout',
-              },
-            ],
-          },
-        }),
-      },
-    });
+                errorSummary: 'gateway timeout'}]}})}});
 
     await controller.handleStatus(ctx);
 
     const [statusText, statusOptions] = ctx.reply.mock.calls[0];
-    expect(statusText).toContain('Panorama do Zavorth');
-    expect(statusText).toContain('Processos ativos: host 9001 | worker 9002.');
-    expect(statusText).toContain('- Demo: inativo');
-    expect(statusText).toContain('- Apresentacao: inativo');
+    expect(statusText).toContain('Zavorth overview');
+    expect(statusText).toContain('Active processes: host 9001 | worker 9002.');
+    expect(statusText).toContain('- Demo: inactive');
+    expect(statusText).toContain('- Presentation: inactive');
     expect(statusText).toContain('Tasks in progress: 3 (running 2 | awaiting approval 1).');
     expect(statusText).toContain('Skill plane');
     expect(statusText).toContain('Last alert: external_executor | task abcdef12.');
@@ -480,8 +390,7 @@ describe('TelegramOpsController', () => {
 
   it('adds product observability highlights to the status reply', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     const controller = createController({
       productObservabilityService: {
@@ -496,18 +405,14 @@ describe('TelegramOpsController', () => {
             workflowRuns: 1,
             resumableWorkflowRuns: 1,
             artifacts: 1,
-            approvals: 2,
-          },
+            approvals: 2},
           routes: {
             strategies: [],
             taskKinds: [],
-            taskSubtypes: [],
-          },
+            taskSubtypes: []},
           surfaces: {
             sources: [
-              { label: 'telegram', count: 3, last_seen_at: '2026-04-02T10:05:00.000Z' },
-            ],
-          },
+              { label: 'telegram', count: 3, last_seen_at: '2026-04-02T10:05:00.000Z' }]},
           workflows: {
             active: 0,
             resumable: 1,
@@ -522,10 +427,7 @@ describe('TelegramOpsController', () => {
                 total_stages: 2,
                 resume_stage_label: 'ExternalExecutor review',
                 primary_artifact_name: 'briefing-final.md',
-                updated_at: '2026-04-02T10:05:00.000Z',
-              },
-            ],
-          },
+                updated_at: '2026-04-02T10:05:00.000Z'}]},
           executors: {
             top: [
               {
@@ -536,23 +438,18 @@ describe('TelegramOpsController', () => {
                 waiting_approval: 0,
                 approval_friction: 0,
                 success_rate: 1,
-                last_seen_at: '2026-04-02T10:05:00.000Z',
-              },
-            ],
-            friction: [],
-          },
+                last_seen_at: '2026-04-02T10:05:00.000Z'}],
+            friction: []},
           approvals: {
             pending: 1,
             approved: 1,
             rejected: 1,
             highRisk: 0,
             permissionPending: 1,
-            permissionRejected: 1,
-          },
+            permissionRejected: 1},
           artifacts: {
             topKinds: [],
-            recent: [],
-          },
+            recent: []},
           learning: {
             routes: {
               topSuccessful: [
@@ -572,9 +469,7 @@ describe('TelegramOpsController', () => {
                   success_rate: 1,
                   friction_rate: 0,
                   last_seen_at: '2026-04-02T10:05:00.000Z',
-                  rationale: '2/2 concluido(s).',
-                },
-              ],
+                  rationale: '2/2 concluido(s).'}],
               highestFriction: [
                 {
                   executor: 'external_executor',
@@ -592,19 +487,14 @@ describe('TelegramOpsController', () => {
                   success_rate: 0,
                   friction_rate: 1,
                   last_seen_at: '2026-04-02T10:05:00.000Z',
-                  rationale: '1 falha, 1 aguardando aprovacao.',
-                },
-              ],
-            },
+                  rationale: '1 falha, 1 aguardando aprovacao.'}]},
             approvedPolicies: [
               {
                 executor: 'external_executor',
                 kind: 'workspace_access',
                 scope: 'once',
                 count: 1,
-                last_seen_at: '2026-04-02T10:05:00.000Z',
-              },
-            ],
+                last_seen_at: '2026-04-02T10:05:00.000Z'}],
             workflowResumeStages: [
               {
                 workflow: 'ship',
@@ -612,14 +502,8 @@ describe('TelegramOpsController', () => {
                 approval_pending: 1,
                 blocked: 0,
                 failed: 0,
-                last_seen_at: '2026-04-02T10:05:00.000Z',
-              },
-            ],
-          },
-          insights: ['Workflow com retomada pronta no ship.'],
-        }),
-      },
-    });
+                last_seen_at: '2026-04-02T10:05:00.000Z'}]},
+          insights: ['Workflow com retomada pronta no ship.']})}});
 
     await controller.handleStatus(ctx);
 
@@ -638,8 +522,7 @@ describe('TelegramOpsController', () => {
 
   it('renders the capability summary reply', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     const controller = createController();
 
@@ -652,8 +535,7 @@ describe('TelegramOpsController', () => {
 
   it('renders the integration catalog', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     const controller = createController();
 
@@ -666,8 +548,7 @@ describe('TelegramOpsController', () => {
   it('starts a safe connection draft', async () => {
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     const controller = createController();
 
@@ -679,8 +560,7 @@ describe('TelegramOpsController', () => {
 
   it('returns the dashboard URL through the chat context', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     const controller = createController();
 
@@ -692,8 +572,7 @@ describe('TelegramOpsController', () => {
 
   it('renders the access manifest through the chat context', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     const controller = createController();
 
@@ -705,8 +584,7 @@ describe('TelegramOpsController', () => {
 
   it('renders the bootstrap summary through the chat context', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     const controller = createController();
 
@@ -718,14 +596,11 @@ describe('TelegramOpsController', () => {
 
   it('includes the configured public dashboard url when available', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     const controller = createController({
       dashboardService: {
-        getPublicBaseUrl: jest.fn().mockReturnValue('https://dashboard.example.com'),
-      },
-    });
+        getPublicBaseUrl: jest.fn().mockReturnValue('https://dashboard.example.com')}});
 
     await controller.handleDashboard(ctx);
 
@@ -735,8 +610,7 @@ describe('TelegramOpsController', () => {
 
   it('shows WSL status details when no explicit action is provided', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     const controller = createController({
       wslControl: {
@@ -745,10 +619,7 @@ describe('TelegramOpsController', () => {
           action: 'status',
           message: 'WSL operacional.',
           distros: [{ name: 'Ubuntu-24.04', version: 2, state: 'Running', isDefault: true }],
-          warnings: [],
-        }),
-      },
-    });
+          warnings: []})}});
 
     await controller.handleWslCommand(ctx, '');
 
@@ -758,14 +629,11 @@ describe('TelegramOpsController', () => {
 
   it('parses and handles remote mode commands', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const activate = jest.fn().mockResolvedValue({ active: true, message: 'Modo remoto ligado.' });
     const controller = createController({
       remoteModeManager: {
-        activate,
-      },
-    });
+        activate}});
 
     expect(controller.parseRemoteModeCommand('/remote on')).toBe('activate');
     await controller.handleRemoteMode(ctx, 'activate');
@@ -777,14 +645,12 @@ describe('TelegramOpsController', () => {
   it('reports and toggles operator mode', async () => {
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const enable = jest.fn().mockReturnValue({
       enabled: true,
       updatedAt: '2026-03-28T10:00:00.000Z',
       updatedBy: '42',
-      note: 'Enabled through Telegram.',
-    });
+      note: 'Enabled through Telegram.'});
     const controller = createController({
       operatorModeService: {
         isEnabled: jest.fn().mockReturnValue(true),
@@ -792,11 +658,8 @@ describe('TelegramOpsController', () => {
           enabled: true,
           updatedAt: '2026-03-28T10:00:00.000Z',
           updatedBy: '42',
-          note: 'Activated via Telegram.',
-        }),
-        enable,
-      },
-    });
+          note: 'Activated via Telegram.'}),
+        enable}});
 
     await controller.handleOperatorMode(ctx, '');
     await controller.handleOperatorMode(ctx, 'on');
@@ -809,14 +672,12 @@ describe('TelegramOpsController', () => {
   it('reports and toggles presentation mode', async () => {
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const enable = jest.fn().mockReturnValue({
       enabled: true,
       updatedAt: '2026-03-28T10:00:00.000Z',
       updatedBy: '42',
-      note: 'Enabled through Telegram.',
-    });
+      note: 'Enabled through Telegram.'});
     const controller = createController({
       presentationModeService: {
         isEnabled: jest.fn().mockReturnValue(true),
@@ -824,11 +685,8 @@ describe('TelegramOpsController', () => {
           enabled: true,
           updatedAt: '2026-03-28T10:00:00.000Z',
           updatedBy: '42',
-          note: 'Activated via Telegram.',
-        }),
-        enable,
-      },
-    });
+          note: 'Activated via Telegram.'}),
+        enable}});
 
     await controller.handlePresentationMode(ctx, '');
     await controller.handlePresentationMode(ctx, 'on');
@@ -840,8 +698,7 @@ describe('TelegramOpsController', () => {
 
   it('returns the demo overview and a specific scenario', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     const controller = createController();
 
@@ -857,21 +714,18 @@ describe('TelegramOpsController', () => {
   it('reports and toggles demo mode', async () => {
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const enable = jest.fn().mockReturnValue({
       enabled: true,
       updatedAt: '2026-03-28T10:00:00.000Z',
       updatedBy: '42',
       note: 'Enabled through Telegram.',
-      autoPresentationEnabled: true,
-    });
+      autoPresentationEnabled: true});
     const presentationEnable = jest.fn().mockReturnValue({
       enabled: true,
       updatedAt: '2026-03-28T10:00:00.000Z',
       updatedBy: '42',
-      note: 'Enabled with demo mode.',
-    });
+      note: 'Enabled with demo mode.'});
     const controller = createController({
       demoModeService: {
         isEnabled: jest.fn().mockReturnValue(false),
@@ -880,10 +734,8 @@ describe('TelegramOpsController', () => {
           updatedAt: null,
           updatedBy: null,
           note: null,
-          autoPresentationEnabled: false,
-        }),
-        enable,
-      },
+          autoPresentationEnabled: false}),
+        enable},
       presentationModeService: {
         isEnabled: jest.fn().mockReturnValue(false),
         enable: presentationEnable,
@@ -891,10 +743,7 @@ describe('TelegramOpsController', () => {
           enabled: false,
           updatedAt: null,
           updatedBy: null,
-          note: null,
-        }),
-      },
-    });
+          note: null})}});
 
     await controller.handleDemo(ctx, 'status');
     await controller.handleDemo(ctx, 'on');
@@ -908,25 +757,21 @@ describe('TelegramOpsController', () => {
   it('starts, advances and resets the guided demo sequence', async () => {
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const start = jest.fn().mockReturnValue({
       currentIndex: 0,
       startedAt: '2026-03-28T10:00:00.000Z',
       updatedAt: '2026-03-28T10:00:00.000Z',
-      completed: false,
-    });
+      completed: false});
     const next = jest.fn().mockReturnValue({
       currentIndex: 1,
       startedAt: '2026-03-28T10:00:00.000Z',
       updatedAt: '2026-03-28T10:02:00.000Z',
-      completed: false,
-    });
+      completed: false});
     const reset = jest.fn().mockReturnValue(true);
     const controller = createController({
       demoModeService: {
-        isEnabled: jest.fn().mockReturnValue(true),
-      },
+        isEnabled: jest.fn().mockReturnValue(true)},
       demoGuideService: {
         getSession: jest
           .fn()
@@ -934,19 +779,15 @@ describe('TelegramOpsController', () => {
             currentIndex: 0,
             startedAt: '2026-03-28T10:00:00.000Z',
             updatedAt: '2026-03-28T10:00:00.000Z',
-            completed: false,
-          })
+            completed: false})
           .mockReturnValueOnce({
             currentIndex: 1,
             startedAt: '2026-03-28T10:00:00.000Z',
             updatedAt: '2026-03-28T10:02:00.000Z',
-            completed: false,
-          }),
+            completed: false}),
         start,
         next,
-        reset,
-      },
-    });
+        reset}});
 
     await controller.handleDemo(ctx, 'start');
     await controller.handleDemo(ctx, 'next');
@@ -966,8 +807,7 @@ describe('TelegramOpsController', () => {
 
   it('shows the short demo summary', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     const controller = createController();
 
@@ -979,12 +819,10 @@ describe('TelegramOpsController', () => {
   it('reports and sends the daily report on demand', async () => {
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const sendNow = jest.fn().mockResolvedValue({
       sent: true,
-      message: 'Relatorio diario enviado agora.',
-    });
+      message: 'Relatorio diario enviado agora.'});
     const controller = createController({
       dailyReportService: {
         getStatus: jest.fn().mockReturnValue({
@@ -993,11 +831,8 @@ describe('TelegramOpsController', () => {
           updatedAt: '2026-03-28T08:00:00.000Z',
           updatedBy: '42',
           note: 'Activated via Telegram.',
-          nextPlannedAt: '2026-03-29T09:00:00.000Z',
-        }),
-        sendNow,
-      },
-    });
+          nextPlannedAt: '2026-03-29T09:00:00.000Z'}),
+        sendNow}});
 
     await controller.handleDailyReport(ctx, '');
     await controller.handleDailyReport(ctx, 'now');
@@ -1009,13 +844,10 @@ describe('TelegramOpsController', () => {
 
   it('reports the current primary and ZavorthBridge models', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const controller = createController({
       zavorthBridgePreferenceStore: {
-        getPreferredModel: jest.fn().mockResolvedValue('gemini-2.5-pro'),
-      },
-    });
+        getPreferredModel: jest.fn().mockResolvedValue('gemini-2.5-pro')}});
 
     await controller.handleModels(ctx);
 
@@ -1027,22 +859,17 @@ describe('TelegramOpsController', () => {
 
   it('confirms WSL start with the verified distro status', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const start = jest.fn().mockResolvedValue({
       ok: true,
       action: 'start',
       message: 'WSL iniciado e confirmado para a distro Ubuntu-24.04.',
       warnings: ['Sem marcador extra'],
       distros: [
-        { name: 'Ubuntu-24.04', version: 2, state: 'Running', isDefault: true },
-      ],
-    });
+        { name: 'Ubuntu-24.04', version: 2, state: 'Running', isDefault: true }]});
     const controller = createController({
       wslControl: {
-        start,
-      },
-    });
+        start}});
 
     await controller.handleWslCommand(ctx, 'on Ubuntu-24.04');
 
@@ -1053,14 +880,11 @@ describe('TelegramOpsController', () => {
 
   it('summarizes the latest local changes on demand', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const summarizeRecentChanges = jest.fn().mockReturnValue('Mudancas e estado do Zavorth\n\nBuild: em dia.');
     const controller = createController({
       supervisedRuntimeService: {
-        summarizeRecentChanges,
-      },
-    });
+        summarizeRecentChanges}});
 
     await controller.handleChanges(ctx);
 
@@ -1072,18 +896,14 @@ describe('TelegramOpsController', () => {
     const ctx = {
       chat: { id: 987654321 },
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const requestReload = jest.fn().mockResolvedValue({
       accepted: true,
       requestId: 'reload-456',
-      summary: 'O host supervisor aceitou o handoff do reload.',
-    });
+      summary: 'O host supervisor aceitou o handoff do reload.'});
     const controller = createController({
       supervisedRuntimeService: {
-        requestReload,
-      },
-    });
+        requestReload}});
 
     await controller.handleSelfUpdate(ctx, 'force');
 
@@ -1091,8 +911,7 @@ describe('TelegramOpsController', () => {
       reason: 'Forced supervised reload via Telegram.',
       requestedBy: '42',
       notifyChatId: '987654321',
-      forceRestart: true,
-    });
+      forceRestart: true});
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('O host supervisor aceitou o handoff do reload.');
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('telegram-runtime-reload-reload-456');
   });
@@ -1101,18 +920,14 @@ describe('TelegramOpsController', () => {
     const ctx = {
       chat: { id: 987654321 },
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const requestReload = jest.fn().mockResolvedValue({
       accepted: false,
       requestId: 'reload-789',
-      summary: 'O runtime supervisionado ja parece saudavel e sem pendencias de install/build. Use /selfupdate force se quiser reciclar mesmo assim.',
-    });
+      summary: 'O runtime supervisionado ja parece saudavel e sem pendencias de install/build. Use /selfupdate force se quiser reciclar mesmo assim.'});
     const controller = createController({
       supervisedRuntimeService: {
-        requestReload,
-      },
-    });
+        requestReload}});
 
     await controller.handleSelfUpdate(ctx, '');
 
@@ -1120,36 +935,30 @@ describe('TelegramOpsController', () => {
       reason: 'Supervised reload requested via Telegram.',
       requestedBy: '42',
       notifyChatId: '987654321',
-      forceRestart: false,
-    });
+      forceRestart: false});
   });
 
   it('runs autorepair with dry-run and improvement modes', async () => {
     const ctx = {
       chat: { id: 987654321 },
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const run = jest
       .fn()
       .mockResolvedValueOnce({
         success: true,
         status: 'dry_run',
         summary: 'Autoreparo do Zavorth\n\nStatus final: dry_run.',
-        report: {} as any,
-      })
+        report: {} as any})
       .mockResolvedValueOnce({
         success: true,
         status: 'reloaded',
         summary: 'Autoreparo do Zavorth\n\nStatus final: reloaded.',
-        report: {} as any,
-      });
+        report: {} as any});
     const controller = createController({
       autoRepairService: {
         summarizeLastRun: jest.fn().mockReturnValue('Autoreparo do Zavorth\n\nStatus: noop.'),
-        run,
-      },
-    });
+        run}});
 
     await controller.handleAutoRepair(ctx, 'dryrun');
     await controller.handleAutoRepair(ctx, 'improve');
@@ -1159,16 +968,14 @@ describe('TelegramOpsController', () => {
       expect.objectContaining({
         dryRun: true,
         force: false,
-        goal: 'auto',
-      }),
+        goal: 'auto'}),
     );
     expect(run).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
         dryRun: false,
         force: true,
-        goal: 'improve',
-      }),
+        goal: 'improve'}),
     );
   });
 
@@ -1176,21 +983,17 @@ describe('TelegramOpsController', () => {
     const ctx = {
       chat: { id: 987654321 },
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const summarizeLastRun = jest.fn().mockReturnValue('Autoreparo do Zavorth\n\nStatus: noop.');
     const run = jest.fn().mockResolvedValue({
       success: true,
       status: 'reloaded',
       summary: 'Autoreparo do Zavorth\n\nStatus final: reloaded.',
-      report: {} as any,
-    });
+      report: {} as any});
     const controller = createController({
       autoRepairService: {
         summarizeLastRun,
-        run,
-      },
-    });
+        run}});
 
     await controller.handleAutoRepair(ctx, '');
     await controller.handleAutoRepair(ctx, 'status');
@@ -1199,8 +1002,7 @@ describe('TelegramOpsController', () => {
       expect.objectContaining({
         dryRun: false,
         force: false,
-        goal: 'auto',
-      }),
+        goal: 'auto'}),
     );
     expect(summarizeLastRun).toHaveBeenCalledTimes(1);
   });
@@ -1213,57 +1015,46 @@ describe('TelegramOpsController', () => {
       action: 'changes',
       force: false,
       dryRun: false,
-      improve: false,
-    });
+      improve: false});
     expect(controller.parseRuntimeMaintenanceCommand('se autoatualize com as mudancas')).toBeNull();
     expect(controller.parseRuntimeMaintenanceCommand('/reload')).toEqual({
       action: 'reload',
       force: false,
       dryRun: false,
-      improve: false,
-    });
+      improve: false});
     expect(controller.parseRuntimeMaintenanceCommand('se autorepare e se melhore')).toBeNull();
     expect(controller.parseRuntimeMaintenanceCommand('/autorepair improve')).toEqual({
       action: 'autorepair',
       force: false,
       dryRun: false,
-      improve: true,
-    });
+      improve: true});
   });
 
   it('summarizes recent audit events together with the current operational mode', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const getRecentEvents = jest.fn().mockResolvedValue([
       {
         timestamp: '2026-04-03T12:34:56.000Z',
         event_type: 'SECURITY_BLOCK',
         task_id: 'task-12345678',
         policy_decision: 'BLOCKED',
-        execution_summary: 'Tentativa barrada por policy.',
-      },
+        execution_summary: 'Tentativa barrada por policy.'},
       {
         timestamp: '2026-04-03T12:40:00.000Z',
         event_type: 'EXECUTION_COMPLETED',
         task_id: 'task-abcdef12',
         policy_decision: 'ALLOWED',
-        execution_summary: 'Execucao concluida com sucesso.',
-      },
-    ]);
+        execution_summary: 'Execucao concluida com sucesso.'}]);
     const getMode = jest.fn().mockReturnValue('BUILD');
     const controller = createController({
       auditLogger: {
-        getRecentEvents,
-      },
+        getRecentEvents},
       executionGateway: {
         getModeManager: jest.fn().mockReturnValue({
           getMode,
           getPermissions: jest.fn().mockReturnValue({}),
-          setMode: jest.fn(),
-        }),
-      },
-    });
+          setMode: jest.fn()})}});
 
     await controller.handleAudit(ctx, '20');
 
@@ -1275,23 +1066,18 @@ describe('TelegramOpsController', () => {
 
   it('reports the current operational mode and permission matrix by default', async () => {
     const ctx = {
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const getMode = jest.fn().mockReturnValue('READ_ONLY');
     const getPermissions = jest.fn().mockReturnValue({
       read: true,
       write: false,
-      build: false,
-    });
+      build: false});
     const controller = createController({
       executionGateway: {
         getModeManager: jest.fn().mockReturnValue({
           getMode,
           getPermissions,
-          setMode: jest.fn(),
-        }),
-      },
-    });
+          setMode: jest.fn()})}});
 
     await controller.handleOperationalMode(ctx, '');
 
@@ -1303,22 +1089,17 @@ describe('TelegramOpsController', () => {
   it('changes the operational mode and records an audit event', async () => {
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     const setMode = jest.fn();
     const logEvent = jest.fn().mockResolvedValue(undefined);
     const controller = createController({
       auditLogger: {
-        logEvent,
-      },
+        logEvent},
       executionGateway: {
         getModeManager: jest.fn().mockReturnValue({
           getMode: jest.fn().mockReturnValue('WORKSPACE'),
           getPermissions: jest.fn().mockReturnValue({}),
-          setMode,
-        }),
-      },
-    });
+          setMode})}});
 
     await controller.handleOperationalMode(ctx, 'privileged');
 
@@ -1330,8 +1111,7 @@ describe('TelegramOpsController', () => {
         operational_mode: 'PRIVILEGED',
         execution_summary: expect.stringMatching(
           /Modo alterado: WORKSPACE -> PRIVILEGED|Mode changed: WORKSPACE -> PRIVILEGED/,
-        ),
-      }),
+        )}),
     );
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/Anterior: WORKSPACE|Previous: WORKSPACE/);
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/Atual: PRIVILEGED|Current: PRIVILEGED/);

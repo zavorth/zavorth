@@ -29,6 +29,6 @@ export function parseExplicitSelfModificationIntent(rawText: string): ExplicitSe
 
   return {
     args,
-    intro: 'Entendi que voce quer abrir o fluxo guardado de auto-modificacao do Zavorth.',
+    intro: 'Opening the guarded self-modification flow for Zavorth.',
   };
 }

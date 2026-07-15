@@ -22,7 +22,10 @@ import type {
 import type { ZavorthInvocationReceipt } from '../contracts/runtime/ZavorthInvocationReceiptContract.js';
 import type { ZavorthSubagentAutoInvocationTelemetry } from '../contracts/runtime/ZavorthSubagentAutoInvocationContract.js';
 import type { SecurityPolicyBrokerRequest } from '../security/SecurityPolicyBroker.js';
-import type { ZavorthSubagentBoardSnapshot, ZavorthSubagentBoardTask } from '../services/ZavorthSubagentBoardService.js';
+import type {
+  ZavorthSubagentBoardSnapshot,
+  ZavorthSubagentBoardTask,
+} from '../services/ZavorthSubagentBoardService.js';
 import type { ZavorthSubagentRuntimeCommandInput } from './ZavorthSubagentRuntimeService.js';
 
 export type StoredState = {
@@ -71,60 +74,65 @@ export type RuntimeRisk = {
   reasons: string[];
 };
 
-export function classifyRisk(task: string, mode: ZavorthSubagentRuntimeMode): RuntimeRisk {
-  const text = task.toLowerCase();
-  const writes = /\b(write|edit|modify|delete|remove|apply|patch|commit|push|salve|edite|altere|apague|remova|corrija|implemente)\b/i.test(text);
-  const commands = /\b(shell|terminal|powershell|cmd|exec|execute|run command|rode comando|comando)\b/i.test(text);
-  const live = /\b(send|publish|post|deploy|live|whatsapp|telegram|discord|signal|imessage|envie|publique)\b/i.test(text);
-  const publicResearch = /\b(research|web search|internet search|sources?|find sources)\b/i.test(text);
-  const sensitiveNetwork = /\b(fetch|http:\/\/|https:\/\/|localhost|127\.0\.0\.1|169\.254|metadata|internal api|url|api|webhook)\b/i.test(text);
-  if (writes || commands) {
+export type ClassifyRiskOptions = {
+  /** Structured risk signals from tools/API — preferred over free-text task text. */
+  riskHints?: Partial<RuntimeRisk> | null;
+};
+
+/**
+ * Classify subagent runtime risk without free-text keyword routing.
+ * Prefer structured `options.riskHints` / mode. Free-text alone never unlocks
+ * mutation/live paths; non-internal modes require approval when hints are absent.
+ */
+export function classifyRisk(
+  task: string,
+  mode: ZavorthSubagentRuntimeMode,
+  options?: ClassifyRiskOptions,
+): RuntimeRisk {
+  const hints = options?.riskHints || null;
+
+  if (hints) {
+    const base = mode === 'internal' ? internalReadOnlyRisk() : unstructuredRequiresApprovalRisk();
     return {
-      surface: 'workspace',
-      brokerRisk: 'review',
-      receiptRisk: 'review',
-      requiresApproval: true,
-      reason: 'Workspace mutation or command execution requires approval.',
-      reasons: ['workspace-mutation-or-command-requires-approval'],
+      surface: hints.surface || base.surface,
+      brokerRisk: hints.brokerRisk || base.brokerRisk,
+      receiptRisk: hints.receiptRisk || base.receiptRisk,
+      requiresApproval: typeof hints.requiresApproval === 'boolean' ? hints.requiresApproval : base.requiresApproval,
+      reason: hints.reason || base.reason,
+      reasons: Array.isArray(hints.reasons) && hints.reasons.length > 0 ? hints.reasons : base.reasons,
     };
   }
-  if (live) {
-    return {
-      surface: 'provider',
-      brokerRisk: 'review',
-      receiptRisk: 'review',
-      requiresApproval: true,
-      reason: 'Live external I/O requires approval.',
-      reasons: ['live-external-io-requires-approval'],
-    };
+
+  // Internal / governed read-only surfaces stay safe without keyword scans.
+  if (mode === 'internal') {
+    return internalReadOnlyRisk();
   }
-  if (sensitiveNetwork) {
-    return {
-      surface: 'web-fetch',
-      brokerRisk: 'review',
-      receiptRisk: 'review',
-      requiresApproval: true,
-      reason: 'Sensitive network target or webhook/API access requires approval.',
-      reasons: ['sensitive-network-read-requires-approval'],
-    };
-  }
-  if (publicResearch) {
-    return {
-      surface: 'web-fetch',
-      brokerRisk: 'safe',
-      receiptRisk: 'safe',
-      requiresApproval: false,
-      reason: 'Public read-only research can run through governed tools and SafeFetch.',
-      reasons: ['public-readonly-research-precleared'],
-    };
-  }
+
+  // Free-text task with no structured riskHints: never keyword-route risk.
+  // Safer default — unstructured non-internal work requires approval.
+  void task;
+  return unstructuredRequiresApprovalRisk();
+}
+
+function internalReadOnlyRisk(): RuntimeRisk {
   return {
     surface: 'skill',
-    brokerRisk: mode === 'internal' ? 'safe' : 'safe',
+    brokerRisk: 'safe',
     receiptRisk: 'safe',
     requiresApproval: false,
     reason: 'Read-only subagent task can run in governed runtime.',
     reasons: ['read-only-subagent-precleared'],
+  };
+}
+
+function unstructuredRequiresApprovalRisk(): RuntimeRisk {
+  return {
+    surface: 'workspace',
+    brokerRisk: 'review',
+    receiptRisk: 'review',
+    requiresApproval: true,
+    reason: 'Unstructured task requires approval (no free-text risk keyword routing).',
+    reasons: ['unstructured-task-requires-approval'],
   };
 }
 
@@ -138,10 +146,7 @@ export function buildPolicyReasons(input: {
   depth: number;
   childCount: number;
 }): string[] {
-  const reasons = [
-    'Subagent runtime spawn evaluated by central Policy Broker.',
-    input.risk.reason,
-  ];
+  const reasons = ['Subagent runtime spawn evaluated by central Policy Broker.', input.risk.reason];
   if (input.requestedExplicitly) {
     reasons.push('User explicitly requested subagents; read-only launch can proceed without extra approval.');
   }
@@ -213,29 +218,38 @@ export function emptyState(): StoredState {
 }
 
 export function normalizeAction(value: unknown): ZavorthSubagentRuntimeAction {
-  const normalized = String(value || 'subagents.list').trim().toLowerCase();
+  const normalized = String(value || 'subagents.list')
+    .trim()
+    .toLowerCase();
   if (
-    normalized === 'spawn'
-    || normalized === 'subagents.spawn'
-    || normalized === 'subagent.spawn'
-    || normalized === 'subagent'
-    || normalized === 'sessions_spawn'
-    || normalized === 'sessions.spawn'
-  ) return 'subagents.spawn';
-  if (normalized === 'spawn-batch' || normalized === 'spawn_batch' || normalized === 'subagents.spawn_batch') return 'subagents.spawn_batch';
+    normalized === 'spawn' ||
+    normalized === 'subagents.spawn' ||
+    normalized === 'subagent.spawn' ||
+    normalized === 'subagent' ||
+    normalized === 'sessions_spawn' ||
+    normalized === 'sessions.spawn'
+  )
+    return 'subagents.spawn';
+  if (normalized === 'spawn-batch' || normalized === 'spawn_batch' || normalized === 'subagents.spawn_batch')
+    return 'subagents.spawn_batch';
   if (normalized === 'wait' || normalized === 'subagents.wait') return 'subagents.wait';
   if (normalized === 'send' || normalized === 'subagents.send') return 'subagents.send';
   if (normalized === 'cancel' || normalized === 'subagents.cancel') return 'subagents.cancel';
   if (normalized === 'read' || normalized === 'subagents.read') return 'subagents.read';
-  if (normalized === 'summarize' || normalized === 'summary' || normalized === 'subagents.summarize') return 'subagents.summarize';
+  if (normalized === 'summarize' || normalized === 'summary' || normalized === 'subagents.summarize')
+    return 'subagents.summarize';
   if (normalized === 'board.create' || normalized === 'subagents.board.create') return 'subagents.board.create';
   if (normalized === 'board.claim' || normalized === 'subagents.board.claim') return 'subagents.board.claim';
-  if (normalized === 'board.heartbeat' || normalized === 'subagents.board.heartbeat') return 'subagents.board.heartbeat';
+  if (normalized === 'board.heartbeat' || normalized === 'subagents.board.heartbeat')
+    return 'subagents.board.heartbeat';
   if (normalized === 'board.complete' || normalized === 'subagents.board.complete') return 'subagents.board.complete';
   if (normalized === 'board.block' || normalized === 'subagents.board.block') return 'subagents.board.block';
-  if (normalized === 'device.list' || normalized === 'devices.list' || normalized === 'subagents.device.list') return 'subagents.device.list';
-  if (normalized === 'device.approve' || normalized === 'devices.approve' || normalized === 'subagents.device.approve') return 'subagents.device.approve';
-  if (normalized === 'device.revoke' || normalized === 'devices.revoke' || normalized === 'subagents.device.revoke') return 'subagents.device.revoke';
+  if (normalized === 'device.list' || normalized === 'devices.list' || normalized === 'subagents.device.list')
+    return 'subagents.device.list';
+  if (normalized === 'device.approve' || normalized === 'devices.approve' || normalized === 'subagents.device.approve')
+    return 'subagents.device.approve';
+  if (normalized === 'device.revoke' || normalized === 'devices.revoke' || normalized === 'subagents.device.revoke')
+    return 'subagents.device.revoke';
   if (normalized === 'config.update' || normalized === 'subagents.config.update') return 'subagents.config.update';
   return 'subagents.list';
 }
@@ -244,11 +258,16 @@ export function resolveExecutionMode(
   input: Partial<Pick<ZavorthSubagentRuntimeCommandInput, 'executionMode' | 'live' | 'mockLive'>>,
   fallback?: ZavorthSubagentRuntimeExecutionMode | string | null,
 ): ZavorthSubagentRuntimeExecutionMode {
-  const explicit = String(input.executionMode || '').trim().toLowerCase();
+  const explicit = String(input.executionMode || '')
+    .trim()
+    .toLowerCase();
   if (explicit === 'mock-live' || input.mockLive === true) return 'mock-live';
   if (explicit === 'live-llm' || explicit === 'live' || input.live === true) return 'live-llm';
-  if (explicit === 'governed-in-process' || explicit === 'in-process' || explicit === 'plan') return 'governed-in-process';
-  const inherited = String(fallback || '').trim().toLowerCase();
+  if (explicit === 'governed-in-process' || explicit === 'in-process' || explicit === 'plan')
+    return 'governed-in-process';
+  const inherited = String(fallback || '')
+    .trim()
+    .toLowerCase();
   if (inherited === 'mock-live') return 'mock-live';
   if (inherited === 'live-llm') return 'live-llm';
   return 'governed-in-process';
@@ -258,7 +277,9 @@ export function normalizeSourceSurface(
   value: unknown,
   mode: ZavorthSubagentRuntimeMode,
 ): 'task' | 'channel' | 'cron' | 'skill' | 'plugin' | 'internal' {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'channel') return 'channel';
   if (normalized === 'cron' || normalized === 'automation' || normalized === 'schedule') return 'cron';
   if (normalized === 'skill') return 'skill';
@@ -268,7 +289,9 @@ export function normalizeSourceSurface(
 }
 
 export function normalizeMode(value: unknown): ZavorthSubagentRuntimeMode {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'session') return 'session';
   if (normalized === 'thread-bound' || normalized === 'thread') return 'thread-bound';
   if (normalized === 'internal') return 'internal';
@@ -276,28 +299,37 @@ export function normalizeMode(value: unknown): ZavorthSubagentRuntimeMode {
 }
 
 export function normalizeRoleMode(value: unknown, fallback: ZavorthSubagentRoleMode = 'leaf'): ZavorthSubagentRoleMode {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'orchestrator') return 'orchestrator';
   if (normalized === 'leaf') return 'leaf';
   return fallback;
 }
 
-export function normalizeSandboxBackend(value: unknown, fallback: ZavorthSubagentSandboxBackendId = 'local'): ZavorthSubagentSandboxBackendId {
-  const normalized = String(value || '').trim().toLowerCase();
+export function normalizeSandboxBackend(
+  value: unknown,
+  fallback: ZavorthSubagentSandboxBackendId = 'local',
+): ZavorthSubagentSandboxBackendId {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (
-    normalized === 'local'
-    || normalized === 'docker'
-    || normalized === 'wsl'
-    || normalized === 'daytona'
-    || normalized === 'modal'
-    || normalized === 'external'
+    normalized === 'local' ||
+    normalized === 'docker' ||
+    normalized === 'wsl' ||
+    normalized === 'daytona' ||
+    normalized === 'modal' ||
+    normalized === 'external'
   ) {
     return normalized;
   }
   return fallback;
 }
 
-export function normalizeDynamicConfig(value: Partial<ZavorthSubagentDynamicConfigSettings>): ZavorthSubagentDynamicConfigSettings {
+export function normalizeDynamicConfig(
+  value: Partial<ZavorthSubagentDynamicConfigSettings>,
+): ZavorthSubagentDynamicConfigSettings {
   return {
     maxConcurrentChildren: clampInt(value.maxConcurrentChildren, 1, 64, DEFAULT_DYNAMIC_CONFIG.maxConcurrentChildren),
     maxSpawnDepth: clampInt(value.maxSpawnDepth, 0, 8, DEFAULT_DYNAMIC_CONFIG.maxSpawnDepth),
@@ -322,9 +354,10 @@ export function defaultDynamicConfigProjection(): ZavorthSubagentRuntimeDynamicC
 }
 
 export function coerceDynamicConfigProjection(value: unknown): ZavorthSubagentRuntimeDynamicConfigProjection {
-  const raw = value && typeof value === 'object' && !Array.isArray(value)
-    ? value as Partial<ZavorthSubagentRuntimeDynamicConfigProjection>
-    : null;
+  const raw =
+    value && typeof value === 'object' && !Array.isArray(value)
+      ? (value as Partial<ZavorthSubagentRuntimeDynamicConfigProjection>)
+      : null;
   if (!raw) return defaultDynamicConfigProjection();
   return {
     settings: normalizeDynamicConfig({
@@ -335,19 +368,19 @@ export function coerceDynamicConfigProjection(value: unknown): ZavorthSubagentRu
     updatedBy: normalizeNullable(raw.updatedBy),
     receiptId: normalizeNullable(raw.receiptId),
     auditReceipts: Array.isArray(raw.auditReceipts)
-      ? raw.auditReceipts.map((receipt) => ({
-          receiptId: normalizeText((receipt as { receiptId?: unknown }).receiptId, 'receipt'),
-          status: normalizeText((receipt as { status?: unknown }).status, 'applied'),
-          summary: normalizeText((receipt as { summary?: unknown }).summary, 'Configuration receipt.'),
-        })).slice(0, 25)
+      ? raw.auditReceipts
+          .map((receipt) => ({
+            receiptId: normalizeText((receipt as { receiptId?: unknown }).receiptId, 'receipt'),
+            status: normalizeText((receipt as { status?: unknown }).status, 'applied'),
+            summary: normalizeText((receipt as { summary?: unknown }).summary, 'Configuration receipt.'),
+          }))
+          .slice(0, 25)
       : [],
   };
 }
 
 export function normalizeTasks(tasks: unknown, fallback: unknown): string[] {
-  const values = Array.isArray(tasks)
-    ? tasks.map((task) => normalizeText(task))
-    : [];
+  const values = Array.isArray(tasks) ? tasks.map((task) => normalizeText(task)) : [];
   if (values.filter(Boolean).length > 0) {
     return values.filter(Boolean).slice(0, 32);
   }
@@ -356,14 +389,21 @@ export function normalizeTasks(tasks: unknown, fallback: unknown): string[] {
 
 export function normalizeStringList(value: unknown): string[] {
   return Array.isArray(value)
-    ? value.map((entry) => normalizeText(entry)).filter(Boolean).slice(0, 100)
+    ? value
+        .map((entry) => normalizeText(entry))
+        .filter(Boolean)
+        .slice(0, 100)
     : [];
 }
 
-export function mapBoardRisk(risk: RuntimeRisk): 'read-only' | 'mutation' | 'shell' | 'network-sensitive' | 'external-io' {
+export function mapBoardRisk(
+  risk: RuntimeRisk,
+): 'read-only' | 'mutation' | 'shell' | 'network-sensitive' | 'external-io' {
   if (risk.reasons.includes('workspace-mutation-or-command-requires-approval')) return 'mutation';
+  if (risk.reasons.includes('unstructured-task-requires-approval')) return 'mutation';
   if (risk.reasons.includes('sensitive-network-read-requires-approval')) return 'network-sensitive';
   if (risk.reasons.includes('live-external-io-requires-approval')) return 'external-io';
+  if (risk.requiresApproval) return 'mutation';
   return 'read-only';
 }
 
@@ -395,16 +435,28 @@ export function mapWorkboardTask(
   };
 }
 
-export function mapWorkboardStatus(status: string): ZavorthSubagentRuntimeWorkboardProjection['tasks'][number]['status'] {
+export function mapWorkboardStatus(
+  status: string,
+): ZavorthSubagentRuntimeWorkboardProjection['tasks'][number]['status'] {
   if (status === 'done') return 'completed';
   if (status === 'approval-required') return 'blocked';
-  if (status === 'queued' || status === 'claimed' || status === 'running' || status === 'completed' || status === 'failed' || status === 'cancelled' || status === 'blocked') {
+  if (
+    status === 'queued' ||
+    status === 'claimed' ||
+    status === 'running' ||
+    status === 'completed' ||
+    status === 'failed' ||
+    status === 'cancelled' ||
+    status === 'blocked'
+  ) {
     return status;
   }
   return 'blocked';
 }
 
-export function buildSandboxProjection(settings: ZavorthSubagentDynamicConfigSettings): ZavorthSubagentRuntimeSandboxProjection {
+export function buildSandboxProjection(
+  settings: ZavorthSubagentDynamicConfigSettings,
+): ZavorthSubagentRuntimeSandboxProjection {
   const backends: ZavorthSubagentSandboxBackendId[] = ['local', 'docker', 'wsl', 'daytona', 'modal', 'external'];
   return {
     contractVersion: 'zavorth-subagent-sandbox/1',
@@ -415,13 +467,7 @@ export function buildSandboxProjection(settings: ZavorthSubagentDynamicConfigSet
       const enabled = remote ? settings.cloudSandboxEnabled && selected : selected || id === 'local';
       return {
         id,
-        status: enabled
-          ? remote
-            ? 'live-disabled'
-            : 'doctor-only'
-          : remote
-            ? 'disabled'
-            : 'doctor-only',
+        status: enabled ? (remote ? 'live-disabled' : 'doctor-only') : remote ? 'disabled' : 'doctor-only',
         remote,
         strongIsolation: id === 'docker' || id === 'wsl' || remote,
         enabled,
@@ -449,7 +495,8 @@ export function buildPairedDevicesProjection(
       pending: devices.filter((device) => device.status === 'pending').length,
       revoked: devices.filter((device) => device.status === 'revoked').length,
       blocked: devices.filter((device) => device.status === 'blocked').length,
-      invokable: devices.filter((device) => device.status === 'approved' && device.approvedCapabilities.length > 0).length,
+      invokable: devices.filter((device) => device.status === 'approved' && device.approvedCapabilities.length > 0)
+        .length,
     },
     policy: {
       approvedCapabilityAllowlistRequired: true,
@@ -459,7 +506,9 @@ export function buildPairedDevicesProjection(
   };
 }
 
-export function motionStateForStatus(status: ZavorthSubagentRuntimeStatus): ZavorthSubagentRuntimeObservabilityEvent['motionState'] {
+export function motionStateForStatus(
+  status: ZavorthSubagentRuntimeStatus,
+): ZavorthSubagentRuntimeObservabilityEvent['motionState'] {
   if (status === 'queued' || status === 'claimed') return 'queued';
   if (status === 'running' || status === 'ready') return 'running';
   if (status === 'completed') return 'completed';
@@ -467,10 +516,6 @@ export function motionStateForStatus(status: ZavorthSubagentRuntimeStatus): Zavo
   if (status === 'blocked' || status === 'denied') return 'blocked';
   if (status === 'failed') return 'failed';
   return 'idle';
-}
-
-export function hasExplicitSubagentIntent(value: string): boolean {
-  return /\b(subagentes?|subagents?|agent team|multiagente|multi-agent|swarm|mande um agente|delegue|em paralelo)\b/i.test(value);
 }
 
 export function normalizeText(value: unknown, fallback = ''): string {
@@ -484,7 +529,11 @@ export function normalizeNullable(value: unknown): string | null {
 }
 
 export function normalizeChannel(value: unknown): string {
-  return normalizeText(value, 'cli').toLowerCase().replace(/[^a-z0-9_.:-]+/g, '-') || 'cli';
+  return (
+    normalizeText(value, 'cli')
+      .toLowerCase()
+      .replace(/[^a-z0-9_.:-]+/g, '-') || 'cli'
+  );
 }
 
 export function firstLine(value: string, maxLength = 240): string {

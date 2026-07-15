@@ -29,6 +29,8 @@ export function resolveStitchDeviceType(
   request: ExecutionRequest,
   config: StitchConfigShape,
 ): StitchDeviceType {
+  // Free text never selects device type — only explicit metadata / config defaults.
+  void prompt;
   const explicit = String(
     request.metadata?.stitch_device_type ||
       request.metadata?.task_metadata?.stitch_device_type ||
@@ -42,28 +44,10 @@ export function resolveStitchDeviceType(
     return explicit;
   }
 
-  const normalized = prompt
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-
-  if (/\b(mobile|celular|android|iphone|ios|app mobile)\b/.test(normalized)) {
-    return 'MOBILE';
-  }
-  if (/\b(tablet|ipad)\b/.test(normalized)) {
-    return 'TABLET';
-  }
-  if (/\b(desktop|web app|zavorthControl|site|website|landing page|pagina web)\b/.test(normalized)) {
-    return 'DESKTOP';
-  }
-
   return 'AGNOSTIC';
 }
 
-export function resolveStitchModelId(
-  request: ExecutionRequest,
-  config: StitchConfigShape,
-): StitchModelId | null {
+export function resolveStitchModelId(request: ExecutionRequest, config: StitchConfigShape): StitchModelId | null {
   const explicit = String(
     request.metadata?.stitch_model_id ||
       request.metadata?.task_metadata?.stitch_model_id ||

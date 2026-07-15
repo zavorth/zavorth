@@ -4,9 +4,11 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceOperations
   return new SharedSurfaceOperationsCommandPack({
     hubControlPlaneService: { renderReport: jest.fn(() => 'Hub + MCP product plane') } as any,
     hubActionService: { execute: jest.fn() } as any,
-    automationControlPlaneService: { renderReport: jest.fn(async () => 'Scheduled runs: Automations e scheduled runs') } as any,
+    automationControlPlaneService: {
+      renderReport: jest.fn(async () => 'Scheduled runs: Automations e scheduled runs'),
+    } as any,
     automationActionService: { execute: jest.fn(), apply: jest.fn() } as any,
-    trustPlaneService: { renderReport: jest.fn(() => 'Trust Plane do Zavorth') } as any,
+    trustPlaneService: { renderReport: jest.fn(() => 'Zavorth Trust Plane') } as any,
     trustPlaneActionService: { execute: jest.fn(), apply: jest.fn() } as any,
     ...overrides,
   });
@@ -40,10 +42,12 @@ describe('SharedSurfaceOperationsCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/hub', 'sync');
 
     expect(handled).toBe(true);
-    expect(hubActionService.execute).toHaveBeenCalledWith(expect.objectContaining({
-      actionId: 'platform-sync',
-      requestedBy: 'telegram-user',
-    }));
+    expect(hubActionService.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actionId: 'platform-sync',
+        requestedBy: 'telegram-user',
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Hub sincronizado com sucesso.'));
   });
 
@@ -77,10 +81,12 @@ describe('SharedSurfaceOperationsCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/schedule', 'every 1h /status');
 
     expect(handled).toBe(true);
-    expect(automationActionService.execute).toHaveBeenCalledWith(expect.objectContaining({
-      actionId: 'create',
-      intentText: 'every 1h /status',
-    }));
+    expect(automationActionService.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actionId: 'create',
+        intentText: 'every 1h /status',
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Agendamento em preview.'));
     expect(ctx.reply).not.toHaveBeenCalledWith(expect.stringMatching(/^Uso:/));
   });
@@ -115,10 +121,12 @@ describe('SharedSurfaceOperationsCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/report', 'ultimas noticias de IA');
 
     expect(handled).toBe(true);
-    expect(automationActionService.execute).toHaveBeenCalledWith(expect.objectContaining({
-      actionId: 'create',
-      intentText: 'ultimas noticias de IA',
-    }));
+    expect(automationActionService.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actionId: 'create',
+        intentText: 'ultimas noticias de IA',
+      }),
+    );
     expect(ctx.reply).not.toHaveBeenCalledWith(expect.stringMatching(/Uso: \/report every/));
   });
 
@@ -215,12 +223,14 @@ describe('SharedSurfaceOperationsCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/trust', 'mcp trusted');
 
     expect(handled).toBe(true);
-    expect(trustPlaneActionService.execute).toHaveBeenCalledWith(expect.objectContaining({
-      actionId: 'set-mcp-profile',
-      profile: 'trusted',
-      requestedBy: 'telegram-user',
-      sourceSurface: 'telegram',
-    }));
+    expect(trustPlaneActionService.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actionId: 'set-mcp-profile',
+        profile: 'trusted',
+        requestedBy: 'telegram-user',
+        sourceSurface: 'telegram',
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Perfil MCP alterado para trusted.'));
   });
 });

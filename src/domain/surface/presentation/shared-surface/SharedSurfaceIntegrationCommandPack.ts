@@ -43,7 +43,8 @@ type TransportActionResult = Awaited<ReturnType<TransportActionExecute>>;
 
 type SharedSurfaceIntegrationCommandPackDeps = {
   channelActionService: Pick<ZavorthChannelActionService, 'execute'>;
-  channelMeshService: Pick<ZavorthChannelMeshService, 'renderReport'> & Partial<Pick<ZavorthChannelMeshService, 'buildSnapshot'>>;
+  channelMeshService: Pick<ZavorthChannelMeshService, 'renderReport'> &
+    Partial<Pick<ZavorthChannelMeshService, 'buildSnapshot'>>;
   pluginActionService: Pick<ZavorthPluginActionService, 'execute'>;
   pluginRegistryService: Pick<ZavorthPluginRegistryService, 'renderCatalogReport'>;
   remoteTransportActionService: Pick<ZavorthRemoteTransportActionService, 'execute'>;
@@ -92,35 +93,50 @@ export class SharedSurfaceIntegrationCommandPack {
   private async handlePlugins(ctx: IMessageContext, args: string): Promise<void> {
     const normalizedArgs = String(args || '').trim();
     const tokens = normalizedArgs.split(/\s+/).filter(Boolean);
-    const actionCandidate = String(tokens[0] || '').trim().toLowerCase();
+    const actionCandidate = String(tokens[0] || '')
+      .trim()
+      .toLowerCase();
     const pluginId = String(tokens[1] || '').trim();
-    if (['open', 'next', 'doctor', 'trust', 'review', 'install', 'update', 'remove'].includes(actionCandidate) && pluginId) {
+    if (
+      ['open', 'next', 'doctor', 'trust', 'review', 'install', 'update', 'remove'].includes(actionCandidate) &&
+      pluginId
+    ) {
       try {
         const result = await this.executePluginAction({
           pluginId,
           actionId: actionCandidate,
           requestedBy: String(ctx.userId || '').trim() || null,
         });
-        await replyWithSharedSurfaceResponse(ctx, this.buildActionSurfaceResponse({
-          id: `plugin-${pluginId}-${actionCandidate}`,
-          intentTitle: 'Plugin plane',
-          result,
-        }));
-      } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_plugin_plane')));
+        await replyWithSharedSurfaceResponse(
+          ctx,
+          this.buildActionSurfaceResponse({
+            id: `plugin-${pluginId}-${actionCandidate}`,
+            intentTitle: 'Plugin plane',
+            result,
+          }),
+        );
+      } catch (error: unknown) {
+        await ctx.reply(errorMessage(error, tSurface('error_plugin_plane')));
       }
       return;
     }
 
-    await ctx.reply(this.deps.pluginRegistryService.renderCatalogReport({
-      selectedId: normalizedArgs || null,
-      query: normalizedArgs || null,
-    }));
+    await ctx.reply(
+      this.deps.pluginRegistryService.renderCatalogReport({
+        selectedId: normalizedArgs || null,
+        query: normalizedArgs || null,
+      }),
+    );
   }
 
   private async handleChannels(ctx: IMessageContext, args: string): Promise<void> {
     const normalizedArgs = String(args || '').trim();
     const [actionCandidate, channelIdCandidate] = normalizedArgs.split(/\s+/).filter(Boolean);
-    if (String(actionCandidate || '').trim().toLowerCase() === 'consistency') {
+    if (
+      String(actionCandidate || '')
+        .trim()
+        .toLowerCase() === 'consistency'
+    ) {
       await this.handleChannelExperienceConsistency(ctx, channelIdCandidate || null);
       return;
     }
@@ -141,7 +157,9 @@ export class SharedSurfaceIntegrationCommandPack {
         'relink',
         'logout',
       ].includes(
-        String(actionCandidate || '').trim().toLowerCase(),
+        String(actionCandidate || '')
+          .trim()
+          .toLowerCase(),
       )
     ) {
       try {
@@ -151,7 +169,8 @@ export class SharedSurfaceIntegrationCommandPack {
           requestedBy: String(ctx.userId || '').trim() || null,
         });
         await replyWithSharedSurfaceResponse(ctx, this.buildChannelActionSurfaceResponse(result));
-      } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_channel_mesh')));
+      } catch (error: unknown) {
+        await ctx.reply(errorMessage(error, tSurface('error_channel_mesh')));
       }
       return;
     }
@@ -182,19 +201,30 @@ export class SharedSurfaceIntegrationCommandPack {
   private async handleTransports(ctx: IMessageContext, args: string): Promise<void> {
     const normalizedArgs = String(args || '').trim();
     const [actionCandidate, transportIdCandidate] = normalizedArgs.split(/\s+/).filter(Boolean);
-    if (transportIdCandidate && ['inspect', 'prepare', 'smoke', 'repair'].includes(String(actionCandidate || '').trim().toLowerCase())) {
+    if (
+      transportIdCandidate &&
+      ['inspect', 'prepare', 'smoke', 'repair'].includes(
+        String(actionCandidate || '')
+          .trim()
+          .toLowerCase(),
+      )
+    ) {
       try {
         const result = await this.executeTransportAction({
           transportId: transportIdCandidate,
           actionId: actionCandidate,
           requestedBy: String(ctx.userId || '').trim() || null,
         });
-        await replyWithSharedSurfaceResponse(ctx, this.buildActionSurfaceResponse({
-          id: `transport-${transportIdCandidate}-${actionCandidate}`,
-          intentTitle: 'Remote transport plane',
-          result,
-        }));
-      } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_remote_plane')));
+        await replyWithSharedSurfaceResponse(
+          ctx,
+          this.buildActionSurfaceResponse({
+            id: `transport-${transportIdCandidate}-${actionCandidate}`,
+            intentTitle: 'Remote transport plane',
+            result,
+          }),
+        );
+      } catch (error: unknown) {
+        await ctx.reply(errorMessage(error, tSurface('error_remote_plane')));
       }
       return;
     }
@@ -207,7 +237,7 @@ export class SharedSurfaceIntegrationCommandPack {
       selectedId,
     });
     const lines = [
-      'Remote Transport Plane do Zavorth',
+      'Zavorth Remote Transport Plane',
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
@@ -219,7 +249,7 @@ export class SharedSurfaceIntegrationCommandPack {
     if (snapshot.selected) {
       lines.push(
         '',
-        `Em foco: ${snapshot.selected.label}`,
+        `In focus: ${snapshot.selected.label}`,
         `${snapshot.selected.operatorSummary}`,
         `Kind: ${snapshot.selected.kind} | transport: ${snapshot.selected.transport} | readiness: ${snapshot.selected.readiness}.`,
       );
@@ -227,7 +257,7 @@ export class SharedSurfaceIntegrationCommandPack {
         lines.push(`Endpoint: ${snapshot.selected.endpoint}`);
       }
       if (snapshot.selected.details.length > 0) {
-        lines.push('', 'Detalhes:');
+        lines.push('', 'Details:');
         for (const detail of snapshot.selected.details.slice(0, 4)) {
           lines.push(`- ${detail}`);
         }
@@ -235,17 +265,17 @@ export class SharedSurfaceIntegrationCommandPack {
       if (snapshot.selected.telemetry) {
         lines.push(
           '',
-          'Telemetria:',
+          'Telemetry:',
           `- Status: ${snapshot.selected.telemetry.statusLine}`,
-          `- Pendencias: ${snapshot.selected.telemetry.pendingWork}`,
-          `- Ultima atualizacao: ${snapshot.selected.telemetry.updatedAt || 'n/d'}`,
+          `- Pending work: ${snapshot.selected.telemetry.pendingWork}`,
+          `- Last update: ${snapshot.selected.telemetry.updatedAt || 'n/a'}`,
           `- Last error: ${snapshot.selected.telemetry.lastError || 'no recent error'}`,
         );
       }
     }
 
     if (snapshot.suggestedActions.length > 0) {
-      lines.push('', 'Proximos passos:');
+      lines.push('', 'Next steps:');
       for (const action of snapshot.suggestedActions.slice(0, 4)) {
         lines.push(`- ${action.label}: ${action.command}`);
       }
@@ -261,12 +291,12 @@ export class SharedSurfaceIntegrationCommandPack {
       {
         kind: 'table',
         table: {
-          title: 'Canais',
+          title: 'Channels',
           columns: [
-            { key: 'id', label: 'Canal', width: 16 },
-            { key: 'readiness', label: 'Estado', width: 12 },
-            { key: 'transport', label: 'Transporte', width: 18 },
-            { key: 'summary', label: 'Resumo', width: 36 },
+            { key: 'id', label: 'Channel', width: 16 },
+            { key: 'readiness', label: 'State', width: 12 },
+            { key: 'transport', label: 'Transport', width: 18 },
+            { key: 'summary', label: 'Summary', width: 36 },
           ],
           rows: snapshot.entries.slice(0, 12).map((entry) => ({
             id: entry.id,
@@ -274,7 +304,7 @@ export class SharedSurfaceIntegrationCommandPack {
             transport: entry.transport,
             summary: entry.summary,
           })),
-          emptyText: 'Nenhum canal registrado no Channel Mesh.',
+          emptyText: 'No channel registered in Channel Mesh.',
         },
       },
     ];
@@ -282,12 +312,14 @@ export class SharedSurfaceIntegrationCommandPack {
     if (selected) {
       blocks.push({
         kind: 'text',
-        title: `Em foco: ${selected.label}`,
+        title: `In focus: ${selected.label}`,
         text: [
           selected.operatorSummary,
           `Kind: ${selected.implementationState} | transport: ${selected.transport} | readiness: ${selected.readiness}.`,
           selected.actionHint,
-        ].filter(Boolean).join('\n'),
+        ]
+          .filter(Boolean)
+          .join('\n'),
       });
       blocks.push(...this.buildChannelStatusBlocks(selected.statusRows || []));
     }
@@ -295,7 +327,7 @@ export class SharedSurfaceIntegrationCommandPack {
     if (actions.length > 0) {
       blocks.push({
         kind: 'actions',
-        title: 'Acoes do canal',
+        title: 'Channel actions',
         actions,
       });
     }
@@ -303,7 +335,7 @@ export class SharedSurfaceIntegrationCommandPack {
     return createSurfaceResponse({
       id: `channel-mesh-${selected?.id || 'overview'}`,
       intent: 'status',
-      title: 'Channel Mesh do Zavorth',
+      title: 'Zavorth Channel Mesh',
       summary: snapshot.narrative.operatorSummary,
       tone: snapshot.summary.ready > 0 ? 'success' : 'warning',
       blocks,
@@ -322,7 +354,7 @@ export class SharedSurfaceIntegrationCommandPack {
     const actions: SurfaceResponseAction[] = [
       {
         id: 'channel-consistency-overview',
-        label: 'Paridade',
+        label: 'Parity',
         kind: 'command',
         command: '/channels consistency',
         callbackData: '/channels consistency',
@@ -330,7 +362,7 @@ export class SharedSurfaceIntegrationCommandPack {
       },
       {
         id: 'channel-consistency-channels',
-        label: 'Canais',
+        label: 'Channels',
         kind: 'command',
         command: '/channels',
         callbackData: '/channels',
@@ -338,7 +370,7 @@ export class SharedSurfaceIntegrationCommandPack {
       },
       {
         id: 'channel-consistency-commands',
-        label: 'Comandos',
+        label: 'Commands',
         kind: 'command',
         command: '/commands channel',
         callbackData: '/commands channel',
@@ -355,12 +387,12 @@ export class SharedSurfaceIntegrationCommandPack {
         {
           kind: 'table',
           table: {
-            title: 'Paridade por canal',
+            title: 'Parity by channel',
             columns: [
-              { key: 'channel', label: 'Canal', width: 16 },
-              { key: 'status', label: 'Estado', width: 10 },
+              { key: 'channel', label: 'Channel', width: 16 },
+              { key: 'status', label: 'State', width: 10 },
               { key: 'score', label: 'Score', width: 8 },
-              { key: 'summary', label: 'Resumo', width: 42 },
+              { key: 'summary', label: 'Summary', width: 42 },
             ],
             rows: entries.slice(0, 12).map((entry) => ({
               channel: entry.label,
@@ -372,10 +404,10 @@ export class SharedSurfaceIntegrationCommandPack {
         },
         {
           kind: 'list',
-          title: 'Proximo passo',
+          title: 'Next step',
           items: [
             snapshot.narrative.nextAction,
-            `Comandos: ${snapshot.commands.overview} | ${snapshot.commands.selected} | ${snapshot.commands.commandDeck}.`,
+            `Commands: ${snapshot.commands.overview} | ${snapshot.commands.selected} | ${snapshot.commands.commandDeck}.`,
           ],
         },
       ],
@@ -394,8 +426,8 @@ export class SharedSurfaceIntegrationCommandPack {
     const blocks: SurfaceBlock[] = [
       {
         kind: 'list',
-        title: 'Detalhes',
-        items: result.details.length > 0 ? result.details : ['Acao registrada sem detalhes adicionais.'],
+        title: 'Details',
+        items: result.details.length > 0 ? result.details : ['Action recorded with no additional details.'],
       },
       ...this.buildChannelStatusBlocks(selected?.statusRows || []),
       ...this.buildLoginQrBlocks(result),
@@ -404,7 +436,7 @@ export class SharedSurfaceIntegrationCommandPack {
     if (actions.length > 0) {
       blocks.push({
         kind: 'actions',
-        title: 'Acoes disponiveis',
+        title: 'Available actions',
         actions,
       });
     }
@@ -467,8 +499,8 @@ export class SharedSurfaceIntegrationCommandPack {
       blocks: [
         {
           kind: 'list',
-          title: 'Detalhes',
-          items: details.length > 0 ? details : ['Acao registrada sem detalhes adicionais.'],
+          title: 'Details',
+          items: details.length > 0 ? details : ['Action recorded with no additional details.'],
         },
       ],
       receipts: [
@@ -492,11 +524,11 @@ export class SharedSurfaceIntegrationCommandPack {
       {
         kind: 'table',
         table: {
-          title: 'Status do canal',
+          title: 'Channel status',
           columns: [
-            { key: 'label', label: 'Campo', width: 22 },
-            { key: 'value', label: 'Valor', width: 36 },
-            { key: 'tone', label: 'Tom', width: 10 },
+            { key: 'label', label: 'Field', width: 22 },
+            { key: 'value', label: 'Value', width: 36 },
+            { key: 'tone', label: 'Tone', width: 10 },
           ],
           rows: rows.slice(0, 10).map((row) => ({
             label: row.label,

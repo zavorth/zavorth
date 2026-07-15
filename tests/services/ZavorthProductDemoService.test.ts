@@ -12,18 +12,17 @@ describe('ZavorthProductDemoService', () => {
     expect(snapshot.command.primary).toBe('zavorth start');
     expect(snapshot.command.connectors).toBe('zavorth connectors doctor');
     expect(snapshot.quickstart.estimatedMinutes).toBeLessThanOrEqual(10);
-    expect(snapshot.quickstart.steps.map((step) => step.command)).toEqual(expect.arrayContaining([
-      'zavorth start',
-      'zavorth go',
-      'zavorth demo browser',
-      'npm run zavorth:demo:check',
-    ]));
-    expect(snapshot.visualHome).toEqual(expect.objectContaining({
-      route: '/control',
-      openCommand: 'zavorth go',
-      browserDemoCommand: 'zavorth demo browser',
-      localVisualDemo: true,
-    }));
+    expect(snapshot.quickstart.steps.map((step) => step.command)).toEqual(
+      expect.arrayContaining(['zavorth start', 'zavorth go', 'zavorth demo browser', 'npm run zavorth:demo:check']),
+    );
+    expect(snapshot.visualHome).toEqual(
+      expect.objectContaining({
+        route: '/zavorthControl',
+        openCommand: 'zavorth go',
+        browserDemoCommand: 'zavorth demo browser',
+        localVisualDemo: true,
+      }),
+    );
   });
 
   it('reports exact GitHub, Telegram and Discord setup gaps without pretending connectors are live', () => {

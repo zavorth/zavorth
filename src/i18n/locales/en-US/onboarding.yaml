@@ -30,6 +30,7 @@ steps:
     title: "Setup Complete"
     summary: "Your Zavorth is ready!"
     next_steps: "Next steps:"
+    learning_tip: "Zavorth saves multi-tool workflows as local skill drafts (/learn); promote with /learn promote 1. Candidates plane is /learning."
 
 progress:
   step_of: "Step {current} of {total}"

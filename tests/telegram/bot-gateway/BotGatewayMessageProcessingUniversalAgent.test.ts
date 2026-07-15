@@ -48,15 +48,19 @@ function createAgentDecisionService(requestedTools: string[]) {
   };
 }
 
-function createRuntime(options: {
-  sharedSurfaceCommandService?: any;
-  agentGateway?: ZavorthAgentGateway;
-  surfaceOperationalIntentService?: any;
-} = {}) {
-  const agentGateway = options.agentGateway || new ZavorthAgentGateway({
-    now: () => new Date('2026-04-26T11:00:00.000Z'),
-    idFactory: (prefix) => `${prefix}-telegram-universal`,
-  });
+function createRuntime(
+  options: {
+    sharedSurfaceCommandService?: any;
+    agentGateway?: ZavorthAgentGateway;
+    surfaceOperationalIntentService?: any;
+  } = {},
+) {
+  const agentGateway =
+    options.agentGateway ||
+    new ZavorthAgentGateway({
+      now: () => new Date('2026-04-26T11:00:00.000Z'),
+      idFactory: (prefix) => `${prefix}-telegram-universal`,
+    });
   const legacyUnifiedGateway = {
     handleEvent: jest.fn(async (input: any) => {
       await input.reply('Resposta via runtime universal do Telegram.');
@@ -112,9 +116,7 @@ function createRuntime(options: {
           isGroup: false,
         })),
       },
-      getSharedSurfaceCommandService: jest.fn().mockReturnValue(
-        options.sharedSurfaceCommandService ?? null,
-      ),
+      getSharedSurfaceCommandService: jest.fn().mockReturnValue(options.sharedSurfaceCommandService ?? null),
     } as any,
     agentGateway,
     legacyUnifiedGateway,
@@ -138,11 +140,13 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     expect(activeRun?.status).toBe('completed');
     expect(activeRun?.input).toBe('compare o que mudou nesta pasta');
     expect((activeRun?.metadata.responseDecision as any)?.requestedTools).toEqual([]);
-    expect(activeRun?.metadata.naturalFirstRoute).toEqual(expect.objectContaining({
-      route: 'llm-reply',
-      shouldEnterGateway: true,
-      usesLlm: 'preferred',
-    }));
+    expect(activeRun?.metadata.naturalFirstRoute).toEqual(
+      expect.objectContaining({
+        route: 'llm-reply',
+        shouldEnterGateway: true,
+        usesLlm: 'preferred',
+      }),
+    );
   });
 
   it('routes natural equivalents of operator capability commands through the agent loop', async () => {
@@ -156,9 +160,10 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     for (const entry of cases) {
       const ctx = createTelegramContext(entry.text);
       const surfaceOperationalIntentService = createAgentDecisionService([entry.tool]);
-      const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher, commandRoutingService } = createRuntime({
-        surfaceOperationalIntentService,
-      });
+      const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher, commandRoutingService } =
+        createRuntime({
+          surfaceOperationalIntentService,
+        });
 
       await processTextMessage(runtime, ctx, entry.text);
 
@@ -170,10 +175,12 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
       );
       expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
       expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
-      expect(surfaceOperationalIntentService.decideResponse).toHaveBeenCalledWith(expect.objectContaining({
-        surface: 'telegram',
-        text: entry.text,
-      }));
+      expect(surfaceOperationalIntentService.decideResponse).toHaveBeenCalledWith(
+        expect.objectContaining({
+          surface: 'telegram',
+          text: entry.text,
+        }),
+      );
       expect(agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun).toEqual(
         expect.objectContaining({
           channel: 'telegram',
@@ -185,9 +192,7 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
             }),
           }),
           toolExposure: expect.objectContaining({
-            tools: expect.arrayContaining([
-              expect.objectContaining({ id: entry.tool }),
-            ]),
+            tools: expect.arrayContaining([expect.objectContaining({ id: entry.tool })]),
           }),
         }),
       );
@@ -207,28 +212,30 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Watch Mode visual bloqueado');
     const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
-    expect(activeRun).toEqual(expect.objectContaining({
-      channel: 'telegram',
-      status: 'failed',
-      input: text,
-      toolExposure: expect.objectContaining({
-        tools: expect.arrayContaining([
-          expect.objectContaining({
-            id: 'watchmode.control',
-            risk: 'danger',
-            requiresApproval: true,
+    expect(activeRun).toEqual(
+      expect.objectContaining({
+        channel: 'telegram',
+        status: 'failed',
+        input: text,
+        toolExposure: expect.objectContaining({
+          tools: expect.arrayContaining([
+            expect.objectContaining({
+              id: 'watchmode.control',
+              risk: 'danger',
+              requiresApproval: true,
+            }),
+          ]),
+        }),
+        metadata: expect.objectContaining({
+          watchModeVisualProposal: expect.objectContaining({
+            blocked: true,
+            blockedReason: 'policy-allowlist-required',
+            startRunCalled: false,
+            computerUseAgentCalled: false,
           }),
-        ]),
-      }),
-      metadata: expect.objectContaining({
-        watchModeVisualProposal: expect.objectContaining({
-          blocked: true,
-          blockedReason: 'policy-allowlist-required',
-          startRunCalled: false,
-          computerUseAgentCalled: false,
         }),
       }),
-    }));
+    );
   });
 
   it('keeps natural Echo requests behind the existing approval gate', async () => {
@@ -247,28 +254,32 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     );
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('approval:');
     const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
-    expect(activeRun).toEqual(expect.objectContaining({
-      channel: 'telegram',
-      status: 'waiting_approval',
-      input: text,
-      toolExposure: expect.objectContaining({
-        tools: expect.arrayContaining([
-          expect.objectContaining({
-            id: 'echo_hands',
-            requiresApproval: true,
-            risk: 'danger',
-          }),
-        ]),
+    expect(activeRun).toEqual(
+      expect.objectContaining({
+        channel: 'telegram',
+        status: 'waiting_approval',
+        input: text,
+        toolExposure: expect.objectContaining({
+          tools: expect.arrayContaining([
+            expect.objectContaining({
+              id: 'echo_hands',
+              requiresApproval: true,
+              risk: 'danger',
+            }),
+          ]),
+        }),
       }),
-    }));
+    );
   });
 
   it('routes natural swarm requests into a structured approval proposal without calling the legacy shortcut', async () => {
     const text = 'monte uma equipe de agentes para revisar esta arquitetura';
     const ctx = createTelegramContext(text);
-    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher, commandRoutingService } = createRuntime({
-      surfaceOperationalIntentService: createAgentDecisionService(['swarm.run']),
-    });
+    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher, commandRoutingService } = createRuntime(
+      {
+        surfaceOperationalIntentService: createAgentDecisionService(['swarm.run']),
+      },
+    );
 
     await processTextMessage(runtime, ctx, text);
 
@@ -280,22 +291,26 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     );
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Proposta de swarm estruturado preparada.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain(
+      'Proposta de swarm estruturado preparada.',
+    );
     const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
-    expect(activeRun).toEqual(expect.objectContaining({
-      channel: 'telegram',
-      status: 'waiting_approval',
-      input: text,
-      metadata: expect.objectContaining({
-        executionEscalation: expect.objectContaining({
-          target: 'swarm',
-          reason: 'complex-objective-swarm',
-        }),
-        swarmEscalationProposal: expect.objectContaining({
-          launchServiceCalled: false,
+    expect(activeRun).toEqual(
+      expect.objectContaining({
+        channel: 'telegram',
+        status: 'waiting_approval',
+        input: text,
+        metadata: expect.objectContaining({
+          executionEscalation: expect.objectContaining({
+            target: 'swarm',
+            reason: 'complex-objective-swarm',
+          }),
+          swarmEscalationProposal: expect.objectContaining({
+            launchServiceCalled: false,
+          }),
         }),
       }),
-    }));
+    );
     expect(activeRun?.approvals).toEqual([
       expect.objectContaining({
         status: 'pending',
@@ -312,16 +327,18 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
 
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
-    expect(agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun).toEqual(expect.objectContaining({
-      channel: 'telegram',
-      status: 'completed',
-      input: 'ol?',
-      metadata: expect.objectContaining({
-        responseDecision: expect.objectContaining({
-          responsePath: 'fast-chat',
+    expect(agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun).toEqual(
+      expect.objectContaining({
+        channel: 'telegram',
+        status: 'completed',
+        input: 'ol?',
+        metadata: expect.objectContaining({
+          responseDecision: expect.objectContaining({
+            responsePath: 'fast-chat',
+          }),
         }),
       }),
-    }));
+    );
     expect(ctx.reply.mock.calls.length).toBeGreaterThan(0);
   });
 
@@ -334,20 +351,22 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
     const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
-    expect(activeRun).toEqual(expect.objectContaining({
-      channel: 'telegram',
-      status: 'completed',
-      input: 'olha isso aqui https://example.com/artigo',
-      metadata: expect.objectContaining({
-        responseDecision: expect.objectContaining({
-          responsePath: 'fast-chat',
-          requestedTools: [],
-        }),
-        naturalFirstRoute: expect.objectContaining({
-          route: 'llm-reply',
+    expect(activeRun).toEqual(
+      expect.objectContaining({
+        channel: 'telegram',
+        status: 'completed',
+        input: 'olha isso aqui https://example.com/artigo',
+        metadata: expect.objectContaining({
+          responseDecision: expect.objectContaining({
+            responsePath: 'fast-chat',
+            requestedTools: [],
+          }),
+          naturalFirstRoute: expect.objectContaining({
+            route: 'llm-reply',
+          }),
         }),
       }),
-    }));
+    );
     expect(ctx.reply.mock.calls.some((call: any[]) => String(call[0]).includes('Capability Negotiation'))).toBe(false);
     expect(ctx.reply.mock.calls.some((call: any[]) => String(call[0]).includes('Recibo Zavorth'))).toBe(false);
   });
@@ -366,10 +385,12 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
       /I need your confirmation|I need your confirmation/i,
     );
     const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
-    expect(activeRun).toEqual(expect.objectContaining({
-      status: 'waiting_approval',
-      channel: 'telegram',
-    }));
+    expect(activeRun).toEqual(
+      expect.objectContaining({
+        status: 'waiting_approval',
+        channel: 'telegram',
+      }),
+    );
     expect(activeRun?.approvals).toEqual([
       expect.objectContaining({
         status: 'pending',
@@ -378,7 +399,10 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     ]);
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth');
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(
-      /responda "Aprovo"|reply "Approve"|Approve.*Cancel|Aprovo/i,
+      /Tap Approve\/Reject|\/approve|waiting for your decision/i,
+    );
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).not.toMatch(
+      /reply "Approve"|responda "Aprovo"/i,
     );
   });
 
@@ -414,29 +438,44 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
 
     const pendingRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
     const approvalId = pendingRun?.approvals[0]?.id || '';
-    expect(pendingRun).toEqual(expect.objectContaining({
-      channel: 'telegram',
-      status: 'waiting_approval',
-    }));
+    expect(pendingRun).toEqual(
+      expect.objectContaining({
+        channel: 'telegram',
+        status: 'waiting_approval',
+      }),
+    );
     expect(approvalId).toBeTruthy();
     expect(executor).not.toHaveBeenCalled();
     expect(String(taskCtx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth');
-    expect(String(taskCtx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain(`approval: ${approvalId} (pending)`);
+    // Normal-user Telegram audience: short pending line, no full approval UUID dump.
+    expect(String(taskCtx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain(
+      'approval: waiting for your decision',
+    );
+    expect(String(taskCtx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).not.toContain(
+      `approval: ${approvalId} (pending)`,
+    );
 
     const approvalCtx = createTelegramContext(`/approve ${approvalId}`);
     await processTextMessage(runtime, approvalCtx, `/approve ${approvalId}`);
 
     expect(executor).toHaveBeenCalledTimes(1);
     const completedRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
-    expect(completedRun).toEqual(expect.objectContaining({
-      channel: 'telegram',
-      status: 'completed',
-      summary: 'Daily task executed after approval.',
-    }));
-    expect(String(approvalCtx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Tarefa diaria concluida depois da aprovacao.');
+    expect(completedRun).toEqual(
+      expect.objectContaining({
+        channel: 'telegram',
+        status: 'completed',
+        summary: 'Daily task executed after approval.',
+      }),
+    );
+    expect(String(approvalCtx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain(
+      'Tarefa diaria concluida depois da aprovacao.',
+    );
     expect(String(approvalCtx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth');
-    expect(String(approvalCtx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain(`approval: ${approvalId} (approved)`);
-    expect(approvalCtx.reply.mock.calls.some((call: any[]) => String(call[0]).includes('responda "Aprovo"'))).toBe(false);
+    // After approval the footer should not tell the user to free-text Approve.
+    expect(approvalCtx.reply.mock.calls.some((call: any[]) => String(call[0]).includes('reply "Approve"'))).toBe(false);
+    expect(approvalCtx.reply.mock.calls.some((call: any[]) => String(call[0]).includes('responda "Aprovo"'))).toBe(
+      false,
+    );
   });
 
   it('does not steal explicit slash commands from the Telegram command router', async () => {

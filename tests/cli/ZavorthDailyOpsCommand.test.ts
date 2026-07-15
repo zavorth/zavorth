@@ -31,8 +31,8 @@ describe('Zavorth daily operations CLI commands', () => {
     });
     const goal = await runZavorthLiveNamespaceCommand({
       projectRoot: root,
-      command: 'go',
-      args: ['finish', 'release', 'readiness', '--json'],
+      command: 'goals',
+      args: ['create', 'finish', 'release', 'readiness', '--json'],
     });
     const goalPayload = JSON.parse(goal.output);
     const loop = await runZavorthLiveNamespaceCommand({

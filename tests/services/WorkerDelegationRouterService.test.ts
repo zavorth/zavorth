@@ -34,24 +34,38 @@ function internalWorkers(): WorkerProfile[] {
   }));
 }
 
-describe('W5 WorkerDelegationRouterService', () => {
+describe('WorkerDelegationRouterService', () => {
   const router = new WorkerDelegationRouterService();
 
-  it('routes simple file read to local_tools', () => {
+  it('routes to local_tools only with structured preferLocalTools', () => {
     const d = router.route({
       task: 'Read the file README.md and summarize it',
+      preferLocalTools: true,
+      risk: 'observation',
       availableLocalTools: ['read_file', 'list_directory', 'zavorth_action'],
       workers: internalWorkers(),
     });
     expect(d.kind).toBe('local_tools');
     expect(d.suggestedWorkerId).toBeNull();
     expect(d.suggestedLocalTools).toContain('read_file');
-    expect(d.reasons.join(' ')).toMatch(/local/i);
+    expect(d.reasons.join(' ')).toMatch(/preferLocalTools|local/i);
   });
 
-  it('routes explicit internal worker to worker_dry_run', () => {
+  it('does not keyword-route free-text to local_tools without structured flags', () => {
     const d = router.route({
-      task: 'Delegate research to internal:researcher about the codebase',
+      task: 'Read the file README.md and summarize it',
+      availableLocalTools: ['read_file', 'list_directory', 'zavorth_action'],
+      workers: internalWorkers(),
+    });
+    // Unstructured free text → worker dry-run default, not keyword local match
+    expect(d.kind).toBe('worker_dry_run');
+    expect(d.risk).toBe('unknown');
+  });
+
+  it('routes explicit structured workerId to worker_dry_run', () => {
+    const d = router.route({
+      task: 'Delegate research about the codebase',
+      workerId: 'internal:researcher',
       workers: internalWorkers(),
     });
     expect(d.kind).toBe('worker_dry_run');
@@ -60,16 +74,15 @@ describe('W5 WorkerDelegationRouterService', () => {
     expect(d.requiresApproval).toBe(true);
   });
 
-  it('shell risk requires approval and prefers worker dry-run', () => {
+  it('shell risk is structured only and prefers worker dry-run', () => {
     const d = router.route({
-      task: 'Run a shell batch with sudo on the whole monorepo via isolated worker',
+      task: 'Run a shell batch on the monorepo',
+      risk: 'shell',
       workers: internalWorkers(),
     });
     expect(d.risk).toBe('shell');
     expect(d.requiresApproval).toBe(true);
     expect(d.preferDryRun).toBe(true);
-    expect(['worker_dry_run', 'worker_live', 'local_tools']).toContain(d.kind);
-    // Should not stay purely local for isolated shell batch
     expect(d.kind).not.toBe('local_tools');
   });
 
@@ -85,20 +98,23 @@ describe('W5 WorkerDelegationRouterService', () => {
     expect(block).toMatch(/internal:leaf/);
   });
 
-  it('guidance mentions workers and dry-run approval', () => {
+  it('guidance mentions workers and dry-run approval without free-text keyword routing', () => {
     const g = formatWorkerDelegationGuidance();
     expect(g).toMatch(/worker mesh/i);
     expect(g).toMatch(/dry-run/i);
     expect(g).toMatch(/approval/i);
+    expect(g).toMatch(/Free text does not keyword/i);
 
     const full = formatAgentToolModelGuidance();
     expect(full).toMatch(/Delegation model/i);
     expect(full).toMatch(/zavorth_action/);
   });
 
-  it('web search stays local when web_search is available', () => {
+  it('web search stays local only when preferLocalTools is structured', () => {
     const d = router.route({
       task: 'Search the web for current Node LTS version',
+      preferLocalTools: true,
+      risk: 'observation',
       availableLocalTools: ['web_search', 'get_datetime', 'read_file'],
     });
     expect(d.kind).toBe('local_tools');

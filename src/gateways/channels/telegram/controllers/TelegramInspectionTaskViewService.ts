@@ -52,7 +52,9 @@ export class TelegramInspectionTaskViewService {
   public async handleTaskFiles(ctx: Context, args: string, userId: string): Promise<Task | null> {
     const task = this.resolveTaskReference(String(args || '').trim(), userId);
     if (!task) {
-      await ctx.reply('Could not locate that task. Use /tasks to find the correct short ID or describe the inspection better.');
+      await ctx.reply(
+        'Could not locate that task. Use /tasks to find the correct short ID or describe the inspection better.',
+      );
       return null;
     }
 
@@ -83,10 +85,7 @@ export class TelegramInspectionTaskViewService {
       return;
     }
 
-    const lines = [
-      `Files and artifacts for task ${task.task_id.substring(0, 8)}`,
-      '',
-    ];
+    const lines = [`Files and artifacts for task ${task.task_id.substring(0, 8)}`, ''];
 
     if (targetFiles.length > 0) {
       lines.push('*Target files*');
@@ -113,21 +112,14 @@ export class TelegramInspectionTaskViewService {
     }
 
     const diffText =
-      task.diff_summary ||
-      task.result_summary ||
-      task.stdout_summary ||
-      task.stderr_summary ||
-      task.error_summary;
+      task.diff_summary || task.result_summary || task.stdout_summary || task.stderr_summary || task.error_summary;
 
     if (!diffText) {
       await ctx.reply(`Task ${task.task_id.substring(0, 8)} has not recorded a diff or final summary yet.`);
       return;
     }
 
-    await SmartOutputService.reply(
-      ctx,
-      `Diff/Summary for task ${task.task_id.substring(0, 8)}\n\n${diffText}`,
-    );
+    await SmartOutputService.reply(ctx, `Diff/Summary for task ${task.task_id.substring(0, 8)}\n\n${diffText}`);
   }
 
   public resolveTaskReference(taskRef: string, userId: string): Task | undefined {
@@ -141,10 +133,7 @@ export class TelegramInspectionTaskViewService {
       return exact;
     }
 
-    const candidates = [
-      ...this.taskManager.getRecentTasks(25, userId),
-      ...this.taskManager.getRecentTasks(25),
-    ];
+    const candidates = [...this.taskManager.getRecentTasks(25, userId), ...this.taskManager.getRecentTasks(25)];
 
     return candidates.find((task) => task.task_id.startsWith(normalized));
   }
@@ -169,10 +158,25 @@ export class TelegramInspectionTaskViewService {
     let limit = 8;
 
     const FILTER_ALIASES: Record<string, TaskListFilter> = {
-      pending: 'active', pendente: 'active', pendentes: 'active', active: 'active', ativo: 'active', ativos: 'active',
-      approval: 'approval', approvals: 'approval', aprovacao: 'approval', aprovacoes: 'approval', waiting_approval: 'approval',
-      failed: 'failed', falha: 'failed', falhas: 'failed', erro: 'failed', erros: 'failed',
-      completed: 'completed', done: 'completed', finished: 'completed',
+      pending: 'active',
+      pendente: 'active',
+      pendentes: 'active',
+      active: 'active',
+      ativo: 'active',
+      ativos: 'active',
+      approval: 'approval',
+      approvals: 'approval',
+      aprovacao: 'approval',
+      aprovacoes: 'approval',
+      waiting_approval: 'approval',
+      failed: 'failed',
+      falha: 'failed',
+      falhas: 'failed',
+      erro: 'failed',
+      erros: 'failed',
+      completed: 'completed',
+      done: 'completed',
+      finished: 'completed',
     };
 
     for (const token of tokens) {
@@ -190,17 +194,14 @@ export class TelegramInspectionTaskViewService {
     return { filter, limit };
   }
 
-  private selectTasksForView(
-    filter: TaskListFilter,
-    recentTasks: Task[],
-    activeTasks: Task[],
-    limit: number,
-  ): Task[] {
+  private selectTasksForView(filter: TaskListFilter, recentTasks: Task[], activeTasks: Task[], limit: number): Task[] {
     switch (filter) {
       case 'active':
         return activeTasks.slice(0, limit);
       case 'approval':
-        return activeTasks.filter((task) => task.status === 'waiting_approval' || task.approval_status === 'pending').slice(0, limit);
+        return activeTasks
+          .filter((task) => task.status === 'waiting_approval' || task.approval_status === 'pending')
+          .slice(0, limit);
       case 'failed':
         return recentTasks.filter((task) => ['failed', 'rejected', 'cancelled'].includes(task.status)).slice(0, limit);
       case 'completed':
@@ -218,7 +219,9 @@ export class TelegramInspectionTaskViewService {
     }, {});
     const waitingApproval = activeTasks.filter((task) => task.status === 'waiting_approval').length;
     const running = activeTasks.filter((task) => task.status === 'running').length;
-    const validating = activeTasks.filter((task) => task.status === 'validating' || task.status === 'delivery_pending').length;
+    const validating = activeTasks.filter(
+      (task) => task.status === 'validating' || task.status === 'delivery_pending',
+    ).length;
     const completed = recentCounts.completed || 0;
     const failed = (recentCounts.failed || 0) + (recentCounts.rejected || 0) + (recentCounts.cancelled || 0);
 
@@ -269,7 +272,7 @@ export class TelegramInspectionTaskViewService {
 
   private buildTaskActionHint(task: Task): string {
     if (task.status === 'waiting_approval') {
-      return `/approve ${task.task_id}`;
+      return '/approve (or /approve 1 if several)';
     }
 
     if (task.status === 'failed') {
@@ -344,7 +347,11 @@ export class TelegramInspectionTaskViewService {
   }
 
   private describeExecutor(executor: string): string {
-    switch (String(executor || '').trim().toLowerCase()) {
+    switch (
+      String(executor || '')
+        .trim()
+        .toLowerCase()
+    ) {
       case 'codex':
         return 'Codex';
       case 'external_executor':

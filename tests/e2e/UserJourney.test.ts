@@ -29,14 +29,51 @@ import type { ZavorthNativeLearningLoopCandidate } from '../../src/contracts/nat
 // ── Mock tools ────────────────────────────────────────────────
 
 const ALL_TOOLS: ToolDefinition[] = [
-  { name: 'web_search', description: 'Search the web.', parameters: { type: 'object', properties: { query: { type: 'string', description: 'Query' } }, required: ['query'] } },
-  { name: 'read_file', description: 'Read a file.', parameters: { type: 'object', properties: { path: { type: 'string', description: 'Path' } }, required: ['path'] } },
-  { name: 'create_file', description: 'Create a file.', parameters: { type: 'object', properties: { path: { type: 'string', description: 'Path' }, content: { type: 'string', description: 'Content' } }, required: ['path', 'content'] } },
-  { name: 'run_sandbox_code', description: 'Run code in sandbox.', parameters: { type: 'object', properties: { code: { type: 'string', description: 'Code' } }, required: ['code'] } },
-  { name: 'semantic_memory', description: 'Query memory.', parameters: { type: 'object', properties: { query: { type: 'string', description: 'Query' } }, required: ['query'] } },
+  {
+    name: 'web_search',
+    description: 'Search the web.',
+    parameters: {
+      type: 'object',
+      properties: { query: { type: 'string', description: 'Query' } },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'read_file',
+    description: 'Read a file.',
+    parameters: { type: 'object', properties: { path: { type: 'string', description: 'Path' } }, required: ['path'] },
+  },
+  {
+    name: 'create_file',
+    description: 'Create a file.',
+    parameters: {
+      type: 'object',
+      properties: {
+        path: { type: 'string', description: 'Path' },
+        content: { type: 'string', description: 'Content' },
+      },
+      required: ['path', 'content'],
+    },
+  },
+  {
+    name: 'run_sandbox_code',
+    description: 'Run code in sandbox.',
+    parameters: { type: 'object', properties: { code: { type: 'string', description: 'Code' } }, required: ['code'] },
+  },
+  {
+    name: 'semantic_memory',
+    description: 'Query memory.',
+    parameters: {
+      type: 'object',
+      properties: { query: { type: 'string', description: 'Query' } },
+      required: ['query'],
+    },
+  },
 ];
 
-function buildCandidate(overrides: Partial<ZavorthNativeLearningLoopCandidate> = {}): ZavorthNativeLearningLoopCandidate {
+function buildCandidate(
+  overrides: Partial<ZavorthNativeLearningLoopCandidate> = {},
+): ZavorthNativeLearningLoopCandidate {
   return {
     id: 'test',
     kind: 'auto-skill-candidate',
@@ -50,7 +87,12 @@ function buildCandidate(overrides: Partial<ZavorthNativeLearningLoopCandidate> =
     reversible: true,
     source: { surface: 'test', workspace: null, sessionId: null, evidenceRefs: [] },
     actions: [],
-    safety: { rawSecretsSerialized: false, canModifySecurityPolicy: false, securityPolicyFirewall: true, untrustedEvidence: true },
+    safety: {
+      rawSecretsSerialized: false,
+      canModifySecurityPolicy: false,
+      securityPolicyFirewall: true,
+      untrustedEvidence: true,
+    },
     ...overrides,
   };
 }
@@ -273,9 +315,9 @@ describe('E2E: Cognitive Firewall full stack', () => {
 describe('E2E: Tiered Autonomy real flow', () => {
   it('applies low-risk candidate immediately for personal user', async () => {
     const applied: string[] = [];
-    const applier = new TieredApplier(
-      async (candidate) => { applied.push(candidate.id); },
-    );
+    const applier = new TieredApplier(async (candidate) => {
+      applied.push(candidate.id);
+    });
 
     const classifier = new TieredAutonomyClassifier({
       autoRiskThreshold: 'medium',
@@ -301,7 +343,9 @@ describe('E2E: Tiered Autonomy real flow', () => {
     const notified: string[] = [];
     const applier = new TieredApplier(
       async () => {},
-      (candidate) => { notified.push(candidate.id); },
+      (candidate) => {
+        notified.push(candidate.id);
+      },
     );
 
     const classifier = new TieredAutonomyClassifier({
@@ -327,9 +371,9 @@ describe('E2E: Tiered Autonomy real flow', () => {
 
   it('queues high-risk candidate for approval', async () => {
     const applied: string[] = [];
-    const applier = new TieredApplier(
-      async (candidate) => { applied.push(candidate.id); },
-    );
+    const applier = new TieredApplier(async (candidate) => {
+      applied.push(candidate.id);
+    });
 
     const classifier = new TieredAutonomyClassifier();
 
@@ -352,7 +396,9 @@ describe('E2E: Tiered Autonomy real flow', () => {
     const applier = new TieredApplier(
       async () => {},
       undefined,
-      async (candidate) => { undone.push(candidate.id); },
+      async (candidate) => {
+        undone.push(candidate.id);
+      },
     );
 
     const classifier = new TieredAutonomyClassifier({
@@ -468,7 +514,8 @@ describe('E2E: Complete user journey', () => {
     });
 
     const decision = firewall.evaluate('hello', ALL_TOOLS);
-    expect(decision.useFastModel).toBe(true); // trivial chat
+    expect(decision.useFastModel).toBe(false);
+    expect(decision.classification.category).toBe('full_toolset');
 
     // Step 4: Record usage for predictive loading (need 3+ turns)
     for (let i = 0; i < 5; i++) {

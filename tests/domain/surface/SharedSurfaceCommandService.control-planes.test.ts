@@ -62,7 +62,9 @@ describe('SharedSurfaceCommandService', () => {
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
-    const renderReport = jest.fn(async () => 'Distributed runtime: Runtime distribuido e superficies avancadas\nPostura: attention.');
+    const renderReport = jest.fn(
+      async () => 'Distributed runtime: Runtime distribuido e superficies avancadas\nPostura: attention.',
+    );
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
       supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
@@ -426,7 +428,8 @@ describe('SharedSurfaceCommandService', () => {
                 tenantId: 'discord-public',
                 governanceStatus: 'pending_onboarding',
                 label: 'Fechar onboarding do tenant publico',
-                summary: 'Mantenha o tenant fail-closed ate owners, allowlists e workflows refletirem o runtime oficial.',
+                summary:
+                  'Mantenha o tenant fail-closed ate owners, allowlists e workflows refletirem o runtime oficial.',
                 actions: [],
               },
             },
@@ -451,7 +454,9 @@ describe('SharedSurfaceCommandService', () => {
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Recipe: Fechar onboarding do tenant publico'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Context: source 956 | runtime 1'));
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('[guided] Trazer /tenants: /tenants discord-public | via /tenants run discord-public inspect-tenant'),
+      expect.stringContaining(
+        '[guided] Trazer /tenants: /tenants discord-public | via /tenants run discord-public inspect-tenant',
+      ),
     );
   });
 
@@ -548,7 +553,9 @@ describe('SharedSurfaceCommandService', () => {
       actionId: 'inspect-tenant',
       workspace: process.cwd(),
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acao guiada do tenant discord-public: Trazer /tenants.'));
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Guided tenant action discord-public: Trazer /tenants.'),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth tenant governance'));
   });
 
@@ -646,8 +653,10 @@ describe('SharedSurfaceCommandService', () => {
       actionId: 'start-onboarding-review',
       workspace: process.cwd(),
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Workflow de onboarding iniciado para o tenant discord-public.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Saida do workflow:'));
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Workflow de onboarding iniciado para o tenant discord-public.'),
+    );
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Workflow output:'));
   });
 
   it('surfaces official remote access and consistency details in /access', async () => {
@@ -714,10 +723,7 @@ describe('SharedSurfaceCommandService', () => {
           },
           recommendedPathId: 'local-cloudflare',
           recommendedPathReason: 'Cloudflare local e o caminho mais curto neste host.',
-          nextSteps: [
-            'Aplique a configuracao oficial.',
-            'Verifique a URL publica do app.',
-          ],
+          nextSteps: ['Aplique a configuracao oficial.', 'Verifique a URL publica do app.'],
         })),
       } as any,
       sharedSurfaceConsistencyService: {
@@ -737,7 +743,9 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Official remote path: local-cloudflare | pending'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Paridade web/Telegram: Web e Telegram compartilham o mesmo nucleo de comandos.'));
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Web/Telegram parity: Web e Telegram compartilham o mesmo nucleo de comandos.'),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/workflow: Retoma ou inicia workflows compostos.'));
   });
 
@@ -810,13 +818,19 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Official remote access: pending | Ainda falta validar a URL publica oficial.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Paridade entre superficies: Web e Telegram estao alinhados para access, bootstrap e workflow.'));
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Official remote access: pending | Ainda falta validar a URL publica oficial.'),
+    );
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Surface parity: Web e Telegram estao alinhados para access, bootstrap e workflow.'),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Official steps still pending:'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Autostart no sistema: npm run launcher:startup:install'));
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Autostart no sistema: npm run launcher:startup:install'),
+    );
   });
 
-  it('delegates natural engineering requests to the Engineering Core before falling back to technical parsing', async () => {
+  it('does not keyword-route free-text engineering requests (agent-first purity)', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -838,7 +852,8 @@ describe('SharedSurfaceCommandService', () => {
 
     const handled = await service.maybeHandle(ctx as any);
 
-    expect(handled).toBe(true);
-    expect(engineeringCoreService.maybeHandleSurfaceRequest).toHaveBeenCalledWith(ctx, null);
+    expect(handled).toBe(false);
+    expect(engineeringCoreService.maybeHandleSurfaceRequest).not.toHaveBeenCalled();
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 });

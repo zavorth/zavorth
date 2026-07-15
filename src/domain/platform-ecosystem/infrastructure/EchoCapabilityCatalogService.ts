@@ -9,17 +9,16 @@ export class EchoCapabilityCatalogService {
     return (Array.isArray(tools) ? tools : []).map((tool) => this.toCapability(tool));
   }
 
-  public registerTools(
-    tools: ToolDefinition[],
-    registry: CapabilityRegistryLike,
-  ): CapabilityDefinition[] {
+  public registerTools(tools: ToolDefinition[], registry: CapabilityRegistryLike): CapabilityDefinition[] {
     const definitions = this.buildDefinitions(tools);
     return registry.registerCapabilities(definitions, 'builtin');
   }
 
   private toCapability(tool: ToolDefinition): CapabilityDefinition {
     const normalizedName = this.normalizeIdentifier(tool.name || 'echo-tool');
-    const normalizedCategory = String(tool.category || 'runtime').trim().toLowerCase();
+    const normalizedCategory = String(tool.category || 'runtime')
+      .trim()
+      .toLowerCase();
     const policy = this.buildPolicy(tool, normalizedName, normalizedCategory);
     const artifactKinds = policy.artifactKinds || [];
     return {
@@ -31,13 +30,12 @@ export class EchoCapabilityCatalogService {
       executor_preference: 'echo',
       dispatch_mode: 'execution',
       requires_planning: false,
-      routing_reason: `Capability catalogada a partir da tool Echo ${normalizedName}.`,
+      routing_reason: `Capability cataloged from Echo tool ${normalizedName}.`,
       routing_confidence: 0.65,
       priority: 65,
       allowed_command_types: ['/task', '/auto'],
-      matchers: [{
-        keywords: this.buildKeywords(tool),
-      }],
+      // No free-text matchers — LLM full_toolset selects tools; keywords never force-route chat.
+      matchers: [],
       tags: this.uniqueTags([
         'echo',
         normalizedCategory,
@@ -66,7 +64,10 @@ export class EchoCapabilityCatalogService {
     return {
       executor: 'echo',
       requiresApproval: Boolean(tool.requiresPermission),
-      dangerLevel: String(tool.dangerLevel || '').trim().toLowerCase() || null,
+      dangerLevel:
+        String(tool.dangerLevel || '')
+          .trim()
+          .toLowerCase() || null,
       networkScope: this.resolveNetworkScope(normalizedName, normalizedCategory),
       lifecycle: this.resolveLifecycle(normalizedName, normalizedCategory),
       artifactKinds,
@@ -84,7 +85,10 @@ export class EchoCapabilityCatalogService {
     return 'integration';
   }
 
-  private resolveNetworkScope(toolName: string, category: string): NonNullable<CapabilityDefinition['policy']>['networkScope'] {
+  private resolveNetworkScope(
+    toolName: string,
+    category: string,
+  ): NonNullable<CapabilityDefinition['policy']>['networkScope'] {
     if (category.includes('iot') || toolName.includes('home_assistant') || toolName.includes('mqtt')) {
       return 'private-network';
     }
@@ -97,7 +101,10 @@ export class EchoCapabilityCatalogService {
     return 'none';
   }
 
-  private resolveLifecycle(toolName: string, category: string): NonNullable<CapabilityDefinition['policy']>['lifecycle'] {
+  private resolveLifecycle(
+    toolName: string,
+    category: string,
+  ): NonNullable<CapabilityDefinition['policy']>['lifecycle'] {
     if (toolName.includes('home_assistant') || toolName.includes('mqtt')) {
       return 'event-bridge';
     }
@@ -110,11 +117,11 @@ export class EchoCapabilityCatalogService {
   private resolveArtifactKinds(toolName: string, category: string): string[] {
     const kinds: string[] = [];
     if (
-      toolName.includes('screenshot')
-      || toolName.includes('vision')
-      || toolName.includes('playwright')
-      || category.includes('browser')
-      || category.includes('web')
+      toolName.includes('screenshot') ||
+      toolName.includes('vision') ||
+      toolName.includes('playwright') ||
+      category.includes('browser') ||
+      category.includes('web')
     ) {
       kinds.push('screenshot');
     }
@@ -148,11 +155,7 @@ export class EchoCapabilityCatalogService {
   }
 
   private buildKeywords(tool: ToolDefinition): string[] {
-    const tokens = [
-      String(tool.name || ''),
-      String(tool.category || ''),
-      String(tool.description || ''),
-    ]
+    const tokens = [String(tool.name || ''), String(tool.category || ''), String(tool.description || '')]
       .join(' ')
       .toLowerCase()
       .replace(/[^a-z0-9_ ]+/g, ' ')
@@ -163,12 +166,13 @@ export class EchoCapabilityCatalogService {
   }
 
   private normalizeIdentifier(value: unknown): string {
-    return String(value || 'echo-tool')
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9_]+/g, '_')
-      .replace(/^_+|_+$/g, '')
-      || 'echo-tool';
+    return (
+      String(value || 'echo-tool')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9_]+/g, '_')
+        .replace(/^_+|_+$/g, '') || 'echo-tool'
+    );
   }
 
   private uniqueTags(tags: string[]): string[] {

@@ -44,9 +44,7 @@ export class VoicePreferenceService {
 
   constructor(options: VoicePreferenceServiceOptions = {}) {
     const root = path.resolve(options.projectRoot || config.projectRoot || process.cwd());
-    this.preferencePath =
-      options.preferencePath ||
-      path.join(root, 'data', 'runtime', 'voice', 'preference.json');
+    this.preferencePath = options.preferencePath || path.join(root, 'data', 'runtime', 'voice', 'preference.json');
     this.now = options.now || (() => new Date());
     this.env = options.env || process.env;
     this.fs = {
@@ -194,8 +192,7 @@ export class VoicePreferenceService {
     return {
       ok: false,
       code: 'stt_not_configured',
-      message:
-        'STT is not configured. Zavorth will not pick a default speech model for you.',
+      message: 'STT is not configured. Zavorth will not pick a default speech model for you.',
       configureHint: VOICE_STT_CONFIGURE_HINT,
     };
   }
@@ -213,11 +210,11 @@ export class VoicePreferenceService {
       `tts.enabled: ${pref.tts.enabled}`,
       `tts.provider: ${pref.tts.provider}`,
       `tts.voiceId: ${pref.tts.voiceId || '(none)'}`,
-      stt.ok
+      stt.ok === true
         ? `resolve: ok source=${stt.source} providers=${stt.providers.join(',')}`
         : `resolve: FAIL ${stt.code} — ${stt.message}`,
     ];
-    if (!stt.ok) {
+    if (stt.ok === false) {
       lines.push(`hint: ${stt.configureHint}`);
     }
     return lines.join('\n');
@@ -237,9 +234,7 @@ export class VoicePreferenceService {
     const ttsProvider = normalizeVoiceTtsProvider(raw.tts?.provider) || 'none';
     const modeRaw = String(raw.mode || base.mode).toLowerCase();
     const mode: VoiceInteractionMode =
-      modeRaw === 'dictation' || modeRaw === 'conversation' || modeRaw === 'off'
-        ? modeRaw
-        : 'off';
+      modeRaw === 'dictation' || modeRaw === 'conversation' || modeRaw === 'off' ? modeRaw : 'off';
 
     return {
       version: ZAVORTH_VOICE_PREFERENCE_CONTRACT_VERSION,
@@ -271,9 +266,7 @@ export class VoicePreferenceService {
 
 let defaultService: VoicePreferenceService | null = null;
 
-export function getVoicePreferenceService(
-  options?: VoicePreferenceServiceOptions,
-): VoicePreferenceService {
+export function getVoicePreferenceService(options?: VoicePreferenceServiceOptions): VoicePreferenceService {
   if (options) return new VoicePreferenceService(options);
   if (!defaultService) defaultService = new VoicePreferenceService();
   return defaultService;

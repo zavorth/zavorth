@@ -12,7 +12,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
     const node = document.getElementById('operations-security-mesh');
     if (!node) return;
     if (!securityMesh || 'error' in securityMesh) {
-      node.innerHTML = '<div class="muted">Could not carregar o Runtime & Security Mesh.</div>';
+      node.innerHTML = '<div class="muted">Could not load Runtime & Security Mesh.</div>';
       return;
     }
 
@@ -24,9 +24,9 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
     const extensionModes = Array.isArray(securityMesh.modes?.extensions) ? securityMesh.modes.extensions : [];
     const actions = Array.isArray(securityMesh.suggestedActions) ? securityMesh.suggestedActions : [];
     const policyItems = [
-      ['Low risk', securityMesh.policies?.lowRiskToLocalJail ? 'local-jail' : 'n/d'],
-      ['Medium risk', securityMesh.policies?.mediumRiskToContainer ? 'container' : 'n/d'],
-      ['High risk', securityMesh.policies?.highRiskToMicrovm ? 'microvm' : 'n/d'],
+      ['Low risk', securityMesh.policies?.lowRiskToLocalJail ? 'local-jail' : 'n/a'],
+      ['Medium risk', securityMesh.policies?.mediumRiskToContainer ? 'container' : 'n/a'],
+      ['High risk', securityMesh.policies?.highRiskToMicrovm ? 'microvm' : 'n/a'],
       ['Never-downgrade', securityMesh.policies?.neverDowngrade ? 'ativo' : 'inativo'],
       ['gVisor', securityMesh.policies?.gvisorActive ? 'ativo' : 'inativo'],
       ['MicroVM', securityMesh.policies?.firecrackerReady ? 'pronta' : 'em preparo'],
@@ -40,7 +40,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
               '<div class="cockpit-action-card">' +
               '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;">' +
               '<strong>' +
-              escapeHtml(action.label || action.id || 'Acao') +
+              escapeHtml(action.label || action.id || 'Action') +
               '</strong>' +
               '<span class="badge ' +
               (action.severity === 'warn' ? 'badge-warning' : 'badge-info') +
@@ -49,7 +49,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
               '</span>' +
               '</div>' +
               '<small>' +
-              escapeHtml(action.reason || 'Sem motivo adicional.') +
+              escapeHtml(action.reason || 'No additional reason.') +
               '</small>' +
               '<div class="cockpit-command">' +
               escapeHtml(action.command || '') +
@@ -69,7 +69,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
               ']</li>',
           )
           .join('')
-      : '<li>Nenhum tier core visible.</li>';
+      : '<li>No core tier visible.</li>';
     const extensionItems = extensionModes.length
       ? extensionModes
           .map(
@@ -96,7 +96,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
           ? 'badge-warning'
           : 'badge-info') +
       '">' +
-      escapeHtml(posture.label || posture.level || 'n/d') +
+      escapeHtml(posture.label || posture.level || 'n/a') +
       '</span>' +
       '</div>' +
       '<div class="cockpit-headline">' +
@@ -125,7 +125,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
       policyItems +
       '</ul></div>' +
       '<div class="sidecar-card"><strong>Trust boundary</strong><small>' +
-      escapeHtml(securityMesh.narrative?.trustBoundary || 'Sem boundary detalhado.') +
+      escapeHtml(securityMesh.narrative?.trustBoundary || 'No detailed boundary.') +
       '</small></div>' +
       '</div>' +
       '<div class="cockpit-stack">' +

@@ -12,7 +12,7 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
     const node = document.getElementById('operations-capabilities');
     if (!node) return;
     if (!capabilities || 'error' in (capabilities as CapabilityCatalogErrorPayload)) {
-      node.innerHTML = '<div class="muted">No foi possivel carregar o catalogo de capacidades.</div>';
+      node.innerHTML = '<div class="muted">Could not load capability catalog.</div>';
       return;
     }
 
@@ -42,7 +42,7 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
               ' rotas</li>',
           )
           .join('')
-      : '<li>Sem categorias registradas.</li>';
+      : '<li>No categories registered.</li>';
     const commandItems = featuredCommands.length
       ? featuredCommands
           .slice(0, 5)
@@ -60,7 +60,7 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
               '</span>' +
               '</div>' +
               '<small>' +
-              escapeHtml(entry.description || 'Sem descricao adicional.') +
+              escapeHtml(entry.description || 'No additional description.') +
               '</small>' +
               '<small>Section: ' +
               escapeHtml(entry.section || 'execution') +
@@ -72,7 +72,7 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
               '</div>',
           )
           .join('')
-      : '<div class="muted">Nenhum comando visible para destacar.</div>';
+      : '<div class="muted">No visible commands to highlight.</div>';
     const routeItems = featuredRoutes.length
       ? featuredRoutes
           .slice(0, 4)
@@ -81,22 +81,22 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
               '<div class="cockpit-action-card">' +
               '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;">' +
               '<strong>' +
-              escapeHtml(entry.label || 'Rota automatica') +
+              escapeHtml(entry.label || 'Automatic route') +
               '</strong>' +
               '<span class="badge badge-warning">' +
               escapeHtml(entry.executorPreference || 'auto') +
               '</span>' +
               '</div>' +
               '<small>' +
-              escapeHtml(entry.routingReason || entry.description || 'Sem racional adicional.') +
+              escapeHtml(entry.routingReason || entry.description || 'No additional rationale.') +
               '</small>' +
               '<small>Confianca: ' +
-              escapeHtml(entry.confidence != null ? String(entry.confidence) : 'n/d') +
+              escapeHtml(entry.confidence != null ? String(entry.confidence) : 'n/a') +
               '</small>' +
               '</div>',
           )
           .join('')
-      : '<div class="muted">No rota automatica em destaque.</div>';
+      : '<div class="muted">No automatic route highlighted.</div>';
     const governedCapabilityItems = capabilityActionItems.length
       ? capabilityActionItems
           .slice(0, 4)
@@ -131,12 +131,11 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
       (summary.plugin ? 'badge-info' : 'badge-allowed') +
       '">' +
       escapeHtml(String(summary.total || 0)) +
-      ' carregadas</span>' +
+      ' loaded</span>' +
       '</div>' +
       '<div class="cockpit-headline">' +
       escapeHtml(
-        snapshot.narrative?.operatorSummary ||
-          'Commands, rotas automaticas, plataformas e integrations visiveis em uma unica leitura.',
+        snapshot.narrative?.operatorSummary || 'Commands, automatic routes, platforms, and integrations in one view.',
       ) +
       '</div>' +
       '</div>' +
@@ -147,41 +146,41 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
       '<div class="cockpit-mini-grid">' +
       '<div class="cockpit-mini-card"><strong>Total</strong><div>' +
       escapeHtml(String(summary.total || 0)) +
-      '</div><small>Capacidades conhecidas</small></div>' +
-      '<div class="cockpit-mini-card"><strong>Comandos</strong><div>' +
+      '</div><small>Known capabilities</small></div>' +
+      '<div class="cockpit-mini-card"><strong>Commands</strong><div>' +
       escapeHtml(String(summary.commands || 0)) +
-      '</div><small>Atalhos diretos</small></div>' +
-      '<div class="cockpit-mini-card"><strong>Rotas</strong><div>' +
+      '</div><small>Direct shortcuts</small></div>' +
+      '<div class="cockpit-mini-card"><strong>Routes</strong><div>' +
       escapeHtml(String(summary.implicitRoutes || 0)) +
-      '</div><small>Roteamento automatico</small></div>' +
+      '</div><small>Automatic routing</small></div>' +
       '<div class="cockpit-mini-card"><strong>Plugins</strong><div>' +
       escapeHtml(String(summary.plugin || 0)) +
-      '</div><small>Capacidades externas</small></div>' +
-      '<div class="cockpit-mini-card"><strong>Plataformas ready</strong><div>' +
+      '</div><small>External capabilities</small></div>' +
+      '<div class="cockpit-mini-card"><strong>Platforms ready</strong><div>' +
       escapeHtml(String(platformSummary.ready || 0)) +
       '</div><small>Telegram, Discord, WhatsApp</small></div>' +
-      '<div class="cockpit-mini-card"><strong>Integractions ready</strong><div>' +
+      '<div class="cockpit-mini-card"><strong>Integrations ready</strong><div>' +
       escapeHtml(String(integrationSummary.ready || 0)) +
-      '</div><small>Bindings utilizaveis agora</small></div>' +
-      '<div class="cockpit-mini-card"><strong>Novas capacidades</strong><div>' +
+      '</div><small>Bindings usable now</small></div>' +
+      '<div class="cockpit-mini-card"><strong>New capabilities</strong><div>' +
       escapeHtml(String(capabilityActionSummary.exposed || 0)) +
-      '</div><small>Verificadas e governadas</small></div>' +
+      '</div><small>Verified and governed</small></div>' +
       '</div>' +
-      '<div class="sidecar-card"><strong>Categorias</strong><ul class="cockpit-list">' +
+      '<div class="sidecar-card"><strong>Categories</strong><ul class="cockpit-list">' +
       categoryItems +
       '</ul></div>' +
       '</div>' +
       '<div class="cockpit-stack">' +
-      '<div class="sidecar-card"><strong>Comandos em destaque</strong><div class="cockpit-action-list">' +
+      '<div class="sidecar-card"><strong>Featured commands</strong><div class="cockpit-action-list">' +
       commandItems +
       '</div></div>' +
-      '<div class="sidecar-card"><strong>Rotas automaticas em destaque</strong><div class="cockpit-action-list">' +
+      '<div class="sidecar-card"><strong>Featured automatic routes</strong><div class="cockpit-action-list">' +
       routeItems +
       '</div></div>' +
-      '<div class="sidecar-card"><strong>Capability actions</strong><small>Ativacao real continua exigindo preview e aprovacao.</small><div class="cockpit-action-list">' +
+      '<div class="sidecar-card"><strong>Capability actions</strong><small>Live activation still requires preview and approval.</small><div class="cockpit-action-list">' +
       governedCapabilityItems +
       '</div></div>' +
-      '<div class="sidecar-card"><strong>Panorama de superficies</strong><small>Ready: ' +
+      '<div class="sidecar-card"><strong>Surface panorama</strong><small>Ready: ' +
       escapeHtml(String(platformSummary.ready || 0)) +
       ' | Partial: ' +
       escapeHtml(String(platformSummary.partial || 0)) +

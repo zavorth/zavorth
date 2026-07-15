@@ -47,7 +47,10 @@ try {
   }
 
   const contractText = readFileSync(join(root, 'src/contracts/ZavorthTransactionLiveCandidateContract.ts'), 'utf8');
-  const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionLiveCandidateEnvelopeService.ts'), 'utf8');
+  const serviceText = readFileSync(
+    join(root, 'src/services/ZavorthTransactionLiveCandidateEnvelopeService.ts'),
+    'utf8',
+  );
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
     'zavorth-transaction-live-candidate/checkpoint-10',
@@ -87,7 +90,11 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--approve',
     '--mode',
     'paper',
@@ -112,7 +119,11 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--approve',
     '--mode',
     'paper',
@@ -126,7 +137,11 @@ try {
   if (ready.status !== 'candidate-ready' || ready.envelope?.candidateOnly !== true) {
     failures.push(`candidate-ready mismatch: ${ready.status}`);
   }
-  if (ready.safety.liveExecutionAuthorized !== false || ready.safety.executableNow !== false || ready.safety.liveActionApplied !== false) {
+  if (
+    ready.safety.liveExecutionAuthorized !== false ||
+    ready.safety.executableNow !== false ||
+    ready.safety.liveActionApplied !== false
+  ) {
     failures.push('candidate-ready must still keep live execution disabled');
   }
   if (!ready.gates.every((gate) => gate.passed === true)) {
@@ -142,7 +157,11 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--approve',
     '--mode',
     'paper',
@@ -163,7 +182,7 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+    'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
     '--approve',
     '--mode',
     'paper',
@@ -197,19 +216,23 @@ try {
 }
 
 function runCredential(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runLiveCandidate(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-live-candidate.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-live-candidate.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runLiveCandidateExpectFailure(args) {

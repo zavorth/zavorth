@@ -1,49 +1,46 @@
-import {
-  createSurfaceResponse,
-  type SurfaceResponse,
-} from './SurfaceResponseContract.js';
+import { createSurfaceResponse, type SurfaceResponse } from './SurfaceResponseContract.js';
 
 export function buildStatusSurfaceResponseExample(): SurfaceResponse {
   return createSurfaceResponse({
     id: 'surface-example-status',
     intent: 'status',
-    title: 'Panorama do Zavorth',
-    summary: 'Runtime online, canais em observacao e proximos passos claros.',
+    title: 'Zavorth overview',
+    summary: 'Runtime online, channels under observation, and clear next steps.',
     tone: 'info',
     blocks: [
       {
         kind: 'table',
         table: {
-          title: 'Sinais principais',
+          title: 'Primary signals',
           columns: [
             { key: 'area', label: 'Area' },
             { key: 'status', label: 'Status' },
-            { key: 'detail', label: 'Detalhe' },
+            { key: 'detail', label: 'Detail' },
           ],
           rows: [
-            { area: 'Runtime', status: 'online', detail: 'host e worker ativos' },
-            { area: 'Canais', status: 'degraded', detail: 'Slack em fallback textual' },
-            { area: 'Policy', status: 'ready', detail: 'perfil padrao seguro' },
+            { area: 'Runtime', status: 'online', detail: 'host and worker active' },
+            { area: 'Channels', status: 'degraded', detail: 'Slack on text fallback' },
+            { area: 'Policy', status: 'ready', detail: 'safe default profile' },
           ],
         },
       },
       {
         kind: 'progress',
         progress: {
-          label: 'Saude operacional',
+          label: 'Operational health',
           status: 'running',
           current: 3,
           total: 4,
-          detail: 'Sem bloqueio critico.',
+          detail: 'No critical blockers.',
         },
       },
     ],
     receipts: [
       {
         id: 'receipt-status-read',
-        title: 'Leitura operacional',
+        title: 'Operational read',
         status: 'allowed',
-        reason: 'Consulta local sem dados sensiveis brutos.',
+        reason: 'Local lookup without raw sensitive data.',
         policyProfile: 'standard',
         redacted: false,
         riskBlocked: false,
@@ -51,8 +48,8 @@ export function buildStatusSurfaceResponseExample(): SurfaceResponse {
       },
     ],
     actions: [
-      { id: 'open-hub', label: 'Abrir hub', kind: 'command', command: '/zavorth', style: 'primary' },
-      { id: 'run-doctor', label: 'Rodar doctor', kind: 'command', command: '/doctor', style: 'secondary' },
+      { id: 'open-hub', label: 'Open hub', kind: 'command', command: '/zavorth', style: 'primary' },
+      { id: 'run-doctor', label: 'Run doctor', kind: 'command', command: '/doctor', style: 'secondary' },
     ],
   });
 }
@@ -61,18 +58,18 @@ export function buildModelsSurfaceResponseExample(): SurfaceResponse {
   return createSurfaceResponse({
     id: 'surface-example-models',
     intent: 'models',
-    title: 'Modelos e providers',
-    summary: 'Escolha operacional compartilhada entre canais.',
+    title: 'Models and providers',
+    summary: 'Operational selection shared across channels.',
     tone: 'neutral',
     blocks: [
       {
         kind: 'table',
         table: {
-          title: 'Opcoes prontas',
+          title: 'Ready options',
           columns: [
             { key: 'provider', label: 'Provider' },
-            { key: 'model', label: 'Modelo' },
-            { key: 'posture', label: 'Postura' },
+            { key: 'model', label: 'Model' },
+            { key: 'posture', label: 'Posture' },
           ],
           rows: [
             { provider: 'gemini', model: 'gemini-2.5-flash', posture: 'default' },
@@ -83,8 +80,8 @@ export function buildModelsSurfaceResponseExample(): SurfaceResponse {
       },
       {
         kind: 'text',
-        title: 'Nota',
-        text: 'A selecao e aplicada por politica do provider control plane, nao por estado visual do canal.',
+        title: 'Note',
+        text: 'Selection is applied by provider control-plane policy, not by channel visual state.',
       },
     ],
     actions: [
@@ -99,18 +96,14 @@ export function buildApprovalSurfaceResponseExample(): SurfaceResponse {
   return createSurfaceResponse({
     id: 'surface-example-approval',
     intent: 'approval',
-    title: 'Aprovacao necessaria',
-    summary: 'Uma acao sensivel precisa de decisao explicita antes de continuar.',
+    title: 'Approval required',
+    summary: 'A sensitive action needs an explicit decision before it can continue.',
     tone: 'warning',
     blocks: [
       {
         kind: 'list',
-        title: 'Pedido',
-        items: [
-          'Acao: escrever arquivo dentro do workspace',
-          'Escopo: uma vez',
-          'Risco: modificacao local reversivel',
-        ],
+        title: 'Request',
+        items: ['Action: write a file inside the workspace', 'Scope: once', 'Risk: reversible local modification'],
       },
       {
         kind: 'receipt',
@@ -118,7 +111,7 @@ export function buildApprovalSurfaceResponseExample(): SurfaceResponse {
           id: 'approval-preview-engine-001',
           title: 'Policy broker',
           status: 'require_user_confirmation',
-          reason: 'A escrita local exige confirmacao do dono.',
+          reason: 'Local write requires owner confirmation.',
           policyProfile: 'standard',
           redacted: false,
           riskBlocked: false,
@@ -129,7 +122,7 @@ export function buildApprovalSurfaceResponseExample(): SurfaceResponse {
     actions: [
       {
         id: 'approve-preview-engine-001',
-        label: 'Aprovar uma vez',
+        label: 'Approve once',
         kind: 'callback',
         callbackData: 'approval:approve:preview-engine-001:once',
         style: 'success',
@@ -137,7 +130,7 @@ export function buildApprovalSurfaceResponseExample(): SurfaceResponse {
       },
       {
         id: 'reject-preview-engine-001',
-        label: 'Rejeitar',
+        label: 'Reject',
         kind: 'callback',
         callbackData: 'approval:reject:preview-engine-001',
         style: 'danger',
@@ -150,8 +143,8 @@ export function buildToolReceiptSurfaceResponseExample(): SurfaceResponse {
   return createSurfaceResponse({
     id: 'surface-example-receipt',
     intent: 'receipt',
-    title: 'Recibo de tool',
-    summary: 'Execucao registrada com redacao antes de sair do runtime.',
+    title: 'Tool receipt',
+    summary: 'Execution recorded with redaction before leaving the runtime.',
     tone: 'success',
     blocks: [
       {
@@ -160,7 +153,7 @@ export function buildToolReceiptSurfaceResponseExample(): SurfaceResponse {
           id: 'tool-receipt-001',
           title: 'Safe fetch',
           status: 'allowed_with_redaction',
-          reason: 'URL publica consultada; campos sensiveis removidos do resumo.',
+          reason: 'Public URL consulted; sensitive fields removed from the summary.',
           policyProfile: 'standard',
           redacted: true,
           riskBlocked: false,
@@ -170,10 +163,10 @@ export function buildToolReceiptSurfaceResponseExample(): SurfaceResponse {
       {
         kind: 'table',
         table: {
-          title: 'Detalhes',
+          title: 'Details',
           columns: [
-            { key: 'field', label: 'Campo' },
-            { key: 'value', label: 'Valor' },
+            { key: 'field', label: 'Field' },
+            { key: 'value', label: 'Value' },
           ],
           rows: [
             { field: 'tool', value: 'web.fetch' },
@@ -183,9 +176,7 @@ export function buildToolReceiptSurfaceResponseExample(): SurfaceResponse {
         },
       },
     ],
-    actions: [
-      { id: 'show-logs', label: 'Ver logs', kind: 'command', command: '/logs', style: 'secondary' },
-    ],
+    actions: [{ id: 'show-logs', label: 'View logs', kind: 'command', command: '/logs', style: 'secondary' }],
   });
 }
 

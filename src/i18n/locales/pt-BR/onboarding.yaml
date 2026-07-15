@@ -30,6 +30,7 @@ steps:
     title: "Configuração Completa"
     summary: "Seu Zavorth está pronto!"
     next_steps: "Próximos passos:"
+    learning_tip: "O Zavorth salva fluxos multi-tool como rascunhos de skill locais; promova com zavorth learn quando quiser."
 
 progress:
   step_of: "Passo {current} de {total}"

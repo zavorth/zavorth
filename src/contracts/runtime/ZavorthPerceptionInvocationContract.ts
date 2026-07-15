@@ -4,8 +4,7 @@ import type { ZavorthComputerControlInput } from '../ZavorthComputerControlPlane
 import type { ZavorthVisionControlPlaneInput } from '../ZavorthVisionControlPlaneContract.js';
 import type { ZavorthGovernedSubagentProfileId } from './ZavorthGovernedSubagentContract.js';
 
-export const ZAVORTH_PERCEPTION_INVOCATION_CONTRACT_VERSION =
-  '2026-05-11.perception-invocation-checkpoint-5' as const;
+export const ZAVORTH_PERCEPTION_INVOCATION_CONTRACT_VERSION = '2026-05-11.perception-invocation-checkpoint-5' as const;
 
 export type ZavorthPerceptionRouteKind =
   | 'vision'
@@ -16,25 +15,11 @@ export type ZavorthPerceptionRouteKind =
   | 'ask_approval'
   | 'deny';
 
-export type ZavorthPerceptionInvocationStatus =
-  | 'ready'
-  | 'approval-required'
-  | 'denied'
-  | 'ambiguous';
+export type ZavorthPerceptionInvocationStatus = 'ready' | 'approval-required' | 'denied' | 'ambiguous';
 
-export type ZavorthPerceptionTargetKind =
-  | 'visual'
-  | 'browser'
-  | 'desktop'
-  | 'android'
-  | 'artifact'
-  | 'unknown';
+export type ZavorthPerceptionTargetKind = 'visual' | 'browser' | 'desktop' | 'android' | 'artifact' | 'unknown';
 
-export type ZavorthPerceptionRoleId =
-  | 'observer'
-  | 'ui-navigator'
-  | 'safety-reviewer'
-  | 'evidence-summarizer';
+export type ZavorthPerceptionRoleId = 'observer' | 'ui-navigator' | 'safety-reviewer' | 'evidence-summarizer';
 
 export type ZavorthPerceptionInvocationInput = {
   text: string;
@@ -42,6 +27,19 @@ export type ZavorthPerceptionInvocationInput = {
   actorId?: string | null;
   sourceSurface?: string | null;
   approvalId?: string | null;
+  /**
+   * Structured intent only. Free text never activates routes, mutation, or
+   * sensitive blocks — tools / slash / UI must set these flags explicitly.
+   */
+  targetKind?: ZavorthPerceptionTargetKind | null;
+  mutationRequested?: boolean | null;
+  sensitive?: boolean | null;
+  /** Prefer subagent_perception review path when true (structured only). */
+  complexReview?: boolean | null;
+  /** Alias for complexReview / explicit subagent request (structured only). */
+  requestSubagents?: boolean | null;
+  liveRequested?: boolean | null;
+  visionAction?: 'vision.inspect' | 'vision.ocr' | 'vision.explain' | null;
 };
 
 export type ZavorthPerceptionSurfaceCommand = {
@@ -56,7 +54,13 @@ export type ZavorthPerceptionSurfaceCommand = {
 export type ZavorthPerceptionActivationHint = {
   id: string;
   target: ZavorthPerceptionTargetKind | 'subagent';
-  state: 'ready' | 'auto-use-when-ready' | 'setup-if-missing' | 'physical-step-if-missing' | 'approval-required' | 'blocked';
+  state:
+    | 'ready'
+    | 'auto-use-when-ready'
+    | 'setup-if-missing'
+    | 'physical-step-if-missing'
+    | 'approval-required'
+    | 'blocked';
   title: string;
   reason: string;
   userSteps: string[];

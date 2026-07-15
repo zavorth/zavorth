@@ -10,7 +10,7 @@ function zavorthControlClassicClientOverviewMeshTeams() {
     const node = document.getElementById('operations-teams');
     if (!node) return;
     if (!teamCatalog || 'error' in teamCatalog) {
-      node.innerHTML = '<div class="muted">No foi possivel carregar o catalogo de teams.</div>';
+      node.innerHTML = '<div class="muted">Could not load team catalog.</div>';
       return;
     }
 
@@ -29,18 +29,18 @@ function zavorthControlClassicClientOverviewMeshTeams() {
                         '<li><strong>' +
                         escapeHtml(member.label || member.role || 'Membro') +
                         '</strong> · ' +
-                        escapeHtml(member.responsibility || member.executor || 'Sem resumo adicional.') +
+                        escapeHtml(member.responsibility || member.executor || 'No additional summary.') +
                         '</li>',
                     )
                     .join('')
-                : '<li>Sem composicao registrada.</li>';
+                : '<li>No composition registered.</li>';
             const runSummary = latestRun
               ? 'Ultimo run: ' +
                 escapeHtml(latestRun.workflowRunId || 'workflow') +
                 ' · ' +
-                escapeHtml(latestRun.status || 'n/d') +
+                escapeHtml(latestRun.status || 'n/a') +
                 (latestRun.resumeAvailable ? ' · resume ready' : '')
-              : 'Sem runs recentes.';
+              : 'No recent runs.';
             return (
               '' +
               '<div class="cockpit-action-card">' +
@@ -59,7 +59,7 @@ function zavorthControlClassicClientOverviewMeshTeams() {
               '</span>' +
               '</div>' +
               '<small>' +
-              escapeHtml(team.summary || 'Sem resumo adicional.') +
+              escapeHtml(team.summary || 'No additional summary.') +
               '</small>' +
               '<small>' +
               escapeHtml(team.operatorSummary || runSummary) +
@@ -77,7 +77,7 @@ function zavorthControlClassicClientOverviewMeshTeams() {
             );
           })
           .join('')
-      : '<div class="muted">Nenhum team composto registrado.</div>';
+      : '<div class="muted">No composed team registered.</div>';
 
     node.innerHTML =
       '<div class="cockpit-status">' +
@@ -107,17 +107,17 @@ function zavorthControlClassicClientOverviewMeshTeams() {
       '</div><small>Runs com volta imediata</small></div>' +
       '<div class="cockpit-mini-card"><strong>Ativos</strong><div>' +
       escapeHtml(String(summary.active || 0)) +
-      '</div><small>Fluxos em andamento</small></div>' +
+      '</div><small>In-progress flows</small></div>' +
       '<div class="cockpit-mini-card"><strong>Fechamentos</strong><div>' +
       escapeHtml(String(summary.completedRecently || 0)) +
       '</div><small>Runs concluindo recentemente</small></div>' +
       '</div>' +
-      '<div class="sidecar-card"><strong>Executores do time</strong><small>' +
-      escapeHtml(Array.isArray(summary.executors) ? summary.executors.join(', ') : 'n/d') +
+      '<div class="sidecar-card"><strong>Team executors</strong><small>' +
+      escapeHtml(Array.isArray(summary.executors) ? summary.executors.join(', ') : 'n/a') +
       '</small></div>' +
       '</div>' +
       '<div class="cockpit-stack">' +
-      '<div class="sidecar-card"><strong>Teams em destaque</strong><div class="cockpit-action-list">' +
+      '<div class="sidecar-card"><strong>Featured teams</strong><div class="cockpit-action-list">' +
       teamItems +
       '</div></div>' +
       '</div>' +

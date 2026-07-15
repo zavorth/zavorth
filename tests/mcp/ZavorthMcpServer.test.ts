@@ -47,7 +47,6 @@ jest.mock('../../src/mcp/tools/AutomaticBrowserTool.js', () => ({
   })),
 }));
 
-
 import { McpToolPolicy } from '../../src/mcp/McpToolPolicy.js';
 
 describe('ZavorthMcpServer', () => {
@@ -110,9 +109,7 @@ describe('ZavorthMcpServer', () => {
           parameters: { type: 'object', properties: {} },
         },
       ],
-      getTool: (name: string) => name === 'remote_shell'
-        ? { execute: dangerousExecute }
-        : undefined,
+      getTool: (name: string) => (name === 'remote_shell' ? { execute: dangerousExecute } : undefined),
     };
     const server = new ZavorthMcpServer(registry as any, {
       toolPolicy: new McpToolPolicy({ profile: 'safe' }),
@@ -135,7 +132,7 @@ describe('ZavorthMcpServer', () => {
     expect(listResult.tools.map((tool: any) => tool.name)).not.toContain('evaluate_js');
     expect(dangerousExecute).not.toHaveBeenCalled();
     expect(callResult.isError).toBe(true);
-    expect(callResult.content[0].text).toContain('bloqueada');
+    expect(callResult.content[0].text).toContain('blocked');
 
     server.shutdown();
   });
@@ -153,9 +150,7 @@ describe('ZavorthMcpServer', () => {
           parameters: { type: 'object', properties: {} },
         },
       ],
-      getTool: (name: string) => name === 'get_datetime'
-        ? { execute: rawExecute }
-        : undefined,
+      getTool: (name: string) => (name === 'get_datetime' ? { execute: rawExecute } : undefined),
     };
     const server = new ZavorthMcpServer(registry as any, {
       toolPolicy: new McpToolPolicy({ profile: 'safe' }),

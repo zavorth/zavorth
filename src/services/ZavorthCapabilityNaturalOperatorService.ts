@@ -21,11 +21,11 @@ import { asErrorLike } from '../utils/errorLike.js';
 export type ZavorthCapabilityNaturalOperatorRuntime = ZavorthCapabilityConsoleRuntime;
 
 const SECRET_PATTERNS: RegExp[] = [
-  /\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g,
-  /\bsk-[A-Za-z0-9_-]{12,}\b/g,
-  /\bgh[pousr]_[A-Za-z0-9_]{12,}\b/g,
-  /\bAIza[0-9A-Za-z_-]{12,}\b/g,
-  /\b[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}\b/g,
+  /\bxox[baprs]-[A-Za-z0-9-]{8}\b/g,
+  /\bsk-[A-Za-z0-9_-]{12}\b/g,
+  /\bgh[pousr]_[A-Za-z0-9_]{12}\b/g,
+  /\bAIza[0-9A-Za-z_-]{12}\b/g,
+  /\b[A-Za-z0-9_-]{24}\.[A-Za-z0-9_-]{16}\.[A-Za-z0-9_-]{16}\b/g,
   /\b(?:token|api[_ -]?key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi,
 ];
 
@@ -53,30 +53,32 @@ export class ZavorthCapabilityNaturalOperatorService {
       approvalId: input.ownerApprovalId || null,
     });
     const decision = this.decide(input, naturalSetup.selectedCapability, text);
-    const createdTicket = decision.action === 'create_setup_ticket'
-      ? this.createOrReuseTicket({
-        ticketId: input.ticketId || null,
-        text,
-        actorLabel: input.actorLabel || null,
-        packId: decision.packId,
-        targetItemId: decision.targetItemId,
-        availableSecretRefs: input.availableSecretRefs,
-        availableEnvKeys: input.availableEnvKeys,
-        availableBinaries: input.availableBinaries,
-        completedManualSteps: input.completedManualSteps,
-        completedReadinessChecks: input.completedReadinessChecks,
-        localRoutes: input.localRoutes,
-      })
-      : null;
-    const executorResult = decision.action === 'prepare_activation_request' && decision.ticketId
-      ? this.executor.execute({
-        ticketId: decision.ticketId,
-        actorLabel: input.actorLabel || null,
-        ownerApprovalId: input.ownerApprovalId || null,
-        confirmOwnerControlledActivation: input.confirmOwnerControlledActivation === true,
-        dryRun: input.execute !== true,
-      })
-      : null;
+    const createdTicket =
+      decision.action === 'create_setup_ticket'
+        ? this.createOrReuseTicket({
+            ticketId: input.ticketId || null,
+            text,
+            actorLabel: input.actorLabel || null,
+            packId: decision.packId,
+            targetItemId: decision.targetItemId,
+            availableSecretRefs: input.availableSecretRefs,
+            availableEnvKeys: input.availableEnvKeys,
+            availableBinaries: input.availableBinaries,
+            completedManualSteps: input.completedManualSteps,
+            completedReadinessChecks: input.completedReadinessChecks,
+            localRoutes: input.localRoutes,
+          })
+        : null;
+    const executorResult =
+      decision.action === 'prepare_activation_request' && decision.ticketId
+        ? this.executor.execute({
+            ticketId: decision.ticketId,
+            actorLabel: input.actorLabel || null,
+            ownerApprovalId: input.ownerApprovalId || null,
+            confirmOwnerControlledActivation: input.confirmOwnerControlledActivation === true,
+            dryRun: input.execute !== true,
+          })
+        : null;
     const consoleSnapshot = this.console.buildSnapshot({
       view: this.viewForAction(decision.action),
       query: naturalSetup.detectedIntent.targetText || text,
@@ -118,7 +120,7 @@ export class ZavorthCapabilityNaturalOperatorService {
       '',
       result.reply.nextAction,
       '',
-      `Decisao: ${result.decision.action} | alvo: ${result.decision.targetItemId || 'nao definido'} | pack: ${result.decision.packId || 'nao definido'}`,
+      `Decision: ${result.decision.action} | target: ${result.decision.targetItemId || 'none'} | pack: ${result.decision.packId || 'none'}`,
     ];
     if (result.createdTicket) {
       lines.push(`Ticket: ${result.createdTicket.id} (${result.createdTicket.status})`);
@@ -126,7 +128,7 @@ export class ZavorthCapabilityNaturalOperatorService {
     if (result.executorResult) {
       lines.push(`Executor: ${result.executorResult.status}`);
     }
-    lines.push('Seguranca: sem segredo bruto, sem ativacao live por linguagem natural.');
+    lines.push('Safety: no raw secrets; no live activation from free-text language.');
     return lines.join('\n');
   }
 
@@ -150,36 +152,79 @@ export class ZavorthCapabilityNaturalOperatorService {
   private decide(
     input: CapabilityNaturalOperatorInput,
     selectedCapability: CapabilityHubItem | null,
-    redactedText: string,
+    _redactedText: string,
   ): CapabilityNaturalOperatorDecision {
-    const ticketId = input.ticketId || this.extractTicketId(redactedText);
-    const rawTargetItemId = input.targetItemId || selectedCapability?.id || null;
-    const packId = input.packId || this.inferPackId(selectedCapability, rawTargetItemId);
-    const targetItemId = input.targetItemId || this.canonicalTargetForPack(packId, selectedCapability, rawTargetItemId, redactedText);
-    if (this.matches(redactedText, [/\b(fila|ticket|tickets|pendente|status)\b/i, /\b(queue|pending|status)\b/i])) {
-      return this.decision('show_queue', 0.86, 'Usuario pediu estado da fila.', targetItemId, packId, ticketId);
+    // Free-text keywords never select product actions or pack/target (agent-first purity).
+    // Only structured input.action / createTicket / confirmOwnerControlledActivation / ids.
+    const ticketId = input.ticketId || null;
+    const packId = input.packId || null;
+    const targetItemId = input.targetItemId || null;
+    // selectedCapability is only used when caller already set preferredCapabilityId via targetItemId path in execute().
+    void selectedCapability;
+
+    const structured = String(input.action || '').trim() as CapabilityNaturalOperatorAction | '';
+    if (structured === 'show_queue') {
+      return this.decision('show_queue', 0.95, 'Structured show_queue action.', targetItemId, packId, ticketId);
     }
-    if (this.matches(redactedText, [/\b(pedido|handoff|aprovar|approval|ativacao|ativação|executar)\b/i])) {
+    if (structured === 'run_readiness') {
+      return this.decision('run_readiness', 0.95, 'Structured run_readiness action.', targetItemId, packId, ticketId);
+    }
+    if (structured === 'prepare_activation_request' || (input.confirmOwnerControlledActivation === true && ticketId)) {
       return ticketId
-        ? this.decision('prepare_activation_request', 0.9, 'Usuario pediu pedido de ativacao controlada para ticket.', targetItemId, packId, ticketId)
-        : this.decision('show_queue', 0.65, 'Usuario pediu ativacao mas nao informou ticket.', targetItemId, packId, null);
+        ? this.decision(
+            'prepare_activation_request',
+            0.95,
+            'Structured activation request for ticket.',
+            targetItemId,
+            packId,
+            ticketId,
+          )
+        : this.decision('show_queue', 0.7, 'Activation requested without ticketId.', targetItemId, packId, null);
     }
-    if (this.matches(redactedText, [/\b(verificar|verifica|verifique|validar|valida|teste|testar|readiness|doctor|checar)\b/i])) {
-      return this.decision('run_readiness', 0.84, 'Usuario pediu verificacao/readiness.', targetItemId, packId, ticketId);
-    }
-    if (this.matches(redactedText, [/\b(configurar|configura|conectar|conecta|integrar|integra|habilitar|habilita|instalar|setup|usar|ativar|ativa)\b/i])) {
-      if (!targetItemId && input.createTicket !== true) {
-        return this.decision('show_console', 0.55, 'Pedido de setup sem alvo resolvido.', null, packId, ticketId);
+    if (structured === 'create_setup_ticket' || input.createTicket === true) {
+      if (!targetItemId && !packId) {
+        return this.decision('show_console', 0.55, 'Structured setup without target or pack.', null, packId, ticketId);
       }
       if (input.createTicket === false) {
-        return this.decision('show_console', 0.72, 'Usuario pediu setup, mas criaction de ticket foi desativada.', targetItemId, packId, ticketId);
+        return this.decision(
+          'show_console',
+          0.72,
+          'createTicket disabled by structured flag.',
+          targetItemId,
+          packId,
+          ticketId,
+        );
       }
-      return this.decision('create_setup_ticket', 0.88, 'Usuario pediu configurar ou conectar recurso.', targetItemId, packId, ticketId);
+      return this.decision(
+        'create_setup_ticket',
+        0.95,
+        'Structured create_setup_ticket action.',
+        targetItemId,
+        packId,
+        ticketId,
+      );
     }
-    if (selectedCapability || targetItemId || packId) {
-      return this.decision('show_console', 0.72, 'Usuario citou recurso; mostrar contexto consolidado.', targetItemId, packId, ticketId);
+    if (structured === 'blocked') {
+      return this.decision('blocked', 0.95, 'Structured blocked action.', targetItemId, packId, ticketId);
     }
-    return this.decision('show_console', 0.5, 'Fallback seguro para console.', null, null, ticketId);
+    if (targetItemId || packId || ticketId) {
+      return this.decision(
+        'show_console',
+        0.72,
+        'Structured resource context; show console (no free-text action routing).',
+        targetItemId,
+        packId,
+        ticketId,
+      );
+    }
+    return this.decision(
+      'show_console',
+      0.5,
+      'Safe console fallback; free text does not select capability actions.',
+      null,
+      null,
+      ticketId,
+    );
   }
 
   private decision(
@@ -220,53 +265,74 @@ export class ZavorthCapabilityNaturalOperatorService {
   ): CapabilityNaturalOperatorResult['reply'] {
     if (decision.action === 'create_setup_ticket' && ticket) {
       return {
-        headline: 'Criei um ticket de configuracao.',
-        body: `O ticket ${ticket.id} guardou o setup de ${ticket.targetItemId || 'recurso'} e ainda nao ativou nada live.`,
-        nextAction: 'Continue informando entradas seguras ou rode a console para ver o proximo passo.',
+        headline: 'Created a setup ticket.',
+        body: `Ticket ${ticket.id} stored setup for ${ticket.targetItemId || 'resource'} and has not activated anything live.`,
+        nextAction: 'Provide secure inputs or open the console for the next step.',
       };
     }
     if (decision.action === 'prepare_activation_request' && executorResult) {
       return {
         headline: executorResult.narrative.headline,
         body: executorResult.narrative.nextAction,
-        nextAction: executorResult.status === 'activation_request_created'
-          ? 'Pedido registrado; use o ledger para auditoria e handoff controlado.'
-          : 'Forneca approval explicito e confirme antes de criar o pedido.',
+        nextAction:
+          executorResult.status === 'activation_request_created'
+            ? 'Request recorded; use the ledger for audit and controlled handoff.'
+            : 'Provide explicit owner approval and confirm before creating the request.',
       };
     }
     if (decision.action === 'run_readiness') {
       return {
-        headline: 'Mostrei a verificaction de readiness.',
-        body: 'A verificacao e presence-only: ela confere referencias e passos, sem ler valores de segredo.',
-        nextAction: 'Resolva o primeiro item pendente antes de pedir ativacao controlada.',
+        headline: 'Showed readiness verification.',
+        body: 'Readiness is presence-only: it checks references and steps without reading secret values.',
+        nextAction: 'Resolve the first pending item before requesting controlled activation.',
       };
     }
     if (decision.action === 'show_queue') {
       return {
-        headline: 'Mostrei a fila de configuracao.',
-        body: 'A fila mostra tickets abertos, prontos e fechados sem executar nada.',
-        nextAction: 'Escolha um ticket aberto ou pronto para continuar.',
+        headline: 'Showed the setup queue.',
+        body: 'The queue lists open, ready, and closed tickets without executing anything.',
+        nextAction: 'Pick an open or ready ticket to continue.',
       };
     }
     return {
-      headline: 'Mostrei a console do Capability Hub.',
-      body: 'Use essa visao para escolher recurso, pack, readiness ou fila.',
-      nextAction: 'Diga em linguagem natural qual recurso quer configurar ou verificar.',
+      headline: 'Showed the Capability Hub console.',
+      body: 'Use this view to pick a resource, pack, readiness, or queue.',
+      nextAction:
+        'Pass a structured action (create_setup_ticket, run_readiness, show_queue) — free text does not select actions.',
     };
   }
 
   private inferPackId(selectedCapability: CapabilityHubItem | null, targetItemId: string | null): string | null {
-    const id = `${selectedCapability?.kind || ''}:${targetItemId || selectedCapability?.id || ''}:${selectedCapability?.label || ''}`.toLowerCase();
-    if (id.includes('slack') || id.includes('discord') || id.includes('telegram') || id.includes('matrix') || id.includes('channel')) {
+    const id =
+      `${selectedCapability?.kind || ''}:${targetItemId || selectedCapability?.id || ''}:${selectedCapability?.label || ''}`.toLowerCase();
+    if (
+      id.includes('slack') ||
+      id.includes('discord') ||
+      id.includes('telegram') ||
+      id.includes('matrix') ||
+      id.includes('channel')
+    ) {
       return 'official-communication-channels';
     }
-    if (id.includes('gemini') || id.includes('openai') || id.includes('ollama') || id.includes('provider') || id.includes('model')) {
+    if (
+      id.includes('gemini') ||
+      id.includes('openai') ||
+      id.includes('ollama') ||
+      id.includes('provider') ||
+      id.includes('model')
+    ) {
       return 'official-ai-access';
     }
     if (id.includes('bridge') || id.includes('sidecar') || id.includes('filesystem') || id.includes('mcp')) {
       return 'official-tool-bridges';
     }
-    if (id.includes('skill') || id.includes('brief') || id.includes('readiness') || id.includes('maintenance') || id.includes('triage')) {
+    if (
+      id.includes('skill') ||
+      id.includes('brief') ||
+      id.includes('readiness') ||
+      id.includes('maintenance') ||
+      id.includes('triage')
+    ) {
       return 'official-ops-skills';
     }
     return null;
@@ -278,7 +344,8 @@ export class ZavorthCapabilityNaturalOperatorService {
     fallback: string | null,
     sourceText: string = '',
   ): string | null {
-    const value = `${sourceText}:${fallback || ''}:${selectedCapability?.label || ''}:${selectedCapability?.tags.join(' ') || ''}`.toLowerCase();
+    const value =
+      `${sourceText}:${fallback || ''}:${selectedCapability?.label || ''}:${selectedCapability?.tags.join(' ') || ''}`.toLowerCase();
     if (packId === 'official-communication-channels') {
       if (value.includes('slack')) {
         return 'channel:slack';
@@ -324,22 +391,18 @@ export class ZavorthCapabilityNaturalOperatorService {
     return fallback;
   }
 
-  private extractTicketId(text: string): string | null {
-    return text.match(/\bsetup-[a-z0-9_-]+\b/i)?.[0] || null;
-  }
-
-  private matches(text: string, patterns: RegExp[]): boolean {
-    return patterns.some((pattern) => pattern.test(text));
-  }
-
   private redact(value: string): string {
-    return SECRET_PATTERNS.reduce((current, pattern) => current.replace(pattern, (...args: unknown[]) => {
-      const match = String(args[0] || '');
-      const captured = args.length > 3 && typeof args[1] === 'string' ? args[1] : null;
-      if (captured) {
-        return match.replace(captured, '[SECRET_REDACTED]');
-      }
-      return '[SECRET_REDACTED]';
-    }), value);
+    return SECRET_PATTERNS.reduce(
+      (current, pattern) =>
+        current.replace(pattern, (...args: unknown[]) => {
+          const match = String(args[0] || '');
+          const captured = args.length > 3 && typeof args[1] === 'string' ? args[1] : null;
+          if (captured) {
+            return match.replace(captured, '[SECRET_REDACTED]');
+          }
+          return '[SECRET_REDACTED]';
+        }),
+      value,
+    );
   }
 }

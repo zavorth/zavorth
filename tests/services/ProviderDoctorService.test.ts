@@ -36,9 +36,7 @@ describe('ProviderDoctorService', () => {
       taskSubtype: 'web_research',
     });
 
-    expect(report.readyProviders.map((entry) => entry.id)).toEqual(
-      expect.arrayContaining(['gemini', 'gemma']),
-    );
+    expect(report.readyProviders.map((entry) => entry.id)).toEqual(expect.arrayContaining(['gemini', 'gemma']));
     expect(report.pendingConfigProviders.map((entry) => entry.id)).toEqual(
       expect.arrayContaining(['openai', 'openrouter']),
     );
@@ -65,8 +63,8 @@ describe('ProviderDoctorService', () => {
     });
 
     expect(text).toContain('Providers ready now');
-    expect(text).toContain('Perfil recomendado para esta etapa: Coding');
-    expect(text).toContain('Modelo preferido do ZavorthBridge: gemini-2.5-pro');
-    expect(text).toContain('Recomendacoes:');
+    expect(text).toContain('Recommended profile for this stage: Coding');
+    expect(text).toContain('Preferred ZavorthBridge model: gemini-2.5-pro');
+    expect(text).toContain('Recommendations:');
   });
 });

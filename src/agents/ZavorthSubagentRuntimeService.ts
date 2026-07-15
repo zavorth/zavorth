@@ -26,12 +26,30 @@ import {
   type ZavorthSubagentRuntimeWorkboardProjection,
 } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 import type { ZavorthSubagentAutoInvocationTelemetry } from '../contracts/runtime/ZavorthSubagentAutoInvocationContract.js';
-import { ZAVORTH_INVOCATION_RECEIPT_CONTRACT_VERSION, type ZavorthInvocationReceipt, type ZavorthInvocationReceiptKind, type ZavorthInvocationReceiptStatus } from '../contracts/runtime/ZavorthInvocationReceiptContract.js';
-import type { ZavorthGovernedSubagentProfile, ZavorthGovernedSubagentProfileId } from '../contracts/runtime/ZavorthGovernedSubagentContract.js';
-import { decideSecurityPolicy, type SecurityPolicyBrokerDecision, type SecurityPolicyBrokerRequest } from '../security/SecurityPolicyBroker.js';
+import {
+  ZAVORTH_INVOCATION_RECEIPT_CONTRACT_VERSION,
+  type ZavorthInvocationReceipt,
+  type ZavorthInvocationReceiptKind,
+  type ZavorthInvocationReceiptStatus,
+} from '../contracts/runtime/ZavorthInvocationReceiptContract.js';
+import type {
+  ZavorthGovernedSubagentProfile,
+  ZavorthGovernedSubagentProfileId,
+} from '../contracts/runtime/ZavorthGovernedSubagentContract.js';
+import {
+  decideSecurityPolicy,
+  type SecurityPolicyBrokerDecision,
+  type SecurityPolicyBrokerRequest,
+} from '../security/SecurityPolicyBroker.js';
 import { ZavorthGovernedSubagentService } from '../services/ZavorthGovernedSubagentService.js';
-import { buildAutoInvocationZavorthControlProjection, normalizeAutoInvocation } from '../services/ZavorthSubagentRuntimeTelemetrySupport.js';
-import { AUTO_SUBAGENT_DECISION_LABEL, formatSubagentRuntimeSnapshotText } from '../services/ZavorthSubagentRuntimePresenter.js';
+import {
+  buildAutoInvocationZavorthControlProjection,
+  normalizeAutoInvocation,
+} from '../services/ZavorthSubagentRuntimeTelemetrySupport.js';
+import {
+  AUTO_SUBAGENT_DECISION_LABEL,
+  formatSubagentRuntimeSnapshotText,
+} from '../services/ZavorthSubagentRuntimePresenter.js';
 import { buildSubagentIdentity } from '../services/ZavorthSubagentIdentityService.js';
 import { logger } from '../logger.js';
 import { ZavorthSubagentRuntimeSnapshotService } from './ZavorthSubagentRuntimeSnapshotService.js';
@@ -50,7 +68,6 @@ import {
   defaultDynamicConfigProjection,
   emptyState,
   firstLine,
-  hasExplicitSubagentIntent,
   last,
   mapBoardRisk,
   mapWorkboardStatus,
@@ -78,14 +95,34 @@ import {
 } from './ZavorthSubagentRuntimeHelpers.js';
 
 import type { SecurityProfileId } from '../security/SecurityProfile.js';
-import { createSubagentApprovalBoundary, createSubagentBudget, createSubagentCapabilityScope, createSubagentResultReceipt, type SubagentResultReceipt } from '../runtime/agent/subagents/index.js';
+import {
+  createSubagentApprovalBoundary,
+  createSubagentBudget,
+  createSubagentCapabilityScope,
+  createSubagentResultReceipt,
+  type SubagentResultReceipt,
+} from '../runtime/agent/subagents/index.js';
 
-import { ZavorthLiveSubagentExecutionService, type ZavorthLiveSubagentExecutionResult } from '../services/ZavorthLiveSubagentExecutionService.js';
+import {
+  ZavorthLiveSubagentExecutionService,
+  type ZavorthLiveSubagentExecutionResult,
+} from '../services/ZavorthLiveSubagentExecutionService.js';
 
-import { compareSubagentRunsByActivity, compareSubagentSessionsByActivity, isLatestSubagentReference } from '../services/ZavorthSubagentRuntimeStateSelectors.js';
+import {
+  compareSubagentRunsByActivity,
+  compareSubagentSessionsByActivity,
+  isLatestSubagentReference,
+} from '../services/ZavorthSubagentRuntimeStateSelectors.js';
 
-import { ZavorthSubagentBoardService, type ZavorthSubagentBoardSnapshot, type ZavorthSubagentBoardTask } from '../services/ZavorthSubagentBoardService.js';
-type DecideSecurityPolicy = (request: SecurityPolicyBrokerRequest, runtime?: { now?: () => Date }) => SecurityPolicyBrokerDecision;
+import {
+  ZavorthSubagentBoardService,
+  type ZavorthSubagentBoardSnapshot,
+  type ZavorthSubagentBoardTask,
+} from '../services/ZavorthSubagentBoardService.js';
+type DecideSecurityPolicy = (
+  request: SecurityPolicyBrokerRequest,
+  runtime?: { now?: () => Date },
+) => SecurityPolicyBrokerDecision;
 
 type Runtime = {
   now?: () => Date;
@@ -145,6 +182,8 @@ export type ZavorthSubagentRuntimeCommandInput = {
   deviceLabel?: string | null;
   deviceCapabilities?: string[] | null;
   persistState?: boolean | null;
+  /** Structured risk signals — free-text task never keyword-routes risk. */
+  riskHints?: Partial<RuntimeRisk> | null;
 };
 
 export class ZavorthSubagentRuntimeService {
@@ -165,7 +204,8 @@ export class ZavorthSubagentRuntimeService {
   public constructor(runtime: Runtime = {}) {
     this.now = runtime.now || (() => new Date());
     this.projectRoot = runtime.projectRoot || config.projectRoot;
-    this.stateFilePath = runtime.stateFilePath || path.join(this.projectRoot, '.zavorth', 'subagents', 'runtime-state.json');
+    this.stateFilePath =
+      runtime.stateFilePath || path.join(this.projectRoot, '.zavorth', 'subagents', 'runtime-state.json');
     this.boardDbPath = runtime.boardDbPath || path.join(this.projectRoot, '.zavorth', 'subagents', 'workboard.sqlite');
     this.governedSubagents =
       runtime.governedSubagentService ||
@@ -185,7 +225,14 @@ export class ZavorthSubagentRuntimeService {
     this.readFileSyncImpl = runtime.readFileSync || fs.readFileSync.bind(fs);
     this.writeFileSyncImpl = runtime.writeFileSync || fs.writeFileSync.bind(fs);
     this.snapshotSupport = new ZavorthSubagentRuntimeSnapshotService(this.now, this.projectRoot, this.boardDbPath);
-    this.stateSupport = new ZavorthSubagentRuntimeStateService(this.now, this.stateFilePath, this.existsSyncImpl, this.mkdirSyncImpl, this.readFileSyncImpl, this.writeFileSyncImpl);
+    this.stateSupport = new ZavorthSubagentRuntimeStateService(
+      this.now,
+      this.stateFilePath,
+      this.existsSyncImpl,
+      this.mkdirSyncImpl,
+      this.readFileSyncImpl,
+      this.writeFileSyncImpl,
+    );
   }
 
   public async execute(input: ZavorthSubagentRuntimeCommandInput = {}): Promise<ZavorthSubagentRuntimeSnapshot> {
@@ -234,14 +281,17 @@ export class ZavorthSubagentRuntimeService {
     const sourceSurface = normalizeSourceSurface(input.sourceSurface, mode);
     const channel = normalizeChannel(input.channel);
     const actorId = normalizeNullable(input.actorId);
-    const requestedExplicitly = input.explicitSubagents === true || hasExplicitSubagentIntent(task);
-    const risk = classifyRisk(task, mode);
+    // Structured flag only — free-text keywords never unlock spawn (LLM/tools decide).
+    const requestedExplicitly = input.explicitSubagents === true;
+    const risk = classifyRisk(task, mode, { riskHints: input.riskHints || null });
     const limits = this.stateSupport.resolveLimits(input, state.dynamicConfig.settings);
     const depth = this.stateSupport.resolveDepth(state, input.parentRunId);
     const childCount = state.runs.filter((run) => run.parentRunId === normalizeNullable(input.parentRunId)).length;
     const blockedByDepth = depth > limits.maxSpawnDepth || childCount >= limits.maxChildren;
     const parentRun = this.stateSupport.findRun(state, input.parentRunId);
-    const blockedByLeafRole = Boolean(normalizeNullable(input.parentRunId) && (roleMode === 'leaf' || parentRun?.roleMode === 'leaf'));
+    const blockedByLeafRole = Boolean(
+      normalizeNullable(input.parentRunId) && (roleMode === 'leaf' || parentRun?.roleMode === 'leaf'),
+    );
     const approvalId = normalizeNullable(input.approvalId);
     const approvalRequired = risk.requiresApproval && !approvalId;
     const explicitRequired = mode !== 'internal' && !requestedExplicitly;
@@ -253,7 +303,8 @@ export class ZavorthSubagentRuntimeService {
         profile: input.securityProfile || undefined,
         workspace: this.projectRoot,
         sourceTrust: 'trusted',
-        risk: blockedByDepth || blockedByLeafRole || explicitRequired ? 'forbidden' : approvalRequired ? 'review' : 'safe',
+        risk:
+          blockedByDepth || blockedByLeafRole || explicitRequired ? 'forbidden' : approvalRequired ? 'review' : 'safe',
         blocked: blockedByDepth || blockedByLeafRole || explicitRequired,
         userConfirmationRequired: approvalRequired,
         reasons: buildPolicyReasons({
@@ -353,7 +404,11 @@ export class ZavorthSubagentRuntimeService {
       limits,
     });
     const output = liveResult?.output || buildRuntimeOutput(task, roleIds, mode);
-    const liveWorkerBlocked = Boolean(liveResult && liveResult.workerResults.length > 0 && liveResult.workerResults.every((worker) => worker.status === 'failed'));
+    const liveWorkerBlocked = Boolean(
+      liveResult &&
+        liveResult.workerResults.length > 0 &&
+        liveResult.workerResults.every((worker) => worker.status === 'failed'),
+    );
     const subagentReceipts = profiles.map((profile) =>
       this.buildSubagentReceipt({
         profile,
@@ -422,7 +477,10 @@ export class ZavorthSubagentRuntimeService {
           identity,
         };
       }),
-      messages: [this.snapshotSupport.message(generatedAt, 'user', task, receipt.id), this.snapshotSupport.message(generatedAt, 'subagent', output, receipt.id)],
+      messages: [
+        this.snapshotSupport.message(generatedAt, 'user', task, receipt.id),
+        this.snapshotSupport.message(generatedAt, 'subagent', output, receipt.id),
+      ],
       runIds: [runId],
     };
     const run: ZavorthSubagentRuntimeRun = {
@@ -438,7 +496,11 @@ export class ZavorthSubagentRuntimeService {
       status,
       startedAt: generatedAt,
       completedAt: completed || liveWorkerBlocked ? liveResult?.completedAt || generatedAt : null,
-      summary: completed ? liveResult?.summary || `Completed governed ${mode} subagent run with ${roleIds.length} role(s).` : liveWorkerBlocked ? liveResult?.summary || 'Live subagent workers were blocked or failed.' : null,
+      summary: completed
+        ? liveResult?.summary || `Completed governed ${mode} subagent run with ${roleIds.length} role(s).`
+        : liveWorkerBlocked
+          ? liveResult?.summary || 'Live subagent workers were blocked or failed.'
+          : null,
       output: completed || liveWorkerBlocked ? output : null,
       policyReceipt: policy.receipt,
       subagentReceipts,
@@ -488,7 +550,8 @@ export class ZavorthSubagentRuntimeService {
     });
     this.snapshotSupport.pushObservability(state, {
       generatedAt: run.completedAt || generatedAt,
-      name: status === 'completed' ? 'subagent.completed' : status === 'blocked' ? 'subagent.blocked' : 'subagent.started',
+      name:
+        status === 'completed' ? 'subagent.completed' : status === 'blocked' ? 'subagent.blocked' : 'subagent.started',
       status,
       detail: run.summary || `Subagent run is ${status}.`,
       sessionId,
@@ -592,7 +655,14 @@ export class ZavorthSubagentRuntimeService {
   }
 
   public async executeBoardAction(
-    action: Extract<ZavorthSubagentRuntimeAction, 'subagents.board.create' | 'subagents.board.claim' | 'subagents.board.heartbeat' | 'subagents.board.complete' | 'subagents.board.block'>,
+    action: Extract<
+      ZavorthSubagentRuntimeAction,
+      | 'subagents.board.create'
+      | 'subagents.board.claim'
+      | 'subagents.board.heartbeat'
+      | 'subagents.board.complete'
+      | 'subagents.board.block'
+    >,
     input: ZavorthSubagentRuntimeCommandInput,
   ): Promise<ZavorthSubagentRuntimeSnapshot> {
     const state = this.stateSupport.readState();
@@ -614,7 +684,7 @@ export class ZavorthSubagentRuntimeService {
           board.enqueueTask({
             sessionId: session.sessionId,
             title: task,
-            risk: mapBoardRisk(classifyRisk(task, normalizeMode(input.mode))),
+            risk: mapBoardRisk(classifyRisk(task, normalizeMode(input.mode), { riskHints: input.riskHints || null })),
             approvalId: input.approvalId,
           }),
         );
@@ -626,7 +696,9 @@ export class ZavorthSubagentRuntimeService {
           heartbeatTtlMs: state.dynamicConfig.settings.childTimeoutMs,
         });
         selectedTaskId = claimed?.taskId || null;
-        detail = claimed ? `Task claimed by ${normalizeText(input.workerId, 'worker')}.` : 'No queued workboard task is available.';
+        detail = claimed
+          ? `Task claimed by ${normalizeText(input.workerId, 'worker')}.`
+          : 'No queued workboard task is available.';
       } else if (action === 'subagents.board.heartbeat') {
         board.recordHeartbeat({
           workerId: normalizeText(input.workerId, 'worker'),
@@ -728,10 +800,18 @@ export class ZavorthSubagentRuntimeService {
       ...(input.maxConcurrentChildren ? { maxConcurrentChildren: input.maxConcurrentChildren } : {}),
       ...(input.maxSpawnDepth ? { maxSpawnDepth: input.maxSpawnDepth } : {}),
       ...(input.childTimeoutMs ? { childTimeoutMs: input.childTimeoutMs } : {}),
-      ...(input.roleMode ? { defaultRoleMode: normalizeRoleMode(input.roleMode, state.dynamicConfig.settings.defaultRoleMode) } : {}),
-      ...(input.sandboxBackend ? { sandboxBackend: normalizeSandboxBackend(input.sandboxBackend, state.dynamicConfig.settings.sandboxBackend) } : {}),
-      ...(input.cloudSandboxEnabled !== null && input.cloudSandboxEnabled !== undefined ? { cloudSandboxEnabled: input.cloudSandboxEnabled } : {}),
-      ...(input.inheritToolsets !== null && input.inheritToolsets !== undefined ? { inheritToolsets: input.inheritToolsets } : {}),
+      ...(input.roleMode
+        ? { defaultRoleMode: normalizeRoleMode(input.roleMode, state.dynamicConfig.settings.defaultRoleMode) }
+        : {}),
+      ...(input.sandboxBackend
+        ? { sandboxBackend: normalizeSandboxBackend(input.sandboxBackend, state.dynamicConfig.settings.sandboxBackend) }
+        : {}),
+      ...(input.cloudSandboxEnabled !== null && input.cloudSandboxEnabled !== undefined
+        ? { cloudSandboxEnabled: input.cloudSandboxEnabled }
+        : {}),
+      ...(input.inheritToolsets !== null && input.inheritToolsets !== undefined
+        ? { inheritToolsets: input.inheritToolsets }
+        : {}),
     };
     const policy = this.decideReadPolicy('subagent-runtime-config-update', 'subagent-dynamic-config', input);
     const receipt = this.snapshotSupport.buildReceipt({
@@ -790,7 +870,10 @@ export class ZavorthSubagentRuntimeService {
   }
 
   public async executeDeviceAction(
-    action: Extract<ZavorthSubagentRuntimeAction, 'subagents.device.list' | 'subagents.device.approve' | 'subagents.device.revoke'>,
+    action: Extract<
+      ZavorthSubagentRuntimeAction,
+      'subagents.device.list' | 'subagents.device.approve' | 'subagents.device.revoke'
+    >,
     input: ZavorthSubagentRuntimeCommandInput,
   ): Promise<ZavorthSubagentRuntimeSnapshot> {
     const state = this.stateSupport.readState();
@@ -814,7 +897,10 @@ export class ZavorthSubagentRuntimeService {
       upstreamCodeExecuted: false,
     });
     if (action === 'subagents.device.approve') {
-      const capabilities = normalizeStringList(input.deviceCapabilities).length > 0 ? normalizeStringList(input.deviceCapabilities) : ['device.info'];
+      const capabilities =
+        normalizeStringList(input.deviceCapabilities).length > 0
+          ? normalizeStringList(input.deviceCapabilities)
+          : ['device.info'];
       const approvedDevice: ZavorthSubagentRuntimePairedDevicesProjection['devices'][number] = {
         deviceId,
         label: normalizeText(input.deviceLabel, deviceId),
@@ -830,21 +916,25 @@ export class ZavorthSubagentRuntimeService {
           revokedReason: null,
         },
       };
-      state.pairedDevices = [approvedDevice, ...state.pairedDevices.filter((device) => device.deviceId !== deviceId)].slice(0, 50);
+      state.pairedDevices = [
+        approvedDevice,
+        ...state.pairedDevices.filter((device) => device.deviceId !== deviceId),
+      ].slice(0, 50);
     } else if (action === 'subagents.device.revoke') {
-      state.pairedDevices = state.pairedDevices.map((device): ZavorthSubagentRuntimePairedDevicesProjection['devices'][number] =>
-        device.deviceId === deviceId
-          ? {
-              ...device,
-              status: 'revoked',
-              approvedCapabilities: [],
-              trust: {
-                ...device.trust,
-                approvalId: normalizeNullable(input.approvalId) || device.trust.approvalId,
-                revokedReason: normalizeText(input.message, 'Device revoked.'),
-              },
-            }
-          : device,
+      state.pairedDevices = state.pairedDevices.map(
+        (device): ZavorthSubagentRuntimePairedDevicesProjection['devices'][number] =>
+          device.deviceId === deviceId
+            ? {
+                ...device,
+                status: 'revoked',
+                approvedCapabilities: [],
+                trust: {
+                  ...device.trust,
+                  approvalId: normalizeNullable(input.approvalId) || device.trust.approvalId,
+                  revokedReason: normalizeText(input.message, 'Device revoked.'),
+                },
+              }
+            : device,
       );
     }
     state.receipts.push(receipt);
@@ -853,7 +943,10 @@ export class ZavorthSubagentRuntimeService {
         generatedAt,
         kind: 'device',
         status: 'ready',
-        detail: action === 'subagents.device.list' ? 'Paired device registry listed.' : `Paired device action applied: ${action}.`,
+        detail:
+          action === 'subagents.device.list'
+            ? 'Paired device registry listed.'
+            : `Paired device action applied: ${action}.`,
         receiptId: receipt.id,
       }),
     );
@@ -884,7 +977,7 @@ export class ZavorthSubagentRuntimeService {
     if (!session || !messageText) {
       return this.notFoundSnapshot(state, 'subagents.send', sessionId, input);
     }
-    const risk = classifyRisk(messageText, session.mode);
+    const risk = classifyRisk(messageText, session.mode, { riskHints: input.riskHints || null });
     const approvalId = normalizeNullable(input.approvalId);
     const policy = this.decidePolicy(
       {
@@ -957,7 +1050,11 @@ export class ZavorthSubagentRuntimeService {
       limits,
     });
     const output = liveResult?.output || buildRuntimeOutput(messageText, session.roleIds, session.mode);
-    const liveWorkerBlocked = Boolean(liveResult && liveResult.workerResults.length > 0 && liveResult.workerResults.every((worker) => worker.status === 'failed'));
+    const liveWorkerBlocked = Boolean(
+      liveResult &&
+        liveResult.workerResults.length > 0 &&
+        liveResult.workerResults.every((worker) => worker.status === 'failed'),
+    );
     receipt.guarantees.externalIoPerformed = liveResult?.externalIoPerformed || false;
     receipt.evidence = {
       ...receipt.evidence,
@@ -1196,7 +1293,12 @@ export class ZavorthSubagentRuntimeService {
     return formatSubagentRuntimeSnapshotText(snapshot);
   }
 
-  private async updateRunState(input: ZavorthSubagentRuntimeCommandInput, action: ZavorthSubagentRuntimeAction, kind: 'wait' | 'cancel', status: 'completed' | 'cancelled'): Promise<ZavorthSubagentRuntimeSnapshot> {
+  private async updateRunState(
+    input: ZavorthSubagentRuntimeCommandInput,
+    action: ZavorthSubagentRuntimeAction,
+    kind: 'wait' | 'cancel',
+    status: 'completed' | 'cancelled',
+  ): Promise<ZavorthSubagentRuntimeSnapshot> {
     const state = this.stateSupport.readState();
     const generatedAt = this.now().toISOString();
     const session = this.stateSupport.findSession(state, input.sessionId || input.runId || null);
@@ -1209,7 +1311,10 @@ export class ZavorthSubagentRuntimeService {
     const policy = this.decideReadPolicy(`subagent-runtime-${kind}`, run.runId, input);
     run.status = status;
     run.completedAt = generatedAt;
-    run.summary = status === 'completed' ? `Completed governed subagent run ${run.runId}.` : `Cancelled governed subagent run ${run.runId}.`;
+    run.summary =
+      status === 'completed'
+        ? `Completed governed subagent run ${run.runId}.`
+        : `Cancelled governed subagent run ${run.runId}.`;
     run.output = run.output || buildRuntimeOutput(run.task, run.roleIds, run.mode);
     session.status = status;
     session.updatedAt = generatedAt;
@@ -1253,7 +1358,12 @@ export class ZavorthSubagentRuntimeService {
     });
   }
 
-  private notFoundSnapshot(state: StoredState, action: ZavorthSubagentRuntimeAction, target: string | null, input: ZavorthSubagentRuntimeCommandInput): ZavorthSubagentRuntimeSnapshot {
+  private notFoundSnapshot(
+    state: StoredState,
+    action: ZavorthSubagentRuntimeAction,
+    target: string | null,
+    input: ZavorthSubagentRuntimeCommandInput,
+  ): ZavorthSubagentRuntimeSnapshot {
     const generatedAt = this.now().toISOString();
     const policy = this.decidePolicy(
       {
@@ -1305,7 +1415,11 @@ export class ZavorthSubagentRuntimeService {
     });
   }
 
-  private decideReadPolicy(operation: string, target: string, input: ZavorthSubagentRuntimeCommandInput): SecurityPolicyBrokerDecision {
+  private decideReadPolicy(
+    operation: string,
+    target: string,
+    input: ZavorthSubagentRuntimeCommandInput,
+  ): SecurityPolicyBrokerDecision {
     return this.decidePolicy(
       {
         surface: 'skill',
@@ -1323,7 +1437,9 @@ export class ZavorthSubagentRuntimeService {
 
   private pickProfiles(roleIds: ZavorthGovernedSubagentProfileId[]): ZavorthGovernedSubagentProfile[] {
     const profiles = this.governedSubagents.listProfiles();
-    const selected = roleIds.map((roleId) => profiles.find((profile) => profile.id === roleId)).filter((profile): profile is ZavorthGovernedSubagentProfile => Boolean(profile));
+    const selected = roleIds
+      .map((roleId) => profiles.find((profile) => profile.id === roleId))
+      .filter((profile): profile is ZavorthGovernedSubagentProfile => Boolean(profile));
     return selected.length > 0 ? selected : profiles.filter((profile) => profile.id === 'planner');
   }
 
@@ -1368,7 +1484,9 @@ export class ZavorthSubagentRuntimeService {
       requiresApproval: !readOnly,
       inheritedApprovalId: input.approvalId,
       risk: input.risk.requiresApproval ? 'attention' : 'safe',
-      approvalReason: readOnly ? 'Explicit read-only subagent request can run without new approval.' : 'Subagent operation requested sensitive capability and requires approval.',
+      approvalReason: readOnly
+        ? 'Explicit read-only subagent request can run without new approval.'
+        : 'Subagent operation requested sensitive capability and requires approval.',
       metadata: {
         policyReceiptId: input.policy.receipt.receiptId,
       },
@@ -1418,7 +1536,10 @@ export class ZavorthSubagentRuntimeService {
       profiles: input.profiles,
       providerName: normalizeNullable(input.input.providerName),
       modelName: normalizeNullable(input.input.modelName),
-      maxWorkers: Math.min(positiveInteger(input.input.maxLiveWorkers, input.profiles.length || 1), input.limits.maxChildren),
+      maxWorkers: Math.min(
+        positiveInteger(input.input.maxLiveWorkers, input.profiles.length || 1),
+        input.limits.maxChildren,
+      ),
       maxOutputChars: input.limits.maxOutputChars,
       maxToolCalls: input.limits.maxToolCalls,
       maxWallClockMs: input.limits.maxWallClockMs,

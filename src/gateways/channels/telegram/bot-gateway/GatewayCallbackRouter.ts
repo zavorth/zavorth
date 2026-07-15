@@ -29,9 +29,10 @@ export class GatewayCallbackRouter {
           if (ctx.msg?.message_id) {
             await ctx.deleteMessage();
           }
-        } catch (error: unknown) {// Delete callbacks should still acknowledge stale messages.
-      logger.warn('[way Callback r] delete operation failed', error);
-    }
+        } catch (error: unknown) {
+          // Delete callbacks should still acknowledge stale messages.
+          logger.warn('[way Callback r] delete operation failed', error);
+        }
 
         await ctx.answerCallbackQuery();
         return;
@@ -45,6 +46,25 @@ export class GatewayCallbackRouter {
       if (data.startsWith('perm:')) {
         await this.deps.handlePermissionCallback(ctx, data);
         return;
+      }
+
+      // Selfmod proposal-time buttons: selfmod:apply:<previewId> | selfmod:reject
+      if (data.startsWith('selfmod:') && this.deps.handleSurfaceCommandCallback) {
+        const applyMatch = /^selfmod:apply:([a-z0-9_-]{6})$/i.exec(data);
+        if (applyMatch) {
+          await ctx.answerCallbackQuery();
+          await this.deps.handleSurfaceCommandCallback(ctx, `/selfmod apply ${applyMatch[1]}`);
+          return;
+        }
+        if (data === 'selfmod:reject' || data.startsWith('selfmod:reject')) {
+          await ctx.answerCallbackQuery({ text: 'Selfmod preview left unused.' });
+          await ctx
+            .reply(
+              'Selfmod proposal rejected — preview left unused.\nNo free-text "Approve" needed; re-run /selfmod when ready.',
+            )
+            .catch(() => undefined);
+          return;
+        }
       }
 
       if (data.startsWith('task:') && this.deps.handleTaskCallback) {
@@ -71,7 +91,9 @@ export class GatewayCallbackRouter {
           await this.deps.handleExperienceActionCardCallback(ctx, data);
           return;
         }
-        await ctx.answerCallbackQuery({ text: 'Action card recebido. Abra /zavorthControl ou use a CLI para decidir.' });
+        await ctx.answerCallbackQuery({
+          text: 'Action card recebido. Abra /zavorthControl ou use a CLI para decidir.',
+        });
         return;
       }
 
@@ -86,11 +108,15 @@ export class GatewayCallbackRouter {
         const parts = data.split(':');
         const action = parts[1];
         const cardId = parts[2];
-        const { KanbanSQLiteDispatcherService } = await import('../../../../services/plugins/KanbanSQLiteDispatcherService.js');
+        const { KanbanSQLiteDispatcherService } = await import(
+          '../../../../services/plugins/KanbanSQLiteDispatcherService.js'
+        );
         const kanban = new KanbanSQLiteDispatcherService();
         try {
           if (action === 'add_prompt') {
-            await ctx.reply('Para adicionar um novo card ao Kanban, digite:\n`/triage <titulo da task>`', { parse_mode: 'Markdown' });
+            await ctx.reply('Para adicionar um novo card ao Kanban, digite:\n`/triage <titulo da task>`', {
+              parse_mode: 'Markdown',
+            });
             await ctx.answerCallbackQuery();
           } else if (action === 'view') {
             const card = (kanban as any).db.prepare('SELECT * FROM cards WHERE id = ?').get(cardId) as any;
@@ -99,18 +125,20 @@ export class GatewayCallbackRouter {
               return;
             }
             const comments = kanban.getComments(cardId);
-            const commentsStr = comments.map((c: any) => `• ${c.author}: ${c.content}`).join('\n') || 'Sem comentarios.';
-            const details = `📋 *Task:* ${card.title}\n` +
-                            `*ID:* \`${card.id}\`\n` +
-                            `*Status:* ${card.column_name}\n` +
-                            `*Prioridade:* ${card.priority}\n` +
-                            `*Descricao:* ${card.description || 'Sem descricao'}\n\n` +
-                            `💬 *Comentarios/Logs:*\n${commentsStr}`;
-            
+            const commentsStr =
+              comments.map((c: any) => `• ${c.author}: ${c.content}`).join('\n') || 'Sem comentarios.';
+            const details =
+              `📋 *Task:* ${card.title}\n` +
+              `*ID:* \`${card.id}\`\n` +
+              `*Status:* ${card.column_name}\n` +
+              `*Prioridade:* ${card.priority}\n` +
+              `*Descricao:* ${card.description || 'Sem descricao'}\n\n` +
+              `💬 *Comentarios/Logs:*\n${commentsStr}`;
+
             const { InlineKeyboard } = await import('grammy');
             const inlineKeyboard = new InlineKeyboard();
             const cols = ['todo', 'in_progress', 'review', 'done'];
-            cols.forEach(col => {
+            cols.forEach((col) => {
               if (col !== card.column_name) {
                 inlineKeyboard.text(`Move ${col}`, `kanban:move:${cardId}:${col}`);
               }
@@ -126,7 +154,7 @@ export class GatewayCallbackRouter {
             const destCol = parts[3];
             const result = kanban.moveCard('default_board', cardId, destCol, 'Moved via Telegram Bot');
             await ctx.answerCallbackQuery({ text: result.startsWith('Error:') ? result : 'Status atualizado!' });
-            
+
             if (!result.startsWith('Error:')) {
               await ctx.reply(`🔄 Task *${cardId}* movida para *${destCol}*!`, { parse_mode: 'Markdown' });
             }
@@ -168,5 +196,4 @@ export class GatewayCallbackRouter {
       await ctx.answerCallbackQuery({ text: 'Erro ao processar.' });
     }
   }
-
 }

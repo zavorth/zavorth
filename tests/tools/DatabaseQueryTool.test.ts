@@ -15,20 +15,20 @@ describe('DatabaseQueryTool', () => {
 
   it('returns error when query is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('query');
   });
 
   it('returns error for empty query', async () => {
     const result = await tool.execute({ query: '' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('query');
   });
 
   it('returns error for invalid mode', async () => {
     const result = await tool.execute({ query: 'SELECT 1', mode: 'invalid' });
-    expect(result).toContain('Erro');
-    expect(result).toContain('invalido');
+    expect(result).toContain('Error');
+    expect(result).toContain('invalid');
   });
 
   it('blocks write operations in read mode', async () => {
@@ -36,7 +36,7 @@ describe('DatabaseQueryTool', () => {
       query: 'INSERT INTO users (name) VALUES ("test")',
       mode: 'read',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('read');
   });
 
@@ -45,7 +45,7 @@ describe('DatabaseQueryTool', () => {
       query: 'DROP TABLE users',
       mode: 'write',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('DROP');
   });
 
@@ -54,7 +54,7 @@ describe('DatabaseQueryTool', () => {
       query: 'TRUNCATE TABLE users',
       mode: 'write',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('TRUNCATE');
   });
 
@@ -63,7 +63,7 @@ describe('DatabaseQueryTool', () => {
       query: 'SELECT * FROM users',
       mode: 'write',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('returns error or driver message when better-sqlite3 is unavailable', async () => {
@@ -71,7 +71,9 @@ describe('DatabaseQueryTool', () => {
       query: 'SELECT * FROM users',
       mode: 'read',
     });
-    const isRealExecution = result.includes('Query executada') || result.includes('driver SQLite') || result.includes('Erro ao executar query') || result.includes('indisponivel');
+    const isRealExecution = /Query (?:executada|executed)|SQLite driver|query execution failed|unavailable/i.test(
+      result,
+    );
     expect(isRealExecution).toBe(true);
   });
 
@@ -82,7 +84,9 @@ describe('DatabaseQueryTool', () => {
       mode: 'read',
       database_path: customPath,
     });
-    const isValid = result.includes('Query executada') || result.includes('driver SQLite') || result.includes('custom.db') || result.includes('Erro ao executar query') || result.includes('indisponivel');
+    const isValid = /Query (?:executada|executed)|SQLite driver|custom\.db|query execution failed|unavailable/i.test(
+      result,
+    );
     expect(isValid).toBe(true);
   });
 
@@ -90,7 +94,9 @@ describe('DatabaseQueryTool', () => {
     const result = await tool.execute({
       query: 'SELECT 1',
     });
-    const isValidResponse = result.includes('driver SQLite') || result.includes('Query executada') || result.includes('Erro ao executar query') || result.includes('indisponivel');
+    const isValidResponse = /SQLite driver|Query (?:executada|executed)|query execution failed|unavailable/i.test(
+      result,
+    );
     expect(isValidResponse).toBe(true);
   });
 
@@ -99,7 +105,7 @@ describe('DatabaseQueryTool', () => {
       query: 'SELECT 1',
       database_path: process.platform === 'win32' ? 'C:\\Windows\\temp.db' : '/tmp/temp.db',
     });
-    expect(result).toContain('Erro: o caminho do banco de dados');
-    expect(result).toContain('esta fora da raiz de dados permitida');
+    expect(result).toContain('Error: database path');
+    expect(result).toContain('outside the allowed Zavorth data root');
   });
 });

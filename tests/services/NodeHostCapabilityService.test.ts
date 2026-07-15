@@ -53,7 +53,7 @@ describe('NodeHostCapabilityService', () => {
       expect.objectContaining({
         invocationId: 'invoke-1',
         ok: true,
-        resultSummary: 'Comando executado no node host.',
+        resultSummary: 'Command executed on the node host.',
         stdout: 'NODE_MESH_OK',
       }),
     );
@@ -324,10 +324,7 @@ describe('NodeHostCapabilityService', () => {
       },
     });
 
-    expect(commandRunner.run).toHaveBeenCalledWith(
-      expect.stringContaining('System.Windows.Forms'),
-      expect.any(Object),
-    );
+    expect(commandRunner.run).toHaveBeenCalledWith(expect.stringContaining('System.Windows.Forms'), expect.any(Object));
     expect(result).toEqual(
       expect.objectContaining({
         invocationId: 'invoke-3',
@@ -407,12 +404,7 @@ describe('NodeHostCapabilityService', () => {
       expect.objectContaining({
         command: expect.stringContaining('pbcopy'),
         file: 'sh',
-        args: expect.arrayContaining([
-          '-c',
-          expect.stringContaining('pbcopy'),
-          'zavorth-clipboard',
-          'handoff pronto',
-        ]),
+        args: expect.arrayContaining(['-c', expect.stringContaining('pbcopy'), 'zavorth-clipboard', 'handoff pronto']),
       }),
       expect.any(Object),
     );
@@ -625,11 +617,15 @@ describe('NodeHostCapabilityService', () => {
     const sourcePath = path.join(root, 'camera-source.png');
     fs.writeFileSync(sourcePath, 'fake-png', 'utf8');
     const locationPath = path.join(root, 'location.json');
-    fs.writeFileSync(locationPath, JSON.stringify({
-      latitude: -23.55052,
-      longitude: -46.633308,
-      label: 'Sao Paulo',
-    }), 'utf8');
+    fs.writeFileSync(
+      locationPath,
+      JSON.stringify({
+        latitude: -23.55052,
+        longitude: -46.633308,
+        label: 'Sao Paulo',
+      }),
+      'utf8',
+    );
 
     const service = new NodeHostCapabilityService({
       workspaceRoot: root,
@@ -741,19 +737,23 @@ describe('NodeHostCapabilityService', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-node-host-maint-doctor-'));
     tempDirs.push(root);
     const stateFile = path.join(root, 'node-host-state.json');
-    fs.writeFileSync(stateFile, JSON.stringify({
-      pendingResults: [
-        {
-          invocationId: 'invoke-valid',
-          ok: true,
-          resultSummary: 'ok',
-        },
-        {
-          invocationId: '',
-          ok: true,
-        },
-      ],
-    }), 'utf8');
+    fs.writeFileSync(
+      stateFile,
+      JSON.stringify({
+        pendingResults: [
+          {
+            invocationId: 'invoke-valid',
+            ok: true,
+            resultSummary: 'ok',
+          },
+          {
+            invocationId: '',
+            ok: true,
+          },
+        ],
+      }),
+      'utf8',
+    );
 
     const service = new NodeHostCapabilityService({
       workspaceRoot: root,
@@ -801,19 +801,23 @@ describe('NodeHostCapabilityService', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-node-host-maint-repair-'));
     tempDirs.push(root);
     const stateFile = path.join(root, 'node-host-state.json');
-    fs.writeFileSync(stateFile, JSON.stringify({
-      pendingResults: [
-        {
-          invocationId: 'invoke-valid',
-          ok: true,
-          resultSummary: 'ok',
-        },
-        {
-          invocationId: '',
-          ok: true,
-        },
-      ],
-    }), 'utf8');
+    fs.writeFileSync(
+      stateFile,
+      JSON.stringify({
+        pendingResults: [
+          {
+            invocationId: 'invoke-valid',
+            ok: true,
+            resultSummary: 'ok',
+          },
+          {
+            invocationId: '',
+            ok: true,
+          },
+        ],
+      }),
+      'utf8',
+    );
 
     const service = new NodeHostCapabilityService({
       workspaceRoot: root,

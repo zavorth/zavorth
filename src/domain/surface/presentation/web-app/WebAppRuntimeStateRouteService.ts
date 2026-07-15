@@ -34,7 +34,7 @@ import { ZavorthDailyUseGuiCertificationService } from '../../../../services/Zav
 import type { ZavorthSensitiveActionFlowDecision } from '../../../../contracts/ZavorthSensitiveActionFlowContract.js';
 import { logger } from '../../../../logger';
 import type {
-ZavorthExternalAgentAdapterKind,
+  ZavorthExternalAgentAdapterKind,
   ZavorthExternalAgentIsolationKind,
   ZavorthExternalAgentNetworkMode,
 } from '../../../../contracts/ZavorthExternalAgentGatewayContract.js';
@@ -76,11 +76,7 @@ const EXTERNAL_AGENT_ISOLATION_KINDS = new Set<ZavorthExternalAgentIsolationKind
   'wsl',
   'docker',
 ]);
-const EXTERNAL_AGENT_NETWORK_MODES = new Set<ZavorthExternalAgentNetworkMode>([
-  'disabled',
-  'local-only',
-  'profile',
-]);
+const EXTERNAL_AGENT_NETWORK_MODES = new Set<ZavorthExternalAgentNetworkMode>(['disabled', 'local-only', 'profile']);
 
 export type WebAppRuntimeStateRouteHelpers = {
   buildSessionContext: (sessionId: string) => WebSessionContext;
@@ -92,10 +88,7 @@ export type WebAppRuntimeStateRouteHelpers = {
   buildRecallQueryFromSnapshot: (snapshot: RuntimeRecord | null | undefined) => string;
   buildLightweightStateResponse: (state: RuntimeRecord) => RuntimeRecord;
   buildProductMode: () => RuntimeRecord | null;
-  buildUiSurfaceHints: (
-    productMode: RuntimeRecord | null,
-    input: UiSurfaceHintsInput,
-  ) => RuntimeRecord | null;
+  buildUiSurfaceHints: (productMode: RuntimeRecord | null, input: UiSurfaceHintsInput) => RuntimeRecord | null;
   buildCanonicalStatePayload: (sessionId: string, options: RuntimeRecord) => Promise<RuntimeRecord>;
   isCanonicalSessionPlaneRoute: (pathname: string) => boolean;
 };
@@ -142,22 +135,19 @@ export class WebAppRuntimeStateRouteService {
       const agentRunQuery = this.buildAgentRunQuery(url);
       const generatedAt = new Date().toISOString();
       const contractAdapter = await this.buildZavorthControlContractAdapterProjection(url, deps);
-      const snapshot = deps.agentGateway?.buildSnapshot(
-        this.buildAgentRunSnapshotOptions(activeSessionId, agentRunQuery),
-      ) || this.buildUnavailableAgentGatewaySnapshot(
-        generatedAt,
-        this.buildAgentRunSnapshotOptions(activeSessionId, agentRunQuery),
-      );
+      const snapshot =
+        deps.agentGateway?.buildSnapshot(this.buildAgentRunSnapshotOptions(activeSessionId, agentRunQuery)) ||
+        this.buildUnavailableAgentGatewaySnapshot(
+          generatedAt,
+          this.buildAgentRunSnapshotOptions(activeSessionId, agentRunQuery),
+        );
       const providerCockpit = await this.buildProviderCockpitProjection(url);
       const providerSelectionUx = await this.buildProviderSelectionProjection(url);
       const providerPreference = await this.buildProviderPreferenceProjection();
       const visualReceipts = this.buildVisualReceiptsProjection(url);
       const sensitiveActionFlowUx = this.buildSensitiveActionFlowUxProjection(url);
       const baseSnapshot = this.attachSensitiveActionFlowUx(
-        this.attachVisualReceipts(
-          this.attachLlmRuntimeTelemetry(snapshot),
-          visualReceipts,
-        ),
+        this.attachVisualReceipts(this.attachLlmRuntimeTelemetry(snapshot), visualReceipts),
         sensitiveActionFlowUx,
       );
       const activeMissionUx = this.buildActiveMissionUxProjection({
@@ -206,82 +196,119 @@ export class WebAppRuntimeStateRouteService {
     if (pathname === '/api/web/zavorthControl/contracts-v1' && req.method === 'GET') {
       const contractAdapter = await this.buildZavorthControlContractAdapterProjection(url, deps);
       if (!contractAdapter) {
-        deps.writeJson(res, {
-          ok: false,
-          error: 'canonical_public_api_unavailable',
-          detail: 'ZavorthControl contract adapter requires the runtime API v1 service.',
-        }, 503);
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            error: 'canonical_public_api_unavailable',
+            detail: 'ZavorthControl contract adapter requires the runtime API v1 service.',
+          },
+          503,
+        );
         return true;
       }
-      deps.writeJson(res, {
-        ok: true,
-        generatedAt: contractAdapter.generatedAt,
-        contractAdapter,
-        contractsV1: contractAdapter,
-      }, 200);
+      deps.writeJson(
+        res,
+        {
+          ok: true,
+          generatedAt: contractAdapter.generatedAt,
+          contractAdapter,
+          contractsV1: contractAdapter,
+        },
+        200,
+      );
       return true;
     }
 
-    if ((pathname === '/api/web/zavorthControl/events-v1' || pathname === '/api/web/zavorthControl/events-v1') && req.method === 'GET') {
+    if (
+      (pathname === '/api/web/zavorthControl/events-v1' || pathname === '/api/web/zavorthControl/events-v1') &&
+      req.method === 'GET'
+    ) {
       if (!deps.publicApi) {
-        deps.writeJson(res, {
-          ok: false,
-          error: 'canonical_public_api_unavailable',
-          detail: 'ZavorthControl event wiring requires the runtime API v1 service.',
-        }, 503);
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            error: 'canonical_public_api_unavailable',
+            detail: 'ZavorthControl event wiring requires the runtime API v1 service.',
+          },
+          503,
+        );
         return true;
       }
       const sessionId = String(url.searchParams.get('sessionId') || '').trim() || 'control';
-      deps.writeJson(res, {
-        ok: true,
-        generatedAt: new Date().toISOString(),
-        eventsV1: await deps.publicApi.readRuntimeEvents({ sessionId }),
-        safety: {
-          projectionOnly: true,
-          zavorthControlCanExecute: false,
-          policyBrokerRequiredForMutableActions: true,
-          rawSecretsSerialized: false,
+      deps.writeJson(
+        res,
+        {
+          ok: true,
+          generatedAt: new Date().toISOString(),
+          eventsV1: await deps.publicApi.readRuntimeEvents({ sessionId }),
+          safety: {
+            projectionOnly: true,
+            zavorthControlCanExecute: false,
+            policyBrokerRequiredForMutableActions: true,
+            rawSecretsSerialized: false,
+          },
         },
-      }, 200);
+        200,
+      );
       return true;
     }
 
-    if ((pathname === '/api/web/zavorthControl/gui-certification-v1' || pathname === '/api/web/zavorthControl/gui-certification-v1') && req.method === 'GET') {
+    if (
+      (pathname === '/api/web/zavorthControl/gui-certification-v1' ||
+        pathname === '/api/web/zavorthControl/gui-certification-v1') &&
+      req.method === 'GET'
+    ) {
       if (!deps.publicApi) {
-        deps.writeJson(res, {
-          ok: false,
-          error: 'canonical_public_api_unavailable',
-          detail: 'Daily-use GUI certification requires the runtime API v1 service.',
-        }, 503);
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            error: 'canonical_public_api_unavailable',
+            detail: 'Daily-use GUI certification requires the runtime API v1 service.',
+          },
+          503,
+        );
         return true;
       }
       const sessionId = String(url.searchParams.get('sessionId') || '').trim() || 'control';
       const request = String(url.searchParams.get('q') || url.searchParams.get('request') || '').trim();
-      deps.writeJson(res, {
-        ok: true,
-        generatedAt: new Date().toISOString(),
-        certification: await new ZavorthDailyUseGuiCertificationService().certify({
-          publicApi: deps.publicApi,
-          sessionId,
-          request,
-        }),
-        safety: {
-          projectionOnly: true,
-          zavorthControlCanExecute: false,
-          desktopCanBypassRuntime: false,
-          policyBrokerRequiredForMutableActions: true,
-          rawSecretsSerialized: false,
+      deps.writeJson(
+        res,
+        {
+          ok: true,
+          generatedAt: new Date().toISOString(),
+          certification: await new ZavorthDailyUseGuiCertificationService().certify({
+            publicApi: deps.publicApi,
+            sessionId,
+            request,
+          }),
+          safety: {
+            projectionOnly: true,
+            zavorthControlCanExecute: false,
+            desktopCanBypassRuntime: false,
+            policyBrokerRequiredForMutableActions: true,
+            rawSecretsSerialized: false,
+          },
         },
-      }, 200);
+        200,
+      );
       return true;
     }
 
-    if ((pathname === '/api/web/zavorthControl/actions' || pathname === '/api/web/zavorthControl/actions') && req.method === 'POST') {
+    if (
+      (pathname === '/api/web/zavorthControl/actions' || pathname === '/api/web/zavorthControl/actions') &&
+      req.method === 'POST'
+    ) {
       await this.handleZavorthControlActionRequest(req, res, deps);
       return true;
     }
 
-    if ((pathname === '/api/web/zavorthControl/chat-v1' || pathname === '/api/web/zavorthControl/chat-v1') && req.method === 'POST') {
+    if (
+      (pathname === '/api/web/zavorthControl/chat-v1' || pathname === '/api/web/zavorthControl/chat-v1') &&
+      req.method === 'POST'
+    ) {
       await this.handleZavorthControlChatRequest(req, res, deps);
       return true;
     }
@@ -297,16 +324,16 @@ export class WebAppRuntimeStateRouteService {
     }
 
     if (
-      (pathname === '/api/web/zavorthControl/memory' || pathname === '/api/web/zavorthControl/memory')
-      && req.method === 'GET'
+      (pathname === '/api/web/zavorthControl/memory' || pathname === '/api/web/zavorthControl/memory') &&
+      req.method === 'GET'
     ) {
       deps.writeJson(res, this.readZavorthControlMemoryFacts(url), 200);
       return true;
     }
 
     if (
-      (pathname === '/api/web/zavorthControl/memory' || pathname === '/api/web/zavorthControl/memory')
-      && req.method === 'POST'
+      (pathname === '/api/web/zavorthControl/memory' || pathname === '/api/web/zavorthControl/memory') &&
+      req.method === 'POST'
     ) {
       const body = await deps.readJsonBody(req);
       deps.writeJson(res, this.applyZavorthControlMemoryAction(url, body), 200);
@@ -512,7 +539,8 @@ export class WebAppRuntimeStateRouteService {
       const onboarding = new ZavorthExternalAgentOnboardingService().buildSnapshot({
         consent: body?.consent === true || body?.readOnlyConsent === true,
         pathHint: String(body?.path || body?.pathHint || '').trim() || null,
-        approximatePathHint: String(body?.approxPath || body?.approximatePath || body?.approximatePathHint || '').trim() || null,
+        approximatePathHint:
+          String(body?.approxPath || body?.approximatePath || body?.approximatePathHint || '').trim() || null,
         commandHint: String(body?.command || body?.cli || body?.commandHint || '').trim() || null,
         endpointHint: String(body?.endpoint || body?.url || body?.endpointHint || '').trim() || null,
         requestedBy: String(body?.requestedBy || 'zavorthControl-operator').trim(),
@@ -553,7 +581,9 @@ export class WebAppRuntimeStateRouteService {
     if (pathname === '/api/runtime/external-agents' && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
       const gateway = new ZavorthExternalAgentGatewayService();
-      const action = String(body?.action || body?.kind || '').trim().toLowerCase();
+      const action = String(body?.action || body?.kind || '')
+        .trim()
+        .toLowerCase();
       const approvalRequested = isExternalAgentApiApprovalRequested(body);
       const apiApprovalAccepted = isExternalAgentApiApprovalAccepted(req, body);
       const apiApprovalSafety = {
@@ -634,7 +664,11 @@ export class WebAppRuntimeStateRouteService {
         allowExternalAdaptation: url.searchParams.get('allowExternalAdaptation') !== 'false',
         maxCandidates: Number(url.searchParams.get('maxCandidates') || 0) || null,
       });
-      deps.writeJson(res, { ok: true, live: false, generatedAt: snapshot.generatedAt, capabilityMesh: snapshot, safety: snapshot.safety }, 200);
+      deps.writeJson(
+        res,
+        { ok: true, live: false, generatedAt: snapshot.generatedAt, capabilityMesh: snapshot, safety: snapshot.safety },
+        200,
+      );
       return true;
     }
 
@@ -651,7 +685,11 @@ export class WebAppRuntimeStateRouteService {
         allowExternalAdaptation: body?.allowExternalAdaptation !== false,
         maxCandidates: Number(body?.maxCandidates || 0) || null,
       });
-      deps.writeJson(res, { ok: true, live: false, generatedAt: snapshot.generatedAt, capabilityMesh: snapshot, safety: snapshot.safety }, 200);
+      deps.writeJson(
+        res,
+        { ok: true, live: false, generatedAt: snapshot.generatedAt, capabilityMesh: snapshot, safety: snapshot.safety },
+        200,
+      );
       return true;
     }
 
@@ -662,7 +700,8 @@ export class WebAppRuntimeStateRouteService {
           {
             ok: false,
             error: 'provider_live_probe_requires_explicit_operator_cli_or_approved_api',
-            detail: 'ZavorthControl exposes readiness/projection only. Live provider probes do not run on a normal Control render.',
+            detail:
+              'ZavorthControl exposes readiness/projection only. Live provider probes do not run on a normal Control render.',
           },
           403,
         );
@@ -683,6 +722,700 @@ export class WebAppRuntimeStateRouteService {
       return true;
     }
 
+    if (pathname === '/api/knowledge/hub' && req.method === 'GET') {
+      try {
+        const { isLoopbackRemoteAddress, resolveLearningLoopApiUserId } =
+          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
+        const { buildLearnedKnowledgeHub } =
+          require('../../../../services/learned-knowledge/LearnedKnowledgeHub.js') as typeof import('../../../../services/learned-knowledge/LearnedKnowledgeHub.js');
+        const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
+        const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
+        const authUserId = authIdentity ? String(authIdentity.userId || '').trim() : '';
+        const requestedUserId = String(url.searchParams.get('userId') || '').trim();
+        const resolved = resolveLearningLoopApiUserId({
+          requestedUserId,
+          authUserId,
+          allowLocalUiWithoutAuth: isLoopback,
+        });
+        if (!resolved.ok) {
+          const status = resolved.error === 'auth_required' ? 401 : 403;
+          deps.writeJson(res, { ok: false, error: resolved.error }, status);
+          return true;
+        }
+        const hub = buildLearnedKnowledgeHub({
+          userId: resolved.userId,
+          projectRoot: process.cwd(),
+        });
+        deps.writeJson(res, hub, 200);
+        return true;
+      } catch (error: unknown) {
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            // Avoid leaking stack/paths in error bodies.
+            error: 'knowledge_hub_failed',
+          },
+          500,
+        );
+        return true;
+      }
+    }
+
+    if (pathname === '/api/knowledge/story' && req.method === 'GET') {
+      try {
+        const { isLoopbackRemoteAddress, resolveLearningLoopApiUserId } =
+          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
+        const { buildLearnedKnowledgeStory } =
+          require('../../../../services/learned-knowledge/LearnedKnowledgeStoryService.js') as typeof import('../../../../services/learned-knowledge/LearnedKnowledgeStoryService.js');
+        const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
+        const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
+        const authUserId = authIdentity ? String(authIdentity.userId || '').trim() : '';
+        const requestedUserId = String(url.searchParams.get('userId') || '').trim();
+        const resolved = resolveLearningLoopApiUserId({
+          requestedUserId,
+          authUserId,
+          allowLocalUiWithoutAuth: isLoopback,
+        });
+        if (!resolved.ok) {
+          const status = resolved.error === 'auth_required' ? 401 : 403;
+          deps.writeJson(res, { ok: false, error: resolved.error }, status);
+          return true;
+        }
+        const days = Math.max(1, Math.min(90, Number(url.searchParams.get('days') || 7) || 7));
+        const limit = Math.max(1, Math.min(100, Number(url.searchParams.get('limit') || 24) || 24));
+        const story = buildLearnedKnowledgeStory({
+          userId: resolved.userId,
+          projectRoot: process.cwd(),
+          windowDays: days,
+          limit,
+        });
+        deps.writeJson(res, story, 200);
+        return true;
+      } catch (error: unknown) {
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            error: 'knowledge_story_failed',
+          },
+          500,
+        );
+        return true;
+      }
+    }
+
+    if (pathname === '/api/knowledge/advanced' && req.method === 'GET') {
+      try {
+        const { isLoopbackRemoteAddress } =
+          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
+        const { buildLearnedKnowledgeAdvanced } =
+          require('../../../../services/learned-knowledge/LearnedKnowledgeAdvanced.js') as typeof import('../../../../services/learned-knowledge/LearnedKnowledgeAdvanced.js');
+        const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
+        const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
+        if (!isLoopback && !authIdentity) {
+          deps.writeJson(
+            res,
+            {
+              ok: false,
+              error: 'auth_required',
+              detail: 'Authenticated session required when Control is network-exposed (non-loopback).',
+            },
+            401,
+          );
+          return true;
+        }
+        const advanced = buildLearnedKnowledgeAdvanced({ projectRoot: process.cwd() });
+        deps.writeJson(res, { ok: true, ...advanced }, 200);
+        return true;
+      } catch (error: unknown) {
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            error: 'knowledge_advanced_failed',
+          },
+          500,
+        );
+        return true;
+      }
+    }
+
+    if (pathname === '/api/knowledge/pack' && req.method === 'GET') {
+      try {
+        const { isLoopbackRemoteAddress, resolveLearningLoopApiUserId } =
+          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
+        const { LearnedKnowledgePlaneService } =
+          require('../../../../services/learned-knowledge/LearnedKnowledgePlaneService.js') as typeof import('../../../../services/learned-knowledge/LearnedKnowledgePlaneService.js');
+        const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
+        const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
+        const authUserId = authIdentity ? String(authIdentity.userId || '').trim() : '';
+        const requestedUserId = String(url.searchParams.get('userId') || '').trim();
+        const resolved = resolveLearningLoopApiUserId({
+          requestedUserId,
+          authUserId,
+          allowLocalUiWithoutAuth: isLoopback,
+        });
+        if (!resolved.ok) {
+          const status = resolved.error === 'auth_required' ? 401 : 403;
+          deps.writeJson(res, { ok: false, error: resolved.error }, status);
+          return true;
+        }
+        const query = String(url.searchParams.get('query') || url.searchParams.get('q') || '').trim();
+        const budget = Math.min(8000, Math.max(256, Number(url.searchParams.get('budget') || 1200) || 1200));
+        const pack = new LearnedKnowledgePlaneService({ projectRoot: process.cwd() }).buildPack({
+          userId: resolved.userId,
+          userMessage: query || null,
+          surface: 'control',
+          projectRoot: process.cwd(),
+          tokenBudget: budget,
+        });
+        deps.writeJson(res, { ok: true, ...pack }, 200);
+        return true;
+      } catch (error: unknown) {
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            error: 'knowledge_pack_failed',
+          },
+          500,
+        );
+        return true;
+      }
+    }
+
+    if (pathname === '/api/knowledge/about' && (req.method === 'GET' || req.method === 'POST')) {
+      try {
+        const { isLoopbackRemoteAddress, resolveLearningLoopApiUserId } =
+          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
+        const { AboutYouService } =
+          require('../../../../services/learned-knowledge/AboutYouService.js') as typeof import('../../../../services/learned-knowledge/AboutYouService.js');
+        const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
+        const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
+        const authUserId = authIdentity ? String(authIdentity.userId || '').trim() : '';
+        const requestedUserId = String(url.searchParams.get('userId') || '').trim();
+        const resolved = resolveLearningLoopApiUserId({
+          requestedUserId,
+          authUserId,
+          allowLocalUiWithoutAuth: isLoopback,
+        });
+        if (!resolved.ok) {
+          const status = resolved.error === 'auth_required' ? 401 : 403;
+          deps.writeJson(res, { ok: false, error: resolved.error }, status);
+          return true;
+        }
+        const about = new AboutYouService({ projectRoot: process.cwd() });
+        if (req.method === 'GET') {
+          const snap = about.buildSnapshot(resolved.userId);
+          deps.writeJson(res, { ok: true, ...snap }, 200);
+          return true;
+        }
+        // POST action=propose|approve|reject|forget|export|propose-learning
+        const action = String(url.searchParams.get('action') || '')
+          .trim()
+          .toLowerCase();
+        const id = String(url.searchParams.get('id') || '').trim();
+        const key = String(url.searchParams.get('key') || '').trim();
+        const value = String(url.searchParams.get('value') || '').trim();
+        if (action === 'propose') {
+          const result = about.propose(resolved.userId, { key, value });
+          deps.writeJson(res, { ok: result.ok, text: result.text, draft: result.draft }, result.ok ? 200 : 400);
+          return true;
+        }
+        if (action === 'approve') {
+          const result = about.approve(resolved.userId, id || key);
+          deps.writeJson(res, { ok: result.ok, text: result.text, fact: result.fact }, result.ok ? 200 : 400);
+          return true;
+        }
+        if (action === 'reject') {
+          const result = about.reject(resolved.userId, id || key);
+          deps.writeJson(res, { ok: result.ok, text: result.text }, result.ok ? 200 : 400);
+          return true;
+        }
+        if (action === 'forget') {
+          const result = about.forget(resolved.userId, id || key);
+          deps.writeJson(res, { ok: result.ok, text: result.text }, result.ok ? 200 : 400);
+          return true;
+        }
+        if (action === 'export') {
+          const result = about.exportProfile(resolved.userId);
+          deps.writeJson(res, { ok: result.ok, text: result.text, path: result.path }, result.ok ? 200 : 400);
+          return true;
+        }
+        if (action === 'propose-learning') {
+          const result = about.proposeFromLearning(resolved.userId);
+          deps.writeJson(res, { ok: result.ok, text: result.text, proposed: result.proposed }, 200);
+          return true;
+        }
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            error: 'unknown_action',
+            detail: 'Use action=propose|approve|reject|forget|export|propose-learning',
+          },
+          400,
+        );
+        return true;
+      } catch (error: unknown) {
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+          },
+          500,
+        );
+        return true;
+      }
+    }
+
+    if (pathname === '/api/knowledge/facts' && req.method === 'GET') {
+      try {
+        const { isLoopbackRemoteAddress } =
+          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
+        const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
+        const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
+        if (!isLoopback && !authIdentity) {
+          deps.writeJson(
+            res,
+            {
+              ok: false,
+              error: 'auth_required',
+              detail: 'Authenticated session required when Control is network-exposed (non-loopback).',
+            },
+            401,
+          );
+          return true;
+        }
+        const query = String(url.searchParams.get('query') || url.searchParams.get('q') || '').trim();
+        if (!query) {
+          deps.writeJson(res, { ok: false, error: 'query is required' }, 400);
+          return true;
+        }
+        const topK = Math.min(20, Math.max(1, Number(url.searchParams.get('topK') || 6) || 6));
+        const budget = Math.min(6000, Math.max(256, Number(url.searchParams.get('budget') || 1800) || 1800));
+        const { queryKnowledgeFacts } =
+          require('../../../../services/learned-knowledge/KnowledgeFactsRecall.js') as typeof import('../../../../services/learned-knowledge/KnowledgeFactsRecall.js');
+        const result = queryKnowledgeFacts({
+          query,
+          topK,
+          contextTokenBudget: budget,
+          projectRoot: process.cwd(),
+        });
+        deps.writeJson(
+          res,
+          {
+            ok: true,
+            pillar: 'knowledge',
+            productLabel: 'Knowledge',
+            recall: result,
+            hits: result.hits,
+          },
+          200,
+        );
+        return true;
+      } catch (error: unknown) {
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+          },
+          500,
+        );
+        return true;
+      }
+    }
+
+    if (pathname === '/api/knowledge/consolidate' && req.method === 'GET') {
+      try {
+        const { isLoopbackRemoteAddress } =
+          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
+        const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
+        const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
+        if (!isLoopback && !authIdentity) {
+          deps.writeJson(
+            res,
+            {
+              ok: false,
+              error: 'auth_required',
+              detail: 'Authenticated session required when Control is network-exposed (non-loopback).',
+            },
+            401,
+          );
+          return true;
+        }
+        const { previewKnowledgeConsolidate } =
+          require('../../../../services/learned-knowledge/KnowledgeFactsRecall.js') as typeof import('../../../../services/learned-knowledge/KnowledgeFactsRecall.js');
+        const preview = previewKnowledgeConsolidate({
+          projectRoot: process.cwd(),
+          sessionSummary: String(url.searchParams.get('summary') || '').trim() || null,
+        });
+        deps.writeJson(res, { ok: true, ...preview }, 200);
+        return true;
+      } catch (error: unknown) {
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+          },
+          500,
+        );
+        return true;
+      }
+    }
+
+    if (pathname === '/api/learning-loop' && req.method === 'GET') {
+      try {
+        const { ExperienceSkillLearningLoopService } =
+          require('../../../../services/ExperienceSkillLearningLoopService.js') as typeof import('../../../../services/ExperienceSkillLearningLoopService.js');
+        const { resolveLearningLoopApiUserId, isLoopbackRemoteAddress } =
+          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
+        // Prefer session identity. Local UI ids (control/desktop) only on loopback socket peer.
+        const requestedUserId = String(url.searchParams.get('userId') || '').trim();
+        const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
+        const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
+        const authUserId = authIdentity ? String(authIdentity.userId || '').trim() : '';
+        const resolved = resolveLearningLoopApiUserId({
+          requestedUserId,
+          authUserId,
+          allowLocalUiWithoutAuth: isLoopback,
+        });
+        if (!resolved.ok) {
+          const status = resolved.error === 'auth_required' ? 401 : 403;
+          deps.writeJson(
+            res,
+            {
+              ok: false,
+              error: resolved.error,
+              detail:
+                resolved.error === 'auth_required'
+                  ? 'Authenticated session required when Control is network-exposed (non-loopback).'
+                  : 'Arbitrary userId is not allowed without authenticated session.',
+            },
+            status,
+          );
+          return true;
+        }
+        const userId = resolved.userId;
+        const loop = new ExperienceSkillLearningLoopService();
+        const status = loop.buildStatusSnapshot(userId);
+        const drafts = loop.listDrafts(userId, 50);
+        deps.writeJson(
+          res,
+          {
+            ok: true,
+            ...status,
+            drafts: status.drafts,
+            count: status.drafts,
+            workflowsLearned: status.workflowsLearned,
+            badge: status.badge,
+            latestTitle: status.lastSkillTitle || drafts[0]?.title || null,
+            latest: status.lastSkillTitle || drafts[0]?.title || null,
+            items: drafts.slice(0, 8).map((d) => ({
+              id: d.id,
+              title: d.title,
+              useCount: d.useCount,
+              revisions: d.revisions || 0,
+              tools: d.tools,
+            })),
+          },
+          200,
+        );
+        return true;
+      } catch (error: unknown) {
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+          },
+          500,
+        );
+        return true;
+      }
+    }
+
+    // One-click promote for Control/Desktop skill drafts (/learn promote N — not /learning candidates).
+    if (pathname === '/api/learning-loop/promote' && req.method === 'POST') {
+      try {
+        const { ExperienceSkillLearningLoopService } =
+          require('../../../../services/ExperienceSkillLearningLoopService.js') as typeof import('../../../../services/ExperienceSkillLearningLoopService.js');
+        const { resolveLearningLoopApiUserId, isLoopbackRemoteAddress, isLearningWriteAllowed } =
+          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
+        const body = (await deps.readJsonBody(req).catch(() => ({}))) as Record<string, unknown>;
+        const requestedUserId = String(body?.userId || url.searchParams.get('userId') || '').trim();
+        const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
+        const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
+        const authUserId = authIdentity ? String(authIdentity.userId || '').trim() : '';
+        const resolved = resolveLearningLoopApiUserId({
+          requestedUserId,
+          authUserId,
+          allowLocalUiWithoutAuth: isLoopback,
+        });
+        if (!resolved.ok) {
+          const status = resolved.error === 'auth_required' ? 401 : 403;
+          deps.writeJson(
+            res,
+            {
+              ok: false,
+              error: resolved.error,
+              detail:
+                resolved.error === 'auth_required'
+                  ? 'Authenticated session required when Control is network-exposed (non-loopback).'
+                  : 'Arbitrary userId is not allowed without authenticated session.',
+            },
+            status,
+          );
+          return true;
+        }
+        const userId = resolved.userId;
+        const dryRun = body?.dryRun === true || body?.dryRun === 'true' || body?.dryRun === 1;
+        // Prefer 1-based ordinal from list order (promote 1 = first draft). Optional exact draftId.
+        const ordinalRaw = body?.ordinal ?? body?.n ?? null;
+        const ordinalNum = ordinalRaw == null || ordinalRaw === '' ? NaN : Number(ordinalRaw);
+        const draftIdRaw = String(body?.draftId || body?.id || body?.ref || '').trim();
+        let ref = '';
+        if (Number.isFinite(ordinalNum) && ordinalNum >= 1) {
+          ref = String(Math.floor(ordinalNum));
+        } else if (draftIdRaw) {
+          ref = draftIdRaw;
+        }
+        if (!ref) {
+          deps.writeJson(
+            res,
+            {
+              ok: false,
+              error: 'missing_draft_ref',
+              detail: 'Provide ordinal (1-based from /learn list) or draftId.',
+            },
+            400,
+          );
+          return true;
+        }
+        // Real promote is a durable learning write; dry-run is read-only preview.
+        if (!dryRun) {
+          const writeAllowed = isLearningWriteAllowed({
+            surface: isLoopback ? 'control' : 'control-api',
+            userId,
+            allowLearningWrite: isLoopback || Boolean(authUserId) || null,
+          });
+          if (!writeAllowed) {
+            deps.writeJson(
+              res,
+              {
+                ok: false,
+                error: 'learning_write_denied',
+                detail: 'Learning write not allowed for this actor/surface.',
+              },
+              403,
+            );
+            return true;
+          }
+        }
+        const loop = new ExperienceSkillLearningLoopService();
+        const result = loop.promote(userId, ref, { dryRun });
+        if (!result.ok) {
+          deps.writeJson(
+            res,
+            {
+              ok: false,
+              error: 'promote_failed',
+              detail: result.text || 'Promote failed.',
+              dryRun: Boolean(result.dryRun),
+              draftId: result.draftId || null,
+              title: result.title || null,
+              ordinal: Number.isFinite(ordinalNum) && ordinalNum >= 1 ? Math.floor(ordinalNum) : null,
+              fallbackCommand:
+                Number.isFinite(ordinalNum) && ordinalNum >= 1
+                  ? `/learn promote ${Math.floor(ordinalNum)}${dryRun ? ' --dry-run' : ''}`
+                  : '/learn list',
+            },
+            400,
+          );
+          return true;
+        }
+        deps.writeJson(
+          res,
+          {
+            ok: true,
+            dryRun: Boolean(result.dryRun),
+            text: result.text,
+            draftId: result.draftId || null,
+            title: result.title || null,
+            skillName: result.skillName || null,
+            runtimeSkillPath: result.runtimeSkillPath || null,
+            auditDest: result.auditDest || null,
+            loaderReady: result.loaderReady ?? null,
+            ordinal: Number.isFinite(ordinalNum) && ordinalNum >= 1 ? Math.floor(ordinalNum) : null,
+            plane: 'experience-skill-drafts',
+            note: '/learn promote (skill drafts) — not /learning candidates',
+          },
+          200,
+        );
+        return true;
+      } catch (error: unknown) {
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+          },
+          500,
+        );
+        return true;
+      }
+    }
+
+    if (pathname === '/api/llm-roles' && (req.method === 'GET' || req.method === 'POST')) {
+      try {
+        const { LlmRoleRoutingService } =
+          require('../../../../services/llm/LlmRoleRoutingService.js') as typeof import('../../../../services/llm/LlmRoleRoutingService.js');
+        const { normalizeRoleSurface, resolveLlmRoleScopeId } =
+          require('../../../../contracts/runtime/LlmRoleRoutingContract.js') as typeof import('../../../../contracts/runtime/LlmRoleRoutingContract.js');
+        const { LlmRoleSurfaceCommands } =
+          require('../../../../services/llm/LlmRoleSurfaceCommands.js') as typeof import('../../../../services/llm/LlmRoleSurfaceCommands.js');
+        const { LlmRuntimeService } =
+          require('../../../../services/llm/LlmRuntimeService.js') as typeof import('../../../../services/llm/LlmRuntimeService.js');
+        const { resolveLearningLoopApiUserId, isLoopbackRemoteAddress } =
+          require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
+        const roleService = new LlmRoleRoutingService();
+        const surfaceCommands = new LlmRoleSurfaceCommands(roleService);
+        const runtime = new LlmRuntimeService();
+        const isUsable = (name: string) => runtime.isProviderAvailable(name);
+        // Same loopback-or-auth gate as /api/learning-loop so Desktop/Control keep working on 127.0.0.1.
+        const requestedUserId = String(url.searchParams.get('userId') || '').trim();
+        const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
+        const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
+        const authUserId = authIdentity ? String(authIdentity.userId || '').trim() : '';
+        const resolved = resolveLearningLoopApiUserId({
+          requestedUserId,
+          authUserId,
+          allowLocalUiWithoutAuth: isLoopback,
+        });
+        if (!resolved.ok) {
+          const status = resolved.error === 'auth_required' ? 401 : 403;
+          deps.writeJson(
+            res,
+            {
+              ok: false,
+              error: resolved.error,
+              detail:
+                resolved.error === 'auth_required'
+                  ? 'Authenticated session required when Control is network-exposed (non-loopback).'
+                  : 'Arbitrary userId is not allowed without authenticated session.',
+            },
+            status,
+          );
+          return true;
+        }
+        const userId = resolved.userId;
+        const surface = normalizeRoleSurface(url.searchParams.get('surface') || 'control');
+        const scopeId = resolveLlmRoleScopeId({ userId, surface });
+        const cmdCtx = {
+          userId,
+          surface,
+          roleScopeId: scopeId,
+          isProviderUsable: isUsable,
+        };
+
+        if (req.method === 'GET') {
+          await roleService.refreshLiveCatalog(isUsable).catch(() => 0);
+          const configRoles = roleService.getConfig(scopeId);
+          const health = roleService.healthCheck(scopeId, isUsable);
+          const proposal = roleService.buildSetupQuestion(isUsable);
+          deps.writeJson(
+            res,
+            {
+              ok: true,
+              scopeId,
+              surface,
+              roles: configRoles,
+              health,
+              proposal: proposal.proposal,
+              usableSummary: proposal.usableSummary,
+              statusText: surfaceCommands.formatStatus(cmdCtx),
+              forceStrongActive: roleService.isForceStrongActive(scopeId),
+            },
+            200,
+          );
+          return true;
+        }
+
+        const body = (await deps.readJsonBody(req).catch(() => ({}))) as Record<string, any>;
+        if (body?.action === 'set') {
+          const next = roleService.setRoles(scopeId, {
+            default: body.default ?? undefined,
+            strong: body.strong ?? undefined,
+            background: body.background ?? undefined,
+            strongOnDefaultFailure: body.strongOnDefaultFailure,
+            taskStrong: body.taskStrong,
+            source: 'ui',
+          });
+          deps.writeJson(
+            res,
+            {
+              ok: true,
+              surface,
+              roles: next,
+              statusText: surfaceCommands.formatStatus(cmdCtx),
+            },
+            200,
+          );
+          return true;
+        }
+        if (body?.action === 'forceStrong') {
+          const next = roleService.setForceStrong(scopeId, body.enabled !== false);
+          deps.writeJson(
+            res,
+            {
+              ok: true,
+              surface,
+              roles: next,
+              statusText: surfaceCommands.formatStatus(cmdCtx),
+            },
+            200,
+          );
+          return true;
+        }
+        if (body?.action === 'dismiss') {
+          const next = roleService.dismissPrompt(scopeId);
+          deps.writeJson(res, { ok: true, surface, roles: next }, 200);
+          return true;
+        }
+        if (body?.action === 'setup') {
+          const prompt = surfaceCommands.promptSetup(cmdCtx, true);
+          deps.writeJson(
+            res,
+            {
+              ok: true,
+              surface,
+              prompt: prompt.text,
+              reason: prompt.reason,
+              roles: roleService.getConfig(scopeId),
+            },
+            200,
+          );
+          return true;
+        }
+        deps.writeJson(res, { ok: false, error: 'unknown_action' }, 400);
+        return true;
+      } catch (error: unknown) {
+        deps.writeJson(
+          res,
+          {
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+          },
+          500,
+        );
+        return true;
+      }
+    }
+
     if (pathname === '/api/providers/model-catalog' && req.method === 'GET') {
       if (this.isProviderLiveProbeRequested(url)) {
         deps.writeJson(
@@ -690,7 +1423,8 @@ export class WebAppRuntimeStateRouteService {
           {
             ok: false,
             error: 'provider_model_catalog_live_probe_requires_explicit_operator_cli_or_approved_api',
-            detail: 'O zavorthControl renderiza o catalogo de providers/modelos sem chamada live oculta. Prova live precisa ser acionada explicitamente pelo operador.',
+            detail:
+              'O zavorthControl renderiza o catalogo de providers/modelos sem chamada live oculta. Prova live precisa ser acionada explicitamente pelo operador.',
           },
           403,
         );
@@ -718,7 +1452,8 @@ export class WebAppRuntimeStateRouteService {
           {
             ok: false,
             error: 'provider_activation_live_probe_requires_explicit_operator_cli_or_approved_api',
-            detail: 'O zavorthControl renderiza ativacao de providers sem chamada live oculta. Prova live deve ser acionada explicitamente pelo operador.',
+            detail:
+              'O zavorthControl renderiza ativacao de providers sem chamada live oculta. Prova live deve ser acionada explicitamente pelo operador.',
           },
           403,
         );
@@ -773,7 +1508,9 @@ export class WebAppRuntimeStateRouteService {
     if (pathname === '/api/web/learning/actions' && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
       const candidateId = String(body?.candidateId || '').trim();
-      const actionId = String(body?.actionId || '').trim().toLowerCase();
+      const actionId = String(body?.actionId || '')
+        .trim()
+        .toLowerCase();
       if (!candidateId) {
         deps.writeJson(res, { ok: false, error: 'candidateId obrigatorio.' }, 400);
         return true;
@@ -1062,10 +1799,7 @@ export class WebAppRuntimeStateRouteService {
     return this.projectionSupport.buildAgentRunQuery(url);
   }
 
-  public buildAgentRunSnapshotOptions(
-    activeSessionId: string | null,
-    query: RuntimeRecord,
-  ): RuntimeRecord {
+  public buildAgentRunSnapshotOptions(activeSessionId: string | null, query: RuntimeRecord): RuntimeRecord {
     return this.projectionSupport.buildAgentRunSnapshotOptions(activeSessionId, query);
   }
 
@@ -1073,10 +1807,7 @@ export class WebAppRuntimeStateRouteService {
     return this.projectionSupport.readAgentRunStatuses(url);
   }
 
-  public buildUnavailableAgentGatewaySnapshot(
-    generatedAt: string,
-    input: RuntimeRecord,
-  ): RuntimeRecord {
+  public buildUnavailableAgentGatewaySnapshot(generatedAt: string, input: RuntimeRecord): RuntimeRecord {
     return this.projectionSupport.buildUnavailableAgentGatewaySnapshot(generatedAt, input);
   }
 
@@ -1138,52 +1869,31 @@ export class WebAppRuntimeStateRouteService {
     return this.projectionSupport.buildApprovalActionCardsUxProjection(input);
   }
 
-  public attachProviderCockpit(
-    snapshot: RuntimeRecord,
-    providerCockpit: RuntimeRecord,
-  ): RuntimeRecord {
+  public attachProviderCockpit(snapshot: RuntimeRecord, providerCockpit: RuntimeRecord): RuntimeRecord {
     return this.projectionSupport.attachProviderCockpit(snapshot, providerCockpit);
   }
 
-  public attachProviderSelection(
-    snapshot: RuntimeRecord,
-    providerSelectionUx: RuntimeRecord,
-  ): RuntimeRecord {
+  public attachProviderSelection(snapshot: RuntimeRecord, providerSelectionUx: RuntimeRecord): RuntimeRecord {
     return this.projectionSupport.attachProviderSelection(snapshot, providerSelectionUx);
   }
 
-  public attachProviderPreference(
-    snapshot: RuntimeRecord,
-    providerPreference: RuntimeRecord,
-  ): RuntimeRecord {
+  public attachProviderPreference(snapshot: RuntimeRecord, providerPreference: RuntimeRecord): RuntimeRecord {
     return this.projectionSupport.attachProviderPreference(snapshot, providerPreference);
   }
 
-  public attachVisualReceipts(
-    snapshot: RuntimeRecord,
-    visualReceipts: RuntimeRecord,
-  ): RuntimeRecord {
+  public attachVisualReceipts(snapshot: RuntimeRecord, visualReceipts: RuntimeRecord): RuntimeRecord {
     return this.projectionSupport.attachVisualReceipts(snapshot, visualReceipts);
   }
 
-  public attachSensitiveActionFlowUx(
-    snapshot: RuntimeRecord,
-    sensitiveActionFlowUx: RuntimeRecord,
-  ): RuntimeRecord {
+  public attachSensitiveActionFlowUx(snapshot: RuntimeRecord, sensitiveActionFlowUx: RuntimeRecord): RuntimeRecord {
     return this.projectionSupport.attachSensitiveActionFlowUx(snapshot, sensitiveActionFlowUx);
   }
 
-  public attachActiveMissionUx(
-    snapshot: RuntimeRecord,
-    activeMissionUx: RuntimeRecord,
-  ): RuntimeRecord {
+  public attachActiveMissionUx(snapshot: RuntimeRecord, activeMissionUx: RuntimeRecord): RuntimeRecord {
     return this.projectionSupport.attachActiveMissionUx(snapshot, activeMissionUx);
   }
 
-  public attachApprovalActionCardsUx(
-    snapshot: RuntimeRecord,
-    approvalActionCardsUx: RuntimeRecord,
-  ): RuntimeRecord {
+  public attachApprovalActionCardsUx(snapshot: RuntimeRecord, approvalActionCardsUx: RuntimeRecord): RuntimeRecord {
     return this.projectionSupport.attachApprovalActionCardsUx(snapshot, approvalActionCardsUx);
   }
 
@@ -1279,10 +1989,7 @@ export class WebAppRuntimeStateRouteService {
     return this.persistenceSupport.handleStateRequest(res, url, deps, helpers);
   }
 
-  public buildCanonicalStateResponse(
-    canonicalState: RuntimeRecord,
-    extra: RuntimeRecord = {},
-  ): RuntimeRecord {
+  public buildCanonicalStateResponse(canonicalState: RuntimeRecord, extra: RuntimeRecord = {}): RuntimeRecord {
     return this.persistenceSupport.buildCanonicalStateResponse(canonicalState, extra);
   }
 
@@ -1312,7 +2019,7 @@ export class WebAppRuntimeStateRouteService {
 }
 
 function asRecord(value: unknown): RuntimeRecord | null {
-  return value && typeof value === 'object' && !Array.isArray(value) ? value as RuntimeRecord : null;
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as RuntimeRecord) : null;
 }
 
 function text(value: unknown): string {
@@ -1322,28 +2029,26 @@ function text(value: unknown): string {
 function normalizeExternalAgentAdapter(value: unknown): ZavorthExternalAgentAdapterKind | null {
   const adapter = text(value);
   return EXTERNAL_AGENT_ADAPTERS.has(adapter as ZavorthExternalAgentAdapterKind)
-    ? adapter as ZavorthExternalAgentAdapterKind
+    ? (adapter as ZavorthExternalAgentAdapterKind)
     : null;
 }
 
 function normalizeExternalAgentPromptMode(value: unknown): 'stdin' | 'arg' | 'json' | null {
   const promptMode = text(value);
-  return EXTERNAL_AGENT_PROMPT_MODES.has(promptMode)
-    ? promptMode as 'stdin' | 'arg' | 'json'
-    : null;
+  return EXTERNAL_AGENT_PROMPT_MODES.has(promptMode) ? (promptMode as 'stdin' | 'arg' | 'json') : null;
 }
 
 function normalizeExternalAgentIsolation(value: unknown): ZavorthExternalAgentIsolationKind | 'local' | null {
   const isolation = text(value);
   return EXTERNAL_AGENT_ISOLATION_KINDS.has(isolation as ZavorthExternalAgentIsolationKind | 'local')
-    ? isolation as ZavorthExternalAgentIsolationKind | 'local'
+    ? (isolation as ZavorthExternalAgentIsolationKind | 'local')
     : null;
 }
 
 function normalizeExternalAgentNetwork(value: unknown): ZavorthExternalAgentNetworkMode | null {
   const network = text(value);
   return EXTERNAL_AGENT_NETWORK_MODES.has(network as ZavorthExternalAgentNetworkMode)
-    ? network as ZavorthExternalAgentNetworkMode
+    ? (network as ZavorthExternalAgentNetworkMode)
     : null;
 }
 
@@ -1351,9 +2056,14 @@ function isExternalAgentApiApprovalRequested(body: RuntimeRecord | null | undefi
   return body?.approved === true || body?.approvalGranted === true;
 }
 
-function isExternalAgentApiApprovalAccepted(req: http.IncomingMessage, body: RuntimeRecord | null | undefined): boolean {
+function isExternalAgentApiApprovalAccepted(
+  req: http.IncomingMessage,
+  body: RuntimeRecord | null | undefined,
+): boolean {
   if (!isExternalAgentApiApprovalRequested(body)) return false;
-  const expected = text(process.env.ZAVORTH_EXTERNAL_AGENT_API_APPROVAL_TOKEN || process.env.ZAVORTH_ZAVORTH_CONTROL_OPERATOR_TOKEN);
+  const expected = text(
+    process.env.ZAVORTH_EXTERNAL_AGENT_API_APPROVAL_TOKEN || process.env.ZAVORTH_ZAVORTH_CONTROL_OPERATOR_TOKEN,
+  );
   if (expected.length < 16) return false;
   const provided = readHeaderValue(req, 'x-zavorth-operator-approval');
   return safeTokenEquals(provided, expected);
@@ -1372,5 +2082,8 @@ function safeTokenEquals(provided: string, expected: string): boolean {
   if (left.length !== right.length) return false;
   try {
     return timingSafeEqual(left, right);
-  } catch (error: unknown) {logger.warn('[Web App Runtime State] operation failed', error); return false; }
+  } catch (error: unknown) {
+    logger.warn('[Web App Runtime State] operation failed', error);
+    return false;
+  }
 }

@@ -37,7 +37,15 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
       action: {
         type: 'string',
         description:
-          "Action: 'search', 'list', 'preview', 'install', 'receipt', 'trust', 'publish', 'publish_plan', 'verify', 'registry_export', 'trusted_hosts', 'info', 'remove', 'update', 'rollback', 'outdated', 'conflicts', 'auth', 'sign', 'bundle'.",
+          "Action: 'search', 'search_remote', 'rank', 'list', 'preview', 'install', 'receipt', 'trust', 'publish', 'publish_plan', 'verify', 'registry_export', 'trusted_hosts', 'info', 'remove', 'update', 'rollback', 'outdated', 'conflicts', 'auth', 'sign', 'bundle'.",
+      },
+      use_llm: {
+        type: 'boolean',
+        description: 'For search/rank: re-order a closed candidate list with the LLM. Default false (deterministic).',
+      },
+      remote: {
+        type: 'boolean',
+        description: 'For search: include remote repository search (network). Default false (offline/local).',
       },
       trust_kind: {
         type: 'string',
@@ -70,8 +78,7 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
       },
       operator_confirm: {
         type: 'boolean',
-        description:
-          'Required true for trust policy mutations and auth token writes (operator-gated).',
+        description: 'Required true for trust policy mutations and auth token writes (operator-gated).',
       },
       receipt_id: {
         type: 'string',
@@ -99,7 +106,8 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
       },
       category: {
         type: 'string',
-        description: "Filter by category: 'coding', 'research', 'creative', 'devops', 'security', 'data', 'automation', 'communication', 'productivity', 'other'.",
+        description:
+          "Filter by category: 'coding', 'research', 'creative', 'devops', 'security', 'data', 'automation', 'communication', 'productivity', 'other'.",
       },
     },
     required: ['action'],
@@ -132,21 +140,37 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
   }
 
   async execute(args: Record<string, unknown>): Promise<string> {
-    const action = String(args.action || '').trim().toLowerCase();
+    const action = String(args.action || '')
+      .trim()
+      .toLowerCase();
     switch (action) {
-      case 'search': return await this.search(args);
-      case 'discover': return await this.search(args);
-      case 'list': return this.list(args);
-      case 'preview': return this.preview(args);
-      case 'install': return this.install(args);
-      case 'receipt': return this.receipt(args);
-      case 'trust': return this.trust(args);
-      case 'publish': return this.publish(args);
+      case 'search':
+        return await this.search(args);
+      case 'search_remote':
+      case 'search-remote':
+        return await this.search({ ...args, remote: true });
+      case 'rank':
+        return await this.search({ ...args, use_llm: true });
+      case 'discover':
+        return await this.search(args);
+      case 'list':
+        return this.list(args);
+      case 'preview':
+        return this.preview(args);
+      case 'install':
+        return this.install(args);
+      case 'receipt':
+        return this.receipt(args);
+      case 'trust':
+        return this.trust(args);
+      case 'publish':
+        return this.publish(args);
       case 'publish_plan':
       case 'publish-plan':
       case 'plan_publish':
         return this.publishPlan(args);
-      case 'verify': return this.verify(args);
+      case 'verify':
+        return this.verify(args);
       case 'registry_export':
       case 'registry-export':
       case 'export_registry':
@@ -155,23 +179,34 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
       case 'trusted-hosts':
       case 'trusted_domains':
         return this.trustedHosts();
-      case 'info': return this.info(args);
-      case 'remove': return this.remove(args);
-      case 'update': return this.update(args);
-      case 'rollback': return this.rollback(args);
-      case 'outdated': return this.outdated();
-      case 'conflicts': return this.conflicts();
-      case 'auth': return this.auth(args);
-      case 'sign': return this.sign(args);
-      case 'bundle': return this.bundle(args);
+      case 'info':
+        return this.info(args);
+      case 'remove':
+        return this.remove(args);
+      case 'update':
+        return this.update(args);
+      case 'rollback':
+        return this.rollback(args);
+      case 'outdated':
+        return this.outdated();
+      case 'conflicts':
+        return this.conflicts();
+      case 'auth':
+        return this.auth(args);
+      case 'sign':
+        return this.sign(args);
+      case 'bundle':
+        return this.bundle(args);
       default:
-        return `Unknown action "${action}". Available: search, list, preview, install, receipt, trust, publish, publish_plan, verify, registry_export, trusted_hosts, info, remove, update, rollback, outdated, conflicts, auth, sign, bundle`;
+        return `Unknown action "${action}". Available: search, search_remote, rank, list, preview, install, receipt, trust, publish, publish_plan, verify, registry_export, trusted_hosts, info, remove, update, rollback, outdated, conflicts, auth, sign, bundle`;
     }
   }
 
   private trust(args: Record<string, unknown>): string {
     const trust = this.pipeline.getTrustService();
-    const op = String(args.query || args.skill_id || 'show').trim().toLowerCase();
+    const op = String(args.query || args.skill_id || 'show')
+      .trim()
+      .toLowerCase();
     if (op === 'add' || op === 'remove') {
       if (!this.isOperatorConfirmed(args)) {
         return [
@@ -212,13 +247,17 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
 
   private isOperatorConfirmed(args: Record<string, unknown>): boolean {
     if (args.operator_confirm === true) return true;
-    const mode = String(process.env.ZAVORTH_SKILL_OPERATOR_MODE || '').trim().toLowerCase();
+    const mode = String(process.env.ZAVORTH_SKILL_OPERATOR_MODE || '')
+      .trim()
+      .toLowerCase();
     return mode === '1' || mode === 'true' || mode === 'on' || mode === 'yes';
   }
 
   private isForceAllowed(args: Record<string, unknown>): boolean {
     if (args.force !== true) return false;
-    const allow = String(process.env.ZAVORTH_SKILL_ALLOW_FORCE || '').trim().toLowerCase();
+    const allow = String(process.env.ZAVORTH_SKILL_ALLOW_FORCE || '')
+      .trim()
+      .toLowerCase();
     if (allow === '1' || allow === 'true' || allow === 'on' || allow === 'yes') return true;
     if (this.isOperatorConfirmed(args)) return true;
     return false;
@@ -243,12 +282,15 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
     }
     const list = this.pipeline.listReceipts(10);
     if (list.length === 0) return 'No skill install receipts yet.';
-    return ['Recent skill install receipts:', ...list.map((r) => `  ${r.id}  ${r.status}  ${r.skillId || '—'}`)].join('\n');
+    return ['Recent skill install receipts:', ...list.map((r) => `  ${r.id}  ${r.status}  ${r.skillId || '—'}`)].join(
+      '\n',
+    );
   }
 
   private async search(args: Record<string, unknown>): Promise<string> {
     const query = String(args.query || args.source || '').trim();
     const remote = args.remote === true;
+    const useLlm = args.use_llm === true || args.useLlm === true;
     const includeWorkers = args.include_workers !== false;
     if (!query) {
       return 'Error: "query" is required for search/discover. Tip: paste a skill URL to detect install-from-URL.';
@@ -257,6 +299,7 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
     const result = await this.discovery.discover({
       query,
       remote,
+      useLlm,
       includeWorkers,
       scanWorkspace: true,
       limit: 15,
@@ -265,9 +308,7 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
     // Optional category filter on local hits
     const category = String(args.category || '').trim();
     if (category) {
-      result.skills = result.skills.filter(
-        (s) => s.category === category || s.tags.includes(category),
-      );
+      result.skills = result.skills.filter((s) => s.category === category || s.tags.includes(category));
     }
 
     return result.formatText();
@@ -349,7 +390,25 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
       consent: true,
       force,
     });
-    return this.pipeline.formatReceiptText(receipt);
+    // Prefer structured JSON for agent consumption (tool binds + SkillIR digest).
+    const structured = {
+      ok: receipt.status === 'applied' || receipt.status === 'partial',
+      mode: 'install',
+      receipt: {
+        id: receipt.id,
+        status: receipt.status,
+        skillId: receipt.skillId,
+        targetDir: receipt.targetDir,
+        materialized: receipt.materialized,
+        skillIrDigest: receipt.skillIrDigest || null,
+        parserId: receipt.parserId || null,
+        toolBinds: receipt.toolBinds,
+        smoke: receipt.smoke,
+        reason: receipt.reason,
+      },
+      text: this.pipeline.formatReceiptText(receipt),
+    };
+    return JSON.stringify(structured, null, 2);
   }
 
   private publish(args: Record<string, unknown>): string {
@@ -441,11 +500,8 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
 
   private registryExport(args: Record<string, unknown>): string {
     const outPath =
-      String(args.out_path || '').trim() ||
-      path.join(process.cwd(), 'data', 'runtime', 'skill-registry', 'index.json');
-    const baseUrl =
-      String(args.repo_url || args.source || process.env.ZAVORTH_SKILL_REGISTRY_URL || '').trim() ||
-      null;
+      String(args.out_path || '').trim() || path.join(process.cwd(), 'data', 'runtime', 'skill-registry', 'index.json');
+    const baseUrl = String(args.repo_url || args.source || process.env.ZAVORTH_SKILL_REGISTRY_URL || '').trim() || null;
     const ops = new SkillRegistryOpsService({ skillsDir: this.skillsDir });
     const written = ops.writeIndex(outPath, { registryBaseUrl: baseUrl });
     if (!written.ok) return `Error: ${written.message}`;
@@ -611,7 +667,9 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
       ].join(' ');
     }
     // Sub-action: prefer auth_op / subaction; args.action is already "auth".
-    const op = String(args.auth_op || args.subaction || args.query || 'set').trim().toLowerCase();
+    const op = String(args.auth_op || args.subaction || args.query || 'set')
+      .trim()
+      .toLowerCase();
     const host = String(args.host || args.skill_id || '').trim();
     const token = String(args.token || '').trim();
     if (!host) return 'Error: "host" is required.';
@@ -635,8 +693,12 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
     if (action === 'create') {
       const id = String(args.skill_id || '').trim();
       const name = String(args.query || id).trim();
-      const skills = String(args.source || '').split(',').map((s) => s.trim()).filter(Boolean);
-      if (!id || skills.length === 0) return 'Error: "skill_id" (bundle id) and "source" (comma-separated skill names) required.';
+      const skills = String(args.source || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (!id || skills.length === 0)
+        return 'Error: "skill_id" (bundle id) and "source" (comma-separated skill names) required.';
       bundleManager.createBundle(id, name, '', skills);
       return `Bundle "${id}" created with ${skills.length} skill(s)`;
     }
@@ -649,6 +711,10 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
   }
 
   private cleanup(dir: string): void {
-    try { if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true }); } catch { /* ignore */ }
+    try {
+      if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
+    } catch {
+      /* ignore */
+    }
   }
 }

@@ -1,7 +1,4 @@
-import type {
-  SurfaceConsistencyActionContext,
-  SurfaceConsistencyReadiness,
-} from './SharedSurfaceConsistencyTypes.js';
+import type { SurfaceConsistencyActionContext, SurfaceConsistencyReadiness } from './SharedSurfaceConsistencyTypes.js';
 import {
   buildActionAvailability,
   buildActionSnapshot,
@@ -15,18 +12,15 @@ export function pushAccessActions(
 ): void {
   const access = context.access || null;
   const recommendedAccessPlan =
-    access?.recommendedPlan && typeof access.recommendedPlan === 'object'
-      ? access.recommendedPlan
-      : null;
-  const accessPrimaryAction = String(recommendedAccessPlan?.primaryAction || '').trim().toLowerCase();
+    access?.recommendedPlan && typeof access.recommendedPlan === 'object' ? access.recommendedPlan : null;
+  const accessPrimaryAction = String(recommendedAccessPlan?.primaryAction || '')
+    .trim()
+    .toLowerCase();
   const accessPrimaryLabel = String(recommendedAccessPlan?.primaryLabel || '').trim();
   const accessPrimarySummary = String(recommendedAccessPlan?.primarySummary || '').trim();
   const accessPrimaryCommand = String(recommendedAccessPlan?.primaryCommand || '').trim();
   const accessOpenTarget = String(
-    recommendedAccessPlan?.openTarget
-    || access?.local?.appUrl
-    || access?.remote?.appUrl
-    || '',
+    recommendedAccessPlan?.openTarget || access?.local?.appUrl || access?.remote?.appUrl || '',
   ).trim();
 
   if (accessPrimaryAction === 'trust' && (accessPrimaryCommand || accessOpenTarget)) {
@@ -36,14 +30,11 @@ export function pushAccessActions(
         actionId: 'continue-official-access:trust',
         actionType: 'continue-official-access',
         title: accessPrimaryLabel || 'Liberar este host',
-        description: accessPrimarySummary || 'Autorize este host antes de executar acoes mutaveis, escrita local ou entregas persistidas.',
+        description:
+          accessPrimarySummary ||
+          'Autorize este host antes de executar acoes mutaveis, escrita local ou entregas persistidas.',
         category: 'access',
-        availability: buildActionAvailability(
-          { mode: 'inline' },
-          { mode: 'command' },
-          { mode: 'hidden' },
-          readiness,
-        ),
+        availability: buildActionAvailability({ mode: 'inline' }, { mode: 'command' }, { mode: 'hidden' }, readiness),
         equivalents: {
           web: {
             mode: 'inline',
@@ -81,14 +72,11 @@ export function pushAccessActions(
         actionId: 'continue-official-access:go',
         actionType: 'continue-official-access',
         title: accessPrimaryLabel || 'Seguir caminho oficial',
-        description: accessPrimarySummary || 'Use o caminho oficial mais curto para instalar, subir o runtime e abrir a melhor superficie pronta.',
+        description:
+          accessPrimarySummary ||
+          'Use o caminho oficial mais curto para instalar, subir o runtime e abrir a melhor superficie pronta.',
         category: 'access',
-        availability: buildActionAvailability(
-          { mode: 'inline' },
-          { mode: 'command' },
-          { mode: 'slash' },
-          readiness,
-        ),
+        availability: buildActionAvailability({ mode: 'inline' }, { mode: 'command' }, { mode: 'slash' }, readiness),
         equivalents: {
           web: {
             mode: 'inline',
@@ -125,15 +113,10 @@ export function pushAccessActions(
       snapshot: buildActionSnapshot({
         actionId: 'continue-official-access:remote',
         actionType: 'continue-official-access',
-        title: accessPrimaryLabel || 'Continuar acesso oficial',
-        description: accessPrimarySummary || 'Continue o caminho oficial para fechar o acesso remoto do Zavorth.',
+        title: accessPrimaryLabel || 'Continue official access',
+        description: accessPrimarySummary || 'Continue the official path to finish Zavorth remote access.',
         category: 'access',
-        availability: buildActionAvailability(
-          { mode: 'inline' },
-          { mode: 'command' },
-          { mode: 'slash' },
-          readiness,
-        ),
+        availability: buildActionAvailability({ mode: 'inline' }, { mode: 'command' }, { mode: 'slash' }, readiness),
         equivalents: {
           web: {
             mode: 'inline',
@@ -173,12 +156,7 @@ export function pushAccessActions(
         title: accessPrimaryLabel || 'Abrir shell web do runtime',
         description: accessPrimarySummary || 'Abra o shell web do runtime.',
         category: 'access',
-        availability: buildActionAvailability(
-          { mode: 'inline' },
-          { mode: 'command' },
-          { mode: 'slash' },
-          readiness,
-        ),
+        availability: buildActionAvailability({ mode: 'inline' }, { mode: 'command' }, { mode: 'slash' }, readiness),
         equivalents: {
           web: {
             mode: 'inline',

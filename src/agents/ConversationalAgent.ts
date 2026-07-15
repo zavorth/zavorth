@@ -3,18 +3,9 @@ import * as os from 'os';
 import { config } from '../config/index.js';
 import type { ChatMessage, ToolDefinition } from '../providers/ILlmProvider.js';
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
-import {
-  type WorkspaceTaskKind,
-  type WorkspaceTaskSubtype,
-} from '../services/WorkspaceTaskKind.js';
-import {
-  resolveWorkspaceLlmStrategy,
-  type WorkspaceLlmStrategy,
-} from '../services/WorkspaceLlmProfile.js';
-import {
-  normalizeRoleSurface,
-  resolveLlmRoleScopeId,
-} from '../contracts/runtime/LlmRoleRoutingContract.js';
+import { type WorkspaceTaskKind, type WorkspaceTaskSubtype } from '../services/WorkspaceTaskKind.js';
+import { resolveWorkspaceLlmStrategy, type WorkspaceLlmStrategy } from '../services/WorkspaceLlmProfile.js';
+import { normalizeRoleSurface, resolveLlmRoleScopeId } from '../contracts/runtime/LlmRoleRoutingContract.js';
 import { LlmRoleRoutingService } from '../services/llm/LlmRoleRoutingService.js';
 import { ToolUsageTracker } from '../cognitive-firewall/ToolUsageTracker.js';
 import {
@@ -197,19 +188,17 @@ export class ConversationalAgent {
     const mode = options?.mode || 'default';
     // Surface is detected from the call site; setup is asked on whatever surface the user is on.
     const surface = normalizeRoleSurface(options?.surface);
-    const roleScopeId = String(
-      options?.roleScopeId
-      || resolveLlmRoleScopeId({ userId: options?.userId, surface }),
-    ).trim() || 'global';
+    const roleScopeId =
+      String(options?.roleScopeId || resolveLlmRoleScopeId({ userId: options?.userId, surface })).trim() || 'global';
     const roleService = new LlmRoleRoutingService();
     const isUsable = (name: string) => this.llmRuntime.isProviderAvailable(name);
 
     // Multi-surface role setup: intercept free text only when this scope is awaiting a reply.
     // Works on any surface that passed options.surface; skipped in unit tests unless opted in.
     const allowRoleSetupPath =
-      process.env.NODE_ENV !== 'test'
-      || process.env.ZAVORTH_LLM_ROLE_AUTOPROMPT === '1'
-      || process.env.ZAVORTH_LLM_ROLE_SETUP_INTERCEPT === '1';
+      process.env.NODE_ENV !== 'test' ||
+      process.env.ZAVORTH_LLM_ROLE_AUTOPROMPT === '1' ||
+      process.env.ZAVORTH_LLM_ROLE_SETUP_INTERCEPT === '1';
     try {
       if (allowRoleSetupPath) {
         const roleCfg = roleService.getConfig(roleScopeId);
@@ -221,12 +210,7 @@ export class ConversationalAgent {
               return result.response;
             },
           };
-          const setup = await roleService.handleInboundSetupMessage(
-            roleScopeId,
-            userMessage,
-            setupLlm,
-            isUsable,
-          );
+          const setup = await roleService.handleInboundSetupMessage(roleScopeId, userMessage, setupLlm, isUsable);
           if (setup.handled && setup.reply) {
             return {
               text: setup.reply,
@@ -245,19 +229,15 @@ export class ConversationalAgent {
     }
 
     const forceStrong = options?.forceStrong === true || roleService.isForceStrongActive(roleScopeId);
-    const llmStrategy = resolveWorkspaceLlmStrategy(
-      options?.taskKind || 'unknown',
-      options?.taskSubtype || 'unknown',
-      {
-        configuredProviderName: primaryProvider,
-        isProviderUsable: isUsable,
-        workspaceMemory: options?.workspaceOperationalMemory,
-        roleScopeId,
-        forceStrong,
-        effortHigh: options?.effortHigh === true,
-        role: options?.llmRole || null,
-      },
-    );
+    const llmStrategy = resolveWorkspaceLlmStrategy(options?.taskKind || 'unknown', options?.taskSubtype || 'unknown', {
+      configuredProviderName: primaryProvider,
+      isProviderUsable: isUsable,
+      workspaceMemory: options?.workspaceOperationalMemory,
+      roleScopeId,
+      forceStrong,
+      effortHigh: options?.effortHigh === true,
+      role: options?.llmRole || null,
+    });
     if (llmStrategy.roleReason) {
       logger.info(`[ConversationalAgent] ${llmStrategy.roleReason}`);
     }
@@ -269,6 +249,7 @@ export class ConversationalAgent {
     const systemInstruction = this.appendProductRuntimeContext(
       this.buildSystemInstruction(mode, options?.styleHints),
       options,
+      userMessage,
     );
     const contextDecision = await this.prepareContextDecision(
       userMessage,
@@ -279,28 +260,19 @@ export class ConversationalAgent {
     );
     // Free text does not auto-run tools. Lazy exposure: full schema for brain tools,
     // compact stubs for the rest (expand on call). Capabilities stay discoverable.
-    const firewallDecision = contextDecision
-      ? null
-      : this.cognitiveFirewall.evaluate(userMessage, allTools);
-    const toolPolicyInput = this.resolveConversationalToolPolicyInput(
-      contextDecision,
-      firewallDecision,
-    );
+    const firewallDecision = contextDecision ? null : this.cognitiveFirewall.evaluate(userMessage, allTools);
+    const toolPolicyInput = this.resolveConversationalToolPolicyInput(contextDecision, firewallDecision);
     const quarantined = new Set(toolPolicyInput.quarantinedToolNames);
     const fullRegistry = this.buildFullToolRegistry(allTools, quarantined);
     let activeTools = this.buildInitialLazyToolExposure(fullRegistry);
     const catalogNames = Array.from(fullRegistry.keys()).sort();
-    const systemWithCatalog = this.appendToolCatalogBrain(
-      systemInstruction,
-      activeTools,
-      catalogNames,
-    );
+    const systemWithCatalog = this.appendToolCatalogBrain(systemInstruction, activeTools, catalogNames);
     const messages: ChatMessage[] = contextDecision
       ? this.injectToolCatalogIntoMessages(contextDecision.messages, activeTools, catalogNames)
       : [
-        { role: 'system', content: systemWithCatalog },
-        { role: 'user', content: userMessage, inlineData },
-      ];
+          { role: 'system', content: systemWithCatalog },
+          { role: 'user', content: userMessage, inlineData },
+        ];
 
     const groundingEvidenceTexts: string[] = [];
     let toolReceiptCount = 0;
@@ -324,32 +296,22 @@ export class ConversationalAgent {
       allowFallback: llmStrategy.allowFallback,
       fallbackOrder: llmStrategy.fallbackOrder,
     };
-    let { providerName, response } = await this.llmRuntime.chatDetailed(
-      messages,
-      activeTools.length > 0 ? activeTools : undefined,
-      chatOptions,
-    ).catch(async (error: unknown) => {
-      const roleRetry = this.tryStrongFallbackAfterDefaultFailure(
-        roleScopeId,
-        llmStrategy,
-        error,
-      );
-      if (!roleRetry) {
-        throw error;
-      }
-      logger.info(`[ConversationalAgent] ${roleRetry.roleReason}`);
-      chatOptions = {
-        providerName: roleRetry.providerName,
-        modelName: roleRetry.modelName,
-        allowFallback: roleRetry.allowFallback,
-        fallbackOrder: roleRetry.fallbackOrder,
-      };
-      return this.llmRuntime.chatDetailed(
-        messages,
-        activeTools.length > 0 ? activeTools : undefined,
-        chatOptions,
-      );
-    });
+    let { providerName, response } = await this.llmRuntime
+      .chatDetailed(messages, activeTools.length > 0 ? activeTools : undefined, chatOptions)
+      .catch(async (error: unknown) => {
+        const roleRetry = this.tryStrongFallbackAfterDefaultFailure(roleScopeId, llmStrategy, error);
+        if (!roleRetry) {
+          throw error;
+        }
+        logger.info(`[ConversationalAgent] ${roleRetry.roleReason}`);
+        chatOptions = {
+          providerName: roleRetry.providerName,
+          modelName: roleRetry.modelName,
+          allowFallback: roleRetry.allowFallback,
+          fallbackOrder: roleRetry.fallbackOrder,
+        };
+        return this.llmRuntime.chatDetailed(messages, activeTools.length > 0 ? activeTools : undefined, chatOptions);
+      });
 
     for (let round = 0; round < MAX_CONVERSATIONAL_TOOL_ROUNDS; round += 1) {
       if (!response.toolCalls?.length || !this.toolRuntime || fullRegistry.size === 0) {
@@ -399,7 +361,8 @@ export class ConversationalAgent {
           } else {
             // Hot-path autonomy budget (actions / mutations) — shared store with partner missions.
             try {
-              const { authorizeHotPathToolCall, noteHotPathToolFailure } = require('../services/AgentHotPathBudgetGate.js') as typeof import('../services/AgentHotPathBudgetGate.js');
+              const { authorizeHotPathToolCall, noteHotPathToolFailure } =
+                require('../services/AgentHotPathBudgetGate.js') as typeof import('../services/AgentHotPathBudgetGate.js');
               const budget = await authorizeHotPathToolCall({
                 userId: options?.userId,
                 sessionId: options?.chatId || this.sessionId,
@@ -429,9 +392,10 @@ export class ConversationalAgent {
             } catch {
               // Budget gate optional if module unavailable.
             }
-            const influencedByUntrustedContent = Boolean(inlineData?.length)
-              || containsUntrustedContentMarker(messages)
-              || containsUntrustedContentMarker(toolCall.arguments);
+            const influencedByUntrustedContent =
+              Boolean(inlineData?.length) ||
+              containsUntrustedContentMarker(messages) ||
+              containsUntrustedContentMarker(toolCall.arguments);
             const toolArguments = influencedByUntrustedContent
               ? withUntrustedInputMetadata(toolCall.arguments, 'conversation-contained-untrusted-evidence')
               : toolCall.arguments;
@@ -448,7 +412,8 @@ export class ConversationalAgent {
           ].join(' ');
           toolFailures.push(toolCall.name);
           try {
-            const { noteHotPathToolFailure } = require('../services/AgentHotPathBudgetGate.js') as typeof import('../services/AgentHotPathBudgetGate.js');
+            const { noteHotPathToolFailure } =
+              require('../services/AgentHotPathBudgetGate.js') as typeof import('../services/AgentHotPathBudgetGate.js');
             noteHotPathToolFailure(options?.chatId || this.sessionId, options?.userId, surface);
           } catch {
             // optional
@@ -471,9 +436,7 @@ export class ConversationalAgent {
             source: 'conversational_tool_result',
             tool_call_id: toolCall.id,
             ...(fromCache ? { cache: 'hit' } : {}),
-            ...(forLlm.truncated
-              ? { truncated: 'true', original_chars: String(forLlm.originalChars) }
-              : {}),
+            ...(forLlm.truncated ? { truncated: 'true', original_chars: String(forLlm.originalChars) } : {}),
           }),
           toolCallId: toolCall.id,
           toolName: toolCall.name,
@@ -481,10 +444,7 @@ export class ConversationalAgent {
       }
 
       if (toolsCalled.length > 0) {
-        this.usageTracker.recordTurn(
-          this.sessionId || 'default',
-          toolsCalled.slice(-MAX_TOOL_CALLS_PER_ROUND),
-        );
+        this.usageTracker.recordTurn(this.sessionId || 'default', toolsCalled.slice(-MAX_TOOL_CALLS_PER_ROUND));
       }
 
       if (toolMessages.length === 0) {
@@ -514,17 +474,13 @@ export class ConversationalAgent {
       response = followUp.response.content
         ? followUp.response
         : {
-          ...followUp.response,
-          content: rawToolResults.join('\n'),
-        };
+            ...followUp.response,
+            content: rawToolResults.join('\n'),
+          };
     }
 
-    const fullSchemaToolNames = activeTools
-      .filter((tool) => !this.isLazyCompactTool(tool))
-      .map((tool) => tool.name);
-    const compactToolNames = activeTools
-      .filter((tool) => this.isLazyCompactTool(tool))
-      .map((tool) => tool.name);
+    const fullSchemaToolNames = activeTools.filter((tool) => !this.isLazyCompactTool(tool)).map((tool) => tool.name);
+    const compactToolNames = activeTools.filter((tool) => this.isLazyCompactTool(tool)).map((tool) => tool.name);
     const toolTelemetry: ConversationalToolTelemetry = {
       exposedToolNames: catalogNames,
       toolRounds,
@@ -566,7 +522,8 @@ export class ConversationalAgent {
 
     // Surface-agnostic setup prompt: append on the surface the user is currently using.
     try {
-      const calm = toolRounds === 0 && toolFailures.length === 0 && !escalation?.shouldEscalate && Boolean(safeResponseText);
+      const calm =
+        toolRounds === 0 && toolFailures.length === 0 && !escalation?.shouldEscalate && Boolean(safeResponseText);
       const promptDecision = roleService.shouldPromptSetup(roleScopeId, isUsable, {
         calmTurn: calm,
         surface,
@@ -579,10 +536,57 @@ export class ConversationalAgent {
       // optional
     }
 
-    if (providerName !== llmStrategy.providerName) {
-      logger.info(
-        `[Fallback] Request served by ${providerName} (preferred ${llmStrategy.providerName} failed)`,
+    // Experience skill learning loop: multi-tool success → reviewable draft (+ improve on reuse).
+    // Failed tool turns still call processTurn so similar drafts get failureCount demotion.
+    // Same write gate as product-surface post-turn learning (public multi-tenant requires explicit true / allowlist).
+    let learningWriteAllowed = false;
+    try {
+      const { isLearningWriteAllowed } =
+        require('../services/ZavorthLearningWriteAuth.js') as typeof import('../services/ZavorthLearningWriteAuth.js');
+      learningWriteAllowed = isLearningWriteAllowed({
+        surface,
+        userId: options?.userId,
+        chatId: options?.chatId,
+        allowLearningWrite: options?.allowLearningWrite,
+      });
+    } catch {
+      // Module load failure: fail closed on multi-tenant-looking surfaces; allow only explicit true.
+      const surfaceHint = String(surface || '');
+      const looksPublic = /telegram|discord|whatsapp|slack|signal|matrix|teams|irc|line|feishu|mattermost/i.test(
+        surfaceHint,
       );
+      learningWriteAllowed =
+        options?.allowLearningWrite === true ||
+        (options?.allowLearningWrite !== false && !looksPublic && Boolean(String(options?.userId || '').trim()));
+    }
+    try {
+      const toolsOk = toolFailures.length === 0;
+      const success = toolsOk && Boolean(safeResponseText);
+      if (toolReceiptCount > 0 && learningWriteAllowed && (success || !toolsOk)) {
+        const { ExperienceSkillLearningLoopService } =
+          require('../services/ExperienceSkillLearningLoopService.js') as typeof import('../services/ExperienceSkillLearningLoopService.js');
+        const loop = new ExperienceSkillLearningLoopService({ projectRoot: process.cwd() });
+        const learned = await loop.processTurn({
+          userId: options?.userId,
+          sessionId: options?.chatId || this.sessionId,
+          surface,
+          userMessage,
+          assistantText: safeResponseText || '',
+          toolsCalled: toolsCalled,
+          toolCallCount: toolReceiptCount,
+          toolFailures,
+          outcome: success ? 'success' : 'failure',
+        });
+        if (learned.triggered && learned.userNudge) {
+          safeResponseText = `${safeResponseText || ''}${learned.userNudge}`.trim();
+        }
+      }
+    } catch {
+      // learning loop optional
+    }
+
+    if (providerName !== llmStrategy.providerName) {
+      logger.info(`[Fallback] Request served by ${providerName} (preferred ${llmStrategy.providerName} failed)`);
     }
 
     const autonomousAction = this.buildAutonomousActionFromEscalation(escalation, mode);
@@ -601,14 +605,35 @@ export class ConversationalAgent {
       };
     }
 
-    this.schedulePostTurnLearning(
-      userMessage,
-      safeResponseText,
-      toolReceiptCount,
-      options?.surface || 'conversational',
-      options?.userId,
-      options?.allowLearningWrite,
-    );
+    if (learningWriteAllowed) {
+      this.schedulePostTurnLearning(
+        userMessage,
+        safeResponseText,
+        toolReceiptCount,
+        options?.surface || 'conversational',
+        options?.userId,
+        options?.allowLearningWrite,
+        options?.chatId,
+      );
+    }
+
+    // Conversation continuum capture (Learned Knowledge · Conversation recall pillar).
+    // Best-effort; never blocks the reply. AgentRun path also captures via bootstrapFoundation.
+    try {
+      const { captureConversationTurn } =
+        require('../services/learned-knowledge/ConversationContinuumCapture.js') as typeof import('../services/learned-knowledge/ConversationContinuumCapture.js');
+      captureConversationTurn({
+        userMessage,
+        assistantMessage: safeResponseText,
+        sessionId: options?.chatId || this.sessionId,
+        userId: options?.userId,
+        surface: options?.surface || 'conversational',
+        projectRoot: process.cwd(),
+        source: 'ConversationalAgent.chat',
+      });
+    } catch {
+      // optional
+    }
 
     return {
       text: safeResponseText,
@@ -638,17 +663,21 @@ export class ConversationalAgent {
       ].join('\n');
     }
 
-    const fullNames = new Set(
-      tools.filter((tool) => !this.isLazyCompactTool(tool)).map((tool) => tool.name),
-    );
+    const fullNames = new Set(tools.filter((tool) => !this.isLazyCompactTool(tool)).map((tool) => tool.name));
     const coreLines = tools
       .filter((tool) => fullNames.has(tool.name))
       .map((tool) => {
-        const desc = String(tool.description || '').replace(/\s+/g, ' ').trim().slice(0, 100);
+        const desc = String(tool.description || '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, 100);
         return `- \`${tool.name}\`${desc ? `: ${desc}` : ''} (full schema)`;
       });
     const deferred = catalogNames.filter((name) => !fullNames.has(name));
-    const deferredPreview = deferred.slice(0, 48).map((name) => `\`${name}\``).join(', ');
+    const deferredPreview = deferred
+      .slice(0, 48)
+      .map((name) => `\`${name}\``)
+      .join(', ');
 
     return [
       systemInstruction,
@@ -669,7 +698,9 @@ export class ConversationalAgent {
       deferred.length > 0
         ? `**Also available (${deferred.length}, compact/lazy):** ${deferredPreview}${deferred.length > 48 ? ', …' : ''}`
         : '',
-    ].filter(Boolean).join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   private injectToolCatalogIntoMessages(
@@ -685,18 +716,11 @@ export class ConversationalAgent {
     if (firstSystem >= 0) {
       cloned[firstSystem] = {
         ...cloned[firstSystem],
-        content: this.appendToolCatalogBrain(
-          String(cloned[firstSystem].content || ''),
-          tools,
-          catalogNames,
-        ),
+        content: this.appendToolCatalogBrain(String(cloned[firstSystem].content || ''), tools, catalogNames),
       };
       return cloned;
     }
-    return [
-      { role: 'system', content: this.appendToolCatalogBrain('', tools, catalogNames) },
-      ...cloned,
-    ];
+    return [{ role: 'system', content: this.appendToolCatalogBrain('', tools, catalogNames) }, ...cloned];
   }
 
   private buildFullToolRegistry(
@@ -713,9 +737,7 @@ export class ConversationalAgent {
     return registry;
   }
 
-  private buildInitialLazyToolExposure(
-    fullRegistry: Map<string, ToolDefinition>,
-  ): ToolDefinition[] {
+  private buildInitialLazyToolExposure(fullRegistry: Map<string, ToolDefinition>): ToolDefinition[] {
     const brain = new Set<string>(AGENT_BRAIN_TOOL_NAMES);
     const exposed: ToolDefinition[] = [];
     const seen = new Set<string>();
@@ -766,7 +788,8 @@ export class ConversationalAgent {
     error: unknown,
   ): WorkspaceLlmStrategy | null {
     try {
-      const { LlmRoleRoutingService } = require('../services/llm/LlmRoleRoutingService.js') as typeof import('../services/llm/LlmRoleRoutingService.js');
+      const { LlmRoleRoutingService } =
+        require('../services/llm/LlmRoleRoutingService.js') as typeof import('../services/llm/LlmRoleRoutingService.js');
       const roles = new LlmRoleRoutingService().getConfig(roleScopeId);
       if (!roles.strongOnDefaultFailure || !roles.strong) {
         return null;
@@ -877,15 +900,66 @@ export class ConversationalAgent {
   private appendProductRuntimeContext(
     systemInstruction: string,
     options?: ConversationalChatOptions | null,
+    userMessage?: string | null,
   ): string {
+    let next = systemInstruction;
     try {
-      const { getProductSurfaceRuntime } = require('../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../services/ZavorthProductSurfaceRuntimeService.js');
-      return getProductSurfaceRuntime(process.cwd()).appendInjectBlocks(systemInstruction, {
+      const { getProductSurfaceRuntime } =
+        require('../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../services/ZavorthProductSurfaceRuntimeService.js');
+      next = getProductSurfaceRuntime(process.cwd()).appendInjectBlocks(next, {
         userId: options?.userId || null,
       });
     } catch {
-      return systemInstruction;
+      // optional
     }
+    // unified Learned Knowledge pack (workflows + conversation + about you + knowledge)
+    // with hard token budget. Falls back to legacy dual inject if pack path fails.
+    try {
+      const { isLearnedKnowledgeEnabled, buildLearnedKnowledgeInject } =
+        require('../services/learned-knowledge/index.js') as typeof import('../services/learned-knowledge/index.js');
+      if (isLearnedKnowledgeEnabled()) {
+        const packBlock = buildLearnedKnowledgeInject({
+          userId: options?.userId || null,
+          userMessage: userMessage || null,
+          surface: options?.surface || null,
+          projectRoot: process.cwd(),
+        });
+        if (packBlock) {
+          next = `${next}\n\n${packBlock}`;
+          return next;
+        }
+      }
+    } catch {
+      // fall through to legacy
+    }
+    try {
+      const { ExperienceSkillLearningLoopService } =
+        require('../services/ExperienceSkillLearningLoopService.js') as typeof import('../services/ExperienceSkillLearningLoopService.js');
+      const block = new ExperienceSkillLearningLoopService({ projectRoot: process.cwd() }).formatInjectBlock(
+        options?.userId,
+        5,
+        {
+          userMessage: userMessage || null,
+          fullProcedureTopK: 2,
+        },
+      );
+      if (block) {
+        next = `${next}\n\n${block}`;
+      }
+    } catch {
+      // optional
+    }
+    try {
+      const { formatAboutYouInject } =
+        require('../services/learned-knowledge/AboutYouService.js') as typeof import('../services/learned-knowledge/AboutYouService.js');
+      const about = formatAboutYouInject(options?.userId, process.cwd());
+      if (about) {
+        next = `${next}\n\n${about}`;
+      }
+    } catch {
+      // optional
+    }
+    return next;
   }
 
   private schedulePostTurnLearning(
@@ -895,10 +969,12 @@ export class ConversationalAgent {
     sourceSurface: string,
     userId?: string | null,
     allowLearningWrite?: boolean | null,
+    chatId?: string | null,
   ): void {
     if (!String(assistantText || '').trim()) return;
     try {
-      const { getProductSurfaceRuntime } = require('../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../services/ZavorthProductSurfaceRuntimeService.js');
+      const { getProductSurfaceRuntime } =
+        require('../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../services/ZavorthProductSurfaceRuntimeService.js');
       getProductSurfaceRuntime(process.cwd()).scheduleSuccessfulTurn({
         userId: userId || null,
         surface: sourceSurface || 'conversational',
@@ -906,9 +982,9 @@ export class ConversationalAgent {
         assistantText: String(assistantText || ''),
         toolCallCount: toolReceiptCount,
         allowLearningWrite,
+        chatId: chatId || null,
       });
-    } catch {
-    }
+    } catch {}
   }
 
   public buildSystemInstruction(mode: ConversationalMode = 'default', styleHints?: string[]): string {
@@ -945,19 +1021,11 @@ export class ConversationalAgent {
 
     if (mode === 'direct') {
       const normalizedStyleHints = Array.from(
-        new Set(
-          (styleHints || [])
-            .map((hint) => String(hint || '').trim())
-            .filter(Boolean),
-        ),
+        new Set((styleHints || []).map((hint) => String(hint || '').trim()).filter(Boolean)),
       );
       lines.push('', '**DIRECT MODE:** Answer the user directly without autonomous engine delegation.');
       if (normalizedStyleHints.length > 0) {
-        lines.push(
-          '',
-          '**PREFERRED FORMAT:**',
-          ...normalizedStyleHints.map((hint) => `- ${hint}`),
-        );
+        lines.push('', '**PREFERRED FORMAT:**', ...normalizedStyleHints.map((hint) => `- ${hint}`));
       }
     } else {
       lines.push(
@@ -1002,11 +1070,11 @@ export class ConversationalAgent {
     mode: ConversationalMode,
   ): AgentRunAction | null {
     if (
-      mode === 'direct'
-      || !escalation.shouldEscalate
-      || escalation.target !== 'graph_runtime'
-      || !escalation.taskGoal
-      || escalation.requiresApproval
+      mode === 'direct' ||
+      !escalation.shouldEscalate ||
+      escalation.target !== 'graph_runtime' ||
+      !escalation.taskGoal ||
+      escalation.requiresApproval
     ) {
       return null;
     }
@@ -1072,11 +1140,11 @@ export class ConversationalAgent {
     return {
       tools,
       source,
-      recommendedToolNames: hintProfile?.recommendedToolNames
-        || decision?.recommendedToolNames
-        || tools.map((tool) => tool.name),
-      toolExposureGatedByCognitiveFirewall: hintProfile?.toolExposureGatedByCognitiveFirewall === true
-        || decision?.toolExposureGatedByCognitiveFirewall === true,
+      recommendedToolNames:
+        hintProfile?.recommendedToolNames || decision?.recommendedToolNames || tools.map((tool) => tool.name),
+      toolExposureGatedByCognitiveFirewall:
+        hintProfile?.toolExposureGatedByCognitiveFirewall === true ||
+        decision?.toolExposureGatedByCognitiveFirewall === true,
       hintGroups: hintProfile?.groups || [],
       quarantinedToolNames: hintProfile?.quarantinedToolNames || [],
     };
@@ -1093,9 +1161,7 @@ export class ConversationalAgent {
     const chatId = String(options?.chatId || '').trim();
     if (!this.contextEngine || !userId || !chatId) {
       if (options?.requireContextEngine) {
-        throw new Error(
-          'ContextEngine.prepareAsync e obrigatorio para conversa natural antes de chamar o LLM.',
-        );
+        throw new Error('ContextEngine.prepareAsync e obrigatorio para conversa natural antes de chamar o LLM.');
       }
       return null;
     }

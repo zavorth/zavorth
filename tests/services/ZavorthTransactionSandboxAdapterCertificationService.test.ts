@@ -1,15 +1,10 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {
-  ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
+import { ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
 import { ZavorthTransactionCredentialRefService } from '../../src/services/ZavorthTransactionCredentialRefService.js';
 
-import {
-  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
-
+import { ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
 
 import { ZavorthTransactionSandboxAdapterCertificationService } from '../../src/services/ZavorthTransactionSandboxAdapterCertificationService.js';
 
@@ -26,14 +21,15 @@ describe('ZavorthTransactionSandboxAdapterCertificationService', () => {
       storeFile: path.join(tempDir, 'credential-refs.jsonl'),
       now: () => now,
     });
-    credentialRef = credentialRefs.register({
-      label: 'Intent model2 exchange paper ref',
-      connectorKind: 'exchange',
-      environment: 'paper',
-      allowedActions: ['trade-order'],
-      ownerApproved: true,
-      now,
-    }).record?.ref ?? null;
+    credentialRef =
+      credentialRefs.register({
+        label: 'Intent model2 exchange paper ref',
+        connectorKind: 'exchange',
+        environment: 'paper',
+        allowedActions: ['trade-order'],
+        ownerApproved: true,
+        now,
+      }).record?.ref ?? null;
     service = new ZavorthTransactionSandboxAdapterCertificationService({
       now: () => now,
       ledgerFile: path.join(tempDir, 'approval-ledger.jsonl'),
@@ -47,7 +43,9 @@ describe('ZavorthTransactionSandboxAdapterCertificationService', () => {
 
   it('requires Intent model1 activation review readiness first', () => {
     const result = service.certify({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'api',
       approve: true,
       mode: 'paper',
@@ -86,30 +84,36 @@ describe('ZavorthTransactionSandboxAdapterCertificationService', () => {
     });
 
     expect(result.status).toBe('sandbox-certification-ready');
-    expect(result.certificationPacket).toEqual(expect.objectContaining({
-      certificationOnly: true,
-      sandboxExecutionAuthorized: false,
-      sandboxExternalIoPerformed: false,
-      liveExecutionAuthorized: false,
-      executableNow: false,
-      liveActionApplied: false,
-      separateSandboxExecutorRequired: true,
-      separateLiveExecutorRequired: true,
-      environment: 'paper',
-    }));
-    expect(result.adapterManifest).toEqual(expect.objectContaining({
-      environment: 'paper',
-      supportsLive: false,
-      rawSecretsAccepted: false,
-      circuitBreaker: true,
-    }));
-    expect(result.safety).toEqual(expect.objectContaining({
-      certificationOnly: true,
-      noSandboxNetworkCall: true,
-      sandboxExecutionAuthorized: false,
-      liveExecutionAuthorized: false,
-      liveActionApplied: false,
-    }));
+    expect(result.certificationPacket).toEqual(
+      expect.objectContaining({
+        certificationOnly: true,
+        sandboxExecutionAuthorized: false,
+        sandboxExternalIoPerformed: false,
+        liveExecutionAuthorized: false,
+        executableNow: false,
+        liveActionApplied: false,
+        separateSandboxExecutorRequired: true,
+        separateLiveExecutorRequired: true,
+        environment: 'paper',
+      }),
+    );
+    expect(result.adapterManifest).toEqual(
+      expect.objectContaining({
+        environment: 'paper',
+        supportsLive: false,
+        rawSecretsAccepted: false,
+        circuitBreaker: true,
+      }),
+    );
+    expect(result.safety).toEqual(
+      expect.objectContaining({
+        certificationOnly: true,
+        noSandboxNetworkCall: true,
+        sandboxExecutionAuthorized: false,
+        liveExecutionAuthorized: false,
+        liveActionApplied: false,
+      }),
+    );
     expect(result.gates.every((gate) => gate.passed)).toBe(true);
   });
 
@@ -177,7 +181,9 @@ describe('ZavorthTransactionSandboxAdapterCertificationService', () => {
 
   function intentModel1ReadyInput() {
     return {
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'api' as const,
       approve: true,
       mode: 'paper' as const,

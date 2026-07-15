@@ -13,7 +13,7 @@ describe('AgenticRouteClassifier', () => {
     (config as any).geminiManagedAgentsEnabled = originalManagedEnabled;
   });
 
-  it('selects interactions automatically for complex read-only analysis', () => {
+  it('does not select interactions from free-text analysis keywords alone', () => {
     (config as any).geminiInteractionsEnabled = true;
     (config as any).geminiInteractionsApiKey = 'test-key';
     const naturalFirst = new NaturalFirstRunClassifier().classify({
@@ -31,13 +31,36 @@ describe('AgenticRouteClassifier', () => {
       naturalFirst,
     });
 
+    expect(decision.selectedRoute).toBe('standard-llm');
+  });
+
+  it('selects interactions when structured preferInteractions metadata is set', () => {
+    (config as any).geminiInteractionsEnabled = true;
+    (config as any).geminiInteractionsApiKey = 'test-key';
+    const naturalFirst = new NaturalFirstRunClassifier().classify({
+      text: 'Analise esse erro e explique o plano com evidencias.',
+      channel: 'web',
+      userId: 'u1',
+    });
+
+    const decision = new AgenticRouteClassifier().decide({
+      request: {
+        userId: 'u1',
+        channel: 'web',
+        text: 'Analise esse erro e explique o plano com evidencias.',
+        metadata: { preferInteractions: true },
+      },
+      naturalFirst,
+    });
+
     expect(decision.selectedRoute).toBe('llm-interactions');
     expect(decision.providerRoute).toBe('gemini-interactions');
     expect(decision.requiresApproval).toBe(false);
     expect(decision.policy.serverSideStore).toBe(false);
+    expect(decision.signals).toContain('structured-prefer-interactions');
   });
 
-  it('uses managed-agent preview for suspicious execution and never skips approval', () => {
+  it('does not use managed-agent preview from free-text sandbox keywords alone', () => {
     (config as any).geminiManagedAgentsEnabled = true;
     const naturalFirst = new NaturalFirstRunClassifier().classify({
       text: 'Rode esse pacote suspeito em sandbox sem tocar no meu PC.',
@@ -54,12 +77,34 @@ describe('AgenticRouteClassifier', () => {
       naturalFirst,
     });
 
+    expect(decision.selectedRoute).toBe('standard-llm');
+  });
+
+  it('uses managed-agent preview for structured preferRemoteAgent and never skips approval', () => {
+    (config as any).geminiManagedAgentsEnabled = true;
+    const naturalFirst = new NaturalFirstRunClassifier().classify({
+      text: 'Rode esse pacote suspeito em sandbox sem tocar no meu PC.',
+      channel: 'web',
+      userId: 'u1',
+    });
+
+    const decision = new AgenticRouteClassifier().decide({
+      request: {
+        userId: 'u1',
+        channel: 'web',
+        text: 'Rode esse pacote suspeito em sandbox sem tocar no meu PC.',
+        metadata: { preferRemoteAgent: true },
+      },
+      naturalFirst,
+    });
+
     expect(decision.selectedRoute).toBe('remote-agent-preview');
     expect(decision.requiresApproval).toBe(true);
     expect(decision.policy.noToolExecutionWithoutApproval).toBe(true);
+    expect(decision.signals).toContain('structured-prefer-remote-agent');
   });
 
-  it('falls back to standard route when interactions are disabled', () => {
+  it('falls back to standard route when interactions are disabled even with structured prefer', () => {
     (config as any).geminiInteractionsEnabled = false;
     (config as any).geminiInteractionsApiKey = 'test-key';
     const naturalFirst = new NaturalFirstRunClassifier().classify({
@@ -73,6 +118,7 @@ describe('AgenticRouteClassifier', () => {
         userId: 'u1',
         channel: 'web',
         text: 'Analise a arquitetura e mostre os passos.',
+        metadata: { preferInteractions: true },
       },
       naturalFirst,
     });

@@ -3,8 +3,7 @@ import type {
   ZavorthVisionPolicyDecision,
 } from './ZavorthVisionControlPlaneContract.js';
 
-export const ZAVORTH_ANDROID_ADB_BRIDGE_CONTRACT_VERSION =
-  '2026-05-11.android-adb-bridge-checkpoint-4' as const;
+export const ZAVORTH_ANDROID_ADB_BRIDGE_CONTRACT_VERSION = '2026-05-11.android-adb-bridge-checkpoint-4' as const;
 
 export type ZavorthAndroidAdbAction =
   | 'device.status'
@@ -28,11 +27,7 @@ export type ZavorthAndroidAdbStatus =
   | 'approval-required'
   | 'blocked';
 
-export type ZavorthAndroidDeviceState =
-  | 'authorized'
-  | 'unauthorized'
-  | 'offline'
-  | 'unknown';
+export type ZavorthAndroidDeviceState = 'authorized' | 'unauthorized' | 'offline' | 'unknown';
 
 export type ZavorthAndroidAdbPlanStepKind =
   | 'observe-screen'
@@ -61,6 +56,22 @@ export type ZavorthAndroidAdbRiskKind =
   | 'install-uninstall'
   | 'raw-log-secret';
 
+export type ZavorthAndroidAdbDeviceAction =
+  | 'tap'
+  | 'click'
+  | 'swipe'
+  | 'scroll'
+  | 'type'
+  | 'type-text'
+  | 'text'
+  | 'key'
+  | 'keyevent'
+  | 'intent'
+  | 'start-intent'
+  | 'start'
+  | 'install'
+  | 'uninstall';
+
 export type ZavorthAndroidAdbInput = {
   action?: ZavorthAndroidAdbAction;
   deviceSerial?: string | null;
@@ -72,6 +83,12 @@ export type ZavorthAndroidAdbInput = {
   logcatText?: string | null;
   targetText?: string | null;
   payload?: string | null;
+  /** Structured plan step kinds — free-text objective never selects these. */
+  stepKinds?: ZavorthAndroidAdbPlanStepKind[] | null;
+  /** Structured device action enum — free-text objective never selects this. */
+  deviceAction?: ZavorthAndroidAdbDeviceAction | string | null;
+  /** Alias for deviceAction. */
+  actionType?: ZavorthAndroidAdbDeviceAction | string | null;
   planId?: string | null;
   approvalId?: string | null;
   runId?: string | null;

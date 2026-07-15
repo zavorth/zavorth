@@ -43,11 +43,13 @@ describe('SurfaceOperationalIntentService', () => {
       resourceImpact: lightImpact(),
     });
 
-    expect(decision).toEqual(expect.objectContaining({
-      shouldExecute: false,
-      reason: 'conversation-only',
-      requestedTools: [],
-    }));
+    expect(decision).toEqual(
+      expect.objectContaining({
+        shouldExecute: false,
+        reason: 'conversation-only',
+        requestedTools: [],
+      }),
+    );
   });
 
   it('routes operational requests when tool affordances are present', () => {
@@ -90,11 +92,13 @@ describe('SurfaceOperationalIntentService', () => {
         text: entry.text,
       });
 
-      expect(decision).toEqual(expect.objectContaining({
-        mode: 'operation',
-        responsePath: 'agent-runtime',
-        requestedTools: expect.arrayContaining([entry.tool]),
-      }));
+      expect(decision).toEqual(
+        expect.objectContaining({
+          mode: 'operation',
+          responsePath: 'agent-runtime',
+          requestedTools: expect.arrayContaining([entry.tool]),
+        }),
+      );
     }
   });
 
@@ -109,8 +113,6 @@ describe('SurfaceOperationalIntentService', () => {
     expect(decision.reason).toBe('explicit-execution');
     expect(decision.requestedTools).toEqual(['memory.read']);
   });
-
-
 
   it('uses a semantic classifier only for ambiguous conversation-only input', async () => {
     const semanticClassifier = {
@@ -137,11 +139,13 @@ describe('SurfaceOperationalIntentService', () => {
     });
 
     expect(semanticClassifier.chat).toHaveBeenCalled();
-    expect(decision).toEqual(expect.objectContaining({
-      shouldExecute: true,
-      reason: 'semantic-operational',
-      requestedTools: ['read_file'],
-    }));
+    expect(decision).toEqual(
+      expect.objectContaining({
+        shouldExecute: true,
+        reason: 'semantic-operational',
+        requestedTools: ['read_file'],
+      }),
+    );
   });
 
   it('does not call the semantic classifier for obvious tool affordances', async () => {
@@ -182,12 +186,13 @@ describe('SurfaceOperationalIntentService', () => {
     const service = new SurfaceOperationalIntentService({
       semanticClassifier: semanticClassifier as any,
       ownerControlledDefaultActivationService: {
-        status: () => ({
-          state: {
-            status: 'active',
-            defaultRouter: 'ai-first',
-          },
-        }) as any,
+        status: () =>
+          ({
+            state: {
+              status: 'active',
+              defaultRouter: 'ai-first',
+            },
+          }) as any,
       },
     });
 
@@ -237,14 +242,16 @@ describe('SurfaceOperationalIntentService', () => {
       resourceImpact: lightImpact(),
     });
 
-    expect(decision).toEqual(expect.objectContaining({
-      schemaVersion: 1,
-      mode: 'conversation',
-      responsePath: 'fast-chat',
-      shouldCreateArtifact: false,
-      shouldShowArtifactInChat: false,
-      target: { type: 'none', value: null },
-    }));
+    expect(decision).toEqual(
+      expect.objectContaining({
+        schemaVersion: 1,
+        mode: 'conversation',
+        responsePath: 'fast-chat',
+        shouldCreateArtifact: false,
+        shouldShowArtifactInChat: false,
+        target: { type: 'none', value: null },
+      }),
+    );
   });
 
   it('keeps action verbs without a system target on the fast chat path', async () => {
@@ -294,18 +301,20 @@ describe('SurfaceOperationalIntentService', () => {
     });
 
     expect(semanticClassifier.chat).not.toHaveBeenCalled();
-    expect(decision).toEqual(expect.objectContaining({
-      mode: 'conversation',
-      responsePath: 'fast-chat',
-      requestedTools: [],
-      target: { type: 'none', value: null },
-      diagnostics: expect.objectContaining({
-        uxIntent: expect.objectContaining({
-          kind: 'answer',
-          shouldUseTools: false,
+    expect(decision).toEqual(
+      expect.objectContaining({
+        mode: 'conversation',
+        responsePath: 'fast-chat',
+        requestedTools: [],
+        target: { type: 'none', value: null },
+        diagnostics: expect.objectContaining({
+          uxIntent: expect.objectContaining({
+            kind: 'answer',
+            shouldUseTools: false,
+          }),
         }),
       }),
-    }));
+    );
   });
 
   it('keeps conceptual analysis requests as conversation instead of over-triggering tools', async () => {
@@ -318,17 +327,19 @@ describe('SurfaceOperationalIntentService', () => {
       text: 'analise essa ideia e me diga o que acha',
     });
 
-    expect(decision).toEqual(expect.objectContaining({
-      mode: 'conversation',
-      responsePath: 'fast-chat',
-      requestedTools: [],
-      diagnostics: expect.objectContaining({
-        uxIntent: expect.objectContaining({
-          kind: 'explain',
-          shouldUseTools: false,
+    expect(decision).toEqual(
+      expect.objectContaining({
+        mode: 'conversation',
+        responsePath: 'fast-chat',
+        requestedTools: [],
+        diagnostics: expect.objectContaining({
+          uxIntent: expect.objectContaining({
+            kind: 'explain',
+            shouldUseTools: false,
+          }),
         }),
       }),
-    }));
+    );
   });
 
   it('uses network fetch only when the user explicitly asks to inspect the link', async () => {
@@ -341,18 +352,20 @@ describe('SurfaceOperationalIntentService', () => {
       text: 'resuma este link https://example.com/artigo',
     });
 
-    expect(decision).toEqual(expect.objectContaining({
-      mode: 'operation',
-      responsePath: 'agent-runtime',
-      requestedTools: expect.arrayContaining(['network_fetch']),
-      target: { type: 'web', value: null },
-      diagnostics: expect.objectContaining({
-        uxIntent: expect.objectContaining({
-          kind: 'preview',
-          shouldUseTools: true,
+    expect(decision).toEqual(
+      expect.objectContaining({
+        mode: 'operation',
+        responsePath: 'agent-runtime',
+        requestedTools: expect.arrayContaining(['network_fetch']),
+        target: { type: 'web', value: null },
+        diagnostics: expect.objectContaining({
+          uxIntent: expect.objectContaining({
+            kind: 'preview',
+            shouldUseTools: true,
+          }),
         }),
       }),
-    }));
+    );
   });
 
   it('routes concrete sensitive work behind operational approval posture', async () => {
@@ -365,21 +378,23 @@ describe('SurfaceOperationalIntentService', () => {
       text: 'apague a pasta dist e rode npm test',
     });
 
-    expect(decision).toEqual(expect.objectContaining({
-      mode: 'operation',
-      responsePath: 'agent-runtime',
-      requestedTools: expect.arrayContaining(['shell.exec']),
-      diagnostics: expect.objectContaining({
-        uxIntent: expect.objectContaining({
-          kind: 'execute',
-          shouldUseTools: true,
-          shouldAskApproval: true,
+    expect(decision).toEqual(
+      expect.objectContaining({
+        mode: 'operation',
+        responsePath: 'agent-runtime',
+        requestedTools: expect.arrayContaining(['shell.exec']),
+        diagnostics: expect.objectContaining({
+          uxIntent: expect.objectContaining({
+            kind: 'execute',
+            shouldUseTools: true,
+            shouldAskApproval: true,
+          }),
         }),
       }),
-    }));
+    );
   });
 
-  it('maps concrete folder inspection to the local inspector envelope', async () => {
+  it('does not keyword-route free-text folder phrases to local-inspector (agent-first)', async () => {
     const service = new SurfaceOperationalIntentService({
       semanticClassifier: null,
     });
@@ -389,14 +404,10 @@ describe('SurfaceOperationalIntentService', () => {
       text: 'analise minha pasta downloads e me diga o que tem la dentro',
     });
 
-    expect(decision).toEqual(expect.objectContaining({
-      mode: 'file-inspection',
-      responsePath: 'local-inspector',
-      target: { type: 'folder', value: null },
-      shouldCreateArtifact: false,
-      shouldShowArtifactInChat: false,
-    }));
-    expect(decision.requestedTools).toEqual(expect.arrayContaining(['read_file']));
+    // Free text stays model-owned: no free-text → read_file / local-inspector steal.
+    expect(decision.mode).not.toBe('file-inspection');
+    expect(decision.responsePath).not.toBe('local-inspector');
+    expect(decision.requestedTools).not.toEqual(expect.arrayContaining(['read_file']));
   });
 
   it('allows explicit deliverable artifacts only for real artifact requests', async () => {
@@ -446,18 +457,22 @@ describe('SurfaceOperationalIntentService', () => {
     });
 
     expect(decision.responsePath).toBe('agent-runtime');
-    expect(decision.diagnostics.universalIntent).toEqual(expect.objectContaining({
-      intent: 'command_execution',
-      risk: 'danger',
-      nextSafeAction: 'preview_then_request_permission',
-      requiresPermission: true,
-    }));
-    expect(decision.diagnostics.trustSlider).toEqual(expect.objectContaining({
-      level: 'collaborator',
-      decision: 'requires_permission',
-      sandboxTier: 'workspace-scoped',
-      permissionScope: 'once',
-      blocked: false,
-    }));
+    expect(decision.diagnostics.universalIntent).toEqual(
+      expect.objectContaining({
+        intent: 'command_execution',
+        risk: 'danger',
+        nextSafeAction: 'preview_then_request_permission',
+        requiresPermission: true,
+      }),
+    );
+    expect(decision.diagnostics.trustSlider).toEqual(
+      expect.objectContaining({
+        level: 'collaborator',
+        decision: 'requires_permission',
+        sandboxTier: 'workspace-scoped',
+        permissionScope: 'once',
+        blocked: false,
+      }),
+    );
   });
 });

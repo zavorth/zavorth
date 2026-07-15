@@ -52,7 +52,10 @@ describe('TelegramProviderController', () => {
 
     await controller.handleModel(ctx, '');
 
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/\/model\s*<nome>|\/model\s*<name>/i);
+    const reply = String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'));
+    expect(reply).toContain('LLM roles:');
+    expect(reply).toMatch(/\/model\s+default\s+<provider\/model>/i);
+    expect(reply).toMatch(/\/model\s+strong\s+<provider\/model>/i);
   });
 
   it('switches to Gemma 2 through the Gemini provider alias', async () => {

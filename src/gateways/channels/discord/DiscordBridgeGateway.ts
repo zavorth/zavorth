@@ -7,6 +7,7 @@ import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../
 import type { ZavorthAgentGateway } from '../../../runtime/agent/index.js';
 import { LogRepository } from '../../../storage/LogRepository.js';
 import { logger } from '../../../logger.js';
+import { canActorWriteLearning } from '../../../services/ZavorthLearningWriteAuth.js';
 import { errorMessage } from '../../../utils/errorLike.js';
 const DISCORD_BRIDGE_PROTOCOL = 'ZAVORTH_DISCORD_BRIDGE_V1' as const;
 
@@ -161,7 +162,7 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
     this.enabled = options.enabled ?? config.discordBridgeEnabled;
     this.secretFilePath = options.secretFilePath || config.discordBridgeSecretFile;
     this.secret = this.enabled
-      ? (options.secret || DiscordBridgeGateway.resolveSecret(this.secretFilePath))
+      ? options.secret || DiscordBridgeGateway.resolveSecret(this.secretFilePath)
       : String(options.secret || process.env.DISCORD_BRIDGE_SECRET || '').trim();
     this.inboxDir = options.inboxDir || config.discordBridgeInboxDir;
     this.processedDir = options.processedDir || config.discordBridgeProcessedDir;
@@ -171,7 +172,11 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
     this.statusFilePath = options.statusFilePath || config.discordBridgeStatusFile;
     this.runtimeDir = path.dirname(this.stateFilePath);
     this.allowedGuildIds = Array.from(
-      new Set((options.allowedGuildIds || config.discordAllowedGuildIds).map((item) => String(item || '').trim()).filter(Boolean)),
+      new Set(
+        (options.allowedGuildIds || config.discordAllowedGuildIds)
+          .map((item) => String(item || '').trim())
+          .filter(Boolean),
+      ),
     );
     this.allowDirectMessages = options.allowDirectMessages ?? config.discordBridgeAllowDms;
     this.pollIntervalMs = Math.max(500, options.pollIntervalMs ?? config.discordBridgePollIntervalMs);
@@ -258,7 +263,10 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
 
     try {
       return JSON.parse(fs.readFileSync(this.statusFilePath, 'utf8')) as DiscordBridgeStatusSnapshot;
-    } catch (error: unknown) {logger.warn('[Discord Bridge way] JSON parse failed', error); return null; }
+    } catch (error: unknown) {
+      logger.warn('[Discord Bridge way] JSON parse failed', error);
+      return null;
+    }
   }
 
   public async processInboxOnce(): Promise<void> {
@@ -272,7 +280,8 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
 
     this.processing = true;
     try {
-      const files = fs.readdirSync(this.inboxDir)
+      const files = fs
+        .readdirSync(this.inboxDir)
         .filter((entry) => entry.toLowerCase().endsWith('.json'))
         .sort((left, right) => left.localeCompare(right));
 
@@ -394,7 +403,8 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
       }));
       this.writeStatus();
       return { accepted: true, chatId };
-    } catch (error: unknown) {const reason = errorMessage(error, 'Discord bridge failed while delegating to the broker.');
+    } catch (error: unknown) {
+      const reason = errorMessage(error, 'Discord bridge failed while delegating to the broker.');
       this.patchState((state) => ({
         ...state,
         rejectedCount: state.rejectedCount + 1,
@@ -436,7 +446,8 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
       const raw = await fs.promises.readFile(filePath, 'utf8');
       const envelope = JSON.parse(raw) as DiscordBridgeInboundEnvelope;
       outcome = await this.ingestEnvelope(envelope);
-    } catch (error: unknown) {outcome = {
+    } catch (error: unknown) {
+      outcome = {
         accepted: false,
         reason: errorMessage(error, 'Discord bridge failed while parsing the inbox envelope.'),
       };
@@ -490,6 +501,11 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
         guildId: String(envelope.channel.guildId || '').trim() || null,
         attachments: envelope.message.attachments || [],
         legacyUnifiedGatewayBypassed: true,
+        allowLearningWrite: canActorWriteLearning({
+          surface: 'discord',
+          userId: envelope.author.id,
+          chatId,
+        }),
       },
     });
 
@@ -522,9 +538,7 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
     return true;
   }
 
-  private validateEnvelope(
-    envelope: DiscordBridgeInboundEnvelope,
-  ): { valid: true } | { valid: false; reason: string } {
+  private validateEnvelope(envelope: DiscordBridgeInboundEnvelope): { valid: true } | { valid: false; reason: string } {
     if (!envelope || typeof envelope !== 'object') {
       return { valid: false, reason: 'Discord bridge envelope is missing.' };
     }
@@ -664,8 +678,9 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
               .slice(0, MAX_PROCESSED_MESSAGE_IDS)
           : [],
       };
-    } catch (error: unknown) {logger.warn('[Discord Bridge way] parsing failed', error);
-    return {
+    } catch (error: unknown) {
+      logger.warn('[Discord Bridge way] parsing failed', error);
+      return {
         startedAt: null,
         processedCount: 0,
         rejectedCount: 0,
@@ -675,7 +690,7 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
         lastError: null,
         processedMessageIds: [],
       };
-  }
+    }
   }
 
   private patchState(mutator: (state: DiscordBridgeState) => DiscordBridgeState): DiscordBridgeState {

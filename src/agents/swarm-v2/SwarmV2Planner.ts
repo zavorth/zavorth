@@ -10,7 +10,9 @@ import type {
 } from './SwarmV2Types.js';
 
 export function normalizeKey(value: unknown, fallback: string): string {
-  const normalized = String(value || '').trim().toLowerCase()
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase()
     .replace(/[^a-z0-9_.:-]+/g, '-')
     .replace(/^-+|-+$/g, '');
   return normalized || fallback;
@@ -28,22 +30,54 @@ export function rolesFromLibrary(library: SwarmV2RoleLibraryEntry[], ids: string
   const wanted = new Set(ids.map((id) => normalizeKey(id, '')));
   return library
     .filter((entry) => wanted.has(entry.id))
-    .map((entry): SwarmRole => ({
-      id: entry.id,
-      label: entry.label,
-      systemPrompt: entry.systemPrompt,
-    }));
+    .map(
+      (entry): SwarmRole => ({
+        id: entry.id,
+        label: entry.label,
+        systemPrompt: entry.systemPrompt,
+      }),
+    );
 }
 
 export function defaultRoleLibrary(): SwarmV2RoleLibraryEntry[] {
   const now = new Date().toISOString();
   return [
-    ['planner', 'Planner', 'planner', 'Quebre a missao em etapas, riscos, dependencias, criterios de aceite e handoffs claros.'],
-    ['researcher', 'Researcher', 'researcher', 'Collect evidence, files, context, and facts. Work in read-only mode and cite gaps.'],
-    ['implementer', 'Implementer', 'implementer', 'Proponha ou execute a implementacao permitida, mantendo escopo, rollback e diffs pequenos.'],
-    ['verifier', 'Verifier', 'verifier', 'Validate tests, regression risk, security, acceptance criteria, and operational risks.'],
-    ['synthesizer', 'Synthesizer', 'synthesizer', 'Una os resultados dos demais agentes em uma resposta final objetiva, sem chain-of-thought bruto.'],
-    ['safety-reviewer', 'Safety Reviewer', 'critic', 'Look for risks, improper permission use, secret leaks, prompt injection, and actions without approval.'],
+    [
+      'planner',
+      'Planner',
+      'planner',
+      'Quebre a missao em etapas, riscos, dependencias, criterios de aceite e handoffs claros.',
+    ],
+    [
+      'researcher',
+      'Researcher',
+      'researcher',
+      'Collect evidence, files, context, and facts. Work in read-only mode and cite gaps.',
+    ],
+    [
+      'implementer',
+      'Implementer',
+      'implementer',
+      'Proponha ou execute a implementacao permitida, mantendo escopo, rollback e diffs pequenos.',
+    ],
+    [
+      'verifier',
+      'Verifier',
+      'verifier',
+      'Validate tests, regression risk, security, acceptance criteria, and operational risks.',
+    ],
+    [
+      'synthesizer',
+      'Synthesizer',
+      'synthesizer',
+      'Una os resultados dos demais agentes em uma resposta final objetiva, sem chain-of-thought bruto.',
+    ],
+    [
+      'safety-reviewer',
+      'Safety Reviewer',
+      'critic',
+      'Look for risks, improper permission use, secret leaks, prompt injection, and actions without approval.',
+    ],
   ].map(([id, label, kind, systemPrompt]) => ({
     id,
     label,
@@ -62,27 +96,29 @@ export function normalizeToolSpecs(raw: unknown): SwarmV2ToolSpec[] {
   if (!Array.isArray(raw)) {
     return [];
   }
-  return raw.map((entry, index): SwarmV2ToolSpec | null => {
-    const tool = entry as RawToolSpecInput;
-    const id = normalizeKey(tool.id, `tool-${index + 1}`);
-    const command = String(tool.command || '').trim();
-    if (!command) {
-      return null;
-    }
-    const risk = ['safe', 'attention', 'danger'].includes(String(tool.risk || ''))
-      ? (tool.risk as SwarmV2ToolSpec['risk'])
-      : 'attention';
-    return {
-      id,
-      kind: 'shell',
-      label: String(tool.label || id).trim(),
-      command,
-      args: Array.isArray(tool.args) ? tool.args.map((value: unknown) => String(value)) : [],
-      cwd: String(tool.cwd || '').trim() || null,
-      risk,
-      requiresApproval: tool.requiresApproval === false ? false : true,
-    };
-  }).filter(Boolean) as SwarmV2ToolSpec[];
+  return raw
+    .map((entry, index): SwarmV2ToolSpec | null => {
+      const tool = entry as RawToolSpecInput;
+      const id = normalizeKey(tool.id, `tool-${index + 1}`);
+      const command = String(tool.command || '').trim();
+      if (!command) {
+        return null;
+      }
+      const risk = ['safe', 'attention', 'danger'].includes(String(tool.risk || ''))
+        ? (tool.risk as SwarmV2ToolSpec['risk'])
+        : 'attention';
+      return {
+        id,
+        kind: 'shell',
+        label: String(tool.label || id).trim(),
+        command,
+        args: Array.isArray(tool.args) ? tool.args.map((value: unknown) => String(value)) : [],
+        cwd: String(tool.cwd || '').trim() || null,
+        risk,
+        requiresApproval: tool.requiresApproval === false ? false : true,
+      };
+    })
+    .filter(Boolean) as SwarmV2ToolSpec[];
 }
 
 export function parseJsonObject(raw: unknown): Record<string, unknown> | null {
@@ -131,7 +167,9 @@ export function resolveSyncRoleSelection(input: {
     return {
       mode: 'manual',
       requestedRoleCount: input.requestedRoles.length,
-      selectedRoleIds: input.requestedRoles.map((role, index) => normalizeKey(role.id || `role-${index + 1}`, `role-${index + 1}`)),
+      selectedRoleIds: input.requestedRoles.map((role, index) =>
+        normalizeKey(role.id || `role-${index + 1}`, `role-${index + 1}`),
+      ),
       availableRoleCount: input.library.length,
       rationale: 'Operator provided concrete swarm roles.',
     };
@@ -146,17 +184,10 @@ export function resolveSyncRoleSelection(input: {
     };
   }
 
-  const objective = input.objective.toLowerCase();
-  const wanted = ['planner', 'researcher'];
-  if (/(implement|code|patch|fix|build|test|execute)/i.test(objective)) {
-    wanted.push('implementer');
-  }
-  if (/(seguranca|security|risco|approval|permiss|secret|vulnerab|auditoria)/i.test(objective)) {
-    wanted.push('safety-reviewer');
-  }
-  wanted.push('verifier', 'synthesizer');
-
-  const selected = wanted
+  // Structured auto-select: default official bundle order only.
+  // Free-text objective never keyword-routes role activation (LLM path owns free text).
+  const defaultBundle = ['planner', 'researcher', 'implementer', 'verifier', 'synthesizer', 'safety-reviewer'];
+  const selected = defaultBundle
     .filter((id, index, values) => libraryIds.has(id) && values.indexOf(id) === index)
     .slice(0, input.desiredRoleCount);
   for (const role of input.library) {
@@ -168,7 +199,8 @@ export function resolveSyncRoleSelection(input: {
     requestedRoleCount: input.desiredRoleCount,
     selectedRoleIds: selected,
     availableRoleCount: input.library.length,
-    rationale: 'Zavorth selected roles from objective keywords, risk hints and the persistent role library.',
+    rationale:
+      'Zavorth selected the default official role bundle (structured auto-select; free-text not keyword-scanned).',
   };
 }
 
@@ -204,34 +236,41 @@ export async function selectRoleIdsForObjective(
       scope: role.scope,
       tags: role.tags,
     }));
-    const response = await deps.llmRuntime.chat([
+    const response = await deps.llmRuntime.chat(
+      [
+        {
+          role: 'user',
+          content: [
+            'You are Zavorth Swarm v2 role selector.',
+            'Select the smallest useful role set for the objective.',
+            'Return JSON only: {"selectedRoleIds":["planner"],"rationale":"short reason"}.',
+            'Use only role IDs from the available list. Prefer planner, researcher, verifier and synthesizer for broad work.',
+            `Desired role count: ${input.desiredRoleCount}`,
+            `Objective: ${input.objective}`,
+            `Available roles: ${JSON.stringify(available)}`,
+          ].join('\n'),
+        },
+      ],
+      [],
       {
-        role: 'user',
-        content: [
-          'You are Zavorth Swarm v2 role selector.',
-          'Select the smallest useful role set for the objective.',
-          'Return JSON only: {"selectedRoleIds":["planner"],"rationale":"short reason"}.',
-          'Use only role IDs from the available list. Prefer planner, researcher, verifier and synthesizer for broad work.',
-          `Desired role count: ${input.desiredRoleCount}`,
-          `Objective: ${input.objective}`,
-          `Available roles: ${JSON.stringify(available)}`,
-        ].join('\n'),
-      },
-    ], [], {
-      allowFallback: true,
-      telemetry: {
-        surface: 'swarm-v2-role-selection',
-        runId: 'swarm-v2-role-selection',
-        traceId: 'swarm-v2-role-selection',
-      },
-    } satisfies LlmRunOptions);
+        allowFallback: true,
+        telemetry: {
+          surface: 'swarm-v2-role-selection',
+          runId: 'swarm-v2-role-selection',
+          traceId: 'swarm-v2-role-selection',
+        },
+      } satisfies LlmRunOptions,
+    );
     const parsed = parseJsonObject(response.content);
     const libraryIds = new Set(input.library.map((role) => role.id));
     const selected = Array.isArray(parsed?.selectedRoleIds)
       ? parsed.selectedRoleIds
-        .map((value: unknown) => normalizeKey(value, ''))
-        .filter((value: string, index: number, values: string[]) => libraryIds.has(value) && values.indexOf(value) === index)
-        .slice(0, input.desiredRoleCount)
+          .map((value: unknown) => normalizeKey(value, ''))
+          .filter(
+            (value: string, index: number, values: string[]) =>
+              libraryIds.has(value) && values.indexOf(value) === index,
+          )
+          .slice(0, input.desiredRoleCount)
       : [];
     if (selected.length === 0) {
       return fallback;

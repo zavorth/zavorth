@@ -15,7 +15,6 @@ function buildClassification(category: string): IntentClassification {
     category: category as IntentClassification['category'],
     confidence: 0.8,
     reason: 'test',
-    isTrivialChat: false,
     isHardDecision: false,
     downgradedBy: [],
     secondPass: {

@@ -3,20 +3,25 @@ import { IntentClassifier } from '../../src/cognitive-firewall';
 describe('IntentClassifier free-text hints', () => {
   const classifier = new IntentClassifier();
 
-  it.each([
-    'hi',
-    'hello',
-    'thanks',
-    'ok',
-    'bye',
-  ])('marks trivial chat as conversation: %s', (text) => {
-    const result = classifier.classify(text);
+  it.each(['hi', 'hello', 'thanks', 'ok', 'bye'])(
+    'treats free-text greetings as full_toolset (model-owned): %s',
+    (text) => {
+      const result = classifier.classify(text);
 
-    expect(result.category).toBe('conversation');
-    expect(result.isTrivialChat).toBe(true);
-    expect(result.isHardDecision).toBe(false);
-    expect(result.secondPass.finalCategory).toBe('conversation');
-  });
+      expect(result.category).toBe('full_toolset');
+      expect(result.isHardDecision).toBe(false);
+      expect(result.confidence).toBe(0.5);
+      expect(result.secondPass).toEqual(
+        expect.objectContaining({
+          source: 'ContextualIntentSecondPass',
+          verdict: 'left-ambiguous',
+          originalCategory: 'full_toolset',
+          finalCategory: 'full_toolset',
+          signals: expect.arrayContaining(['model-owned-free-text']),
+        }),
+      );
+    },
+  );
 
   it.each([
     'create a file README.md',
@@ -33,22 +38,23 @@ describe('IntentClassifier free-text hints', () => {
     const result = classifier.classify(text);
 
     expect(result.category).toBe('full_toolset');
-    expect(result.isTrivialChat).toBe(false);
     expect(result.isHardDecision).toBe(false);
     expect(result.confidence).toBe(0.5);
-    expect(result.secondPass).toEqual(expect.objectContaining({
-      source: 'ContextualIntentSecondPass',
-      verdict: 'left-ambiguous',
-      originalCategory: 'full_toolset',
-      finalCategory: 'full_toolset',
-      signals: expect.arrayContaining(['model-owned-free-text']),
-    }));
+    expect(result.secondPass).toEqual(
+      expect.objectContaining({
+        source: 'ContextualIntentSecondPass',
+        verdict: 'left-ambiguous',
+        originalCategory: 'full_toolset',
+        finalCategory: 'full_toolset',
+        signals: expect.arrayContaining(['model-owned-free-text']),
+      }),
+    );
   });
 
   it('classifies empty input as conversation', () => {
     const result = classifier.classify('   ');
 
     expect(result.category).toBe('conversation');
-    expect(result.isTrivialChat).toBe(true);
+    expect(result.confidence).toBe(0.5);
   });
 });

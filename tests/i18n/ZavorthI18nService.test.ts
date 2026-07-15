@@ -65,7 +65,8 @@ describe('ZavorthI18nService', () => {
     it('should normalize zh to zh-CN', () => {
       expect(normalizeLocale('zh')).toBe('zh-CN');
       expect(normalizeLocale('zh-CN')).toBe('zh-CN');
-      expect(normalizeLocale('zh-TW')).toBe('zh-CN');
+      // Traditional Chinese stays its own locale (not collapsed to Simplified).
+      expect(normalizeLocale('zh-TW')).toBe('zh-TW');
     });
 
     it('should normalize ko to ko-KR', () => {
@@ -186,6 +187,38 @@ describe('ZavorthI18nService', () => {
       svc.t('common.app.name');
       svc.clearCache();
       expect(svc.getLocale()).toBe('en-US');
+    });
+
+    it('resolves product-mode desktop labels without leaking raw keys', () => {
+      const svc = new ZavorthI18nService({ locale: 'en-US' });
+      const keys = [
+        'services.desktop.current_mode',
+        'services.desktop.expected_base_profile',
+        'services.desktop.visible_surfaces',
+        'services.desktop.hidden_by_default',
+        'services.desktop.possible_escalations',
+        'services.desktop.commands',
+        'services.desktop.cli',
+        'services.desktop.recommend_restart',
+        'services.desktop.nothing',
+        'services.desktop.aligned',
+        'services.desktop.none',
+        'services.surface.actions',
+      ] as const;
+      for (const key of keys) {
+        const value = svc.t(key);
+        expect(value).not.toBe(key);
+        expect(value).not.toMatch(/^desktop\./);
+        expect(value).not.toBe('Acoes');
+      }
+      expect(svc.t('services.desktop.current_mode')).toBe('Current mode');
+      expect(svc.t('services.surface.actions')).toBe('Actions');
+    });
+
+    it('falls back desktop keys to en-US for other locales when missing', () => {
+      const svc = new ZavorthI18nService({ locale: 'de-DE' });
+      expect(svc.t('services.desktop.current_mode')).toBe('Current mode');
+      expect(svc.t('services.surface.actions')).toBe('Actions');
     });
   });
 

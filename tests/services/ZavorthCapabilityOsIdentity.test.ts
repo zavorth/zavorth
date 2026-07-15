@@ -16,9 +16,9 @@ function createRegistry(capabilities: CapabilityDefinition[]) {
   return {
     getAll: jest.fn(() => capabilities.map((capability) => ({ ...capability }))),
     getSummary: jest.fn(() => buildSummary(capabilities)),
-    findByCommand: jest.fn((commandType: string) =>
-      capabilities.find((capability) => capability.command?.command === commandType) || null),
-    matchImplicit: jest.fn(() => null),
+    findByCommand: jest.fn(
+      (commandType: string) => capabilities.find((capability) => capability.command?.command === commandType) || null,
+    ),
   };
 }
 
@@ -33,11 +33,7 @@ describe('ZavorthCapabilityOsService identity surface', () => {
 
     expect(JSON.stringify(snapshot.fallbackMatrix)).toContain('external_executor');
     expect(snapshot.fallbackMatrix.external_executor).toEqual(['codex', 'local_executor', 'conversation']);
-    expect(snapshot.fallbackMatrix['workflow:review']).toEqual([
-      'external_executor',
-      'codex',
-      'conversation',
-    ]);
+    expect(snapshot.fallbackMatrix['workflow:review']).toEqual(['external_executor', 'codex', 'conversation']);
   });
 
   it('routes external executor preferences through the native fallback chain', () => {

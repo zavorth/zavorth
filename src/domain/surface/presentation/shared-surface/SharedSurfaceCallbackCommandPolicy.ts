@@ -23,16 +23,15 @@ const SAFE_NO_ARG_COMMANDS = new Set([
 const SAFE_LIMITED_ARG_COMMANDS = new Set([
   '/commands',
   '/tools',
+  // Proposal-time approval cards (ModeEscalation / perm / selfmod openers)
+  '/mode',
+  '/perm',
+  '/selfmod',
+  '/approve',
+  '/reject',
 ]);
 
-const SAFE_CHANNEL_CALLBACK_ACTIONS = new Set([
-  'doctor',
-  'inspect',
-  'login-qr',
-  'consistency',
-  'policy',
-  'status',
-]);
+const SAFE_CHANNEL_CALLBACK_ACTIONS = new Set(['doctor', 'inspect', 'login-qr', 'consistency', 'policy', 'status']);
 
 const KNOWN_CHANNEL_ACTIONS = new Set([
   'broadcast-test',
@@ -50,10 +49,7 @@ const KNOWN_CHANNEL_ACTIONS = new Set([
   'status',
 ]);
 
-const PUBLIC_CALLBACK_COMMANDS = new Set([
-  '/commands',
-  '/help',
-]);
+const PUBLIC_CALLBACK_COMMANDS = new Set(['/commands', '/help']);
 
 export type SharedSurfaceCallbackCommandDecision =
   | {
@@ -85,7 +81,9 @@ export function evaluateSharedSurfaceCommandCallback(value: unknown): SharedSurf
   }
 
   const tokens = normalized.split(' ');
-  const commandType = String(tokens[0] || '').trim().toLowerCase();
+  const commandType = String(tokens[0] || '')
+    .trim()
+    .toLowerCase();
   const args = tokens.slice(1);
 
   if (!commandType || !SAFE_ARG_TOKEN_PATTERN.test(commandType.replace(/^\//, ''))) {
@@ -126,7 +124,11 @@ export function isSharedSurfaceCommandCallback(value: unknown): boolean {
 }
 
 export function isSharedSurfaceChannelCallbackAction(kind: unknown): boolean {
-  return SAFE_CHANNEL_CALLBACK_ACTIONS.has(String(kind || '').trim().toLowerCase());
+  return SAFE_CHANNEL_CALLBACK_ACTIONS.has(
+    String(kind || '')
+      .trim()
+      .toLowerCase(),
+  );
 }
 
 export function isSharedSurfaceOperationalCallbackCommand(value: unknown): boolean {
@@ -137,10 +139,7 @@ export function isSharedSurfaceOperationalCallbackCommand(value: unknown): boole
   return !PUBLIC_CALLBACK_COMMANDS.has(decision.commandType);
 }
 
-function evaluateLimitedArgCommand(
-  commandType: string,
-  args: string[],
-): SharedSurfaceCallbackCommandDecision {
+function evaluateLimitedArgCommand(commandType: string, args: string[]): SharedSurfaceCallbackCommandDecision {
   if (args.length > 3 || args.some((arg) => !SAFE_ARG_TOKEN_PATTERN.test(arg))) {
     return { allowed: false, reason: 'Argumentos de callback invalidos.' };
   }
@@ -161,7 +160,9 @@ function evaluateChannelCommand(args: string[]): SharedSurfaceCallbackCommandDec
     return { allowed: false, reason: 'Invalid channel callback.' };
   }
 
-  const firstArg = String(args[0] || '').trim().toLowerCase();
+  const firstArg = String(args[0] || '')
+    .trim()
+    .toLowerCase();
   if (args.length === 1) {
     if (firstArg === 'consistency') {
       return { allowed: true, commandText: '/channels consistency', commandType: '/channels' };

@@ -7,7 +7,6 @@ jest.mock('@google/generative-ai', () => ({
   },
 }));
 
-
 import { AiStudioExecutor } from '../../src/execution/AiStudioExecutor';
 import { config } from '../../src/config/index';
 
@@ -64,13 +63,47 @@ describe('AiStudioExecutor', () => {
     expect(result.error_message).toContain('AISTUDIO_API_KEY');
   });
 
-  it('requests approval before using built-in Gemini API tools', async () => {
+  it('does not inject built-in tools from free-text news keywords', async () => {
     (config as any).aiStudioApiKey = 'test-key';
+    const generateContent = jest.fn().mockResolvedValue({
+      response: {
+        candidates: [
+          {
+            content: {
+              role: 'model',
+              parts: [{ text: 'Resumo sem tools automaticas.' }],
+            },
+          },
+        ],
+      },
+    });
+    const getGenerativeModel = jest.fn().mockReturnValue({ generateContent });
+    (GoogleGenerativeAI as jest.Mock).mockImplementation(() => ({
+      getGenerativeModel,
+    }));
     const executor = new AiStudioExecutor();
 
     const result = await executor.execute(
       buildRequest({
         instructions: ['Search the main AI news for today.'],
+      }) as any,
+    );
+
+    expect(result.success).toBe(true);
+    expect(getGenerativeModel).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tools: [],
+      }),
+    );
+  });
+
+  it('requests approval when tools are requested via explicit structured tools= token', async () => {
+    (config as any).aiStudioApiKey = 'test-key';
+    const executor = new AiStudioExecutor();
+
+    const result = await executor.execute(
+      buildRequest({
+        instructions: ['tools=google_search Search the main AI news for today.'],
       }) as any,
     );
 
@@ -141,16 +174,10 @@ describe('AiStudioExecutor', () => {
           {
             content: {
               role: 'model',
-              parts: [
-                null,
-                { text: 'Resumo seguro.' },
-                { codeExecutionResult: { output: 42 } },
-              ],
+              parts: [null, { text: 'Resumo seguro.' }, { codeExecutionResult: { output: 42 } }],
             },
             groundingMetadata: {
-              groundingChunks: [
-                { web: { title: 123, uri: 'https://example.com/source' } },
-              ],
+              groundingChunks: [{ web: { title: 123, uri: 'https://example.com/source' } }],
             },
           },
         ],

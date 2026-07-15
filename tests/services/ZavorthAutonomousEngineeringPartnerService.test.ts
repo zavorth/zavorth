@@ -91,43 +91,61 @@ function snapshotService(snapshot: any) {
 
 function sourceSnapshots(overrides: Record<string, any> = {}) {
   return {
-    rolloutReadinessService: snapshotService(overrides.rollout || {
-      summary: { posture: 'healthy', gateStatus: 'passed', canProceed: true },
-      narrative: { operatorSummary: 'Rollout local liberado.' },
-    }),
-    sandboxControlPlaneService: snapshotService(overrides.sandbox || {
-      summary: { posture: 'healthy', untrustedExecutionReady: true },
-      narrative: { operatorSummary: 'Sandbox forte disponivel.' },
-    }),
-    federatedMeshService: snapshotService(overrides.federatedMesh || {
-      summary: { posture: 'attention', infrastructureState: 'dormant' },
-      narrative: { operatorSummary: 'Mesh dormente com fallback local.' },
-    }),
-    canvasWorkspaceService: snapshotService(overrides.canvas || {
-      summary: { posture: 'healthy', entities: 4 },
-      narrative: { operatorSummary: 'Canvas projetado sem sidecars.' },
-    }),
-    automationControlPlaneService: snapshotService(overrides.automation || {
-      summary: { posture: 'healthy', coreSchedulerDormant: true },
-      narrative: { operatorSummary: 'Automations em control plane.' },
-    }),
-    evalControlPlaneService: snapshotService(overrides.evals || {
-      summary: { posture: 'healthy', regressions: 0 },
-      regressionGate: { canProceed: true, rolloutBlocked: false },
-      narrative: { operatorSummary: 'Regression gate passou.' },
-    }),
-    replayLearningService: snapshotService(overrides.replayLearning || {
-      summary: { posture: 'healthy', heavyRuntimesStarted: false },
-      narrative: { operatorSummary: 'Replay learning suggest-only.' },
-    }),
-    skillEvolutionService: snapshotService(overrides.skillEvolution || {
-      summary: { posture: 'healthy', heavyRuntimesStarted: false },
-      actions: ['skills:evolve -- --preview --intent "<pedido>"'],
-    }),
-    hardwareActionPlaneService: snapshotService(overrides.hardware || {
-      summary: { posture: 'healthy', emergencyStopActive: false, heavyRuntimesStarted: false },
-      narrative: { operatorSummary: 'Hardware action plane seguro.' },
-    }),
+    rolloutReadinessService: snapshotService(
+      overrides.rollout || {
+        summary: { posture: 'healthy', gateStatus: 'passed', canProceed: true },
+        narrative: { operatorSummary: 'Rollout local liberado.' },
+      },
+    ),
+    sandboxControlPlaneService: snapshotService(
+      overrides.sandbox || {
+        summary: { posture: 'healthy', untrustedExecutionReady: true },
+        narrative: { operatorSummary: 'Sandbox forte disponivel.' },
+      },
+    ),
+    federatedMeshService: snapshotService(
+      overrides.federatedMesh || {
+        summary: { posture: 'attention', infrastructureState: 'dormant' },
+        narrative: { operatorSummary: 'Mesh dormente com fallback local.' },
+      },
+    ),
+    canvasWorkspaceService: snapshotService(
+      overrides.canvas || {
+        summary: { posture: 'healthy', entities: 4 },
+        narrative: { operatorSummary: 'Canvas projetado sem sidecars.' },
+      },
+    ),
+    automationControlPlaneService: snapshotService(
+      overrides.automation || {
+        summary: { posture: 'healthy', coreSchedulerDormant: true },
+        narrative: { operatorSummary: 'Automations em control plane.' },
+      },
+    ),
+    evalControlPlaneService: snapshotService(
+      overrides.evals || {
+        summary: { posture: 'healthy', regressions: 0 },
+        regressionGate: { canProceed: true, rolloutBlocked: false },
+        narrative: { operatorSummary: 'Regression gate passou.' },
+      },
+    ),
+    replayLearningService: snapshotService(
+      overrides.replayLearning || {
+        summary: { posture: 'healthy', heavyRuntimesStarted: false },
+        narrative: { operatorSummary: 'Replay learning suggest-only.' },
+      },
+    ),
+    skillEvolutionService: snapshotService(
+      overrides.skillEvolution || {
+        summary: { posture: 'healthy', heavyRuntimesStarted: false },
+        actions: ['skills:evolve -- --preview --intent "<pedido>"'],
+      },
+    ),
+    hardwareActionPlaneService: snapshotService(
+      overrides.hardware || {
+        summary: { posture: 'healthy', emergencyStopActive: false, heavyRuntimesStarted: false },
+        narrative: { operatorSummary: 'Hardware action plane seguro.' },
+      },
+    ),
   };
 }
 
@@ -208,50 +226,62 @@ describe('ZavorthAutonomousEngineeringPartnerService', () => {
     });
 
     expect(delegated.status).toBe('waiting_approval');
-    expect(delegated.mission).toEqual(expect.objectContaining({
-      autonomyLevel: 'supervised',
-      status: 'waiting_approval',
-      successCriteria: ['teste passa', 'diff revisado'],
-      budget: expect.objectContaining({
-        maxActions: 12,
-        maxMutableActions: 3,
-      }),
-    }));
-    expect(delegated.mission.checkpoints.map((entry) => entry.id)).toEqual(expect.arrayContaining([
-      'rollout-readiness',
-      'sandbox-envelope',
-      'eval-regression-gate',
-      'canvas-review',
-      'final-evidence-pack',
-    ]));
-    expect(delegated.mutationPlan).toEqual(expect.objectContaining({
-      domain: 'autonomous-partner',
-      actionId: 'mission.delegate',
-      status: 'waiting_approval',
-      approval: expect.objectContaining({
-        permissionId: 'perm-partner-1',
-      }),
-    }));
-    expect(mutationPlane.createPlan).toHaveBeenCalledWith(expect.objectContaining({
-      domain: 'autonomous-partner',
-      approvalRequired: true,
-      readinessGates: expect.arrayContaining([
-        expect.objectContaining({
-          id: 'autonomous-mission-readiness',
-          canProceed: true,
+    expect(delegated.mission).toEqual(
+      expect.objectContaining({
+        autonomyLevel: 'supervised',
+        status: 'waiting_approval',
+        successCriteria: ['teste passa', 'diff revisado'],
+        budget: expect.objectContaining({
+          maxActions: 12,
+          maxMutableActions: 3,
         }),
+      }),
+    );
+    expect(delegated.mission.checkpoints.map((entry) => entry.id)).toEqual(
+      expect.arrayContaining([
+        'rollout-readiness',
+        'sandbox-envelope',
+        'eval-regression-gate',
+        'canvas-review',
+        'final-evidence-pack',
       ]),
-    }));
-    expect(trustDecision.evaluate).toHaveBeenCalledWith(expect.objectContaining({
-      domain: 'autonomous-partner',
-      actionId: 'mission.delegate',
-      capabilityId: 'autonomous-partner.supervised',
-    }));
-    expect(policyLedger.append).toHaveBeenCalledWith(expect.objectContaining({
-      domain: 'autonomous-partner',
-      status: 'previewed',
-      planId: 'partner-plan-1',
-    }));
+    );
+    expect(delegated.mutationPlan).toEqual(
+      expect.objectContaining({
+        domain: 'autonomous-partner',
+        actionId: 'mission.delegate',
+        status: 'waiting_approval',
+        approval: expect.objectContaining({
+          permissionId: 'perm-partner-1',
+        }),
+      }),
+    );
+    expect(mutationPlane.createPlan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        domain: 'autonomous-partner',
+        approvalRequired: true,
+        readinessGates: expect.arrayContaining([
+          expect.objectContaining({
+            id: 'autonomous-mission-readiness',
+            canProceed: true,
+          }),
+        ]),
+      }),
+    );
+    expect(trustDecision.evaluate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        domain: 'autonomous-partner',
+        actionId: 'mission.delegate',
+        capabilityId: 'autonomous-partner.supervised',
+      }),
+    );
+    expect(policyLedger.append).toHaveBeenCalledWith(
+      expect.objectContaining({
+        domain: 'autonomous-partner',
+        status: 'previewed',
+        planId: 'partner-plan-1',
+      }),
+    );
   });
 
   it('approves missions and tracks progress evidence inside budget', async () => {
@@ -282,16 +312,20 @@ describe('ZavorthAutonomousEngineeringPartnerService', () => {
     expect(approved.status).toBe('running');
     expect(progress.status).toBe('running');
     expect(progress.ok).toBe(true);
-    expect(progress.mission?.usage).toEqual(expect.objectContaining({
-      actions: 2,
-      mutableActions: 1,
-      durationMs: 1000,
-    }));
-    expect(progress.mission?.evidence[0]).toEqual(expect.objectContaining({
-      kind: 'test',
-      status: 'passed',
-      summary: 'jest passou',
-    }));
+    expect(progress.mission?.usage).toEqual(
+      expect.objectContaining({
+        actions: 2,
+        mutableActions: 1,
+        durationMs: 1000,
+      }),
+    );
+    expect(progress.mission?.evidence[0]).toEqual(
+      expect.objectContaining({
+        kind: 'test',
+        status: 'passed',
+        summary: 'jest passou',
+      }),
+    );
   });
 
   it('pauses missions automatically when budget or failures are exceeded', async () => {
@@ -318,8 +352,8 @@ describe('ZavorthAutonomousEngineeringPartnerService', () => {
 
     expect(progress.status).toBe('paused');
     expect(progress.ok).toBe(false);
-    expect(progress.blockers.join(' ')).toContain('Budget de actions excedido');
-    expect(progress.mission?.pauseReason).toContain('Budget de actions excedido');
+    expect(progress.blockers.join(' ')).toContain('actions would exceed its runtime budget');
+    expect(progress.mission?.pauseReason).toContain('actions would exceed its runtime budget');
     expect(progress.snapshot.summary.pausedMissions).toBe(1);
   });
 
@@ -344,7 +378,10 @@ describe('ZavorthAutonomousEngineeringPartnerService', () => {
     expect(delegated.ok).toBe(false);
     expect(delegated.readinessGate.canProceed).toBe(false);
     expect(delegated.readinessGate.blockers.join(' ')).toContain('Rollout readiness');
-    expect(mutationPlane.markBlocked).toHaveBeenCalledWith('partner-plan-1', expect.stringContaining('Rollout readiness'));
+    expect(mutationPlane.markBlocked).toHaveBeenCalledWith(
+      'partner-plan-1',
+      expect.stringContaining('Rollout readiness'),
+    );
   });
 
   it('completes missions with tests, diffs, logs and rollback evidence', async () => {
@@ -378,19 +415,25 @@ describe('ZavorthAutonomousEngineeringPartnerService', () => {
 
     expect(completed.status).toBe('completed');
     expect(completed.ok).toBe(true);
-    expect(completed.mission?.result).toEqual(expect.objectContaining({
-      summary: 'Missao concluida com QA local.',
-      tests: ['npm run runtime:check'],
-      diffs: ['src/foo.ts'],
-      logs: ['qa:phase passou'],
-      rollbackAvailable: true,
-      rollbackPlan: ['reverter patch src/foo.ts'],
-    }));
-    expect(mutationPlane.markApplied).toHaveBeenCalledWith('partner-plan-1', 'Missao concluida com QA local.', ['mission.complete']);
-    expect(policyLedger.append).toHaveBeenLastCalledWith(expect.objectContaining({
-      domain: 'autonomous-partner',
-      status: 'applied',
-      planId: 'partner-plan-1',
-    }));
+    expect(completed.mission?.result).toEqual(
+      expect.objectContaining({
+        summary: 'Missao concluida com QA local.',
+        tests: ['npm run runtime:check'],
+        diffs: ['src/foo.ts'],
+        logs: ['qa:phase passou'],
+        rollbackAvailable: true,
+        rollbackPlan: ['reverter patch src/foo.ts'],
+      }),
+    );
+    expect(mutationPlane.markApplied).toHaveBeenCalledWith('partner-plan-1', 'Missao concluida com QA local.', [
+      'mission.complete',
+    ]);
+    expect(policyLedger.append).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        domain: 'autonomous-partner',
+        status: 'applied',
+        planId: 'partner-plan-1',
+      }),
+    );
   });
 });

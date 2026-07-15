@@ -43,7 +43,10 @@ export class NodeRegistryService {
     this.now = runtime.now || (() => new Date());
     this.stateFile = runtime.stateFile || config.nodeMeshStateFile;
     this.secretsFile = runtime.secretsFile || config.nodeMeshSecretsFile;
-    this.heartbeatStaleMs = Math.max(5000, Number(runtime.heartbeatStaleMs || config.nodeMeshHeartbeatStaleMs || 45000));
+    this.heartbeatStaleMs = Math.max(
+      5000,
+      Number(runtime.heartbeatStaleMs || config.nodeMeshHeartbeatStaleMs || 45000),
+    );
     this.pairingDraftStaleMs = Math.max(
       this.heartbeatStaleMs,
       Number(runtime.pairingDraftStaleMs || config.nodeMeshPairingDraftStaleMs || 43200000),
@@ -59,9 +62,7 @@ export class NodeRegistryService {
   public listNodes(): NodeMeshRegistryEntry[] {
     return Object.values(this.readState().entries)
       .map((entry) => this.applyLifecycleFreshness(this.applyHeartbeatFreshness(entry)))
-      .sort((left, right) =>
-      left.label.localeCompare(right.label, 'en-US'),
-    );
+      .sort((left, right) => left.label.localeCompare(right.label, 'en-US'));
   }
 
   public getNode(nodeId: string | null | undefined): NodeMeshRegistryEntry | null {
@@ -125,9 +126,10 @@ export class NodeRegistryService {
         ...current.hostHints,
         ...(input.hostHints || {}),
       },
-      operatorSummary: input.status === 'online'
-        ? 'Node respondeu ao ultimo heartbeat e parece pronto para transporte remoto.'
-        : current.operatorSummary,
+      operatorSummary:
+        input.status === 'online'
+          ? 'Node respondeu ao ultimo heartbeat e parece pronto para transporte remoto.'
+          : current.operatorSummary,
     });
   }
 
@@ -143,7 +145,7 @@ export class NodeRegistryService {
 
     return this.patchNode(current.id, {
       status: 'offline',
-      operatorSummary: String(summary || 'Sem heartbeat recente. Node aguardando reconexao.').trim(),
+      operatorSummary: String(summary || 'No recent heartbeat. Node waiting to reconnect.').trim(),
     });
   }
 
@@ -168,12 +170,15 @@ export class NodeRegistryService {
       allowlistAudit: {
         approvedAt: nowIso,
         approvedBy: String(input.approvedBy || current.requestedBy || '').trim() || null,
-        reason: String(input.reason || '').trim() || (normalized.length > 0 ? 'Allowlist atualizada no shell oficial.' : 'Allowlist limpa no shell oficial.'),
+        reason:
+          String(input.reason || '').trim() ||
+          (normalized.length > 0 ? 'Allowlist atualizada no shell oficial.' : 'Allowlist limpa no shell oficial.'),
         mode: String(input.mode || '').trim() || (normalized.length > 0 ? 'custom' : 'clear'),
       },
-      operatorSummary: normalized.length > 0
-        ? `Node com allowlist ativa (${normalized.length} capability(s) aprovada(s)).`
-        : 'Node sem allowlist ativa; todas as capabilities declaradas continuam disponiveis conforme a policy local.',
+      operatorSummary:
+        normalized.length > 0
+          ? `Node com allowlist ativa (${normalized.length} capability(s) aprovada(s)).`
+          : 'Node sem allowlist ativa; todas as capabilities declaradas continuam disponiveis conforme a policy local.',
     });
   }
 
@@ -200,10 +205,7 @@ export class NodeRegistryService {
     this.writeJsonFile(this.secretsFile, state);
   }
 
-  public getSecretValue(
-    nodeId: string | null | undefined,
-    secretId: string | null | undefined,
-  ): string | null {
+  public getSecretValue(nodeId: string | null | undefined, secretId: string | null | undefined): string | null {
     const normalizedNodeId = this.normalizeId(nodeId);
     const normalizedSecretId = String(secretId || '').trim();
     if (!normalizedNodeId || !normalizedSecretId) {
@@ -211,9 +213,7 @@ export class NodeRegistryService {
     }
 
     const state = this.readSecretsState();
-    return this.secureStorageService.decryptString(
-      state.entries[normalizedNodeId]?.[normalizedSecretId] || null,
-    );
+    return this.secureStorageService.decryptString(state.entries[normalizedNodeId]?.[normalizedSecretId] || null);
   }
 
   public getStoredSecretKeys(nodeId: string | null | undefined): string[] {
@@ -223,9 +223,7 @@ export class NodeRegistryService {
     }
 
     const state = this.readSecretsState();
-    return Object.keys(state.entries[normalizedNodeId] || {}).sort((left, right) =>
-      left.localeCompare(right, 'en-US'),
-    );
+    return Object.keys(state.entries[normalizedNodeId] || {}).sort((left, right) => left.localeCompare(right, 'en-US'));
   }
 
   public deleteSecret(nodeId: string | null | undefined, secretId: string | null | undefined): void {
@@ -258,11 +256,7 @@ export class NodeRegistryService {
     removedSecretKeys: number;
   } {
     const normalizedNodeIds = Array.from(
-      new Set(
-        (nodeIds || [])
-          .map((nodeId) => this.normalizeId(nodeId))
-          .filter(Boolean),
-      ),
+      new Set((nodeIds || []).map((nodeId) => this.normalizeId(nodeId)).filter(Boolean)),
     );
     if (normalizedNodeIds.length === 0) {
       return {
@@ -370,23 +364,19 @@ export class NodeRegistryService {
     return state;
   }
 
-  private normalizeEntry(
-    entry: NodeMeshRegistryEntry,
-    current: NodeMeshRegistryEntry | null,
-  ): NodeMeshRegistryEntry {
+  private normalizeEntry(entry: NodeMeshRegistryEntry, current: NodeMeshRegistryEntry | null): NodeMeshRegistryEntry {
     const normalizedId = this.normalizeId(entry.id) || `node-${crypto.randomUUID().slice(0, 8)}`;
     const pairingStatus = this.resolvePairingStatus(entry.pairingStatus || current?.pairingStatus || 'pending');
-    const defaultStatus = pairingStatus === 'pending'
-      ? 'pairing'
-      : (pairingStatus === 'revoked' ? 'blocked' : 'offline');
+    const defaultStatus = pairingStatus === 'pending' ? 'pairing' : pairingStatus === 'revoked' ? 'blocked' : 'offline';
     const status = this.resolveStatus(entry.status || current?.status || defaultStatus);
-    const shouldResetCreatedAt = pairingStatus === 'pending'
-      && Boolean(current)
-      && Boolean(String(entry.createdAt || '').trim())
-      && String(entry.createdAt || '').trim() !== String(current?.createdAt || '').trim();
+    const shouldResetCreatedAt =
+      pairingStatus === 'pending' &&
+      Boolean(current) &&
+      Boolean(String(entry.createdAt || '').trim()) &&
+      String(entry.createdAt || '').trim() !== String(current?.createdAt || '').trim();
     const createdAt = shouldResetCreatedAt
       ? String(entry.createdAt || this.now().toISOString()).trim()
-      : (current?.createdAt || entry.createdAt || this.now().toISOString());
+      : current?.createdAt || entry.createdAt || this.now().toISOString();
     const updatedAt = this.now().toISOString();
 
     return {
@@ -395,39 +385,30 @@ export class NodeRegistryService {
       profileId: this.normalizeProfileId(entry.profileId || current?.profileId || null),
       kind: this.resolveKind(entry.kind || current?.kind || 'headless'),
       transport: this.resolveTransport(entry.transport || current?.transport || 'bridge'),
-      status: pairingStatus === 'pending'
-        ? 'pairing'
-        : (pairingStatus === 'revoked' ? 'blocked' : status),
+      status: pairingStatus === 'pending' ? 'pairing' : pairingStatus === 'revoked' ? 'blocked' : status,
       pairingStatus,
       paired: pairingStatus === 'paired',
       createdAt,
       updatedAt,
-      pairedAt: pairingStatus === 'paired'
-        ? String(entry.pairedAt || current?.pairedAt || updatedAt).trim()
-        : (pairingStatus === 'revoked' ? null : (current?.pairedAt || null)),
+      pairedAt:
+        pairingStatus === 'paired'
+          ? String(entry.pairedAt || current?.pairedAt || updatedAt).trim()
+          : pairingStatus === 'revoked'
+            ? null
+            : current?.pairedAt || null,
       lastSeenAt: String(entry.lastSeenAt || current?.lastSeenAt || '').trim() || null,
       requestedBy: String(entry.requestedBy || current?.requestedBy || '').trim() || null,
-      capabilityIds: this.capabilityService.normalizeCapabilityIds(
-        entry.capabilityIds || current?.capabilityIds || [],
-      ),
+      capabilityIds: this.capabilityService.normalizeCapabilityIds(entry.capabilityIds || current?.capabilityIds || []),
       approvedCapabilityIds: this.normalizeApprovedCapabilityIds(
         this.capabilityService.normalizeCapabilityIds(entry.capabilityIds || current?.capabilityIds || []),
-        entry.approvedCapabilityIds !== undefined
-          ? entry.approvedCapabilityIds
-          : current?.approvedCapabilityIds,
+        entry.approvedCapabilityIds !== undefined ? entry.approvedCapabilityIds : current?.approvedCapabilityIds,
       ),
       allowlistAudit: this.normalizeAllowlistAudit(
-        entry.allowlistAudit !== undefined
-          ? entry.allowlistAudit
-          : current?.allowlistAudit,
+        entry.allowlistAudit !== undefined ? entry.allowlistAudit : current?.allowlistAudit,
       ),
       hostHints: this.normalizeHostHints(entry.hostHints || current?.hostHints || {}),
       notes: Array.from(
-        new Set(
-          (entry.notes || current?.notes || [])
-            .map((item) => String(item || '').trim())
-            .filter(Boolean),
-        ),
+        new Set((entry.notes || current?.notes || []).map((item) => String(item || '').trim()).filter(Boolean)),
       ).slice(0, 12),
       operatorSummary: String(entry.operatorSummary || current?.operatorSummary || '').trim() || null,
     };
@@ -438,7 +419,8 @@ export class NodeRegistryService {
     approvedCapabilityIds: Array<NodeMeshCapabilityId | null | undefined> | null | undefined,
   ): NodeMeshCapabilityId[] {
     const declared = new Set(this.capabilityService.normalizeCapabilityIds(declaredCapabilityIds || []));
-    return this.capabilityService.normalizeCapabilityIds(approvedCapabilityIds || [])
+    return this.capabilityService
+      .normalizeCapabilityIds(approvedCapabilityIds || [])
       .filter((capabilityId) => declared.has(capabilityId));
   }
 
@@ -483,7 +465,7 @@ export class NodeRegistryService {
     return {
       ...entry,
       status: 'offline',
-      operatorSummary: 'Sem heartbeat recente. Node precisa religar o transporte remoto.',
+      operatorSummary: 'No recent heartbeat. Node needs to reattach remote transport.',
     };
   }
 
@@ -540,10 +522,8 @@ export class NodeRegistryService {
         pairingDraftAgeMs,
         pairingDraftStale: true,
       },
-      notes: Array.from(
-        new Set([...entry.notes, 'Pairing draft expirado automaticamente.'].filter(Boolean)),
-      ).slice(0, 12),
-      operatorSummary: 'Pairing draft expirado automaticamente. Gere um novo codigo antes de parear este node.',
+      notes: Array.from(new Set([...entry.notes, 'Pairing draft expired automatically.'].filter(Boolean))).slice(0, 12),
+      operatorSummary: 'Pairing draft expired automatically. Generate a new code before pairing this node.',
     };
   }
 
@@ -593,11 +573,18 @@ export class NodeRegistryService {
   }
 
   private normalizeId(input: string | null | undefined): string {
-    return String(input || '').trim().toLowerCase().replace(/[^a-z0-9._-]+/g, '-');
+    return String(input || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]+/g, '-');
   }
 
   private normalizeProfileId(input: NodeMeshDeviceProfileId | null | undefined): NodeMeshDeviceProfileId | null {
-    return String(input || '').trim().toLowerCase() || null;
+    return (
+      String(input || '')
+        .trim()
+        .toLowerCase() || null
+    );
   }
 
   private readJsonFile<T>(filePath: string, fallback: T): T {
@@ -607,7 +594,10 @@ export class NodeRegistryService {
       }
 
       return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T;
-    } catch (error: unknown) {logger.warn('[Node Registry] JSON parse failed', error); return fallback; }
+    } catch (error: unknown) {
+      logger.warn('[Node Registry] JSON parse failed', error);
+      return fallback;
+    }
   }
 
   private writeJsonFile(filePath: string, payload: unknown): void {

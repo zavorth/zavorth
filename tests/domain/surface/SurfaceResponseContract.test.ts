@@ -26,18 +26,26 @@ describe('Surface Response Contract', () => {
       SURFACE_RESPONSE_CONTRACT_VERSION,
       SURFACE_RESPONSE_CONTRACT_VERSION,
     ]);
-    expect(examples.map((example) => example.intent)).toEqual([
-      'status',
-      'models',
-      'approval',
-      'receipt',
-    ]);
+    expect(examples.map((example) => example.intent)).toEqual(['status', 'models', 'approval', 'receipt']);
     expect(examples.every((example) => example.blocks.length > 0)).toBe(true);
   });
 
   it('renders every example in every non-dashboard surface target', () => {
     for (const response of buildSurfaceResponseStage2Examples()) {
-      for (const target of ['plain', 'cli', 'telegram', 'discord', 'whatsapp', 'instagram', 'teams', 'email', 'signal', 'imessage', 'slack', 'web'] as const) {
+      for (const target of [
+        'plain',
+        'cli',
+        'telegram',
+        'discord',
+        'whatsapp',
+        'instagram',
+        'teams',
+        'email',
+        'signal',
+        'imessage',
+        'slack',
+        'web',
+      ] as const) {
         const rendered = renderSurfaceResponseForTarget(target, response);
 
         expect(rendered.target).toBe(target);
@@ -51,7 +59,7 @@ describe('Surface Response Contract', () => {
     const rendered = renderTelegramSurfaceResponse(buildModelsSurfaceResponseExample());
 
     expect(rendered.format).toBe('telegram-text');
-    expect(rendered.text).toContain('Modelos e providers');
+    expect(rendered.text).toContain('Models and providers');
     expect(rendered.text).toContain('Provider');
     expect(rendered.native.parseMode).toBeNull();
     expect(rendered.native.replyMarkup?.inline_keyboard.flat()).toEqual([
@@ -73,14 +81,14 @@ describe('Surface Response Contract', () => {
 
     const rendered = renderDiscordSurfaceResponse(response);
 
-    expect(rendered.text).toContain('Aprovacao necessaria');
+    expect(rendered.text).toContain('Approval required');
     expect(rendered.text).toContain('@\u200beveryone');
     expect(rendered.text).toContain('<@\u200b123>');
     expect(rendered.native.allowedMentions).toEqual({ parse: [] });
     expect(rendered.native.components).toHaveLength(1);
     expect(rendered.native.components[0].components).toEqual([
-      expect.objectContaining({ label: 'Aprovar uma vez', style: 3 }),
-      expect.objectContaining({ label: 'Rejeitar', style: 4 }),
+      expect.objectContaining({ label: 'Approve once', style: 3 }),
+      expect.objectContaining({ label: 'Reject', style: 4 }),
     ]);
     for (const component of rendered.native.components[0].components) {
       expect((component.custom_id || component.url || '').length).toBeLessThanOrEqual(100);
@@ -93,13 +101,13 @@ describe('Surface Response Contract', () => {
     const cli = renderCliSurfaceResponse(response);
     const cliBridge = formatCliSurfaceResponse(response);
 
-    for (const expected of ['Runtime', 'Canais', 'Policy', 'Leitura operacional', '/doctor']) {
+    for (const expected of ['Runtime', 'Channels', 'Policy', 'Operational read', '/doctor']) {
       expect(plain.text).toContain(expected);
       expect(cli.text).toContain(expected);
       expect(cliBridge).toContain(expected);
     }
-    expect(cli.text).toContain('[status] Panorama do Zavorth');
-    expect(cliBridge).toContain('[status] Panorama do Zavorth');
+    expect(cli.text).toContain('[status] Zavorth overview');
+    expect(cliBridge).toContain('[status] Zavorth overview');
     expect(plain.text).not.toContain('[status]');
   });
 
@@ -111,7 +119,7 @@ describe('Surface Response Contract', () => {
 
       expect(rendered.target).toBe(target);
       expect(rendered.native).toBeNull();
-      expect(rendered.text).toContain('Modelos e providers');
+      expect(rendered.text).toContain('Models and providers');
       expect(rendered.text).toContain('/model gemini');
       expect(rendered.actions.length).toBeGreaterThan(0);
     }
@@ -120,7 +128,7 @@ describe('Surface Response Contract', () => {
   it('keeps receipts explicit about redaction and policy', () => {
     const rendered = renderPlainSurfaceResponse(buildToolReceiptSurfaceResponseExample());
 
-    expect(rendered.text).toContain('Recibo de tool');
+    expect(rendered.text).toContain('Tool receipt');
     expect(rendered.text).toContain('allowed_with_redaction');
     expect(rendered.text).toContain('redacted: yes');
     expect(rendered.text).toContain('policy: standard');

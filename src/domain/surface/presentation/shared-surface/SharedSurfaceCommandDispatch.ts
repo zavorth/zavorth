@@ -75,8 +75,7 @@ export async function preDispatchSharedSurfaceCommand(
     recordAgentFirstMetric('naturalSkippedForAgent');
     return {
       kind: 'pass_to_agent',
-      reason:
-        'agent-first free text (no intent-regex); use slash or callback_data for approve/reject/undo',
+      reason: 'agent-first free text (no intent-regex); use slash or callback_data for approve/reject/undo',
     };
   }
 
@@ -132,8 +131,10 @@ export async function dispatchSharedSurfaceCommandPacks(
   const command_args = naturalizeSharedSurfaceArgs(command_type, command.command_args).args;
 
   // Optional slash-command pack for tests without full wiring
-  if (deps.slashEnhancementCommandPack
-    && await deps.slashEnhancementCommandPack.maybeHandle(ctx, command_type, command_args)) {
+  if (
+    deps.slashEnhancementCommandPack &&
+    (await deps.slashEnhancementCommandPack.maybeHandle(ctx, command_type, command_args))
+  ) {
     return true;
   }
 
@@ -195,10 +196,7 @@ export type SharedSurfaceBuiltinDispatchContext = {
   >;
   codexRemoteCommandPack: Pick<SharedSurfaceCodexRemoteCommandPack, 'handle'>;
   zavorthBridgeMobileCommandPack: Pick<SharedSurfaceZavorthBridgeMobileCommandPack, 'handle'>;
-  tenantGovernanceCommandPack: Pick<
-    SharedSurfaceTenantGovernanceCommandPack,
-    'handleTeams' | 'handleTenants'
-  >;
+  tenantGovernanceCommandPack: Pick<SharedSurfaceTenantGovernanceCommandPack, 'handleTeams' | 'handleTenants'>;
   capabilityCommandPack: Pick<
     SharedSurfaceCapabilityCommandPack,
     'buildCapabilitiesReply' | 'handleEnable' | 'handleDisable'
@@ -209,9 +207,7 @@ export type SharedSurfaceBuiltinDispatchContext = {
   >;
 };
 
-export async function dispatchSharedSurfaceBuiltinCommand(
-  deps: SharedSurfaceBuiltinDispatchContext,
-): Promise<boolean> {
+export async function dispatchSharedSurfaceBuiltinCommand(deps: SharedSurfaceBuiltinDispatchContext): Promise<boolean> {
   const { ctx, command } = deps;
   const { command_type } = command;
   const command_args = naturalizeSharedSurfaceArgs(command_type, command.command_args).args;
@@ -221,7 +217,7 @@ export async function dispatchSharedSurfaceBuiltinCommand(
       await ctx.reply(`Zavorth respondendo via ${ctx.platform}. Pong.`);
       return true;
     case '/help':
-      await ctx.reply(deps.presentationCommandPack.renderHelp(ctx));
+      await ctx.reply(deps.presentationCommandPack.renderHelp(ctx, command_args));
       return true;
     case '/commands':
       await deps.presentationCommandPack.handleCommandCatalog(ctx, command_args);
@@ -250,7 +246,9 @@ export async function dispatchSharedSurfaceBuiltinCommand(
     case '/agmobile':
       await deps.zavorthBridgeMobileCommandPack.handle(
         ctx,
-        String(command_args || '').trim().toLowerCase() || 'status',
+        String(command_args || '')
+          .trim()
+          .toLowerCase() || 'status',
       );
       return true;
     case '/AIGateway':

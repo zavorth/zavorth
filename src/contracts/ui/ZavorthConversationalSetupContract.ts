@@ -5,13 +5,9 @@ import type {
 
 export const ZAVORTH_CONVERSATIONAL_SETUP_CONTRACT_VERSION = '2026-05-15.experience-layer.checkpoint-2' as const;
 
-export type ZavorthConversationalSetupLanguage = 'en-US';
+export type ZavorthConversationalSetupLanguage = string;
 
-export type ZavorthConversationalSetupStatus =
-  | 'needs_input'
-  | 'ready'
-  | 'blocked'
-  | 'applied';
+export type ZavorthConversationalSetupStatus = 'needs_input' | 'ready' | 'blocked' | 'applied';
 
 export type ZavorthConversationalSetupQuestionId =
   | 'agent-name'
@@ -62,7 +58,15 @@ export type ZavorthConversationalSetupWritePlan = {
   requiresExplicitApply: true;
   requiresLocalProfileConfirmation: true;
   targets: Array<{
-    file: 'IDENTITY.md' | 'USER.md' | 'SOUL.md' | 'DOMAIN.md' | 'LEARNING-STYLE.md' | 'ERROR-HANDLING.md' | 'OUTPUT-FORMAT.md' | 'TIME-AUTOMATION.md';
+    file:
+      | 'IDENTITY.md'
+      | 'USER.md'
+      | 'SOUL.md'
+      | 'DOMAIN.md'
+      | 'LEARNING-STYLE.md'
+      | 'ERROR-HANDLING.md'
+      | 'OUTPUT-FORMAT.md'
+      | 'TIME-AUTOMATION.md';
     purpose: string;
     action: 'upsert-markdown-fields';
   }>;

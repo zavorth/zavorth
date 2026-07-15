@@ -10,8 +10,15 @@ import type {
   SurfaceTable,
   SurfaceTableCell,
 } from './SurfaceResponseContract.js';
+import { tSurface } from '../../../../i18n/surface.js';
 
 const CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
+
+function surfaceActionsTitle(): string {
+  const label = tSurface('actions');
+  // Never leak raw i18n keys when catalogs miss the key.
+  return !label || label === 'actions' ? 'Actions' : label;
+}
 
 export function normalizeSurfaceText(value: unknown): string {
   return String(value ?? '')
@@ -71,10 +78,12 @@ export function renderSurfaceTable(table: SurfaceTable): string[] {
     .join(' | ')
     .trimEnd();
   const divider = widths.map((width) => '-'.repeat(width)).join('-|-');
-  const rows = table.rows.map((row) => columns
-    .map((column, index) => renderCell(formatSurfaceCell(row[column.key]), widths[index], column.align || 'left'))
-    .join(' | ')
-    .trimEnd());
+  const rows = table.rows.map((row) =>
+    columns
+      .map((column, index) => renderCell(formatSurfaceCell(row[column.key]), widths[index], column.align || 'left'))
+      .join(' | ')
+      .trimEnd(),
+  );
 
   return [header, divider, ...rows];
 }
@@ -82,12 +91,10 @@ export function renderSurfaceTable(table: SurfaceTable): string[] {
 export function renderSurfaceProgress(progress: SurfaceProgress): string {
   const label = compactSurfaceLine(progress.label) || 'Progresso';
   const detail = compactSurfaceLine(progress.detail || '');
-  const hasRatio = Number.isFinite(progress.current || null) && Number.isFinite(progress.total || null) && Number(progress.total) > 0;
+  const hasRatio =
+    Number.isFinite(progress.current || null) && Number.isFinite(progress.total || null) && Number(progress.total) > 0;
   const ratio = hasRatio ? `${progress.current}/${progress.total}` : null;
-  return [
-    `${label}: ${progress.status}${ratio ? ` (${ratio})` : ''}`,
-    detail || null,
-  ].filter(Boolean).join(' - ');
+  return [`${label}: ${progress.status}${ratio ? ` (${ratio})` : ''}`, detail || null].filter(Boolean).join(' - ');
 }
 
 export function renderSurfaceReceipt(receipt: SurfaceReceipt): string[] {
@@ -117,10 +124,7 @@ export function renderSurfaceBlock(block: SurfaceBlock): string[] {
   switch (block.kind) {
     case 'text': {
       const lines = normalizeSurfaceText(block.text).split('\n').filter(Boolean);
-      return [
-        block.title ? compactSurfaceLine(block.title) : null,
-        ...lines,
-      ].filter(Boolean) as string[];
+      return [block.title ? compactSurfaceLine(block.title) : null, ...lines].filter(Boolean) as string[];
     }
     case 'list':
       return [
@@ -138,7 +142,7 @@ export function renderSurfaceBlock(block: SurfaceBlock): string[] {
       return renderSurfaceReceipt(block.receipt);
     case 'actions':
       return [
-        block.title ? compactSurfaceLine(block.title) : 'Acoes',
+        block.title ? compactSurfaceLine(block.title) : surfaceActionsTitle(),
         ...block.actions.map((action) => renderSurfaceActionLine(action)),
       ].filter(Boolean);
     default:
@@ -162,7 +166,7 @@ export function collectSurfaceActions(
 ): SurfaceRenderedAction[] {
   const actions = [
     ...(response.actions || []),
-    ...response.blocks.flatMap((block) => block.kind === 'actions' ? block.actions : []),
+    ...response.blocks.flatMap((block) => (block.kind === 'actions' ? block.actions : [])),
   ];
   const seen = new Set<string>();
   const rendered: SurfaceRenderedAction[] = [];
@@ -180,7 +184,8 @@ export function collectSurfaceActions(
       id,
       label: truncateSurfaceText(action.label || id, 80),
       style: action.style || 'secondary',
-      kind: action.kind || (action.href ? 'url' : action.callbackData ? 'callback' : action.command ? 'command' : 'submit'),
+      kind:
+        action.kind || (action.href ? 'url' : action.callbackData ? 'callback' : action.command ? 'command' : 'submit'),
       command: compactSurfaceLine(action.command || '') || null,
       callbackData: compactSurfaceLine(action.callbackData || '') || null,
       href: compactSurfaceLine(action.href || '') || null,
@@ -232,7 +237,7 @@ export function buildSurfaceText(response: SurfaceResponse, options: SurfaceRend
     if (lines.length > 0) {
       lines.push('');
     }
-    lines.push('Acoes');
+    lines.push(surfaceActionsTitle());
     lines.push(...actions.map((action) => renderSurfaceActionLine(action)));
   }
 
@@ -255,10 +260,7 @@ export function buildDeterministicSurfaceId(value: string, prefix: string, maxLe
   return `${prefix}:${suffix}`.slice(0, maxLength);
 }
 
-export function renderSurfaceResponseCore(
-  response: SurfaceResponse,
-  options: SurfaceRenderOptions = {},
-) {
+export function renderSurfaceResponseCore(response: SurfaceResponse, options: SurfaceRenderOptions = {}) {
   const actions = collectSurfaceActions(response, options);
   return {
     text: buildSurfaceText(response, options),

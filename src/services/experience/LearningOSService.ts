@@ -6,10 +6,7 @@ import {
   type ExperienceLearningDecision,
 } from './ExperienceContracts.js';
 
-import type {
-  LearningPlaneActionExecution,
-  LearningPlaneSnapshot,
-} from '../ZavorthLearningPlaneService.js';
+import type { LearningPlaneActionExecution, LearningPlaneSnapshot } from '../ZavorthLearningPlaneService.js';
 import { ZavorthLearningPlaneService } from '../ZavorthLearningPlaneService.js';
 import { errorMessage } from '../../utils/errorLike.js';
 
@@ -29,8 +26,10 @@ export type LearningOSDecisionResult = {
 
 export type LearningOSRuntime = {
   now?: () => Date;
-  learningPlane?: Pick<ZavorthLearningPlaneService, 'buildSnapshot' | 'executeAction'>
-    & Partial<Pick<ZavorthLearningPlaneService, 'resetState' | 'exportState'>> | null;
+  learningPlane?:
+    | (Pick<ZavorthLearningPlaneService, 'buildSnapshot' | 'executeAction'> &
+        Partial<Pick<ZavorthLearningPlaneService, 'resetState' | 'exportState'>>)
+    | null;
 };
 
 export class LearningOSService {
@@ -54,13 +53,13 @@ export class LearningOSService {
         origin: candidate.source.sourceSurface || candidate.source.workflow || 'runtime',
         observedPattern: candidate.summary,
         recommendation: securityBlocked
-          ? 'Bloqueado: o Learning OS nao pode alterar policy, sandbox, firewall, allowlists ou aprovacoes fundamentais.'
+          ? 'Blocked: Learning OS cannot change policy, sandbox, firewall, allowlists, or fundamental approvals.'
           : candidate.steps[0] || candidate.summary,
         confidence: candidate.score,
         impact: this.impactFor(state),
         dataUsed: candidate.details.slice(0, 6),
         suggestedAction: securityBlocked
-          ? 'Rejeitar ou manter em quarentena. Ajustes de seguranca exigem mudanca de codigo revisada.'
+          ? 'Reject or keep quarantined. Security adjustments require reviewed code changes.'
           : this.suggestedActionFor(state, candidate.score),
         state,
         createdAt: candidate.createdAt,
@@ -101,14 +100,14 @@ export class LearningOSService {
         return {
           ok: true,
           status: 'reset',
-          summary: 'Learning OS resetado. Candidatos futuros precisarao de nova revisao.',
+          summary: 'Learning OS reset. Future candidates will need a fresh review.',
           candidates,
         };
       }
       return {
         ok: false,
         status: 'blocked',
-        summary: 'Learning plane atual nao expoe resetState.',
+        summary: 'Current learning plane does not expose resetState.',
         candidates: this.buildCandidates(input),
       };
     }
@@ -118,7 +117,7 @@ export class LearningOSService {
       return {
         ok: false,
         status: 'blocked',
-        summary: 'Informe o id do candidato de learning.',
+        summary: 'Provide the learning candidate id.',
         candidates: this.buildCandidates(input),
       };
     }
@@ -127,7 +126,7 @@ export class LearningOSService {
       return {
         ok: false,
         status: 'blocked',
-        summary: 'Learning plane indisponivel neste runtime.',
+        summary: 'Learning plane is unavailable in this runtime.',
         candidates: this.buildCandidates(input),
       };
     }
@@ -139,18 +138,20 @@ export class LearningOSService {
       return {
         ok: false,
         status: 'blocked',
-        summary: 'Learning bloqueado: candidatos que alteram policy de seguranca, sandbox, egress, filesystem, shell ou approvals fundamentais nao podem ser aprovados/promovidos.',
+        summary:
+          'Learning blocked: candidates that change security policy, sandbox, egress, filesystem, shell, or fundamental approvals cannot be approved or promoted.',
         candidates,
       };
     }
 
-    const actionId = decision === 'revoke'
-      ? 'forget'
-      : decision === 'promote'
-        ? 'promote'
-        : decision === 'approve'
-          ? 'approve'
-          : 'reject';
+    const actionId =
+      decision === 'revoke'
+        ? 'forget'
+        : decision === 'promote'
+          ? 'promote'
+          : decision === 'approve'
+            ? 'approve'
+            : 'reject';
     const raw = await Promise.resolve(this.learningPlane.executeAction({ candidateId, actionId }));
     return {
       ok: raw.ok,
@@ -166,7 +167,7 @@ export class LearningOSService {
     return {
       generatedAt: this.now().toISOString(),
       candidates,
-      summary: `${candidates.length} candidato(s) exportado(s) sem segredos brutos.`,
+      summary: `${candidates.length} candidate(s) exported without raw secrets.`,
     };
   }
 
@@ -186,15 +187,16 @@ export class LearningOSService {
         },
         candidates: [],
         narrative: {
-          headline: 'Learning OS aguardando runtime.',
-          operatorSummary: 'Nenhum learning plane foi conectado a esta superficie.',
+          headline: 'Learning OS waiting for runtime.',
+          operatorSummary: 'No learning plane is connected to this surface.',
         },
       };
     }
     try {
       return this.learningPlane.buildSnapshot({ workspace: input.workspace || null });
-    } catch (error: unknown) {logger.warn('[Learning O S] creation failed', error);
-    return {
+    } catch (error: unknown) {
+      logger.warn('[Learning O S] creation failed', error);
+      return {
         generatedAt: this.now().toISOString(),
         summary: {
           total: 0,
@@ -208,11 +210,11 @@ export class LearningOSService {
         },
         candidates: [],
         narrative: {
-          headline: 'Learning OS indisponivel.',
-          operatorSummary: `Falha ao ler learning plane: ${errorMessage(error, 'erro desconhecido')}.`,
+          headline: 'Learning OS unavailable.',
+          operatorSummary: `Failed to read learning plane: ${errorMessage(error, 'unknown error')}.`,
         },
       };
-  }
+    }
   }
 
   private resolveState(reviewState: string, lifecycle: string): ExperienceLearningCandidateState {
@@ -223,16 +225,16 @@ export class LearningOSService {
   }
 
   private impactFor(state: ExperienceLearningCandidateState): string {
-    if (state === 'promoted') return 'Pode influenciar rotas futuras, preferencias e procedimentos locais.';
-    if (state === 'quarantined' || state === 'rejected') return 'Nao altera comportamento futuro.';
-    return 'Aguardando revisao antes de alterar comportamento.';
+    if (state === 'promoted') return 'May influence future routes, preferences, and local procedures.';
+    if (state === 'quarantined' || state === 'rejected') return 'Does not change future behavior.';
+    return 'Waiting for review before changing behavior.';
   }
 
   private suggestedActionFor(state: ExperienceLearningCandidateState, confidence: number): string {
-    if (state === 'promoted') return 'Manter, revogar ou exportar quando quiser auditar.';
-    if (state === 'quarantined' || state === 'rejected') return 'Revisar somente se o padrao voltar a ser util.';
-    if (confidence >= 0.8) return 'Aprovar e promover se esse padrao representa seu fluxo real.';
-    return 'Aprovar como draft ou rejeitar para manter o runtime limpo.';
+    if (state === 'promoted') return 'Keep, revoke, or export when you want to audit.';
+    if (state === 'quarantined' || state === 'rejected') return 'Review only if the pattern becomes useful again.';
+    if (confidence >= 0.8) return 'Approve and promote if this pattern matches your real workflow.';
+    return 'Approve as draft or reject to keep the runtime clean.';
   }
 
   private isSecurityPolicyCandidate(candidate: LearningPlaneSnapshot['candidates'][number]): boolean {
@@ -246,7 +248,9 @@ export class LearningOSService {
       candidate.source.objective,
       ...candidate.steps,
       ...candidate.details,
-    ].join('\n').toLowerCase();
+    ]
+      .join('\n')
+      .toLowerCase();
 
     const protectedSignals = [
       'workspacefspolicy',
@@ -260,7 +264,6 @@ export class LearningOSService {
       'allowlist',
       'blocklist',
       'approval',
-      'permissions',
       'permissions',
       'seguranca',
       'security',

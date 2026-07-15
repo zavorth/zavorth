@@ -74,4 +74,20 @@ describe('SharedSurfaceSlashEnhancementCommandPack', () => {
     const pack = new SharedSurfaceSlashEnhancementCommandPack();
     expect(await pack.maybeHandle(ctx, '/help', '')).toBe(false);
   });
+
+  it('/learn help prefers ordinal forms over long <id> walls', async () => {
+    const pack = new SharedSurfaceSlashEnhancementCommandPack();
+    expect(await pack.maybeHandle(ctx, '/learn', 'help')).toBe(true);
+    const text = replies[0] || '';
+    expect(text).toMatch(/\/learn promote 1/);
+    expect(text).toMatch(/\/learn forget 1/);
+    expect(text).toMatch(/\/learn show 1/);
+    expect(text).not.toMatch(/\/learn promote <id>/);
+  });
+
+  it('/learn promote with a long unknown id steers to ordinal tip', async () => {
+    const pack = new SharedSurfaceSlashEnhancementCommandPack();
+    expect(await pack.maybeHandle(ctx, '/learn', 'promote totally-unknown-draft-id-abcdef')).toBe(true);
+    expect(replies[0]).toMatch(/Use \/learn promote 1 \(from \/learn list\), not a long id\./);
+  });
 });

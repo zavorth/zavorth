@@ -6,10 +6,10 @@ import type {
   UniversalAgentRunResult,
 } from '../runtime/agent/index.js';
 import {
+  presentUniversalApprovalIntentDecision,
   renderUniversalApprovalIntentDecisionResult,
 } from '../runtime/agent/index.js';
 import { OperationalMaturityService } from '../domain/platform-ecosystem/application/OperationalMaturityService.js';
-
 
 import type { OperationalMaturitySnapshot } from '../contracts/OperationalMaturityContract.js';
 import type { NexusExecuteRequestDto } from './ZavorthControlEchoRouteSchemas.js';
@@ -48,22 +48,26 @@ export class NexusFacadeService {
   private readonly agentMeshExecutor: AgentMeshExecutionService;
   private readonly salesPackChannelIo: SalesPackChannelIoService;
 
-  constructor(options: {
-    maturity?: OperationalMaturityService;
-    readinessDoctor?: ZavorthCapabilityPackReadinessDoctorService;
-    agentMesh?: AgentMeshOrchestrationService;
-    agentMeshLedger?: AgentMeshLedgerService;
-    agentMeshExecutor?: AgentMeshExecutionService;
-    salesPackChannelIo?: SalesPackChannelIoService;
-  } = {}) {
+  constructor(
+    options: {
+      maturity?: OperationalMaturityService;
+      readinessDoctor?: ZavorthCapabilityPackReadinessDoctorService;
+      agentMesh?: AgentMeshOrchestrationService;
+      agentMeshLedger?: AgentMeshLedgerService;
+      agentMeshExecutor?: AgentMeshExecutionService;
+      salesPackChannelIo?: SalesPackChannelIoService;
+    } = {},
+  ) {
     this.maturity = options.maturity || new OperationalMaturityService();
     this.readinessDoctor = options.readinessDoctor || new ZavorthCapabilityPackReadinessDoctorService();
     this.agentMesh = options.agentMesh || new AgentMeshOrchestrationService();
     this.agentMeshLedger = options.agentMeshLedger || new AgentMeshLedgerService();
-    this.agentMeshExecutor = options.agentMeshExecutor || new AgentMeshExecutionService({
-      orchestrationService: this.agentMesh,
-      ledgerService: this.agentMeshLedger,
-    });
+    this.agentMeshExecutor =
+      options.agentMeshExecutor ||
+      new AgentMeshExecutionService({
+        orchestrationService: this.agentMesh,
+        ledgerService: this.agentMeshLedger,
+      });
     this.salesPackChannelIo = options.salesPackChannelIo || new SalesPackChannelIoService();
   }
 
@@ -71,9 +75,17 @@ export class NexusFacadeService {
     const normalizedInboundMessage = this.buildInboundMessage(input.request);
 
     if (input.agentGateway) {
-      const approvalIntent = input.agentGateway.resolveApprovalIntent
-        ? await input.agentGateway.resolveApprovalIntent(this.buildApprovalIntentInput(input.request, normalizedInboundMessage))
-        : null;
+      // agent-first: free-text prompts never keyword-route to approvals.
+      // Only structured metadata.decision/ref or explicit slash/callback tokens.
+      const approvalInput = this.buildApprovalIntentInput(input.request, normalizedInboundMessage);
+      const hasStructuredApprovalSignal =
+        Boolean(approvalInput.decision || approvalInput.ref) ||
+        /^\/(approve|reject|aprovar|rejeitar)\b/i.test(String(approvalInput.text || '')) ||
+        /\b(?:approval|agent|run|task):?(approve|reject|aprovar|rejeitar):/i.test(String(approvalInput.text || ''));
+      const approvalIntent =
+        hasStructuredApprovalSignal && input.agentGateway.resolveApprovalIntent
+          ? await input.agentGateway.resolveApprovalIntent(approvalInput)
+          : null;
       if (approvalIntent && approvalIntent.resolution.status !== 'not_approval_intent') {
         return this.buildApprovalIntentGatewayResponse(approvalIntent, normalizedInboundMessage);
       }
@@ -106,9 +118,7 @@ export class NexusFacadeService {
     });
   }
 
-  public async buildCapabilities(input: {
-    echo: ZavorthEchoService;
-  }): Promise<Record<string, unknown>> {
+  public async buildCapabilities(input: { echo: ZavorthEchoService }): Promise<Record<string, unknown>> {
     const [echoSnapshot, maturitySnapshot] = await Promise.all([
       input.echo.buildSnapshot(),
       Promise.resolve(this.maturity.buildSnapshot()),
@@ -121,10 +131,7 @@ export class NexusFacadeService {
       tools: Array.isArray(echoSnapshot.tools) ? echoSnapshot.tools : [],
       capabilityLifecycle: Array.isArray(echoSnapshot.capabilityLifecycle) ? echoSnapshot.capabilityLifecycle : [],
       maturity: maturitySnapshot.consoleRows,
-      receipts: [
-        'capabilities-read-from-canonical-echo-surface',
-        'maturity-read-from-operational-truth-matrix',
-      ],
+      receipts: ['capabilities-read-from-canonical-echo-surface', 'maturity-read-from-operational-truth-matrix'],
     };
   }
 
@@ -206,17 +213,17 @@ export class NexusFacadeService {
         provisionedEdges,
         readiness: firstNonStableCapability
           ? {
-            state: 'needs_attention',
-            capabilityId: firstNonStableCapability.id,
-            status: firstNonStableCapability.status,
-            nextStep: firstNonStableCapability.nextStep,
-          }
+              state: 'needs_attention',
+              capabilityId: firstNonStableCapability.id,
+              status: firstNonStableCapability.status,
+              nextStep: firstNonStableCapability.nextStep,
+            }
           : {
-            state: 'ready',
-            capabilityId: null,
-            status: 'stable',
-            nextStep: null,
-          },
+              state: 'ready',
+              capabilityId: null,
+              status: 'stable',
+              nextStep: null,
+            },
       },
       agentMesh: {
         orchestration: this.agentMesh.buildSnapshot(),
@@ -231,7 +238,8 @@ export class NexusFacadeService {
           method: 'POST',
           route: '/api/v2/nexus/execute',
           risk: 'read_only',
-          prompt: 'Mostre um status operacional resumido do Zavorth sem alterar arquivos, executar shell, acessar rede externa ou secrets.',
+          prompt:
+            'Mostre um status operacional resumido do Zavorth sem alterar arquivos, executar shell, acessar rede externa ou secrets.',
         },
         {
           id: 'resolve-approval',
@@ -258,13 +266,8 @@ export class NexusFacadeService {
     };
   }
 
-  public async buildEchoExperience(input: {
-    echo: ZavorthEchoService;
-  }): Promise<Record<string, unknown>> {
-    const [echoSnapshot, connection] = await Promise.all([
-      input.echo.buildSnapshot(),
-      input.echo.testConnection(),
-    ]);
+  public async buildEchoExperience(input: { echo: ZavorthEchoService }): Promise<Record<string, unknown>> {
+    const [echoSnapshot, connection] = await Promise.all([input.echo.buildSnapshot(), input.echo.testConnection()]);
     return this.buildEchoExperiencePayload({
       echoSnapshot,
       connection,
@@ -285,11 +288,7 @@ export class NexusFacadeService {
     return {
       source: 'NexusFacadeService',
       view: 'echo-continuity',
-      status: pendingPermissions.length > 0
-        ? 'waiting_confirmation'
-        : connection.online
-          ? 'ready'
-          : 'degraded',
+      status: pendingPermissions.length > 0 ? 'waiting_confirmation' : connection.online ? 'ready' : 'degraded',
       provider: {
         online: connection.online,
         model: connection.model,
@@ -316,11 +315,7 @@ export class NexusFacadeService {
         pendingCount: pendingPermissions.length,
         route: '/api/v2/echo/permissions',
       },
-      receipts: [
-        'echo-experience-is-read-only',
-        'voice-and-fallback-state-visible',
-        'pending-approvals-surfaced',
-      ],
+      receipts: ['echo-experience-is-read-only', 'voice-and-fallback-state-visible', 'pending-approvals-surfaced'],
     };
   }
 
@@ -348,11 +343,7 @@ export class NexusFacadeService {
         preferredProvider: this.readString(echoSummary.preferredProvider) || 'unknown',
         recentExecutions: Number(echoSummary.recentExecutions || 0),
       },
-      receipts: [
-        'nexus-is-facade-not-parallel-runtime',
-        'agent-gateway-preferred',
-        'echo-is-edge-fallback',
-      ],
+      receipts: ['nexus-is-facade-not-parallel-runtime', 'agent-gateway-preferred', 'echo-is-edge-fallback'],
     };
   }
 
@@ -363,44 +354,50 @@ export class NexusFacadeService {
     capabilityNextStep: string | null;
     provisionedEdges: Array<Record<string, unknown>>;
   }): Record<string, unknown> {
-    const provisionedAttention = input.provisionedEdges.find((edge) => {
-      const readiness = this.toRecord(edge.readiness);
-      return this.readString(readiness.status) !== 'ready_for_activation_request';
-    }) || null;
-    const capabilityNextStep = input.capabilityNextStep
-      || this.readString(this.toRecord(provisionedAttention?.readiness).nextAction)
-      || this.readString(provisionedAttention?.nextStep)
-      || null;
-    const tone = input.pendingCount > 0
-      ? 'decision'
-      : !input.providerOnline
-        ? 'warning'
-        : !input.agentGatewayAvailable
-          ? 'fallback'
-          : capabilityNextStep
-            ? 'attention'
-            : 'ok';
-    const primaryMessage = input.pendingCount > 0
-      ? `${input.pendingCount} confirmacao(oes) aguardam sua decisao.`
-      : !input.providerOnline
-        ? 'Provider principal nao respondeu; Echo continua expondo o estado com seguranca.'
-        : !input.agentGatewayAvailable
-          ? 'Agent Gateway indisponivel; Nexus esta usando fallback Echo sem esconder isso.'
-          : capabilityNextStep
-            ? 'Nexus esta pronto, mas ha uma capacidade provisionada que merece atencao.'
-            : 'Nexus esta pronto para operar como painel convergente do Zavorth.';
-    const nextStep = input.pendingCount > 0
-      ? 'Aprove ou negue os pedidos pendentes.'
-      : capabilityNextStep || 'Continue usando; nenhuma correcao urgente.';
+    const provisionedAttention =
+      input.provisionedEdges.find((edge) => {
+        const readiness = this.toRecord(edge.readiness);
+        return this.readString(readiness.status) !== 'ready_for_activation_request';
+      }) || null;
+    const capabilityNextStep =
+      input.capabilityNextStep ||
+      this.readString(this.toRecord(provisionedAttention?.readiness).nextAction) ||
+      this.readString(provisionedAttention?.nextStep) ||
+      null;
+    const tone =
+      input.pendingCount > 0
+        ? 'decision'
+        : !input.providerOnline
+          ? 'warning'
+          : !input.agentGatewayAvailable
+            ? 'fallback'
+            : capabilityNextStep
+              ? 'attention'
+              : 'ok';
+    const primaryMessage =
+      input.pendingCount > 0
+        ? `${input.pendingCount} confirmacao(oes) aguardam sua decisao.`
+        : !input.providerOnline
+          ? 'Provider principal nao respondeu; Echo continua expondo o estado com seguranca.'
+          : !input.agentGatewayAvailable
+            ? 'Agent Gateway indisponivel; Nexus esta usando fallback Echo sem esconder isso.'
+            : capabilityNextStep
+              ? 'Nexus esta pronto, mas ha uma capacidade provisionada que merece atencao.'
+              : 'Nexus esta pronto para operar como painel convergente do Zavorth.';
+    const nextStep =
+      input.pendingCount > 0
+        ? 'Aprove ou negue os pedidos pendentes.'
+        : capabilityNextStep || 'Continue usando; nenhuma correcao urgente.';
 
     return {
-      statusLabel: tone === 'ok'
-        ? 'Pronto'
-        : tone === 'decision'
-          ? 'Aguardando decisao'
-          : tone === 'fallback'
-            ? 'Fallback seguro'
-            : 'Atencao',
+      statusLabel:
+        tone === 'ok'
+          ? 'Pronto'
+          : tone === 'decision'
+            ? 'Aguardando decisao'
+            : tone === 'fallback'
+              ? 'Fallback seguro'
+              : 'Atencao',
       tone,
       primaryMessage,
       nextStep,
@@ -419,9 +416,10 @@ export class NexusFacadeService {
           label: 'Approvals',
           value: input.pendingCount > 0 ? `${input.pendingCount} pendente(s)` : 'Livre',
           tone: input.pendingCount > 0 ? 'decision' : 'ok',
-          detail: input.pendingCount > 0
-            ? 'Pedidos sensiveis estao pausados ate sua decisao.'
-            : 'Nenhum pedido sensivel aguardando.',
+          detail:
+            input.pendingCount > 0
+              ? 'Pedidos sensiveis estao pausados ate sua decisao.'
+              : 'Nenhum pedido sensivel aguardando.',
         },
         {
           id: 'provider',
@@ -505,9 +503,7 @@ export class NexusFacadeService {
     };
   }
 
-  public buildInboundMessage(
-    request: NexusExecuteRequestDto,
-  ): NormalizedInboundMessage {
+  public buildInboundMessage(request: NexusExecuteRequestDto): NormalizedInboundMessage {
     const requestedBy = request.requestedBy || 'nexus-agent';
     const surface = request.surface || 'nexus';
     const sessionId = request.sessionId || `nexus:${requestedBy}`;
@@ -547,15 +543,14 @@ export class NexusFacadeService {
     normalizedInboundMessage: NormalizedInboundMessage,
   ): Omit<UniversalApprovalIntentResolveInput, 'runs'> {
     const metadata = this.toRecord(request.metadata);
-    const ref = this.readString(metadata.approvalId)
-      || this.readString(metadata.approval_id)
-      || this.readString(metadata.runId)
-      || this.readString(metadata.run_id)
-      || this.readString(metadata.id)
-      || null;
-    const decision = this.readString(metadata.decision)
-      || this.readString(metadata.approvalDecision)
-      || null;
+    const ref =
+      this.readString(metadata.approvalId) ||
+      this.readString(metadata.approval_id) ||
+      this.readString(metadata.runId) ||
+      this.readString(metadata.run_id) ||
+      this.readString(metadata.id) ||
+      null;
+    const decision = this.readString(metadata.decision) || this.readString(metadata.approvalDecision) || null;
 
     return {
       text: request.prompt,
@@ -572,10 +567,15 @@ export class NexusFacadeService {
     result: UniversalApprovalIntentDecisionResult,
     normalizedInboundMessage: NormalizedInboundMessage,
   ): Record<string, unknown> {
+    const channel = String(normalizedInboundMessage.channel || result.resolution.channel || 'api').toLowerCase();
+    const presentation = presentUniversalApprovalIntentDecision(result, channel);
     return {
       ok: result.ok,
       source: 'ZavorthAgentGateway',
-      response: renderUniversalApprovalIntentDecisionResult(result),
+      response: presentation.text || renderUniversalApprovalIntentDecisionResult(result),
+      surfaceResponse: presentation.surfaceResponse,
+      usedNativeButtons: presentation.usedNativeButtons,
+      approvalActions: presentation.actions,
       normalizedInboundMessage,
       approvalIntent: result.resolution,
       run: result.result?.run || result.resolution.target?.run || null,
@@ -585,6 +585,7 @@ export class NexusFacadeService {
         facade: true,
         fallbackUsed: false,
         approvalIntent: true,
+        multiApprovalPicker: Boolean(presentation.surfaceResponse),
       },
     };
   }
@@ -648,6 +649,6 @@ export class NexusFacadeService {
   }
 
   private toRecord(value: unknown): Record<string, unknown> {
-    return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
+    return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
   }
 }

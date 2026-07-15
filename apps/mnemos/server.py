@@ -201,9 +201,9 @@ def _extract_text(file_path: str) -> Optional[str]:
         except Exception as e:
             logger.warning(f"Falha pdftotext em {file_path}: {e}")
 
-        # Fallback: PyPDF2
+        # Fallback: pypdf
         try:
-            from PyPDF2 import PdfReader
+            from pypdf import PdfReader
             reader = PdfReader(file_path)
             pages = []
             for page in reader.pages:
@@ -212,10 +212,10 @@ def _extract_text(file_path: str) -> Optional[str]:
                     pages.append(text)
             return "\n\n".join(pages) if pages else None
         except ImportError:
-            logger.warning("PyPDF2 não instalado, PDF não pode ser extraído.")
+            logger.warning("pypdf is not installed; PDF text extraction is unavailable.")
             return None
         except Exception as e:
-            logger.warning(f"Falha PyPDF2 em {file_path}: {e}")
+            logger.warning(f"pypdf failed for {file_path}: {e}")
             return None
 
     return None
@@ -279,7 +279,7 @@ def _extract_pdf_text_universal(fp: Path, parts: list[dict[str, Any]], extractor
 
     if len(parts) == before:
         try:
-            from PyPDF2 import PdfReader
+            from pypdf import PdfReader
             reader = PdfReader(str(fp))
             pages = []
             for page_index, page in enumerate(reader.pages):
@@ -288,11 +288,11 @@ def _extract_pdf_text_universal(fp: Path, parts: list[dict[str, Any]], extractor
                     pages.append(f"[page {page_index + 1}]\n{text}")
             if pages:
                 _append_text_part(parts, "pdf-text", "\n\n".join(pages))
-                extractors.append("pdf-text:pypdf2")
+                extractors.append("pdf-text:pypdf")
         except ImportError:
-            warnings.append("PyPDF2 not installed")
+            warnings.append("pypdf not installed")
         except Exception as e:
-            warnings.append(f"PyPDF2 failed: {e}")
+            warnings.append(f"pypdf failed: {e}")
 
     return len(parts) > before
 

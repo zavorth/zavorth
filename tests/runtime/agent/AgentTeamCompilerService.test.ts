@@ -12,7 +12,8 @@ describe('AgentTeamCompilerService Channel mesh0', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-agent-team-service',
-      text: 'compile uma equipe de agentes para implementar e validar a entrega',
+      // Free text is ignored for team intent; structured metadata drives compilation.
+      text: 'help me ship this delivery with clear validation',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {
@@ -39,36 +40,40 @@ describe('AgentTeamCompilerService Channel mesh0', () => {
       generatedAt: run.updatedAt,
     });
 
-    expect(snapshot).toEqual(expect.objectContaining({
-      contractVersion: AGENT_TEAM_COMPILER_CONTRACT_VERSION,
-      source: 'AgentTeamCompilerService',
-      status: 'waiting-approval',
-      summary: expect.objectContaining({
-        roleCount: 3,
-        approvalRequiredCount: 3,
-        providerAssignedCount: 3,
-        requestedSwarm: true,
-        providerArenaLinked: true,
-        capabilityNegotiationLinked: true,
-        subagentReceiptsPrepared: true,
-        compilerOnly: true,
+    expect(snapshot).toEqual(
+      expect.objectContaining({
+        contractVersion: AGENT_TEAM_COMPILER_CONTRACT_VERSION,
+        source: 'AgentTeamCompilerService',
+        status: 'waiting-approval',
+        summary: expect.objectContaining({
+          roleCount: 3,
+          approvalRequiredCount: 3,
+          providerAssignedCount: 3,
+          requestedSwarm: true,
+          providerArenaLinked: true,
+          capabilityNegotiationLinked: true,
+          subagentReceiptsPrepared: true,
+          compilerOnly: true,
+        }),
+        policy: expect.objectContaining({
+          noSubagentsLaunched: true,
+          approvalRequiredBeforeLaunch: true,
+          budgetsDefaultToZero: true,
+          providerSelectionIsAdvisory: true,
+          naturalLanguageDoesNotBypassPolicy: true,
+          secretsSerialized: false,
+        }),
       }),
-      policy: expect.objectContaining({
-        noSubagentsLaunched: true,
-        approvalRequiredBeforeLaunch: true,
-        budgetsDefaultToZero: true,
-        providerSelectionIsAdvisory: true,
-        naturalLanguageDoesNotBypassPolicy: true,
-        secretsSerialized: false,
-      }),
-    }));
+    );
     expect(snapshot.roles.every((role) => role.budget.maxToolCalls === 0)).toBe(true);
     expect(snapshot.roles.every((role) => role.scope.mode === 'blocked')).toBe(true);
-    expect(snapshot.roles[0]?.provider).toEqual(expect.objectContaining({
-      providerLabel: 'openai',
-      modelLabel: 'gpt-test',
-      advisoryOnly: true,
-    }));
+    expect(snapshot.roles[0]?.provider).toEqual(
+      expect.objectContaining({
+        providerLabel: 'openai',
+        modelLabel: 'gpt-test',
+        advisoryOnly: true,
+      }),
+    );
     expect(snapshot.receipts.some((receipt) => receipt.kind === 'subagent-contract')).toBe(true);
   });
 
@@ -79,7 +84,7 @@ describe('AgentTeamCompilerService Channel mesh0', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-agent-team-idle',
-      text: 'resuma o estado atual',
+      text: 'summarize the current state',
       requestedTools: ['workspace.read'],
     });
 
@@ -93,6 +98,28 @@ describe('AgentTeamCompilerService Channel mesh0', () => {
     expect(snapshot.policy.noSubagentsLaunched).toBe(true);
   });
 
+  it('does not compile a team from free-text team/swarm phrases alone', () => {
+    const run = new AgentRunService({
+      now: () => new Date('2026-05-04T00:40:00.000Z'),
+    }).createRun({
+      userId: 'grey',
+      channel: 'cli',
+      sessionId: 'session-agent-team-no-keyword',
+      text: 'compile uma equipe de agentes swarm multi-agent team of subagents for this delivery',
+      requestedTools: ['workspace.read'],
+    });
+
+    const snapshot = new AgentTeamCompilerService().buildSnapshot({
+      run,
+      generatedAt: run.updatedAt,
+    });
+
+    expect(snapshot.status).toBe('not-needed');
+    expect(snapshot.summary.requestedSwarm).toBe(false);
+    expect(snapshot.summary.roleCount).toBe(0);
+    expect(snapshot.receipts.some((r) => r.kind === 'swarm-escalation' && /free text/i.test(r.detail))).toBe(true);
+  });
+
   it('blocks team launch without the matching approval id', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:40:00.000Z'),
@@ -100,7 +127,7 @@ describe('AgentTeamCompilerService Channel mesh0', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-agent-team-launch-blocked',
-      text: 'compile uma equipe de agentes para implementar e revisar',
+      text: 'implement and review this delivery with a structured team',
       requestedTools: ['workspace.read'],
       metadata: {
         suggestedSubagents: ['planner', 'implementer', 'verifier'],
@@ -133,7 +160,7 @@ describe('AgentTeamCompilerService Channel mesh0', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-agent-team-launch-approved',
-      text: 'compile uma equipe de agentes para implementar, debater, revisar e validar',
+      text: 'implement, debate, review, and validate with a structured team board',
       requestedTools: ['workspace.read'],
       metadata: {
         suggestedSubagents: ['planner', 'implementer', 'verifier', 'safety-reviewer'],
@@ -152,21 +179,23 @@ describe('AgentTeamCompilerService Channel mesh0', () => {
       generatedAt: '2026-05-04T00:42:00.000Z',
     });
 
-    expect(result).toEqual(expect.objectContaining({
-      status: 'prepared',
-      compilerRunId: run.id,
-      approval: expect.objectContaining({
-        required: true,
-        matched: true,
+    expect(result).toEqual(
+      expect.objectContaining({
+        status: 'prepared',
+        compilerRunId: run.id,
+        approval: expect.objectContaining({
+          required: true,
+          matched: true,
+        }),
+        policy: expect.objectContaining({
+          noDirectToolExecution: true,
+          mutationRequiresSubagentGateway: true,
+          peerReviewRequiredBeforeSynthesis: true,
+          receiptsRequiredBeforeCompletion: true,
+          secretsSerialized: false,
+        }),
       }),
-      policy: expect.objectContaining({
-        noDirectToolExecution: true,
-        mutationRequiresSubagentGateway: true,
-        peerReviewRequiredBeforeSynthesis: true,
-        receiptsRequiredBeforeCompletion: true,
-        secretsSerialized: false,
-      }),
-    }));
+    );
     expect(result.roles).toHaveLength(4);
     expect(result.roles.every((role) => role.status === 'prepared')).toBe(true);
     expect(result.turns.some((turn) => turn.phase === 'peer-review')).toBe(true);
@@ -185,7 +214,7 @@ describe('AgentTeamCompilerService Channel mesh0', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-agent-team-peer-review-gap',
-      text: 'compile uma equipe de agentes para revisar com apenas um worker',
+      text: 'review this with a single structured worker role',
       requestedTools: ['workspace.read'],
       metadata: {
         suggestedSubagents: ['planner'],
@@ -205,10 +234,9 @@ describe('AgentTeamCompilerService Channel mesh0', () => {
     });
 
     expect(result.status).toBe('blocked');
-    expect(result.blockedReasons).toEqual(expect.arrayContaining([
-      'peer-review-missing',
-      'peer-review-missing:planner',
-    ]));
+    expect(result.blockedReasons).toEqual(
+      expect.arrayContaining(['peer-review-missing', 'peer-review-missing:planner']),
+    );
     expect(result.synthesis.status).toBe('blocked');
   });
 

@@ -1,7 +1,4 @@
-import {
-  getDefaultCapabilityRegistry,
-  type CapabilityRegistry,
-} from '../capabilities/CapabilityRegistry.js';
+import { getDefaultCapabilityRegistry, type CapabilityRegistry } from '../capabilities/CapabilityRegistry.js';
 import { TrustPlanePolicyLedgerService } from './TrustPlanePolicyLedgerService.js';
 
 import type {
@@ -15,10 +12,7 @@ import type {
 import type { TrustPlanePolicyLedgerEntry } from './TrustPlanePolicyLedgerService.js';
 import { logger } from '../logger.js';
 import { asErrorLike, errorMessage } from '../utils/errorLike.js';
-type CapabilityRegistryLike = Pick<
-  CapabilityRegistry,
-  'findByCommand' | 'getAll' | 'getSummary' | 'matchImplicit'
->;
+type CapabilityRegistryLike = Pick<CapabilityRegistry, 'findByCommand' | 'getAll' | 'getSummary'>;
 
 export type ZavorthCapabilityOsRiskLevel = 'low' | 'medium' | 'high';
 export type ZavorthCapabilityOsHealth = 'ready' | 'needs_approval' | 'dormant' | 'disabled';
@@ -162,19 +156,18 @@ export class ZavorthCapabilityOsService {
   constructor(runtime: ZavorthCapabilityOsRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.capabilityRegistry = runtime.capabilityRegistry || getDefaultCapabilityRegistry();
-    this.ledgerService = runtime.ledgerService === undefined
-      ? new TrustPlanePolicyLedgerService()
-      : runtime.ledgerService;
+    this.ledgerService =
+      runtime.ledgerService === undefined ? new TrustPlanePolicyLedgerService() : runtime.ledgerService;
   }
 
   public buildSnapshot(): ZavorthCapabilityOsSnapshot {
-    const manifests = this.capabilityRegistry.getAll().map((capability) =>
-      this.toManifest(capability));
+    const manifests = this.capabilityRegistry.getAll().map((capability) => this.toManifest(capability));
     const summary = this.capabilityRegistry.getSummary();
     const byType = this.countByType(manifests);
     const mcpAllowlist = this.buildMcpAllowlist(manifests);
     const examples = DEFAULT_ROUTE_EXAMPLES.map((example) =>
-      this.explainRoute(example, { commandType: '/task', writeLedger: false }));
+      this.explainRoute(example, { commandType: '/task', writeLedger: false }),
+    );
     const mcpHost = this.buildMcpHost(mcpAllowlist);
 
     return {
@@ -210,13 +203,8 @@ export class ZavorthCapabilityOsService {
     const generatedAt = this.now().toISOString();
     const normalizedInput = String(input || '').trim();
     const parsed = this.parseRouteInput(normalizedInput, options.commandType || null);
-    const explicit = parsed.isExplicit
-      ? this.capabilityRegistry.findByCommand(parsed.commandType)
-      : null;
-    const implicit = explicit
-      ? null
-      : this.capabilityRegistry.matchImplicit(parsed.commandType, this.normalizeText(parsed.payload));
-    const selected = explicit || implicit;
+    // Explicit slash / command only. Free text stays conversational (model-owned tools).
+    const selected = parsed.isExplicit ? this.capabilityRegistry.findByCommand(parsed.commandType) : null;
     const manifest = selected ? this.toManifest(selected) : null;
     const fallbackChain = manifest?.fallback.chain || FALLBACK_MATRIX.none;
     const decision = {
@@ -225,28 +213,29 @@ export class ZavorthCapabilityOsService {
       executorPreference: manifest?.executorPreference || null,
       reason: manifest
         ? manifest.routing.reason
-        : 'Nenhuma capability teve confianca suficiente; o pedido fica no fluxo conversacional.',
+        : 'No capability matched an explicit command; free text stays in the conversational flow.',
       confidence: manifest?.routing.confidence ?? 0.35,
       requiresApproval: manifest?.permissions.requiresApproval || false,
       riskLevel: manifest?.risk.level || 'low',
     };
-    const ledger = options.writeLedger === false
-      ? {
-          recorded: false,
-          entryId: null,
-          status: null,
-          reason: 'Registro omitido porque esta decisao e exemplo, teste ou preview read-only.',
-        }
-      : this.recordRouteDecision({
-          generatedAt,
-          input: normalizedInput,
-          commandType: parsed.commandType,
-          manifest,
-          fallbackChain,
-          decision,
-          requestedBy: options.requestedBy || null,
-          sourceSurface: options.sourceSurface || null,
-        });
+    const ledger =
+      options.writeLedger === false
+        ? {
+            recorded: false,
+            entryId: null,
+            status: null,
+            reason: 'Ledger omitted because this decision is an example, test, or read-only preview.',
+          }
+        : this.recordRouteDecision({
+            generatedAt,
+            input: normalizedInput,
+            commandType: parsed.commandType,
+            manifest,
+            fallbackChain,
+            decision,
+            requestedBy: options.requestedBy || null,
+            sourceSurface: options.sourceSurface || null,
+          });
 
     return {
       gate: 'capability-os',
@@ -301,9 +290,10 @@ export class ZavorthCapabilityOsService {
       health: this.deriveHealth(capability, enabled, requiresApproval),
       fallback: {
         chain: fallbackChain,
-        reason: fallbackChain.length > 0
-          ? `Se ${capability.executor_preference || 'a rota principal'} failurer, tente ${fallbackChain[0]}.`
-          : 'Sem fallback automatico alem da conversa supervisionada.',
+        reason:
+          fallbackChain.length > 0
+            ? `Se ${capability.executor_preference || 'a rota principal'} failurer, tente ${fallbackChain[0]}.`
+            : 'Sem fallback automatico alem da conversa supervisionada.',
       },
       routing: {
         reason: capability.routing_reason || capability.description,
@@ -318,7 +308,9 @@ export class ZavorthCapabilityOsService {
     capability: CapabilityDefinition,
     policy: CapabilityPolicy | null,
   ): ZavorthCapabilityOsManifest['risk'] {
-    const danger = String(policy?.dangerLevel || '').trim().toLowerCase();
+    const danger = String(policy?.dangerLevel || '')
+      .trim()
+      .toLowerCase();
     if (danger === 'high' || danger === 'critical') {
       return { level: 'high', reason: `Policy declarou risco ${danger}.` };
     }
@@ -332,15 +324,15 @@ export class ZavorthCapabilityOsService {
       return { level: 'high', reason: 'Capability usa rede externa e recebe guardrail inferido.' };
     }
     if (!policy && this.isSensitiveCapability(capability)) {
-      return { level: 'high', reason: 'Capability sensivel sem policy explicita recebe guardrail inferido.' };
+      return { level: 'high', reason: 'Sensitive capability without explicit policy gets an inferred guardrail.' };
     }
     if (capability.type === 'automation' || capability.type === 'workflow' || capability.requires_planning) {
-      return { level: 'medium', reason: 'Capability pode encadear acoes ou planejamento.' };
+      return { level: 'medium', reason: 'Capability may chain actions or planning.' };
     }
     if (capability.type === 'executor') {
-      return { level: 'medium', reason: 'Capability delega trabalho para executor.' };
+      return { level: 'medium', reason: 'Capability delegates work to an executor.' };
     }
-    return { level: 'low', reason: 'Capability informativa ou de baixo impacto operacional.' };
+    return { level: 'low', reason: 'Informational or low-impact operational capability.' };
   }
 
   private deriveHealth(
@@ -349,24 +341,21 @@ export class ZavorthCapabilityOsService {
     requiresApproval: boolean,
   ): ZavorthCapabilityOsManifest['health'] {
     if (!enabled) {
-      return { status: 'disabled', reason: 'Capability desabilitada no manifesto.' };
+      return { status: 'disabled', reason: 'Capability disabled in the manifest.' };
     }
     if (requiresApproval) {
-      return { status: 'needs_approval', reason: 'Capability pode agir, mas precisa de aprovacao.' };
+      return { status: 'needs_approval', reason: 'Capability may act but requires approval.' };
     }
     if (capability.source === 'plugin') {
-      return { status: 'dormant', reason: 'Capability de plugin carregada sob demanda.' };
+      return { status: 'dormant', reason: 'Plugin capability loaded on demand.' };
     }
     if (capability.command?.handler_action === 'mcp_management') {
-      return { status: 'dormant', reason: 'MCP e gerenciado por manifesto e sobe sob demanda.' };
+      return { status: 'dormant', reason: 'MCP is manifest-managed and starts on demand.' };
     }
-    return { status: 'ready', reason: 'Capability registrada e pronta para roteamento.' };
+    return { status: 'ready', reason: 'Capability registered and ready for routing.' };
   }
 
-  private resolvePermissionScopes(
-    capability: CapabilityDefinition,
-    policy: CapabilityPolicy | null,
-  ): string[] {
+  private resolvePermissionScopes(capability: CapabilityDefinition, policy: CapabilityPolicy | null): string[] {
     const scopes = new Set<string>();
     if (policy?.requiresApproval) {
       scopes.add('approval');
@@ -395,10 +384,7 @@ export class ZavorthCapabilityOsService {
     return Array.from(scopes).sort();
   }
 
-  private inferRequiresApproval(
-    capability: CapabilityDefinition,
-    riskLevel: ZavorthCapabilityOsRiskLevel,
-  ): boolean {
+  private inferRequiresApproval(capability: CapabilityDefinition, riskLevel: ZavorthCapabilityOsRiskLevel): boolean {
     if (riskLevel === 'high') {
       return true;
     }
@@ -412,11 +398,11 @@ export class ZavorthCapabilityOsService {
     const executor = String(capability.executor_preference || '').toLowerCase();
     const command = String(capability.command?.command || '').toLowerCase();
     if (
-      capability.type === 'research'
-      || executor === 'aistudio'
-      || executor === 'stitch'
-      || executor === 'gemini_cli'
-      || executor === 'web_research'
+      capability.type === 'research' ||
+      executor === 'aistudio' ||
+      executor === 'stitch' ||
+      executor === 'gemini_cli' ||
+      executor === 'web_research'
     ) {
       return 'external-policy';
     }
@@ -447,14 +433,18 @@ export class ZavorthCapabilityOsService {
   }
 
   private isSensitiveCapability(capability: CapabilityDefinition): boolean {
-    const handler = String(capability.command?.handler_action || '').trim().toLowerCase();
-    return capability.type === 'executor'
-      || capability.type === 'automation'
-      || capability.type === 'workflow'
-      || Boolean(capability.executor_preference)
-      || handler === 'mcp_management'
-      || handler === 'workflow_named'
-      || handler === 'workflow_dynamic';
+    const handler = String(capability.command?.handler_action || '')
+      .trim()
+      .toLowerCase();
+    return (
+      capability.type === 'executor' ||
+      capability.type === 'automation' ||
+      capability.type === 'workflow' ||
+      Boolean(capability.executor_preference) ||
+      handler === 'mcp_management' ||
+      handler === 'workflow_named' ||
+      handler === 'workflow_dynamic'
+    );
   }
 
   private resolveFallbackChain(capability: CapabilityDefinition): string[] {
@@ -470,7 +460,9 @@ export class ZavorthCapabilityOsService {
   }
 
   private resolveFallbackMatrixKey(executor: string): string {
-    const normalized = String(executor || '').trim().toLowerCase();
+    const normalized = String(executor || '')
+      .trim()
+      .toLowerCase();
     return normalized;
   }
 
@@ -488,17 +480,11 @@ export class ZavorthCapabilityOsService {
     return result;
   }
 
-  private buildMcpAllowlist(
-    manifests: ZavorthCapabilityOsManifest[],
-  ): ZavorthCapabilityOsSnapshot['mcpAllowlist'] {
+  private buildMcpAllowlist(manifests: ZavorthCapabilityOsManifest[]): ZavorthCapabilityOsSnapshot['mcpAllowlist'] {
     return manifests
       .filter((manifest) =>
-        /\bmcp\b/i.test([
-          manifest.id,
-          manifest.label,
-          manifest.command || '',
-          manifest.intent,
-        ].join(' ')))
+        /\bmcp\b/i.test([manifest.id, manifest.label, manifest.command || '', manifest.intent].join(' ')),
+      )
       .map((manifest) => ({
         id: manifest.id,
         label: manifest.label,
@@ -515,7 +501,8 @@ export class ZavorthCapabilityOsService {
       folderScope: 'workspace',
       secrets: 'redacted',
       serverAllowlist: mcpAllowlist.map((entry) => entry.id),
-      reason: 'Servidores MCP ficam em allowlist local, escopados ao workspace e sem expor payloads sensiveis no snapshot.',
+      reason:
+        'Servidores MCP ficam em allowlist local, escopados ao workspace e sem expor payloads sensiveis no snapshot.',
     };
   }
 
@@ -534,14 +521,13 @@ export class ZavorthCapabilityOsService {
         recorded: false,
         entryId: null,
         status: null,
-        reason: 'Ledger de trust indisponivel neste runtime.',
+        reason: 'Trust ledger unavailable in this runtime.',
       };
     }
 
     try {
       const selectedId = input.manifest?.id || 'conversation';
-      const status: TrustPlanePolicyLedgerEntry['status'] =
-        input.decision.requiresApproval ? 'previewed' : 'noop';
+      const status: TrustPlanePolicyLedgerEntry['status'] = input.decision.requiresApproval ? 'previewed' : 'noop';
       const entry = this.ledgerService.append({
         id: `capability-route:${this.hashReference(`${input.generatedAt}:${input.commandType}:${selectedId}:${input.input}`)}`,
         at: input.generatedAt,
@@ -554,11 +540,12 @@ export class ZavorthCapabilityOsService {
         approvalScope: input.decision.requiresApproval ? 'once' : 'session',
         planId: null,
         permissionId: null,
-        summary: `Rota ${selectedId} escolhida para ${input.commandType}; fallback ${input.fallbackChain.join(' -> ')}.`,
+        summary: `Route ${selectedId} chosen for ${input.commandType}; fallback ${input.fallbackChain.join(' -> ')}.`,
         diff: [],
         rollback: {
           available: false,
-          reason: 'Decisao de roteamento nao muta codigo nem policy; fallback preserva a tarefa e artefatos esperados.',
+          reason:
+            'Routing decision does not mutate code or policy; fallback preserves the task and expected artifacts.',
         },
         result: `input=${this.redactSensitiveText(input.input)}; reason=${this.redactSensitiveText(input.decision.reason)}`,
       });
@@ -566,24 +553,24 @@ export class ZavorthCapabilityOsService {
         recorded: true,
         entryId: entry.id,
         status: entry.status,
-        reason: 'Decisao registrada no Trust Plane ledger com entrada redigida.',
+        reason: 'Decision recorded in the Trust Plane ledger with a redacted entry.',
       };
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Zavorth Capability Os] filesystem check failed', error);
-    return {
+      return {
         recorded: false,
         entryId: null,
         status: null,
         reason: `Nao foi possivel registrar no ledger: ${errorMessage(error)}`,
       };
-  }
+    }
   }
 
   private redactSensitiveText(value: string): string {
     return String(value || '')
-      .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[redacted-email]')
-      .replace(/\b(?:sk|pk|rk|ghp|github_pat)_[A-Za-z0-9_=-]{12,}\b/g, '[redacted-secret]')
+      .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2}\b/gi, '[redacted-email]')
+      .replace(/\b(?:sk|pk|rk|ghp|github_pat)_[A-Za-z0-9_=-]{12}\b/g, '[redacted-secret]')
       .replace(/\b(?:api[_-]?key|token|secret|password|senha)\s*[:=]\s*\S+/gi, '$1=[redacted]')
       .slice(0, 500);
   }
@@ -610,7 +597,10 @@ export class ZavorthCapabilityOsService {
     };
   }
 
-  private parseRouteInput(input: string, commandType: string | null): {
+  private parseRouteInput(
+    input: string,
+    commandType: string | null,
+  ): {
     commandType: string;
     payload: string;
     isExplicit: boolean;
@@ -624,27 +614,25 @@ export class ZavorthCapabilityOsService {
         isExplicit: true,
       };
     }
+    const normalizedType = this.normalizeCommand(commandType || '/task');
+    // /task and /auto are free-text wrappers — never treat them as explicit capability commands.
+    // Other command types (e.g. ParsedCommand.command_type = /mcp) remain explicit findByCommand routes.
+    const freeTextWrapper = normalizedType === '/task' || normalizedType === '/auto';
     return {
-      commandType: this.normalizeCommand(commandType || '/task'),
+      commandType: normalizedType,
       payload: trimmed,
-      isExplicit: false,
+      isExplicit: Boolean(commandType) && !freeTextWrapper,
     };
   }
 
   private normalizeCommand(value: string): string {
-    const normalized = String(value || '').trim().toLowerCase();
+    const normalized = String(value || '')
+      .trim()
+      .toLowerCase();
     if (!normalized) {
       return '/task';
     }
     return normalized.startsWith('/') ? normalized : `/${normalized}`;
-  }
-
-  private normalizeText(value: string): string {
-    return String(value || '')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .trim();
   }
 }
 

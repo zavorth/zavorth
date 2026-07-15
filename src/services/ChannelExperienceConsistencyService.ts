@@ -1,7 +1,4 @@
-import type {
-  ChannelMeshSnapshot,
-  ChannelMeshSnapshotEntry,
-} from '../contracts/ChannelMeshContract.js';
+import type { ChannelMeshSnapshot, ChannelMeshSnapshotEntry } from '../contracts/ChannelMeshContract.js';
 import { isSharedSurfaceChannelCallbackAction } from '../domain/surface/presentation/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
 
 import { ZavorthChannelMeshService } from './ZavorthChannelMeshService.js';
@@ -121,10 +118,10 @@ export class ChannelExperienceConsistencyService {
     const mesh = this.channelMesh.buildSnapshot({ selectedId: null });
     const targetIds = this.resolveTargetIds(mesh);
     const entries = targetIds.map((channelId) => this.buildEntry(channelId, mesh));
-    const selectedId = String(input.selectedId || '').trim().toLowerCase();
-    const selected = selectedId
-      ? entries.find((entry) => entry.channelId === selectedId) || null
-      : null;
+    const selectedId = String(input.selectedId || '')
+      .trim()
+      .toLowerCase();
+    const selected = selectedId ? entries.find((entry) => entry.channelId === selectedId) || null : null;
     const summary = {
       total: entries.length,
       complete: entries.filter((entry) => entry.status === 'complete').length,
@@ -144,10 +141,10 @@ export class ChannelExperienceConsistencyService {
       entries,
       selected,
       narrative: {
-        headline: 'Paridade de experiencia por canal do Zavorth',
+        headline: 'Zavorth per-channel experience parity',
         operatorSummary:
-          `${summary.complete} completo(s), ${summary.usable} usavel(is), ${summary.partial} parcial(is), `
-          + `${summary.missing} ausente(s), ${summary.criticalGaps} gap(s) critico(s).`,
+          `${summary.complete} completo(s), ${summary.usable} usavel(is), ${summary.partial} parcial(is), ` +
+          `${summary.missing} ausente(s), ${summary.criticalGaps} gap(s) critico(s).`,
         nextAction: this.buildNextAction(entries),
       },
       commands: {
@@ -188,11 +185,11 @@ export class ChannelExperienceConsistencyService {
     const checks = this.buildChecks(channelProfile, entry);
     const required = checks.filter((check) => check.required && check.status !== 'na');
     const passed = required.filter((check) => check.status === 'pass');
-    const blockers = required.filter((check) => check.status === 'fail').map((check) => `${check.label}: ${check.detail}`);
+    const blockers = required
+      .filter((check) => check.status === 'fail')
+      .map((check) => `${check.label}: ${check.detail}`);
     const status = this.resolveStatus(entry, required.length, passed.length, blockers);
-    const scorePercent = required.length > 0
-      ? Math.round((passed.length / required.length) * 100)
-      : 100;
+    const scorePercent = required.length > 0 ? Math.round((passed.length / required.length) * 100) : 100;
 
     return {
       channelId,
@@ -214,44 +211,116 @@ export class ChannelExperienceConsistencyService {
     };
   }
 
-  private buildChecks(profile: ChannelExperienceProfile, entry: ChannelMeshSnapshotEntry | null): ChannelExperienceCheck[] {
+  private buildChecks(
+    profile: ChannelExperienceProfile,
+    entry: ChannelMeshSnapshotEntry | null,
+  ): ChannelExperienceCheck[] {
     const present = Boolean(entry);
     const statusRowsReady = Boolean(entry?.interactiveSurface?.statusCard || (entry?.statusRows || []).length > 0);
     const richRepliesReady = Boolean(entry?.features.richReplies || entry?.interactiveSurface?.richReplies);
     const guidedActionsReady = Boolean(
-      entry?.features.interactiveControls
-      || entry?.interactiveSurface?.inlineButtons
-      || (entry?.actions || []).length > 0,
+      entry?.features.interactiveControls ||
+        entry?.interactiveSurface?.inlineButtons ||
+        (entry?.actions || []).length > 0,
     );
     const nativeButtonsReady = Boolean(entry?.interactiveSurface?.inlineButtons);
     const slashCommandsReady = Boolean(entry?.features.slashCommands || entry?.interactiveSurface?.slashCommands);
     const qrLoginRequired = this.requiresQrLogin(profile, entry);
     const webhookStatusRequired = this.requiresWebhookStatus(profile, entry);
-    const qrState = String(entry?.loginQr?.state || '').trim().toLowerCase();
-    const qrReady = Boolean(
-      entry?.loginQr?.supported
-      && (qrState === 'ready' || qrState === 'connected')
-    );
+    const qrState = String(entry?.loginQr?.state || '')
+      .trim()
+      .toLowerCase();
+    const qrReady = Boolean(entry?.loginQr?.supported && (qrState === 'ready' || qrState === 'connected'));
     const webhookReady = Boolean(entry?.features.webhook || entry?.webhookPath);
-    const localBridgeReady = Boolean(entry?.features.localBridge || entry?.transport === 'bridge' || entry?.transport === 'local');
-    const connectionVisible = Boolean(entry?.connection || (entry?.statusRows || []).length > 0 || typeof entry?.configured === 'boolean');
+    const localBridgeReady = Boolean(
+      entry?.features.localBridge || entry?.transport === 'bridge' || entry?.transport === 'local',
+    );
+    const connectionVisible = Boolean(
+      entry?.connection || (entry?.statusRows || []).length > 0 || typeof entry?.configured === 'boolean',
+    );
     const guardedCallbacksReady =
-      isSharedSurfaceChannelCallbackAction('status')
-      && isSharedSurfaceChannelCallbackAction('login-qr')
-      && !isSharedSurfaceChannelCallbackAction('logout');
+      isSharedSurfaceChannelCallbackAction('status') &&
+      isSharedSurfaceChannelCallbackAction('login-qr') &&
+      !isSharedSurfaceChannelCallbackAction('logout');
 
     return [
-      check('adapter', 'Adapter registrado', true, present, present ? 'canal presente no Channel Mesh' : 'canal ausente do Channel Mesh'),
-      check('status-card', 'Status por canal', true, statusRowsReady, statusRowsReady ? 'status card/linhas disponiveis' : 'sem status card legivel'),
-      check('rich-replies', 'Resposta rica compartilhada', true, richRepliesReady, richRepliesReady ? 'rich replies disponiveis' : 'sem renderer rico neste canal'),
-      check('guided-actions', 'Acoes guiadas', true, guidedActionsReady, guidedActionsReady ? 'acoes do Channel Mesh disponiveis' : 'sem acoes guiadas'),
-      check('safe-callbacks', 'Callbacks seguros', true, present && guardedCallbacksReady, guardedCallbacksReady ? 'mutacoes exigem comando explicito' : 'policy de callback ausente'),
-      check('connection-status', 'Status de conexao/login', true, connectionVisible, connectionVisible ? 'conexao exposta ao operador' : 'sem telemetria de conexao'),
-      check('native-buttons', 'Botoes nativos', profile.nativeButtonsRequired, nativeButtonsReady, nativeButtonsReady ? 'botoes nativos disponiveis' : 'sem botoes nativos exigidos para este canal'),
-      check('slash-commands', 'Slash/comandos nativos', profile.slashCommandsRequired, slashCommandsReady, slashCommandsReady ? 'comandos nativos disponiveis' : 'sem slash commands/comandos nativos'),
-      check('qr-login', 'QR/login operacional', qrLoginRequired, qrReady, qrReady ? 'QR/login pronto para operador' : 'QR/login nao esta pronto no provider local'),
-      check('webhook-status', 'Webhook operacional', webhookStatusRequired, webhookReady, webhookReady ? 'webhook/callback exposto ao operador' : 'webhook obrigatorio nao esta visivel'),
-      check('local-bridge', 'Bridge local governada', profile.localBridgeRequired, localBridgeReady, localBridgeReady ? 'bridge local rastreada' : 'bridge local nao configurada'),
+      check(
+        'adapter',
+        'Adapter registrado',
+        true,
+        present,
+        present ? 'canal presente no Channel Mesh' : 'canal ausente do Channel Mesh',
+      ),
+      check(
+        'status-card',
+        'Status por canal',
+        true,
+        statusRowsReady,
+        statusRowsReady ? 'status card/linhas disponiveis' : 'sem status card legivel',
+      ),
+      check(
+        'rich-replies',
+        'Resposta rica compartilhada',
+        true,
+        richRepliesReady,
+        richRepliesReady ? 'rich replies disponiveis' : 'sem renderer rico neste canal',
+      ),
+      check(
+        'guided-actions',
+        'Acoes guiadas',
+        true,
+        guidedActionsReady,
+        guidedActionsReady ? 'acoes do Channel Mesh disponiveis' : 'sem acoes guiadas',
+      ),
+      check(
+        'safe-callbacks',
+        'Callbacks seguros',
+        true,
+        present && guardedCallbacksReady,
+        guardedCallbacksReady ? 'mutacoes exigem comando explicito' : 'policy de callback ausente',
+      ),
+      check(
+        'connection-status',
+        'Status de conexao/login',
+        true,
+        connectionVisible,
+        connectionVisible ? 'conexao exposta ao operador' : 'sem telemetria de conexao',
+      ),
+      check(
+        'native-buttons',
+        'Botoes nativos',
+        profile.nativeButtonsRequired,
+        nativeButtonsReady,
+        nativeButtonsReady ? 'botoes nativos disponiveis' : 'sem botoes nativos exigidos para este canal',
+      ),
+      check(
+        'slash-commands',
+        'Slash/comandos nativos',
+        profile.slashCommandsRequired,
+        slashCommandsReady,
+        slashCommandsReady ? 'comandos nativos disponiveis' : 'sem slash commands/comandos nativos',
+      ),
+      check(
+        'qr-login',
+        'QR/login operacional',
+        qrLoginRequired,
+        qrReady,
+        qrReady ? 'QR/login pronto para operador' : 'QR/login nao esta pronto no provider local',
+      ),
+      check(
+        'webhook-status',
+        'Webhook operacional',
+        webhookStatusRequired,
+        webhookReady,
+        webhookReady ? 'webhook/callback exposto ao operador' : 'webhook obrigatorio nao esta visivel',
+      ),
+      check(
+        'local-bridge',
+        'Bridge local governada',
+        profile.localBridgeRequired,
+        localBridgeReady,
+        localBridgeReady ? 'bridge local rastreada' : 'bridge local nao configurada',
+      ),
     ];
   }
 
@@ -279,8 +348,12 @@ export class ChannelExperienceConsistencyService {
     if (!entry) {
       return false;
     }
-    const provider = String(entry.provider || '').trim().toLowerCase();
-    const transport = String(entry.transport || '').trim().toLowerCase();
+    const provider = String(entry.provider || '')
+      .trim()
+      .toLowerCase();
+    const transport = String(entry.transport || '')
+      .trim()
+      .toLowerCase();
     return provider === 'meta-cloud-api' || provider === 'cloud-api' || transport === 'webhook';
   }
 
@@ -288,9 +361,15 @@ export class ChannelExperienceConsistencyService {
     if (!entry) {
       return false;
     }
-    const provider = String(entry.provider || '').trim().toLowerCase();
-    const setupMode = String(entry.setupMode || '').trim().toLowerCase();
-    const transport = String(entry.transport || '').trim().toLowerCase();
+    const provider = String(entry.provider || '')
+      .trim()
+      .toLowerCase();
+    const setupMode = String(entry.setupMode || '')
+      .trim()
+      .toLowerCase();
+    const transport = String(entry.transport || '')
+      .trim()
+      .toLowerCase();
     return provider === 'instagram-messaging-api' || setupMode === 'meta-messaging' || transport === 'webhook';
   }
 
@@ -372,18 +451,25 @@ export class ChannelExperienceConsistencyService {
   }
 
   private resolveTargetIds(mesh: ChannelMeshSnapshot): string[] {
-    return Array.from(new Set([
-      ...this.targetChannelIds.map((entry) => this.normalizeId(entry)).filter(Boolean),
-      ...mesh.entries.map((entry) => this.normalizeId(entry.id)).filter(Boolean),
-    ]));
+    return Array.from(
+      new Set([
+        ...this.targetChannelIds.map((entry) => this.normalizeId(entry)).filter(Boolean),
+        ...mesh.entries.map((entry) => this.normalizeId(entry.id)).filter(Boolean),
+      ]),
+    );
   }
 
   private normalizeId(value: unknown): string {
-    return String(value || '').trim().toLowerCase();
+    return String(value || '')
+      .trim()
+      .toLowerCase();
   }
 
   private toLabel(value: string): string {
-    return String(value || '').trim().replace(/[-_]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+    return String(value || '')
+      .trim()
+      .replace(/[-_]+/g, ' ')
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
   }
 }
 
@@ -403,13 +489,7 @@ function makeProfile(
   };
 }
 
-function check(
-  id: string,
-  label: string,
-  required: boolean,
-  passed: boolean,
-  detail: string,
-): ChannelExperienceCheck {
+function check(id: string, label: string, required: boolean, passed: boolean, detail: string): ChannelExperienceCheck {
   if (!required) {
     return {
       id,

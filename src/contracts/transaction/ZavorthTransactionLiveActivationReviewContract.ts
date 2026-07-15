@@ -2,15 +2,12 @@ import type {
   ZavorthTransactionLiveCandidateEnvelope,
   ZavorthTransactionLiveCandidateResult,
 } from './ZavorthTransactionLiveCandidateContract.js';
-import type {
-  ZavorthTransactionSurfaceKind,
-} from './ZavorthTransactionSurfaceContract.js';
+import type { ZavorthTransactionSurfaceKind } from './ZavorthTransactionSurfaceContract.js';
 
 export const ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_CONTRACT_VERSION =
   'zavorth-transaction-live-activation-review/checkpoint-11' as const;
 
-export const ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE =
-  'ZAVORTH LIVE ACTIVATION REVIEW ONLY' as const;
+export const ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE = 'ZAVORTH LIVE ACTIVATION REVIEW ONLY' as const;
 
 export type ZavorthTransactionLiveActivationReviewStatus =
   | 'candidate-required'
@@ -149,6 +146,10 @@ export type ZavorthTransactionLiveActivationRollbackDrillInput = {
 
 export type ZavorthTransactionLiveActivationReviewInput = {
   text: string;
+  /** Structured product kind — free text never activates transaction kinds. */
+  kind?: import('./ZavorthTransactionIntentContract.js').ZavorthTransactionIntentKind;
+  actionKind?: import('./ZavorthTransactionPlaneContract.js').ZavorthTransactionActionKind;
+  targetKind?: import('./ZavorthTransactionIntentContract.js').ZavorthTransactionIntentTargetKind;
   surface?: ZavorthTransactionSurfaceKind;
   mode?: 'dry-run' | 'sandbox' | 'paper';
   approve?: boolean;

@@ -1,17 +1,9 @@
 import type { CapabilityHubItem } from '../CapabilityHubContract.js';
-import type {
-  GovernanceRecipeExecutionReceipt,
-  GovernanceRecipePlan,
-} from '../GovernanceRecipeContract.js';
+import type { GovernanceRecipeExecutionReceipt, GovernanceRecipePlan } from '../GovernanceRecipeContract.js';
 
 export const NATURAL_SETUP_ASSISTANT_CONTRACT_VERSION = 'zavorth-natural-setup-assistant/v1';
 
-export type NaturalSetupIntentAction =
-  | 'connect'
-  | 'configure'
-  | 'validate'
-  | 'inspect'
-  | 'unknown';
+export type NaturalSetupIntentAction = 'connect' | 'configure' | 'validate' | 'inspect' | 'unknown';
 
 export type NaturalSetupReadinessStatus =
   | 'ready_for_preview'
@@ -33,7 +25,14 @@ export type NaturalSetupAssistantInput = {
   actorLabel?: string | null;
   locale?: string | null;
   providedSecrets?: Record<string, string | null | undefined>;
+  /** Structured capability id only — free text never keyword-selects a hub item. */
   preferredCapabilityId?: string | null;
+  /** Structured intent action only — free text never keyword-selects product actions. */
+  action?: NaturalSetupIntentAction | null;
+  /** Structured hub kind filter only — free text never keyword-selects kinds. */
+  kind?: CapabilityHubItem['kind'] | null;
+  /** Structured pack id when the caller already chose a pack (not free-text NLU). */
+  packId?: string | null;
   approvalId?: string | null;
   persistSecrets?: boolean;
 };

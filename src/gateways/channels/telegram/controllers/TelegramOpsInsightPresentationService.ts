@@ -1,8 +1,6 @@
 import { config } from '../../../../config/index.js';
 import type { SidecarStatusCard } from '../../../../services/SidecarStatusService.js';
-import {
-  type ProductObservabilitySnapshot,
-} from '../../../../services/ProductObservabilityService.js';
+import { type ProductObservabilitySnapshot } from '../../../../services/ProductObservabilityService.js';
 import { SharedSurfaceConsistencyService } from '../../../../services/SharedSurfaceConsistencyService.js';
 import { logger } from '../../../../logger';
 
@@ -15,7 +13,7 @@ import {
 } from '../../../../domain/surface/application/surface-response/index.js';
 
 import type {
-CapabilityApprovalRequest,
+  CapabilityApprovalRequest,
   CapabilityManifest,
   CapabilityStateSnapshot,
 } from '../../../../services/CapabilityLifecycleService.js';
@@ -55,8 +53,7 @@ type TelegramOpsModeFlags = {
 };
 
 export class TelegramOpsInsightPresentationService {
-  private static cachedSkillPlaneSnapshot:
-    ReturnType<SkillLibraryPresentationService['buildSnapshot']> | null = null;
+  private static cachedSkillPlaneSnapshot: ReturnType<SkillLibraryPresentationService['buildSnapshot']> | null = null;
   private readonly capabilityRegistry = getDefaultCapabilityRegistry();
   private readonly surfaceConsistencyService = new SharedSurfaceConsistencyService();
   private readonly skillLibraryPresentationService = new SkillLibraryPresentationService();
@@ -67,13 +64,13 @@ export class TelegramOpsInsightPresentationService {
     productObservability: ProductObservabilitySnapshot | null = null,
   ): SurfaceResponse {
     const legacyText = this.formatSystemStatusReply(snapshot, modes, productObservability);
-    const detailText = stripLeadingSurfaceTitle(legacyText, 'Panorama do Zavorth');
+    const detailText = stripLeadingSurfaceTitle(legacyText, 'Zavorth overview');
 
     return createSurfaceResponse({
       id: 'telegram-status-surface',
       intent: 'status',
-      title: 'Panorama do Zavorth',
-      summary: 'Runtime, sidecars, tarefas e superficies em uma resposta compartilhada.',
+      title: 'Zavorth overview',
+      summary: 'Runtime, sidecars, tasks, and surfaces in one shared response.',
       tone: 'info',
       blocks: [
         {
@@ -83,9 +80,15 @@ export class TelegramOpsInsightPresentationService {
       ],
       actions: [
         { id: 'hub', label: 'Hub', kind: 'callback', callbackData: 'hub:page:overview', style: 'primary' },
-        { id: 'zavorthControl', label: 'ZavorthControl', kind: 'command', command: '/zavorthControl', style: 'secondary' },
+        {
+          id: 'zavorthControl',
+          label: 'ZavorthControl',
+          kind: 'command',
+          command: '/zavorthControl',
+          style: 'secondary',
+        },
         { id: 'tasks', label: 'Tasks', kind: 'command', command: '/tasks', style: 'secondary' },
-        { id: 'permissions', label: 'Permissoes', kind: 'command', command: '/perm list', style: 'secondary' },
+        { id: 'permissions', label: 'Permissions', kind: 'command', command: '/perm list', style: 'secondary' },
       ],
     });
   }
@@ -97,9 +100,7 @@ export class TelegramOpsInsightPresentationService {
   ): string {
     const uptimeMinutes = Math.floor(snapshot.process.uptimeSeconds / 60);
     const uptimeText =
-      uptimeMinutes >= 60
-        ? `${Math.floor(uptimeMinutes / 60)}h ${uptimeMinutes % 60}min`
-        : `${uptimeMinutes}min`;
+      uptimeMinutes >= 60 ? `${Math.floor(uptimeMinutes / 60)}h ${uptimeMinutes % 60}min` : `${uptimeMinutes}min`;
     const activeCount = snapshot.tasks?.activeCount || 0;
     const staleCount = snapshot.tasks?.staleCount || 0;
     const byStatus = snapshot.tasks?.byStatus || {};
@@ -113,21 +114,21 @@ export class TelegramOpsInsightPresentationService {
     const ZavorthTerminal = snapshot.sidecars?.ZavorthTerminal;
 
     const lines = [
-      'Panorama do Zavorth',
+      'Zavorth overview',
       '',
-      `Agora: online ha ${uptimeText}.`,
-      `Uso atual: RSS ${snapshot.process.rssMb} MB | heap ${snapshot.process.heapMb} MB.`,
-      `Processos ativos: host ${hostPid || 'unavailable'} | worker ${workerPid || 'unavailable'}.`,
-      `Ambiente: ${snapshot.process.platform} / ${snapshot.process.cpuArch}.`,
+      `Now: online for ${uptimeText}.`,
+      `Current usage: RSS ${snapshot.process.rssMb} MB | heap ${snapshot.process.heapMb} MB.`,
+      `Active processes: host ${hostPid || 'unavailable'} | worker ${workerPid || 'unavailable'}.`,
+      `Environment: ${snapshot.process.platform} / ${snapshot.process.cpuArch}.`,
       '',
-      'Modos',
-      `- Apresentacao: ${modes.presentationEnabled ? 'ativo' : 'inativo'}`,
-      `- Demo: ${modes.demoEnabled ? 'ativo' : 'inativo'}`,
-      `- Operator: ${modes.operatorEnabled ? 'ativo' : 'inativo'}`,
+      'Modes',
+      `- Presentation: ${modes.presentationEnabled ? 'active' : 'inactive'}`,
+      `- Demo: ${modes.demoEnabled ? 'active' : 'inactive'}`,
+      `- Operator: ${modes.operatorEnabled ? 'active' : 'inactive'}`,
       '',
       'Sidecars',
       `- AIGateway: ${this.formatSidecarStatusLine(AIGateway, AIGateway?.baseUrl)}`,
-      `- ZavorthBridge remoto: ${this.formatSidecarStatusLine(
+      `- Remote ZavorthBridge: ${this.formatSidecarStatusLine(
         ZavorthTerminal,
         ZavorthTerminal?.localUrl || ZavorthTerminal?.baseUrl,
       )}`,
@@ -168,15 +169,10 @@ export class TelegramOpsInsightPresentationService {
   }
 
   public formatModelsReply(currentModel: string, preferredZavorthBridgeModel: string | null): string {
-    return renderPlainSurfaceResponse(
-      this.buildModelsSurfaceResponse(currentModel, preferredZavorthBridgeModel),
-    ).text;
+    return renderPlainSurfaceResponse(this.buildModelsSurfaceResponse(currentModel, preferredZavorthBridgeModel)).text;
   }
 
-  public buildModelsSurfaceResponse(
-    currentModel: string,
-    preferredZavorthBridgeModel: string | null,
-  ): SurfaceResponse {
+  public buildModelsSurfaceResponse(currentModel: string, preferredZavorthBridgeModel: string | null): SurfaceResponse {
     return createSurfaceResponse({
       id: 'telegram-models-surface',
       intent: 'models',
@@ -202,16 +198,7 @@ export class TelegramOpsInsightPresentationService {
         {
           kind: 'list',
           title: 'Available Providers',
-          items: [
-            'gemini',
-            'gemma via Gemini API',
-            'deepseek',
-            'openai',
-            'AIGateway',
-            'qwen',
-            'puter',
-            'openrouter',
-          ],
+          items: ['gemini', 'gemma via Gemini API', 'deepseek', 'openai', 'AIGateway', 'qwen', 'puter', 'openrouter'],
         },
         {
           kind: 'list',
@@ -228,7 +215,13 @@ export class TelegramOpsInsightPresentationService {
         { id: 'model-gemini', label: 'Gemini', kind: 'command', command: '/model gemini', style: 'primary' },
         { id: 'model-gemma', label: 'Gemma', kind: 'command', command: '/model gemma-2-27b-it', style: 'secondary' },
         { id: 'model-openai', label: 'OpenAI', kind: 'command', command: '/model openai', style: 'secondary' },
-        { id: 'agmodel-high', label: 'AG Pro High', kind: 'command', command: '/agmodel gemini-2.5-pro', style: 'secondary' },
+        {
+          id: 'agmodel-high',
+          label: 'AG Pro High',
+          kind: 'command',
+          command: '/agmodel gemini-2.5-pro',
+          style: 'secondary',
+        },
       ],
     });
   }
@@ -350,10 +343,13 @@ export class TelegramOpsInsightPresentationService {
       dependencyName?: string | null;
     },
   ): string {
-    const reason = String(options?.reason || approval?.reason || `Requested use for ${capability.capabilityId}.`).trim();
+    const reason = String(
+      options?.reason || approval?.reason || `Requested use for ${capability.capabilityId}.`,
+    ).trim();
     const dependencyName = String(options?.dependencyName || '').trim() || null;
-    const enableCommands = (approval?.availableScopes || ['once', 'session', 'host'])
-      .map((scope) => `/enable ${capability.capabilityId} ${scope}`);
+    const enableCommands = (approval?.availableScopes || ['once', 'session', 'host']).map(
+      (scope) => `/enable ${capability.capabilityId} ${scope}`,
+    );
     const lines = [
       `This action needs capability ${capability.capabilityId}.`,
       '',
@@ -386,16 +382,14 @@ export class TelegramOpsInsightPresentationService {
     return lines.join('\n');
   }
 
-  public formatCapabilityDetailReply(
-    manifest: CapabilityManifest,
-    capability: CapabilityStateSnapshot,
-  ): string {
+  public formatCapabilityDetailReply(manifest: CapabilityManifest, capability: CapabilityStateSnapshot): string {
     const defaultProfiles = manifest.enabledByDefaultProfiles.join(', ');
     const provisioningDeps = manifest.provisioningRecipe?.dependencies?.join(', ') || 'none';
     const provisioningCommands = manifest.provisioningRecipe?.commands?.join(' | ') || 'none';
-    const cleanupTargets = Array.isArray(manifest.cleanupPaths) && manifest.cleanupPaths.length > 0
-      ? manifest.cleanupPaths.map((entry) => entry.replace(/\\/g, '/')).join(' | ')
-      : 'none';
+    const cleanupTargets =
+      Array.isArray(manifest.cleanupPaths) && manifest.cleanupPaths.length > 0
+        ? manifest.cleanupPaths.map((entry) => entry.replace(/\\/g, '/')).join(' | ')
+        : 'none';
     const lines = [
       `Capability ${manifest.id}`,
       '',
@@ -491,12 +485,8 @@ export class TelegramOpsInsightPresentationService {
     const topRoute = snapshot.learning?.routes?.topSuccessful?.[0] || null;
     const highestFriction = snapshot.learning?.routes?.highestFriction?.[0] || null;
     const recentResumableWorkflow =
-      snapshot.workflows?.recent?.find((entry) => Boolean(entry.resume_stage_label)) ||
-      null;
-    const resumableWorkflow =
-      snapshot.learning?.workflowResumeStages?.[0] ||
-      recentResumableWorkflow ||
-      null;
+      snapshot.workflows?.recent?.find((entry) => Boolean(entry.resume_stage_label)) || null;
+    const resumableWorkflow = snapshot.learning?.workflowResumeStages?.[0] || recentResumableWorkflow || null;
     const topExecutor = snapshot.executors?.top?.[0] || null;
     const topPolicy = snapshot.learning?.approvedPolicies?.[0] || null;
 
@@ -597,9 +587,7 @@ export class TelegramOpsInsightPresentationService {
       `- Biblioteca: ${snapshot.catalog.summary.total} skill(s) | ${snapshot.catalog.summary.readyRecipes}/${snapshot.catalog.summary.recipes} recipe(s) pronta(s).`,
       `- MCP: ${snapshot.mcp.summary.tools} tool(s) | ${snapshot.mcp.summary.resources} resource(s).`,
     ];
-    const trustSummary = snapshot.trust
-      .map((entry) => `${entry.trust} ${entry.count}`)
-      .join(' | ');
+    const trustSummary = snapshot.trust.map((entry) => `${entry.trust} ${entry.count}`).join(' | ');
     if (trustSummary) {
       lines.push(`- Trust: ${trustSummary}.`);
     }
@@ -625,7 +613,10 @@ export class TelegramOpsInsightPresentationService {
       TelegramOpsInsightPresentationService.cachedSkillPlaneSnapshot =
         this.skillLibraryPresentationService.buildSnapshot();
       return TelegramOpsInsightPresentationService.cachedSkillPlaneSnapshot;
-    } catch (error: unknown) {logger.warn('[Telegram Ops Insight Presentation] cache operation failed', error); return null; }
+    } catch (error: unknown) {
+      logger.warn('[Telegram Ops Insight Presentation] cache operation failed', error);
+      return null;
+    }
   }
 
   private describeRuntimeTaskStatus(status: string): string {
@@ -672,8 +663,5 @@ function stripLeadingSurfaceTitle(text: string, title: string): string {
     return normalized;
   }
 
-  return normalized
-    .slice(title.length)
-    .replace(/^\s+/, '')
-    .trim();
+  return normalized.slice(title.length).replace(/^\s+/, '').trim();
 }

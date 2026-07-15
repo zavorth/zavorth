@@ -36,60 +36,71 @@ export class SharedSurfaceAccessCommandPack {
       requireMutableAccess: false,
     });
     const consistency = this.deps.sharedSurfaceConsistencyService.buildManifest();
-    const mode = String(args || '').trim().toLowerCase();
+    const mode = String(args || '')
+      .trim()
+      .toLowerCase();
 
     if (mode === 'local') {
-      await ctx.reply([
-        'Acesso local do Zavorth',
-        '',
-        `Status: ${manifest.local.ready ? 'ready' : 'pending'}.`,
-        `App: ${manifest.local.appUrl}`,
-        `ZavorthControl legado: ${manifest.local.zavorthControlUrl}`,
-        `API web: ${manifest.local.apiBaseUrl}`,
-        '',
-        ...manifest.guides.local.slice(0, 4).map((line) => `- ${line}`),
-      ].join('\n'));
+      await ctx.reply(
+        [
+          'Zavorth local access',
+          '',
+          `Status: ${manifest.local.ready ? 'ready' : 'pending'}.`,
+          `App: ${manifest.local.appUrl}`,
+          `Legacy ZavorthControl: ${manifest.local.zavorthControlUrl}`,
+          `Web API: ${manifest.local.apiBaseUrl}`,
+          '',
+          ...manifest.guides.local.slice(0, 4).map((line) => `- ${line}`),
+        ].join('\n'),
+      );
       return;
     }
 
     if (mode === 'remote' || mode === 'remoto') {
-      await ctx.reply([
-        'Acesso remoto oficial do Zavorth',
-        '',
-        `Status: ${officialRemote.remote.ready ? 'ready' : 'pending'}.`,
-        `URL publica: ${officialRemote.remote.baseUrl || manifest.remote.baseUrl || 'nao configurada'}`,
-        `App remoto: ${officialRemote.remote.appUrl || manifest.remote.appUrl || 'not configured'}`,
-        `HTTPS obrigatorio: ${manifest.remote.requiresHttps ? 'yes' : 'ok'}`,
-        `Caminho recomendado: ${officialRemote.recommendedPathId || 'official'} - ${officialRemote.recommendedPathReason}`,
-        '',
-        ...officialRemote.nextSteps.slice(0, 4).map((line) => `- ${line}`),
-        '',
-        `Comandos uteis: ${manifest.commands.access} | ${manifest.commands.remote} | ${manifest.commands.trust}`,
-      ].join('\n'));
+      await ctx.reply(
+        [
+          'Zavorth official remote access',
+          '',
+          `Status: ${officialRemote.remote.ready ? 'ready' : 'pending'}.`,
+          `Public URL: ${officialRemote.remote.baseUrl || manifest.remote.baseUrl || 'not configured'}`,
+          `Remote app: ${officialRemote.remote.appUrl || manifest.remote.appUrl || 'not configured'}`,
+          `HTTPS required: ${manifest.remote.requiresHttps ? 'yes' : 'ok'}`,
+          `Recommended path: ${officialRemote.recommendedPathId || 'official'} - ${officialRemote.recommendedPathReason}`,
+          '',
+          ...officialRemote.nextSteps.slice(0, 4).map((line) => `- ${line}`),
+          '',
+          `Useful commands: ${manifest.commands.access} | ${manifest.commands.remote} | ${manifest.commands.trust}`,
+        ].join('\n'),
+      );
       return;
     }
 
-    await ctx.reply([
-      'Manifesto de acesso do Zavorth',
-      '',
-      manifest.summary,
-      '',
-      `Local: ${manifest.local.appUrl} (${manifest.local.ready ? 'ready' : 'pending'})`,
-      `Remote: ${manifest.remote.appUrl || 'not configured'} (${manifest.remote.ready ? 'ready' : 'pending'})`,
-      `Auth web: ${manifest.auth.required ? manifest.auth.source : 'missing'} | host autorizado: ${manifest.auth.authorizedHost === false ? 'no' : 'yes'}`,
-      `Official remote path: ${officialRemote.recommendedPathId || 'official'} | ${officialRemote.remote.ready ? 'validated' : 'pending'}`,
-      '',
-      'Superficies recomendadas:',
-      ...manifest.surfaces.slice(0, 4).map((surface) =>
-        `- ${surface.label}: ${surface.entry}${surface.remoteEntry ? ` | remoto: ${surface.remoteEntry}` : ''} | ${surface.ready ? 'ready' : 'pending'}`,
-      ),
-      '',
-      `Paridade web/Telegram: ${consistency.summary}`,
-      ...consistency.recommended.slice(0, 3).map((entry) => `- ${entry.surfaceCommand}: ${entry.description}`),
-      '',
-      `Comandos uteis: ${manifest.commands.start} | ${manifest.commands.bootstrap} | ${manifest.commands.manifest}`,
-      ...manifest.nextSteps.slice(0, 4).map((step) => `- ${step.title}: ${step.description}`),
-    ].join('\n'));
+    await ctx.reply(
+      [
+        'Zavorth access manifesto',
+        '',
+        manifest.summary,
+        '',
+        `Local: ${manifest.local.appUrl} (${manifest.local.ready ? 'ready' : 'pending'})`,
+        `Remote: ${manifest.remote.appUrl || 'not configured'} (${manifest.remote.ready ? 'ready' : 'pending'})`,
+        `Web auth: ${manifest.auth.required ? manifest.auth.source : 'missing'} | authorized host: ${manifest.auth.authorizedHost === false ? 'no' : 'yes'}`,
+        `Official remote path: ${officialRemote.recommendedPathId || 'official'} | ${officialRemote.remote.ready ? 'validated' : 'pending'}`,
+        '',
+        'Recommended surfaces:',
+        ...manifest.surfaces
+          .slice(0, 4)
+          .map(
+            (surface) =>
+              `- ${surface.label}: ${surface.entry}${surface.remoteEntry ? ` | remote: ${surface.remoteEntry}` : ''} | ${surface.ready ? 'ready' : 'pending'}`,
+          ),
+        '',
+        `Web/Telegram parity: ${consistency.summary}`,
+        ...consistency.recommended.slice(0, 3).map((entry) => `- ${entry.surfaceCommand}: ${entry.description}`),
+        '',
+        `Useful commands: ${manifest.commands.start} | ${manifest.commands.bootstrap} | ${manifest.commands.manifest}`,
+        ...manifest.nextSteps.slice(0, 4).map((step) => `- ${step.title}: ${step.description}`),
+      ].join('\n'),
+    );
   }
 
   private async handleBootstrap(ctx: IMessageContext): Promise<void> {
@@ -106,30 +117,29 @@ export class SharedSurfaceAccessCommandPack {
     const nextActions = report.actions.slice(0, 5);
     const journeyPhases = journey.phases.filter((phase) => phase.status !== 'ready').slice(0, 3);
 
-    await ctx.reply([
-      'Bootstrap operacional do Zavorth',
-      '',
-      report.summary,
-      '',
-      `.env: ${report.env.envFilePresent ? 'ok' : 'missing'} | provider=${report.env.llmProvider} | credencial=${report.env.llmCredentialReady ? 'ok' : 'pending'}`,
-      `Depending: ${report.dependencies.installRequired ? 'npm install pending' : 'ok'} | build=${report.dependencies.buildRequired ? 'pending' : 'ok'}`,
-      `Local: ${report.supervisedRuntime.accessReadiness.local.ready ? 'ready' : 'pending'} | remoto: ${report.supervisedRuntime.accessReadiness.remote.ready ? 'ready' : 'pending'}`,
-      `Official remote access: ${officialRemote.remote.ready ? 'validated' : 'pending'} | ${officialRemote.recommendedPathReason}`,
-      `Paridade entre superficies: ${consistency.summary}`,
-      '',
-      ...(nextActions.length > 0
-        ? [
-            'Passos recomendados:',
-            ...nextActions.map((action) => `- ${action.title}: ${action.command}`),
-          ]
-        : ['No pending steps. Bootstrap is complete.']),
-      ...(journeyPhases.length > 0
-        ? [
-            '',
-            'Official steps still pending:',
-            ...journeyPhases.map((phase) => `- ${phase.title}: ${phase.command || phase.summary}`),
-          ]
-        : []),
-    ].join('\n'));
+    await ctx.reply(
+      [
+        'Zavorth operational bootstrap',
+        '',
+        report.summary,
+        '',
+        `.env: ${report.env.envFilePresent ? 'ok' : 'missing'} | provider=${report.env.llmProvider} | credential=${report.env.llmCredentialReady ? 'ok' : 'pending'}`,
+        `Dependencies: ${report.dependencies.installRequired ? 'npm install pending' : 'ok'} | build=${report.dependencies.buildRequired ? 'pending' : 'ok'}`,
+        `Local: ${report.supervisedRuntime.accessReadiness.local.ready ? 'ready' : 'pending'} | remote: ${report.supervisedRuntime.accessReadiness.remote.ready ? 'ready' : 'pending'}`,
+        `Official remote access: ${officialRemote.remote.ready ? 'validated' : 'pending'} | ${officialRemote.recommendedPathReason}`,
+        `Surface parity: ${consistency.summary}`,
+        '',
+        ...(nextActions.length > 0
+          ? ['Recommended steps:', ...nextActions.map((action) => `- ${action.title}: ${action.command}`)]
+          : ['No pending steps. Bootstrap is complete.']),
+        ...(journeyPhases.length > 0
+          ? [
+              '',
+              'Official steps still pending:',
+              ...journeyPhases.map((phase) => `- ${phase.title}: ${phase.command || phase.summary}`),
+            ]
+          : []),
+      ].join('\n'),
+    );
   }
 }

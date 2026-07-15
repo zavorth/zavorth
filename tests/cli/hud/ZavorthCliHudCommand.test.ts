@@ -230,7 +230,7 @@ describe('Zavorth CLI HUD', () => {
     expect(result.output).toContain('Select plan');
     expect(result.output).toContain('Review diff');
     expect(result.output).toContain('Decision evidence');
-    expect(result.output).toContain('no host apply: true');
+    expect(result.output).toContain('host apply: true');
   });
 
   test('exports guided review json contract', () => {
@@ -257,12 +257,40 @@ describe('Zavorth CLI HUD', () => {
     createPendingPlan(mutationPlane);
     fs.mkdirSync(path.join(root, '.zavorth', 'logs'), { recursive: true });
     fs.writeFileSync(path.join(root, '.zavorth', 'gateway.json'), JSON.stringify({ status: 'running', pid: 1234 }));
-    fs.writeFileSync(path.join(root, '.zavorth', 'messages.json'), JSON.stringify([{ id: 'message-1', channel: 'telegram', target: 'chat-1', status: 'draft', message: 'hello world' }]));
-    fs.writeFileSync(path.join(root, '.zavorth', 'mcp-runtime.json'), JSON.stringify({ servers: [{ id: 'fs', status: 'available', toolsCount: 2, resourcesCount: 1 }] }));
-    fs.writeFileSync(path.join(root, '.zavorth', 'skills-runtime.json'), JSON.stringify({ enabled: [{ id: 'debugging', name: 'Debugging' }] }));
-    fs.writeFileSync(path.join(root, '.zavorth', 'plugins-runtime.json'), JSON.stringify({ plugins: [{ id: 'workspace', status: 'enabled' }] }));
-    fs.writeFileSync(path.join(root, '.zavorth', 'sessions.json'), JSON.stringify([{ id: 'session-1', label: 'Main session', status: 'ready' }]));
-    fs.writeFileSync(path.join(root, '.zavorth', 'logs', 'tasks.json'), JSON.stringify([{ id: 'log-1', taskId: 'task-1', event: 'completed', status: 'completed', createdAt: '2026-05-22T12:00:00.000Z' }]));
+    fs.writeFileSync(
+      path.join(root, '.zavorth', 'messages.json'),
+      JSON.stringify([
+        { id: 'message-1', channel: 'telegram', target: 'chat-1', status: 'draft', message: 'hello world' },
+      ]),
+    );
+    fs.writeFileSync(
+      path.join(root, '.zavorth', 'mcp-runtime.json'),
+      JSON.stringify({ servers: [{ id: 'fs', status: 'available', toolsCount: 2, resourcesCount: 1 }] }),
+    );
+    fs.writeFileSync(
+      path.join(root, '.zavorth', 'skills-runtime.json'),
+      JSON.stringify({ enabled: [{ id: 'debugging', name: 'Debugging' }] }),
+    );
+    fs.writeFileSync(
+      path.join(root, '.zavorth', 'plugins-runtime.json'),
+      JSON.stringify({ plugins: [{ id: 'workspace', status: 'enabled' }] }),
+    );
+    fs.writeFileSync(
+      path.join(root, '.zavorth', 'sessions.json'),
+      JSON.stringify([{ id: 'session-1', label: 'Main session', status: 'ready' }]),
+    );
+    fs.writeFileSync(
+      path.join(root, '.zavorth', 'logs', 'tasks.json'),
+      JSON.stringify([
+        {
+          id: 'log-1',
+          taskId: 'task-1',
+          event: 'completed',
+          status: 'completed',
+          createdAt: '2026-05-22T12:00:00.000Z',
+        },
+      ]),
+    );
 
     const result = runZavorthCliHud({
       projectRoot: root,
@@ -288,12 +316,40 @@ describe('Zavorth CLI HUD', () => {
     createPendingPlan(mutationPlane);
     fs.mkdirSync(path.join(root, '.zavorth', 'logs'), { recursive: true });
     fs.writeFileSync(path.join(root, '.zavorth', 'gateway.json'), JSON.stringify({ status: 'running', pid: 1234 }));
-    fs.writeFileSync(path.join(root, '.zavorth', 'messages.json'), JSON.stringify([{ id: 'message-1', channel: 'telegram', target: 'chat-1', status: 'draft', message: 'hello world' }]));
-    fs.writeFileSync(path.join(root, '.zavorth', 'mcp-runtime.json'), JSON.stringify({ servers: [{ id: 'fs', status: 'available', toolsCount: 2, resourcesCount: 1 }] }));
-    fs.writeFileSync(path.join(root, '.zavorth', 'skills-runtime.json'), JSON.stringify({ enabled: [{ id: 'debugging', name: 'Debugging' }] }));
-    fs.writeFileSync(path.join(root, '.zavorth', 'plugins-runtime.json'), JSON.stringify({ plugins: [{ id: 'workspace', status: 'enabled' }] }));
-    fs.writeFileSync(path.join(root, '.zavorth', 'sessions.json'), JSON.stringify([{ id: 'session-1', label: 'Main session', status: 'ready' }]));
-    fs.writeFileSync(path.join(root, '.zavorth', 'logs', 'tasks.json'), JSON.stringify([{ id: 'log-1', taskId: 'task-1', event: 'completed', status: 'completed', createdAt: '2026-05-22T12:00:00.000Z' }]));
+    fs.writeFileSync(
+      path.join(root, '.zavorth', 'messages.json'),
+      JSON.stringify([
+        { id: 'message-1', channel: 'telegram', target: 'chat-1', status: 'draft', message: 'hello world' },
+      ]),
+    );
+    fs.writeFileSync(
+      path.join(root, '.zavorth', 'mcp-runtime.json'),
+      JSON.stringify({ servers: [{ id: 'fs', status: 'available', toolsCount: 2, resourcesCount: 1 }] }),
+    );
+    fs.writeFileSync(
+      path.join(root, '.zavorth', 'skills-runtime.json'),
+      JSON.stringify({ enabled: [{ id: 'debugging', name: 'Debugging' }] }),
+    );
+    fs.writeFileSync(
+      path.join(root, '.zavorth', 'plugins-runtime.json'),
+      JSON.stringify({ plugins: [{ id: 'workspace', status: 'enabled' }] }),
+    );
+    fs.writeFileSync(
+      path.join(root, '.zavorth', 'sessions.json'),
+      JSON.stringify([{ id: 'session-1', label: 'Main session', status: 'ready' }]),
+    );
+    fs.writeFileSync(
+      path.join(root, '.zavorth', 'logs', 'tasks.json'),
+      JSON.stringify([
+        {
+          id: 'log-1',
+          taskId: 'task-1',
+          event: 'completed',
+          status: 'completed',
+          createdAt: '2026-05-22T12:00:00.000Z',
+        },
+      ]),
+    );
 
     const result = runZavorthCliHud({
       projectRoot: root,
@@ -331,14 +387,14 @@ describe('Zavorth CLI HUD', () => {
     expect(parsed.contractVersion).toBe('zavorth-cli-runtime-tui/1');
     expect(parsed.safety.readOnlySnapshot).toBe(true);
     expect(parsed.approvals.pending).toBe(1);
-    expect(parsed.dailyProduct).toEqual(expect.objectContaining({
-      status: 'ready',
-      primarySurface: 'chat',
-    }));
-    expect(parsed.dailyProduct.approvalBoundaries).toEqual(expect.arrayContaining([
-      'secret',
-      'external_send',
-      'host_mutation',
-    ]));
+    expect(parsed.dailyProduct).toEqual(
+      expect.objectContaining({
+        status: 'ready',
+        primarySurface: 'chat',
+      }),
+    );
+    expect(parsed.dailyProduct.approvalBoundaries).toEqual(
+      expect.arrayContaining(['secret', 'external_send', 'host_mutation']),
+    );
   });
 });

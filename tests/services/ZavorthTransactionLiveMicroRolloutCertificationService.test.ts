@@ -1,23 +1,12 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {
-  ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
-import {
-  ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveMicroRolloutCertificationContract.js';
-import {
-  ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionSandboxControlledExecutorContract.js';
+import { ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
+import { ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveMicroRolloutCertificationContract.js';
+import { ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionSandboxControlledExecutorContract.js';
 import { ZavorthTransactionCredentialRefService } from '../../src/services/ZavorthTransactionCredentialRefService.js';
 
-import {
-  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
-
-
-
+import { ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
 
 import { ZavorthTransactionLiveMicroRolloutCertificationService } from '../../src/services/ZavorthTransactionLiveMicroRolloutCertificationService.js';
 
@@ -34,14 +23,15 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
       storeFile: path.join(tempDir, 'credential-refs.jsonl'),
       now: () => now,
     });
-    credentialRef = credentialRefs.register({
-      label: 'Intent model4-15 exchange paper ref',
-      connectorKind: 'exchange',
-      environment: 'paper',
-      allowedActions: ['trade-order'],
-      ownerApproved: true,
-      now,
-    }).record?.ref ?? null;
+    credentialRef =
+      credentialRefs.register({
+        label: 'Intent model4-15 exchange paper ref',
+        connectorKind: 'exchange',
+        environment: 'paper',
+        allowedActions: ['trade-order'],
+        ownerApproved: true,
+        now,
+      }).record?.ref ?? null;
     service = new ZavorthTransactionLiveMicroRolloutCertificationService({
       now: () => now,
       ledgerFile: path.join(tempDir, 'approval-ledger.jsonl'),
@@ -81,9 +71,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
     expect(result.sourceSandboxExecution.status).toBe('sandbox-executed');
     expect(result.certificationPacket).toBeUndefined();
     expect(result.gates).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ kind: 'owner-micro-rollout-review', passed: false }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ kind: 'owner-micro-rollout-review', passed: false })]),
     );
   });
 
@@ -96,25 +84,29 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
     });
 
     expect(result.status).toBe('micro-rollout-certified');
-    expect(result.certificationPacket).toEqual(expect.objectContaining({
-      certifiedForFutureLiveMicroRollout: true,
-      certificationOnly: true,
-      liveMicroRolloutAuthorized: false,
-      liveExecutionAuthorized: false,
-      executableNow: false,
-      liveActionApplied: false,
-      externalSideEffects: false,
-      rawSecretPresent: false,
-    }));
+    expect(result.certificationPacket).toEqual(
+      expect.objectContaining({
+        certifiedForFutureLiveMicroRollout: true,
+        certificationOnly: true,
+        liveMicroRolloutAuthorized: false,
+        liveExecutionAuthorized: false,
+        executableNow: false,
+        liveActionApplied: false,
+        externalSideEffects: false,
+        rawSecretPresent: false,
+      }),
+    );
     expect(result.rolloutStages).toHaveLength(8);
     expect(result.scenarios.every((scenario) => scenario.passed)).toBe(true);
-    expect(result.safety).toEqual(expect.objectContaining({
-      futureMicroRolloutOnly: true,
-      noLiveExecution: true,
-      liveMicroRolloutAuthorized: false,
-      liveExecutionAuthorized: false,
-      liveActionApplied: false,
-    }));
+    expect(result.safety).toEqual(
+      expect.objectContaining({
+        futureMicroRolloutOnly: true,
+        noLiveExecution: true,
+        liveMicroRolloutAuthorized: false,
+        liveExecutionAuthorized: false,
+        liveActionApplied: false,
+      }),
+    );
     expect(result.gates.every((gate) => gate.passed)).toBe(true);
   });
 
@@ -154,16 +146,14 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
     expect(result.status).toBe('certification-failed');
     expect(result.certificationPacket).toBeUndefined();
     expect(result.scenarios).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ id: 'price-drift', passed: false }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ id: 'price-drift', passed: false })]),
     );
   });
 
   it('does not leak raw secrets from blocked final certification input', () => {
     const result = service.certify({
       ...intentModel3ExecutedInput(),
-      text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+      text: 'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
       microRolloutReviewConfirmed: true,
       microRolloutReviewIntent: ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
       useSafeMicroRolloutControls: true,
@@ -176,7 +166,9 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
 
   function baseReadyBeforeSandboxExecution() {
     return {
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'api' as const,
       approve: true,
       mode: 'paper' as const,

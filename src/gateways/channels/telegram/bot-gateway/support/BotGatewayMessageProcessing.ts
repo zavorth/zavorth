@@ -1,7 +1,5 @@
 import { Context, InputFile } from 'grammy';
-import {
-  createInternalSurfaceCommandApi,
-} from '../../../../../api/internal/InternalSurfaceApiCompat.js';
+import { createInternalSurfaceCommandApi } from '../../../../../api/internal/InternalSurfaceApiCompat.js';
 import type { IMessageContext } from '../../../../../contracts/IMessageBroker.js';
 import { getDefaultCapabilityRegistry } from '../../../../../capabilities/CapabilityRegistry.js';
 import { config } from '../../../../../config/index.js';
@@ -41,8 +39,7 @@ export async function processTextMessage(
   inlineData?: Array<{ mimeType: string; data: string }>,
   ingressMetadata?: NaturalConversationIngressMetadata,
 ): Promise<void> {
-  const channelContractService =
-    runtime.telegramChannelContractService || new TelegramChannelContractService();
+  const channelContractService = runtime.telegramChannelContractService || new TelegramChannelContractService();
   const telegramContract = channelContractService.buildContract(ctx);
   const chatId = telegramContract.chatId || ctx.chat?.id.toString() || '';
   const userId = ctx.from?.id.toString() || '';
@@ -61,10 +58,16 @@ export async function processTextMessage(
 
   // HIGH_RISK callback challenge: bare TOTP / pin= after task:approve button.
   const permissionController =
-    (runtime as { permissionController?: { tryConsumeHighRiskTotpReply?: (c: Context, t: string) => Promise<boolean> } })
-      .permissionController ||
-    (runtime as { getPermissionController?: () => { tryConsumeHighRiskTotpReply?: (c: Context, t: string) => Promise<boolean> } })
-      .getPermissionController?.();
+    (
+      runtime as {
+        permissionController?: { tryConsumeHighRiskTotpReply?: (c: Context, t: string) => Promise<boolean> };
+      }
+    ).permissionController ||
+    (
+      runtime as {
+        getPermissionController?: () => { tryConsumeHighRiskTotpReply?: (c: Context, t: string) => Promise<boolean> };
+      }
+    ).getPermissionController?.();
   if (
     permissionController?.tryConsumeHighRiskTotpReply &&
     (await permissionController.tryConsumeHighRiskTotpReply(ctx, text))
@@ -74,27 +77,22 @@ export async function processTextMessage(
 
   // agent-first: free text never goes through priority interceptors.
   // Only explicit slash commands may be handled before the agent.
-  const isSlashText = String(text || '').trim().startsWith('/');
+  const isSlashText = String(text || '')
+    .trim()
+    .startsWith('/');
   if (isSlashText && (await runtime.priorityCommandService.handle(ctx, text))) {
     return;
   }
 
   let effectiveText = text;
   let parsed = runtime.parser.parse(effectiveText);
-  const workspaceCommandResolution = await resolveWorkspaceCommandInput(
-    runtime,
-    effectiveText,
-    parsed,
-  );
+  const workspaceCommandResolution = await resolveWorkspaceCommandInput(runtime, effectiveText, parsed);
   if (workspaceCommandResolution) {
     effectiveText = workspaceCommandResolution.rawText;
     parsed = workspaceCommandResolution.parsed;
   }
 
-  if (
-    runtime.securityLock.isLocked() &&
-    !runtime.securityLock.isCommandAllowedWhenLocked(parsed.command_type)
-  ) {
+  if (runtime.securityLock.isLocked() && !runtime.securityLock.isCommandAllowedWhenLocked(parsed.command_type)) {
     if (parsed.command_type === '/lock') {
       await ctx.reply('\u{1F512} Zavorth is already locked.');
       return;
@@ -126,12 +124,7 @@ export async function processTextMessage(
 
   const capability = getDefaultCapabilityRegistry().findByCommand(parsed.command_type);
   if (capability?.command?.handler_action) {
-    const handled = await runtime.capabilityController.handleCommand(
-      ctx,
-      capability,
-      parsed.command_args,
-      userId,
-    );
+    const handled = await runtime.capabilityController.handleCommand(ctx, capability, parsed.command_args, userId);
     if (handled) {
       return;
     }
@@ -141,20 +134,11 @@ export async function processTextMessage(
     return;
   }
 
-  if (
-    await runtime.commandRoutingService.dispatchPrivateCommand(
-      ctx,
-      parsed,
-      effectiveText,
-      userId,
-    )
-  ) {
+  if (await runtime.commandRoutingService.dispatchPrivateCommand(ctx, parsed, effectiveText, userId)) {
     return;
   }
 
-  const sharedSurfaceApi = createInternalSurfaceCommandApi(
-    runtime.getSharedSurfaceCommandService(),
-  );
+  const sharedSurfaceApi = createInternalSurfaceCommandApi(runtime.getSharedSurfaceCommandService());
   if (sharedSurfaceApi) {
     const result = await sharedSurfaceApi.handleCommand({
       context: buildSharedSurfaceTelegramContext(runtime, ctx, effectiveText, chatId, userId, inlineData),
@@ -183,41 +167,42 @@ export async function processTextMessage(
 
   if (telegramLegacySurfacePolicyService.isCriticalOperatorSlashCommand(effectiveText, parsed.command_type)) {
     await ctx.reply(
-      telegramLegacySurfacePolicyService.buildUnhandledOperatorCommandMessage(
-        effectiveText,
-        parsed.command_type,
-      ),
+      telegramLegacySurfacePolicyService.buildUnhandledOperatorCommandMessage(effectiveText, parsed.command_type),
     );
     return;
   }
 
   // Canonical agent gateway owns natural Telegram conversation when available.
-  if (await tryHandleNaturalConversationThroughAgentGateway(
-    runtime,
-    ctx,
-    effectiveText,
-    parsed,
-    chatId,
-    userId,
-    telegramContract,
-    inlineData,
-    ingressMetadata,
-  )) {
+  if (
+    await tryHandleNaturalConversationThroughAgentGateway(
+      runtime,
+      ctx,
+      effectiveText,
+      parsed,
+      chatId,
+      userId,
+      telegramContract,
+      inlineData,
+      ingressMetadata,
+    )
+  ) {
     return;
   }
 
   // Legacy unified conversation is the explicit AgentGateway-absent fallback.
-  if (await tryHandleNaturalConversationThroughLegacyUnifiedGateway(
-    runtime,
-    ctx,
-    effectiveText,
-    parsed,
-    chatId,
-    userId,
-    telegramContract,
-    inlineData,
-    ingressMetadata,
-  )) {
+  if (
+    await tryHandleNaturalConversationThroughLegacyUnifiedGateway(
+      runtime,
+      ctx,
+      effectiveText,
+      parsed,
+      chatId,
+      userId,
+      telegramContract,
+      inlineData,
+      ingressMetadata,
+    )
+  ) {
     return;
   }
 
@@ -277,10 +262,7 @@ async function tryHandleExplicitAgentApproval(
   userId: string,
   telegramContract: ReturnType<TelegramChannelContractService['buildContract']>,
 ): Promise<boolean> {
-  if (
-    !runtime.agentGateway
-    || (parsed.command_type !== '/approve' && parsed.command_type !== '/reject')
-  ) {
+  if (!runtime.agentGateway || (parsed.command_type !== '/approve' && parsed.command_type !== '/reject')) {
     return false;
   }
 
@@ -294,6 +276,41 @@ async function tryHandleExplicitAgentApproval(
   });
   if (!result || result.receipt.status === 'approval-not-found') {
     return false;
+  }
+
+  // Multi-pending: SurfaceProfile-aware buttons via shared surface sender
+  // (telegram/discord/web/… — any surface with inline_buttons affordance).
+  if (result.surfaceResponse) {
+    try {
+      const { replyWithSharedSurfaceResponse } = await import(
+        '../../../../../domain/surface/presentation/shared-surface/SharedSurfaceResponseSender.js'
+      );
+      // Prefer presentation text (includes receipt decoration) when available.
+      const response = {
+        ...result.surfaceResponse,
+        blocks: [
+          {
+            kind: 'text' as const,
+            text:
+              result.text ||
+              String(
+                (result.surfaceResponse.blocks || [])
+                  .filter((b): b is { kind: 'text'; text: string } => b.kind === 'text')
+                  .map((b) => b.text)
+                  .join('\n') || '',
+              ),
+          },
+          ...(result.surfaceResponse.blocks || []).filter((b) => b.kind === 'actions'),
+        ],
+      };
+      await replyWithSharedSurfaceResponse(ctx, response, {
+        maxActionsPerRow: 2,
+        trackApprovalId: null,
+      });
+      return true;
+    } catch {
+      // fall through to plain text
+    }
   }
 
   await ctx.reply(result.text);
@@ -315,12 +332,15 @@ function hasVoiceInput(
   inlineData?: Array<{ mimeType: string; data: string }>,
   ingressMetadata?: NaturalConversationIngressMetadata,
 ): boolean {
-  return ingressMetadata?.transport === 'voice'
-    || Boolean(inlineData?.some((entry) => isAudioMimeType(entry.mimeType)));
+  return (
+    ingressMetadata?.transport === 'voice' || Boolean(inlineData?.some((entry) => isAudioMimeType(entry.mimeType)))
+  );
 }
 
 function isAudioMimeType(mimeType: string | null | undefined): boolean {
-  return String(mimeType || '').toLowerCase().startsWith('audio/');
+  return String(mimeType || '')
+    .toLowerCase()
+    .startsWith('audio/');
 }
 
 function resolveTelegramUniversalModelLabel(): string {
@@ -340,11 +360,13 @@ function resolveTelegramUniversalModelLabel(): string {
     qwen: [config.qwenModel],
   };
 
-  return (modelCandidatesByProvider[normalizedProvider] || [])
-    .map((candidate) => String(candidate || '').trim())
-    .find(Boolean)
-    || provider
-    || 'current model';
+  return (
+    (modelCandidatesByProvider[normalizedProvider] || [])
+      .map((candidate) => String(candidate || '').trim())
+      .find(Boolean) ||
+    provider ||
+    'current model'
+  );
 }
 
 async function tryHandleNaturalConversationThroughAgentGateway(
@@ -488,10 +510,7 @@ export async function processGroupCommand(
   await processTextMessage(runtime, ctx, normalizedText);
 }
 
-export async function canUseInteractiveGroupAi(
-  runtime: BotGatewaySupportRuntime,
-  ctx: Context,
-): Promise<boolean> {
+export async function canUseInteractiveGroupAi(runtime: BotGatewaySupportRuntime, ctx: Context): Promise<boolean> {
   const isGroup = ctx.chat?.type === 'group' || ctx.chat?.type === 'supergroup';
   if (!isGroup) {
     return true;
@@ -509,7 +528,10 @@ export async function canUseInteractiveGroupAi(
   try {
     const member = await ctx.api.getChatMember(ctx.chat.id, ctx.from.id);
     return member.status === 'administrator' || member.status === 'creator';
-  } catch (error: unknown) {logger.warn('[Bot way Message Processing] filesystem check failed', error); return false; }
+  } catch (error: unknown) {
+    logger.warn('[Bot way Message Processing] filesystem check failed', error);
+    return false;
+  }
 }
 
 export function buildSharedSurfaceTelegramContext(
@@ -537,10 +559,13 @@ export function buildSharedSurfaceTelegramContext(
     inlineData,
     reply: async (text: string, options?: Record<string, unknown>) => {
       // Certification matrix: Modo Echo — resposta por voz
-      const outputStage = runtime.echoOutputStage || new EchoOutputStageService({
-        audioHandler: runtime.echoAudioHandler || null,
-        preferenceStore: runtime.echoPreferenceStore || null,
-      });
+      const outputStage =
+        runtime.echoOutputStage ||
+        new EchoOutputStageService({
+          audioHandler: runtime.echoAudioHandler || null,
+          preferenceStore: runtime.echoPreferenceStore || null,
+        });
+      const voiceFlow = (ingressMetadata?.voiceFlow || null) as Record<string, unknown> | null;
       await outputStage.deliver({
         surface: 'telegram',
         text,
@@ -549,7 +574,13 @@ export function buildSharedSurfaceTelegramContext(
         requestedBy: ingressMetadata?.requestedBy || userId || 'telegram-bot',
         sessionId: chatId,
         traceId: ingressMetadata?.traceId || null,
-        voiceFlow: ingressMetadata?.voiceFlow || null,
+        voiceFlow,
+        // Structured voice activation only (ingress / UI / session). Free text never sets these.
+        preferVoiceReply:
+          voiceFlow?.preferVoiceReply === true ||
+          voiceFlow?.ttsReplyDesired === true ||
+          voiceFlow?.replyWithAudio === true,
+        forceVoice: voiceFlow?.forceVoice === true,
         preferredLanguageCode: ingressMetadata?.preferredLanguageCode || null,
         sink: {
           sendText: async (nextText, sendOptions) => ctx.reply(nextText, sendOptions),
@@ -566,11 +597,7 @@ export function buildSharedSurfaceTelegramContext(
       });
     },
     editMessage: async (targetMessageId: string, text: string) => {
-      await ctx.api.editMessageText(
-        telegramChatId,
-        Number.parseInt(String(targetMessageId), 10),
-        text,
-      );
+      await ctx.api.editMessageText(telegramChatId, Number.parseInt(String(targetMessageId), 10), text);
     },
   };
 }
@@ -603,11 +630,7 @@ export async function resolveWorkspaceCommandInput(
     return null;
   }
 
-  const resolved = runtime.workspaceCommandService.resolveInvocation(
-    profile,
-    commandName,
-    parsed.command_args,
-  );
+  const resolved = runtime.workspaceCommandService.resolveInvocation(profile, commandName, parsed.command_args);
   if (!resolved) {
     return null;
   }
@@ -637,11 +660,16 @@ export async function recordIncomingMessageTelemetry(
         chatId,
         userId,
         chatType,
-        commandPreview: String(text || '').trim().slice(0, 120),
-        isCommand: String(text || '').trim().startsWith('/'),
+        commandPreview: String(text || '')
+          .trim()
+          .slice(0, 120),
+        isCommand: String(text || '')
+          .trim()
+          .startsWith('/'),
       },
     });
-  } catch (error: unknown) {// telemetry should not block message handling
-      logger.warn('[Bot way Message Processing] lifecycle operation failed', error);
-    }
+  } catch (error: unknown) {
+    // telemetry should not block message handling
+    logger.warn('[Bot way Message Processing] lifecycle operation failed', error);
+  }
 }

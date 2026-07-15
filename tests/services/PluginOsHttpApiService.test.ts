@@ -53,19 +53,25 @@ describe('PluginOsHttpApiService', () => {
     const denied = await api.executeAction({ action: 'enable', pluginId: 'toggle-me' }, root);
     expect(denied.ok).toBe(false);
 
-    const enabled = await api.executeAction({
-      action: 'enable',
-      pluginId: 'toggle-me',
-      approved: true,
-    }, root);
+    const enabled = await api.executeAction(
+      {
+        action: 'enable',
+        pluginId: 'toggle-me',
+        approved: true,
+      },
+      root,
+    );
     expect(enabled.ok).toBe(true);
     expect(enabled.result.bridged?.enabled).toBe(true);
 
-    const disabled = await api.executeAction({
-      action: 'disable',
-      pluginId: 'toggle-me',
-      approved: true,
-    }, root);
+    const disabled = await api.executeAction(
+      {
+        action: 'disable',
+        pluginId: 'toggle-me',
+        approved: true,
+      },
+      root,
+    );
     expect(disabled.ok).toBe(true);
     expect(disabled.result.bridged?.enabled).toBe(false);
   });
@@ -84,10 +90,14 @@ describe('PluginOsHttpApiService', () => {
       'utf8',
     );
     const api = new PluginOsHttpApiService({ projectRoot: root });
-    const result = await api.executeAction({
-      action: 'recommend',
-      intent: 'search the web',
-    }, root);
+    const result = await api.executeAction(
+      {
+        action: 'recommend',
+        // Exact plugin id — free-text soft ranking is intentionally disabled.
+        intent: 'web-search',
+      },
+      root,
+    );
     expect(result.ok).toBe(true);
     const rec = result.result.recommendations as {
       autoEnable?: boolean;
@@ -197,10 +207,13 @@ describe('PluginOsHttpApiService', () => {
     const bridge = new PluginStateBridgeService({ projectRoot: root });
     const api = new PluginOsHttpApiService({ projectRoot: root, stateBridge: bridge });
 
-    const preview = await api.executeAction({
-      action: 'preview-permissions',
-      pluginId: 'web-search',
-    }, root);
+    const preview = await api.executeAction(
+      {
+        action: 'preview-permissions',
+        pluginId: 'web-search',
+      },
+      root,
+    );
     expect(preview.ok).toBe(true);
     const permissionPreview = preview.result.permissionPreview as {
       pluginId?: string;
@@ -212,21 +225,27 @@ describe('PluginOsHttpApiService', () => {
     expect((permissionPreview?.permissions || []).length).toBeGreaterThan(0);
     expect(permissionPreview?.text).toContain('Permission preview');
 
-    const applied = await api.executeAction({
-      action: 'onboarding-apply',
-      profile: 'recommended',
-      approved: true,
-    }, root);
+    const applied = await api.executeAction(
+      {
+        action: 'onboarding-apply',
+        profile: 'recommended',
+        approved: true,
+      },
+      root,
+    );
     expect(applied.ok).toBe(true);
     expect(bridge.resolve('web-search').enabled).toBe(true);
 
     const deniedUndo = await api.executeAction({ action: 'onboarding-undo' }, root);
     expect(deniedUndo.ok).toBe(false);
 
-    const undone = await api.executeAction({
-      action: 'onboarding-undo',
-      approved: true,
-    }, root);
+    const undone = await api.executeAction(
+      {
+        action: 'onboarding-undo',
+        approved: true,
+      },
+      root,
+    );
     expect(undone.ok).toBe(true);
     const onboard = undone.result.onboarding as { disabled?: string[] };
     expect((onboard?.disabled || []).length).toBeGreaterThan(0);
@@ -244,20 +263,26 @@ describe('PluginOsHttpApiService', () => {
     });
     const api = new PluginOsHttpApiService({ projectRoot: root, stateBridge: bridge });
 
-    const trusted = await api.executeAction({
-      action: 'trust',
-      pluginId: 'trust-me',
-      trust: 'trusted',
-      approved: true,
-    }, root);
+    const trusted = await api.executeAction(
+      {
+        action: 'trust',
+        pluginId: 'trust-me',
+        trust: 'trusted',
+        approved: true,
+      },
+      root,
+    );
     expect(trusted.ok).toBe(true);
     expect(trusted.result.bridged?.trust).toBe('trusted');
 
-    const inspected = await api.executeAction({
-      action: 'inspect',
-      pluginId: 'trust-me',
-      approved: true,
-    }, root);
+    const inspected = await api.executeAction(
+      {
+        action: 'inspect',
+        pluginId: 'trust-me',
+        approved: true,
+      },
+      root,
+    );
     expect(inspected.ok).toBe(true);
     expect(inspected.result.bridged?.pluginId).toBe('trust-me');
   });

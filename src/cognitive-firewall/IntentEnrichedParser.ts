@@ -6,8 +6,7 @@
  * assigns command_type = "/task" and ignores semantics. This wrapper adds:
  *
  * - intentCategory: intent category detected by Cognitive Firewall
- * - useFastModel: whether a cheaper model should be used
- * - isTrivialChat: whether this is trivial greeting or confirmation chat
+ * - useFastModel: whether a cheaper model should be used (free-text path always false)
  * - firewallStats: filtering statistics
  */
 
@@ -47,14 +46,8 @@ export class IntentEnrichedParser {
   }
 
   /**
-   * Returns true when the message is trivial chat and can use a cheap model.
-   */
-  public static isTrivialChat(enriched: IntentEnrichedCommand): boolean {
-    return enriched.naturalRoute?.isTrivialChat === true;
-  }
-
-  /**
    * Returns true when the message should use a fast/cheap model.
+   * Free-text path always returns false.
    */
   public static shouldUseFastModel(enriched: IntentEnrichedCommand): boolean {
     return enriched.naturalRoute?.useFastModel === true;

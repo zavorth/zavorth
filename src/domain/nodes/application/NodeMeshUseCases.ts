@@ -41,8 +41,9 @@ export class NodeMeshUseCases {
         queued: 0,
         capabilities: 0,
         headline: 'Nodes domain waiting for Node Mesh injection.',
-        operatorSummary: 'Sem node mesh injetado, o dominio nao cria registry/capability services por padrao.',
-        nextAction: 'Injete o Node Mesh para habilitar pairing, invoke e activity snapshots.',
+        operatorSummary:
+          'Without an injected node mesh, the domain does not create registry/capability services by default.',
+        nextAction: 'Inject the Node Mesh to enable pairing, invoke, and activity snapshots.',
         source: 'empty',
       };
     }
@@ -57,7 +58,7 @@ export class NodeMeshUseCases {
       capabilities: snapshot.summary.capabilities,
       headline: snapshot.narrative.headline,
       operatorSummary: snapshot.narrative.operatorSummary,
-      nextAction: snapshot.selected?.nextAction || 'Crie o primeiro pairing para ligar um node ao mesh.',
+      nextAction: snapshot.selected?.nextAction || 'Create the first pairing to attach a node to the mesh.',
       source: 'node-mesh',
     };
   }

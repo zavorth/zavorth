@@ -19,7 +19,9 @@ export class TelegramPermissionPromptPresentationService {
       intro = 'I need your decision to unblock this ExternalExecutor workflow.';
       summaryLines.push('ExternalExecutor is blocked because the current agent is not authorized for this project.');
       summaryLines.push(`Current project: ${permission.workspace || 'not specified'}`);
-      summaryLines.push(`Suggested agent: ${permission.resolved_value || permission.requested_value || 'not specified'}`);
+      summaryLines.push(
+        `Suggested agent: ${permission.resolved_value || permission.requested_value || 'not specified'}`,
+      );
       summaryLines.push(`Role: ${this.policy.getExternalExecutorAgentRole(permission)}`);
       summaryLines.push(`Reason: ${permission.reason}`);
       actionLines.push('"Use in this project": authorizes this agent only for the current workspace.');
@@ -33,26 +35,42 @@ export class TelegramPermissionPromptPresentationService {
       summaryLines.push(`Requested folder: ${requestedPath}`);
       summaryLines.push(`Access level to be granted: ${this.policy.describePermissionAccessLevel(permission)}`);
       summaryLines.push(`Reason: ${permission.reason}`);
-      actionLines.push('"Allow read-only for this task only": grants read/list access to this folder for this execution only.');
-      actionLines.push('"Allow read-only for this project": reuses this folder for read/list in future tasks in this workspace.');
+      actionLines.push(
+        '"Allow read-only for this task only": grants read/list access to this folder for this execution only.',
+      );
+      actionLines.push(
+        '"Allow read-only for this project": reuses this folder for read/list in future tasks in this workspace.',
+      );
       actionLines.push('"Reject": blocks this access and ends the current attempt.');
     } else if (permission.executor === 'file_delivery' && permission.kind === 'workspace_access') {
       intro = 'I found the path you requested, but I need your approval to continue.';
       const requestedPath = permission.resolved_value || permission.requested_value || 'not specified';
       if (permission.metadata?.permission_source === 'file_inspection') {
-        summaryLines.push('Zavorth found the requested path, but it is not yet authorized for comparison or local inspection.');
+        summaryLines.push(
+          'Zavorth found the requested path, but it is not yet authorized for comparison or local inspection.',
+        );
       } else {
-        summaryLines.push('Zavorth found the requested path, but it is not yet authorized for local reading and delivery.');
+        summaryLines.push(
+          'Zavorth found the requested path, but it is not yet authorized for local reading and delivery.',
+        );
       }
       summaryLines.push(`Requested folder: ${requestedPath}`);
       summaryLines.push(`Access level to be granted: ${this.policy.describePermissionAccessLevel(permission)}`);
       summaryLines.push(`Reason: ${permission.reason}`);
       if (permission.metadata?.permission_source === 'file_inspection') {
-        actionLines.push('"Allow read-only for this task only": grants read/list for this folder for this comparison or inspection only.');
-        actionLines.push('"Allow read-only for this project": reuses this folder for future comparisons and inspections in this Zavorth.');
+        actionLines.push(
+          '"Allow read-only for this task only": grants read/list for this folder for this comparison or inspection only.',
+        );
+        actionLines.push(
+          '"Allow read-only for this project": reuses this folder for future comparisons and inspections in this Zavorth.',
+        );
       } else {
-        actionLines.push('"Allow read-only for this task only": grants read/list for this folder for the current request only.');
-        actionLines.push('"Allow read-only for this project": reuses this folder for read/list in future requests in this Zavorth.');
+        actionLines.push(
+          '"Allow read-only for this task only": grants read/list for this folder for the current request only.',
+        );
+        actionLines.push(
+          '"Allow read-only for this project": reuses this folder for read/list in future requests in this Zavorth.',
+        );
       }
       actionLines.push('"Reject": blocks this access and ends the current attempt.');
     } else if (permission.executor === 'aistudio' && permission.kind === 'builtin_tool_access') {
@@ -93,7 +111,9 @@ export class TelegramPermissionPromptPresentationService {
     }
     if (permission.executor === 'zavorthBridge' && permission.kind === 'ui_permission') {
       intro = 'ZavorthBridge is waiting for your decision in this conversation.';
-      summaryLines.push('Recommended approval: use "Approve conversation" to avoid repeating this prompt in the same ZavorthBridge chat.');
+      summaryLines.push(
+        'Recommended approval: use "Approve conversation" to avoid repeating this prompt in the same ZavorthBridge chat.',
+      );
     }
     if (
       permission.executor === 'zavorthBridge' &&
@@ -105,7 +125,8 @@ export class TelegramPermissionPromptPresentationService {
     if (
       permission.requested_value &&
       !(
-        (permission.executor === 'external_executor' && ['agent_binding', 'workspace_access'].includes(permission.kind)) ||
+        (permission.executor === 'external_executor' &&
+          ['agent_binding', 'workspace_access'].includes(permission.kind)) ||
         (permission.executor === 'file_delivery' && permission.kind === 'workspace_access')
       )
     ) {
@@ -114,7 +135,8 @@ export class TelegramPermissionPromptPresentationService {
     if (
       permission.resolved_value &&
       !(
-        (permission.executor === 'external_executor' && ['agent_binding', 'workspace_access'].includes(permission.kind)) ||
+        (permission.executor === 'external_executor' &&
+          ['agent_binding', 'workspace_access'].includes(permission.kind)) ||
         (permission.executor === 'file_delivery' && permission.kind === 'workspace_access')
       )
     ) {
@@ -127,31 +149,42 @@ export class TelegramPermissionPromptPresentationService {
       summaryLines.push(`Command rule: ${this.policy.describePermissionCommandMatchType(permission)}`);
     }
 
+    // Primary next action: buttons on the card + ordinal slash (newest pending = 1).
+    // Never ask users to free-text "Approve" or paste a long UUID as primary path.
+    manualLines.push('Use the Approve / Reject buttons on this card when available.');
+    manualLines.push('Or ordinal slash: /perm approve 1 · /perm reject 1');
     if (permission.executor === 'external_executor' && permission.kind === 'workspace_access') {
-      manualLines.push(`To approve for this task only: /perm approve ${shortId} scope=once access=${this.policy.getPermissionAccessLevel(permission)}`);
-      manualLines.push(`To extend to current workspace: /perm approve ${shortId} scope=workspace access=${this.policy.getPermissionAccessLevel(permission)}`);
+      manualLines.push(
+        `Advanced once: /perm approve ${shortId} scope=once access=${this.policy.getPermissionAccessLevel(permission)}`,
+      );
+      manualLines.push(
+        `Advanced workspace: /perm approve ${shortId} scope=workspace access=${this.policy.getPermissionAccessLevel(permission)}`,
+      );
     } else if (permission.executor === 'file_delivery' && permission.kind === 'workspace_access') {
-      manualLines.push(`To approve for this task only: /perm approve ${shortId} scope=once access=${this.policy.getPermissionAccessLevel(permission)}`);
-      manualLines.push(`To extend to current Zavorth: /perm approve ${shortId} scope=workspace access=${this.policy.getPermissionAccessLevel(permission)}`);
+      manualLines.push(
+        `Advanced once: /perm approve ${shortId} scope=once access=${this.policy.getPermissionAccessLevel(permission)}`,
+      );
+      manualLines.push(
+        `Advanced project: /perm approve ${shortId} scope=workspace access=${this.policy.getPermissionAccessLevel(permission)}`,
+      );
     } else if (permission.executor === 'aistudio' && permission.kind === 'builtin_tool_access') {
-      manualLines.push(`To allow for this task only: /perm approve ${shortId} scope=once`);
-      manualLines.push(`To allow for this project: /perm approve ${shortId} scope=workspace`);
+      manualLines.push(`Advanced once: /perm approve ${shortId} scope=once`);
+      manualLines.push(`Advanced project: /perm approve ${shortId} scope=workspace`);
     } else if (permission.executor === 'aistudio' && permission.kind === 'service_access') {
-      manualLines.push(`To allow for this task only: /perm approve ${shortId} scope=once`);
-      manualLines.push(`To allow for this project: /perm approve ${shortId} scope=workspace`);
+      manualLines.push(`Advanced once: /perm approve ${shortId} scope=once`);
+      manualLines.push(`Advanced project: /perm approve ${shortId} scope=workspace`);
     } else if (permission.executor === 'zavorthBridge' && permission.kind === 'ui_permission') {
-      manualLines.push(`To approve this conversation: /perm approve ${shortId} scope=session`);
-      manualLines.push(`To approve once: /perm approve ${shortId} scope=once`);
+      manualLines.push(`Advanced session: /perm approve ${shortId} scope=session`);
+      manualLines.push(`Advanced once: /perm approve ${shortId} scope=once`);
     } else if (permission.executor === 'external_executor' && permission.kind === 'agent_binding') {
-      manualLines.push(`To use in this project: /perm approve ${shortId} scope=workspace`);
-      manualLines.push(`To save for future requests: /perm approve ${shortId} scope=persistent`);
+      manualLines.push(`Advanced project: /perm approve ${shortId} scope=workspace`);
+      manualLines.push(`Advanced persistent: /perm approve ${shortId} scope=persistent`);
     } else if (permission.kind === 'command_access') {
-      manualLines.push(`To approve: /perm approve ${shortId} match=${this.policy.getPermissionCommandMatchType(permission)}`);
-    } else {
-      manualLines.push(`To approve: /perm approve ${shortId}`);
+      manualLines.push(
+        `Advanced: /perm approve ${shortId} match=${this.policy.getPermissionCommandMatchType(permission)}`,
+      );
     }
-    manualLines.push(`To adjust first: /perm edit ${shortId} resolved=new_value scope=workspace`);
-    manualLines.push(`To reject: /perm reject ${shortId}`);
+    manualLines.push(`Adjust first: /perm edit ${shortId} resolved=new_value scope=workspace`);
 
     return this.formatter.formatPermissionPrompt({
       title: `Approval required - ${this.policy.describePermissionSubject(permission)}`,
@@ -159,7 +192,7 @@ export class TelegramPermissionPromptPresentationService {
       intro,
       summaryLines,
       actionLines,
-      manualLines: ['If you prefer, you can also use manual commands.', ...manualLines],
+      manualLines: ['Next action (buttons preferred; slash as fallback).', ...manualLines],
       technicalLines,
     });
   }

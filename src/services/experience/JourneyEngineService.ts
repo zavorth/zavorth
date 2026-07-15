@@ -19,35 +19,41 @@ function defaultSteps(kind: ExperienceJourneyKind): ExperiencePlanStep[] {
   return [
     {
       id: 'intent',
-      title: 'Intencao',
-      detail: `Jornada ${kind} pronta para linguagem natural.`,
+      title: 'Intent',
+      detail: `${kind} journey ready for natural language.`,
       status: 'done',
     },
     {
       id: 'plan',
-      title: 'Plano',
-      detail: 'Plano, riscos e proximas acoes aparecem antes de efeitos sensiveis.',
+      title: 'Plan',
+      detail: 'Plan, risks, and next actions appear before sensitive effects.',
       status: 'pending',
     },
     {
       id: 'receipt',
       title: 'Receipt',
-      detail: 'Cada acao importante precisa deixar evidencias legiveis.',
+      detail: 'Every important action must leave readable evidence.',
       status: 'pending',
     },
   ];
 }
 
 export class JourneyEngineService {
-  public buildSnapshot(input: {
-    plan?: ExperiencePlan | null;
-    activeRun?: UniversalAgentRun | null;
-  } = {}): ExperienceJourneySnapshot {
+  public buildSnapshot(
+    input: {
+      plan?: ExperiencePlan | null;
+      activeRun?: UniversalAgentRun | null;
+    } = {},
+  ): ExperienceJourneySnapshot {
     const plan = input.plan || null;
     const activeRun = input.activeRun || null;
     const kind = plan?.kind || this.kindFromRun(activeRun);
     const status = plan
-      ? (plan.requiresApproval ? 'waiting_approval' : plan.shouldExecuteAgent ? 'planning' : 'idle')
+      ? plan.requiresApproval
+        ? 'waiting_approval'
+        : plan.shouldExecuteAgent
+          ? 'planning'
+          : 'idle'
       : statusFromRun(activeRun);
 
     return {
@@ -74,15 +80,18 @@ export class JourneyEngineService {
 
   private titleFor(kind: ExperienceJourneyKind): string {
     return kind === 'conversation'
-      ? 'Conversa natural'
-      : kind.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+      ? 'Natural conversation'
+      : kind
+          .split('-')
+          .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(' ');
   }
 
   private summaryFor(kind: ExperienceJourneyKind): string {
     if (kind === 'conversation') {
-      return 'Fale normalmente; o Zavorth roteia, executa e explica quando precisa de aprovacao.';
+      return 'Speak naturally; Zavorth routes, executes, and explains when approval is needed.';
     }
-    return 'Jornada governada pronta para plano, execucao, validacao, receipt e aprendizado.';
+    return 'Governed journey ready for plan, execution, validation, receipt, and learning.';
   }
 
   private stepsFromRun(run: UniversalAgentRun | null, kind: ExperienceJourneyKind): ExperiencePlanStep[] {

@@ -20,13 +20,42 @@ describe('SharedSurfaceCommandService', () => {
     (config as any).zavorthSelfmodPolicy = originalSelfmodPolicy;
   });
 
-  it('routes natural memory search requests through the shared surface', async () => {
+  it('does not keyword-route free-text memory search (agent-first purity)', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
       rawText: 'procure na memoria por gateway release',
+      reply: jest.fn(async () => undefined),
+      editMessage: jest.fn(async () => undefined),
+    };
+    const layeredMemoryService = {
+      buildStatus: jest.fn(),
+      search: jest.fn(async () => ({ generatedAt: '', query: '', total: 0, data: [] })),
+      readProcedures: jest.fn(),
+    };
+    const service = new SharedSurfaceCommandService({
+      runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
+      supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
+      autoRepairService: { summarizeLastRun: jest.fn(), run: jest.fn() } as any,
+      layeredMemoryService: layeredMemoryService as any,
+    });
+
+    const handled = await service.maybeHandle(ctx as any);
+
+    expect(handled).toBe(false);
+    expect(layeredMemoryService.search).not.toHaveBeenCalled();
+    expect(ctx.reply).not.toHaveBeenCalled();
+  });
+
+  it('routes /memory search through layered memory on the shared surface', async () => {
+    const ctx = {
+      platform: 'telegram',
+      userId: 'telegram-user',
+      chatId: 'telegram:chat-1',
+      isGroup: false,
+      rawText: '/memory search gateway release',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -66,8 +95,9 @@ describe('SharedSurfaceCommandService', () => {
         userId: 'telegram-user',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('procurar "gateway release" na memoria'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Layered memory do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth layered memory'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Query: gateway release'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Gateway release'));
   });
 
   it('allows Discord operational commands for configured owners in direct messages', async () => {
@@ -130,7 +160,11 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.not.stringContaining('/reload'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Comandos operacionais ficam restritos'));
+    // EN-canonical product copy (device locale + EN fallback; PT is not primary).
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Operational commands stay restricted to the owner'),
+    );
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learn = skill drafts · /learning = candidates'));
   });
 
   it('handles natural-language ZavorthBridge mobile requests through the shared surface', async () => {
@@ -317,13 +351,14 @@ describe('SharedSurfaceCommandService', () => {
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('http://127.0.0.1:21128/v1'));
   });
 
-  it('advertises operational commands in Discord help for operators', async () => {
+  it('advertises operational commands in Discord advanced help for operators', async () => {
+    // Daily /help stays lean; power tools live under /help advanced.
     const ctx = {
       platform: 'discord',
       userId: 'discord-owner',
       chatId: 'discord:dm:owner',
       isGroup: false,
-      rawText: '/help',
+      rawText: '/help advanced',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -343,6 +378,8 @@ describe('SharedSurfaceCommandService', () => {
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/reload'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/autorepair'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learn = skill drafts · /learning = candidates'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Owner operational tools are available'));
   });
 
   it('blocks Discord operational commands for the owner inside public guild channels', async () => {
@@ -370,7 +407,7 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('DM owner-only'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('not exposed in this Discord channel'));
     expect(autoRepairService.run).not.toHaveBeenCalled();
   });
 
@@ -385,7 +422,7 @@ describe('SharedSurfaceCommandService', () => {
       editMessage: jest.fn(async () => undefined),
     };
     const sessionPlaneService = {
-      renderOverviewReport: jest.fn(async () => 'Session plane do Zavorth\n\nResumo'),
+      renderOverviewReport: jest.fn(async () => 'Zavorth session plane\n\nResumo'),
     };
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
@@ -404,7 +441,7 @@ describe('SharedSurfaceCommandService', () => {
         chatId: 'telegram:chat-1',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Session plane do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth session plane'));
   });
 
   it('renders the memory plane through the shared command surface', async () => {
@@ -476,7 +513,7 @@ describe('SharedSurfaceCommandService', () => {
         chatId: 'telegram:chat-1',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Retomada e entregas do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth resume and deliveries'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('briefing-final.md'));
   });
 
@@ -560,7 +597,7 @@ describe('SharedSurfaceCommandService', () => {
       candidateId: 'candidate:wf-1',
       actionId: 'promote',
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Learning plane do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Learning plane (candidates)'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('trusted local'));
   });
 
@@ -619,7 +656,7 @@ describe('SharedSurfaceCommandService', () => {
         userId: 'telegram-user',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Layered memory do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth layered memory'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Gateway release'));
   });
 
@@ -668,7 +705,7 @@ describe('SharedSurfaceCommandService', () => {
         chatId: 'telegram:chat-1',
       }),
     );
-    expect(ctx.reply.mock.calls[0][0]).toContain('Gateway do Zavorth');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Zavorth Gateway');
     expect(ctx.reply.mock.calls[0][0]).toContain('Gateway ready.');
   });
 
@@ -730,7 +767,7 @@ describe('SharedSurfaceCommandService', () => {
         chatId: 'telegram:chat-1',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Tool Surface do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth Tool Surface'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Plano oficial de tools.'));
   });
 
@@ -792,9 +829,11 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(hookPlaneService.buildSnapshot).toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Hook Plane do Zavorth'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Filtro atual: transport'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Workspace Alpha: transport.before_action -> npm run hooks:transport:before'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth Hook Plane'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Current filter: transport'));
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Workspace Alpha: transport.before_action -> npm run hooks:transport:before'),
+    );
   });
 
   it('renders a focused tool inspection when /tools receives a filter', async () => {
@@ -857,16 +896,17 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
+    // NaturalSlashConvention free-text policy prefixes tools filters with "search".
     expect(toolSurfaceService.buildSnapshot).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: 'telegram-user',
         chatId: 'telegram:chat-1',
-        query: 'read_file',
-        selectedId: 'read_file',
+        query: 'search read_file',
+        selectedId: 'search read_file',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Filtro atual: read_file'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Em foco: read_file'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Current filter: search read_file'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('In focus: read_file'));
   });
 
   it('dispatches sessionsend through the session plane', async () => {
@@ -910,7 +950,9 @@ describe('SharedSurfaceCommandService', () => {
         text: 'continue o plano',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Mensagem despachada para a sessao.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Message dispatched to the session.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('task-2'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('web:session-2'));
   });
 
   it('creates a device-profile pairing draft through the shared command surface', async () => {
@@ -928,7 +970,8 @@ describe('SharedSurfaceCommandService', () => {
         pairingCode: 'PAIR-CODE-1',
         bootstrap: {
           packageScript: 'companion:start',
-          command: 'npm run companion:start -- --passcode \"oracle-node:PAIR-CODE-1\" --base-url http://127.0.0.1:33333 --node-id oracle-node --workspace \"C:/workspace/demo\" --label \"Oracle Node\" --surface desktop --capabilities screen.capture,notifications.send,clipboard.read',
+          command:
+            'npm run companion:start -- --passcode \"oracle-node:PAIR-CODE-1\" --base-url http://127.0.0.1:33333 --node-id oracle-node --workspace \"C:/workspace/demo\" --label \"Oracle Node\" --surface desktop --capabilities screen.capture,notifications.send,clipboard.read',
           fallbackCommand: 'node apps/zavorth-companion/index.js \"oracle-node:PAIR-CODE-1\"',
           pairingToken: 'oracle-node:PAIR-CODE-1',
           workspaceHint: 'C:/workspace/demo',
@@ -963,7 +1006,7 @@ describe('SharedSurfaceCommandService', () => {
         requestedBy: 'telegram-user',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Perfil: Desktop Companion.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Profile: Desktop Companion.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Pairing code: PAIR-CODE-1.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('npm run companion:start --'));
   });
@@ -1014,10 +1057,10 @@ describe('SharedSurfaceCommandService', () => {
     await service.maybeHandle(snapshotCtx as any);
     await service.maybeHandle(invokeCtx as any);
 
-    expect(snapshotCtx.reply).toHaveBeenCalledWith(expect.stringContaining(`Node em foco: Oracle Worker.`));
+    expect(snapshotCtx.reply).toHaveBeenCalledWith(expect.stringContaining(`Node in focus: Oracle Worker.`));
     expect(snapshotCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Queue: 0 pending / 0 claimed.'));
-    expect(invokeCtx.reply).toHaveBeenCalledWith(expect.stringContaining('O node ainda nao concluiu o pareamento'));
-    expect(invokeCtx.reply).not.toHaveBeenCalledWith(expect.stringContaining('Node nao encontrado no registry atual.'));
+    expect(invokeCtx.reply).toHaveBeenCalledWith(expect.stringContaining('has not finished pairing'));
+    expect(invokeCtx.reply).not.toHaveBeenCalledWith(expect.stringContaining('Node not found in the current registry'));
   });
 
   it('renders node profiles through /nodes profiles on the shared command surface', async () => {
@@ -1039,7 +1082,7 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Perfis do Node Mesh'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Node Mesh profiles'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Headless Worker [headless-worker]'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Desktop Companion [desktop-companion]'));
   });
@@ -1063,7 +1106,7 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Capabilities do Node Mesh'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Node Mesh capabilities'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Browser Proxy [browser.proxy]'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Files Watch [files.watch]'));
   });
@@ -1152,9 +1195,9 @@ describe('SharedSurfaceCommandService', () => {
     await service.maybeHandle(historyCtx as any);
 
     expect(nodeMeshService.buildSnapshot).toHaveBeenCalledWith({ selectedNodeId: 'oracle-node' });
-    expect(queueCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Fila do Node Mesh'));
+    expect(queueCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Node Mesh queue'));
     expect(queueCtx.reply).toHaveBeenCalledWith(expect.stringContaining('files.watch (pending)'));
-    expect(historyCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Historico do Node Mesh'));
+    expect(historyCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Node Mesh history'));
     expect(historyCtx.reply).toHaveBeenCalledWith(expect.stringContaining('browser.proxy (completed)'));
   });
 
@@ -1169,7 +1212,7 @@ describe('SharedSurfaceCommandService', () => {
       editMessage: jest.fn(async () => undefined),
     };
     const pluginRegistryService = {
-      renderCatalogReport: jest.fn(() => 'Plugin plane do Zavorth\n\nOpenRouter'),
+      renderCatalogReport: jest.fn(() => 'Plugin plane\n\nOpenRouter'),
     };
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
@@ -1181,20 +1224,56 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
+    // NaturalSlashConvention free-text policy prefixes plugins filters with "search".
     expect(pluginRegistryService.renderCatalogReport).toHaveBeenCalledWith({
-      selectedId: 'openrouter',
-      query: 'openrouter',
+      selectedId: 'search openrouter',
+      query: 'search openrouter',
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Plugin plane do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Plugin plane'));
   });
 
-  it('routes natural agent and skill invocation before generic task dispatch', async () => {
+  it('does not keyword-route free-text natural agent invocation (agent-first purity)', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
       rawText: 'mande um agente pesquisar e outro validar canais',
+      reply: jest.fn(async () => undefined),
+      editMessage: jest.fn(async () => undefined),
+    };
+    const plan = jest.fn();
+    const surfaceTaskDispatcher = {
+      dispatch: jest.fn(),
+      dispatchFromSurface: jest.fn(),
+    };
+    const service = new SharedSurfaceCommandService({
+      runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
+      supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
+      autoRepairService: { summarizeLastRun: jest.fn(), run: jest.fn() } as any,
+      naturalInvocationRouterService: {
+        plan,
+        renderPlan: jest.fn(),
+      } as any,
+      surfaceTaskDispatcher: surfaceTaskDispatcher as any,
+    });
+
+    const handled = await service.maybeHandle(ctx as any);
+
+    expect(handled).toBe(false);
+    expect(plan).not.toHaveBeenCalled();
+    expect(surfaceTaskDispatcher.dispatch).not.toHaveBeenCalled();
+    expect(surfaceTaskDispatcher.dispatchFromSurface).not.toHaveBeenCalled();
+    expect(ctx.reply).not.toHaveBeenCalled();
+  });
+
+  it('routes /invoke natural agent and skill requests before generic task dispatch', async () => {
+    const ctx = {
+      platform: 'telegram',
+      userId: 'telegram-user',
+      chatId: 'telegram:chat-1',
+      isGroup: false,
+      rawText: '/invoke mande um agente pesquisar e outro validar canais',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -1260,15 +1339,17 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(plan).toHaveBeenCalledWith(expect.objectContaining({
-      text: 'mande um agente pesquisar e outro validar canais',
-      autoExecute: true,
-      channel: 'telegram',
-      actorId: 'telegram-user',
-    }));
+    expect(plan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: 'mande um agente pesquisar e outro validar canais',
+        autoExecute: true,
+        channel: 'telegram',
+        actorId: 'telegram-user',
+      }),
+    );
     expect(surfaceTaskDispatcher.dispatch).not.toHaveBeenCalled();
     expect(surfaceTaskDispatcher.dispatchFromSurface).not.toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acao: spawn_team'), expect.anything());
+    const replyText = ctx.reply.mock.calls.map((call: unknown[]) => String(call[0] || '')).join('\n');
+    expect(replyText).toContain('Action: spawn_team');
   });
-
 });

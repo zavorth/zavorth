@@ -43,16 +43,33 @@ import { GatewaySessionToolsService } from './ZavorthControlServiceDependencies.
 import { WorkspaceOperationalMemoryService } from './ZavorthControlServiceDependencies.js';
 import { MemoryService } from './ZavorthControlServiceDependencies.js';
 import { SessionContinuityService } from './ZavorthControlServiceDependencies.js';
-import { WebRuntimeChannelAdapter, TelegramRuntimeChannelAdapter, DiscordRuntimeChannelAdapter, SlackRuntimeChannelAdapter, SignalRuntimeChannelAdapter, IMessageRuntimeChannelAdapter, TeamsRuntimeChannelAdapter, EmailRuntimeChannelAdapter, WhatsAppRuntimeChannelAdapter } from './ZavorthControlServiceDependencies.js';
+import {
+  WebRuntimeChannelAdapter,
+  TelegramRuntimeChannelAdapter,
+  DiscordRuntimeChannelAdapter,
+  SlackRuntimeChannelAdapter,
+  SignalRuntimeChannelAdapter,
+  IMessageRuntimeChannelAdapter,
+  TeamsRuntimeChannelAdapter,
+  EmailRuntimeChannelAdapter,
+  WhatsAppRuntimeChannelAdapter,
+} from './ZavorthControlServiceDependencies.js';
 import type { TaskManager } from '../../../../../orchestrator/TaskManager.js';
 import type { PermissionService } from '../../../../../services/PermissionService.js';
 import type { LiveChannelGatewayContract } from '../../../../../contracts/PlatformContract.js';
 import type { ChannelAdapterContract } from '../../../../../contracts/ChannelMeshContract.js';
 import type { ZavorthControlEchoRouteService } from '../ZavorthControlEchoRouteService.js';
-import type { NodeInvokeService, NodeHeartbeatService, NodePairingService } from './ZavorthControlServiceDependencies.js';
+import type {
+  NodeInvokeService,
+  NodeHeartbeatService,
+  NodePairingService,
+} from './ZavorthControlServiceDependencies.js';
 
 type RuntimeAwareChannelGateway = LiveChannelGatewayContract;
-type ChannelAdapterConstructor = new (gateway: RuntimeAwareChannelGateway, hasDispatcher: boolean) => ChannelAdapterContract;
+type ChannelAdapterConstructor = new (
+  gateway: RuntimeAwareChannelGateway,
+  hasDispatcher: boolean,
+) => ChannelAdapterContract;
 
 export interface ZavorthControlFacadeCompat {
   reportTaskManager: TaskManager | null;
@@ -199,7 +216,9 @@ export function buildRuntimeChannelAdapters(service: ZavorthControlFacadeCompat)
   return adapters;
 }
 
-export function buildRuntimeChannelAdapterRegistryService(service: ZavorthControlFacadeCompat): GatewayChannelAdapterRegistryService {
+export function buildRuntimeChannelAdapterRegistryService(
+  service: ZavorthControlFacadeCompat,
+): GatewayChannelAdapterRegistryService {
   const hasRuntimeBackbone = Boolean(service.reportTaskManager && service.reportPermissionService);
   return new GatewayChannelAdapterRegistryService({
     hasDispatcher: hasRuntimeBackbone,
@@ -228,7 +247,10 @@ export function buildChannelActionService(service: ZavorthControlFacadeCompat): 
   });
 }
 
-export function refreshRuntimeBackedReporting(service: ZavorthControlFacadeCompat, runtime: ZavorthControlRuntimeCompat): void {
+export function refreshRuntimeBackedReporting(
+  service: ZavorthControlFacadeCompat,
+  runtime: ZavorthControlRuntimeCompat,
+): void {
   service.reportTaskManager = runtime.taskManager || null;
   service.reportPermissionService = runtime.permissionService || null;
   service.sessionContinuity = runtime.taskManager ? new SessionContinuityService(runtime.taskManager) : null;
@@ -269,7 +291,8 @@ export function rebuildRuntimeDependentServices(service: ZavorthControlFacadeCom
   if (!service.remoteTransportDoctorInjected || !service.remoteTransportsInjected) {
     service.remoteTransportDoctor = buildRemoteTransportDoctorService(service);
   }
-  if (!service.remoteTransportActionsInjected) service.remoteTransportActions = buildRemoteTransportActionService(service);
+  if (!service.remoteTransportActionsInjected)
+    service.remoteTransportActions = buildRemoteTransportActionService(service);
   if (!service.nodePairingInjected) service.nodePairing = buildNodePairingService(service);
   if (!service.pluginRegistryInjected) service.pluginRegistry = buildPluginRegistryService(service);
   if (!service.platformRegistryInjected) service.platformRegistry = buildPlatformRegistryService(service);
@@ -292,16 +315,15 @@ export function syncWebAppOperationsServices(service: ZavorthControlFacadeCompat
 }
 
 export function buildZavorthControlOperationsRouteDeps(service: ZavorthControlFacadeCompat): any {
-  return service.operationsDepsBridge.buildRouteDeps(
-    service as any,
-    {
-      workspaceRoot: config.projectRoot || process.cwd(),
-      continuityUserId: service.continuityUserId || config.allowedUserIds[0] || '1',
-    },
-  );
+  return service.operationsDepsBridge.buildRouteDeps(service as any, {
+    workspaceRoot: config.projectRoot || process.cwd(),
+    continuityUserId: service.continuityUserId || config.allowedUserIds[0] || '1',
+  });
 }
 
-export function buildZavorthControlPresentationInput(service: ZavorthControlFacadeCompat): ZavorthControlRouteDepsCompat {
+export function buildZavorthControlPresentationInput(
+  service: ZavorthControlFacadeCompat,
+): ZavorthControlRouteDepsCompat {
   return {
     host: service.host,
     port: service.port,
@@ -320,23 +342,25 @@ export function attachChatRuntime(service: ZavorthControlFacadeCompat, runtime: 
   service.webApp.attachRuntime(canonicalRuntime as any);
   refreshRuntimeBackedReporting(service, canonicalRuntime);
   rebuildRuntimeDependentServices(service);
-  service.agentOperatingSystemActions = new (require('./ZavorthControlServiceDependencies.js').ZavorthAgentOperatingSystemActionService)({
-    workflowController: canonicalRuntime.workflowController || null,
-    teamCatalogService: service.teamCatalog,
-    agentOperatingSystemService: service.agentOperatingSystem,
-    capabilityCatalogService: service.capabilityCatalog,
-  });
-  service.tenantGovernanceActions = new (require('./ZavorthControlServiceDependencies.js').ZavorthTenantGovernanceActionService)({
-    tenantGovernanceService: service.tenantGovernance,
-    teamCatalogService: service.teamCatalog,
-    channelMeshService: service.channelMesh,
-    memoryPlaneService: service.memoryPlane,
-    runtimeModesService: service.runtimeModes,
-    securityMeshService: service.securityMesh,
-    sessionPlaneService: service.sessionPlane,
-    workflowController: canonicalRuntime.workflowController || null,
-    runtimeUserId: canonicalRuntime.webUserId || service.continuityUserId || config.allowedUserIds[0] || '1',
-  });
+  service.agentOperatingSystemActions =
+    new (require('./ZavorthControlServiceDependencies.js').ZavorthAgentOperatingSystemActionService)({
+      workflowController: canonicalRuntime.workflowController || null,
+      teamCatalogService: service.teamCatalog,
+      agentOperatingSystemService: service.agentOperatingSystem,
+      capabilityCatalogService: service.capabilityCatalog,
+    });
+  service.tenantGovernanceActions =
+    new (require('./ZavorthControlServiceDependencies.js').ZavorthTenantGovernanceActionService)({
+      tenantGovernanceService: service.tenantGovernance,
+      teamCatalogService: service.teamCatalog,
+      channelMeshService: service.channelMesh,
+      memoryPlaneService: service.memoryPlane,
+      runtimeModesService: service.runtimeModes,
+      securityMeshService: service.securityMesh,
+      sessionPlaneService: service.sessionPlane,
+      workflowController: canonicalRuntime.workflowController || null,
+      runtimeUserId: canonicalRuntime.webUserId || service.continuityUserId || config.allowedUserIds[0] || '1',
+    });
   service.codexRemoteActions = new (require('./ZavorthControlServiceDependencies.js').CodexRemoteActionService)({
     controlPlaneService: service.codexRemote,
     permissionService: service.reportPermissionService || null,
@@ -345,7 +369,10 @@ export function attachChatRuntime(service: ZavorthControlFacadeCompat, runtime: 
   syncWebAppOperationsServices(service);
 }
 
-export function attachChannelBroadcastGateways(service: ZavorthControlFacadeCompat, gateways: ZavorthControlGatewayMapCompat): void {
+export function attachChannelBroadcastGateways(
+  service: ZavorthControlFacadeCompat,
+  gateways: ZavorthControlGatewayMapCompat,
+): void {
   service.channelBroadcastGateways = gateways;
   if (!service.channelMeshInjected) service.channelMesh = buildChannelMeshService(service);
   if (!service.gatewayInjected) service.gateway = buildGatewayService(service);
@@ -356,7 +383,10 @@ export function attachChannelBroadcastGateways(service: ZavorthControlFacadeComp
   syncWebAppOperationsServices(service);
 }
 
-export function attachChannelIngressGateways(service: ZavorthControlFacadeCompat, gateways: ZavorthControlGatewayMapCompat): void {
+export function attachChannelIngressGateways(
+  service: ZavorthControlFacadeCompat,
+  gateways: ZavorthControlGatewayMapCompat,
+): void {
   service.slackIngressGateway = gateways.slack || null;
   service.teamsIngressGateway = gateways.teams || null;
   service.whatsappIngressGateway = gateways.whatsapp || null;
@@ -371,22 +401,22 @@ export function buildHookPlaneService(service: ZavorthControlFacadeCompat): Zavo
 }
 
 export function buildMemoryPlaneService(service: ZavorthControlFacadeCompat): ZavorthMemoryPlaneService {
-  const gatewayReadModel = (service.reportTaskManager || service.reportPermissionService)
-    ? new GatewaySessionReadModelService(new GatewaySessionService({
-        taskManager: service.reportTaskManager || null,
-        permissionService: service.reportPermissionService || null,
-        workflowRunService: service.workflowRuns,
-      }))
-    : null;
+  const gatewayReadModel =
+    service.reportTaskManager || service.reportPermissionService
+      ? new GatewaySessionReadModelService(
+          new GatewaySessionService({
+            taskManager: service.reportTaskManager || null,
+            permissionService: service.reportPermissionService || null,
+            workflowRunService: service.workflowRuns,
+          }),
+        )
+      : null;
   return new ZavorthMemoryPlaneService({
     gatewaySessionReadModelService: gatewayReadModel || undefined,
     memoryService: new MemoryService(),
     workspaceOperationalMemoryService:
       service.reportTaskManager && service.reportPermissionService
-        ? new WorkspaceOperationalMemoryService(
-            service.reportTaskManager,
-            service.reportPermissionService,
-          )
+        ? new WorkspaceOperationalMemoryService(service.reportTaskManager, service.reportPermissionService)
         : undefined,
   });
 }
@@ -470,7 +500,9 @@ export function buildLayeredMemoryService(service: ZavorthControlFacadeCompat): 
   } as any);
 }
 
-export function buildRemoteTransportActionService(service: ZavorthControlFacadeCompat): ZavorthRemoteTransportActionService {
+export function buildRemoteTransportActionService(
+  service: ZavorthControlFacadeCompat,
+): ZavorthRemoteTransportActionService {
   return new ZavorthRemoteTransportActionService({
     remoteTransportService: service.remoteTransports,
   });
@@ -525,15 +557,16 @@ export function buildSessionPlaneService(service: ZavorthControlFacadeCompat): Z
 }
 
 export function buildSessionToolsService(service: ZavorthControlFacadeCompat): ZavorthSessionToolsService {
-  const gatewayReadModel = (service.reportTaskManager || service.reportPermissionService)
-    ? new GatewaySessionReadModelService(
-        new GatewaySessionService({
-          taskManager: service.reportTaskManager || null,
-          permissionService: service.reportPermissionService || null,
-          workflowRunService: service.workflowRuns,
-        }),
-      )
-    : null;
+  const gatewayReadModel =
+    service.reportTaskManager || service.reportPermissionService
+      ? new GatewaySessionReadModelService(
+          new GatewaySessionService({
+            taskManager: service.reportTaskManager || null,
+            permissionService: service.reportPermissionService || null,
+            workflowRunService: service.workflowRuns,
+          }),
+        )
+      : null;
   return new ZavorthSessionToolsService({
     taskManager: service.reportTaskManager || null,
     workflowRunService: service.workflowRuns,
@@ -573,20 +606,20 @@ export function buildGatewayService(service: ZavorthControlFacadeCompat): Zavort
   });
 }
 
-export function routeRequest(service: ZavorthControlFacadeCompat, req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
+export function routeRequest(
+  service: ZavorthControlFacadeCompat,
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+): Promise<void> {
   const url = new URL(req.url || '/', service.getUrl());
   const pathname = service.httpSupport.normalizePath(url.pathname);
   const presentationInput = buildZavorthControlPresentationInput(service);
   const presentationSource = service;
 
-  service.httpSupport.applyCorsHeaders(
-    req,
-    res,
-    service.presentationDepsBridge.buildHttpCorsDeps(presentationInput),
-  );
-    if (service.httpSupport.handlePreflight(req, res)) {
-      return Promise.resolve();
-    }
+  service.httpSupport.applyCorsHeaders(req, res, service.presentationDepsBridge.buildHttpCorsDeps(presentationInput));
+  if (service.httpSupport.handlePreflight(req, res)) {
+    return Promise.resolve();
+  }
 
   return (async () => {
     if (isRetiredControlSurfacePath(pathname)) {
@@ -609,22 +642,17 @@ export function routeRequest(service: ZavorthControlFacadeCompat, req: http.Inco
     }
 
     if (
-      pathname === '/zavorthControl'
-      || pathname === '/zavorthControl/'
-      || pathname === '/zavorthControl'
-      || pathname === '/zavorthControl/'
+      pathname === '/zavorthControl' ||
+      pathname === '/zavorthControl/' ||
+      pathname === '/zavorthControl' ||
+      pathname === '/zavorthControl/'
     ) {
       if (serveZavorthControlAsset(res, 'index.html')) return;
       service.responseWriter.writeText(res, 'ZavorthControl not found', 404);
       return;
     }
 
-
-    if (
-      pathname.startsWith('/styles/') ||
-      pathname.startsWith('/scripts/') ||
-      pathname.startsWith('/assets/')
-    ) {
+    if (pathname.startsWith('/styles/') || pathname.startsWith('/scripts/') || pathname.startsWith('/assets/')) {
       if (serveZavorthControlAsset(res, pathname.slice(1))) return;
       service.responseWriter.writeText(res, 'Asset not found', 404);
       return;
@@ -662,7 +690,7 @@ export function routeRequest(service: ZavorthControlFacadeCompat, req: http.Inco
     ) {
       service.responseWriter.writeJson(
         res,
-        { ok: false, error: 'ZavorthControl classico permitido apenas localmente ou com token valido.' },
+        { ok: false, error: 'Classic ZavorthControl allowed only locally or with a valid token.' },
         403,
       );
       return;
@@ -687,17 +715,12 @@ export function routeRequest(service: ZavorthControlFacadeCompat, req: http.Inco
     if (handledOperations) return;
 
     if (pathname.startsWith('/api/v2/echo/') || pathname.startsWith('/api/v2/nexus/')) {
-      const handledEcho = await service.echoRoutes.handleRequest(
-        req,
-        res,
-        url,
-        pathname,
-        {
-          echo: service.echoService,
-          writeJson: (r: http.ServerResponse, body: unknown, status?: number) => service.responseWriter.writeJson(r, body, status),
-          agentGateway: (service.agentGateway || null) as any,
-        },
-      );
+      const handledEcho = await service.echoRoutes.handleRequest(req, res, url, pathname, {
+        echo: service.echoService,
+        writeJson: (r: http.ServerResponse, body: unknown, status?: number) =>
+          service.responseWriter.writeJson(r, body, status),
+        agentGateway: (service.agentGateway || null) as any,
+      });
       if (handledEcho) return;
     }
 
@@ -723,17 +746,18 @@ function serveZavorthControlAsset(res: http.ServerResponse, relativePath: string
 }
 
 function isRetiredControlSurfacePath(pathname: string): boolean {
-  return pathname === '/control/review'
-    || pathname === '/control/review/';
+  return pathname === '/control/review' || pathname === '/control/review/';
 }
 
 function isLegacyWebSurfacePath(pathname: string): boolean {
-  return pathname === '/app'
-    || pathname === '/app/'
-    || pathname === '/app.js'
-    || pathname === '/styles.css'
-    || pathname === '/classic'
-    || pathname === '/classic/';
+  return (
+    pathname === '/app' ||
+    pathname === '/app/' ||
+    pathname === '/app.js' ||
+    pathname === '/styles.css' ||
+    pathname === '/classic' ||
+    pathname === '/classic/'
+  );
 }
 
 function contentTypeFor(filePath: string): string {
@@ -748,7 +772,11 @@ function contentTypeFor(filePath: string): string {
   return 'application/octet-stream';
 }
 
-export function handleOperationsActionRequest(service: ZavorthControlFacadeCompat, req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
+export function handleOperationsActionRequest(
+  service: ZavorthControlFacadeCompat,
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+): Promise<void> {
   return service.operationsRoutes.handleOperationsActionRequest(
     req,
     res,
@@ -763,14 +791,19 @@ export function getClassicZavorthControlHtml(service: ZavorthControlFacadeCompat
   if (service.operationsHealthInjected) {
     const operationsHealthSnapshot = service.operationsHealth.readSnapshot() as any;
     const lastAudit = operationsHealthSnapshot?.security?.lastAudit || null;
-    auditTrailSummary = Number(lastAudit?.totalEvents || 0) > 0
-      ? `Trilha: ${String(lastAudit.totalEvents)} evento(s) | ultimo ${String(lastAudit.latestEventType || 'n/d')} | hash ${String(lastAudit.latestChainHash || '').slice(0, 10)}`
-      : null;
-    auditReplaySummary = Array.isArray(lastAudit?.recentChain) && lastAudit.recentChain.length
-      ? `Replay: ${lastAudit.recentChain
-          .map((entry: { eventType?: string; taskId?: string }) => `${String(entry?.eventType || 'evento')} -> ${String(entry?.taskId || 'task')}`)
-          .join(' | ')}`
-      : null;
+    auditTrailSummary =
+      Number(lastAudit?.totalEvents || 0) > 0
+        ? `Trail: ${String(lastAudit.totalEvents)} event(s) | last ${String(lastAudit.latestEventType || 'n/a')} | hash ${String(lastAudit.latestChainHash || '').slice(0, 10)}`
+        : null;
+    auditReplaySummary =
+      Array.isArray(lastAudit?.recentChain) && lastAudit.recentChain.length
+        ? `Replay: ${lastAudit.recentChain
+            .map(
+              (entry: { eventType?: string; taskId?: string }) =>
+                `${String(entry?.eventType || 'event')} -> ${String(entry?.taskId || 'task')}`,
+            )
+            .join(' | ')}`
+        : null;
   }
 
   return service.classicAssets.render({

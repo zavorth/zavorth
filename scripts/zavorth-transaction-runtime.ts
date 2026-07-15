@@ -1,6 +1,9 @@
+import type { ZavorthTransactionConnectorMode } from '../src/contracts/ZavorthTransactionConnectorContract.js';
 import type {
-  ZavorthTransactionConnectorMode,
-} from '../src/contracts/ZavorthTransactionConnectorContract.js';
+  ZavorthTransactionIntentKind,
+  ZavorthTransactionIntentTargetKind,
+} from '../src/contracts/ZavorthTransactionIntentContract.js';
+import type { ZavorthTransactionActionKind } from '../src/contracts/ZavorthTransactionPlaneContract.js';
 import { ZavorthTransactionApprovalLedgerService } from '../src/services/ZavorthTransactionApprovalLedgerService.js';
 import { ZavorthTransactionConnectorRegistryService } from '../src/services/ZavorthTransactionConnectorRegistryService.js';
 import { ZavorthTransactionCredentialRefService } from '../src/services/ZavorthTransactionCredentialRefService.js';
@@ -13,6 +16,9 @@ type CliOptions = {
   reject: boolean;
   requireCredential: boolean;
   text?: string;
+  kind?: ZavorthTransactionIntentKind;
+  actionKind?: ZavorthTransactionActionKind;
+  targetKind?: ZavorthTransactionIntentTargetKind;
   mode?: ZavorthTransactionConnectorMode;
   credentialRef?: string;
   connectorId?: string;
@@ -49,6 +55,9 @@ if (!options.text) {
 
 const result = service.run({
   text: options.text,
+  kind: options.kind,
+  actionKind: options.actionKind,
+  targetKind: options.targetKind,
   channel: 'cli',
   mode: options.mode,
   approve: options.approve,
@@ -89,6 +98,21 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
     } else if (arg?.startsWith('--text=')) {
       options.text = arg.slice('--text='.length);
+    } else if (arg === '--kind') {
+      options.kind = args[index + 1] as ZavorthTransactionIntentKind;
+      index += 1;
+    } else if (arg?.startsWith('--kind=')) {
+      options.kind = arg.slice('--kind='.length) as ZavorthTransactionIntentKind;
+    } else if (arg === '--action-kind') {
+      options.actionKind = args[index + 1] as ZavorthTransactionActionKind;
+      index += 1;
+    } else if (arg?.startsWith('--action-kind=')) {
+      options.actionKind = arg.slice('--action-kind='.length) as ZavorthTransactionActionKind;
+    } else if (arg === '--target-kind') {
+      options.targetKind = args[index + 1] as ZavorthTransactionIntentTargetKind;
+      index += 1;
+    } else if (arg?.startsWith('--target-kind=')) {
+      options.targetKind = arg.slice('--target-kind='.length) as ZavorthTransactionIntentTargetKind;
     } else if (arg === '--mode') {
       options.mode = normalizeMode(args[index + 1]);
       index += 1;
@@ -121,7 +145,9 @@ function parseArgs(args: string[]): CliOptions {
 }
 
 function normalizeMode(value: string | undefined): ZavorthTransactionConnectorMode | undefined {
-  const normalized = String(value ?? '').trim().toLowerCase();
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'dry-run' || normalized === 'sandbox' || normalized === 'paper') {
     return normalized;
   }

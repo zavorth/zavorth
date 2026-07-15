@@ -6,10 +6,7 @@
 
 import type { SurfaceProfile } from '../../surface-affordance/index.js';
 import { isSurfaceAffordanceEnabled } from '../../surface-affordance/index.js';
-import {
-  SEMANTIC_INTERACTION_CONTRACT_VERSION,
-  type SemanticInteractionEvent,
-} from './SemanticInteractionContract.js';
+import { SEMANTIC_INTERACTION_CONTRACT_VERSION, type SemanticInteractionEvent } from './SemanticInteractionContract.js';
 import { parseSurfaceInteraction } from './parseSurfaceInteraction.js';
 import { getDefaultZavorthSpeechToTextAdapter } from './ZavorthSpeechToTextBridge.js';
 import { getVoicePreferenceService } from '../../../../../services/voice/VoicePreferenceService.js';
@@ -74,11 +71,7 @@ export function isVoiceReplyEnabled(profile?: SurfaceProfile | null): boolean {
   return isSurfaceAffordanceEnabled(profile, 'voice_reply');
 }
 
-function blockedEvent(
-  input: ProcessVoiceReplyInput,
-  reason: string,
-  raw = '',
-): SemanticInteractionEvent {
+function blockedEvent(input: ProcessVoiceReplyInput, reason: string, raw = ''): SemanticInteractionEvent {
   return {
     version: SEMANTIC_INTERACTION_CONTRACT_VERSION,
     surface: String(input.surface || 'plain').toLowerCase(),
@@ -104,10 +97,11 @@ function blockedEvent(
  * Process a voice reply into the same SemanticInteractionEvent as text/slash.
  * Does not execute approvals — caller uses toPermissionApprovalArgs(event).
  */
-export async function processVoiceReply(
-  input: ProcessVoiceReplyInput,
-): Promise<ProcessVoiceReplyResult> {
-  const surface = String(input.surface || 'plain').trim().toLowerCase() || 'plain';
+export async function processVoiceReply(input: ProcessVoiceReplyInput): Promise<ProcessVoiceReplyResult> {
+  const surface =
+    String(input.surface || 'plain')
+      .trim()
+      .toLowerCase() || 'plain';
 
   if (input.profile && !isVoiceReplyEnabled(input.profile)) {
     return {
@@ -122,9 +116,9 @@ export async function processVoiceReply(
   let sttResult: SpeechToTextResult | null = null;
 
   if (!transcript) {
-    // Phase 1: refuse silent product defaults — require user/env STT preference.
+    // refuse silent product defaults — require user/env STT preference.
     const sttResolved = getVoicePreferenceService().resolveStt();
-    if (!sttResolved.ok && !input.stt) {
+    if (sttResolved.ok === false && !input.stt) {
       return {
         ok: false,
         code: 'stt_not_configured',
@@ -216,9 +210,7 @@ export async function processVoiceReply(
 /**
  * Minimal passthrough STT for tests / when host already transcribed.
  */
-export function createPassthroughSpeechToText(
-  fixedText?: string,
-): SpeechToTextAdapter {
+export function createPassthroughSpeechToText(fixedText?: string): SpeechToTextAdapter {
   return {
     async transcribe(input) {
       if (fixedText != null) {

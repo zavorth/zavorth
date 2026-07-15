@@ -12,10 +12,7 @@ import {
   redactSecretLikeText,
   resolveAbsorbProofAction,
 } from '../services/capability/AbsorbRiskReportService.js';
-import {
-  ProofLedgerService,
-  defaultProofLedgerJsonlPath,
-} from '../services/proof/ProofLedgerService.js';
+import { ProofLedgerService, defaultProofLedgerJsonlPath } from '../services/proof/ProofLedgerService.js';
 
 function hasFlag(args: string[], name: string): boolean {
   return args.includes(name);
@@ -30,29 +27,31 @@ function readOption(args: string[], name: string): string | null {
 }
 
 function printHelp(): void {
-  console.log([
-    '=== Zavorth Learn Skill ===',
-    '',
-    'Create a governed skill from a URL, local path, archive, or pasted notes.',
-    'Pipeline: stage → quarantine preview → consent → install (fabric absorb, skill-only).',
-    '',
-    'Usage:',
-    '  zavorth learn-skill <source> [--preview] [--apply --consent] [--json]',
-    '  zavorth learn-skill <url> --confirm-live-network',
-    '  zavorth skill-learn <source> ...',
-    '',
-    'Notes:',
-    '  - preview is default (safe)',
-    '  - --apply requires --consent / --yes or --approval-id',
-    '  - --confirm-live-network enables SourceSearchFetch content extract for http(s)',
-    '  - fabric still stages remote skills via governed scrape even without extract',
-    '  - this is skill learning; `zavorth learning` remains the memory learning plane',
-    '',
-    'Examples:',
-    '  zavorth learn-skill ./packs/my-skill',
-    '  zavorth learn-skill https://example.com/guide --confirm-live-network',
-    '  zavorth learn-skill "Notes about our release checklist" --apply --consent',
-  ].join('\n'));
+  console.log(
+    [
+      '=== Zavorth Learn Skill ===',
+      '',
+      'Create a governed skill from a URL, local path, archive, or pasted notes.',
+      'Pipeline: stage → quarantine preview → consent → install (fabric absorb, skill-only).',
+      '',
+      'Usage:',
+      '  zavorth learn-skill <source> [--preview] [--apply --consent] [--json]',
+      '  zavorth learn-skill <url> --confirm-live-network',
+      '  zavorth skill-learn <source> ...',
+      '',
+      'Notes:',
+      '  - preview is default (safe)',
+      '  - --apply requires --consent / --yes or --approval-id',
+      '  - --confirm-live-network enables SourceSearchFetch content extract for http(s)',
+      '  - fabric still stages remote skills via governed scrape even without extract',
+      '  - this is governed skill import; `zavorth learn` = skill drafts; `zavorth learning` = candidates',
+      '',
+      'Examples:',
+      '  zavorth learn-skill ./packs/my-skill',
+      '  zavorth learn-skill https://example.com/guide --confirm-live-network',
+      '  zavorth learn-skill "Notes about our release checklist" --apply --consent',
+    ].join('\n'),
+  );
 }
 
 export async function runLearnSkillCli(rawArgs: string[] = []): Promise<number> {
@@ -125,12 +124,16 @@ export async function runLearnSkillCli(rawArgs: string[] = []): Promise<number> 
   console.log(snapshot.narrative.operatorSummary);
   console.log(`Status: ${snapshot.status}`);
   console.log(`Source kind: ${snapshot.sourceKind}`);
-  console.log(`Extract: ${snapshot.extract.performed ? `${snapshot.extract.contentChars} chars` : snapshot.extract.reason}`);
+  console.log(
+    `Extract: ${snapshot.extract.performed ? `${snapshot.extract.contentChars} chars` : snapshot.extract.reason}`,
+  );
   console.log(`Quarantine: ${snapshot.fabric.quarantineRoot}`);
   console.log('');
   console.log('Candidates:');
   for (const c of snapshot.fabric.candidates) {
-    console.log(`  - [${c.kind}/${c.risk}] ${c.name} · ${c.trustState}${c.executableCodeDetected ? ' · executable' : ''}`);
+    console.log(
+      `  - [${c.kind}/${c.risk}] ${c.name} · ${c.trustState}${c.executableCodeDetected ? ' · executable' : ''}`,
+    );
   }
   if (snapshot.fabric.issues.length) {
     console.log('');

@@ -1,4 +1,3 @@
-
 import fs from 'fs';
 import path from 'path';
 
@@ -50,6 +49,7 @@ const PROVIDER_FILES = [
   'ProviderAbort.ts',
   'openaiToolCalls.ts',
   'OpenAICompatibleStreaming.ts',
+  'reasoningEffortPayload.ts',
 ];
 
 const BESPOKE_PROVIDERS = [
@@ -377,7 +377,9 @@ describe('ProviderFactory normalization aliases', () => {
             break;
           }
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
       expect(hasPlugin || foundInManifest).toBe(true);
     });
   });
@@ -815,11 +817,15 @@ describe('Provider routing support files', () => {
 
 describe('Provider router service', () => {
   it('ZavorthProviderRouterService exists', () => {
-    expect(fs.existsSync(path.resolve(__dirname, '../../src/services/providers/ZavorthProviderRouterService.ts'))).toBe(true);
+    expect(fs.existsSync(path.resolve(__dirname, '../../src/services/providers/ZavorthProviderRouterService.ts'))).toBe(
+      true,
+    );
   });
 
   it('ZavorthContextBudgetService exists', () => {
-    expect(fs.existsSync(path.resolve(__dirname, '../../src/services/providers/ZavorthContextBudgetService.ts'))).toBe(true);
+    expect(fs.existsSync(path.resolve(__dirname, '../../src/services/providers/ZavorthContextBudgetService.ts'))).toBe(
+      true,
+    );
   });
 });
 
@@ -906,7 +912,13 @@ describe('ProviderFactory mesh expansion providers', () => {
         .join('');
       const adapterCandidates = [
         path.resolve(__dirname, `../../src/adapters/providers/${pascal}ProviderAdapter.ts`),
-        path.resolve(__dirname, `../../src/adapters/providers/${provider.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join('')}ProviderAdapter.ts`),
+        path.resolve(
+          __dirname,
+          `../../src/adapters/providers/${provider
+            .split('-')
+            .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+            .join('')}ProviderAdapter.ts`,
+        ),
       ];
       const hasPlugin = pluginCandidates.some((candidate) => fs.existsSync(candidate));
       const hasAdapter = adapterCandidates.some((candidate) => fs.existsSync(candidate));
@@ -921,36 +933,51 @@ describe('ProviderFactory mesh expansion providers', () => {
             break;
           }
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
       expect(hasPlugin || hasAdapter || foundInManifest).toBe(true);
     });
   });
 
   it('anthropic-direct has adapter', () => {
-    expect(fs.existsSync(path.resolve(__dirname, '../../src/adapters/providers/AnthropicDirectProviderAdapter.ts'))).toBe(true);
+    expect(
+      fs.existsSync(path.resolve(__dirname, '../../src/adapters/providers/AnthropicDirectProviderAdapter.ts')),
+    ).toBe(true);
   });
 
   it('anthropic-vertex has adapter', () => {
-    expect(fs.existsSync(path.resolve(__dirname, '../../src/adapters/providers/AnthropicVertexProviderAdapter.ts'))).toBe(true);
+    expect(
+      fs.existsSync(path.resolve(__dirname, '../../src/adapters/providers/AnthropicVertexProviderAdapter.ts')),
+    ).toBe(true);
   });
 
   it('bedrock-claude has adapter', () => {
-    expect(fs.existsSync(path.resolve(__dirname, '../../src/adapters/providers/BedrockClaudeProviderAdapter.ts'))).toBe(true);
+    expect(fs.existsSync(path.resolve(__dirname, '../../src/adapters/providers/BedrockClaudeProviderAdapter.ts'))).toBe(
+      true,
+    );
   });
 
   it('google-genai has adapter', () => {
-    expect(fs.existsSync(path.resolve(__dirname, '../../src/adapters/providers/GoogleGenAiProviderAdapter.ts'))).toBe(true);
+    expect(fs.existsSync(path.resolve(__dirname, '../../src/adapters/providers/GoogleGenAiProviderAdapter.ts'))).toBe(
+      true,
+    );
   });
 
   it('gemini-interactions has adapter file', () => {
-    expect(fs.existsSync(path.resolve(__dirname, '../../src/providers/GeminiInteractionsProviderAdapter.ts'))).toBe(true);
+    expect(fs.existsSync(path.resolve(__dirname, '../../src/providers/GeminiInteractionsProviderAdapter.ts'))).toBe(
+      true,
+    );
   });
 });
 
 describe('ProviderFactory switch-case providers', () => {
   SWITCH_CASE_PROVIDERS.forEach((provider) => {
     it(`provider ${provider} is registered or has plugin`, () => {
-      const pluginPath = path.resolve(__dirname, `../../src/providers/plugins/${provider.replace(/-/g, '_')}.plugin.ts`);
+      const pluginPath = path.resolve(
+        __dirname,
+        `../../src/providers/plugins/${provider.replace(/-/g, '_')}.plugin.ts`,
+      );
       const hasPlugin = fs.existsSync(pluginPath);
       const content = readProviderFile('ProviderFactory.ts');
       const hasInFactory = content.includes(`'${provider}'`);
@@ -965,7 +992,9 @@ describe('ProviderFactory switch-case providers', () => {
             break;
           }
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
       expect(hasPlugin || hasInFactory || foundInManifest).toBe(true);
     });
   });
@@ -978,16 +1007,45 @@ describe('ProviderFactory switch-case providers', () => {
 
 describe('ProviderFactory defaultBaseUrlForProvider coverage', () => {
   const defaultBaseUrls = [
-    'deepinfra', 'alibaba', 'byteplus', 'cerebras', 'chutes', 'comfy',
-    'cohere', 'fireworks', 'falcon', 'github-models', 'groq', 'huggingface',
-    'jais', 'kimi-coding', 'moonshot', 'mistral', 'nvidia', 'opencode',
-    'perplexity', 'qianfan', 'sambanova', 'sglang', 'lmstudio', 'vllm',
-    'stepfun', 'together', 'vercel-ai-gateway', 'venice', 'voyage', 'xai', 'zai',
+    'deepinfra',
+    'alibaba',
+    'byteplus',
+    'cerebras',
+    'chutes',
+    'comfy',
+    'cohere',
+    'fireworks',
+    'falcon',
+    'github-models',
+    'groq',
+    'huggingface',
+    'jais',
+    'kimi-coding',
+    'moonshot',
+    'mistral',
+    'nvidia',
+    'opencode',
+    'perplexity',
+    'qianfan',
+    'sambanova',
+    'sglang',
+    'lmstudio',
+    'vllm',
+    'stepfun',
+    'together',
+    'vercel-ai-gateway',
+    'venice',
+    'voyage',
+    'xai',
+    'zai',
   ];
 
   defaultBaseUrls.forEach((provider) => {
     it(`has plugin or manifest for ${provider}`, () => {
-      const pluginPath = path.resolve(__dirname, `../../src/providers/plugins/${provider.replace(/-/g, '_')}.plugin.ts`);
+      const pluginPath = path.resolve(
+        __dirname,
+        `../../src/providers/plugins/${provider.replace(/-/g, '_')}.plugin.ts`,
+      );
       const hasPlugin = fs.existsSync(pluginPath);
       const manifestDir = path.resolve(__dirname, '../../src/services/providers/catalog/manifests');
       const manifestFiles = fs.readdirSync(manifestDir).filter((f) => f.endsWith('.ts') && f !== 'index.ts');
@@ -1007,7 +1065,18 @@ describe('ProviderFactory defaultBaseUrlForProvider coverage', () => {
 describe('ProviderCompatibilityClassifier first-class providers', () => {
   const content = readCatalogFile('ProviderCompatibilityClassifier.ts');
 
-  const firstClass = ['gemini', 'deepseek', 'openai', 'minimax', 'aigateway', 'qwen', 'puter', 'openrouter', 'opencode', 'ollama'];
+  const firstClass = [
+    'gemini',
+    'deepseek',
+    'openai',
+    'minimax',
+    'aigateway',
+    'qwen',
+    'puter',
+    'openrouter',
+    'opencode',
+    'ollama',
+  ];
 
   firstClass.forEach((provider) => {
     it(`marks ${provider} as first-class`, () => {

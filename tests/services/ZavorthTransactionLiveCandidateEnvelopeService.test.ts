@@ -3,9 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { ZavorthTransactionCredentialRefService } from '../../src/services/ZavorthTransactionCredentialRefService.js';
 
-import {
-  ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
+import { ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
 
 import { ZavorthTransactionLiveCandidateEnvelopeService } from '../../src/services/ZavorthTransactionLiveCandidateEnvelopeService.js';
 
@@ -23,14 +21,15 @@ describe('ZavorthTransactionLiveCandidateEnvelopeService', () => {
       storeFile: path.join(tempDir, 'credential-refs.jsonl'),
       now: () => now,
     });
-    credentialRef = credentialRefs.register({
-      label: 'Intent model0 exchange paper ref',
-      connectorKind: 'exchange',
-      environment: 'paper',
-      allowedActions: ['trade-order'],
-      ownerApproved: true,
-      now,
-    }).record?.ref ?? null;
+    credentialRef =
+      credentialRefs.register({
+        label: 'Intent model0 exchange paper ref',
+        connectorKind: 'exchange',
+        environment: 'paper',
+        allowedActions: ['trade-order'],
+        ownerApproved: true,
+        now,
+      }).record?.ref ?? null;
     service = new ZavorthTransactionLiveCandidateEnvelopeService({
       now: () => now,
       ledgerFile: path.join(tempDir, 'approval-ledger.jsonl'),
@@ -44,7 +43,9 @@ describe('ZavorthTransactionLiveCandidateEnvelopeService', () => {
 
   it('requires owner confirmation even after approval, credential and simulation are ready', () => {
     const result = service.propose({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'api',
       approve: true,
       mode: 'paper',
@@ -64,17 +65,21 @@ describe('ZavorthTransactionLiveCandidateEnvelopeService', () => {
         expect.objectContaining({ kind: 'live-switch-disabled', passed: true }),
       ]),
     );
-    expect(result.safety).toEqual(expect.objectContaining({
-      liveCandidateOnly: true,
-      liveExecutionAuthorized: false,
-      executableNow: false,
-      liveActionApplied: false,
-    }));
+    expect(result.safety).toEqual(
+      expect.objectContaining({
+        liveCandidateOnly: true,
+        liveExecutionAuthorized: false,
+        executableNow: false,
+        liveActionApplied: false,
+      }),
+    );
   });
 
   it('creates a candidate-ready envelope with explicit owner phrase but still no live execution', () => {
     const result = service.propose({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'api',
       approve: true,
       mode: 'paper',
@@ -85,37 +90,47 @@ describe('ZavorthTransactionLiveCandidateEnvelopeService', () => {
     });
 
     expect(result.status).toBe('candidate-ready');
-    expect(result.ownerGate).toEqual(expect.objectContaining({
-      ownerId: 'grey',
-      confirmed: true,
-      phraseAccepted: true,
-    }));
-    expect(result.envelope).toEqual(expect.objectContaining({
-      candidateOnly: true,
-      actionKind: 'trade-order',
-      connectorKind: 'exchange',
-      credentialRef,
-      approvalEntryId: expect.stringMatching(/^ztx-approval-/),
-      rawSecretPresent: false,
-    }));
-    expect(result.envelope?.payloadPreview).toEqual(expect.objectContaining({
-      method: 'SIMULATE_TRADE_ORDER',
-      credentialRef,
-      rawSecretPresent: false,
-      redacted: true,
-    }));
-    expect(result.safety).toEqual(expect.objectContaining({
-      candidateDoesNotAuthorizeLiveExecution: true,
-      externalSideEffects: false,
-      liveExecutionAuthorized: false,
-      executableNow: false,
-      liveActionApplied: false,
-    }));
+    expect(result.ownerGate).toEqual(
+      expect.objectContaining({
+        ownerId: 'grey',
+        confirmed: true,
+        phraseAccepted: true,
+      }),
+    );
+    expect(result.envelope).toEqual(
+      expect.objectContaining({
+        candidateOnly: true,
+        actionKind: 'trade-order',
+        connectorKind: 'exchange',
+        credentialRef,
+        approvalEntryId: expect.stringMatching(/^ztx-approval-/),
+        rawSecretPresent: false,
+      }),
+    );
+    expect(result.envelope?.payloadPreview).toEqual(
+      expect.objectContaining({
+        method: 'SIMULATE_TRADE_ORDER',
+        credentialRef,
+        rawSecretPresent: false,
+        redacted: true,
+      }),
+    );
+    expect(result.safety).toEqual(
+      expect.objectContaining({
+        candidateDoesNotAuthorizeLiveExecution: true,
+        externalSideEffects: false,
+        liveExecutionAuthorized: false,
+        executableNow: false,
+        liveActionApplied: false,
+      }),
+    );
   });
 
   it('blocks candidate envelope when credential ref is missing', () => {
     const result = service.propose({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'api',
       approve: true,
       mode: 'paper',
@@ -125,17 +140,15 @@ describe('ZavorthTransactionLiveCandidateEnvelopeService', () => {
     });
 
     expect(result.status).toBe('runtime-blocked');
-    expect(result.blockers).toEqual(expect.arrayContaining([
-      'dashboard-simulated',
-      'credential-ref-ready',
-      'typed-connector-simulated',
-    ]));
+    expect(result.blockers).toEqual(
+      expect.arrayContaining(['dashboard-simulated', 'credential-ref-ready', 'typed-connector-simulated']),
+    );
     expect(result.envelope).toBeUndefined();
   });
 
   it('blocks and redacts raw secret-bearing candidate requests', () => {
     const result = service.propose({
-      text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+      text: 'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
       surface: 'api',
       approve: true,
       mode: 'paper',
@@ -147,9 +160,7 @@ describe('ZavorthTransactionLiveCandidateEnvelopeService', () => {
     expect(result.status).toBe('runtime-blocked');
     expect(JSON.stringify(result)).not.toContain('sk-super-secret-value-123456');
     expect(result.gates).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ kind: 'raw-secret-redaction', passed: true }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ kind: 'raw-secret-redaction', passed: true })]),
     );
   });
 });

@@ -1,4 +1,3 @@
-
 import { CodeReviewTool } from '../../src/tools/CodeReviewTool';
 
 describe('CodeReviewTool', () => {
@@ -22,13 +21,13 @@ describe('CodeReviewTool', () => {
   it('returns error for invalid focus', async () => {
     const result = await tool.execute({ target: 'code', focus: 'invalid' });
     expect(result).toContain('Erro');
-    expect(result).toContain('foco');
+    expect(result).toContain('focus');
   });
 
   it('returns error for invalid severity threshold', async () => {
     const result = await tool.execute({ target: 'code', severity_threshold: 'invalid' });
     expect(result).toContain('Erro');
-    expect(result).toContain('severidade');
+    expect(result).toContain('severity');
   });
 
   it('detects eval() usage as critical security issue', async () => {
@@ -96,11 +95,7 @@ describe('CodeReviewTool', () => {
   });
 
   it('analyzes multiple issues in all mode', async () => {
-    const code = [
-      'const password = "secret123";',
-      'console.log("debug");',
-      'const result = eval(code);',
-    ].join('\n');
+    const code = ['const password = "secret123";', 'console.log("debug");', 'const result = eval(code);'].join('\n');
 
     const result = await tool.execute({ target: code, focus: 'all' });
 

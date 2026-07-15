@@ -9,24 +9,30 @@ import { PluginStateService, type StoredPluginState } from '../../src/services/P
 
 function buildPluginState(entries: Record<string, Partial<StoredPluginState>> = {}): PluginStateService {
   const normalizedEntries = Object.fromEntries(
-    Object.entries(entries).map(([key, entry]) => [key.toLowerCase(), {
-      pluginId: entry.pluginId || key,
-      installed: entry.installed ?? true,
-      trust: entry.trust || 'review',
-      installedRevision: entry.installedRevision || 'rev-test',
-      sourceDigest: entry.sourceDigest || 'sha256-test',
-      sourceLocator: entry.sourceLocator || 'test-registry',
-      sourceTrusted: entry.sourceTrusted ?? false,
-      updatedAt: entry.updatedAt || '2026-06-06T00:00:00.000Z',
-    }]),);
+    Object.entries(entries).map(([key, entry]) => [
+      key.toLowerCase(),
+      {
+        pluginId: entry.pluginId || key,
+        installed: entry.installed ?? true,
+        trust: entry.trust || 'review',
+        installedRevision: entry.installedRevision || 'rev-test',
+        sourceDigest: entry.sourceDigest || 'sha256-test',
+        sourceLocator: entry.sourceLocator || 'test-registry',
+        sourceTrusted: entry.sourceTrusted ?? false,
+        updatedAt: entry.updatedAt || '2026-06-06T00:00:00.000Z',
+      },
+    ]),
+  );
   return new PluginStateService({
     stateFile: 'X:/state/plugin-state.json',
     existsSync: jest.fn(() => true),
-    readFileSync: jest.fn(() => JSON.stringify({
-      version: 1,
-      updatedAt: '2026-06-06T00:00:00.000Z',
-      entries: normalizedEntries,
-    })),
+    readFileSync: jest.fn(() =>
+      JSON.stringify({
+        version: 1,
+        updatedAt: '2026-06-06T00:00:00.000Z',
+        entries: normalizedEntries,
+      }),
+    ),
   });
 }
 
@@ -39,7 +45,11 @@ describe('ToolGatekeeper dynamic skill map', () => {
     const gatekeeper = new ToolGatekeeper();
     const tools: ToolDefinition[] = [
       { name: 'web_search', description: 'Busca web', parameters: { type: 'object', properties: {} } },
-      { name: 'trend_chart', description: 'Cria grafico de tendencias', parameters: { type: 'object', properties: {} } },
+      {
+        name: 'trend_chart',
+        description: 'Cria grafico de tendencias',
+        parameters: { type: 'object', properties: {} },
+      },
       { name: 'remote_shell', description: 'Shell', parameters: { type: 'object', properties: {} } },
     ];
 
@@ -48,10 +58,7 @@ describe('ToolGatekeeper dynamic skill map', () => {
     });
 
     expect(getDynamicIntentToolMap()).toEqual({ research: ['trend_chart'] });
-    expect(gatekeeper.filterTools(tools, 'research').map((tool) => tool.name)).toEqual([
-      'web_search',
-      'trend_chart',
-    ]);
+    expect(gatekeeper.filterTools(tools, 'research').map((tool) => tool.name)).toEqual(['web_search', 'trend_chart']);
   });
 
   it('keeps a small agent-brain baseline on conversation turns ', () => {
@@ -59,14 +66,20 @@ describe('ToolGatekeeper dynamic skill map', () => {
     const tools: ToolDefinition[] = [
       { name: 'web_search', description: 'Web search', parameters: { type: 'object', properties: {} } },
       { name: 'get_datetime', description: 'Date and time', parameters: { type: 'object', properties: {} } },
-      { name: 'capability_discovery', description: 'Discover capabilities', parameters: { type: 'object', properties: {} } },
+      {
+        name: 'capability_discovery',
+        description: 'Discover capabilities',
+        parameters: { type: 'object', properties: {} },
+      },
     ];
 
     // web_search is not part of the conversation baseline map
-    expect(gatekeeper.filterTools(tools, 'conversation').map((tool) => tool.name).sort()).toEqual([
-      'capability_discovery',
-      'get_datetime',
-    ]);
+    expect(
+      gatekeeper
+        .filterTools(tools, 'conversation')
+        .map((tool) => tool.name)
+        .sort(),
+    ).toEqual(['capability_discovery', 'get_datetime']);
   });
 
   it('emits hint telemetry without becoming the final tool exposure gate', () => {
@@ -79,13 +92,15 @@ describe('ToolGatekeeper dynamic skill map', () => {
 
     const hint = gatekeeper.buildHintProfile(tools, 'file_operation');
 
-    expect(hint).toEqual(expect.objectContaining({
-      intentCategory: 'file_operation',
-      groups: ['workspace'],
-      recommendedToolNames: expect.arrayContaining(['read_file', 'list_directory']),
-      toolExposureGatedByCognitiveFirewall: false,
-      isHardGate: false,
-    }));
+    expect(hint).toEqual(
+      expect.objectContaining({
+        intentCategory: 'file_operation',
+        groups: ['workspace'],
+        recommendedToolNames: expect.arrayContaining(['read_file', 'list_directory']),
+        toolExposureGatedByCognitiveFirewall: false,
+        isHardGate: false,
+      }),
+    );
     expect(hint.tools.map((tool) => tool.name)).toEqual(['read_file', 'list_directory']);
     expect(hint.omittedToolNames).toEqual(['web_search']);
   });
@@ -102,16 +117,12 @@ describe('ToolGatekeeper dynamic skill map', () => {
 
     expect(decision.classification.category).toBe('full_toolset');
     expect(decision.toolHintProfile.groups).toEqual(['all']);
-    expect(decision.tools.map((tool) => tool.name).sort()).toEqual([
-      'list_directory',
-      'read_file',
-      'web_search',
-    ]);
+    expect(decision.tools.map((tool) => tool.name).sort()).toEqual(['list_directory', 'read_file', 'web_search']);
     expect(decision.toolExposureGatedByCognitiveFirewall).toBe(false);
     expect(decision.stats).toContain('Tools: 3/3');
   });
 
-  it('keeps free-text news requests on full_toolset and simple chat lightweight', () => {
+  it('keeps free-text capability choice model-owned', () => {
     const firewall = new CognitiveFirewall();
     const tools: ToolDefinition[] = [
       { name: 'web_search', description: 'Web search', parameters: { type: 'object', properties: {} } },
@@ -124,23 +135,34 @@ describe('ToolGatekeeper dynamic skill map', () => {
 
     expect(newsDecision.classification.category).toBe('full_toolset');
     expect(newsDecision.toolHintProfile.groups).toEqual(['all']);
-    expect(newsDecision.recommendedToolNames).toEqual(expect.arrayContaining([
-      'web_search',
-      'get_datetime',
-      'read_file',
-    ]));
-    expect(chatDecision.classification.category).toBe('conversation');
-    // conversation keeps a lightweight agent-brain baseline (not an empty catalog).
-    expect(chatDecision.tools.map((tool) => tool.name)).toEqual(['get_datetime']);
+    expect(newsDecision.recommendedToolNames).toEqual(
+      expect.arrayContaining(['web_search', 'get_datetime', 'read_file']),
+    );
+    expect(chatDecision.classification.category).toBe('full_toolset');
+    expect(chatDecision.tools.map((tool) => tool.name)).toEqual(
+      expect.arrayContaining(['web_search', 'get_datetime', 'read_file']),
+    );
     expect(chatDecision.toolHintProfile.toolExposureGatedByCognitiveFirewall).toBe(false);
   });
 
   it('maps execution and memory hints to registered modern tool names', () => {
     const gatekeeper = new ToolGatekeeper();
     const tools: ToolDefinition[] = [
-      { name: 'run_sandbox_code', description: 'Executa codigo em sandbox', parameters: { type: 'object', properties: {} } },
-      { name: 'sandbox_execution', description: 'Nome legado inexistente', parameters: { type: 'object', properties: {} } },
-      { name: 'semantic_memory', description: 'Consulta memoria semantica', parameters: { type: 'object', properties: {} } },
+      {
+        name: 'run_sandbox_code',
+        description: 'Executa codigo em sandbox',
+        parameters: { type: 'object', properties: {} },
+      },
+      {
+        name: 'sandbox_execution',
+        description: 'Nome legado inexistente',
+        parameters: { type: 'object', properties: {} },
+      },
+      {
+        name: 'semantic_memory',
+        description: 'Consulta memoria semantica',
+        parameters: { type: 'object', properties: {} },
+      },
       { name: 'mem0_memory', description: 'Nome legado inexistente', parameters: { type: 'object', properties: {} } },
       { name: 'get_datetime', description: 'Data atual', parameters: { type: 'object', properties: {} } },
     ];
@@ -172,27 +194,30 @@ describe('ToolGatekeeper dynamic skill map', () => {
     expect(hint.quarantinedToolNames).toEqual(['remote_plugin_send']);
     expect(hint.toolExposureGatedByCognitiveFirewall).toBe(true);
     expect(hint.isHardGate).toBe(true);
-    expect(gatekeeper.getFilterStats(tools.length, hint.filteredTools, 'full_toolset', hint.quarantinedToolNames.length))
-      .toContain('Quarantine: 1 blocked');
+    expect(
+      gatekeeper.getFilterStats(tools.length, hint.filteredTools, 'full_toolset', hint.quarantinedToolNames.length),
+    ).toContain('Quarantine: 1 blocked');
   });
 
   it('loads plugin approval state once per hint profile build', () => {
-    const readFileSync = jest.fn(() => JSON.stringify({
-      version: 1,
-      updatedAt: '2026-06-06T00:00:00.000Z',
-      entries: {
-        'mcp:trusted-pack': {
-          pluginId: 'mcp:trusted-pack',
-          installed: true,
-          trust: 'trusted',
-          installedRevision: 'rev-test',
-          sourceDigest: 'sha256-test',
-          sourceLocator: 'test-registry',
-          sourceTrusted: true,
-          updatedAt: '2026-06-06T00:00:00.000Z',
+    const readFileSync = jest.fn(() =>
+      JSON.stringify({
+        version: 1,
+        updatedAt: '2026-06-06T00:00:00.000Z',
+        entries: {
+          'mcp:trusted-pack': {
+            pluginId: 'mcp:trusted-pack',
+            installed: true,
+            trust: 'trusted',
+            installedRevision: 'rev-test',
+            sourceDigest: 'sha256-test',
+            sourceLocator: 'test-registry',
+            sourceTrusted: true,
+            updatedAt: '2026-06-06T00:00:00.000Z',
+          },
         },
-      },
-    }));
+      }),
+    );
     const pluginState = new PluginStateService({
       stateFile: 'X:/state/plugin-state.json',
       existsSync: jest.fn(() => true),
@@ -222,13 +247,15 @@ describe('ToolGatekeeper dynamic skill map', () => {
   });
 
   it('allows plugin tools only when the operator trust state and source trust are both explicit', () => {
-    const gatekeeper = new ToolGatekeeper(buildPluginState({
-      'mcp:trusted-pack': {
-        pluginId: 'mcp:trusted-pack',
-        trust: 'trusted',
-        sourceTrusted: true,
-      },
-    }));
+    const gatekeeper = new ToolGatekeeper(
+      buildPluginState({
+        'mcp:trusted-pack': {
+          pluginId: 'mcp:trusted-pack',
+          trust: 'trusted',
+          sourceTrusted: true,
+        },
+      }),
+    );
     const tools: ToolDefinition[] = [
       {
         name: 'trusted_lookup',

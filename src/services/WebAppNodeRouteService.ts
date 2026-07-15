@@ -27,7 +27,11 @@ type NodePairingLike = {
   buildBootstrapForNode?: (nodeId: string | null | undefined) => NodeRouteDynamic;
   regeneratePairingDraft?: (nodeId: string | null | undefined, input?: NodeRouteDynamic) => NodeRouteDynamic;
   approvePairing: (nodeId: string, input: NodeRouteDynamic) => NodeRouteDynamic;
-  setApprovedCapabilities?: (nodeId: string, approvedCapabilityIds: NodeRouteDynamic, input?: NodeRouteDynamic) => NodeRouteDynamic;
+  setApprovedCapabilities?: (
+    nodeId: string,
+    approvedCapabilityIds: NodeRouteDynamic,
+    input?: NodeRouteDynamic,
+  ) => NodeRouteDynamic;
   revokePairing: (nodeId: string, reason: string | null) => NodeRouteDynamic;
 };
 
@@ -112,9 +116,10 @@ export class WebAppNodeRouteService {
       }
       const selectedNodeId = String(url.searchParams.get('selectedId') || '').trim() || null;
       const nodeMesh = deps.nodeMesh.buildSnapshot({ selectedNodeId });
-      const bootstrapDraft = selectedNodeId && deps.nodePairing?.buildBootstrapForNode
-        ? deps.nodePairing.buildBootstrapForNode(selectedNodeId)
-        : null;
+      const bootstrapDraft =
+        selectedNodeId && deps.nodePairing?.buildBootstrapForNode
+          ? deps.nodePairing.buildBootstrapForNode(selectedNodeId)
+          : null;
       deps.writeJson(
         res,
         {
@@ -142,7 +147,8 @@ export class WebAppNodeRouteService {
           },
           200,
         );
-      } catch (error: unknown) {deps.writeJson(
+      } catch (error: unknown) {
+        deps.writeJson(
           res,
           {
             ok: false,
@@ -164,7 +170,8 @@ export class WebAppNodeRouteService {
           'X-Zavorth-Companion-SHA256': download.bundle.manifest.sha256,
         });
         res.end(download.body);
-      } catch (error: unknown) {deps.writeJson(
+      } catch (error: unknown) {
+        deps.writeJson(
           res,
           {
             ok: false,
@@ -204,7 +211,7 @@ export class WebAppNodeRouteService {
 
       const node = deps.nodeMesh.getNodeEntry(activityNodeId);
       if (!node) {
-        deps.writeJson(res, { ok: false, error: 'Node nao encontrado no mesh atual.' }, 404);
+        deps.writeJson(res, { ok: false, error: 'Node not found in the current mesh.' }, 404);
         return true;
       }
 
@@ -230,7 +237,7 @@ export class WebAppNodeRouteService {
       const node = deps.nodeMesh.getNodeEntry(capabilitiesNodeId);
       const capabilities = deps.nodeMesh.buildCapabilitiesSnapshot(capabilitiesNodeId);
       if (!node || !capabilities) {
-        deps.writeJson(res, { ok: false, error: 'Node nao encontrado no mesh atual.' }, 404);
+        deps.writeJson(res, { ok: false, error: 'Node not found in the current mesh.' }, 404);
         return true;
       }
 
@@ -255,7 +262,7 @@ export class WebAppNodeRouteService {
 
       const draft = deps.nodePairing.buildBootstrapForNode(bootstrapNodeId);
       if (!draft) {
-        deps.writeJson(res, { ok: false, error: 'Node nao encontrado ou sem bootstrap pendente no mesh atual.' }, 404);
+        deps.writeJson(res, { ok: false, error: 'Node not found or no pending bootstrap in the current mesh.' }, 404);
         return true;
       }
       const nodeMesh = deps.nodeMesh.buildSnapshot({ selectedNodeId: draft.entry.id });
@@ -290,17 +297,13 @@ export class WebAppNodeRouteService {
         return true;
       }
 
-      const updated = deps.nodePairing.setApprovedCapabilities(
-        approvedCapabilitiesNodeId,
-        body.approvedCapabilityIds,
-        {
-          approvedBy: deps.runtime?.webUserId || 'web-user',
-          reason: String(body.reason || '').trim() || null,
-          mode: String(body.mode || '').trim() || (body.approvedCapabilityIds.length > 0 ? 'custom' : 'clear'),
-        },
-      );
+      const updated = deps.nodePairing.setApprovedCapabilities(approvedCapabilitiesNodeId, body.approvedCapabilityIds, {
+        approvedBy: deps.runtime?.webUserId || 'web-user',
+        reason: String(body.reason || '').trim() || null,
+        mode: String(body.mode || '').trim() || (body.approvedCapabilityIds.length > 0 ? 'custom' : 'clear'),
+      });
       if (!updated) {
-        deps.writeJson(res, { ok: false, error: 'Node nao encontrado no mesh atual.' }, 404);
+        deps.writeJson(res, { ok: false, error: 'Node not found in the current mesh.' }, 404);
         return true;
       }
 

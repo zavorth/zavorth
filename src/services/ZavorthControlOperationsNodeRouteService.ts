@@ -30,7 +30,11 @@ type NodePairingLike = {
   buildBootstrapForNode?: (nodeId: string | null | undefined) => OperationsNodeDynamic;
   regeneratePairingDraft?: (nodeId: string | null | undefined, input?: OperationsNodeDynamic) => OperationsNodeDynamic;
   approvePairing: (nodeId: string, input: OperationsNodeDynamic) => OperationsNodeDynamic;
-  setApprovedCapabilities?: (nodeId: string, approvedCapabilityIds: OperationsNodeDynamic, input?: OperationsNodeDynamic) => OperationsNodeDynamic;
+  setApprovedCapabilities?: (
+    nodeId: string,
+    approvedCapabilityIds: OperationsNodeDynamic,
+    input?: OperationsNodeDynamic,
+  ) => OperationsNodeDynamic;
   revokePairing: (nodeId: string, reason: string | null) => OperationsNodeDynamic;
 };
 
@@ -98,9 +102,10 @@ export class ZavorthControlOperationsNodeRouteService {
 
       const selectedNodeId = String(url.searchParams.get('selectedId') || '').trim() || null;
       const nodeMesh = deps.nodeMesh.buildSnapshot({ selectedNodeId });
-      const bootstrapDraft = selectedNodeId && deps.nodePairing?.buildBootstrapForNode
-        ? deps.nodePairing.buildBootstrapForNode(selectedNodeId)
-        : null;
+      const bootstrapDraft =
+        selectedNodeId && deps.nodePairing?.buildBootstrapForNode
+          ? deps.nodePairing.buildBootstrapForNode(selectedNodeId)
+          : null;
       deps.writeJson(
         res,
         {
@@ -138,7 +143,7 @@ export class ZavorthControlOperationsNodeRouteService {
       const node = deps.nodeMesh.getNodeEntry?.(activityNodeId);
       const activity = deps.nodeMesh.buildActivitySnapshot?.(activityNodeId) || null;
       if (!node) {
-        deps.writeJson(res, { ok: false, error: 'Node nao encontrado no mesh atual.' }, 404);
+        deps.writeJson(res, { ok: false, error: 'Node not found in the current mesh.' }, 404);
         return true;
       }
 
@@ -151,7 +156,7 @@ export class ZavorthControlOperationsNodeRouteService {
       const node = deps.nodeMesh.getNodeEntry?.(capabilitiesNodeId);
       const capabilities = deps.nodeMesh.buildCapabilitiesSnapshot?.(capabilitiesNodeId) || null;
       if (!node || !capabilities) {
-        deps.writeJson(res, { ok: false, error: 'Node nao encontrado no mesh atual.' }, 404);
+        deps.writeJson(res, { ok: false, error: 'Node not found in the current mesh.' }, 404);
         return true;
       }
 
@@ -176,17 +181,13 @@ export class ZavorthControlOperationsNodeRouteService {
         return true;
       }
 
-      const updated = deps.nodePairing.setApprovedCapabilities(
-        approvedCapabilitiesNodeId,
-        body.approvedCapabilityIds,
-        {
-          approvedBy: deps.continuityUserId || 'operations',
-          reason: String(body.reason || '').trim() || null,
-          mode: String(body.mode || '').trim() || (body.approvedCapabilityIds.length > 0 ? 'custom' : 'clear'),
-        },
-      );
+      const updated = deps.nodePairing.setApprovedCapabilities(approvedCapabilitiesNodeId, body.approvedCapabilityIds, {
+        approvedBy: deps.continuityUserId || 'operations',
+        reason: String(body.reason || '').trim() || null,
+        mode: String(body.mode || '').trim() || (body.approvedCapabilityIds.length > 0 ? 'custom' : 'clear'),
+      });
       if (!updated) {
-        deps.writeJson(res, { ok: false, error: 'Node nao encontrado no mesh atual.' }, 404);
+        deps.writeJson(res, { ok: false, error: 'Node not found in the current mesh.' }, 404);
         return true;
       }
 

@@ -58,9 +58,7 @@ export type ExtractedAudioMedia = {
 /**
  * Extract first audio media URL or media id from common channel payload shapes.
  */
-export function extractAudioMediaFromPayload(
-  payload: Record<string, unknown>,
-): ExtractedAudioMedia | null {
+export function extractAudioMediaFromPayload(payload: Record<string, unknown>): ExtractedAudioMedia | null {
   if (!payload || typeof payload !== 'object') return null;
 
   // Generic
@@ -103,9 +101,7 @@ export function extractAudioMediaFromPayload(
       const rec = f as Record<string, unknown>;
       const mimetype = String(rec.mimetype || rec.mime_type || '');
       const name = String(rec.name || rec.title || '');
-      const url = String(
-        rec.url_private_download || rec.url_private || rec.permalink_public || rec.url || '',
-      ).trim();
+      const url = String(rec.url_private_download || rec.url_private || rec.permalink_public || rec.url || '').trim();
       if (url && isAllowedMediaUrl(url) && (AUDIO_MIME.test(mimetype) || AUDIO_EXT.test(name))) {
         return {
           url,
@@ -156,7 +152,11 @@ export function extractAudioMediaFromPayload(
       const contentType = String(a.contentType || a.content_type || a.mimeType || '');
       const name = String(a.name || a.filename || '');
       const url = String(a.contentUrl || a.content_url || a.url || a.downloadUrl || '').trim();
-      if (url && isAllowedMediaUrl(url) && (AUDIO_MIME.test(contentType) || AUDIO_EXT.test(name) || /audio|voice|ptt/i.test(contentType))) {
+      if (
+        url &&
+        isAllowedMediaUrl(url) &&
+        (AUDIO_MIME.test(contentType) || AUDIO_EXT.test(name) || /audio|voice|ptt/i.test(contentType))
+      ) {
         return {
           url,
           mimeType: contentType || 'audio/ogg',
@@ -192,11 +192,7 @@ export function extractAudioMediaFromPayload(
   return null;
 }
 
-function walkForAudio(
-  node: unknown,
-  depth: number,
-  maxDepth: number,
-): ExtractedAudioMedia | null {
+function walkForAudio(node: unknown, depth: number, maxDepth: number): ExtractedAudioMedia | null {
   if (depth > maxDepth || !node || typeof node !== 'object') return null;
   if (Array.isArray(node)) {
     for (const item of node) {
@@ -209,7 +205,11 @@ function walkForAudio(
   const url = String(rec.contentUrl || rec.media_url || rec.audio_url || rec.url || rec.link || '').trim();
   const mime = String(rec.mime_type || rec.contentType || rec.mimetype || '');
   const name = String(rec.filename || rec.name || '');
-  if (url && isAllowedMediaUrl(url) && (AUDIO_MIME.test(mime) || AUDIO_EXT.test(name) || /audio|voice|ogg|opus/i.test(url))) {
+  if (
+    url &&
+    isAllowedMediaUrl(url) &&
+    (AUDIO_MIME.test(mime) || AUDIO_EXT.test(name) || /audio|voice|ogg|opus/i.test(url))
+  ) {
     return { url, mimeType: mime || 'audio/ogg', fileName: name || 'voice', source: 'generic' };
   }
   for (const v of Object.values(rec)) {
@@ -228,14 +228,10 @@ export async function resolveWhatsAppMediaDownload(input: {
   apiVersion?: string;
 }): Promise<{ url: string; mimeType?: string }> {
   const mediaId = String(input.mediaId || '').trim();
-  const token = String(
-    input.accessToken || config.whatsappAccessToken || config.whatsappBotToken || '',
-  ).trim();
+  const token = String(input.accessToken || config.whatsappAccessToken || config.whatsappBotToken || '').trim();
   const apiVersion = String(input.apiVersion || config.whatsappCloudApiVersion || 'v20.0').trim() || 'v20.0';
   if (!mediaId || !token) {
-    throw new Error(
-      'WhatsApp media id requires WHATSAPP_ACCESS_TOKEN (and media id). Type your message instead.',
-    );
+    throw new Error('WhatsApp media id requires WHATSAPP_ACCESS_TOKEN (and media id). Type your message instead.');
   }
   // Step 1: metadata (url field)
   const metaRes = await safeFetch(
@@ -320,7 +316,7 @@ export async function ingestMessagingVoiceFromUrl(input: {
 
   const prefs = getVoicePreferenceService();
   const resolved = prefs.resolveStt();
-  if (!resolved.ok) {
+  if (resolved.ok === false) {
     recordVoiceMetric({
       kind: 'stt',
       ok: false,
@@ -387,7 +383,7 @@ export async function ingestMessagingVoiceFromUrl(input: {
       surface: input.surface,
     });
 
-    if (!prepared.ok) {
+    if (prepared.ok === false) {
       return {
         ok: false,
         transcript: result.text,
@@ -451,10 +447,7 @@ export async function ingestMessagingVoiceAttachments(input: {
   });
 }
 
-export function mergeMessagingVoiceText(
-  content: string,
-  voice: MessagingVoiceIngestResult,
-): string {
+export function mergeMessagingVoiceText(content: string, voice: MessagingVoiceIngestResult): string {
   const base = String(content || '').trim();
   if (voice.ok && voice.agentText) {
     return base ? `${base}\n\n${voice.agentText}` : voice.agentText;

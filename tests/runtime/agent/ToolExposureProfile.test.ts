@@ -21,7 +21,7 @@ describe('ToolExposureProfile', () => {
       expect(resolveMaxExposedTools('safe')).toBe(SAFE_MAX_EXPOSED_TOOLS);
       expect(resolveMaxExposedTools('safe')).toBe(12);
       expect(resolveMaxExposedTools('daily-ops')).toBe(DAILY_OPS_MAX_EXPOSED_TOOLS);
-      expect(resolveMaxExposedTools('daily-ops')).toBe(24);
+      expect(resolveMaxExposedTools('daily-ops')).toBe(18);
       expect(resolveMaxExposedTools('full')).toBe(FULL_MAX_EXPOSED_TOOLS);
       expect(resolveMaxExposedTools('full')).toBe(40);
     });
@@ -42,22 +42,28 @@ describe('ToolExposureProfile', () => {
     });
 
     it('prefers request metadata over run metadata over env', () => {
-      expect(resolveExposureProfileName({
-        requestMetadata: { toolExposureProfile: 'full' },
-        runMetadata: { toolExposureProfile: 'daily-ops' },
-        envValue: 'safe',
-      })).toBe('full');
+      expect(
+        resolveExposureProfileName({
+          requestMetadata: { toolExposureProfile: 'full' },
+          runMetadata: { toolExposureProfile: 'daily-ops' },
+          envValue: 'safe',
+        }),
+      ).toBe('full');
 
-      expect(resolveExposureProfileName({
-        runMetadata: { exposureProfile: 'daily-ops' },
-        envValue: 'safe',
-      })).toBe('daily-ops');
+      expect(
+        resolveExposureProfileName({
+          runMetadata: { exposureProfile: 'daily-ops' },
+          envValue: 'safe',
+        }),
+      ).toBe('daily-ops');
 
-      expect(resolveExposureProfile({
-        request: { metadata: { toolExposureProfile: 'daily-ops' } },
-        run: { metadata: { toolExposureProfile: 'full' } },
-        envValue: 'safe',
-      })).toBe('daily-ops');
+      expect(
+        resolveExposureProfile({
+          request: { metadata: { toolExposureProfile: 'daily-ops' } },
+          run: { metadata: { toolExposureProfile: 'full' } },
+          envValue: 'safe',
+        }),
+      ).toBe('daily-ops');
     });
   });
 
@@ -78,12 +84,15 @@ describe('ToolExposureProfile', () => {
       expect(isProfileAlwaysExpose('daily-ops', 'pr_ship_draft')).toBe(true);
       expect(isProfileAlwaysExpose('daily-ops', 'memory_search')).toBe(true);
       expect(isProfileAlwaysExpose('daily-ops', 'cost_summary')).toBe(true);
-      // W7 product surface
-      expect(isProfileAlwaysExpose('daily-ops', 'zavorth_skill_marketplace')).toBe(true);
+      // bulk marketplace deferred on lean daily-ops; miss path uses plugin_suggest
+      expect(isProfileAlwaysExpose('daily-ops', 'zavorth_skill_marketplace')).toBe(false);
+      expect(isDailyOpsPreferredTool('zavorth_skill_marketplace')).toBe(false);
+      expect(isProfileAlwaysExpose('daily-ops', 'plugin_suggest')).toBe(true);
       expect(isProfileAlwaysExpose('daily-ops', 'agent_manager')).toBe(true);
-      expect(isDailyOpsPreferredTool('zavorth_skill_marketplace')).toBe(true);
       expect(isDailyOpsPreferredTool('agent_manager')).toBe(true);
       expect(isDailyOpsPreferredTool('zavorth_delegate')).toBe(true);
+      // full profile still force-exposes marketplace when registered
+      expect(isProfileAlwaysExpose('full', 'zavorth_skill_marketplace')).toBe(true);
       expect(isProfileAlwaysExpose('daily-ops', 'plugin.marketplace.status')).toBe(true);
       expect(isProfileAlwaysExpose('daily-ops', 'plugin.os.recommend')).toBe(true);
       // Destructive / create paths stay out of always-expose.
@@ -102,7 +111,7 @@ describe('ToolExposureProfile', () => {
         'read_file',
         'list_directory',
         'plugin_recommend',
-        'zavorth_skill_marketplace',
+        'plugin_suggest',
         'agent_manager',
         'zavorth_delegate',
         'search_query',
@@ -122,6 +131,8 @@ describe('ToolExposureProfile', () => {
         expect(isDailyOpsPreferredTool(name)).toBe(true);
         expect(isProfileAlwaysExpose('daily-ops', name)).toBe(true);
       }
+      // bulk marketplace not on lean preferred set
+      expect(DAILY_OPS_PREFERRED_TOOLS.has('zavorth_skill_marketplace')).toBe(false);
     });
   });
 
@@ -151,31 +162,41 @@ describe('ToolExposureProfile', () => {
 
   describe('full profile security exposable + ranking boost', () => {
     it('allows safe/review without confirmation; blocks confirmation and danger', () => {
-      expect(isFullProfileSecurityExposable({
-        toolName: 'code_review',
-        defaultRisk: 'safe',
-        requiresConfirmation: false,
-      })).toBe(true);
-      expect(isFullProfileSecurityExposable({
-        toolName: 'soft_review_tool',
-        defaultRisk: 'review',
-        requiresConfirmation: false,
-      })).toBe(true);
-      expect(isFullProfileSecurityExposable({
-        toolName: 'workspace.write',
-        defaultRisk: 'review',
-        requiresConfirmation: true,
-      })).toBe(false);
-      expect(isFullProfileSecurityExposable({
-        toolName: 'send_email',
-        defaultRisk: 'dangerous',
-        requiresConfirmation: true,
-      })).toBe(false);
-      expect(isFullProfileSecurityExposable({
-        toolName: 'unknown_tool',
-        defaultRisk: null,
-        requiresConfirmation: null,
-      })).toBe(false);
+      expect(
+        isFullProfileSecurityExposable({
+          toolName: 'code_review',
+          defaultRisk: 'safe',
+          requiresConfirmation: false,
+        }),
+      ).toBe(true);
+      expect(
+        isFullProfileSecurityExposable({
+          toolName: 'soft_review_tool',
+          defaultRisk: 'review',
+          requiresConfirmation: false,
+        }),
+      ).toBe(true);
+      expect(
+        isFullProfileSecurityExposable({
+          toolName: 'workspace.write',
+          defaultRisk: 'review',
+          requiresConfirmation: true,
+        }),
+      ).toBe(false);
+      expect(
+        isFullProfileSecurityExposable({
+          toolName: 'send_email',
+          defaultRisk: 'dangerous',
+          requiresConfirmation: true,
+        }),
+      ).toBe(false);
+      expect(
+        isFullProfileSecurityExposable({
+          toolName: 'unknown_tool',
+          defaultRisk: null,
+          requiresConfirmation: null,
+        }),
+      ).toBe(false);
     });
 
     it('boosts daily-ops preferred tools for daily-ops/full ranking only', () => {

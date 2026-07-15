@@ -46,10 +46,9 @@ describe('LLMIntentClassifier', () => {
 
       expect(result.category).toBe('full_toolset');
       expect(result.confidence).toBe(0.9);
-      expect(result.isTrivialChat).toBe(false);
     });
 
-    it('classifies conversation intent', async () => {
+    it('classifies conversation intent without trivial-chat shortcut', async () => {
       const mockResponse: LlmResponse = {
         content: JSON.stringify({
           category: 'conversation',
@@ -66,7 +65,7 @@ describe('LLMIntentClassifier', () => {
 
       expect(result.category).toBe('conversation');
       expect(result.confidence).toBe(0.95);
-      expect(result.isTrivialChat).toBe(true);
+      expect(result).not.toHaveProperty('isTrivialChat');
     });
 
     it('coerces legacy capability categories to full_toolset', async () => {

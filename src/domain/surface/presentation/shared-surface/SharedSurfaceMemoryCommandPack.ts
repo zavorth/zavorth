@@ -40,46 +40,50 @@ export class SharedSurfaceMemoryCommandPack {
       });
 
       const lines = [
-        'Retomada e entregas do Zavorth',
+        'Zavorth resume and deliveries',
         '',
         snapshot.narrative.headline,
         snapshot.narrative.operatorSummary,
         '',
-        `Memorias persistentes: ${snapshot.summary.persistedMemories}.`,
+        `Persisted memories: ${snapshot.summary.persistedMemories}.`,
         `Visible replay: ${snapshot.summary.replayTasks} task(s) | ${snapshot.summary.workflowRuns} workflow(s).`,
-        `Entregas recentes: ${snapshot.summary.artifacts}.`,
+        `Recent deliveries: ${snapshot.summary.artifacts}.`,
       ];
 
       if (snapshot.artifacts.recent.length > 0) {
-        lines.push('', 'Entregas em foco:');
+        lines.push('', 'Deliveries in focus:');
         for (const artifact of snapshot.artifacts.recent.slice(0, 3)) {
-          lines.push(`- ${artifact.label}: ${artifact.summary || artifact.path || 'Sem resumo adicional.'}`);
+          lines.push(`- ${artifact.label}: ${artifact.summary || artifact.path || 'No extra summary.'}`);
         }
       }
 
       if (snapshot.memory.relevant.length > 0) {
-        lines.push('', 'Memorias relevantes:');
+        lines.push('', 'Relevant memories:');
         for (const entry of snapshot.memory.relevant.slice(0, 3)) {
           lines.push(`- ${entry.key}: ${entry.value}`);
         }
       }
 
       if (snapshot.suggestedActions.length > 0) {
-        lines.push('', 'Proximo passo:');
+        lines.push('', 'Next step:');
         for (const action of snapshot.suggestedActions.slice(0, 3)) {
           lines.push(`- ${action.label}: ${action.command}`);
         }
       }
 
       await ctx.reply(lines.join('\n'));
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_memory_plane')));
+    } catch (error: unknown) {
+      await ctx.reply(errorMessage(error, tSurface('error_memory_plane')));
     }
   }
 
   private async handleLayeredMemory(ctx: IMessageContext, args: string): Promise<void> {
     const normalizedArgs = String(args || '').trim();
     const tokens = normalizedArgs.split(/\s+/).filter(Boolean);
-    const mode = String(tokens[0] || 'status').trim().toLowerCase() || 'status';
+    const mode =
+      String(tokens[0] || 'status')
+        .trim()
+        .toLowerCase() || 'status';
     const commonInput = {
       userId: String(ctx.userId || '').trim() || null,
       platform: ctx.platform,
@@ -99,12 +103,7 @@ export class SharedSurfaceMemoryCommandPack {
           ...commonInput,
           query,
         });
-        const lines = [
-          'Layered memory do Zavorth',
-          '',
-          `Consulta: ${results.query}.`,
-          `Resultados: ${results.total}.`,
-        ];
+        const lines = ['Zavorth layered memory', '', `Query: ${results.query}.`, `Results: ${results.total}.`];
         for (const entry of results.data.slice(0, 6)) {
           lines.push(`- ${entry.label} [${entry.memoryLayer}] (${entry.source}) conf=${entry.confidence.toFixed(2)}`);
           lines.push(`  ${entry.summary}`);
@@ -117,11 +116,7 @@ export class SharedSurfaceMemoryCommandPack {
         const procedures = await this.deps.layeredMemoryService.readProcedures({
           workspaceHint: null,
         });
-        const lines = [
-          'Procedural memory do Zavorth',
-          '',
-          `Procedimentos: ${procedures.total}.`,
-        ];
+        const lines = ['Zavorth procedural memory', '', `Procedures: ${procedures.total}.`];
         for (const procedure of procedures.data.slice(0, 5)) {
           lines.push(`- ${procedure.label} (${procedure.source}) conf=${procedure.confidence.toFixed(2)}`);
           lines.push(`  ${procedure.summary}`);
@@ -134,17 +129,20 @@ export class SharedSurfaceMemoryCommandPack {
       }
 
       const status = await this.deps.layeredMemoryService.buildStatus(commonInput);
-      await ctx.reply([
-        'Layered memory do Zavorth',
-        '',
-        status.narrative.headline,
-        status.narrative.operatorSummary,
-        '',
-        `Total: ${status.summary.total}.`,
-        `Episodica: ${status.summary.episodic} | semantica: ${status.summary.semantic} | procedural: ${status.summary.procedural}.`,
-        `Budget por camada: ${status.budgets.perLayer}.`,
-      ].join('\n'));
-    } catch (error: unknown) {if (mode === 'status' && this.deps.memoryPlaneService) {
+      await ctx.reply(
+        [
+          'Zavorth layered memory',
+          '',
+          status.narrative.headline,
+          status.narrative.operatorSummary,
+          '',
+          `Total: ${status.summary.total}.`,
+          `Episodic: ${status.summary.episodic} | semantic: ${status.summary.semantic} | procedural: ${status.summary.procedural}.`,
+          `Budget per layer: ${status.budgets.perLayer}.`,
+        ].join('\n'),
+      );
+    } catch (error: unknown) {
+      if (mode === 'status' && this.deps.memoryPlaneService) {
         await this.handleMemoryPlane(ctx);
         return;
       }

@@ -61,10 +61,7 @@ type TelegramConversationControllerRuntime = {
     isEchoModeActive: () => Promise<boolean>;
   } | null;
   permissionService?: {
-    listRequests(
-      status?: 'pending' | 'approved' | 'rejected' | 'expired' | 'all',
-      limit?: number,
-    ): Promise<unknown[]>;
+    listRequests(status?: 'pending' | 'approved' | 'rejected' | 'expired' | 'all', limit?: number): Promise<unknown[]>;
   } | null;
 };
 
@@ -111,7 +108,8 @@ export class TelegramConversationController {
     });
     this.stateService = new TelegramConversationStateService({
       taskManager: this.taskManager,
-      buildWorkspaceStrategySnapshot: (task, taskGoal) => this.contextService.buildWorkspaceStrategySnapshot(task, taskGoal),
+      buildWorkspaceStrategySnapshot: (task, taskGoal) =>
+        this.contextService.buildWorkspaceStrategySnapshot(task, taskGoal),
     });
     this.directReplyService = new TelegramConversationDirectReplyService({
       stateService: this.stateService,
@@ -178,12 +176,10 @@ export class TelegramConversationController {
         return;
       }
 
-      // agent-first: free text always goes to the agent.
-      // First-run is only via /start + buttons (TelegramHubController), not free-text wizard answers.
+      // agent-first: free text always goes to the agent (role setup is handled inside ConversationalAgent for all surfaces).
 
       const memoryContext = userId ? await memoryService.getMemoryContext(userId, messageText) : '';
-      const summaryContext =
-        userId && chatId ? await summaryService.getConversationContext(userId, chatId) : '';
+      const summaryContext = userId && chatId ? await summaryService.getConversationContext(userId, chatId) : '';
       const canonicalSnapshot = await this.buildCanonicalSnapshot(task, canonicalTarget);
       const continuityContext = buildWorkspaceContinuityContext(task, String(task.source || 'telegram').trim());
       const workspaceContext = this.contextService.buildWorkspaceContext(task, continuityContext);
@@ -322,7 +318,7 @@ export class TelegramConversationController {
     return async ({ request, run }): Promise<UniversalAgentExecutorResult> => {
       const metadata = request.metadata || {};
       const contextMessages = Array.isArray(metadata.contextMessages)
-        ? metadata.contextMessages as ChatMessage[]
+        ? (metadata.contextMessages as ChatMessage[])
         : [];
       const result = await graphRuntime.runAutonomousTask(request.text, {
         initialMessages: contextMessages.length > 0 ? contextMessages : undefined,
@@ -335,8 +331,9 @@ export class TelegramConversationController {
         },
       });
       const ok = Boolean(result?.ok);
-      const replyText = String(result?.finalReply || result?.criticFeedback || result?.error || '').trim()
-        || (ok ? 'Graph backend completed the governed execution.' : 'Graph backend failed during governed execution.');
+      const replyText =
+        String(result?.finalReply || result?.criticFeedback || result?.error || '').trim() ||
+        (ok ? 'Graph backend completed the governed execution.' : 'Graph backend failed during governed execution.');
 
       return {
         status: ok ? 'completed' : 'failed',
@@ -386,11 +383,7 @@ export class TelegramConversationController {
     });
   }
 
-  private async recordAssistantMessage(
-    task: Task,
-    content: string,
-    kind?: string | null,
-  ): Promise<void> {
+  private async recordAssistantMessage(task: Task, content: string, kind?: string | null): Promise<void> {
     const target = this.resolveCanonicalTarget(
       task,
       String(task.user_id || '').trim(),
@@ -407,11 +400,7 @@ export class TelegramConversationController {
     });
   }
 
-  private ensureTelegramOperator(
-    ctx: Context,
-    messageText: string,
-    alwaysRequire = false,
-  ): boolean {
+  private ensureTelegramOperator(ctx: Context, messageText: string, alwaysRequire = false): boolean {
     const userId = ctx.from?.id?.toString() || '';
     if (isZavorthTelegramOperator(userId)) {
       return true;

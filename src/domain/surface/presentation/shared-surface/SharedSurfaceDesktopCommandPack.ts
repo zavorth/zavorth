@@ -6,11 +6,12 @@ import type { CompanionControlService } from '../../../../services/CompanionCont
 import type { CompanionWorkspaceOptimizerService } from '../../../../services/CompanionWorkspaceOptimizerService.js';
 import type { DesktopResourcePlaneService } from '../../../../services/DesktopResourcePlaneService.js';
 import type { ModeEscalationService } from '../../../../services/ModeEscalationService.js';
+import { buildModeEscalationPendingCard } from '../../../../services/ModeEscalationPresentation.js';
 import { errorMessage } from '../../../../utils/errorLike.js';
 import { tSurface } from '../../../../i18n/surface.js';
 import { tService } from '../../../../i18n/services.js';
+import { replyWithSharedSurfaceResponse } from './SharedSurfaceResponseSender.js';
 type SharedSurfaceDesktopCommandPackDeps = {
-
   desktopResourcePlaneService: Pick<DesktopResourcePlaneService, 'inspectLive' | 'renderReport'> | null;
 
   capabilityLifecycleService: Pick<CapabilityLifecycleService, 'buildProductModeSnapshot' | 'setProductMode'> | null;
@@ -20,7 +21,12 @@ type SharedSurfaceDesktopCommandPackDeps = {
   > | null;
   workspaceOptimizerService: Pick<
     CompanionWorkspaceOptimizerService,
-    'buildLoadProfile' | 'previewOptimization' | 'applyOptimization' | 'renderLoadProfile' | 'renderPreview' | 'renderApplyResult'
+    | 'buildLoadProfile'
+    | 'previewOptimization'
+    | 'applyOptimization'
+    | 'renderLoadProfile'
+    | 'renderPreview'
+    | 'renderApplyResult'
   > | null;
   modeEscalationService: Pick<ModeEscalationService, 'buildSnapshot' | 'resolveRequest'> | null;
 };
@@ -29,7 +35,9 @@ export class SharedSurfaceDesktopCommandPack {
   public constructor(private readonly deps: SharedSurfaceDesktopCommandPackDeps) {}
 
   public async handleDoctor(ctx: IMessageContext, args: string): Promise<void> {
-    const normalized = String(args || '').trim().toLowerCase();
+    const normalized = String(args || '')
+      .trim()
+      .toLowerCase();
     const target = normalized.split(/\s+/).filter(Boolean)[0] || 'desktop';
 
     if (target !== 'desktop') {
@@ -45,7 +53,8 @@ export class SharedSurfaceDesktopCommandPack {
     try {
       const snapshot = await this.deps.desktopResourcePlaneService.inspectLive({ preferCachedWithinMs: 15_000 });
       await ctx.reply(this.deps.desktopResourcePlaneService.renderReport(snapshot));
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_desktop_plane')));
+    } catch (error: unknown) {
+      await ctx.reply(errorMessage(error, tSurface('error_desktop_plane')));
     }
   }
 
@@ -55,9 +64,8 @@ export class SharedSurfaceDesktopCommandPack {
   ): string {
     const visible = snapshot.visibleSurfaces.join(', ') || 'chat';
     const hidden = snapshot.hiddenByDefault.join(', ') || tService('desktop.nothing');
-    const possibleEscalations = snapshot.escalationTargets.length > 0
-      ? snapshot.escalationTargets.join(', ')
-      : tService('desktop.none');
+    const possibleEscalations =
+      snapshot.escalationTargets.length > 0 ? snapshot.escalationTargets.join(', ') : tService('desktop.none');
     const lines = [
       `${snapshot.label}`,
       '',
@@ -76,10 +84,10 @@ export class SharedSurfaceDesktopCommandPack {
       lines.push('', `${tService('desktop.effective_mode_now')}: ${modeEscalation.effectiveMode.id}.`);
       if (modeEscalation.pendingRequest) {
         lines.push(
-          `${tService('desktop.pending_mode_escalation')}: ${modeEscalation.pendingRequest.id}`,
+          `${tService('desktop.pending_mode_escalation')}: pending (use /mode approve — no long id)`,
           modeEscalation.pendingRequest.summary,
-          `${tService('desktop.approve_with')}: ${modeEscalation.commands.approve.replace('<requestId>', modeEscalation.pendingRequest.id)}`,
-          `${tService('desktop.reject_with')}: ${modeEscalation.commands.reject.replace('<requestId>', modeEscalation.pendingRequest.id)}`,
+          `${tService('desktop.approve_with')}: /mode approve  [once|session|host]  or  /mode approve 1`,
+          `${tService('desktop.reject_with')}: /mode reject  or  /mode reject 1`,
         );
       } else if (modeEscalation.activeGrants.length > 0) {
         const grant = modeEscalation.activeGrants[0];
@@ -102,11 +110,16 @@ export class SharedSurfaceDesktopCommandPack {
       grantLine,
       `${tService('desktop.effective_mode')}: ${result.snapshot.effectiveMode.id}.`,
       result.request.fallback ? `Fallback leve: ${result.request.fallback}` : null,
-    ].filter(Boolean).join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   public async handleProductMode(ctx: IMessageContext, args: string): Promise<void> {
-    if (!this.deps.capabilityLifecycleService?.buildProductModeSnapshot || !this.deps.capabilityLifecycleService?.setProductMode) {
+    if (
+      !this.deps.capabilityLifecycleService?.buildProductModeSnapshot ||
+      !this.deps.capabilityLifecycleService?.setProductMode
+    ) {
       await ctx.reply(tService('desktop.product_mode_unavailable'));
       return;
     }
@@ -117,38 +130,82 @@ export class SharedSurfaceDesktopCommandPack {
     const escalationSnapshot = this.deps.modeEscalationService?.buildSnapshot(sessionId) || null;
 
     if (!normalizedArgs) {
-      await ctx.reply(this.formatProductModeReply(this.deps.capabilityLifecycleService.buildProductModeSnapshot(), escalationSnapshot));
+      const modeSnap = this.deps.capabilityLifecycleService.buildProductModeSnapshot();
+      // Pending escalation: native button card when surface supports it.
+      if (escalationSnapshot?.pendingRequest) {
+        const card = buildModeEscalationPendingCard({
+          request: escalationSnapshot.pendingRequest as any,
+          channel: String(ctx.platform || 'plain'),
+        });
+        const prefix = this.formatProductModeReply(modeSnap, escalationSnapshot);
+        try {
+          await replyWithSharedSurfaceResponse(
+            ctx,
+            {
+              ...card.surfaceResponse,
+              blocks: [
+                { kind: 'text', text: `${prefix}\n\n${card.text}` },
+                ...(card.surfaceResponse.blocks || []).filter((b) => b.kind === 'actions'),
+              ],
+            },
+            { maxActionsPerRow: 2 },
+          );
+        } catch {
+          await ctx.reply(`${prefix}\n\n${card.text}`);
+        }
+        return;
+      }
+      await ctx.reply(this.formatProductModeReply(modeSnap, escalationSnapshot));
       return;
     }
 
-    if (normalizedArgs.startsWith('approve ') || normalizedArgs.startsWith('reject ')) {
+    if (
+      normalizedArgs === 'approve' ||
+      normalizedArgs === 'reject' ||
+      normalizedArgs.startsWith('approve ') ||
+      normalizedArgs.startsWith('reject ')
+    ) {
       if (!this.deps.modeEscalationService) {
         await ctx.reply(tService('desktop.mode_escalation_unavailable'));
         return;
       }
       const parts = rawArgs.split(/\s+/).filter(Boolean);
       const decision = parts[0]?.toLowerCase() === 'reject' ? 'reject' : 'approve';
-      const requestId = String(parts[1] || '').trim();
-      const scope = decision === 'approve' ? String(parts[2] || '').trim().toLowerCase() : null;
-      if (!requestId) {
-        await ctx.reply(tService('desktop.use_mode_approve_reject'));
-        return;
+      // Tokens after decision may be: bare | 1 | once|session|host | id | id scope
+      const rest = parts.slice(1);
+      let requestId = '';
+      let scopeToken = '';
+      if (rest.length === 0) {
+        requestId = '';
+      } else if (/^(once|session|host)$/i.test(rest[0])) {
+        scopeToken = rest[0];
+        requestId = '';
+      } else if (/^#?\d{1,2}$/.test(rest[0]) && rest[1] && /^(once|session|host)$/i.test(rest[1])) {
+        requestId = rest[0];
+        scopeToken = rest[1];
+      } else if (/^#?\d{1,2}$/.test(rest[0])) {
+        requestId = rest[0];
+        scopeToken = rest[1] || '';
+      } else if (/^(once|session|host)$/i.test(rest[1] || '')) {
+        requestId = rest[0];
+        scopeToken = rest[1];
+      } else {
+        requestId = rest[0] || '';
+        scopeToken = rest[1] || '';
       }
       try {
         const normalizedScope =
-          scope === 'session' || scope === 'host'
-            ? scope
-            : scope === 'once'
-              ? 'once'
-              : null;
+          scopeToken === 'session' || scopeToken === 'host' ? scopeToken : scopeToken === 'once' ? 'once' : null;
         const result = this.deps.modeEscalationService.resolveRequest({
           requestId,
           decision,
           scope: normalizedScope,
           requestedBy: String(ctx.userId || '').trim() || 'operator',
+          sessionId,
         });
         await ctx.reply(this.formatModeEscalationResolution(result));
-      } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_mode_escalation')));
+      } catch (error: unknown) {
+        await ctx.reply(errorMessage(error, tSurface('error_mode_escalation')));
       }
       return;
     }
@@ -159,13 +216,12 @@ export class SharedSurfaceDesktopCommandPack {
         String(ctx.userId || '').trim() || 'operator',
       );
       await ctx.reply(
-        [
-          this.formatProductModeReply(snapshot, escalationSnapshot),
-          '',
-          tService('desktop.recommend_restart'),
-        ].join('\n'),
+        [this.formatProductModeReply(snapshot, escalationSnapshot), '', tService('desktop.recommend_restart')].join(
+          '\n',
+        ),
       );
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_product_mode')));
+    } catch (error: unknown) {
+      await ctx.reply(errorMessage(error, tSurface('error_product_mode')));
     }
   }
 
@@ -188,7 +244,10 @@ export class SharedSurfaceDesktopCommandPack {
   }
 
   private resolveWorkspacePresetId(raw: string): string | null {
-    const normalized = String(raw || '').trim().toLowerCase().replace(/[_\s]+/g, '-');
+    const normalized = String(raw || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[_\s]+/g, '-');
     if (!normalized) {
       return null;
     }
@@ -210,9 +269,16 @@ export class SharedSurfaceDesktopCommandPack {
       return;
     }
 
-    const extracted = this.extractWorkspaceOption(String(args || '').trim().split(/\s+/).filter(Boolean));
+    const extracted = this.extractWorkspaceOption(
+      String(args || '')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean),
+    );
     const tokens = extracted.tokens;
-    const command = String(tokens[0] || 'doctor').trim().toLowerCase();
+    const command = String(tokens[0] || 'doctor')
+      .trim()
+      .toLowerCase();
     const requestedBy = String(ctx.userId || '').trim() || 'operator';
 
     try {
@@ -245,8 +311,7 @@ export class SharedSurfaceDesktopCommandPack {
       }
 
       if (command === 'optimize') {
-        const presetId = this.resolveWorkspacePresetId(String(tokens[1] || ''))
-          || String(tokens[1] || '').trim();
+        const presetId = this.resolveWorkspacePresetId(String(tokens[1] || '')) || String(tokens[1] || '').trim();
         if (!presetId) {
           await ctx.reply(
             [
@@ -259,7 +324,11 @@ export class SharedSurfaceDesktopCommandPack {
           );
           return;
         }
-        if (String(tokens[2] || '').trim().toLowerCase() === 'apply') {
+        if (
+          String(tokens[2] || '')
+            .trim()
+            .toLowerCase() === 'apply'
+        ) {
           const planId = String(tokens[3] || '').trim();
           if (!planId) {
             await ctx.reply(
@@ -293,8 +362,7 @@ export class SharedSurfaceDesktopCommandPack {
       // Free-text primary path:
       // - known preset name → optimize preview
       // - otherwise treat the free text as a workspace path/hint for doctor
-      const freePreset = this.resolveWorkspacePresetId(command)
-        || this.resolveWorkspacePresetId(tokens.join(' '));
+      const freePreset = this.resolveWorkspacePresetId(command) || this.resolveWorkspacePresetId(tokens.join(' '));
       if (freePreset) {
         const preview = await this.deps.workspaceOptimizerService.previewOptimization({
           presetId: freePreset as any,
@@ -311,7 +379,8 @@ export class SharedSurfaceDesktopCommandPack {
         workspaceHint: freeHint,
       });
       await ctx.reply(this.deps.workspaceOptimizerService.renderLoadProfile(profile));
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_workspace_optimizer')));
+    } catch (error: unknown) {
+      await ctx.reply(errorMessage(error, tSurface('error_workspace_optimizer')));
     }
   }
 
@@ -321,9 +390,16 @@ export class SharedSurfaceDesktopCommandPack {
       return;
     }
 
-    const tokens = String(args || '').trim().split(/\s+/).filter(Boolean);
-    const command = String(tokens[0] || 'list').trim().toLowerCase();
-    const companionId = String(tokens[1] || '').trim().toLowerCase();
+    const tokens = String(args || '')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+    const command = String(tokens[0] || 'list')
+      .trim()
+      .toLowerCase();
+    const companionId = String(tokens[1] || '')
+      .trim()
+      .toLowerCase();
     const force = tokens.includes('--force');
     const dryRun = tokens.includes('--dry-run');
 
@@ -337,11 +413,9 @@ export class SharedSurfaceDesktopCommandPack {
       if (command === 'inspect') {
         if (!companionId) {
           await ctx.reply(
-            [
-              'Inspect a companion.',
-              '',
-              '/companion inspect <wsl|docker-desktop|zavorthBridge|codex-companion>',
-            ].join('\n'),
+            ['Inspect a companion.', '', '/companion inspect <wsl|docker-desktop|zavorthBridge|codex-companion>'].join(
+              '\n',
+            ),
           );
           return;
         }
@@ -369,7 +443,11 @@ export class SharedSurfaceDesktopCommandPack {
           return;
         }
         const extracted = this.extractWorkspaceOption(tokens.slice(2));
-        if (String(extracted.tokens[0] || '').trim().toLowerCase() === 'apply') {
+        if (
+          String(extracted.tokens[0] || '')
+            .trim()
+            .toLowerCase() === 'apply'
+        ) {
           const planId = String(extracted.tokens[1] || '').trim();
           if (!planId) {
             await ctx.reply(
@@ -400,11 +478,11 @@ export class SharedSurfaceDesktopCommandPack {
       }
 
       if (
-        command === 'hibernate'
-        || command === 'resume'
-        || command === 'stop-idle'
-        || command === 'trim'
-        || command === 'restart-safe'
+        command === 'hibernate' ||
+        command === 'resume' ||
+        command === 'stop-idle' ||
+        command === 'trim' ||
+        command === 'restart-safe'
       ) {
         if (!companionId) {
           await ctx.reply(
@@ -437,8 +515,8 @@ export class SharedSurfaceDesktopCommandPack {
           '/companion <hibernate|resume|stop-idle|trim|restart-safe> <id>',
         ].join('\n'),
       );
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_companion_plane')));
+    } catch (error: unknown) {
+      await ctx.reply(errorMessage(error, tSurface('error_companion_plane')));
     }
   }
-
 }

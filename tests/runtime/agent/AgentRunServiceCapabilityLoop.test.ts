@@ -1,7 +1,4 @@
-import {
-  AgentRunService,
-  ZavorthAgentGateway,
-} from '../../../src/runtime/agent/index.js';
+import { AgentRunService, ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 import type { UniversalAgentExecutor } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
@@ -30,37 +27,43 @@ describe('AgentRunService capability loop governance', () => {
       requestedTools: [],
     });
 
-    expect(result.run.metadata.capabilityLoopGovernance).toEqual(expect.objectContaining({
-      schemaVersion: 1,
-      source: 'CapabilityLoopGovernanceService',
-      trustMode: 'collaborator',
-      sandboxTier: 'workspace-scoped',
-      capabilities: expect.arrayContaining([
-        expect.objectContaining({
-          capabilityId: 'session.ownership',
-          status: 'requested',
-          policy: expect.objectContaining({ mode: 'runtime-invariant' }),
-          receipts: expect.arrayContaining([expect.objectContaining({ kind: 'policy' })]),
-        }),
-        expect.objectContaining({
-          capabilityId: 'timing.canonical',
-          status: 'requested',
-          controlSurface: expect.objectContaining({
-            command: 'zavorth status --run agent-run-2',
+    expect(result.run.metadata.capabilityLoopGovernance).toEqual(
+      expect.objectContaining({
+        schemaVersion: 1,
+        source: 'CapabilityLoopGovernanceService',
+        trustMode: 'collaborator',
+        sandboxTier: 'workspace-scoped',
+        capabilities: expect.arrayContaining([
+          expect.objectContaining({
+            capabilityId: 'session.ownership',
+            status: 'requested',
+            policy: expect.objectContaining({ mode: 'runtime-invariant' }),
+            receipts: expect.arrayContaining([expect.objectContaining({ kind: 'policy' })]),
           }),
+          expect.objectContaining({
+            capabilityId: 'timing.canonical',
+            status: 'requested',
+            controlSurface: expect.objectContaining({
+              command: 'zavorth status --run agent-run-2',
+            }),
+          }),
+        ]),
+      }),
+    );
+    expect(result.run.metadata.capabilityLoopStatus).toEqual(
+      expect.objectContaining({
+        source: 'CapabilityLoopGovernanceService',
+        requestedCapabilityIds: expect.arrayContaining(['session.ownership', 'timing.canonical']),
+      }),
+    );
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title: 'Governed capability loop',
+          status: 'done',
         }),
       ]),
-    }));
-    expect(result.run.metadata.capabilityLoopStatus).toEqual(expect.objectContaining({
-      source: 'CapabilityLoopGovernanceService',
-      requestedCapabilityIds: expect.arrayContaining(['session.ownership', 'timing.canonical']),
-    }));
-    expect(result.run.events).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        title: 'Capability loop governado',
-        status: 'done',
-      }),
-    ]));
+    );
   });
 
   it('projects Echo Hands as a governed strong capability waiting for approval', async () => {
@@ -82,12 +85,16 @@ describe('AgentRunService capability loop governance', () => {
 
     expect(executor).not.toHaveBeenCalled();
     expect(result.run.status).toBe('waiting_approval');
-    expect(snapshot.capabilityLoopGovernance).toEqual(expect.objectContaining({
-      source: 'CapabilityLoopGovernanceService',
-      requestedCapabilityIds: expect.arrayContaining(['echo.hands']),
-    }));
-    expect(snapshot.capabilityLoopGovernance?.capabilities.find((entry) => entry.capabilityId === 'echo.hands'))
-      .toEqual(expect.objectContaining({
+    expect(snapshot.capabilityLoopGovernance).toEqual(
+      expect.objectContaining({
+        source: 'CapabilityLoopGovernanceService',
+        requestedCapabilityIds: expect.arrayContaining(['echo.hands']),
+      }),
+    );
+    expect(
+      snapshot.capabilityLoopGovernance?.capabilities.find((entry) => entry.capabilityId === 'echo.hands'),
+    ).toEqual(
+      expect.objectContaining({
         status: 'waiting_approval',
         policy: expect.objectContaining({
           mode: 'governed-tool',
@@ -97,9 +104,8 @@ describe('AgentRunService capability loop governance', () => {
           exposedToolIds: ['echo_hands'],
           requiresApproval: true,
         }),
-        receipts: expect.arrayContaining([
-          expect.objectContaining({ kind: 'approval' }),
-        ]),
-      }));
+        receipts: expect.arrayContaining([expect.objectContaining({ kind: 'approval' })]),
+      }),
+    );
   });
 });

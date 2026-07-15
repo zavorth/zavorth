@@ -60,9 +60,7 @@ describe('SlackGateway stub', () => {
 
     const outboxFiles = fs.readdirSync(process.env.SLACK_OUTBOX_DIR!);
     expect(outboxFiles.length).toBe(1);
-    const envelope = JSON.parse(
-      fs.readFileSync(path.join(process.env.SLACK_OUTBOX_DIR!, outboxFiles[0]), 'utf8'),
-    );
+    const envelope = JSON.parse(fs.readFileSync(path.join(process.env.SLACK_OUTBOX_DIR!, outboxFiles[0]), 'utf8'));
     const status = JSON.parse(fs.readFileSync(process.env.SLACK_STATUS_FILE!, 'utf8'));
 
     expect(envelope).toEqual(
@@ -251,6 +249,6 @@ describe('SlackGateway stub', () => {
       body: { ok: false, error: 'Slack signature invalid.' },
     });
     expect(broker.processMessage).not.toHaveBeenCalled();
-    expect(status.lastError).toContain('assinatura invalida');
+    expect(status.lastError).toContain('invalid signature');
   });
 });

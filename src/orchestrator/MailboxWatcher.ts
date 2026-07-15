@@ -10,10 +10,7 @@ import { config } from '../config/index.js';
 import { ExecutionGateway } from '../execution/ExecutionGateway.js';
 import { LocalExecutor } from '../execution/LocalExecutor.js';
 import { CodexExecutor } from '../execution/CodexExecutor.js';
-import {
-  EXTERNAL_EXECUTOR_ID,
-  ExternalExecutor,
-} from '../execution/ExternalExecutor.js';
+import { EXTERNAL_EXECUTOR_ID, ExternalExecutor } from '../execution/ExternalExecutor.js';
 import type { Plan, PlanStep } from '../contracts/PlanContract.js';
 import type { ToolRuntimeService } from '../services/tools/ToolRuntimeService.js';
 import { asErrorLike } from '../utils/errorLike';
@@ -142,7 +139,11 @@ export class MailboxWatcher {
     await this.moveMessageFile(messagePath, this.processedDir, 'processed');
     await this.writeMailboxStatus('CONSUMED', `message_id=${envelope.messageId}`);
 
-    this.logRepo.log('info', 'MailboxWatcher', `[${originalVersion}] Starting autonomous plan for: ${envelope.payload.prompt}`);
+    this.logRepo.log(
+      'info',
+      'MailboxWatcher',
+      `[${originalVersion}] Starting autonomous plan for: ${envelope.payload.prompt}`,
+    );
     await this.broadcaster.broadcast(
       `Autonomous engine woke up.\nReading the mailbox inbox...\nCaptured command: ${envelope.payload.prompt}`,
     );
@@ -194,7 +195,7 @@ export class MailboxWatcher {
         task.requires_approval = true;
         this.taskManager.saveTask(task);
         await this.broadcaster.broadcast(
-          `Sensitive action blocked in the autonomous engine.\n\nThe generated plan involves significant system manipulation (risk ${plan.risk_level}).\nTo continue, approve manually with:\n/approve ${task.task_id}`,
+          `Sensitive action blocked in the autonomous engine.\n\nThe generated plan involves significant system manipulation (risk ${plan.risk_level}).\nTo continue, use /approve, /approve 1, or tap Approve — not a long id.`,
         );
         return;
       }
@@ -246,7 +247,7 @@ export class MailboxWatcher {
       task.error_summary = executionDecision.reason;
       this.taskManager.saveTask(task);
       await this.broadcaster.broadcast(
-        `The autonomous plan needs approval before execution.\nReason: ${executionDecision.reason}\n\nUse /approve ${task.task_id}`,
+        `The autonomous plan needs approval before execution.\nReason: ${executionDecision.reason}\n\nUse /approve, /approve 1, or tap Approve — not a long id.`,
       );
       return;
     }
@@ -263,8 +264,8 @@ export class MailboxWatcher {
 
     const result = executionDecision.execution_result;
     this.taskManager.advanceState(task, result.success ? 'completed' : 'failed');
-    task.result_summary = result.success ? (result.stdout || result.stderr || 'Execution completed.') : null;
-    task.error_summary = result.success ? null : (result.error_message || result.stderr || 'Execution failed.');
+    task.result_summary = result.success ? result.stdout || result.stderr || 'Execution completed.' : null;
+    task.error_summary = result.success ? null : result.error_message || result.stderr || 'Execution failed.';
     this.taskManager.saveTask(task);
 
     await this.broadcaster.broadcast(
@@ -305,9 +306,17 @@ export class MailboxWatcher {
     const externalExecutor = new ExternalExecutor();
     gateway.registerExecutor(EXTERNAL_EXECUTOR_ID, externalExecutor);
     gateway.registerExecutor('gemini_cli', new (require('../execution/GeminiCliExecutor.js').GeminiCliExecutor)());
-    gateway.registerExecutor('gemini_managed_agent', new (require('../execution/GeminiManagedAgentExecutor.js').GeminiManagedAgentExecutor)());
+    gateway.registerExecutor(
+      'gemini_managed_agent',
+      new (require('../execution/GeminiManagedAgentExecutor.js').GeminiManagedAgentExecutor)(),
+    );
     gateway.registerExecutor('jules', new (require('../execution/JulesExecutor.js').JulesExecutor)());
-    gateway.registerExecutor('swarm', new (require('../execution/SwarmExecutor.js').SwarmExecutor)(new (require('../services/llm/LlmRuntimeService.js').LlmRuntimeService)()));
+    gateway.registerExecutor(
+      'swarm',
+      new (require('../execution/SwarmExecutor.js').SwarmExecutor)(
+        new (require('../services/llm/LlmRuntimeService.js').LlmRuntimeService)(),
+      ),
+    );
     return gateway;
   }
 
@@ -332,7 +341,9 @@ export class MailboxWatcher {
   }
 
   private async writeMailboxStatus(status: 'CONSUMED' | 'REJECTED', detail: string): Promise<void> {
-    const safeDetail = String(detail || '').replace(/\r?\n/g, ' ').trim();
+    const safeDetail = String(detail || '')
+      .replace(/\r?\n/g, ' ')
+      .trim();
     await fs.promises.mkdir(path.dirname(this.statusFilePath), { recursive: true });
     await fs.promises.writeFile(this.statusFilePath, `[STATUS: ${status}]\n[DETAIL: ${safeDetail || 'none'}]`, 'utf8');
   }
@@ -361,24 +372,33 @@ export class MailboxWatcher {
         inReplyTo: requestEnvelope.messageId,
         status,
         payload: {
-          summary: status === 'COMPLETED'
-            ? (task.result_summary || 'Task completed.')
-            : (task.error_summary || 'Task failed.'),
+          summary:
+            status === 'COMPLETED' ? task.result_summary || 'Task completed.' : task.error_summary || 'Task failed.',
           taskId: task.task_id,
           executorUsed: task.executor_used || undefined,
           riskLevel: task.risk_level ?? undefined,
           stdout: task.result_summary || undefined,
           stderr: task.error_summary || undefined,
-          errorMessage: status === 'FAILED' ? (task.error_summary || undefined) : undefined,
+          errorMessage: status === 'FAILED' ? task.error_summary || undefined : undefined,
         },
       });
       await this.bridgeAdapter.writeResponse(response);
-      this.logRepo.log('info', 'MailboxWatcher', `[V2] Response written for correlationId=${requestEnvelope.correlationId}`);
-    } catch (error: unknown) { const err = asErrorLike(error); this.logRepo.log('warn', 'MailboxWatcher', `Failed to write BridgeResponse V2: ${err.message}`);
+      this.logRepo.log(
+        'info',
+        'MailboxWatcher',
+        `[V2] Response written for correlationId=${requestEnvelope.correlationId}`,
+      );
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      this.logRepo.log('warn', 'MailboxWatcher', `Failed to write BridgeResponse V2: ${err.message}`);
     }
   }
 
-  private async moveMessageFile(sourcePath: string, targetDir: string, suffix: 'processed' | 'rejected'): Promise<string> {
+  private async moveMessageFile(
+    sourcePath: string,
+    targetDir: string,
+    suffix: 'processed' | 'rejected',
+  ): Promise<string> {
     await fs.promises.mkdir(targetDir, { recursive: true });
     const parsed = path.parse(sourcePath);
     const targetPath = path.join(targetDir, `${parsed.name}.${suffix}${parsed.ext || '.msg'}`);

@@ -9,6 +9,8 @@ export const SAFE_OBSERVATION_TOOL_NAMES = [
   'memory.read',
   'sessions.history',
   'sessions.list',
+  'conversation_recall',
+  'knowledge_recall',
   'session_search',
   'session_search_fts5',
   'zavorth_session_search',

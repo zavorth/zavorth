@@ -1,7 +1,4 @@
-import {
-  buildProviderConfig,
-  DEFAULT_ECHO_LLM_FALLBACK_ORDER,
-} from '../../src/config/sections/providerConfig';
+import { buildProviderConfig, DEFAULT_ECHO_LLM_FALLBACK_ORDER } from '../../src/config/sections/providerConfig';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -88,12 +85,16 @@ describe('buildProviderConfig', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-provider-config-pref-'));
     const runtimeDir = path.join(root, 'data', 'runtime');
     fs.mkdirSync(runtimeDir, { recursive: true });
-    fs.writeFileSync(path.join(runtimeDir, 'provider-selection-preferences.json'), JSON.stringify({
-      providerId: 'openai',
-      modelId: 'gpt-test',
-      routeId: 'openai',
-      familyId: 'openai',
-    }), 'utf8');
+    fs.writeFileSync(
+      path.join(runtimeDir, 'provider-selection-preferences.json'),
+      JSON.stringify({
+        providerId: 'openai',
+        modelId: 'gpt-test',
+        routeId: 'openai',
+        familyId: 'openai',
+      }),
+      'utf8',
+    );
 
     const config = buildProviderConfig(root);
 
@@ -102,14 +103,15 @@ describe('buildProviderConfig', () => {
     expect(config.modelSelectionRouteId).toBe('openai');
   });
 
-  it('routes LLM calls through the native gateway by default', () => {
+  it('does not invent a provider when the user has not selected one', () => {
     delete process.env.LLM_PROVIDER;
     delete process.env.ZAVORTH_DIRECT_PROVIDER_DEBUG;
 
     const config = buildProviderConfig();
 
-    expect(config.llmProvider).toBe('aigateway');
-    expect(config.AIGatewaySidecarEnabled).toBe(true);
+    expect(config.llmProvider).toBe('');
+    expect(config.providerConfigured).toBe(false);
+    expect(config.AIGatewaySidecarEnabled).toBe(false);
   });
 
   it('collects secondary OpenAI keys for provider failover', () => {

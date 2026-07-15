@@ -1,7 +1,4 @@
-import {
-  AgentRunService,
-  CROSS_CHANNEL_CONTINUITY_CONTRACT_VERSION,
-} from '../../../src/runtime/agent/index.js';
+import { AgentRunService, CROSS_CHANNEL_CONTINUITY_CONTRACT_VERSION } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
   let index = 0;
@@ -43,23 +40,25 @@ describe('AgentRunService Cross-Channel Continuity Channel mesh1', () => {
     });
 
     const continuity = result.run.metadata.crossChannelContinuity as any;
-    expect(result.run.status).toBe('waiting_approval');
-    expect(continuity).toEqual(expect.objectContaining({
-      contractVersion: CROSS_CHANNEL_CONTINUITY_CONTRACT_VERSION,
-      source: 'CrossChannelContinuityService',
-      status: 'handoff-ready',
-      summary: expect.objectContaining({
-        channelCount: expect.any(Number),
-        handoffCount: expect.any(Number),
-        bridgeDetected: true,
-        sameGateway: true,
+    expect(result.run.status).toBe('completed');
+    expect(continuity).toEqual(
+      expect.objectContaining({
+        contractVersion: CROSS_CHANNEL_CONTINUITY_CONTRACT_VERSION,
+        source: 'CrossChannelContinuityService',
+        status: 'handoff-ready',
+        summary: expect.objectContaining({
+          channelCount: expect.any(Number),
+          handoffCount: expect.any(Number),
+          bridgeDetected: true,
+          sameGateway: true,
+        }),
+        policy: expect.objectContaining({
+          noCrossChannelMessageSent: true,
+          noSessionForkCreated: true,
+          approvalRequiredForChannelSwitch: true,
+        }),
       }),
-      policy: expect.objectContaining({
-        noCrossChannelMessageSent: true,
-        noSessionForkCreated: true,
-        approvalRequiredForChannelSwitch: true,
-      }),
-    }));
+    );
     expect(continuity.channels.some((channel: any) => channel.kind === 'telegram')).toBe(true);
   });
 });

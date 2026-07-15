@@ -33,13 +33,15 @@ export class ProviderDoctorService {
     this.providerControlPlane = runtime.providerControlPlane || new ProviderControlPlaneService();
   }
 
-  public inspect(options: {
-    taskKind?: WorkspaceTaskKind;
-    taskSubtype?: WorkspaceTaskSubtype;
-    workspaceMemory?: Record<string, any> | null | undefined;
-    preferredZavorthBridgeModel?: string | null;
-    includeAdvanced?: boolean;
-  } = {}): ProviderDoctorReport {
+  public inspect(
+    options: {
+      taskKind?: WorkspaceTaskKind;
+      taskSubtype?: WorkspaceTaskSubtype;
+      workspaceMemory?: Record<string, any> | null | undefined;
+      preferredZavorthBridgeModel?: string | null;
+      includeAdvanced?: boolean;
+    } = {},
+  ): ProviderDoctorReport {
     const taskKind = options.taskKind || 'code';
     const taskSubtype = options.taskSubtype || 'general';
     const providers = this.providerControlPlane.listProviders({
@@ -82,38 +84,40 @@ export class ProviderDoctorService {
     };
   }
 
-  public renderStatusReport(options: {
-    taskKind?: WorkspaceTaskKind;
-    taskSubtype?: WorkspaceTaskSubtype;
-    workspaceMemory?: Record<string, any> | null | undefined;
-    preferredZavorthBridgeModel?: string | null;
-    includeAdvanced?: boolean;
-  } = {}): string {
+  public renderStatusReport(
+    options: {
+      taskKind?: WorkspaceTaskKind;
+      taskSubtype?: WorkspaceTaskSubtype;
+      workspaceMemory?: Record<string, any> | null | undefined;
+      preferredZavorthBridgeModel?: string | null;
+      includeAdvanced?: boolean;
+    } = {},
+  ): string {
     const report = this.inspect(options);
     const lines = [
-      'Modelos e providers do Zavorth',
+      'Zavorth models and providers',
       '',
-      `Provider principal atual: ${report.activeProviderName}`,
-      `Modelo conversacional atual: ${report.activeModelName}`,
-      `Modelo preferido do ZavorthBridge: ${report.preferredZavorthBridgeModel || 'ainda nao definido'}`,
+      `Current primary provider: ${report.activeProviderName}`,
+      `Current conversational model: ${report.activeModelName}`,
+      `Preferred ZavorthBridge model: ${report.preferredZavorthBridgeModel || 'not set yet'}`,
       '',
-      `Providers prontos agora: ${this.formatProviderList(report.readyProviders)}`,
-      `Providers que pedem configuracao: ${this.formatProviderList(report.pendingConfigProviders)}`,
-      `Providers que pedem probe local/runtime: ${this.formatProviderList(report.probeProviders)}`,
+      `Providers ready now: ${this.formatProviderList(report.readyProviders)}`,
+      `Providers needing configuration: ${this.formatProviderList(report.pendingConfigProviders)}`,
+      `Providers needing local/runtime probe: ${this.formatProviderList(report.probeProviders)}`,
       '',
-      `Perfil recomendado para esta etapa: ${report.recommendedProfile.profile.label}`,
-      `Rota sugerida: ${this.formatPreferredOrder(report.recommendedProfile.profile)}`,
-      `Estrategia atual aprendida: ${report.recommendedProfile.strategy.providerName}${report.recommendedProfile.strategy.modelName ? `/${report.recommendedProfile.strategy.modelName}` : ''}`,
+      `Recommended profile for this stage: ${report.recommendedProfile.profile.label}`,
+      `Suggested route: ${this.formatPreferredOrder(report.recommendedProfile.profile)}`,
+      `Current learned strategy: ${report.recommendedProfile.strategy.providerName}${report.recommendedProfile.strategy.modelName ? `/${report.recommendedProfile.strategy.modelName}` : ''}`,
       '',
-      'Perfis uteis:',
+      'Useful profiles:',
     ];
 
     for (const profile of report.profiles) {
-      lines.push(`- ${profile.label}: ${profile.summary} | ordem ${profile.preferredOrder.join(' -> ')}`);
+      lines.push(`- ${profile.label}: ${profile.summary} | order ${profile.preferredOrder.join(' -> ')}`);
     }
 
     if (report.recommendations.length > 0) {
-      lines.push('', 'Recomendacoes:');
+      lines.push('', 'Recommendations:');
       for (const recommendation of report.recommendations) {
         lines.push(`- ${recommendation}`);
       }
@@ -138,7 +142,9 @@ export class ProviderDoctorService {
       lines.push('Nenhum provider cloud esta pronto agora; configure GEMINI_API_KEY ou OPENAI_API_KEY primeiro.');
     } else if (!activeReady) {
       const fallback = input.readyProviders[0];
-      lines.push(`O provider atual nao esta pronto; considere trocar para ${fallback.label.toLowerCase()} com /model ${fallback.id}.`);
+      lines.push(
+        `O provider atual nao esta pronto; considere trocar para ${fallback.label.toLowerCase()} com /model ${fallback.id}.`,
+      );
     }
 
     if (input.probeProviders.length > 0) {
@@ -146,11 +152,15 @@ export class ProviderDoctorService {
     }
 
     if (input.pendingConfigProviders.some((entry) => entry.id === 'openrouter')) {
-      lines.push('Se voce precisa de research mais amplo, vale configurar OPENROUTER_API_KEY e ligar /model openrouter.');
+      lines.push(
+        'Se voce precisa de research mais amplo, vale configurar OPENROUTER_API_KEY e ligar /model openrouter.',
+      );
     }
 
     if (input.pendingConfigProviders.some((entry) => entry.id === 'minimax')) {
-      lines.push('Se voce quer MiniMax direto sem passar pelo OpenRouter, configure MINIMAX_API_KEY e ligue /model minimax.');
+      lines.push(
+        'Se voce quer MiniMax direto sem passar pelo OpenRouter, configure MINIMAX_API_KEY e ligue /model minimax.',
+      );
     }
 
     if (input.recommendedProfile.profile.id === 'coding') {

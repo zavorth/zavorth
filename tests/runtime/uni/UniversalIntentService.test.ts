@@ -71,15 +71,17 @@ describe('UniversalIntentService', () => {
       previewRequired: true,
       approvalRequired: true,
       sideEffect: 'local_workspace',
-      requestedTools: ['write_file'],
+      requestedTools: ['agent.runtime'],
     });
     expect(decision.trustPosture.posture).toBe('preview-first');
-    expect(decision.trustSlider).toEqual(expect.objectContaining({
-      level: 'collaborator',
-      decision: 'requires_permission',
-      permissionScope: 'once',
-      sandboxTier: 'workspace-scoped',
-    }));
+    expect(decision.trustSlider).toEqual(
+      expect.objectContaining({
+        level: 'collaborator',
+        decision: 'requires_permission',
+        permissionScope: 'once',
+        sandboxTier: 'workspace-scoped',
+      }),
+    );
   });
 
   it('treats external messages as approval-required side effects', () => {
@@ -125,7 +127,7 @@ describe('UniversalIntentService', () => {
       previewRequired: true,
       approvalRequired: true,
     });
-    expect(decision.capabilityRequired).toContain('shell.exec');
+    expect(decision.capabilityRequired).toEqual([]);
     expect(decision.trustPosture.posture).toBe('approval-required');
   });
 
@@ -149,7 +151,7 @@ describe('UniversalIntentService', () => {
     expect(decision.permissionRequest).toMatchObject({
       kind: 'workspace_mutation',
       scope: 'once',
-      requestedTools: ['write_file'],
+      requestedTools: ['agent.runtime'],
     });
     expect(decision.permissionNarrative.summary).toContain('permissao');
     expect(decision.permissionNarrative.where).toBe('C:/Users/me/Downloads');
@@ -214,12 +216,11 @@ describe('UniversalIntentService', () => {
     });
 
     expect(collaborator.intent).toBe('operator_control');
-    expect(collaborator.nextSafeAction).toBe('preview_then_request_permission');
-    expect(collaborator.requiresPermission).toBe(true);
+    expect(collaborator.nextSafeAction).toBe('block');
+    expect(collaborator.requiresPermission).toBe(false);
     expect(collaborator.trustSlider).toMatchObject({
-      decision: 'requires_permission',
-      previewRequired: true,
-      blocked: false,
+      decision: 'block',
+      blocked: true,
     });
 
     expect(blockedOverlord.nextSafeAction).toBe('block');
@@ -229,12 +230,14 @@ describe('UniversalIntentService', () => {
     expect(allowed.permissionRequest).toMatchObject({
       kind: 'operator_control',
     });
-    expect(allowed.trustSlider).toEqual(expect.objectContaining({
-      level: 'overlord',
-      decision: 'requires_permission',
-      auditTrailRequired: true,
-      killSwitchRequired: true,
-    }));
+    expect(allowed.trustSlider).toEqual(
+      expect.objectContaining({
+        level: 'overlord',
+        decision: 'requires_permission',
+        auditTrailRequired: true,
+        killSwitchRequired: true,
+      }),
+    );
   });
 
   it('blocks dangerous execution in protected mode', () => {

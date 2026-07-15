@@ -48,10 +48,18 @@ export class SharedSurfaceGatewayToolingCommandPack {
   public async handleAIGateway(ctx: IMessageContext, args: string): Promise<void> {
     const normalized = String(args || '').trim();
     const tokens = normalized.split(/\s+/).filter(Boolean);
-    const action = String(tokens[0] || 'status').trim().toLowerCase();
+    const action = String(tokens[0] || 'status')
+      .trim()
+      .toLowerCase();
 
     try {
-      if (action === 'start' || (action === 'route' && String(tokens[1] || '').trim().toLowerCase() === 'start')) {
+      if (
+        action === 'start' ||
+        (action === 'route' &&
+          String(tokens[1] || '')
+            .trim()
+            .toLowerCase() === 'start')
+      ) {
         const gatewayStatus = await this.deps.AIGatewayGatewayLauncherService.ensureStarted();
         await ctx.reply(this.formatAIGatewayGatewayReply(gatewayStatus, false));
         return;
@@ -90,7 +98,8 @@ export class SharedSurfaceGatewayToolingCommandPack {
       }
 
       await ctx.reply('Use /AIGateway [status|route|start|doctor|sync|promote|rollback].');
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_ai_gateway')));
+    } catch (error: unknown) {
+      await ctx.reply(errorMessage(error, tSurface('error_ai_gateway')));
     }
   }
 
@@ -113,40 +122,40 @@ export class SharedSurfaceGatewayToolingCommandPack {
       selectedId: query,
     });
     const lines = [
-      'Tool Surface do Zavorth',
+      'Zavorth Tool Surface',
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       '',
-      `Familias: ${snapshot.summary.families} | prontas: ${snapshot.summary.ready} | parciais: ${snapshot.summary.partial} | planejadas: ${snapshot.summary.planned}.`,
-      `Tools explicitas: ${snapshot.summary.explicitTools}.`,
+      `Families: ${snapshot.summary.families} | ready: ${snapshot.summary.ready} | partial: ${snapshot.summary.partial} | planned: ${snapshot.summary.planned}.`,
+      `Explicit tools: ${snapshot.summary.explicitTools}.`,
     ];
 
     if (query) {
-      lines.push('', `Filtro atual: ${query}`, `Itens visiveis: ${snapshot.catalog.entries.length}.`);
+      lines.push('', `Current filter: ${query}`, `Visible items: ${snapshot.catalog.entries.length}.`);
       if (snapshot.catalog.selected) {
         const selected = snapshot.catalog.selected;
         lines.push(
           '',
-          `Em foco: ${selected.label}`,
-          `Familia: ${selected.familyLabel} | kind: ${selected.kind} | readiness: ${selected.readiness}.`,
+          `In focus: ${selected.label}`,
+          `Family: ${selected.familyLabel} | kind: ${selected.kind} | readiness: ${selected.readiness}.`,
           selected.summary,
         );
         if (selected.command) {
-          lines.push(`Comando: ${selected.command}`);
+          lines.push(`Command: ${selected.command}`);
         }
         if (selected.details.length > 0) {
-          lines.push('', 'Detalhes:');
+          lines.push('', 'Details:');
           for (const detail of selected.details.slice(0, 4)) {
             lines.push(`- ${detail}`);
           }
         }
       } else {
-        lines.push('', 'Nenhum item canonicamente catalogado bateu com esse filtro.');
+        lines.push('', 'No cataloged item matched this filter.');
       }
 
       if (snapshot.catalog.entries.length > 0) {
-        lines.push('', 'Itens visiveis:');
+        lines.push('', 'Visible items:');
         for (const entry of snapshot.catalog.entries.slice(0, 6)) {
           const commandSuffix = entry.command ? ` | ${entry.command}` : '';
           lines.push(`- ${entry.label} (${entry.familyLabel})${commandSuffix}`);
@@ -157,66 +166,80 @@ export class SharedSurfaceGatewayToolingCommandPack {
         lines.push(`- ${family.label}: ${family.summary}`);
       }
       if (snapshot.catalog.entries.length > 0) {
-        lines.push('', 'Tools em destaque:');
+        lines.push('', 'Featured tools:');
         for (const entry of snapshot.catalog.entries.slice(0, 6)) {
           const commandSuffix = entry.command ? ` | ${entry.command}` : '';
           lines.push(`- ${entry.label} (${entry.familyLabel})${commandSuffix}`);
         }
       }
     }
-    await ctx.reply(this.renderGatewayReport('tool-surface', 'Tool Surface do Zavorth', lines.join('\n'), {
-      query,
-      visibleItems: snapshot.catalog.entries.length,
-    }));
+    await ctx.reply(
+      this.renderGatewayReport('tool-surface', 'Zavorth Tool Surface', lines.join('\n'), {
+        query,
+        visibleItems: snapshot.catalog.entries.length,
+      }),
+    );
   }
 
   public async handleHooks(ctx: IMessageContext, args: string): Promise<void> {
-    const query = String(args || '').trim().toLowerCase();
+    const query = String(args || '')
+      .trim()
+      .toLowerCase();
     const snapshot = this.deps.hookPlaneService.buildSnapshot();
     const visibleEvents = query
       ? snapshot.events.filter((event) =>
-        [event.id, event.label, event.phase, event.description]
-          .some((value) => String(value || '').toLowerCase().includes(query)))
+          [event.id, event.label, event.phase, event.description].some((value) =>
+            String(value || '')
+              .toLowerCase()
+              .includes(query),
+          ),
+        )
       : snapshot.events;
     const visibleRegistrations = query
       ? snapshot.registrations.filter((entry) =>
-        [entry.workspace, entry.workspaceName, entry.event, entry.command]
-          .some((value) => String(value || '').toLowerCase().includes(query)))
+          [entry.workspace, entry.workspaceName, entry.event, entry.command].some((value) =>
+            String(value || '')
+              .toLowerCase()
+              .includes(query),
+          ),
+        )
       : snapshot.registrations;
     const lines = [
-      'Hook Plane do Zavorth',
+      'Zavorth Hook Plane',
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       '',
-      `Eventos: ${snapshot.summary.supportedEvents} | cobertos: ${snapshot.summary.coveredEvents} | hooks registrados: ${snapshot.summary.registeredHooks} | workspaces: ${snapshot.summary.workspaces}.`,
+      `Events: ${snapshot.summary.supportedEvents} | covered: ${snapshot.summary.coveredEvents} | registered hooks: ${snapshot.summary.registeredHooks} | workspaces: ${snapshot.summary.workspaces}.`,
     ];
 
     if (query) {
-      lines.push('', `Filtro atual: ${query}`);
+      lines.push('', `Current filter: ${query}`);
     }
 
     if (visibleEvents.length > 0) {
-      lines.push('', query ? 'Eventos visiveis:' : 'Eventos em destaque:');
+      lines.push('', query ? 'Visible events:' : 'Featured events:');
       for (const event of visibleEvents.slice(0, 6)) {
         lines.push(`- ${event.label} (${event.phase}) | status: ${event.status} | hooks: ${event.registeredHooks}`);
       }
     } else {
-      lines.push('', 'Nenhum evento de hook bateu com esse filtro.');
+      lines.push('', 'No hook event matched this filter.');
     }
 
     if (visibleRegistrations.length > 0) {
-      lines.push('', 'Registracoes:');
+      lines.push('', 'Registrations:');
       for (const entry of visibleRegistrations.slice(0, 5)) {
         lines.push(`- ${entry.workspaceName || entry.workspace}: ${entry.event} -> ${entry.command}`);
       }
     }
 
-    await ctx.reply(this.renderGatewayReport('hook-plane', 'Hook Plane do Zavorth', lines.join('\n'), {
-      query: query || null,
-      visibleEvents: visibleEvents.length,
-      visibleRegistrations: visibleRegistrations.length,
-    }));
+    await ctx.reply(
+      this.renderGatewayReport('hook-plane', 'Zavorth Hook Plane', lines.join('\n'), {
+        query: query || null,
+        visibleEvents: visibleEvents.length,
+        visibleRegistrations: visibleRegistrations.length,
+      }),
+    );
   }
 
   private formatAIGatewayGatewayReply(
@@ -229,7 +252,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
         '',
         `Rota Zavorth: ${status.baseUrl}`,
         `Upstream: ${status.upstreamBaseUrl}`,
-        `Estado: ${status.ready ? 'ready' : (status.running ? 'warming-up' : 'offline')}.`,
+        `Estado: ${status.ready ? 'ready' : status.running ? 'warming-up' : 'offline'}.`,
         status.message,
       ].join('\n');
       return this.renderGatewayAction('AIGateway route', text, {
@@ -241,7 +264,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
     }
 
     const text = [
-      'AIGateway do Zavorth',
+      'Zavorth AIGateway',
       '',
       `Gateway proprio: ${status.enabled ? 'habilitado' : 'desabilitado'}.`,
       `Ready: ${status.ready ? 'yes' : 'no'}.`,
@@ -250,7 +273,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
       `Overlay: ${status.overlayFile || 'n/d'}`,
       status.message,
     ].join('\n');
-    return this.renderGatewayAction('AIGateway do Zavorth', text, {
+    return this.renderGatewayAction('Zavorth AIGateway', text, {
       id: 'aigateway-status',
       status: status.ready ? 'done' : 'failed',
       summary: status.message,
@@ -268,7 +291,9 @@ export class SharedSurfaceGatewayToolingCommandPack {
       `Target validado: ${report.checkedTarget}`,
       report.httpStatus !== null ? `HTTP: ${report.httpStatus}` : null,
       report.error ? `Erro: ${report.error}` : null,
-    ].filter(Boolean).join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
     return this.renderGatewayAction('AIGateway doctor', text, {
       id: 'aigateway-doctor',
       status: report.ok ? 'done' : 'failed',
@@ -286,7 +311,9 @@ export class SharedSurfaceGatewayToolingCommandPack {
       `Compatibilidade: ${report.compat ? report.compat.status : 'nao executada'}.`,
       report.rollbackApplied ? 'Rollback automatico aplicado: sim.' : null,
       report.error ? `Erro: ${report.error}` : null,
-    ].filter(Boolean).join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
     return this.renderGatewayAction(`AIGateway ${report.action}`, text, {
       id: `aigateway-${report.action}`,
       status: report.status === 'failed' ? 'failed' : 'done',
@@ -316,33 +343,33 @@ export class SharedSurfaceGatewayToolingCommandPack {
       });
     const shortcuts =
       ctx.platform === 'discord' && !isDiscordOperationalOwner
-        ? 'Atalhos uteis: /help e /task.'
-        : 'Atalhos uteis: /status, /changes, /reload e /autorepair.';
+        ? 'Useful shortcuts: /help and /task.'
+        : 'Useful shortcuts: /status, /changes, /reload and /autorepair.';
     const targets = this.deps.providerControlPlaneService.getUsageTargets();
     const text = [
       this.deps.providerDoctorService.renderStatusReport({
         preferredZavorthBridgeModel,
       }),
       '',
-      `Targets aceitos em /model: ${targets.join(', ')}.`,
+      `Accepted targets in /model: ${targets.join(', ')}.`,
       shortcuts,
     ].join('\n');
 
     return createSurfaceResponse({
       id: 'shared-gateway-models',
       intent: 'models',
-      title: 'Modelos e providers',
-      summary: 'Selecao de provider, alvo de uso e atalhos renderizados pelo mesmo contrato multi-canal.',
+      title: 'Models and providers',
+      summary: 'Provider selection, usage target, and shortcuts rendered by the same multi-channel contract.',
       tone: 'info',
       blocks: [
         {
           kind: 'text',
-          title: 'Leitura operacional',
+          title: 'Operational read',
           text,
         },
         {
           kind: 'list',
-          title: 'Targets aceitos',
+          title: 'Accepted targets',
           items: targets.length > 0 ? targets : ['chat'],
         },
       ],
@@ -360,46 +387,75 @@ export class SharedSurfaceGatewayToolingCommandPack {
     const blocks: SurfaceBlock[] = [
       {
         kind: 'text',
-        title: 'Leitura operacional',
-        text: [
-          snapshot.narrative.headline,
-          snapshot.narrative.operatorSummary,
-        ].join('\n'),
+        title: 'Operational read',
+        text: [snapshot.narrative.headline, snapshot.narrative.operatorSummary].join('\n'),
       },
       {
         kind: 'table',
         table: {
-          title: 'Resumo',
+          title: 'Summary',
           columns: [
             { key: 'area', label: 'Area', width: 22 },
-            { key: 'value', label: 'Valor', width: 16 },
-            { key: 'detail', label: 'Detalhe', width: 36 },
+            { key: 'value', label: 'Value', width: 16 },
+            { key: 'detail', label: 'Detail', width: 36 },
           ],
           rows: [
-            { area: 'Canais', value: `${snapshot.summary.channelsReady}/${snapshot.summary.channelsTotal}`, detail: 'ready on Channel Mesh' },
+            {
+              area: 'Channels',
+              value: `${snapshot.summary.channelsReady}/${snapshot.summary.channelsTotal}`,
+              detail: 'ready on Channel Mesh',
+            },
             { area: 'Runtime modes', value: snapshot.summary.runtimeModesReady, detail: 'modes ready' },
-            { area: 'Teams', value: snapshot.summary.teams, detail: 'workflows compostos' },
-            { area: 'Nodes', value: snapshot.summary.nodesPaired, detail: 'nodes pareados' },
-            { area: 'Sessoes', value: snapshot.summary.sessionTargets, detail: 'alvos visiveis' },
-            { area: 'Tools', value: snapshot.summary.toolFamilies, detail: 'familias catalogadas' },
-            { area: 'Plugins', value: snapshot.summary.plugins, detail: 'plugins registrados' },
-            { area: 'Memory', value: snapshot.summary.memoryArtifacts, detail: 'artefatos operacionais' },
+            { area: 'Teams', value: snapshot.summary.teams, detail: 'composed workflows' },
+            { area: 'Nodes', value: snapshot.summary.nodesPaired, detail: 'paired nodes' },
+            { area: 'Sessions', value: snapshot.summary.sessionTargets, detail: 'visible targets' },
+            { area: 'Tools', value: snapshot.summary.toolFamilies, detail: 'cataloged families' },
+            { area: 'Plugins', value: snapshot.summary.plugins, detail: 'registered plugins' },
+            { area: 'Memory', value: snapshot.summary.memoryArtifacts, detail: 'operational artifacts' },
           ],
         },
       },
     ];
 
     const actions: SurfaceResponseAction[] = [
-      { id: 'gateway-channels', label: 'Canais', kind: 'command', command: '/channels', callbackData: '/channels', style: 'primary' },
-      { id: 'gateway-models', label: 'Modelos', kind: 'command', command: '/models', callbackData: '/models', style: 'secondary' },
-      { id: 'gateway-tools', label: 'Tools', kind: 'command', command: '/tools', callbackData: '/tools', style: 'secondary' },
-      { id: 'gateway-runtime', label: 'Runtime', kind: 'command', command: '/runtime', callbackData: '/runtime', style: 'success' },
+      {
+        id: 'gateway-channels',
+        label: 'Channels',
+        kind: 'command',
+        command: '/channels',
+        callbackData: '/channels',
+        style: 'primary',
+      },
+      {
+        id: 'gateway-models',
+        label: 'Models',
+        kind: 'command',
+        command: '/models',
+        callbackData: '/models',
+        style: 'secondary',
+      },
+      {
+        id: 'gateway-tools',
+        label: 'Tools',
+        kind: 'command',
+        command: '/tools',
+        callbackData: '/tools',
+        style: 'secondary',
+      },
+      {
+        id: 'gateway-runtime',
+        label: 'Runtime',
+        kind: 'command',
+        command: '/runtime',
+        callbackData: '/runtime',
+        style: 'success',
+      },
     ];
 
     return createSurfaceResponse({
       id: 'shared-gateway-status',
       intent: 'status',
-      title: 'Gateway do Zavorth',
+      title: 'Zavorth Gateway',
       summary: snapshot.narrative.operatorSummary,
       tone: snapshot.summary.channelsReady > 0 ? 'success' : 'warning',
       blocks,
@@ -414,14 +470,49 @@ export class SharedSurfaceGatewayToolingCommandPack {
   private buildModelActions(allowOperationalModels: boolean): SurfaceResponseAction[] {
     if (!allowOperationalModels) {
       return [
-        { id: 'models-help', label: 'Ajuda', kind: 'command', command: '/help', callbackData: '/help', style: 'secondary' },
+        {
+          id: 'models-help',
+          label: 'Help',
+          kind: 'command',
+          command: '/help',
+          callbackData: '/help',
+          style: 'secondary',
+        },
       ];
     }
     return [
-      { id: 'model-gemini', label: 'Gemini', kind: 'command', command: '/model gemini', callbackData: '/model gemini', style: 'primary' },
-      { id: 'model-openai', label: 'OpenAI', kind: 'command', command: '/model openai', callbackData: '/model openai', style: 'secondary' },
-      { id: 'model-gemma', label: 'Gemma', kind: 'command', command: '/model gemma-2-27b-it', callbackData: '/model gemma-2-27b-it', style: 'secondary' },
-      { id: 'model-status', label: 'Gateway', kind: 'command', command: '/gateway', callbackData: '/gateway', style: 'success' },
+      {
+        id: 'model-gemini',
+        label: 'Gemini',
+        kind: 'command',
+        command: '/model gemini',
+        callbackData: '/model gemini',
+        style: 'primary',
+      },
+      {
+        id: 'model-openai',
+        label: 'OpenAI',
+        kind: 'command',
+        command: '/model openai',
+        callbackData: '/model openai',
+        style: 'secondary',
+      },
+      {
+        id: 'model-gemma',
+        label: 'Gemma',
+        kind: 'command',
+        command: '/model gemma-2-27b-it',
+        callbackData: '/model gemma-2-27b-it',
+        style: 'secondary',
+      },
+      {
+        id: 'model-status',
+        label: 'Gateway',
+        kind: 'command',
+        command: '/gateway',
+        callbackData: '/gateway',
+        style: 'success',
+      },
     ];
   }
 
@@ -432,14 +523,16 @@ export class SharedSurfaceGatewayToolingCommandPack {
     metadata: Record<string, unknown> = {},
     status: SurfaceReceiptStatus = 'done',
   ): string {
-    return renderPlainSurfaceResponse(buildReportSurfaceResponse({
-      id: `shared-gateway-${id}`,
-      title,
-      text,
-      status,
-      policyProfile: 'shared-gateway-tooling',
-      metadata,
-    })).text;
+    return renderPlainSurfaceResponse(
+      buildReportSurfaceResponse({
+        id: `shared-gateway-${id}`,
+        title,
+        text,
+        status,
+        policyProfile: 'shared-gateway-tooling',
+        metadata,
+      }),
+    ).text;
   }
 
   private renderGatewayAction(
@@ -452,15 +545,16 @@ export class SharedSurfaceGatewayToolingCommandPack {
       metadata?: Record<string, unknown>;
     },
   ): string {
-    return renderPlainSurfaceResponse(buildRuntimeSurfaceResponse({
-      id: `shared-gateway-${options.id}`,
-      title,
-      summary: options.summary,
-      text,
-      status: options.status || 'done',
-      policyProfile: 'shared-gateway-tooling',
-      metadata: options.metadata,
-    })).text;
+    return renderPlainSurfaceResponse(
+      buildRuntimeSurfaceResponse({
+        id: `shared-gateway-${options.id}`,
+        title,
+        summary: options.summary,
+        text,
+        status: options.status || 'done',
+        policyProfile: 'shared-gateway-tooling',
+        metadata: options.metadata,
+      }),
+    ).text;
   }
-
 }

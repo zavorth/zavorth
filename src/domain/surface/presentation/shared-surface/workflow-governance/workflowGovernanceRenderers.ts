@@ -34,146 +34,163 @@ type SelfModificationRollbackResult = {
   restoredFiles: number;
 };
 
-export function formatPermissionListReply(
-  permissions: PermissionRequest[],
-  status: PermissionListStatus,
-): string {
-  const lines = [
-    'Permissoes do Zavorth',
-    '',
-    `Status: ${status}.`,
-    `Total visivel: ${permissions.length}.`,
-  ];
+function shortPermissionRef(permissionId: string): string {
+  const id = String(permissionId || '').trim();
+  if (id.length <= 10) return id;
+  return id.slice(0, 8);
+}
+
+export function formatPermissionListReply(permissions: PermissionRequest[], status: PermissionListStatus): string {
+  const lines = ['Zavorth permissions', '', `Filter: ${status}.`, `Visible: ${permissions.length}.`];
 
   if (permissions.length === 0) {
-    lines.push('', 'Nenhuma permissao encontrada nesse filtro.');
+    lines.push('', 'No permissions in this filter.');
     return lines.join('\n');
   }
 
-  lines.push('', 'Itens em foco:');
-  for (const permission of permissions.slice(0, 8)) {
+  lines.push('', 'Items (use numbers — not long ids):');
+  permissions.slice(0, 8).forEach((permission, index) => {
+    const n = index + 1;
+    const short = shortPermissionRef(permission.permission_id);
     lines.push(
-      `- ${permission.permission_id} | ${permission.status} | ${permission.executor}/${permission.kind}`,
-      `  ${permission.reason}`,
+      `${n}. ${permission.executor}/${permission.kind} · ${permission.status} · ref=${short}`,
+      `   ${String(permission.reason || '').slice(0, 120)}`,
     );
-  }
+  });
+  lines.push('', 'Tip: /perm approve 1 · /perm reject 1 · /perm show 1 · /perm list pending');
   return lines.join('\n');
 }
 
 export function formatPermissionDetailsReply(permission: PermissionRequest): string {
+  const short = shortPermissionRef(permission.permission_id);
   return [
-    'Detalhe da permissao',
+    'Permission detail',
     '',
-    `ID: ${permission.permission_id}`,
+    `Ref: ${short}`,
     `Status: ${permission.status} | scope: ${permission.scope}.`,
     `Executor: ${permission.executor} | kind: ${permission.kind}.`,
-    `Workspace: ${permission.workspace || 'n/d'}.`,
-    `Valor pedido: ${permission.requested_value || 'n/d'}.`,
-    `Valor resolvido: ${permission.resolved_value || 'n/d'}.`,
-    `Solicitado por: ${permission.requested_by || 'n/d'} | decidido por: ${permission.decided_by || 'n/d'}.`,
+    `Workspace: ${permission.workspace || 'n/a'}.`,
+    `Requested: ${permission.requested_value || 'n/a'}.`,
+    `Resolved: ${permission.resolved_value || 'n/a'}.`,
+    `Requested by: ${permission.requested_by || 'n/a'} | decided by: ${permission.decided_by || 'n/a'}.`,
     `Reason: ${permission.reason}`,
-    permission.decision_note ? `Nota: ${permission.decision_note}` : null,
-  ].filter(Boolean).join('\n');
+    permission.decision_note ? `Note: ${permission.decision_note}` : null,
+    '',
+    'Tip: /perm list pending · /perm approve 1',
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
-export function formatPermissionDecisionReply(
-  permission: PermissionRequest,
-  action: 'approve' | 'reject',
-): string {
+export function formatPermissionDecisionReply(permission: PermissionRequest, action: 'approve' | 'reject'): string {
+  const short = shortPermissionRef(permission.permission_id);
   return [
-    action === 'approve' ? 'Permissao aprovada.' : 'Permissao rejeitada.',
+    action === 'approve' ? 'Permission approved.' : 'Permission rejected.',
     '',
-    `ID: ${permission.permission_id}`,
+    `Ref: ${short}`,
     `Status: ${permission.status}.`,
     `Executor: ${permission.executor} | kind: ${permission.kind}.`,
-    permission.decision_note ? `Nota: ${permission.decision_note}` : null,
-    `Comandos uteis agora: /perm show ${permission.permission_id} | /perm list ${permission.status}.`,
-  ].filter(Boolean).join('\n');
+    permission.decision_note ? `Note: ${permission.decision_note}` : null,
+    'Tip: /perm list pending',
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 export function renderSelfModificationUsage(): string {
   return [
-    'Uso do selfmod guardado:',
-    'selfmod <arquivo_relativo> -- <instrucao>',
-    'selfmod preview <arquivo_relativo> -- <instrucao>',
-    'selfmod goal -- <objetivo>',
+    'Guarded selfmod usage:',
+    'selfmod <relative_file> -- <instruction>',
+    'selfmod preview <relative_file> -- <instruction>',
+    'selfmod goal -- <goal>',
     'selfmod apply <preview_id>',
     'selfmod rollback <change_id>',
   ].join('\n');
 }
 
 export function formatSelfModificationPreviewReply(result: SelfModificationPreviewResult): string {
+  const shortPreview = result.previewId
+    ? result.previewId.length <= 12
+      ? result.previewId
+      : result.previewId.slice(0, 8)
+    : null;
   const lines = [
-    result.success ? 'Preview de auto-modificacao pronto.' : 'Preview de auto-modificacao bloqueado.',
+    result.success ? 'Self-modification preview ready.' : 'Self-modification preview blocked.',
     '',
     result.summary,
-    result.previewId ? `Preview: ${result.previewId}.` : null,
-    result.relativePath ? `Arquivo: ${result.relativePath}.` : null,
-    result.changeCount ? `Mudancas planejadas: ${result.changeCount}.` : null,
-    result.resourceImpact ? `Impacto estimado: ${result.resourceImpact}.` : null,
+    shortPreview ? `Preview ref: ${shortPreview}.` : null,
+    result.relativePath ? `File: ${result.relativePath}.` : null,
+    result.changeCount ? `Planned changes: ${result.changeCount}.` : null,
+    result.resourceImpact ? `Estimated impact: ${result.resourceImpact}.` : null,
     ...formatSelfmodOptimizationAnalysis(result.optimizationAnalysis),
-    result.previewId ? `Proximo passo: selfmod apply ${result.previewId}` : null,
-    result.validationPlan?.length
-      ? `Validacao: ${result.validationPlan.slice(0, 4).join(' | ')}`
-      : null,
+    // Proposal-time next action: buttons when available, else explicit slash — never free-text "Approve".
+    result.success && result.previewId ? `Next: tap Apply on the card, or /selfmod apply ${result.previewId}` : null,
+    result.validationPlan?.length ? `Validation: ${result.validationPlan.slice(0, 4).join(' | ')}` : null,
     result.diffSummary ? ['', result.diffSummary] : null,
-  ].flat().filter(Boolean) as string[];
+  ]
+    .flat()
+    .filter(Boolean) as string[];
   return lines.join('\n');
 }
 
-export function formatSelfmodOptimizationAnalysis(
-  analysis?: SelfmodOptimizationAnalysis,
-): Array<string | null> {
+export function formatSelfmodOptimizationAnalysis(analysis?: SelfmodOptimizationAnalysis): Array<string | null> {
   if (!analysis) {
     return [];
   }
 
   const rollbackPercent = Math.round(analysis.rollbackConfidence * 100);
   return [
-    `Delta de recursos: ${analysis.resourceDelta.summary}.`,
+    `Resource delta: ${analysis.resourceDelta.summary}.`,
     analysis.resourceDelta.notes.length
-      ? `Notas de impacto: ${analysis.resourceDelta.notes.slice(0, 2).join(' | ')}`
+      ? `Impact notes: ${analysis.resourceDelta.notes.slice(0, 2).join(' | ')}`
       : null,
-    `Risco de runtime: ${analysis.runtimeRisk.level} (score ${analysis.runtimeRisk.score}).`,
+    `Runtime risk: ${analysis.runtimeRisk.level} (score ${analysis.runtimeRisk.score}).`,
     analysis.runtimeRisk.reasons.length
-      ? `Por que isso pesa: ${analysis.runtimeRisk.reasons.slice(0, 2).join(' | ')}`
+      ? `Why this is heavy: ${analysis.runtimeRisk.reasons.slice(0, 2).join(' | ')}`
       : null,
-    analysis.companionImpact.companionIds.length
-      ? `Impacto em companions: ${analysis.companionImpact.summary}`
-      : null,
+    analysis.companionImpact.companionIds.length ? `Companion impact: ${analysis.companionImpact.summary}` : null,
     analysis.companionImpact.recommendedActions.length
-      ? `Acoes sugeridas: ${analysis.companionImpact.recommendedActions.slice(0, 2).join(' | ')}`
+      ? `Suggested actions: ${analysis.companionImpact.recommendedActions.slice(0, 2).join(' | ')}`
       : null,
-    `Confianca de rollback: ${rollbackPercent}% (${analysis.rollbackConfidenceLabel}).`,
+    `Rollback confidence: ${rollbackPercent}% (${analysis.rollbackConfidenceLabel}).`,
     analysis.patternSignals.length
-      ? `Memoria de padrao: ${analysis.patternSignals.slice(0, 2).map((entry) => entry.summary).join(' | ')}`
+      ? `Pattern memory: ${analysis.patternSignals
+          .slice(0, 2)
+          .map((entry) => entry.summary)
+          .join(' | ')}`
       : null,
     analysis.opportunities.length
-      ? `Otimizacoes sugeridas: ${analysis.opportunities.slice(0, 2).map((entry) => entry.title).join(' | ')}`
+      ? `Suggested optimizations: ${analysis.opportunities
+          .slice(0, 2)
+          .map((entry) => entry.title)
+          .join(' | ')}`
       : null,
   ];
 }
 
 export function formatSelfModificationApplyReply(result: SelfModificationApplyResult): string {
   return [
-    result.success ? 'Auto-modificacao aplicada.' : 'Auto-modificacao nao aplicada.',
+    result.success ? 'Self-modification applied.' : 'Self-modification not applied.',
     '',
     result.summary,
     `Preview: ${result.previewId}.`,
-    result.relativePath ? `Arquivo: ${result.relativePath}.` : null,
+    result.relativePath ? `File: ${result.relativePath}.` : null,
     result.changeId ? `Change ID: ${result.changeId}.` : null,
-    result.changeCount ? `Arquivos alterados: ${result.changeCount}.` : null,
+    result.changeCount ? `Files changed: ${result.changeCount}.` : null,
     result.changeId ? `Rollback: selfmod rollback ${result.changeId}` : null,
     result.diffSummary ? ['', result.diffSummary] : null,
-  ].flat().filter(Boolean).join('\n');
+  ]
+    .flat()
+    .filter(Boolean)
+    .join('\n');
 }
 
 export function formatSelfModificationRollbackReply(result: SelfModificationRollbackResult): string {
   return [
-    result.success ? 'Rollback de selfmod concluido.' : 'Rollback de selfmod nao concluido.',
+    result.success ? 'Selfmod rollback completed.' : 'Selfmod rollback not completed.',
     '',
     result.summary,
     `Change ID: ${result.changeId}.`,
-    `Arquivos restaurados: ${result.restoredFiles}.`,
+    `Files restored: ${result.restoredFiles}.`,
   ].join('\n');
 }

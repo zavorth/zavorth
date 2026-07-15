@@ -96,18 +96,22 @@ describe('TelegramOpsInsightService', () => {
     await service.handleModels(ctx);
 
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth Models And Providers');
-    expect(ctx.reply.mock.calls[0]?.[1]).toEqual(expect.objectContaining({
+    expect(ctx.reply.mock.calls[0]?.[1]).toEqual(
+      expect.objectContaining({
         reply_markup: expect.objectContaining({
           inline_keyboard: expect.any(Array),
         }),
-      }));
+      }),
+    );
     const options = ctx.reply.mock.calls[0][1];
     const buttons = options.reply_markup.inline_keyboard.flat();
-    expect(buttons).toEqual(expect.arrayContaining([
-      expect.objectContaining({ text: 'Gemini', callback_data: '/model gemini' }),
-      expect.objectContaining({ text: 'Gemma', callback_data: '/model gemma-2-27b-it' }),
-      expect.objectContaining({ text: 'OpenAI', callback_data: '/model openai' }),
-    ]));
+    expect(buttons).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ text: 'Gemini', callback_data: '/model gemini' }),
+        expect.objectContaining({ text: 'Gemma', callback_data: '/model gemma-2-27b-it' }),
+        expect.objectContaining({ text: 'OpenAI', callback_data: '/model openai' }),
+      ]),
+    );
   });
 
   it('renders /status through the Surface Response Telegram renderer', async () => {
@@ -118,20 +122,24 @@ describe('TelegramOpsInsightService', () => {
 
     await service.handleStatus(ctx);
 
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Panorama do Zavorth');
-    expect(ctx.reply.mock.calls[0]?.[1]).toEqual(expect.objectContaining({
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth overview');
+    expect(ctx.reply.mock.calls[0]?.[1]).toEqual(
+      expect.objectContaining({
         reply_markup: expect.objectContaining({
           inline_keyboard: expect.any(Array),
         }),
-      }));
+      }),
+    );
     const text = ctx.reply.mock.calls[0][0];
     const buttons = ctx.reply.mock.calls[0][1].reply_markup.inline_keyboard.flat();
-    expect(text).toContain('Runtime, sidecars, tarefas e superficies');
-    expect(text).toContain('Processos ativos');
-    expect(buttons).toEqual(expect.arrayContaining([
-      expect.objectContaining({ text: 'Hub', callback_data: 'hub:page:overview' }),
-      expect.objectContaining({ text: 'ZavorthControl', callback_data: '/zavorthControl' }),
-      expect.objectContaining({ text: 'Permissoes', callback_data: '/perm list' }),
-    ]));
+    expect(text).toContain('Runtime, sidecars, tasks, and surfaces');
+    expect(text).toContain('Active processes');
+    expect(buttons).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ text: 'Hub', callback_data: 'hub:page:overview' }),
+        expect.objectContaining({ text: 'ZavorthControl', callback_data: '/zavorthControl' }),
+        expect.objectContaining({ text: 'Permissions', callback_data: '/perm list' }),
+      ]),
+    );
   });
 });

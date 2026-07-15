@@ -26,12 +26,10 @@ import {
 } from '../DiscordVoiceAttachmentIngest.js';
 import { DiscordGatewayPersistence } from './DiscordGatewayPersistence.js';
 
-import type {
-  DiscordGatewayInteractionLike,
-  DiscordGatewayMessageLike,
-} from '../DiscordGatewayTypes.js';
+import type { DiscordGatewayInteractionLike, DiscordGatewayMessageLike } from '../DiscordGatewayTypes.js';
 
 import { DiscordGatewayReplyService } from './DiscordGatewayReplyService.js';
+import { canActorWriteLearning } from '../../../../services/ZavorthLearningWriteAuth.js';
 
 type DiscordGatewayInboundServiceOptions = {
   broker: IMessageBroker | null;
@@ -184,28 +182,30 @@ export class DiscordGatewayInboundService {
       }
     }
 
-    if (await this.tryHandleNaturalMessageThroughAgentGateway({
-      userId: authorId,
-      rawText,
-      chatId,
-      channelId,
-      threadId,
-      guildId,
-      messageId: String(message.id || '').trim() || null,
-      attachments,
-      composerPayload: {
+    if (
+      await this.tryHandleNaturalMessageThroughAgentGateway({
+        userId: authorId,
+        rawText,
+        chatId,
+        channelId,
+        threadId,
+        guildId,
+        messageId: String(message.id || '').trim() || null,
         attachments,
-        discord: {
-          source: 'message',
-          channelId,
-          threadId,
-          guildId,
+        composerPayload: {
+          attachments,
+          discord: {
+            source: 'message',
+            channelId,
+            threadId,
+            guildId,
+          },
         },
-      },
-      reply: async (text: string, options?: DiscordGatewayReplyOptions) => {
-        await this.replyService.replyToMessage(message, text, options);
-      },
-    })) {
+        reply: async (text: string, options?: DiscordGatewayReplyOptions) => {
+          await this.replyService.replyToMessage(message, text, options);
+        },
+      })
+    ) {
       return;
     }
 
@@ -256,9 +256,7 @@ export class DiscordGatewayInboundService {
     const guildId = String(interaction.guildId || '').trim() || null;
     const channelId = String(interaction.channelId || '').trim();
     const threadId = resolveDiscordThreadId(interaction.channel, channelId);
-    const attachments = extractDiscordAttachments([
-      interaction.options?.getAttachment?.('attachment', false) || null,
-    ]);
+    const attachments = extractDiscordAttachments([interaction.options?.getAttachment?.('attachment', false) || null]);
     const commandText = this.buildInteractionCommandText(interaction, attachments);
 
     if (!authorId || !channelId || !commandText) {
@@ -297,7 +295,9 @@ export class DiscordGatewayInboundService {
       transport: 'slash_command',
       attachments,
       nativeCommand: {
-        name: String(interaction.commandName || '').trim().toLowerCase(),
+        name: String(interaction.commandName || '')
+          .trim()
+          .toLowerCase(),
         args: null,
         options: {
           force: interaction.options?.getBoolean?.('force', false) ?? null,
@@ -363,9 +363,7 @@ export class DiscordGatewayInboundService {
     const messageId = String(interaction.message?.id || '').trim() || null;
 
     // Prefer select value, then customId (task:once:<id> etc.)
-    const selectValue = Array.isArray(interaction.values)
-      ? String(interaction.values[0] || '').trim()
-      : '';
+    const selectValue = Array.isArray(interaction.values) ? String(interaction.values[0] || '').trim() : '';
     const customId = String(interaction.customId || '').trim();
     const rawCallback = selectValue || customId;
 
@@ -599,10 +597,14 @@ export class DiscordGatewayInboundService {
     interaction: DiscordGatewayInteractionLike,
     attachments: MessageAttachment[],
   ): string {
-    const commandName = String(interaction.commandName || '').trim().toLowerCase();
+    const commandName = String(interaction.commandName || '')
+      .trim()
+      .toLowerCase();
     const input = String(interaction.options?.getString?.('input', false) || '').trim();
     const force = interaction.options?.getBoolean?.('force', false) === true;
-    const mode = String(interaction.options?.getString?.('mode', false) || '').trim().toLowerCase();
+    const mode = String(interaction.options?.getString?.('mode', false) || '')
+      .trim()
+      .toLowerCase();
 
     switch (commandName) {
       case 'task':
@@ -662,6 +664,11 @@ export class DiscordGatewayInboundService {
         attachments: input.attachments,
         composerPayload: input.composerPayload,
         legacyUnifiedGatewayBypassed: true,
+        allowLearningWrite: canActorWriteLearning({
+          surface: 'discord',
+          userId: input.userId,
+          chatId: input.chatId,
+        }),
       },
     });
 

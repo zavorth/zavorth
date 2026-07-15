@@ -1,14 +1,14 @@
-import { Context, InputFile } from "grammy";
-import { config } from "../../../../config/index.js";
-import { TaskManager } from "../../../../orchestrator/TaskManager.js";
-import { LogRepository } from "../../../../storage/LogRepository.js";
-import type { Task } from "../../../../contracts/TaskContract.js";
-import { TrustedBoundary } from "../../../../security/TrustedBoundary.js";
-import { WorkspaceOperationalMemoryService } from "../../../../runtime/context/WorkspaceOperationalMemoryService.js";
-import { SurfaceTaskDispatchService } from "../../../../services/SurfaceTaskDispatchService.js";
-import type { EchoOutputStageService } from "../../../../services/EchoOutputStageService.js";
-import { TelegramTaskOrchestrationController } from "../../../../gateways/channels/telegram/controllers/TelegramTaskOrchestrationController.js";
-import type { TelegramTaskPreparationInput } from "../../../../gateways/channels/telegram/controllers/TelegramTaskPreparationService.js";
+import { Context, InputFile } from 'grammy';
+import { config } from '../../../../config/index.js';
+import { TaskManager } from '../../../../orchestrator/TaskManager.js';
+import { LogRepository } from '../../../../storage/LogRepository.js';
+import type { Task } from '../../../../contracts/TaskContract.js';
+import { TrustedBoundary } from '../../../../security/TrustedBoundary.js';
+import { WorkspaceOperationalMemoryService } from '../../../../runtime/context/WorkspaceOperationalMemoryService.js';
+import { SurfaceTaskDispatchService } from '../../../../services/SurfaceTaskDispatchService.js';
+import type { EchoOutputStageService } from '../../../../services/EchoOutputStageService.js';
+import { TelegramTaskOrchestrationController } from '../../../../gateways/channels/telegram/controllers/TelegramTaskOrchestrationController.js';
+import type { TelegramTaskPreparationInput } from '../../../../gateways/channels/telegram/controllers/TelegramTaskPreparationService.js';
 import type {
   ParserLike,
   TaskOrchestrationControllerLike,
@@ -18,17 +18,17 @@ import type {
   SurfaceTaskDispatcherLike,
   PermissionControllerLike,
   HostIdentityServiceLike,
-} from "../../../../services/SurfaceRuntime.js";
-import type { WorkflowRunService } from "../../../../services/WorkflowRunService.js";
-import type { SecurityAuditLogger } from "../../../../services/SecurityAuditLogger.js";
-import type { OperatorModeService } from "../../../../services/OperatorModeService.js";
-import type { PresentationModeService } from "../../../../services/PresentationModeService.js";
-import type { WorkspaceProfileService } from "../../../../services/WorkspaceProfileService.js";
+} from '../../../../services/SurfaceRuntime.js';
+import type { WorkflowRunService } from '../../../../services/WorkflowRunService.js';
+import type { SecurityAuditLogger } from '../../../../services/SecurityAuditLogger.js';
+import type { OperatorModeService } from '../../../../services/OperatorModeService.js';
+import type { PresentationModeService } from '../../../../services/PresentationModeService.js';
+import type { WorkspaceProfileService } from '../../../../services/WorkspaceProfileService.js';
 import {
   extractTaskPayload,
   getDefaultWorkspace,
   persistTask,
-} from "../../../../gateways/channels/telegram/TelegramTaskSupport.js";
+} from '../../../../gateways/channels/telegram/TelegramTaskSupport.js';
 
 type InlineDataEntry = { mimeType: string; data: string };
 
@@ -123,25 +123,20 @@ export function buildTaskNaturalConversationIngress(
   taskManager: TaskManager,
 ): TaskConversationIngress {
   return async (ctx, task, messageText, inlineData) => {
-    const sourcePlatform = String(task.source || 'telegram').trim().toLowerCase();
+    const sourcePlatform = String(task.source || 'telegram')
+      .trim()
+      .toLowerCase();
     const normalizedText = String(messageText || '').trim();
-    const surface = sourcePlatform === 'discord' || sourcePlatform === 'web'
-      ? sourcePlatform
-      : 'telegram';
+    const surface = sourcePlatform === 'discord' || sourcePlatform === 'web' ? sourcePlatform : 'telegram';
     const userId = ctx.from?.id?.toString?.() || task.user_id || '';
     const chatId = ctx.chat?.id?.toString?.() || task.chat_id || '';
     const legacyUnifiedGateway = gateway.legacyUnifiedGateway || null;
 
     if (!normalizedText) {
-      gateway.logRepo.log(
-        'warn',
-        'BotGateway',
-        'Ingresso natural unificado ignorado por payload vazio.',
-        {
-          taskId: task.task_id,
-          source: task.source || 'telegram',
-        },
-      );
+      gateway.logRepo.log('warn', 'BotGateway', 'Ingresso natural unificado ignorado por payload vazio.', {
+        taskId: task.task_id,
+        source: task.source || 'telegram',
+      });
       await ctx.reply('Nao consegui encaminhar essa mensagem pela conversa unificada porque ela veio vazia.');
       return;
     }
@@ -174,6 +169,7 @@ export function buildTaskNaturalConversationIngress(
           return;
         }
 
+        const voiceFlow = (task.metadata?.voiceFlow || null) as Record<string, unknown> | null;
         await outputStage.deliver({
           surface,
           text,
@@ -181,11 +177,14 @@ export function buildTaskNaturalConversationIngress(
           taskId: task.task_id,
           requestedBy: userId || 'telegram-task-ingress',
           sessionId: chatId,
-          voiceFlow: (task.metadata?.voiceFlow || null) as Record<string, unknown> | null,
+          voiceFlow,
+          preferVoiceReply:
+            voiceFlow?.preferVoiceReply === true ||
+            voiceFlow?.ttsReplyDesired === true ||
+            voiceFlow?.replyWithAudio === true,
+          forceVoice: voiceFlow?.forceVoice === true,
           preferredLanguageCode:
-            typeof task.metadata?.preferredLanguageCode === 'string'
-              ? task.metadata.preferredLanguageCode
-              : null,
+            typeof task.metadata?.preferredLanguageCode === 'string' ? task.metadata.preferredLanguageCode : null,
           sink: {
             sendText: async (nextText) => {
               await ctx.reply(nextText);
@@ -224,60 +223,52 @@ export function initializeTelegramTaskRuntime(
   logRepo: LogRepository,
   workflowRunService: WorkflowRunService,
 ): void {
-  const {
-    TelegramSwarmController,
-  } = require("../controllers/TelegramSwarmController.js");
+  const { TelegramSwarmController } = require('../controllers/TelegramSwarmController.js');
   gateway.swarmController = new TelegramSwarmController({
     botApi: gateway.bot.api,
-    getLlmRuntime: () =>
-      new (require("../../services/llm/LlmRuntimeService.js").LlmRuntimeService)(),
+    getLlmRuntime: () => new (require('../../services/llm/LlmRuntimeService.js').LlmRuntimeService)(),
   });
-  gateway.taskOrchestrationController = new TelegramTaskOrchestrationController(
-    {
-      taskManager,
-      logRepo,
-      auditLogger: gateway.auditLogger,
-      attachRecentContext: async (task) => {
-        const ContextModule =
-          require("../../orchestrator/ContextManager.js").ContextManager;
-        const contextManager = new ContextModule(taskManager);
-        await contextManager.attachRecentContext(task);
-      },
-      routeIntent: (parsed) => {
-        const intentRouter =
-          new (require("../../orchestrator/IntentRouter.js").IntentRouter)();
-        return intentRouter.route(parsed);
-      },
-      classifyRisk: (parsed, route) => {
-        const riskClassifier =
-          new (require("../../orchestrator/RiskClassifier.js").RiskClassifier)();
-        return riskClassifier.classify(parsed, route);
-      },
-      classifyTrust: (text, input) => classifyTaskTrust(text, input),
-      persistTask: (task) => persistTask(taskManager, task),
-      getDefaultWorkspace,
-      extractTaskPayload,
-      operatorModeService: gateway.operatorModeService,
-      presentationModeService: gateway.presentationModeService,
-      workspaceProfileService: gateway.workspaceProfileService,
-      workspaceOperationalMemoryService: new WorkspaceOperationalMemoryService(
-        taskManager,
-        gateway.permissionService as any,
-      ),
-      executionController: gateway.executionController,
-      zavorthBridgeController: gateway.zavorthBridgeController,
-      naturalConversationIngress: buildTaskNaturalConversationIngress(
-        {
-          legacyUnifiedGateway: gateway.legacyUnifiedGateway || null,
-          echoOutputStage: gateway.echoOutputStage || null,
-          logRepo,
-        },
-        taskManager,
-      ),
-      videoHandler: gateway.videoHandler,
-      workflowController: gateway.pipelineController as any,
+  gateway.taskOrchestrationController = new TelegramTaskOrchestrationController({
+    taskManager,
+    logRepo,
+    auditLogger: gateway.auditLogger,
+    attachRecentContext: async (task) => {
+      const ContextModule = require('../../orchestrator/ContextManager.js').ContextManager;
+      const contextManager = new ContextModule(taskManager);
+      await contextManager.attachRecentContext(task);
     },
-  );
+    routeIntent: (parsed) => {
+      const intentRouter = new (require('../../orchestrator/IntentRouter.js').IntentRouter)();
+      return intentRouter.route(parsed);
+    },
+    classifyRisk: (parsed, route) => {
+      const riskClassifier = new (require('../../orchestrator/RiskClassifier.js').RiskClassifier)();
+      return riskClassifier.classify(parsed, route);
+    },
+    classifyTrust: (text, input) => classifyTaskTrust(text, input),
+    persistTask: (task) => persistTask(taskManager, task),
+    getDefaultWorkspace,
+    extractTaskPayload,
+    operatorModeService: gateway.operatorModeService,
+    presentationModeService: gateway.presentationModeService,
+    workspaceProfileService: gateway.workspaceProfileService,
+    workspaceOperationalMemoryService: new WorkspaceOperationalMemoryService(
+      taskManager,
+      gateway.permissionService as any,
+    ),
+    executionController: gateway.executionController,
+    zavorthBridgeController: gateway.zavorthBridgeController,
+    naturalConversationIngress: buildTaskNaturalConversationIngress(
+      {
+        legacyUnifiedGateway: gateway.legacyUnifiedGateway || null,
+        echoOutputStage: gateway.echoOutputStage || null,
+        logRepo,
+      },
+      taskManager,
+    ),
+    videoHandler: gateway.videoHandler,
+    workflowController: gateway.pipelineController as any,
+  });
   gateway.surfaceTaskDispatcher = new SurfaceTaskDispatchService({
     parser: gateway.parser,
     taskOrchestrationController: gateway.taskOrchestrationController as any,
@@ -295,36 +286,30 @@ export function initializeTelegramTaskRuntime(
     echoOutputStage: gateway.echoOutputStage || null,
     permissionController: gateway.permissionController,
     hostIdentityService: gateway.hostIdentityService,
-    webUserId: config.allowedUserIds[0] || "1",
+    webUserId: config.allowedUserIds[0] || '1',
   });
 }
 
 function classifyTaskTrust(text: string, input: TelegramTaskPreparationInput) {
-  const platform = String(
-    input?.surfaceMetadata?.platform || input?.source || "telegram",
-  )
+  const platform = String(input?.surfaceMetadata?.platform || input?.source || 'telegram')
     .trim()
     .toLowerCase();
 
-  if (platform === "discord") {
-    const chatId = String(
-      input?.surfaceMetadata?.chatId || input?.chatId || "",
-    ).trim();
-    if (chatId.startsWith("discord:dm:")) {
-      return TrustedBoundary.classify(text, "discord_dm_user");
+  if (platform === 'discord') {
+    const chatId = String(input?.surfaceMetadata?.chatId || input?.chatId || '').trim();
+    if (chatId.startsWith('discord:dm:')) {
+      return TrustedBoundary.classify(text, 'discord_dm_user');
     }
 
     return TrustedBoundary.classify(
       text,
-      input?.surfaceMetadata?.publicServerMode === true
-        ? "discord_public_user"
-        : "discord_user",
+      input?.surfaceMetadata?.publicServerMode === true ? 'discord_public_user' : 'discord_user',
     );
   }
 
-  if (platform === "web") {
-    return TrustedBoundary.classify(text, "web_user");
+  if (platform === 'web') {
+    return TrustedBoundary.classify(text, 'web_user');
   }
 
-  return TrustedBoundary.classify(text, "telegram_user");
+  return TrustedBoundary.classify(text, 'telegram_user');
 }

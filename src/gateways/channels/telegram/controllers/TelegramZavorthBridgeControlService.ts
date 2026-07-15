@@ -1,10 +1,7 @@
 import { Context } from 'grammy';
 import { ZavorthBridgePreferenceStore } from '../../../../agents/ZavorthBridgePreferenceStore.js';
 import { CapabilityLifecycleService } from '@zavorth/services/CapabilityLifecycleService.js';
-import {
-  CapabilityUnavailableError,
-  isCapabilityUnavailableError,
-} from '@zavorth/services/OptionalCapabilityGuard.js';
+import { CapabilityUnavailableError, isCapabilityUnavailableError } from '@zavorth/services/OptionalCapabilityGuard.js';
 import {
   ZavorthBridgeControlAction,
   ZavorthBridgeControlResult,
@@ -15,7 +12,10 @@ import { asErrorLike } from '../../../../utils/errorLike.js';
 
 type TelegramZavorthBridgeControlServiceDeps = {
   zavorthBridgeControlService: Pick<ZavorthBridgeControlService, 'open' | 'restart' | 'status' | 'setModel'>;
-  zavorthBridgePreferenceStore: Pick<ZavorthBridgePreferenceStore, 'getPreferredModel' | 'setPreferredModel' | 'forUser'>;
+  zavorthBridgePreferenceStore: Pick<
+    ZavorthBridgePreferenceStore,
+    'getPreferredModel' | 'setPreferredModel' | 'forUser'
+  >;
   capabilityLifecycleService?: CapabilityLifecycleService;
 };
 
@@ -24,55 +24,37 @@ export class TelegramZavorthBridgeControlService {
 
   constructor(private readonly deps: TelegramZavorthBridgeControlServiceDeps) {}
 
+  /**
+   * Slash-only (agent-first). Free-text NLU phrases never open/control ZavorthBridge.
+   * Examples: /ag_open, /ag_status, /ag_restart, /ag_model <name>
+   */
   public parseControlCommand(rawText: string): { action: ZavorthBridgeControlAction; model?: string } | null {
     const trimmed = rawText.trim();
+    if (!trimmed.startsWith('/')) {
+      return null;
+    }
+
     const normalized = trimmed
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, ' ');
 
-    if (normalized === '/ag_open' || normalized === 'abrir zavorthbridge' || normalized === 'abrir zavorth bridge' || normalized === 'open zavorthbridge' || normalized === 'open zavorth bridge') {
+    if (normalized === '/ag_open') {
       return { action: 'open' };
     }
 
-    if (
-      normalized === '/ag_status' ||
-      normalized === 'status do zavorthbridge' ||
-      normalized === 'status do zavorth bridge' ||
-      normalized === 'status zavorthbridge' ||
-      normalized === 'status zavorth bridge' ||
-      normalized === 'zavorthbridge status' ||
-      normalized === 'zavorth bridge status'
-    ) {
+    if (normalized === '/ag_status') {
       return { action: 'status' };
     }
 
-    if (
-      normalized === '/ag_restart' ||
-      normalized === 'reiniciar zavorthbridge' ||
-      normalized === 'reiniciar zavorth bridge' ||
-      normalized === 'reiniciar o zavorthbridge' ||
-      normalized === 'reiniciar o zavorth bridge' ||
-      normalized === 'restart zavorthbridge' ||
-      normalized === 'restart zavorth bridge'
-    ) {
+    if (normalized === '/ag_restart') {
       return { action: 'restart' };
     }
 
     const modelSlashMatch = trimmed.match(/^\/ag_model\s+(.+)$/i);
     if (modelSlashMatch) {
       return { action: 'set-model', model: modelSlashMatch[1].trim() };
-    }
-
-    const openWithModelMatch = normalized.match(/^abrir zavorth ?bridge com\s+(.+)$/i);
-    if (openWithModelMatch) {
-      return { action: 'set-model', model: openWithModelMatch[1].trim() };
-    }
-
-    const modelNaturalMatch = normalized.match(/^(?:usar|trocar para|mudar para)\s+(.+?)\s+(?:no|do)\s+zavorth ?bridge$/i);
-    if (modelNaturalMatch) {
-      return { action: 'set-model', model: modelNaturalMatch[1].trim() };
     }
 
     return null;
@@ -97,11 +79,7 @@ export class TelegramZavorthBridgeControlService {
     return { model, prompt };
   }
 
-  public async handleControl(
-    ctx: Context,
-    action: ZavorthBridgeControlAction,
-    model?: string,
-  ): Promise<void> {
+  public async handleControl(ctx: Context, action: ZavorthBridgeControlAction, model?: string): Promise<void> {
     try {
       const result =
         action === 'open'
@@ -123,11 +101,13 @@ export class TelegramZavorthBridgeControlService {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       if (isCapabilityUnavailableError(error)) {
-        await ctx.reply(this.buildCapabilityUnavailableReply(
-          error,
-          ctx.from?.id?.toString() || 'unknown',
-          'To complete this ZavorthBridge step I need to enable the optional remote capability on this host.',
-        ));
+        await ctx.reply(
+          this.buildCapabilityUnavailableReply(
+            error,
+            ctx.from?.id?.toString() || 'unknown',
+            'To complete this ZavorthBridge step I need to enable the optional remote capability on this host.',
+          ),
+        );
         return;
       }
       await ctx.reply(`ZavorthBridge control failed: ${error instanceof Error ? err.message : String(error)}`);
@@ -137,9 +117,10 @@ export class TelegramZavorthBridgeControlService {
   public async handleModelCommand(ctx: Context, args: string): Promise<void> {
     const requestedModel = args?.trim() || '';
     const operatorUserId = ctx.from?.id?.toString() || null;
-    const store = typeof (this.deps.zavorthBridgePreferenceStore as any).forUser === 'function'
-      ? (this.deps.zavorthBridgePreferenceStore as ZavorthBridgePreferenceStore).forUser(operatorUserId)
-      : this.deps.zavorthBridgePreferenceStore;
+    const store =
+      typeof (this.deps.zavorthBridgePreferenceStore as any).forUser === 'function'
+        ? (this.deps.zavorthBridgePreferenceStore as ZavorthBridgePreferenceStore).forUser(operatorUserId)
+        : this.deps.zavorthBridgePreferenceStore;
     if (!requestedModel) {
       const currentPreferredModel = await store.getPreferredModel(operatorUserId);
       await ctx.reply(
@@ -234,17 +215,18 @@ export class TelegramZavorthBridgeControlService {
     if (result.remoteModeActive === false) {
       return 'ready for local use; for remote use, enable /remote on';
     }
-    if (result.remoteModeActive === true && result.sessionAccessible === true && result.processFound && result.windowFound) {
+    if (
+      result.remoteModeActive === true &&
+      result.sessionAccessible === true &&
+      result.processFound &&
+      result.windowFound
+    ) {
       return 'ready for remote use';
     }
     return 'partially ready; check the details below';
   }
 
-  private buildCapabilityUnavailableReply(
-    error: CapabilityUnavailableError,
-    userId: string,
-    reason: string,
-  ): string {
+  private buildCapabilityUnavailableReply(error: CapabilityUnavailableError, userId: string, reason: string): string {
     const capabilityLifecycleService = this.deps.capabilityLifecycleService;
     if (!capabilityLifecycleService) {
       return `${reason}\n\n${error.message}`;
@@ -260,14 +242,10 @@ export class TelegramZavorthBridgeControlService {
       return `${reason}\n\n${error.message}`;
     }
 
-    return this.opsPresentationService.formatCapabilityApprovalReply(
-      demand.capability,
-      demand.approval,
-      {
-        reason,
-        remediation: error.remediation,
-        dependencyName: error.dependencyName,
-      },
-    );
+    return this.opsPresentationService.formatCapabilityApprovalReply(demand.capability, demand.approval, {
+      reason,
+      remediation: error.remediation,
+      dependencyName: error.dependencyName,
+    });
   }
 }

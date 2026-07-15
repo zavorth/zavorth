@@ -1,9 +1,5 @@
-import type {
-  AgentToolSecurityDefinition,
-} from './AgentSecurityPolicyEngine.js';
-import {
-  normalizeAgentToolSecurityDefinition,
-} from './AgentSecurityPolicyEngine.js';
+import type { AgentToolSecurityDefinition } from './AgentSecurityPolicyEngine.js';
+import { normalizeAgentToolSecurityDefinition } from './AgentSecurityPolicyEngine.js';
 import { createFallbackAgentToolSecurityDefinition } from './AgentToolSecurityDefinitionFactories.js';
 export { createMcpAgentToolSecurityDefinition } from './AgentToolSecurityDefinitionFactories.js';
 
@@ -222,7 +218,8 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     capabilities: ['local-observation'],
     defaultRisk: 'safe',
     requiresConfirmation: false,
-    description: 'Routes first-class Zavorth action lookup, preview, apply and receipts through the governed Action Harness. Mutation is approval-gated inside the gateway.',
+    description:
+      'Routes first-class Zavorth action lookup, preview, apply and receipts through the governed Action Harness. Mutation is approval-gated inside the gateway.',
   },
   {
     toolName: 'auto_skill_creator',
@@ -233,12 +230,21 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Creates local declarative skill manifests.',
   },
   {
+    toolName: 'use_learned_skill',
+    surface: 'native-tool',
+    capabilities: ['skill', 'local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Loads experience-skill draft procedures as governed guidance only; does not execute tools.',
+  },
+  {
     toolName: 'agent_manager',
     surface: 'native-tool',
     capabilities: ['external-send', 'shell', 'network'],
     defaultRisk: 'review',
     requiresConfirmation: true,
-    description: 'Registers, lists, removes, and discovers external agents. Supports natural language input for agent discovery.',
+    description:
+      'Registers, lists, removes, and discovers external agents. Supports natural language input for agent discovery.',
   },
   {
     toolName: 'capability_discovery',
@@ -1225,12 +1231,28 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Full-text search across sessions with zero LLM cost.',
   },
   {
+    toolName: 'conversation_recall',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Preferred conversation continuum recall (Learned Knowledge · Conversation pillar).',
+  },
+  {
+    toolName: 'knowledge_recall',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Project knowledge via Mnemos wiki (Learned Knowledge · Knowledge pillar). Read-only.',
+  },
+  {
     toolName: 'session_search',
     surface: 'native-tool',
     capabilities: ['local-observation'],
     defaultRisk: 'safe',
     requiresConfirmation: false,
-    description: 'Canonical full-text session search (Session Continuum / FTS).',
+    description: 'Alias: full-text session search (Session Continuum / FTS). Prefer conversation_recall.',
   },
   {
     toolName: 'sessions.search',
@@ -1355,7 +1377,11 @@ export function findMissingExplicitNativeToolSecurityDefinitions(toolNames: stri
   return Array.from(
     new Set(
       toolNames
-        .map((toolName) => String(toolName || '').trim().toLowerCase())
+        .map((toolName) =>
+          String(toolName || '')
+            .trim()
+            .toLowerCase(),
+        )
         .filter(Boolean)
         .filter((toolName) => !NATIVE_DEFINITIONS_BY_NAME.has(toolName)),
     ),
@@ -1366,8 +1392,8 @@ export function assertExplicitNativeToolSecurityDefinitions(toolNames: string[])
   const missing = findMissingExplicitNativeToolSecurityDefinitions(toolNames);
   if (missing.length > 0) {
     throw new Error(
-      `Missing explicit native tool security definition(s): ${missing.join(', ')}. `
-      + 'Add them to NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS before exposing the tool.',
+      `Missing explicit native tool security definition(s): ${missing.join(', ')}. ` +
+        'Add them to NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS before exposing the tool.',
     );
   }
 }
@@ -1375,31 +1401,85 @@ export function assertExplicitNativeToolSecurityDefinitions(toolNames: string[])
 export { createFallbackAgentToolSecurityDefinition } from './AgentToolSecurityDefinitionFactories.js';
 
 /** First-party Plugin OS command aliases resolved as inferred (not fallback). */
-const PLUGIN_OS_SAFE_COMMAND_ALIASES = new Map<string, {
-  capabilities: AgentToolSecurityDefinition['capabilities'];
-  description: string;
-}>([
-  ['search_query', { capabilities: ['network', 'untrusted-input'], description: 'Plugin OS web search query (first-party).' }],
-  ['search_status', { capabilities: ['local-observation'], description: 'Plugin OS search backend status (first-party).' }],
-  ['doctor_run', { capabilities: ['local-observation', 'filesystem'], description: 'Plugin OS workspace doctor health check (first-party).' }],
+const PLUGIN_OS_SAFE_COMMAND_ALIASES = new Map<
+  string,
+  {
+    capabilities: AgentToolSecurityDefinition['capabilities'];
+    description: string;
+  }
+>([
+  [
+    'search_query',
+    { capabilities: ['network', 'untrusted-input'], description: 'Plugin OS web search query (first-party).' },
+  ],
+  [
+    'search_status',
+    { capabilities: ['local-observation'], description: 'Plugin OS search backend status (first-party).' },
+  ],
+  [
+    'doctor_run',
+    {
+      capabilities: ['local-observation', 'filesystem'],
+      description: 'Plugin OS workspace doctor health check (first-party).',
+    },
+  ],
   ['doctor_env', { capabilities: ['local-observation'], description: 'Plugin OS env profile report (first-party).' }],
-  ['github_status', { capabilities: ['network', 'local-observation'], description: 'Plugin OS GitHub status (first-party).' }],
-  ['github_pr_list', { capabilities: ['network', 'local-observation'], description: 'Plugin OS GitHub PR list (first-party).' }],
-  ['security_scan', { capabilities: ['local-observation'], description: 'Plugin OS security guidance scan (first-party).' }],
+  [
+    'github_status',
+    { capabilities: ['network', 'local-observation'], description: 'Plugin OS GitHub status (first-party).' },
+  ],
+  [
+    'github_pr_list',
+    { capabilities: ['network', 'local-observation'], description: 'Plugin OS GitHub PR list (first-party).' },
+  ],
+  [
+    'security_scan',
+    { capabilities: ['local-observation'], description: 'Plugin OS security guidance scan (first-party).' },
+  ],
   ['secrets_scan', { capabilities: ['local-observation'], description: 'Plugin OS secrets scan (first-party).' }],
-  ['router_recommend', { capabilities: ['local-observation'], description: 'Plugin OS capability router recommend (first-party).' }],
-  ['cost_summary', { capabilities: ['local-observation'], description: 'Plugin OS cost tracker summary (first-party).' }],
-  ['memory_get', { capabilities: ['memory', 'filesystem', 'local-observation'], description: 'Plugin OS local memory get (first-party).' }],
-  ['memory_search', { capabilities: ['memory', 'filesystem', 'local-observation'], description: 'Plugin OS local memory search (first-party).' }],
+  [
+    'router_recommend',
+    { capabilities: ['local-observation'], description: 'Plugin OS capability router recommend (first-party).' },
+  ],
+  [
+    'cost_summary',
+    { capabilities: ['local-observation'], description: 'Plugin OS cost tracker summary (first-party).' },
+  ],
+  [
+    'memory_get',
+    {
+      capabilities: ['memory', 'filesystem', 'local-observation'],
+      description: 'Plugin OS local memory get (first-party).',
+    },
+  ],
+  [
+    'memory_search',
+    {
+      capabilities: ['memory', 'filesystem', 'local-observation'],
+      description: 'Plugin OS local memory search (first-party).',
+    },
+  ],
 ]);
 
-const PLUGIN_OS_REVIEW_COMMAND_ALIASES = new Map<string, {
-  capabilities: AgentToolSecurityDefinition['capabilities'];
-  description: string;
-}>([
-  ['memory_write', { capabilities: ['memory', 'filesystem'], description: 'Plugin OS local memory write (first-party).' }],
-  ['pr_ship_create', { capabilities: ['network', 'external-send'], description: 'Plugin OS create/ship pull request (first-party).' }],
-  ['notify_deliver', { capabilities: ['network', 'external-send'], description: 'Plugin OS notify outbox deliver (first-party).' }],
+const PLUGIN_OS_REVIEW_COMMAND_ALIASES = new Map<
+  string,
+  {
+    capabilities: AgentToolSecurityDefinition['capabilities'];
+    description: string;
+  }
+>([
+  [
+    'memory_write',
+    { capabilities: ['memory', 'filesystem'], description: 'Plugin OS local memory write (first-party).' },
+  ],
+  [
+    'pr_ship_create',
+    { capabilities: ['network', 'external-send'], description: 'Plugin OS create/ship pull request (first-party).' },
+  ],
+  [
+    'notify_deliver',
+    { capabilities: ['network', 'external-send'], description: 'Plugin OS notify outbox deliver (first-party).' },
+  ],
 ]);
 
 function createInferredPluginOsDynamicToolSecurityDefinition(
@@ -1413,7 +1493,8 @@ function createInferredPluginOsDynamicToolSecurityDefinition(
     capabilities: ['plugin', 'filesystem', 'network', 'untrusted-input'],
     defaultRisk: 'review',
     requiresConfirmation: true,
-    description: description || 'Dynamic Plugin OS tool without an explicit security definition (inferred, fail-closed).',
+    description:
+      description || 'Dynamic Plugin OS tool without an explicit security definition (inferred, fail-closed).',
     source: 'inferred',
   });
 }
@@ -1455,7 +1536,9 @@ export function resolveDefaultAgentToolSecurityDefinition(
   toolName: string,
   description?: string,
 ): AgentToolSecurityDefinition {
-  const normalized = String(toolName || '').trim().toLowerCase();
+  const normalized = String(toolName || '')
+    .trim()
+    .toLowerCase();
   const known = NATIVE_DEFINITIONS_BY_NAME.get(normalized);
   if (known) {
     return {
@@ -1490,5 +1573,3 @@ export function resolveDefaultAgentToolSecurityDefinition(
 
   return createFallbackAgentToolSecurityDefinition(toolName, description);
 }
-
-

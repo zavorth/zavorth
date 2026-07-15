@@ -49,9 +49,9 @@ describe('Web app node mesh transport routes', () => {
         nodeId: 'oracle-node',
         capabilityId: 'system.run',
         action: 'run',
-        reason: 'Invocacao colocada na fila.',
+        reason: 'Invocation queued.',
         transport: 'bridge',
-        commandHint: 'Acompanhe o heartbeat.',
+        commandHint: 'Watch the heartbeat.',
         queuedAt: '2026-04-02T22:00:20.000Z',
         invocationId: 'invoke-web-1',
       })),
@@ -91,62 +91,50 @@ describe('Web app node mesh transport routes', () => {
     const baseUrl = service.getUrl();
     const token = 'web-secret';
 
-    const claimResult = await fetchDashboardJson(
-      baseUrl,
-      '/api/web/nodes/pairing/claim',
-      {
-        token,
-        init: {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nodeId: 'oracle-node',
-            pairingCode: 'PAIR-WEB-1',
-          }),
+    const claimResult = await fetchDashboardJson(baseUrl, '/api/web/nodes/pairing/claim', {
+      token,
+      init: {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          nodeId: 'oracle-node',
+          pairingCode: 'PAIR-WEB-1',
+        }),
       },
-    );
+    });
 
-    const heartbeatResult = await fetchDashboardJson(
-      baseUrl,
-      '/api/web/nodes/heartbeat',
-      {
-        token,
-        init: {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nodeId: 'oracle-node',
-            sharedSecret: 'shared-secret',
-            results: [],
-          }),
+    const heartbeatResult = await fetchDashboardJson(baseUrl, '/api/web/nodes/heartbeat', {
+      token,
+      init: {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          nodeId: 'oracle-node',
+          sharedSecret: 'shared-secret',
+          results: [],
+        }),
       },
-    );
+    });
 
-    const invokeResult = await fetchDashboardJson(
-      baseUrl,
-      '/api/web/nodes/invoke',
-      {
-        token,
-        init: {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nodeId: 'oracle-node',
-            capabilityId: 'system.run',
-            action: 'run',
-            payload: { command: 'echo ok' },
-          }),
+    const invokeResult = await fetchDashboardJson(baseUrl, '/api/web/nodes/invoke', {
+      token,
+      init: {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          nodeId: 'oracle-node',
+          capabilityId: 'system.run',
+          action: 'run',
+          payload: { command: 'echo ok' },
+        }),
       },
-    );
+    });
 
     await service.stopAsync();
 
@@ -460,7 +448,8 @@ describe('Web app node mesh transport routes', () => {
         pairingCode: 'PAIR-DESKTOP-1',
         bootstrap: {
           packageScript: 'companion:start',
-          command: 'npm run companion:start -- --passcode \"desktop-bridge:PAIR-DESKTOP-1\" --base-url http://127.0.0.1:33333 --node-id desktop-bridge --workspace \"C:/workspace/demo\" --label \"Desktop Companion\" --surface desktop --capabilities screen.capture,notifications.send,files.read,files.write,clipboard.read',
+          command:
+            'npm run companion:start -- --passcode \"desktop-bridge:PAIR-DESKTOP-1\" --base-url http://127.0.0.1:33333 --node-id desktop-bridge --workspace \"C:/workspace/demo\" --label \"Desktop Companion\" --surface desktop --capabilities screen.capture,notifications.send,files.read,files.write,clipboard.read',
           fallbackCommand: 'node apps/zavorth-companion/index.js \"desktop-bridge:PAIR-DESKTOP-1\"',
           pairingToken: 'desktop-bridge:PAIR-DESKTOP-1',
           workspaceHint: 'C:/workspace/demo',
@@ -666,9 +655,30 @@ describe('Web app node mesh transport routes', () => {
         transport: 'bridge',
         paired: true,
         capabilities: [
-          { id: 'system.run', label: 'System Run', summary: 'Execucao local', category: 'system', risky: true, actionHint: 'Executar comando' },
-          { id: 'node.maintenance', label: 'Node Maintenance', summary: 'Doctor e repair local', category: 'system', risky: true, actionHint: 'Reparar host' },
-          { id: 'files.write', label: 'Files Write', summary: 'Escrita de arquivos', category: 'files', risky: true, actionHint: 'Persistir artefato' },
+          {
+            id: 'system.run',
+            label: 'System Run',
+            summary: 'Execucao local',
+            category: 'system',
+            risky: true,
+            actionHint: 'Executar comando',
+          },
+          {
+            id: 'node.maintenance',
+            label: 'Node Maintenance',
+            summary: 'Doctor e repair local',
+            category: 'system',
+            risky: true,
+            actionHint: 'Reparar host',
+          },
+          {
+            id: 'files.write',
+            label: 'Files Write',
+            summary: 'Escrita de arquivos',
+            category: 'files',
+            risky: true,
+            actionHint: 'Persistir artefato',
+          },
         ],
         summary: {
           total: 3,
@@ -690,16 +700,8 @@ describe('Web app node mesh transport routes', () => {
     const baseUrl = service.getUrl();
     const token = 'web-secret';
 
-    const activityResult = await fetchDashboardJson(
-      baseUrl,
-      '/api/web/nodes/oracle-node/activity',
-      { token },
-    );
-    const capabilitiesResult = await fetchDashboardJson(
-      baseUrl,
-      '/api/web/nodes/oracle-node/capabilities',
-      { token },
-    );
+    const activityResult = await fetchDashboardJson(baseUrl, '/api/web/nodes/oracle-node/activity', { token });
+    const capabilitiesResult = await fetchDashboardJson(baseUrl, '/api/web/nodes/oracle-node/capabilities', { token });
 
     await service.stopAsync();
 

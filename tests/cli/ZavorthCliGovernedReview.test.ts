@@ -48,35 +48,37 @@ describe('Zavorth CLI Governed Review', () => {
       },
     });
 
-    expect(result).toEqual(expect.objectContaining({
-      ok: true,
-      handled: true,
-    }));
-    const payload = JSON.parse(writes[0] || '{}');
-    expect(payload).toEqual(expect.objectContaining({
-      contractVersion: GOVERNED_REVIEW_CONTRACT_VERSION,
-      mode: 'security-review',
-      policy: expect.objectContaining({
-        noMutationApplied: true,
-        approvalRequiredBeforeMutation: true,
+    expect(result).toEqual(
+      expect.objectContaining({
+        ok: true,
+        handled: true,
       }),
-      agentRuntimePlan: expect.objectContaining({
-        source: 'ReviewAgentOrchestrator',
+    );
+    const payload = JSON.parse(writes[0] || '{}');
+    expect(payload).toEqual(
+      expect.objectContaining({
+        contractVersion: GOVERNED_REVIEW_CONTRACT_VERSION,
+        mode: 'security-review',
         policy: expect.objectContaining({
-          noSubagentsLaunched: true,
-          approvalRequiredBeforeLaunch: true,
+          noMutationApplied: true,
+          approvalRequiredBeforeMutation: true,
+        }),
+        agentRuntimePlan: expect.objectContaining({
+          source: 'ReviewAgentOrchestrator',
+          policy: expect.objectContaining({
+            noSubagentsLaunched: true,
+            approvalRequiredBeforeLaunch: true,
+          }),
+        }),
+        verification: expect.objectContaining({
+          acceptedThreshold: 80,
+        }),
+        policyGate: expect.objectContaining({
+          source: 'ReviewPolicyGate',
         }),
       }),
-      verification: expect.objectContaining({
-        acceptedThreshold: 80,
-      }),
-      policyGate: expect.objectContaining({
-        source: 'ReviewPolicyGate',
-      }),
-    }));
-    expect(payload.context.files).toEqual([
-      expect.objectContaining({ path: 'src/auth.ts' }),
-    ]);
+    );
+    expect(payload.context.files).toEqual([expect.objectContaining({ path: 'src/auth.ts' })]);
   });
 
   it('formats a compact human product surface', () => {
@@ -90,7 +92,7 @@ describe('Zavorth CLI Governed Review', () => {
     const text = formatGovernedReviewSnapshot(snapshot);
 
     expect(text).toContain('Zavorth Governed Review - Connector registry');
-    expect(text).toContain('Agentes');
+    expect(text).toContain('Agents');
     expect(text).toContain('Policy Gate');
     expect(text).toContain('/zavorthControl/reviews');
     expect(text).toContain('approval-gated');
@@ -111,26 +113,32 @@ describe('Zavorth CLI Governed Review', () => {
       },
     });
 
-    expect(result).toEqual(expect.objectContaining({
-      ok: true,
-      handled: true,
-    }));
-    const payload = JSON.parse(writes[0] || '{}');
-    expect(payload.execution).toEqual(expect.objectContaining({
-      status: 'completed',
-      approvalId: 'approval-cli-1',
-      liveAgentSnapshot: expect.objectContaining({
-        status: 'completed',
-        liveRuns: 1,
-        externalIoPerformed: false,
-      }),
-    }));
-    expect(payload.execution.outcomes).toEqual(expect.arrayContaining([
+    expect(result).toEqual(
       expect.objectContaining({
-        action: 'launch-live-agents',
-        status: 'completed',
-        allowed: true,
+        ok: true,
+        handled: true,
       }),
-    ]));
+    );
+    const payload = JSON.parse(writes[0] || '{}');
+    expect(payload.execution).toEqual(
+      expect.objectContaining({
+        status: 'completed',
+        approvalId: 'approval-cli-1',
+        liveAgentSnapshot: expect.objectContaining({
+          status: 'completed',
+          liveRuns: 1,
+          externalIoPerformed: false,
+        }),
+      }),
+    );
+    expect(payload.execution.outcomes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          action: 'launch-live-agents',
+          status: 'completed',
+          allowed: true,
+        }),
+      ]),
+    );
   });
 });

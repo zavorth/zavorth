@@ -16,7 +16,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceEcosystemC
   return new SharedSurfaceEcosystemCommandPack({
     platformActionService: { execute: jest.fn() } as any,
     platformRegistryService: {
-      renderCatalogReport: jest.fn(() => 'Platform plane do Zavorth'),
+      renderCatalogReport: jest.fn(() => 'Zavorth platform plane'),
     } as any,
     platformCatalogSyncService: {
       sync: jest.fn(async () => ({
@@ -77,11 +77,17 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceEcosystemC
       renderReport: jest.fn((snapshot: any) => `Subagents ${snapshot.status}`),
     } as any,
     naturalInvocationRouterService: {
-      plan: jest.fn(async (input: any) => naturalPlan(input.text, {
-        channel: input.channel,
-        actorId: input.actorId,
-        primaryAction: /skill/i.test(input.text) ? 'use_skill' : /absorv|biblioteca|batch/i.test(input.text) ? 'large_absorption' : 'spawn_team',
-      })),
+      plan: jest.fn(async (input: any) =>
+        naturalPlan(input.text, {
+          channel: input.channel,
+          actorId: input.actorId,
+          primaryAction: /skill/i.test(input.text)
+            ? 'use_skill'
+            : /absorv|biblioteca|batch/i.test(input.text)
+              ? 'large_absorption'
+              : 'spawn_team',
+        }),
+      ),
       renderPlan: jest.fn((plan: any) => `Natural ${plan.primaryAction}`),
     } as any,
     ...overrides,
@@ -90,7 +96,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceEcosystemC
 
 describe('SharedSurfaceEcosystemCommandPack', () => {
   it('renders the platform catalog through /platform', async () => {
-    const renderCatalogReport = jest.fn(() => 'Platform plane do Zavorth\n\nzavorthBridge');
+    const renderCatalogReport = jest.fn(() => 'Zavorth platform plane\n\nzavorthBridge');
     const pack = buildPack({
       platformRegistryService: { renderCatalogReport } as any,
     });
@@ -103,7 +109,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
       selectedId: 'skill:zavorthBridge',
       query: 'skill:zavorthBridge',
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Platform plane do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth platform plane'));
   });
 
   it('syncs the platform registry through /platform sync', async () => {
@@ -145,7 +151,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const pack = buildPack({
       platformActionService: { execute } as any,
       platformRegistryService: {
-        renderCatalogReport: jest.fn(() => 'Platform plane do Zavorth\n\nUI Debug Onboarding'),
+        renderCatalogReport: jest.fn(() => 'Zavorth platform plane\n\nUI Debug Onboarding'),
       } as any,
     });
     const ctx = buildCtx('/platform install recipe:ui-debug-onboarding');
@@ -224,11 +230,13 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/skills', 'bridge research-pack');
 
     expect(handled).toBe(true);
-    expect(executeCommand).toHaveBeenCalledWith(expect.objectContaining({
-      args: 'bridge research-pack',
-      channel: 'telegram',
-      actorId: 'telegram-user',
-    }));
+    expect(executeCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        args: 'bridge research-pack',
+        channel: 'telegram',
+        actorId: 'telegram-user',
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Universal Skill Bridge Activation'));
   });
 
@@ -250,9 +258,11 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/skills', 'run research-pack');
 
     expect(handled).toBe(true);
-    expect(executeCommand).toHaveBeenCalledWith(expect.objectContaining({
-      args: 'run research-pack',
-    }));
+    expect(executeCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        args: 'run research-pack',
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Bridge: dry-run'));
   });
 
@@ -274,9 +284,11 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/skills', 'use research-pack');
 
     expect(handled).toBe(true);
-    expect(executeCommand).toHaveBeenCalledWith(expect.objectContaining({
-      args: 'run research-pack',
-    }));
+    expect(executeCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        args: 'run research-pack',
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Bridge: dry-run'));
   });
 
@@ -296,17 +308,23 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     });
     const ctx = buildCtx('/agents spawn --mock-live --roles planner,qa revisar canais');
 
-    const handled = await pack.maybeHandle(ctx as any, '/agents', 'spawn --mock-live --roles planner,qa revisar canais');
+    const handled = await pack.maybeHandle(
+      ctx as any,
+      '/agents',
+      'spawn --mock-live --roles planner,qa revisar canais',
+    );
 
     expect(handled).toBe(true);
-    expect(invoke).toHaveBeenCalledWith(expect.objectContaining({
-      source: 'channel',
-      live: true,
-      mockLive: true,
-      roleIds: ['planner', 'qa'],
-      text: 'revisar canais',
-    }));
-    expect((ctx.reply as jest.Mock).mock.calls[0][0]).toContain('Agentes do Zavorth');
+    expect(invoke).toHaveBeenCalledWith(
+      expect.objectContaining({
+        source: 'channel',
+        live: true,
+        mockLive: true,
+        roleIds: ['planner', 'qa'],
+        text: 'revisar canais',
+      }),
+    );
+    expect((ctx.reply as jest.Mock).mock.calls[0][0]).toContain('Zavorth agents');
     expect((ctx.reply as jest.Mock).mock.calls[0][0]).toContain('Status: completed');
     expect((ctx.reply as jest.Mock).mock.calls[0][1]).toMatchObject({
       reply_markup: expect.objectContaining({ inline_keyboard: expect.any(Array) }),
@@ -333,12 +351,14 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/agents', 'status');
 
     expect(handled).toBe(true);
-    expect(executeCommand).toHaveBeenCalledWith(expect.objectContaining({
-      action: 'subagents.list',
-      sourceSurface: 'channel',
-    }));
+    expect(executeCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'subagents.list',
+        sourceSurface: 'channel',
+      }),
+    );
     expect(invoke).not.toHaveBeenCalled();
-    expect((ctx.reply as jest.Mock).mock.calls[0][0]).toContain('Agentes do Zavorth');
+    expect((ctx.reply as jest.Mock).mock.calls[0][0]).toContain('Zavorth agents');
     expect((ctx.reply as jest.Mock).mock.calls[0][0]).toContain('Action: subagents.list');
   });
 
@@ -354,7 +374,9 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
       subagentInvocationGatewayService: {
         executeCommand,
         invoke: jest.fn(),
-        renderReport: jest.fn((snapshot: any) => `Subagents ${snapshot.action} ${snapshot.selectedSessionId || ''}`.trim()),
+        renderReport: jest.fn((snapshot: any) =>
+          `Subagents ${snapshot.action} ${snapshot.selectedSessionId || ''}`.trim(),
+        ),
       } as any,
     });
     const historyCtx = buildCtx('/agents history');
@@ -363,13 +385,19 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     await pack.maybeHandle(historyCtx as any, '/agents', 'history');
     await pack.maybeHandle(readCtx as any, '/agents', 'read latest');
 
-    expect(executeCommand).toHaveBeenNthCalledWith(1, expect.objectContaining({
-      action: 'subagents.list',
-    }));
-    expect(executeCommand).toHaveBeenNthCalledWith(2, expect.objectContaining({
-      action: 'subagents.read',
-      sessionId: 'latest',
-    }));
+    expect(executeCommand).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        action: 'subagents.list',
+      }),
+    );
+    expect(executeCommand).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        action: 'subagents.read',
+        sessionId: 'latest',
+      }),
+    );
     expect((historyCtx.reply as jest.Mock).mock.calls[0][0]).toContain('Action: subagents.list');
     expect((readCtx.reply as jest.Mock).mock.calls[0][0]).toContain('Action: subagents.read');
     expect((readCtx.reply as jest.Mock).mock.calls[0][0]).toContain('latest');
@@ -394,7 +422,6 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     expect(replyText).not.toContain(secret);
     expect(replyText).not.toContain('token=abc123456789');
   });
-
 
   it('routes /vision browser inspect through the browser vision bridge', async () => {
     const pack = buildPack();
@@ -473,11 +500,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const pack = buildPack();
     const ctx = buildCtx('/computer observe');
 
-    const handled = await pack.maybeHandle(
-      ctx as any,
-      '/computer',
-      'observe --window "Windows PowerShell"',
-    );
+    const handled = await pack.maybeHandle(ctx as any, '/computer', 'observe --window "Windows PowerShell"');
 
     expect(handled).toBe(true);
     const replyText = (ctx.reply as jest.Mock).mock.calls[0][0];
@@ -485,7 +508,6 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     expect(replyText).toContain('Status: blocked');
     expect(replyText).toContain('terminal');
   });
-
 
   it('routes /device inspect through the Android ADB bridge', async () => {
     const pack = buildPack();
@@ -539,15 +561,14 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     expect(replyText).toContain('install-uninstall');
   });
 
-
-
-
   it('routes /invoke through the natural invocation router', async () => {
-    const plan = jest.fn(async (input: any) => naturalPlan(input.text, {
-      channel: input.channel,
-      actorId: input.actorId,
-      primaryAction: 'spawn_team',
-    }));
+    const plan = jest.fn(async (input: any) =>
+      naturalPlan(input.text, {
+        channel: input.channel,
+        actorId: input.actorId,
+        primaryAction: 'spawn_team',
+      }),
+    );
     const pack = buildPack({
       naturalInvocationRouterService: {
         plan,
@@ -559,13 +580,15 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/invoke', 'mande um agente pesquisar e outro validar');
 
     expect(handled).toBe(true);
-    expect(plan).toHaveBeenCalledWith(expect.objectContaining({
-      text: 'mande um agente pesquisar e outro validar',
-      autoExecute: true,
-      autoLiveSubagents: true,
-      channel: 'telegram',
-      actorId: 'telegram-user',
-    }));
+    expect(plan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: 'mande um agente pesquisar e outro validar',
+        autoExecute: true,
+        autoLiveSubagents: true,
+        channel: 'telegram',
+        actorId: 'telegram-user',
+      }),
+    );
     expect((ctx.reply as jest.Mock).mock.calls[0][0]).toContain('Zavorth Natural Invoke');
     expect((ctx.reply as jest.Mock).mock.calls[0][0]).toMatch(/Action: spawn_team|Acao: spawn_team|spawn_team/i);
     expect((ctx.reply as jest.Mock).mock.calls[0][1]).toMatchObject({
@@ -573,11 +596,11 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     });
   });
 
-
-
-  it('Phase 3: free-text natural invocation API is deleted from the pack', () => {
+  it('free-text natural invocation API is deleted from the pack', () => {
     const pack = buildPack();
     expect((pack as any).maybeHandleNaturalInvocation).toBeUndefined();
+    expect((pack as any).parseNaturalAgentRuntimeCommand).toBeUndefined();
+    expect((pack as any).looksLikeNaturalInvocation).toBeUndefined();
   });
 
   it('ignores unrelated commands', async () => {
@@ -591,10 +614,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
   });
 });
 
-function naturalPlan(
-  requestText: string,
-  overrides: Record<string, any> = {},
-) {
+function naturalPlan(requestText: string, overrides: Record<string, any> = {}) {
   const primaryAction = overrides.primaryAction || 'spawn_team';
   return {
     generatedAt: '2026-05-10T14:10:00.000Z',

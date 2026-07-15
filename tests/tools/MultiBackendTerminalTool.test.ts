@@ -2,6 +2,8 @@ import { MultiBackendTerminalTool } from '../../src/tools/MultiBackendTerminalTo
 
 describe('MultiBackendTerminalTool', () => {
   let tool: MultiBackendTerminalTool;
+  // Shell probes on Windows can exceed the default 5s under load.
+  jest.setTimeout(30_000);
 
   beforeEach(() => {
     tool = new MultiBackendTerminalTool();
@@ -106,7 +108,7 @@ describe('MultiBackendTerminalTool', () => {
       command: 'echo test',
       working_directory: process.platform === 'win32' ? 'C:\\Windows' : '/etc',
     });
-    expect(result).toContain('Erro: o diretorio de trabalho');
-    expect(result).toContain('esta fora da raiz do workspace permitida');
+    expect(result).toContain('Error: working directory');
+    expect(result).toContain('outside the allowed workspace root');
   });
 });

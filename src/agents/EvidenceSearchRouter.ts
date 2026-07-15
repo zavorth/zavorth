@@ -1,17 +1,6 @@
-import {
-  type EvidenceSearchDomain,
-  getEvidenceDomainProfile,
-  inferEvidenceDomainFromText,
-} from './EvidenceDomainProfiles.js';
-import {
-  EvidenceIntentPlanner,
-  type EvidenceIntentPlan,
-} from './EvidenceIntentPlanner.js';
-import {
-  EvidenceSearchPlanBuilder,
-  type EvidenceSearchPlan,
-} from './EvidenceSearchPlan.js';
-
+import { type EvidenceSearchDomain, getEvidenceDomainProfile } from './EvidenceDomainProfiles.js';
+import { EvidenceIntentPlanner, type EvidenceIntentPlan } from './EvidenceIntentPlanner.js';
+import { EvidenceSearchPlanBuilder, type EvidenceSearchPlan } from './EvidenceSearchPlan.js';
 
 export type EvidenceSearchReason = 'current' | 'research' | 'evidence' | 'high_stakes';
 export type { EvidenceSearchDomain } from './EvidenceDomainProfiles.js';
@@ -25,96 +14,86 @@ export type EvidenceSearchNeed = {
 };
 
 /**
+ * Structured input for evidence-search activation.
+ * Free text alone never forces external search — LLM/tools own web_search.
+ * Callers that already know a domain/reason/force flag may pass them here.
+ */
+export type EvidenceSearchDetectInput = {
+  text?: string | null;
+  query?: string | null;
+  reason?: EvidenceSearchReason | null;
+  domain?: EvidenceSearchDomain | null;
+  forceSearch?: boolean | null;
+  fresh?: boolean | null;
+  /** Structured evidence mode; free text never sets this. */
+  userRequestedMode?: EvidenceIntentPlan['mode'] | 'auto' | null;
+  risk?: EvidenceIntentPlan['risk'] | null;
+};
+
+/**
  * Centralizes the ExternalExecutor-style decision: "does this user turn need external
- * evidence/tools?"  It intentionally models categories instead of one-off
- * keyword patches so every surface can use the same research behavior.
+ * evidence/tools?" Activation is structured-only; free-text regex never decides to
+ * force search. Domain profiles remain data used when a structured domain is provided.
  */
 export class EvidenceSearchRouter {
   private readonly intentPlanner = new EvidenceIntentPlanner();
   private readonly searchPlanBuilder = new EvidenceSearchPlanBuilder();
 
-  public detect(message: string): EvidenceSearchNeed | null {
-    const normalized = this.normalize(message);
-    const questionMarker =
-      /\?$/.test(String(message || '').trim())
-      || /\b(o\s+que|como|quando|onde|quem|qual|quais|por\s+que|porque|what|how|when|where|who|which|why)\b/.test(normalized);
-    const currentMarker =
-      /\b(today|now|current|latest|recent|week|weekly|last\s+week|last\s+7\s+days|last\s+24\s+hours?|real[-\s]?time|viral|trending|trend|tiktok|instagram|202[0-9])\b/.test(normalized);
-    const explicitSearchIntent =
-      /\b(search|browse|look\s+up|find|google|investigate|research)\b/.test(normalized);
-    const infoMarker =
-      /\b(news|headline|headlines|price|weather|score|results?|trends?|releases?|version|status|evidence|sources?|references?|links?|politics)\b/.test(normalized);
-    const volatileMarker =
-      /\b(ceo|president|director|minister|governor|mayor|government|congress|senate|company|market|stock|dollar|bitcoin|crypto|election|war|crisis|model|api|package|library|framework)\b/.test(normalized);
-    const domain = this.detectDomain(normalized);
-    const evidenceMarker = this.hasEvidenceMarker(normalized) || domain !== 'general';
-    const decisionMarker = this.hasDecisionMarker(normalized);
-    const reportMarker = this.hasReportMarker(normalized);
-    const comparisonMarker = this.hasComparisonMarker(normalized);
-    const complexResearchMarker = this.hasComplexResearchMarker(normalized);
-    const publicRoleQuestion =
-      /\b(who\s+is)\b/.test(normalized) && volatileMarker;
-
-    if (this.isAiNewsRequest(normalized)) {
-      return this.withIntent(message, { reason: 'current', domain: 'ai_news', fresh: true });
-    }
-    if (publicRoleQuestion) {
-      return this.withIntent(message, { reason: 'current', domain: domain === 'general' ? 'public_policy' : domain, fresh: true });
-    }
-    if (this.isHighStakesDomain(domain) && (questionMarker || currentMarker || explicitSearchIntent || evidenceMarker)) {
-      return this.withIntent(message, {
-        reason: currentMarker ? 'current' : 'high_stakes',
-        domain,
-        fresh: currentMarker,
-      });
-    }
-    if (domain === 'consumer' && (questionMarker || currentMarker || explicitSearchIntent || decisionMarker || comparisonMarker)) {
-      return this.withIntent(message, {
-        reason: currentMarker ? 'current' : 'research',
-        domain,
-        fresh: currentMarker || decisionMarker,
-      });
-    }
-    if (domain !== 'general' && (explicitSearchIntent || evidenceMarker || currentMarker)) {
-      return this.withIntent(message, {
-        reason: currentMarker ? 'current' : evidenceMarker ? 'evidence' : 'research',
-        domain,
-        fresh: currentMarker,
-      });
-    }
-    if (currentMarker && (infoMarker || explicitSearchIntent || volatileMarker || evidenceMarker)) {
-      return this.withIntent(message, { reason: 'current', domain, fresh: true });
-    }
-    if (explicitSearchIntent && (infoMarker || evidenceMarker || volatileMarker || normalized.length > 20)) {
-      return this.withIntent(message, { reason: evidenceMarker ? 'evidence' : 'research', domain, fresh: currentMarker });
-    }
-    if (reportMarker && normalized.length > 20) {
-      return this.withIntent(message, { reason: 'evidence', domain, fresh: currentMarker });
-    }
-    if ((decisionMarker || comparisonMarker) && normalized.length > 20) {
-      return this.withIntent(message, { reason: 'research', domain, fresh: currentMarker || decisionMarker });
-    }
-    if (complexResearchMarker && normalized.length > 60) {
-      return this.withIntent(message, { reason: 'research', domain, fresh: currentMarker });
-    }
-    if (evidenceMarker && normalized.length > 20) {
-      return this.withIntent(message, { reason: 'evidence', domain, fresh: currentMarker });
+  /**
+   * Detect whether external evidence search should run.
+   * - string / free-text only → null (LLM/tools own web_search)
+   * - structured need or { reason|domain|forceSearch } → build EvidenceSearchNeed
+   */
+  public detect(input?: string | EvidenceSearchNeed | EvidenceSearchDetectInput | null): EvidenceSearchNeed | null {
+    if (input == null || typeof input === 'string') {
+      // Free text alone must not force external search.
+      return null;
     }
 
-    return null;
+    const structured = input as EvidenceSearchDetectInput & Partial<EvidenceSearchNeed>;
+    const text = String(structured.text || structured.query || '').trim();
+    const hasReason = typeof structured.reason === 'string' && structured.reason.length > 0;
+    const hasDomain = typeof structured.domain === 'string' && structured.domain.length > 0;
+    const forceSearch = structured.forceSearch === true;
+
+    if (!hasReason && !hasDomain && !forceSearch) {
+      return null;
+    }
+
+    const domain = (hasDomain ? structured.domain : 'general') as EvidenceSearchDomain;
+    const reason = (
+      hasReason ? structured.reason : this.isHighStakesDomain(domain) ? 'high_stakes' : 'research'
+    ) as EvidenceSearchReason;
+    const fresh = typeof structured.fresh === 'boolean' ? structured.fresh : reason === 'current';
+
+    // Already fully built need — return as-is (optionally keep provided intent/plan).
+    if (structured.intent && structured.searchPlan && hasReason && hasDomain) {
+      return {
+        reason,
+        domain,
+        fresh,
+        intent: structured.intent,
+        searchPlan: structured.searchPlan,
+      };
+    }
+
+    return this.withIntent(
+      text,
+      { reason, domain, fresh },
+      {
+        userRequestedMode: structured.userRequestedMode,
+        risk: structured.risk,
+      },
+    );
   }
 
   public buildQuery(message: string, need?: EvidenceSearchNeed | null): string {
     const date = new Date().toISOString().slice(0, 10);
-    const normalizedMessage = String(message || '').replace(/\s+/g, ' ').trim();
-    const searchNeed = need || this.detect(normalizedMessage);
-
-    if (this.isAiNewsRequest(this.normalize(normalizedMessage))) {
-      const recency = /\b(24\s*h|last\s+24\s+hours?)\b/i.test(normalizedMessage)
-        ? 'last 24 hours'
-        : 'recent';
-      return `latest artificial intelligence AI news worldwide ${recency} ${date}`;
-    }
+    const normalizedMessage = String(message || '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    // Never auto-detect from free text; only use an explicit need when provided.
+    const searchNeed = need || null;
 
     if (!searchNeed) {
       return normalizedMessage;
@@ -148,7 +127,9 @@ export class EvidenceSearchRouter {
     ];
 
     if (policy.separateFactsFromReports) {
-      lines.push('- If community/forum/social sources are used, label them as reports, discussion signals, or lived experience rather than verified facts.');
+      lines.push(
+        '- If community/forum/social sources are used, label them as reports, discussion signals, or lived experience rather than verified facts.',
+      );
     }
 
     if (policy.requireCaveat) {
@@ -158,74 +139,45 @@ export class EvidenceSearchRouter {
     if (policy.style === 'official-first') {
       lines.push('- Lead with verified or primary sources before community signals.');
     } else if (policy.style === 'community-first') {
-      lines.push('- Lead with practical community findings, then verify them against docs, repositories, or primary sources when available.');
+      lines.push(
+        '- Lead with practical community findings, then verify them against docs, repositories, or primary sources when available.',
+      );
     } else {
-      lines.push('- Balance official facts with community signals and call out disagreements instead of flattening them.');
+      lines.push(
+        '- Balance official facts with community signals and call out disagreements instead of flattening them.',
+      );
     }
 
     return lines.join('\n');
-  }
-
-  private detectDomain(normalized: string): EvidenceSearchDomain {
-    return inferEvidenceDomainFromText(normalized);
-  }
-
-  private hasEvidenceMarker(normalized: string): boolean {
-    return /\b(evidencias?|fontes?|referencias?|citacoes?|links?|estudos?|relatorio|levantamento|dataset|dados|casos?|artigos?|papers?|doi|jurisprudencia|acordaos?|decisoes?|precedentes?)\b/.test(normalized);
-  }
-
-  private hasDecisionMarker(normalized: string): boolean {
-    return /\b(best|worth\s+it|cost[-\s]?benefit|recommend(?:ation)?|options?|alternatives?|ranking|top\s+\d+|reviews?|buy|prices?|which\s+to\s+choose|how\s+to\s+choose)\b/.test(normalized);
-  }
-
-  private hasReportMarker(normalized: string): boolean {
-    return /\b(relatorio|dossie|panorama|levantamento|pesquisa\s+completa|mapear|mapeie|estado\s+da\s+arte|estado\s+atual|com\s+fontes|com\s+links|bibliografia|referencias?)\b/.test(normalized);
-  }
-
-  private hasComparisonMarker(normalized: string): boolean {
-    return /\b(compare|comparar|comparativo|comparacao|diferencas?|versus|vs\.?|pros?\s+e\s+contras?|vantagens?|desvantagens?)\b/.test(normalized);
-  }
-
-  private hasComplexResearchMarker(normalized: string): boolean {
-    return /\b(analyze|analysis|explain|synthesize|synthesis|impacts?|causes?|consequences?|risks?|benefits?|trends?|strategies?|overview|deep\s+dive)\b/.test(normalized);
   }
 
   private isHighStakesDomain(domain: EvidenceSearchDomain): boolean {
     return domain === 'medical' || domain === 'legal' || domain === 'finance';
   }
 
-  private withIntent(message: string, need: Omit<EvidenceSearchNeed, 'intent' | 'searchPlan'>): EvidenceSearchNeed {
+  private withIntent(
+    message: string,
+    need: Omit<EvidenceSearchNeed, 'intent' | 'searchPlan'>,
+    structured?: Pick<EvidenceSearchDetectInput, 'userRequestedMode' | 'risk'>,
+  ): EvidenceSearchNeed {
+    const query = String(message || '').trim() || need.domain;
     const intent = this.intentPlanner.plan({
-      query: message,
+      query,
       domain: need.domain,
+      userRequestedMode: structured?.userRequestedMode,
+      risk: structured?.risk,
     });
 
     return {
       ...need,
       intent,
       searchPlan: this.searchPlanBuilder.build({
-        query: message,
+        query,
         intent,
         domain: need.domain,
+        userRequestedMode: structured?.userRequestedMode,
+        risk: structured?.risk,
       }),
     };
-  }
-
-  private isAiNewsRequest(normalized: string): boolean {
-    const newsMarker = /\b(news|headlines|latest|recent)\b/.test(normalized);
-    const aiMarker =
-      /\b(ai|artificial\s+intelligence|machine\s+learning|llm|openai|chatgpt|anthropic|claude|deepmind|gemini|nvidia|mistral|llama)\b/.test(normalized);
-    const policyOverride = /\b(regulation|regulator|policy|law|legislation|government|ministry|congress|senate|court)\b/.test(normalized);
-    if (policyOverride) {
-      return false;
-    }
-    return newsMarker && aiMarker;
-  }
-
-  private normalize(message: string): string {
-    return String(message || '')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
   }
 }

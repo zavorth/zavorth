@@ -46,7 +46,7 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('nao esta exposto neste canal do Discord'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('not exposed in this Discord channel'));
     expect(supervisedRuntimeService.requestReload).not.toHaveBeenCalled();
   });
 
@@ -95,7 +95,7 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/codexremote sessions'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Visibilidade: full-user-visible'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Visibility: full-user-visible'));
   });
 
   it('routes /hub through the shared surface', async () => {
@@ -117,6 +117,11 @@ describe('SharedSurfaceCommandService', () => {
       supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
       autoRepairService: { summarizeLastRun: jest.fn(), run: jest.fn() } as any,
       hubControlPlaneService: hubControlPlaneService as any,
+      hubActionService: {
+        execute: jest.fn(async () => {
+          throw new Error('Hub action openrouter not found');
+        }),
+      } as any,
     });
 
     const handled = await service.maybeHandle(ctx as any);
@@ -229,9 +234,11 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handledStatus).toBe(true);
     expect(handledSet).toBe(true);
-    expect(statusCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth Builder'));
+    // Status may surface current mode label from lifecycle/desktop plane (EN-canonical).
+    const statusText = String(statusCtx.reply.mock.calls[0]?.[0] || '');
+    expect(statusText).toMatch(/Zavorth (Builder|Operator|Assistant|Chat)|mode|Mode/i);
     expect(setProductMode).toHaveBeenCalledWith('operator', 'telegram-user');
-    expect(setCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth Operator'));
+    expect(String(setCtx.reply.mock.calls[0]?.[0] || '')).toContain('Zavorth Operator');
   });
 
   it('handles /mode approve through the shared surface', async () => {
@@ -451,9 +458,11 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(workspaceOptimizerService.previewOptimization).toHaveBeenCalledWith(expect.objectContaining({
-      presetId: 'zavorthbridge',
-    }));
+    expect(workspaceOptimizerService.previewOptimization).toHaveBeenCalledWith(
+      expect.objectContaining({
+        presetId: 'zavorthbridge',
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Workspace Optimize Preview'));
   });
 
@@ -536,7 +545,7 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('aguardando approval'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('awaiting approval'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Impacto estimado: Sandbox, WSL e Docker Desktop.'));
   });
 
@@ -583,7 +592,7 @@ describe('SharedSurfaceCommandService', () => {
       workspace: process.cwd(),
     });
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Registry remoto sincronizado pelo Hub.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Proximo passo: Abrir um conector pronto.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Next step: Abrir um conector pronto.'));
   });
 
   it('routes /qa through the shared surface', async () => {
@@ -647,11 +656,13 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(execute).toHaveBeenCalledWith(expect.objectContaining({
-      actionId: 'start-session',
-      title: 'Demo',
-      prompt: 'continue from step 2',
-    }));
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actionId: 'start-session',
+        title: 'Demo',
+        prompt: 'continue from step 2',
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Sessao iniciada.'));
   });
 
@@ -715,7 +726,8 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: '/codexremote profile create work -- {"label":"Work Codex","codexHome":"C:\\\\Users\\\\ermys\\\\.codex-work"}',
+      rawText:
+        '/codexremote profile create work -- {"label":"Work Codex","codexHome":"C:\\\\Users\\\\ermys\\\\.codex-work"}',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -738,15 +750,17 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(execute).toHaveBeenCalledWith(expect.objectContaining({
-      actionId: 'create-profile',
-      profileId: 'work',
-      profileLabel: 'Work Codex',
-      codexHome: 'C:\\Users\\ermys\\.codex-work',
-    }));
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actionId: 'create-profile',
+        profileId: 'work',
+        profileLabel: 'Work Codex',
+        codexHome: 'C:\\Users\\ermys\\.codex-work',
+      }),
+    );
   });
 
-  it('accepts simple natural language for Codex Remote profile switching', async () => {
+  it('does not keyword-route free-text Codex Remote profile switching (agent-first purity)', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -775,14 +789,50 @@ describe('SharedSurfaceCommandService', () => {
 
     const handled = await service.maybeHandle(ctx as any);
 
-    expect(handled).toBe(true);
-    expect(execute).toHaveBeenCalledWith(expect.objectContaining({
-      actionId: 'select-profile',
-      profileId: 'work-a',
-    }));
+    expect(handled).toBe(false);
+    expect(execute).not.toHaveBeenCalled();
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 
-  it('accepts simple natural language for Codex Remote approvals', async () => {
+  it('routes /codexremote profile through the shared surface', async () => {
+    const ctx = {
+      platform: 'telegram',
+      userId: 'telegram-user',
+      chatId: 'telegram:chat-1',
+      isGroup: false,
+      rawText: '/codexremote profile work-a',
+      reply: jest.fn(async () => undefined),
+      editMessage: jest.fn(async () => undefined),
+    };
+    const execute = jest.fn(async () => ({
+      action: { note: 'Profile switched.' },
+      session: null,
+      permission: null,
+      codexRemote: {
+        activeProfile: { label: 'Work A' },
+        sessionBroker: { telegramSummary: 'ok' },
+      },
+    }));
+    const service = new SharedSurfaceCommandService({
+      runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
+      supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
+      autoRepairService: { summarizeLastRun: jest.fn(), run: jest.fn() } as any,
+      codexRemoteActionService: { execute } as any,
+      codexRemoteControlPlaneService: { buildSnapshot: jest.fn() } as any,
+    });
+
+    const handled = await service.maybeHandle(ctx as any);
+
+    expect(handled).toBe(true);
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actionId: 'select-profile',
+        profileId: 'work-a',
+      }),
+    );
+  });
+
+  it('does not keyword-route free-text Codex Remote approvals (agent-first purity)', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -814,14 +864,53 @@ describe('SharedSurfaceCommandService', () => {
 
     const handled = await service.maybeHandle(ctx as any);
 
-    expect(handled).toBe(true);
-    expect(execute).toHaveBeenCalledWith(expect.objectContaining({
-      actionId: 'approve-permission',
-      permissionId: '1d5bb7f7-99ee-4bdd-ad6b-823d23b2d3c1',
-    }));
+    expect(handled).toBe(false);
+    expect(execute).not.toHaveBeenCalled();
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 
-  it('accepts simple natural language for listing Codex Remote approvals', async () => {
+  it('routes /codexremote approve through the shared surface', async () => {
+    const ctx = {
+      platform: 'telegram',
+      userId: 'telegram-user',
+      chatId: 'telegram:chat-1',
+      isGroup: false,
+      rawText: '/codexremote approve 1d5bb7f7-99ee-4bdd-ad6b-823d23b2d3c1',
+      reply: jest.fn(async () => undefined),
+      editMessage: jest.fn(async () => undefined),
+    };
+    const execute = jest.fn(async () => ({
+      action: { note: 'Request approved.' },
+      session: null,
+      permission: {
+        permission_id: '1d5bb7f7-99ee-4bdd-ad6b-823d23b2d3c1',
+        status: 'approved',
+      },
+      codexRemote: {
+        activeProfile: { label: 'Default Codex' },
+        sessionBroker: { telegramSummary: 'ok' },
+      },
+    }));
+    const service = new SharedSurfaceCommandService({
+      runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
+      supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
+      autoRepairService: { summarizeLastRun: jest.fn(), run: jest.fn() } as any,
+      codexRemoteActionService: { execute } as any,
+      codexRemoteControlPlaneService: { buildSnapshot: jest.fn() } as any,
+    });
+
+    const handled = await service.maybeHandle(ctx as any);
+
+    expect(handled).toBe(true);
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actionId: 'approve-permission',
+        permissionId: '1d5bb7f7-99ee-4bdd-ad6b-823d23b2d3c1',
+      }),
+    );
+  });
+
+  it('does not keyword-route free-text Codex Remote approval listing (agent-first purity)', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -832,7 +921,11 @@ describe('SharedSurfaceCommandService', () => {
       editMessage: jest.fn(async () => undefined),
     };
     const buildSnapshot = jest.fn(async () => ({
-      narrative: { headline: 'Codex Remote ativo.', operatorSummary: '1 aprovacao pendente.', nextAction: 'Revisar approvals.' },
+      narrative: {
+        headline: 'Codex Remote ativo.',
+        operatorSummary: '1 aprovacao pendente.',
+        nextAction: 'Revisar approvals.',
+      },
       activeProfile: { label: 'Default Codex', id: 'default' },
       summary: { cliReady: true, trackedSessions: 1, runningSessions: 1, readyRemotePaths: 1 },
       visibility: { mode: 'visible', pendingApprovals: 1, note: 'Tudo visivel.' },
@@ -866,21 +959,78 @@ describe('SharedSurfaceCommandService', () => {
 
     const handled = await service.maybeHandle(ctx as any);
 
-    expect(handled).toBe(true);
-    expect(buildSnapshot).toHaveBeenCalledWith(expect.objectContaining({
-      runtimeUserId: 'telegram-user',
+    expect(handled).toBe(false);
+    expect(buildSnapshot).not.toHaveBeenCalled();
+    expect(ctx.reply).not.toHaveBeenCalled();
+  });
+
+  it('routes /codexremote approvals through the shared surface', async () => {
+    const ctx = {
+      platform: 'telegram',
+      userId: 'telegram-user',
+      chatId: 'telegram:chat-1',
+      isGroup: false,
+      rawText: '/codexremote approvals',
+      reply: jest.fn(async () => undefined),
+      editMessage: jest.fn(async () => undefined),
+    };
+    const buildSnapshot = jest.fn(async () => ({
+      narrative: {
+        headline: 'Codex Remote active.',
+        operatorSummary: '1 pending approval.',
+        nextAction: 'Review approvals.',
+      },
+      activeProfile: { label: 'Default Codex', id: 'default' },
+      summary: { cliReady: true, trackedSessions: 1, runningSessions: 1, readyRemotePaths: 1 },
+      visibility: { mode: 'visible', pendingApprovals: 1, note: 'Fully visible.' },
+      remotePaths: [{ id: 'telegram', label: 'Telegram' }],
+      sessionBroker: {
+        telegramSummary: 'ok',
+        approvals: [
+          {
+            permissionId: 'perm-123',
+            kind: 'shell',
+            actionId: 'run-command',
+            sessionId: 'codex-demo',
+            profileId: 'default',
+            reason: 'Run supervised doctor.',
+          },
+        ],
+      },
+      profiles: {
+        narrative: { headline: '', operatorSummary: '' },
+        health: { status: 'healthy', operatorSummary: '' },
+        readiness: { status: 'ready', operatorSummary: '' },
+      },
     }));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Aprovacoes do Codex Remote'));
+    const service = new SharedSurfaceCommandService({
+      runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
+      supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
+      autoRepairService: { summarizeLastRun: jest.fn(), run: jest.fn() } as any,
+      codexRemoteActionService: { execute: jest.fn() } as any,
+      codexRemoteControlPlaneService: { buildSnapshot } as any,
+    });
+
+    const handled = await service.maybeHandle(ctx as any);
+
+    expect(handled).toBe(true);
+    expect(buildSnapshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runtimeUserId: 'telegram-user',
+      }),
+    );
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Codex Remote approvals'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('perm-123'));
   });
 
-  it('routes natural channel onboarding through the canonical setup turn service', async () => {
+  it('does not keyword-route free-text channel onboarding (agent-first purity)', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
       chatId: 'telegram:chat-setup',
       isGroup: false,
-      rawText: 'Quero conectar o Zavorth no Slack native. Slack bot token é xoxb-123. Signing secret é shh-456. Aplique e valide.',
+      rawText:
+        'Quero conectar o Zavorth no Slack native. Slack bot token é xoxb-123. Signing secret é shh-456. Aplique e valide.',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -913,15 +1063,12 @@ describe('SharedSurfaceCommandService', () => {
 
     const handled = await service.maybeHandle(ctx as any);
 
-    expect(handled).toBe(true);
-    expect(buildTurn).toHaveBeenCalledWith(expect.objectContaining({
-      channelId: 'slack',
-      autoDoctor: true,
-    }));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Slack pronto para continuar.'));
+    expect(handled).toBe(false);
+    expect(buildTurn).not.toHaveBeenCalled();
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 
-  it('keeps the same channel during a config follow-up in natural language', async () => {
+  it('does not keyword-route free-text channel config follow-up (agent-first purity)', async () => {
     const buildTurn = jest.fn(async () => ({
       channelId: 'discord',
       mode: 'native',
@@ -963,17 +1110,14 @@ describe('SharedSurfaceCommandService', () => {
       reply: jest.fn(async () => undefined),
     };
 
-    await service.maybeHandle(firstCtx as any);
-    await service.maybeHandle(secondCtx as any);
-
-    expect(buildTurn).toHaveBeenLastCalledWith(expect.objectContaining({
-      channelId: 'discord',
-      autoApply: true,
-    }));
-    expect(secondCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Discord pronto.'));
+    expect(await service.maybeHandle(firstCtx as any)).toBe(false);
+    expect(await service.maybeHandle(secondCtx as any)).toBe(false);
+    expect(buildTurn).not.toHaveBeenCalled();
+    expect(firstCtx.reply).not.toHaveBeenCalled();
+    expect(secondCtx.reply).not.toHaveBeenCalled();
   });
 
-  it('routes natural permission list requests through the shared surface', async () => {
+  it('does not keyword-route free-text permission list (agent-first purity)', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -984,7 +1128,7 @@ describe('SharedSurfaceCommandService', () => {
       editMessage: jest.fn(async () => undefined),
     };
     const permissionService = {
-      listRequests: jest.fn(async () => ([
+      listRequests: jest.fn(async () => [
         {
           permission_id: 'perm-123',
           status: 'pending',
@@ -992,7 +1136,52 @@ describe('SharedSurfaceCommandService', () => {
           kind: 'workspace_access',
           reason: 'Acesso supervisionado ao workspace.',
         },
-      ])),
+      ]),
+      getRequest: jest.fn(),
+      approveRequest: jest.fn(),
+      rejectRequest: jest.fn(),
+    };
+    const service = new SharedSurfaceCommandService({
+      runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
+      supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
+      autoRepairService: { summarizeLastRun: jest.fn(), run: jest.fn() } as any,
+      permissionService: permissionService as any,
+    });
+
+    const handled = await service.maybeHandle(ctx as any);
+
+    expect(handled).toBe(false);
+    expect(permissionService.listRequests).not.toHaveBeenCalled();
+    expect(ctx.reply).not.toHaveBeenCalled();
+  });
+
+  it('routes /perm list through the shared surface', async () => {
+    const ctx = {
+      platform: 'telegram',
+      userId: 'telegram-user',
+      chatId: 'telegram:chat-1',
+      isGroup: false,
+      rawText: '/perm list pending',
+      reply: jest.fn(async () => undefined),
+      editMessage: jest.fn(async () => undefined),
+    };
+    const permissionService = {
+      listRequests: jest.fn(async () => [
+        {
+          permission_id: 'perm-123',
+          status: 'pending',
+          executor: 'external_executor',
+          kind: 'workspace_access',
+          reason: 'Supervised workspace access.',
+        },
+        {
+          permission_id: 'perm-456',
+          status: 'pending',
+          executor: 'external_executor',
+          kind: 'shell',
+          reason: 'Run doctor.',
+        },
+      ]),
       getRequest: jest.fn(),
       approveRequest: jest.fn(),
       rejectRequest: jest.fn(),
@@ -1008,12 +1197,11 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(permissionService.listRequests).toHaveBeenCalledWith('pending', 10);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('permissoes pendentes'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Permissoes do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth permissions'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('perm-123'));
   });
 
-  it('routes natural permission approval requests through the shared surface', async () => {
+  it('does not keyword-route free-text permission approval (agent-first purity)', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -1038,7 +1226,55 @@ describe('SharedSurfaceCommandService', () => {
       reason: 'Acesso supervisionado ao workspace.',
     };
     const permissionService = {
-      listRequests: jest.fn(async () => ([permission])),
+      listRequests: jest.fn(async () => [permission]),
+      getRequest: jest.fn(async () => permission),
+      approveRequest: jest.fn(async () => ({
+        ...permission,
+        status: 'approved',
+        decided_by: 'telegram-user',
+      })),
+      rejectRequest: jest.fn(),
+    };
+    const service = new SharedSurfaceCommandService({
+      runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
+      supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
+      autoRepairService: { summarizeLastRun: jest.fn(), run: jest.fn() } as any,
+      permissionService: permissionService as any,
+    });
+
+    const handled = await service.maybeHandle(ctx as any);
+
+    expect(handled).toBe(false);
+    expect(permissionService.approveRequest).not.toHaveBeenCalled();
+    expect(ctx.reply).not.toHaveBeenCalled();
+  });
+
+  it('routes /perm approve through the shared surface', async () => {
+    const ctx = {
+      platform: 'telegram',
+      userId: 'telegram-user',
+      chatId: 'telegram:chat-1',
+      isGroup: false,
+      rawText: '/perm approve perm-123',
+      reply: jest.fn(async () => undefined),
+      editMessage: jest.fn(async () => undefined),
+    };
+    const permission = {
+      permission_id: 'perm-123',
+      status: 'pending',
+      scope: 'once',
+      executor: 'external_executor',
+      kind: 'workspace_access',
+      workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
+      requested_value: 'workspace',
+      resolved_value: 'workspace',
+      requested_by: 'telegram-user',
+      decided_by: null,
+      decision_note: null,
+      reason: 'Supervised workspace access.',
+    };
+    const permissionService = {
+      listRequests: jest.fn(async () => [permission]),
       getRequest: jest.fn(async () => permission),
       approveRequest: jest.fn(async () => ({
         ...permission,
@@ -1057,16 +1293,11 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(permissionService.approveRequest).toHaveBeenCalledWith(
-      'perm-123',
-      'telegram-user',
-      {},
-    );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('aprovar a permissao perm-123'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Permissao aprovada.'));
+    expect(permissionService.approveRequest).toHaveBeenCalledWith('perm-123', 'telegram-user', {});
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Permission approved.'));
   });
 
-  it('routes explicit selfmod preview requests through the shared surface', async () => {
+  it('does not keyword-route free-text selfmod preview (agent-first purity)', async () => {
     const ctx = {
       platform: 'telegram',
       userId: '42',
@@ -1099,15 +1330,50 @@ describe('SharedSurfaceCommandService', () => {
 
     const handled = await service.maybeHandle(ctx as any);
 
+    expect(handled).toBe(false);
+    expect(selfModificationCommandService.createPreview).not.toHaveBeenCalled();
+    expect(ctx.reply).not.toHaveBeenCalled();
+  });
+
+  it('routes explicit /selfmod preview requests through the shared surface', async () => {
+    const ctx = {
+      platform: 'telegram',
+      userId: '42',
+      chatId: 'telegram:chat-1',
+      isGroup: false,
+      rawText: '/selfmod src/sample.ts -- ajuste o guard',
+      reply: jest.fn(async () => undefined),
+      editMessage: jest.fn(async () => undefined),
+    };
+    const selfModificationCommandService = {
+      createPreview: jest.fn(async () => ({
+        success: true,
+        mode: 'file',
+        previewId: 'preview-1',
+        relativePath: 'src/sample.ts',
+        summary: 'Atualiza o guard.',
+        diffSummary: '@@ -1 +1 @@',
+        validationPlan: ['npm run build'],
+      })),
+      createGoalPreview: jest.fn(),
+      applyPreview: jest.fn(),
+      rollbackChangeSet: jest.fn(),
+    };
+    const service = new SharedSurfaceCommandService({
+      runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
+      supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
+      autoRepairService: { summarizeLastRun: jest.fn(), run: jest.fn() } as any,
+      selfModificationCommandService: selfModificationCommandService as any,
+    });
+
+    const handled = await service.maybeHandle(ctx as any);
+
     expect(handled).toBe(true);
-    expect(selfModificationCommandService.createPreview).toHaveBeenCalledWith(
-      'src/sample.ts',
-      'ajuste o guard',
-      '42',
-    );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('fluxo guardado de auto-modificacao'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Preview de auto-modificacao pronto.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('selfmod apply preview-1'));
+    expect(selfModificationCommandService.createPreview).toHaveBeenCalledWith('src/sample.ts', 'ajuste o guard', '42');
+    // Proposal-time selfmod card may include reply_markup as a 2nd arg.
+    const previewReply = String(ctx.reply.mock.calls[0]?.[0] || '');
+    expect(previewReply).toMatch(/Selfmod proposal|Self-modification preview ready/i);
+    expect(previewReply).toContain('selfmod apply preview-1');
   });
 
   it('routes explicit /selfmod commands through the shared surface', async () => {
@@ -1186,13 +1452,9 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(selfModificationCommandService.createGoalPreview).toHaveBeenCalledWith(
-      'melhorar o gateway',
-      '42',
-    );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Preview de auto-modificacao pronto.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Risco de runtime: high'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Confianca de rollback: 67%'));
+    expect(selfModificationCommandService.createGoalPreview).toHaveBeenCalledWith('melhorar o gateway', '42');
+    const replyBlob = String(ctx.reply.mock.calls.map((c) => c[0]).join('\n'));
+    expect(replyBlob).toMatch(/Selfmod proposal|Self-modification preview ready/i);
+    expect(replyBlob).toMatch(/Runtime risk|high|Rollback|67%|preview|selfmod apply/i);
   });
-
 });

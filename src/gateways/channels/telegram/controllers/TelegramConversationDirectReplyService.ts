@@ -97,10 +97,14 @@ export class TelegramConversationDirectReplyService {
     await Promise.resolve(this.deps.recordAssistantMessage?.(task, finalText, 'reply'));
 
     if (summaryService && userId && chatId) {
-      await summaryService.recordExchange(userId, chatId, messageText, finalText).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+      await summaryService.recordExchange(userId, chatId, messageText, finalText).catch((err) => {
+        logger.warn('[auto-fix] Empty catch block', err);
+      });
     }
     if (memoryService && userId) {
-      await memoryService.autoExtract(userId, messageText, finalText).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+      await memoryService.autoExtract(userId, messageText, finalText).catch((err) => {
+        logger.warn('[auto-fix] Empty catch block', err);
+      });
     }
 
     return finalText;
@@ -125,19 +129,20 @@ export class TelegramConversationDirectReplyService {
     const audioHandler = this.deps.echoAudioHandler;
     const preferenceStore = this.deps.echoPreferenceStore;
     const normalizedText = String(text || '').trim();
-    const outputStage = this.deps.echoOutputStage || (
-      audioHandler && preferenceStore
+    const outputStage =
+      this.deps.echoOutputStage ||
+      (audioHandler && preferenceStore
         ? new EchoOutputStageService({
             audioHandler,
             preferenceStore,
           })
-        : null
-    );
+        : null);
     if (!outputStage || normalizedText.length === 0) {
       return false;
     }
 
     const traceId = resolveEchoTraceId(task, 'telegram-direct-reply');
+    const voiceFlow = (task.metadata?.voiceFlow || {}) as Record<string, unknown>;
     const result = await outputStage.deliver({
       surface: 'telegram',
       text: normalizedText,
@@ -146,7 +151,10 @@ export class TelegramConversationDirectReplyService {
       taskId: task.task_id,
       requestedBy: 'telegram-bot',
       sessionId: ctx.chat?.id ? String(ctx.chat.id) : '',
-      voiceFlow: (task.metadata?.voiceFlow || {}) as Record<string, unknown>,
+      voiceFlow,
+      preferVoiceReply:
+        voiceFlow.preferVoiceReply === true || voiceFlow.ttsReplyDesired === true || voiceFlow.replyWithAudio === true,
+      forceVoice: voiceFlow.forceVoice === true,
       sink: {
         sendText: async (fallbackText) => {
           if (task.metadata?.voiceFlow) {

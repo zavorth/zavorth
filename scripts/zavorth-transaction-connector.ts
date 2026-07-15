@@ -8,6 +8,9 @@ type CliOptions = {
   list: boolean;
   approve: boolean;
   text?: string;
+  kind?: import('../src/contracts/ZavorthTransactionIntentContract.js').ZavorthTransactionIntentKind;
+  actionKind?: import('../src/contracts/ZavorthTransactionPlaneContract.js').ZavorthTransactionActionKind;
+  targetKind?: import('../src/contracts/ZavorthTransactionIntentContract.js').ZavorthTransactionIntentTargetKind;
   mode?: ZavorthTransactionConnectorMode;
   connectorId?: string;
   credentialRef?: string;
@@ -23,7 +26,9 @@ if (options.list) {
     console.log(JSON.stringify(connectors, null, 2));
   } else {
     for (const connector of connectors) {
-      console.log(`[transaction-connector] ${connector.id} | ${connector.kind} | enabled=${connector.enabled} | modes=${connector.supportedModes.join(',')}`);
+      console.log(
+        `[transaction-connector] ${connector.id} | ${connector.kind} | enabled=${connector.enabled} | modes=${connector.supportedModes.join(',')}`,
+      );
     }
   }
   process.exit(0);
@@ -38,7 +43,9 @@ if (!options.text) {
     console.log(`[transaction-connector] version: ${snapshot.version}`);
     console.log(`[transaction-connector] summary: ${snapshot.summary}`);
     console.log(`[transaction-connector] supported modes: ${snapshot.supportedModes.join(', ')}`);
-    console.log(`[transaction-connector] connectors: ${snapshot.connectors.map((connector) => connector.id).join(', ')}`);
+    console.log(
+      `[transaction-connector] connectors: ${snapshot.connectors.map((connector) => connector.id).join(', ')}`,
+    );
   }
   process.exit(0);
 }
@@ -49,18 +56,21 @@ const approvalLedger = new ZavorthTransactionApprovalLedgerService({
 });
 const preview = previewService.buildPreview({
   text: options.text,
+  kind: options.kind,
+  actionKind: options.actionKind,
+  targetKind: options.targetKind,
   channel: 'cli',
 });
 const approvalEntry = options.approve
   ? (() => {
-    approvalLedger.recordPreview(preview, 'system');
-    return approvalLedger.decide({
-      preview,
-      decision: 'approved',
-      actor: 'owner',
-      reason: 'Connector registry typed connector dry-run approval.',
-    });
-  })()
+      approvalLedger.recordPreview(preview, 'system');
+      return approvalLedger.decide({
+        preview,
+        decision: 'approved',
+        actor: 'owner',
+        reason: 'Connector registry typed connector dry-run approval.',
+      });
+    })()
   : null;
 
 const result = registry.run({
@@ -97,6 +107,21 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
     } else if (arg?.startsWith('--text=')) {
       options.text = arg.slice('--text='.length);
+    } else if (arg === '--kind') {
+      options.kind = args[index + 1] as CliOptions['kind'];
+      index += 1;
+    } else if (arg?.startsWith('--kind=')) {
+      options.kind = arg.slice('--kind='.length) as CliOptions['kind'];
+    } else if (arg === '--action-kind') {
+      options.actionKind = args[index + 1] as CliOptions['actionKind'];
+      index += 1;
+    } else if (arg?.startsWith('--action-kind=')) {
+      options.actionKind = arg.slice('--action-kind='.length) as CliOptions['actionKind'];
+    } else if (arg === '--target-kind') {
+      options.targetKind = args[index + 1] as CliOptions['targetKind'];
+      index += 1;
+    } else if (arg?.startsWith('--target-kind=')) {
+      options.targetKind = arg.slice('--target-kind='.length) as CliOptions['targetKind'];
     } else if (arg === '--mode') {
       options.mode = normalizeMode(args[index + 1]);
       index += 1;
@@ -124,7 +149,9 @@ function parseArgs(args: string[]): CliOptions {
 }
 
 function normalizeMode(value: string | undefined): ZavorthTransactionConnectorMode | undefined {
-  const normalized = String(value ?? '').trim().toLowerCase();
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'dry-run' || normalized === 'sandbox' || normalized === 'paper') {
     return normalized;
   }

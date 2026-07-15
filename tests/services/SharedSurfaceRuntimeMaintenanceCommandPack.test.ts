@@ -15,7 +15,7 @@ function buildCtx(rawText = '/changes') {
 function buildPack(overrides: Record<string, any> = {}): SharedSurfaceRuntimeMaintenanceCommandPack {
   return new SharedSurfaceRuntimeMaintenanceCommandPack({
     supervisedRuntimeService: {
-      summarizeRecentChanges: jest.fn(() => 'Mudancas recentes do Zavorth'),
+      summarizeRecentChanges: jest.fn(() => 'Recent Zavorth changes'),
       requestReload: jest.fn(async () => ({
         accepted: true,
         summary: 'Reload supervisionado aceito.',
@@ -31,14 +31,14 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceRuntimeMai
         report: {},
       })),
     } as any,
-    renderHelp: jest.fn(() => 'Ajuda operacional do Zavorth'),
+    renderHelp: jest.fn(() => 'Zavorth operational help'),
     ...overrides,
   });
 }
 
 describe('SharedSurfaceRuntimeMaintenanceCommandPack', () => {
   it('renders recent changes through /changes', async () => {
-    const summarizeRecentChanges = jest.fn(() => 'Mudancas recentes do Zavorth');
+    const summarizeRecentChanges = jest.fn(() => 'Recent Zavorth changes');
     const pack = buildPack({
       supervisedRuntimeService: {
         summarizeRecentChanges,
@@ -51,7 +51,7 @@ describe('SharedSurfaceRuntimeMaintenanceCommandPack', () => {
 
     expect(handled).toBe(true);
     expect(summarizeRecentChanges).toHaveBeenCalledTimes(1);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Mudancas recentes do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Recent Zavorth changes'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('shared-runtime-changes'));
   });
 
@@ -72,11 +72,13 @@ describe('SharedSurfaceRuntimeMaintenanceCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/selfupdate', 'force');
 
     expect(handled).toBe(true);
-    expect(requestReload).toHaveBeenCalledWith(expect.objectContaining({
-      forceRestart: true,
-      requestedBy: 'telegram-user',
-      notifyChatId: 'telegram:chat-1',
-    }));
+    expect(requestReload).toHaveBeenCalledWith(
+      expect.objectContaining({
+        forceRestart: true,
+        requestedBy: 'telegram-user',
+        notifyChatId: 'telegram:chat-1',
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Reload supervisionado forcado aceito.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('shared-runtime-reload-reload-1'));
   });
@@ -117,12 +119,14 @@ describe('SharedSurfaceRuntimeMaintenanceCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/autorepair', 'dryrun');
 
     expect(handled).toBe(true);
-    expect(run).toHaveBeenCalledWith(expect.objectContaining({
-      dryRun: true,
-      force: false,
-      goal: 'auto',
-      requestedBy: 'telegram-user',
-    }));
+    expect(run).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dryRun: true,
+        force: false,
+        goal: 'auto',
+        requestedBy: 'telegram-user',
+      }),
+    );
     expect(ctx.reply).toHaveBeenNthCalledWith(1, 'Montando um plano seguro de autoreparo agora.');
     expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('Plano de autoreparo montado.'));
     expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('shared-autorepair-dry_run'));
@@ -149,9 +153,11 @@ describe('SharedSurfaceRuntimeMaintenanceCommandPack', () => {
       improve: false,
     });
 
-    expect(requestReload).toHaveBeenCalledWith(expect.objectContaining({
-      forceRestart: true,
-    }));
+    expect(requestReload).toHaveBeenCalledWith(
+      expect.objectContaining({
+        forceRestart: true,
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Reload natural aceito.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('shared-runtime-reload-reload-natural'));
   });

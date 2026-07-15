@@ -1,8 +1,15 @@
 import { ActionCardService } from './ActionCardService.js';
 import { defaultZavorthSpeculativeAutonomyCancellationRegistry } from '../../autonomy/ZavorthSpeculativeAutonomyService.js';
 import { ZavorthRuntimeStateBusService } from '../ZavorthRuntimeStateBusService.js';
-import { ZavorthRuntimeCapabilitiesService, type ZavorthRuntimeCapabilitiesSnapshot } from '../ZavorthRuntimeCapabilitiesService.js';
-import { ZavorthRuntimeOperationalSpineService, type ZavorthRuntimeOperationalSpineSyncInput, type ZavorthRuntimeOperationalSpineSyncResult } from '../ZavorthRuntimeOperationalSpineService.js';
+import {
+  ZavorthRuntimeCapabilitiesService,
+  type ZavorthRuntimeCapabilitiesSnapshot,
+} from '../ZavorthRuntimeCapabilitiesService.js';
+import {
+  ZavorthRuntimeOperationalSpineService,
+  type ZavorthRuntimeOperationalSpineSyncInput,
+  type ZavorthRuntimeOperationalSpineSyncResult,
+} from '../ZavorthRuntimeOperationalSpineService.js';
 import { ZavorthRuntimeSecureIntegrationService } from '../ZavorthRuntimeSecureIntegrationService.js';
 
 import { logger } from '../../logger.js';
@@ -41,21 +48,40 @@ import { NaturalCommandRouterService } from './NaturalCommandRouterService.js';
 import { ReasoningSummaryService } from './ReasoningSummaryService.js';
 import { ResponseProfilePreferenceService } from './ResponseProfilePreferenceService.js';
 import { TrustLensService } from './TrustLensService.js';
-import type { UniversalAgentModelProfile, UniversalAgentRun, UniversalAgentRunResult, UniversalApprovalRequest } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
-import type { ZavorthAgentGateway, ZavorthAgentGatewaySnapshot, ZavorthAgentGatewaySnapshotOptions } from '../../runtime/agent/ZavorthAgentGateway.js';
+import type {
+  UniversalAgentModelProfile,
+  UniversalAgentRun,
+  UniversalAgentRunResult,
+  UniversalApprovalRequest,
+} from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
+import type {
+  ZavorthAgentGateway,
+  ZavorthAgentGatewaySnapshot,
+  ZavorthAgentGatewaySnapshotOptions,
+} from '../../runtime/agent/ZavorthAgentGateway.js';
 
 import { ZavorthProviderReadinessMatrixService } from '../ZavorthProviderReadinessMatrixService.js';
 import { ZavorthSelfHealingUxService } from '../ZavorthSelfHealingUxService.js';
-import { ZavorthSelfHealingReceiptService, type ZavorthSelfHealingReceipt } from '../ZavorthSelfHealingReceiptService.js';
+import {
+  ZavorthSelfHealingReceiptService,
+  type ZavorthSelfHealingReceipt,
+} from '../ZavorthSelfHealingReceiptService.js';
 import type { ZavorthMemoryPlaneService } from '../ZavorthMemoryPlaneService.js';
 import type { ZavorthLearningPlaneService } from '../ZavorthLearningPlaneService.js';
 import type { RuntimeAccessReadinessService } from '../../runtime/access/RuntimeAccessReadinessService.js';
-import type { ZavorthSelfHealingAction, ZavorthSelfHealingProjection } from '../../contracts/ZavorthSelfHealingUxContract.js';
+import type {
+  ZavorthSelfHealingAction,
+  ZavorthSelfHealingProjection,
+} from '../../contracts/ZavorthSelfHealingUxContract.js';
 import type { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
 import type { UniversalAgentRequest } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
 import { ZavorthAgentMaturityService, type ZavorthAgentMaturitySnapshot } from '../ZavorthAgentMaturityService.js';
 
-import type { ZavorthRuntimeStateBusActionInput, ZavorthRuntimeStateBusDispatchResult, ZavorthRuntimeStateBusSnapshot } from '../../contracts/ZavorthRuntimeStateBusContract.js';
+import type {
+  ZavorthRuntimeStateBusActionInput,
+  ZavorthRuntimeStateBusDispatchResult,
+  ZavorthRuntimeStateBusSnapshot,
+} from '../../contracts/ZavorthRuntimeStateBusContract.js';
 import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
 type AgentGatewayLike = Pick<ZavorthAgentGateway, 'handle' | 'buildSnapshot' | 'approve' | 'reject'>;
 
@@ -96,8 +122,12 @@ function isSimpleDateTimeQuestion(text: string): boolean {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
-  const asksTime = /\b(que\s+horas|hora\s+atual|horas\s+sao|what\s+time|current\s+time|tell\s+me\s+the\s+time)\b/.test(normalized);
-  const asksDate = /\b(que\s+dia|data\s+atual|dia\s+de\s+hoje|what\s+date|today'?s\s+date|current\s+date)\b/.test(normalized);
+  const asksTime = /\b(que\s+horas|hora\s+atual|horas\s+sao|what\s+time|current\s+time|tell\s+me\s+the\s+time)\b/.test(
+    normalized,
+  );
+  const asksDate = /\b(que\s+dia|data\s+atual|dia\s+de\s+hoje|what\s+date|today'?s\s+date|current\s+date)\b/.test(
+    normalized,
+  );
   return asksTime || asksDate;
 }
 
@@ -105,7 +135,7 @@ function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
   if (!isSimpleDateTimeQuestion(text)) return null;
   const timeZone = inferRequestedTimeZone(text);
   try {
-    const formatted = new Intl.DateTimeFormat('pt-BR', {
+    const formatted = new Intl.DateTimeFormat('en-US', {
       timeZone,
       weekday: 'long',
       year: 'numeric',
@@ -116,14 +146,23 @@ function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
       second: '2-digit',
       timeZoneName: 'short',
     }).format(now);
-    return `Agora in ${timeZone} é ${formatted}.`;
+    return `It is now ${formatted} in ${timeZone}.`;
   } catch (error: unknown) {
     logger.warn(`[ExperienceCore] Intl.DateTimeFormat failed for timezone ${timeZone}:`, error);
-    return `Agora são ${now.toLocaleString('pt-BR')} no fuso local do sistema.`;
+    return `It is now ${now.toLocaleString('en-US')} in the system local timezone.`;
   }
 }
 
-function action(input: { id: string; label: string; kind: ExperienceAction['kind']; reason: string; command?: string | null; route?: string | null; risk?: ExperienceAction['risk']; requiresApproval?: boolean }): ExperienceAction {
+function action(input: {
+  id: string;
+  label: string;
+  kind: ExperienceAction['kind'];
+  reason: string;
+  command?: string | null;
+  route?: string | null;
+  risk?: ExperienceAction['risk'];
+  requiresApproval?: boolean;
+}): ExperienceAction {
   return {
     id: input.id,
     label: input.label,
@@ -170,13 +209,24 @@ export class ExperienceProjectionSupport {
     return 'status';
   }
 
-  public buildReceipts(activeRun: UniversalAgentRun | null, runs: UniversalAgentRun[], approvals: UniversalApprovalRequest[]): ExperienceReceipt[] {
+  public buildReceipts(
+    activeRun: UniversalAgentRun | null,
+    runs: UniversalAgentRun[],
+    approvals: UniversalApprovalRequest[],
+  ): ExperienceReceipt[] {
     const sourceRuns = activeRun ? [activeRun] : runs.slice(0, 4);
     const runReceipts = sourceRuns.map((run) => ({
       id: `run:${run.id}`,
       title: run.title,
       detail: run.summary || `Status: ${run.status}`,
-      status: run.status === 'failed' ? ('failed' as const) : run.status === 'waiting_approval' ? ('pending' as const) : run.status === 'completed' ? ('ready' as const) : ('pending' as const),
+      status:
+        run.status === 'failed'
+          ? ('failed' as const)
+          : run.status === 'waiting_approval'
+            ? ('pending' as const)
+            : run.status === 'completed'
+              ? ('ready' as const)
+              : ('pending' as const),
       source: 'run' as const,
       createdAt: run.updatedAt,
     }));
@@ -188,7 +238,9 @@ export class ExperienceProjectionSupport {
       source: 'approval' as const,
       createdAt: approval.createdAt,
     }));
-    return [...runReceipts, ...approvalReceipts].sort((left, right) => right.createdAt.localeCompare(left.createdAt)).slice(0, 12);
+    return [...runReceipts, ...approvalReceipts]
+      .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+      .slice(0, 12);
   }
 
   public buildMemorySignals(activeRun: UniversalAgentRun | null, workspace: string | null): ExperienceMemorySignal[] {
@@ -211,7 +263,7 @@ export class ExperienceProjectionSupport {
           {
             id: 'memory-plane:artifacts',
             title: 'Memory Plane',
-            summary: `${artifacts} artefato(s) de memory disponiveis to recall governado.`,
+            summary: `${artifacts} memory artifact(s) available for governed recall.`,
             layer: 'semantic',
             confidence: 0.7,
           },
@@ -223,7 +275,10 @@ export class ExperienceProjectionSupport {
     return [];
   }
 
-  public buildLlmBrainLearningCandidates(activeRun: UniversalAgentRun | null, llmBrain: ZavorthLlmBrainSnapshot | null): ExperienceLearningCandidate[] {
+  public buildLlmBrainLearningCandidates(
+    activeRun: UniversalAgentRun | null,
+    llmBrain: ZavorthLlmBrainSnapshot | null,
+  ): ExperienceLearningCandidate[] {
     if (!activeRun || !llmBrain) return [];
     const signal = llmBrain.skillEvolution;
     if (signal.status === 'needs-more-signal') return [];
@@ -232,15 +287,26 @@ export class ExperienceProjectionSupport {
       {
         contractVersion: LEARNING_CANDIDATE_CONTRACT_VERSION,
         id: `llm-brain:${activeRun.id}`,
-        title: signal.candidateKind === 'skill-improvement' ? 'Skill improvement signal' : signal.candidateKind === 'auto-skill' ? 'Reusable skill signal' : 'Procedure learning signal',
+        title:
+          signal.candidateKind === 'skill-improvement'
+            ? 'Skill improvement signal'
+            : signal.candidateKind === 'auto-skill'
+              ? 'Reusable skill signal'
+              : 'Procedure learning signal',
         origin: 'llm-brain',
         observedPattern: signal.summary,
         recommendation: quarantined
           ? 'Keep quarantined. Learning cannot alter security policy, approvals, sandbox, effect boundary or allowlists.'
           : 'Review this run as a possible reusable skill, Mnemos procedure or nudge before promoting behavior.',
         confidence: quarantined ? 0.2 : 0.82,
-        impact: quarantined ? 'Does not alter behavior.' : 'Can improve future routing, procedures or skill suggestions only after approval.',
-        dataUsed: [llmBrain.summary, `tools requested=${llmBrain.toolAgency.requested} executed=${llmBrain.toolAgency.executed}`, `session=${llmBrain.session.sessionId}`],
+        impact: quarantined
+          ? 'Does not alter behavior.'
+          : 'Can improve future routing, procedures or skill suggestions only after approval.',
+        dataUsed: [
+          llmBrain.summary,
+          `tools requested=${llmBrain.toolAgency.requested} executed=${llmBrain.toolAgency.executed}`,
+          `session=${llmBrain.session.sessionId}`,
+        ],
         suggestedAction: signal.suggestedCommand || 'zavorth learn',
         state: quarantined ? 'quarantined' : 'pending',
         createdAt: llmBrain.generatedAt,
@@ -260,7 +326,8 @@ export class ExperienceProjectionSupport {
 
   public buildReachSnapshot(): import('./ExperienceContracts.js').ExperienceReachSnapshot {
     try {
-      const { ZavorthHumanReachService } = require('../ZavorthHumanReachService.js') as typeof import('../ZavorthHumanReachService.js');
+      const { ZavorthHumanReachService } =
+        require('../ZavorthHumanReachService.js') as typeof import('../ZavorthHumanReachService.js');
       const snap = new ZavorthHumanReachService({ projectRoot: process.cwd() }).buildSnapshot();
       return {
         contractVersion: 'zavorth-human-reach/1',
@@ -296,12 +363,16 @@ export class ExperienceProjectionSupport {
 
   public tryHandleReachCommand(command: ExperienceCommand): ExperienceCommandResult | null {
     try {
-      const { ZavorthHumanReachService } = require('../ZavorthHumanReachService.js') as typeof import('../ZavorthHumanReachService.js');
+      const { ZavorthHumanReachService } =
+        require('../ZavorthHumanReachService.js') as typeof import('../ZavorthHumanReachService.js');
       const service = new ZavorthHumanReachService({ projectRoot: process.cwd() });
       const matched = service.matchNaturalCommand(command.text);
       if (!matched) return null;
       const snapshot = this.owner.buildHome(command);
-      const text = matched.kind === 'list' ? service.formatDigestLines().join('\n') : service.formatPathGuide(matched.pathId || 'telegram').join('\n');
+      const text =
+        matched.kind === 'list'
+          ? service.formatDigestLines().join('\n')
+          : service.formatPathGuide(matched.pathId || 'telegram').join('\n');
       return {
         ok: true,
         handled: true,
@@ -322,10 +393,16 @@ export class ExperienceProjectionSupport {
     }
   }
 
-  public buildSuperpowersSnapshot(userId?: string | null): import('./ExperienceContracts.js').ExperienceSuperpowersSnapshot {
+  public buildSuperpowersSnapshot(
+    userId?: string | null,
+  ): import('./ExperienceContracts.js').ExperienceSuperpowersSnapshot {
     try {
-      const { ZavorthHumanSuperpowersService } = require('../ZavorthHumanSuperpowersService.js') as typeof import('../ZavorthHumanSuperpowersService.js');
-      const snap = new ZavorthHumanSuperpowersService({ projectRoot: process.cwd(), userId: userId || null }).buildSnapshot();
+      const { ZavorthHumanSuperpowersService } =
+        require('../ZavorthHumanSuperpowersService.js') as typeof import('../ZavorthHumanSuperpowersService.js');
+      const snap = new ZavorthHumanSuperpowersService({
+        projectRoot: process.cwd(),
+        userId: userId || null,
+      }).buildSnapshot();
       return {
         contractVersion: 'zavorth-human-superpowers/1',
         headline: snap.headline,
@@ -358,7 +435,8 @@ export class ExperienceProjectionSupport {
 
   public tryHandleSuperpowersCommand(command: ExperienceCommand): ExperienceCommandResult | null {
     try {
-      const { ZavorthHumanSuperpowersService } = require('../ZavorthHumanSuperpowersService.js') as typeof import('../ZavorthHumanSuperpowersService.js');
+      const { ZavorthHumanSuperpowersService } =
+        require('../ZavorthHumanSuperpowersService.js') as typeof import('../ZavorthHumanSuperpowersService.js');
       const service = new ZavorthHumanSuperpowersService({ projectRoot: process.cwd() });
       const matched = service.matchNaturalCommand(command.text);
       if (!matched) return null;
@@ -384,7 +462,12 @@ export class ExperienceProjectionSupport {
       const lines = found.length
         ? [
             `For "${matched.query}", this helps:`,
-            ...found.slice(0, 5).map((power) => `• ${power.title} — ${power.howToAsk}${power.ready ? '' : ` (${power.nextStep || 'needs setup'})`}`),
+            ...found
+              .slice(0, 5)
+              .map(
+                (power) =>
+                  `• ${power.title} — ${power.howToAsk}${power.ready ? '' : ` (${power.nextStep || 'needs setup'})`}`,
+              ),
             'You can ask directly, without a technical command.',
           ]
         : ['I could not match a clear superpower. Ask "what can you do?" (or "o que you sabe fazer?") for the list.'];

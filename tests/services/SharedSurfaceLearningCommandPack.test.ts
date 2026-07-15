@@ -95,7 +95,8 @@ describe('SharedSurfaceLearningCommandPack', () => {
 
     expect(handled).toBe(true);
     expect(buildSnapshot).toHaveBeenCalledTimes(1);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Learning plane do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Learning plane (candidates)'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learn = skill drafts · /learning = candidates'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Candidates: 1 | pending: 1 | approved: 0.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Gateway smoke skill [skill] score=0.92'));
   });
@@ -107,7 +108,8 @@ describe('SharedSurfaceLearningCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/learning', 'candidates');
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Candidatos em foco:'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Candidates:'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learning approve 1'));
   });
 
   it('shows usage for mutable learning actions without a candidate id', async () => {
@@ -124,10 +126,12 @@ describe('SharedSurfaceLearningCommandPack', () => {
 
     expect(handled).toBe(true);
     expect(executeAction).not.toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith('Use /learning <approve|reject|promote|forget|promote-skill|promote-procedure> <candidateId>.');
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Use /learning approve 1 (from /learning list)'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learn = skill drafts · /learning = candidates'));
   });
 
   it('executes approve/reject/promote actions through the learning plane service', async () => {
+    const snapshot = buildLearningSnapshot();
     const executeAction = jest.fn(() => ({
       generatedAt: '2026-04-15T12:00:00.000Z',
       candidateId: 'candidate:gateway-smoke',
@@ -136,28 +140,32 @@ describe('SharedSurfaceLearningCommandPack', () => {
       ok: true,
       summary: 'Gateway smoke skill aprovado como draft revisavel.',
       details: ['O item continua como learned_draft ate uma promocao explicita.'],
-      snapshot: buildLearningSnapshot(),
+      snapshot,
     }));
     const pack = buildPack({
       learningPlaneService: {
-        buildSnapshot: jest.fn(),
+        buildSnapshot: jest.fn(() => snapshot),
         executeAction,
       } as any,
     });
-    const ctx = buildCtx('/learning approve candidate:gateway-smoke');
+    const ctx = buildCtx('/learning approve 1');
 
-    const handled = await pack.maybeHandle(ctx as any, '/learning', 'approve candidate:gateway-smoke');
+    const handled = await pack.maybeHandle(ctx as any, '/learning', 'approve 1');
 
     expect(handled).toBe(true);
     expect(executeAction).toHaveBeenCalledWith({
       candidateId: 'candidate:gateway-smoke',
       actionId: 'approve',
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Gateway smoke skill aprovado como draft revisavel.'));
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Gateway smoke skill aprovado como draft revisavel.'),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Status: applied.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learn = skill drafts · /learning = candidates'));
   });
 
-  it('routes natural learning intents through the same command handler', async () => {
+  it('routes promote by ordinal through the same command handler', async () => {
+    const snapshot = buildLearningSnapshot();
     const executeAction = jest.fn(() => ({
       generatedAt: '2026-04-15T12:00:00.000Z',
       candidateId: 'candidate:gateway-smoke',
@@ -166,23 +174,35 @@ describe('SharedSurfaceLearningCommandPack', () => {
       ok: true,
       summary: 'Gateway smoke skill promovido para trusted local.',
       details: ['O candidato agora pode aparecer como habilidade aprendida.'],
-      snapshot: buildLearningSnapshot(),
+      snapshot,
     }));
     const pack = buildPack({
       learningPlaneService: {
-        buildSnapshot: jest.fn(),
+        buildSnapshot: jest.fn(() => snapshot),
         executeAction,
       } as any,
     });
-    const ctx = buildCtx('promova o candidato candidate:gateway-smoke');
+    const ctx = buildCtx('/learning promote 1');
 
-    const handled = await pack.maybeHandle(ctx as any, '/learning', 'promote candidate:gateway-smoke');
+    const handled = await pack.maybeHandle(ctx as any, '/learning', 'promote 1');
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('promovido para trusted local.'));
     expect(executeAction).toHaveBeenCalledWith({
       candidateId: 'candidate:gateway-smoke',
       actionId: 'promote',
     });
+  });
+
+  it('renders /learning help distinguishing skill drafts from candidates', async () => {
+    const pack = buildPack();
+    const ctx = buildCtx('/learning help');
+
+    const handled = await pack.maybeHandle(ctx as any, '/learning', 'help');
+
+    expect(handled).toBe(true);
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learn = skill drafts · /learning = candidates'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learning approve 1'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learn promote 1'));
   });
 
   it('ignores unrelated commands', async () => {

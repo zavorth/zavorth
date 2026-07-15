@@ -3,9 +3,7 @@ import * as path from 'path';
 import * as os from 'os';
 import { execFileSync } from 'child_process';
 import { ZavorthCli } from '../../src/cli/ZavorthCli';
-import {
-  formatCliChatWelcome,
-} from '../../src/cli/ZavorthCliSurfaceHelpers';
+import { formatCliChatWelcome } from '../../src/cli/ZavorthCliSurfaceHelpers';
 import { formatCliStatusSnapshot } from '../../src/cli/ZavorthCliNativeRenderers.status';
 import {
   formatCliOperationsDoctorSnapshot,
@@ -26,12 +24,7 @@ import {
   formatCliRecoverableErrorEventCard,
 } from '../../src/cli/ZavorthCliEventCards';
 
-
-import {
-  formatZavorthGoFailure,
-  formatZavorthGoReport,
-} from '../../src/cli/ZavorthCliGoRenderer';
-
+import { formatZavorthGoFailure, formatZavorthGoReport } from '../../src/cli/ZavorthCliGoRenderer';
 
 import type { RuntimeOfficialAccessReport } from '../../src/runtime/access/RuntimeOfficialAccessService';
 
@@ -58,9 +51,7 @@ function expectNoFirstLayerNoise(output: string): void {
 function makeAccessReport(ready: boolean): RuntimeOfficialAccessReport {
   return {
     generatedAt: '2026-04-24T00:00:00.000Z',
-    summary: ready
-      ? 'Zavorth pronto para uso local.'
-      : 'O caminho oficial ainda precisa preparar o Zavorth.',
+    summary: ready ? 'Zavorth pronto para uso local.' : 'O caminho oficial ainda precisa preparar o Zavorth.',
     tokenSource: 'env',
     journey: {} as any,
     manifest: {} as any,
@@ -241,13 +232,13 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     const output = `${banner}\n${hint}`;
 
     expect(output).toContain('Zavorth');
-    expect(output).toContain('Vamos preparar seu assistente local');
-    expect(output).toContain('1. Modelo');
+    expect(output).toContain("Let's prepare your local assistant");
+    expect(output).toContain('1. Model');
     expect(output).toContain('2. Acesso');
     expect(output).toContain('3. Seguranca');
     expect(output).toContain('4. Pessoa');
     expect(output).toContain('5. Pronto');
-    expect(output).toContain('Modelo atual: gemini-2.5-flash');
+    expect(output).toContain('Current model: gemini-2.5-flash');
     expect(output).toContain('zavorth setup');
     expect(output).toContain('zavorth go');
     expect(output).toContain('Home');
@@ -335,8 +326,23 @@ describe('Zavorth CLI visual anti-regression contract', () => {
       local: { ready: false, appUrl: null, issues: ['host supervisor nao esta ativo'] },
       remote: { ready: false, appUrl: null, issues: [] },
       nodeMesh: {} as any,
-      channelProviders: { status: 'passed', summary: 'Canais ok.', stale: false, command: 'cmd', validated: 1, total: 1 },
-      remoteTransports: { status: 'pending', summary: 'Remoto pendente.', stale: false, command: 'cmd', healthy: 0, total: 0, recommendedAction: null },
+      channelProviders: {
+        status: 'passed',
+        summary: 'Canais ok.',
+        stale: false,
+        command: 'cmd',
+        validated: 1,
+        total: 1,
+      },
+      remoteTransports: {
+        status: 'pending',
+        summary: 'Remoto pendente.',
+        stale: false,
+        command: 'cmd',
+        healthy: 0,
+        total: 0,
+        recommendedAction: null,
+      },
       sessions: null,
       nodeFleet: null,
       integrations: null,
@@ -386,7 +392,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     expect(doctor).toContain('zavorth go');
     expect(brief).toContain('> Validar Node Mesh');
     expect(brief).toContain('> zavorth doctor');
-    expect(ops).toContain('> componentes locais: 1 de 2 prontos');
+    expect(ops).toContain('> local components: 1 of 2 ready');
     expect(ops).toContain('> proximo passo: Validar Node Mesh (zavorth doctor)');
     expectNoFirstLayerNoise(output);
   });
@@ -442,11 +448,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
             id: 'operations',
             title: 'Operacao',
             tone: 'warning',
-            lines: [
-              '- componentes locais: 1 de 2 prontos',
-              '- manutencao: automacao habilitada',
-              '- publish: 2 h',
-            ],
+            lines: ['- componentes locais: 1 de 2 prontos', '- manutencao: automacao habilitada', '- publish: 2 h'],
           },
           {
             id: 'work',

@@ -18,8 +18,7 @@ function createBridgeMock(overrides: Record<string, unknown> = {}) {
     sendAgentPrompt: jest.fn().mockResolvedValue({ ok: true }),
     startNewConversation: jest.fn().mockResolvedValue({ ok: true }),
     syncPendingHandoffs: jest.fn().mockResolvedValue({ ok: true }),
-    ...overrides,
-  };
+    ...overrides};
 }
 
 function createAutomatorMock(overrides: Record<string, unknown> = {}) {
@@ -32,8 +31,7 @@ function createAutomatorMock(overrides: Record<string, unknown> = {}) {
     readLatestResponse: jest.fn().mockResolvedValue({ ok: true, hasPermissionPrompt: false }),
     resetVisibleConversation: jest.fn().mockResolvedValue({ ok: true, verified: true, mode: 'reset-visible-conversation' }),
     waitForPermissionPromptToClear: jest.fn().mockResolvedValue(true),
-    ...overrides,
-  };
+    ...overrides};
 }
 
 function createContext() {
@@ -41,8 +39,7 @@ function createContext() {
     reply: jest.fn().mockResolvedValue(undefined),
     replyWithMediaGroup: jest.fn().mockResolvedValue(undefined),
     chat: { id: 123 },
-    from: { id: 456 },
-  } as any;
+    from: { id: 456 }} as any;
 }
 
 describe('TelegramZavorthBridgeController', () => {
@@ -70,39 +67,33 @@ describe('TelegramZavorthBridgeController', () => {
     const automator = options.automator || createAutomatorMock();
     const bridgeManager = {
       listPendingSessions: jest.fn().mockResolvedValue([]),
-      saveSession: jest.fn().mockResolvedValue(undefined),
-    };
+      saveSession: jest.fn().mockResolvedValue(undefined)};
 
     return new TelegramZavorthBridgeController({
       taskManager: {
         createPendingTask: jest.fn(),
         advanceState: jest.fn(),
         getTask: jest.fn(),
-        ...(options.taskManager || {}),
-      } as any,
+        ...(options.taskManager || {})} as any,
       zavorthBridgeControlService: {
         open: jest.fn(),
         restart: jest.fn(),
         status: jest.fn(),
         setModel: jest.fn(),
-        ...(options.zavorthBridgeControlService || {}),
-      } as any,
+        ...(options.zavorthBridgeControlService || {})} as any,
       zavorthBridgePromptService: {
         start: jest.fn(),
         waitForCompletion: jest.fn(),
-        ...(options.zavorthBridgePromptService || {}),
-      } as any,
+        ...(options.zavorthBridgePromptService || {})} as any,
       zavorthBridgePreferenceStore: {
         getPreferredModel: jest.fn().mockResolvedValue('gemini-3.1-flash'),
         setPreferredModel: jest.fn().mockResolvedValue(undefined),
-        ...(options.zavorthBridgePreferenceStore || {}),
-      } as any,
+        ...(options.zavorthBridgePreferenceStore || {})} as any,
       permissionService: {
         listRequests: jest.fn().mockResolvedValue([]),
         rejectRequest: jest.fn().mockResolvedValue(undefined),
         findApprovedRequest: jest.fn().mockResolvedValue(null),
-        ...(options.permissionService || {}),
-      } as any,
+        ...(options.permissionService || {})} as any,
       botApi: { sendMessage: jest.fn(), ...(options.botApi || {}) },
       persistTask: options.persistTask || jest.fn(),
       truncateForTelegram: (content: string) => content,
@@ -113,18 +104,17 @@ describe('TelegramZavorthBridgeController', () => {
       runResearchFallback: options.runResearchFallback,
       createCompanionBridge: () => bridge as any,
       createBridgeManager: () => bridgeManager as any,
-      createWindowAutomator: () => automator as any,
-    });
+      createWindowAutomator: () => automator as any});
   }
 
-  it('parses natural ZavorthBridge control commands', () => {
+  it('parses only slash ZavorthBridge control commands (no free-text NLU)', () => {
     const controller = createController();
 
-    expect(controller.parseControlCommand('abrir zavorthBridge')).toEqual({ action: 'open' });
+    expect(controller.parseControlCommand('abrir zavorthBridge')).toBeNull();
+    expect(controller.parseControlCommand('/ag_open')).toEqual({ action: 'open' });
     expect(controller.parseControlCommand('/ag_model gemini-3.1-flash')).toEqual({
       action: 'set-model',
-      model: 'gemini-3.1-flash',
-    });
+      model: 'gemini-3.1-flash'});
   });
 
   it('parses prompt commands with model and prompt body', () => {
@@ -132,8 +122,7 @@ describe('TelegramZavorthBridgeController', () => {
 
     expect(controller.parsePromptCommand('/ag_prompt gemini-3.1-flash | responda com OK')).toEqual({
       model: 'gemini-3.1-flash',
-      prompt: 'responda com OK',
-    });
+      prompt: 'responda com OK'});
   });
 
   it('auto-applies a persisted ZavorthBridge UI permission and resumes completion tracking', async () => {
@@ -145,15 +134,13 @@ describe('TelegramZavorthBridgeController', () => {
       .fn()
       .mockResolvedValueOnce({
         ok: false,
-        errorCode: 'permission_prompt_visible',
-      })
+        errorCode: 'permission_prompt_visible'})
       .mockResolvedValueOnce({
         ok: true,
         text: 'Resposta final do ZavorthBridge',
         stage: 'completed',
         source: 'ui',
-        verified: true,
-      });
+        verified: true});
     const controller = createController({
       automator,
       botApi,
@@ -163,21 +150,15 @@ describe('TelegramZavorthBridgeController', () => {
       permissionService: {
         findApprovedRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-auto-1',
-          scope: 'workspace',
-        }),
-      },
+          scope: 'workspace'})},
       zavorthBridgePromptService: {
-        waitForCompletion,
-      },
-    });
+        waitForCompletion}});
     const task = {
       task_id: 'task-ag-prompt-1',
       chat_id: '123',
       workspace: 'C:/workspace/zavorth',
       metadata: {
-        zavorthBridgeCompanionProcessId: 7788,
-      },
-    } as any;
+        zavorthBridgeCompanionProcessId: 7788}} as any;
 
     await controller.finishPrompt(task, { processId: 1122 } as any);
 
@@ -211,24 +192,19 @@ describe('TelegramZavorthBridgeController', () => {
       buildPermissionKeyboard,
       taskManager: { advanceState },
       permissionService: {
-        findApprovedRequest: jest.fn().mockResolvedValue(null),
-      },
+        findApprovedRequest: jest.fn().mockResolvedValue(null)},
       zavorthBridgePromptService: {
         waitForCompletion: jest.fn().mockResolvedValue({
           ok: false,
           errorCode: 'permission_prompt_visible',
           stage: 'waiting',
           source: 'ui',
-          verified: false,
-        }),
-      },
-    });
+          verified: false})}});
     const task = {
       task_id: 'task-ag-prompt-2',
       chat_id: '123',
       workspace: 'C:/workspace/zavorth',
-      metadata: {},
-    } as any;
+      metadata: {}} as any;
 
     await controller.finishPrompt(task, { processId: 4455 } as any);
 
@@ -253,9 +229,7 @@ describe('TelegramZavorthBridgeController', () => {
       isOnline: jest.fn().mockResolvedValue(true),
       readStatus: jest.fn().mockResolvedValue({
         instanceId: 'bridge-1',
-        capabilities: { canAcceptStep: true },
-      }),
-    });
+        capabilities: { canAcceptStep: true }})});
     const automator = createAutomatorMock();
     const controller = createController({ bridge, automator });
     const ctx = createContext();
@@ -272,9 +246,7 @@ describe('TelegramZavorthBridgeController', () => {
       isOnline: jest.fn().mockResolvedValue(true),
       readStatus: jest.fn().mockResolvedValue({
         instanceId: 'bridge-1',
-        capabilities: { canAcceptStep: false },
-      }),
-    });
+        capabilities: { canAcceptStep: false }})});
     const automator = createAutomatorMock();
     const controller = createController({ bridge, automator });
     const ctx = createContext();
@@ -291,9 +263,7 @@ describe('TelegramZavorthBridgeController', () => {
       isOnline: jest.fn().mockResolvedValue(true),
       readStatus: jest.fn().mockResolvedValue({
         instanceId: 'bridge-2',
-        capabilities: { canSendAgentPrompt: true },
-      }),
-    });
+        capabilities: { canSendAgentPrompt: true }})});
     const automator = createAutomatorMock();
     const controller = createController({ bridge, automator });
     const ctx = createContext();
@@ -312,10 +282,7 @@ describe('TelegramZavorthBridgeController', () => {
           ok: false,
           verified: false,
           mode: 'focus',
-          message: 'Janela nao encontrada',
-        }),
-      }),
-    });
+          message: 'Janela nao encontrada'})})});
     const ctx = createContext();
 
     await controller.handleWindowAction(ctx, 'focus');
@@ -342,11 +309,7 @@ describe('TelegramZavorthBridgeController', () => {
             canSendAgentPrompt: true,
             canCloseAllEditors: true,
             canResetSession: false,
-            canStartNewConversation: true,
-          },
-        }),
-      }),
-    });
+            canStartNewConversation: true}})})});
     const ctx = createContext();
 
     await controller.handleBridgeStatus(ctx);
@@ -362,9 +325,7 @@ describe('TelegramZavorthBridgeController', () => {
       readStatus: jest.fn().mockResolvedValue({
         instanceId: 'bridge-4',
         processId: 4321,
-        capabilities: { canResetSession: true },
-      }),
-    });
+        capabilities: { canResetSession: true }})});
     const automator = createAutomatorMock();
     const controller = createController({ bridge, automator });
     const ctx = createContext();
@@ -386,22 +347,17 @@ describe('TelegramZavorthBridgeController', () => {
       readStatus: jest.fn().mockResolvedValue({
         instanceId: 'bridge-5',
         processId: 9876,
-        capabilities: { canResetSession: true },
-      }),
-    });
+        capabilities: { canResetSession: true }})});
     const automator = createAutomatorMock({
       ensureConversationSurface: jest.fn().mockResolvedValue({
         ok: true,
         verified: false,
         mode: 'ensure-conversation-surface',
-        message: 'ZavorthBridge UI still shows a permission request after reset.',
-      }),
-    });
+        message: 'ZavorthBridge UI still shows a permission request after reset.'})});
     const controller = createController({
       bridge,
       automator,
-      zavorthBridgeControlService: { restart },
-    });
+      zavorthBridgeControlService: { restart }});
     const ctx = createContext();
 
     await controller.handleSessionAction(ctx, 'reset');
@@ -418,27 +374,20 @@ describe('TelegramZavorthBridgeController', () => {
       readStatus: jest.fn().mockResolvedValue({
         instanceId: 'bridge-6',
         processId: 2468,
-        capabilities: { canResetSession: true },
-      }),
-    });
+        capabilities: { canResetSession: true }})});
     const automator = createAutomatorMock({
       ensureConversationSurface: jest.fn().mockResolvedValue({
         ok: false,
         verified: false,
         mode: 'ensure-conversation-surface',
-        message: 'The chat surface was not ready after the bridge reset.',
-      }),
-    });
+        message: 'The chat surface was not ready after the bridge reset.'})});
     const controller = createController({
       bridge,
       automator,
       zavorthBridgeControlService: {
         restart: jest.fn().mockResolvedValue({
           ok: false,
-          errorMessage: 'Failed to restart ZavorthBridge.',
-        }),
-      },
-    });
+          errorMessage: 'Failed to restart ZavorthBridge.'})}});
     const ctx = createContext();
 
     await controller.handleSessionAction(ctx, 'reset');
@@ -466,10 +415,7 @@ describe('TelegramZavorthBridgeController', () => {
           errorCode: null,
           errorMessage: null,
           logFile: null,
-          diagnostics: null,
-        }),
-      },
-    });
+          diagnostics: null})}});
     const ctx = createContext();
 
     await controller.handleModelCommand(ctx, 'gemini-3.1-flash');
@@ -490,10 +436,7 @@ describe('TelegramZavorthBridgeController', () => {
           sessionAccessible: true,
           remoteModeActive: true,
           selectedModel: 'gemini-3.1-flash',
-          errorMessage: null,
-        }),
-      },
-    });
+          errorMessage: null})}});
     const ctx = createContext();
 
     await controller.handleControl(ctx, 'status');
@@ -510,9 +453,7 @@ describe('TelegramZavorthBridgeController', () => {
     const bridge = createBridgeMock({
       isOnline: jest.fn().mockResolvedValue(true),
       readStatus: jest.fn().mockResolvedValue({
-        instanceId: 'bridge-live-1',
-      }),
-    });
+        instanceId: 'bridge-live-1'})});
     const persistTask = jest.fn();
     const executePromptSpy = jest
       .spyOn(ZavorthBridgeCliAdapter.prototype, 'executePrompt')
@@ -524,17 +465,14 @@ describe('TelegramZavorthBridgeController', () => {
           tracking_file: trackingFile,
           response_file: 'C:/tmp/response.md',
           preferred_model: 'gemini-3.1-flash',
-          companion_instance_id: null,
-        },
-      } as any);
+          companion_instance_id: null}} as any);
     const controller = createController({ bridge, persistTask });
     const ctx = createContext();
     const task = {
       task_id: 'task-ag-handoff-1',
       chat_id: '123',
       workspace: 'C:/workspace/zavorth',
-      metadata: {},
-    } as any;
+      metadata: {}} as any;
 
     try {
       await controller.handleTaskExecution(ctx, task, 'abra o zavorthBridge e continue esta tarefa');
@@ -559,8 +497,7 @@ describe('TelegramZavorthBridgeController', () => {
     const ctx = createContext();
     const task = {
       task_id: 'task-ag-3',
-      workspace: 'C:/workspace/zavorth',
-    } as any;
+      workspace: 'C:/workspace/zavorth'} as any;
 
     try {
       await controller.handleTaskExecution(ctx, task, 'pesquise noticias do dia');
@@ -586,8 +523,7 @@ describe('TelegramZavorthBridgeController', () => {
       task_id: 'task-ag-4',
       chat_id: '123',
       workspace: 'C:/workspace/zavorth',
-      metadata: { responseDecision: { requestedTools: ['web_search'] } },
-    } as any;
+      metadata: { responseDecision: { requestedTools: ['web_search'] } }} as any;
 
     await controller.handleTaskExecution(ctx, task, 'pesquise as ultimas noticias de tecnologia do dia');
 
@@ -607,8 +543,7 @@ describe('TelegramZavorthBridgeController', () => {
       task_id: 'task-ag-5',
       chat_id: '123',
       workspace: 'C:/workspace/zavorth',
-      metadata: { responseDecision: { requestedTools: ['web_search'] } },
-    } as any;
+      metadata: { responseDecision: { requestedTools: ['web_search'] } }} as any;
 
     await controller.handleTaskExecution(ctx, task, 'pesquise as principais noticias de tecnologia do dia');
 
@@ -629,8 +564,7 @@ describe('TelegramZavorthBridgeController', () => {
     const task = {
       task_id: 'task-ag-local-folder',
       chat_id: '123',
-      workspace: 'C:/workspace/zavorth',
-    } as any;
+      workspace: 'C:/workspace/zavorth'} as any;
 
     await controller.handleTaskExecution(ctx, task, 'pesquise o que tem dentro da minha pasta TESTE DEV');
 

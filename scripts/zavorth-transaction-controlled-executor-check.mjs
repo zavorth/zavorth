@@ -46,8 +46,14 @@ try {
     }
   }
 
-  const contractText = readFileSync(join(root, 'src/contracts/ZavorthTransactionSandboxControlledExecutorContract.ts'), 'utf8');
-  const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionSandboxControlledExecutorService.ts'), 'utf8');
+  const contractText = readFileSync(
+    join(root, 'src/contracts/ZavorthTransactionSandboxControlledExecutorContract.ts'),
+    'utf8',
+  );
+  const serviceText = readFileSync(
+    join(root, 'src/services/ZavorthTransactionSandboxControlledExecutorService.ts'),
+    'utf8',
+  );
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
     'zavorth-transaction-sandbox-controlled-executor/checkpoint-13',
@@ -89,9 +95,7 @@ try {
     failures.push(`certification-required mismatch: ${needsCertification.status}`);
   }
 
-  const needsOperator = runExecutorExpectFailure([
-    ...readySandboxAdapterArgs(ref),
-  ]);
+  const needsOperator = runExecutorExpectFailure([...readySandboxAdapterArgs(ref)]);
   if (needsOperator.status !== 'sandbox-operator-approval-required') {
     failures.push(`operator gate mismatch: ${needsOperator.status}`);
   }
@@ -106,7 +110,11 @@ try {
   if (executed.status !== 'sandbox-executed' || executed.executionReceipt?.localSandboxSimulationPerformed !== true) {
     failures.push(`sandbox execution mismatch: ${executed.status}`);
   }
-  if (executed.executionReceipt?.sandboxExternalIoPerformed !== false || executed.executionReceipt?.liveExecutionAuthorized !== false || executed.safety.noExternalNetworkCall !== true) {
+  if (
+    executed.executionReceipt?.sandboxExternalIoPerformed !== false ||
+    executed.executionReceipt?.liveExecutionAuthorized !== false ||
+    executed.safety.noExternalNetworkCall !== true
+  ) {
     failures.push('Intent model3 receipt must keep external and live execution disabled');
   }
   if (!executed.gates.every((gate) => gate.passed === true)) {
@@ -132,7 +140,7 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+    'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
     '--approve',
     '--mode',
     'paper',
@@ -186,7 +194,11 @@ function baseArgs(ref) {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--approve',
     '--mode',
     'paper',
@@ -240,19 +252,23 @@ function rollbackArgs() {
 }
 
 function runCredential(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runExecutor(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-sandbox-controlled-executor.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-sandbox-controlled-executor.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runExecutorExpectFailure(args) {

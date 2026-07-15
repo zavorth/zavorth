@@ -9,10 +9,7 @@ import type {
   ZavorthMissionStatus,
   ZavorthMissionVerificationReceipt,
 } from '../contracts/runtime/ZavorthMissionContract.js';
-import {
-  validateZavorthMissionDefinition,
-  verifyZavorthMission,
-} from './ZavorthMissionVerificationService.js';
+import { validateZavorthMissionDefinition, verifyZavorthMission } from './ZavorthMissionVerificationService.js';
 
 export type MissionCompletionGateInput = {
   missionId: string;
@@ -35,7 +32,9 @@ export type MissionCompletionGateResult = {
  * Missing/invalid definition or incomplete evidence → inconclusive (not completed).
  */
 export function gateMissionCompletion(input: MissionCompletionGateInput): MissionCompletionGateResult {
-  const proposed = String(input.proposedStatus || '').trim().toLowerCase();
+  const proposed = String(input.proposedStatus || '')
+    .trim()
+    .toLowerCase();
   if (proposed !== 'completed') {
     return {
       allowedStatus: input.proposedStatus,
@@ -47,11 +46,12 @@ export function gateMissionCompletion(input: MissionCompletionGateInput): Missio
 
   const definitionCheck = validateZavorthMissionDefinition(input.definition);
   if (!definitionCheck.ok) {
+    const errors = 'errors' in definitionCheck ? definitionCheck.errors : ['Unknown validation error.'];
     return {
       allowedStatus: 'blocked',
       verification: null,
       blocked: true,
-      reason: `Mission cannot complete without a valid definition: ${definitionCheck.errors.join(' ')}`,
+      reason: `Mission cannot complete without a valid definition: ${errors.join(' ')}`,
     };
   }
 
@@ -74,9 +74,10 @@ export function gateMissionCompletion(input: MissionCompletionGateInput): Missio
       allowedStatus: verification.status === 'failed' ? 'blocked' : 'ready',
       verification,
       blocked: true,
-      reason: verification.status === 'failed'
-        ? 'Independent evidence reported failure; mission is not completed.'
-        : 'Required independent evidence is incomplete; mission stays inconclusive (not completed).',
+      reason:
+        verification.status === 'failed'
+          ? 'Independent evidence reported failure; mission is not completed.'
+          : 'Required independent evidence is incomplete; mission stays inconclusive (not completed).',
     };
   } catch (error: unknown) {
     return {

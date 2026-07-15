@@ -37,7 +37,8 @@ describe('PluginRecommendTool', () => {
     writePlugin(root, 'github', 'GitHub CLI bridge', ['github']);
 
     const tool = new PluginRecommendTool({ projectRoot: root });
-    const raw = await tool.execute({ intent: 'search the web for docs', limit: 3 });
+    // Free-text soft-ranking is off; exact plugin id (or LLM) owns matching.
+    const raw = await tool.execute({ intent: 'web-search', limit: 3 });
     const parsed = JSON.parse(raw);
 
     expect(parsed.ok).toBe(true);

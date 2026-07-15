@@ -20,12 +20,8 @@ import {
   type AgentWorkflowQueueStore,
   type AgentWorkflowQueueStoreDescriptor,
 } from './AgentWorkflowQueueStore.js';
-import { hookMiddleware } from '../../services/ZavorthMiddlewareHook.js';
 
-import {
-  resolveAgentGatewayTraceId,
-  withAgentGatewayTraceMetadata,
-} from './AgentGatewayTelemetry.js';
+import { resolveAgentGatewayTraceId, withAgentGatewayTraceMetadata } from './AgentGatewayTelemetry.js';
 
 import type { StrongCapabilityLoopSnapshot } from './CapabilityLoopGovernanceService.js';
 import {
@@ -34,7 +30,6 @@ import {
 } from './RuntimePromotionGovernanceService.js';
 
 import type {
-
   UniversalAgentApprovalDecisionResult,
   UniversalAgentRequest,
   UniversalAgentRun,
@@ -139,7 +134,8 @@ function toSerializableRecord(value: unknown): Record<string, unknown> {
   try {
     const parsed = JSON.parse(JSON.stringify(value));
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-  } catch (error: unknown) {return {};
+  } catch (error: unknown) {
+    return {};
   }
 }
 
@@ -197,40 +193,32 @@ export class ZavorthAgentGateway {
     this.workflowBackoffMs = Math.max(100, runtime.workflowBackoffMs || 1000);
     this.workflowMaxBackoffMs = Math.max(this.workflowBackoffMs, runtime.workflowMaxBackoffMs || 60_000);
     this.workflowMaxAttempts = Math.max(1, runtime.workflowMaxAttempts || 3);
-    this.runtimePromotionGovernance = runtime.runtimePromotionGovernance || new RuntimePromotionGovernanceService({
-      now: this.now,
-    });
+    this.runtimePromotionGovernance =
+      runtime.runtimePromotionGovernance ||
+      new RuntimePromotionGovernanceService({
+        now: this.now,
+      });
     this.hydrateRuns();
     this.hydrateWorkflowJobs();
   }
 
-  public attachSelfModificationService(
-    service: ZavorthAgentGatewayRuntime['selfModificationService'],
-  ): void {
+  public attachSelfModificationService(service: ZavorthAgentGatewayRuntime['selfModificationService']): void {
     this.runService.attachSelfModificationService(service);
   }
 
-  public attachWatchModeService(
-    service: ZavorthAgentGatewayRuntime['watchModeService'],
-  ): void {
+  public attachWatchModeService(service: ZavorthAgentGatewayRuntime['watchModeService']): void {
     this.runService.attachWatchModeService(service);
   }
 
-  public attachRuntimeEventBus(
-    service: ZavorthAgentGatewayRuntime['runtimeEventBus'],
-  ): void {
+  public attachRuntimeEventBus(service: ZavorthAgentGatewayRuntime['runtimeEventBus']): void {
     this.runService.attachRuntimeEventBus(service);
   }
 
-  public addRuntimeEventBus(
-    service: ZavorthAgentGatewayRuntime['runtimeEventBus'],
-  ): void {
+  public addRuntimeEventBus(service: ZavorthAgentGatewayRuntime['runtimeEventBus']): void {
     this.runService.addRuntimeEventBus(service);
   }
 
-  public removeRuntimeEventBus(
-    service: ZavorthAgentGatewayRuntime['runtimeEventBus'],
-  ): void {
+  public removeRuntimeEventBus(service: ZavorthAgentGatewayRuntime['runtimeEventBus']): void {
     this.runService.removeRuntimeEventBus(service);
   }
 
@@ -244,24 +232,7 @@ export class ZavorthAgentGateway {
 
     const handler: ChannelMeshGatewayEventHandler = async (event) => {
       const request = this.extractChannelMeshNormalizedInboundMessage(event);
-      if (!request) {
-        return;
-      }
-
-      // Commandless mode: try middleware before agent gateway
-      // If middleware handles the message, skip the full agent run
-      const middlewareResult = await hookMiddleware({
-        text: request.text,
-        channelId: request.channel || 'unknown',
-        userId: request.userId,
-        locale: request.metadata?.preferredLanguageCode as string | undefined,
-      });
-
-      if (middlewareResult.handled && middlewareResult.response) {
-        // Middleware handled the message — log it but don't run the agent
-        // The actual reply would be sent through the channel adapter
-        return;
-      }
+      if (!request) return;
 
       await this.handle(this.decorateChannelMeshRequest(request), options);
     };
@@ -507,9 +478,7 @@ export class ZavorthAgentGateway {
     }
 
     const ref = resolution.ref || resolution.target.approval.id;
-    const result = resolution.decision === 'approved'
-      ? await this.approve(ref, options)
-      : await this.reject(ref);
+    const result = resolution.decision === 'approved' ? await this.approve(ref, options) : await this.reject(ref);
 
     return {
       ok: Boolean(result),
@@ -657,9 +626,7 @@ export class ZavorthAgentGateway {
     };
   }
 
-  public queryRuns(
-    query: UniversalAgentRunObservatoryQuery = {},
-  ): UniversalAgentRunObservatorySnapshot {
+  public queryRuns(query: UniversalAgentRunObservatoryQuery = {}): UniversalAgentRunObservatorySnapshot {
     return queryUniversalAgentRuns({
       runs: this.listRuns(200),
       query,
@@ -667,7 +634,9 @@ export class ZavorthAgentGateway {
     });
   }
 
-  private resolveSteeringRun(input: Pick<ZavorthAgentGatewaySteerInput, 'runId' | 'sessionId'>): UniversalAgentRun | null {
+  private resolveSteeringRun(
+    input: Pick<ZavorthAgentGatewaySteerInput, 'runId' | 'sessionId'>,
+  ): UniversalAgentRun | null {
     const runId = normalizeText(input.runId);
     if (runId) {
       return this.runs.get(runId) || null;
@@ -675,9 +644,11 @@ export class ZavorthAgentGateway {
     const sessionId = normalizeText(input.sessionId);
     const runs = this.listRuns(200);
     if (sessionId) {
-      return runs.find((run) => run.sessionId === sessionId && !isTerminalRunStatus(run))
-        || runs.find((run) => run.sessionId === sessionId)
-        || null;
+      return (
+        runs.find((run) => run.sessionId === sessionId && !isTerminalRunStatus(run)) ||
+        runs.find((run) => run.sessionId === sessionId) ||
+        null
+      );
     }
     return runs.find((run) => !isTerminalRunStatus(run)) || runs[0] || null;
   }
@@ -701,9 +672,9 @@ export class ZavorthAgentGateway {
       ? this.getRun(input.activeRunId)
       : input.activeTraceId || input.runStatus
         ? runObservatory.runs[0]?.run || null
-      : input.activeSessionId
-        ? runs.find((run) => run.sessionId === input.activeSessionId) || null
-        : runs[0] || null;
+        : input.activeSessionId
+          ? runs.find((run) => run.sessionId === input.activeSessionId) || null
+          : runs[0] || null;
 
     const capabilityLoopGovernance = this.resolveCapabilityLoopSnapshot(activeRun);
     return {
@@ -729,7 +700,7 @@ export class ZavorthAgentGateway {
   private resolveCapabilityLoopSnapshot(run: UniversalAgentRun | null): StrongCapabilityLoopSnapshot | null {
     const candidate = toSerializableRecord(run?.metadata?.capabilityLoopGovernance);
     return candidate.schemaVersion === 1 && candidate.source === 'CapabilityLoopGovernanceService'
-      ? candidate as StrongCapabilityLoopSnapshot
+      ? (candidate as StrongCapabilityLoopSnapshot)
       : null;
   }
 
@@ -740,9 +711,10 @@ export class ZavorthAgentGateway {
     }
 
     for (const run of this.runs.values()) {
-      const approval = run.approvals.find((candidate) =>
-        candidate.status === 'pending'
-        && (candidate.id === normalizedRef || candidate.runId === normalizedRef || run.id === normalizedRef)
+      const approval = run.approvals.find(
+        (candidate) =>
+          candidate.status === 'pending' &&
+          (candidate.id === normalizedRef || candidate.runId === normalizedRef || run.id === normalizedRef),
       );
       if (approval) {
         return { run, approval };
@@ -804,7 +776,8 @@ export class ZavorthAgentGateway {
       this.workflowJobs.set(job.id, job);
       this.persistWorkflowJob(job);
       return result;
-    } catch (error: unknown) {const failedAt = this.nowIso();
+    } catch (error: unknown) {
+      const failedAt = this.nowIso();
       const message = normalizeText(errorMessage(error), 'Executor duravel falhou ao retomar a execucao.');
       this.applyWorkflowFailure(job, run, message, failedAt);
       const retryScheduled = String(job.status) === 'queued';
@@ -925,10 +898,12 @@ export class ZavorthAgentGateway {
 
   private isChannelMeshUniversalAgentRequest(input: Record<string, unknown>): input is UniversalAgentRequest {
     const channel = normalizeText(input.channel);
-    return normalizeText(input.userId) !== ''
-      && normalizeText(input.sessionId) !== ''
-      && normalizeText(input.text) !== ''
-      && ['web', 'cli', 'telegram', 'api', 'unknown'].includes(channel);
+    return (
+      normalizeText(input.userId) !== '' &&
+      normalizeText(input.sessionId) !== '' &&
+      normalizeText(input.text) !== '' &&
+      ['web', 'cli', 'telegram', 'api', 'unknown'].includes(channel)
+    );
   }
 
   private decorateChannelMeshRequest(input: UniversalAgentRequest): UniversalAgentRequest {
@@ -944,10 +919,7 @@ export class ZavorthAgentGateway {
     };
   }
 
-  private serializeRequestForWorkflow(
-    input: UniversalAgentRequest,
-    run: UniversalAgentRun,
-  ): UniversalAgentRequest {
+  private serializeRequestForWorkflow(input: UniversalAgentRequest, run: UniversalAgentRun): UniversalAgentRequest {
     return {
       traceId: input.traceId ?? run.traceId,
       requestId: normalizeText(input.requestId, run.requestId),
@@ -1000,11 +972,7 @@ export class ZavorthAgentGateway {
     return normalizeText(failureSemantics.message, normalizeText(run.summary, 'Executor duravel falhou.'));
   }
 
-  private buildReplies(
-    run: UniversalAgentRun,
-    text: string,
-    createdAt: string,
-  ): UniversalReplyPacket[] {
+  private buildReplies(run: UniversalAgentRun, text: string, createdAt: string): UniversalReplyPacket[] {
     const port = run.replyPorts[0];
     if (!port) {
       return [];
@@ -1085,7 +1053,7 @@ export class ZavorthAgentGateway {
 
   private computeBackoffMs(job: UniversalAgentWorkflowJob): number {
     const exponent = Math.max(0, job.attempts - 1);
-    const backoff = this.workflowBackoffMs * (2 ** exponent);
+    const backoff = this.workflowBackoffMs * 2 ** exponent;
     return Math.min(this.workflowMaxBackoffMs, Math.max(this.workflowBackoffMs, backoff));
   }
 

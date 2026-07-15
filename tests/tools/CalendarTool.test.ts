@@ -1,4 +1,3 @@
-
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -30,7 +29,7 @@ describe('CalendarTool', () => {
   it('returns error for invalid action', async () => {
     const result = await tool.execute({ action: 'invalid' });
     expect(result).toContain('Erro');
-    expect(result).toContain('invalida');
+    expect(result).toContain('invalid');
   });
 
   it('creates an event', async () => {
@@ -45,7 +44,7 @@ describe('CalendarTool', () => {
       reminder_minutes: 15,
     });
 
-    expect(result).toContain('Evento criado com sucesso');
+    expect(result).toContain('Event created successfully');
     expect(result).toContain('Team Meeting');
     expect(result).toContain('Room 101');
     expect(result).toContain('alice@example.com');
@@ -116,7 +115,7 @@ describe('CalendarTool', () => {
 
   it('returns message when listing empty calendar', async () => {
     const result = await tool.execute({ action: 'list' });
-    expect(result).toContain('Nenhum evento');
+    expect(result).toContain('No events');
   });
 
   it('creates an iCal file', async () => {
@@ -146,7 +145,7 @@ describe('CalendarTool', () => {
     });
 
     const result = await tool.execute({ action: 'delete', title: 'To Delete' });
-    expect(result).toContain('removido com sucesso');
+    expect(result).toContain('removed successfully');
   });
 
   it('returns error when deleting non-existent event', async () => {

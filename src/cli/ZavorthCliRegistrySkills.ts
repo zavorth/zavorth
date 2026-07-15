@@ -25,10 +25,15 @@ import { setAuthToken, removeAuthToken } from '../skills/marketplace/SkillAuth.j
 import { asErrorLike } from '../utils/errorLike';
 import { SkillInstallPipelineService } from '../services/SkillInstallPipelineService.js';
 import { SkillWorkerDiscoveryService } from '../services/SkillWorkerDiscoveryService.js';
+import { SkillRemoteCatalogService } from '../services/SkillRemoteCatalogService.js';
 import { WorkerMeshService } from '../services/WorkerMeshService.js';
 
 function cleanup(dir: string): void {
-  try { if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true }); } catch { /* ignore */ }
+  try {
+    if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
+  } catch {
+    /* ignore */
+  }
 }
 
 type RegistryCommandParams = {
@@ -39,15 +44,23 @@ type RegistryCommandParams = {
   writer: CliWriter;
 };
 
-export async function handleZavorthCliRegistrySkillsCommand(params: RegistryCommandParams): Promise<CliExecutionResult | null> {
+export async function handleZavorthCliRegistrySkillsCommand(
+  params: RegistryCommandParams,
+): Promise<CliExecutionResult | null> {
   const { commandName, args, writer } = params;
 
   if (commandName !== 'skill' && commandName !== 'skills') {
     return null;
   }
 
-  const tokens = String(args || '').trim().split(/\s+/).filter(Boolean);
-  const subcommand = String(tokens[0] || '').trim().toLowerCase() || 'list';
+  const tokens = String(args || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const subcommand =
+    String(tokens[0] || '')
+      .trim()
+      .toLowerCase() || 'list';
   const rest = tokens.slice(1);
   const skillsDir = path.join(process.cwd(), 'skills');
   const registry = new SkillLocalRegistry();
@@ -128,15 +141,25 @@ export async function handleZavorthCliRegistrySkillsCommand(params: RegistryComm
   if (subcommand === 'scrape') {
     return handleScrape(rest, writer);
   }
+  if (subcommand === 'catalog') {
+    return handleSkillCatalog(rest, writer);
+  }
 
   const helpText = [
     'Skills + discovery (brand-agnostic)',
     '',
     'Daily path:',
-    '  1) zavorth skill search <query> [--remote]   Find skills + workspace workers',
+    '  1) zavorth skill search <query> [--remote] [--llm]   Find skills (local by default)',
     '  2) zavorth skill preview <source>            Dry-run plan (no write)',
     '  3) zavorth skill install <source> --consent  Apply after review',
     '  4) zavorth skill receipt                     Install receipts',
+    '',
+    'Remote skill catalog (optional HTTPS JSON; SSRF-guarded):',
+    '  zavorth skill catalog refresh [--url <https-url>]',
+    '  zavorth skill catalog list [query]',
+    '  zavorth skill catalog show <id>',
+    '  zavorth skill catalog install <id> --consent',
+    '  env ZAVORTH_SKILL_CATALOG_URL=https://…/catalog.json',
     '',
     'Trust (evidence-based; no competitor allowlists):',
     '  zavorth skill trust',
@@ -167,6 +190,110 @@ export async function handleZavorthCliRegistrySkillsCommand(params: RegistryComm
   ].join('\n');
   writer.line(helpText);
   return { ok: true, handled: true, output: [helpText], error: null };
+}
+
+async function handleSkillCatalog(rest: string[], writer: CliWriter): Promise<CliExecutionResult> {
+  const action = String(rest[0] || 'list')
+    .trim()
+    .toLowerCase();
+  const catalog = new SkillRemoteCatalogService({ projectRoot: process.cwd() });
+  const hasConsent = rest.includes('--consent') || rest.includes('--yes') || rest.includes('-y');
+
+  if (action === 'refresh') {
+    let url: string | undefined;
+    const urlIdx = rest.findIndex((t) => t === '--url');
+    if (urlIdx >= 0 && rest[urlIdx + 1]) url = rest[urlIdx + 1];
+    const refreshed = await catalog.refreshRemote({ url });
+    const lines = [
+      refreshed.ok ? 'Skill catalog refreshed.' : 'Skill catalog refresh failed.',
+      ...refreshed.findings.map((f) => `  ${f}`),
+      refreshed.cachePath ? `  cache: ${refreshed.cachePath}` : null,
+      refreshed.url ? `  url: ${refreshed.url}` : null,
+      `  entries: ${refreshed.entries.length}`,
+    ].filter(Boolean) as string[];
+    writer.line(lines.join('\n'));
+    return { ok: refreshed.ok, handled: true, output: lines, error: refreshed.ok ? null : lines.join('\n') };
+  }
+
+  if (action === 'list' || action === 'ls') {
+    const query = rest
+      .slice(1)
+      .filter((t) => !t.startsWith('--'))
+      .join(' ')
+      .trim();
+    const listed = catalog.list({
+      query: query || undefined,
+      includeRemote: true,
+      includeExample: true,
+    });
+    const body = listed.formatText();
+    writer.line(body);
+    return { ok: true, handled: true, output: [body], error: null };
+  }
+
+  if (action === 'show' || action === 'info') {
+    const id = String(rest[1] || '').trim();
+    if (!id) {
+      const msg = 'Usage: zavorth skill catalog show <id>';
+      writer.error(msg);
+      return { ok: false, handled: true, output: [msg], error: msg };
+    }
+    const shown = catalog.show(id, { includeExample: true });
+    const body = shown.formatText();
+    writer.line(body);
+    return { ok: shown.ok, handled: true, output: [body], error: shown.ok ? null : body };
+  }
+
+  if (action === 'install') {
+    const id = String(rest[1] || '').trim();
+    if (!id) {
+      const msg = 'Usage: zavorth skill catalog install <id> --consent';
+      writer.error(msg);
+      return { ok: false, handled: true, output: [msg], error: msg };
+    }
+    if (!hasConsent) {
+      const preview = catalog.previewInstall(id);
+      const lines = [
+        preview.entry
+          ? `Catalog entry: ${preview.entry.id} → ${preview.entry.source}`
+          : `Catalog entry not found: ${id}`,
+        'Consent required — no install performed.',
+        `Re-run: zavorth skill catalog install ${id} --consent`,
+        preview.plan
+          ? `Preview skill: ${preview.plan.skillName || preview.plan.skillId || '—'} risks=${preview.plan.risks.length}`
+          : null,
+      ].filter(Boolean) as string[];
+      writer.line(lines.join('\n'));
+      return { ok: false, handled: true, output: lines, error: lines.join('\n') };
+    }
+    const installed = await catalog.installById(id, { consent: true });
+    const lines = [
+      installed.message,
+      installed.entry ? `  source: ${installed.entry.source}` : null,
+      installed.receipt ? `  receipt: ${installed.receipt.id} status=${installed.receipt.status}` : null,
+      ...installed.findings.map((f) => `  ${f}`),
+    ].filter(Boolean) as string[];
+    writer.line(lines.join('\n'));
+    return {
+      ok: installed.ok,
+      handled: true,
+      output: lines,
+      error: installed.ok ? null : lines.join('\n'),
+    };
+  }
+
+  const help = [
+    'Skill catalog commands:',
+    '  zavorth skill catalog refresh [--url <https-url>]',
+    '  zavorth skill catalog list [query]',
+    '  zavorth skill catalog show <id>',
+    '  zavorth skill catalog install <id> --consent',
+    '',
+    'Env: ZAVORTH_SKILL_CATALOG_URL',
+    'Example fixture: config/skill-catalog.example.json',
+  ].join('\n');
+  writer.line(help);
+  return { ok: true, handled: true, output: [help], error: null };
 }
 
 function handleList(skillsDir: string, registry: SkillLocalRegistry, writer: CliWriter): CliExecutionResult {
@@ -221,11 +348,16 @@ function handleList(skillsDir: string, registry: SkillLocalRegistry, writer: Cli
 
 function trustIcon(level: string): string {
   switch (level) {
-    case 'verified': return '\u2713';
-    case 'trusted': return '\u25cb';
-    case 'unknown': return '?';
-    case 'suspicious': return '\u2717';
-    default: return '?';
+    case 'verified':
+      return '\u2713';
+    case 'trusted':
+      return '\u25cb';
+    case 'unknown':
+      return '?';
+    case 'suspicious':
+      return '\u2717';
+    default:
+      return '?';
   }
 }
 
@@ -235,9 +367,13 @@ async function handleSearchDiscover(
   writer: CliWriter,
 ): Promise<CliExecutionResult> {
   const remote = rest.includes('--remote');
-  const query = rest.filter((t) => t !== '--remote').join(' ').trim();
+  const useLlm = rest.includes('--llm') || rest.includes('--use-llm');
+  const query = rest
+    .filter((t) => t !== '--remote' && t !== '--llm' && t !== '--use-llm')
+    .join(' ')
+    .trim();
   if (!query) {
-    writer.error('Usage: zavorth skill search <query> [--remote]');
+    writer.error('Usage: zavorth skill search <query> [--remote] [--llm]');
     return { ok: false, handled: true, output: [], error: 'Missing query' };
   }
 
@@ -248,6 +384,7 @@ async function handleSearchDiscover(
   const result = await discovery.discover({
     query,
     remote,
+    useLlm,
     includeWorkers: true,
     scanWorkspace: true,
     limit: 15,
@@ -355,7 +492,13 @@ function handleSkillTrust(rest: string[], writer: CliWriter): CliExecutionResult
   return { ok: true, handled: true, output: [body], error: null };
 }
 
-async function handleInstall(rest: string[], skillsDir: string, registry: SkillLocalRegistry, gitRegistry: SkillGitRegistry, writer: CliWriter): Promise<CliExecutionResult> {
+async function handleInstall(
+  rest: string[],
+  skillsDir: string,
+  registry: SkillLocalRegistry,
+  gitRegistry: SkillGitRegistry,
+  writer: CliWriter,
+): Promise<CliExecutionResult> {
   if (rest.length === 0) {
     writer.error('Usage: zavorth skill install <id|git-url|file-path> [--consent] [--only <name>]');
     return { ok: false, handled: true, output: [], error: 'Missing skill source' };
@@ -410,7 +553,12 @@ async function handleInstall(rest: string[], skillsDir: string, registry: SkillL
     return { ok: false, handled: true, output: [], error: result.message };
   }
 
-  if (source.startsWith('http://') || source.startsWith('https://') || source.startsWith('git@') || source.startsWith('npm:')) {
+  if (
+    source.startsWith('http://') ||
+    source.startsWith('https://') ||
+    source.startsWith('git@') ||
+    source.startsWith('npm:')
+  ) {
     try {
       const { tmpDir, skills } = gitRegistry.discoverSkills(source);
 
@@ -420,8 +568,9 @@ async function handleInstall(rest: string[], skillsDir: string, registry: SkillL
         return { ok: false, handled: true, output: [], error: 'No skills found' };
       }
 
-      const onlySkill = rest.find((a) => a.startsWith('--only='))?.split('=')[1]
-        || (rest.includes('--only') ? rest[rest.indexOf('--only') + 1] : undefined);
+      const onlySkill =
+        rest.find((a) => a.startsWith('--only='))?.split('=')[1] ||
+        (rest.includes('--only') ? rest[rest.indexOf('--only') + 1] : undefined);
 
       const toInstall = onlySkill ? skills.filter((s) => s.name === onlySkill) : skills;
       if (toInstall.length === 0) {
@@ -436,51 +585,93 @@ async function handleInstall(rest: string[], skillsDir: string, registry: SkillL
 
       if (installAll) {
         for (const s of toInstall) {
-        const depCheck = depResolver.checkDependencies(s.dir);
-        if (!depCheck.allResolved && depCheck.missing.length > 0) {
-          lines.push(`  Dependencies for ${s.name}:`);
-          for (const dep of depCheck.missing) {
-            const status = dep.resolved ? 'auto-install' : 'not found';
-            lines.push(`    - ${dep.name} (${dep.constraint}) [${status}]`);
+          const depCheck = depResolver.checkDependencies(s.dir);
+          if (!depCheck.allResolved && depCheck.missing.length > 0) {
+            lines.push(`  Dependencies for ${s.name}:`);
+            for (const dep of depCheck.missing) {
+              const status = dep.resolved ? 'auto-install' : 'not found';
+              lines.push(`    - ${dep.name} (${dep.constraint}) [${status}]`);
+            }
+            if (depCheck.circular.length > 0) {
+              lines.push(`  WARNING: Circular dependencies detected: ${depCheck.circular.join(', ')}`);
+            }
+            lines.push('');
           }
-          if (depCheck.circular.length > 0) {
-            lines.push(`  WARNING: Circular dependencies detected: ${depCheck.circular.join(', ')}`);
+
+          const security = scanSkillForSecurity(s.dir);
+          const permissions = getSkillPermissions(s.dir);
+
+          if (security.riskLevel === 'blocked') {
+            const blocking = security.issues
+              .filter((i) => i.severity === 'error')
+              .map((i) => i.message)
+              .join('; ');
+            lines.push(`  BLOCKED: ${s.name} - ${blocking}`);
+            recordAuditLog(
+              {
+                timestamp: new Date().toISOString(),
+                action: 'install',
+                skillId: s.name,
+                version: s.version,
+                source,
+                riskLevel: security.riskLevel,
+                issues: security.issues.length,
+                user: 'cli',
+                approved: false,
+              },
+              dataDir,
+            );
+            continue;
           }
-          lines.push('');
-        }
 
-        const security = scanSkillForSecurity(s.dir);
-        const permissions = getSkillPermissions(s.dir);
-
-        if (security.riskLevel === 'blocked') {
-          const blocking = security.issues.filter((i) => i.severity === 'error').map((i) => i.message).join('; ');
-          lines.push(`  BLOCKED: ${s.name} - ${blocking}`);
-          recordAuditLog({ timestamp: new Date().toISOString(), action: 'install', skillId: s.name, version: s.version, source, riskLevel: security.riskLevel, issues: security.issues.length, user: 'cli', approved: false }, dataDir);
-          continue;
-        }
-
-        if (security.riskLevel === 'high' || security.riskLevel === 'medium') {
-          lines.push(`  WARNING [${security.riskLevel}]: ${s.name}`);
-          for (const issue of security.issues.filter((i) => i.severity === 'warn' || i.severity === 'error')) {
-            lines.push(`    - ${issue.message}`);
+          if (security.riskLevel === 'high' || security.riskLevel === 'medium') {
+            lines.push(`  WARNING [${security.riskLevel}]: ${s.name}`);
+            for (const issue of security.issues.filter((i) => i.severity === 'warn' || i.severity === 'error')) {
+              lines.push(`    - ${issue.message}`);
+            }
+            if (security.recommendations.length > 0) {
+              lines.push(`    Recommendation: ${security.recommendations[0]}`);
+            }
           }
-          if (security.recommendations.length > 0) {
-            lines.push(`    Recommendation: ${security.recommendations[0]}`);
+
+          lines.push(`  Permissions: ${permissions.join(', ') || 'read-only'}`);
+          lines.push(`  GPG verified: ${security.gpgVerified ? 'yes' : 'no'}`);
+
+          const result = gitRegistry.installSkillFromDir(s.dir, source, s.name);
+          if (result.success) {
+            lines.push(`  ${result.message}`);
+            recordAuditLog(
+              {
+                timestamp: new Date().toISOString(),
+                action: 'install',
+                skillId: s.name,
+                version: s.version,
+                source,
+                riskLevel: security.riskLevel,
+                issues: security.issues.length,
+                user: 'cli',
+                approved: true,
+              },
+              dataDir,
+            );
+          } else {
+            lines.push(`  Failed: ${s.name} - ${result.message}`);
+            recordAuditLog(
+              {
+                timestamp: new Date().toISOString(),
+                action: 'install',
+                skillId: s.name,
+                version: s.version,
+                source,
+                riskLevel: security.riskLevel,
+                issues: security.issues.length,
+                user: 'cli',
+                approved: false,
+              },
+              dataDir,
+            );
           }
         }
-
-        lines.push(`  Permissions: ${permissions.join(', ') || 'read-only'}`);
-        lines.push(`  GPG verified: ${security.gpgVerified ? 'yes' : 'no'}`);
-
-        const result = gitRegistry.installSkillFromDir(s.dir, source, s.name);
-        if (result.success) {
-          lines.push(`  ${result.message}`);
-          recordAuditLog({ timestamp: new Date().toISOString(), action: 'install', skillId: s.name, version: s.version, source, riskLevel: security.riskLevel, issues: security.issues.length, user: 'cli', approved: true }, dataDir);
-        } else {
-          lines.push(`  Failed: ${s.name} - ${result.message}`);
-          recordAuditLog({ timestamp: new Date().toISOString(), action: 'install', skillId: s.name, version: s.version, source, riskLevel: security.riskLevel, issues: security.issues.length, user: 'cli', approved: false }, dataDir);
-        }
-      }
         cleanup(tmpDir);
         const body = [`Installed ${lines.filter((r) => r.startsWith('  ')).length} skill(s):`, '', ...lines].join('\n');
         writer.line(body);
@@ -488,7 +679,9 @@ async function handleInstall(rest: string[], skillsDir: string, registry: SkillL
       }
 
       if (skills.length === 1 || specificSkill) {
-        const skillDir = specificSkill ? skills.find((s) => s.name === specificSkill)?.dir || skills[0].dir : skills[0].dir;
+        const skillDir = specificSkill
+          ? skills.find((s) => s.name === specificSkill)?.dir || skills[0].dir
+          : skills[0].dir;
         const result = gitRegistry.installSkillFromDir(skillDir, source, specificSkill);
         cleanup(tmpDir);
         if (result.success) {
@@ -518,7 +711,9 @@ async function handleInstall(rest: string[], skillsDir: string, registry: SkillL
       const body = lines.join('\n');
       writer.line(body);
       return { ok: true, handled: true, output: [body], error: null };
-    } catch (error: unknown) { const err = asErrorLike(error); const msg = `Git clone failed: ${err instanceof Error ? err.message : String(err)}`;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      const msg = `Git clone failed: ${err instanceof Error ? err.message : String(err)}`;
       writer.error(msg);
       return { ok: false, handled: true, output: [], error: msg };
     }
@@ -582,16 +777,12 @@ function resolveSkillDirArg(token: string, skillsDir: string): string {
 
 function handleSkillSign(rest: string[], skillsDir: string, writer: CliWriter): CliExecutionResult {
   if (rest.length === 0) {
-    writer.error(
-      'Usage: zavorth skill sign <skill-dir|skills/name> [--key <secret>]  (or ZAVORTH_SKILL_SIGNING_KEY)',
-    );
+    writer.error('Usage: zavorth skill sign <skill-dir|skills/name> [--key <secret>]  (or ZAVORTH_SKILL_SIGNING_KEY)');
     return { ok: false, handled: true, output: [], error: 'Missing skill directory' };
   }
   const skillDir = resolveSkillDirArg(rest[0], skillsDir);
   const keyIdx = rest.indexOf('--key');
-  const key =
-    (keyIdx >= 0 ? rest[keyIdx + 1] : '') ||
-    String(process.env.ZAVORTH_SKILL_SIGNING_KEY || '').trim();
+  const key = (keyIdx >= 0 ? rest[keyIdx + 1] : '') || String(process.env.ZAVORTH_SKILL_SIGNING_KEY || '').trim();
   if (!fs.existsSync(skillDir)) {
     writer.error(`Skill directory not found: ${skillDir}`);
     return { ok: false, handled: true, output: [], error: 'Not found' };
@@ -655,9 +846,7 @@ function handleRegistryExport(rest: string[], skillsDir: string, writer: CliWrit
 
 function handlePublishPlan(rest: string[], skillsDir: string, writer: CliWriter): CliExecutionResult {
   if (rest.length === 0) {
-    writer.error(
-      'Usage: zavorth skill publish-plan <skill-dir|name> [--repo <url>] [--out path]',
-    );
+    writer.error('Usage: zavorth skill publish-plan <skill-dir|name> [--repo <url>] [--out path]');
     return { ok: false, handled: true, output: [], error: 'Missing skill directory' };
   }
   const skillDir = resolveSkillDirArg(rest[0], skillsDir);
@@ -697,11 +886,15 @@ function handlePublishPlan(rest: string[], skillsDir: string, writer: CliWriter)
   };
 }
 
-function handlePublish(rest: string[], skillsDir: string, registry: SkillLocalRegistry, gitRegistry: SkillGitRegistry, writer: CliWriter): CliExecutionResult {
+function handlePublish(
+  rest: string[],
+  skillsDir: string,
+  registry: SkillLocalRegistry,
+  gitRegistry: SkillGitRegistry,
+  writer: CliWriter,
+): CliExecutionResult {
   if (rest.length === 0) {
-    writer.error(
-      'Usage: zavorth skill publish <skill-dir> [--repo <url>] [--output <dir>] [--dry-run]',
-    );
+    writer.error('Usage: zavorth skill publish <skill-dir> [--repo <url>] [--output <dir>] [--dry-run]');
     return { ok: false, handled: true, output: [], error: 'Missing skill directory' };
   }
 
@@ -810,7 +1003,13 @@ function handleInfo(rest: string[], registry: SkillLocalRegistry, writer: CliWri
   return { ok: true, handled: true, output: [body], error: null };
 }
 
-function handleUpdate(rest: string[], skillsDir: string, registry: SkillLocalRegistry, gitRegistry: SkillGitRegistry, writer: CliWriter): CliExecutionResult {
+function handleUpdate(
+  rest: string[],
+  skillsDir: string,
+  registry: SkillLocalRegistry,
+  gitRegistry: SkillGitRegistry,
+  writer: CliWriter,
+): CliExecutionResult {
   if (rest.length === 0) {
     writer.error('Usage: zavorth skill update <skill-id>');
     return { ok: false, handled: true, output: [], error: 'Missing skill id' };
@@ -1045,7 +1244,12 @@ function handleRollback(rest: string[], registry: SkillLocalRegistry, writer: Cl
   return { ok: true, handled: true, output: [body], error: null };
 }
 
-function handleRemove(rest: string[], skillsDir: string, registry: SkillLocalRegistry, writer: CliWriter): CliExecutionResult {
+function handleRemove(
+  rest: string[],
+  skillsDir: string,
+  registry: SkillLocalRegistry,
+  writer: CliWriter,
+): CliExecutionResult {
   if (rest.length === 0) {
     writer.error('Usage: zavorth skill remove <skill-id>');
     return { ok: false, handled: true, output: [], error: 'Missing skill id' };
@@ -1087,7 +1291,9 @@ async function handleBrowse(rest: string[], writer: CliWriter): Promise<CliExecu
 
   const dataDir = path.join(process.cwd(), 'data', 'runtime', 'skill-browser');
   const browser = new SkillBrowserService({ dataDir });
-  const autoApproval = new SkillAutoApproval({ dataDir: path.join(process.cwd(), 'data', 'runtime', 'skill-approval') });
+  const autoApproval = new SkillAutoApproval({
+    dataDir: path.join(process.cwd(), 'data', 'runtime', 'skill-approval'),
+  });
 
   // Add default sources
   browser.addSource({
@@ -1175,7 +1381,9 @@ async function handleScrape(rest: string[], writer: CliWriter): Promise<CliExecu
   const { SkillAutoApproval } = await import('../skills/marketplace/SkillAutoApproval.js');
 
   const scraper = new SkillWebScraper();
-  const autoApproval = new SkillAutoApproval({ dataDir: path.join(process.cwd(), 'data', 'runtime', 'skill-approval') });
+  const autoApproval = new SkillAutoApproval({
+    dataDir: path.join(process.cwd(), 'data', 'runtime', 'skill-approval'),
+  });
 
   writer.line(`Scraping: ${url}`);
 

@@ -45,7 +45,9 @@ describe('ZavorthTransactionRuntimeOrchestratorService', () => {
 
   it('blocks a real-money trade runtime until approval is present', () => {
     const result = service.run({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       mode: 'paper',
     });
 
@@ -68,7 +70,9 @@ describe('ZavorthTransactionRuntimeOrchestratorService', () => {
     });
 
     const result = service.run({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       approve: true,
       mode: 'paper',
       credentialRef: credential.record?.ref,
@@ -89,7 +93,9 @@ describe('ZavorthTransactionRuntimeOrchestratorService', () => {
 
   it('blocks when a required credential ref is absent', () => {
     const result = service.run({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       approve: true,
       mode: 'paper',
       requireCredential: true,
@@ -102,7 +108,9 @@ describe('ZavorthTransactionRuntimeOrchestratorService', () => {
 
   it('blocks when the credential ref is missing from the credential store', () => {
     const result = service.run({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       approve: true,
       mode: 'paper',
       credentialRef: 'vault://zavorth/transaction/exchange/missing-ref',
@@ -115,7 +123,9 @@ describe('ZavorthTransactionRuntimeOrchestratorService', () => {
 
   it('simulates monitoring without approval or credential', () => {
     const result = service.run({
-      text: 'Monitore notebook abaixo de R$3500 e me avise.',
+      text: 'Monitor notebook below R$3500 and notify me.',
+      kind: 'monitor-price',
+      actionKind: 'price-monitor',
       mode: 'sandbox',
     });
 
@@ -127,7 +137,7 @@ describe('ZavorthTransactionRuntimeOrchestratorService', () => {
 
   it('redacts and blocks raw secret-bearing natural text', () => {
     const result = service.run({
-      text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+      text: 'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
       approve: true,
       mode: 'paper',
     });

@@ -1,20 +1,12 @@
-import {
-  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
-} from '../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
-import {
-  ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
-} from '../src/contracts/ZavorthTransactionLiveCandidateContract.js';
+import { ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE } from '../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
+import { ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE } from '../src/contracts/ZavorthTransactionLiveCandidateContract.js';
 import {
   ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
   type ZavorthTransactionLiveMicroRolloutCertificationInput,
   type ZavorthTransactionLiveMicroRolloutCertificationScenarioId,
 } from '../src/contracts/ZavorthTransactionLiveMicroRolloutCertificationContract.js';
-import {
-  ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
-} from '../src/contracts/ZavorthTransactionSandboxControlledExecutorContract.js';
-import type {
-  ZavorthTransactionConnectorKind,
-} from '../src/contracts/ZavorthTransactionPreviewContract.js';
+import { ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE } from '../src/contracts/ZavorthTransactionSandboxControlledExecutorContract.js';
+import type { ZavorthTransactionConnectorKind } from '../src/contracts/ZavorthTransactionPreviewContract.js';
 import { ZavorthTransactionLiveMicroRolloutCertificationService } from '../src/services/ZavorthTransactionLiveMicroRolloutCertificationService.js';
 
 type CliOptions = ZavorthTransactionLiveMicroRolloutCertificationInput & {
@@ -120,6 +112,21 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
     } else if (arg?.startsWith('--text=')) {
       options.text = arg.slice('--text='.length);
+    } else if (arg === '--kind') {
+      options.kind = args[index + 1] as CliOptions['kind'];
+      index += 1;
+    } else if (arg?.startsWith('--kind=')) {
+      options.kind = arg.slice('--kind='.length) as CliOptions['kind'];
+    } else if (arg === '--action-kind') {
+      options.actionKind = args[index + 1] as CliOptions['actionKind'];
+      index += 1;
+    } else if (arg?.startsWith('--action-kind=')) {
+      options.actionKind = arg.slice('--action-kind='.length) as CliOptions['actionKind'];
+    } else if (arg === '--target-kind') {
+      options.targetKind = args[index + 1] as CliOptions['targetKind'];
+      index += 1;
+    } else if (arg?.startsWith('--target-kind=')) {
+      options.targetKind = arg.slice('--target-kind='.length) as CliOptions['targetKind'];
     } else if (arg === '--surface') {
       options.surface = normalizeSurface(args[index + 1]);
       index += 1;
@@ -280,7 +287,9 @@ function ensureAdapter(options: CliOptions): NonNullable<CliOptions['adapterMani
 }
 
 function normalizeSurface(value: string | undefined): CliOptions['surface'] {
-  const normalized = String(value ?? '').trim().toLowerCase();
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
   if (['web', 'cli', 'telegram', 'api', 'natural-first'].includes(normalized)) {
     return normalized as CliOptions['surface'];
   }
@@ -288,7 +297,9 @@ function normalizeSurface(value: string | undefined): CliOptions['surface'] {
 }
 
 function normalizeMode(value: string | undefined): CliOptions['mode'] {
-  const normalized = String(value ?? '').trim().toLowerCase();
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'dry-run' || normalized === 'sandbox' || normalized === 'paper') {
     return normalized;
   }
@@ -296,7 +307,9 @@ function normalizeMode(value: string | undefined): CliOptions['mode'] {
 }
 
 function normalizeAdapterEnvironment(value: string | undefined): 'sandbox' | 'paper' | 'live' | 'production' {
-  const normalized = String(value ?? '').trim().toLowerCase();
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'paper' || normalized === 'live' || normalized === 'production') {
     return normalized;
   }
@@ -316,11 +329,13 @@ function normalizeConnectorKind(value: string | undefined): ZavorthTransactionCo
     'unknown',
   ];
   return allowed.includes(normalized as ZavorthTransactionConnectorKind)
-    ? normalized as ZavorthTransactionConnectorKind
+    ? (normalized as ZavorthTransactionConnectorKind)
     : 'unknown';
 }
 
-function normalizeScenario(value: string | undefined): ZavorthTransactionLiveMicroRolloutCertificationScenarioId | null {
+function normalizeScenario(
+  value: string | undefined,
+): ZavorthTransactionLiveMicroRolloutCertificationScenarioId | null {
   const normalized = String(value ?? '').trim();
   const allowed: ZavorthTransactionLiveMicroRolloutCertificationScenarioId[] = [
     'prompt-injection-without-approval',
@@ -335,7 +350,7 @@ function normalizeScenario(value: string | undefined): ZavorthTransactionLiveMic
     'incomplete-ledger',
   ];
   return allowed.includes(normalized as ZavorthTransactionLiveMicroRolloutCertificationScenarioId)
-    ? normalized as ZavorthTransactionLiveMicroRolloutCertificationScenarioId
+    ? (normalized as ZavorthTransactionLiveMicroRolloutCertificationScenarioId)
     : null;
 }
 

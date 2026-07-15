@@ -51,25 +51,23 @@ describe('StitchExecutor', () => {
     const executor = new StitchExecutor();
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-stitch-executor-'));
     const closeMock = jest.fn().mockResolvedValue(undefined);
-    const callToolMock = jest
-      .fn()
-      .mockResolvedValueOnce({
-        outputComponents: [
-          { designSystem: { designSystem: { displayName: 'Everest Slate' } } },
-          {
-            design: {
-              screens: [
-                {
-                  id: 'screen-456',
-                  name: 'projects/project-123/screens/screen-456',
-                  screenshot: { downloadUrl: 'https://example.com/image' },
-                  htmlCode: { downloadUrl: 'https://example.com/html' },
-                },
-              ],
-            },
+    const callToolMock = jest.fn().mockResolvedValueOnce({
+      outputComponents: [
+        { designSystem: { designSystem: { displayName: 'Everest Slate' } } },
+        {
+          design: {
+            screens: [
+              {
+                id: 'screen-456',
+                name: 'projects/project-123/screens/screen-456',
+                screenshot: { downloadUrl: 'https://example.com/image' },
+                htmlCode: { downloadUrl: 'https://example.com/html' },
+              },
+            ],
           },
-        ],
-      });
+        },
+      ],
+    });
 
     jest.spyOn(executor as any, 'resolveAuthConfig').mockReturnValue({ apiKey: 'test-key' });
     jest.spyOn(executor as any, 'resolveDeviceType').mockReturnValue('MOBILE');
@@ -99,7 +97,7 @@ describe('StitchExecutor', () => {
       const result = await executor.execute(buildRequest() as any);
 
       expect(result.success).toBe(true);
-      expect(result.stdout).toContain('Stitch concluiu a geracao do app com sucesso.');
+      expect(result.stdout).toContain('Stitch finished app generation successfully.');
       expect(result.metadata).toEqual(
         expect.objectContaining({
           stitch_project_id: 'project-123',
@@ -198,11 +196,7 @@ describe('StitchExecutor', () => {
       expect(result.success).toBe(true);
       expect(callToolMock).toHaveBeenCalledTimes(2);
       expect(callToolMock.mock.calls[1][1].prompt.length).toBeLessThan(callToolMock.mock.calls[0][1].prompt.length);
-      expect(result.actions_executed).toEqual(
-        expect.arrayContaining([
-          expect.stringContaining('Timeout detectado'),
-        ]),
-      );
+      expect(result.actions_executed).toEqual(expect.arrayContaining([expect.stringContaining('Timeout detectado')]));
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }

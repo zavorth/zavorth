@@ -1,23 +1,12 @@
-import type {
-  ZavorthTransactionCertificationReport,
-} from './ZavorthTransactionCertificationContract.js';
-import type {
-  ZavorthTransactionZavorthControlProjection,
-} from './ZavorthTransactionZavorthControlContract.js';
-import type {
-  ZavorthTransactionConnectorPayload,
-} from './ZavorthTransactionConnectorContract.js';
-import type {
-  ZavorthTransactionActionKind,
-} from './ZavorthTransactionPlaneContract.js';
-import type {
-  ZavorthTransactionConnectorKind,
-} from './ZavorthTransactionPreviewContract.js';
-import type {
-  ZavorthTransactionSurfaceKind,
-} from './ZavorthTransactionSurfaceContract.js';
+import type { ZavorthTransactionCertificationReport } from './ZavorthTransactionCertificationContract.js';
+import type { ZavorthTransactionZavorthControlProjection } from './ZavorthTransactionZavorthControlContract.js';
+import type { ZavorthTransactionConnectorPayload } from './ZavorthTransactionConnectorContract.js';
+import type { ZavorthTransactionActionKind } from './ZavorthTransactionPlaneContract.js';
+import type { ZavorthTransactionConnectorKind } from './ZavorthTransactionPreviewContract.js';
+import type { ZavorthTransactionSurfaceKind } from './ZavorthTransactionSurfaceContract.js';
 
-export const ZAVORTH_TRANSACTION_LIVE_CANDIDATE_CONTRACT_VERSION = 'zavorth-transaction-live-candidate/checkpoint-10' as const;
+export const ZAVORTH_TRANSACTION_LIVE_CANDIDATE_CONTRACT_VERSION =
+  'zavorth-transaction-live-candidate/checkpoint-10' as const;
 
 export const ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE = 'ZAVORTH LIVE CANDIDATE ONLY' as const;
 
@@ -108,6 +97,10 @@ export type ZavorthTransactionLiveCandidateResult = {
 
 export type ZavorthTransactionLiveCandidateInput = {
   text: string;
+  /** Structured product kind — free text never activates transaction kinds. */
+  kind?: import('./ZavorthTransactionIntentContract.js').ZavorthTransactionIntentKind;
+  actionKind?: import('./ZavorthTransactionPlaneContract.js').ZavorthTransactionActionKind;
+  targetKind?: import('./ZavorthTransactionIntentContract.js').ZavorthTransactionIntentTargetKind;
   surface?: ZavorthTransactionSurfaceKind;
   mode?: 'dry-run' | 'sandbox' | 'paper';
   approve?: boolean;
@@ -133,12 +126,7 @@ export function buildZavorthTransactionLiveCandidateContractSnapshot(): ZavorthT
   return {
     version: ZAVORTH_TRANSACTION_LIVE_CANDIDATE_CONTRACT_VERSION,
     summary: 'Owner-gated live-candidate envelope contract for Zavorth Transaction Plane Intent model0.',
-    statuses: [
-      'certification-required',
-      'runtime-blocked',
-      'owner-confirmation-required',
-      'candidate-ready',
-    ],
+    statuses: ['certification-required', 'runtime-blocked', 'owner-confirmation-required', 'candidate-ready'],
     gateKinds: [
       'certification-matrix-certification',
       'zavorthControl-simulated',

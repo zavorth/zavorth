@@ -1,4 +1,3 @@
-
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -30,7 +29,7 @@ describe('SkillFeedbackCollectorTool', () => {
   it('returns error for invalid action', async () => {
     const result = await tool.execute({ skill_name: 'test_skill', action: 'invalid' });
     expect(result).toContain('Erro');
-    expect(result).toContain('invalida');
+    expect(result).toContain('invalid');
   });
 
   it('records a metric successfully', async () => {
@@ -83,7 +82,7 @@ describe('SkillFeedbackCollectorTool', () => {
 
   it('returns message when no metrics exist for review', async () => {
     const result = await tool.execute({ skill_name: 'empty_skill', action: 'review' });
-    expect(result).toContain('Nenhum metrica');
+    expect(result).toContain('No metrics');
   });
 
   it('suggests optimizations with enough data', async () => {
@@ -93,7 +92,7 @@ describe('SkillFeedbackCollectorTool', () => {
 
     const result = await tool.execute({ skill_name: 'slow_skill', action: 'optimize' });
 
-    expect(result).toContain('Sugestoes de otimizacao');
+    expect(result).toContain('Optimization suggestions');
     expect(result).toContain('Rating medio abaixo de 3');
     expect(result).toMatch(/Tempo|execucao|optimization|otimizacao|slow/i);
   });
@@ -102,6 +101,6 @@ describe('SkillFeedbackCollectorTool', () => {
     await tool.execute({ skill_name: 'new_skill', action: 'record', rating: 4 });
 
     const result = await tool.execute({ skill_name: 'new_skill', action: 'optimize' });
-    expect(result).toContain('Dados insuficientes');
+    expect(result).toContain('Insufficient data');
   });
 });

@@ -78,39 +78,76 @@ describe('ZavorthAndroidAdbBridgeService', () => {
     expect(snapshot.evidence.currentActivity).toContain('com.example/.MainActivity');
     expect(JSON.stringify(snapshot)).not.toContain('fake-png');
     expect(runner.run).toHaveBeenCalledWith(expect.arrayContaining(['devices', '-l']), expect.any(Object));
-    expect(runner.run).toHaveBeenCalledWith(expect.arrayContaining(['exec-out', 'screencap', '-p']), expect.any(Object));
+    expect(runner.run).toHaveBeenCalledWith(
+      expect.arrayContaining(['exec-out', 'screencap', '-p']),
+      expect.any(Object),
+    );
 
     fs.rmSync(root, { recursive: true, force: true });
   });
 
-  it('keeps tap, text and keyevent plans approval-first', async () => {
+  it('plans tap and type-text from structured fields only (approval-first)', async () => {
     const service = new ZavorthAndroidAdbBridgeService({ runner: mockRunner([]) });
 
     const snapshot = await service.execute({
       action: 'device.plan',
       targetText: 'CHECK',
       payload: 'texto aprovado',
+      // Free-text objective must not infer keyevent / swipe / install.
       objective: 'toque, digite e pressione enter',
     });
 
     expect(snapshot.status).toBe('approval-required');
     expect(snapshot.policy.decision).toBe('require_owner_approval');
     expect(snapshot.plan.approvalRequired).toBe(true);
-    expect(snapshot.plan.steps.map((step) => step.kind)).toEqual(expect.arrayContaining([
-      'tap',
-      'type-text',
-      'keyevent',
-    ]));
+    const kinds = snapshot.plan.steps.map((step) => step.kind);
+    expect(kinds).toEqual(expect.arrayContaining(['tap', 'type-text']));
+    expect(kinds).not.toContain('keyevent');
+    expect(kinds).not.toContain('install');
     expect(snapshot.safety.tapSwipeTextKeyRequireApproval).toBe(true);
     expect(snapshot.safety.liveMutationPerformed).toBe(false);
   });
 
-  it('blocks install and uninstall by default', async () => {
+  it('does not infer mutation steps from free-text objective alone', async () => {
+    const service = new ZavorthAndroidAdbBridgeService({ runner: mockRunner([]) });
+
+    const snapshot = await service.execute({
+      action: 'device.plan',
+      // Free-text action words must not activate tap/type/key/install product steps.
+      objective: 'toque no botao, digite o texto, pressione enter e faca swipe',
+    });
+
+    const kinds = snapshot.plan.steps.map((step) => step.kind);
+    expect(kinds).toEqual(expect.arrayContaining(['capture-screenshot', 'read-current-activity']));
+    expect(kinds).not.toContain('tap');
+    expect(kinds).not.toContain('type-text');
+    expect(kinds).not.toContain('keyevent');
+    expect(kinds).not.toContain('swipe');
+    expect(kinds).not.toContain('install');
+    expect(snapshot.safety.liveMutationPerformed).toBe(false);
+  });
+
+  it('plans keyevent only from structured action type enum', async () => {
+    const service = new ZavorthAndroidAdbBridgeService({ runner: mockRunner([]) });
+
+    const snapshot = await service.execute({
+      action: 'device.plan',
+      // Structured action type — not free-text inference.
+      deviceAction: 'key',
+      payload: 'KEYCODE_ENTER',
+    });
+
+    expect(snapshot.plan.steps.map((step) => step.kind)).toEqual(expect.arrayContaining(['keyevent']));
+    expect(snapshot.status).toBe('approval-required');
+  });
+
+  it('blocks install and uninstall via sensitive safety guardrail', async () => {
     const service = new ZavorthAndroidAdbBridgeService({ runner: mockRunner([]) });
 
     const snapshot = await service.execute({
       action: 'device.plan',
       packageName: 'com.example.app',
+      // SENSITIVE_RULES may still raise approval/block for install wording as a safety guardrail.
       objective: 'instalar apk no celular',
     });
 
@@ -127,11 +164,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
     const snapshot = await service.execute({
       action: 'device.logcat',
       screenText: `token=abc123456789 ${secret}`,
-      logcatText: [
-        'I/App: visible status',
-        'I/App: password=abc123',
-        'I/App: done',
-      ].join('\n'),
+      logcatText: ['I/App: visible status', 'I/App: password=abc123', 'I/App: done'].join('\n'),
     });
     const serialized = JSON.stringify(snapshot);
 
@@ -163,9 +196,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
 
   it('returns USB/ADB setup guidance when live natural device use has no device', async () => {
     const service = new ZavorthAndroidAdbBridgeService({
-      runner: mockRunner([
-        ok('List of devices attached\n'),
-      ]),
+      runner: mockRunner([ok('List of devices attached\n')]),
     });
 
     const snapshot = await service.execute({

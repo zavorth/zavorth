@@ -5,9 +5,11 @@ const now = new Date('2026-05-11T12:00:00.000Z');
 describe('ZavorthTransactionIntentService', () => {
   const service = new ZavorthTransactionIntentService();
 
-  it('parses a governed crypto trade intent without executing it', () => {
+  it('parses a governed crypto trade intent from structured kind without executing it', () => {
     const result = service.parse({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       channel: 'web',
       now,
     });
@@ -46,9 +48,11 @@ describe('ZavorthTransactionIntentService', () => {
     expect(result.intent.safetyDecision.status).toBe('simulation-only');
   });
 
-  it('parses price monitoring as a tool preview intent', () => {
+  it('parses price monitoring as a tool preview intent when kind is structured', () => {
     const result = service.parse({
-      text: 'Monitore notebook abaixo de R$3500 e me avise.',
+      text: 'Monitor notebook below R$3500 and notify me.',
+      kind: 'monitor-price',
+      actionKind: 'price-monitor',
       channel: 'telegram',
       now,
     });
@@ -66,9 +70,11 @@ describe('ZavorthTransactionIntentService', () => {
     expect(result.intent.safetyDecision.status).toBe('simulation-only');
   });
 
-  it('keeps bill payment behind approval proposal', () => {
+  it('keeps bill payment behind approval proposal when kind is structured', () => {
     const result = service.parse({
-      text: 'Pague a fatura do cartao se ficar abaixo de R$900.',
+      text: 'Pay the card bill if it stays below R$900.',
+      kind: 'pay-bill',
+      actionKind: 'payment-submit',
       channel: 'api',
       now,
     });
@@ -80,9 +86,24 @@ describe('ZavorthTransactionIntentService', () => {
     expect(result.intent.safetyDecision.explicitHumanApprovalRequired).toBe(true);
   });
 
-  it('marks underspecified transactional text for clarification', () => {
+  it('does not activate product kind from free-text keywords alone', () => {
     const result = service.parse({
-      text: 'Compre isso para mim depois.',
+      text: 'Buy this for me later. Saque pix compre monitores.',
+      now,
+    });
+
+    expect(result.status).toBe('not-transactional');
+    expect(result.intent.kind).toBe('unknown-transaction');
+    expect(result.intent.actionKind).toBe('cart-preview');
+    expect(result.intent.naturalFirstRoute).toBe('llm-reply');
+    expect(result.intent.needsClarification).toBe(true);
+    expect(result.intent.extraction.detectedKeywords).toEqual([]);
+  });
+
+  it('marks underspecified structured purchase for clarification', () => {
+    const result = service.parse({
+      text: 'Buy this for me later.',
+      kind: 'purchase-product',
       now,
     });
 
@@ -92,12 +113,13 @@ describe('ZavorthTransactionIntentService', () => {
     expect(result.intent.clarifyingQuestions.length).toBeGreaterThan(0);
   });
 
-  it('redacts raw secrets and blocks the intent output', () => {
+  it('redacts raw secrets and blocks the intent output without structured kind', () => {
     const result = service.parse({
-      text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+      text: 'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
       now,
     });
 
+    expect(result.intent.kind).toBe('unknown-transaction');
     expect(result.intent.sourceText).not.toContain('sk-super-secret-value-123456');
     expect(result.intent.sourceText).toContain('[REDACTED]');
     expect(result.intent.extraction.sourceWasRedacted).toBe(true);
@@ -105,16 +127,18 @@ describe('ZavorthTransactionIntentService', () => {
     expect(result.intent.safetyDecision.blockers).toContain('raw_secret_exposure_blocked');
   });
 
-  it('recognizes subscription cancellation as approval-gated', () => {
+  it('recognizes subscription cancellation as approval-gated when kind is structured', () => {
     const result = service.parse({
-      text: 'Cancele minha assinatura do servico X no fim do mes.',
+      text: 'Cancel my subscription for service X at the end of the month.',
+      kind: 'cancel-subscription',
+      actionKind: 'subscription-cancel',
       now,
     });
 
     expect(result.intent.kind).toBe('cancel-subscription');
     expect(result.intent.actionKind).toBe('subscription-cancel');
     expect(result.intent.naturalFirstRoute).toBe('approval-proposal');
-    expect(result.intent.window?.durationText).toBe('fim do mes');
+    expect(result.intent.window?.durationText).toBe('end of month');
     expect(result.intent.riskLevel).toBe('medium');
   });
 });

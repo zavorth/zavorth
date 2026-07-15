@@ -60,9 +60,7 @@ export class DiscordSurfacePolicyService {
   constructor(options: DiscordSurfacePolicyOptions = {}) {
     this.commandExposure = options.commandExposure || config.discordCommandExposure;
     this.ownerUserIds = new Set(
-      (options.ownerUserIds || config.discordOwnerUserIds)
-        .map((entry) => String(entry || '').trim())
-        .filter(Boolean),
+      (options.ownerUserIds || config.discordOwnerUserIds).map((entry) => String(entry || '').trim()).filter(Boolean),
     );
     this.operatorUserIds = new Set(
       (options.operatorUserIds || config.discordOperatorUserIds)
@@ -75,8 +73,7 @@ export class DiscordSurfacePolicyService {
         .filter(Boolean),
     );
     this.publicServerMode = options.publicServerMode ?? config.discordPublicServerMode;
-    this.requireOwnerForOperational =
-      options.requireOwnerForOperational ?? config.discordRequireOwnerForOperational;
+    this.requireOwnerForOperational = options.requireOwnerForOperational ?? config.discordRequireOwnerForOperational;
     this.blockMassMentions = options.blockMassMentions ?? config.discordBlockMassMentions;
     const resolvedMaxLinks =
       options.maxLinksPerMessage !== undefined
@@ -94,9 +91,7 @@ export class DiscordSurfacePolicyService {
       options.rateLimitWindowMs !== undefined
         ? Number(options.rateLimitWindowMs)
         : Number(config.discordRateLimitWindowMs || 0);
-    this.rateLimitWindowMs = Number.isFinite(resolvedRateLimitWindowMs)
-      ? Math.max(0, resolvedRateLimitWindowMs)
-      : 0;
+    this.rateLimitWindowMs = Number.isFinite(resolvedRateLimitWindowMs) ? Math.max(0, resolvedRateLimitWindowMs) : 0;
     const resolvedRateLimitMaxRequests =
       options.rateLimitMaxRequests !== undefined
         ? Number(options.rateLimitMaxRequests)
@@ -164,7 +159,11 @@ export class DiscordSurfacePolicyService {
   }
 
   public isOperationalCommand(commandType: string): boolean {
-    return DISCORD_OPERATIONAL_COMMANDS.has(String(commandType || '').trim().toLowerCase());
+    return DISCORD_OPERATIONAL_COMMANDS.has(
+      String(commandType || '')
+        .trim()
+        .toLowerCase(),
+    );
   }
 
   public isOperator(userId: string): boolean {
@@ -224,7 +223,8 @@ export class DiscordSurfacePolicyService {
     if (!input.isDirectMessage && this.publicServerMode && this.allowedChannelIds.size === 0) {
       return {
         valid: false,
-        reason: 'O Discord esta em modo de servidor publico e exige DISCORD_ALLOWED_CHANNEL_IDS antes de aceitar trafego.',
+        reason:
+          'O Discord esta em modo de servidor publico e exige DISCORD_ALLOWED_CHANNEL_IDS antes de aceitar trafego.',
       };
     }
 
@@ -236,7 +236,11 @@ export class DiscordSurfacePolicyService {
     }
 
     const rawText = String(input.rawText || '').trim();
-    if (this.maxMessageChars > 0 && rawText.length > this.maxMessageChars && !this.isOwner(String(input.userId || ''))) {
+    if (
+      this.maxMessageChars > 0 &&
+      rawText.length > this.maxMessageChars &&
+      !this.isOwner(String(input.userId || ''))
+    ) {
       return {
         valid: false,
         reason: `Essa mensagem excede o limite seguro deste canal do Discord. Limite atual: ${this.maxMessageChars} caracteres.`,
@@ -287,7 +291,7 @@ export class DiscordSurfacePolicyService {
   }
 
   public formatOperationalCommandDenied(): string {
-    return 'Esse comando operacional nao esta exposto neste canal do Discord. Use o Telegram, a web autenticada ou uma DM owner-only do Discord.';
+    return 'This operational command is not exposed in this Discord channel. Use Telegram, the authenticated web surface, or an owner-only Discord DM.';
   }
 
   private shouldRateLimit(userId: string): boolean {

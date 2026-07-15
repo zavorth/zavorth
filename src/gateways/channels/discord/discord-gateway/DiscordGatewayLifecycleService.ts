@@ -1,7 +1,7 @@
-import { ApplicationCommandOptionType, Events } from 'discord.js';import type { DiscordSurfacePolicyService } from '../../../../services/DiscordSurfacePolicyService.js';
+import { ApplicationCommandOptionType, Events } from 'discord.js';
+import type { DiscordSurfacePolicyService } from '../../../../services/DiscordSurfacePolicyService.js';
 import { getDiscordSlashCommandManifest } from '../../../../services/SharedSurfaceCommandContract.js';
 import type {
-
   DiscordGatewayClientLike,
   DiscordGatewayInteractionLike,
   DiscordGatewayMessageLike,
@@ -77,7 +77,8 @@ export class DiscordGatewayLifecycleService {
           }
           await callbacks.onReady(client);
           resolve();
-        } catch (error: unknown) {if (readyTimer) {
+        } catch (error: unknown) {
+          if (readyTimer) {
             clearTimeout(readyTimer);
           }
           reject(error);
@@ -100,7 +101,8 @@ export class DiscordGatewayLifecycleService {
         await readyPromise;
       }
       return client;
-    } catch (error: unknown) {if (readyTimer) {
+    } catch (error: unknown) {
+      if (readyTimer) {
         clearTimeout(readyTimer);
       }
       client.destroy();
@@ -132,7 +134,8 @@ export class DiscordGatewayLifecycleService {
           }
           await guild.commands.set(commands);
           registered = true;
-        } catch (error: unknown) {this.log?.(
+        } catch (error: unknown) {
+          this.log?.(
             'warn',
             `Discord native gateway could not register guild slash commands for ${guildId}: ${errorMessage(error)}`,
           );
@@ -168,11 +171,13 @@ export class DiscordGatewayLifecycleService {
     });
 
     return manifest.map((command) => {
-      const normalizedName = String(command.discordSlashName || '').trim().toLowerCase();
+      const normalizedName = String(command.discordSlashName || '')
+        .trim()
+        .toLowerCase();
       const isOperationalCommand = this.discordSurfacePolicyService.isOperationalCommand(command.commandType);
       return {
         name: normalizedName,
-        description: command.description || 'Comando compartilhado do Zavorth.',
+        description: command.description || 'Shared Zavorth command.',
         options: (command.options || []).map((option) => ({
           ...option,
           type:
@@ -188,10 +193,7 @@ export class DiscordGatewayLifecycleService {
     });
   }
 
-  private attachEventHandlers(
-    client: DiscordGatewayClientLike,
-    callbacks: DiscordGatewayLifecycleCallbacks,
-  ): void {
+  private attachEventHandlers(client: DiscordGatewayClientLike, callbacks: DiscordGatewayLifecycleCallbacks): void {
     client.on(Events.MessageCreate, (message: unknown) => {
       void callbacks.onMessage(message as DiscordGatewayMessageLike).catch((error: unknown) => {
         callbacks.onRuntimeError(
@@ -202,9 +204,7 @@ export class DiscordGatewayLifecycleService {
 
     client.on(Events.InteractionCreate, (interaction: unknown) => {
       void callbacks.onInteraction(interaction as DiscordGatewayInteractionLike).catch((error: unknown) => {
-        callbacks.onRuntimeError(
-          errorMessage(error, 'Discord native gateway failed while handling an interaction.'),
-        );
+        callbacks.onRuntimeError(errorMessage(error, 'Discord native gateway failed while handling an interaction.'));
       });
     });
 

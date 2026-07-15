@@ -8,10 +8,7 @@ import type {
 } from './ChannelSetupAssistantService.js';
 import type { ChannelInstallMode } from './ChannelInstallScaffoldService.js';
 
-type ChannelSetupAssistantLike = Pick<
-  ChannelSetupAssistantService,
-  'buildSession' | 'apply' | 'runDoctor'
->;
+type ChannelSetupAssistantLike = Pick<ChannelSetupAssistantService, 'buildSession' | 'apply' | 'runDoctor'>;
 
 type ChannelActionLike = {
   execute: (input: {
@@ -41,17 +38,6 @@ type NaturalChannelSetupTurnDeps = {
   channelActions?: ChannelActionLike | null;
 };
 
-const CHANNEL_MODE_PATTERNS: Record<string, Array<{ mode: ChannelInstallMode; patterns: RegExp[] }>> = {
-  telegram: [{ mode: 'native', patterns: [/\bnative\b/, /\bbotfather\b/] }],
-  discord: [{ mode: 'bridge', patterns: [/\bbridge\b/, /\brelay\b/] }, { mode: 'native', patterns: [/\bnative\b/, /\bbot token\b/] }],
-  slack: [{ mode: 'native', patterns: [/\bnative\b/, /\bweb api\b/, /\bsigning secret\b/] }, { mode: 'stub', patterns: [/\bstub\b/, /\blocal\b/] }],
-  whatsapp: [{ mode: 'cloud-api', patterns: [/\bcloud api\b/, /\bmeta\b/, /\bgraph api\b/] }, { mode: 'baileys', patterns: [/\bbaileys\b/] }, { mode: 'stub', patterns: [/\bstub\b/, /\blocal\b/] }],
-  signal: [{ mode: 'signal-cli', patterns: [/\bsignal-cli\b/, /\bjson-rpc\b/] }],
-  imessage: [{ mode: 'mac-bridge', patterns: [/\bmac bridge\b/, /\bmacos\b/, /\bapple script\b/] }],
-  teams: [{ mode: 'graph-bot', patterns: [/\bgraph\b/, /\bbot framework\b/] }],
-  email: [{ mode: 'smtp-imap', patterns: [/\bsmtp\b/, /\bimap\b/] }],
-};
-
 export class NaturalChannelSetupTurnService {
   private readonly now: () => Date;
   private readonly assistant: ChannelSetupAssistantLike;
@@ -77,7 +63,9 @@ export class NaturalChannelSetupTurnService {
     const text = String(input.intentText || '').trim();
     const seed = this.assistant.buildSession({ channelId: input.channelId, intentText: text });
     const seedChannelId = input.channelId || seed.selected?.channelId || null;
-    const mode = this.normalizeMode(input.mode) || this.resolveMode(text, seedChannelId);
+    // Mode only from structured input.mode (or later selected.setupMode from assistant session).
+    // Free-text CHANNEL_MODE_PATTERNS resolution is intentionally disabled.
+    const mode = this.normalizeMode(input.mode);
     const initial = this.assistant.buildSession({ channelId: seedChannelId, mode, intentText: text });
     const selected = initial.selected;
     if (!selected) {
@@ -85,11 +73,15 @@ export class NaturalChannelSetupTurnService {
     }
 
     const resolvedMode = mode || selected.setupMode;
+    // Soft extraction of env key=value stays when a structured channel is already in play.
+    // Extracted entries never activate apply/doctor/test without structured flags.
     const extractedEntries = this.extractEntries(text, selected.channelId);
-    const remainingBeforeApply = selected.missingEnvKeys.filter((key) => !extractedEntries.some((entry) => entry.key === key));
-    const wantsApply = input.autoApply === true || (extractedEntries.length > 0 && /\b(conectar|configurar|configure|aplicar|aplique|fa[cz]a tudo|deixe pronto|setup)\b/i.test(text));
-    const wantsDoctor = input.autoDoctor === true || /\b(doctor|diagnostico|validar|valide|health|check|smoke)\b/i.test(text);
-    const wantsTest = input.autoTest === true || /\b(send-test|broadcast-test|teste de envio|mande um teste|envie um teste|teste o canal)\b/i.test(text);
+    const remainingBeforeApply = selected.missingEnvKeys.filter(
+      (key) => !extractedEntries.some((entry) => entry.key === key),
+    );
+    const wantsApply = input.autoApply === true;
+    const wantsDoctor = input.autoDoctor === true;
+    const wantsTest = input.autoTest === true;
 
     let applyResult: ChannelSetupAssistantApplyResult | null = null;
     let assistant = initial;
@@ -118,11 +110,11 @@ export class NaturalChannelSetupTurnService {
 
     let sendTest: ChannelMeshActionExecution | null = null;
     if (
-      wantsTest
-      && remainingEnvKeys.length === 0
-      && this.channelActions
-      && (!doctorResult?.selectedItem || doctorResult.selectedItem.status === 'passed')
-      && !previewOnly
+      wantsTest &&
+      remainingEnvKeys.length === 0 &&
+      this.channelActions &&
+      (!doctorResult?.selectedItem || doctorResult.selectedItem.status === 'passed') &&
+      !previewOnly
     ) {
       sendTest = await this.channelActions.execute({
         channelId: selected.channelId,
@@ -141,11 +133,9 @@ export class NaturalChannelSetupTurnService {
       doctorResult,
       sendTest,
       previewOnly && (wantsApply || wantsDoctor || wantsTest)
-        ? [
-          wantsApply ? 'apply/scaffold' : null,
-          wantsDoctor ? 'doctor' : null,
-          wantsTest ? 'send-test' : null,
-        ].filter(Boolean).join(', ')
+        ? [wantsApply ? 'apply/scaffold' : null, wantsDoctor ? 'doctor' : null, wantsTest ? 'send-test' : null]
+            .filter(Boolean)
+            .join(', ')
         : null,
     );
   }
@@ -161,17 +151,21 @@ export class NaturalChannelSetupTurnService {
     sendTest: ChannelMeshActionExecution | null,
     previewedMutations?: string | null,
   ): NaturalChannelSetupTurnResult {
-    const promotionReady = remainingEnvKeys.length === 0 && (!doctorResult?.selectedItem || doctorResult.selectedItem.status === 'passed');
+    const promotionReady =
+      remainingEnvKeys.length === 0 && (!doctorResult?.selectedItem || doctorResult.selectedItem.status === 'passed');
     const lines = [assistant.naturalReply];
     if (extractedEntries.length > 0) {
-      lines.push('', `Recebi no seu pedido: ${extractedEntries.map((entry) => `${entry.key}=${entry.valuePreview}`).join(' | ')}.`);
+      lines.push(
+        '',
+        `I received from your request: ${extractedEntries.map((entry) => `${entry.key}=${entry.valuePreview}`).join(' | ')}.`,
+      );
     }
     if (applyResult) {
-      lines.push('', `Scaffold aplicado em ${applyResult.applyReport.channelId} (${applyResult.applyReport.mode}).`);
-      lines.push(`Arquivo: ${applyResult.applyReport.env.filePath}.`);
+      lines.push('', `Scaffold applied for ${applyResult.applyReport.channelId} (${applyResult.applyReport.mode}).`);
+      lines.push(`File: ${applyResult.applyReport.env.filePath}.`);
     }
     if (remainingEnvKeys.length > 0) {
-      lines.push('', `Ainda faltam: ${remainingEnvKeys.join(', ')}.`);
+      lines.push('', `Still missing: ${remainingEnvKeys.join(', ')}.`);
     }
     if (doctorResult?.selectedItem) {
       lines.push('', `Doctor: ${doctorResult.selectedItem.status}. ${doctorResult.selectedItem.summary}`);
@@ -180,10 +174,13 @@ export class NaturalChannelSetupTurnService {
       lines.push('', sendTest.summary);
     }
     if (previewedMutations) {
-      lines.push('', `Preview seguro: detectei ${previewedMutations}, mas nao executei. Gere/aprove um mutation plan para aplicar.`);
+      lines.push(
+        '',
+        `Safe preview: detected ${previewedMutations}, but did not execute. Generate/approve a mutation plan to apply.`,
+      );
     }
     if (promotionReady && assistant.selected) {
-      lines.push('', `Canal pronto para avancar. Proximo passo: ${assistant.selected.operatorNextStep}`);
+      lines.push('', `Channel ready to proceed. Next step: ${assistant.selected.operatorNextStep}`);
     }
     return {
       generatedAt: this.now().toISOString(),
@@ -200,18 +197,9 @@ export class NaturalChannelSetupTurnService {
     };
   }
 
-  private resolveMode(text: string, channelId: string | null): ChannelInstallMode | null {
-    const normalized = String(text || '').trim().toLowerCase();
-    const channel = String(channelId || '').trim().toLowerCase();
-    if (!normalized || !channel) {
-      return null;
-    }
-    return (CHANNEL_MODE_PATTERNS[channel] || []).find((entry) => entry.patterns.some((pattern) => pattern.test(normalized)))?.mode || null;
-  }
-
   private extractEntries(text: string, channelId: string): Array<{ key: string; value: string }> {
     const entries = new Map<string, string>();
-    for (const match of text.matchAll(/\b([A-Z0-9_]{3,})\s*=\s*([^\s]+)/g)) {
+    for (const match of text.matchAll(/\b([A-Z0-9_]{3})\s*=\s*([^\s]+)/g)) {
       entries.set(String(match[1]), this.cleanExtractedValue(match[2]));
     }
     const add = (key: string, labels: string[]) => {
@@ -254,7 +242,9 @@ export class NaturalChannelSetupTurnService {
   }
 
   private cleanExtractedValue(value: unknown): string {
-    return String(value || '').trim().replace(/[.,;]+$/g, '');
+    return String(value || '')
+      .trim()
+      .replace(/[.,;]+$/g, '');
   }
 
   private preview(key: string, value: string): string {
@@ -266,8 +256,21 @@ export class NaturalChannelSetupTurnService {
   }
 
   private normalizeMode(value: string | null | undefined): ChannelInstallMode | null {
-    const normalized = String(value || '').trim().toLowerCase();
-    const modes: ChannelInstallMode[] = ['native', 'bridge', 'stub', 'cloud-api', 'baileys', 'signal-cli', 'mac-bridge', 'graph-bot', 'meta-messaging', 'smtp-imap'];
+    const normalized = String(value || '')
+      .trim()
+      .toLowerCase();
+    const modes: ChannelInstallMode[] = [
+      'native',
+      'bridge',
+      'stub',
+      'cloud-api',
+      'baileys',
+      'signal-cli',
+      'mac-bridge',
+      'graph-bot',
+      'meta-messaging',
+      'smtp-imap',
+    ];
     return modes.find((mode) => mode === normalized) || null;
   }
 }

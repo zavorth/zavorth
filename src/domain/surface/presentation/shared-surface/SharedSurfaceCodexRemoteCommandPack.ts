@@ -54,242 +54,240 @@ export class SharedSurfaceCodexRemoteCommandPack {
         return;
       }
 
-    if (request.mode === 'profiles') {
-      const snapshot = await this.deps.controlPlaneService.buildSnapshot({
-        runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
-      });
-      const lines = [
-        tService('codex_remote.profiles_title'),
-        '',
-        snapshot.profiles.narrative.headline,
-        snapshot.profiles.narrative.operatorSummary,
-        `${tService('codex_remote.registry_health')}: ${snapshot.profiles.health.status}.`,
-        snapshot.profiles.health.operatorSummary,
-        `Readiness: ${snapshot.profiles.readiness.status}.`,
-        snapshot.profiles.readiness.operatorSummary,
-      ];
-      for (const profile of snapshot.profiles.profiles) {
+      if (request.mode === 'profiles') {
+        const snapshot = await this.deps.controlPlaneService.buildSnapshot({
+          runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
+        });
+        const lines = [
+          tService('codex_remote.profiles_title'),
+          '',
+          snapshot.profiles.narrative.headline,
+          snapshot.profiles.narrative.operatorSummary,
+          `${tService('codex_remote.registry_health')}: ${snapshot.profiles.health.status}.`,
+          snapshot.profiles.health.operatorSummary,
+          `Readiness: ${snapshot.profiles.readiness.status}.`,
+          snapshot.profiles.readiness.operatorSummary,
+        ];
+        for (const profile of snapshot.profiles.profiles) {
+          lines.push(
+            '',
+            `${profile.active ? tService('codex_remote.active') : tService('codex_remote.profile')}: ${profile.label} (${profile.id})`,
+            profile.description,
+            `CLI: ${profile.codexCliPath}`,
+            `CODEX_HOME: ${profile.codexHome || 'n/d'}`,
+            `Workspace: ${profile.workspaceRoot || 'n/d'}`,
+            `${tService('codex_remote.enabled')}: ${profile.enabled ? 'yes' : 'no'}`,
+          );
+        }
         lines.push(
           '',
-          `${profile.active ? tService('codex_remote.active') : tService('codex_remote.profile')}: ${profile.label} (${profile.id})`,
-          profile.description,
-          `CLI: ${profile.codexCliPath}`,
-          `CODEX_HOME: ${profile.codexHome || 'n/d'}`,
-          `Workspace: ${profile.workspaceRoot || 'n/d'}`,
-          `${tService('codex_remote.enabled')}: ${profile.enabled ? 'yes' : 'no'}`,
+          tService('codex_remote.profile_management'),
+          '/codexremote profile create <id> -- {"label":"Work","codexHome":"C:\\\\Users\\\\...\\\\.codex-work","workspaceRoot":"C:\\\\repo"}',
+          '/codexremote profile update <id> -- {"label":"Work","codexHome":"C:\\\\Users\\\\...\\\\.codex-work"}',
+          '/codexremote profile delete <id>',
         );
+        await ctx.reply(lines.join('\n'));
+        return;
       }
-      lines.push(
-        '',
-        tService('codex_remote.profile_management'),
-        '/codexremote profile create <id> -- {"label":"Work","codexHome":"C:\\\\Users\\\\...\\\\.codex-work","workspaceRoot":"C:\\\\repo"}',
-        '/codexremote profile update <id> -- {"label":"Work","codexHome":"C:\\\\Users\\\\...\\\\.codex-work"}',
-        '/codexremote profile delete <id>',
-      );
-      await ctx.reply(lines.join('\n'));
-      return;
-    }
 
-    if (request.mode === 'profile') {
-      const result = await this.deps.actionService.execute({
-        actionId: 'select-profile',
-        profileId: request.profileId,
-        runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
-        sourceSurface: ctx.platform,
-        sourceChatId: String(ctx.chatId || '').trim() || null,
-      });
-      await this.replyCodexRemoteResult(ctx, result, [
-        `${tService('codex_remote.active_profile_now')}: ${result.codexRemote.activeProfile.label}.`,
-        result.codexRemote.sessionBroker.telegramSummary,
-      ]);
-      return;
-    }
+      if (request.mode === 'profile') {
+        const result = await this.deps.actionService.execute({
+          actionId: 'select-profile',
+          profileId: request.profileId,
+          runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
+          sourceSurface: ctx.platform,
+          sourceChatId: String(ctx.chatId || '').trim() || null,
+        });
+        await this.replyCodexRemoteResult(ctx, result, [
+          `${tService('codex_remote.active_profile_now')}: ${result.codexRemote.activeProfile.label}.`,
+          result.codexRemote.sessionBroker.telegramSummary,
+        ]);
+        return;
+      }
 
-    if (request.mode === 'profile-create' || request.mode === 'profile-update') {
-      const payload = this.parseCodexRemoteProfilePayload(request.prompt);
-      const result = await this.deps.actionService.execute({
-        actionId: request.mode === 'profile-create' ? 'create-profile' : 'update-profile',
-        profileId: request.profileId,
-        profileLabel: payload.profileLabel,
-        profileDescription: payload.profileDescription,
-        codexCliPath: payload.codexCliPath,
-        codexHome: payload.codexHome,
-        workspaceRoot: payload.workspaceRoot,
-        runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
-        sourceSurface: ctx.platform,
-        sourceChatId: String(ctx.chatId || '').trim() || null,
-      });
-      await this.replyCodexRemoteResult(ctx, result);
-      return;
-    }
+      if (request.mode === 'profile-create' || request.mode === 'profile-update') {
+        const payload = this.parseCodexRemoteProfilePayload(request.prompt);
+        const result = await this.deps.actionService.execute({
+          actionId: request.mode === 'profile-create' ? 'create-profile' : 'update-profile',
+          profileId: request.profileId,
+          profileLabel: payload.profileLabel,
+          profileDescription: payload.profileDescription,
+          codexCliPath: payload.codexCliPath,
+          codexHome: payload.codexHome,
+          workspaceRoot: payload.workspaceRoot,
+          runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
+          sourceSurface: ctx.platform,
+          sourceChatId: String(ctx.chatId || '').trim() || null,
+        });
+        await this.replyCodexRemoteResult(ctx, result);
+        return;
+      }
 
-    if (request.mode === 'profile-delete') {
-      const result = await this.deps.actionService.execute({
-        actionId: 'delete-profile',
-        profileId: request.profileId,
-        runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
-        sourceSurface: ctx.platform,
-        sourceChatId: String(ctx.chatId || '').trim() || null,
-      });
-      await this.replyCodexRemoteResult(ctx, result);
-      return;
-    }
+      if (request.mode === 'profile-delete') {
+        const result = await this.deps.actionService.execute({
+          actionId: 'delete-profile',
+          profileId: request.profileId,
+          runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
+          sourceSurface: ctx.platform,
+          sourceChatId: String(ctx.chatId || '').trim() || null,
+        });
+        await this.replyCodexRemoteResult(ctx, result);
+        return;
+      }
 
-    if (request.mode === 'start') {
-      const result = await this.deps.actionService.execute({
-        actionId: 'start-session',
-        title: request.title,
-        prompt: request.prompt,
-        profileId: request.profileId,
-        runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
-        sourceSurface: ctx.platform,
-        sourceChatId: String(ctx.chatId || '').trim() || null,
-      });
-      await this.replyCodexRemoteResult(ctx, result);
-      return;
-    }
+      if (request.mode === 'start') {
+        const result = await this.deps.actionService.execute({
+          actionId: 'start-session',
+          title: request.title,
+          prompt: request.prompt,
+          profileId: request.profileId,
+          runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
+          sourceSurface: ctx.platform,
+          sourceChatId: String(ctx.chatId || '').trim() || null,
+        });
+        await this.replyCodexRemoteResult(ctx, result);
+        return;
+      }
 
-    if (request.mode === 'approvals') {
-      const snapshot = await this.deps.controlPlaneService.buildSnapshot({
-        runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
-      });
-      if (snapshot.sessionBroker.approvals.length === 0) {
-        await ctx.reply([
+      if (request.mode === 'approvals') {
+        const snapshot = await this.deps.controlPlaneService.buildSnapshot({
+          runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
+        });
+        if (snapshot.sessionBroker.approvals.length === 0) {
+          await ctx.reply(['Codex Remote approvals', '', 'No pending approvals at the moment.'].join('\n'));
+          return;
+        }
+        const lines: Array<string | null> = [
           'Codex Remote approvals',
           '',
-          'No pending approvals at the moment.',
-        ].join('\n'));
-        return;
-      }
-      const lines: Array<string | null> = [
-        'Codex Remote approvals',
-        '',
-        `Pending: ${snapshot.sessionBroker.approvals.length}.`,
-      ];
-      for (const approval of snapshot.sessionBroker.approvals.slice(0, 8)) {
-        lines.push(
-          '',
-          `${approval.permissionId}`,
-          `Kind: ${approval.kind}.`,
-          approval.actionId ? `${tService('codex_remote.action_label')}: ${approval.actionId}.` : null,
-          approval.sessionId ? `${tService('codex_remote.session_label')}: ${approval.sessionId}.` : null,
-          approval.profileId ? `${tService('codex_remote.profile_label')}: ${approval.profileId}.` : null,
-          approval.reason,
-        );
-      }
-      await ctx.reply(lines.filter(Boolean).join('\n'));
-      return;
-    }
-
-    if (request.mode === 'sessions') {
-      const snapshot = await this.deps.controlPlaneService.buildSnapshot({
-        runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
-      });
-      const sessions = snapshot.sessionBroker.sessions;
-      if (sessions.length === 0) {
-        await ctx.reply([
-          'Codex Remote',
-          '',
-          tService('codex_remote.no_sessions_tracked'),
-          'Use /codexremote <your request> to open the first session.',
-          'Power form: /codexremote start [title] -- <prompt>',
-        ].join('\n'));
+          `Pending: ${snapshot.sessionBroker.approvals.length}.`,
+        ];
+        for (const approval of snapshot.sessionBroker.approvals.slice(0, 8)) {
+          lines.push(
+            '',
+            `${approval.permissionId}`,
+            `Kind: ${approval.kind}.`,
+            approval.actionId ? `${tService('codex_remote.action_label')}: ${approval.actionId}.` : null,
+            approval.sessionId ? `${tService('codex_remote.session_label')}: ${approval.sessionId}.` : null,
+            approval.profileId ? `${tService('codex_remote.profile_label')}: ${approval.profileId}.` : null,
+            approval.reason,
+          );
+        }
+        await ctx.reply(lines.filter(Boolean).join('\n'));
         return;
       }
 
-      const lines = [
-        tService('codex_remote.sessions_title'),
-        '',
-        snapshot.sessionBroker.narrative.headline,
-      ];
-      for (const session of sessions.slice(0, 8)) {
-        lines.push(
-          '',
-          `${session.title} (${session.sessionId})`,
-          `Status: ${session.status} | ${tService('codex_remote.profile')}: ${session.profileLabel} | runs: ${session.runCount}.`,
-          session.operatorSummary,
-          `${tService('codex_remote.actions')}: ${session.actions.join(', ')}.`,
-        );
-      }
-      await ctx.reply(lines.join('\n'));
-      return;
-    }
+      if (request.mode === 'sessions') {
+        const snapshot = await this.deps.controlPlaneService.buildSnapshot({
+          runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
+        });
+        const sessions = snapshot.sessionBroker.sessions;
+        if (sessions.length === 0) {
+          await ctx.reply(
+            [
+              'Codex Remote',
+              '',
+              tService('codex_remote.no_sessions_tracked'),
+              'Use /codexremote <your request> to open the first session.',
+              'Power form: /codexremote start [title] -- <prompt>',
+            ].join('\n'),
+          );
+          return;
+        }
 
-    if (request.mode === 'inspect' || request.mode === 'tail') {
-      const snapshot = await this.deps.controlPlaneService.buildSnapshot({
-        runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
-        selectedSessionId: request.sessionId,
-      });
-      const selected = snapshot.sessionBroker.selected;
-      if (!selected) {
-        await ctx.reply(`${tService('codex_remote.session_not_found')}: ${request.sessionId}.`);
+        const lines = [tService('codex_remote.sessions_title'), '', snapshot.sessionBroker.narrative.headline];
+        for (const session of sessions.slice(0, 8)) {
+          lines.push(
+            '',
+            `${session.title} (${session.sessionId})`,
+            `Status: ${session.status} | ${tService('codex_remote.profile')}: ${session.profileLabel} | runs: ${session.runCount}.`,
+            session.operatorSummary,
+            `${tService('codex_remote.actions')}: ${session.actions.join(', ')}.`,
+          );
+        }
+        await ctx.reply(lines.join('\n'));
         return;
       }
-      const lines = [
-        `${selected.record.title} (${selected.record.sessionId})`,
-        '',
-        selected.operatorSummary,
-        `Prompt: ${selected.record.prompt}`,
-        `${tService('codex_remote.visibility')}: ${selected.visibility.mode} | pending approvals: ${selected.visibility.pendingApprovals}.`,
-        selected.visibility.note,
-        `${tService('codex_remote.web_handoff')}: ${selected.record.handoffCommand || tService('codex_remote.not_yet')}`,
-      ];
-      if (request.mode === 'tail') {
-        lines.push('', `${tService('codex_remote.recent_tail')}:`);
-        lines.push(...(selected.tail.logLines.length > 0 ? selected.tail.logLines : [tService('codex_remote.no_recent_logs')]));
-      } else {
-        lines.push('', `${tService('codex_remote.recent_events')}:`);
-        lines.push(...selected.record.events.slice(-8).map((event) => `- ${event.at} | ${event.type}: ${event.message}`));
+
+      if (request.mode === 'inspect' || request.mode === 'tail') {
+        const snapshot = await this.deps.controlPlaneService.buildSnapshot({
+          runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
+          selectedSessionId: request.sessionId,
+        });
+        const selected = snapshot.sessionBroker.selected;
+        if (!selected) {
+          await ctx.reply(`${tService('codex_remote.session_not_found')}: ${request.sessionId}.`);
+          return;
+        }
+        const lines = [
+          `${selected.record.title} (${selected.record.sessionId})`,
+          '',
+          selected.operatorSummary,
+          `Prompt: ${selected.record.prompt}`,
+          `${tService('codex_remote.visibility')}: ${selected.visibility.mode} | pending approvals: ${selected.visibility.pendingApprovals}.`,
+          selected.visibility.note,
+          `${tService('codex_remote.web_handoff')}: ${selected.record.handoffCommand || tService('codex_remote.not_yet')}`,
+        ];
+        if (request.mode === 'tail') {
+          lines.push('', `${tService('codex_remote.recent_tail')}:`);
+          lines.push(
+            ...(selected.tail.logLines.length > 0 ? selected.tail.logLines : [tService('codex_remote.no_recent_logs')]),
+          );
+        } else {
+          lines.push('', `${tService('codex_remote.recent_events')}:`);
+          lines.push(
+            ...selected.record.events.slice(-8).map((event) => `- ${event.at} | ${event.type}: ${event.message}`),
+          );
+        }
+        await ctx.reply(lines.join('\n'));
+        return;
       }
-      await ctx.reply(lines.join('\n'));
-      return;
-    }
 
-    if (request.mode === 'resume') {
-      const result = await this.deps.actionService.execute({
-        actionId: 'resume-session',
-        sessionId: request.sessionId,
-        prompt: request.prompt,
-        runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
-        sourceSurface: ctx.platform,
-        sourceChatId: String(ctx.chatId || '').trim() || null,
-      });
-      await this.replyCodexRemoteResult(ctx, result);
-      return;
-    }
+      if (request.mode === 'resume') {
+        const result = await this.deps.actionService.execute({
+          actionId: 'resume-session',
+          sessionId: request.sessionId,
+          prompt: request.prompt,
+          runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
+          sourceSurface: ctx.platform,
+          sourceChatId: String(ctx.chatId || '').trim() || null,
+        });
+        await this.replyCodexRemoteResult(ctx, result);
+        return;
+      }
 
-    if (request.mode === 'approve') {
-      const result = await this.deps.actionService.execute({
-        actionId: 'approve-permission',
-        permissionId: request.permissionId,
-        runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
-      });
-      await this.replyCodexRemoteResult(ctx, result);
-      return;
-    }
+      if (request.mode === 'approve') {
+        const result = await this.deps.actionService.execute({
+          actionId: 'approve-permission',
+          permissionId: request.permissionId,
+          runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
+        });
+        await this.replyCodexRemoteResult(ctx, result);
+        return;
+      }
 
-    if (request.mode === 'reject') {
-      const result = await this.deps.actionService.execute({
-        actionId: 'reject-permission',
-        permissionId: request.permissionId,
-        decisionNote: request.prompt,
-        runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
-      });
-      await this.replyCodexRemoteResult(ctx, result);
-      return;
-    }
+      if (request.mode === 'reject') {
+        const result = await this.deps.actionService.execute({
+          actionId: 'reject-permission',
+          permissionId: request.permissionId,
+          decisionNote: request.prompt,
+          runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
+        });
+        await this.replyCodexRemoteResult(ctx, result);
+        return;
+      }
 
-    if (request.mode === 'stop') {
-      const result = await this.deps.actionService.execute({
-        actionId: 'stop-session',
-        sessionId: request.sessionId,
-        runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
-        sourceSurface: ctx.platform,
-        sourceChatId: String(ctx.chatId || '').trim() || null,
-      });
-      await this.replyCodexRemoteResult(ctx, result);
-      return;
-    }
+      if (request.mode === 'stop') {
+        const result = await this.deps.actionService.execute({
+          actionId: 'stop-session',
+          sessionId: request.sessionId,
+          runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
+          sourceSurface: ctx.platform,
+          sourceChatId: String(ctx.chatId || '').trim() || null,
+        });
+        await this.replyCodexRemoteResult(ctx, result);
+        return;
+      }
 
       if (request.mode === 'web') {
         const result = await this.deps.actionService.execute({
@@ -300,16 +298,19 @@ export class SharedSurfaceCodexRemoteCommandPack {
           sourceChatId: String(ctx.chatId || '').trim() || null,
           sessionSpawner: this.deps.sessionPlaneService
             ? {
-              spawnSession: ({ userId, platform }) => this.deps.sessionPlaneService!.spawnSession({
-                userId,
-                platform,
-              }),
-            }
+                spawnSession: ({ userId, platform }) =>
+                  this.deps.sessionPlaneService!.spawnSession({
+                    userId,
+                    platform,
+                  }),
+              }
             : null,
         });
         const lines = [
           result.action.note,
-          result.action.handoffCommand ? `${tService('codex_remote.handoff_command')}: ${result.action.handoffCommand}` : null,
+          result.action.handoffCommand
+            ? `${tService('codex_remote.handoff_command')}: ${result.action.handoffCommand}`
+            : null,
           result.spawnedSession?.sessionId ? `Session web: ${result.spawnedSession.sessionId}` : null,
         ].filter(Boolean) as string[];
         await ctx.reply(lines.join('\n'));
@@ -323,7 +324,24 @@ export class SharedSurfaceCodexRemoteCommandPack {
   }
 
   private parseCodexRemoteRequest(rawArgs: string): {
-    mode: 'status' | 'help' | 'profiles' | 'profile' | 'profile-create' | 'profile-update' | 'profile-delete' | 'approvals' | 'approve' | 'reject' | 'start' | 'sessions' | 'inspect' | 'tail' | 'resume' | 'stop' | 'web';
+    mode:
+      | 'status'
+      | 'help'
+      | 'profiles'
+      | 'profile'
+      | 'profile-create'
+      | 'profile-update'
+      | 'profile-delete'
+      | 'approvals'
+      | 'approve'
+      | 'reject'
+      | 'start'
+      | 'sessions'
+      | 'inspect'
+      | 'tail'
+      | 'resume'
+      | 'stop'
+      | 'web';
     profileId: string | null;
     sessionId: string | null;
     permissionId: string | null;
@@ -339,7 +357,9 @@ export class SharedSurfaceCodexRemoteCommandPack {
     const beforeSeparator = separatorIndex >= 0 ? normalized.slice(0, separatorIndex).trim() : normalized;
     const afterSeparator = separatorIndex >= 0 ? normalized.slice(separatorIndex + 2).trim() : '';
     const tokens = beforeSeparator.split(/\s+/).filter(Boolean);
-    const head = String(tokens[0] || '').trim().toLowerCase();
+    const head = String(tokens[0] || '')
+      .trim()
+      .toLowerCase();
     const tail = tokens.slice(1).join(' ').trim() || null;
 
     switch (head) {
@@ -349,7 +369,13 @@ export class SharedSurfaceCodexRemoteCommandPack {
       case 'profiles':
         return { mode: 'profiles', profileId: null, sessionId: null, permissionId: null, prompt: null, title: null };
       case 'profile':
-        if (['create', 'add'].includes(String(tokens[1] || '').trim().toLowerCase())) {
+        if (
+          ['create', 'add'].includes(
+            String(tokens[1] || '')
+              .trim()
+              .toLowerCase(),
+          )
+        ) {
           return {
             mode: 'profile-create',
             profileId: String(tokens[2] || '').trim() || null,
@@ -359,7 +385,13 @@ export class SharedSurfaceCodexRemoteCommandPack {
             title: null,
           };
         }
-        if (['update', 'edit'].includes(String(tokens[1] || '').trim().toLowerCase())) {
+        if (
+          ['update', 'edit'].includes(
+            String(tokens[1] || '')
+              .trim()
+              .toLowerCase(),
+          )
+        ) {
           return {
             mode: 'profile-update',
             profileId: String(tokens[2] || '').trim() || null,
@@ -369,7 +401,13 @@ export class SharedSurfaceCodexRemoteCommandPack {
             title: null,
           };
         }
-        if (['delete', 'remove'].includes(String(tokens[1] || '').trim().toLowerCase())) {
+        if (
+          ['delete', 'remove'].includes(
+            String(tokens[1] || '')
+              .trim()
+              .toLowerCase(),
+          )
+        ) {
           return {
             mode: 'profile-delete',
             profileId: String(tokens[2] || '').trim() || null,
@@ -384,7 +422,14 @@ export class SharedSurfaceCodexRemoteCommandPack {
       case 'approval':
         return { mode: 'approvals', profileId: null, sessionId: null, permissionId: null, prompt: null, title: null };
       case 'approve':
-        return { mode: 'approve', profileId: null, sessionId: null, permissionId: String(tokens[1] || '').trim() || null, prompt: null, title: null };
+        return {
+          mode: 'approve',
+          profileId: null,
+          sessionId: null,
+          permissionId: String(tokens[1] || '').trim() || null,
+          prompt: null,
+          title: null,
+        };
       case 'reject':
         return {
           mode: 'reject',
@@ -402,7 +447,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
           sessionId: null,
           permissionId: null,
           prompt: afterSeparator || tail,
-          title: afterSeparator ? (tail || null) : null,
+          title: afterSeparator ? tail || null : null,
         };
       case 'sessions':
       case 'list':
@@ -436,7 +481,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
           sessionId: null,
           permissionId: null,
           prompt: afterSeparator || normalized,
-          title: afterSeparator ? (beforeSeparator || null) : null,
+          title: afterSeparator ? beforeSeparator || null : null,
         };
     }
   }
@@ -444,24 +489,32 @@ export class SharedSurfaceCodexRemoteCommandPack {
   private formatCodexRemoteSessionReply(result: {
     action: { note: string; permissionId?: string | null; status?: string | null };
     permission?: PermissionRequest | null;
-    session: { record: { sessionId: string; title: string; handoffCommand: string | null }; operatorSummary: string; tail: { logLines: string[] } } | null;
+    session: {
+      record: { sessionId: string; title: string; handoffCommand: string | null };
+      operatorSummary: string;
+      tail: { logLines: string[] };
+    } | null;
   }): string {
     if (!result.session) {
       return [
         result.action.note,
-        result.permission?.permission_id ? `${tService('codex_remote.permission_label')}: ${result.permission.permission_id} (${result.permission.status}).` : null,
-      ].filter(Boolean).join('\n');
+        result.permission?.permission_id
+          ? `${tService('codex_remote.permission_label')}: ${result.permission.permission_id} (${result.permission.status}).`
+          : null,
+      ]
+        .filter(Boolean)
+        .join('\n');
     }
 
     const lines = [
       result.action.note,
       '',
       `${result.session.record.title} (${result.session.record.sessionId})`,
-      result.permission?.permission_id ? `${tService('codex_remote.permission_label')}: ${result.permission.permission_id} (${result.permission.status}).` : null,
-      result.session.operatorSummary,
-      result.session.record.handoffCommand
-        ? `Handoff web: ${result.session.record.handoffCommand}`
+      result.permission?.permission_id
+        ? `${tService('codex_remote.permission_label')}: ${result.permission.permission_id} (${result.permission.status}).`
         : null,
+      result.session.operatorSummary,
+      result.session.record.handoffCommand ? `Handoff web: ${result.session.record.handoffCommand}` : null,
       result.session.tail.logLines.length > 0
         ? [`${tService('codex_remote.recent_tail')}:`, ...result.session.tail.logLines.slice(-6)].join('\n')
         : null,
@@ -475,33 +528,70 @@ export class SharedSurfaceCodexRemoteCommandPack {
     result: {
       action: { note: string; permissionId?: string | null; status?: string | null };
       permission?: PermissionRequest | null;
-      session: { record: { sessionId: string; title: string; handoffCommand: string | null }; operatorSummary: string; tail: { logLines: string[] } } | null;
+      session: {
+        record: { sessionId: string; title: string; handoffCommand: string | null };
+        operatorSummary: string;
+        tail: { logLines: string[] };
+      } | null;
       codexRemote?: { sessionBroker?: { telegramSummary?: string | null } } | null;
     },
     extras: Array<string | null> = [],
   ): Promise<void> {
-    if (
-      result.action.status === 'pending-approval'
-      && result.permission
-      && ctx.platform === 'telegram'
-      && this.deps.formatPermissionCreatedMessage
-      && this.deps.buildPermissionKeyboard
-    ) {
-      const lines = [
-        this.deps.formatPermissionCreatedMessage(result.permission),
+    if (result.action.status === 'pending-approval' && result.permission) {
+      // Prefer telegram keyboard when available; else surface-agnostic proposal card.
+      if (
+        ctx.platform === 'telegram' &&
+        this.deps.formatPermissionCreatedMessage &&
+        this.deps.buildPermissionKeyboard
+      ) {
+        const lines = [
+          this.deps.formatPermissionCreatedMessage(result.permission),
+          'Codex Remote stays full-user-visible: approval appears on this same surface.',
+          ...extras.filter(Boolean),
+        ];
+        await ctx.reply(lines.join('\n\n'), {
+          reply_markup: this.deps.buildPermissionKeyboard(result.permission),
+        });
+        return;
+      }
+
+      const { buildPermissionPendingCard } = await import('../../../../services/PermissionProposalPresentation.js');
+      const { replyWithSharedSurfaceResponse } = await import('./SharedSurfaceResponseSender.js');
+      const card = buildPermissionPendingCard({
+        permission: result.permission,
+        channel: String(ctx.platform || 'plain'),
+        ordinal: 1,
+      });
+      const note = [
+        result.action.note,
         'Codex Remote stays full-user-visible: approval appears on this same surface.',
         ...extras.filter(Boolean),
-      ];
-      await ctx.reply(lines.join('\n\n'), {
-        reply_markup: this.deps.buildPermissionKeyboard(result.permission),
-      });
-      return;
+      ]
+        .filter(Boolean)
+        .join('\n\n');
+      try {
+        await replyWithSharedSurfaceResponse(
+          ctx,
+          {
+            ...card.surfaceResponse,
+            blocks: [
+              { kind: 'text', text: `${note}\n\n${card.text}` },
+              ...(card.surfaceResponse.blocks || []).filter((b) => b.kind === 'actions'),
+            ],
+          },
+          {
+            trackApprovalId: result.permission.permission_id,
+            maxActionsPerRow: 2,
+          },
+        );
+        return;
+      } catch {
+        await ctx.reply(`${note}\n\n${card.text}`);
+        return;
+      }
     }
 
-    const lines = [
-      this.formatCodexRemoteSessionReply(result),
-      ...extras.filter(Boolean),
-    ].filter(Boolean) as string[];
+    const lines = [this.formatCodexRemoteSessionReply(result), ...extras.filter(Boolean)].filter(Boolean) as string[];
     await ctx.reply(lines.join('\n\n'));
   }
 
@@ -538,5 +628,4 @@ export class SharedSurfaceCodexRemoteCommandPack {
       profileLabel: normalized,
     };
   }
-
 }

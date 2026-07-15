@@ -13,10 +13,7 @@ import type { ZavorthBrowserVisionBridgeSnapshot } from '../contracts/ZavorthBro
 import type { ZavorthComputerControlSnapshot } from '../contracts/ZavorthComputerControlPlaneContract.js';
 import type { ZavorthVisionControlPlaneSnapshot } from '../contracts/ZavorthVisionControlPlaneContract.js';
 import type { SurfaceResponse } from '../domain/surface/application/surface-response/index.js';
-import {
-  ZavorthAdbCommandResult,
-  type ZavorthAdbRunner,
-} from './ZavorthAndroidAdbBridgeService.js';
+import { ZavorthAdbCommandResult, type ZavorthAdbRunner } from './ZavorthAndroidAdbBridgeService.js';
 import { ZavorthAndroidAdbBridgeService } from './ZavorthAndroidAdbBridgeService.js';
 
 import { ZavorthBrowserVisionBridgeService } from './ZavorthBrowserVisionBridgeService.js';
@@ -85,16 +82,20 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
     this.now = runtime.now || (() => new Date());
     this.router = runtime.router || new ZavorthPerceptionInvocationRouter();
     this.vision = runtime.vision || new ZavorthVisionControlPlaneService();
-    this.browser = runtime.browser || new ZavorthBrowserVisionBridgeService({
-      sidecar: null,
-      egressGuard: async (url) => new URL(url),
-    });
+    this.browser =
+      runtime.browser ||
+      new ZavorthBrowserVisionBridgeService({
+        sidecar: null,
+        egressGuard: async (url) => new URL(url),
+      });
     this.computer = runtime.computer || new ZavorthComputerControlPlaneService({ vision: this.vision });
-    this.android = runtime.android || new ZavorthAndroidAdbBridgeService({
-      vision: this.vision,
-      runner: createMockAdbRunner(),
-      artifactRoot: '.tmp/perception-certification-adb',
-    });
+    this.android =
+      runtime.android ||
+      new ZavorthAndroidAdbBridgeService({
+        vision: this.vision,
+        runner: createMockAdbRunner(),
+        artifactRoot: '.tmp/perception-certification-adb',
+      });
   }
 
   public async buildSnapshot(): Promise<ZavorthPerceptionCrossSurfaceCertificationSnapshot> {
@@ -102,19 +103,22 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
       text: 'use subagentes para revisar o que aparece na tela e diga o proximo passo seguro',
       channel: 'web',
       actorId: 'checkpoint-6-certification',
+      // Structured intent only — free text never activates subagent_perception.
+      targetKind: 'visual',
+      requestSubagents: true,
     });
     const surfaceResponse = this.router.buildSurfaceResponse(naturalPlan);
     const phaseSnapshots = await this.buildPhaseSnapshots();
     const certificationMatrix = buildCertificationMatrix(phaseSnapshots);
-    const zavorthControlProjection = buildZavorthControlProjection(this.now().toISOString(), phaseSnapshots, certificationMatrix);
+    const zavorthControlProjection = buildZavorthControlProjection(
+      this.now().toISOString(),
+      phaseSnapshots,
+      certificationMatrix,
+    );
     const surfaceProjections = PHASE_6_SURFACES.map((surface) =>
       buildSurfaceProjection(surface, surfaceResponse, zavorthControlProjection),
     );
-    const status = summarizeStatus([
-      ...certificationMatrix,
-      ...surfaceProjections,
-      zavorthControlProjection,
-    ]);
+    const status = summarizeStatus([...certificationMatrix, ...surfaceProjections, zavorthControlProjection]);
     const finalProjection = {
       ...zavorthControlProjection,
       status,
@@ -151,15 +155,14 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
         inspectTarget: 'npm run qa:perception-surface-certification:target --silent --id=<id>',
         nextStep: 'Perception cross-surface certification matrix matches checkpoint-6',
       },
-      nextSafeAction: 'Use /vision, /computer ou /device em modo read-only; live canary exige flag e owner approval explicitos.',
+      nextSafeAction:
+        'Use /vision, /computer ou /device em modo read-only; live canary exige flag e owner approval explicitos.',
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthPerceptionCrossSurfaceCertificationSnapshot): string {
     const projection = snapshot.zavorthControlProjection || snapshot.zavorthControlProjection;
-    const rows = snapshot.certificationMatrix.map((row) =>
-      `${pad(row.id, 35)} ${pad(row.status, 10)} ${row.evidence}`,
-    );
+    const rows = snapshot.certificationMatrix.map((row) => `${pad(row.id, 35)} ${pad(row.status, 10)} ${row.evidence}`);
     return [
       'Zavorth Perception Cross-Surface Certification - Runtime gateway',
       '',
@@ -247,16 +250,76 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
 
 function buildCertificationMatrix(s: PhaseSnapshots): ZavorthPerceptionCertificationMatrixRow[] {
   return [
-    row('pc-screenshot', 'PC screenshot read-only', s.pc.status !== 'blocked', `${s.pc.policy.decision}; artifacts=${s.pc.artifacts.length}`, '/vision inspect'),
-    row('browser-dom', 'Browser DOM preferred', s.browserDom.evidence.preferredSource === 'dom', s.browserDom.evidence.preferredSource, '/vision browser inspect'),
-    row('browser-screenshot', 'Browser screenshot fallback', s.browserScreenshot.evidence.preferredSource === 'screenshot-needed', s.browserScreenshot.evidence.preferredSource, '/vision browser inspect'),
-    row('adb-screenshot', 'ADB screenshot artifact ref', Boolean(s.adbScreenshot.evidence.screenshot), s.adbScreenshot.evidence.screenshot?.displayName || 'none', '/device screenshot'),
-    row('adb-ui-dump', 'ADB UI dump artifact ref', Boolean(s.adbUiDump.evidence.uiDump), s.adbUiDump.evidence.uiDump?.displayName || 'none', '/device inspect'),
-    row('blocked-terminal-automation', 'Terminal automation blocked', s.terminalBlock.status === 'blocked', s.terminalBlock.hardBlocks.risks.join(', '), '/computer plan'),
-    row('blocked-secrets-screen', 'Secret/password screen blocked', s.secretsBlock.status === 'blocked', s.secretsBlock.hardBlocks.risks.join(', '), '/computer observe'),
-    row('approval-required-tap-type-click', 'Tap/type/click require approval', s.approvalRequired.status === 'approval-required', s.approvalRequired.policy.decision, '/computer approve <plan>'),
-    row('cancel-pause', 'Cancel/pause available', s.cancelPause.commands.cancel === '/computer cancel', s.cancelPause.receipts.map((r) => r.kind).join(', '), '/computer cancel'),
-    row('receipts-retention', 'Receipts and retention present', allReceiptsSafe(s), `receipts=${receiptCount(s)}`, 'node scripts/zavorth-perception-certification.ts --json'),
+    row(
+      'pc-screenshot',
+      'PC screenshot read-only',
+      s.pc.status !== 'blocked',
+      `${s.pc.policy.decision}; artifacts=${s.pc.artifacts.length}`,
+      '/vision inspect',
+    ),
+    row(
+      'browser-dom',
+      'Browser DOM preferred',
+      s.browserDom.evidence.preferredSource === 'dom',
+      s.browserDom.evidence.preferredSource,
+      '/vision browser inspect',
+    ),
+    row(
+      'browser-screenshot',
+      'Browser screenshot fallback',
+      s.browserScreenshot.evidence.preferredSource === 'screenshot-needed',
+      s.browserScreenshot.evidence.preferredSource,
+      '/vision browser inspect',
+    ),
+    row(
+      'adb-screenshot',
+      'ADB screenshot artifact ref',
+      Boolean(s.adbScreenshot.evidence.screenshot),
+      s.adbScreenshot.evidence.screenshot?.displayName || 'none',
+      '/device screenshot',
+    ),
+    row(
+      'adb-ui-dump',
+      'ADB UI dump artifact ref',
+      Boolean(s.adbUiDump.evidence.uiDump),
+      s.adbUiDump.evidence.uiDump?.displayName || 'none',
+      '/device inspect',
+    ),
+    row(
+      'blocked-terminal-automation',
+      'Terminal automation blocked',
+      s.terminalBlock.status === 'blocked',
+      s.terminalBlock.hardBlocks.risks.join(', '),
+      '/computer plan',
+    ),
+    row(
+      'blocked-secrets-screen',
+      'Secret/password screen blocked',
+      s.secretsBlock.status === 'blocked',
+      s.secretsBlock.hardBlocks.risks.join(', '),
+      '/computer observe',
+    ),
+    row(
+      'approval-required-tap-type-click',
+      'Tap/type/click require approval',
+      s.approvalRequired.status === 'approval-required',
+      s.approvalRequired.policy.decision,
+      '/computer approve <plan>',
+    ),
+    row(
+      'cancel-pause',
+      'Cancel/pause available',
+      s.cancelPause.commands.cancel === '/computer cancel',
+      s.cancelPause.receipts.map((r) => r.kind).join(', '),
+      '/computer cancel',
+    ),
+    row(
+      'receipts-retention',
+      'Receipts and retention present',
+      allReceiptsSafe(s),
+      `receipts=${receiptCount(s)}`,
+      'node scripts/zavorth-perception-certification.ts --json',
+    ),
   ];
 }
 
@@ -266,13 +329,63 @@ function buildZavorthControlProjection(
   matrix: ZavorthPerceptionCertificationMatrixRow[],
 ): ZavorthPerceptionZavorthControlProjection {
   const targets: ZavorthPerceptionZavorthControlTarget[] = [
-    target('pc', 'pc', 'PC screenshot', s.pc.status === 'blocked' ? 'blocked' : 'passed', true, false, false, s.pc.artifacts.length, s.pc.artifacts[0]?.id || null, '/vision inspect'),
-    target('browser', 'browser', 'Browser DOM/screenshot', s.browserDom.status === 'blocked' ? 'blocked' : 'passed', true, s.browserDom.plan.approvalRequired, s.browserDom.plan.approvalRequired, s.browserDom.vision.artifacts.length + s.browserScreenshot.vision.artifacts.length, null, '/vision browser inspect'),
-    target('android', 'android', 'Android ADB', s.adbScreenshot.status === 'blocked' ? 'blocked' : 'passed', true, s.adbScreenshot.plan.approvalRequired, s.adbScreenshot.plan.approvalRequired, [s.adbScreenshot.evidence.screenshot, s.adbUiDump.evidence.uiDump].filter(Boolean).length, s.adbScreenshot.evidence.screenshot?.id || null, '/device inspect'),
-    target('subagent', 'subagent', 'Read-only perception subagents', 'passed', false, false, false, 0, null, '/agents spawn use subagentes para revisar a tela'),
+    target(
+      'pc',
+      'pc',
+      'PC screenshot',
+      s.pc.status === 'blocked' ? 'blocked' : 'passed',
+      true,
+      false,
+      false,
+      s.pc.artifacts.length,
+      s.pc.artifacts[0]?.id || null,
+      '/vision inspect',
+    ),
+    target(
+      'browser',
+      'browser',
+      'Browser DOM/screenshot',
+      s.browserDom.status === 'blocked' ? 'blocked' : 'passed',
+      true,
+      s.browserDom.plan.approvalRequired,
+      s.browserDom.plan.approvalRequired,
+      s.browserDom.vision.artifacts.length + s.browserScreenshot.vision.artifacts.length,
+      null,
+      '/vision browser inspect',
+    ),
+    target(
+      'android',
+      'android',
+      'Android ADB',
+      s.adbScreenshot.status === 'blocked' ? 'blocked' : 'passed',
+      true,
+      s.adbScreenshot.plan.approvalRequired,
+      s.adbScreenshot.plan.approvalRequired,
+      [s.adbScreenshot.evidence.screenshot, s.adbUiDump.evidence.uiDump].filter(Boolean).length,
+      s.adbScreenshot.evidence.screenshot?.id || null,
+      '/device inspect',
+    ),
+    target(
+      'subagent',
+      'subagent',
+      'Read-only perception subagents',
+      'passed',
+      false,
+      false,
+      false,
+      0,
+      null,
+      '/agents spawn use subagentes para revisar a tela',
+    ),
   ];
   const pendingPlans = [
-    pending('desktop-plan', 'pc', s.approvalRequired.plan.status, s.approvalRequired.plan.approvalRequired, '/computer approve <plan>'),
+    pending(
+      'desktop-plan',
+      'pc',
+      s.approvalRequired.plan.status,
+      s.approvalRequired.plan.approvalRequired,
+      '/computer approve <plan>',
+    ),
   ];
   const approvals = pendingPlans
     .filter((plan) => plan.approvalRequired)
@@ -288,7 +401,13 @@ function buildZavorthControlProjection(
     artifact('browser-screenshot', 'browser', 'screenshot', 900000, '/vision browser inspect'),
     artifact('adb-screenshot', 'android', 'screenshot', 900000, '/device screenshot'),
     artifact('adb-ui-dump', 'android', 'ui-dump', 900000, '/device inspect'),
-    artifact('certification-receipts', 'subagent', 'receipt', 900000, 'node scripts/zavorth-perception-certification.ts --json'),
+    artifact(
+      'certification-receipts',
+      'subagent',
+      'receipt',
+      900000,
+      'node scripts/zavorth-perception-certification.ts --json',
+    ),
   ];
   return {
     contractVersion: ZAVORTH_PERCEPTION_CROSS_SURFACE_CERTIFICATION_VERSION,
@@ -335,11 +454,15 @@ function buildSurfaceProjection(
   projection: ZavorthPerceptionZavorthControlProjection,
 ): ZavorthPerceptionSurfaceProjection {
   const interactive = surface === 'telegram' || surface === 'discord' || surface === 'web';
-  const commands = Array.from(new Set([
-    ...REQUIRED_COMMANDS,
-    ...projection.targets.map((target) => target.commandHint),
-    ...safeActions(response).map((action) => action.command || '').filter(Boolean),
-  ]));
+  const commands = Array.from(
+    new Set([
+      ...REQUIRED_COMMANDS,
+      ...projection.targets.map((target) => target.commandHint),
+      ...safeActions(response)
+        .map((action) => action.command || '')
+        .filter(Boolean),
+    ]),
+  );
   return {
     surface,
     status: commands.length >= REQUIRED_COMMANDS.length && response.blocks.length > 0 ? 'passed' : 'attention',
@@ -381,7 +504,18 @@ function target(
   lastScreenshotRef: string | null,
   commandHint: string,
 ): ZavorthPerceptionZavorthControlTarget {
-  return { id, kind, label, status, activeObservation, pendingPlan, approvalRequired, artifactCount, lastScreenshotRef, commandHint };
+  return {
+    id,
+    kind,
+    label,
+    status,
+    activeObservation,
+    pendingPlan,
+    approvalRequired,
+    artifactCount,
+    lastScreenshotRef,
+    commandHint,
+  };
 }
 
 function pending(
@@ -433,7 +567,9 @@ function receiptCount(s: PhaseSnapshots): number {
   ].reduce((sum, count) => sum + count, 0);
 }
 
-function summarizeStatus(items: Array<{ status: ZavorthPerceptionCrossSurfaceStatus }>): ZavorthPerceptionCrossSurfaceStatus {
+function summarizeStatus(
+  items: Array<{ status: ZavorthPerceptionCrossSurfaceStatus }>,
+): ZavorthPerceptionCrossSurfaceStatus {
   if (items.some((item) => item.status === 'blocked')) return 'blocked';
   if (items.some((item) => item.status === 'attention')) return 'attention';
   return 'passed';
@@ -453,7 +589,9 @@ function createMockAdbRunner(): ZavorthAdbRunner {
     run(args, options = {}): ZavorthAdbCommandResult {
       const joined = args.join(' ');
       if (joined === 'devices -l') {
-        return ok('List of devices attached\nzavorth-fixture device product:fixture model:Pixel_Fixture transport_id:7\n');
+        return ok(
+          'List of devices attached\nzavorth-fixture device product:fixture model:Pixel_Fixture transport_id:7\n',
+        );
       }
       if (joined.includes('screencap -p')) {
         return {

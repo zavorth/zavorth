@@ -1,6 +1,9 @@
 import { ReplyPipeline } from '../reply/ReplyPipeline.js';
 import { GeminiManagedAgentExecutor } from '../../execution/GeminiManagedAgentExecutor.js';
-import { resolveZavorthArtifactPolicyFromMetadata, shouldPersistZavorthArtifacts } from '../../contracts/ZavorthResponseDecisionContract.js';
+import {
+  resolveZavorthArtifactPolicyFromMetadata,
+  shouldPersistZavorthArtifacts,
+} from '../../contracts/ZavorthResponseDecisionContract.js';
 import { DynamicHierarchySwarmService } from '../../domain/execution/infrastructure/DynamicHierarchySwarmService.js';
 import { SwarmScalePlaneService } from '../../domain/execution/infrastructure/SwarmScalePlaneService.js';
 import { AgentRunCanonicalContextService } from './AgentRunCanonicalContextService.js';
@@ -8,7 +11,12 @@ import { AgentRunSteeringStream, type AgentRunSteeringStreamAction } from './Age
 import { applyAgentRunLlmRuntimeRouteReceipt } from './AgentRunLlmRouteReceipt.js';
 import { AgentRunCorePipeline } from './AgentRunCorePipeline.js';
 import { promoteIntelligenceFabricDraftWorkspaceWrites } from './AgentRunIntelligenceFabricDraftPromotion.js';
-import { AgentRunEvidencePipeline, type AgentRunEvidenceCollectorId, type AgentRunEvidencePipelineStep, type AgentRunEvidenceWorker } from './AgentRunEvidencePipeline.js';
+import {
+  AgentRunEvidencePipeline,
+  type AgentRunEvidenceCollectorId,
+  type AgentRunEvidencePipelineStep,
+  type AgentRunEvidenceWorker,
+} from './AgentRunEvidencePipeline.js';
 import { AgentRunEvidenceStore } from './AgentRunEvidenceStore.js';
 import { FailureSemanticsRegistry } from './FailureSemanticsRegistry.js';
 import { AgentRunFailureResultBuilder } from './AgentRunFailureResultBuilder.js';
@@ -32,7 +40,10 @@ import { AgentRunLlmRuntimeExecutor, type UniversalAgentLlmRuntime } from './Age
 
 import { AgentRunEchoHandsExecutor, type UniversalAgentToolRuntime } from './AgentRunEchoHandsExecutor.js';
 
-import { AgentRunIntelligenceFabricCanary, type AgentRunIntelligenceFabricMode } from './AgentRunIntelligenceFabricCanary.js';
+import {
+  AgentRunIntelligenceFabricCanary,
+  type AgentRunIntelligenceFabricMode,
+} from './AgentRunIntelligenceFabricCanary.js';
 
 import { AgentRunExecutorBoundary } from './AgentRunExecutorBoundary.js';
 import { AgentRunMetadataEvidenceHelpers, type CoreDietBaselineDraft } from './AgentRunMetadataEvidenceHelpers.js';
@@ -56,7 +67,10 @@ import { AgentTeamCompilerService } from './AgentTeamCompilerService.js';
 import { CrossChannelContinuityService } from './CrossChannelContinuityService.js';
 import { AskBeforeAssumptionPolicyService } from './AskBeforeAssumptionPolicyService.js';
 import { ProviderMeshConsolidationService } from './ProviderMeshConsolidationService.js';
-import { UniversalIntentTrustEnforcementService, type UniversalIntentTrustEnforcementSnapshot } from './UniversalIntentTrustEnforcementService.js';
+import {
+  UniversalIntentTrustEnforcementService,
+  type UniversalIntentTrustEnforcementSnapshot,
+} from './UniversalIntentTrustEnforcementService.js';
 
 import { ProductizationEvidenceService } from './ProductizationEvidenceService.js';
 import { ProductEntryRuntimeService } from './ProductEntryRuntimeService.js';
@@ -82,15 +96,35 @@ import type { ZavorthMutationPlaneService } from '../../services/ZavorthMutation
 import { CanonicalSessionContextAssembler, LightweightRunProfileClassifier } from './context/index.js';
 
 import { AgentRunRiskHooks, type AgentRunRiskReviewStage } from './security/AgentRunRiskHooks.js';
-import type { UniversalAgentExecutor, UniversalAgentExecutorResult, UniversalAgentRequest, UniversalAgentRun, UniversalAgentRunResult, UniversalAgentSteeringEntry, UniversalApprovalRequest } from './UniversalAgentRuntimeTypes.js';
+import type {
+  UniversalAgentExecutor,
+  UniversalAgentExecutorResult,
+  UniversalAgentRequest,
+  UniversalAgentRun,
+  UniversalAgentRunResult,
+  UniversalAgentSteeringEntry,
+  UniversalApprovalRequest,
+} from './UniversalAgentRuntimeTypes.js';
 import { asErrorLike } from '../../utils/errorLike.js';
-import type { AgentRunExecutionOptions, AgentRunRuntimeEventBus, AgentRunRuntimeEventType, AgentRunService, AgentRunSteeringInput, SelfModificationRuntime, WatchModeRuntime } from './AgentRunService.js';
+import type {
+  AgentRunExecutionOptions,
+  AgentRunRuntimeEventBus,
+  AgentRunRuntimeEventType,
+  AgentRunService,
+  AgentRunSteeringInput,
+  SelfModificationRuntime,
+  WatchModeRuntime,
+} from './AgentRunService.js';
 import { normalizeText, recordOrNull, resolveProfileRuntimeBundleFromRun } from './AgentRunValueHelpers.js';
 
 export class AgentRunExecutionSupport {
   public constructor(private readonly owner: AgentRunService) {}
 
-  public applyIntelligenceFabricCanary(run: UniversalAgentRun, request: UniversalAgentRequest, options: AgentRunExecutionOptions = {}): void {
+  public applyIntelligenceFabricCanary(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+    options: AgentRunExecutionOptions = {},
+  ): void {
     this.owner.intelligenceFabricCanary.apply({
       run,
       request,
@@ -98,10 +132,14 @@ export class AgentRunExecutionSupport {
     });
   }
 
-  public applyIntelligenceFabricDraftGuidanceIfRequested(run: UniversalAgentRun, request: UniversalAgentRequest): UniversalAgentRunResult | null {
+  public applyIntelligenceFabricDraftGuidanceIfRequested(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): UniversalAgentRunResult | null {
     const metadata = recordOrNull(request.metadata) || {};
     const planId = normalizeText(metadata.intelligenceFabricApplyDraftPlanId || metadata.intelligenceFabricDraftPlanId);
-    const requested = Boolean(planId) && (metadata.intelligenceFabricApplyDraftGuidance === true || /\b(aplicar|aplique|apply|commit)\b.*\b(rascunho|draft)\b/i.test(request.text));
+    // Structured flag only — free-text "apply draft" never activates mutation plane.
+    const requested = Boolean(planId) && metadata.intelligenceFabricApplyDraftGuidance === true;
     if (!requested) {
       return null;
     }
@@ -137,7 +175,11 @@ export class AgentRunExecutionSupport {
     return this.owner.replyPipeline.buildResult({ run, text: result.summary });
   }
 
-  public async execute(run: UniversalAgentRun, request: UniversalAgentRequest, options: AgentRunExecutionOptions = {}): Promise<UniversalAgentExecutorResult> {
+  public async execute(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+    options: AgentRunExecutionOptions = {},
+  ): Promise<UniversalAgentExecutorResult> {
     const profileBundle = resolveProfileRuntimeBundleFromRun(run);
     // Propagate voice/client abort into run metadata for LLM executor (in-process only)
     if (options.signal) {
@@ -172,7 +214,11 @@ export class AgentRunExecutionSupport {
     );
   }
 
-  public async applyNativeAutonomySpine(run: UniversalAgentRun, request: UniversalAgentRequest, replyText: string): Promise<void> {
+  public async applyNativeAutonomySpine(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+    replyText: string,
+  ): Promise<void> {
     const generatedAt = this.owner.now().toISOString();
     if (this.owner.nativeAutonomySpine) {
       try {
@@ -229,11 +275,16 @@ export class AgentRunExecutionSupport {
       }
     }
     try {
-      const { getProductSurfaceRuntime } = require('../../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../../services/ZavorthProductSurfaceRuntimeService.js');
-      const toolCallCount = Math.max(run.events.filter((event) => event.kind === 'tool').length, request.requestedTools?.length || 0);
+      const { getProductSurfaceRuntime } =
+        require('../../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../../services/ZavorthProductSurfaceRuntimeService.js');
+      const toolCallCount = Math.max(
+        run.events.filter((event) => event.kind === 'tool').length,
+        request.requestedTools?.length || 0,
+      );
       const userId = run.userId || request.userId || 'local-user';
       const surface = run.channel || request.channel || 'agent-run';
-      const chatId = normalizeText(run.metadata?.chatId, normalizeText(request.metadata?.chatId, run.sessionId)) || null;
+      const chatId =
+        normalizeText(run.metadata?.chatId, normalizeText(request.metadata?.chatId, run.sessionId)) || null;
       const explicitAllow = run.metadata?.allowLearningWrite ?? request.metadata?.allowLearningWrite;
       const result = await getProductSurfaceRuntime(process.cwd()).recordSuccessfulTurn({
         userId,
@@ -316,7 +367,12 @@ export class AgentRunExecutionSupport {
     });
     run.memorySignals = result.memorySignals || run.memorySignals;
     run.metadata = mergedMetadata;
-    promoteIntelligenceFabricDraftWorkspaceWrites({ run, canary: this.owner.intelligenceFabricCanary, now, idFactory: this.owner.idFactory });
+    promoteIntelligenceFabricDraftWorkspaceWrites({
+      run,
+      canary: this.owner.intelligenceFabricCanary,
+      now,
+      idFactory: this.owner.idFactory,
+    });
     this.owner.evidencePipeline.applyPostExecutor({
       run,
       request: null,
@@ -367,7 +423,11 @@ export class AgentRunExecutionSupport {
     }
   }
 
-  public applyLlmBrainMaturity(run: UniversalAgentRun, request: UniversalAgentRequest, executorResult: UniversalAgentExecutorResult): ZavorthLlmBrainSnapshot {
+  public applyLlmBrainMaturity(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+    executorResult: UniversalAgentExecutorResult,
+  ): ZavorthLlmBrainSnapshot {
     const snapshot = this.owner.llmBrain.buildRunSnapshot({
       run,
       request,
@@ -398,7 +458,11 @@ export class AgentRunExecutionSupport {
     return snapshot;
   }
 
-  public async publishLlmBrainRuntimeEvents(run: UniversalAgentRun, snapshot: ZavorthLlmBrainSnapshot, request?: UniversalAgentRequest): Promise<void> {
+  public async publishLlmBrainRuntimeEvents(
+    run: UniversalAgentRun,
+    snapshot: ZavorthLlmBrainSnapshot,
+    request?: UniversalAgentRequest,
+  ): Promise<void> {
     await this.owner.publishRuntimeEvent(run, 'agent.stream.lifecycle', {
       brainMode: snapshot.brainMode,
       streamEvents: snapshot.streaming.events.length,
@@ -420,7 +484,8 @@ export class AgentRunExecutionSupport {
       });
     }
     if (snapshot.skillEvolution.status === 'candidate-ready') {
-      const materializeSource = normalizeText(request?.text) || normalizeText(run.input) || normalizeText(run.summary) || run.id;
+      const materializeSource =
+        normalizeText(request?.text) || normalizeText(run.input) || normalizeText(run.summary) || run.id;
       let candidateId: string | null = null;
       let registryPersisted = false;
       if (this.owner.skillPromotionGate) {
@@ -495,7 +560,13 @@ export class AgentRunExecutionSupport {
   public isComplexSkillPromotionRun(run: UniversalAgentRun, snapshot: ZavorthLlmBrainSnapshot): boolean {
     const toolEvents = run.events.filter((event) => event.kind === 'tool').length;
     const textLength = normalizeText(run.input).length + normalizeText(run.summary).length;
-    return snapshot.toolAgency.executed >= 2 || snapshot.toolAgency.requested >= 3 || toolEvents >= 2 || textLength >= 240 || run.artifacts.length >= 2;
+    return (
+      snapshot.toolAgency.executed >= 2 ||
+      snapshot.toolAgency.requested >= 3 ||
+      toolEvents >= 2 ||
+      textLength >= 240 ||
+      run.artifacts.length >= 2
+    );
   }
 
   public defenseReviewMetadataKey(phase: AgentRunRiskReviewStage): string {
@@ -508,7 +579,12 @@ export class AgentRunExecutionSupport {
     return phase;
   }
 
-  public applyDefenseReview(run: UniversalAgentRun, phase: AgentRunRiskReviewStage, metadataTarget: Record<string, unknown>, now: string = this.owner.now().toISOString()): void {
+  public applyDefenseReview(
+    run: UniversalAgentRun,
+    phase: AgentRunRiskReviewStage,
+    metadataTarget: Record<string, unknown>,
+    now: string = this.owner.now().toISOString(),
+  ): void {
     const review = this.owner.riskHooks.review({ run, phase });
     const lifecycleDefense = recordOrNull(metadataTarget.lifecycleDefense) || {};
     metadataTarget.lifecycleDefense = {

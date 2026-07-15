@@ -28,10 +28,7 @@ import { ChannelProgressRuntimeBridgeService } from '../services/ChannelProgress
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { UserModelReviewDaemonService } from '../services/UserModelReviewDaemonService.js';
 import { UserModelTurnCaptureService } from '../services/UserModelTurnCaptureService.js';
-import {
-  SessionContinuumService,
-  resolveSessionContinuumStorePath,
-} from '../services/SessionContinuumService.js';
+import { SessionContinuumService, resolveSessionContinuumStorePath } from '../services/SessionContinuumService.js';
 import { ModelPickerContractService } from '../domain/providers/index.js';
 import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
 import {
@@ -88,7 +85,9 @@ export function runCapabilityPreflight(): BootstrapPreflight {
 
   logger.info('Preflight de canais configurados neste runtime:');
   for (const capability of capabilities) {
-    logger.info(`- ${capability.platform}: ${capability.readiness}/${capability.implementationState} (${capability.transport})`);
+    logger.info(
+      `- ${capability.platform}: ${capability.readiness}/${capability.implementationState} (${capability.transport})`,
+    );
   }
 
   if (summary.ready.length === 0) {
@@ -133,7 +132,8 @@ export async function initializeBootstrapFoundation(
   const capabilityLifecycleService = new CapabilityLifecycleService({
     runtimeProfileService,
   });
-  const dormantCapabilityCleanup = capabilityLifecycleService.cleanupDormantCapabilityArtifacts(DORMANT_BOOT_CAPABILITIES);
+  const dormantCapabilityCleanup =
+    capabilityLifecycleService.cleanupDormantCapabilityArtifacts(DORMANT_BOOT_CAPABILITIES);
   const configVersioningService = new ConfigVersioningService();
   const operationsActionService = new OperationsActionService(logRepo);
   const maintenanceAutomation = new MaintenanceAutomationService(operationsActionService, logRepo);
@@ -151,13 +151,15 @@ export async function initializeBootstrapFoundation(
     runtimeArtifactMaintenanceService.cleanupVisualSmokeProfiles();
     capabilityLifecycleService.expireIdleCapabilities();
     capabilityLifecycleService.cleanupDormantCapabilityArtifacts(DORMANT_BOOT_CAPABILITIES);
-    void skillCuratorPlaneService.maybeRunCurator({
-      idleForSeconds: config.skillsCuratorMinIdleHours * 3600,
-      reason: 'runtime-maintenance',
-      triggeredBy: 'bootstrap-maintenance',
-    }).catch((error: unknown) => {
-      logRepo.log('warn', 'SkillCurator', `Skill maintenance failed: ${errorMessage(error)}`);
-    });
+    void skillCuratorPlaneService
+      .maybeRunCurator({
+        idleForSeconds: config.skillsCuratorMinIdleHours * 3600,
+        reason: 'runtime-maintenance',
+        triggeredBy: 'bootstrap-maintenance',
+      })
+      .catch((error: unknown) => {
+        logRepo.log('warn', 'SkillCurator', `Skill maintenance failed: ${errorMessage(error)}`);
+      });
   };
 
   if (config.runtimeMaintenanceIntervalMs > 0) {
@@ -203,10 +205,7 @@ export async function initializeBootstrapFoundation(
       | ((timeoutMs?: number) => Promise<{ ok?: boolean; timedOut?: boolean; waitedMs?: number }>)
       | undefined;
     if (typeof waitUntilReady === 'function') {
-      const timeoutMs = Math.max(
-        0,
-        Number(process.env.ZAVORTH_PLUGIN_OS_READY_TIMEOUT_MS) || 15000,
-      );
+      const timeoutMs = Math.max(0, Number(process.env.ZAVORTH_PLUGIN_OS_READY_TIMEOUT_MS) || 15000);
       const ready = await waitUntilReady(timeoutMs);
       if (ready?.timedOut) {
         logRepo.log(
@@ -240,7 +239,8 @@ export async function initializeBootstrapFoundation(
   );
   const agentGateway = new ZavorthAgentGateway({
     defaultProviderLabel: config.llmProvider || 'Zavorth',
-    defaultModelLabel: config.geminiModel || config.openaiModel || config.AIGatewayModel || config.openRouterModel || 'current model',
+    defaultModelLabel:
+      config.geminiModel || config.openaiModel || config.AIGatewayModel || config.openRouterModel || 'current model',
     modelPickerContractService: new ModelPickerContractService(),
     llmRuntime: new LlmRuntimeService(),
     toolRuntime: toolRuntimeServices.toolRuntime,
@@ -260,21 +260,15 @@ export async function initializeBootstrapFoundation(
   patchedGateway.runService.onRunCompleted = (run, request, replyText) => {
     existingGatewayOnRunCompleted?.(run, request, replyText);
     existingServiceOnRunCompleted?.(run, request, replyText);
-    const requestRecord = request && typeof request === 'object'
-      ? request as Record<string, unknown>
-      : {};
+    const requestRecord = request && typeof request === 'object' ? (request as Record<string, unknown>) : {};
     const messageUser = Array.isArray(requestRecord.messages)
-      ? (requestRecord.messages as Array<{ role?: string; content?: string }>)
-          .find((message) => message?.role === 'user')
-          ?.content
+      ? (requestRecord.messages as Array<{ role?: string; content?: string }>).find(
+          (message) => message?.role === 'user',
+        )?.content
       : '';
-    const runRecord = (run && typeof run === 'object' ? run : {}) as Record<string, unknown>
+    const runRecord = (run && typeof run === 'object' ? run : {}) as Record<string, unknown>;
     const userMessage = String(
-      requestRecord.text
-      || requestRecord.input
-      || runRecord.input
-      || messageUser
-      || '',
+      requestRecord.text || requestRecord.input || runRecord.input || messageUser || '',
     ).trim();
     const surface = requestRecord.surface || requestRecord.channel || 'runtime';
     const sessionId = run?.sessionId || run?.id || undefined;
@@ -285,17 +279,22 @@ export async function initializeBootstrapFoundation(
       });
     }
     try {
-      sessionContinuum.appendTurn({
+      const { captureConversationTurn } =
+        require('../services/learned-knowledge/ConversationContinuumCapture.js') as typeof import('../services/learned-knowledge/ConversationContinuumCapture.js');
+      // captureConversationTurn no-ops when ZAVORTH_CONTINUUM_CAPTURE=0.
+      captureConversationTurn({
         sessionId: sessionId || null,
-        title: String(surface || 'runtime'),
         userMessage: userMessage ? String(userMessage).slice(0, 8000) : null,
         assistantMessage: replyText ? String(replyText).slice(0, 8000) : null,
+        surface: String(surface || 'runtime'),
+        runtimeDir: config.runtimeDir,
+        dbPath: config.dbPath || null,
+        source: 'AgentRunService.onRunCompleted',
         metadata: {
-          surface: String(surface || 'runtime'),
-          source: 'AgentRunService.onRunCompleted',
           runId: run?.id || null,
         },
       });
+      void sessionContinuum;
     } catch (error: unknown) {
       logger.warn('[Session Continuum] local appendTurn failed', error);
     }
@@ -390,7 +389,11 @@ export async function initializeBootstrapFoundation(
       `User model review daemon ativo: interval=${config.userModelDaemonIntervalMs}ms minTurns=${config.userModelDaemonMinTurns} llmReasoning=${config.userModelDaemonEnableLlmReasoning}.`,
     );
   } else {
-    logRepo.log('info', 'UserModelDaemon', 'User model review daemon desativado por ZAVORTH_USER_MODEL_DAEMON_ENABLED=false.');
+    logRepo.log(
+      'info',
+      'UserModelDaemon',
+      'User model review daemon desativado por ZAVORTH_USER_MODEL_DAEMON_ENABLED=false.',
+    );
   }
 
   return {
@@ -466,12 +469,12 @@ export async function startRemoteRuntimeServices(
   if (remoteBootEnabled) {
     const gatewayHealthUrl = `${config.zavorthAIGatewayGatewayBaseUrl.replace(/\/+$/, '')}/health`;
     if (await supervisor.isHttpHealthy(gatewayHealthUrl)) {
-      foundation.capabilityLifecycleService.markCapabilityState(
-        'remote',
-        'active',
-        'AIGateway detected as healthy.',
+      foundation.capabilityLifecycleService.markCapabilityState('remote', 'active', 'AIGateway detected as healthy.');
+      foundation.logRepo.log(
+        'info',
+        'AIGatewayGateway',
+        'Gateway proprio do AIGateway ja estava online em outro processo.',
       );
-      foundation.logRepo.log('info', 'AIGatewayGateway', 'Gateway proprio do AIGateway ja estava online em outro processo.');
     } else {
       foundation.capabilityLifecycleService.markCapabilityState(
         'remote',

@@ -42,22 +42,26 @@ describe('AgentRunService Memory With Receipts Memory Receipts', () => {
 
     const snapshot = result.run.metadata.memoryWithReceipts as any;
     expect(result.run.status).toBe('completed');
-    expect(snapshot).toEqual(expect.objectContaining({
-      contractVersion: MEMORY_WITH_RECEIPTS_CONTRACT_VERSION,
-      audit: expect.objectContaining({
-        allMemoryHasReceipt: true,
-        canForgetOrCorrect: true,
-        runObservatoryLinked: true,
-      }),
-    }));
-    expect(snapshot.receipts).toEqual(expect.arrayContaining([
+    expect(snapshot).toEqual(
       expect.objectContaining({
-        memoryId: 'memory-short-portuguese',
-        actions: expect.objectContaining({
-          forgetCommand: 'zavorth memory forget memory-short-portuguese',
+        contractVersion: MEMORY_WITH_RECEIPTS_CONTRACT_VERSION,
+        audit: expect.objectContaining({
+          allMemoryHasReceipt: true,
+          canForgetOrCorrect: true,
+          runObservatoryLinked: true,
         }),
       }),
-    ]));
+    );
+    expect(snapshot.receipts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          memoryId: 'memory-short-portuguese',
+          actions: expect.objectContaining({
+            forgetCommand: 'zavorth memory forget memory-short-portuguese',
+          }),
+        }),
+      ]),
+    );
   });
 
   it('attaches canonical context memory receipt on createRun', () => {
@@ -77,16 +81,20 @@ describe('AgentRunService Memory With Receipts Memory Receipts', () => {
     });
 
     const snapshot = run.metadata.memoryWithReceipts as any;
-    expect(snapshot).toEqual(expect.objectContaining({
-      contractVersion: MEMORY_WITH_RECEIPTS_CONTRACT_VERSION,
-      summary: expect.objectContaining({
-        memoryCount: 1,
+    expect(snapshot).toEqual(
+      expect.objectContaining({
+        contractVersion: MEMORY_WITH_RECEIPTS_CONTRACT_VERSION,
+        summary: expect.objectContaining({
+          memoryCount: 1,
+        }),
       }),
-    }));
-    expect(snapshot.receipts[0]).toEqual(expect.objectContaining({
-      memoryId: `canonical-context:${run.id}`,
-      sourceType: 'canonical-context',
-    }));
+    );
+    expect(snapshot.receipts[0]).toEqual(
+      expect.objectContaining({
+        memoryId: `canonical-context:${run.id}`,
+        sourceType: 'canonical-context',
+      }),
+    );
   });
 
   it('answers memory recall from receipted canonical memory without calling the executor', async () => {
@@ -114,31 +122,39 @@ describe('AgentRunService Memory With Receipts Memory Receipts', () => {
 
     expect(executor).not.toHaveBeenCalled();
     expect(result.run.status).toBe('completed');
-    expect(result.run.metadata.memoryWithReceipts).toEqual(expect.objectContaining({
-      contractVersion: MEMORY_WITH_RECEIPTS_CONTRACT_VERSION,
-      summary: expect.objectContaining({
-        memoryCount: 1,
+    expect(result.run.metadata.memoryWithReceipts).toEqual(
+      expect.objectContaining({
+        contractVersion: MEMORY_WITH_RECEIPTS_CONTRACT_VERSION,
+        summary: expect.objectContaining({
+          memoryCount: 1,
+        }),
       }),
-    }));
-    expect(result.run.metadata.naturalFirstMemoryContinuity).toEqual(expect.objectContaining({
-      contractVersion: NATURAL_FIRST_MEMORY_CONTINUITY_CONTRACT_VERSION,
-      stage: 6,
-      route: 'memory-recall',
-      status: 'memory-cited',
-      memoryWithReceiptsLinked: true,
-      receiptCount: 1,
-      policy: expect.objectContaining({
-        noMemoryInvented: true,
-        citeOnlyReceiptedMemory: true,
-        noToolExecution: true,
+    );
+    expect(result.run.metadata.naturalFirstMemoryContinuity).toEqual(
+      expect.objectContaining({
+        contractVersion: NATURAL_FIRST_MEMORY_CONTINUITY_CONTRACT_VERSION,
+        stage: 6,
+        route: 'memory-recall',
+        status: 'memory-cited',
+        memoryWithReceiptsLinked: true,
+        receiptCount: 1,
+        policy: expect.objectContaining({
+          noMemoryInvented: true,
+          citeOnlyReceiptedMemory: true,
+          noToolExecution: true,
+        }),
       }),
-    }));
+    );
     expect(result.replies[0].text).toContain('Encontrei memoria com origem registrada');
     expect(result.replies[0].text).toContain('Resolvemos o erro de permissao');
   });
 
   it('answers memory recall honestly when no memory source is available', async () => {
-    const executor = jest.fn();
+    const executor = jest.fn(() => ({
+      status: 'completed' as const,
+      summary: 'No receipted memory was available; the model answered without claiming recall.',
+      replyText: 'I do not have a receipted memory for that deployment.',
+    }));
     const service = new AgentRunService({
       now: () => new Date('2026-05-11T14:05:00.000Z'),
       idFactory: createIdFactory(),
@@ -153,18 +169,10 @@ describe('AgentRunService Memory With Receipts Memory Receipts', () => {
       requestedTools: [],
     });
 
-    expect(executor).not.toHaveBeenCalled();
+    expect(executor).toHaveBeenCalledTimes(1);
     expect(result.run.status).toBe('completed');
     expect(result.run.metadata.memoryWithReceipts).toBeUndefined();
-    expect(result.run.metadata.naturalFirstMemoryContinuity).toEqual(expect.objectContaining({
-      contractVersion: NATURAL_FIRST_MEMORY_CONTINUITY_CONTRACT_VERSION,
-      status: 'memory-empty',
-      receiptCount: 0,
-      policy: expect.objectContaining({
-        noMemoryInvented: true,
-        citeOnlyReceiptedMemory: true,
-      }),
-    }));
-    expect(result.replies[0].text).toContain('Ainda nao encontrei uma memoria recuperada com fonte');
+    expect(result.run.metadata.naturalFirstMemoryContinuity).toBeUndefined();
+    expect(result.replies[0].text).toContain('do not have a receipted memory');
   });
 });

@@ -8,7 +8,6 @@ import type { ZavorthTenantGovernanceService } from '../../../../services/Zavort
 import { errorMessage } from '../../../../utils/errorLike.js';
 import { tSurface } from '../../../../i18n/surface.js';
 type SharedSurfaceTenantGovernanceCommandPackDeps = {
-
   teamCatalogService: Pick<ZavorthTeamCatalogService, 'buildSnapshot'>;
 
   tenantGovernanceService: Pick<ZavorthTenantGovernanceService, 'buildSnapshot'>;
@@ -48,10 +47,18 @@ export class SharedSurfaceTenantGovernanceCommandPack {
     const query = homeArgs ? '' : actionArgs.toLowerCase();
     const snapshot = this.deps.tenantGovernanceService.buildSnapshot();
     const tenants = query
-      ? snapshot.tenants.filter((tenant) =>
-        String(tenant.tenantId || '').toLowerCase().includes(query)
-        || String(tenant.platform || '').toLowerCase().includes(query)
-        || String(tenant.scopeLabel || '').toLowerCase().includes(query))
+      ? snapshot.tenants.filter(
+          (tenant) =>
+            String(tenant.tenantId || '')
+              .toLowerCase()
+              .includes(query) ||
+            String(tenant.platform || '')
+              .toLowerCase()
+              .includes(query) ||
+            String(tenant.scopeLabel || '')
+              .toLowerCase()
+              .includes(query),
+        )
       : snapshot.tenants;
 
     if (query && tenants.length === 0) {
@@ -92,9 +99,7 @@ export class SharedSurfaceTenantGovernanceCommandPack {
         lines.push(`- Next: ${tenant.nextAction}`);
       }
       for (const action of tenant.actions.slice(0, 4)) {
-        const textualHint = action.actionKind === 'guided'
-          ? ` | via /tenants run ${tenant.tenantId} ${action.id}`
-          : '';
+        const textualHint = action.actionKind === 'guided' ? ` | via /tenants run ${tenant.tenantId} ${action.id}` : '';
         lines.push(`- [${action.actionKind}] ${action.label}: ${action.command}${textualHint}`);
       }
     }
@@ -103,9 +108,18 @@ export class SharedSurfaceTenantGovernanceCommandPack {
   }
 
   private buildTeamsReply(args: string, snapshot = this.deps.teamCatalogService.buildSnapshot()): string {
-    const selectedId = String(args || '').trim().toLowerCase() || null;
+    // NaturalSlashConvention rewrites empty `/teams` → `status` (home). Treat control verbs as full catalog.
+    const raw = String(args || '')
+      .trim()
+      .toLowerCase();
+    const selectedId = !raw || /^(status|list|show|open|help|home)$/i.test(raw) ? null : raw;
     const teams = selectedId
-      ? snapshot.teams.filter((team) => String(team.id || '').trim().toLowerCase() === selectedId)
+      ? snapshot.teams.filter(
+          (team) =>
+            String(team.id || '')
+              .trim()
+              .toLowerCase() === selectedId,
+        )
       : snapshot.teams;
 
     if (selectedId && teams.length === 0) {
@@ -113,7 +127,7 @@ export class SharedSurfaceTenantGovernanceCommandPack {
     }
 
     const lines = [
-      'Teams e workflows compostos do Zavorth',
+      'Zavorth composite teams and workflows',
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
@@ -124,8 +138,8 @@ export class SharedSurfaceTenantGovernanceCommandPack {
         '',
         `${team.label} (${team.id})`,
         team.summary,
-        `Entrada: ${team.entryCommand}`,
-        `Status: ${team.status} | runs: ${team.runStats.total} | retomadas: ${team.runStats.resumable}.`,
+        `Entry: ${team.entryCommand}`,
+        `Status: ${team.status} | runs: ${team.runStats.total} | resumable: ${team.runStats.resumable}.`,
       );
       for (const surface of team.surfaces.slice(0, 4)) {
         lines.push(`- ${surface.label}: ${surface.status} | ${surface.summary}`);
@@ -136,16 +150,23 @@ export class SharedSurfaceTenantGovernanceCommandPack {
     return lines.join('\n');
   }
 
-  private buildTenantsReply(
-    rawArgs: string,
-    snapshot = this.deps.tenantGovernanceService.buildSnapshot(),
-  ): string {
-    const query = String(rawArgs || '').trim().toLowerCase();
+  private buildTenantsReply(rawArgs: string, snapshot = this.deps.tenantGovernanceService.buildSnapshot()): string {
+    const query = String(rawArgs || '')
+      .trim()
+      .toLowerCase();
     const tenants = query
-      ? snapshot.tenants.filter((tenant) =>
-          String(tenant.tenantId || '').toLowerCase().includes(query)
-          || String(tenant.platform || '').toLowerCase().includes(query)
-          || String(tenant.scopeLabel || '').toLowerCase().includes(query))
+      ? snapshot.tenants.filter(
+          (tenant) =>
+            String(tenant.tenantId || '')
+              .toLowerCase()
+              .includes(query) ||
+            String(tenant.platform || '')
+              .toLowerCase()
+              .includes(query) ||
+            String(tenant.scopeLabel || '')
+              .toLowerCase()
+              .includes(query),
+        )
       : snapshot.tenants;
 
     if (query && tenants.length === 0) {
@@ -176,18 +197,16 @@ export class SharedSurfaceTenantGovernanceCommandPack {
         tenant.runtimeUserId ? `runtime ${tenant.runtimeUserId}` : null,
       ].filter(Boolean);
       if (contextBits.length > 0) {
-        lines.push(`- Contexto: ${contextBits.join(' | ')}`);
+        lines.push(`- Context: ${contextBits.join(' | ')}`);
       }
       if (tenant.recipe) {
         lines.push(`- Recipe: ${tenant.recipe.label} | ${tenant.recipe.summary}`);
       }
       if (tenant.nextAction) {
-        lines.push(`- Proximo passo: ${tenant.nextAction}`);
+        lines.push(`- Next step: ${tenant.nextAction}`);
       }
       for (const action of tenant.actions.slice(0, 4)) {
-        const textualHint = action.actionKind === 'guided'
-          ? ` | via /tenants run ${tenant.tenantId} ${action.id}`
-          : '';
+        const textualHint = action.actionKind === 'guided' ? ` | via /tenants run ${tenant.tenantId} ${action.id}` : '';
         lines.push(`- [${action.actionKind}] ${action.label}: ${action.command}${textualHint}`);
       }
     }
@@ -199,7 +218,10 @@ export class SharedSurfaceTenantGovernanceCommandPack {
     snapshot: ReturnType<ZavorthTenantGovernanceService['buildSnapshot']>,
     rawArgs: string,
   ): { tenantId: string; actionId: string; error?: string } | null {
-    const tokens = String(rawArgs || '').trim().split(/\s+/).filter(Boolean);
+    const tokens = String(rawArgs || '')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
     if (tokens[0]?.toLowerCase() !== 'run') {
       return null;
     }
@@ -211,7 +233,12 @@ export class SharedSurfaceTenantGovernanceCommandPack {
       };
     }
 
-    const tenant = snapshot.tenants.find((entry) => String(entry.tenantId || '').trim().toLowerCase() === tokens[1].toLowerCase());
+    const tenant = snapshot.tenants.find(
+      (entry) =>
+        String(entry.tenantId || '')
+          .trim()
+          .toLowerCase() === tokens[1].toLowerCase(),
+    );
     if (!tenant) {
       return {
         tenantId: '',
@@ -220,7 +247,12 @@ export class SharedSurfaceTenantGovernanceCommandPack {
       };
     }
 
-    const action = tenant.actions.find((entry) => String(entry.id || '').trim().toLowerCase() === tokens[2].toLowerCase());
+    const action = tenant.actions.find(
+      (entry) =>
+        String(entry.id || '')
+          .trim()
+          .toLowerCase() === tokens[2].toLowerCase(),
+    );
     if (!action) {
       const available = tenant.actions.map((entry) => entry.id).join(', ') || 'nenhuma acao guiada registrada';
       return {
@@ -240,17 +272,30 @@ export class SharedSurfaceTenantGovernanceCommandPack {
     snapshot: ReturnType<ZavorthTenantGovernanceService['buildSnapshot']>,
     rawArgs: string,
   ): { tenantId: string; actionId: string } | null {
-    const tokens = String(rawArgs || '').trim().split(/\s+/).filter(Boolean);
+    const tokens = String(rawArgs || '')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
     if (tokens.length < 2 || tokens[0]?.toLowerCase() === 'run') {
       return null;
     }
 
-    const tenant = snapshot.tenants.find((entry) => String(entry.tenantId || '').trim().toLowerCase() === tokens[0].toLowerCase());
+    const tenant = snapshot.tenants.find(
+      (entry) =>
+        String(entry.tenantId || '')
+          .trim()
+          .toLowerCase() === tokens[0].toLowerCase(),
+    );
     if (!tenant) {
       return null;
     }
 
-    const action = tenant.actions.find((entry) => String(entry.id || '').trim().toLowerCase() === tokens[1].toLowerCase());
+    const action = tenant.actions.find(
+      (entry) =>
+        String(entry.id || '')
+          .trim()
+          .toLowerCase() === tokens[1].toLowerCase(),
+    );
     if (!action) {
       return null;
     }
@@ -261,11 +306,7 @@ export class SharedSurfaceTenantGovernanceCommandPack {
     };
   }
 
-  private async handleTenantAction(
-    ctx: IMessageContext,
-    tenantId: string,
-    actionId: string,
-  ): Promise<void> {
+  private async handleTenantAction(ctx: IMessageContext, tenantId: string, actionId: string): Promise<void> {
     try {
       const result = await this.deps.tenantGovernanceActionService.execute({
         tenantId,
@@ -273,7 +314,8 @@ export class SharedSurfaceTenantGovernanceCommandPack {
         workspace: process.cwd(),
       });
       await ctx.reply(this.buildTenantActionReply(tenantId, actionId, result));
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_tenant_action')));
+    } catch (error: unknown) {
+      await ctx.reply(errorMessage(error, tSurface('error_tenant_action')));
     }
   }
 
@@ -282,10 +324,7 @@ export class SharedSurfaceTenantGovernanceCommandPack {
     actionId: string,
     result: Awaited<ReturnType<ZavorthTenantGovernanceActionService['execute']>>,
   ): string {
-    const preamble = [
-      `Acao guiada do tenant ${tenantId}: ${result.action.label}.`,
-      result.action.note,
-    ];
+    const preamble = [`Guided tenant action ${tenantId}: ${result.action.label}.`, result.action.note];
 
     if (actionId === 'inspect-tenant') {
       return [...preamble, '', this.buildTenantsReply(tenantId, result.tenantGovernance)].join('\n');
@@ -312,9 +351,10 @@ export class SharedSurfaceTenantGovernanceCommandPack {
       return [...preamble, '', this.formatSessionPlaneSnapshot(result.sessionPlane)].join('\n');
     }
 
-    const replyLines = result.action.replies && result.action.replies.length > 0
-      ? ['', 'Saida do workflow:', ...result.action.replies.map((entry) => `- ${entry}`)]
-      : [];
+    const replyLines =
+      result.action.replies && result.action.replies.length > 0
+        ? ['', 'Workflow output:', ...result.action.replies.map((entry) => `- ${entry}`)]
+        : [];
     return [...preamble, ...replyLines].join('\n');
   }
 
@@ -323,7 +363,9 @@ export class SharedSurfaceTenantGovernanceCommandPack {
     tenantId: string,
   ): string | null {
     const tenant = snapshot.tenants.find((entry) => String(entry.tenantId || '').trim() === tenantId);
-    const normalizedPlatform = String(tenant?.platform || '').trim().toLowerCase();
+    const normalizedPlatform = String(tenant?.platform || '')
+      .trim()
+      .toLowerCase();
     if (['discord', 'telegram', 'web'].includes(normalizedPlatform)) {
       return normalizedPlatform;
     }
@@ -332,32 +374,32 @@ export class SharedSurfaceTenantGovernanceCommandPack {
 
   private formatMemoryPlaneSnapshot(snapshot: ZavorthMemoryPlaneSnapshot): string {
     const lines = [
-      'Retomada e entregas do Zavorth',
+      'Zavorth resume and deliveries',
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       '',
-      `Memorias persistentes: ${snapshot.summary.persistedMemories}.`,
+      `Persisted memories: ${snapshot.summary.persistedMemories}.`,
       `Visible replay: ${snapshot.summary.replayTasks} task(s) | ${snapshot.summary.workflowRuns} workflow(s).`,
-      `Entregas recentes: ${snapshot.summary.artifacts}.`,
+      `Recent deliveries: ${snapshot.summary.artifacts}.`,
     ];
 
     if (snapshot.artifacts.recent.length > 0) {
-      lines.push('', 'Entregas em foco:');
+      lines.push('', 'Deliveries in focus:');
       for (const artifact of snapshot.artifacts.recent.slice(0, 3)) {
-        lines.push(`- ${artifact.label}: ${artifact.summary || artifact.path || 'Sem resumo adicional.'}`);
+        lines.push(`- ${artifact.label}: ${artifact.summary || artifact.path || 'No extra summary.'}`);
       }
     }
 
     if (snapshot.memory.relevant.length > 0) {
-      lines.push('', 'Memorias relevantes:');
+      lines.push('', 'Relevant memories:');
       for (const entry of snapshot.memory.relevant.slice(0, 3)) {
         lines.push(`- ${entry.key}: ${entry.value}`);
       }
     }
 
     if (snapshot.suggestedActions.length > 0) {
-      lines.push('', 'Proximo passo:');
+      lines.push('', 'Next step:');
       for (const action of snapshot.suggestedActions.slice(0, 3)) {
         lines.push(`- ${action.label}: ${action.command}`);
       }
@@ -368,26 +410,26 @@ export class SharedSurfaceTenantGovernanceCommandPack {
 
   private formatSessionPlaneSnapshot(snapshot: ZavorthSessionPlaneSnapshot): string {
     const lines = [
-      'Session plane do Zavorth',
+      'Zavorth session plane',
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       '',
-      `Sessoes visiveis: ${snapshot.sessions.entries.length} de ${snapshot.sessions.total}.`,
-      `Historico atual: ${snapshot.summary.historyItems} item(ns) | approvals pending: ${snapshot.summary.pendingPermissions}.`,
-      `Envio cruzado: ${snapshot.summary.sendReady ? 'ready' : 'parcial'} | spawn web: ${snapshot.summary.spawnReady ? 'ready' : 'parcial'}.`,
+      `Visible sessions: ${snapshot.sessions.entries.length} of ${snapshot.sessions.total}.`,
+      `Current history: ${snapshot.summary.historyItems} item(s) | approvals pending: ${snapshot.summary.pendingPermissions}.`,
+      `Cross send: ${snapshot.summary.sendReady ? 'ready' : 'partial'} | web spawn: ${snapshot.summary.spawnReady ? 'ready' : 'partial'}.`,
     ];
 
     if (snapshot.store.target) {
       lines.push(
         '',
-        `Target: ${snapshot.store.target.platform}:${snapshot.store.target.chatId || 'n/d'}`,
-        `Sessao canonica: ${snapshot.store.target.sessionId || 'n/d'}.`,
+        `Target: ${snapshot.store.target.platform}:${snapshot.store.target.chatId || 'n/a'}`,
+        `Canonical session: ${snapshot.store.target.sessionId || 'n/a'}.`,
       );
     }
 
     if (snapshot.sessions.entries.length > 0) {
-      lines.push('', 'Sessoes em foco:');
+      lines.push('', 'Sessions in focus:');
       for (const session of snapshot.sessions.entries.slice(0, 3)) {
         lines.push(`- ${session.platform}:${session.chatId} | ${session.latestTaskLabel || session.label}`);
       }
@@ -395,5 +437,4 @@ export class SharedSurfaceTenantGovernanceCommandPack {
 
     return lines.join('\n');
   }
-
 }

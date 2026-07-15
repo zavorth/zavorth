@@ -11,24 +11,30 @@ export type ProviderNativeToolPlanInput = {
 export function planProviderNativeTools(input: ProviderNativeToolPlanInput): ProviderNativeToolRequest[] {
   const matrix = new ProviderNativeCapabilityMatrixService();
   const provider = normalize(input.providerName);
-  const text = normalize(input.text);
+  // Free-text (input.text) is intentionally ignored for product tool activation.
+  void input.text;
   const metadata = input.metadata || {};
   const nativePreference = resolveNativeToolPreference(metadata.providerNativeTools);
   const explicit = nativePreference.mode;
   const wantsSearch = nativePreference.requested.some(isSearchNativeToolName);
   const wantsCodeExecution = nativePreference.requested.some(isCodeExecutionNativeToolName);
-  const shouldUseExternalKnowledge = wantsSearch
-    || explicit === 'on'
-    || explicit === 'true'
-    || explicit === 'enabled'
-    || Boolean(metadata.enableProviderNativeTools)
-    || requestLikelyNeedsExternalKnowledge(text);
-  const shouldUseCodeExecution = wantsCodeExecution || requestLikelyBenefitsFromCodeExecution(text);
+  // Structured flags/ids only — free-text never auto-activates provider-native product tools.
+  const shouldUseExternalKnowledge =
+    wantsSearch ||
+    explicit === 'on' ||
+    explicit === 'true' ||
+    explicit === 'enabled' ||
+    Boolean(metadata.enableProviderNativeTools) ||
+    Boolean(metadata.enableWebTools) ||
+    Boolean(metadata.webSearchEnabled) ||
+    Boolean(metadata.allowWebSearch);
+  const shouldUseCodeExecution =
+    wantsCodeExecution || Boolean(metadata.enableCodeExecution) || Boolean(metadata.allowCodeExecution);
 
   if (!shouldUseExternalKnowledge) {
     if (
-      (provider === 'gemini' || provider === 'google-genai' || provider === 'gemini-interactions')
-      && shouldUseCodeExecution
+      (provider === 'gemini' || provider === 'google-genai' || provider === 'gemini-interactions') &&
+      shouldUseCodeExecution
     ) {
       return matrix.plan({
         providerName: input.providerName,
@@ -69,26 +75,26 @@ export function planProviderNativeTools(input: ProviderNativeToolPlanInput): Pro
   return [];
 }
 
-export function requestLikelyNeedsExternalKnowledge(text: string): boolean {
-  const normalized = normalize(text);
-  if (!normalized) {
-    return false;
-  }
-  return /\b(today|latest|recent|current|now|news|search|browse|web|internet|source|sources|link|links|price|weather|release|version|changelog|who won|where can i find)\b/.test(normalized)
-    || /\b(hoje|agora|atual|atuais|recente|recentes|ultim[ao]s?|noticia|noticias|pesquis|busc|internet|web|fonte|fontes|link|links|preco|cotacao|clima|tempo|lancamento|versao)\b/.test(normalized);
+/**
+ * @deprecated Free-text never activates provider-native tools. Always returns false.
+ * Prefer metadata flags: enableProviderNativeTools / enableWebTools / providerNativeTools.
+ */
+export function requestLikelyNeedsExternalKnowledge(_text: string): boolean {
+  return false;
 }
 
-export function requestLikelyBenefitsFromCodeExecution(text: string): boolean {
-  const normalized = normalize(text);
-  if (!normalized) {
-    return false;
-  }
-  return /\b(calculate|compute|simulate|run code|execute code|python|plot|solve numerically|benchmark)\b/.test(normalized)
-    || /\b(calcule|calcular|computar|simular|rode codigo|executar codigo|python|grafico|resolver numericamente|benchmark)\b/.test(normalized);
+/**
+ * @deprecated Free-text never activates provider-native code execution. Always returns false.
+ * Prefer metadata flags: enableCodeExecution / providerNativeTools with code_execution.
+ */
+export function requestLikelyBenefitsFromCodeExecution(_text: string): boolean {
+  return false;
 }
 
 function normalize(value: unknown): string {
-  return String(value ?? '').trim().toLowerCase();
+  return String(value ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 function resolveNativeToolPreference(value: unknown): { mode: string; requested: string[] } {
@@ -127,13 +133,7 @@ function resolveNativeToolPreference(value: unknown): { mode: string; requested:
 
 function isSearchNativeToolName(value: string): boolean {
   const normalized = normalize(value);
-  return [
-    'google_search',
-    'provider_web_search',
-    'native_search',
-    'web_search',
-    'search',
-  ].includes(normalized);
+  return ['google_search', 'provider_web_search', 'native_search', 'web_search', 'search'].includes(normalized);
 }
 
 function isCodeExecutionNativeToolName(value: string): boolean {
@@ -161,7 +161,5 @@ function uniqueCapabilities<T extends string>(values: T[]): T[] {
 }
 
 function recordOrNull(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : null;
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
