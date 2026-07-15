@@ -37,21 +37,21 @@ Machine index: `config/ecosystem-extension-waves.json`.
 | Pack id | Name                                  | Depends on  | Outcome                                                |
 | ------ | ------------------------------------- | ----------- | ------------------------------------------------------ |
 | **P** | Contracts & SkillIR                   | —           | Single intermediate representation + receipt schema    |
-| **P** | Deterministic resolve & install binds | W0          | URI/path/query → preview/apply with complete toolBinds |
-| **P** | Search & optional LLM rank            | W1          | Local + configured sources; LLM only opt-in            |
-| **P** | Capability-miss loop                  | W1–W2       | Missing tool/capability → structured suggest → install |
-| **P** | Remote catalogs (skills + plugins)    | W1          | User HTTPS catalogs, cache, signatures                 |
-| **P** | Promote draft → skill → plugin        | W0–W1       | Learning loop closes into library/Plugin OS            |
-| **P** | Plugin OS authoring & bridges         | W4          | Wizard, skill↔plugin, generic bridges                 |
-| **P** | Self-mod multi-file + gates           | W5 optional | Safer powerful self-mod + promote                      |
-| **P** | External agent capability import      | W0–W1       | Consent → SkillIR/bridge from declared tools           |
-| **P** | Efficiency & hot-path                 | W1–W3       | Retrieval, bind cache, lean tool surface               |
+| **P** | Deterministic resolve & install binds | pack          | URI/path/query → preview/apply with complete toolBinds |
+| **P** | Search & optional LLM rank            | pack          | Local + configured sources; LLM only opt-in            |
+| **P** | Capability-miss loop                  | pack–pack       | Missing tool/capability → structured suggest → install |
+| **P** | Remote catalogs (skills + plugins)    | pack          | User HTTPS catalogs, cache, signatures                 |
+| **P** | Promote draft → skill → plugin        | pack–pack       | Learning loop closes into library/Plugin OS            |
+| **P** | Plugin OS authoring & bridges         | pack          | Wizard, skill↔plugin, generic bridges                 |
+| **P** | Self-mod multi-file + gates           | pack optional | Safer powerful self-mod + promote                      |
+| **P** | External agent capability import      | pack–pack       | Consent → SkillIR/bridge from declared tools           |
+| **P** | Efficiency & hot-path                 | pack–pack       | Retrieval, bind cache, lean tool surface               |
 
-Each wave below: **objective**, **shipped when**, **work items**, **files**, **tests**, **acceptance**, **risks**.
+Each pack below: **objective**, **shipped when**, **work items**, **files**, **tests**, **acceptance**, **risks**.
 
 ---
 
-## W0 — Contracts & SkillIR (foundation)
+## Pack  Contracts & SkillIR (foundation)
 
 ### Objective
 
@@ -100,7 +100,7 @@ Define a **canonical intermediate representation** for any ingested pack so late
 
 ---
 
-## W1 — Deterministic resolve, install, tool binds
+## Pack  Deterministic resolve, install, tool binds
 
 ### Objective
 
@@ -145,7 +145,7 @@ Define a **canonical intermediate representation** for any ingested pack so late
 
 ---
 
-## W2 — Search (deterministic) + optional LLM rank
+## Pack  Search (deterministic) + optional LLM rank
 
 ### Objective
 
@@ -187,7 +187,7 @@ Resolve **queries** without brand hubs: local index first; configured sources; L
 
 ---
 
-## W3 — Capability-miss loop
+## Pack  Capability-miss loop
 
 ### Objective
 
@@ -227,7 +227,7 @@ When a run lacks a tool/capability, offer a **structured** path to install skill
 
 ---
 
-## W4 — Remote catalogs (skills + plugins)
+## Pack  Remote catalogs (skills + plugins)
 
 ### Objective
 
@@ -269,7 +269,7 @@ User-configured HTTPS JSON catalogs for skills and Plugin OS packs — generic, 
 
 ---
 
-## W5 — Promote: draft → skill → plugin
+## Pack  Promote: draft → skill → plugin
 
 ### Objective
 
@@ -302,14 +302,14 @@ Close the learning loop: multi-tool success becomes reusable skill; optional Plu
 
 ### Acceptance
 
-- [x] Promoted skill appears in local search (W2).
+- [x] Promoted skill appears in local search (pack).
 - [x] No auto-promote without user action.
 
 **Shipped:** `SkillPromoteService` + `zavorth learn promote --kind skill|plugin|both`; receipts `draftId → skillId → pluginId`; SkillIR under `skills/` + plugin scaffold under `plugins/promoted/`.
 
 ---
 
-## W6 — Plugin OS authoring & bridges
+## Pack  Plugin OS authoring & bridges
 
 ### Objective
 
@@ -319,14 +319,14 @@ Fastest path from zero to enabled capability; generic bridges for external tool 
 
 - One-shot: `zavorth plugins new <id> --kind <k> --enable --smoke` (scaffold + install + enable + harness).
 - `moduleKind: bridge` template exposes generic HTTP/CLI/MCP invoke with permissions.
-- Skill pack that declares missing capability can open plugin suggest (W3).
+- Skill pack that declares missing capability can open plugin suggest (pack).
 
 ### Work items
 
 1. CLI wizard end-to-end.
 2. Bridge plugin template + docs (no brand names).
 3. Align create-zavorth-plugin kinds with `PluginManifestContract`.
-4. Optional: skill→plugin promote from W5 polished.
+4. Optional: skill→plugin promote from pack polished.
 
 ### Primary files
 
@@ -349,7 +349,7 @@ Fastest path from zero to enabled capability; generic bridges for external tool 
 
 ---
 
-## W7 — Self-modification multi-file + gates
+## Pack  Self-modification multi-file + gates
 
 ### Objective
 
@@ -360,7 +360,7 @@ Powerful self-mod without reckless free-text writes.
 - Multi-file preview under one `preview_id` with atomic rollback plan.
 - Optional test gate: apply blocked unless configured check passes.
 - Default allow paths: `skills/`, `plugins/`, `config/*sources*`, `docs/`; core `src/` requires BUILD + owner (policy config).
-- Successful apply can offer promote to skill (W5).
+- Successful apply can offer promote to skill (pack).
 
 ### Work items
 
@@ -390,7 +390,7 @@ Powerful self-mod without reckless free-text writes.
 
 ---
 
-## W8 — External agent capability import
+## Pack  External agent capability import
 
 ### Objective
 
@@ -430,7 +430,7 @@ After consent, import **declared** tools/skills from an external runtime profile
 
 ---
 
-## W9 — Efficiency & hot-path
+## Pack  Efficiency & hot-path
 
 ### Objective
 
@@ -484,16 +484,15 @@ Make skill/plugin extensibility **cheap at runtime**.
 ## Suggested implementation order (teams)
 
 ```text
-W0 → W1 → W2 → W3 → W4
-              ↘ W5 → W6
-W1 → W7 (can parallel after W0)
-W0 → W8 (after W1 binds)
-W3 + W1 → W9
+pack → pack → pack → pack → pack
+              ↘ pack → pack → pack (can parallel after pack)
+pack → pack (after pack binds)
+pack + pack → pack
 ```
 
-**MVP for “open ecosystem consumer”:** W0 + W1 + W2 + W3 + W4.  
-**MVP for “community author growth”:** MVP + W5 + W6.  
-**MVP for “attach any local agent”:** MVP + W8.
+**MVP for “open ecosystem consumer”:** pack + pack + pack + pack + pack.  
+**MVP for “community author growth”:** MVP + pack + pack.  
+**MVP for “attach any local agent”:** MVP + pack.
 
 ---
 
@@ -505,7 +504,7 @@ W3 + W1 → W9
 - [ ] Draft promote creates searchable skill.
 - [ ] External profile can import capabilities into library after consent.
 - [ ] No new hard-coded third-party agent product names in runtime.
-- [ ] Wave status file updated to `shipped` per wave with date.
+- [ ] pack status file updated to `shipped` per wave with date.
 
 ---
 

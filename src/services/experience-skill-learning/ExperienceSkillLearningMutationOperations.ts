@@ -100,7 +100,7 @@ export class ExperienceSkillLearningMutationOperations extends ExperienceSkillLe
   }
 
   /**
-   * Phase 1 self-improve: merge new tools, append revision note, bump useCount/revisions.
+   * Self-improve: merge new tools, append revision note, bump useCount/revisions.
    * Returns true when content actually improved (new tools or new outcome note).
    */
   protected reinforceDraft(dir: string, input: {

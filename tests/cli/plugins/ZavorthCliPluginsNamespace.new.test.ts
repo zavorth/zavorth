@@ -58,7 +58,7 @@ describe('ZavorthCliPluginsNamespace new + recommend', () => {
 
     const result = (await runPlugins(root, [
       'new',
-      'w6-bridge',
+      'bridge-smoke',
       '--kind',
       'bridge',
       '--enable',
@@ -66,16 +66,16 @@ describe('ZavorthCliPluginsNamespace new + recommend', () => {
       '--yes',
     ])) as { ok?: boolean; output?: string };
     const text = `${JSON.stringify(result)}\n${result.output || ''}`;
-    expect(text).toMatch(/w6-bridge|ok=true|smoke/i);
+    expect(text).toMatch(/bridge-smoke|ok=true|smoke/i);
 
-    const targetDir = path.join(root, 'plugins', 'w6-bridge');
+    const targetDir = path.join(root, 'plugins', 'bridge-smoke');
     expect(fs.existsSync(path.join(targetDir, 'manifest.json'))).toBe(true);
     const manifest = JSON.parse(fs.readFileSync(path.join(targetDir, 'manifest.json'), 'utf8'));
     expect(manifest.moduleKind).toBe('bridge');
     expect(manifest.capabilities.some((c: { id: string }) => c.id === 'bridge.invoke')).toBe(true);
 
     const bridge = new PluginStateBridgeService({ projectRoot: root });
-    const state = bridge.resolve('w6-bridge');
+    const state = bridge.resolve('bridge-smoke');
     expect(state.installed).toBe(true);
     expect(state.enabled).toBe(true);
   });

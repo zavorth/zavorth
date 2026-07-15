@@ -3,7 +3,7 @@
  * Parsers are shape-based (file layout), never product-name branches.
  */
 
-export const ZAVORTH_SKILL_IR_CONTRACT_VERSION = '2026-07-14.skill-ir-w0' as const;
+export const ZAVORTH_SKILL_IR_CONTRACT_VERSION = '2026-07-14.skill-ir.v1' as const;
 
 /** Shape-based parser ids (not brand names). */
 export type ZavorthSkillIrParserId = 'skill-md-v1' | 'readme-tools-v1' | 'package-json-skill-v1' | 'opaque-guidance-v1';

@@ -147,11 +147,11 @@ export type ExperienceSkillPromoteResult = {
   auditDest?: string;
   skillMdPreview?: string;
   dryRun?: boolean;
-  /** W5: skill | plugin | both (default skill). */
+  /** skill | plugin | both (default skill). */
   kind?: ExperienceSkillPromoteKind;
-  /** W5: skill pack under skills/ (search index). */
+  /** skill pack under skills/ (search index). */
   skillPath?: string;
-  /** W5: plugin package id when kind=plugin|both. */
+  /** plugin package id when kind=plugin|both. */
   pluginId?: string;
   pluginPath?: string;
   pluginReady?: boolean;

@@ -1506,7 +1506,7 @@ export async function postSkillRegistryAction(
   });
 }
 
-// ── Cost savings + memory graph (Priority 3 desktop surfaces) ──
+// ── Cost savings + memory graph (memory graph and cost savings surfaces) ──
 
 export type CostSavingsDashboardData = {
   generatedAt?: string;

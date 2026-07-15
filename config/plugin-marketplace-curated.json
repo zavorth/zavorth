@@ -294,7 +294,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["provider", "openai", "openrouter", "llm", "wave1", "complete"],
+    "tags": ["provider", "openai", "openrouter", "llm", "complete"],
     "version": "1.0.0",
     "permissions": ["network.external", "provider.call", "secret.read"]
   },
@@ -307,7 +307,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["provider", "anthropic", "claude", "llm", "wave1"],
+    "tags": ["provider", "anthropic", "claude", "llm"],
     "version": "1.0.0",
     "permissions": ["network.external", "provider.call", "secret.read"]
   },
@@ -320,7 +320,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["provider", "xai", "grok", "llm", "wave1"],
+    "tags": ["provider", "xai", "grok", "llm"],
     "version": "1.0.0",
     "permissions": ["network.external", "provider.call", "secret.read"]
   },
@@ -333,7 +333,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["provider", "gemini", "google", "llm", "wave1"],
+    "tags": ["provider", "gemini", "google", "llm"],
     "version": "1.0.0",
     "permissions": ["network.external", "provider.call", "secret.read"]
   },
@@ -346,7 +346,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["provider", "status", "doctor", "wave1", "diagnostics"],
+    "tags": ["provider", "status", "doctor", "diagnostics"],
     "version": "1.0.0",
     "permissions": ["secret.read"]
   },
@@ -489,7 +489,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["platform", "telegram", "channel", "wave2", "messaging"],
+    "tags": ["platform", "telegram", "channel", "messaging"],
     "version": "1.0.0",
     "permissions": ["network.external", "channel.send", "secret.read"]
   },
@@ -502,7 +502,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["platform", "discord", "channel", "wave2", "messaging"],
+    "tags": ["platform", "discord", "channel", "messaging"],
     "version": "1.0.0",
     "permissions": ["network.external", "channel.send", "secret.read"]
   },
@@ -515,7 +515,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["platform", "whatsapp", "channel", "wave2", "messaging"],
+    "tags": ["platform", "whatsapp", "channel", "messaging"],
     "version": "1.0.0",
     "permissions": ["network.external", "channel.send", "secret.read"]
   },
@@ -528,7 +528,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["platform", "webhook", "channel", "wave2", "messaging"],
+    "tags": ["platform", "webhook", "channel", "messaging"],
     "version": "1.0.0",
     "permissions": ["network.external", "channel.send", "secret.read"]
   },
@@ -541,7 +541,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["platform", "slack", "channel", "wave2", "messaging"],
+    "tags": ["platform", "slack", "channel", "messaging"],
     "version": "1.0.0",
     "permissions": ["network.external", "channel.send", "secret.read"]
   },
@@ -554,7 +554,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["platform", "email", "channel", "wave2", "messaging", "smtp"],
+    "tags": ["platform", "email", "channel", "messaging", "smtp"],
     "version": "1.0.0",
     "permissions": ["network.external", "channel.send", "secret.read"]
   },
@@ -567,7 +567,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["platform", "matrix", "channel", "wave2", "messaging"],
+    "tags": ["platform", "matrix", "channel", "messaging"],
     "version": "1.0.0",
     "permissions": ["network.external", "channel.send", "secret.read"]
   },
@@ -580,7 +580,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["platform", "signal", "channel", "wave2", "messaging"],
+    "tags": ["platform", "signal", "channel", "messaging"],
     "version": "1.0.0",
     "permissions": ["network.external", "channel.send", "secret.read"]
   },
@@ -593,7 +593,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["platform", "teams", "channel", "wave2", "messaging", "microsoft"],
+    "tags": ["platform", "teams", "channel", "messaging", "microsoft"],
     "version": "1.0.0",
     "permissions": ["network.external", "channel.send", "secret.read"]
   },
@@ -606,7 +606,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["platform", "imessage", "channel", "wave2", "messaging", "apple"],
+    "tags": ["platform", "imessage", "channel", "messaging", "apple"],
     "version": "1.0.0",
     "permissions": ["network.external", "channel.send", "secret.read"]
   },
@@ -619,7 +619,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["platform", "instagram", "channel", "wave2", "messaging", "meta"],
+    "tags": ["platform", "instagram", "channel", "messaging", "meta"],
     "version": "1.0.0",
     "permissions": ["network.external", "channel.send", "secret.read"]
   },
@@ -632,7 +632,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["platform", "sms", "channel", "wave2", "messaging", "twilio"],
+    "tags": ["platform", "sms", "channel", "messaging", "twilio"],
     "version": "1.0.0",
     "permissions": ["network.external", "channel.send", "secret.read"]
   },
@@ -645,7 +645,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["memory", "journal", "append", "local", "wave3"],
+    "tags": ["memory", "journal", "append", "local"],
     "version": "1.0.0",
     "permissions": ["filesystem.read", "filesystem.write", "memory.read", "memory.write"]
   },
@@ -658,7 +658,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["memory", "vector", "local", "embeddings", "wave3"],
+    "tags": ["memory", "vector", "local", "embeddings"],
     "version": "1.0.0",
     "permissions": ["filesystem.read", "filesystem.write", "memory.read", "memory.write"]
   },
@@ -671,7 +671,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["memory", "mem0", "remote", "wave3", "soft-fail"],
+    "tags": ["memory", "mem0", "remote", "soft-fail"],
     "version": "1.0.0",
     "permissions": ["network.external", "memory.read", "memory.write", "secret.read"]
   },
@@ -684,7 +684,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["media", "image", "image-gen", "wave4", "soft-fail"],
+    "tags": ["media", "image", "image-gen", "soft-fail"],
     "version": "1.0.0",
     "permissions": ["network.external", "secret.read"]
   },
@@ -697,7 +697,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["media", "vision", "image", "describe", "wave4"],
+    "tags": ["media", "vision", "image", "describe"],
     "version": "1.0.0",
     "permissions": ["network.external", "secret.read"]
   },
@@ -710,7 +710,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["media", "tts", "speech", "wave4", "soft-fail"],
+    "tags": ["media", "tts", "speech", "soft-fail"],
     "version": "1.0.0",
     "permissions": ["network.external", "filesystem.write", "secret.read"]
   },
@@ -723,7 +723,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["media", "transcription", "stt", "whisper", "wave4"],
+    "tags": ["media", "transcription", "stt", "whisper"],
     "version": "1.0.0",
     "permissions": ["network.external", "filesystem.read", "secret.read"]
   },
@@ -736,7 +736,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["media", "video", "video-gen", "wave4", "optional"],
+    "tags": ["media", "video", "video-gen", "optional"],
     "version": "1.0.0",
     "permissions": ["network.external", "secret.read"]
   },
@@ -749,7 +749,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["browser", "cdp", "chrome", "wave5", "soft-fail"],
+    "tags": ["browser", "cdp", "chrome", "soft-fail"],
     "version": "1.0.0",
     "permissions": ["network.local", "network.external"]
   },
@@ -762,7 +762,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["search", "exa", "wave5", "soft-fail"],
+    "tags": ["search", "exa", "soft-fail"],
     "version": "1.0.0",
     "permissions": ["network.external", "secret.read"]
   },
@@ -775,7 +775,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["search", "firecrawl", "crawl", "extract", "wave5"],
+    "tags": ["search", "firecrawl", "crawl", "extract"],
     "version": "1.0.0",
     "permissions": ["network.external", "secret.read"]
   },
@@ -788,7 +788,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["secrets", "env", "trust", "wave6", "soft-fail"],
+    "tags": ["secrets", "env", "trust", "soft-fail"],
     "version": "1.0.0",
     "permissions": ["secret.read"]
   },
@@ -801,7 +801,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["secrets", "file", "trust", "wave6", "soft-fail"],
+    "tags": ["secrets", "file", "trust", "soft-fail"],
     "version": "1.0.0",
     "permissions": ["filesystem.read", "filesystem.write", "secret.read"]
   },
@@ -814,7 +814,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["dashboard", "auth", "basic", "wave6", "trust"],
+    "tags": ["dashboard", "auth", "basic", "trust"],
     "version": "1.0.0",
     "permissions": ["secret.read"]
   },
@@ -827,7 +827,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["dashboard", "auth", "token", "wave6", "trust"],
+    "tags": ["dashboard", "auth", "token", "trust"],
     "version": "1.0.0",
     "permissions": ["secret.read"]
   },
@@ -840,7 +840,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["context", "engine", "bridge", "wave6", "trust"],
+    "tags": ["context", "engine", "bridge", "trust"],
     "version": "1.0.0",
     "permissions": ["filesystem.read", "memory.read"]
   },
@@ -853,7 +853,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["middleware", "rate-limit", "hooks", "wave6"],
+    "tags": ["middleware", "rate-limit", "hooks"],
     "version": "1.0.0",
     "permissions": ["filesystem.read", "filesystem.write"]
   },
@@ -866,7 +866,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["spotify", "lifestyle", "music", "wave7", "soft-fail", "optional"],
+    "tags": ["spotify", "lifestyle", "music", "soft-fail", "optional"],
     "version": "1.0.0",
     "permissions": ["network.external", "secret.read"]
   },
@@ -879,7 +879,7 @@
     "signed": true,
     "tier": "first-party",
     "curated": true,
-    "tags": ["demo", "showcase", "wave7", "surface-parity", "lifestyle"],
+    "tags": ["demo", "showcase", "surface-parity", "lifestyle"],
     "version": "1.0.0",
     "permissions": ["secret.read"]
   },
