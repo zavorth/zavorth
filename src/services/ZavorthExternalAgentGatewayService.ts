@@ -18,6 +18,11 @@ import {
 
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
+import { ExternalAgentCapabilityImportService } from './ExternalAgentCapabilityImportService.js';
+import type {
+  ExternalAgentCapabilityImportResult,
+  ExternalAgentListCapabilitiesResult,
+} from '../contracts/external/ZavorthExternalAgentCapabilityImportContract.js';
 
 export type ZavorthExternalAgentRegisterInput = {
   id?: string | null;
@@ -102,9 +107,10 @@ export class ZavorthExternalAgentGatewayService {
   public constructor(runtime: ZavorthExternalAgentGatewayRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.projectRoot = runtime.projectRoot || config.projectRoot;
-    this.registryFileValue = runtime.registryFile
-      || process.env.ZAVORTH_EXTERNAL_AGENT_GATEWAY_REGISTRY
-      || path.join(this.projectRoot, 'data', 'runtime', 'external-agent-profiles.json');
+    this.registryFileValue =
+      runtime.registryFile ||
+      process.env.ZAVORTH_EXTERNAL_AGENT_GATEWAY_REGISTRY ||
+      path.join(this.projectRoot, 'data', 'runtime', 'external-agent-profiles.json');
     this.readFileSyncImpl = runtime.readFileSync || fs.readFileSync.bind(fs);
     this.writeFileSyncImpl = runtime.writeFileSync || fs.writeFileSync.bind(fs);
     this.mkdirSyncImpl = runtime.mkdirSync || fs.mkdirSync.bind(fs);
@@ -116,6 +122,36 @@ export class ZavorthExternalAgentGatewayService {
 
   public get registryFile(): string {
     return this.registryFileValue;
+  }
+
+  /**
+   * list declared capabilities for a registered profile (offline; no process spawn).
+   */
+  public listCapabilities(input: {
+    profileId: string;
+    capabilitiesFile?: string | null;
+  }): ExternalAgentListCapabilitiesResult {
+    return new ExternalAgentCapabilityImportService({
+      projectRoot: this.projectRoot,
+      gateway: this,
+      now: this.now,
+    }).listCapabilities(input);
+  }
+
+  /**
+   * import declared capabilities into a SkillIR pack (consent required).
+   */
+  public importCapabilities(input: {
+    profileId: string;
+    consent?: boolean;
+    capabilitiesFile?: string | null;
+    skillId?: string | null;
+  }): ExternalAgentCapabilityImportResult {
+    return new ExternalAgentCapabilityImportService({
+      projectRoot: this.projectRoot,
+      gateway: this,
+      now: this.now,
+    }).importCapabilities(input);
   }
 
   public buildRegistrySnapshot(): ZavorthExternalAgentGatewayRegistrySnapshot {
@@ -182,7 +218,10 @@ export class ZavorthExternalAgentGatewayService {
     try {
       const parsed = JSON.parse(this.readFileSyncImpl(target, 'utf8') as string) as ZavorthExternalAgentGatewayReceipt;
       return sanitizeReceipt(parsed);
-    } catch (error: unknown) {logger.warn('[Zavorth External Agent way] JSON parse failed', error); return null; }
+    } catch (error: unknown) {
+      logger.warn('[Zavorth External Agent way] JSON parse failed', error);
+      return null;
+    }
   }
 
   public registerProfile(input: ZavorthExternalAgentRegisterInput): ZavorthExternalAgentGatewayReceipt {
@@ -378,7 +417,12 @@ export class ZavorthExternalAgentGatewayService {
     const stderr = truncate(String(result.stderr || result.error?.message || ''));
     return this.buildReceipt({
       kind: 'agent-invocation',
-      status: result.status === 0 && !result.error ? 'completed' : result.error?.message?.includes('timed out') ? 'failed' : 'failed',
+      status:
+        result.status === 0 && !result.error
+          ? 'completed'
+          : result.error?.message?.includes('timed out')
+            ? 'failed'
+            : 'failed',
       profile,
       requestedBy: input.requestedBy,
       prompt,
@@ -404,22 +448,24 @@ export class ZavorthExternalAgentGatewayService {
     });
   }
 
-  private buildCliExecutionPlan(
-    profile: ZavorthExternalAgentProfile,
-    prompt: string,
-  ): CliExecutionPlan {
+  private buildCliExecutionPlan(profile: ZavorthExternalAgentProfile, prompt: string): CliExecutionPlan {
     const promptArgs = profile.promptMode === 'arg' ? [...profile.args, prompt] : profile.args;
-    const inputText = profile.promptMode === 'stdin' || profile.promptMode === 'json'
-      ? profile.promptMode === 'json'
-        ? `${JSON.stringify({ prompt, source: 'zavorth-external-agent-gateway' })}\n`
-        : `${prompt}\n`
-      : undefined;
+    const inputText =
+      profile.promptMode === 'stdin' || profile.promptMode === 'json'
+        ? profile.promptMode === 'json'
+          ? `${JSON.stringify({ prompt, source: 'zavorth-external-agent-gateway' })}\n`
+          : `${prompt}\n`
+        : undefined;
     const hostCwd = profile.root || this.projectRoot;
 
     if (profile.isolation.kind === 'docker') {
       const image = profile.isolation.image;
       if (!image) {
-        return emptyCliPlan(profile, inputText, 'Docker isolation requires a sandbox image. Re-register with --docker-image <image>.');
+        return emptyCliPlan(
+          profile,
+          inputText,
+          'Docker isolation requires a sandbox image. Re-register with --docker-image <image>.',
+        );
       }
       const mount = profile.isolation.workspaceMount || hostCwd;
       if (!this.existsSyncImpl(mount)) {
@@ -495,10 +541,20 @@ export class ZavorthExternalAgentGatewayService {
     started: number,
   ): Promise<ZavorthExternalAgentGatewayReceipt> {
     if (!profile.endpoint) {
-      return this.blockedInvocation(profile, input, prompt, `${profile.adapter.toUpperCase()} profile has no endpoint configured.`);
+      return this.blockedInvocation(
+        profile,
+        input,
+        prompt,
+        `${profile.adapter.toUpperCase()} profile has no endpoint configured.`,
+      );
     }
     if (!profile.allowRemoteNetwork && !isLocalEndpoint(profile.endpoint)) {
-      return this.blockedInvocation(profile, input, prompt, 'Remote network endpoint is blocked unless allowRemoteNetwork is enabled on the profile.');
+      return this.blockedInvocation(
+        profile,
+        input,
+        prompt,
+        'Remote network endpoint is blocked unless allowRemoteNetwork is enabled on the profile.',
+      );
     }
     if (!this.fetchImpl) {
       return this.blockedInvocation(profile, input, prompt, 'fetch is not available in this runtime.');
@@ -542,7 +598,7 @@ export class ZavorthExternalAgentGatewayService {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Zavorth External Agent way] network request failed', error);
-    return this.buildReceipt({
+      return this.buildReceipt({
         kind: 'agent-invocation',
         status: 'failed',
         profile,
@@ -561,7 +617,7 @@ export class ZavorthExternalAgentGatewayService {
         nextLabel: 'Inspect network/endpoint configuration',
         nextCommand: null,
       });
-  } finally {
+    } finally {
       clearTimeout(timeout);
     }
   }
@@ -580,12 +636,18 @@ export class ZavorthExternalAgentGatewayService {
       stdioArgs: profile.args,
       timeoutMs: positiveInt(input.timeoutMs) || DEFAULT_TIMEOUT_MS,
     });
-    const rendered = typeof this.acpSessionService.renderText === 'function'
-      ? this.acpSessionService.renderText(receipt)
-      : receipt.output.text;
+    const rendered =
+      typeof this.acpSessionService.renderText === 'function'
+        ? this.acpSessionService.renderText(receipt)
+        : receipt.output.text;
     return this.buildReceipt({
       kind: 'agent-invocation',
-      status: receipt.status === 'completed' ? 'completed' : receipt.status === 'approval_required' ? 'approval-required' : receipt.status,
+      status:
+        receipt.status === 'completed'
+          ? 'completed'
+          : receipt.status === 'approval_required'
+            ? 'approval-required'
+            : receipt.status,
       profile,
       requestedBy: input.requestedBy,
       prompt,
@@ -646,7 +708,9 @@ export class ZavorthExternalAgentGatewayService {
         transport: input.acpTransport || (adapter === 'acp' ? 'mock-jsonrpc' : null),
       },
       promptMode: input.promptMode || 'stdin',
-      allowedCapabilities: (input.allowedCapabilities || ['chat', 'analyze', 'review']).map((entry) => String(entry).trim()).filter(Boolean),
+      allowedCapabilities: (input.allowedCapabilities || ['chat', 'analyze', 'review'])
+        .map((entry) => String(entry).trim())
+        .filter(Boolean),
       liveExecutionEnabled: input.enableLive === true && input.approvalGranted === true,
       allowRemoteNetwork: input.allowRemoteNetwork === true,
       isolation,
@@ -671,7 +735,7 @@ export class ZavorthExternalAgentGatewayService {
     try {
       const parsed = JSON.parse(this.readFileSyncImpl(this.registryFile, 'utf8') as string) as { profiles?: unknown };
       return Array.isArray(parsed.profiles)
-        ? parsed.profiles.map((entry) => sanitizeProfile(entry)).filter(Boolean) as ZavorthExternalAgentProfile[]
+        ? (parsed.profiles.map((entry) => sanitizeProfile(entry)).filter(Boolean) as ZavorthExternalAgentProfile[])
         : [];
     } catch (error: unknown) {
       if (!isMissingFileError(error)) {
@@ -683,11 +747,19 @@ export class ZavorthExternalAgentGatewayService {
 
   private writeProfiles(profiles: ZavorthExternalAgentProfile[]): void {
     this.mkdirSyncImpl(path.dirname(this.registryFile), { recursive: true });
-    this.writeFileSyncImpl(this.registryFile, `${JSON.stringify({
-      contractVersion: ZAVORTH_EXTERNAL_AGENT_GATEWAY_CONTRACT_VERSION,
-      updatedAt: this.now().toISOString(),
-      profiles,
-    }, null, 2)}\n`, 'utf8');
+    this.writeFileSyncImpl(
+      this.registryFile,
+      `${JSON.stringify(
+        {
+          contractVersion: ZAVORTH_EXTERNAL_AGENT_GATEWAY_CONTRACT_VERSION,
+          updatedAt: this.now().toISOString(),
+          profiles,
+        },
+        null,
+        2,
+      )}\n`,
+      'utf8',
+    );
   }
 
   private writeReceipt(receipt: ZavorthExternalAgentGatewayReceipt, receiptPath?: string | null): void {
@@ -783,7 +855,9 @@ export class ZavorthExternalAgentGatewayService {
         rawSecretsSerialized: false,
         profileOnlyNoDefaultBinding: true,
         filesystemSandboxClaimed: input.isolationStrongBoundary ?? input.profile?.isolation.strongBoundary ?? false,
-        localCliIsNotOsSandbox: input.profile?.adapter === 'cli' && (input.isolationKind || input.profile.isolation.kind) === 'local-supervised',
+        localCliIsNotOsSandbox:
+          input.profile?.adapter === 'cli' &&
+          (input.isolationKind || input.profile.isolation.kind) === 'local-supervised',
         strongIsolationRequiredForUntrustedCli: true,
       },
     };
@@ -803,7 +877,9 @@ function sanitizeProfile(value: unknown): ZavorthExternalAgentProfile | null {
     adapter,
     status: entry.status === 'disabled' ? 'disabled' : 'enabled',
     args: Array.isArray(entry.args) ? entry.args.map((arg) => String(arg)) : [],
-    allowedCapabilities: Array.isArray(entry.allowedCapabilities) ? entry.allowedCapabilities.map((cap) => String(cap)) : [],
+    allowedCapabilities: Array.isArray(entry.allowedCapabilities)
+      ? entry.allowedCapabilities.map((cap) => String(cap))
+      : [],
     liveExecutionEnabled: entry.liveExecutionEnabled === true,
     allowRemoteNetwork: entry.allowRemoteNetwork === true,
     isolation,
@@ -836,12 +912,14 @@ function sanitizeReceipt(value: unknown): ZavorthExternalAgentGatewayReceipt | n
     },
     output: {
       text: truncate(redactSensitiveText(receipt.output?.text || '')),
-      stdout: receipt.output?.stdout === null || receipt.output?.stdout === undefined
-        ? null
-        : truncate(redactSensitiveText(receipt.output.stdout)),
-      stderr: receipt.output?.stderr === null || receipt.output?.stderr === undefined
-        ? null
-        : truncate(redactSensitiveText(receipt.output.stderr)),
+      stdout:
+        receipt.output?.stdout === null || receipt.output?.stdout === undefined
+          ? null
+          : truncate(redactSensitiveText(receipt.output.stdout)),
+      stderr:
+        receipt.output?.stderr === null || receipt.output?.stderr === undefined
+          ? null
+          : truncate(redactSensitiveText(receipt.output.stderr)),
     },
   };
 }
@@ -862,8 +940,8 @@ function normalizeIsolation(
     : kind === 'docker'
       ? root || projectRoot
       : null;
-  const workingDirectory = clean(input.sandboxWorkdir || input.workingDirectory)
-    || (kind === 'docker' ? '/workspace' : null);
+  const workingDirectory =
+    clean(input.sandboxWorkdir || input.workingDirectory) || (kind === 'docker' ? '/workspace' : null);
   const notes = buildIsolationNotes(adapter, kind, required);
   return {
     kind,
@@ -884,9 +962,7 @@ function sanitizeIsolation(
   adapter: ZavorthExternalAgentAdapterKind,
   root: string | null,
 ): ZavorthExternalAgentProfile['isolation'] {
-  const entry = value && typeof value === 'object'
-    ? value as Partial<ZavorthExternalAgentProfile['isolation']>
-    : {};
+  const entry = value && typeof value === 'object' ? (value as Partial<ZavorthExternalAgentProfile['isolation']>) : {};
   const kind = adapter === 'cli' ? normalizeIsolationKind(entry.kind) : 'local-supervised';
   const required = entry.required === true;
   return {
@@ -899,7 +975,9 @@ function sanitizeIsolation(
     workingDirectory: clean(entry.workingDirectory) || (kind === 'docker' ? '/workspace' : null),
     network: normalizeNetworkMode(entry.network),
     readOnlyRoot: kind === 'docker' ? entry.readOnlyRoot !== false : entry.readOnlyRoot === true,
-    notes: Array.isArray(entry.notes) ? entry.notes.map((note) => String(note)).filter(Boolean) : buildIsolationNotes(adapter, kind, required),
+    notes: Array.isArray(entry.notes)
+      ? entry.notes.map((note) => String(note)).filter(Boolean)
+      : buildIsolationNotes(adapter, kind, required),
   };
 }
 
@@ -1026,11 +1104,14 @@ function truncate(value: string, max = MAX_OUTPUT_CHARS): string {
 
 function redactSensitiveText(value: unknown): string {
   return String(value || '')
-    .replace(/\b(sk-[A-Za-z0-9_-]{12,})\b/g, 'sk-[redacted]')
-    .replace(/\b(xox[baprs]-[A-Za-z0-9-]{12,})\b/g, 'xox-[redacted]')
-    .replace(/\b(gh[pousr]_[A-Za-z0-9_]{12,})\b/g, 'gh_[redacted]')
-    .replace(/\b([A-Za-z0-9+/]{40,}={0,2})\b/g, '[redacted-secret-like-token]')
-    .replace(/\b([A-Z0-9_]*(?:API[_-]?KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]');
+    .replace(/\b(sk-[A-Za-z0-9_-]{12})\b/g, 'sk-[redacted]')
+    .replace(/\b(xox[baprs]-[A-Za-z0-9-]{12})\b/g, 'xox-[redacted]')
+    .replace(/\b(gh[pousr]_[A-Za-z0-9_]{12})\b/g, 'gh_[redacted]')
+    .replace(/\b([A-Za-z0-9+/]{40}={0,2})\b/g, '[redacted-secret-like-token]')
+    .replace(
+      /\b([A-Z0-9_]*(?:API[_-]?KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi,
+      '$1=[redacted]',
+    );
 }
 
 function sanitizeProfileForReceipt(profile: ZavorthExternalAgentProfile | null): ZavorthExternalAgentProfile | null {
@@ -1050,7 +1131,10 @@ function isLocalEndpoint(endpoint: string): boolean {
   try {
     const url = new URL(endpoint);
     return ['127.0.0.1', 'localhost', '::1'].includes(url.hostname);
-  } catch (error: unknown) {logger.warn('[Zavorth External Agent way] operation failed', error); return false; }
+  } catch (error: unknown) {
+    logger.warn('[Zavorth External Agent way] operation failed', error);
+    return false;
+  }
 }
 
 function isMissingFileError(error: unknown): boolean {
