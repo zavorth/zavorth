@@ -1,5 +1,5 @@
 /**
- * Wave 6 — Trust fabric: file secret source (soft-fail).
+ * Trust fabric: file secret source (soft-fail).
  * Local plain JSON store under workspace/.zavorth/secrets/.
  * Capability outputs NEVER include secret values — names/presence only.
  */
@@ -115,7 +115,6 @@ function register(ctx) {
     const names = entryNames(store);
     return {
       ok: true,
-      wave: 'W6',
       pack: 'trust',
       source: 'file',
       exists,
@@ -135,10 +134,7 @@ function register(ctx) {
       return { ok: false, present: false, name: '', reason: 'name_required' };
     }
     if (typeof ctx.requestPermission === 'function') {
-      const allowed = await ctx.requestPermission(
-        'secret.read',
-        `Probe presence of file secret ${name}`,
-      );
+      const allowed = await ctx.requestPermission('secret.read', `Probe presence of file secret ${name}`);
       if (!allowed) {
         return {
           ok: false,
@@ -341,7 +337,7 @@ function register(ctx) {
         id: 'file',
         capabilityId: 'secret.file.has',
         label: 'File Secret Source',
-        metadata: { wave: 'W6', pack: 'trust', source: 'file' },
+        metadata: { pack: 'trust', source: 'file' },
         handler: async (input) => {
           try {
             return await hasSecret(input || {});

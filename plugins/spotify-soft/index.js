@@ -1,5 +1,5 @@
 /**
- * Wave 7 — Spotify Soft (lifestyle, optional, soft-fail).
+ * Spotify Soft (lifestyle, optional, soft-fail).
  * Presence-only secrets; never returns token or client secret values.
  */
 const SPOTIFY_API = 'https://api.spotify.com/v1';
@@ -10,9 +10,7 @@ function register(ctx) {
   const logger = ctx.getLogger();
 
   function accessToken() {
-    return String(
-      process.env.SPOTIFY_ACCESS_TOKEN || process.env.SPOTIFY_TOKEN || '',
-    ).trim();
+    return String(process.env.SPOTIFY_ACCESS_TOKEN || process.env.SPOTIFY_TOKEN || '').trim();
   }
 
   function tokenConfigured() {
@@ -33,7 +31,6 @@ function register(ctx) {
     const clientSecretOk = clientSecretConfigured();
     return {
       ok: true,
-      wave: 'W7',
       pack: 'lifestyle',
       backend: 'spotify-web-api',
       tokenConfigured: tokenOk,
@@ -119,10 +116,7 @@ function register(ctx) {
       }
     }
     if (status < 200 || status >= 300) {
-      const apiMessage =
-        data && data.error && data.error.message
-          ? String(data.error.message)
-          : `HTTP ${status}`;
+      const apiMessage = data && data.error && data.error.message ? String(data.error.message) : `HTTP ${status}`;
       return {
         ok: false,
         reason: 'api_error',
@@ -160,10 +154,7 @@ function register(ctx) {
       const denied = await ensureNetwork('Spotify currently-playing');
       if (denied) return { output: denied };
 
-      const result = await spotifyRequest(
-        'GET',
-        '/me/player/currently-playing',
-      );
+      const result = await spotifyRequest('GET', '/me/player/currently-playing');
       if (!result.ok) {
         return {
           output: {
@@ -201,10 +192,7 @@ function register(ctx) {
           artists,
           album: item.album ? String(item.album.name || '') : null,
           trackId: item.id ? String(item.id) : null,
-          progress_ms:
-            typeof result.data.progress_ms === 'number'
-              ? result.data.progress_ms
-              : null,
+          progress_ms: typeof result.data.progress_ms === 'number' ? result.data.progress_ms : null,
         },
       };
     } catch (error) {
@@ -266,9 +254,7 @@ function register(ctx) {
         if (Array.isArray(payload.uris) && payload.uris.length) {
           built.uris = payload.uris.map(String);
         } else if (payload.uri || payload.track_uri || payload.trackUri) {
-          built.uris = [
-            String(payload.uri || payload.track_uri || payload.trackUri),
-          ];
+          built.uris = [String(payload.uri || payload.track_uri || payload.trackUri)];
         }
         if (payload.context_uri || payload.contextUri) {
           built.context_uri = String(payload.context_uri || payload.contextUri);
@@ -278,11 +264,7 @@ function register(ctx) {
         }
       }
 
-      const result = await spotifyRequest(
-        'PUT',
-        '/me/player/play',
-        body ? { body } : {},
-      );
+      const result = await spotifyRequest('PUT', '/me/player/play', body ? { body } : {});
       if (!result.ok) {
         return { output: { ...result, setup: setupTips() } };
       }
@@ -342,10 +324,7 @@ function register(ctx) {
       }
 
       const items =
-        (result.data &&
-          result.data.tracks &&
-          Array.isArray(result.data.tracks.items) &&
-          result.data.tracks.items) ||
+        (result.data && result.data.tracks && Array.isArray(result.data.tracks.items) && result.data.tracks.items) ||
         [];
       const results = items.map((track) => ({
         id: track && track.id ? String(track.id) : null,
@@ -353,13 +332,9 @@ function register(ctx) {
         artists: Array.isArray(track && track.artists)
           ? track.artists.map((a) => String((a && a.name) || '')).filter(Boolean)
           : [],
-        album:
-          track && track.album ? String(track.album.name || '') : null,
+        album: track && track.album ? String(track.album.name || '') : null,
         uri: track && track.uri ? String(track.uri) : null,
-        duration_ms:
-          track && typeof track.duration_ms === 'number'
-            ? track.duration_ms
-            : null,
+        duration_ms: track && typeof track.duration_ms === 'number' ? track.duration_ms : null,
       }));
 
       return {
@@ -368,9 +343,7 @@ function register(ctx) {
           query,
           results,
           count: results.length,
-          message: results.length
-            ? `Spotify returned ${results.length} track(s)`
-            : 'Spotify returned no tracks',
+          message: results.length ? `Spotify returned ${results.length} track(s)` : 'Spotify returned no tracks',
         },
       };
     } catch (error) {
@@ -402,9 +375,7 @@ function normalizeLimit(value) {
 }
 
 function softHttpError(error, extra) {
-  const message = redactSecrets(
-    error instanceof Error ? error.message : String(error),
-  ).slice(0, 400);
+  const message = redactSecrets(error instanceof Error ? error.message : String(error)).slice(0, 400);
   return {
     ok: false,
     reason: 'fetch_failed',

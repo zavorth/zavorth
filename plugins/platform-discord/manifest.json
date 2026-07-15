@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "channel",
   "summary": "Soft-fail Discord Bot API channel for status and outbound send.",
-  "description": "Wave 2 platform pack. Uses DISCORD_BOT_TOKEN presence only (never the value). Sends via discord.com REST when network permission is granted.",
-  "tags": ["platform", "discord", "channel", "wave2", "messaging"],
+  "description": "Platform pack. Uses DISCORD_BOT_TOKEN presence only (never the value). Sends via discord.com REST when network permission is granted.",
+  "tags": ["platform", "discord", "channel", "messaging"],
   "source": {
     "kind": "local",
     "locator": "bundled://platform-discord",

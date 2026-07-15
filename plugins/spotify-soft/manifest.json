@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "tool",
   "summary": "Optional soft-fail Spotify Web API status and playback.",
-  "description": "Wave 7 lifestyle pack. Soft Spotify Web API bridge for status, now-playing, pause, play, and track search when SPOTIFY_ACCESS_TOKEN or SPOTIFY_TOKEN is set. Presence-only status for tokens and client credentials (never returns secret values). Soft-fail without token, network.external permission, or on HTTP errors.",
-  "tags": ["spotify", "lifestyle", "music", "wave7", "soft-fail", "optional"],
+  "description": "Lifestyle pack. Soft Spotify Web API bridge for status, now-playing, pause, play, and track search when SPOTIFY_ACCESS_TOKEN or SPOTIFY_TOKEN is set. Presence-only status for tokens and client credentials (never returns secret values). Soft-fail without token, network.external permission, or on HTTP errors.",
+  "tags": ["spotify", "lifestyle", "music", "soft-fail", "optional"],
   "source": {
     "kind": "local",
     "locator": "bundled://spotify-soft",

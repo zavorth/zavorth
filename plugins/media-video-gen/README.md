@@ -1,4 +1,4 @@
-# media-video-gen (Wave 4)
+# media-video-gen
 
 Optional-tier **video generation** soft stub for Plugin OS.
 
@@ -6,21 +6,21 @@ Video gen is expensive and vendor-specific. This package is honest: it reports *
 
 ## Env (optional)
 
-| Variable | Purpose |
-|----------|---------|
-| `VIDEO_GEN_API_KEY` | Generic provider key for soft-try |
-| `VIDEO_GEN_BASE_URL` | Generic HTTPS base (POST `{base}/v1/video/generations`) |
-| `RUNWAY_API_KEY` | Presence reported for future providers |
-| `LUMA_API_KEY` | Presence reported for future providers |
-| `REPLICATE_API_TOKEN` | Presence reported for future providers |
+| Variable              | Purpose                                                 |
+| --------------------- | ------------------------------------------------------- |
+| `VIDEO_GEN_API_KEY`   | Generic provider key for soft-try                       |
+| `VIDEO_GEN_BASE_URL`  | Generic HTTPS base (POST `{base}/v1/video/generations`) |
+| `RUNWAY_API_KEY`      | Presence reported for future providers                  |
+| `LUMA_API_KEY`        | Presence reported for future providers                  |
+| `REPLICATE_API_TOKEN` | Presence reported for future providers                  |
 
 Status only reports **presence** booleans — never secret values.
 
 ## Capabilities
 
-| Capability | Usage |
-|------------|--------|
-| `media.video.status` | Availability, key presence, setup tips |
+| Capability             | Usage                                           |
+| ---------------------- | ----------------------------------------------- |
+| `media.video.status`   | Availability, key presence, setup tips          |
 | `media.video.generate` | `{ prompt, duration? }` — soft stub or soft-try |
 
 ### Soft-try rules

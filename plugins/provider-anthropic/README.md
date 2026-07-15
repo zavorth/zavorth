@@ -1,4 +1,4 @@
-# provider-anthropic (Wave 1)
+# provider-anthropic
 
 Soft-fail Anthropic Messages API plugin.
 

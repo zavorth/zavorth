@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "example-sandbox",
+  "label": "Example Sandbox",
+  "version": "0.1.0",
+  "moduleKind": "sandbox",
+  "summary": "Minimal sandbox capability stub for Plugin OS.",
+  "description": "Bundled example sandbox plugin. Soft-fail register; does not spawn processes.",
+  "tags": ["sandbox", "example"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://examples/example-sandbox",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "sandbox.run",
+      "intent": "sandbox.run",
+      "label": "Sandbox Run",
+      "summary": "Stub sandboxed run (no process spawn).",
+      "artifactKinds": [],
+      "command": {
+        "name": "example_sandbox_run",
+        "aliases": [],
+        "usage": "{ input? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "process.spawn",
+      "scope": "local",
+      "reason": "Sandbox plugins may spawn sandboxed local processes when approved.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read workspace files inside the sandbox profile when approved.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

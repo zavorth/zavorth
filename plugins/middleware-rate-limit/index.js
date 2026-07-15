@@ -1,5 +1,5 @@
 /**
- * Wave 6 — In-memory sliding window rate limit (soft guidance).
+ * In-memory sliding window rate limit (soft guidance).
  * Emits events; never hard-throws. block=true still soft-fails (log only).
  */
 const fs = require('node:fs');
@@ -69,7 +69,6 @@ function register(ctx) {
     }
     return {
       ok: true,
-      wave: 'W6',
       pack: 'trust',
       limit: Math.max(1, Number(config.limit) || DEFAULT_LIMIT),
       windowMs: Math.max(1, Number(config.windowMs) || DEFAULT_WINDOW_MS),
@@ -164,11 +163,11 @@ function register(ctx) {
     try {
       const ctxObj = context || {};
       const key = String(
-        ctxObj.toolName
-          || ctxObj.tool
-          || ctxObj.name
-          || (ctxObj.input && (ctxObj.input.toolName || ctxObj.input.tool))
-          || 'tool',
+        ctxObj.toolName ||
+          ctxObj.tool ||
+          ctxObj.name ||
+          (ctxObj.input && (ctxObj.input.toolName || ctxObj.input.tool)) ||
+          'tool',
       );
       const result = checkKey(key, { consume: true });
       if (result.allowed) {

@@ -1,5 +1,5 @@
 /**
- * Wave 4 — Media transcription / Whisper STT (soft-fail).
+ * Media transcription / Whisper STT (soft-fail).
  * Secret presence only; never returns API key values.
  * Workspace path traversal safe for local audio files.
  */
@@ -46,9 +46,7 @@ function register(ctx) {
 
     // Soft-fail remote URL-only input with a clear tip (do not fetch arbitrary URLs).
     const urlOnly = String(payload.url || '').trim();
-    const pathHint = String(
-      payload.path || payload.file || payload.filePath || payload.audio || '',
-    ).trim();
+    const pathHint = String(payload.path || payload.file || payload.filePath || payload.audio || '').trim();
     if (urlOnly && !pathHint) {
       return {
         ok: false,
@@ -118,10 +116,7 @@ function register(ctx) {
       };
     }
 
-    const allowed = await ctx.requestPermission(
-      'network.external',
-      'OpenAI-compatible Whisper audio/transcriptions',
-    );
+    const allowed = await ctx.requestPermission('network.external', 'OpenAI-compatible Whisper audio/transcriptions');
     if (!allowed) {
       return {
         ok: false,
@@ -132,9 +127,7 @@ function register(ctx) {
       };
     }
 
-    const model =
-      String(payload.model || process.env.TRANSCRIPTION_MODEL || DEFAULT_MODEL).trim() ||
-      DEFAULT_MODEL;
+    const model = String(payload.model || process.env.TRANSCRIPTION_MODEL || DEFAULT_MODEL).trim() || DEFAULT_MODEL;
     const language = payload.language ? String(payload.language).trim() : null;
     const baseUrl = resolveBaseUrl().replace(/\/$/u, '');
 
@@ -152,12 +145,7 @@ function register(ctx) {
         apiKey(),
       );
 
-      const text =
-        typeof result === 'string'
-          ? result
-          : result && typeof result.text === 'string'
-            ? result.text
-            : null;
+      const text = typeof result === 'string' ? result : result && typeof result.text === 'string' ? result.text : null;
 
       return {
         ok: Boolean(text),
@@ -207,7 +195,7 @@ function register(ctx) {
     }
   });
 
-  // Specialized registrar (Wave 0) — records transcription binding when host supports it.
+  // Specialized registrar — records transcription binding when host supports it.
   // May re-bind the same capabilityId; semantics stay soft-fail transcribe.
   if (typeof ctx.registerTranscriptionProvider === 'function') {
     try {
@@ -216,7 +204,7 @@ function register(ctx) {
         id: 'openai-compatible-whisper',
         capabilityId: 'media.transcription.transcribe',
         label: 'OpenAI-Compatible Whisper',
-        metadata: { wave: 'W4', pack: 'media' },
+        metadata: { pack: 'media' },
         handler: async (input) => {
           try {
             return await transcribe(input || {});
@@ -247,10 +235,7 @@ function apiKey() {
 }
 
 function resolveBaseUrl() {
-  return (
-    String(process.env.OPENAI_BASE_URL || process.env.OPENAI_API_BASE || DEFAULT_BASE).trim() ||
-    DEFAULT_BASE
-  );
+  return String(process.env.OPENAI_BASE_URL || process.env.OPENAI_API_BASE || DEFAULT_BASE).trim() || DEFAULT_BASE;
 }
 
 function safeHost(url) {
@@ -328,10 +313,7 @@ function postMultipart(url, { model, fileName, fileBuf, language }, key) {
 
     function addField(name, value) {
       parts.push(
-        Buffer.from(
-          `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`,
-          'utf8',
-        ),
+        Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`, 'utf8'),
       );
     }
 

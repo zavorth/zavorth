@@ -6,7 +6,7 @@
   "moduleKind": "memory",
   "summary": "Local bag-of-words vector memory with cosine search under .zavorth/memory-vector-local.",
   "description": "First-party memory plugin that stores hashed bag-of-words embeddings (no external deps) in workspace/.zavorth/memory-vector-local/store.json for soft semantic search.",
-  "tags": ["memory", "vector", "local", "embeddings", "wave3"],
+  "tags": ["memory", "vector", "local", "embeddings"],
   "source": {
     "kind": "local",
     "locator": "bundled://memory-vector-local",

@@ -1,4 +1,4 @@
-# search-exa (Wave 5)
+# search-exa
 
 Dedicated **Exa** neural search for Zavorth Plugin OS.
 
@@ -7,18 +7,18 @@ Dedicated **Exa** neural search for Zavorth Plugin OS.
 
 ## Env
 
-| Variable | Purpose |
-|----------|---------|
+| Variable      | Purpose                                      |
+| ------------- | -------------------------------------------- |
 | `EXA_API_KEY` | Required for query (presence only in status) |
 
 Status reports **presence only** — never secret values.
 
 ## Capabilities
 
-| Capability | Usage |
-|------------|--------|
-| `search.exa.status` | Key presence + host (`api.exa.ai`) |
-| `search.exa.query` | `{ query\|q, limit?, numResults? }` |
+| Capability          | Usage                               |
+| ------------------- | ----------------------------------- |
+| `search.exa.status` | Key presence + host (`api.exa.ai`)  |
+| `search.exa.query`  | `{ query\|q, limit?, numResults? }` |
 
 ### Query response shape
 
@@ -26,9 +26,7 @@ Status reports **presence only** — never secret values.
 {
   "ok": true,
   "backend": "exa",
-  "results": [
-    { "title": "...", "url": "https://...", "snippet": "..." }
-  ]
+  "results": [{ "title": "...", "url": "https://...", "snippet": "..." }]
 }
 ```
 
@@ -39,11 +37,11 @@ text contents for snippets.
 
 When `ctx.registerWebSearchProvider` exists, the plugin registers:
 
-| Field | Value |
-|-------|-------|
-| id | `exa` |
+| Field        | Value              |
+| ------------ | ------------------ |
+| id           | `exa`              |
 | capabilityId | `search.exa.query` |
-| kind | `web_search` |
+| kind         | `web_search`       |
 
 ## Safety
 

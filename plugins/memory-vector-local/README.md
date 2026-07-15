@@ -1,6 +1,6 @@
 # memory-vector-local
 
-Local bag-of-words / hashed embedding memory for Zavorth Plugin OS (Wave 3).
+Local bag-of-words / hashed embedding memory for Zavorth Plugin OS.
 
 No external ML dependencies (no TensorFlow). Soft semantic-ish search via 128-dim hashed vectors and cosine similarity.
 

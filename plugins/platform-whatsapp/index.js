@@ -5,10 +5,7 @@ function register(ctx) {
 
   function resolveToken() {
     return String(
-      process.env.WHATSAPP_TOKEN ||
-        process.env.WHATSAPP_CLOUD_TOKEN ||
-        process.env.META_WHATSAPP_TOKEN ||
-        '',
+      process.env.WHATSAPP_TOKEN || process.env.WHATSAPP_CLOUD_TOKEN || process.env.META_WHATSAPP_TOKEN || '',
     ).trim();
   }
 
@@ -68,10 +65,7 @@ function register(ctx) {
       };
     }
 
-    const allowed = await ctx.requestPermission(
-      'network.external',
-      'Send message via WhatsApp Cloud API',
-    );
+    const allowed = await ctx.requestPermission('network.external', 'Send message via WhatsApp Cloud API');
     if (!allowed) {
       return {
         ok: false,
@@ -86,9 +80,7 @@ function register(ctx) {
     const to = String((input && (input.to || input.phone || input.recipient)) || '')
       .trim()
       .replace(/[^\d+]/gu, '');
-    const text = String(
-      (input && (input.text || input.message || input.body || input.content)) || '',
-    ).trim();
+    const text = String((input && (input.text || input.message || input.body || input.content)) || '').trim();
 
     if (!to) {
       return { ok: false, delivered: false, channel: 'whatsapp', message: 'to/phone is required' };
@@ -112,10 +104,7 @@ function register(ctx) {
 
     try {
       const result = await postWhatsApp(path, token, body);
-      const messageId =
-        result && Array.isArray(result.messages) && result.messages[0]
-          ? result.messages[0].id
-          : null;
+      const messageId = result && Array.isArray(result.messages) && result.messages[0] ? result.messages[0].id : null;
       return {
         ok: true,
         delivered: true,
@@ -157,7 +146,7 @@ function register(ctx) {
     id: 'whatsapp',
     capabilityId: 'platform.whatsapp.send',
     label: 'WhatsApp',
-    metadata: { wave: 'W2', pack: 'platform' },
+    metadata: { pack: 'platform' },
     send: async (payload) => sendMessage(payload || {}),
   });
 

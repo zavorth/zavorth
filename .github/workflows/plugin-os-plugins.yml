@@ -1,0 +1,183 @@
+name: Plugin OS Plugins
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'plugins/**'
+      - 'packages/plugin-sdk/**'
+      - 'packages/create-zavorth-plugin/**'
+      - 'packages/zavorth-example-plugins/**'
+      - 'tests/plugins/**'
+      - 'scripts/plugin-os-qa.mjs'
+      - '.github/workflows/plugin-os-plugins.yml'
+  pull_request:
+    paths:
+      - 'plugins/**'
+      - 'packages/plugin-sdk/**'
+      - 'packages/create-zavorth-plugin/**'
+      - 'packages/zavorth-example-plugins/**'
+      - 'tests/plugins/**'
+      - 'scripts/plugin-os-qa.mjs'
+      - '.github/workflows/plugin-os-plugins.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-manifests:
+    name: Validate plugin manifests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install monorepo deps
+        run: npm ci
+
+      - name: JSON-parse all plugin manifests
+        run: |
+          node <<'EOF'
+          const fs = require('node:fs');
+          const path = require('node:path');
+
+          function walk(dir, out = []) {
+            if (!fs.existsSync(dir)) return out;
+            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) {
+                if (entry.name === 'node_modules') continue;
+                walk(full, out);
+              } else if (entry.name === 'manifest.json') {
+                out.push(full);
+              }
+            }
+            return out;
+          }
+
+          const roots = ['plugins'];
+          const files = roots.flatMap((r) => walk(r));
+          if (files.length === 0) {
+            console.error('No manifest.json files found under plugins/');
+            process.exit(1);
+          }
+
+          let failed = 0;
+          for (const file of files) {
+            try {
+              const raw = fs.readFileSync(file, 'utf8');
+              const manifest = JSON.parse(raw);
+              if (!manifest.schemaVersion) {
+                console.error(`FAIL ${file}: missing schemaVersion`);
+                failed += 1;
+                continue;
+              }
+              if (!manifest.moduleKind) {
+                console.error(`FAIL ${file}: missing moduleKind`);
+                failed += 1;
+                continue;
+              }
+              if (!manifest.entrypoint || !manifest.entrypoint.module) {
+                console.error(`FAIL ${file}: missing entrypoint.module`);
+                failed += 1;
+                continue;
+              }
+              console.log(`OK ${file} (${manifest.id} / ${manifest.moduleKind})`);
+            } catch (error) {
+              console.error(`FAIL ${file}: ${error instanceof Error ? error.message : String(error)}`);
+              failed += 1;
+            }
+          }
+
+          console.log(`\nValidated ${files.length} manifests; failures=${failed}`);
+          process.exit(failed === 0 ? 0 : 1);
+          EOF
+
+      - name: Example + first-party validation tests
+        run: |
+          node node_modules/jest/bin/jest.js \
+            tests/plugins/examples.validation.test.ts \
+            tests/plugins/first-party.validation.test.ts \
+            --runInBand
+
+  plugin-harness:
+    name: Plugin harness + packs
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: validate-manifests
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install monorepo deps
+        run: npm ci
+
+      - name: Plugin pack behavior tests
+        run: |
+          node node_modules/jest/bin/jest.js \
+            tests/plugins/examples.validation.test.ts \
+            tests/plugins/ecosystem-wave8.behavior.test.ts \
+            tests/plugins/provider-pack.behavior.test.ts \
+            tests/plugins/platform-pack.behavior.test.ts \
+            tests/plugins/media-pack.behavior.test.ts \
+            tests/plugins/memory-pack.behavior.test.ts \
+            --runInBand
+
+      - name: create-zavorth-plugin dry-run (all kinds sample)
+        run: |
+          node packages/create-zavorth-plugin/bin/create-zavorth-plugin.js demo-tool --kind tool --dry-run
+          node packages/create-zavorth-plugin/bin/create-zavorth-plugin.js demo-agent --kind agent --dry-run
+          node packages/create-zavorth-plugin/bin/create-zavorth-plugin.js demo-sandbox --kind sandbox --dry-run
+          node packages/create-zavorth-plugin/bin/create-zavorth-plugin.js demo-qa --kind qa --dry-run
+          node packages/create-zavorth-plugin/bin/create-zavorth-plugin.js demo-workspace --kind workspace --dry-run
+          node packages/create-zavorth-plugin/bin/create-zavorth-plugin.js demo-module --kind module --dry-run
+
+      - name: Example plugins reference pack smoke
+        working-directory: packages/zavorth-example-plugins
+        run: npm test
+
+  plugin-sdk-check:
+    name: plugin-sdk check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Build + test + harness
+        working-directory: packages/plugin-sdk
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install --no-package-lock || true; fi
+          npm run check
+
+      - name: Publish dry-run (@zavorth/plugin-sdk)
+        working-directory: packages/plugin-sdk
+        run: npm publish --dry-run --access public
+
+      - name: Publish dry-run (create-zavorth-plugin)
+        working-directory: packages/create-zavorth-plugin
+        run: npm publish --dry-run --access public

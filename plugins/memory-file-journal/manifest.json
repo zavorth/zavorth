@@ -6,7 +6,7 @@
   "moduleKind": "memory",
   "summary": "Append-only JSONL journal memory under .zavorth/memory-file-journal.",
   "description": "First-party memory plugin that appends timestamped journal entries to workspace/.zavorth/memory-file-journal/journal.jsonl with status, append, search, and tail capabilities.",
-  "tags": ["memory", "journal", "append", "local", "wave3"],
+  "tags": ["memory", "journal", "append", "local"],
   "source": {
     "kind": "local",
     "locator": "bundled://memory-file-journal",

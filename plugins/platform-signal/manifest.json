@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "platform-signal",
+  "label": "Signal Platform",
+  "version": "1.0.0",
+  "moduleKind": "channel",
+  "summary": "Soft-fail Signal channel for status and outbound send.",
+  "description": "First-party channel pack. Detects SIGNAL_* credential/transport presence only (never values). Soft send requests network.external or channel.send without exposing secrets.",
+  "tags": ["platform", "signal", "channel", "messaging"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://platform-signal",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "platform.signal.status",
+      "intent": "platform.signal.status",
+      "label": "Status",
+      "summary": "Report SIGNAL_* transport/token presence (never values).",
+      "artifactKinds": [],
+      "command": { "name": "platform_signal_status", "aliases": [], "usage": "{}" }
+    },
+    {
+      "id": "platform.signal.send",
+      "intent": "platform.signal.send",
+      "label": "Send",
+      "summary": "Soft send a Signal message (permission-gated).",
+      "artifactKinds": [],
+      "command": {
+        "name": "platform_signal_send",
+        "aliases": [],
+        "usage": "{ to|recipient|number, text|message|body }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Reach signal-cli JSON-RPC or bridge endpoint.",
+      "required": false
+    },
+    {
+      "kind": "channel.send",
+      "scope": "external",
+      "reason": "Deliver outbound Signal messages.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect SIGNAL_* credential/transport presence.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["platform-signal.receipt"]
+}

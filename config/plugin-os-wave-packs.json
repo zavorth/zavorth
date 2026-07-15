@@ -4,8 +4,15 @@
     {
       "id": "daily-ops",
       "label": "Daily Ops",
-      "wave": "baseline",
-      "intents": ["plan tasks", "ship pr", "ci status", "doctor", "secrets scan", "recall", "notify"],
+      "intents": [
+        "plan tasks",
+        "ship pr",
+        "ci status",
+        "doctor",
+        "secrets scan",
+        "recall",
+        "notify"
+      ],
       "pluginIds": [
         "workspace-doctor",
         "task-board",
@@ -19,9 +26,16 @@
     },
     {
       "id": "providers",
-      "label": "Provider pack (W1)",
-      "wave": "W1",
-      "intents": ["llm", "openai", "anthropic", "grok", "gemini", "complete", "chat model"],
+      "label": "Provider pack",
+      "intents": [
+        "llm",
+        "openai",
+        "anthropic",
+        "grok",
+        "gemini",
+        "complete",
+        "chat model"
+      ],
       "pluginIds": [
         "provider-status",
         "provider-openai-compatible",
@@ -33,9 +47,14 @@
     },
     {
       "id": "platforms",
-      "label": "Platform pack (W2)",
-      "wave": "W2",
-      "intents": ["telegram", "discord", "whatsapp", "webhook message", "send message"],
+      "label": "Platform pack",
+      "intents": [
+        "telegram",
+        "discord",
+        "whatsapp",
+        "webhook message",
+        "send message"
+      ],
       "pluginIds": [
         "platform-telegram",
         "platform-discord",
@@ -47,9 +66,14 @@
     },
     {
       "id": "memory",
-      "label": "Memory pack (W3)",
-      "wave": "W3",
-      "intents": ["remember", "memory", "journal", "vector search", "mem0"],
+      "label": "Memory pack",
+      "intents": [
+        "remember",
+        "memory",
+        "journal",
+        "vector search",
+        "mem0"
+      ],
       "pluginIds": [
         "memory-local",
         "memory-file-journal",
@@ -62,9 +86,15 @@
     },
     {
       "id": "media",
-      "label": "Media pack (W4)",
-      "wave": "W4",
-      "intents": ["generate image", "vision", "tts", "transcribe", "video gen", "speech"],
+      "label": "Media pack",
+      "intents": [
+        "generate image",
+        "vision",
+        "tts",
+        "transcribe",
+        "video gen",
+        "speech"
+      ],
       "pluginIds": [
         "media-image-gen",
         "media-vision",
@@ -76,9 +106,16 @@
     },
     {
       "id": "browser-search",
-      "label": "Browser & search (W5)",
-      "wave": "W5",
-      "intents": ["web search", "browse", "scrape", "firecrawl", "exa", "cdp", "playwright"],
+      "label": "Browser & search",
+      "intents": [
+        "web search",
+        "browse",
+        "scrape",
+        "firecrawl",
+        "exa",
+        "cdp",
+        "playwright"
+      ],
       "pluginIds": [
         "web-search",
         "browser-playwright",
@@ -90,9 +127,14 @@
     },
     {
       "id": "trust",
-      "label": "Trust fabric (W6)",
-      "wave": "W6",
-      "intents": ["secret", "auth", "rate limit", "context engine", "dashboard login"],
+      "label": "Trust fabric",
+      "intents": [
+        "secret",
+        "auth",
+        "rate limit",
+        "context engine",
+        "dashboard login"
+      ],
       "pluginIds": [
         "secret-source-env",
         "secret-source-file",
@@ -107,18 +149,34 @@
     },
     {
       "id": "lifestyle",
-      "label": "Lifestyle & demos (W7)",
-      "wave": "W7",
-      "intents": ["spotify", "music", "demo showcase", "surface parity"],
-      "pluginIds": ["spotify-soft", "demo-showcase"],
+      "label": "Lifestyle & demos",
+      "intents": [
+        "spotify",
+        "music",
+        "demo showcase",
+        "surface parity"
+      ],
+      "pluginIds": [
+        "spotify-soft",
+        "demo-showcase"
+      ],
       "enableHint": "Enable optional lifestyle/demo plugins."
     },
     {
       "id": "ecosystem",
-      "label": "Ecosystem (W8)",
-      "wave": "W8",
-      "intents": ["create plugin", "marketplace", "atlas", "publish sdk", "third party plugin"],
-      "pluginIds": ["plugin-router-ai", "selfmod-plugin-forge", "mcp-bridge"],
+      "label": "Ecosystem",
+      "intents": [
+        "create plugin",
+        "marketplace",
+        "atlas",
+        "publish sdk",
+        "third party plugin"
+      ],
+      "pluginIds": [
+        "plugin-router-ai",
+        "selfmod-plugin-forge",
+        "mcp-bridge"
+      ],
       "enableHint": "Use create-zavorth-plugin, atlas docs, and remote marketplace URL."
     }
   ]

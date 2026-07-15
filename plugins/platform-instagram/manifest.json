@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "platform-instagram",
+  "label": "Instagram Platform",
+  "version": "1.0.0",
+  "moduleKind": "channel",
+  "summary": "Soft-fail Instagram channel for status and outbound send.",
+  "description": "First-party channel pack. Detects INSTAGRAM_* credential presence only (never values). Soft send is permission-gated without exposing secrets.",
+  "tags": ["platform", "instagram", "channel", "messaging", "meta"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://platform-instagram",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "platform.instagram.status",
+      "intent": "platform.instagram.status",
+      "label": "Status",
+      "summary": "Report INSTAGRAM_* token presence (never the value).",
+      "artifactKinds": [],
+      "command": { "name": "platform_instagram_status", "aliases": [], "usage": "{}" }
+    },
+    {
+      "id": "platform.instagram.send",
+      "intent": "platform.instagram.send",
+      "label": "Send",
+      "summary": "Soft send an Instagram message (permission-gated).",
+      "artifactKinds": [],
+      "command": {
+        "name": "platform_instagram_send",
+        "aliases": [],
+        "usage": "{ to|recipient|userId, text|message|body }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call Instagram Graph API over HTTPS.",
+      "required": false
+    },
+    {
+      "kind": "channel.send",
+      "scope": "external",
+      "reason": "Deliver outbound Instagram messages.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect INSTAGRAM_* credential presence.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["platform-instagram.receipt"]
+}

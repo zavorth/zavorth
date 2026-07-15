@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "channel",
   "summary": "Soft-fail Telegram Bot API channel for status and outbound send.",
-  "description": "Wave 2 platform pack. Uses TELEGRAM_BOT_TOKEN / TELEGRAM_TOKEN presence only (never values). Sends via api.telegram.org when network permission is granted.",
-  "tags": ["platform", "telegram", "channel", "wave2", "messaging"],
+  "description": "Platform pack. Uses TELEGRAM_BOT_TOKEN / TELEGRAM_TOKEN presence only (never values). Sends via api.telegram.org when network permission is granted.",
+  "tags": ["platform", "telegram", "channel", "messaging"],
   "source": {
     "kind": "local",
     "locator": "bundled://platform-telegram",

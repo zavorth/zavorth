@@ -29,6 +29,7 @@ const tests = [
   'tests/services/PluginOsPermissionPreviewService.test.ts',
   'tests/cli/plugins/ZavorthCliPluginsNamespace.os.test.ts',
   'tests/plugins/first-party.validation.test.ts',
+  'tests/plugins/examples.validation.test.ts',
   'tests/plugins/daily-ops.behavior.test.ts',
   'tests/plugins/provider-pack.behavior.test.ts',
   'tests/plugins/platform-pack.behavior.test.ts',

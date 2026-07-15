@@ -4,9 +4,7 @@ function register(ctx) {
   const logger = ctx.getLogger();
 
   function resolveConfiguredUrl() {
-    return String(
-      process.env.ZAVORTH_PLATFORM_WEBHOOK_URL || process.env.PLATFORM_WEBHOOK_URL || '',
-    ).trim();
+    return String(process.env.ZAVORTH_PLATFORM_WEBHOOK_URL || process.env.PLATFORM_WEBHOOK_URL || '').trim();
   }
 
   function statusPayload() {
@@ -46,8 +44,7 @@ function register(ctx) {
       return {
         ok: false,
         url: null,
-        error:
-          'No webhook URL configured (ZAVORTH_PLATFORM_WEBHOOK_URL / PLATFORM_WEBHOOK_URL) and no input.url',
+        error: 'No webhook URL configured (ZAVORTH_PLATFORM_WEBHOOK_URL / PLATFORM_WEBHOOK_URL) and no input.url',
       };
     }
     if (!isSafeWebhookUrl(configured)) {
@@ -61,14 +58,9 @@ function register(ctx) {
   }
 
   function buildBody(input) {
-    const text = String(
-      (input && (input.text || input.message || input.body || input.content)) || '',
-    ).trim();
+    const text = String((input && (input.text || input.message || input.body || input.content)) || '').trim();
     const title = input && input.title != null ? String(input.title).trim().slice(0, 200) : null;
-    const severity =
-      input && input.severity != null
-        ? String(input.severity).toLowerCase().slice(0, 20)
-        : null;
+    const severity = input && input.severity != null ? String(input.severity).toLowerCase().slice(0, 20) : null;
     const extra =
       input && input.payload && typeof input.payload === 'object' && !Array.isArray(input.payload)
         ? input.payload
@@ -111,10 +103,7 @@ function register(ctx) {
       };
     }
 
-    const allowed = await ctx.requestPermission(
-      'network.external',
-      'POST JSON to platform webhook URL',
-    );
+    const allowed = await ctx.requestPermission('network.external', 'POST JSON to platform webhook URL');
     if (!allowed) {
       return {
         ok: false,
@@ -169,7 +158,7 @@ function register(ctx) {
     id: 'webhook',
     capabilityId: 'platform.webhook.send',
     label: 'Webhook',
-    metadata: { wave: 'W2', pack: 'platform' },
+    metadata: { pack: 'platform' },
     send: async (payload) => sendMessage(payload || {}),
   });
 

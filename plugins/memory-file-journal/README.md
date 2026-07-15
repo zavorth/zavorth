@@ -1,6 +1,6 @@
 # memory-file-journal
 
-Append-only JSONL journal memory for Zavorth Plugin OS (Wave 3).
+Append-only JSONL journal memory for Zavorth Plugin OS.
 
 ## Store
 

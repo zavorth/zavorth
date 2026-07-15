@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "platform-teams",
+  "label": "Microsoft Teams Platform",
+  "version": "1.0.0",
+  "moduleKind": "channel",
+  "summary": "Soft-fail Microsoft Teams channel for status and outbound send.",
+  "description": "First-party channel pack. Detects TEAMS_WEBHOOK_URL or MICROSOFT_TEAMS_* / TEAMS_* credential presence only (never values). Soft send posts to webhook when network permission is granted.",
+  "tags": ["platform", "teams", "channel", "messaging", "microsoft"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://platform-teams",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "platform.teams.status",
+      "intent": "platform.teams.status",
+      "label": "Status",
+      "summary": "Report Teams webhook / credential presence (never values).",
+      "artifactKinds": [],
+      "command": { "name": "platform_teams_status", "aliases": [], "usage": "{}" }
+    },
+    {
+      "id": "platform.teams.send",
+      "intent": "platform.teams.send",
+      "label": "Send",
+      "summary": "Soft send a Teams message via incoming webhook (or soft stub).",
+      "artifactKinds": [],
+      "command": {
+        "name": "platform_teams_send",
+        "aliases": [],
+        "usage": "{ text|message|body, title? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "POST to Microsoft Teams webhook or Graph endpoint.",
+      "required": false
+    },
+    {
+      "kind": "channel.send",
+      "scope": "external",
+      "reason": "Deliver outbound Teams messages.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect TEAMS_WEBHOOK_URL / MICROSOFT_TEAMS_* presence.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["platform-teams.receipt"]
+}

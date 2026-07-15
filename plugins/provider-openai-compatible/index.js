@@ -1,12 +1,14 @@
 /**
- * Wave 1 — OpenAI-compatible provider plugin (soft-fail).
+ * OpenAI-compatible provider plugin (soft-fail).
  */
 function register(ctx) {
   const logger = ctx.getLogger();
 
   function statusPayload() {
     const keyPresent = Boolean(String(process.env.OPENAI_API_KEY || '').trim());
-    const baseUrl = String(process.env.OPENAI_BASE_URL || process.env.OPENAI_API_BASE || 'https://api.openai.com/v1').trim();
+    const baseUrl = String(
+      process.env.OPENAI_BASE_URL || process.env.OPENAI_API_BASE || 'https://api.openai.com/v1',
+    ).trim();
     return {
       ok: true,
       provider: 'openai-compatible',
@@ -29,7 +31,7 @@ function register(ctx) {
     capabilityId: 'provider.openai_compatible.complete',
     name: 'openai-compatible',
     label: 'OpenAI Compatible',
-    metadata: { wave: 'W1', pack: 'providers' },
+    metadata: { pack: 'providers' },
     async complete(input) {
       const status = statusPayload();
       if (!status.keyPresent) {
@@ -44,13 +46,19 @@ function register(ctx) {
         return { ok: false, message: 'prompt is required' };
       }
       const model = String((input && input.model) || process.env.OPENAI_MODEL || 'gpt-4o-mini');
-      const baseUrl = String(process.env.OPENAI_BASE_URL || process.env.OPENAI_API_BASE || 'https://api.openai.com/v1').replace(/\/$/u, '');
+      const baseUrl = String(
+        process.env.OPENAI_BASE_URL || process.env.OPENAI_API_BASE || 'https://api.openai.com/v1',
+      ).replace(/\/$/u, '');
       try {
-        const result = await postJson(`${baseUrl}/chat/completions`, {
-          model,
-          messages: [{ role: 'user', content: prompt.slice(0, 32000) }],
-          max_tokens: Math.min(2048, Number((input && input.maxTokens) || 512) || 512),
-        }, String(process.env.OPENAI_API_KEY || ''));
+        const result = await postJson(
+          `${baseUrl}/chat/completions`,
+          {
+            model,
+            messages: [{ role: 'user', content: prompt.slice(0, 32000) }],
+            max_tokens: Math.min(2048, Number((input && input.maxTokens) || 512) || 512),
+          },
+          String(process.env.OPENAI_API_KEY || ''),
+        );
         const text = result?.choices?.[0]?.message?.content || null;
         return {
           ok: Boolean(text),

@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "channel",
   "summary": "Soft-fail generic HTTPS outbound webhook channel (Slack-style or raw JSON).",
-  "description": "Wave 2 platform pack. POSTs JSON payloads to a configured HTTPS webhook URL. Supports optional per-call https URL override with SSRF-safe host checks. Soft-fail without URL or network.external permission. Never exposes secret URL values in status.",
-  "tags": ["platform", "webhook", "channel", "wave2", "messaging"],
+  "description": "Platform pack. POSTs JSON payloads to a configured HTTPS webhook URL. Supports optional per-call https URL override with SSRF-safe host checks. Soft-fail without URL or network.external permission. Never exposes secret URL values in status.",
+  "tags": ["platform", "webhook", "channel", "messaging"],
   "source": {
     "kind": "local",
     "locator": "bundled://platform-webhook",

@@ -1,5 +1,5 @@
 /**
- * Wave 3 — mem0 remote memory backend (soft-fail).
+ * mem0 remote memory backend (soft-fail).
  * Presence-only status; never returns secret values.
  */
 const http = require('node:http');
@@ -27,14 +27,15 @@ function register(ctx) {
         : keyPresent
           ? 'MEM0_API_KEY present; add/search available when network.external is granted.'
           : 'Set MEM0_API_KEY (and optional MEM0_BASE_URL / MEM0_USER_ID) to enable remote memory.',
-      setup: keyPresent && resolved.ok
-        ? null
-        : [
-            'export MEM0_API_KEY=...',
-            'optional: MEM0_BASE_URL (default host api.mem0.ai)',
-            'optional: MEM0_USER_ID default user scope',
-            'Grant network.external for HTTP calls',
-          ],
+      setup:
+        keyPresent && resolved.ok
+          ? null
+          : [
+              'export MEM0_API_KEY=...',
+              'optional: MEM0_BASE_URL (default host api.mem0.ai)',
+              'optional: MEM0_USER_ID default user scope',
+              'Grant network.external for HTTP calls',
+            ],
     };
   }
 
@@ -63,10 +64,7 @@ function register(ctx) {
         },
       };
     }
-    const allowed = await ctx.requestPermission(
-      'network.external',
-      `mem0 ${actionLabel}`,
-    );
+    const allowed = await ctx.requestPermission('network.external', `mem0 ${actionLabel}`);
     if (!allowed) {
       return {
         ready: false,
@@ -90,9 +88,7 @@ function register(ctx) {
     let messages = Array.isArray(payload.messages) ? payload.messages : null;
 
     if (!messages || messages.length === 0) {
-      const text = String(
-        payload.text || payload.content || payload.value || payload.message || '',
-      ).trim();
+      const text = String(payload.text || payload.content || payload.value || payload.message || '').trim();
       if (!text) {
         return {
           ok: false,
@@ -118,12 +114,7 @@ function register(ctx) {
     }
 
     try {
-      const result = await httpJson(
-        'POST',
-        `${gate.baseUrl}/v1/memories/`,
-        body,
-        gate.apiKey,
-      );
+      const result = await httpJson('POST', `${gate.baseUrl}/v1/memories/`, body, gate.apiKey);
       return {
         ok: true,
         backend: 'mem0',
@@ -157,12 +148,7 @@ function register(ctx) {
     };
 
     try {
-      const result = await httpJson(
-        'POST',
-        `${gate.baseUrl}/v1/memories/search/`,
-        body,
-        gate.apiKey,
-      );
+      const result = await httpJson('POST', `${gate.baseUrl}/v1/memories/search/`, body, gate.apiKey);
       const items = normalizeSearchItems(result, limit);
       return {
         ok: true,
@@ -185,9 +171,7 @@ function register(ctx) {
     if (!gate.ready) return { ...gate.result, value: null, items: [] };
 
     const payload = input || {};
-    const id = String(
-      payload.id || payload.memoryId || payload.key || payload.memory_id || '',
-    ).trim();
+    const id = String(payload.id || payload.memoryId || payload.key || payload.memory_id || '').trim();
     const userId = resolveUserId(payload);
     const limit = Math.max(1, Math.min(50, Number(payload.limit) || 20) || 20);
 
@@ -214,12 +198,7 @@ function register(ctx) {
         user_id: userId,
         page_size: String(limit),
       });
-      const result = await httpJson(
-        'GET',
-        `${gate.baseUrl}/v1/memories/?${qs.toString()}`,
-        null,
-        gate.apiKey,
-      );
+      const result = await httpJson('GET', `${gate.baseUrl}/v1/memories/?${qs.toString()}`, null, gate.apiKey);
       const items = normalizeListItems(result, limit);
       return {
         ok: true,
@@ -239,10 +218,7 @@ function register(ctx) {
         ...softHttpError(error),
         value: null,
         items: [],
-        message:
-          error instanceof Error
-            ? `mem0 get unavailable: ${error.message}`
-            : 'mem0 get unavailable',
+        message: error instanceof Error ? `mem0 get unavailable: ${error.message}` : 'mem0 get unavailable',
       };
     }
   }
@@ -294,14 +270,12 @@ function register(ctx) {
     id: 'memory-mem0',
     capabilityId: 'memory.mem0.search',
     label: 'mem0 remote memory',
-    metadata: { wave: 'W3', pack: 'memory', remote: true },
+    metadata: { pack: 'memory', remote: true },
     write: async (input) => addMemory(input || {}),
     search: async (input) => searchMemory(input || {}),
     read: async (input) => {
       const payload = input || {};
-      const hasId = Boolean(
-        payload.id || payload.memoryId || payload.key || payload.memory_id,
-      );
+      const hasId = Boolean(payload.id || payload.memoryId || payload.key || payload.memory_id);
       if (hasId || !(payload.query || payload.q || payload.text)) {
         return getMemory(payload);
       }
@@ -322,9 +296,7 @@ function defaultUserId() {
 
 function resolveUserId(input) {
   // Prefer explicit user fields only — never treat memory id/key as user_id.
-  const explicit = String(
-    (input && (input.userId || input.user_id)) || '',
-  ).trim();
+  const explicit = String((input && (input.userId || input.user_id)) || '').trim();
   if (explicit) return explicit;
   return defaultUserId() || 'default';
 }
@@ -443,12 +415,14 @@ function normalizeListItems(result, limit) {
         : Array.isArray(result.data)
           ? result.data
           : [];
-  return list.slice(0, limit).map((item, index) => sanitizeResult({
-    id: item && (item.id || item.memory_id) != null ? String(item.id || item.memory_id) : null,
-    memory: item && (item.memory != null ? item.memory : item.text != null ? item.text : item.content),
-    metadata: item && item.metadata != null ? item.metadata : null,
-    index,
-  }));
+  return list.slice(0, limit).map((item, index) =>
+    sanitizeResult({
+      id: item && (item.id || item.memory_id) != null ? String(item.id || item.memory_id) : null,
+      memory: item && (item.memory != null ? item.memory : item.text != null ? item.text : item.content),
+      metadata: item && item.metadata != null ? item.metadata : null,
+      index,
+    }),
+  );
 }
 
 function httpJson(method, url, body, bearerToken) {

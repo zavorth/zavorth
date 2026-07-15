@@ -1,6 +1,6 @@
-# demo-showcase (Wave 7)
+# demo-showcase
 
-Lifestyle & demos pack — **single plugin** that exercises as many Wave 0 specialized `register_*` APIs as possible for demos and surface-parity tables.
+Lifestyle & demos pack — **single plugin** that exercises as many specialized `register_*` APIs as possible for demos and surface-parity tables.
 
 - Soft-fail everything
 - **No real network**
@@ -9,24 +9,24 @@ Lifestyle & demos pack — **single plugin** that exercises as many Wave 0 speci
 
 ## Capabilities
 
-| Capability | Input | Notes |
-|------------|--------|--------|
-| `demo.showcase.status` | `{}` | `{ ok, wave:'W7', surface, capabilityCount, message }` |
-| `demo.showcase.ping` | `{ message? }` | `{ ok: true, echo, wave: 'W7' }` |
-| `demo.showcase.skill` | `{ … }` | Soft skill demo |
-| `demo.showcase.cli` | `{ args? }` | Soft CLI demo |
-| `demo.showcase.auxiliary` | `{ task? }` | Soft auxiliary task |
-| `demo.showcase.web_search` | `{ query }` | Fake search results (no network) |
-| `demo.showcase.browser` | `{ url? }` | Soft navigate stub |
-| `demo.showcase.image_gen` | `{ prompt? }` | Soft image-gen message |
-| `demo.showcase.video_gen` | `{ prompt? }` | Soft video-gen message |
-| `demo.showcase.tts` | `{ text? }` | Soft TTS message |
-| `demo.showcase.transcription` | `{ audio? }` | Soft transcription message |
-| `demo.showcase.secret` | `{}` | Presence of `DEMO_SHOWCASE_SECRET` only |
-| `demo.showcase.auth` | `{ token }` | `authenticated` if `token === 'demo'` |
-| `demo.showcase.context` | `{ query? }` | Soft context engine stub |
-| `demo.showcase.slack_action` | `{ action? }` | Soft Slack action stub |
-| `demo.showcase.middleware_note` | `{}` | Documents whether middleware was registered |
+| Capability                      | Input          | Notes                                       |
+| ------------------------------- | -------------- | ------------------------------------------- |
+| `demo.showcase.status`          | `{}`           | `{ ok, surface, capabilityCount, message }` |
+| `demo.showcase.ping`            | `{ message? }` | `{ ok: true, echo }`                        |
+| `demo.showcase.skill`           | `{ … }`        | Soft skill demo                             |
+| `demo.showcase.cli`             | `{ args? }`    | Soft CLI demo                               |
+| `demo.showcase.auxiliary`       | `{ task? }`    | Soft auxiliary task                         |
+| `demo.showcase.web_search`      | `{ query }`    | Fake search results (no network)            |
+| `demo.showcase.browser`         | `{ url? }`     | Soft navigate stub                          |
+| `demo.showcase.image_gen`       | `{ prompt? }`  | Soft image-gen message                      |
+| `demo.showcase.video_gen`       | `{ prompt? }`  | Soft video-gen message                      |
+| `demo.showcase.tts`             | `{ text? }`    | Soft TTS message                            |
+| `demo.showcase.transcription`   | `{ audio? }`   | Soft transcription message                  |
+| `demo.showcase.secret`          | `{}`           | Presence of `DEMO_SHOWCASE_SECRET` only     |
+| `demo.showcase.auth`            | `{ token }`    | `authenticated` if `token === 'demo'`       |
+| `demo.showcase.context`         | `{ query? }`   | Soft context engine stub                    |
+| `demo.showcase.slack_action`    | `{ action? }`  | Soft Slack action stub                      |
+| `demo.showcase.middleware_note` | `{}`           | Documents whether middleware was registered |
 
 **Capability count:** 16
 
@@ -55,16 +55,16 @@ Always `bindCapability` for each capability above. When present on `ctx`, also s
 
 ## Permissions
 
-| Kind | Required | Reason |
-|------|----------|--------|
+| Kind          | Required | Reason                                   |
+| ------------- | -------- | ---------------------------------------- |
 | `secret.read` | optional | Probe presence of `DEMO_SHOWCASE_SECRET` |
 
 No filesystem permission declared.
 
 ## Env
 
-| Name | Purpose |
-|------|---------|
+| Name                   | Purpose                                            |
+| ---------------------- | -------------------------------------------------- |
 | `DEMO_SHOWCASE_SECRET` | Optional; presence-only via `demo.showcase.secret` |
 
 ## Enable

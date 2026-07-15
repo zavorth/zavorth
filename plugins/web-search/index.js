@@ -7,16 +7,16 @@ function register(ctx) {
     return {
       output: {
         ok: true,
-        wave: 'W5',
         backends: {
           searxng: { configured: searx },
           exa: { configured: exa },
           duckduckgoLite: { configured: true, note: 'fallback without key' },
         },
         preferred: searx ? 'searxng' : exa ? 'exa' : 'duckduckgo-lite',
-        message: searx || exa
-          ? 'At least one primary search backend is configured.'
-          : 'No SEARXNG_URL or EXA_API_KEY; will try DuckDuckGo lite or return setup tips.',
+        message:
+          searx || exa
+            ? 'At least one primary search backend is configured.'
+            : 'No SEARXNG_URL or EXA_API_KEY; will try DuckDuckGo lite or return setup tips.',
         setup: setupTips(),
         note: 'Secret values are never returned — presence only.',
       },
@@ -86,7 +86,9 @@ function setupTips() {
 }
 
 async function trySearxng(query, limit) {
-  const base = String(process.env.SEARXNG_URL || '').trim().replace(/\/+$/u, '');
+  const base = String(process.env.SEARXNG_URL || '')
+    .trim()
+    .replace(/\/+$/u, '');
   if (!base) return null;
   try {
     const url = `${base}/search?q=${encodeURIComponent(query)}&format=json`;
@@ -96,13 +98,11 @@ async function trySearxng(query, limit) {
     });
     if (!response.ok) return null;
     const data = await response.json();
-    const results = (Array.isArray(data.results) ? data.results : [])
-      .slice(0, limit)
-      .map((item) => ({
-        title: String(item.title || ''),
-        url: String(item.url || item.link || ''),
-        snippet: String(item.content || item.snippet || ''),
-      }));
+    const results = (Array.isArray(data.results) ? data.results : []).slice(0, limit).map((item) => ({
+      title: String(item.title || ''),
+      url: String(item.url || item.link || ''),
+      snippet: String(item.content || item.snippet || ''),
+    }));
     return {
       ok: true,
       backend: 'searxng',
@@ -129,13 +129,11 @@ async function tryExa(query, limit) {
     });
     if (!response.ok) return null;
     const data = await response.json();
-    const results = (Array.isArray(data.results) ? data.results : [])
-      .slice(0, limit)
-      .map((item) => ({
-        title: String(item.title || ''),
-        url: String(item.url || ''),
-        snippet: String(item.text || item.snippet || ''),
-      }));
+    const results = (Array.isArray(data.results) ? data.results : []).slice(0, limit).map((item) => ({
+      title: String(item.title || ''),
+      url: String(item.url || ''),
+      snippet: String(item.text || item.snippet || ''),
+    }));
     return {
       ok: true,
       backend: 'exa',
@@ -178,7 +176,9 @@ function parseDdgLite(html, limit) {
   let match = linkRe.exec(html);
   while (match && results.length < limit) {
     const href = String(match[1] || '').trim();
-    const title = String(match[2] || '').replace(/<[^>]+>/gu, '').trim();
+    const title = String(match[2] || '')
+      .replace(/<[^>]+>/gu, '')
+      .trim();
     if (href.startsWith('http') && title) {
       results.push({ title, url: href, snippet: '' });
     }

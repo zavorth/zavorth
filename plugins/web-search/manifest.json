@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "search",
   "summary": "Search the web via SearXNG, Exa, DuckDuckGo lite, or setup tips.",
-  "description": "Wave 5 polished multi-backend search. Tries SEARXNG_URL, then EXA_API_KEY, then DuckDuckGo lite; search.status reports configured backends (presence only).",
-  "tags": ["search", "web", "query", "network", "wave5"],
+  "description": "Polished multi-backend search. Tries SEARXNG_URL, then EXA_API_KEY, then DuckDuckGo lite; search.status reports configured backends (presence only).",
+  "tags": ["search", "web", "query", "network"],
   "source": {
     "kind": "local",
     "locator": "bundled://web-search",

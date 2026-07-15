@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "diagnostics",
   "summary": "In-memory sliding window rate limit via registerMiddleware / registerHook.",
-  "description": "Wave 6 trust fabric plugin. Soft-counts tool.before_execute invocations with a sliding window. Emits middleware.rate_limit.exceeded when over limit; never hard-blocks unless config.block is true, and even then only soft-fails (log/guidance). Config stored under .zavorth/middleware-rate-limit/config.json.",
-  "tags": ["middleware", "rate-limit", "hooks", "wave6", "trust"],
+  "description": "Trust fabric plugin. Soft-counts tool.before_execute invocations with a sliding window. Emits middleware.rate_limit.exceeded when over limit; never hard-blocks unless config.block is true, and even then only soft-fails (log/guidance). Config stored under .zavorth/middleware-rate-limit/config.json.",
+  "tags": ["middleware", "rate-limit", "hooks", "trust"],
   "source": {
     "kind": "local",
     "locator": "bundled://middleware-rate-limit",

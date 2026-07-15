@@ -1,0 +1,36 @@
+{
+  "name": "@zavorth/example-plugins",
+  "version": "0.1.0",
+  "description": "Reference pack documenting Zavorth Plugin OS example plugins (plugins/examples/*).",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md",
+    "package.json"
+  ],
+  "keywords": [
+    "zavorth",
+    "plugin-os",
+    "examples",
+    "create-zavorth-plugin"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node -e \"const p=require('./index.js'); if(!p.EXAMPLES||!p.EXAMPLES.length) process.exit(1); console.log('ok', p.EXAMPLES.length)\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zavorth/zavorth.git",
+    "directory": "packages/zavorth-example-plugins"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

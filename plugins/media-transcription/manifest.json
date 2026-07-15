@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "voice",
   "summary": "Soft-fail OpenAI-compatible Whisper transcription (audio/transcriptions).",
-  "description": "Wave 4 media pack. Reads a workspace-local audio file and POSTs multipart to OpenAI-compatible /audio/transcriptions when OPENAI_API_KEY and network.external are available. Path-traversal safe. Soft-fail without key or file. URL-only input returns setup tips (not fetched by default).",
-  "tags": ["media", "transcription", "stt", "whisper", "wave4"],
+  "description": "Media pack. Reads a workspace-local audio file and POSTs multipart to OpenAI-compatible /audio/transcriptions when OPENAI_API_KEY and network.external are available. Path-traversal safe. Soft-fail without key or file. URL-only input returns setup tips (not fetched by default).",
+  "tags": ["media", "transcription", "stt", "whisper"],
   "source": {
     "kind": "local",
     "locator": "bundled://media-transcription",

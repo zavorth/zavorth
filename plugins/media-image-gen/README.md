@@ -1,15 +1,15 @@
-# media-image-gen (Wave 4)
+# media-image-gen
 
 Soft-fail image generation for Zavorth Plugin OS.
 
 ## Env
 
-| Variable | Purpose |
-|----------|---------|
-| `OPENAI_API_KEY` | Preferred backend (Images API) |
-| `OPENAI_BASE_URL` | Optional OpenAI-compatible base |
-| `IMAGE_GEN_MODEL` | Default model (e.g. `dall-e-3`) |
-| `XAI_API_KEY` / `GROK_API_KEY` | Fallback xAI image endpoint |
+| Variable                       | Purpose                         |
+| ------------------------------ | ------------------------------- |
+| `OPENAI_API_KEY`               | Preferred backend (Images API)  |
+| `OPENAI_BASE_URL`              | Optional OpenAI-compatible base |
+| `IMAGE_GEN_MODEL`              | Default model (e.g. `dall-e-3`) |
+| `XAI_API_KEY` / `GROK_API_KEY` | Fallback xAI image endpoint     |
 
 Status reports **presence only** — never secret values.
 
@@ -20,9 +20,9 @@ Status reports **presence only** — never secret values.
 
 When `ctx.registerImageGenProvider` is available, registers:
 
-| Field | Value |
-|-------|-------|
-| id | `media-image-gen` |
+| Field        | Value                  |
+| ------------ | ---------------------- |
+| id           | `media-image-gen`      |
 | capabilityId | `media.image.generate` |
 
 ## Provider preference

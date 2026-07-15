@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "provider-cerebras",
+  "label": "Cerebras Provider",
+  "version": "1.0.0",
+  "moduleKind": "provider",
+  "summary": "Soft-fail Cerebras OpenAI-compatible chat completions.",
+  "description": "First-party provider pack. Uses CEREBRAS_API_KEY. Completions go to api.cerebras.ai when permitted.",
+  "tags": ["provider", "cerebras", "llm", "complete"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://provider-cerebras",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "provider.cerebras.status",
+      "intent": "provider.cerebras.status",
+      "label": "Status",
+      "summary": "Report Cerebras key presence (no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "provider_cerebras_status",
+        "aliases": [],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "provider.cerebras.complete",
+      "intent": "provider.cerebras.complete",
+      "label": "Complete",
+      "summary": "Soft chat completion via Cerebras.",
+      "artifactKinds": [],
+      "command": {
+        "name": "provider_cerebras_complete",
+        "aliases": [],
+        "usage": "{ prompt, model? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call Cerebras chat completions endpoint.",
+      "required": false
+    },
+    {
+      "kind": "provider.call",
+      "scope": "external",
+      "reason": "Invoke LLM completion.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect CEREBRAS_API_KEY presence (not the value).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["provider-cerebras.receipt"]
+}

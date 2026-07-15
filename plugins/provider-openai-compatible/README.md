@@ -1,14 +1,14 @@
-# provider-openai-compatible (Wave 1)
+# provider-openai-compatible
 
 Soft-fail OpenAI-compatible chat completions for Plugin OS.
 
 ## Env
 
-| Variable | Purpose |
-|----------|---------|
-| `OPENAI_API_KEY` | Required for complete |
+| Variable          | Purpose                                      |
+| ----------------- | -------------------------------------------- |
+| `OPENAI_API_KEY`  | Required for complete                        |
 | `OPENAI_BASE_URL` | Optional (OpenRouter, local, Azure gateways) |
-| `OPENAI_MODEL` | Default model |
+| `OPENAI_MODEL`    | Default model                                |
 
 ## Capabilities
 

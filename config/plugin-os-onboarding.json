@@ -95,7 +95,7 @@
       "excludeOptional": false
     },
     "providers": {
-      "label": "Provider pack (Wave 1)",
+      "label": "Provider pack",
       "summary": "LLM provider plugins + status (optional keys; soft-fail).",
       "includeIds": [
         "provider-status",
@@ -109,7 +109,7 @@
       "excludeOptional": false
     },
     "platforms": {
-      "label": "Platform pack (Wave 2)",
+      "label": "Platform pack",
       "summary": "Messaging channel plugins (Telegram, Discord, WhatsApp, webhook).",
       "includeIds": [
         "platform-telegram",
@@ -123,7 +123,7 @@
       "excludeOptional": false
     },
     "memory": {
-      "label": "Memory pack (Wave 3)",
+      "label": "Memory pack",
       "summary": "Local + optional remote memory backends.",
       "includeIds": [
         "memory-local",
@@ -138,7 +138,7 @@
       "excludeOptional": false
     },
     "media": {
-      "label": "Media pack (Wave 4)",
+      "label": "Media pack",
       "summary": "Image, vision, TTS, transcription, optional video (keys + network).",
       "includeIds": [
         "media-image-gen",
@@ -152,7 +152,7 @@
       "excludeOptional": false
     },
     "browser-search": {
-      "label": "Browser & search pack (Wave 5)",
+      "label": "Browser & search pack",
       "summary": "Web search multi-backend, Playwright, CDP, Exa, Firecrawl.",
       "includeIds": [
         "web-search",
@@ -166,7 +166,7 @@
       "excludeOptional": false
     },
     "trust": {
-      "label": "Trust fabric pack (Wave 6)",
+      "label": "Trust fabric pack",
       "summary": "Secret sources, dashboard auth soft providers, context bridge, rate-limit middleware.",
       "includeIds": [
         "secret-source-env",
@@ -183,7 +183,7 @@
       "excludeOptional": false
     },
     "lifestyle": {
-      "label": "Lifestyle & demos pack (Wave 7)",
+      "label": "Lifestyle & demos pack",
       "summary": "Spotify soft + surface-parity demo showcase (optional tier).",
       "includeIds": [
         "spotify-soft",
@@ -232,15 +232,14 @@
   "notes": [
     "Optional plugins usually need credentials or heavier runtimes.",
     "Daily Ops pack is first-party; notify-outbox is optional because of webhooks.",
-    "Wave 1 provider pack: profile 'providers'.",
-    "Wave 2 platform pack: profile 'platforms'.",
-    "Wave 3 memory pack: profile 'memory' (honcho/mem0 optional).",
-    "Wave 4 media pack: profile 'media' (all optional; keys + network).",
-    "Wave 5 browser & search: profile 'browser-search' (cdp/exa/firecrawl optional).",
-    "Wave 6 trust fabric: profile 'trust' (dashboard auth optional in recommended).",
-    "Wave 7 lifestyle & demos: profile 'lifestyle' (spotify + demo-showcase optional).",
-    "Wave 8 ecosystem: atlas docs/generated/plugin-atlas.md, create-zavorth-plugin, signed packs, profile 'daily-ops'.",
-    "Gap closure waves: docs/plugin-os-gap-closure-waves.md + config/plugin-os-gap-waves.json",
+    "Provider pack: profile 'providers'.",
+    "Platform pack: profile 'platforms'.",
+    "Memory pack: profile 'memory' (honcho/mem0 optional).",
+    "Media pack: profile 'media' (all optional; keys + network).",
+    "Browser & search: profile 'browser-search' (cdp/exa/firecrawl optional).",
+    "Trust fabric: profile 'trust' (dashboard auth optional in recommended).",
+    "Lifestyle & demos: profile 'lifestyle' (spotify + demo-showcase optional).",
+    "Ecosystem: atlas docs/generated/plugin-atlas.md, create-zavorth-plugin, signed packs, profile 'daily-ops'.",
     "Onboarding never forces enable when trust is blocked or user disabled (unless --force).",
     "Set injectAgentSurface false or ZAVORTH_PLUGIN_OS_PROMPT=0 to skip system-prompt injection."
   ]

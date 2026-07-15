@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "platform-email",
+  "label": "Email Platform",
+  "version": "1.0.0",
+  "moduleKind": "channel",
+  "summary": "Soft-fail email/SMTP channel status and permission-gated send stub.",
+  "description": "First-party channel pack. Detects EMAIL_* / SMTP_* env presence only (never values). Soft send stub requests network.external or channel.send without exposing secrets.",
+  "tags": ["platform", "email", "channel", "messaging", "smtp"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://platform-email",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "platform.email.status",
+      "intent": "platform.email.status",
+      "label": "Status",
+      "summary": "Report SMTP/EMAIL env presence (never secret values).",
+      "artifactKinds": [],
+      "command": { "name": "platform_email_status", "aliases": [], "usage": "{}" }
+    },
+    {
+      "id": "platform.email.send",
+      "intent": "platform.email.send",
+      "label": "Send",
+      "summary": "Soft send stub for outbound email (permission-gated).",
+      "artifactKinds": [],
+      "command": {
+        "name": "platform_email_send",
+        "aliases": [],
+        "usage": "{ to|recipient, subject?, text|message|body }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Connect to SMTP relay for outbound email.",
+      "required": false
+    },
+    {
+      "kind": "channel.send",
+      "scope": "external",
+      "reason": "Deliver outbound email messages.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect EMAIL_* / SMTP_* credential presence.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["platform-email.receipt"]
+}

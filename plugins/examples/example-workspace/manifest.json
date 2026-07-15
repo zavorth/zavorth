@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "example-workspace",
+  "label": "Example Workspace",
+  "version": "0.1.0",
+  "moduleKind": "workspace",
+  "summary": "Minimal workspace info capability stub for Plugin OS.",
+  "description": "Bundled example workspace plugin. Soft-fail register; reports workspace path when available.",
+  "tags": ["workspace", "example"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://examples/example-workspace",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "workspace.info",
+      "intent": "workspace.info",
+      "label": "Workspace Info",
+      "summary": "Stub workspace info capability.",
+      "artifactKinds": [],
+      "command": {
+        "name": "example_workspace_info",
+        "aliases": [],
+        "usage": "{}"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Workspace plugins may read workspace files when approved.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

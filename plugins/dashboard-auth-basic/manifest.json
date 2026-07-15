@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "diagnostics",
   "summary": "Local basic-auth provider surface for control plane soft simulation.",
-  "description": "Wave 6 trust fabric plugin. Exposes dashboard.auth.basic.* capabilities for soft simulation of control-plane basic auth. Does NOT replace a real auth server — plugin surface only. Never returns password values.",
-  "tags": ["dashboard", "auth", "basic", "wave6", "trust"],
+  "description": "Trust fabric plugin. Exposes dashboard.auth.basic.* capabilities for soft simulation of control-plane basic auth. Does NOT replace a real auth server — plugin surface only. Never returns password values.",
+  "tags": ["dashboard", "auth", "basic", "trust"],
   "source": {
     "kind": "local",
     "locator": "bundled://dashboard-auth-basic",

@@ -171,7 +171,7 @@ export class PluginOsSuggestService {
       });
     }
 
-    // Wave 8: inject pack plugins when intent matches pack intents (never auto-enable).
+    // Inject pack plugins when intent matches pack intents (never auto-enable).
     for (const pack of packHits) {
       const ids = Array.isArray(pack.pluginIds) ? pack.pluginIds : [];
       for (const pluginId of ids.slice(0, limit)) {
@@ -180,7 +180,7 @@ export class PluginOsSuggestService {
           score: 0.55,
           label: pack.label || pack.id,
           summary: pack.enableHint || `Part of pack ${pack.id}`,
-          reasons: [`wave pack: ${pack.id}`, pack.wave ? `wave ${pack.wave}` : 'pack match'].filter(Boolean),
+          reasons: [`plugin pack: ${pack.id}`, pack.wave ? `pack ${pack.id}` : 'pack match'].filter(Boolean),
         });
       }
     }
@@ -257,7 +257,7 @@ export class PluginOsSuggestService {
     });
   }
 
-  /** Wave 8: match config/plugin-os-wave-packs.json against free-text intent. */
+  /** Match config/plugin-os-wave-packs.json against free-text intent. */
   private matchWavePacks(root: string, intent: string): WavePackDef[] {
     const packs = this.loadWavePacks(root);
     if (packs.length === 0) return [];

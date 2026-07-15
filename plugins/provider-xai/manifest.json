@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "provider",
   "summary": "Soft-fail xAI Grok chat completions via OpenAI-compatible API.",
-  "description": "Wave 1 provider pack. Uses XAI_API_KEY / GROK_API_KEY. Completions go to api.x.ai when permitted.",
-  "tags": ["provider", "xai", "grok", "llm", "wave1"],
+  "description": "Provider pack. Uses XAI_API_KEY / GROK_API_KEY. Completions go to api.x.ai when permitted.",
+  "tags": ["provider", "xai", "grok", "llm"],
   "source": {
     "kind": "local",
     "locator": "bundled://provider-xai",

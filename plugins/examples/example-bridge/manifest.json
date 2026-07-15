@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "example-bridge",
+  "label": "Example Bridge",
+  "version": "0.1.0",
+  "moduleKind": "bridge",
+  "summary": "Generic HTTP / CLI / MCP bridge with soft-fail when endpoint missing.",
+  "description": "Bundled example bridge plugin. Modes: http, cli, mcp. Soft-fails without endpoint; no outbound I/O by default.",
+  "tags": ["bridge", "example", "http", "cli", "mcp"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://examples/example-bridge",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "bridge.invoke",
+      "intent": "bridge.invoke",
+      "label": "Bridge Invoke",
+      "summary": "Generic HTTP/CLI/MCP invoke with soft-fail when target missing.",
+      "artifactKinds": [],
+      "command": {
+        "name": "example_bridge_invoke",
+        "aliases": ["invoke", "bridge"],
+        "usage": "{ mode?: http|cli|mcp, url?, command?, mcpServer?, payload? }"
+      }
+    },
+    {
+      "id": "bridge.forward",
+      "intent": "bridge.forward",
+      "label": "Bridge Forward",
+      "summary": "Alias of bridge.invoke for catalog compatibility.",
+      "artifactKinds": [],
+      "command": {
+        "name": "example_bridge_forward",
+        "aliases": ["forward"],
+        "usage": "{ payload?, mode?, url?, command?, mcpServer? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Bridge plugins may reach external bridge endpoints when approved.",
+      "required": false
+    },
+    {
+      "kind": "process.spawn",
+      "scope": "local",
+      "reason": "Optional CLI bridge when operator supplies a command.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read local payload files when bridging workspace content.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

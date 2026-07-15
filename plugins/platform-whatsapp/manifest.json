@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "channel",
   "summary": "Soft-fail WhatsApp Cloud API channel for outbound text messages.",
-  "description": "Wave 2 platform pack. Sends text via Meta WhatsApp Cloud API when token and phone number id are present. Soft-fail without credentials or network.external permission. Never exposes secret values.",
-  "tags": ["platform", "whatsapp", "channel", "wave2", "messaging"],
+  "description": "Platform pack. Sends text via Meta WhatsApp Cloud API when token and phone number id are present. Soft-fail without credentials or network.external permission. Never exposes secret values.",
+  "tags": ["platform", "whatsapp", "channel", "messaging"],
   "source": {
     "kind": "local",
     "locator": "bundled://platform-whatsapp",

@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "tool",
   "summary": "Soft-fail Chrome DevTools Protocol attach for browser automation without Playwright.",
-  "description": "Wave 5 browser pack. Attaches to an existing Chrome/Chromium instance via CDP HTTP endpoints (CDP_URL or BROWSER_CDP_URL). Presence-only status (host only; never returns full secrets). Soft-fail when CDP is not configured, network permission is denied, or the debug endpoint is unreachable. Pure JS; no Playwright dependency.",
-  "tags": ["browser", "cdp", "chrome", "wave5", "soft-fail"],
+  "description": "Browser pack. Attaches to an existing Chrome/Chromium instance via CDP HTTP endpoints (CDP_URL or BROWSER_CDP_URL). Presence-only status (host only; never returns full secrets). Soft-fail when CDP is not configured, network permission is denied, or the debug endpoint is unreachable. Pure JS; no Playwright dependency.",
+  "tags": ["browser", "cdp", "chrome", "soft-fail"],
   "source": {
     "kind": "local",
     "locator": "bundled://browser-cdp",

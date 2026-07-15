@@ -1,6 +1,6 @@
 # dashboard-auth-token
 
-Wave 6 trust fabric — **bearer token** provider surface for control-plane soft simulation.
+trust fabric — **bearer token** provider surface for control-plane soft simulation.
 
 Does **not** replace a real auth server. Token presence only; values are never returned.
 

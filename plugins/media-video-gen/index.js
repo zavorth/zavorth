@@ -1,5 +1,5 @@
 /**
- * Wave 4 — Media video generation (optional tier soft stub).
+ * Media video generation (optional tier soft stub).
  * Never pretends success without a configured provider API.
  * Secret presence only; never returns key values.
  */
@@ -22,12 +22,7 @@ function register(ctx) {
 
   function anyProviderKey() {
     const p = envPresence();
-    return (
-      p.VIDEO_GEN_API_KEY ||
-      p.RUNWAY_API_KEY ||
-      p.LUMA_API_KEY ||
-      p.REPLICATE_API_TOKEN
-    );
+    return p.VIDEO_GEN_API_KEY || p.RUNWAY_API_KEY || p.LUMA_API_KEY || p.REPLICATE_API_TOKEN;
   }
 
   function setupTips() {
@@ -43,9 +38,7 @@ function register(ctx) {
   function statusPayload() {
     const keys = envPresence();
     const configured = anyProviderKey();
-    const baseHost = keys.VIDEO_GEN_BASE_URL
-      ? safeHost(String(process.env.VIDEO_GEN_BASE_URL || '').trim())
-      : null;
+    const baseHost = keys.VIDEO_GEN_BASE_URL ? safeHost(String(process.env.VIDEO_GEN_BASE_URL || '').trim()) : null;
     return {
       ok: true,
       provider: 'video-gen-optional',
@@ -73,10 +66,7 @@ function register(ctx) {
     const status = statusPayload();
     const payload = input || {};
     const prompt = String(payload.prompt || payload.text || payload.input || '').trim();
-    const duration = Math.max(
-      1,
-      Math.min(30, Number(payload.duration) || 4) || 4,
-    );
+    const duration = Math.max(1, Math.min(30, Number(payload.duration) || 4) || 4);
 
     if (!prompt) {
       return {
@@ -88,14 +78,13 @@ function register(ctx) {
     }
 
     const videoKey = String(process.env.VIDEO_GEN_API_KEY || '').trim();
-    const baseUrl = String(process.env.VIDEO_GEN_BASE_URL || '').trim().replace(/\/$/u, '');
+    const baseUrl = String(process.env.VIDEO_GEN_BASE_URL || '')
+      .trim()
+      .replace(/\/$/u, '');
 
     // Soft-try only when both generic video-gen key and base URL are set.
     if (videoKey && baseUrl) {
-      const allowed = await ctx.requestPermission(
-        'network.external',
-        'Optional VIDEO_GEN video generation API',
-      );
+      const allowed = await ctx.requestPermission('network.external', 'Optional VIDEO_GEN video generation API');
       if (!allowed) {
         return {
           ok: false,
@@ -143,8 +132,7 @@ function register(ctx) {
         return {
           ok: false,
           available: false,
-          message:
-            'VIDEO_GEN provider responded but did not return a video URL or job id; treating as incomplete.',
+          message: 'VIDEO_GEN provider responded but did not return a video URL or job id; treating as incomplete.',
           prompt: prompt.slice(0, 200),
           duration,
           setup: setupTips(),
@@ -206,7 +194,7 @@ function register(ctx) {
     }
   });
 
-  // Specialized registrar (Wave 0) — records video_gen binding when host supports it.
+  // Specialized registrar — records video_gen binding when host supports it.
   // May re-bind the same capabilityId; semantics stay soft stub / soft-try.
   if (typeof ctx.registerVideoGenProvider === 'function') {
     try {
@@ -215,7 +203,7 @@ function register(ctx) {
         id: 'video-gen-optional',
         capabilityId: 'media.video.generate',
         label: 'Optional Video Gen',
-        metadata: { wave: 'W4', pack: 'media', optional: true },
+        metadata: { pack: 'media', optional: true },
         handler: async (input) => {
           try {
             return await generate(input || {});

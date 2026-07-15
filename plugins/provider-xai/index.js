@@ -22,7 +22,7 @@ function register(ctx) {
     capabilityId: 'provider.xai.complete',
     name: 'xai',
     label: 'xAI Grok',
-    metadata: { wave: 'W1', pack: 'providers' },
+    metadata: { pack: 'providers' },
     async complete(input) {
       const status = statusPayload();
       if (!status.keyPresent) {
@@ -37,11 +37,15 @@ function register(ctx) {
       const model = String((input && input.model) || process.env.XAI_MODEL || 'grok-2-latest');
       const apiKey = String(process.env.XAI_API_KEY || process.env.GROK_API_KEY || '');
       try {
-        const result = await postJson('https://api.x.ai/v1/chat/completions', {
-          model,
-          messages: [{ role: 'user', content: prompt.slice(0, 32000) }],
-          max_tokens: Math.min(2048, Number((input && input.maxTokens) || 512) || 512),
-        }, apiKey);
+        const result = await postJson(
+          'https://api.x.ai/v1/chat/completions',
+          {
+            model,
+            messages: [{ role: 'user', content: prompt.slice(0, 32000) }],
+            max_tokens: Math.min(2048, Number((input && input.maxTokens) || 512) || 512),
+          },
+          apiKey,
+        );
         const text = result?.choices?.[0]?.message?.content || null;
         return { ok: Boolean(text), provider: 'xai', model, text, usage: result?.usage || null };
       } catch (error) {
