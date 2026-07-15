@@ -10,6 +10,7 @@
 
 import type {
   ZavorthDeclaredSkillTool,
+  ZavorthSkillToolBindStatus,
   ZavorthSkillToolBinding,
 } from '../contracts/skill/ZavorthSkillWorkerMeshContract.js';
 import { getDynamicIntentToolMap, setDynamicIntentToolMap } from '../cognitive-firewall/ToolGatekeeper.js';

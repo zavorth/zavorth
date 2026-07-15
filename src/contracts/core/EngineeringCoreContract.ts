@@ -127,7 +127,7 @@ export type PatchProposal = {
   proposalId: string;
   previewId?: string | null;
   changeId?: string | null;
-  mode?: 'file' | 'goal' | null;
+  mode?: 'file' | 'goal' | 'multi' | null;
   status?: 'previewed' | 'applied' | 'rolled_back' | 'failed' | null;
   summary: string;
   targetFiles: string[];

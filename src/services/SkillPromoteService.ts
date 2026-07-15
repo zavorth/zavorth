@@ -176,8 +176,8 @@ export class SkillPromoteService {
             path.join(target, 'ORIGIN.json'),
             `${JSON.stringify(
               {
-                kind: 'experience-skill-learning-loop',
                 ...provenance,
+                originKind: 'experience-skill-learning-loop',
               },
               null,
               2,

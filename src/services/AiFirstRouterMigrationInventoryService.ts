@@ -257,7 +257,7 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
     label: 'Natural channel setup turn',
     filePath: 'src/services/NaturalChannelSetupTurnService.ts',
     currentRole: 'Executor de setup com flags estruturadas; soft extraction de env key=value apenas.',
-    currentDecisionStyle: 'structured-flags + soft-extraction',
+    currentDecisionStyle: 'control-plane',
     migrationDecision: 'promote-ai-first',
     phaseTarget: 'checkpoint-5',
     reason: 'Apply/doctor/test/mode ja nao ativam por free-text; flags estruturadas e extraction segura de secrets.',

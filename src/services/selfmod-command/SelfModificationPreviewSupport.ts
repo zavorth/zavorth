@@ -470,7 +470,34 @@ export class SelfModificationPreviewSupport {
       this.options.selfmodPatternMemory.rememberPreview({
         goal: artifact.goal,
         relativePaths,
-        analysis: null,
+        analysis: {
+          resourceDelta: {
+            ramIdleMb: 0,
+            diskMb: 0,
+            processCount: 0,
+            summary: 'multi-file preview',
+            notes: [],
+          },
+          runtimeRisk: {
+            level: 'low',
+            score: 0,
+            reasons: [],
+            requiresRestart: false,
+            requiresSupervisorAttention: false,
+            launcherTouch: false,
+          },
+          companionImpact: {
+            level: 'none',
+            companionIds: [],
+            summary: 'none',
+            notes: [],
+            recommendedActions: [],
+          },
+          rollbackConfidence: 0.7,
+          rollbackConfidenceLabel: 'medium',
+          opportunities: [],
+          patternSignals: [],
+        },
       });
 
       return {

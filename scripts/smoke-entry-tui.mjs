@@ -237,7 +237,7 @@ function main() {
 
   const { dir: stubDir, command: stubCmd } = writeTuiStub();
   try {
-    // 1) Default path → TUI (not legacy)
+    // 1) Default path → product home (offline; Code TUI is explicit via `zavorth code`)
     const defaultRun = spawnCaptured('bin/zavorth.js', [], {
       ZAVORTH_CODE_BIN: stubCmd,
     });
@@ -245,11 +245,16 @@ function main() {
       defaultRun.status === 0,
       `default zavorth failed: status=${defaultRun.status} stderr=${(defaultRun.stderr || '').trim()}`,
     );
+    const defaultOut = String(defaultRun.stdout || '');
     assert(
-      String(defaultRun.stdout || '').includes('TUI_OK'),
-      `default path did not hit TUI stub: ${defaultRun.stdout}`,
+      /Zavorth|product home|Usage:|capabilities/i.test(defaultOut),
+      `default path did not show product home: ${defaultOut}`,
     );
-    pass('node bin/zavorth.js defaults to TUI (ZAVORTH_CODE_BIN stub)');
+    assert(
+      !defaultOut.includes('TUI_OK'),
+      `default path must not auto-launch Code TUI (got TUI stub): ${defaultOut}`,
+    );
+    pass('node bin/zavorth.js defaults to product home (Code TUI is explicit)');
 
     // 2) `code` alias → TUI with remaining args
     const codeAlias = spawnCaptured('bin/zavorth.js', ['code', '--version'], {

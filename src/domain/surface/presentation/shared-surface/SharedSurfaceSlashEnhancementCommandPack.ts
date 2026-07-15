@@ -176,7 +176,7 @@ export class SharedSurfaceSlashEnhancementCommandPack {
       const pack = new LearnedKnowledgePlaneService({ projectRoot }).buildPack({
         userId,
         userMessage: query || null,
-        surface: String(ctx.channel || 'shared-surface'),
+        surface: String(ctx.channelId || ctx.platform || 'shared-surface'),
         projectRoot,
       });
       await ctx.reply(

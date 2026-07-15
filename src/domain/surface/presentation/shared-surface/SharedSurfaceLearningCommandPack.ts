@@ -132,8 +132,10 @@ export class SharedSurfaceLearningCommandPack {
           lines.push(
             `${n}. ${candidate.title || short} [${candidate.kind || 'item'}] score=${score}`,
             `   review=${candidate.reviewState || 'n/a'} lifecycle=${candidate.lifecycle || 'n/a'} ref=${short}`,
-            candidate.summary ? `   ${String(candidate.summary).slice(0, 140)}` : null,
           );
+          if (candidate.summary) {
+            lines.push(`   ${String(candidate.summary).slice(0, 140)}`);
+          }
         });
         lines.push(
           '',

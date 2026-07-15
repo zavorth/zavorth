@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-14T02:09:56.969Z",
+  "updatedAt": "2026-07-15T05:00:27.801Z",
   "snapshot": {
     "controls": [
       {
@@ -12,7 +12,7 @@
       {
         "id": "security/AgentToolSecurityCatalog",
         "relativePath": "src/security/AgentToolSecurityCatalog.ts",
-        "sha256": "227e184d09c35c92fe39bb054860237bbf4acdbfce30c380110e93f9ce5bacf6",
+        "sha256": "a30383af370612aead971a2d73d9e8d8a0434988ab33516fc8dcc9100cbc788b",
         "present": true
       },
       {
@@ -36,7 +36,7 @@
       {
         "id": "security/SafeFetchService",
         "relativePath": "src/security/SafeFetchService.ts",
-        "sha256": "85335db16efe908df6a4799deee2fa94d62e61c5ebea24a069ea54d1d33393e8",
+        "sha256": "3d300e2aad16fee6c097c358fb7f009e24532c3dadb2374c44d39c995fdfd58a",
         "present": true
       },
       {
