@@ -112,11 +112,15 @@ function renderCandidates(candidates: LearningCandidate[]) {
   if (top.length === 0) {
     return `<div class="learning-empty"><strong>No candidates</strong></div>`;
   }
-  return top.map((candidate) => {
-    const state = String(candidate.lifecycle || candidate.reviewState || 'draft').replace(/_/g, ' ');
-    const canPromote = candidate.reviewState !== 'rejected' && candidate.lifecycle !== 'trusted_local' && candidate.lifecycle !== 'published';
-    const applyAction = canPromote ? 'promote' : 'approve';
-    return `
+  return top
+    .map((candidate) => {
+      const state = String(candidate.lifecycle || candidate.reviewState || 'draft').replace(/_/g, ' ');
+      const canPromote =
+        candidate.reviewState !== 'rejected' &&
+        candidate.lifecycle !== 'trusted_local' &&
+        candidate.lifecycle !== 'published';
+      const applyAction = canPromote ? 'promote' : 'approve';
+      return `
       <article class="learning-candidate" data-learning-candidate="${escapeHtml(candidate.id)}">
         <div class="learning-candidate__main">
           <span>${escapeHtml(candidate.kind || 'learning')}</span>
@@ -133,7 +137,8 @@ function renderCandidates(candidates: LearningCandidate[]) {
         </div>
       </article>
     `;
-  }).join('');
+    })
+    .join('');
 }
 
 function renderLearningScene(root: HTMLElement, learning: LearningPayload, memory?: MemoryStatusPayload) {
@@ -141,19 +146,24 @@ function renderLearningScene(root: HTMLElement, learning: LearningPayload, memor
   const state = learningState(summary);
   const candidates = Array.isArray(learning.learning?.candidates)
     ? learning.learning?.candidates || []
-    : Array.isArray(learning.data) ? learning.data : [];
-  const updated = learning.generatedAt ? new Date(learning.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'now';
+    : Array.isArray(learning.data)
+      ? learning.data
+      : [];
+  const updated = learning.generatedAt
+    ? new Date(learning.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : 'now';
 
   root.innerHTML = `
     <div class="daily-page learning-shell">
       <section class="daily-header">
         <div>
           <span class="daily-kicker">${escapeHtml(state.label)}</span>
-          <h1>Learning</h1>
+          <h1>Learning candidates</h1>
+          <p class="daily-muted">/learning = candidates · /learn = skill drafts</p>
         </div>
         <button class="daily-button daily-button--primary" type="button" data-learning-refresh>Refresh</button>
       </section>
-      <section class="daily-stat-row daily-stat-row--compact" aria-label="Learning summary">
+      <section class="daily-stat-row daily-stat-row--compact" aria-label="Learning candidates summary">
         <article class="daily-metric"><span>Pending</span><strong>${numberLabel(summary.pending)}</strong><small>review</small></article>
         <article class="daily-metric"><span>Trusted</span><strong>${numberLabel(summary.promoted)}</strong><small>applied</small></article>
         <article class="daily-metric"><span>Hooks</span><strong>${numberLabel(summary.fromHooks)}</strong><small>signals</small></article>
@@ -164,6 +174,7 @@ function renderLearningScene(root: HTMLElement, learning: LearningPayload, memor
           <div><span>Queue</span><h2>Candidates</h2></div>
           <small class="daily-muted">${escapeHtml(updated)}</small>
         </div>
+        <p class="daily-muted" style="margin:0 0 8px 0">Chat: /learning list · /learning approve 1 · /learning promote 1 · Skill drafts: /learn list</p>
         <div class="learning-candidates" data-learning-candidates>
           ${renderCandidates(candidates)}
         </div>
@@ -178,7 +189,7 @@ function renderLearningError(root: HTMLElement, error: unknown) {
       <section class="daily-header">
         <div>
           <span class="daily-kicker">Locked</span>
-          <h1>Learning</h1>
+          <h1>Learning candidates</h1>
           <p>${escapeHtml(String((error as Error)?.message || 'Token required.'))}</p>
         </div>
         <button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Help me unlock the local Zavorth dashboard token safely.">Unlock</button>
@@ -192,8 +203,9 @@ async function loadLearning(root: HTMLElement) {
     <div class="daily-page learning-shell">
       <section class="daily-header">
         <div>
-          <span class="daily-kicker">Learning</span>
-          <h1>Learning</h1>
+          <span class="daily-kicker">Learning plane</span>
+          <h1>Learning candidates</h1>
+          <p class="daily-muted">/learning = candidates · /learn = skill drafts</p>
         </div>
         <button class="daily-button daily-button--primary" type="button" data-learning-refresh>Refresh</button>
       </section>
@@ -235,14 +247,20 @@ async function loadLearning(root: HTMLElement) {
 }
 
 async function executeLearningAction(root: HTMLElement, candidateId: string, actionId: string) {
-  const button = root.querySelector<HTMLButtonElement>(`[data-learning-id="${CSS.escape(candidateId)}"][data-learning-action="${CSS.escape(actionId)}"]`);
+  const button = root.querySelector<HTMLButtonElement>(
+    `[data-learning-id="${CSS.escape(candidateId)}"][data-learning-action="${CSS.escape(actionId)}"]`,
+  );
   if (button) button.disabled = true;
   try {
     await readJson('/api/web/learning-dreams/action', {
       method: 'POST',
       body: JSON.stringify({ candidateId, actionId }),
     });
-    window.emitSignal?.('info', 'Learning updated', actionId === 'reject' ? 'The candidate was forgotten.' : 'The candidate was reviewed.');
+    window.emitSignal?.(
+      'info',
+      'Learning updated',
+      actionId === 'reject' ? 'The candidate was forgotten.' : 'The candidate was reviewed.',
+    );
     await loadLearning(root);
   } catch (error: unknown) {
     window.emitSignal?.('error', 'Learning action failed', String((error as Error)?.message || 'Try again.'));
