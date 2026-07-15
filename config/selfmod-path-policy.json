@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "zavorth.selfmod-path-policy.v1",
+  "notes": [
+    "Default allow: skills/, plugins/, docs/, config (including *sources*), tests/, scripts/.",
+    "src/** is core: requires BUILD mode + owner/trusted (enforced at command surface).",
+    "validationCommands run on apply when requireValidationCommandsOnApply=true or when set on the preview.",
+    "Free-text chat never applies; only structured /selfmod apply <preview_id>."
+  ],
+  "allowedExtensions": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".json", ".md", ".ps1", ".yml", ".yaml"],
+  "rules": [
+    {
+      "id": "skills-packs",
+      "pattern": "skills/**",
+      "tier": "standard",
+      "description": "Skill packs under skills/"
+    },
+    {
+      "id": "plugins-packs",
+      "pattern": "plugins/**",
+      "tier": "standard",
+      "description": "Plugin OS packages under plugins/"
+    },
+    {
+      "id": "docs",
+      "pattern": "docs/**",
+      "tier": "standard",
+      "description": "Documentation"
+    },
+    {
+      "id": "config-sources",
+      "pattern": "config/*sources*",
+      "tier": "standard",
+      "description": "Skill/plugin source config files"
+    },
+    {
+      "id": "config-general",
+      "pattern": "config/**",
+      "tier": "standard",
+      "description": "Workspace config"
+    },
+    {
+      "id": "tests",
+      "pattern": "tests/**",
+      "tier": "standard",
+      "description": "Tests"
+    },
+    {
+      "id": "scripts",
+      "pattern": "scripts/**",
+      "tier": "standard",
+      "description": "Scripts"
+    },
+    {
+      "id": "src-core",
+      "pattern": "src/**",
+      "tier": "core",
+      "requiresBuildMode": true,
+      "requiresOwnerOrTrusted": true,
+      "description": "Core runtime source — BUILD + owner/trusted"
+    }
+  ],
+  "blocked": ["node_modules/**", ".git/**", ".env", ".env.*", "data/secrets/**", "**/secrets*", "dist/**", "dist-*/**"],
+  "validationCommands": [],
+  "requireValidationCommandsOnApply": false,
+  "skipDeepBuildValidationForTiers": ["standard"],
+  "promoteHintOnApply": true
+}
