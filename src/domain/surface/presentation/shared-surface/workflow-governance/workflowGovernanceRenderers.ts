@@ -5,9 +5,10 @@ type PermissionListStatus = 'pending' | 'approved' | 'rejected' | 'expired' | 'a
 
 type SelfModificationPreviewResult = {
   success: boolean;
-  mode: 'file' | 'goal';
+  mode: 'file' | 'goal' | 'multi';
   previewId?: string;
   relativePath?: string;
+  relativePaths?: string[];
   summary: string;
   diffSummary?: string;
   validationPlan?: string[];
@@ -18,10 +19,11 @@ type SelfModificationPreviewResult = {
 
 type SelfModificationApplyResult = {
   success: boolean;
-  mode: 'file' | 'goal';
+  mode: 'file' | 'goal' | 'multi';
   previewId: string;
   summary: string;
   relativePath?: string;
+  relativePaths?: string[];
   diffSummary?: string;
   changeId?: string;
   changeCount?: number;

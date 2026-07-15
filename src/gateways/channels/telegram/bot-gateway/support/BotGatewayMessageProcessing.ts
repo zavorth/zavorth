@@ -303,7 +303,7 @@ async function tryHandleExplicitAgentApproval(
           ...(result.surfaceResponse.blocks || []).filter((b) => b.kind === 'actions'),
         ],
       };
-      await replyWithSharedSurfaceResponse(ctx, response, {
+      await replyWithSharedSurfaceResponse(ctx as any, response, {
         maxActionsPerRow: 2,
         trackApprovalId: null,
       });

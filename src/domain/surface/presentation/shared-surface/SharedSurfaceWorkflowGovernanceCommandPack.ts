@@ -296,9 +296,10 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
     ctx: IMessageContext,
     result: {
       success: boolean;
-      mode: 'file' | 'goal';
+      mode: 'file' | 'goal' | 'multi';
       previewId?: string;
       relativePath?: string;
+      relativePaths?: string[];
       summary: string;
       diffSummary?: string;
       changeCount?: number;
@@ -314,7 +315,7 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
         previewId: result.previewId,
         summary: result.summary,
         relativePath: result.relativePath,
-        mode: result.mode,
+        mode: result.mode === 'multi' ? 'goal' : result.mode,
         changeCount: result.changeCount,
         resourceImpact: result.resourceImpact,
         diffSummary: result.diffSummary,
