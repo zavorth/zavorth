@@ -30,6 +30,32 @@ Lead with **useful work**, then **daily habit**, then **trust** (approve → rec
 
 Same runtime on phone after channel proof. Do not claim Live without doctor/proof.
 
+## Script D — Learned Knowledge (~10 minutes)
+
+Prove the **Learned Knowledge Plane** (Workflows · Conversation · About you · Knowledge).
+
+### D1 — One command (hermetic, recommended for CI / dry run)
+
+```bash
+npm run knowledge:golden-path
+```
+
+No provider keys. No network. Exit non-zero on failure.  
+Details: [learned-knowledge-first-use.md](./learned-knowledge-first-use.md).
+
+### D2 — Operator walkthrough (with product surface)
+
+1. `npm run knowledge:golden-path` — prove engines hermetically (30–90s).
+2. `zavorth knowledge status` — four pillars + story + advanced.
+3. Optional live chat with tools → multi-tool success creates a **Workflow** draft (`zavorth learn list`).
+4. `zavorth knowledge pack "release checklist"` — show budgeted untrusted inject.
+5. `zavorth knowledge story` — cross-pillar events this week.
+6. Open Control or Desktop → **Learned knowledge** hub: event list + Advanced (vault / dream last-run).
+7. `zavorth knowledge consolidate` — dream **preview only** (no silent promote).
+8. `zavorth knowledge forget workflows <id>` — operator control.
+
+Say clearly: free text is model-owned; slash/CLI are deterministic; pack does not keyword-route features.
+
 ## Related
 
 - [quickstart.md](../quickstart.md) — public demo section links Script A/B here
@@ -37,8 +63,11 @@ Same runtime on phone after channel proof. Do not claim Live without doctor/proo
 - [public-demo-trust-loop.md](./public-demo-trust-loop.md)
 - [daily-use-trail.md](../daily-use-trail.md)
 - [WAVES-VALUE-INTELLIGENCE-HABIT.md](./WAVES-VALUE-INTELLIGENCE-HABIT.md)
+- [learned-knowledge-first-use.md](./learned-knowledge-first-use.md) — Script D deep dive
+- [learned-knowledge-plane.md](./learned-knowledge-plane.md)
 
 ## Anti-claims
 
 - Script A and `assets/zavorth-demo/index.html` are **offline fixtures**, not a live agent session.
 - Static demo copy must never say “live agent”, “live runtime”, or silent autonomy.
+- Script D golden path is hermetic and does **not** claim live multi-step IQ.
