@@ -216,8 +216,9 @@ describe('Zavorth live CLI namespaces', () => {
     const payload = JSON.parse(created.output);
 
     expect(preview.output).toContain('Add --yes');
-    expect(fs.existsSync(path.join(root, 'my-plugin'))).toBe(true);
-    expect(fs.existsSync(path.join(root, 'my-plugin', 'zavorth.plugin.json'))).toBe(true);
+    // Plugin OS scaffolds under plugins/<id> by default (not workspace root).
+    expect(fs.existsSync(path.join(root, 'plugins', 'my-plugin'))).toBe(true);
+    expect(fs.existsSync(path.join(root, 'plugins', 'my-plugin', 'zavorth.plugin.json'))).toBe(true);
     expect(payload.plugin.manifest.permissions).toContain('workspace:read');
   });
 
