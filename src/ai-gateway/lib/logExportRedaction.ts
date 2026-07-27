@@ -4,7 +4,7 @@ redactSensitiveData,
   redactSensitiveText,
 } from "../../security/SensitiveDataGuard.js";
 const SENSITIVE_EXPORT_KEY =
-  /(?:api[_-]...key|apiKey|access[_-]...token|accessToken|auth[_-]...token|authToken|authorization|client[_-]...secret|clientSecret|credential|password|private[_-]...key|privateKey|refresh[_-]...token|refreshToken|secret|token|cookie|set-cookie)/i;
+  /(?:api[_-]?key|apiKey|access[_-]?token|accessToken|auth[_-]?token|authToken|authorization|client[_-]?secret|clientSecret|credential|password|private[_-]?key|privateKey|refresh[_-]?token|refreshToken|secret|token|cookie|set-cookie)/i;
 
 export function redactExportedLogRows(rows: unknown[]): unknown[] {
   return rows.map((row) => redactExportedLogValue(row));

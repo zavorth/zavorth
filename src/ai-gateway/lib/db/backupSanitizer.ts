@@ -227,7 +227,7 @@ function rowIdExpression(db: DbLike, table: string): string {
 }
 
 function sensitiveKey(key: string): boolean {
-  return /(?:api[_-]...key|access[_-]...token|auth[_-]...token|authorization|client[_-]...secret|credential|password|private[_-]...key|refresh[_-]...token|secret|token)/i.test(key);
+  return /(?:api[_-]?key|access[_-]?token|auth[_-]?token|authorization|client[_-]?secret|credential|password|private[_-]?key|refresh[_-]?token|secret|token)/i.test(key);
 }
 
 function quoteIdent(value: string): string {

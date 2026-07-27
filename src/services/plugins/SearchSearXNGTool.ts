@@ -154,7 +154,7 @@ export class SearchSearXNGTool extends BaseTool {
       `  SEARXNG_URL=${instanceUrl}`,
       '',
       'Check if the instance responds:',
-      `  curl ${instanceUrl}/search...q=test&format=json`,
+      `  curl ${instanceUrl}/search?q=test&format=json`,
     ].join('\n');
   }
 }

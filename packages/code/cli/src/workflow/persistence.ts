@@ -153,7 +153,7 @@ const recordStart = (input: {
         // On resume the row already exists. We reset the counters AND re-stamp the
         // script_sha: launch passes the CURRENT script's sha, so a same-script
         // resume re-writes the identical sha (no-op) while a changed-script relaunch
-        // (the P1-2 mismatch path) overwrites the stale sha with the new one — so a
+        // (the sha-mismatch path) overwrites the stale sha with the new one — so a
         // SUBSEQUENT resume of the now-current script replays correctly. The sha
         // COMPARISON happens in resume() against load()'s pre-launch value, before
         // this overwrite runs, so re-stamping here never hides the mismatch.
@@ -281,7 +281,7 @@ const loadJournal = (runID: string): Effect.Effect<JournalLoad> =>
     return { results, pass: maxPass + 1 }
   })
 
-// Truncate the journal to empty (MR104 P1-2). Called on the resume sha-mismatch
+// Truncate the journal to empty (sha-mismatch cleanup). Called on the resume sha-mismatch
 // path BEFORE the fresh relaunch appends: replaying the OLD journal onto an EDITED
 // script is silent divergence, so the stale lines must not survive — and a fresh
 // run must not interleave its appends with them (a LATER resume's loadJournal would

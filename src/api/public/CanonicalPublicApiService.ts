@@ -575,7 +575,7 @@ export class CanonicalPublicApiService {
         sessionId,
         data: [],
         streaming: {
-          ssePath: `/api/v1/events...sessionId=${encodeURIComponent(sessionId)}`,
+          ssePath: `/api/v1/events?sessionId=${encodeURIComponent(sessionId)}`,
           canonicalEventTypes: this.getCanonicalEventTypes(),
         },
         safety: this.buildEventSafety(),
@@ -590,7 +590,7 @@ export class CanonicalPublicApiService {
       sessionId,
       data: [this.publicEvents.buildRuntimeStatusSnapshot({ sessionId, snapshot })],
       streaming: {
-        ssePath: `/api/v1/events...sessionId=${encodeURIComponent(sessionId)}`,
+        ssePath: `/api/v1/events?sessionId=${encodeURIComponent(sessionId)}`,
         canonicalEventTypes: this.getCanonicalEventTypes(),
       },
       safety: this.buildEventSafety(),

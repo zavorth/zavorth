@@ -269,7 +269,7 @@ async function fetchFromGitHubTopic(
 
   try {
     const topic = (source.config?.topic as string) || 'zavorth-skill';
-    const searchUrl = `https://api.github.com/search/repositories...q=topic:${topic}&sort=stars&per_page=100`;
+    const searchUrl = `https://api.github.com/search/repositories?q=topic:${topic}&sort=stars&per_page=100`;
 
     const headers: Record<string, string> = {
       'Accept': 'application/vnd.github.v3+json',

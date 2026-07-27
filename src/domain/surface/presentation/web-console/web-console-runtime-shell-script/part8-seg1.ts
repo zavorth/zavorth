@@ -1,4 +1,4 @@
-﻿import { asErrorLike } from '../../../../../utils/errorLike';
+import { asErrorLike } from '../../../../../utils/errorLike';
 export const runtimeShellScriptPart8Seg1: string = [
   '          return;',
   '        }',
@@ -151,7 +151,7 @@ export const runtimeShellScriptPart8Seg1: string = [
   '          toolRunId: normalizedRunId,',
   '        })',
   '      : await fetchProtectedJsonOptional(',
-  "          '/api/web/tool-runs/' + encodeURIComponent(normalizedRunId) + '/diff...sessionId=' + encodeURIComponent(sessionId),",
+  "          '/api/web/tool-runs/' + encodeURIComponent(normalizedRunId) + '/diff?sessionId=' + encodeURIComponent(sessionId),",
   '          token,',
   '        );',
   '    if (!payload?.ok) {',
@@ -363,7 +363,7 @@ export const runtimeShellScriptPart8Seg1: string = [
   '  try {',
   "    setText(memoryLayeredStatus, 'Buscando recall in episodic, semantic e procedural memory...');",
   '    const payload = await fetchProtectedJsonOptional(',
-  "      '/api/web/memory/search...q=' + encodeURIComponent(query),",
+  "      '/api/web/memory/search?q=' + encodeURIComponent(query),",
   '      token,',
   '    );',
   '    renderLayeredMemorySearchResults(payload?.search || null);',

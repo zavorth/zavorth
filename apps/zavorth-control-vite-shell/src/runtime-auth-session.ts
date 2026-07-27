@@ -35,7 +35,7 @@ export function createRuntimeAuthSession({
       const tokenFromUrl = tokenFromHash || tokenFromQuery;
       if (tokenFromUrl || url.searchParams.has('token') || hashParams.has('token')) {
         // Persist before stripping so refresh / subsequent API calls keep auth
-        // whether the token arrived via hash (#token=) or query (...token=).
+        // whether the token arrived via hash (#token=) or query (?token=).
         if (tokenFromUrl) {
           sessionStorage.setItem(authStorageKey, tokenFromUrl);
         }

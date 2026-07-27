@@ -317,6 +317,6 @@ function valueType(value: ZavorthLocalProfilePreferenceValue): ZavorthLocalProfi
 
 function containsSecretLikeMaterial(value: ZavorthLocalProfilePreferenceValue): boolean {
   const text = JSON.stringify(value).toLowerCase();
-  return /\b(secret|password|api[_-]...key|access[_-]...token|refresh[_-]...token|bearer)\b/.test(text)
+  return /\b(secret|password|api[_-]?key|access[_-]?token|refresh[_-]?token|bearer)\b/.test(text)
     || /\b(sk-[a-z0-9_-]{12,}|ghp_[a-z0-9_]{12,}|xox[baprs]-[a-z0-9-]{12,})\b/i.test(text);
 }

@@ -17,7 +17,7 @@ export function redactSensitiveText(input: string | null | undefined): string {
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{10,}\b/gi, '[REDACTED_SECRET]')
     .replace(/\bAIza[0-9A-Za-z\-_]{20,}\b/g, '[REDACTED_SECRET]')
     .replace(/\b\d{6,12}:[A-Za-z0-9_-]{20,}\b/g, '[REDACTED_SECRET]')
-    .replace(/\b(?:token|api[_-]...key|secret|password|passwd|pwd|access[_-]...token|client[_-]...secret)\s*[:=]\s*[^\s,;]+/gi, (match) => {
+    .replace(/\b(?:token|api[_-]?key|secret|password|passwd|pwd|access[_-]?token|client[_-]?secret)\s*[:=]\s*[^\s,;]+/gi, (match) => {
       const sep = match.includes('=') ? '=' : ':';
       const [key] = match.split(/[:=]/);
       return `${key.trim()}${sep}[REDACTED_SECRET]`;
@@ -31,7 +31,7 @@ export function addDays(now: Date, days: number): string {
 }
 
 export function containsRawSecret(value: unknown): boolean {
-  return /\bsk-[A-Za-z0-9_-]{6,}\b|\b(?:token|api[_-]...key|secret|password|passwd|pwd)\s*=\s*[^\s,;]+/i
+  return /\bsk-[A-Za-z0-9_-]{6,}\b|\b(?:token|api[_-]?key|secret|password|passwd|pwd)\s*=\s*[^\s,;]+/i
     .test(JSON.stringify(value));
 }
 

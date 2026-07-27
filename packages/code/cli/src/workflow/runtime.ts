@@ -185,7 +185,7 @@ interface StartInput {
   scriptDeadlineMs?: number
   // Internal (resume-only): when true, launch ignores any persisted journal and
   // truncates the stale `.jsonl` before the run appends. resume() sets this on the
-  // script-change path (stored script_sha != current script's sha, MR104 P1-2) so
+  // script-change path (stored script_sha != current script's sha, script-sha mismatch) so
   // an EDITED script never replays results journaled against the OLD body. start()
   // never sets it (a fresh runID has no prior journal — nothing to invalidate).
   freshJournal?: boolean
@@ -506,11 +506,11 @@ export const layer = Layer.effect(
         currentPhaseId: undefined,
       }
       runs.set(runID, entry)
-      // Stamp a sha256 of the FULL script body (the exact bytes writeScript persists
-      // and resume's readScript reads back), so resume can detect a between-cycle
-      // edit by comparing this to the current file's sha — apples-to-apples, MR104
-      // P1-2. recordStart re-stamps it on every (re)launch, so a changed-script
-      // relaunch overwrites the stale sha and a subsequent resume replays correctly.
+      // Stamp a sha256 of the full script body persisted by writeScript and read
+      // back by resume, so resume can detect between-cycle edits by comparing the
+      // stored sha with the current file sha. recordStart re-stamps it on every
+      // launch, so a changed-script relaunch overwrites the stale sha and later
+      // resume operations replay correctly.
       const scriptSha = createHash("sha256").update(input.script).digest("hex")
       yield* WorkflowPersistence.recordStart({
         runID,
@@ -1367,7 +1367,7 @@ export const layer = Layer.effect(
       // LIMITATION: this is in-process only. Two SEPARATE processes resuming the same
       // runID against the same DB (e.g. two server instances) are NOT covered — there
       // is no shared/file-lock infra in this repo to reuse, and cross-process resume
-      // is out of scope for MR104 P2-1.
+      // is out of scope for deferred cleanup.
       // Acquire as a JS Promise<Disposable> (Lock.write is promise-based; there is no
       // existing Effect-context consumer to mirror, so we bridge via Effect.promise),
       // and release in Effect.ensuring so it ALWAYS releases — even if load /
@@ -1390,7 +1390,7 @@ export const layer = Layer.effect(
         const read = yield* WorkflowPersistence.readScript(input.runID).pipe(Effect.exit)
         const script = Exit.isSuccess(read) ? read.value : ""
         if (!script) return { runID: input.runID, resumed: false }
-        // Script-change invalidation (MR104 P1-2): the journal keys results by
+        // Script-change invalidation (script-sha mismatch): the journal keys results by
         // {prompt,agentType,model,schema,phase}+occ, NOT by the script body — so a
         // between-cycle edit would replay OLD results onto NEW code paths (silent
         // divergence). Compare the persisted sha (stamped at the prior launch) to the
