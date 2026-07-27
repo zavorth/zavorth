@@ -1,4 +1,4 @@
-name: Publish Plugin SDK
+﻿name: Publish Plugin SDK
 
 on:
   push:
@@ -37,10 +37,13 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - name: Install package deps (if any)
         working-directory: ${{ env.PLUGIN_SDK_DIR }}
         run: |
-          if [ -f package-lock.json ]; then npm ci; else npm install --no-package-lock || true; fi
+          bun install --frozen-lockfile || true
 
       - name: Publish check ritual (build + test + harness + dry-run)
         working-directory: ${{ env.PLUGIN_SDK_DIR }}

@@ -1,4 +1,4 @@
-name: Skill registry sign (ops skeleton)
+﻿name: Skill registry sign (ops skeleton)
 
 # Signs fixture/local skills when ZAVORTH_SKILL_SIGNING_KEY is present,
 # verifies signatures, exports registry index + optional publish-plan (no live CDN/git push).
@@ -46,7 +46,7 @@ permissions:
 
 jobs:
   sign-verify-export:
-    name: Sign · Verify · Export · Publish-plan
+    name: Sign Â· Verify Â· Export Â· Publish-plan
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -58,12 +58,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: npm
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - name: Install
-        run: npm ci --ignore-scripts || npm install --ignore-scripts
+        run: bun install --frozen-lockfile --ignore-scripts
 
-      - name: Unit — registry ops
+      - name: Unit â€” registry ops
         run: npx jest tests/services/SkillRegistryOpsService.test.ts tests/services/SkillRegistryOpsHttpApiService.test.ts --forceExit --testPathIgnorePatterns=[] --runInBand
 
       - name: Smoke sign/verify/export/publish-plan
@@ -93,7 +95,7 @@ jobs:
           }
           const sig = verifySkillPackageSignature(fixture);
           if (!sig.ok) {
-            console.error('fixture signature invalid — re-sign with fixture key zavorth-ci-smoke-signing-key-32b', sig);
+            console.error('fixture signature invalid â€” re-sign with fixture key zavorth-ci-smoke-signing-key-32b', sig);
             process.exit(1);
           }
           console.log('fixture signature', sig);
@@ -130,7 +132,7 @@ jobs:
           });
           if (!written.ok) { console.error(written.message); process.exit(1); }
           console.log(JSON.stringify(written.plan, null, 2));
-          // Dry-run never fails the job solely because wouldPush is false —
+          // Dry-run never fails the job solely because wouldPush is false â€”
           // only hard failures (write error) exit 1. Plan.ok is reported in the artifact.
           "
 
@@ -142,5 +144,5 @@ jobs:
           path: artifacts/skill-registry/**
           if-no-files-found: ignore
 
-  # Live git push is intentionally not automated here —
+  # Live git push is intentionally not automated here â€”
   # operator/CI secrets + allowlisted host + explicit publish required.

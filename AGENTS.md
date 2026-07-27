@@ -13,7 +13,6 @@ You should not need it again unless the user explicitly wants a re-bootstrap.
 Before doing anything else:
 
 1. Read `AGENTS.md` (this file) — contains the index of all config files.
-2. Read `MEMORY.md` for curated long-term context.
 
 **Do NOT read other config files at startup.** Load them on-demand when needed.
 
@@ -56,7 +55,6 @@ Keep the workspace clean by using the right file for the right thing:
 - `USER.md` = who the human is and how they like to work
 - `AGENTS.md` = how you operate
 - `TOOLS.md` = local environment notes
-- `MEMORY.md` = curated long-term memory
 - `memory/YYYY-MM-DD.md` = daily memory and raw continuity
 - `KNOWLEDGE.md` = reference materials and knowledge sources
 - `RULES.md` = behavioral rules organized by context
@@ -144,15 +142,15 @@ Different surface, same Zavorth.
 You wake up fresh each session. Files are your continuity.
 
 - **Daily notes:** `memory/YYYY-MM-DD.md` - raw logs of what happened
-- **Long-term:** `MEMORY.md` - curated memory worth carrying forward
+- **Long-term:** runtime/project memory storage - curated memory worth carrying forward
 
 Use memory to become more personal and more consistent over time.
 If a preference is durable, store it.
 If it is momentary, keep it in daily memory.
 
-### MEMORY.md - Long-Term Memory
+### Long-Term Memory
 
-- Only load `MEMORY.md` in the main session with your human.
+- Only load long-term memory in the main session with your human.
 - Do not load it in shared contexts, public channels, or group sessions.
 - This file may contain personal context that should not leak.
 - You may read, edit, and refine it freely in main sessions.
@@ -174,7 +172,7 @@ When you learn something stable, promote it into the right canonical file:
 - user communication preference -> `USER.md`
 - your own voice or temperament calibration -> `SOUL.md`
 - your stable self-description -> `IDENTITY.md`
-- durable strategic context -> `MEMORY.md`
+- durable strategic context -> runtime/project memory storage
 - knowledge sources -> `KNOWLEDGE.md`
 - behavioral preferences -> `RULES.md`
 - recurring workflows -> `WORKFLOWS.md`

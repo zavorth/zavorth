@@ -46,10 +46,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
       - name: Install monorepo deps (for jest if needed)
-        run: npm ci --ignore-scripts
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+        run: bun install --frozen-lockfile --ignore-scripts
         continue-on-error: true
 
       - name: Cutover smoke (SoT + single bin)

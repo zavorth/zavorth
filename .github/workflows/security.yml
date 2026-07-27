@@ -1,4 +1,4 @@
-name: Security
+﻿name: Security
 
 on:
   pull_request:
@@ -24,10 +24,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - name: Install dependencies without lifecycle scripts
-        run: npm ci --ignore-scripts
+        run: bun install --frozen-lockfile --ignore-scripts
 
       - name: Rebuild native modules
         run: |

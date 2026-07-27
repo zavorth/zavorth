@@ -1,4 +1,4 @@
-name: Maturity production readiness
+﻿name: Maturity production readiness
 
 on:
   push:
@@ -49,10 +49,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - name: Install dependencies
-        run: npm ci --ignore-scripts
+        run: bun install --frozen-lockfile --ignore-scripts
 
       - name: Production readiness (strict)
         run: npm run maturity:production-readiness:strict
