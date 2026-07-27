@@ -13,7 +13,7 @@ import { EnvFileService, type EnvFileEntry, type EnvFileWriteReport } from './En
 export type ChannelInstallMode =
   | 'native'
   | 'bridge'
-  | 'stub'
+  | 'local'
   | 'cloud-api'
   | 'baileys'
   | 'signal-cli'
@@ -143,7 +143,7 @@ export class ChannelInstallScaffoldService {
   public buildPlanForChannel(channelId: PlatformKey, mode?: ChannelInstallMode | null): ChannelInstallPlan {
     const capability = this.platforms.getCapabilities().find((entry) => entry.platform === channelId);
     if (!capability) {
-      throw new Error(`Canal nao suportado: ${channelId}.`);
+      throw new Error(`Unsupported channel: ${channelId}.`);
     }
     const envMap = this.envFiles.readMap(this.envFilePath);
     return this.buildPlan(capability, envMap, mode || null);
@@ -157,11 +157,11 @@ export class ChannelInstallScaffoldService {
     const definition = this.getModeDefinition(input.channelId, input.mode);
     const baseEntries = definition.scaffoldEntries(this.projectRoot);
     const extraEntries = Array.isArray(input.extraEntries) ? input.extraEntries : [];
-    
+
     // Security Defense-in-Depth: whitelist extraEntries keys to prevent env pollution/hijack
     const allowedKeys = new Set(baseEntries.map((entry) => entry.key));
     const filteredExtraEntries = extraEntries.filter((entry) => allowedKeys.has(entry.key));
-    
+
     const env = this.envFiles.upsertEntries(this.envFilePath, [...baseEntries, ...filteredExtraEntries]);
     const directoriesCreated: string[] = [];
 
@@ -241,8 +241,7 @@ export class ChannelInstallScaffoldService {
 
   private detectCurrentMode(channelId: PlatformKey, envMap: Record<string, string>): ChannelInstallMode | null {
     if (channelId === 'telegram') {
-      return String(envMap.TELEGRAM_BOT_TOKEN || '').trim() || String(envMap.TELEGRAM_ALLOWED_USER_IDS || '').trim()
-        ? 'native'
+      return String(envMap.TELEGRAM_BOT_TOKEN || '').trim() || String(envMap.TELEGRAM_ALLOWED_USER_IDS || '').trim() ? 'native'
         : null;
     }
     if (channelId === 'discord') {
@@ -259,8 +258,8 @@ export class ChannelInstallScaffoldService {
       if (transport === 'native' || String(envMap.SLACK_BOT_TOKEN || '').trim()) {
         return 'native';
       }
-      if (String(envMap.SLACK_ENABLED || '').trim().toLowerCase() === 'true' || transport === 'stub') {
-        return 'stub';
+      if (String(envMap.SLACK_ENABLED || '').trim().toLowerCase() === 'true' || transport === 'local' || transport === 'local') {
+        return 'local';
       }
       return null;
     }
@@ -283,9 +282,9 @@ export class ChannelInstallScaffoldService {
         String(envMap.INSTAGRAM_ENABLED || '').trim().toLowerCase() === 'true'
         || String(envMap.INSTAGRAM_BUSINESS_ACCOUNT_ID || '').trim()
         || String(envMap.INSTAGRAM_ALLOWED_RECIPIENT_IDS || '').trim()
-        || provider === 'stub'
+        || provider === 'local' || provider === 'local'
       ) {
-        return 'stub';
+        return 'local';
       }
       return null;
     }
@@ -316,8 +315,7 @@ export class ChannelInstallScaffoldService {
         || String(envMap.EMAIL_ALLOWED_RECIPIENTS || '').trim()
       ) {
         return transport === 'smtp-imap'
-          || String(envMap.EMAIL_SMTP_HOST || envMap.SMTP_HOST || '').trim()
-          ? 'smtp-imap'
+          || String(envMap.EMAIL_SMTP_HOST || envMap.SMTP_HOST || '').trim() ? 'smtp-imap'
           : 'local-outbox';
       }
       return null;
@@ -329,8 +327,8 @@ export class ChannelInstallScaffoldService {
     if (provider === 'baileys') {
       return 'baileys';
     }
-    if (String(envMap.WHATSAPP_ENABLED || '').trim().toLowerCase() === 'true' || provider === 'stub') {
-      return 'stub';
+    if (String(envMap.WHATSAPP_ENABLED || '').trim().toLowerCase() === 'true' || provider === 'local' || provider === 'local') {
+      return 'local';
     }
     return null;
   }
@@ -343,13 +341,13 @@ export class ChannelInstallScaffoldService {
       return ['native', 'bridge'];
     }
     if (channelId === 'slack') {
-      return ['stub', 'native'];
+      return ['local', 'native'];
     }
     if (channelId === 'signal') {
       return ['signal-cli'];
     }
     if (channelId === 'instagram') {
-      return ['stub', 'meta-messaging'];
+      return ['local', 'meta-messaging'];
     }
     if (channelId === 'imessage') {
       return ['mac-bridge'];
@@ -360,7 +358,7 @@ export class ChannelInstallScaffoldService {
     if (channelId === 'email') {
       return ['local-outbox', 'smtp-imap'];
     }
-    return ['stub', 'cloud-api', 'baileys'];
+    return ['local', 'cloud-api', 'baileys'];
   }
 
   private getRecommendedMode(channelId: PlatformKey): ChannelInstallMode {
@@ -374,7 +372,7 @@ export class ChannelInstallScaffoldService {
       return 'signal-cli';
     }
     if (channelId === 'instagram') {
-      return 'stub';
+      return 'local';
     }
     if (channelId === 'imessage') {
       return 'mac-bridge';
@@ -385,7 +383,7 @@ export class ChannelInstallScaffoldService {
     if (channelId === 'email') {
       return 'local-outbox';
     }
-    return 'stub';
+    return 'local';
   }
 
   private getModeDefinition(channelId: PlatformKey, mode: ChannelInstallMode): ChannelModeDefinition {
@@ -394,16 +392,16 @@ export class ChannelInstallScaffoldService {
         requiredEnvKeys: ['TELEGRAM_BOT_TOKEN', 'TELEGRAM_ALLOWED_USER_IDS'],
         recommendedMode: 'native',
         webhookPath: null,
-        summary: 'Telegram opera por bot token + operadores permitidos. Nao exige webhook externo.',
+        summary: 'Telegram operates through bot token + allowed operators. It does not require an external webhook.',
         scaffoldEntries: () => [
           { key: 'TELEGRAM_BOT_TOKEN', value: '' },
           { key: 'TELEGRAM_ALLOWED_USER_IDS', value: '' },
         ],
         directories: () => [],
         nextSteps: () => [
-          'Pegue o token no @BotFather.',
-          'Descubra seu user id com @userinfobot.',
-          'Rode npm run test:channels:smoke depois de preencher os campos.',
+          'Get the token from @BotFather.',
+          'Find your user id with @userinfobot.',
+          'Run npm run test:channels:smoke after filling the fields.',
         ],
       };
     }
@@ -413,7 +411,7 @@ export class ChannelInstallScaffoldService {
         requiredEnvKeys: ['DISCORD_BOT_TOKEN', 'DISCORD_ALLOWED_GUILD_IDS'],
         recommendedMode: 'native',
         webhookPath: null,
-        summary: 'Discord nativo usa bot token, guild allowlist e policy operacional.',
+        summary: 'Discord native mode uses a bot token, guild allowlist, and operational policy.',
         scaffoldEntries: () => [
           { key: 'DISCORD_BOT_TOKEN', value: '' },
           { key: 'DISCORD_ALLOWED_GUILD_IDS', value: '' },
@@ -424,9 +422,9 @@ export class ChannelInstallScaffoldService {
         ],
         directories: () => [],
         nextSteps: () => [
-          'Crie o bot e convide-o para a guild autorizada.',
-          'Preencha guilds, canais e owners antes de abrir o rollout.',
-          'Rode npm run test:channels:smoke para validar o bot token.',
+          'Create the bot and invite it to the authorized guild.',
+          'Fill guilds, channels, and owners before opening rollout.',
+          'Run npm run test:channels:smoke to validate the bot token.',
         ],
       };
     }
@@ -436,7 +434,7 @@ export class ChannelInstallScaffoldService {
         requiredEnvKeys: ['DISCORD_BRIDGE_ENABLED', 'DISCORD_BRIDGE_SECRET'],
         recommendedMode: 'bridge',
         webhookPath: null,
-        summary: 'Discord bridge usa relay local com segredo compartilhado e allowlists.',
+        summary: 'Discord bridge uses a local relay with shared secret and allowlists.',
         scaffoldEntries: (root) => [
           { key: 'DISCORD_BRIDGE_ENABLED', value: 'true', overwrite: true },
           { key: 'DISCORD_BRIDGE_SECRET', value: '' },
@@ -452,9 +450,9 @@ export class ChannelInstallScaffoldService {
           path.join(root, 'data', 'runtime'),
         ],
         nextSteps: () => [
-          'Defina o segredo do bridge e as allowlists da guild.',
-          'Suba o relay local antes de expor esse canal no mesh.',
-          'Rode npm run test:channels:smoke para validar o snapshot do bridge.',
+          'Set the bridge secret and guild allowlists.',
+          'Start the local relay before exposing this channel in the mesh.',
+          'Run npm run test:channels:smoke to validate the bridge snapshot.',
         ],
       };
     }
@@ -464,7 +462,7 @@ export class ChannelInstallScaffoldService {
         requiredEnvKeys: ['SLACK_BOT_TOKEN', 'SLACK_SIGNING_SECRET', 'SLACK_ALLOWED_CHANNEL_IDS'],
         recommendedMode: 'native',
         webhookPath: '/api/webhooks/slack',
-        summary: 'Slack nativo usa Web API + webhook com assinatura validada.',
+        summary: 'Slack native mode uses Web API plus a verified-signature webhook.',
         scaffoldEntries: (root) => [
           { key: 'SLACK_ENABLED', value: 'true', overwrite: true },
           { key: 'SLACK_TRANSPORT', value: 'native', overwrite: true },
@@ -477,11 +475,10 @@ export class ChannelInstallScaffoldService {
         ],
         directories: (root) => [path.join(root, 'data', 'runtime')],
         nextSteps: (webhookUrl) => [
-          'Crie o app do Slack e gere bot token + signing secret.',
-          webhookUrl
-            ? `Aponte o Slack para ${webhookUrl}.`
-            : 'Configure ZAVORTH_PUBLIC_BASE_URL antes de registrar o webhook do Slack.',
-          'Rode npm run test:channels:smoke para validar auth.test e o webhook.',
+          'Create the Slack app and generate bot token plus signing secret.',
+          webhookUrl ? `Point Slack to ${webhookUrl}.`
+            : 'Configure ZAVORTH_PUBLIC_BASE_URL before registering the Slack webhook.',
+          'Run npm run test:channels:smoke to validate auth and webhook.',
         ],
       };
     }
@@ -489,12 +486,12 @@ export class ChannelInstallScaffoldService {
     if (channelId === 'slack') {
       return {
         requiredEnvKeys: ['SLACK_ENABLED', 'SLACK_ALLOWED_CHANNEL_IDS'],
-        recommendedMode: 'stub',
+        recommendedMode: 'local',
         webhookPath: null,
-        summary: 'Slack stub deixa o canal pronto para smoke local e Channel Mesh sem webhook real.',
+        summary: 'Slack local transport prepares the channel for local smoke checks and Channel Mesh without a live webhook.',
         scaffoldEntries: (root) => [
           { key: 'SLACK_ENABLED', value: 'true', overwrite: true },
-          { key: 'SLACK_TRANSPORT', value: 'stub', overwrite: true },
+          { key: 'SLACK_TRANSPORT', value: 'local', overwrite: true },
           { key: 'SLACK_WORKSPACE_ID', value: '' },
           { key: 'SLACK_ALLOWED_CHANNEL_IDS', value: '' },
           { key: 'SLACK_OUTBOX_DIR', value: path.join(root, 'data', 'slack-bridge', 'outbox') },
@@ -505,9 +502,9 @@ export class ChannelInstallScaffoldService {
           path.join(root, 'data', 'runtime'),
         ],
         nextSteps: () => [
-          'Use esse modo quando quiser deixar Slack pronto para o mesh antes do app real.',
-          'Preencha canais permitidos para o smoke local ficar mais fiel.',
-          'Rode npm run test:channels:smoke para validar o snapshot do Slack stub.',
+          'Use this mode to prepare Slack for the mesh before connecting the real app.',
+          'Fill allowed channels to make the local smoke check more faithful.',
+          'Run npm run test:channels:smoke to validate the Slack local transport snapshot.',
         ],
       };
     }
@@ -523,7 +520,7 @@ export class ChannelInstallScaffoldService {
         ],
         recommendedMode: 'cloud-api',
         webhookPath: '/api/webhooks/whatsapp',
-        summary: 'WhatsApp Cloud API usa callback oficial da Meta e outbound real.',
+        summary: 'WhatsApp Cloud API uses the official Meta callback and real outbound delivery.',
         scaffoldEntries: (root) => [
           { key: 'WHATSAPP_ENABLED', value: 'true', overwrite: true },
           { key: 'WHATSAPP_PROVIDER', value: 'cloud-api', overwrite: true },
@@ -536,11 +533,10 @@ export class ChannelInstallScaffoldService {
         ],
         directories: (root) => [path.join(root, 'data', 'runtime')],
         nextSteps: (webhookUrl) => [
-          'Crie o app da Meta e gere phone number id + access token.',
-          webhookUrl
-            ? `Registre ${webhookUrl} como callback do WhatsApp.`
-            : 'Configure ZAVORTH_PUBLIC_BASE_URL antes de registrar o callback do WhatsApp.',
-          'Rode npm run test:channels:smoke para validar Graph API e webhook.',
+          'Create the Meta app and generate phone number id plus access token.',
+          webhookUrl ? `Register ${webhookUrl} as the WhatsApp callback.`
+            : 'Configure ZAVORTH_PUBLIC_BASE_URL before registering the WhatsApp callback.',
+          'Run npm run test:channels:smoke to validate Graph API and webhook.',
         ],
       };
     }
@@ -550,7 +546,7 @@ export class ChannelInstallScaffoldService {
         requiredEnvKeys: ['WHATSAPP_PROVIDER', 'WHATSAPP_SESSION_DIR', 'WHATSAPP_ALLOWED_CHAT_IDS'],
         recommendedMode: 'baileys',
         webhookPath: null,
-        summary: 'WhatsApp Baileys deixa o runtime pronto para sessao persistente local.',
+        summary: 'WhatsApp Baileys prepares the runtime for a persistent local session.',
         scaffoldEntries: (root) => [
           { key: 'WHATSAPP_ENABLED', value: 'true', overwrite: true },
           { key: 'WHATSAPP_PROVIDER', value: 'baileys', overwrite: true },
@@ -565,9 +561,9 @@ export class ChannelInstallScaffoldService {
           path.join(root, 'data', 'runtime'),
         ],
         nextSteps: () => [
-          'Use esse modo quando quiser sessao persistente local do WhatsApp.',
-          'Preencha os chats permitidos antes de abrir o rollout.',
-          'Rode npm run test:channels:smoke para validar o snapshot do provider Baileys.',
+          'Use this mode when you want a persistent local WhatsApp session.',
+          'Fill allowed chats before opening rollout.',
+          'Run npm run test:channels:smoke to validate the Baileys provider snapshot.',
         ],
       };
     }
@@ -583,7 +579,7 @@ export class ChannelInstallScaffoldService {
         ],
         recommendedMode: 'meta-messaging',
         webhookPath: '/api/webhooks/instagram',
-        summary: 'Instagram Messaging API usa webhook oficial da Meta e outbound real para recipients permitidos.',
+        summary: 'Instagram Messaging API uses the official Meta webhook and real outbound delivery for allowed recipients.',
         scaffoldEntries: (root) => [
           { key: 'INSTAGRAM_ENABLED', value: 'true', overwrite: true },
           { key: 'INSTAGRAM_PROVIDER', value: 'meta-messaging', overwrite: true },
@@ -598,12 +594,11 @@ export class ChannelInstallScaffoldService {
         ],
         directories: (root) => [path.join(root, 'data', 'runtime')],
         nextSteps: (webhookUrl) => [
-          'Crie ou vincule uma conta profissional/Business autorizada no app da Meta.',
-          webhookUrl
-            ? `Registre ${webhookUrl} como callback da Instagram Messaging API.`
-            : 'Configure ZAVORTH_PUBLIC_BASE_URL antes de registrar o callback do Instagram.',
-          'Preencha recipients permitidos antes de liberar qualquer DM real.',
-          'Rode npm run test:channels:smoke para validar Graph API e webhook.',
+          'Create or link an authorized Professional/Business account in the Meta app.',
+          webhookUrl ? `Register ${webhookUrl} as the Instagram Messaging API callback.`
+            : 'Configure ZAVORTH_PUBLIC_BASE_URL before registering the Instagram callback.',
+          'Fill allowed recipients before enabling any real DM.',
+          'Run npm run test:channels:smoke to validate Graph API and webhook.',
         ],
       };
     }
@@ -611,12 +606,12 @@ export class ChannelInstallScaffoldService {
     if (channelId === 'instagram') {
       return {
         requiredEnvKeys: ['INSTAGRAM_ENABLED', 'INSTAGRAM_ALLOWED_RECIPIENT_IDS'],
-        recommendedMode: 'stub',
+        recommendedMode: 'local',
         webhookPath: null,
-        summary: 'Instagram stub deixa o canal visivel, governado e testavel sem enviar DM real antes da Meta Messaging API.',
+        summary: 'Instagram local transport keeps the channel visible, governed, and testable without sending real DMs before the Meta Messaging API is connected.',
         scaffoldEntries: (root) => [
           { key: 'INSTAGRAM_ENABLED', value: 'true', overwrite: true },
-          { key: 'INSTAGRAM_PROVIDER', value: 'stub', overwrite: true },
+          { key: 'INSTAGRAM_PROVIDER', value: 'local', overwrite: true },
           { key: 'INSTAGRAM_ALLOWED_RECIPIENT_IDS', value: '' },
           { key: 'INSTAGRAM_OUTBOX_DIR', value: path.join(root, 'data', 'instagram-bridge', 'outbox') },
           { key: 'INSTAGRAM_STATUS_FILE', value: path.join(root, 'data', 'runtime', 'instagram-status.json') },
@@ -628,9 +623,9 @@ export class ChannelInstallScaffoldService {
           path.join(root, 'data', 'runtime'),
         ],
         nextSteps: () => [
-          'Use esse modo para deixar Instagram no Channel Mesh sem DM real.',
-          'Preencha recipients permitidos para validar policy e broadcast-test local.',
-          'Promova para INSTAGRAM_PROVIDER=meta-messaging quando as credenciais oficiais da Meta estiverem prontas.',
+          'Use this mode to keep Instagram in Channel Mesh without real DMs.',
+          'Fill allowed recipients to validate policy and the local broadcast test.',
+          'Promote to INSTAGRAM_PROVIDER=meta-messaging when official Meta credentials are ready.',
         ],
       };
     }
@@ -640,7 +635,7 @@ export class ChannelInstallScaffoldService {
         requiredEnvKeys: ['SIGNAL_ENABLED', 'SIGNAL_CLI_PATH', 'SIGNAL_ACCOUNT_NUMBER', 'SIGNAL_ALLOWED_RECIPIENTS'],
         recommendedMode: 'signal-cli',
         webhookPath: null,
-        summary: 'Signal usa bridge local via signal-cli/JSON-RPC com conta dedicada e allowlist.',
+        summary: 'Signal uses a local signal-cli/JSON-RPC bridge with a dedicated account and allowlist.',
         scaffoldEntries: (root) => [
           { key: 'SIGNAL_ENABLED', value: 'false', overwrite: true },
           { key: 'SIGNAL_TRANSPORT', value: 'signal-cli', overwrite: true },
@@ -658,10 +653,10 @@ export class ChannelInstallScaffoldService {
           path.join(root, 'data', 'runtime'),
         ],
         nextSteps: () => [
-          'Instale e registre uma conta dedicada no signal-cli antes de usar o canal.',
-          'Preencha SIGNAL_ACCOUNT_NUMBER e SIGNAL_ALLOWED_RECIPIENTS.',
-          'Mantenha a allowlist fechada; Signal nao possui Bot API oficial para esse fluxo.',
-          'Rode npm run test:channels:smoke para validar o doctor local.',
+          'Install and register a dedicated account in signal-cli before using the channel.',
+          'Fill SIGNAL_ACCOUNT_NUMBER and SIGNAL_ALLOWED_RECIPIENTS.',
+          'Keep the allowlist closed; Signal has no official Bot API for this flow.',
+          'Run npm run test:channels:smoke to validate the local doctor.',
         ],
       };
     }
@@ -671,7 +666,7 @@ export class ChannelInstallScaffoldService {
         requiredEnvKeys: ['IMESSAGE_ENABLED', 'IMESSAGE_NODE_ID', 'IMESSAGE_ALLOWED_RECIPIENTS'],
         recommendedMode: 'mac-bridge',
         webhookPath: null,
-        summary: 'iMessage usa Mac bridge experimental via Node Mesh/macOS, iniciando em modo read-only.',
+        summary: 'iMessage uses an experimental Mac bridge through Node Mesh/macOS, starting in read-only mode.',
         scaffoldEntries: (root) => [
           { key: 'IMESSAGE_ENABLED', value: 'false', overwrite: true },
           { key: 'IMESSAGE_BRIDGE_MODE', value: 'mac-bridge', overwrite: true },
@@ -689,10 +684,10 @@ export class ChannelInstallScaffoldService {
           path.join(root, 'data', 'runtime'),
         ],
         nextSteps: () => [
-          'Suba um Node Host macOS e vincule IMESSAGE_NODE_ID antes de enviar mensagens.',
-          'Comece em IMESSAGE_READ_ONLY=true para validar inbound/observabilidade.',
-          'Preencha IMESSAGE_ALLOWED_RECIPIENTS e exialready approval antes do envio.',
-          'Rode npm run test:channels:smoke para validar o doctor local.',
+          'Start a macOS Node Host and bind IMESSAGE_NODE_ID before sending messages.',
+          'Start with IMESSAGE_READ_ONLY=true to validate inbound flow and observability.',
+          'Fill IMESSAGE_ALLOWED_RECIPIENTS and require approval before sending.',
+          'Run npm run test:channels:smoke to validate the local doctor.',
         ],
       };
     }
@@ -702,7 +697,7 @@ export class ChannelInstallScaffoldService {
         requiredEnvKeys: ['TEAMS_ENABLED', 'TEAMS_APP_ID', 'TEAMS_TENANT_ID', 'TEAMS_ALLOWED_CONVERSATION_IDS'],
         recommendedMode: 'graph-bot',
         webhookPath: '/api/webhooks/teams',
-        summary: 'Teams fica preparado para Microsoft Graph/Bot Framework com tenant e conversas permitidas.',
+        summary: 'Teams is prepared for Microsoft Graph/Bot Framework with tenant and allowed conversations.',
         scaffoldEntries: (root) => [
           { key: 'TEAMS_ENABLED', value: 'false', overwrite: true },
           { key: 'TEAMS_TRANSPORT', value: 'graph-bot', overwrite: true },
@@ -717,12 +712,11 @@ export class ChannelInstallScaffoldService {
         ],
         directories: (root) => [path.join(root, 'data', 'runtime')],
         nextSteps: (webhookUrl) => [
-          'Crie um app/bot no Azure e preencha app id, tenant id e secret.',
-          webhookUrl
-            ? `Aponte o Bot Framework para ${webhookUrl}.`
-            : 'Configure ZAVORTH_PUBLIC_BASE_URL antes de publicar o webhook do Teams.',
-          'Preencha TEAMS_ALLOWED_CONVERSATION_IDS antes de liberar rollout.',
-          'Rode npm run test:channels:smoke para validar o doctor local.',
+          'Create an Azure app/bot and fill app id, tenant id, and secret.',
+          webhookUrl ? `Point Bot Framework to ${webhookUrl}.`
+            : 'Configure ZAVORTH_PUBLIC_BASE_URL before publishing the Teams webhook.',
+          'Fill TEAMS_ALLOWED_CONVERSATION_IDS before enabling rollout.',
+          'Run npm run test:channels:smoke to validate the local doctor.',
         ],
       };
     }
@@ -732,7 +726,7 @@ export class ChannelInstallScaffoldService {
         requiredEnvKeys: ['EMAIL_ENABLED', 'EMAIL_ALLOWED_RECIPIENTS'],
         recommendedMode: 'local-outbox',
         webhookPath: null,
-        summary: 'Email usa local-outbox ou SMTP/IMAP como fallback universal para notificacoes e approvals.',
+        summary: 'Email uses local-outbox or SMTP/IMAP as a universal fallback for notifications and approvals.',
         scaffoldEntries: (root) => [
           { key: 'EMAIL_ENABLED', value: 'true', overwrite: true },
           { key: 'EMAIL_TRANSPORT', value: 'local-outbox', overwrite: true },
@@ -752,22 +746,22 @@ export class ChannelInstallScaffoldService {
           path.join(root, 'data', 'runtime'),
         ],
         nextSteps: () => [
-          'Preencha EMAIL_ALLOWED_RECIPIENTS para liberar o fallback local-outbox.',
-          'Configure SMTP quando quiser outbound real alem do outbox local.',
-          'Configure IMAP depois se quiser approvals por resposta de email.',
-          'Rode npm run test:channels:smoke para validar o doctor local.',
+          'Fill EMAIL_ALLOWED_RECIPIENTS to enable the local-outbox fallback.',
+          'Configure SMTP when you want real outbound delivery beyond local outbox.',
+          'Configure IMAP later if you want approvals by email reply.',
+          'Run npm run test:channels:smoke to validate the local doctor.',
         ],
       };
     }
 
     return {
       requiredEnvKeys: ['WHATSAPP_PROVIDER', 'WHATSAPP_ALLOWED_CHAT_IDS'],
-      recommendedMode: 'stub',
+      recommendedMode: 'local',
       webhookPath: null,
-      summary: 'WhatsApp stub deixa o canal pronto para smoke local e Channel Mesh sem provider real.',
+      summary: 'WhatsApp local transport prepares the channel for local smoke checks and Channel Mesh without a live provider.',
       scaffoldEntries: (root) => [
         { key: 'WHATSAPP_ENABLED', value: 'true', overwrite: true },
-        { key: 'WHATSAPP_PROVIDER', value: 'stub', overwrite: true },
+        { key: 'WHATSAPP_PROVIDER', value: 'local', overwrite: true },
         { key: 'WHATSAPP_ALLOWED_CHAT_IDS', value: '' },
         { key: 'WHATSAPP_OUTBOX_DIR', value: path.join(root, 'data', 'whatsapp-bridge', 'outbox') },
         { key: 'WHATSAPP_STATUS_FILE', value: path.join(root, 'data', 'runtime', 'whatsapp-status.json') },
@@ -777,9 +771,9 @@ export class ChannelInstallScaffoldService {
         path.join(root, 'data', 'runtime'),
       ],
       nextSteps: () => [
-        'Use esse modo quando quiser preparar WhatsApp antes do provider real.',
-        'Preencha chats permitidos para o smoke local ficar mais fiel.',
-        'Rode npm run test:channels:smoke para validar o snapshot do WhatsApp stub.',
+        'Use this mode to prepare WhatsApp before connecting a real provider.',
+        'Fill allowed chats to make the local smoke check more faithful.',
+        'Run npm run test:channels:smoke to validate the WhatsApp local transport snapshot.',
       ],
     };
   }

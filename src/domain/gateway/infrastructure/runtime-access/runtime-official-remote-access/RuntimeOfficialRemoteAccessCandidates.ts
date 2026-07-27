@@ -23,7 +23,7 @@ function buildLocalCloudflareCandidate(
     id: 'local-cloudflare',
     label: 'Cloudflare no host local',
     ready: Boolean(snapshot?.readyForPlanB),
-    summary: String(snapshot?.summary || 'Plano B local ainda pendente.'),
+    summary: String(snapshot?.summary || 'Local fallback plan is still pending.'),
     command: 'npm run ops:local-cloudflare',
     guide: String(snapshot?.helpers?.guide || path.join(config.projectRoot, 'docs', '35-windows-cloudflare-gemma.md')),
     doneSteps,
@@ -44,7 +44,7 @@ function buildOracleCloudflareCandidate(
     id: 'oracle-cloudflare',
     label: 'Oracle + Cloudflare + Gemini/Gemma',
     ready: Boolean(snapshot?.readyForRemoteRollout),
-    summary: String(snapshot?.summary || 'Rollout Oracle ainda pendente.'),
+    summary: String(snapshot?.summary || 'Rollout Oracle ainda pending.'),
     command: 'npm run ops:oracle-cloudflare',
     guide: snapshot?.templates?.oracleSystemd
       ? path.join(path.dirname(snapshot.templates.oracleSystemd), '..', '..', 'docs', '34-oracle-cloudflare-gemma.md')
@@ -66,4 +66,3 @@ function compareCandidates(
   const rightScore = (right.ready ? 100 : 0) + right.doneSteps * 5 - right.pendingHighlights.length;
   return rightScore - leftScore;
 }
-

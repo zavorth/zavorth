@@ -21,8 +21,7 @@ function escapeHtml(value: unknown): string {
 export class ZavorthControlClassicAssetService {
   public render(input: ZavorthControlClassicAssetInput): string {
     const { host, port, publicBaseUrl, auditReplaySummary, auditTrailSummary } = input;
-    const publicUrlBlock = publicBaseUrl
-      ? `<p class="muted" style="margin-top:0;">Public URL configured: <a href="${escapeHtml(publicBaseUrl)}" target="_blank">${escapeHtml(publicBaseUrl)}</a></p>`
+    const publicUrlBlock = publicBaseUrl ? `<p class="muted" style="margin-top:0;">Public URL configured: <a href="${escapeHtml(publicBaseUrl)}" target="_blank">${escapeHtml(publicBaseUrl)}</a></p>`
       : '<p class="muted" style="margin-top:0;">Local panel. No Public URL configured.</p>';
     const webAppBlock =
       '<p class="muted" style="margin-top:0;">Primary web entry: <a href="/zavorthControl">/zavorthControl</a>. Legacy /app and /classic routes were removed.</p>';
@@ -177,7 +176,7 @@ ${operationsReportBlock}
             <tbody id="audit-table-body">Loading...</tbody>
           </table>
         </div>
-        <div class="audit-pagination">
+        <div class="audit-pagetion">
           <button onclick="auditPrev()" id="audit-prev-btn" disabled>&larr; Previous</button>
           <span id="audit-page-info" style="color:var(--muted);font-size:13px;"></span>
           <button onclick="auditNext()" id="audit-next-btn">Next &rarr;</button>

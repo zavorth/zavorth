@@ -6,10 +6,10 @@ import { PluginStateBridgeService } from './PluginStateBridgeService.js';
 import { PluginOsPermissionPreviewService } from './PluginOsPermissionPreviewService.js';
 import { PluginOsTelemetryService } from './PluginOsTelemetryService.js';
 
-type WavePackDef = {
+type SuggestionPackDef = {
   id: string;
   label?: string;
-  wave?: string;
+  group?: string;
   intents?: string[];
   pluginIds?: string[];
   enableHint?: string;
@@ -104,7 +104,7 @@ export class PluginOsSuggestService {
         primary: null,
         message: 'Describe what you need (e.g. "search the web" or "draft an email").',
         ui: {
-          title: 'Need a capability?',
+          title: 'Need a capability...',
           body: 'Tell me what you want to do and I will suggest a plugin. Nothing turns on automatically.',
           actions: [{ id: 'dismiss', label: 'Dismiss' }],
         },
@@ -118,7 +118,7 @@ export class PluginOsSuggestService {
       useLlm: input.useLlm === true,
     });
 
-    const packHits = this.matchWavePacks(root, intent);
+    const packHits = this.matchSuggestionPacks(root, intent);
     const seen = new Set<string>();
     const suggestions: PluginOsSuggestItem[] = [];
 
@@ -180,7 +180,7 @@ export class PluginOsSuggestService {
           score: 0.55,
           label: pack.label || pack.id,
           summary: pack.enableHint || `Part of pack ${pack.id}`,
-          reasons: [`plugin pack: ${pack.id}`, pack.wave ? `pack ${pack.id}` : 'pack match'].filter(Boolean),
+          reasons: [`plugin pack: ${pack.id}`, pack.group ? `pack ${pack.id}` : 'pack match'].filter(Boolean),
         });
       }
     }
@@ -208,7 +208,7 @@ export class PluginOsSuggestService {
     } else if (trimmed.length > 0) {
       message = `Found matches, but none can be enabled right now (blocked or unavailable).${packHint}`;
     } else {
-      message = `No plugin match for "${intent}". Try a different description, enable a wave pack, or run create-zavorth-plugin / forge a new plugin.`;
+      message = `No plugin match for "${intent}". Try a different description, enable a capability pack, or run create-zavorth-plugin / forge a new plugin.`;
     }
 
     const actions: PluginOsSuggestResult['ui']['actions'] = [];
@@ -244,12 +244,9 @@ export class PluginOsSuggestService {
       primary,
       message,
       ui: {
-        title: primary
-          ? `${primary.pluginId} can help`
-          : alreadyEnabled.length
-            ? 'Plugins already available'
-            : packHits[0]
-              ? `Pack: ${packHits[0].label || packHits[0].id}`
+        title: primary ? `${primary.pluginId} can help`
+          : alreadyEnabled.length ? 'Plugins already available'
+            : packHits[0] ? `Pack: ${packHits[0].label || packHits[0].id}`
               : 'No plugin match',
         body: message,
         actions,
@@ -257,13 +254,13 @@ export class PluginOsSuggestService {
     });
   }
 
-  /** Match config/plugin-os-wave-packs.json against free-text intent. */
-  private matchWavePacks(root: string, intent: string): WavePackDef[] {
-    const packs = this.loadWavePacks(root);
+  /** Match config/plugin-os-capability-packs.json against free-text intent. */
+  private matchSuggestionPacks(root: string, intent: string): SuggestionPackDef[] {
+    const packs = this.loadSuggestionPacks(root);
     if (packs.length === 0) return [];
     const lower = intent.toLowerCase();
     const tokens = lower.split(/[^a-z0-9]+/u).filter((t) => t.length >= 3);
-    const hits: Array<{ pack: WavePackDef; score: number }> = [];
+    const hits: Array<{ pack: SuggestionPackDef; score: number }> = [];
     for (const pack of packs) {
       const intents = Array.isArray(pack.intents) ? pack.intents.map((i) => String(i).toLowerCase()) : [];
       let score = 0;
@@ -283,15 +280,15 @@ export class PluginOsSuggestService {
     return hits.slice(0, 3).map((h) => h.pack);
   }
 
-  private loadWavePacks(root: string): WavePackDef[] {
+  private loadSuggestionPacks(root: string): SuggestionPackDef[] {
     const candidates = [
-      path.join(root, 'config', 'plugin-os-wave-packs.json'),
-      path.join(this.projectRoot, 'config', 'plugin-os-wave-packs.json'),
+      path.join(root, 'config', 'plugin-os-capability-packs.json'),
+      path.join(this.projectRoot, 'config', 'plugin-os-capability-packs.json'),
     ];
     for (const filePath of candidates) {
       try {
         if (!fs.existsSync(filePath)) continue;
-        const raw = JSON.parse(fs.readFileSync(filePath, 'utf8')) as { packs?: WavePackDef[] };
+        const raw = JSON.parse(fs.readFileSync(filePath, 'utf8')) as { packs?: SuggestionPackDef[] };
         if (Array.isArray(raw.packs)) return raw.packs;
       } catch {
         /* soft */
@@ -320,7 +317,7 @@ function finish(input: Omit<PluginOsSuggestResult, 'autoEnable' | 'formatText'>)
         )),
         '',
         'Actions:',
-        ...input.ui.actions.map((action) => `  - ${action.id}: ${action.label}`),
+        ...input.ui.actions.map((action) => ` ? ${action.id}: ${action.label}`),
       ];
       return lines.join('\n');
     },

@@ -100,9 +100,7 @@ export class LLMRouterService {
     const prediction = predictiveService.predictCost(taskType);
 
     const rule = this.routingRules.get(taskType) || this.routingRules.get('chat')!;
-    const preferredModel = options?.prefer_speed ? 'gpt-4o-mini' : 
-                           (options?.prefer_quality ? 'claude-4' : 
-                           (prediction.recommendedModelId || rule.preferred_model));
+    const preferredModel = prediction.recommendedModelId || rule.preferred_model;
 
     const excludeSet = new Set(options?.exclude_providers || []);
 
@@ -121,6 +119,7 @@ export class LLMRouterService {
       });
 
     if (options?.prefer_speed) {
+      candidates = expandCandidatesByPreference(candidates, Array.from(this.modelProfiles.values()), 'speed');
       candidates.sort((a, b) => {
         const pa = this.modelProfiles.get(a)!;
         const pb = this.modelProfiles.get(b)!;
@@ -128,6 +127,7 @@ export class LLMRouterService {
         return (order[pa.latency_tier] || 1) - (order[pb.latency_tier] || 1);
       });
     } else if (options?.prefer_quality) {
+      candidates = expandCandidatesByPreference(candidates, Array.from(this.modelProfiles.values()), 'quality');
       candidates.sort((a, b) => {
         const pa = this.modelProfiles.get(a)!;
         const pb = this.modelProfiles.get(b)!;
@@ -138,7 +138,7 @@ export class LLMRouterService {
 
     const selected = candidates[0] || preferredModel;
     const profile = this.modelProfiles.get(selected)!;
-    
+
     const estimatedOutputTokens = prediction.historyCount > 0 ? prediction.avgOutputTokens : rule.max_tokens;
     const estimatedCost = (estimatedOutputTokens / 1000) * profile.cost_per_1k_output;
 
@@ -167,23 +167,22 @@ export class LLMRouterService {
     prefer_speed?: boolean;
     prefer_quality?: boolean;
   }): RoutingDecision {
-    const desc = taskDescription.toLowerCase();
+    return this.route(this.normalizeTaskType(taskDescription), options);
+  }
 
-    if (/\b(code|program|function|class|api|endpoint|bug|debug|refactor)\b/.test(desc)) {
-      if (/\b(review|check|audit|analyze)\b/.test(desc)) return this.route('code_review', options);
-      return this.route('code_generation', options);
-    }
-    if (/\b(reason|think|analyze|logic|prove|deduce)\b/.test(desc)) return this.route('reasoning', options);
-    if (/\b(summarize|summary|brief|tldr)\b/.test(desc)) return this.route('summarization', options);
-    if (/\b(translate|translation)\b/.test(desc)) return this.route('translation', options);
-    if (/\b(research|study|investigate|compare)\b/.test(desc)) return this.route('research', options);
-    if (/\b(data|csv|analyze|statistics|chart)\b/.test(desc)) return this.route('data_analysis', options);
-    if (/\b(write|story|creative|poem|blog)\b/.test(desc)) return this.route('creative_writing', options);
-    if (/\b(image|photo|screenshot|visual)\b/.test(desc)) return this.route('vision', options);
-    if (/\b(audio|voice|music|sound)\b/.test(desc)) return this.route('audio', options);
-    if (/\b(quick|fast|simple|yes|no)\b/.test(desc)) return this.route('fast_answer', options);
-
-    return this.route('chat', options);
+  public routeForStructuredTask(input: {
+    taskType?: string | null;
+    requiredCapabilities?: string[] | null;
+    preferSpeed?: boolean | null;
+    preferQuality?: boolean | null;
+    maxCost?: number | null;
+  }): RoutingDecision {
+    return this.route(this.normalizeTaskType(input.taskType || 'chat'), {
+      required_capabilities: input.requiredCapabilities || undefined,
+      max_cost: input.maxCost || undefined,
+      prefer_speed: Boolean(input.preferSpeed),
+      prefer_quality: Boolean(input.preferQuality),
+    });
   }
 
   public addModelProfile(profile: ModelProfile): void {
@@ -192,6 +191,14 @@ export class LLMRouterService {
 
   public addRoutingRule(rule: TaskRoutingRule): void {
     this.routingRules.set(rule.task_pattern, rule);
+  }
+
+  private normalizeTaskType(value: string | null | undefined): string {
+    const raw = String(value || '').trim();
+    if (this.routingRules.has(raw)) {
+      return raw;
+    }
+    return 'chat';
   }
 
   public getModelProfile(modelId: string): string {
@@ -270,4 +277,21 @@ export class LLMRouterService {
     }
     return lines.join('\n');
   }
+}
+
+function expandCandidatesByPreference(
+  candidates: string[],
+  profiles: ModelProfile[],
+  preference: 'speed' | 'quality',
+): string[] {
+  const seen = new Set(candidates);
+  const extra = profiles
+    .filter((profile) => preference === 'speed' ? profile.latency_tier === 'fast' : profile.quality_tier === 'frontier')
+    .map((profile) => profile.id)
+    .filter((id) => {
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+  return [...candidates, ...extra];
 }

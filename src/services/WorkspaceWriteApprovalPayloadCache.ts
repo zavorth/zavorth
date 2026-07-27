@@ -40,7 +40,7 @@ export class WorkspaceWriteApprovalPayloadCache {
     const now = new Date().toISOString();
     try {
       const activeRows = db.all(
-        'SELECT operation_id FROM workspace_write_approvals WHERE expires_at > ?',
+        'SELECT operation_id FROM workspace_write_approvals WHERE expires_at > ...',
         [now]
       );
       const activeIds = new Set(activeRows.map((r: any) => r.operation_id));

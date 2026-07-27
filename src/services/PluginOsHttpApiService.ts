@@ -283,8 +283,7 @@ export class PluginOsHttpApiService {
             ok: refreshed.ok,
             action,
             marketplace: refreshed,
-            notice: refreshed.ok
-              ? `remote marketplace cached (${refreshed.entries.length})`
+            notice: refreshed.ok ? `remote marketplace cached (${refreshed.entries.length})`
               : refreshed.findings.join('; '),
           },
         };
@@ -860,8 +859,7 @@ export class PluginOsHttpApiService {
           formatText: undefined,
           text: preview.formatText(),
         },
-        notice: preview.ok
-          ? `permission preview for ${preview.pluginId}`
+        notice: preview.ok ? `permission preview for ${preview.pluginId}`
           : `permission preview soft-failed for ${preview.pluginId}`,
       };
     }
@@ -1065,7 +1063,7 @@ export class PluginOsHttpApiService {
 
     if (action === 'recommend') {
       // Synchronous shell; recommend is async — handled in executeAction below via promise path.
-      // Keep stub for unknown-action safety; executeAction overrides recommend.
+      // Keep local for unknown-action safety; executeAction overrides recommend.
       return {
         ok: false,
         action,

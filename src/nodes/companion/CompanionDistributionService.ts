@@ -88,10 +88,10 @@ export class CompanionDistributionService {
 
   public buildBundle(outputRoot?: string): CompanionDistributionBundle {
     if (!this.existsSync(this.distEntry)) {
-      throw new Error('Companion build ausente. Rode `npm run build` antes de empacotar o companion.');
+      throw new Error('Companion build missing. Run `npm run build` before empacotar o companion.');
     }
     if (!this.existsSync(this.appEntry) || !this.existsSync(this.appPackageFile)) {
-      throw new Error('Arquivos do app companion nao encontrados.');
+      throw new Error('Companion app files not found.');
     }
 
     const bundleDir = path.resolve(outputRoot || path.join(this.projectRoot, 'output', 'distribution', 'zavorth-companion'));
@@ -154,12 +154,12 @@ export class CompanionDistributionService {
       [
         'Zavorth Desktop Companion Bundle',
         '',
-        'Fluxo rapido:',
+        'Quick flow:',
         '1. Gere um pairing draft no host com `npm run cli:fast -- nodepair desktop MeuDesktop`.',
-        '2. Copie esta pasta para o device do operador.',
+        '2. Copy this folder to the operator device.',
         '3. Execute `companion-start.ps1 -Passcode "<nodeId:pairingCode>" -BaseUrl "http://127.0.0.1:33333"`.',
         '',
-        'Arquivos principais:',
+        'Main files:',
         '- index.js',
         '- runtime\\companion.js',
         '- companion-start.ps1',
@@ -168,8 +168,8 @@ export class CompanionDistributionService {
         '',
         'Troubleshooting:',
         '- Se o pairing expirar, gere um draft novo no host.',
-        '- Se o host web mudar de endereco, ajuste -BaseUrl.',
-        '- Consulte distribution-manifest.json para hashes e capacidades publicadas.',
+        '- Se o host web mudar de address, ajuste -BaseUrl.',
+        '- Review distribution-manifest.json for hashes and published capabilities.',
       ].join('\n'),
       'utf8',
     );

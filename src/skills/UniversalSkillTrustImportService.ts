@@ -221,7 +221,7 @@ export class UniversalSkillTrustImportService {
         plan: 'npm run zavorth:universal-skill-import -- --source <path>',
         apply: 'npm run zavorth:universal-skill-import -- --source <path> --allow-source --skills <name> --apply',
         check: 'npm run zavorth:universal-skill-import:check --silent',
-        nextStage: 'Approval gate - Skill Bridge Runtime',
+        nextAction: 'Approval gate - Skill Bridge Runtime',
       },
     };
   }
@@ -250,7 +250,7 @@ export class UniversalSkillTrustImportService {
       );
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextStage}`);
+    lines.push('', `Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -687,7 +687,7 @@ export class UniversalSkillTrustImportService {
       }
     }
 
-    const licenseFile = files.find((file) => /^license(?:\.(?:md|txt))?$/i.test(path.posix.basename(file.relativePath)));
+    const licenseFile = files.find((file) => /^license(?:\.(?:md|txt))...$/i.test(path.posix.basename(file.relativePath)));
     if (licenseFile) {
       const license = detectLicenseFromText(licenseFile.text);
       if (license) {
@@ -864,7 +864,7 @@ function blockedRisk(reasons: string[]): SkillRiskAssessment {
 }
 
 function parseFrontmatter(text: string): Record<string, unknown> {
-  const match = text.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
+  const match = text.match(/^---\s*\r...\n([\s\S]*...)\r...\n---/);
   if (!match) {
     return {};
   }
@@ -882,13 +882,13 @@ function normalizeLicenseValue(value: unknown): string | null {
   if (!normalized) {
     return null;
   }
-  if (/^apache(?:-|\s*)2(?:\.0)?$/i.test(normalized)) {
+  if (/^apache(?:-|\s*)2(?:\.0)...$/i.test(normalized)) {
     return 'Apache-2.0';
   }
   if (/^mit$/i.test(normalized)) {
     return 'MIT';
   }
-  if (/^cc[\s-]*by(?:[\s-]*4(?:\.0)?)?$/i.test(normalized)) {
+  if (/^cc[\s-]*by(?:[\s-]*4(?:\.0)...)...$/i.test(normalized)) {
     return 'CC-BY-4.0';
   }
   return normalized;

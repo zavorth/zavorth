@@ -418,7 +418,7 @@ export class AgentRunNativeToolLoopService {
           if (!knownToolNames.has(toolCall.name)) {
             stats.denied += 1;
             stats.unknownToolCalls += 1;
-            const denied = `Tool ${toolCall.name} nao esta exposta para este run.${repair?.reason ? ` ${repair.reason}` : ''}`;
+            const denied = `Tool ${toolCall.name} is not exposed for this run.${repair?.reason ? ` ${repair.reason}` : ''}`;
             toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, denied));
             events.push(
               buildToolEvent(input.run, toolCall.name, denied, 'failed', {
@@ -452,7 +452,7 @@ export class AgentRunNativeToolLoopService {
           } else if (effectMapping.decision.action === 'deny') {
             stats.denied += 1;
             stats.effectBoundaryDenied += 1;
-            const denied = `Tool ${toolCall.name} bloqueada pela effect boundary: ${effectMapping.decision.reasons.join(' ')}`;
+            const denied = `Tool ${toolCall.name} blocked by effect boundary: ${effectMapping.decision.reasons.join(' ')}`;
             const continuity = this.finalizeEffectBoundaryContinuity({
               run: input.run,
               toolCall,
@@ -584,8 +584,7 @@ export class AgentRunNativeToolLoopService {
               `Tool ${toolCall.name} failed: ${failureMessage}`,
               `recovery.shouldRetry=${recoveryPlan.shouldRetry}`,
               `recovery.nextActions=${recoveryPlan.nextActions.join(',')}`,
-              recoveryPlan.preferredAlternative
-                ? `recovery.preferredAlternative=${recoveryPlan.preferredAlternative}`
+              recoveryPlan.preferredAlternative ? `recovery.preferredAlternative=${recoveryPlan.preferredAlternative}`
                 : null,
               recoveryPlan.userVisibleSummary,
             ]
@@ -763,7 +762,7 @@ export class AgentRunNativeToolLoopService {
       // Structured requestedTools only — never free-text token overlap against descriptions.
       if (requested.has(name)) score += 80;
       // Exact tool-name mention as a whole token in the request payload (id-like), not word soft-match.
-      if (new RegExp(`(?:^|\\s)${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|$)`, 'i').test(requestText)) {
+      if (new RegExp(`(?:^|\\s)${name.replace(/[.*+...^${}()|[\]\\]/g, '\\$&')}(?:\\s|$)`, 'i').test(requestText)) {
         score += 50;
       }
       if (name === 'zavorth_action') score += 45;
@@ -1018,8 +1017,7 @@ export class AgentRunNativeToolLoopService {
       recommendedTools: ranked,
       subagents: {
         recommended: subagentRecommended,
-        reason: subagentRecommended
-          ? 'The objective is broad enough to benefit from governed read-only subagent lanes before mutation.'
+        reason: subagentRecommended ? 'The objective is broad enough to benefit from governed read-only subagent lanes before mutation.'
           : 'Single-run tool use should be enough unless the model uncovers a broader branch.',
         suggestedRoles: subagentRecommended ? ['planner', 'auditor', 'qa'] : [],
       },
@@ -1355,8 +1353,7 @@ export class AgentRunNativeToolLoopService {
             ? 'public'
             : effect.networkEgress.length > 0
               ? 'network'
-              : hasProcessEffect
-                ? 'local'
+              : hasProcessEffect ? 'local'
                 : 'none',
         recurring: false,
         notes: [

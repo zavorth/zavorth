@@ -26,20 +26,17 @@ export function buildPlatformRegistryMcpSummary(
   isLocallyAdopted: boolean,
 ): string {
   if (entry.enabled) {
-    return entry.capability
-      ? `Servidor MCP configurado para ${entry.capability}.`
-      : 'Servidor MCP configurado no manifesto do runtime.';
+    return entry.capability ? `server MCP configured para ${entry.capability}.`
+      : 'server MCP configured no manifest do runtime.';
   }
 
   if (isLocallyAdopted) {
-    return entry.capability
-      ? `Servidor MCP registrado no plane para ${entry.capability}; habilitacao ainda pendente.`
-      : 'Servidor MCP registrado no plane; habilitacao no manifesto ainda pendente.';
+    return entry.capability ? `server MCP registrado no plane para ${entry.capability}; habilitaction ainda pending.`
+      : 'server MCP registrado no plane; habilitaction no manifest ainda pending.';
   }
 
-  return entry.capability
-    ? `Servidor MCP configurado para ${entry.capability}, mas ainda desabilitado no runtime.`
-    : 'Servidor MCP presente no manifesto, mas ainda desabilitado no runtime.';
+  return entry.capability ? `server MCP configured para ${entry.capability}, mas ainda disabled no runtime.`
+    : 'server MCP present no manifest, mas ainda disabled no runtime.';
 }
 
 export function describePlatformRegistrySkillSource(dirPath: string): string {

@@ -164,7 +164,7 @@ export type WorkflowRunActionableStageSnapshot = {
   handoff_summary: string | null;
   result_summary: string | null;
   reason: string;
-  action: "continue" | "destravar" | "refazer" | "reexecutar";
+  action: "continue" | "unlock" | "retry" | "rerun";
 };
 
 export type WorkflowRunSnapshot = {

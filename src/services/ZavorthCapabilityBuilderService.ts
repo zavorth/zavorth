@@ -63,7 +63,7 @@ export class ZavorthCapabilityBuilderService {
       ])),
       tests: manifest.tests.length > 0 ? manifest.tests : [
         'manifest validates',
-        'capability lab simulation passes',
+        'capability lab dryRun passes',
         'risk gate blocks live activation without approval',
       ],
     };
@@ -98,7 +98,7 @@ function safeId(value: string): string {
 
 function redact(value: string): string {
   return String(value || '')
-    .replace(/\b(?:token|api[_ -]?key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi, '[redacted-secret]')
+    .replace(/\b(?:token|api[_ -]...key|secret|password)\s*[:=]\s*([^\s,;]+)/gi, '[redacted-secret]')
     .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g, '[redacted-secret]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{8,}\b/g, '[redacted-secret]')
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g, '[redacted-secret]')

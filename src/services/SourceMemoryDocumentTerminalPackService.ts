@@ -135,7 +135,7 @@ export class SourceMemoryDocumentTerminalPackService {
       now: this.now,
     });
     const searchReceipts = [
-      searchFetch.simulateSearch({
+      searchFetch.previewSearchArtifact({
         query: 'Source memory document terminal pack',
         resultCount: 2,
       }),
@@ -250,7 +250,7 @@ export class SourceMemoryDocumentTerminalPackService {
         qa: 'npm run qa:source-memory-document-terminal-pack --silent',
         liveFetch: 'npm run source-memory-document-terminal-pack -- --fetch <url> --confirm-live-network',
         terminalSmoke: 'npm run source-memory-document-terminal-pack -- --terminal <command> --cwd <path> --approval-id <id>',
-        nextStage: 'Runtime gateway - Native Companion And Device Capability Pack',
+        nextAction: 'Runtime gateway - Native Companion And Device Capability Pack',
       },
     };
   }
@@ -276,7 +276,7 @@ export class SourceMemoryDocumentTerminalPackService {
     for (const entry of snapshot.packageEvidence) {
       lines.push(`- ${entry.packageName}: ${entry.decision}, source=${entry.presentInSource}, zavorthPackage=${entry.presentInZavorthPackageJson}`);
     }
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 

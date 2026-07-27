@@ -94,7 +94,7 @@ export class TelegramExecutionPlannedTaskService {
 
       if (allowedCommands.length === 0) {
         return {
-          output: `All plan commands were blocked by security policy.\n\nBlocked:\n${blockedCommands.map((command) => `  - ${command}`).join('\n')}`,
+          output: `All plan commands were blocked by security policy.\n\nBlocked:\n${blockedCommands.map((command) => ` ? ${command}`).join('\n')}`,
           success: false,
         };
       }

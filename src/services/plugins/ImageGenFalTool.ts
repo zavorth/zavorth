@@ -22,7 +22,7 @@ export class ImageGenFalTool extends BaseTool {
         type: 'string',
         description: 'Prompt for image generation.',
       },
-      negative_prompt: {
+      denytive_prompt: {
         type: 'string',
         description: 'Negative prompt (what to avoid).',
       },
@@ -96,7 +96,7 @@ export class ImageGenFalTool extends BaseTool {
     const width = typeof args.width === 'number' ? args.width : 1024;
     const height = typeof args.height === 'number' ? args.height : 1024;
     const numImages = typeof args.num_images === 'number' ? args.num_images : 1;
-    const negativePrompt = typeof args.negative_prompt === 'string' ? args.negative_prompt : undefined;
+    const denytivePrompt = typeof args.denytive_prompt === 'string' ? args.denytive_prompt : undefined;
     const seed = typeof args.seed === 'number' ? args.seed : undefined;
 
     try {
@@ -107,7 +107,7 @@ export class ImageGenFalTool extends BaseTool {
         image_size: { width, height },
         num_images: numImages,
       };
-      if (negativePrompt) input.negative_prompt = negativePrompt;
+      if (denytivePrompt) input.denytive_prompt = denytivePrompt;
       if (seed !== undefined) input.seed = seed;
 
       const payload = JSON.stringify({ input });

@@ -57,16 +57,16 @@ export class SelfModificationGoalPlanner {
         Array.isArray(parsed?.validationPlan) && parsed.validationPlan.length > 0
           ? parsed.validationPlan.map((entry) => String(entry).trim()).filter(Boolean)
           : [
-              'Validar sintaxe por arquivo alterado.',
-              'Executar build local do projeto.',
-              'Executar testes relacionados ao dominio alterado.',
+              'validate sintaxe por file alterado.',
+              'run build local do projeto.',
+              'run tests related to the changed domain.',
             ],
       resourceImpact: {
         ramIdleMb: Number(parsed?.resourceImpact?.ramIdleMb || 64),
         diskMb: Number(parsed?.resourceImpact?.diskMb || 32),
         processCount: Number(parsed?.resourceImpact?.processCount || 0),
         notes: String(
-          parsed?.resourceImpact?.notes || 'Changeset em preview, sem sidecars adicionais.',
+          parsed?.resourceImpact?.notes || 'Changeset em preview, without sidecars adicionais.',
         ).trim(),
       },
       changes,
@@ -79,11 +79,11 @@ export class SelfModificationGoalPlanner {
       {
         role: 'system',
         content: [
-          'Voce planeja changesets seguros para o Zavorth.',
-          'Retorne apenas JSON valido.',
-          'No maximo 6 changes por resposta.',
-          'Cada mudanca deve conter filePath relativo e instruction objetiva.',
-          'Use apenas caminhos relativos dentro de src/, tests/, config/ ou scripts/.',
+          'You planeja changesets seguros para o Zavorth.',
+          'Return only valid JSON.',
+          'At most 6 changes per response.',
+          'Each change must contain a relative filePath and an objective instruction.',
+          'Use only caminhos relactives dentro de src/, tests/, config/ ou scripts/.',
         ].join('\n'),
       },
       {
@@ -91,12 +91,12 @@ export class SelfModificationGoalPlanner {
         content: [
           `Objetivo: ${goal}`,
           '',
-          'Arquivos candidatos:',
+          'Candidate files:',
           candidateFiles.join('\n'),
           '',
           'Retorne JSON neste formato:',
           '{',
-          '  "summary": "resumo curto do plano",',
+          '  "summary": "short plan summary",',
           '  "validationPlan": ["passo 1", "passo 2"],',
           '  "resourceImpact": {',
           '    "ramIdleMb": 64,',

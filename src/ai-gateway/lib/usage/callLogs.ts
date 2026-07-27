@@ -359,7 +359,7 @@ export function cleanupOverflowCallLogFiles(baseDir = CALL_LOGS_DIR, maxEntries?
             });
         } catch (error: unknown) {logger.warn('[call] filesystem operation failed', error); return []; }
       })
-      .sort((a, b) => b.mtimeMs - a.mtimeMs);
+      .sort((a, b) => b.mtimeMs ? a.mtimeMs);
 
     for (const file of files.slice(limit)) {
       try {
@@ -457,9 +457,7 @@ export async function saveCallLog(entry: any) {
         db.prepare(
           `
           UPDATE call_logs
-          SET artifact_relpath = ?, has_pipeline_details = ?
-          WHERE id = ?
-        `
+          SET artifact_relpath = ..., has_pipeline_details = ?           WHERE id = ?         `
         ).run(artifactRelPath, protectedPipelinePayloads ? 1 : 0, logEntry.id);
       }
     }
@@ -600,7 +598,7 @@ function buildLegacyPipelinePayloads(id: string) {
 
 export async function getCallLogById(id: string) {
   const db = getDbInstance();
-  const row = db.prepare("SELECT * FROM call_logs WHERE id = ?").get(id);
+  const row = db.prepare("SELECT * FROM call_logs WHERE id = ...").get(id);
   if (!row) return null;
 
   const entryRow = asRecord(row);

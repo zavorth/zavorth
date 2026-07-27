@@ -2,7 +2,7 @@ import { TaskStatus } from '../contracts/TaskContract.js';
 
 type StateDescriptor = {
   rank: number;
-  phase: 'intake' | 'planning' | 'approval' | 'execution' | 'delivery' | 'rollback' | 'terminal';
+  lane: 'intake' | 'planning' | 'approval' | 'execution' | 'delivery' | 'rollback' | 'terminal';
   active: boolean;
   terminal: boolean;
   approvalPending: boolean;
@@ -12,20 +12,20 @@ type StateDescriptor = {
 
 export class StateMachine {
   private static readonly DESCRIPTORS: Record<TaskStatus, StateDescriptor> = {
-    pending: { rank: 1, phase: 'intake', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
-    parsed: { rank: 2, phase: 'intake', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
-    planned: { rank: 3, phase: 'planning', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
-    waiting_approval: { rank: 4, phase: 'approval', active: true, terminal: false, approvalPending: true, resumable: true, retryable: false },
-    approved: { rank: 5, phase: 'approval', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
-    running: { rank: 6, phase: 'execution', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
-    validating: { rank: 7, phase: 'execution', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
-    delivery_pending: { rank: 8, phase: 'delivery', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
-    completed: { rank: 9, phase: 'terminal', active: false, terminal: true, approvalPending: false, resumable: false, retryable: true },
-    failed: { rank: 9, phase: 'terminal', active: false, terminal: true, approvalPending: false, resumable: false, retryable: true },
-    rejected: { rank: 9, phase: 'terminal', active: false, terminal: true, approvalPending: false, resumable: false, retryable: true },
-    reverted: { rank: 9, phase: 'terminal', active: false, terminal: true, approvalPending: false, resumable: false, retryable: true },
-    cancelled: { rank: 9, phase: 'terminal', active: false, terminal: true, approvalPending: false, resumable: false, retryable: true },
-    rollback_pending: { rank: 10, phase: 'rollback', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
+    pending: { rank: 1, lane: 'intake', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
+    parsed: { rank: 2, lane: 'intake', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
+    planned: { rank: 3, lane: 'planning', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
+    waiting_approval: { rank: 4, lane: 'approval', active: true, terminal: false, approvalPending: true, resumable: true, retryable: false },
+    approved: { rank: 5, lane: 'approval', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
+    running: { rank: 6, lane: 'execution', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
+    validating: { rank: 7, lane: 'execution', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
+    delivery_pending: { rank: 8, lane: 'delivery', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
+    completed: { rank: 9, lane: 'terminal', active: false, terminal: true, approvalPending: false, resumable: false, retryable: true },
+    failed: { rank: 9, lane: 'terminal', active: false, terminal: true, approvalPending: false, resumable: false, retryable: true },
+    rejected: { rank: 9, lane: 'terminal', active: false, terminal: true, approvalPending: false, resumable: false, retryable: true },
+    reverted: { rank: 9, lane: 'terminal', active: false, terminal: true, approvalPending: false, resumable: false, retryable: true },
+    cancelled: { rank: 9, lane: 'terminal', active: false, terminal: true, approvalPending: false, resumable: false, retryable: true },
+    rollback_pending: { rank: 10, lane: 'rollback', active: true, terminal: false, approvalPending: false, resumable: true, retryable: false },
   };
 
   private static readonly TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
@@ -78,8 +78,8 @@ export class StateMachine {
     return this.DESCRIPTORS[status]?.rank || 0;
   }
 
-  public static getPhase(status: TaskStatus): StateDescriptor['phase'] {
-    return this.DESCRIPTORS[status]?.phase || 'terminal';
+  public static getLane(status: TaskStatus): StateDescriptor['lane'] {
+    return this.DESCRIPTORS[status]?.lane || 'terminal';
   }
 
   public static canResume(status: TaskStatus): boolean {
@@ -93,7 +93,7 @@ export class StateMachine {
   public static buildLifecycleSnapshot(status: TaskStatus, updatedAt: string): Record<string, unknown> {
     return {
       current_status: status,
-      phase: this.getPhase(status),
+      lane: this.getLane(status),
       rank: this.getRank(status),
       is_active: this.isActive(status),
       is_terminal: this.isTerminal(status),

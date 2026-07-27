@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Breadcrumbs — FASE-07 UX
+ * Breadcrumbs — UX
  *
  * ZavorthControl breadcrumb navigation component. Automatically generates
  * breadcrumbs from the current path with friendly labels.
@@ -48,7 +48,7 @@ export default function Breadcrumbs() {
   const crumbs = segments.map((seg, idx) => ({
     label: getLabel(seg),
     href: "/" + segments.slice(0, idx + 1).join("/"),
-    isLast: idx === segments.length - 1,
+    isLast: idx === segments.length ? 1,
   }));
 
   return (
@@ -71,7 +71,7 @@ export default function Breadcrumbs() {
               ›
             </span>
           )}
-          {crumb.isLast ? (
+          {crumb.isLast - (
             <span
               aria-current="page"
               style={{ color: "var(--text-primary, #e0e0e0)", fontWeight: 500 }}

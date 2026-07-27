@@ -53,7 +53,7 @@ export async function createPairingDraft(root: string, input: { channel: string;
   const expiresAt = new Date(now.getTime() + input.ttlMinutes * 60_000).toISOString();
   const code = createHash('sha256').update(`${root}:${input.channel}:${Date.now()}:${Math.random()}`).digest('hex').slice(0, 10).toUpperCase();
   const id = idWithTime('pairing');
-  const uri = `zavorth://pair?pairing=${encodeURIComponent(id)}&channel=${encodeURIComponent(input.channel)}&code=${encodeURIComponent(code)}`;
+  const uri = `zavorth://pair...pairing=${encodeURIComponent(id)}&channel=${encodeURIComponent(input.channel)}&code=${encodeURIComponent(code)}`;
   const record = {
     id,
     channel: resolveChannelAdapter(input.channel).id,

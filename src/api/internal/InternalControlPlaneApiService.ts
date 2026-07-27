@@ -208,8 +208,7 @@ export class InternalControlPlaneApiService {
         ok,
         status: result.status === 'blocked'
           ? 'blocked'
-          : ok
-            ? 'applied'
+          : ok ? 'applied'
             : 'failed',
         summary: result.summary,
       }));

@@ -111,7 +111,7 @@ export class QwenProvider implements ILlmProvider {
         // ZavorthControl controls: vision passthrough for tool responses.
         if (message.inlineData && message.inlineData.length > 0) {
           const visionContent: Array<OpenAI.ChatCompletionContentPartText | OpenAI.ChatCompletionContentPartImage> = [
-            { type: 'text', text: '[Imagem capturada pela ferramenta para analise visual]' },
+            { type: 'text', text: '[Image captured by the tool for visual analysis]' },
           ];
           for (const item of message.inlineData) {
             if (item.mimeType.startsWith('image/')) {

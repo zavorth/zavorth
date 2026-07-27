@@ -142,7 +142,7 @@ export class TelegramExecutionController {
       }
       const userRoles = config.telegramUserRoles?.[userId] || ['admin'];
       if (!userRoles.includes('admin')) {
-        throw new Error('Apenas administradores podem desfazer tarefas.');
+        throw new Error('Only administrators can undo tasks.');
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);

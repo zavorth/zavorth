@@ -104,7 +104,7 @@ export class ZavorthCapabilityConsoleService {
       approvalSurface: {
         diffPreviewSupported: true,
         runObservatoryCommand: 'zavorth observatory --json',
-        approveApplyInstruction: 'Revise a Previa de alteraction e peça ao Zavorth: aplicar rascunho <planId>.',
+        approveApplyInstruction: 'Review the change preview and ask Zavorth: apply draft <planId>.',
         rollbackInstruction: 'Depois do apply, use o rollback artifact apontado no Run Observatory.',
       },
       narrative: this.narrative(view, summary),
@@ -179,7 +179,7 @@ export class ZavorthCapabilityConsoleService {
     for (const hint of snapshot.commandHints) {
       lines.push(`- ${hint.label}: ${hint.command}`);
     }
-    lines.push('', `Proximo: ${snapshot.narrative.nextAction}`);
+    lines.push('', `Next: ${snapshot.narrative.nextAction}`);
     return lines.join('\n');
   }
 
@@ -202,14 +202,14 @@ export class ZavorthCapabilityConsoleService {
     return [
       {
         id: 'setup-guide',
-        label: 'Configurar com linguagem simples',
+        label: 'Configure com linguagem simples',
         command: `npm run capability-setup-guide --${pack}${target}`.trim(),
         destructive: false,
         requiresOwnerApproval: false,
       },
       {
         id: 'setup-queue',
-        label: 'Ver fila de configuracao',
+        label: 'Ver fila de configuraction',
         command: 'npm run capability-setup-queue -- --status open',
         destructive: false,
         requiresOwnerApproval: false,

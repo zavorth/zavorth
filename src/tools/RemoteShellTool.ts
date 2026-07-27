@@ -85,7 +85,7 @@ type RemoteShellToolOptions = {
  */
 export class RemoteShellTool extends BaseTool {
   public readonly name = 'remote_shell';
-  public readonly description = 'Executa comandos allowlisted no host sem subshell. Shells, pipes, redirecionamento e downloaders sao bloqueados.';
+  public readonly description = 'Runs allowlisted host commands without a subshell. Shells, pipes, redirection, and downloaders are blocked.';
   private readonly isolationGuard: RuntimeIsolationGuardService;
   private readonly ephemeralAdapter: Pick<RuntimeEphemeralShellAdapter, 'execute'> | null;
   private readonly sidecarAdapter: Pick<RuntimeIsolatedShellSidecarService, 'execute' | 'isConfigured'> | null;
@@ -95,21 +95,21 @@ export class RemoteShellTool extends BaseTool {
     properties: {
       command: {
         type: 'string',
-        description: 'Comando allowlisted sem metacaracteres de shell. Ex: "git status" ou "npm test".',
+        description: 'Allowlisted command without shell metacharacters. E.g. "git status" or "npm test".',
       },
       timeoutMs: {
         type: 'number',
-        description: 'Tempo maximo em ms. Default: 10000. Maximo: 60000.',
+        description: 'Maximum timeout in ms. Default: 10000. Max: 60000.',
       },
       isolationMode: {
         type: 'string',
         enum: ['guarded', 'host', 'ephemeral', 'sidecar'],
-        description: 'Modo opcional de isolamento. Use "sidecar" para shell amplo em container/MicroVM; use "ephemeral" para workspace temporario local.',
+        description: 'Optional isolation mode. Use "sidecar" for broad shell access in container/MicroVM; use "ephemeral" for a temporary local workspace.',
       },
       requiredIsolation: {
         type: 'string',
         enum: ['auto', 'container', 'microvm'],
-        description: 'Quando isolationMode=sidecar, exige container ou MicroVM. MicroVM nunca cai para host/container.',
+        description: 'When isolationMode=sidecar, requires container or MicroVM. MicroVM never falls back to host/container.',
       },
     },
     required: ['command'],

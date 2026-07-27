@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Global Error Page — FASE-04 Error Handling
+ * Global Error Page — Error Handling
  *
  * Root-level error boundary for unrecoverable errors.
  * This is the last resort — catches errors that the per-page

@@ -9,12 +9,12 @@ const API_BRIDGE_TIMEOUTS = getApiBridgeTimeoutConfig(process.env, (message) => 
 
 const OPENAI_COMPAT_PATHS = [
   /^\/v1(?:\/|$)/,
-  /^\/chat\/completions(?:\?|$)/,
-  /^\/responses(?:\?|$)/,
-  /^\/models(?:\?|$)/,
-  /^\/codex(?:\/|\?|$)/,
+  /^\/chat\/completions(?:\...|$)/,
+  /^\/responses(?:\...|$)/,
+  /^\/models(?:\...|$)/,
+  /^\/codex(?:\/|\...|$)/,
   /^\/api\/oauth(?:\/|$)/,
-  /^\/callback(?:\?|$)/,
+  /^\/callback(?:\...|$)/,
 ];
 
 function isOpenAiCompatiblePath(pathname: string): boolean {
@@ -84,7 +84,7 @@ export function initApiBridgeServer(): void {
 
   const server = http.createServer((req, res) => {
     const rawUrl = req.url || "/";
-    const pathname = rawUrl.split("?")[0] || "/";
+    const pathname = rawUrl.split("...")[0] || "/";
 
     if (!isOpenAiCompatiblePath(pathname)) {
       res.writeHead(404, { "content-type": "application/json" });

@@ -408,7 +408,7 @@ function buildReceiptsForRun(run: UniversalAgentRun): UniversalAgentRunObservato
       kind: 'budget',
       source: normalizeText(runBudget.source, 'RunBudgetPolicy'),
       title: 'Budget do run',
-      detail: normalizeText(runBudget.reason, 'Budget avaliado para esta execucao.'),
+      detail: normalizeText(runBudget.reason, 'Budget evaluated for this execution.'),
       status: runBudget.degraded === true ? 'failed' : 'done',
       createdAt: run.updatedAt,
       metadata: runBudget,
@@ -424,11 +424,11 @@ function buildReceiptsForRun(run: UniversalAgentRun): UniversalAgentRunObservato
       sessionId: run.sessionId,
       kind: 'model-route',
       source: normalizeText(routeBudget.source, 'AgentRunService'),
-      title: 'Rota de provider correlacionada',
+      title: 'Route de provider correlacionada',
       detail: [
         normalizeText(routeBudget.providerName),
         normalizeText(routeBudget.modelName),
-      ].filter(Boolean).join('/') || 'Rota de provider registrada.',
+      ].filter(Boolean).join('/') || 'Route de provider registrada.',
       status: 'done',
       createdAt: run.updatedAt,
       metadata: routeBudget,
@@ -445,7 +445,7 @@ function buildReceiptsForRun(run: UniversalAgentRun): UniversalAgentRunObservato
       kind: 'capability',
       source: normalizeText(capabilityLoop.source, 'CapabilityLoopGovernanceService'),
       title: 'Governed capability loop',
-      detail: normalizeText(capabilityLoop.summary, 'Capabilities avaliadas no loop canonico.'),
+      detail: normalizeText(capabilityLoop.summary, 'Capabilities avaliadas no loop canonical.'),
       status: Array.isArray(capabilityLoop.blockedCapabilityIds) && capabilityLoop.blockedCapabilityIds.length > 0
         ? 'pending'
         : 'done',
@@ -489,10 +489,10 @@ function buildReceiptsForRun(run: UniversalAgentRun): UniversalAgentRunObservato
 function intelligenceFabricReceiptTitle(metadata: Record<string, unknown>): string {
   const status = normalizeText(metadata.status, 'observed');
   if (status === 'disabled') {
-    return 'Intelligence Fabric desativado';
+    return 'Intelligence Fabric desactivedo';
   }
   if (status === 'fallback-current-runtime') {
-    return 'Intelligence Fabric usou fallback atual';
+    return 'Intelligence Fabric usou fallback current';
   }
   return 'Intelligence Fabric observado';
 }
@@ -559,7 +559,7 @@ function buildDiffPreviews(receipts: UniversalAgentRunObservatoryReceipt[]): Uni
         sessionId: receipt.sessionId,
         receiptId: receipt.id,
         planId,
-        title: 'Previa de alteracao',
+        title: 'Previa de change',
         status: receipt.status,
         approvalRequired: metadata.approvalRequired === true,
         applied,
@@ -571,7 +571,7 @@ function buildDiffPreviews(receipts: UniversalAgentRunObservatoryReceipt[]): Uni
           mutationPlaneStatus: normalizeText(metadata.mutationPlaneStatus || draftObservability?.mutationPlaneStatus, planId ? 'draft' : 'missing'),
           mutationPlaneApprovalStatus: normalizeText(metadata.mutationPlaneApprovalStatus || draftObservability?.mutationPlaneApprovalStatus, metadata.approvalRequired === true ? 'pending' : 'not_required'),
           approvalPath: normalizeText(metadata.approvalPath || draftObservability?.approvalPath, metadata.approvalRequired === true ? 'approval_required' : 'policy_allow_explicit'),
-          approvalReason: normalizeText(metadata.approvalReason || draftObservability?.approvalReason, metadata.approvalRequired === true ? 'Approval exigido antes do apply.' : 'Policy allow explicito antes do pedido de apply.'),
+          approvalReason: normalizeText(metadata.approvalReason || draftObservability?.approvalReason, metadata.approvalRequired === true ? 'Approval exigido before do apply.' : 'Policy allow explicit before do request de apply.'),
           riskGateDecision: normalizeText(metadata.riskGateDecision || draftObservability?.riskGateDecision, metadata.approvalRequired === true ? 'require_approval' : 'allow'),
           riskGateCanExecuteNow: metadata.riskGateCanExecuteNow === true || draftObservability?.riskGateCanExecuteNow === true,
           draftLatencyMs: Number.isFinite(Number(metadata.draftLatencyMs || draftObservability?.draftLatencyMs))
@@ -582,24 +582,21 @@ function buildDiffPreviews(receipts: UniversalAgentRunObservatoryReceipt[]): Uni
         },
         files,
         actions: {
-          approveApplyLabel: applied ? 'Aplicado' : 'Aprovar/aplicar',
-          approveApplyInstruction: planId
-            ? `Ask Zavorth: apply draft ${planId}.`
-            : 'Peça ao Zavorth para aplicar este rascunho quando o plano estiver visivel.',
-          rollbackLabel: rollbackArtifactPath ? 'Rollback disponivel' : 'Rollback sera gerado no apply',
-          rollbackInstruction: rollbackArtifactPath
-            ? `Rollback artifact: ${rollbackArtifactPath}`
-            : 'Depois do apply, o receipt vai apontar o artifact de rollback reversivel.',
+          approveApplyLabel: applied ? 'Applied' : 'Approve/apply',
+          approveApplyInstruction: planId ? `Ask Zavorth: apply draft ${planId}.`
+            : 'Ask Zavorth to apply this draft when the plan is visible.',
+          rollbackLabel: rollbackArtifactPath ? 'Rollback available' : 'Rollback will be generated on apply',
+          rollbackInstruction: rollbackArtifactPath ? `Rollback artifact: ${rollbackArtifactPath}`
+            : 'After apply, the receipt will point to the reversible rollback artifact.',
           rollbackArtifactPath,
-          zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(receipt.runId)}`,
+          zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(receipt.runId)}`,
         },
       };
     })
     .filter((entry): entry is UniversalAgentRunObservatoryDiffPreview => Boolean(entry));
   const byPlan = new Map<string, UniversalAgentRunObservatoryDiffPreview>();
   for (const preview of previews) {
-    const key = preview.planId
-      ? `${preview.runId}:${preview.planId}`
+    const key = preview.planId ? `${preview.runId}:${preview.planId}`
       : preview.id;
     const existing = byPlan.get(key);
     if (existing?.applied && !preview.applied) {
@@ -666,9 +663,8 @@ function buildReplay(
       'zavorth observatory status failed --json',
       'zavorth observatory run <runId> --json',
     ],
-    summary: available
-      ? `${runs.length} run(s), ${receipts.length} receipt(s) e ${eventCount} evento(s) prontos para replay.`
-      : 'Nenhum replay real disponivel ainda.',
+    summary: available ? `${runs.length} run(s), ${receipts.length} receipt(s), and ${eventCount} event(s) ready for replay.`
+      : 'No real replay available yet.',
   };
 }
 
@@ -679,17 +675,17 @@ function buildHealth(
 ): UniversalAgentRunObservatoryHealth {
   const issues: string[] = [];
   if (runs.length === 0) {
-    issues.push('Nenhuma run local observada ainda.');
+    issues.push('No run local observada ainda.');
   }
   if (summary.failedRunCount > 0) {
-    issues.push(`${summary.failedRunCount} run(s) falharam e precisam de investigacao.`);
+    issues.push(`${summary.failedRunCount} run(s) failed and need investigation.`);
   }
   if (summary.pendingApprovalCount > 0) {
-    issues.push(`${summary.pendingApprovalCount} approval(s) pendente(s).`);
+    issues.push(`${summary.pendingApprovalCount} approval(s) pending(s).`);
   }
   const staleRunCount = runs.filter((run) => run.status === 'running' || run.status === 'thinking').length;
   if (staleRunCount > 0) {
-    issues.push(`${staleRunCount} run(s) ainda em execucao ou pensamento.`);
+    issues.push(`${staleRunCount} run(s) still in execution or thinking.`);
   }
 
   const status: UniversalAgentRunObservatoryHealthStatus = summary.failedRunCount > 0
@@ -698,12 +694,12 @@ function buildHealth(
       ? 'attention'
       : 'ready';
   const nextSafeAction = summary.failedRunCount > 0
-    ? 'Abrir /zavorthControl?status=failed ou rodar zavorth observatory status failed --json.'
+    ? 'Abrir /zavorthControl...status=failed ou run zavorth observatory status failed --json.'
     : summary.pendingApprovalCount > 0
-      ? 'Revisar approvals pendentes antes de retomar qualquer execucao.'
+      ? 'Review pending approvals before resuming any execution.'
       : runs.length === 0
-        ? 'Executar uma tarefa pelo Zavorth Agent Gateway para gerar o primeiro receipt.'
-        : 'Usar filters por run, trace, sessao ou status para investigar sem executar tools.';
+        ? 'Run a task through Zavorth Agent Gateway to generate the first receipt.'
+        : 'Use run, trace, session, or status filters to investigate without run tools.';
 
   return {
     status,
@@ -734,7 +730,7 @@ function buildSurface(query: UniversalAgentRunObservatoryQuery): UniversalAgentR
     params.set('status', statuses.join(','));
   }
   return {
-    zavorthControlPath: `/zavorthControl${params.toString() ? `?${params.toString()}` : ''}`,
+    zavorthControlPath: `/zavorthControl${params.toString() ? `...${params.toString()}` : ''}`,
     cliCommand: 'zavorth observatory --json',
     filterHints: [
       'runId',

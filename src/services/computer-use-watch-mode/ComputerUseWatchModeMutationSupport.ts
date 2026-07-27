@@ -59,7 +59,7 @@ export class ComputerUseWatchModeMutationSupport {
       sourceSurface: input.sourceSurface || 'watch-mode',
       riskLevel: actionId === 'start' ? 'high' : 'medium',
       approvalRequired: true,
-      approvalReason: 'Watch Mode aumenta poder visual/mutavel e exige approval antes de executar.',
+      approvalReason: 'Watch Mode increases visual/mutable power and requires approval before running.',
       resourceImpact: {
         ramMb: actionId === 'start' ? 180 : 0,
         diskMb: actionId === 'start' ? Math.ceil(Number(payload.maxScreenshotBytes || 0) / (1024 * 1024)) : 1,
@@ -78,15 +78,15 @@ export class ComputerUseWatchModeMutationSupport {
         maxBytes: Number(payload.maxScreenshotBytes || 250 * 1024 * 1024),
         cleanupOnSuccess: false,
         cleanupOnBoot: true,
-        notes: ['Screenshots e timeline sao efemeros e seguem policy de redaction/sensitive-screen.'],
+        notes: ['Screenshots and timeline are ephemeral and follow redaction/sensitive-screen policy.'],
       },
       validationPlan: [
-        'Confirmar capability watch-mode ativa ou aprovada sob demanda.',
-        'Checar TrustDecisionService antes de aplicar.',
-        'Bloquear start se Runtime Stability Gate estiver failed.',
+        'Confirm watch-mode capability is active or approved on demand.',
+        'Check TrustDecisionService before applying.',
+        'Block start if Runtime Stability Gate has failed.',
       ],
       rollbackPlan: [
-        actionId === 'start' ? 'Stop/pause continuam diretos como acoes de seguranca.' : 'Reaplicar policy anterior do Watch Mode.',
+        actionId === 'start' ? 'Stop/pause remain direct safety actions.' : 'Reapply the previous Watch Mode policy.',
       ],
       payload,
     });
@@ -99,7 +99,7 @@ export class ComputerUseWatchModeMutationSupport {
       riskLevel: actionId === 'start' ? 'high' : 'medium',
       approvalRequired: true,
       capabilityId: actionId === 'start' ? 'watch-mode' : null,
-      reason: 'Watch Mode mutavel exige approval.',
+      reason: 'Mutable Watch Mode requires approval.',
       payload,
       resourceImpact: plan.resourceImpact,
     });
@@ -116,7 +116,7 @@ export class ComputerUseWatchModeMutationSupport {
       ok: false,
       summary: decision.decision === 'blocked'
         ? decision.reason
-        : `Preview criado para Watch Mode ${actionId}; aplique somente apos approval.`,
+        : `Preview created for Watch Mode ${actionId}; apply only after approval.`,
       mutationPlan,
       trustDecision: decision,
       snapshot: this.deps.previewSnapshot(8),
@@ -141,10 +141,10 @@ export class ComputerUseWatchModeMutationSupport {
   }> {
     let plan = this.deps.mutationPlane.readPlan(input.planId);
     if (!plan || plan.domain !== 'watch') {
-      throw new Error(`Plano de Watch Mode nao encontrado: ${input.planId || 'n/d'}.`);
+      throw new Error(`Watch Mode plan not found: ${input.planId || 'n/d'}.`);
     }
     if (plan.status === 'expired' || plan.status === 'blocked') {
-      throw new Error(`Plano ${plan.id} nao pode ser aplicado porque esta ${plan.status}.`);
+      throw new Error(`Plan ${plan.id} cannot be applied because it is ${plan.status}.`);
     }
     if (plan.approval.required && plan.status !== 'approved' && plan.approval.status !== 'approved') {
       const permission = plan.approval.permissionId
@@ -159,7 +159,7 @@ export class ComputerUseWatchModeMutationSupport {
       }
     }
     if (plan.approval.required && plan.status !== 'approved' && plan.approval.status !== 'approved') {
-      throw new Error(`Plano ${plan.id} ainda aguarda approval.`);
+      throw new Error(`Plan ${plan.id} is still waiting for approval.`);
     }
 
     const brokerDecision = decideSecurityPolicy({
@@ -251,7 +251,7 @@ export class ComputerUseWatchModeMutationSupport {
     } else if (plan.actionId === 'allow-site') {
       this.deps.allowSite(String(payload.site || ''));
     } else {
-      throw new Error(`Acao de Watch Mode desconhecida no plano: ${plan.actionId}.`);
+      throw new Error(`Unknown Watch Mode action in plan: ${plan.actionId}.`);
     }
 
     const appliedPlan = this.deps.mutationPlane.markApplied(plan.id, `Watch Mode ${plan.actionId} aplicado.`, [plan.actionId]);
@@ -330,15 +330,15 @@ export class ComputerUseWatchModeMutationSupport {
 
   private buildMutationTitle(actionId: string, payload: Record<string, unknown>): string {
     if (actionId === 'start') {
-      return `Iniciar Watch Mode em ${String(payload.targetWindow || 'janela')}`;
+      return `Iniciar Watch Mode em ${String(payload.targetWindow || 'window')}`;
     }
     if (actionId === 'set-strict-default') {
       return `Alterar strict approval para ${payload.strictApproval === false ? 'off' : 'on'}`;
     }
     if (actionId === 'allow-app') {
-      return `Liberar app ${String(payload.app || 'n/d')}`;
+      return `enable app ${String(payload.app || 'n/d')}`;
     }
-    return `Liberar site ${String(payload.site || 'n/d')}`;
+    return `enable site ${String(payload.site || 'n/d')}`;
   }
 
   private buildMutationSummary(actionId: string, payload: Record<string, unknown>): string {
@@ -346,9 +346,8 @@ export class ComputerUseWatchModeMutationSupport {
       return `Start visual para ${String(payload.objective || 'objetivo')} com approval e TTL de screenshots.`;
     }
     if (actionId === 'set-strict-default') {
-      return payload.strictApproval === false
-        ? 'Desligar strict approval reduz friccao e aumenta poder automatico.'
-        : 'Ligar strict approval reduz risco e pode ser aplicado como hardening.';
+      return payload.strictApproval === false ? 'Disabling strict approval reduces friction and increases automatic power.'
+        : 'Ligar strict approval reduz risk e pode ser aplicado como hardening.';
     }
     if (actionId === 'allow-app') {
       return `Adicionar ${String(payload.app || 'app')} a allowlist do Watch Mode.`;

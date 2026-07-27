@@ -152,7 +152,7 @@ export class LlmRoleCatalogService {
       const key = String(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim();
       if (key) {
         try {
-          const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`;
+          const url = `https://generativelanguage.googleapis.com/v1beta/models...key=${encodeURIComponent(key)}`;
           const res = await safeFetch(url, {}, { serviceName: 'LLM role model catalog' });
           if (res.ok) {
             const data = (await res.json()) as {
@@ -161,14 +161,11 @@ export class LlmRoleCatalogService {
             for (const model of data.models || []) {
               const methods = model.supportedGenerationMethods || [];
               if (!methods.includes('generateContent')) continue;
-              const id = String(model.name || '')
-                .replace(/^models\//, '')
-                .trim();
+              const rawId = String(model.name || '').trim();
+              const id = rawId.startsWith('models/') ? rawId.slice('models/'.length).trim() : rawId;
               if (!id) continue;
-              const tier: CatalogModel['tier'] = /pro|ultra|exp/i.test(id)
-                ? 'strong'
-                : /flash|lite|mini/i.test(id)
-                  ? 'fast'
+              const tier: CatalogModel['tier'] = modelHasAnyToken(id, ['pro', 'ultra', 'exp']) ? 'strong'
+                : modelHasAnyToken(id, ['flash', 'lite', 'mini']) ? 'fast'
                   : 'balanced';
               discovered.push({
                 provider: 'gemini',
@@ -201,10 +198,8 @@ export class LlmRoleCatalogService {
             for (const model of data.data || []) {
               const id = String(model.id || '').trim();
               if (!id.startsWith('gpt-')) continue;
-              const tier: CatalogModel['tier'] = /mini|nano/i.test(id)
-                ? 'fast'
-                : /4o$|4\.1|o[13]/i.test(id)
-                  ? 'strong'
+              const tier: CatalogModel['tier'] = modelHasAnyToken(id, ['mini', 'nano']) ? 'fast'
+                : modelHasAnyToken(id, ['4o', '4.1', 'o1', 'o3']) ? 'strong'
                   : 'balanced';
               discovered.push({
                 provider: 'openai',
@@ -240,10 +235,8 @@ export class LlmRoleCatalogService {
             for (const model of data.data || []) {
               const id = String(model.id || '').trim();
               if (!id) continue;
-              const tier: CatalogModel['tier'] = /haiku|fast/i.test(id)
-                ? 'fast'
-                : /opus|sonnet/i.test(id)
-                  ? 'strong'
+              const tier: CatalogModel['tier'] = modelHasAnyToken(id, ['haiku', 'fast']) ? 'fast'
+                : modelHasAnyToken(id, ['opus', 'sonnet']) ? 'strong'
                   : 'balanced';
               discovered.push({
                 provider: 'anthropic',
@@ -276,10 +269,8 @@ export class LlmRoleCatalogService {
             for (const model of data.data || []) {
               const id = String(model.id || '').trim();
               if (!id) continue;
-              const tier: CatalogModel['tier'] = /mini|fast/i.test(id)
-                ? 'fast'
-                : /grok-3|grok-4|reason/i.test(id)
-                  ? 'strong'
+              const tier: CatalogModel['tier'] = modelHasAnyToken(id, ['mini', 'fast']) ? 'fast'
+                : modelHasAnyToken(id, ['grok', 'reason']) ? 'strong'
                   : 'balanced';
               discovered.push({
                 provider: 'xai',
@@ -312,10 +303,8 @@ export class LlmRoleCatalogService {
             for (const model of data.data || []) {
               const id = String(model.id || '').trim();
               if (!id) continue;
-              const tier: CatalogModel['tier'] = /reasoner|r1/i.test(id)
-                ? 'strong'
-                : /chat|coder/i.test(id)
-                  ? 'balanced'
+              const tier: CatalogModel['tier'] = modelHasAnyToken(id, ['reasoner', 'r1']) ? 'strong'
+                : modelHasAnyToken(id, ['chat', 'coder']) ? 'balanced'
                   : 'fast';
               discovered.push({
                 provider: 'deepseek',
@@ -339,12 +328,13 @@ export class LlmRoleCatalogService {
   public detectFamily(text: string): string | null {
     const t = this.norm(text);
     if (!t) return null;
-    if (/\b(gemini|gemma|google)\b/.test(t)) return 'gemini';
-    if (/\b(gpt|openai|chatgpt)\b/.test(t)) return 'gpt';
-    if (/\b(claude|anthropic)\b/.test(t)) return 'claude';
-    if (/\b(deepseek)\b/.test(t)) return 'deepseek';
-    if (/\b(grok|xai)\b/.test(t)) return 'xai';
-    if (/\b(openrouter)\b/.test(t)) return 'openrouter';
+    const tokens = splitModelText(t);
+    if (hasAnyToken(tokens, ['gemini', 'gemma', 'google'])) return 'gemini';
+    if (hasAnyToken(tokens, ['gpt', 'openai', 'chatgpt'])) return 'gpt';
+    if (hasAnyToken(tokens, ['claude', 'anthropic'])) return 'claude';
+    if (hasAnyToken(tokens, ['deepseek'])) return 'deepseek';
+    if (hasAnyToken(tokens, ['grok', 'xai'])) return 'xai';
+    if (hasAnyToken(tokens, ['openrouter'])) return 'openrouter';
     return null;
   }
 
@@ -394,8 +384,9 @@ export class LlmRoleCatalogService {
         };
       }
 
-      const shortTier = modelNorm.split(/\s+/).filter(Boolean).length <= 2;
-      if (shortTier && /^(flash|mini|haiku|fast|lite)(\s|$)/.test(modelNorm)) {
+      const modelTokens = splitModelText(modelNorm);
+      const shortTier = modelTokens.size <= 2;
+      if (shortTier && hasAnyToken(modelTokens, ['flash', 'mini', 'haiku', 'fast', 'lite'])) {
         const pool = usable.filter(inScope);
         const pick = this.pickByTier(pool.length ? pool : usable, 'fast');
         if (pick) {
@@ -406,7 +397,7 @@ export class LlmRoleCatalogService {
           };
         }
       }
-      if (shortTier && /^(pro|sonnet|reasoner|opus|max)(\s|$)/.test(modelNorm)) {
+      if (shortTier && hasAnyToken(modelTokens, ['pro', 'sonnet', 'reasoner', 'opus', 'max'])) {
         const pool = usable.filter(inScope);
         const pick = this.pickByTier(pool.length ? pool : usable, 'strong');
         if (pick) {
@@ -565,8 +556,8 @@ export class LlmRoleCatalogService {
     if (!a || !b) return 0;
     if (a === b) return 1;
     if (a.includes(b) || b.includes(a)) return 0.8;
-    const as = new Set(a.split(/[^a-z0-9.]+/).filter(Boolean));
-    const bs = new Set(b.split(/[^a-z0-9.]+/).filter(Boolean));
+    const as = splitModelText(a);
+    const bs = splitModelText(b);
     let inter = 0;
     for (const token of as) {
       if (bs.has(token)) inter += 1;
@@ -587,8 +578,50 @@ export class LlmRoleCatalogService {
     return String(value || '')
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9.]+/g, ' ')
+      .replaceAll('\u0300', '')
+      .replaceAll('\u0301', '')
+      .replaceAll('\u0302', '')
+      .replaceAll('\u0303', '')
+      .replaceAll('\u0308', '')
+      .split('')
+      .map((char) => isModelTextChar(char) ? char : ' ')
+      .join('')
       .trim();
   }
+}
+
+function modelHasAnyToken(value: string, candidates: string[]): boolean {
+  return hasAnyToken(splitModelText(value), candidates);
+}
+
+function splitModelText(value: string): Set<string> {
+  const tokens = new Set<string>();
+  let current = '';
+  for (const char of String(value || '').toLowerCase()) {
+    if (isModelTextChar(char)) {
+      current += char;
+      continue;
+    }
+    if (current) {
+      tokens.add(current);
+      current = '';
+    }
+  }
+  if (current) {
+    tokens.add(current);
+  }
+  return tokens;
+}
+
+function hasAnyToken(tokens: Set<string>, candidates: string[]): boolean {
+  for (const candidate of candidates) {
+    if (tokens.has(candidate)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isModelTextChar(char: string): boolean {
+  return (char >= 'a' && char <= 'z') || (char >= '0' && char <= '9') || char === '.';
 }

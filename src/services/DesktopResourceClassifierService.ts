@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   DesktopResourceActionDescriptor,
   DesktopResourceCollection,
   DesktopResourceControlId,
@@ -125,12 +125,11 @@ export class DesktopResourceClassifierService {
         pressure: running ? 'moderate' : 'low',
         controlId: 'wsl',
         status: running ? 'running' : 'stopped',
-        summary: running
-          ? `Distro ${entry.name} esta ativa no WSL.`
-          : `Distro ${entry.name} esta parada.`,
+        summary: running ? `Distro ${entry.name} is active no WSL.`
+          : `Distro ${entry.name} is parada.`,
         details: [
-          `Versao WSL: ${entry.version}.`,
-          entry.isDefault ? 'Esta e a distro padrao of the host.' : 'Distro secundaria of the host.',
+          `WSL version: ${entry.version}.`,
+          entry.isDefault ? 'is e a distro default of the host.' : 'Distro secundaria of the host.',
         ],
         metrics: {
           cpuSeconds: 0,
@@ -202,7 +201,7 @@ export class DesktopResourceClassifierService {
       {
         actionId: 'inspect',
         label: 'Inspecionar',
-        description: 'Revisar este consumidor antes de mexer no runtime.',
+        description: 'review este consumidor before mexer no runtime.',
         safety: 'safe',
         requiresApproval: false,
         controlId,
@@ -213,10 +212,9 @@ export class DesktopResourceClassifierService {
       const idle = collection.docker.detected && (collection.docker.runningContainerCount || 0) === 0;
       actions.push({
         actionId: idle ? 'hibernate' : 'stop-idle',
-        label: idle ? 'Hibernar Docker ocioso' : 'Revisar Docker ativo',
-        description: idle
-          ? 'Docker Desktop parece ocioso e costuma liberar bastante RAM quando fecha.'
-          : 'Docker Desktop esta ativo com containers ou contexto aberto; revise antes de desligar.',
+        label: idle ? 'Hibernar Docker ocioso' : 'review Docker active',
+        description: idle ? 'Docker Desktop parece ocioso e costuma enable bastante RAM when fecha.'
+          : 'Docker Desktop is active com containers ou contexto aberto; revise before desligar.',
         safety: idle ? 'safe' : 'cautious',
         requiresApproval: !idle,
         controlId,
@@ -228,10 +226,10 @@ export class DesktopResourceClassifierService {
       const runningDistros = collection.wsl.distros.filter((entry) => entry.state.toLowerCase() === 'running');
       actions.push({
         actionId: runningDistros.length > 0 ? 'hibernate' : 'resume',
-        label: runningDistros.length > 0 ? 'Hibernar WSL' : 'Retomar WSL',
+        label: runningDistros.length > 0 ? 'Hibernar WSL' : 'resume WSL',
         description: runningDistros.length > 0
-          ? 'WSL esta ativo; desligar pode devolver memoria quando nao houver trabalho rodando.'
-          : 'WSL esta parado; retome apenas quando realmente precisar.',
+          ? 'WSL is active; shutting it down can return memory when no work is running.'
+          : 'WSL is parado; resume only when realmente need.',
         safety: runningDistros.length > 0 ? 'cautious' : 'safe',
         requiresApproval: runningDistros.length > 0,
         controlId,
@@ -242,8 +240,8 @@ export class DesktopResourceClassifierService {
     if (controlId === 'zavorthBridge' || controlId === 'codex-companion') {
       actions.push({
         actionId: 'trim',
-        label: 'Revisar modo leve',
-        description: 'Vale checar extensoes, watchers e janelas abertas antes de encerrar o app.',
+        label: 'review modo leve',
+        description: 'Vale checar extensions, watchers e windows abertas before encerrar o app.',
         safety: 'cautious',
         requiresApproval: true,
         controlId,
@@ -254,8 +252,8 @@ export class DesktopResourceClassifierService {
     if (controlId === 'zavorth') {
       actions.push({
         actionId: 'trim',
-        label: 'Revisar runtime Zavorth',
-        description: 'Quando o core estiver acima do esperado, vale revisar sidecars, perfil e watchers.',
+        label: 'review runtime Zavorth',
+        description: 'when o core estiver acima do esperado, vale review sidecars, profile e watchers.',
         safety: 'cautious',
         requiresApproval: true,
         controlId,
@@ -273,24 +271,24 @@ export class DesktopResourceClassifierService {
   ): string[] {
     const warnings: string[] = [];
     if (collection.processes.length === 0) {
-      warnings.push('Desktop Resource Plane nao conseguiu enumerar processos deste host; a coleta local pode estar bloqueada.');
+      warnings.push('Desktop Resource Plane could not enumerate processes on this host; local collection may be blocked.');
     }
     if ((collection.host.memoryLoadPercent || 0) >= 85) {
-      warnings.push(`A memoria do host esta alta (${collection.host.memoryLoadPercent}%).`);
+      warnings.push(`Host memory is high (${collection.host.memoryLoadPercent}%).`);
     }
     if (!collection.wsl.ok && collection.wsl.message) {
-      warnings.push(`WSL nao pode ser consultado agora: ${collection.wsl.message}.`);
+      warnings.push(`WSL cannot be queried right now: ${collection.wsl.message}.`);
     }
     if (Array.isArray(collection.docker.warnings) && collection.docker.warnings.length > 0) {
-      warnings.push(`Docker nao pode ser consultado agora: ${collection.docker.warnings[0]}.`);
+      warnings.push(`Docker cannot be queried right now: ${collection.docker.warnings[0]}.`);
     }
     const zavorthGroup = groups.find((group) => group.id === 'zavorth');
     if (zavorthGroup && zavorthGroup.metrics.workingSetMb >= 350) {
-      warnings.push(`O Zavorth esta acima da meta leve local (${this.round(zavorthGroup.metrics.workingSetMb)} MB).`);
+      warnings.push(`O Zavorth is acima da meta leve local (${this.round(zavorthGroup.metrics.workingSetMb)} MB).`);
     }
     const dockerGroup = groups.find((group) => group.id === 'docker-desktop');
     if (dockerGroup && collection.docker.detected && (collection.docker.runningContainerCount || 0) === 0) {
-      warnings.push('Docker Desktop aparece ativo mesmo sem containers rodando.');
+      warnings.push('Docker Desktop appears active mesmo without containers rodando.');
     }
     const topCompanion = topConsumers.find((entry) => entry.owner === 'companion');
     if (topCompanion) {
@@ -302,7 +300,7 @@ export class DesktopResourceClassifierService {
   private buildRecommendations(collection: DesktopResourceCollection, groups: DesktopResourceGroup[]): string[] {
     const recommendations: string[] = [];
     if (collection.processes.length === 0) {
-      recommendations.push('Rode o desktop doctor em um host sem sandbox ou com permissoes locais plenas para obter o mapa completo de processos.');
+      recommendations.push('Run o desktop doctor em um host without sandbox ou com permissions locais plenas para obter o mapa completo de processs.');
     }
     const dockerGroup = groups.find((group) => group.id === 'docker-desktop');
     if (dockerGroup && collection.docker.detected && (collection.docker.runningContainerCount || 0) === 0) {
@@ -311,29 +309,29 @@ export class DesktopResourceClassifierService {
 
     const wslGroup = groups.find((group) => group.id === 'wsl');
     if (wslGroup && collection.wsl.distros.some((entry) => entry.state.toLowerCase() === 'running')) {
-      recommendations.push('WSL esta ativo; vale desligar quando nao houver tarefa real aberta.');
+      recommendations.push('WSL is active; it is worth shutting down when there is no real task open.');
     }
 
     const zavorthBridgeGroup = groups.find((group) => group.id === 'zavorthBridge');
     if (zavorthBridgeGroup) {
-      recommendations.push('ZavorthBridge pesado costuma pedir workspace menor, menos Git polling e menos watchers.');
+      recommendations.push('ZavorthBridge pesado costuma pedir workspace smallest, menos Git polling e menos watchers.');
     }
 
     const codexGroup = groups.find((group) => group.id === 'codex-companion');
     if (codexGroup) {
-      recommendations.push('Codex companion deve ser mantido apenas nas sessoes que voce realmente estiver usando.');
+      recommendations.push('Codex companion should only stay active in sessions you are actually using.');
     }
 
     if (!collection.wsl.ok && /eperm|access|denied|blocked/i.test(collection.wsl.message || '')) {
-      recommendations.push('Se voce precisa diagnosticar WSL, rode o doctor fora do sandbox atual ou use a trilha supervisionada de companions.');
+      recommendations.push('If you need to diagnose WSL, run the doctor outside the current sandbox or use the supervised companion track.');
     }
 
     if (Array.isArray(collection.docker.warnings) && collection.docker.warnings.some((entry) => /eperm|access|denied|blocked/i.test(String(entry || '')))) {
-      recommendations.push('Se voce precisa diagnosticar Docker Desktop, rode o doctor com permissao local plena ou use o Companion Control Plane.');
+      recommendations.push('If you need to diagnose Docker Desktop, run the doctor with full local permission or use the Companion Control Plane.');
     }
 
     if ((collection.host.memoryLoadPercent || 0) >= 85) {
-      recommendations.push('Com memoria acima de 85%, priorize desligar companions ociosos antes de mexer no Zavorth.');
+      recommendations.push('With memory above 85%, prioritize shutting down idle companions before changing Zavorth.');
     }
 
     return recommendations.slice(0, 8);
@@ -456,13 +454,13 @@ export class DesktopResourceClassifierService {
     const details = [
       `PID ${entry.pid}.`,
       `CPU acumulada: ${this.round(entry.cpuSeconds)} s.`,
-      `Memoria paginada: ${this.round(entry.pagedMemoryMb)} MB.`,
+      `Paged memory: ${this.round(entry.pagedMemoryMb)} MB.`,
     ];
     if (entry.mainWindowTitle) {
       details.push(`Janela: ${entry.mainWindowTitle}.`);
     }
     if (entry.commandLine && controlId !== null) {
-      details.push(`Comando: ${entry.commandLine}.`);
+      details.push(`Command: ${entry.commandLine}.`);
     }
     return details.slice(0, 5);
   }
@@ -499,15 +497,14 @@ export class DesktopResourceClassifierService {
     const workingSetMb = this.round(bucket.reduce((total, item) => total + item.metrics.workingSetMb, 0));
     if (groupId === 'docker-desktop') {
       const containerCount = collection.docker.runningContainerCount;
-      return containerCount === null
-        ? `Docker Desktop aparece no host usando ${workingSetMb} MB.`
+      return containerCount === null ? `Docker Desktop appears no host usando ${workingSetMb} MB.`
         : `Docker Desktop usa ${workingSetMb} MB e tem ${containerCount} container(es) rodando.`;
     }
     if (groupId === 'wsl') {
       const runningDistros = collection.wsl.distros.filter((entry) => entry.state.toLowerCase() === 'running');
       return runningDistros.length > 0
-        ? `WSL usa ${workingSetMb} MB com ${runningDistros.length} distro(s) ativa(s).`
-        : `WSL aparece no host usando ${workingSetMb} MB.`;
+        ? `WSL usa ${workingSetMb} MB com ${runningDistros.length} distro(s) active(s).`
+        : `WSL appears no host usando ${workingSetMb} MB.`;
     }
     if (groupId === 'zavorth') {
       return `Zavorth soma ${workingSetMb} MB nesta fotografia of the host.`;
@@ -515,7 +512,7 @@ export class DesktopResourceClassifierService {
     if (groupId === 'zavorthBridge' || groupId === 'codex-companion') {
       return `${this.buildGroupLabel(groupId, bucket[0]?.owner || 'companion')} soma ${workingSetMb} MB no host.`;
     }
-    return `${bucket.length} item(ns) somam ${workingSetMb} MB.`;
+    return `${bucket.length} item(s) somam ${workingSetMb} MB.`;
   }
 
   private classifyHostPressure(memoryLoadPercent: number | null): DesktopResourcePressureLevel {

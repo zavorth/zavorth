@@ -235,7 +235,7 @@ export const DEFAULT_RUNTIME_ARTIFACT_RETENTION_RULES: MinimalRuntimeArtifactRet
     kind: 'json-state',
     strategy: 'state-size-gate',
     maxBytes: 16_384,
-    description: 'Local authorized host binding used by the desktop/runtime boundary.',
+    description: 'local authorized host binding used by the desktop/runtime boundary.',
   },
   {
     fileName: 'channel-provider-doctor-last.json',
@@ -269,7 +269,7 @@ export const DEFAULT_RUNTIME_ARTIFACT_RETENTION_RULES: MinimalRuntimeArtifactRet
     kind: 'secret',
     strategy: 'secret-size-gate',
     maxBytes: 16_384,
-    description: 'Local Node Mesh secret references and non-exportable local secret state.',
+    description: 'local Node Mesh secret references and non-exportable local secret state.',
   },
   {
     fileName: 'node-mesh-state.json',
@@ -277,7 +277,7 @@ export const DEFAULT_RUNTIME_ARTIFACT_RETENTION_RULES: MinimalRuntimeArtifactRet
     kind: 'json-state',
     strategy: 'state-size-gate',
     maxBytes: 65_536,
-    description: 'Local Node Mesh status and pairing state.',
+    description: 'local Node Mesh status and pairing state.',
   },
   {
     fileName: 'security-audit-last.json',
@@ -335,7 +335,7 @@ export const DEFAULT_RUNTIME_ARTIFACT_RETENTION_RULES: MinimalRuntimeArtifactRet
     kind: 'secret',
     strategy: 'secret-size-gate',
     maxBytes: 4_096,
-    description: 'Local database field encryption key.',
+    description: 'local database field encryption key.',
   },
   {
     fileName: 'mailbox-secret.key',
@@ -343,7 +343,7 @@ export const DEFAULT_RUNTIME_ARTIFACT_RETENTION_RULES: MinimalRuntimeArtifactRet
     kind: 'secret',
     strategy: 'secret-size-gate',
     maxBytes: 4_096,
-    description: 'Local mailbox secret.',
+    description: 'local mailbox secret.',
   },
   {
     fileName: 'web-api-token.txt',
@@ -351,7 +351,7 @@ export const DEFAULT_RUNTIME_ARTIFACT_RETENTION_RULES: MinimalRuntimeArtifactRet
     kind: 'text-token',
     strategy: 'secret-size-gate',
     maxBytes: 4_096,
-    description: 'Local web API token.',
+    description: 'local web API token.',
   },
   {
     fileName: 'zavorth-cli-history.txt',

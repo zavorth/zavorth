@@ -296,23 +296,10 @@ export class LlmRoleRoutingService {
     }
 
     if (cfg.pendingConfirmation) {
-      const lower = userText.trim().toLowerCase();
-      const yes = /^(y|yes|sim|si|ok|okay|confirm|confirma|isso|that|yeah|yep)\b/i.test(lower);
-      const no = /^(n|no|nao|não|cancel|cancela|nope)\b/i.test(lower);
-      if (yes) {
-        const next = this.confirmPending(scopeId, true);
-        const after = this.store.load(scopeId);
-        after.telemetry.nearestConfirmations = Number(after.telemetry.nearestConfirmations || 0) + 1;
-        this.store.save(scopeId, after);
-        return {
-          handled: true,
-          reply: this.formatStatusText(next),
-        };
-      }
-      if (no) {
-        this.confirmPending(scopeId, false);
-        return { handled: true, reply: 'Cancelled. Roles unchanged. You can run role setup again anytime.' };
-      }
+      return {
+        handled: true,
+        reply: 'A role-routing change is waiting for explicit confirmation. Use the role setup confirmation action to apply or cancel it.',
+      };
     }
 
     const result = await this.parseNaturalSetupReply(userText, llm, isProviderUsable);
@@ -377,10 +364,8 @@ export class LlmRoleRoutingService {
     } else if (request.forceStrong || request.role === 'strong' || forceActive) {
       role = 'strong';
       reason =
-        forceActive && !request.forceStrong
-          ? 'force_strong_window'
-          : request.forceStrong
-            ? 'force_strong'
+        forceActive && !request.forceStrong ? 'force_strong_window'
+          : request.forceStrong ? 'force_strong'
             : 'explicit_strong_role';
     } else if (request.effortHigh) {
       role = cfg.strong ? 'strong' : 'default';

@@ -64,7 +64,7 @@ export class PublishHistoryService {
 
     return {
       id: archiveId,
-      label: `${archiveId} (${String(entry.commit || '').slice(0, 8) || 'sem-commit'})`,
+      label: `${archiveId} (${String(entry.commit || '').slice(0, 8) || 'without-commit'})`,
       commit: entry.commit || null,
       publishedAt: entry.publishedAt || null,
       docsPath: path.resolve(this.projectRoot, docsRelative),

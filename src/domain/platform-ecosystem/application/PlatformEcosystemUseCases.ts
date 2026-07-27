@@ -25,9 +25,9 @@ export class PlatformEcosystemUseCases {
         registryReady: false,
         sdkSurfaces: 0,
         vendorBundles: 0,
-        headline: 'Platform ecosystem domain aguardando adapter canonico.',
-        operatorSummary: 'Nenhum adapter de platform ecosystem foi injetado neste dominio.',
-        details: ['Nenhum registry ou ecosystem control plane foi injetado neste contexto.'],
+        headline: 'Platform ecosystem domain is waiting for the canonical adapter.',
+        operatorSummary: 'No platform ecosystem adapter was injected into this domain.',
+        details: ['No registry or ecosystem control plane was injected into this context.'],
         source: 'seed',
       };
     }

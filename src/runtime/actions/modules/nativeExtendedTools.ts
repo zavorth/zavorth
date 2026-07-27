@@ -67,7 +67,7 @@ function preview(input: ZavorthActionHandlerInput, summary: string, data: Record
 async function runTool(input: ZavorthActionHandlerInput, tool: BaseTool, previewSummary: string): Promise<ZavorthActionResult> {
   const previewResult = preview(input, previewSummary, {
     tool: tool.name,
-    argKeys: Object.keys(input.args).filter((key) => !/(pass|password|secret|token|api[_-]?key)/iu.test(key)),
+    argKeys: Object.keys(input.args).filter((key) => !/(pass|password|secret|token|api[_-]...key)/iu.test(key)),
     realExecution: input.operation === 'action.apply',
   });
   if (previewResult) return previewResult;
@@ -130,7 +130,7 @@ async function runTool(input: ZavorthActionHandlerInput, tool: BaseTool, preview
       },
     }),
     mapResult: (output) => {
-      const failed = /^Erro:/iu.test(output) || /\b(blocked|bloquead|indisponivel|desabilitad)/iu.test(output);
+      const failed = /^error:/iu.test(output) || /\b(blocked|bloquead|unavailable|desabilitad)/iu.test(output);
       return resultFromToolOutcome({
         ok: !failed,
         status: failed ? 'blocked' : 'applied',
@@ -150,7 +150,7 @@ async function runTool(input: ZavorthActionHandlerInput, tool: BaseTool, preview
     status: failed ? 'blocked' : 'applied',
     summary: sealed.envelope.result?.summary
       || (failed ? `${input.actionId} did not complete.` : `${input.actionId} completed.`),
-    lines: output.split(/\r?\n/u).slice(0, 40),
+    lines: output.split(/\r...\n/u).slice(0, 40),
     data: {
       tool: tool.name,
       output,
@@ -286,7 +286,7 @@ export function createNativeExtendedToolsActionModule(): ZavorthActionModule {
       }),
       base({
         id: 'calendar.local.event',
-        title: 'Local calendar event',
+        title: 'local calendar event',
         description: 'Manage local calendar events and iCal artifacts.',
         aliases: ['calendar event', 'local calendar', 'create event'],
         domains: ['calendar', 'tasks'],
@@ -300,7 +300,7 @@ export function createNativeExtendedToolsActionModule(): ZavorthActionModule {
         requiresApproval: true,
         inputSchema: schema({ action: stringProp, title: stringProp, start_time: stringProp, end_time: stringProp, event_id: stringProp, description: stringProp, location: stringProp, attendees: stringProp, reminder_minutes: { type: 'number' } }, ['action']),
         outputSchema,
-        handler: (input) => runTool(input, new CalendarTool(), 'Local calendar operation preview.'),
+        handler: (input) => runTool(input, new CalendarTool(), 'local calendar operation preview.'),
       }),
       base({
         id: 'code.review',

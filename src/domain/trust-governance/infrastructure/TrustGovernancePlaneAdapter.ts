@@ -50,18 +50,16 @@ export class TrustGovernancePlaneAdapter implements TrustGovernanceDomainPort {
       trustReady,
       governanceReady,
       policiesTracked,
-      headline: hasSignals
-        ? 'Trust governance domain ja consolida trust plane e governance control plane.'
-        : 'Trust governance domain aguardando os planes canonicos.',
+      headline: hasSignals ? 'Trust governance domain already consolidates trust plane and governance control plane.'
+        : 'Trust governance domain waiting for the canonical planes.',
       operatorSummary:
         governanceSnapshot?.narrative?.operatorSummary
         || trustSnapshot?.narrative?.operatorSummary
-        || (hasSignals
-          ? `Trust governance domain pronto com ${policiesTracked} politica(s) rastreada(s).`
-          : 'Trust governance domain seeded para agrupar policy, approvals e tenancy.'),
+        || (hasSignals ? `Trust governance domain ready with ${policiesTracked} policy(ies) tracked.`
+          : 'Trust governance domain seeded to aggregate policy, approvals and tenancy.'),
       details: [
-        trustSnapshot?.narrative?.headline || 'Trust plane ainda nao publicou headline neste contexto.',
-        governanceSnapshot?.narrative?.headline || 'Governance control plane ainda nao publicou headline neste contexto.',
+        trustSnapshot?.narrative?.headline || 'Trust plane has not yet published a headline in this context.',
+        governanceSnapshot?.narrative?.headline || 'Governance control plane has not yet published a headline in this context.',
         `Trust ready: ${trustReady ? 'yes' : 'no'}.`,
         `Governance ready: ${governanceReady ? 'yes' : 'no'}.`,
         `Policies tracked: ${policiesTracked}.`,

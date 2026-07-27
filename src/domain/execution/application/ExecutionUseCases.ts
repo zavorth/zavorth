@@ -37,8 +37,7 @@ export class ExecutionUseCases {
       continuityLinked: this.continuityLinked,
       approvalLinked: this.approvalLinked,
       summary:
-        decisionPipelineReady || this.continuityLinked || this.approvalLinked
-          ? 'Execution domain owns the canonical intent, decision and outcome use cases.'
+        decisionPipelineReady || this.continuityLinked || this.approvalLinked ? 'Execution domain owns the canonical intent, decision and outcome use cases.'
           : 'Execution domain is waiting for the canonical execution API.',
       details: [
         `Decision pipeline: ${decisionPipelineReady ? 'ready' : 'pending'}.`,

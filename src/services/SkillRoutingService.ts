@@ -50,7 +50,7 @@ export class SkillRoutingService {
         primarySkill: null,
         supportingSkills: [],
         matchedBundleTags: [],
-        rationale: ['Nenhuma skill carregada no catalogo atual.'],
+        rationale: ['No skill loaded in the current catalog.'],
       };
     }
 
@@ -76,7 +76,7 @@ export class SkillRoutingService {
         primarySkill: null,
         supportingSkills: [],
         matchedBundleTags: [],
-        rationale: [`Nenhuma skill teve aderencia suficiente para ${input.taskKind}/${input.taskSubtype}.`],
+        rationale: [`No skill had enough adherence for ${input.taskKind}/${input.taskSubtype}.`],
       };
     }
 
@@ -111,14 +111,14 @@ export class SkillRoutingService {
         const db = await Database.getInstance();
         db.run(`
           INSERT INTO zavorth_skills_telemetry (skill_id, use_count, last_executed_at, status, pinned)
-          VALUES (?, 1, datetime('now'), 'active', 0)
+          VALUES (..., 1, datetime('now'), 'active', 0)
           ON CONFLICT(skill_id) DO UPDATE SET
             use_count = use_count + 1,
             last_executed_at = datetime('now')
         `, [skillId]);
       })
       .catch((error) => {
-        logger.warn(`[SkillRoutingService] Erro ao salvar telemetria para a skill ${skillId}:`, error);
+        logger.warn(`[SkillRoutingService] error ao salvar telemetria para a skill ${skillId}:`, error);
       });
   }
 
@@ -134,7 +134,7 @@ export class SkillRoutingService {
     if (input.modeHint === 'planner' && bundleTags.has('planning')) {
       score += 2;
       matchedBundleTags.add('planning');
-      reasons.push(`A skill ${entry.name} ja traz uma cadencia de planejamento reutilizavel.`);
+      reasons.push(`A skill ${entry.name} already traz uma cadencia de planejamento reutilizavel.`);
     }
 
     for (const tag of this.getTaskBundleTags(input.taskKind, input.taskSubtype, normalizedGoal)) {
@@ -239,7 +239,7 @@ export class SkillRoutingService {
       return {
         score: 6,
         matchedBundleTags: ['coding'],
-        reasons: ['CodeNavi recebe prioridade extra para navegar, revisar e alterar codebases existentes com baixo blast radius.'],
+        reasons: ['CodeNavi recebe prioridade extra para navegar, review e alterar codebases existentes com baixo blast radius.'],
       };
     }
 
@@ -250,7 +250,7 @@ export class SkillRoutingService {
       return {
         score: 2,
         matchedBundleTags: ['security'],
-        reasons: ['A tarefa menciona risco, auth ou permissao; threat modeling entra como apoio especializado.'],
+        reasons: ['The task mentions risk, auth, or permission; threat modeling enters as specialized support.'],
       };
     }
 
@@ -261,7 +261,7 @@ export class SkillRoutingService {
       return {
         score: 4,
         matchedBundleTags: ['browser'],
-        reasons: ['A tarefa pede browser/network/console; Chrome DevTools vira workflow principal.'],
+        reasons: ['A task pede browser/network/console; Chrome DevTools vira workflow principal.'],
       };
     }
 
@@ -284,7 +284,7 @@ export class SkillRoutingService {
       return {
         score: 2,
         matchedBundleTags: ['planning', 'requirements'],
-        reasons: ['Spec-driven development combina bem com implementacao e continuidade de feature.'],
+        reasons: ['Spec-driven development combina bem com implementation e continuidade de feature.'],
       };
     }
 

@@ -1,4 +1,4 @@
-export const SALES_PACK_MODES = ['demo', 'stub', 'cloud-api'] as const;
+export const SALES_PACK_MODES = ['demo', 'local', 'cloud-api'] as const;
 export type SalesPackMode = typeof SALES_PACK_MODES[number];
 
 export const SALES_AGENT_ROLES = ['sales', 'support', 'recovery', 'crm', 'supervisor', 'custom'] as const;
@@ -26,7 +26,7 @@ export const SALES_ACTION_KINDS = [
 ] as const;
 export type SalesActionKind = typeof SALES_ACTION_KINDS[number];
 
-export const SALES_POLICY_DECISIONS = ['allowed', 'blocked', 'requires_approval', 'requires_simulation'] as const;
+export const SALES_POLICY_DECISIONS = ['allowed', 'blocked', 'requires_approval', 'requires_dryRun'] as const;
 export type SalesPolicyDecision = typeof SALES_POLICY_DECISIONS[number];
 
 export type SalesRiskLevel = 'low' | 'medium' | 'high' | 'critical';
@@ -94,7 +94,7 @@ export type AgentPolicy = {
   blockedClaims: string[];
   blockedActions: SalesActionKind[];
   sensitiveActionKinds: SalesActionKind[];
-  simulationRequiredFor: SalesActionKind[];
+  dryRunRequiredFor: SalesActionKind[];
   requiresApprovalAboveAmount: number;
   maxDiscountPercent: number;
   defaultDecision: SalesPolicyDecision;
@@ -136,7 +136,7 @@ export type ChannelAccount = {
   platform: SalesChannelPlatform;
   label: string;
   mode: SalesPackMode;
-  provider: 'stub' | 'meta-cloud-api' | 'local-outbox';
+  provider: 'local' | 'meta-cloud-api' | 'local-outbox';
   configured: boolean;
   webhookPath: string | null;
   metadata: Record<string, unknown>;

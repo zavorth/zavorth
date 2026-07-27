@@ -12,7 +12,7 @@ export class DiscordBootPolicyService {
 
     if (!input.nativeTokenConfigured && !input.bridgeConfigured) {
       throw new Error(
-        'Discord esta marcado como obrigatorio no boot, mas nenhum transporte foi configurado. Defina DISCORD_BOT_TOKEN ou habilite o bridge do Discord.',
+        'Discord is marcado como required no boot, mas nenhum transporte foi configured. set DISCORD_BOT_TOKEN ou enable o bridge do Discord.',
       );
     }
   }

@@ -21,7 +21,7 @@ export class ExecutionGraphService {
     const edges = nodes.slice(1).map((node, index) => ({
       from: nodes[index].id,
       to: node.id,
-      label: 'depois',
+      label: 'after',
     }));
 
     return {

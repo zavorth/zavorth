@@ -55,9 +55,8 @@ export class ZavorthPublicTunnelService {
     const fallback = this.buildStatus({
       running: false,
       ready: false,
-      message: config.zavorthPublicTunnelEnabled
-        ? 'Tunel publico do Zavorth ainda nao foi iniciado.'
-        : 'Tunel publico automatico do Zavorth desativado.',
+      message: config.zavorthPublicTunnelEnabled ? 'Zavorth public tunnel has not been started yet.'
+        : 'Automatic public Zavorth tunnel disabled.',
     });
 
     try {
@@ -83,7 +82,7 @@ export class ZavorthPublicTunnelService {
         ready: false,
         running: false,
         targetUrl,
-        message: 'Tunel publico automatico do Zavorth desativado por configuracao.',
+        message: 'Automatic Zavorth public tunnel disabled by configuration.',
         started: false,
       };
     }
@@ -94,7 +93,7 @@ export class ZavorthPublicTunnelService {
         ready: false,
         running: false,
         targetUrl: null,
-        message: 'Nao recebi uma URL alvo valida para publicar o /app do Zavorth.',
+        message: 'Did not receive a valid target URL to publish Zavorth /app.',
         started: false,
       };
     }
@@ -112,7 +111,7 @@ export class ZavorthPublicTunnelService {
         ready: false,
         running: false,
         targetUrl,
-        message: `Host script do tunel publico ausente em ${config.zavorthPublicTunnelHostScriptPath}.`,
+        message: `Public tunnel host script missing at ${config.zavorthPublicTunnelHostScriptPath}.`,
         started: false,
       };
     }
@@ -130,7 +129,7 @@ export class ZavorthPublicTunnelService {
         running: true,
         ready: false,
         targetUrl,
-        message: 'Solicitando a abertura do tunel publico do Zavorth.',
+        message: 'Requesting Zavorth public tunnel startup.',
       }),
     );
 
@@ -177,7 +176,7 @@ export class ZavorthPublicTunnelService {
       publicUrl: null,
       pid: null,
       tunnelPid: null,
-      message: 'Tunel publico do Zavorth encerrado.',
+      message: 'Zavorth public tunnel closed.',
     });
     this.writeStatus(stopped);
     return stopped;
@@ -191,7 +190,7 @@ export class ZavorthPublicTunnelService {
       if (status.ready && status.publicUrl) {
         return status;
       }
-      if (!status.running && status.message && !/ainda nao foi iniciado/i.test(status.message)) {
+      if (!status.running && status.message) {
         return status;
       }
     }
@@ -201,7 +200,7 @@ export class ZavorthPublicTunnelService {
       ...latest,
       message:
         latest.message
-        || 'O tunel publico do Zavorth foi acionado, mas ainda nao publicou uma URL externa.',
+        || 'Zavorth public tunnel was triggered, but has not published an external URL yet.',
     };
   }
 

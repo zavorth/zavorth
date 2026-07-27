@@ -1,4 +1,4 @@
-export const ZAVORTH_PROVIDER_PREFERENCE_PERSISTENCE_CONTRACT_VERSION = '2026-05-13.checkpoint-12';
+export const ZAVORTH_PROVIDER_PREFERENCE_PERSISTENCE_CONTRACT_VERSION = '2026-05-13.gate-12';
 
 export type ZavorthProviderPreferenceApprovalMode = 'approval_id' | 'explicit_confirm';
 

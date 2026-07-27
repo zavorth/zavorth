@@ -67,14 +67,14 @@ export async function getModelAliases() {
 export async function setModelAlias(alias: string, model: unknown) {
   const db = getDbInstance();
   db.prepare(
-    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('modelAliases', ?, ?)"
+    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('modelAliases', ..., ...)"
   ).run(alias, JSON.stringify(model));
   backupDbFile("pre-write");
 }
 
 export async function deleteModelAlias(alias: string) {
   const db = getDbInstance();
-  db.prepare("DELETE FROM key_value WHERE namespace = 'modelAliases' AND key = ?").run(alias);
+  db.prepare("DELETE FROM key_value WHERE namespace = 'modelAliases' AND key = ...").run(alias);
   backupDbFile("pre-write");
 }
 
@@ -84,7 +84,7 @@ export async function getMitmAlias(toolName?: string) {
   const db = getDbInstance();
   if (toolName) {
     const row = db
-      .prepare("SELECT value FROM key_value WHERE namespace = 'mitmAlias' AND key = ?")
+      .prepare("SELECT value FROM key_value WHERE namespace = 'mitmAlias' AND key = ...")
       .get(toolName);
     const value = getKeyValue(row).value;
     return value ? JSON.parse(value) : {};
@@ -102,7 +102,7 @@ export async function getMitmAlias(toolName?: string) {
 export async function setMitmAliasAll(toolName: string, mappings: unknown) {
   const db = getDbInstance();
   db.prepare(
-    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('mitmAlias', ?, ?)"
+    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('mitmAlias', ..., ...)"
   ).run(toolName, JSON.stringify(mappings || {}));
   backupDbFile("pre-write");
 }
@@ -113,7 +113,7 @@ export async function getCustomModels(providerId?: string) {
   const db = getDbInstance();
   if (providerId) {
     const row = db
-      .prepare("SELECT value FROM key_value WHERE namespace = 'customModels' AND key = ?")
+      .prepare("SELECT value FROM key_value WHERE namespace = 'customModels' AND key = ...")
       .get(providerId);
     const value = getKeyValue(row).value;
     return value ? JSON.parse(value) : [];
@@ -154,7 +154,7 @@ export async function addCustomModel(
 ) {
   const db = getDbInstance();
   const row = db
-    .prepare("SELECT value FROM key_value WHERE namespace = 'customModels' AND key = ?")
+    .prepare("SELECT value FROM key_value WHERE namespace = 'customModels' AND key = ...")
     .get(providerId);
   const value = getKeyValue(row).value;
   const models = value ? JSON.parse(value) : [];
@@ -171,7 +171,7 @@ export async function addCustomModel(
   };
   models.push(model);
   db.prepare(
-    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('customModels', ?, ?)"
+    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('customModels', ..., ...)"
   ).run(providerId, JSON.stringify(models));
   backupDbFile("pre-write");
   return model;
@@ -260,12 +260,12 @@ export async function replaceCustomModels(
   });
 
   if (merged.length === 0) {
-    db.prepare("DELETE FROM key_value WHERE namespace = 'customModels' AND key = ?").run(
+    db.prepare("DELETE FROM key_value WHERE namespace = 'customModels' AND key = ...").run(
       providerId
     );
   } else {
     db.prepare(
-      "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('customModels', ?, ?)"
+      "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('customModels', ..., ...)"
     ).run(providerId, JSON.stringify(merged));
   }
 
@@ -284,7 +284,7 @@ export async function replaceCustomModels(
 export async function removeCustomModel(providerId: string, modelId: string) {
   const db = getDbInstance();
   const row = db
-    .prepare("SELECT value FROM key_value WHERE namespace = 'customModels' AND key = ?")
+    .prepare("SELECT value FROM key_value WHERE namespace = 'customModels' AND key = ...")
     .get(providerId);
   if (!row) return false;
 
@@ -297,11 +297,11 @@ export async function removeCustomModel(providerId: string, modelId: string) {
   if (filtered.length === before) return false;
 
   if (filtered.length === 0) {
-    db.prepare("DELETE FROM key_value WHERE namespace = 'customModels' AND key = ?").run(
+    db.prepare("DELETE FROM key_value WHERE namespace = 'customModels' AND key = ...").run(
       providerId
     );
   } else {
-    db.prepare("UPDATE key_value SET value = ? WHERE namespace = 'customModels' AND key = ?").run(
+    db.prepare("UPDATE key_value SET value = - WHERE namespace = 'customModels' AND key = ...").run(
       JSON.stringify(filtered),
       providerId
     );
@@ -337,7 +337,7 @@ export async function getSyncedAvailableModels(
   const db = getDbInstance();
   const rows = db
     .prepare(
-      "SELECT key, value FROM key_value WHERE namespace = 'syncedAvailableModels' AND key LIKE ?"
+      "SELECT key, value FROM key_value WHERE namespace = 'syncedAvailableModels' AND key LIKE ..."
     )
     .all(`${providerId}:%`);
   const map = new Map<string, SyncedAvailableModel>();
@@ -394,12 +394,12 @@ export async function replaceSyncedAvailableModelsForConnection(
   const db = getDbInstance();
   const key = `${providerId}:${connectionId}`;
   if (models.length === 0) {
-    db.prepare("DELETE FROM key_value WHERE namespace = 'syncedAvailableModels' AND key = ?").run(
+    db.prepare("DELETE FROM key_value WHERE namespace = 'syncedAvailableModels' AND key = ...").run(
       key
     );
   } else {
     db.prepare(
-      "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('syncedAvailableModels', ?, ?)"
+      "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('syncedAvailableModels', ..., ...)"
     ).run(key, JSON.stringify(models));
   }
   backupDbFile("pre-write");
@@ -417,7 +417,7 @@ export async function deleteSyncedAvailableModelsForConnection(
 ): Promise<SyncedAvailableModel[]> {
   const db = getDbInstance();
   const key = `${providerId}:${connectionId}`;
-  db.prepare("DELETE FROM key_value WHERE namespace = 'syncedAvailableModels' AND key = ?").run(
+  db.prepare("DELETE FROM key_value WHERE namespace = 'syncedAvailableModels' AND key = ...").run(
     key
   );
   backupDbFile("pre-write");
@@ -431,7 +431,7 @@ export async function updateCustomModel(
 ) {
   const db = getDbInstance();
   const row = db
-    .prepare("SELECT value FROM key_value WHERE namespace = 'customModels' AND key = ?")
+    .prepare("SELECT value FROM key_value WHERE namespace = 'customModels' AND key = ...")
     .get(providerId);
   if (!row) return null;
 
@@ -500,7 +500,7 @@ export async function updateCustomModel(
 
   models[index] = next;
 
-  db.prepare("UPDATE key_value SET value = ? WHERE namespace = 'customModels' AND key = ?").run(
+  db.prepare("UPDATE key_value SET value = - WHERE namespace = 'customModels' AND key = ...").run(
     JSON.stringify(models),
     providerId
   );
@@ -513,7 +513,7 @@ export async function updateCustomModel(
 function getCustomModelRow(providerId: string, modelId: string): JsonRecord | null {
   const db = getDbInstance();
   const row = db
-    .prepare("SELECT value FROM key_value WHERE namespace = 'customModels' AND key = ?")
+    .prepare("SELECT value FROM key_value WHERE namespace = 'customModels' AND key = ...")
     .get(providerId);
   const value = getKeyValue(row).value;
   if (!value) return null;

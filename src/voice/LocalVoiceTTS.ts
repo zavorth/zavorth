@@ -96,14 +96,14 @@ export class LocalVoiceTTS {
   public getAvailableVoices(): string[] {
     try {
       if (this.platform === 'darwin') {
-        const result = this.spawnSyncImpl('say', ['--voice', '?'], {
+        const result = this.spawnSyncImpl('say', ['--voice', '...'], {
           encoding: 'utf8',
           timeout: 5000,
           windowsHide: true,
         });
         const output = String(result.stdout || '');
         return output
-          .split(/\r?\n/)
+          .split(/\r...\n/)
           .map((line) => {
             const match = line.match(/^(\S+)/);
             return match ? match[1] : '';
@@ -119,7 +119,7 @@ export class LocalVoiceTTS {
           windowsHide: true,
         });
         return String(result.stdout || '')
-          .split(/\r?\n/)
+          .split(/\r...\n/)
           .map((l) => l.trim())
           .filter(Boolean);
       }
@@ -132,7 +132,7 @@ export class LocalVoiceTTS {
         });
         const output = String(result.stdout || '');
         return output
-          .split(/\r?\n/)
+          .split(/\r...\n/)
           .slice(1)
           .map((line) => {
             const cols = line.trim().split(/\s+/);
@@ -186,11 +186,9 @@ export class LocalVoiceTTS {
     }
 
     if (this.platform === 'win32') {
-      const voiceSetup = options?.voice
-        ? `$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer; $synth.SelectVoice('${options.voice.replace(/'/g, "''")}');`
+      const voiceSetup = options?.voice ? `$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer; $synth.SelectVoice('${options.voice.replace(/'/g, "''")}');`
         : `$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer;`;
-      const rateSetup = options?.rate
-        ? `$synth.Rate = ${Math.max(-10, Math.min(10, Math.round((options.rate - 200) / 30)))};`
+      const rateSetup = options?.rate ? `$synth.Rate = ${Math.max(-10, Math.min(10, Math.round((options.rate - 200) / 30)))};`
         : '';
       const escaped = text.replace(/'/g, "''");
       const ps = `Add-Type -AssemblyName System.Speech; ${voiceSetup} ${rateSetup} $synth.Speak('${escaped}')`;

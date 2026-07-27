@@ -597,12 +597,10 @@ export async function runUninstall(root: string, args: string[]) {
 }
 
 export function isSkillGovernanceAction(action: string, args: string[]): boolean {
-  const text = args.filter((arg) => !arg.startsWith('--')).join(' ').toLowerCase();
   return action === 'governance'
     || action === 'governance-mode'
     || action === 'policy'
     || action === 'trust'
-    || /skill[s]?\s+governance|governance\s+(?:for|to)|mode\s+(?:governed|casual)/u.test(text)
     || args.some((arg) => arg.startsWith('--governance') || arg.startsWith('--mode='));
 }
 
@@ -611,11 +609,11 @@ export function resolveRequestedSkillGovernanceMode(args: string[]): 'casual' | 
     || readFlag(args, 'governance')
     || readFlag(args, 'skills-governance')
     || readFlag(args, 'skill-governance');
-  const text = [explicit, ...args.filter((arg) => !arg.startsWith('--'))].filter(Boolean).join(' ').toLowerCase();
-  if (/\b(governed|strict|enterprise)\b/u.test(text)) {
+  const text = String(explicit || '').toLowerCase();
+  if (['governed', 'strict', 'enterprise'].includes(text)) {
     return 'governed';
   }
-  if (/\b(casual|personal)\b/u.test(text)) {
+  if (['casual', 'personal'].includes(text)) {
     return 'casual';
   }
   return null;

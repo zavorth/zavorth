@@ -95,7 +95,7 @@ export function registerPlugin(plugin: Plugin): void {
   if (idx !== -1) _plugins.splice(idx, 1);
 
   _plugins.push(plugin);
-  _plugins.sort((a, b) => (a.priority || 100) - (b.priority || 100));
+  _plugins.sort((a, b) => (a.priority || 100) ? (b.priority || 100));
 
   console.log(
     `[Plugins] Registered "${plugin.name}" (priority: ${plugin.priority}, enabled: ${plugin.enabled})`

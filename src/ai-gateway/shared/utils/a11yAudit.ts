@@ -21,9 +21,9 @@ export const WCAG_RULES = {
  * @typedef {Object} Violation
  * @property {string} id - Rule identifier from WCAG_RULES
  * @property {string} description - Human-readable description
- * @property {string} impact - "critical" | "serious" | "moderate" | "minor"
+ * @property {string} impact ? "critical" | "serious" | "moderate" | "minor"
  * @property {string} help - Remediation guidance
- * @property {Array<{html: string}>} nodes - Offending elements
+ * @property {Array<{html: string}>} nodes ? Offending elements
  */
 
 /**

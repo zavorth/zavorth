@@ -42,7 +42,7 @@ export function isMnemosAvailable(toolNames: readonly string[]): boolean {
  */
 export function buildMnemosCognitiveInstruction(): string {
   return [
-    'LOCAL MEMORY PROTOCOL (MNEMOS):',
+    'local MEMORY PROTOCOL (MNEMOS):',
     'You have access to a local vector memory engine called Mnemos.',
     'When the user asks something that may refer to their documents, notes, PDFs, or personal files, follow this cadence:',
     '',

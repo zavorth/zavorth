@@ -96,7 +96,7 @@ export class SupervisedExecutionGatewayService {
         command,
         workspace,
         errorCode: 'kill_switch_active',
-        errorMessage: this.killSwitchState.reason || 'Kill switch supervisionado ativo; novas acoes foram bloqueadas.',
+        errorMessage: this.killSwitchState.reason || 'Kill switch supervised active; new actions foram blocked.',
         metadata: {
           killSwitch: this.getKillSwitchState(),
         },
@@ -166,7 +166,7 @@ export class SupervisedExecutionGatewayService {
           timeoutMs: this.resolveActionTimeoutMs(request),
           run: () => adapter.execute(request, decision),
           cancel: activeHandle.cancel,
-          timeoutReason: `Timeout supervisionado da acao ${actionId}.`,
+          timeoutReason: `Timeout supervised da action ${actionId}.`,
         });
         if (supervisedResult.timedOut === true) {
           return this.ledger.record(this.recordBuilder.buildRecord({
@@ -180,7 +180,7 @@ export class SupervisedExecutionGatewayService {
             stdout: supervisedResult.cancelResult?.stdout || null,
             stderr: supervisedResult.cancelResult?.stderr || null,
             errorCode: 'action_timed_out',
-            errorMessage: `A acao supervisionada excedeu ${supervisedResult.timeoutMs}ms e foi marcada como timed_out.`,
+            errorMessage: `Action supervised excedeu ${supervisedResult.timeoutMs}ms and was marked as timed_out.`,
             metadata: {
               adapterId: adapter.id,
               timeoutMs: supervisedResult.timeoutMs,
@@ -201,7 +201,7 @@ export class SupervisedExecutionGatewayService {
             command,
             workspace,
             errorCode: 'action_cancelled',
-            errorMessage: 'Acao supervisionada cancelada durante a execucao.',
+            errorMessage: 'Supervised action canceled during execution.',
           });
         }
         return this.ledger.record(this.recordBuilder.buildRecord({
@@ -234,7 +234,7 @@ export class SupervisedExecutionGatewayService {
             command,
             workspace,
             errorCode: 'action_cancelled',
-            errorMessage: 'Acao supervisionada cancelada durante a execucao.',
+            errorMessage: 'Supervised action canceled during execution.',
           });
         }
         return this.ledger.record(this.recordBuilder.buildRecord({
@@ -266,7 +266,7 @@ export class SupervisedExecutionGatewayService {
         command,
         workspace,
         errorCode: 'runtime_adapter_unavailable',
-        errorMessage: `Runtime ${decision.runtimeTarget} ainda exige adapter especializado antes de executar.`,
+        errorMessage: `Runtime ${decision.runtimeTarget} still requires a specialized adapter before running.`,
       }));
     }
 
@@ -291,7 +291,7 @@ export class SupervisedExecutionGatewayService {
         timeoutMs: this.resolveActionTimeoutMs(request),
         run: () => this.runner(executionRequest),
         cancel: null,
-        timeoutReason: `Timeout supervisionado da execucao ${actionId}.`,
+        timeoutReason: `Supervised execution timeout ${actionId}.`,
       });
       if (supervisedResult.timedOut === true) {
         return this.ledger.record(this.recordBuilder.buildRecord({
@@ -303,7 +303,7 @@ export class SupervisedExecutionGatewayService {
           command,
           workspace,
           errorCode: 'action_timed_out',
-          errorMessage: `A execucao supervisionada excedeu ${supervisedResult.timeoutMs}ms e foi marcada como timed_out.`,
+          errorMessage: `Supervised execution exceeded ${supervisedResult.timeoutMs}ms and was marked as timed_out.`,
           metadata: {
             runtimeTarget: decision.runtimeTarget,
             timeoutMs: supervisedResult.timeoutMs,
@@ -374,9 +374,8 @@ export class SupervisedExecutionGatewayService {
   }> {
     const requestedBy = String(input.requestedBy || '').trim() || 'operator';
     const reason = String(input.reason || '').trim() || (
-      input.active
-        ? 'Kill switch supervisionado ativado.'
-        : 'Kill switch supervisionado liberado.'
+      input.active ? 'Supervised kill switch activated.'
+        : 'Supervised kill switch released.'
     );
     const now = new Date().toISOString();
     const affectedActions: SystemOverlordActionRecord[] = [];
@@ -424,14 +423,14 @@ export class SupervisedExecutionGatewayService {
   public async cancelAction(input: SystemOverlordActionMutationRequest): Promise<SystemOverlordActionRecord> {
     const actionId = String(input.actionId || '').trim();
     if (!actionId) {
-      throw new Error('actionId obrigatorio para cancelar acao supervisionada.');
+      throw new Error('actionId required to cancel supervised action.');
     }
     const latest = this.ledger.find(actionId);
     if (!latest) {
-      throw new Error('Acao supervisionada nao encontrada para cancelamento.');
+      throw new Error('Supervised action not found for cancellation.');
     }
     const requestedBy = String(input.requestedBy || '').trim() || 'operator';
-    const reason = String(input.reason || '').trim() || 'Cancelado by the operator.';
+    const reason = String(input.reason || '').trim() || 'Cancelled by the operator.';
 
     if (latest.status === 'pending_approval' || latest.status === 'dry_run') {
       return this.ledger.record(this.recordBuilder.buildMutationRecord(latest, {
@@ -451,17 +450,17 @@ export class SupervisedExecutionGatewayService {
     }
 
     if (latest.status !== 'running') {
-      throw new Error(`A acao ${actionId} nao esta em estado cancelavel; status atual: ${latest.status}.`);
+      throw new Error(`Action ${actionId} is not in a cancellable state; current status: ${latest.status}.`);
     }
 
     const active = this.activeActions.get(actionId);
     if (!active?.cancel) {
-      throw new Error('Esta acao ainda nao expoe um kill switch canonico para cancelamento ao vivo.');
+      throw new Error('This action does not expose a canonical kill switch for live cancellation yet.');
     }
 
     const cancelResult = await active.cancel(reason);
     if (!cancelResult.ok) {
-      throw new Error(cancelResult.errorMessage || 'Falha ao cancelar a acao supervisionada.');
+      throw new Error(cancelResult.errorMessage || 'Failure while cancelling the supervised action.');
     }
     active.cancelled = true;
     return this.ledger.record(this.recordBuilder.buildMutationRecord(latest, {
@@ -486,26 +485,26 @@ export class SupervisedExecutionGatewayService {
   public async rollbackAction(input: SystemOverlordActionMutationRequest): Promise<SystemOverlordActionRecord> {
     const actionId = String(input.actionId || '').trim();
     if (!actionId) {
-      throw new Error('actionId obrigatorio para rollback supervisionado.');
+      throw new Error('actionId required for supervised rollback.');
     }
     const latest = this.ledger.find(actionId);
     if (!latest) {
-      throw new Error('Acao supervisionada nao encontrada para rollback.');
+      throw new Error('Supervised action not found for rollback.');
     }
     if (latest.status !== 'completed') {
-      throw new Error(`Rollback supervisionado exige acao concluida; status atual: ${latest.status}.`);
+      throw new Error(`Supervised rollback requires a completed action; current status: ${latest.status}.`);
     }
     if (!latest.rollbackAvailable) {
-      throw new Error('Esta acao nao informa rollback supervisionado disponivel.');
+      throw new Error('This action does not report available supervised rollback.');
     }
 
     const adapter = this.adapterRegistry.findAdapter(latest.request, latest.decision);
     if (!adapter || typeof adapter.rollback !== 'function') {
-      throw new Error('Nenhum adapter supervisionado registrou rollback canônico para esta acao.');
+      throw new Error('No supervised adapter registered a canonical rollback for this action.');
     }
 
     const requestedBy = String(input.requestedBy || '').trim() || 'operator';
-    const reason = String(input.reason || '').trim() || 'Rollback supervisionado solicitado by the operator.';
+    const reason = String(input.reason || '').trim() || 'Supervised rollback requested by the operator.';
     const rollbackActionId = `rollback-${crypto.randomUUID()}`;
     const createdAt = new Date().toISOString();
     const rollbackResult = await adapter.rollback(latest, reason);

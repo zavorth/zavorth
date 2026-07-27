@@ -73,7 +73,7 @@ export class RuntimeBootstrapRepairService {
         initial,
         steps,
         final: initial,
-        summary: 'Nenhuma correcao segura disponivel para execucao automatica no momento.',
+        summary: 'No safe correction is available for automatic execution right now.',
       };
     }
 
@@ -90,7 +90,7 @@ export class RuntimeBootstrapRepairService {
           startedAt: started,
           finishedAt: finished,
           durationMs: 0,
-          output: 'Dry-run: a correcao segura foi planejada, mas nao executada.',
+          output: 'Dry-run: the safe correction was planned, but not executed.',
         });
         continue;
       }
@@ -165,7 +165,7 @@ export class RuntimeBootstrapRepairService {
         initial,
         steps,
         final: initial,
-        summary: 'Nenhuma correcao segura disponivel para execucao automatica no momento.',
+        summary: 'No safe correction is available for automatic execution right now.',
       };
     }
 
@@ -182,7 +182,7 @@ export class RuntimeBootstrapRepairService {
           startedAt: started,
           finishedAt: finished,
           durationMs: 0,
-          output: 'Dry-run: a correcao segura foi planejada, mas nao executada.',
+          output: 'Dry-run: the safe correction was planned, but not executed.',
         });
         continue;
       }
@@ -254,16 +254,16 @@ export class RuntimeBootstrapRepairService {
     dryRun: boolean,
   ): string {
     if (steps.length === 0) {
-      return 'Nenhuma correcao segura disponivel para execucao automatica no momento.';
+      return 'No safe correction is available for automatic execution right now.';
     }
 
     if (dryRun) {
-      return `Plano de correcao gerado com ${steps.length} acao(oes) segura(s).`;
+      return `Correction plan generated with ${steps.length} safe action(s).`;
     }
 
     const failedStep = steps.find((step) => step.status === 'failed');
     if (failedStep) {
-      return `Falha ao aplicar a correcao segura "${failedStep.title}". ${failedStep.error || 'Confira o ambiente antes de tentar novamente.'}`;
+      return `Failure while applying the safe correction "${failedStep.title}". ${failedStep.error || 'Check the environment before trying again.'}`;
     }
 
     return `Correcoes seguras aplicadas. ${final.summary}`;
@@ -271,7 +271,7 @@ export class RuntimeBootstrapRepairService {
 
   private normalizeError(error: unknown): string {
     if (!error) {
-      return 'Falha desconhecida durante a correcao segura.';
+      return 'Unknown failure during safe correction.';
     }
 
     const stderr = String((error as Record<string, unknown>)?.stderr || '').trim();
@@ -285,6 +285,6 @@ export class RuntimeBootstrapRepairService {
     }
 
     const message = String((error as Record<string, unknown>)?.message || '').trim();
-    return message || 'Falha desconhecida durante a correcao segura.';
+    return message || 'Unknown failure during safe correction.';
   }
 }

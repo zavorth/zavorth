@@ -52,14 +52,13 @@ export class TelegramPipelineController {
       const { workflowRunId, stageId } = this.parseResumeArgs(rest);
       if (!workflowRunId) {
         await ctx.reply(
-          isRestart
-            ? 'Faltou o identificador do workflow. Exemplo: /workflow restart-stage wf-ship-abc123 <etapa>'
-            : 'Faltou o identificador do workflow. Exemplo: /workflow resume wf-ship-abc123 [etapa]',
+          isRestart ? 'Missing workflow identifier. Example: /workflow restart-stage wf-ship-abc123 <stage>'
+            : 'Missing workflow identifier. Example: /workflow resume wf-ship-abc123 [stage]',
         );
         return;
       }
       if (isRestart && !stageId) {
-        await ctx.reply('Faltou a etapa para reiniciar. Exemplo: /workflow restart-stage wf-ship-abc123 <etapa>');
+        await ctx.reply('Missing stage to restart. Example: /workflow restart-stage wf-ship-abc123 <stage>');
         return;
       }
       await pipeline.resumeWorkflow(ctx, workflowRunId, stageId ? { stageId } : undefined);
@@ -68,7 +67,7 @@ export class TelegramPipelineController {
     if (workflowCommand === 'close') {
       const { workflowRunId } = this.parseResumeArgs(rest);
       if (!workflowRunId) {
-        await ctx.reply('Faltou o identificador do workflow. Exemplo: /workflow close wf-ship-abc123');
+        await ctx.reply('Missing workflow identifier. Example: /workflow close wf-ship-abc123');
         return;
       }
       await pipeline.closeWorkflowRun(ctx, workflowRunId, {
@@ -81,15 +80,15 @@ export class TelegramPipelineController {
     const objective = rest.join(' ').trim();
 
     if (!workflow) {
-      await ctx.reply('Workflow desconhecido. Use /workflow review, /workflow ship, /workflow research, /workflow sdd, /workflow resume, /workflow restart-stage ou /workflow close.');
+      await ctx.reply('Unknown workflow. Use /workflow review, /workflow ship, /workflow research, /workflow sdd, /workflow resume, /workflow restart-stage, or /workflow close.');
       return;
     }
 
     if (!objective) {
       const example = workflow === 'sdd'
         ? '/workflow sdd multisurface/shared-command-contract'
-        : `/workflow ${workflow} revise este modulo e entregue um resumo final.`;
-      await ctx.reply(`Faltou o objetivo. Exemplo: ${example}`);
+        : `/workflow ${workflow} revise este modulo e entregue um final summary.`;
+      await ctx.reply(`Missing objective. Example: ${example}`);
       return;
     }
 
@@ -112,13 +111,13 @@ export class TelegramPipelineController {
   ): Promise<void> {
     const normalized = this.normalizeWorkflow(workflow);
     if (!normalized) {
-      await ctx.reply('Workflow desconhecido. Use review, ship, research ou sdd.');
+      await ctx.reply('Unknown workflow. Use review, ship, research, or sdd.');
       return;
     }
 
     const finalObjective = String(objective || '').trim();
     if (!finalObjective) {
-      await ctx.reply(`Faltou o objetivo para o workflow ${normalized}.`);
+      await ctx.reply(`Missing objective for workflow ${normalized}.`);
       return;
     }
 
@@ -145,13 +144,13 @@ export class TelegramPipelineController {
 
   private normalizeWorkflow(input: string): 'review' | 'ship' | 'research' | 'sdd' | null {
     const normalized = String(input || '').trim().toLowerCase();
-    if (['review', 'revisao', 'revisar'].includes(normalized)) {
+    if (normalized === 'review') {
       return 'review';
     }
-    if (['ship', 'dev', 'build', 'entregar'].includes(normalized)) {
+    if (normalized === 'ship') {
       return 'ship';
     }
-    if (['research', 'pesquisa', 'pesquisar'].includes(normalized)) {
+    if (normalized === 'research') {
       return 'research';
     }
     if (['sdd', 'spec-loop', 'specs'].includes(normalized)) {

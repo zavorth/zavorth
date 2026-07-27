@@ -52,7 +52,7 @@ export function saveCliToolLastConfigured(
 ): void {
   if (isBuildPhase || isCloud) return;
   const db = getDbInstance() as unknown as DbLike;
-  db.prepare("INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES (?, ?, ?)").run(
+  db.prepare("INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES (..., ..., ...)").run(
     "cliToolLastConfig",
     toolId,
     JSON.stringify(timestamp)
@@ -67,7 +67,7 @@ export function getCliToolLastConfigured(toolId: string): string | null {
   if (isBuildPhase || isCloud) return null;
   const db = getDbInstance() as unknown as DbLike;
   const row = db
-    .prepare("SELECT value FROM key_value WHERE namespace = ? AND key = ?")
+    .prepare("SELECT value FROM key_value WHERE namespace = - AND key = ...")
     .get("cliToolLastConfig", toolId);
   if (!row) return null;
   const parsed = parseJsonValue((row as KeyValueRow).value);
@@ -82,7 +82,7 @@ export function getAllCliToolLastConfigured(): Record<string, string> {
   if (isBuildPhase || isCloud) return {};
   const db = getDbInstance() as unknown as DbLike;
   const rows = db
-    .prepare("SELECT key, value FROM key_value WHERE namespace = ?")
+    .prepare("SELECT key, value FROM key_value WHERE namespace = ...")
     .all("cliToolLastConfig") as KeyValueRow[];
   const result: Record<string, string> = {};
   for (const row of rows) {
@@ -100,7 +100,7 @@ export function getAllCliToolLastConfigured(): Record<string, string> {
 export function deleteCliToolLastConfigured(toolId: string): void {
   if (isBuildPhase || isCloud) return;
   const db = getDbInstance() as unknown as DbLike;
-  db.prepare("DELETE FROM key_value WHERE namespace = ? AND key = ?").run(
+  db.prepare("DELETE FROM key_value WHERE namespace = - AND key = ...").run(
     "cliToolLastConfig",
     toolId
   );
@@ -118,11 +118,11 @@ export function saveCliToolInitialConfig(toolId: string, config: JsonRecord): bo
   const db = getDbInstance() as unknown as DbLike;
   // Only save if not already stored
   const existing = db
-    .prepare("SELECT value FROM key_value WHERE namespace = ? AND key = ?")
+    .prepare("SELECT value FROM key_value WHERE namespace = - AND key = ...")
     .get("cliToolInitialConfig", toolId);
   if (existing) return false;
 
-  db.prepare("INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES (?, ?, ?)").run(
+  db.prepare("INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES (..., ..., ...)").run(
     "cliToolInitialConfig",
     toolId,
     JSON.stringify(config)
@@ -138,7 +138,7 @@ export function getCliToolInitialConfig(toolId: string): JsonRecord | null {
   if (isBuildPhase || isCloud) return null;
   const db = getDbInstance() as unknown as DbLike;
   const row = db
-    .prepare("SELECT value FROM key_value WHERE namespace = ? AND key = ?")
+    .prepare("SELECT value FROM key_value WHERE namespace = - AND key = ...")
     .get("cliToolInitialConfig", toolId);
   if (!row) return null;
   const parsed = parseJsonValue((row as KeyValueRow).value);
@@ -151,7 +151,7 @@ export function getCliToolInitialConfig(toolId: string): JsonRecord | null {
 export function deleteCliToolInitialConfig(toolId: string): void {
   if (isBuildPhase || isCloud) return;
   const db = getDbInstance() as unknown as DbLike;
-  db.prepare("DELETE FROM key_value WHERE namespace = ? AND key = ?").run(
+  db.prepare("DELETE FROM key_value WHERE namespace = - AND key = ...").run(
     "cliToolInitialConfig",
     toolId
   );

@@ -32,7 +32,7 @@ export class NodeMeshTransportRouteService {
     if (!claim) {
       return {
         statusCode: 400,
-        body: { ok: false, error: 'Nao foi possivel concluir o claim do node.' },
+        body: { ok: false, error: 'Could not complete the node claim.' },
       };
     }
 
@@ -63,7 +63,7 @@ export class NodeMeshTransportRouteService {
     if (!heartbeat) {
       return {
         statusCode: 401,
-        body: { ok: false, error: 'Heartbeat rejeitado para o node informado.' },
+        body: { ok: false, error: 'Heartbeat rejected para o node informado.' },
       };
     }
 

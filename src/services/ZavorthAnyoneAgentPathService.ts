@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import {
   resolveLearningRuntimePolicy,
@@ -92,44 +92,44 @@ function normalizeAnyoneUserId(userId?: string | null): string {
 const DEFAULT_SUPERPOWERS: AnyoneSuperpower[] = [
   {
     id: 'chat-help',
-    title: 'Conversar e pedir ajuda',
-    summary: 'Pergunte em linguagem normal. O agente responde e, se puder, faz a tarefa.',
-    howToUse: 'Abra o chat e diga o que precisa, como falaria com uma pessoa.',
+    title: 'Chat and ask for help',
+    summary: 'Ask in natural language. The agent answers and, when possible, performs the task.',
+    howToUse: 'Open chat and say what you need as you would to a person.',
     trust: 'built-in',
   },
   {
     id: 'remember-prefs',
-    title: 'Lembrar do seu jeito',
-    summary: 'No modo pessoal, grava preferências reversíveis depois de acertar com você.',
-    howToUse: 'Diga “prefiro respostas curtas” ou “sempre use tópicos”. Depois: zavorth anyone digest.',
+    title: 'Remember your style',
+    summary: 'In personal mode, stores reversible preferences after explicit agreement.',
+    howToUse: 'Tell the agent your response style, then run: zavorth anyone digest.',
     trust: 'built-in',
   },
   {
     id: 'learn-routines',
-    title: 'Aprender rotinas',
-    summary: 'Fluxos repetidos viram rascunhos de habilidade para a próxima vez.',
-    howToUse: 'Peça a mesma rotina algumas vezes; confira em digest e desfaça se não gostar.',
+    title: 'Learn routines',
+    summary: 'Repeated workflows can become reversible skill drafts for later use.',
+    howToUse: 'Ask for the same routine a few times, then review it in the digest and undo if needed.',
     trust: 'learned-draft',
   },
   {
     id: 'safe-files',
-    title: 'Arquivos com cuidado',
-    summary: 'Lê e organiza arquivos; mudanças sensíveis pedem confirmação.',
-    howToUse: 'Peça para explicar ou organizar um arquivo. Alterações importantes pedem OK.',
+    title: 'Handle files safely',
+    summary: 'Reads and organizes files. Sensitive changes require explicit confirmation.',
+    howToUse: 'Ask the agent to explain or organize a file. Important changes require approval.',
     trust: 'built-in',
   },
   {
     id: 'web-lookup',
-    title: 'Buscar na web',
-    summary: 'Pesquisa e resume informações quando houver provedor configurado.',
-    howToUse: '“Pesquise X e me diga o essencial em 5 linhas.”',
+    title: 'Search the web',
+    summary: 'Searches and summarizes information when a search provider is configured.',
+    howToUse: 'Ask for a search topic and the summary shape you want.',
     trust: 'built-in',
   },
   {
     id: 'telegram',
-    title: 'Falar no Telegram',
-    summary: 'Canal estável para usar o agente no celular.',
-    howToUse: 'Configure o bot do Telegram e envie uma mensagem.',
+    title: 'Use Telegram',
+    summary: 'Stable mobile channel for using the agent from a phone.',
+    howToUse: 'Configure the Telegram bot and send a message.',
     trust: 'optional-install',
   },
 ];
@@ -171,10 +171,9 @@ export class ZavorthAnyoneAgentPathService {
     return {
       contractVersion: 'zavorth-anyone-agent-path/1',
       generatedAt,
-      headline: onboarding.completed
-        ? 'Seu agente está pronto para o dia a dia — e pode melhorar com você.'
-        : 'Em 3 passos o agente fica pronto para qualquer pessoa usar.',
-      promise: 'Aprende com você, com segurança e desfazer. Útil no chat, sem jargão de engenharia.',
+      headline: onboarding.completed ? 'Your agent is ready for everyday use and can improve with you.'
+        : 'Three setup choices make the agent usable by anyone.',
+      promise: 'Learns with you, safely and with undo. Useful in chat, without engineering jargon.',
       areas,
       onboarding,
       learning: {
@@ -255,34 +254,33 @@ export class ZavorthAnyoneAgentPathService {
     return [
       {
         id: 'learning',
-        title: 'Ele fica mais esperto comigo',
+        title: 'Learns with me',
         status: learningStatus,
         summary: policy.mode === 'autonomous'
-          ? `Aprendizado ativo. ${learned.length} item(ns) gravados com opção de desfazer.`
-          : 'Aprendizado em modo revisado (governed). Ligue o modo pessoal para aprender sozinho com recibos.',
+          ? `Learning is active. ${learned.length} reversible item(s) stored.`
+          : 'Learning is in governed review mode. Enable personal mode to learn from receipts.',
         humanNext: policy.mode === 'autonomous' ? 'zavorth anyone digest' : 'zavorth anyone learn-on',
       },
       {
         id: 'first-run',
-        title: 'Qualquer pessoa abre e usa',
+        title: 'Anyone can open and use it',
         status: firstRunStatus,
-        summary: onboarding.completed
-          ? `Onboarding feito (idioma=${onboarding.language}, onde fala=${onboarding.surface}).`
-          : 'Faltam 3 passos: idioma, onde falar, e se pode aprender sozinho.',
+        summary: onboarding.completed ? `Onboarding complete (language=${onboarding.language}, surface=${onboarding.surface}).`
+          : 'Missing setup choices: language, surface, and learning permission.',
         humanNext: onboarding.completed ? null : 'zavorth anyone onboard',
       },
       {
         id: 'superpowers',
-        title: 'Superpoderes do dia a dia',
+        title: 'Everyday capabilities',
         status: superpowersStatus,
-        summary: `${DEFAULT_SUPERPOWERS.length} superpoderes claros + rascunhos aprendidos.`,
+        summary: `${DEFAULT_SUPERPOWERS.length} clear capabilities plus learned drafts.`,
         humanNext: 'zavorth anyone powers',
       },
       {
         id: 'reach',
-        title: 'Onde me encontrar',
+        title: 'Where to find me',
         status: reachStatus,
-        summary: 'Telegram e WhatsApp Cloud são o caminho estável; Baileys continua experimental.',
+        summary: 'Telegram and WhatsApp Cloud are stable paths. Baileys remains experimental.',
         humanNext: 'zavorth anyone reach',
       },
     ];
@@ -296,7 +294,7 @@ export class ZavorthAnyoneAgentPathService {
     const prefs = writer.listTrustedPreferences().map((entry) => ({
       id: entry.id,
       kind: 'preference' as const,
-      title: 'Preferência',
+      title: 'Preference',
       summary: entry.summary,
       reversible: true,
       createdAt: entry.createdAt,
@@ -318,7 +316,7 @@ export class ZavorthAnyoneAgentPathService {
             id: meta.candidateId || name,
             kind: 'skill-draft',
             title: meta.title || name,
-            summary: 'Rotina aprendida em rascunho (ainda não instalada como skill final).',
+            summary: 'Learned routine draft, not installed as a final skill yet.',
             reversible: true,
             createdAt: meta.createdAt || '',
             humanAction: `zavorth anyone undo ${meta.candidateId || name}`,
@@ -339,9 +337,9 @@ export class ZavorthAnyoneAgentPathService {
         title: power.title,
         summary: power.summary,
         howToUse: power.howToAsk,
-        trust: power.trust === 'aprendido'
+        trust: power.trust === 'learned'
           ? 'learned-draft'
-          : power.trust === 'precisa-configurar'
+          : power.trust === 'needs-setup'
             ? 'optional-install'
             : 'built-in',
       }));
@@ -356,11 +354,10 @@ export class ZavorthAnyoneAgentPathService {
       return new ZavorthHumanReachService({ projectRoot: this.projectRoot, env: this.env }).listPaths().map((pathItem) => ({
         id: pathItem.id,
         title: pathItem.title,
-        status: pathItem.ready
-          ? 'ready-hint' as const
+        status: pathItem.ready ? 'ready-hint' as const
           : pathItem.status === 'experimental'
             ? 'experimental' as const
-            : pathItem.status === 'opcional'
+            : pathItem.status === 'optional'
               ? 'optional' as const
               : 'needs-setup' as const,
         summary: pathItem.summary,
@@ -371,7 +368,7 @@ export class ZavorthAnyoneAgentPathService {
         id: 'desktop',
         title: 'App / Desktop',
         status: 'ready-hint',
-        summary: 'Better caminho no computador.',
+        summary: 'Best local desktop path.',
         nextStep: 'zavorth open',
       }];
     }
@@ -379,17 +376,17 @@ export class ZavorthAnyoneAgentPathService {
 
   private buildDigestLines(policy: LearningRuntimePolicySnapshot, learned: AnyoneLearnedItem[]): string[] {
     const lines = [
-      `Modo de aprendizado: ${policy.mode === 'autonomous' ? 'ativo (aprende com recibos)' : 'revisado (não grava sozinho)'}`,
+      `Learning mode: ${policy.mode === 'autonomous' ? 'active from receipts' : 'reviewed and not writing alone'}`,
     ];
     if (!learned.length) {
-      lines.push('Ainda não gravei preferências ou rotinas. Converse normalmente; se o aprendizado estiver ativo, eu anoto o que funcionar.');
+      lines.push('No preferences or routines are stored yet. Keep using the agent normally; active learning can record what works.');
       return lines;
     }
-    lines.push(`Itens aprendidos: ${learned.length}`);
+    lines.push(`Learned items: ${learned.length}`);
     for (const item of learned.slice(0, 12)) {
       lines.push(`- [${item.kind}] ${item.id}: ${item.summary}`);
     }
-    lines.push('Para desfazer: zavorth anyone undo <id>');
+    lines.push('Undo with: zavorth anyone undo <id>');
     return lines;
   }
 

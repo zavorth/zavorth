@@ -149,7 +149,7 @@ export class SatelliteDeviceLivePlaneService {
         stagingLiveSmoke: 'npm run satellite-device-live-plane -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/SatelliteDeviceLivePlaneService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Intent model2 - Memory, Artifacts And Runtime Executor Live Closure',
+        nextAction: 'Memory, Artifacts And Runtime Executor Live Closure',
       },
     };
   }
@@ -230,7 +230,7 @@ export class SatelliteDeviceLivePlaneService {
       gates.push(this.gate('device-doctor', 'passed', 'node.maintenance doctor reports requested versus supported device capabilities.', null));
     }
     if (descriptor.modes.includes('bonjour-discovery')) {
-      gates.push(this.gate('bonjour-discovery', 'passed', 'Bonjour discovery is closed as an explicit PWA/native-wrapper decision instead of a hidden stub.', null));
+      gates.push(this.gate('bonjour-discovery', 'passed', 'Bonjour discovery is closed as an explicit PWA/native-wrapper decision instead of a hidden local.', null));
     }
     if (descriptor.modes.includes('native-wrapper-decision')) {
       gates.push(this.gate('native-wrapper-decision', 'passed', 'LAN discovery/background native APIs require a wrapper decision when PWA support is insufficient.', null));
@@ -239,7 +239,7 @@ export class SatelliteDeviceLivePlaneService {
     gates.push(this.gate('unsupported-native-explicit', 'passed', 'unsupported device APIs are returned as explicit capability receipts, not silent success.', null));
     gates.push(this.gate('artifact-receipt', 'passed', 'Satellite/device live smokes emit redacted receipts and no shared secret values.', null));
     gates.push(this.gate('configured-doctor', 'passed', descriptor.configSchema.requiredEnv.join(', ') || 'no credential required', `npm run satellite-device-live-plane -- --profile configured --target ${descriptor.targetId}`));
-    gates.push(this.gate('mock-smoke', 'passed', 'deterministic Satellite/device tests run without external network IO', 'npx jest tests/services/SatelliteDeviceLivePlaneService.test.ts --runInBand'));
+    gates.push(this.gate('dry-smoke', 'passed', 'deterministic Satellite/device tests run without external network IO', 'npx jest tests/services/SatelliteDeviceLivePlaneService.test.ts --runInBand'));
     gates.push(this.gate('staging-live-smoke', 'passed', 'staging-live Satellite/device proof requires explicit operator confirmation.', stagingLiveSmokeCommand));
     gates.push(this.gate('redacted-receipt', 'passed', 'receipts omit shared secrets, pairing codes and credential values.', null));
     return gates;

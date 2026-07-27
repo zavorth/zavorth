@@ -9,13 +9,13 @@ export function buildAutoInvocationZavorthControlProjection(
   if (!latest) {
     return {
       available: false,
-      title: 'Sem decisao automatica de subagentes',
-      summary: 'Nenhuma decisao automatica foi registrada neste snapshot.',
+      title: 'No automatic subagent decision',
+      summary: 'No decision automatica foi registrada neste snapshot.',
       selectedBy: 'none',
       roles: [],
       triggers: [],
       riskSignals: [],
-      nextSafeAction: 'Executar /agents ou uma tarefa complexa para gerar telemetria de subagentes.',
+      nextSafeAction: 'run /agents or a complex task to generate subagent telemetry.',
     };
   }
   return {
@@ -46,15 +46,15 @@ export function normalizeAutoInvocation(
     roles: Array.isArray(telemetry.roles) ? telemetry.roles.map((role) => ({
       roleId: normalizeText(role.roleId, 'planner'),
       label: normalizeText(role.label, role.roleId || 'planner'),
-      whySelected: firstLine(normalizeText(role.whySelected, 'Selecionado pela politica de subagentes.'), 280),
+      whySelected: firstLine(normalizeText(role.whySelected, 'Selected by subagent policy.'), 280),
     })) : [],
     publicRationale: firstLine(telemetry.publicRationale, 640),
     operatorSummary: firstLine(telemetry.operatorSummary, 640),
     zavorthControl: {
       ...telemetry.zavorthControl,
-      title: firstLine(telemetry.zavorthControl?.title || 'Subagentes', 160),
+      title: firstLine(telemetry.zavorthControl?.title || 'Subagents', 160),
       badges: uniqueStrings(telemetry.zavorthControl?.badges || []).slice(0, 12),
-      nextSafeAction: firstLine(telemetry.zavorthControl?.nextSafeAction || 'Revisar decisao antes de agir.', 240),
+      nextSafeAction: firstLine(telemetry.zavorthControl?.nextSafeAction || 'Revisar decision before agir.', 240),
     },
     cli: {
       headline: firstLine(telemetry.cli?.headline || 'Auto subagents', 160),

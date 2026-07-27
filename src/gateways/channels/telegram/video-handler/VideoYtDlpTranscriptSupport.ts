@@ -23,7 +23,7 @@ export class VideoYtDlpTranscriptSupport {
       return {
         transcript: '',
         source: 'yt-dlp not provisionado',
-        warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('O fallback opcional de yt-dlp is not provisionado neste host.')],
+        warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('The optional yt-dlp fallback is not provisioned on this host.')],
       };
     }
 
@@ -36,7 +36,7 @@ export class VideoYtDlpTranscriptSupport {
       return {
         transcript: captions.transcript,
         source: captions.source,
-        warnings: ['I found legendas via yt-dlp e evitei baixar o audio completo do video.'],
+        warnings: ['Found captions via yt-dlp and avoided downloading the full video audio.'],
       };
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -52,7 +52,7 @@ export class VideoYtDlpTranscriptSupport {
       return {
         transcript: '',
         source: 'yt-dlp captions unavailable',
-        warnings: [`A tentativa de baixar legendas via yt-dlp failed: ${errorMessage}`],
+        warnings: [`Attempt to download captions via yt-dlp failed: ${errorMessage}`],
       };
     }
   }
@@ -62,7 +62,7 @@ export class VideoYtDlpTranscriptSupport {
       return {
         transcript: '',
         source: 'yt-dlp not provisionado',
-        warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('O fallback opcional de yt-dlp is not provisionado neste host.')],
+        warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('The optional yt-dlp fallback is not provisioned on this host.')],
       };
     }
 
@@ -81,7 +81,7 @@ export class VideoYtDlpTranscriptSupport {
       if (downloadedStats.size <= MAX_TRANSCRIPTION_BYTES) {
         try {
           const transcript = await this.transcriptionPipeline.transcribeWithRetries(downloaded.audioPath, {
-            prompt: 'Transcreva o conteudo falado do video do YouTube com boa pontuacao e preserve nomes proprios e dados relevantes.',
+            prompt: 'Transcribe the spoken content of the YouTube video with good punctuation and preserve proper names and relevant data.',
           });
 
           return {
@@ -92,7 +92,7 @@ export class VideoYtDlpTranscriptSupport {
         } catch (error: unknown) {
           const err = asErrorLike(error);
           const errorMessage = error instanceof Error ? err.message : String(error);
-          warnings.push(`O fallback de transcricao literal com OpenAI failed: ${errorMessage}`);
+          warnings.push(`O fallback de transcription literal com OpenAI failed: ${errorMessage}`);
         }
       } else {
         warnings.push(`O audio extraido tem ${VideoHandlerFormatSupport.formatMegabytes(downloadedStats.size)} MB e sera processado em chunks para maior confiabilidade.`);
@@ -149,7 +149,7 @@ export class VideoYtDlpTranscriptSupport {
         source: downloaded.source,
         warnings: warnings.length > 0
           ? warnings
-          : ['O fallback com yt-dlp conseguiu extrair o audio, mas nenhuma etapa posterior produziu conteudo textual util.'],
+          : ['The yt-dlp fallback extracted the audio, but no subsequent step produced useful text content.'],
       };
     } catch (error: unknown) {
       const err = asErrorLike(error);

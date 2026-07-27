@@ -16,8 +16,8 @@ export function describeAutoRepairIncidentMemoryStatus(
     if (typeof incidentMemoryService.summarizeForStatus === 'function') {
       return incidentMemoryService.summarizeForStatus();
     }
-    return 'Memoria operacional: historico disponivel para o planejador.';
-  } catch (error: unknown) {logger.warn('[Auto Repair Summary] filesystem check failed', error); return 'Memoria operacional: indisponivel neste momento.'; }
+    return 'Operational memory: history available for the planner.';
+  } catch (error: unknown) {logger.warn('[Auto Repair Summary] filesystem check failed', error); return 'Operational memory: unavailable neste momento.'; }
 }
 
 export function summarizeLastAutoRepairRun(
@@ -26,29 +26,29 @@ export function summarizeLastAutoRepairRun(
 ): string {
   if (!report) {
     return [
-      'Autoreparo do Zavorth',
+      'Zavorth Auto-Repair',
       '',
-      'Ainda nao existe relatorio salvo.',
-      'Use /autorepair para corrigir e religar ou /autorepair status para consultar o ultimo relatorio.',
+      'No saved report exists yet.',
+      'Use /autorepair to fix and reconnect or /autorepair status to view the latest report.',
     ].join('\n');
   }
 
   const lines = [
-    'Autoreparo do Zavorth',
+    'Zavorth Auto-Repair',
     '',
     `Status: ${report.status}.`,
-    `Objetivo: ${report.goal}.`,
-    `Solicitado por: ${report.requestedBy || 'unknown'}.`,
-    `Inicio: ${report.startedAt}.`,
+    `Goal: ${report.goal}.`,
+    `Requested by: ${report.requestedBy || 'unknown'}.`,
+    `Started: ${report.startedAt}.`,
   ];
 
   if (report.finishedAt) {
-    lines.push(`Fim: ${report.finishedAt}.`);
+    lines.push(`Finished: ${report.finishedAt}.`);
   }
 
   const executedBootstrapSteps = report.bootstrapRepair.steps.filter((step) => step.status === 'executed').length;
   const failedBootstrapSteps = report.bootstrapRepair.steps.filter((step) => step.status === 'failed').length;
-  lines.push(`Reparo ambiental: ${executedBootstrapSteps} executado(s) | ${failedBootstrapSteps} falha(s).`);
+  lines.push(`Environmental repair: ${executedBootstrapSteps} executed | ${failedBootstrapSteps} failed.`);
   const nodeMeshBootstrapSummary = describeNodeMeshBootstrapStatus(report);
   if (nodeMeshBootstrapSummary) {
     lines.push(nodeMeshBootstrapSummary);
@@ -64,13 +64,13 @@ export function summarizeLastAutoRepairRun(
   lines.push(incidentMemoryStatus);
 
   if (report.planner?.summary) {
-    lines.push(`Plano: ${report.planner.summary}`);
+    lines.push(`Plan: ${report.planner.summary}`);
   }
 
   if (report.attempts.length > 0) {
     const lastAttempt = report.attempts[report.attempts.length - 1];
     lines.push(
-      `Ultima tentativa de codigo: #${lastAttempt.attemptNumber} em ${lastAttempt.targetFile || 'sem arquivo'} (${lastAttempt.status}).`,
+      `Last code attempt: #${lastAttempt.attemptNumber} at ${lastAttempt.targetFile || 'no file'} (${lastAttempt.status}).`,
     );
   }
 
@@ -82,7 +82,7 @@ export function summarizeLastAutoRepairRun(
   const smokeStats = collectAutoRepairSmokeValidationStats(report);
   if (smokeStats.total > 0) {
     lines.push(
-      `Smokes externos: ${smokeStats.passed} ok | ${smokeStats.failed} falha(s) | ${smokeStats.skipped} pulado(s).`,
+      `External smokes: ${smokeStats.passed} ok | ${smokeStats.failed} failed | ${smokeStats.skipped} skipped.`,
     );
   }
 
@@ -91,14 +91,14 @@ export function summarizeLastAutoRepairRun(
   }
 
   if (report.warnings.length > 0) {
-    lines.push('', 'Alertas:');
+    lines.push('', 'Warnings:');
     for (const warning of report.warnings.slice(0, 3)) {
       lines.push(`- ${warning}`);
     }
   }
 
-  lines.push('', `Resumo: ${report.summary}`);
-  lines.push('', 'Atalhos: /autorepair | /autorepair status | /reload | /changes');
+  lines.push('', `Summary: ${report.summary}`);
+  lines.push('', 'Shortcuts: /autorepair | /autorepair status | /reload | /changes');
   return lines.join('\n');
 }
 
@@ -110,11 +110,11 @@ export function buildAutoRepairRunSummary(
   const executedBootstrapSteps = report.bootstrapRepair.steps.filter((step) => step.status === 'executed').length;
   const failedBootstrapSteps = report.bootstrapRepair.steps.filter((step) => step.status === 'failed').length;
   const lines = [
-    'Autoreparo do Zavorth',
+    'Zavorth Auto-Repair',
     '',
-    `Status final: ${report.status}.`,
-    `Objetivo: ${report.goal}.`,
-    `Reparo ambiental: ${executedBootstrapSteps} executado(s) | ${failedBootstrapSteps} falha(s).`,
+    `Final status: ${report.status}.`,
+    `Goal: ${report.goal}.`,
+    `Environmental repair: ${executedBootstrapSteps} executed | ${failedBootstrapSteps} failed.`,
   ];
 
   const nodeMeshBootstrapSummary = describeNodeMeshBootstrapStatus(report);
@@ -132,16 +132,16 @@ export function buildAutoRepairRunSummary(
   lines.push(incidentMemoryStatus);
 
   if (report.planner?.summary) {
-    lines.push(`Plano do modelo: ${report.planner.summary}`);
+    lines.push(`Model plan: ${report.planner.summary}`);
   }
 
   if (report.attempts.length > 0) {
     const lastAttempt = report.attempts[report.attempts.length - 1];
     lines.push(
-      `Tentativa final: #${lastAttempt.attemptNumber} em ${lastAttempt.targetFile || 'sem arquivo'} (${lastAttempt.status}).`,
+      `Final attempt: #${lastAttempt.attemptNumber} at ${lastAttempt.targetFile || 'no file'} (${lastAttempt.status}).`,
     );
     if (lastAttempt.error) {
-      lines.push(`Ultimo erro: ${lastAttempt.error}`);
+      lines.push(`Last error: ${lastAttempt.error}`);
     }
   }
 
@@ -153,7 +153,7 @@ export function buildAutoRepairRunSummary(
   const smokeStats = collectAutoRepairSmokeValidationStats(report);
   if (smokeStats.total > 0) {
     lines.push(
-      `Smokes externos: ${smokeStats.passed} ok | ${smokeStats.failed} falha(s) | ${smokeStats.skipped} pulado(s).`,
+      `Smokes externos: ${smokeStats.passed} ok | ${smokeStats.failed} failure(s) | ${smokeStats.skipped} skipped item(s).`,
     );
   }
 
@@ -161,7 +161,7 @@ export function buildAutoRepairRunSummary(
     lines.push(`Supervised reload: ${report.reloadRequest.summary}`);
   } else if (needsReload && process.env.ZAVORTH_SUPERVISED !== 'true') {
     lines.push(
-      'O reparo terminou fora do host supervisionado. O launcher supervisionado pode seguir com o boot usando as mudancas novas.',
+      'The repair finished outside the supervised host. The supervised launcher can proceed with boot using the new changes.',
     );
   }
 
@@ -172,6 +172,6 @@ export function buildAutoRepairRunSummary(
     }
   }
 
-  lines.push('', 'Comandos uteis: /autorepair | /autorepair status | /reload | /changes');
+  lines.push('', 'Useful commands: /autorepair | /autorepair status | /reload | /changes');
   return lines.join('\n');
 }

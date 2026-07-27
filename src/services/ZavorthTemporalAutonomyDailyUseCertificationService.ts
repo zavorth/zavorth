@@ -40,10 +40,10 @@ export class ZavorthTemporalAutonomyDailyUseCertificationService {
     const liveTickCertification = dailyOpsReadiness.liveTickCertification;
     const channelCapability = new ZavorthChannelCapabilityAwarenessService({ now }).buildSnapshot();
     const agentRunRecovery = new ZavorthContextRecoveryAssimilationService({ now }).buildSnapshot({
-      text: 'Continue a tarefa diaria mesmo se o provider failurer, preservando contexto e approvals.',
+      text: 'Continue a task diaria mesmo se o provider failurer, preservando contexto e approvals.',
       surface: 'scheduler',
-      actorId: 'checkpoint-8-certification',
-      sessionId: 'checkpoint-8-daily-use',
+      actorId: 'gate-8-certification',
+      sessionId: 'gate-8-daily-use',
       lastFailure: {
         message: 'provider timeout while running scheduled task',
         toolId: 'llm.provider',
@@ -57,16 +57,16 @@ export class ZavorthTemporalAutonomyDailyUseCertificationService {
       now,
       cwd: this.cwd,
     }).buildSnapshot({
-      intent: 'Tentar criar outra automacao por dentro de uma automacao.',
+      intent: 'Attempt to create another automation from inside an automation.',
       command: 'Durante o tick, use /schedule para criar outro cron automaticamente.',
-      schedule: 'daily 09:00',
+      schedule: '{"kind":"calendar_day","targetHour":9,"targetMinute":0}',
       workspace: this.cwd(),
       surface: 'api',
-      createdBy: 'checkpoint-8-certification',
+      createdBy: 'gate-8-certification',
       allowedTools: ['read_file'],
       approval: {
         ownerConfirmed: true,
-        approvalId: 'checkpoint-8-no-compound-approval',
+        approvalId: 'gate-8-no-compound-approval',
         approvedBy: 'owner',
       },
     });
@@ -207,7 +207,7 @@ function buildAbuseScenarios(input: {
       blocked: true,
       gatewayCalled: false,
       executionPerformed: false,
-      receiptIds: ['checkpoint-8-acp-mcp-governance'],
+      receiptIds: ['gate-8-acp-mcp-governance'],
       policySurface: 'agent-runtime-bridge',
       summary: 'ACP bridge is certified only as an optional owner-gated bridge under MCP and tool policy receipts.',
     },
@@ -217,7 +217,7 @@ function buildAbuseScenarios(input: {
       blocked: false,
       gatewayCalled: false,
       executionPerformed: false,
-      receiptIds: ['checkpoint-8-channel-fallback'],
+      receiptIds: ['gate-8-channel-fallback'],
       policySurface: 'channel-renderer',
       summary: 'A channel without native buttons receives structured text fallback from the same response contract.',
     },
@@ -349,37 +349,37 @@ function buildReceipts(
 ): ZavorthTemporalAutonomyDailyUseReceipt[] {
   return [
     {
-      id: 'checkpoint-8-daily-use-certification',
-      kind: 'checkpoint-8-daily-use-certification',
+      id: 'gate-8-daily-use-certification',
+      kind: 'gate-8-daily-use-certification',
       status: status === 'certified' ? 'passed' : status,
       summary: `ZavorthControl controls daily-use certification status is ${status}.`,
     },
     {
-      id: 'checkpoint-8-scheduled-task-certification-consumed',
+      id: 'gate-8-scheduled-task-certification-consumed',
       kind: 'scheduled-task-certification-consumed',
       status: matrix.find((entry) => entry.area === 'scheduled_tasks')?.status === 'pass' ? 'passed' : 'blocked',
       summary: 'Scheduled-task registration, live tick and daily ops readiness were consumed.',
     },
     {
-      id: 'checkpoint-8-channel-capability-consumed',
+      id: 'gate-8-channel-capability-consumed',
       kind: 'channel-capability-consumed',
       status: matrix.find((entry) => entry.area === 'channel_ux')?.status === 'pass' ? 'passed' : 'blocked',
       summary: 'Channel capability awareness was consumed without zavorthControl visual mutation.',
     },
     ...abuseScenarios.map((scenario): ZavorthTemporalAutonomyDailyUseReceipt => ({
-      id: `checkpoint-8-${scenario.id}`,
+      id: `gate-8-${scenario.id}`,
       kind: 'abuse-scenario',
       status: scenario.status === 'failed' ? 'blocked' : 'passed',
       summary: scenario.summary,
     })),
     {
-      id: 'checkpoint-8-consistency-matrix',
+      id: 'gate-8-consistency-matrix',
       kind: 'consistency-matrix',
       status: matrix.every((entry) => entry.status === 'pass') ? 'passed' : 'blocked',
       summary: `${matrix.filter((entry) => entry.status === 'pass').length}/${matrix.length} daily-use matrix areas passed.`,
     },
     {
-      id: 'checkpoint-8-no-zavorthControl-visual-mutation',
+      id: 'gate-8-no-zavorthControl-visual-mutation',
       kind: 'no-zavorthControl-visual-mutation',
       status: 'recorded',
       summary: 'ZavorthControl controls exposes certification data and does not add zavorthControl visual sections.',

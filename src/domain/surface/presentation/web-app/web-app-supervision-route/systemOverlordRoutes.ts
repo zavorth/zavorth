@@ -47,7 +47,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
     const body = await deps.readJsonBody(req);
     const decision = String(body.decision || '').trim();
     if (!actionId || (decision !== 'approve' && decision !== 'reject')) {
-      deps.writeJson(res, { ok: false, error: 'actionId e decision approve/reject sao obrigatorios.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'actionId e decision approve/reject sao requireds.' }, 400);
       return true;
     }
     try {
@@ -75,7 +75,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
     const body = await deps.readJsonBody(req);
     const capability = String(body.capability || '').trim();
     if (!isSystemOverlordCapability(capability)) {
-      deps.writeJson(res, { ok: false, error: 'capability invalida ou ausente.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'capability invalid ou missing.' }, 400);
       return true;
     }
     const approvalSafety = buildWebOperatorApprovalSafety(ctx, body);
@@ -128,7 +128,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
     }
     const actionId = decodeURIComponent(match[1] || '').trim();
     if (!actionId) {
-      deps.writeJson(res, { ok: false, error: 'actionId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'actionId required.' }, 400);
       return true;
     }
     const body = await deps.readJsonBody(req);

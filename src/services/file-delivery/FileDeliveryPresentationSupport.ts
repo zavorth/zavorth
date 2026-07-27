@@ -29,8 +29,8 @@ export class FileDeliveryPresentationSupport {
       selectionAction: options?.selectionAction || 'send',
     });
 
-    const intro = options?.intro || (options?.mentionFallback ? `Nao encontrei uma correspondencia exata. Estas sao algumas opcoes em ${rootLabel}:` : `Encontrei varias opcoes em ${rootLabel}.`);
-    const closingLine = options?.closingLine || (options?.selectionAction === 'list' ? 'Responda com o numero da pasta que voce quer abrir.' : 'Responda com o numero da opcao que voce quer receber.');
+    const intro = options?.intro || (options?.mentionFallback ? `I could not find an exact match. These are some options in ${rootLabel}:` : `I found several options in ${rootLabel}.`);
+    const closingLine = options?.closingLine || (options?.selectionAction === 'list' ? 'Reply with the number of the folder you want to open.' : 'Reply with the number of the option you want to receive.');
     return { kind: 'choices', entries, prompt: [intro, '', ...entries.map((entry, index) => this.formatChoiceLine(entry, index)), '', closingLine].join('\n') };
   }
 
@@ -41,22 +41,22 @@ export class FileDeliveryPresentationSupport {
       const archiveStats = await fs.promises.stat(archivePath);
       if (archiveStats.size > MAX_TELEGRAM_DOCUMENT_BYTES) {
         await fs.promises.rm(archivePath, { force: true });
-        return { kind: 'message', text: `A pasta ${entry.baseName} ficou grande demais para envio (${this.formatBytes(archiveStats.size)}).` };
+        return { kind: 'message', text: `The folder ${entry.baseName} is too large to send (${this.formatBytes(archiveStats.size)}).` };
       }
 
-      return { kind: 'send', entry, sendPath: archivePath, fileName: `${entry.baseName}.zip`, caption: `Pasta compactada: ${entry.baseName}`, previewText, cleanupPath: archivePath };
+      return { kind: 'send', entry, sendPath: archivePath, fileName: `${entry.baseName}.zip`, caption: `Compressed folder: ${entry.baseName}`, previewText, cleanupPath: archivePath };
     }
 
     const fileStats = await fs.promises.stat(entry.absolutePath);
     if (fileStats.size > MAX_TELEGRAM_DOCUMENT_BYTES) {
-      return { kind: 'message', text: `O arquivo ${entry.baseName} e grande demais para envio direto (${this.formatBytes(fileStats.size)}).` };
+      return { kind: 'message', text: `The file ${entry.baseName} is too large for direct delivery (${this.formatBytes(fileStats.size)}).` };
     }
 
-    return { kind: 'send', entry, sendPath: entry.absolutePath, fileName: entry.baseName, caption: `Arquivo enviado: ${entry.baseName}`, previewText: this.buildFilePreviewText(entry) };
+    return { kind: 'send', entry, sendPath: entry.absolutePath, fileName: entry.baseName, caption: `File sent: ${entry.baseName}`, previewText: this.buildFilePreviewText(entry) };
   }
 
   public buildFilePreviewText(entry: FileDeliveryEntry): string {
-    return ['I found este arquivo:', `Nome: ${entry.baseName}`, `Tipo: ${this.describeFileKind(entry)}`, `Tamanho: ${this.formatBytes(entry.sizeBytes)}`, `Modificado: ${this.formatDateTime(entry.modifiedAtMs)}`, `Local: ${entry.rootLabel}/${entry.relativePath}`].join('\n');
+    return ['I found this file:', `Name: ${entry.baseName}`, `Type: ${this.describeFileKind(entry)}`, `Size: ${this.formatBytes(entry.sizeBytes)}`, `Modified: ${this.formatDateTime(entry.modifiedAtMs)}`, `local: ${entry.rootLabel}/${entry.relativePath}`].join('\n');
   }
 
   public async buildDirectoryPreviewText(entry: FileDeliveryEntry, shouldSkipAbsolutePath: (absolutePath: string, isDirectoryHint?: boolean) => boolean): Promise<string> {
@@ -67,7 +67,7 @@ export class FileDeliveryPresentationSupport {
         !child.name.startsWith('.')
         && !shouldSkipAbsolutePath(path.join(entry.absolutePath, child.name), child.isDirectory()),
     ).length;
-    return ['Vou compactar esta pasta para enviar:', `Nome: ${entry.baseName}`, `Itens visiveis: ${visibleItems}`, `Modificado: ${this.formatDateTime(entry.modifiedAtMs)}`, `Local: ${entry.rootLabel}/${entry.relativePath}`].join('\n');
+    return ['I will compress this folder for sending:', `Name: ${entry.baseName}`, `Visible items: ${visibleItems}`, `Modified: ${this.formatDateTime(entry.modifiedAtMs)}`, `local: ${entry.rootLabel}/${entry.relativePath}`].join('\n');
   }
 
   public describeFileKind(entry: FileDeliveryEntry): string {
@@ -79,7 +79,7 @@ export class FileDeliveryPresentationSupport {
       case '.js':
       case '.ts':
       case '.tsx':
-      case '.jsx': return 'codigo';
+      case '.jsx': return 'code';
       case '.json': return 'json';
       case '.md': return 'markdown';
       case '.png':
@@ -89,13 +89,13 @@ export class FileDeliveryPresentationSupport {
       case '.xlsx':
       case '.csv': return 'planilha';
       case '.zip': return 'zip';
-      case '.txt': return 'texto';
-      default: return 'arquivo';
+      case '.txt': return 'text';
+      default: return 'file';
     }
   }
 
   private formatChoiceLine(entry: FileDeliveryEntry, index: number): string {
-    const kindLabel = entry.isDirectory ? 'pasta' : this.describeFileKind(entry);
+    const kindLabel = entry.isDirectory ? 'folder' : this.describeFileKind(entry);
     const metadata = [!entry.isDirectory ? this.formatBytes(entry.sizeBytes) : null, `modificado ${this.formatDateTime(entry.modifiedAtMs)}`, entry.relativePath].filter(Boolean);
     return `${index + 1}. [${kindLabel}] ${entry.baseName} - ${metadata.join(' - ')}`;
   }

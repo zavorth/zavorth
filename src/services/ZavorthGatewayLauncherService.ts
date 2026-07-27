@@ -46,7 +46,7 @@ export class ZavorthGatewayLauncherService {
     if (!fs.existsSync(config.AIGatewayGatewayEntrypointFile)) {
       return {
         ...current,
-        message: `Entrypoint do gateway AIGateway ausente em ${config.AIGatewayGatewayEntrypointFile}. Rode npm run build antes de iniciar a rota propria.`,
+        message: `Entrypoint do gateway AIGateway missing em ${config.AIGatewayGatewayEntrypointFile}. Run npm run build before iniciar a rota own.`,
       };
     }
 
@@ -74,7 +74,7 @@ export class ZavorthGatewayLauncherService {
     const latest = this.gatewayService.readStatus();
     return {
       ...latest,
-      message: latest.message || 'O launcher do gateway AIGateway foi acionado, mas a rota propria ainda nao ficou pronta.',
+      message: latest.message || 'The AIGateway gateway launcher was triggered, but the native route is not ready yet.',
     };
   }
 

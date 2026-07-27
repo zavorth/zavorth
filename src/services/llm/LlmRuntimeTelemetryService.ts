@@ -92,7 +92,7 @@ export class LlmRuntimeTelemetryService {
       providerName: this.cleanText(input.providerName, 'unknown'),
       modelName: this.cleanOptional(input.modelName),
       durationMs: this.normalizeDuration(input.durationMs),
-      error: input.error ? this.truncate(this.redactSensitive(this.cleanText(input.error, 'erro desconhecido')), 240) : undefined,
+      error: input.error ? this.truncate(this.redactSensitive(this.cleanText(input.error, 'unknown error')), 240) : undefined,
     };
     this.attempts.push(attempt);
     while (this.attempts.length > this.maxAttempts) {

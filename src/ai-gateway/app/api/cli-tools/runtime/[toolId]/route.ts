@@ -31,10 +31,8 @@ export async function GET(request, { params }) {
       message:
         runtime.reason === "not_required"
           ? "This integration is guide-based and does not require a local CLI binary"
-          : runtime.installed && runtime.runnable
-            ? "CLI detected and runnable"
-            : runtime.installed
-              ? "CLI detected but not runnable"
+          : runtime.installed && runtime.runnable ? "CLI detected and runnable"
+            : runtime.installed ? "CLI detected but not runnable"
               : "CLI not detected",
     });
   } catch (error: unknown) {console.log("Error checking CLI runtime:", error);

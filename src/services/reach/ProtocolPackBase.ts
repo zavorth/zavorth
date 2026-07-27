@@ -57,10 +57,8 @@ export function buildProtocolPackDoctor(
       return {
         id: `env-${index}`,
         ok: missingEnvKeys.length === 0 && presentEnvKeys.length > 0,
-        detail: missingEnvKeys.length
-          ? `Missing: ${missingEnvKeys.join(', ')}`
-          : presentEnvKeys.length
-            ? `Required env present (${presentEnvKeys.length})`
+        detail: missingEnvKeys.length ? `Missing: ${missingEnvKeys.join(', ')}`
+          : presentEnvKeys.length ? `Required env present (${presentEnvKeys.length})`
             : 'No required env keys declared',
       };
     }
@@ -75,8 +73,7 @@ export function buildProtocolPackDoctor(
       return {
         id: `transport-${index}`,
         ok: configured,
-        detail: configured
-          ? `Transport ${pack.transport} configured for review`
+        detail: configured ? `Transport ${pack.transport} configured for review`
           : `Configure transport ${pack.transport} before live proof`,
       };
     }
@@ -95,8 +92,7 @@ export function buildProtocolPackDoctor(
     proof: presentEnvKeys.length > 0 && missingEnvKeys.length === 0 ? 'configuration' : presentEnvKeys.length > 0 ? 'configuration' : 'catalog',
     liveReady: false,
     steps,
-    nextSafeAction: missingEnvKeys.length
-      ? `Set ${missingEnvKeys[0]} and re-run doctor.`
+    nextSafeAction: missingEnvKeys.length ? `Set ${missingEnvKeys[0]} and re-run doctor.`
       : 'Run a live proof before using as default route.',
   };
 }
@@ -134,7 +130,7 @@ export function createProtocolPack(input: {
       'Confirm allowlist is closed by default',
       transport === 'webhook' ? 'Verify webhook path is reachable only after policy allow' : `Verify ${transport} bridge health`,
       'Never mark live-ready from catalog alone',
-      'Optional media stub path available after live proof',
+      'Optional media local path available after live proof',
     ],
     setupHint: `Configure ${input.label} as a Tier B protocol pack, then run doctor and live proof.`,
   };

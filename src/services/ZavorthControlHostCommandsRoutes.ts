@@ -34,7 +34,7 @@ export async function handleHostCommandsRequest(
                   cwd_suffix, shell, risk_level, reason_redacted, created_at, expires_at,
                   requires_strong_confirmation, strong_confirmation_phrase
            FROM workspace_host_command_proposals
-           WHERE approved = 0 AND expires_at > ? AND workspace_id = ?`,
+           WHERE approved = 0 AND expires_at > - AND workspace_id = ...`,
           [now, workspaceId]
         );
       } else {
@@ -43,7 +43,7 @@ export async function handleHostCommandsRequest(
                   cwd_suffix, shell, risk_level, reason_redacted, created_at, expires_at,
                   requires_strong_confirmation, strong_confirmation_phrase
            FROM workspace_host_command_proposals
-           WHERE approved = 0 AND expires_at > ?`,
+           WHERE approved = 0 AND expires_at > ...`,
           [now]
         );
       }
@@ -126,7 +126,7 @@ export async function handleHostCommandsRequest(
 
       const db = await Database.getInstance();
       const proposal = db.get<any>(
-        'SELECT workspace_id, risk_level, shell FROM workspace_host_command_proposals WHERE operation_id = ? AND approved = 1',
+        'SELECT workspace_id, risk_level, shell FROM workspace_host_command_proposals WHERE operation_id = - AND approved = 1',
         [operationId]
       );
 
@@ -232,7 +232,7 @@ export async function handleHostCommandsRequest(
       }
       const { operationId } = parsed.data;
       const db = await Database.getInstance();
-      db.run('DELETE FROM workspace_host_command_proposals WHERE operation_id = ?', [operationId]);
+      db.run('DELETE FROM workspace_host_command_proposals WHERE operation_id = ...', [operationId]);
       HostCommandPayloadCache.getInstance().delete(operationId);
       deps.writeJson(res, { ok: true });
     } catch (error: unknown) {

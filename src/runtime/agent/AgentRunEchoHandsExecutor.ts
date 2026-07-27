@@ -63,7 +63,7 @@ export class AgentRunEchoHandsExecutor {
 
     const args = this.resolveArgs(request, run);
     if (!args.action) {
-      return this.buildDegradedResult('Echo Hands nao executado: argumentos de acao ausentes.', {
+      return this.buildDegradedResult('Echo Hands not executed: action arguments are missing.', {
         reason: 'missing-echo-hands-action',
         toolRuntimeAvailable: true,
       });
@@ -99,8 +99,8 @@ export class AgentRunEchoHandsExecutor {
       };
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = normalizeText(error instanceof Error ? err.message : String(error), 'Echo Hands falhou no tool runtime.');
-      return this.buildDegradedResult(`Echo Hands nao executado: ${message}`, {
+      const message = normalizeText(error instanceof Error ? err.message : String(error), 'Echo Hands failed no tool runtime.');
+      return this.buildDegradedResult(`Echo Hands not executed: ${message}`, {
         reason: 'echo-hands-execution-failed',
         toolRuntimeAvailable: true,
         error: message,

@@ -109,7 +109,7 @@ export class ZavorthTransactionRuntimeOrchestratorService {
           preview,
           decision: 'approved',
           actor: 'owner',
-          reason: 'Approved by Runtime gateway runtime input for simulation only.',
+          reason: 'Approved by Runtime gateway runtime input for dryRun only.',
         });
         if (approvalEntry.kind !== 'approval-granted') {
           blockers.push('approval_not_granted');
@@ -201,7 +201,7 @@ export class ZavorthTransactionRuntimeOrchestratorService {
       approvalEntry,
       credentialValidation,
       connectorRun,
-      status: connectorRun.status === 'simulated' ? 'simulated' : 'blocked',
+      status: connectorRun.status === 'dryRun' ? 'dryRun' : 'blocked',
       blockers,
       warnings,
       phaseReceipts,
@@ -282,14 +282,14 @@ function resolveBlockedStatus(blockers: string[]): ZavorthTransactionRuntimeStat
 }
 
 function buildNextSteps(status: ZavorthTransactionRuntimeStatus, blockers: string[]): string[] {
-  if (status === 'simulated') {
+  if (status === 'dryRun') {
     return ['Review the full runtime receipt; no live transaction was executed.'];
   }
   if (status === 'approval-required') {
-    return ['Request explicit approval, then rerun in approve mode for simulation only.'];
+    return ['Request explicit approval, then rerun in approve mode for dryRun only.'];
   }
   if (status === 'credential-required') {
-    return ['Register or provide a valid transaction credential ref before connector simulation.'];
+    return ['Register or provide a valid transaction credential ref before connector dry-run.'];
   }
   if (status === 'needs-clarification') {
     return ['Clarify the target, amount, limit or condition before rebuilding the runtime run.'];
@@ -307,7 +307,7 @@ function buildRuntimeId(text: string, mode: ZavorthTransactionConnectorMode, now
 
 function sanitizeText(text: string): string {
   return text
-    .replace(/\b(api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/gi, '$1=[REDACTED]')
+    .replace(/\b(api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]\s*([^\s,;]+)/gi, '$1=[REDACTED]')
     .replace(/\b(sk-[A-Za-z0-9_-]{12}|pk_live_[A-Za-z0-9_-]{12}|rk_live_[A-Za-z0-9_-]{12})\b/g, '[REDACTED_SECRET]');
 }
 

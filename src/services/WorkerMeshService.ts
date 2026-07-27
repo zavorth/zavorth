@@ -230,8 +230,7 @@ export class WorkerMeshService {
         isolation: worker.policy.isolation,
         approvalGranted: Boolean(input.approvalGranted),
         durationMs: 0,
-        reason: input.approvalGranted
-          ? 'dry-run completed (no side effects)'
+        reason: input.approvalGranted ? 'dry-run completed (no side effects)'
           : 'approval required for live invoke; dry-run only',
       });
       this.persistReceipt(r);
@@ -743,7 +742,7 @@ export class WorkerMeshService {
 
   private redact(text: string): string {
     return String(text || '')
-      .replace(/(api[_-]?key|secret|token|password)\s*[:=]\s*\S+/gi, '$1=[redacted]')
+      .replace(/(api[_-]...key|secret|token|password)\s*[:=]\s*\S+/gi, '$1=[redacted]')
       .slice(0, 2000);
   }
 }

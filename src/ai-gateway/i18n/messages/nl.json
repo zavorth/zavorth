@@ -6,7 +6,7 @@
     "loading": "Laden...",
     "error": "Er is een fout opgetreden",
     "success": "Succes",
-    "confirm": "Weet je het zeker?",
+    "confirm": "Weet je het zeker...",
     "refresh": "Vernieuwen",
     "close": "Sluiten",
     "add": "Toevoegen",
@@ -164,8 +164,8 @@
     "auditLog": "Auditlogboek",
     "shutdown": "Afsluiten",
     "restart": "Opnieuw opstarten",
-    "shutdownConfirm": "ZavorthGateway afsluiten?",
-    "restartConfirm": "ZavorthGateway opnieuw starten?",
+    "shutdownConfirm": "ZavorthGateway afsluiten...",
+    "restartConfirm": "ZavorthGateway opnieuw starten...",
     "version": "v{version}",
     "debug": "Foutopsporing",
     "system": "Systeem",
@@ -288,7 +288,7 @@
     "createKey": "Maak een API-sleutel",
     "key": "Sleutel",
     "revokeKey": "Sleutel intrekken",
-    "revokeConfirm": "Weet u zeker dat u deze API-sleutel wilt intrekken?",
+    "revokeConfirm": "Weet u zeker dat u deze API-sleutel wilt intrekken...",
     "noKeys": "Nog geen API-sleutels",
     "noKeysDesc": "Maak uw eerste API-sleutel om verzoeken aan uw eindpunt te verifiëren",
     "keyLabel": "Sleutellabel",
@@ -320,7 +320,7 @@
     "actions": "Acties",
     "reqs": "verzoek",
     "neverUsed": "Nooit gebruikt",
-    "deleteConfirm": "Deze API-sleutel verwijderen?",
+    "deleteConfirm": "Deze API-sleutel verwijderen...",
     "usageTips": "Gebruikstips",
     "tipAuth": "Gebruik API-sleutels in de Authorization-header als Bearer YOUR_KEY",
     "tipSecure": "Sleutels worden tijdens het aanmaken slechts één keer getoond. Bewaar ze veilig",
@@ -803,7 +803,7 @@
     "leastLatency": "Minste latentie",
     "comboName": "Combinatienaam",
     "comboNamePlaceholder": "mijn-combo",
-    "deleteConfirm": "Deze combinatie verwijderen?",
+    "deleteConfirm": "Deze combinatie verwijderen...",
     "noCombosYet": "Nog geen combo's",
     "comboCreated": "Combinatie is succesvol aangemaakt",
     "comboUpdated": "Combo is succesvol bijgewerkt",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "Klaar om te besparen?",
+    "readinessTitle": "Klaar om te besparen...",
     "readinessDescription": "Bekijk de checklist voordat u deze combo maakt of bijwerkt.",
     "readinessCheckName": "Combinatienaam is geldig",
     "readinessCheckModels": "Er is minimaal één model geselecteerd",
@@ -1013,7 +1013,7 @@
     "title": "API-eindpunt",
     "available": "Beschikbare eindpunten",
     "cloudProxy": "Cloud-proxy",
-    "disableConfirm": "Weet u zeker dat u cloudproxy wilt uitschakelen?",
+    "disableConfirm": "Weet u zeker dat u cloudproxy wilt uitschakelen...",
     "baseUrl": "Basis-URL",
     "apiKeyLabel": "API-sleutel",
     "registeredKeys": "Geregistreerde sleutels",
@@ -1154,13 +1154,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"?",
+    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"...",
     "switchComboFailed": "Failed to switch combo state.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Circuit breakers reset.",
     "processStatus": "Process status",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} actief",
     "ok": "Oké",
     "activeLockouts": "Actieve vergrendelingen",
-    "resetConfirm": "Alle stroomonderbrekers resetten naar een gezonde status? Hiermee worden alle foutaantallen gewist en worden alle providers teruggezet naar de operationele status.",
+    "resetConfirm": "Alle stroomonderbrekers resetten naar een gezonde status... Hiermee worden alle foutaantallen gewist en worden alle providers teruggezet naar de operationele status.",
     "resetAllTitle": "Reset alle stroomonderbrekers naar de gezonde status",
     "resetting": "Resetten...",
     "resetAll": "Alles resetten",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Beschikbaarheid van modellen",
     "accounts": "Rekeningen",
     "newAccount": "Nieuw account",
-    "deleteConfirm": "Weet u zeker dat u deze aanbieder wilt verwijderen?",
+    "deleteConfirm": "Weet u zeker dat u deze aanbieder wilt verwijderen...",
     "testing": "Testen...",
     "testConnection": "Verbinding testen",
     "testSuccess": "Verbinding succesvol",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "API-sleutel testen",
     "testKeyPlaceholder": "sk-... (alleen ter validatie)",
     "providerNotFound": "Aanbieder niet gevonden",
-    "deleteConnectionConfirm": "Deze verbinding verwijderen?",
+    "deleteConnectionConfirm": "Deze verbinding verwijderen...",
     "failedSetAlias": "Kan alias niet instellen",
     "failedSaveConnection": "Kan de verbinding niet opslaan",
     "failedSaveConnectionRetry": "Kan de verbinding niet opslaan. Probeer het opnieuw.",
     "failedRetestConnection": "Kan de verbinding niet opnieuw testen",
-    "deleteCompatibleNodeConfirm": "Dit {type} compatibele knooppunt verwijderen?",
+    "deleteCompatibleNodeConfirm": "Dit {type} compatibele knooppunt verwijderen...",
     "anthropicCompatibleDetails": "Antropische compatibele details",
     "openaiCompatibleDetails": "OpenAI-compatibele details",
     "messagesApi": "Berichten-API",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Automatische synchronisatie uitgeschakeld",
     "autoSyncToggleFailed": "Kan automatische synchronisatie niet in- of uitschakelen",
     "clearAllModels": "Wis alle modellen",
-    "clearAllModelsConfirm": "Weet u zeker dat u alle modellen voor deze aanbieder wilt verwijderen? Dit kan niet ongedaan worden gemaakt.",
+    "clearAllModelsConfirm": "Weet u zeker dat u alle modellen voor deze aanbieder wilt verwijderen... Dit kan niet ongedaan worden gemaakt.",
     "clearAllModelsSuccess": "Alle modellen gewist",
     "clearAllModelsFailed": "Kan modellen niet wissen",
     "addConnectionToImport": "Voeg een verbinding toe om importeren mogelijk te maken.",
@@ -1814,7 +1814,7 @@
     "exportData": "Gegevens exporteren",
     "importData": "Gegevens importeren",
     "clearData": "Wis alle gegevens",
-    "clearDataConfirm": "Hierdoor worden alle gegevens definitief verwijderd. Weet je het zeker?",
+    "clearDataConfirm": "Hierdoor worden alle gegevens definitief verwijderd. Weet je het zeker...",
     "enableRequestLogs": "Schakel aanvraaglogboeken in",
     "logRetention": "Logboekbehoud",
     "ipWhitelist": "IP-witte lijst",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Gesprekken per account voordat u overstapt",
     "modelAliases": "Modelaliassen",
     "modelAliasesTitle": "Model Aliases",
-    "modelAliasesDesc": "Jokertekenpatronen om modelnamen opnieuw toe te wijzen • Gebruik * en ?",
+    "modelAliasesDesc": "Jokertekenpatronen om modelnamen opnieuw toe te wijzen • Gebruik * en ...",
     "addCustomAlias": "Aangepast Alias Toevoegen",
     "deprecatedModelId": "Verouderd model-ID",
     "newModelId": "Nieuw model-ID",
@@ -1974,7 +1974,7 @@
     "browser": "Browser",
     "clearLocalData": "Lokale gegevens wissen",
     "logout": "Uitloggen",
-    "clearLocalDataConfirm": "Alle lokale gegevens wissen? Hiermee worden uw voorkeuren opnieuw ingesteld.",
+    "clearLocalDataConfirm": "Alle lokale gegevens wissen... Hiermee worden uw voorkeuren opnieuw ingesteld.",
     "unknown": "Onbekend",
     "systemActor": "systeem",
     "ipAccessControl": "IP-toegangscontrole",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Geen terugvalketens",
     "noFallbackChainsDesc": "Maak een keten om de terugvalvolgorde van de provider voor een model te definiëren.",
     "loadingFallbackChains": "Terugvalketens laden...",
-    "deleteChainConfirm": "Terugvalketen voor \"{model}\" verwijderen?",
+    "deleteChainConfirm": "Terugvalketen voor \"{model}\" verwijderen...",
     "chainCreated": "Keten gemaakt voor {model}",
     "chainDeleted": "Keten verwijderd voor {model}",
     "failedCreateChain": "Kan keten niet maken",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Er zijn nog geen back-ups beschikbaar. Er worden automatisch back-ups gemaakt als gegevens veranderen.",
     "backupsAvailable": "{count} back-up(s) beschikbaar",
     "refresh": "Vernieuwen",
-    "confirm": "Bevestigen?",
+    "confirm": "Bevestigen...",
     "yes": "Ja",
     "no": "Nee",
     "restore": "Herstellen",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Beleid en stroomonderbrekers",
     "activeIssuesDetected": "Actieve problemen gedetecteerd",
     "off": "Uit",
-    "resetPricingConfirm": "Alle prijzen voor {provider} terugzetten naar de standaardwaarden?",
+    "resetPricingConfirm": "Alle prijzen voor {provider} terugzetten naar de standaardwaarden...",
     "pricingDescInput": "Invoer: tokens verzonden naar het model",
     "pricingDescOutput": "Uitvoer: tokens gegenereerd",
     "pricingDescCached": "In cache opgeslagen: hergebruikte invoer (~50% van invoersnelheid)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Je bent een behulpzame assistent.",
-        "userGreeting": "Hallo! Hoe gaat het vandaag met je?"
+        "userGreeting": "Hallo! Hoe gaat het vandaag met je..."
       },
       "toolCalling": {
-        "userWeather": "Hoe is het weer in Sao Paulo?",
+        "userWeather": "Hoe is het weer in Sao Paulo...",
         "toolDescription": "Ontvang het huidige weer voor een locatie",
         "cityNameDescription": "Naam van de stad"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Sorteer het nu in aflopende volgorde."
       },
       "thinking": {
-        "question": "Wat is de som van de eerste 100 priemgetallen?"
+        "question": "Wat is de som van de eerste 100 priemgetallen..."
       },
       "systemPrompt": {
         "systemInstruction": "Je bent een senior software engineer, gespecialiseerd in gedistribueerde systemen. Beantwoord vragen beknopt met behulp van best practices uit de branche. Geef altijd codevoorbeelden wanneer dit relevant is. Formatteer uw antwoorden met behulp van markdown.",
-        "question": "Hoe implementeer ik een stroomonderbrekerpatroon?"
+        "question": "Hoe implementeer ik een stroomonderbrekerpatroon..."
       },
       "streaming": {
         "prompt": "Vertel me een kort verhaal over een robot die leert schilderen."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "of verwijder het wachtwoordHash-veld",
     "restartServerWithNewPassword": "Start de server opnieuw op. Deze gebruikt het nieuwe wachtwoord",
     "backToLogin": "Terug naar Inloggen",
-    "forgotPassword": "Wachtwoord vergeten?",
+    "forgotPassword": "Wachtwoord vergeten...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Autorisatie",
     "Content-Disposition": "Inhoud-dispositie",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Tweeling",
     "flowProviderGithubCopilot": "GitHub-copiloot",
     "interactiveDiagram": "Interactief diagram zichtbaar op het bureaublad",
-    "ctaTitle": "Klaar om uw AI-infrastructuur te vereenvoudigen?",
+    "ctaTitle": "Klaar om uw AI-infrastructuur te vereenvoudigen...",
     "ctaDescription": "Sluit u aan bij ontwikkelaars die hun AI-integraties stroomlijnen met Zavorth. Open source en gratis om te beginnen.",
     "startFree": "Begin gratis",
     "readDocumentation": "Documentatie lezen"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Laatst bijgewerkt: {date}",
     "policyLastUpdatedDate": "13 februari 2026",
     "listSeparator": "-",
-    "questionsVisit": "Vragen? Bezoek onze",
+    "questionsVisit": "Vragen... Bezoek onze",
     "githubRepository": "GitHub-opslagplaats",
     "privacySection1Title": "1. Lokaal-eerste architectuur",
     "privacySection1Text": "Zavorth is ontworpen als een local-first applicatie. Alle gegevensverwerking en opslag vindt volledig op uw machine plaats. Er is geen gecentraliseerde server die uw gegevens verzamelt.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Je bent een behulpzame AI-assistent.",
-      "userGreeting": "Hallo! Hoe kan ik je vandaag helpen?"
+      "userGreeting": "Hallo! Hoe kan ik je vandaag helpen..."
     },
     "streaming": {
       "prompt": "Schrijf een verhaal over"
     },
     "systemPrompt": {
-      "question": "Wat is de zin van het leven?",
+      "question": "Wat is de zin van het leven...",
       "systemInstruction": "Geef een doordacht, filosofisch antwoord."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "De naam van de stad waarvoor u het weer wilt ophalen",
       "toolDescription": "Ontvang het huidige weer voor een locatie",
-      "userWeather": "Hoe is het weer in Tokio?"
+      "userWeather": "Hoe is het weer in Tokio..."
     },
     "multiTurn": {
       "system": "Je bent een behulpzame assistent.",
       "assistantExample": "Ik help je daar graag mee.",
       "userInitial": "Ik heb hulp nodig bij",
-      "userFollowUp": "Kunt u dat nader toelichten?"
+      "userFollowUp": "Kunt u dat nader toelichten..."
     }
   },
   "cache": {

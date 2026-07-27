@@ -1,6 +1,6 @@
 import { asErrorLike } from '../../utils/errorLike';
 /**
- * Settings Cache — FASE-03 Architecture Refactoring
+ * Settings Cache — Architecture Refactoring
  *
  * In-memory cache for settings to eliminate self-fetch anti-pattern in middleware.
  * The middleware was making HTTP requests to its own /api/settings endpoint,

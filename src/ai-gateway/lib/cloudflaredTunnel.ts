@@ -129,15 +129,12 @@ export async function getCloudflaredTunnelStatus(): Promise<CloudflaredTunnelSta
 
   const publicUrl = running ? effectiveState.publicUrl || null : null;
   const phase =
-    !getCloudflaredAssetSpec() && !resolved.binaryPath
-      ? "unsupported"
+    !getCloudflaredAssetSpec() && !resolved.binaryPath ? "unsupported"
       : running
-        ? publicUrl
-          ? "running"
+        ? publicUrl ? "running"
           : "starting"
         : resolved.binaryPath
-          ? effectiveState.lastError
-            ? "error"
+          ? effectiveState.lastError ? "error"
             : "stopped"
           : "not_installed";
 

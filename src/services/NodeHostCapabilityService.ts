@@ -277,8 +277,7 @@ export class NodeHostCapabilityService {
 
     return {
       ok: result.ok,
-      resultSummary: result.ok
-        ? 'Command executed on the node host.'
+      resultSummary: result.ok ? 'Command executed on the node host.'
         : `Command exited with code ${result.exitCode ?? 'unknown'}.`,
       stdout,
       stderr,

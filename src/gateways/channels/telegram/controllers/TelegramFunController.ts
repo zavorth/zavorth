@@ -32,11 +32,12 @@ export class TelegramFunController {
       }
 
       if (commandType === '/joke') {
-        const loadingMessage = await ctx.reply('Pensando em algo cruel e engracado...');
+        const loadingMessage = await ctx.reply('Thinking of something mildly cursed and funny...');
         const joke = await this.funGamesService.tellAJoke();
         await this.botApi.editMessageText(ctx.chat!.id, loadingMessage.message_id, joke, { parse_mode: 'Markdown' });
       }
-    } catch (error: unknown) {await ctx.reply('Estou sem paciencia para jogos agora.', {
+    } catch (error: unknown) {
+      await ctx.reply('I cannot run games right now.', {
         reply_to_message_id: ctx.message?.message_id,
       });
     }

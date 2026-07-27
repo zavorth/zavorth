@@ -2001,7 +2001,7 @@
     "stickyLimitDesc": "切换前每个账户连续处理的请求次数",
     "modelAliases": "模型别名",
     "modelAliasesTitle": "模型别名",
-    "modelAliasesDesc": "重新映射模型名称的通配符模式 • 使用 * 和 ?",
+    "modelAliasesDesc": "重新映射模型名称的通配符模式 • 使用 * 和 ...",
     "addCustomAlias": "添加自定义别名",
     "deprecatedModelId": "已弃用的模型 ID",
     "newModelId": "新模型 ID",

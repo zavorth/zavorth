@@ -292,7 +292,7 @@ export class UniversalReachFabricService {
     const draft = this.toPairingDraft(nodeId, profileId, capabilityIds, pairingCode, createdAt);
     return {
       draft,
-      receipt: this.receipt('node-pairing-draft', 'pass', `Local pairing draft for ${nodeId} (bootstrap via companion).`, nodeId),
+      receipt: this.receipt('node-pairing-draft', 'pass', `local pairing draft for ${nodeId} (bootstrap via companion).`, nodeId),
     };
   }
 
@@ -371,15 +371,11 @@ export class UniversalReachFabricService {
       const configured = isLocal || (def.requiredEnvKeys.length > 0 && missing.length === 0);
       // Tier A still requires live proof for external channels — configuration alone is not enough
       const liveReady = isLocal;
-      const readiness: ReachChannelReadiness = isLocal
-        ? 'live-ready'
-        : configured
-          ? 'configured'
+      const readiness: ReachChannelReadiness = isLocal ? 'live-ready'
+        : configured ? 'configured'
           : 'needs-setup';
-      const proof: ReachReadinessProof = isLocal
-        ? 'health'
-        : configured
-          ? 'configuration'
+      const proof: ReachReadinessProof = isLocal ? 'health'
+        : configured ? 'configuration'
           : 'none';
       return this.entry({
         id: def.id,
@@ -393,12 +389,10 @@ export class UniversalReachFabricService {
         defaultRouteAllowed: liveReady,
         defaultBlockReason: liveReady
           ? null
-          : configured
-            ? 'Configured but not live-proven in this installation.'
+          : configured ? 'Configured but not live-proven in this installation.'
             : `Missing setup: ${missing.join(', ') || 'credentials'}`,
         doctorCommand: `zavorth reach doctor ${def.id}`,
-        setupHint: isLocal
-          ? `${def.label} is a local surface.`
+        setupHint: isLocal ? `${def.label} is a local surface.`
           : `Configure ${def.requiredEnvKeys.join(', ') || 'credentials'}, then doctor + live proof.`,
         features: {
           inbound: true,
@@ -428,8 +422,7 @@ export class UniversalReachFabricService {
         configured: doctor.configured,
         liveReady: false,
         defaultRouteAllowed: false,
-        defaultBlockReason: doctor.configured
-          ? 'Tier B protocol pack requires live proof before default route.'
+        defaultBlockReason: doctor.configured ? 'Tier B protocol pack requires live proof before default route.'
           : 'Protocol pack catalogued; configure env and run doctor.',
         doctorCommand: `zavorth reach doctor ${pack.id}`,
         setupHint: pack.setupHint,
@@ -535,12 +528,9 @@ export class UniversalReachFabricService {
       needsCapabilityReapproval,
       canInvoke,
       lastSeenAt: node.lastSeenAt || null,
-      nextSafeAction: needsCapabilityReapproval
-        ? 'Approve new capabilities before invoke.'
-        : !paired
-          ? 'Complete pairing with companion bootstrap.'
-          : canInvoke
-            ? 'Node ready for governed invokes.'
+      nextSafeAction: needsCapabilityReapproval ? 'Approve new capabilities before invoke.'
+        : !paired ? 'Complete pairing with companion bootstrap.'
+          : canInvoke ? 'Node ready for governed invokes.'
             : 'Wait for heartbeat / approve capabilities.',
     };
   }

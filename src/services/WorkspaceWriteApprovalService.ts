@@ -81,7 +81,7 @@ export class WorkspaceWriteApprovalService {
     db.run(
       `INSERT INTO workspace_write_approvals
        (operation_id, workspace_id, tool_name, path_hash, path_suffix, request_hash, approved, expires_at, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)`,
+       VALUES (..., ..., ..., ..., ..., ..., 0, ..., ...)`,
       [operationId, workspaceId, toolName, pathHash, pathSuffix, requestHash, expiresAt, createdAt]
     );
 
@@ -106,7 +106,7 @@ export class WorkspaceWriteApprovalService {
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
     const entry = db.get<{ workspace_id: string; tool_name: string; path_suffix: string; path_hash: string }>(
-      'SELECT workspace_id, tool_name, path_suffix, path_hash FROM workspace_write_approvals WHERE operation_id = ?',
+      'SELECT workspace_id, tool_name, path_suffix, path_hash FROM workspace_write_approvals WHERE operation_id = ...',
       [operationId]
     );
 
@@ -115,7 +115,7 @@ export class WorkspaceWriteApprovalService {
     }
 
     db.run(
-      'UPDATE workspace_write_approvals SET approved = 1, expires_at = ? WHERE operation_id = ?',
+      'UPDATE workspace_write_approvals SET approved = 1, expires_at = - WHERE operation_id = ...',
       [expiresAt, operationId]
     );
 
@@ -137,7 +137,7 @@ export class WorkspaceWriteApprovalService {
   public async denyOperation(operationId: string): Promise<void> {
     const db = await this.getDb();
     const entry = db.get<{ workspace_id: string; tool_name: string; path_suffix: string; path_hash: string }>(
-      'SELECT workspace_id, tool_name, path_suffix, path_hash FROM workspace_write_approvals WHERE operation_id = ?',
+      'SELECT workspace_id, tool_name, path_suffix, path_hash FROM workspace_write_approvals WHERE operation_id = ...',
       [operationId]
     );
 
@@ -145,7 +145,7 @@ export class WorkspaceWriteApprovalService {
       throw new Error(`Operation not found: ${operationId}`);
     }
 
-    db.run('DELETE FROM workspace_write_approvals WHERE operation_id = ?', [operationId]);
+    db.run('DELETE FROM workspace_write_approvals WHERE operation_id = ...', [operationId]);
 
     this.auditLogger.logWorkspaceEvent({
       event: 'workspace_write_denied',
@@ -180,14 +180,8 @@ export class WorkspaceWriteApprovalService {
     const rawDb = db.getRawDb();
     const stmt = rawDb.prepare(`
       DELETE FROM workspace_write_approvals
-      WHERE operation_id = ?
-        AND workspace_id = ?
-        AND tool_name = ?
-        AND path_hash = ?
-        AND request_hash = ?
-        AND approved = 1
-        AND expires_at > ?
-    `);
+      WHERE operation_id = ?         AND workspace_id = ?         AND tool_name = ?         AND path_hash = ?         AND request_hash = ?         AND approved = 1
+        AND expires_at > ?     `);
     const info = stmt.run(operationId, workspaceId, toolName, pathHash, requestHash, now);
 
     // If exactly 1 row was deleted, it means the approval was valid and has now been consumed.

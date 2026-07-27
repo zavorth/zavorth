@@ -125,7 +125,7 @@ export async function inferText(provider: string, prompt: string, args: string[]
       const key = process.env.GEMINI_API_KEY;
       if (!key) return { ok: false, reason: 'missing-gemini-api-key' };
       const model = readFlag(args, 'model') || process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent...key=${key}`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),

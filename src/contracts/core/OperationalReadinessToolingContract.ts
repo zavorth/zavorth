@@ -1,17 +1,17 @@
 import type { PluginRegistrySnapshot } from '../../services/PluginRegistryService.js';
 import type { ZavorthPluginManifest } from './PluginManifestContract.js';
 
-export const ZAVORTH_OPERATIONAL_READINESS_TOOLING_CONTRACT_VERSION = '2026-05-04.checkpoint-8';
+export const ZAVORTH_OPERATIONAL_READINESS_TOOLING_CONTRACT_VERSION = '2026-05-04.gate-8';
 
 export type OperationalReadinessPhaseId =
-  | 'checkpoint-1-consistency-matrix'
-  | 'checkpoint-2-plugin-os'
-  | 'checkpoint-3-capability-normalization'
-  | 'checkpoint-4-provider-mesh'
-  | 'checkpoint-5-channel-mesh'
-  | 'checkpoint-6-satellite-apps'
-  | 'checkpoint-7-memory-artifacts'
-  | 'checkpoint-8-operational-tooling';
+  | 'gate-1-consistency-matrix'
+  | 'gate-2-plugin-os'
+  | 'gate-3-capability-normalization'
+  | 'gate-4-provider-mesh'
+  | 'gate-5-channel-mesh'
+  | 'gate-6-satellite-apps'
+  | 'gate-7-memory-artifacts'
+  | 'gate-8-operational-tooling';
 
 export type OperationalReadinessStatus = 'passed' | 'attention' | 'blocked';
 
@@ -110,7 +110,7 @@ export type OperationalReadinessSnapshot = {
     staticGate: string;
     focusedTests: string[];
     typecheck: string;
-    nextStage: string;
+    nextAction: string;
   };
   certification: {
     releaseReady: boolean;

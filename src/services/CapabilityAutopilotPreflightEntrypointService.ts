@@ -183,7 +183,7 @@ export class CapabilityAutopilotPreflightEntrypointService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -223,7 +223,7 @@ export class CapabilityAutopilotPreflightEntrypointService {
         gate: 'capability-autopilot-preflight-action-handler',
         title: 'Preflight Action Handler Wiring',
         reason:
-          'Depois do entrypoint canonico, o proximo passo e ligar actions explicitas a handlers/API/surfaces sem executar repair ou fallback automaticamente.',
+          'after the canonical entrypoint, the next step is wiring explicit actions to handlers/API/surfaces without automatically running repair or fallback.',
       },
       metadata: {
         gate: 'capability-autopilot-preflight-entrypoint-alt',
@@ -257,7 +257,7 @@ export class CapabilityAutopilotPreflightEntrypointService {
         'capability-autopilot-preflight:coverage',
         'payloads por surface',
         missingSurfaces.length === 0 ? 'pass' : 'fail',
-        'O entrypoint precisa gerar preflight payload para todas as surfaces esperadas por quem chamou.',
+        'The entrypoint must generate preflight payload for all surfaces expected by the caller.',
         [
           `surfaces=${Array.from(surfaces).join(',') || '<none>'}`,
           `expected=${input.expectedSurfaces.join(',') || '<none>'}`,
@@ -266,13 +266,12 @@ export class CapabilityAutopilotPreflightEntrypointService {
       ),
       this.check(
         'capability-autopilot-preflight:no-auto-run',
-        'sem execucao automatica',
+        'no automatic execution',
         input.hint.shouldRunAutomatically === false &&
           input.payloads.every((payload) => payload.shouldRunAutomatically === false) &&
-          input.payloads.every((payload) => payload.metadata.autoExecute === false)
-          ? 'pass'
+          input.payloads.every((payload) => payload.metadata.autoExecute === false) ? 'pass'
           : 'fail',
-        'Preflight hint e payloads so podem sugerir, nunca executar.',
+        'Preflight hint e payloads so podem sugerir, nunca run.',
         [
           `hintShouldRunAutomatically=${String(input.hint.shouldRunAutomatically)}`,
           ...input.payloads.map((payload) => `${payload.surface}:auto=${String(payload.metadata.autoExecute)}`),
@@ -280,23 +279,21 @@ export class CapabilityAutopilotPreflightEntrypointService {
       ),
       this.check(
         'capability-autopilot-preflight:explicit-actions',
-        'acoes explicitas',
-        input.payloads.every((payload) => payload.actions.every((action) => action.requiresExplicitUserAction))
-          ? 'pass'
+        'actions explicits',
+        input.payloads.every((payload) => payload.actions.every((action) => action.requiresExplicitUserAction)) ? 'pass'
           : 'fail',
-        'Toda action de preflight precisa de acao explicita do usuario.',
+        'Every preflight action needs explicit user action.',
         input.payloads.map((payload) => `${payload.surface}:actions=${payload.actions.length}`),
       ),
       this.check(
         'capability-autopilot-preflight:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !this.containsProbe(serialized, input.rawIntentText) &&
           !this.containsProbe(serialized, input.workspace) &&
           !serialized.includes('rawText') &&
-          !serialized.includes('normalizedText')
-          ? 'pass'
+          !serialized.includes('normalizedText') ? 'pass'
           : 'fail',
-        'Snapshot publico do preflight nao pode vazar intent/workspace crus.',
+        'Public preflight snapshot cannot leak raw intent/workspace.',
         [
           `containsIntentProbe=${String(this.containsProbe(serialized, input.rawIntentText))}`,
           `containsWorkspaceProbe=${String(this.containsProbe(serialized, input.workspace))}`,
@@ -305,15 +302,14 @@ export class CapabilityAutopilotPreflightEntrypointService {
       ),
       this.check(
         'capability-autopilot-preflight:memory-privacy',
-        'memoria redigida',
+        'redacted memory',
         input.records.every((record) =>
           record.privacy.redacted &&
           !record.privacy.rawIntentStored &&
           !record.privacy.rawWorkspaceStored
-        )
-          ? 'pass'
+        ) ? 'pass'
           : 'fail',
-        'Records usados no preflight precisam permanecer redigidos.',
+        'Records used in preflight must remain redacted.',
         input.records.map((record) =>
           `${record.memoryId}:redacted=${record.privacy.redacted}:rawIntent=${record.privacy.rawIntentStored}:rawWorkspace=${record.privacy.rawWorkspaceStored}`,
         ),
@@ -322,7 +318,7 @@ export class CapabilityAutopilotPreflightEntrypointService {
         'capability-autopilot-preflight:compact-surfaces',
         'copy compacto',
         compactPayloads.every((payload) => payload.body.length <= 420) ? 'pass' : 'fail',
-        'Telegram/mobile precisam receber corpo curto.',
+        'Telegram/mobile must receive a short body.',
         compactPayloads.length > 0
           ? compactPayloads.map((payload) => `${payload.surface}:body=${payload.body.length}`)
           : ['compactSurfaces=<none>'],

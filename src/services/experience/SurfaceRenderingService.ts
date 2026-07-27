@@ -112,9 +112,9 @@ function sectionsFor(
 
 function navigationFor(surface: ExperienceSurface, selection?: ExperienceProfileSelection | null): ExperienceSurfaceRendering['navigation'] {
   const base = [
-    { id: 'chat', label: 'Chat', target: isZavorthControlSurface(surface) ? '/control?tab=inbox' : 'zavorth chat' },
-    { id: 'approvals', label: 'Approvals', target: isZavorthControlSurface(surface) ? '/control?tab=approvals' : 'zavorth approve' },
-    { id: 'receipts', label: 'Receipts', target: isZavorthControlSurface(surface) ? '/control?tab=receipts' : 'zavorth receipts' },
+    { id: 'chat', label: 'Chat', target: isZavorthControlSurface(surface) ? '/control...tab=inbox' : 'zavorth chat' },
+    { id: 'approvals', label: 'Approvals', target: isZavorthControlSurface(surface) ? '/control...tab=approvals' : 'zavorth approve' },
+    { id: 'receipts', label: 'Receipts', target: isZavorthControlSurface(surface) ? '/control...tab=receipts' : 'zavorth receipts' },
     { id: 'profile', label: 'Profile', target: selection?.activeProfileId ? `zavorth profile use ${selection.activeProfileId}` : 'zavorth profile' },
   ];
   return base.map((item) => ({
@@ -139,7 +139,7 @@ function actionsFor(surface: ExperienceSurface, profileId: string | null, pendin
     label: 'Ask Zavorth',
     kind: 'natural',
     command: isZavorthControlSurface(surface) ? null : 'zavorth chat',
-    route: isZavorthControlSurface(surface) ? '/control?tab=inbox' : null,
+    route: isZavorthControlSurface(surface) ? '/control...tab=inbox' : null,
     risk: 'safe',
     requiresApproval: false,
     reason: 'Primary conversation entry point for this surface.',
@@ -150,7 +150,7 @@ function actionsFor(surface: ExperienceSurface, profileId: string | null, pendin
       label: 'Review approvals',
       kind: 'approval',
       command: 'zavorth approve',
-      route: isZavorthControlSurface(surface) ? '/control?tab=approvals' : null,
+      route: isZavorthControlSurface(surface) ? '/control...tab=approvals' : null,
       risk: 'attention',
       requiresApproval: false,
       reason: 'Shows risk, scope and receipts before a decision.',
@@ -180,8 +180,7 @@ function headlineFor(surface: ExperienceSurface, profileLabel: string): string {
 
 function subheadFor(surface: ExperienceSurface, health: ExperienceHealthStatus, pendingApprovals: number): string {
   if (pendingApprovals > 0) return `${pendingApprovals} approval(s) need a decision.`;
-  if (health === 'ready') return isZavorthControlSurface(surface)
-    ? 'Chat, timeline and evidence stay separated into focused tabs.'
+  if (health === 'ready') return isZavorthControlSurface(surface) ? 'Chat, timeline and evidence stay separated into focused tabs.'
     : 'Ready for a natural request.';
   return 'Zavorth will explain what is missing and offer the next safe repair.';
 }

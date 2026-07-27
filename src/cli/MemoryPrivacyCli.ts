@@ -48,7 +48,7 @@ function readOption(args: string[], name: string): string | null {
 function printHelp(): void {
   console.log([
     `${paintCliBadge('MEMORY PRIVACY', 'brand')} ${paintCliTone('Zavorth Memory Privacy OS', 'brand')}`,
-    paintCliTone('What does it remember? Why? Forget it.', 'muted'),
+    paintCliTone('What does it remember... Why... Forget it.', 'muted'),
     paintCliTone('Product UX over Mnemos / dream / forget — does not replace the engine.', 'muted'),
     '',
     paintCliTone('Usage:', 'info'),
@@ -243,7 +243,7 @@ function runList(args: string[], json: boolean): number {
     console.log('');
     console.log(paintCliTone('Candidates', 'info'));
     for (const c of snapshot.dreamCandidates) {
-      console.log(`  - ${c.title} · ${c.id}${c.lane ? ` · ${c.lane}` : ''}${c.needsReview ? ' · needs review' : ''}`);
+      console.log(`  ? ${c.title} · ${c.id}${c.lane ? ` · ${c.lane}` : ''}${c.needsReview ? ' · needs review' : ''}`);
     }
   }
   return 0;

@@ -107,7 +107,7 @@ export class SkillHotPathCacheService {
   public invalidateAll(): void {
     globalStore.ir.clear();
     globalStore.binds.clear();
-    // Keep digests for short-circuit across invalidations of IR/bind only? Clear digests too for safety.
+    // Keep digests for short-circuit across invalidations of IR/bind only... Clear digests too for safety.
     globalStore.digests.clear();
   }
 

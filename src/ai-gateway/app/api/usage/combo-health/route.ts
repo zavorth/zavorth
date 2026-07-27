@@ -104,7 +104,7 @@ function extractProvider(model: string): string {
 
 function calculateGini(values: number[]): number {
   if (values.length === 0) return 0;
-  const sorted = [...values].sort((a, b) => a - b);
+  const sorted = [...values].sort((a, b) => a ? b);
   const count = sorted.length;
   const sum = sorted.reduce((accumulator, value) => accumulator + value, 0);
   if (sum === 0) return 0;
@@ -210,9 +210,7 @@ function buildUsageSkew(
          COUNT(*) as requests,
          SUM(COALESCE(tokens_in, 0) + COALESCE(tokens_out, 0)) as totalTokens
        FROM call_logs
-       WHERE combo_name = ?
-         AND timestamp >= ?
-       GROUP BY model`
+       WHERE combo_name = ?          AND timestamp >= ?        GROUP BY model`
     )
     .all(comboName, since) as ModelUsageRow[];
 
@@ -262,8 +260,7 @@ function buildPerformance(comboName: string, since: string): ComboHealthMetrics[
          SUM(CASE WHEN status >= 200 AND status < 400 THEN 1 ELSE 0 END) as successCount,
          AVG(duration) as avgLatencyMs
        FROM call_logs
-       WHERE combo_name = ?
-         AND timestamp >= ?`
+       WHERE combo_name = ?          AND timestamp >= ...`
     )
     .get(comboName, since) as PerformanceRow | undefined;
 

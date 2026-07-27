@@ -6,7 +6,7 @@ import type {
 } from './ZavorthUniversalSkillExpansionQaContract.js';
 
 export const ZAVORTH_UNIVERSAL_SKILL_REAL_SOURCE_ONBOARDING_CONTRACT_VERSION =
-  '2026-05-10.checkpoint-8' as const;
+  '2026-05-10.gate-8' as const;
 
 export type ZavorthUniversalSkillRealSourceOnboardingStatus =
   ZavorthUniversalSkillExpansionQaStatus;
@@ -107,6 +107,6 @@ export type ZavorthUniversalSkillRealSourceOnboardingSnapshot = {
     run: 'npm run zavorth:universal-skill-real-source-onboarding -- --discover';
     runJson: 'npm run zavorth:universal-skill-real-source-onboarding:json -- --discover';
     check: 'npm run zavorth:universal-skill-real-source-onboarding:check --silent';
-    nextStage: 'Certification matrix - Real Library Scale Hardening and ZavorthControl Review';
+    nextAction: 'Certification matrix - Real Library Scale Hardening and ZavorthControl Review';
   };
 };

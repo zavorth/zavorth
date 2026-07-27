@@ -31,8 +31,8 @@ export class TrustedBoundary {
 
   // Content patterns that indicate a prompt-injection attempt.
   private static INJECTION_PATTERNS = [
-    /ignore\s+(all\s+)?previous\s+instructions/i,
-    /forget\s+(all\s+)?previous/i,
+    /ignore\s+(all\s+)...previous\s+instructions/i,
+    /forget\s+(all\s+)...previous/i,
     /you\s+are\s+now/i,
     /new\s+instructions?:/i,
     /system\s+prompt:/i,

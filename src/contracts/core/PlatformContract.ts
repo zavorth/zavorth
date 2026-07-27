@@ -105,8 +105,8 @@ export type MessageChannel = (typeof MESSAGE_CHANNELS)[number];
 export type TaskSource = (typeof TASK_SOURCES)[number];
 
 export type PlatformReadiness = 'ready' | 'partial' | 'planned' | 'disabled';
-export type PlatformImplementationState = 'full' | 'partial' | 'stub' | 'planned';
-export type PlatformTransport = 'native' | 'webhook' | 'local' | 'stub' | 'bridge' | 'virtual' | 'planned';
+export type PlatformImplementationState = 'full' | 'partial' | 'local' | 'planned';
+export type PlatformTransport = 'native' | 'webhook' | 'local' | 'local' | 'bridge' | 'virtual' | 'planned';
 
 export interface PlatformCapability {
   platform: PlatformKey;

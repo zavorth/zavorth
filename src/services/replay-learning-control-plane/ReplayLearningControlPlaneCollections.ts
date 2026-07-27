@@ -130,8 +130,8 @@ function normalizeReplayLearningArtifact(input: Record<string, any>): ZavorthRep
     path,
     url,
     createdAt: nullableText(input.createdAt),
-    summary: text(input.summary, reusable ? 'Artifact reutilizavel para retomada.' : 'Artifact registrado sem localizacao reutilizavel.'),
+    summary: text(input.summary, reusable ? 'Artifact reutilizavel for resumed.' : 'Artifact registrado without localizaction reutilizavel.'),
     reusable,
-    resumePrompt: `Retome a partir do artefato ${label}. Contexto: ${text(input.summary, 'sem resumo adicional')}.`,
+    resumePrompt: `Resume from artifact ${label}. Context: ${text(input.summary, 'without additional summary')}.`,
   };
 }

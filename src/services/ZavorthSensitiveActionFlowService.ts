@@ -195,7 +195,7 @@ export class ZavorthSensitiveActionFlowService {
     if (/\b(edit|change|alter|write|create|update|patch|modify|salv|crie|edite|altere)\b/i.test(request)) kinds.add('write');
     if (/\b(delete|remove|erase|rm\b|apague|delet|exclu)\b/i.test(request)) kinds.add('delete');
     if (/\b(move|rename|mv\b|mova|renome)\b/i.test(request)) kinds.add('move');
-    if (/\b(run|execute|command|shell|powershell|cmd|npm|git|rode|execute)\b/i.test(request)) kinds.add('command');
+    if (/\b(run|execute|command|shell|powershell|cmd|npm|git|run|execute)\b/i.test(request)) kinds.add('command');
     if (/\b(fetch|download|upload|http|https|web|url|network|rede|site)\b/i.test(request)) kinds.add('network');
     if (/\b(send|message|telegram|discord|whatsapp|email|post|envie|mande)\b/i.test(request)) kinds.add('message');
     if (kinds.size === 0) kinds.add('read');
@@ -210,8 +210,7 @@ export class ZavorthSensitiveActionFlowService {
     return {
       id: stableId('preview', request),
       title: 'Sensitive action preview',
-      summary: actionKinds.includes('read')
-        ? 'Zavorth can handle this as read-only work.'
+      summary: actionKinds.includes('read') ? 'Zavorth can handle this as read-only work.'
         : 'Zavorth prepared a safe preview before any live action.',
       requestedAction: normalized.slice(0, 240),
       actionKinds,
@@ -276,19 +275,18 @@ export class ZavorthSensitiveActionFlowService {
   }): ZavorthSensitiveActionApproval {
     const required = input.policy.requiresUserConfirmation || input.risk !== 'low';
     const id = required ? stableId('approval', `${input.preview.id}:${input.risk}`) : null;
-    const status = !required
-      ? 'not_required'
+    const status = !required ? 'not_required'
       : input.decision === 'approve'
         ? 'approved'
         : input.decision === 'deny'
           ? 'denied'
           : 'pending';
     const prompt = input.preview.filesChanged > 0
-      ? `Zavorth wants to change ${input.preview.filesChanged} file(s). Allow once?`
+      ? `Zavorth wants to change ${input.preview.filesChanged} file(s). Allow once...`
       : input.preview.commands > 0
-        ? 'Zavorth wants to run a command. Allow once?'
+        ? 'Zavorth wants to run a command. Allow once...'
         : input.preview.networkCalls > 0 || input.preview.messages > 0
-          ? 'Zavorth wants to use an external surface. Allow once?'
+          ? 'Zavorth wants to use an external surface. Allow once...'
           : 'Zavorth can continue in read-only mode.';
 
     return {
@@ -297,8 +295,7 @@ export class ZavorthSensitiveActionFlowService {
       status,
       prompt,
       options: required ? ['allow_once', 'deny', 'view_preview', 'view_rollback'] : ['view_preview'],
-      simpleText: required
-        ? `${prompt} Current decision: ${status}.`
+      simpleText: required ? `${prompt} Current decision: ${status}.`
         : 'No approval required for read-only work.',
       advancedText: `Policy action=${input.policy.action}; risk=${input.risk}; approvalId=${id || 'none'}.`,
     };
@@ -382,8 +379,7 @@ export class ZavorthSensitiveActionFlowService {
       available,
       requiredBeforeApply: input.preview.filesChanged > 0,
       artifactId,
-      summary: available
-        ? 'Rollback metadata is required before applying this file mutation.'
+      summary: available ? 'Rollback metadata is required before applying this file mutation.'
         : input.preview.filesChanged > 0
           ? 'Rollback is blocked because sensitive data was detected in the request.'
           : 'Rollback is not required for read-only or non-file actions.',

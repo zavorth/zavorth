@@ -171,7 +171,7 @@ export class CodexRemoteSessionBrokerService {
   }): Promise<CodexRemoteBrokerSessionDetail> {
     const current = this.sessions.getSession(String(input.sessionId || '').trim());
     if (!current) {
-      throw new Error(`Sessao Codex Remote nao encontrada: ${input.sessionId}.`);
+      throw new Error(`Codex Remote session not found: ${input.sessionId}.`);
     }
     const nextPrompt = String(input.prompt || '').trim();
     if (nextPrompt) {
@@ -180,7 +180,7 @@ export class CodexRemoteSessionBrokerService {
       });
       this.sessions.appendEvent(current.sessionId, {
         type: 'note',
-        message: 'Prompt atualizado antes da retomada.',
+        message: 'Prompt atualizado before da resumed.',
       });
     }
     await this.sidecar.startSession({
@@ -203,10 +203,10 @@ export class CodexRemoteSessionBrokerService {
   }): GatewaySessionSpawnSnapshot {
     const current = this.sessions.getSession(String(input.sessionId || '').trim());
     if (!current) {
-      throw new Error(`Sessao Codex Remote nao encontrada: ${input.sessionId}.`);
+      throw new Error(`Codex Remote session not found: ${input.sessionId}.`);
     }
     if (!this.gatewaySessions.canSpawn('web')) {
-      throw new Error('O runtime atual nao pode abrir sessoes web para o Codex Remote.');
+      throw new Error('The current runtime cannot open web sessions for Codex Remote.');
     }
     const spawnedSession = this.gatewaySessions.createSession({
       userId: String(input.runtimeUserId || '').trim() || 'web',
@@ -218,7 +218,7 @@ export class CodexRemoteSessionBrokerService {
     });
     this.sessions.appendEvent(current.sessionId, {
       type: 'attached',
-      message: `Handoff web preparado em ${spawnedSession.sessionId}.`,
+      message: `Handoff web prepared em ${spawnedSession.sessionId}.`,
     });
     return spawnedSession;
   }
@@ -229,7 +229,7 @@ export class CodexRemoteSessionBrokerService {
   }): GatewaySessionSpawnSnapshot {
     const current = this.sessions.getSession(String(input.sessionId || '').trim());
     if (!current) {
-      throw new Error(`Sessao Codex Remote nao encontrada: ${input.sessionId}.`);
+      throw new Error(`Codex Remote session not found: ${input.sessionId}.`);
     }
     const spawnedSession = input.spawnedSession;
     this.sessions.updateSession(current.sessionId, {
@@ -238,7 +238,7 @@ export class CodexRemoteSessionBrokerService {
     });
     this.sessions.appendEvent(current.sessionId, {
       type: 'attached',
-      message: `Handoff web preparado em ${spawnedSession.sessionId}.`,
+      message: `Handoff web prepared em ${spawnedSession.sessionId}.`,
     });
     return spawnedSession;
   }
@@ -248,17 +248,17 @@ export class CodexRemoteSessionBrokerService {
     tail: CodexRemoteSessionTailSnapshot,
   ): string {
     const profile = this.profiles.resolveExecutionProfile(record.profileId);
-    const lastSignal = tail.lastOutput || tail.lastError || tail.logLines.slice(-1)[0] || 'Sem saida recente.';
+    const lastSignal = tail.lastOutput || tail.lastError || tail.logLines.slice(-1)[0] || 'No recent output.';
     const presence = this.buildPresence(record);
     const guardrails = this.buildGuardrails(record);
     return [
       `${record.title} (${record.sessionId})`,
-      `Status: ${record.status} via perfil ${profile.label}.`,
+      `Status: ${record.status} via profile ${profile.label}.`,
       `Workspace: ${record.workspaceRoot}.`,
       presence.runtimeSeconds !== null ? `Runtime: ${presence.runtimeSeconds}s.` : 'Runtime: n/d.',
       `Heartbeat: ${presence.state}.`,
       guardrails.summary ? `Guardrail: ${guardrails.summary}` : 'Guardrail: n/d.',
-      `Ultimo sinal: ${lastSignal}`,
+      `Latest sinal: ${lastSignal}`,
     ].join(' ');
   }
 
@@ -329,8 +329,8 @@ export class CodexRemoteSessionBrokerService {
       pendingApprovals,
       approvalBridge: 'visible-when-present',
       note: pendingApprovals > 0
-        ? 'Existem pedidos de aprovacao pendentes e eles devem aparecer ao operador nesta mesma surface.'
-        : 'Sem aprovacoes ocultas: qualquer pedido sensivel deve aparecer ao operador na mesma surface.',
+        ? 'There are pending approval requests and they must appear to the operator on this same surface.'
+        : 'no hidden approvals: any sensitive request must appear to the operator on the same surface.',
     };
   }
 
@@ -404,28 +404,23 @@ export class CodexRemoteSessionBrokerService {
     presence: CodexRemoteBrokerSessionDetail['presence'],
   ): string {
     if (state === 'inactive') {
-      return timeoutSeconds
-        ? `Guardrail inactive; limite de ${timeoutSeconds}s.`
-        : 'Guardrail inativo; sem timeout configurado.';
+      return timeoutSeconds ? `Guardrail inactive; limite de ${timeoutSeconds}s.`
+        : 'Guardrail inactive; without timeout configured.';
     }
     if (state === 'stale') {
       const ageSeconds = presence.heartbeatAgeMs !== null ? Math.round(presence.heartbeatAgeMs / 1000) : null;
-      return ageSeconds !== null
-        ? `Heartbeat stale ha ${ageSeconds}s.`
+      return ageSeconds !== null ? `Heartbeat stale ha ${ageSeconds}s.`
         : 'Heartbeat stale.';
     }
     if (state === 'timed-out') {
-      return timeoutSeconds
-        ? `Tempo esgotado apos ${timeoutSeconds}s.`
+      return timeoutSeconds ? `Tempo esgotado after ${timeoutSeconds}s.`
         : 'Tempo esgotado.';
     }
     if (state === 'near-timeout') {
-      return timeoutSeconds !== null && remainingSeconds !== null
-        ? `Guardrail perto do limite; faltam ${remainingSeconds}s de ${timeoutSeconds}s.`
+      return timeoutSeconds !== null && remainingSeconds !== null ? `Guardrail perto do limite; missing ${remainingSeconds}s de ${timeoutSeconds}s.`
         : 'Guardrail perto do limite.';
     }
-    return timeoutSeconds !== null && remainingSeconds !== null
-      ? `Guardrail saudavel; faltam ${remainingSeconds}s de ${timeoutSeconds}s.`
-      : 'Guardrail saudavel; sem timeout configurado.';
+    return timeoutSeconds !== null && remainingSeconds !== null ? `Guardrail healthy; ${remainingSeconds}s remaining out of ${timeoutSeconds}s.`
+      : 'Guardrail healthy; no timeout configured.';
   }
 }

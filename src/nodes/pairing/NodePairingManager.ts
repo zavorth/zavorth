@@ -3,7 +3,8 @@ import * as os from 'os';
 import * as path from 'path';
 import { resolveZavorthLocalStateDir } from '../../config/localStatePaths.js';
 import { safeFetch } from '../../security/SafeFetchService.js';
-import { DeviceCapabilityPolicy } from '../policy/DeviceCapabilityPolicy.js';export interface NodeCredentials {
+import { DeviceCapabilityPolicy } from '../policy/DeviceCapabilityPolicy.js';
+export interface NodeCredentials {
   nodeId: string;
   sharedSecret: string;
   pairedAt: string;
@@ -216,7 +217,7 @@ export class NodePairingManager {
     const claim = payload?.claim || payload;
     const sharedSecret = String(claim?.sharedSecret || '').trim();
     if (!sharedSecret) {
-      throw new Error('O claim do Node Mesh nao retornou sharedSecret.');
+      throw new Error('The Node Mesh claim did not return a sharedSecret.');
     }
 
     const credentials: NodeCredentials = {
@@ -241,7 +242,7 @@ export class NodePairingManager {
   private resolvePairingInput(passcode: string): ResolvedPairingInput {
     const raw = String(passcode || '').trim();
     if (!raw) {
-      throw new Error('Informe o passcode de pareamento do Node Mesh.');
+      throw new Error('Please provide the Node Mesh pairing passcode.');
     }
 
     const separators = [':', '|', '#'];
@@ -257,7 +258,7 @@ export class NodePairingManager {
     }
 
     if (!this.configuredNodeId) {
-      throw new Error('O passcode precisa incluir o nodeId no formato nodeId:codigo ou o companion precisa de nodeId configurado.');
+      throw new Error('The passcode must include the nodeId in the format nodeId:code or the companion must have a configured nodeId.');
     }
     return {
       nodeId: this.configuredNodeId,
@@ -278,14 +279,13 @@ export class NodePairingManager {
         capabilityIds: this.capabilityIds,
         approvedCapabilityIds: this.approvedCapabilityIds,
         hostHints: this.buildHostHints(),
-        operatorSummary: this.label
-          ? `${this.label} concluiu o pareamento inicial e vai iniciar heartbeat recorrente.`
+        operatorSummary: this.label ? `${this.label} completed initial pairing and will start recurring heartbeat.`
           : null,
       }),
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok || payload?.ok === false) {
-      throw new Error(payload?.error || `Falha HTTP ${response.status} ao concluir o claim do Node Mesh.`);
+      throw new Error(payload?.error || `HTTP ${response.status} failed to complete the Node Mesh claim.`);
     }
     return payload;
   }

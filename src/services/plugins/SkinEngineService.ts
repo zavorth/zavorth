@@ -406,7 +406,7 @@ export class SkinEngineService {
       `  ${p.prefix} ${p.separator} ${p.thinking_indicator} Thinking...`,
       `  ${p.prefix} ${p.separator} ${p.success_indicator} Operation completed`,
       `  ${p.prefix} ${p.separator} ${p.error_indicator} Error found`,
-      `  ${p.prefix} ${p.suffix} Hello! How can I help?`,
+      `  ${p.prefix} ${p.suffix} Hello! How can I help...`,
       '',
       `  Colors: primary=${c.primary} accent=${c.accent} bg=${c.background}`,
       `  Layout: ${skin.layout.max_width}col compact=${skin.layout.compact_mode}`,

@@ -67,7 +67,7 @@ const SECRET_PATTERNS = [
   /\bAIza[0-9A-Za-z_-]{20}\b/g,
   /\bxox[baprs]-[0-9A-Za-z-]{10}\b/g,
   /\bgh[pousr]_[A-Za-z0-9_]{20}\b/g,
-  /\b(?:api[_ -]?key|token|secret)\s*[:=]\s*[^\s]+/gi,
+  /\b(?:api[_ -]...key|token|secret)\s*[:=]\s*[^\s]+/gi,
 ];
 
 export class ZavorthConversationalSetupService {
@@ -98,10 +98,8 @@ export class ZavorthConversationalSetupService {
     const questions = buildQuestions(answers, this.i18n, uiLanguage);
     const missingRequired = questions.some((question) => question.required && question.status === 'pending');
     const canApply = input.apply === true && input.confirmLocalProfile === true && !secretDetected && !missingRequired;
-    const blockedReason = secretDetected
-      ? 'A raw secret-like value was detected in setup answers. Store credentials as SecretRefs instead.'
-      : input.apply === true && input.confirmLocalProfile !== true
-        ? 'Applying setup requires --confirm-local-profile so local identity files are never changed accidentally.'
+    const blockedReason = secretDetected ? 'A raw secret-like value was detected in setup answers. Store credentials as SecretRefs instead.'
+      : input.apply === true && input.confirmLocalProfile !== true ? 'Applying setup requires --confirm-local-profile so local identity files are never changed accidentally.'
         : null;
     const applyResult = canApply
       ? this.personalization.applyAnswers(
@@ -213,7 +211,7 @@ export class ZavorthConversationalSetupService {
         'The official product UI, docs and contracts are English-first.',
         'The preferred conversation language is free text and may be followed by the LLM without becoming a UI locale.',
         'The setup flow never stores API keys, bot tokens or raw credentials; use SecretRefs instead.',
-        'Preview is the default. Local profile files change only with --apply and --confirm-local-profile.',
+        'Preview is the default. local profile files change only with --apply and --confirm-local-profile.',
         'Experience profile changes defaults and language, not Policy Broker authority.',
       ],
     };
@@ -242,8 +240,7 @@ export class ZavorthConversationalSetupService {
       snapshot.safety.blockedReason ? `blocked=${snapshot.safety.blockedReason}` : 'blocked=none',
       '',
       '[apply]',
-      snapshot.writePlan.previewOnly
-        ? 'preview-only; add --apply --confirm-local-profile after reviewing.'
+      snapshot.writePlan.previewOnly ? 'preview-only; add --apply --confirm-local-profile after reviewing.'
         : `applied; files=${snapshot.applyResult?.writtenFiles.length || 0}`,
     ];
 
@@ -397,12 +394,12 @@ export class ZavorthConversationalSetupService {
 Analyze the conversation history and extract the following parameters as JSON. Return ONLY a valid JSON object. If a parameter is not mentioned, return null.
 
 Fields:
-- agentName: name for the agent (e.g. Zavorth, Vritra)
-- userName: name of the user
-- language: primary language for communication (e.g. Portuguese, English)
-- experienceProfile: must be one of: 'personal', 'creator', 'developer', 'business', 'power'
-- detailLevel: must be 'simple' or 'advanced'
-- primaryUse: what the user wants to do with the agent
+? agentName: name for the agent (e.g. Zavorth, Vritra)
+? userName: name of the user
+? language: primary language for communication (e.g. Portuguese, English)
+? experienceProfile: must be one of: 'personal', 'creator', 'developer', 'business', 'power'
+? detailLevel: must be 'simple' or 'advanced'
+? primaryUse: what the user wants to do with the agent
 
 Example response format:
 {
@@ -485,7 +482,7 @@ Speak in the user's preferred language if known (default to Portuguese if histor
       const reply = await this.tryGenerateReply(llmService, questionPrompt, 'next question');
 
       return {
-        reply: reply || nextQuestion?.prompt || 'What should I call you?',
+        reply: reply || nextQuestion?.prompt || 'What should I call you...',
         finished: false,
         status: 'collecting',
       };
@@ -545,7 +542,7 @@ function buildQuestions(
         label: i18n.t('onboarding.conversation.questions.agent_name.label', { locale, fallback: 'Agent name' }),
         prompt: i18n.t('onboarding.conversation.questions.agent_name.prompt', {
           locale,
-          fallback: 'What should this agent be called?',
+          fallback: 'What should this agent be called...',
         }),
         kind: 'text',
         required: true,
@@ -557,7 +554,7 @@ function buildQuestions(
         label: i18n.t('onboarding.conversation.questions.user_name.label', { locale, fallback: 'Your name' }),
         prompt: i18n.t('onboarding.conversation.questions.user_name.prompt', {
           locale,
-          fallback: 'What should Zavorth call you?',
+          fallback: 'What should Zavorth call you...',
         }),
         kind: 'text',
         required: true,
@@ -572,7 +569,7 @@ function buildQuestions(
         }),
         prompt: i18n.t('onboarding.conversation.questions.preferred_language.prompt', {
           locale,
-          fallback: 'Which language should Zavorth use when speaking with you?',
+          fallback: 'Which language should Zavorth use when speaking with you...',
         }),
         kind: 'text',
         required: true,
@@ -587,7 +584,7 @@ function buildQuestions(
         }),
         prompt: i18n.t('onboarding.conversation.questions.experience_profile.prompt', {
           locale,
-          fallback: 'Will you use Zavorth for daily life, creation, code, business or advanced operation?',
+          fallback: 'Will you use Zavorth for daily life, creation, code, business or advanced operation...',
         }),
         kind: 'choice',
         required: true,
@@ -600,7 +597,7 @@ function buildQuestions(
         label: i18n.t('onboarding.conversation.questions.detail_level.label', { locale, fallback: 'Detail level' }),
         prompt: i18n.t('onboarding.conversation.questions.detail_level.prompt', {
           locale,
-          fallback: 'Do you prefer simple or advanced detail?',
+          fallback: 'Do you prefer simple or advanced detail...',
         }),
         kind: 'choice',
         required: true,
@@ -611,7 +608,7 @@ function buildQuestions(
       {
         id: 'primary-use',
         label: 'Primary use',
-        prompt: 'What do you most want to do with Zavorth?',
+        prompt: 'What do you most want to do with Zavorth...',
         kind: 'text',
         required: false,
         visible: true,
@@ -620,7 +617,7 @@ function buildQuestions(
       {
         id: 'approval-channel',
         label: 'Approvals',
-        prompt: 'Where should sensitive approvals appear?',
+        prompt: 'Where should sensitive approvals appear...',
         kind: 'choice',
         required: false,
         visible: isGoverned,
@@ -631,7 +628,7 @@ function buildQuestions(
       {
         id: 'first-safe-mission',
         label: 'First mission',
-        prompt: 'Which safe first mission should Zavorth suggest?',
+        prompt: 'Which safe first mission should Zavorth suggest...',
         kind: 'text',
         required: false,
         visible: isTechnical,
@@ -641,7 +638,7 @@ function buildQuestions(
       {
         id: 'domain',
         label: 'Domain expertise',
-        prompt: 'What is your primary domain of expertise?',
+        prompt: 'What is your primary domain of expertise...',
         kind: 'text',
         required: false,
         visible: isTechnical,
@@ -651,7 +648,7 @@ function buildQuestions(
       {
         id: 'learning-style',
         label: 'Learning style',
-        prompt: 'How do you prefer to learn new things?',
+        prompt: 'How do you prefer to learn new things...',
         kind: 'choice',
         required: false,
         visible: isTechnical,
@@ -662,7 +659,7 @@ function buildQuestions(
       {
         id: 'timezone',
         label: 'Timezone',
-        prompt: 'What is your timezone?',
+        prompt: 'What is your timezone...',
         kind: 'text',
         required: false,
         visible: true,
@@ -671,7 +668,7 @@ function buildQuestions(
       {
         id: 'weekend-policy',
         label: 'Weekend behavior',
-        prompt: 'Should I behave differently on weekends?',
+        prompt: 'Should I behave differently on weekends...',
         kind: 'choice',
         required: false,
         visible: true,
@@ -704,8 +701,7 @@ function buildPreview(
     agentIntroduction: `I am ${agent}, your governed agent runtime.`,
     userSummary: `I will call you ${user}, speak with you in ${answers.preferredLanguage || 'English'} when possible, and adapt the experience for the ${answers.experienceProfileId} profile.`,
     operatingStyle: `${answers.detailLevel} detail; ${explanation} explanations; sensitive actions still require approval and receipts.`,
-    firstMission: answers.firstSafeMission
-      ? `Suggested first mission: ${answers.firstSafeMission}.`
+    firstMission: answers.firstSafeMission ? `Suggested first mission: ${answers.firstSafeMission}.`
       : 'Suggested first mission: a safe read-only review to validate the environment.',
   };
 }

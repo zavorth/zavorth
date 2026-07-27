@@ -6,8 +6,8 @@ welcome:
 
 security:
   short: "Zavorth routes natural language into models, channels and local tools. Sensitive actions require your approval."
-  confirm_first_run: "Welcome! Ready to set up Zavorth?"
-  confirm_reconfigure: "Reconfigure your existing Zavorth installation?"
+  confirm_first_run: "Welcome! Ready to set up Zavorth..."
+  confirm_reconfigure: "Reconfigure your existing Zavorth installation..."
 
 existing_config:
   title: "Existing config detected"
@@ -21,12 +21,12 @@ config_issues:
   no_api_keys: "No API keys found in .env"
   env_not_found: ".env file not found — provider will need to be configured"
   env_unreadable: ".env file exists but cannot be read"
-  run_doctor: "Run zavorth doctor to fix issues first?"
+  run_doctor: "Run zavorth doctor to fix issues first..."
   doctor_hint: "Run \"zavorth doctor\" in another terminal, then come back."
 
 mode:
-  prompt_first_run: "How would you like to set up?"
-  prompt_reconfigure: "How would you like to reconfigure?"
+  prompt_first_run: "How would you like to set up..."
+  prompt_reconfigure: "How would you like to reconfigure..."
   complete: "Complete Setup"
   complete_hint: "all steps — provider, channels, skills, memory"
   quickstart: "QuickStart"
@@ -37,27 +37,27 @@ mode:
   blank_hint: "minimal — opt in to every capability"
 
 home:
-  prompt: "Where should Zavorth store this instance home?"
+  prompt: "Where should Zavorth store this instance home..."
   keep_current: "Keep current ZAVORTH_HOME"
   use_isolated: "Use isolated home beside this project"
   choose_custom: "Choose a custom home path"
   path_prompt: "ZAVORTH_HOME path"
 
 config_handling:
-  prompt: "How should setup handle existing config?"
+  prompt: "How should setup handle existing config..."
   keep: "Keep current values"
   review: "Review and update"
   reset: "Reset before setup"
 
 skill_governance:
-  prompt: "How should Zavorth handle imported skills?"
+  prompt: "How should Zavorth handle imported skills..."
   casual: "Casual"
   casual_hint: "recommended for personal use; fast imports, hard blockers remain"
   governed: "Governed"
   governed_hint: "stricter enterprise review for risk, license and audit"
 
 wake_detector:
-  prompt: "Enable Echo wake word setup?"
+  prompt: "Enable Echo wake word setup..."
   default_local: "Default local detector"
   custom_command: "Custom detector command"
   disabled: "Keep off"
@@ -65,7 +65,7 @@ wake_detector:
   args_prompt: "Wake detector args"
 
 migration:
-  prompt: "Migrate settings from another AI agent?"
+  prompt: "Migrate settings from another AI agent..."
   path_prompt: "Path to the agent workspace folder:"
   complete: "Migration complete. Review imported settings."
   skipped: "Migration skipped or failed. You can run it later: zavorth migrate"
@@ -74,7 +74,7 @@ provider:
   auto_detected: "Found API key for {provider}."
   auto_selected: "Using {provider} with model {model}."
   none_found: "No LLM provider API key found in environment variables."
-  select_prompt: "Which provider would you like to use?"
+  select_prompt: "Which provider would you like to use..."
   all_providers: "All native provider routes"
   api_key_prompt: "Paste your {provider} API key (leave empty to skip):"
   testing: "Testing API key..."
@@ -96,7 +96,7 @@ channels:
 
 search:
   title: "Web search"
-  prompt: "Which search provider?"
+  prompt: "Which search provider..."
   local: "Local (no API key needed)"
   brave: "Brave Search"
   google: "Google Search"
@@ -104,16 +104,16 @@ search:
 
 hooks:
   title: "Automation"
-  prompt: "Prepare automation templates?"
+  prompt: "Prepare automation templates..."
   hint: "disabled until you review and enable them"
 
 memory:
   title: "Memory"
-  prompt: "Memory mode?"
+  prompt: "Memory mode..."
   local_metadata: "Local metadata (preferences, approvals and usage signals)"
   local_summary: "Local summaries (short project/context summaries)"
   off: "Off (do not use memory during setup)"
-  vault_scope: "Memory scan scope?"
+  vault_scope: "Memory scan scope..."
   skip: "Skip for now"
   documents: "Documents"
   downloads: "Downloads"
@@ -130,7 +130,7 @@ gateway:
 
 hatch:
   title: "Start the agent"
-  prompt: "How do you want to start your agent after setup?"
+  prompt: "How do you want to start your agent after setup..."
   terminal: "Hatch in Terminal"
   browser: "Hatch in ZavorthControl"
   later: "Hatch later"

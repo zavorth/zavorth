@@ -250,8 +250,7 @@ export class SalesPackMvpService {
     const actions = this.buildActions(conversations, leads);
     const posture = this.pendingApprovals > 0
       ? 'critical'
-      : this.mode === 'cloud-api' && !this.channelAccount.configured
-        ? 'attention'
+      : this.mode === 'cloud-api' && !this.channelAccount.configured ? 'attention'
         : conversations.length > 0
           ? 'healthy'
           : 'attention';
@@ -270,9 +269,9 @@ export class SalesPackMvpService {
       narrative: {
         headline: 'Sales OS Pack',
         operatorSummary:
-          `${conversations.length} conversa(s), ${leads.length} lead(s), `
-          + `${this.pendingApprovals} approval(s) pendente(s) e modo ${this.mode}.`,
-        nextAction: actions[0]?.label || 'Rodar uma conversa demo para validar inbox, CRM e policy.',
+          `${conversations.length} conversation(s), ${leads.length} lead(s), `
+          + `${this.pendingApprovals} pending approval(s) in ${this.mode} mode.`,
+        nextAction: actions[0]?.label || 'Run a demo conversation to validate inbox, CRM, and policy.',
       },
       actions,
       sourceSnapshots: {
@@ -289,7 +288,7 @@ export class SalesPackMvpService {
     return this.processInboundMessage({
       tenantId: 'demo-org',
       customerId: 'lead-demo-ana',
-      text: 'Achei caro, mas ainda tenho interesse. Ainda tem vaga?',
+      text: 'It felt expensive, but I am still interested. Is there still availability...',
       surface: 'demo',
     });
   }
@@ -324,8 +323,7 @@ export class SalesPackMvpService {
       intent: input.intent,
       objection,
       leadScore,
-      phase: handoffRequired
-        ? 'handoff'
+      phase: handoffRequired ? 'handoff'
         : input.intent === 'order_status'
           ? 'support'
           : leadScore >= 80
@@ -341,22 +339,22 @@ export class SalesPackMvpService {
   }
 
   private buildReply(intent: SalesIntent, signal: CommercialSignal, memoryLines: string[]): string {
-    const memoryHint = memoryLines[0] ? ` Contexto considerado: ${memoryLines[0]}` : '';
+    const memoryHint = memoryLines[0] ? ` Context considered: ${memoryLines[0]}` : '';
     switch (intent) {
       case 'price_objection':
-        return `Entendi a preocupacao com o valor. Posso te mostrar a opcao mais acessivel e comparar com o que voce ganha em cada plano.${memoryHint}`;
+        return `I understand your concern about the pricing. I can show you the most affordable option and compare what you get in each plan.${memoryHint}`;
       case 'order_status':
-        return 'Consigo te ajudar com o status do pedido. Vou precisar localizar o cadastro ou o codigo de rastreio antes de afirmar qualquer prazo.';
+        return 'I can help you with the order status. I will need to locate the registration or tracking number before confirming any deadlines.';
       case 'cancellation':
-        return 'Entendi. Vou chamar uma pessoa do time para cuidar disso com seguranca e evitar qualquer promessa errada.';
+        return 'I understand. I will have a team member handle this securely to avoid any incorrect promises.';
       case 'availability':
-        return 'Sim, ainda posso verificar disponibilidade para voce. Pelo seu interesse, a melhor proxima acao e confirmar perfil e prazo.';
+        return 'Yes, I can still check availability for you. Given your interest, the best next step is to confirm your profile and timeline.';
       case 'payment':
-        return 'Posso orientar o pagamento, mas envio de link ou cobranca passa pelas regras de seguranca configuradas.';
+        return 'I can guide you on the payment, but sending links or charges goes through configured security rules.';
       case 'greeting':
-        return 'Oi. Me diga o que voce procura que eu te ajudo a encontrar o melhor caminho.';
+        return 'Hi. Tell me what you are looking for and I will help you find the best path.';
       default:
-        return 'Recebi sua mensagem. Vou organizar o contexto e indicar a melhor proxima acao.';
+        return 'I received your message. I will organize the context and indicate the best next action.';
     }
   }
 
@@ -493,36 +491,36 @@ export class SalesPackMvpService {
     if (this.pendingApprovals > 0) {
       actions.push({
         id: 'sales-pack:review-approvals',
-        label: 'Revisar approvals do Sales Pack',
+        label: 'Review Sales Pack approvals',
         severity: 'critical',
-        reason: `${this.pendingApprovals} acao(oes) comerciais aguardam decisao humana.`,
+        reason: `${this.pendingApprovals} commercial action(s) await human decision.`,
         command: '/sales approvals',
       });
     }
     if (this.mode !== 'cloud-api') {
       actions.push({
         id: 'sales-pack:configure-whatsapp',
-        label: 'Configurar WhatsApp Cloud API',
+        label: 'Configure WhatsApp Cloud API',
         severity: 'warn',
-        reason: 'Modo demo/stub esta pronto para teste, mas producao exige Cloud API oficial.',
+        reason: 'Demo/local mode is ready for testing, but production requires the official Cloud API.',
         command: '/channels whatsapp',
       });
     }
     if (conversations.length === 0) {
       actions.push({
         id: 'sales-pack:seed-demo',
-        label: 'Rodar conversa demo',
+        label: 'Run demo conversation',
         severity: 'info',
-        reason: 'Nenhuma conversa foi processada ainda.',
+        reason: 'No conversations have been processed yet.',
         command: '/sales demo',
       });
     }
     if (leads.some((lead) => lead.handoffRequired)) {
       actions.push({
         id: 'sales-pack:handoff',
-        label: 'Atender handoffs humanos',
+        label: 'Handle human handoffs',
         severity: 'warn',
-        reason: 'Ha lead(s) que a IA marcou como exigindo humano.',
+        reason: 'There are leads that the AI flagged as requiring a human.',
         command: '/sales handoff',
       });
     }
@@ -536,15 +534,15 @@ export class SalesPackMvpService {
     this.memory.remember({
       scope: 'knowledge',
       ownerId: 'sales-pack',
-      key: 'politica_desconto',
-      value: 'Desconto maximo padrao e 15%; acima disso exige decisao humana.',
+      key: 'discount_policy',
+      value: 'Maximum default discount is 15%; above that requires human decision.',
       sensitive: false,
     });
     this.memory.remember({
       scope: 'procedural',
       ownerId: 'sales-pack',
       key: 'handoff',
-      value: 'Cancelamento, promessa sensivel ou alteracao de pedido deve ir para humano.',
+      value: 'Cancellation, sensitive promise, or order modification should go to a human.',
       sensitive: false,
     });
   }
@@ -566,25 +564,7 @@ function buildDefaultChannelAccount(mode: SalesPackMode): ChannelAccount {
 }
 
 function classifyIntent(text: string): SalesIntent {
-  const normalized = normalize(text);
-  if (/\b(caro|preco|valor|desconto|barato)\b/.test(normalized)) {
-    return 'price_objection';
-  }
-  if (/\b(pedido|rastreio|entrega|chegou|status)\b/.test(normalized)) {
-    return 'order_status';
-  }
-  if (/\b(cancelar|cancelamento|reembolso|devolver)\b/.test(normalized)) {
-    return 'cancellation';
-  }
-  if (/\b(vaga|disponivel|tem|agenda|horario)\b/.test(normalized)) {
-    return 'availability';
-  }
-  if (/\b(pagar|pagamento|pix|boleto|cartao|checkout)\b/.test(normalized)) {
-    return 'payment';
-  }
-  if (/\b(oi|ola|bom dia|boa tarde|boa noite)\b/.test(normalized)) {
-    return 'greeting';
-  }
+  void text;
   return 'unknown';
 }
 
@@ -595,18 +575,12 @@ function resolveObjection(intent: SalesIntent, text: string): SalesObjection {
   if (intent === 'cancellation') {
     return 'cancellation';
   }
-  if (/\b(confiar|garantia|medo|golpe)\b/.test(normalize(text))) {
-    return 'trust';
-  }
-  if (/\b(depois|amanha|sem tempo)\b/.test(normalize(text))) {
-    return 'timing';
-  }
+  void text;
   return 'none';
 }
 
 function resolveLeadScore(intent: SalesIntent, text: string): number {
-  const normalized = normalize(text);
-  const clickedPaymentLike = /\b(pix|checkout|pagamento|boleto)\b/.test(normalized);
+  void text;
   const score = intent === 'payment'
     ? 88
     : intent === 'availability'
@@ -618,25 +592,25 @@ function resolveLeadScore(intent: SalesIntent, text: string): number {
           : intent === 'cancellation'
             ? 35
             : 50;
-  return Math.max(0, Math.min(100, clickedPaymentLike ? score + 6 : score));
+  return Math.max(0, Math.min(100, score));
 }
 
 function resolveNextAction(intent: SalesIntent): string {
   switch (intent) {
     case 'price_objection':
-      return 'Enviar comparacao de valor, prova social e opcao mais acessivel.';
+      return 'Send value comparison, social proof, and most affordable option.';
     case 'order_status':
-      return 'Consultar pedido antes de prometer prazo.';
+      return 'Look up order before promising a deadline.';
     case 'cancellation':
-      return 'Criar handoff humano imediato.';
+      return 'Create immediate human handoff.';
     case 'availability':
-      return 'Confirmar perfil e disponibilidade.';
+      return 'Confirm profile and availability.';
     case 'payment':
-      return 'Simular envio de link e pedir approval se necessario.';
+      return 'Simulate link sending and request approval if necessary.';
     case 'greeting':
-      return 'Qualificar necessidade principal.';
+      return 'Qualify main need.';
     default:
-      return 'Resumir contexto e pedir uma informacao objetiva.';
+      return 'Summarize context and ask for specific information.';
   }
 }
 
@@ -646,9 +620,9 @@ function explainSignal(intent: SalesIntent, objection: SalesObjection, score: nu
 
 function summarizeConversation(userText: string, replyText: string, signal: CommercialSignal): string {
   return [
-    `Cliente: ${clip(userText, 120)}`,
-    `IA: ${clip(replyText, 160)}`,
-    `Sinal: ${signal.intent}, score ${signal.leadScore}, proxima acao: ${signal.nextAction}`,
+    `Customer: ${clip(userText, 120)}`,
+    `AI: ${clip(replyText, 160)}`,
+    `Signal: ${signal.intent}, score ${signal.leadScore}, next action: ${signal.nextAction}`,
   ].join('\n');
 }
 

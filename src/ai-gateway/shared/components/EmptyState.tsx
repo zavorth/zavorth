@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * EmptyState — FASE-07 UX
+ * EmptyState — UX
  *
  * Reusable empty state component for zavorthControl sections when no data
  * is available. Provides visual feedback and optional action button.

@@ -307,9 +307,9 @@ export class ProductizationEvidenceService {
       },
       surface: {
         cliCommand: `zavorth productization-evidence run ${run.id} --json`,
-        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(run.id)}&sector=config`,
         releaseHint: 'Release readiness e preview-only ate haver release real, installer e rollback verificados.',
-        docsHint: 'Docs devem citar gates, receipts e o contrato C9 antes de anunciar produto como stable.',
+        docsHint: 'Docs must cite gates, receipts e o contrato C9 before anunciar produto como stable.',
       },
       nextSafeAction: this.resolveNextSafeAction(status, productization.c9Linked, releaseStatus, stableAllowed),
     };
@@ -371,7 +371,7 @@ export class ProductizationEvidenceService {
         id: 'control',
         label: '/zavorthControl',
         status: runtimeEvidence.zavorthControlProjection ? 'ready' : 'missing',
-        path: '/zavorthControl?sector=config',
+        path: '/zavorthControl...sector=config',
         evidence: 'ZavorthControl projeta Productization Evidence junto de release/replay.',
       },
       {
@@ -386,14 +386,14 @@ export class ProductizationEvidenceService {
         label: 'Docs',
         status: 'ready',
         path: 'docs/product-direction.md',
-        evidence: 'Channel mesh6 documenta preview-only, gates e proxima entrega.',
+        evidence: 'Channel mesh6 documenta preview-only, gates e next entrega.',
       },
       {
         id: 'website',
         label: 'Website',
         status: productization.websiteReady ? 'ready' : 'partial',
         path: '/release',
-        evidence: 'Site publico deve continuar preview ate release real.',
+        evidence: 'Public site must remain preview-only until real release.',
       },
     ];
   }
@@ -413,9 +413,8 @@ export class ProductizationEvidenceService {
         status: productization.c9Linked ? 'ready' : 'partial',
         source: 'ZavorthProductizationContractService',
         command: 'zavorth productization --json',
-        detail: productization.c9Linked
-          ? `C9 linkado via ${productization.sourceMetadataKey || 'metadata'}.`
-          : 'Contrato C9 existe no core, mas este run ainda nao anexou snapshot C9.',
+        detail: productization.c9Linked ? `C9 linkado via ${productization.sourceMetadataKey || 'metadata'}.`
+          : 'Contract C9 exists in core, but this run has not attached snapshot C9 yet.',
         critical: true,
       },
       {
@@ -424,9 +423,8 @@ export class ProductizationEvidenceService {
         status: runtimeEvidence.runArtifactReceiptReplay ? 'ready' : 'missing',
         source: 'RunArtifactReceiptReplayService',
         command: 'npm run replay-hardening:check -- --json',
-        detail: runtimeEvidence.runArtifactReceiptReplay
-          ? 'Run possui evidencias de replay/receipts.'
-          : 'Publicar runArtifactReceiptReplay antes de claim de produto.',
+        detail: runtimeEvidence.runArtifactReceiptReplay ? 'Run possui evidence de replay/receipts.'
+          : 'Publicar runArtifactReceiptReplay before claim de produto.',
         critical: true,
       },
       {
@@ -444,7 +442,7 @@ export class ProductizationEvidenceService {
         status: 'partial',
         source: 'ProductizationEvidenceService',
         command: 'npm run runtime:check -- --pretty false',
-        detail: 'Gate declara o comando; execucao fica no QA local, nao no snapshot.',
+        detail: 'Gate declares the command; execution stays in local QA, not in the snapshot.',
         critical: true,
       },
       {
@@ -453,9 +451,8 @@ export class ProductizationEvidenceService {
         status: releaseStatus === 'blocked' && !stableAllowed ? 'blocked' : 'ready',
         source: 'ReleaseReadiness',
         command: 'npm run productization-evidence:check -- --json',
-        detail: stableAllowed
-          ? 'Stable possui release real e rollback.'
-          : 'Snapshot mantem preview-only e bloqueia stable sem release real.',
+        detail: stableAllowed ? 'Stable possui release real e rollback.'
+          : 'Snapshot remains preview-only and blocks stable without a real release.',
         critical: true,
       },
       {
@@ -464,7 +461,7 @@ export class ProductizationEvidenceService {
         status: 'partial',
         source: 'GatewayControlApi',
         command: 'npm run surfaces:check -- --pretty false',
-        detail: 'ZavorthControl e CLI devem permanecer compilaveis.',
+        detail: 'ZavorthControl and CLI must remain compilable.',
         critical: false,
       },
     ];
@@ -482,9 +479,8 @@ export class ProductizationEvidenceService {
         id: 'productization:c9',
         kind: 'productization-c9',
         source: 'ZavorthProductizationContractService',
-        detail: productization.c9Linked
-          ? 'C9 productization foi anexado ao run como evidencia.'
-          : 'C9 existe como contrato separado; anexar snapshot no run para promover readiness.',
+        detail: productization.c9Linked ? 'C9 productization foi anexado ao run como evidence.'
+          : 'C9 exists as a separate contract; attach its snapshot to the run before promoting readiness.',
         status: productization.c9Linked ? 'ready' : 'partial',
       },
       {
@@ -498,9 +494,8 @@ export class ProductizationEvidenceService {
         id: 'runtime:replay',
         kind: 'runtime-evidence',
         source: 'RunArtifactReceiptReplayService',
-        detail: runtimeEvidence.runArtifactReceiptReplay
-          ? 'Replay hardening linkado por metadata.'
-          : 'Replay hardening ausente neste run.',
+        detail: runtimeEvidence.runArtifactReceiptReplay ? 'Replay hardening linkado por metadata.'
+          : 'Replay hardening missing neste run.',
         status: runtimeEvidence.runArtifactReceiptReplay ? 'ready' : 'missing',
       },
       ...gates.map((gate): ProductizationEvidenceReceipt => ({
@@ -521,7 +516,7 @@ export class ProductizationEvidenceService {
         id: 'policy:preview-only',
         kind: 'policy',
         source: 'ProductizationEvidenceService',
-        detail: 'Preview-only ate release real; natural language nao promove stable nem executa rollout.',
+        detail: 'Preview-only until real release; natural language does not promote stable or execute rollout.',
         status: 'ready',
       },
     ];
@@ -544,17 +539,17 @@ export class ProductizationEvidenceService {
     stableAllowed: boolean,
   ): string {
     if (!c9Linked) {
-      return 'Anexar snapshot do ZavorthProductizationContractService ao run antes de promover readiness.';
+      return 'Attach the ZavorthProductizationContractService snapshot to the run before promoting readiness.';
     }
     if (status === 'blocked') {
-      return 'Remover claim stable ou publicar evidencia real de release, installer e rollback antes de continuar.';
+      return 'Remove stable claims or publish real release, installer, and rollback evidence before continuing.';
     }
     if (stableAllowed) {
-      return 'Preparar Channel mesh7 com Product Entry Runtime e First Run sem quebrar gates.';
+      return 'Preparar Channel mesh7 com Product Entry Runtime e First Run without quebrar gates.';
     }
     if (releaseStatus === 'preview-ready') {
       return 'Seguir para Channel mesh7 mantendo canal preview e receipts de produto.';
     }
-    return 'Executar gates locais e manter release em preview-only.';
+    return 'run gates locais e manter release em preview-only.';
   }
 }

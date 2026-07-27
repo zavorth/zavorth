@@ -12,18 +12,18 @@ export class DatabaseQueryTool extends BaseTool {
   public readonly name = 'database_query';
 
   public readonly description =
-    'Executa queries em bancos de dados locais (SQLite).';
+    'Executes queries against local SQLite databases.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       query: {
         type: 'string',
-        description: 'SQL query a executar.',
+        description: 'SQL query to execute.',
       },
       database_path: {
         type: 'string',
-        description: 'Caminho do banco de dados SQLite. Default: data/runtime/zavorth.db.',
+        description: 'Path to the SQLite database file. Default: data/runtime/zavorth.db.',
       },
       mode: {
         type: 'string',
@@ -31,7 +31,7 @@ export class DatabaseQueryTool extends BaseTool {
       },
       max_rows: {
         type: 'number',
-        description: 'Numero maximo de linhas retornadas (1-1000). Default: 100.',
+        description: 'Maximum number of returned rows (1-1000). Default: 100.',
       },
     },
     required: ['query'],
@@ -43,7 +43,7 @@ export class DatabaseQueryTool extends BaseTool {
 
     const mode = String(args.mode || 'read') as QueryMode;
     if (mode !== 'read' && mode !== 'write') {
-      return `Error: invalid mode "${mode}" is invalid. Use 'read' ou 'write'.`;
+      return `Error: invalid mode "${mode}" is invalid. Use 'read' or 'write'.`;
     }
 
     const maxRows = typeof args.max_rows === 'number' ? Math.min(Math.max(args.max_rows, 1), 1000) : 100;
@@ -65,7 +65,7 @@ export class DatabaseQueryTool extends BaseTool {
 
     if (mode === 'read') {
       if (!normalizedQuery.startsWith('SELECT') && !normalizedQuery.startsWith('PRAGMA') && !normalizedQuery.startsWith('EXPLAIN')) {
-        return 'Error: invalid mode "read" permite apenas SELECT, PRAGMA e EXPLAIN. Use mode="write" para operacoes de escrita.';
+        return 'Error: invalid mode "read" allows only SELECT, PRAGMA, and EXPLAIN. Use mode="write" for write operations.';
       }
       // Remove mutable PRAGMA from read mode
       if (normalizedQuery.startsWith('PRAGMA') && normalizedQuery.includes('=')) {
@@ -79,7 +79,7 @@ export class DatabaseQueryTool extends BaseTool {
         return 'Error: DROP and TRUNCATE operations are not allowed. Remove data manually if necessary.';
       }
       if (!normalizedQuery.startsWith('INSERT') && !normalizedQuery.startsWith('UPDATE') && !normalizedQuery.startsWith('DELETE') && !normalizedQuery.startsWith('CREATE') && !normalizedQuery.startsWith('ALTER')) {
-        return 'Error: invalid mode "write" permite INSERT, UPDATE, DELETE, CREATE e ALTER.';
+        return 'Error: invalid mode "write" allows INSERT, UPDATE, DELETE, CREATE, and ALTER.';
       }
     }
 
@@ -125,7 +125,7 @@ export class DatabaseQueryTool extends BaseTool {
     const lines: string[] = [];
     lines.push('Query executed successfully.');
     lines.push(`  - Database: ${dbPath}`);
-    lines.push(`  - Rows returned: ${rows.length}${totalRows > maxRows ? ` (of ${totalRows}, limited to ${maxRows})` : ''}`);
+    lines.push(`  ? Rows returned: ${rows.length}${totalRows > maxRows ? ` (of ${totalRows}, limited to ${maxRows})` : ''}`);
 
     if (rows.length === 0) {
       lines.push('  - No results found.');
@@ -152,7 +152,7 @@ export class DatabaseQueryTool extends BaseTool {
     lines.push(`  - Database: ${dbPath}`);
     lines.push(`  - Linhas afetadas: ${result.changes}`);
     if (result.lastInsertRowid !== undefined) {
-      lines.push(`  - Ultimo ID inserido: ${result.lastInsertRowid}`);
+      lines.push(`  - Latest ID inserido: ${result.lastInsertRowid}`);
     }
     return lines.join('\n');
   }

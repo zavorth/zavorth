@@ -102,7 +102,7 @@ export class FixtureExternalAgentWorkerClient implements ExternalAgentWorkerBrid
           id: 'fixture-remote-worker',
           label: 'Fixture remote worker',
           status: 'degraded',
-          detail: 'Remote worker is visible but kept status-only in this phase.',
+          detail: 'Remote worker is visible but kept status-only in this lifecycle state.',
           checkedAt,
         },
       ],
@@ -123,8 +123,7 @@ export class FixtureExternalAgentWorkerClient implements ExternalAgentWorkerBrid
       action: input.action as ExternalAgentWorkerLifecycleActionResult['action'],
       status: input.dryRun ? 'dry-run' : 'dispatched',
       allowed: true,
-      reason: input.dryRun
-        ? 'Fixture accepted lifecycle action as dry-run only.'
+      reason: input.dryRun ? 'Fixture accepted lifecycle action as dry-run only.'
         : 'Fixture dispatched lifecycle action to an existing endpoint.',
       requestedAt: input.requestedAt,
       diagnosticsAvailable: true,

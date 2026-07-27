@@ -96,7 +96,7 @@ export class AgentMeshExecutionService {
         toolCallRecords.push({
           toolName: 'system_dry_run_preview',
           durationMs: 50,
-          sandboxVerdict: 'simulated_dry_run',
+          sandboxVerdict: 'dryRun_dry_run',
         });
       }
 

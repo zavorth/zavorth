@@ -35,7 +35,7 @@ export class PtyWriteTool extends BaseTool {
     const workspaceId = path.basename(workspaceRoot);
     const sessionId = args.sessionId as string;
     const input = args.input as string;
-    
+
     if (!this.ptySessionService.getIsAvailable()) {
       return JSON.stringify({ success: false, error: 'PTY_UNAVAILABLE' });
     }

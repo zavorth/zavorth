@@ -71,9 +71,9 @@ export function inspectToolApprovalSigningKeyState(
         willAutoCreateOnUse: false,
         envVar,
         filePath: null,
-        summary: `${envVar} esta configurada, mas curta demais para assinar aprovacoes.`,
-        reasons: [`${envVar} precisa ter pelo menos 32 caracteres.`],
-        nextSteps: [`Defina ${envVar} com pelo menos 32 caracteres ou remova a variavel para usar a chave local automatica.`],
+        summary: `${envVar} is configured but too short to sign approvals.`,
+        reasons: [`${envVar} must be at least 32 characters.`],
+        nextSteps: [`Set ${envVar} to at least 32 characters or remove the variable to use the automatic local key.`],
       };
     }
     return {
@@ -83,8 +83,8 @@ export function inspectToolApprovalSigningKeyState(
       willAutoCreateOnUse: false,
       envVar,
       filePath: null,
-      summary: `Aprovacoes persistem usando ${envVar}.`,
-      reasons: ['Chave explicita de assinatura de aprovacao esta pronta.'],
+      summary: `Approvals persist using ${envVar}.`,
+      reasons: ['Explicit approval signing key is ready.'],
       nextSteps: [],
     };
   }
@@ -98,9 +98,9 @@ export function inspectToolApprovalSigningKeyState(
       willAutoCreateOnUse: true,
       envVar: null,
       filePath,
-      summary: 'A chave local de aprovacao ainda nao existe, mas sera criada automaticamente no primeiro uso.',
-      reasons: ['Nenhuma chave por ambiente foi definida e o arquivo local ainda nao existe.'],
-      nextSteps: ['Nenhuma acao obrigatoria para uso pessoal/profissional; o Zavorth criara a chave local quando precisar assinar uma aprovacao.'],
+      summary: 'The local approval key does not exist yet but will be created automatically on first use.',
+      reasons: ['No environment-specific key was defined and the local file does not exist yet.'],
+      nextSteps: ['No mandatory action required for personal/professional use; Zavorth will create the local key when it needs to sign an approval.'],
     };
   }
 
@@ -113,9 +113,9 @@ export function inspectToolApprovalSigningKeyState(
       willAutoCreateOnUse: true,
       envVar: null,
       filePath,
-      summary: 'O arquivo local de assinatura existe, mas nao contem uma chave valida.',
-      reasons: ['O conteudo esperado e uma chave hexadecimal de 64 caracteres.'],
-      nextSteps: ['Remova o arquivo invalido ou deixe o Zavorth arquivar e recriar a chave no proximo uso de aprovacao.'],
+      summary: 'The local signature file exists but does not contain a valid key.',
+      reasons: ['Expected content is a 64-character hex key.'],
+      nextSteps: ['Remove the invalid file or let Zavorth archive and recreate the key on the next approval use.'],
     };
   }
 
@@ -126,8 +126,8 @@ export function inspectToolApprovalSigningKeyState(
     willAutoCreateOnUse: false,
     envVar: null,
     filePath,
-    summary: 'Aprovacoes persistem usando chave local protegida por usuario.',
-    reasons: ['Arquivo local de assinatura esta presente e valido.'],
+      summary: 'Approvals persist using a local key protected by the user.',
+      reasons: ['local signature file is present and valid.'],
     nextSteps: [],
   };
 }

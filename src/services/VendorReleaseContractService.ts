@@ -157,8 +157,8 @@ export class VendorReleaseContractService {
         releaseIsolation: 'vendor-isolated',
         coreCopyPolicy: 'isolated-vendor-only',
         reviewRequired: true,
-        rationale: `Licenca ${license} exige isolamento de vendor e revisao antes de qualquer absorcao arquitetural.`,
-        recommendedAction: 'Sincronizar mirror/worktree e reaproveitar apenas contratos e ideias, sem copiar para o core.',
+        rationale: `License ${license} requires vendor isolation and review before any architectural absorption.`,
+        recommendedAction: 'Sync the mirror/worktree and reuse only contracts and ideas without copying into core.',
       };
     }
 
@@ -166,8 +166,8 @@ export class VendorReleaseContractService {
       releaseIsolation: 'core-safe',
       coreCopyPolicy: 'allow-with-attribution',
       reviewRequired: false,
-      rationale: `Licenca ${license} permite governanca como vendor sincronizavel com atribuicao e auditoria.`,
-      recommendedAction: 'Permitir sync normal de vendor, mantendo trilha de versao e atribuicao.',
+      rationale: `License ${license} allows governance as syncable vendor with attribution and audit.`,
+      recommendedAction: 'Allow normal vendor sync while keeping version trail and attribution.',
     };
   }
 

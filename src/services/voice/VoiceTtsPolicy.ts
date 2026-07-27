@@ -1,5 +1,5 @@
-/**
- * Phase 3 — TTS only under user VoicePreference (no silent Kore/default cascade as product policy).
+﻿/**
+ * TTS only under user VoicePreference; no silent provider cascade as product policy.
  */
 
 import type { VoicePreference } from '../../contracts/voice/VoicePreferenceContract.js';
@@ -77,7 +77,7 @@ export function resolveVoiceTts(
 
   if (!tts.enabled || tts.provider === 'none') {
     if (input.allowLegacyEchoTts && input.explicitVoiceRequest) {
-      // Caller may still use legacy Echo path — signal not configured for preference TTS.
+      // Caller may still use legacy Echo path; signal not configured for preference TTS.
       return {
         ok: false,
         version: VOICE_TTS_POLICY_VERSION,

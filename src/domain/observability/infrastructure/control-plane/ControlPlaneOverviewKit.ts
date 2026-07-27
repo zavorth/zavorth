@@ -88,7 +88,7 @@ export function buildOverviewCard(input: {
     id: text(input.id, 'overview-card'),
     label: text(input.label, 'Overview'),
     posture: normalizeOverviewPosture(input.posture),
-    summary: text(input.summary, 'Sem resumo operacional.'),
+    summary: text(input.summary, 'Sem summary operational.'),
     nextAction: text(input.nextAction, 'Revisar o control plane correspondente.'),
     command: nullableText(input.command),
     source: text(input.source, 'unknown'),
@@ -108,7 +108,7 @@ export function normalizeOverviewAction(
     id,
     label,
     severity: normalizeActionSeverity(input?.severity),
-    reason: text(input?.reason || input?.rationale || input?.summary, 'Sem justificativa operacional.'),
+    reason: text(input?.reason || input?.rationale || input?.summary, 'Sem justificativa operational.'),
     command: nullableText(input?.command),
     source: text(source, 'unknown'),
   };
@@ -165,8 +165,8 @@ export function buildOverviewNarrative(input: {
   fallbackNextAction: string;
 }): ControlPlaneOverviewNarrative {
   return {
-    headline: text(input.headline, 'Overview operacional'),
-    operatorSummary: text(input.operatorSummary, 'Resumo operacional indisponivel.'),
+    headline: text(input.headline, 'Overview operational'),
+    operatorSummary: text(input.operatorSummary, 'Resumo operational unavailable.'),
     nextAction: input.actions[0]?.label || text(input.fallbackNextAction, 'Revisar os planes agregados.'),
   };
 }
@@ -199,7 +199,7 @@ export function normalizeOverviewNarrative(
 ): ControlPlaneOverviewNarrative {
   return {
     headline: text(input?.headline, 'Control plane overview'),
-    operatorSummary: text(input?.operatorSummary, 'Resumo operacional indisponivel.'),
+    operatorSummary: text(input?.operatorSummary, 'Resumo operational unavailable.'),
     nextAction: text(input?.nextAction, 'Revisar o control plane correspondente.'),
   };
 }
@@ -225,7 +225,7 @@ export function renderControlPlaneReport(input: {
   if (actions.length > 0) {
     lines.push(
       '',
-      'Acoes sugeridas:',
+      'Actions sugeridas:',
       ...actions.map((entry) =>
         `- [${entry.source}] ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
     );

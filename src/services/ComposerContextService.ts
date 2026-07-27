@@ -84,7 +84,7 @@ export class ComposerContextService {
       this.buildDetailLine('Path', mention.payload?.path),
       this.buildDetailLine('Workspace', mention.payload?.workspace),
       this.buildDetailLine('Source task', this.shortTaskRef(mention.payload?.taskId)),
-      'Use este arquivo como contexto principal para a execucao.',
+      'Use this file as the primary context for execution.',
     ].filter(Boolean);
 
     return lines.join('\n');
@@ -102,7 +102,7 @@ export class ComposerContextService {
       this.buildDetailLine('URL', mention.payload?.url),
       this.buildDetailLine('Resumo', mention.payload?.summary || mention.payload?.description),
       this.buildDetailLine('Source task', this.shortTaskRef(mention.payload?.taskId)),
-      'Use este artefato como referencia principal para a execucao.',
+      'Use this artifact as the primary reference for execution.',
     ].filter(Boolean);
 
     return lines.join('\n');

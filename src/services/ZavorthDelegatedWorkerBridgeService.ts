@@ -146,7 +146,7 @@ export class ZavorthDelegatedWorkerBridgeService {
         inspect: 'npm run zavorth:delegated-worker-bridge',
         inspectJson: 'npm run zavorth:delegated-worker-bridge:json',
         check: 'npm run zavorth:delegated-worker-bridge:check --silent',
-        nextStage: '291 ZavorthControl controls - Native Replacement And Decommission',
+        nextAction: 'ZavorthControl controls - Native Replacement And Decommission',
       },
     };
   }
@@ -231,8 +231,7 @@ export class ZavorthDelegatedWorkerBridgeService {
       approvalRequired: true,
       approvalGranted,
       sourceWorkerLaunchBlocked: true,
-      reason: approvalGranted
-        ? 'Live source worker launch is deferred to a later explicit activation gate.'
+      reason: approvalGranted ? 'Live source worker launch is deferred to a later explicit activation gate.'
         : 'Source worker launch remains blocked until a later explicit approval and activation gate exists.',
       safety: {
         noSourceWorkerLaunch: true,
@@ -326,7 +325,7 @@ export class ZavorthDelegatedWorkerBridgeService {
         'artifact/event/status mapping',
       ],
       nextSafeAction: input.status === 'delegated-worker-bridge-ready'
-        ? 'Proceed to 291 ZavorthControl controls - Native Replacement And Decommission.'
+        ? 'Proceed to ZavorthControl controls - Native Replacement And Decommission.'
         : 'Fix failed worker delegation gates before native replacement.',
     };
   }
@@ -353,7 +352,7 @@ export class ZavorthDelegatedWorkerBridgeService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }

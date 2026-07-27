@@ -86,8 +86,7 @@ export class TelegramPermissionReadPresentationService {
           `Reason: ${permission.reason || 'N/A'}`,
           permission.decision_note ? `Decision note: ${permission.decision_note}` : null,
           `Created at: ${permission.created_at}`,
-          permission.updated_at
-            ? `Decided at: ${permission.updated_at} by ${permission.decided_by}`
+          permission.updated_at ? `Decided at: ${permission.updated_at} by ${permission.decided_by}`
             : null,
         ],
       },

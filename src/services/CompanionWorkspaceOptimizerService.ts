@@ -142,7 +142,7 @@ export class CompanionWorkspaceOptimizerService {
         recurring: false,
         notes: [
           'Workspace-local settings only.',
-          'Reduz watcher e Git polling para IDEs derivadas de VS Code.',
+          'Reduces watcher and Git polling for VS Code-derived IDEs.',
         ],
       },
       validationPlan: [
@@ -151,7 +151,7 @@ export class CompanionWorkspaceOptimizerService {
         'preset scoped to .vscode/settings.json',
       ],
       rollbackPlan: [
-        `Restaurar ${prepared.settingsFilePath} para o estado anterior, se necessario.`,
+        `Restore ${prepared.settingsFilePath} to the previous state if needed.`,
       ],
       payload: {
         workspaceRoot: prepared.workspaceRoot,
@@ -196,10 +196,10 @@ export class CompanionWorkspaceOptimizerService {
     const sourceSurface = String(input.sourceSurface || '').trim() || 'shared-surface';
     const plan = this.mutationPlane.readPlan(String(input.planId || '').trim());
     if (!plan) {
-      throw new Error(`Mutation plan nao encontrado: ${String(input.planId || '').trim() || 'n/d'}.`);
+      throw new Error(`Mutation plan not found: ${String(input.planId || '').trim() || 'n/d'}.`);
     }
     if (plan.domain !== 'setup' || plan.actionId !== 'workspace-optimize') {
-      throw new Error(`Mutation plan ${plan.id} nao pertence ao Workspace Optimizer.`);
+      throw new Error(`Mutation plan ${plan.id} does not belong to Workspace Optimizer.`);
     }
 
     let activePlan = plan;
@@ -257,7 +257,7 @@ export class CompanionWorkspaceOptimizerService {
       `Pressao: ${profile.pressure}.`,
       profile.summary,
       `Preset recomendado: ${profile.recommendedPresetId}.`,
-      `Settings atuais: ${profile.currentSettingsKeys.length} chave(s) em ${profile.currentSettingsPath}.`,
+      `Current settings: ${profile.currentSettingsKeys.length} key(s) in ${profile.currentSettingsPath}.`,
     ];
 
     if (profile.noisyPaths.length > 0) {
@@ -268,7 +268,7 @@ export class CompanionWorkspaceOptimizerService {
     }
 
     if (profile.recommendations.length > 0) {
-      lines.push('', 'Recomendacoes:');
+      lines.push('', 'Recomendactions:');
       for (const recommendation of profile.recommendations.slice(0, 6)) {
         lines.push(`- ${recommendation}`);
       }
@@ -283,9 +283,9 @@ export class CompanionWorkspaceOptimizerService {
       '',
       preview.summary,
       `Preset: ${preview.preset.label}.`,
-      `Arquivo alvo: ${preview.settingsFilePath}.`,
-      `Mudancas: ${preview.changedKeys.length} chave(s).`,
-      `Plano: ${preview.mutationPlan.id}.`,
+      `Target file: ${preview.settingsFilePath}.`,
+      `changes: ${preview.changedKeys.length} chave(s).`,
+      `Plan: ${preview.mutationPlan.id}.`,
     ];
 
     if (preview.changedKeys.length > 0) {
@@ -296,7 +296,7 @@ export class CompanionWorkspaceOptimizerService {
     }
 
     if (preview.waitingApproval) {
-      lines.push('', 'Status: aguardando approval.');
+      lines.push('', 'Status: waiting for approval.');
       if (preview.mutationPlan.approval.permissionId) {
         lines.push(`Permission: ${preview.mutationPlan.approval.permissionId}.`);
       }
@@ -304,7 +304,7 @@ export class CompanionWorkspaceOptimizerService {
     } else if (preview.blocked) {
       lines.push('', `Bloqueado: ${preview.trustDecision?.reason || preview.mutationPlan.summary}`);
     } else {
-      lines.push('', 'Status: pronto para apply.');
+      lines.push('', 'Status: ready to apply.');
       lines.push(`Apply: /workspace optimize ${preview.preset.id} apply ${preview.mutationPlan.id}`);
     }
 
@@ -313,18 +313,15 @@ export class CompanionWorkspaceOptimizerService {
 
   public renderApplyResult(result: WorkspaceOptimizationApplyResult): string {
     return [
-      result.applied
-        ? `Workspace otimizado com ${result.preset.label}.`
-        : result.waitingApproval
-          ? `Workspace aguardando approval para aplicar ${result.preset.label}.`
-          : result.blocked
-            ? `Workspace optimization blocked for ${result.preset.label}.`
-            : `Workspace optimization nao aplicada para ${result.preset.label}.`,
+      result.applied ? `Workspace otimizado with ${result.preset.label}.`
+        : result.waitingApproval ? `Workspace is waiting for approval to apply ${result.preset.label}.`
+          : result.blocked ? `Workspace optimization blocked for ${result.preset.label}.`
+            : `Workspace optimization not applied for ${result.preset.label}.`,
       '',
       result.summary,
-      `Arquivo: ${result.settingsFilePath}.`,
-      `Mudancas: ${result.changedKeys.length} chave(s).`,
-      `Plano: ${result.mutationPlan.id}.`,
+      `File: ${result.settingsFilePath}.`,
+      `changes: ${result.changedKeys.length} chave(s).`,
+      `Plan: ${result.mutationPlan.id}.`,
     ].join('\n');
   }
 
@@ -338,7 +335,7 @@ export class CompanionWorkspaceOptimizerService {
     const proposedSettings = this.mergeSettings(currentSettings, preset);
     const changes = this.diffSettings(currentSettings, proposedSettings);
     const changedKeys = changes.map((change) => change.key);
-    const summary = `Aplicar preset ${preset.label} no workspace ${profileData.workspaceName} para reduzir watcher, Git polling e search ruidoso.`;
+    const summary = `Apply preset ${preset.label} in workspace ${profileData.workspaceName} to reduce watcher, Git polling, and noisy search.`;
     return {
       workspaceRoot: profileData.workspaceRoot,
       workspaceName: profileData.workspaceName,
@@ -369,8 +366,7 @@ export class CompanionWorkspaceOptimizerService {
       .filter((absolutePath) => this.exists(absolutePath))
       .map((absolutePath) => path.relative(workspaceRoot, absolutePath).replace(/\\/g, '/'));
     const pressure = noisyPaths.length >= 6 ? 'high' : noisyPaths.length >= 3 ? 'moderate' : 'low';
-    const recommendedPresetId: IDECompanionPresetId = noisyPaths.some((entry) => entry.startsWith('data/'))
-      ? 'zavorthBridge'
+    const recommendedPresetId: IDECompanionPresetId = noisyPaths.some((entry) => entry.startsWith('data/')) ? 'zavorthBridge'
       : 'vscode';
     const profile: WorkspaceLoadProfile = {
       generatedAt: this.now().toISOString(),
@@ -387,13 +383,13 @@ export class CompanionWorkspaceOptimizerService {
       instructionSources: workspaceProfile?.instruction_sources || [],
       skillDirectories: workspaceProfile?.skill_directories || [],
       warnings: noisyPaths.length > 0
-        ? [`${noisyPaths.length} caminho(s) tendem a gerar watcher/git/search desnecessarios.`]
+        ? [`${noisyPaths.length} path(s) tendem a gerar watcher/git/search desnecessarios.`]
         : [],
       recommendations: [
         `Preset recomendado: ${recommendedPresetId}.`,
-        'Use settings locais do workspace para reduzir ruido sem afetar outras pastas.',
+        'Use local workspace settings to reduce noise without affecting other folders.',
       ],
-      summary: `Workspace ${workspaceName} com ${noisyPaths.length} area(s) ruidosa(s); preset recomendado ${recommendedPresetId}.`,
+      summary: `Workspace ${workspaceName} with ${noisyPaths.length} area(s) ruidosa(s); preset recomendado ${recommendedPresetId}.`,
     };
     return {
       workspaceRoot,
@@ -420,7 +416,7 @@ export class CompanionWorkspaceOptimizerService {
       zavorthBridge: {
         id: 'zavorthBridge',
         label: 'ZavorthBridge Lean',
-        description: 'Preset leve para workspaces Zavorth dentro do ZavorthBridge.',
+        description: 'Light preset for Zavorth workspaces inside ZavorthBridge.',
         settings: {
           ...baseSettings,
           'typescript.tsserver.watchOptions': {
@@ -435,26 +431,26 @@ export class CompanionWorkspaceOptimizerService {
         searchExcludes: [...SEARCH_EXCLUDES],
         notes: [
           'Reduz ruido do Git e do language server no ZavorthBridge.',
-          'Mantem o workspace editavel, mas diminui polling e decoracoes pesadas.',
+          'Keeps the workspace editable, but reduces polling and heavy decorations.',
         ],
       },
       vscode: {
         id: 'vscode',
         label: 'VS Code Lean',
-        description: 'Preset enxuto para VS Code em workspaces Zavorth.',
+        description: 'Lean preset for VS Code in Zavorth workspaces.',
         settings: {
           ...baseSettings,
         },
         watchExcludes: [...WATCH_EXCLUDES],
         searchExcludes: [...SEARCH_EXCLUDES],
         notes: [
-          'Focado em Git/Watcher/Search mais calmos para o workspace atual.',
+          'Focused on quieter Git/Watcher/Search for the current workspace.',
         ],
       },
       'vscode-derivative': {
         id: 'vscode-derivative',
         label: 'VS Code Derivative Lean',
-        description: 'Preset para forks ou IDEs derivadas de VS Code.',
+        description: 'Preset for forks or VS Code-derived IDEs.',
         settings: {
           ...baseSettings,
           'search.followSymlinks': false,
@@ -462,14 +458,14 @@ export class CompanionWorkspaceOptimizerService {
         watchExcludes: [...WATCH_EXCLUDES],
         searchExcludes: [...SEARCH_EXCLUDES],
         notes: [
-          'Preset conservador para forks de VS Code com extensoes variadas.',
+          'Conservative preset for VS Code forks with varied extensions.',
         ],
       },
     };
 
     const preset = presets[presetId];
     if (!preset) {
-      throw new Error(`Preset desconhecido: ${presetId || 'n/d'}.`);
+      throw new Error(`Unknown preset: ${presetId || 'n/a'}.`);
     }
     return preset;
   }
@@ -558,7 +554,7 @@ export class CompanionWorkspaceOptimizerService {
         skillDirectories: [],
         warnings: [],
         recommendations: [],
-        summary: `Workspace ${path.basename(workspaceRoot)} pronto para ${preset.label}.`,
+        summary: `Workspace ${path.basename(workspaceRoot)} ready for ${preset.label}.`,
       } as WorkspaceLoadProfile),
       changedKeys: Array.isArray(plan.payload.changedKeys)
         ? plan.payload.changedKeys.map((entry) => String(entry)).filter(Boolean)

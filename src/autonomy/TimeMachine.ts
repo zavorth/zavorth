@@ -99,7 +99,7 @@ export class TimeMachine {
       copyRecursive(workspacePath, snapshotDir, exclude);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      console.error('Local backup snapshot creation failed:', err);
+      console.error('local backup snapshot creation failed:', err);
       throw new Error(`Failed to create local snapshot: ${err instanceof Error ? err.message : String(err)}`);
     }
 
@@ -137,7 +137,7 @@ export class TimeMachine {
         // Locate and validate the exact snapshot before discarding any workspace data.
         const list = execFileSync('git', ['stash', 'list', '--format=%gd%x09%gs'], { cwd: workspacePath, stdio: 'pipe' }).toString();
         const expectedSuffix = `: zavorth-snapshot-${snapshotId}`;
-        const stashRef = list.split(/\r?\n/).map((line) => line.split('\t')).find(([, subject]) => subject?.endsWith(expectedSuffix))?.[0];
+        const stashRef = list.split(/\r...\n/).map((line) => line.split('\t')).find(([, subject]) => subject?.endsWith(expectedSuffix))?.[0];
         if (!stashRef || !/^stash@\{\d+\}$/.test(stashRef)) {
           return false;
         }

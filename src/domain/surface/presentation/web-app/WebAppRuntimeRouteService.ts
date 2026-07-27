@@ -422,7 +422,7 @@ export class WebAppRuntimeRouteService {
   ): Promise<Record<string, unknown>> {
     const sessionId = String(input.sessionId || '').trim();
     if (!sessionId) {
-      throw new Error('sessionId obrigatorio para session.patch.');
+      throw new Error('sessionId required para session.patch.');
     }
     if (!deps.gatewaySessionReadModel) {
       throw new Error('Gateway session read model unavailable.');

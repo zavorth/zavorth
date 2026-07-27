@@ -166,10 +166,10 @@ const DEFAULT_DOC_PATHS = [
 ];
 
 const DEFAULT_DOC_TOPICS = [
-  '/zavorthControl mostra experiencia, trust, approvals, receipts, sandbox, provider e capabilities',
+  '/zavorthControl shows experience, trust, approvals, receipts, sandbox, provider, and capabilities',
   'CLI renderiza o mesmo ZavorthProductizationContractSnapshot',
   'onboarding configura host, providers, channels, workspace e safety posture',
-  'website promete apenas feature estavel ou preview',
+  'website promete only feature stable ou preview',
 ];
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -217,7 +217,7 @@ function countStatuses(children: Array<{ status: ZavorthProductizationStatus }>)
 
 function hasForbiddenWebsiteFailure(snapshot: WebsitePublicContractSnapshot | null | undefined): boolean {
   return Boolean(snapshot?.checks?.some((check) =>
-    check.status === 'fail' && /forbidden|claim|segredo|secret|promise/i.test(`${check.id} ${check.title}`),
+    check.status === 'fail' && /forbidden|claim|secret|secret|promise/i.test(`${check.id} ${check.title}`),
   ));
 }
 
@@ -319,9 +319,9 @@ export class ZavorthProductizationContractService {
       acceptance,
       blockers,
       explanation: [
-        'C9 transforma o runtime em produto auditavel por um unico contrato.',
+        'C9 transforma o runtime em produto auditavel por um single contrato.',
         '/zavorthControl, CLI, onboarding, docs e website leem o mesmo snapshot em vez de contar historias paralelas.',
-        'A promessa publica fica limitada ao que esta estavel ou explicitamente marcado como preview.',
+        'A public promise fica limitada ao que is stable ou explicitmente marcado como preview.',
       ],
     };
   }
@@ -351,13 +351,13 @@ export class ZavorthProductizationContractService {
   ): ZavorthProductizationControlItem {
     return {
       id: 'experience-mode',
-      label: 'Modo de experiencia',
+      label: 'Experience mode',
       status: 'ready',
       source: 'runtime',
       evidence: [
         `modo=${productMode.id}`,
-        `perfil=${productMode.runtimeProfile}`,
-        `surfaces visiveis=${productMode.visibleSurfaces.join(', ') || 'nenhuma'}`,
+        `profile=${productMode.runtimeProfile}`,
+        `visible surfaces=${productMode.visibleSurfaces.join(', ') || 'none'}`,
       ],
       blockers: [],
     };
@@ -372,10 +372,8 @@ export class ZavorthProductizationContractService {
       || readNestedRecord(activeRun?.metadata, ['responseDecision', 'trustSlider'])
       || null;
     const toolMode = text(activeRun?.toolExposure?.mode);
-    const status: ZavorthProductizationStatus = trustSlider
-      ? 'ready'
-      : activeRun || productMode
-        ? 'partial'
+    const status: ZavorthProductizationStatus = trustSlider ? 'ready'
+      : activeRun || productMode ? 'partial'
         : 'blocked';
 
     return {
@@ -384,12 +382,12 @@ export class ZavorthProductizationContractService {
       status,
       source: trustSlider ? 'agent-gateway' : 'shared',
       evidence: [
-        trustSlider ? `trustSlider.level=${text(trustSlider.level, 'desconhecido')}` : '',
-        trustSlider ? `permissionScope=${text(trustSlider.permissionScope, 'desconhecido')}` : '',
+        trustSlider ? `trustSlider.level=${text(trustSlider.level, 'unknown')}` : '',
+        trustSlider ? `permissionScope=${text(trustSlider.permissionScope, 'unknown')}` : '',
         toolMode ? `toolExposure.mode=${toolMode}` : '',
         `modo de produto=${productMode.id}`,
       ].filter(Boolean),
-      blockers: status === 'blocked' ? ['Trust posture nao pode ser inferida.'] : [],
+      blockers: status === 'blocked' ? ['Trust posture cannot be inferred.'] : [],
     };
   }
 
@@ -401,24 +399,22 @@ export class ZavorthProductizationContractService {
     const approvalTools = tools.filter((tool) => tool.requiresApproval);
     const sensitiveOperations = gatewayControlApi?.operations.filter((operation) => operation.requiresApproval) || [];
     const hasPolicy = tools.length > 0 || sensitiveOperations.length > 0;
-    const status: ZavorthProductizationStatus = activeRun && hasPolicy
-      ? 'ready'
-      : hasPolicy
-        ? 'partial'
+    const status: ZavorthProductizationStatus = activeRun && hasPolicy ? 'ready'
+      : hasPolicy ? 'partial'
         : 'blocked';
 
     return {
       id: 'active-permissions',
-      label: 'Permissoes ativas',
+      label: 'Permissions actives',
       status,
       source: activeRun ? 'agent-gateway' : 'gateway-control',
       evidence: [
         activeRun ? `run=${activeRun.id}` : '',
         `${approvalTools.length}/${tools.length} tool(s) requerem approval`,
-        `${sensitiveOperations.length} operacao(oes) Gateway Control requerem approval`,
+        `${sensitiveOperations.length} Gateway Control operation(s) require approval`,
       ].filter(Boolean),
       blockers: status === 'blocked'
-        ? ['Nenhuma policy de ferramenta ou operacao sensivel esta visivel para o produto.']
+        ? ['No tool policy or sensitive operation is visible to the product.']
         : [],
     };
   }
@@ -439,11 +435,11 @@ export class ZavorthProductizationContractService {
       source: 'agent-gateway',
       evidence: [
         snapshotAvailable ? 'ZavorthAgentGatewaySnapshot anexado.' : '',
-        activeRun ? `run=${activeRun.id}` : 'sem run ativo',
+        activeRun ? `run=${activeRun.id}` : 'without run active',
         `pending=${pending.length}`,
       ].filter(Boolean),
       blockers: status === 'blocked'
-        ? ['Fila de approvals nao esta exposta pelo Agent Gateway.']
+        ? ['Approval queue is not exposed by Agent Gateway.']
         : [],
     };
   }
@@ -459,10 +455,8 @@ export class ZavorthProductizationContractService {
       && observatory?.indexes.traceIds.includes(activeRun.traceId),
     );
     const hasReceipts = Boolean(activeRun && (activeRun.events.length > 0 || activeRun.artifacts.length > 0));
-    const status: ZavorthProductizationStatus = indexed && hasReceipts
-      ? 'ready'
-      : activeRun || observatory
-        ? 'partial'
+    const status: ZavorthProductizationStatus = indexed && hasReceipts ? 'ready'
+      : activeRun || observatory ? 'partial'
         : 'blocked';
 
     return {
@@ -475,10 +469,10 @@ export class ZavorthProductizationContractService {
         activeRun ? `eventos=${activeRun.events.length}` : '',
         activeRun ? `artifacts=${activeRun.artifacts.length}` : '',
         observatory ? `observatory.runs=${observatory.totalRuns}` : '',
-        indexed ? 'run ativo indexado por runId e traceId.' : '',
+        indexed ? 'run active indexado por runId e traceId.' : '',
       ].filter(Boolean),
       blockers: status === 'blocked'
-        ? ['Run Observatory ou receipts do run nao estao visiveis.']
+        ? ['Run Observatory or run receipts are not visible.']
         : [],
     };
   }
@@ -488,10 +482,8 @@ export class ZavorthProductizationContractService {
     sandboxSnapshot: ZavorthSandboxControlPlaneSnapshot | null,
   ): ZavorthProductizationControlItem {
     const metadataPosture = text(asRecord(activeRun?.metadata)?.sandboxPosture);
-    const status: ZavorthProductizationStatus = sandboxSnapshot
-      ? 'ready'
-      : metadataPosture
-        ? 'partial'
+    const status: ZavorthProductizationStatus = sandboxSnapshot ? 'ready'
+      : metadataPosture ? 'partial'
         : 'blocked';
 
     return {
@@ -506,7 +498,7 @@ export class ZavorthProductizationContractService {
         metadataPosture ? `run.metadata.sandboxPosture=${metadataPosture}` : '',
       ].filter(Boolean),
       blockers: status === 'blocked'
-        ? ['Sandbox posture nao esta conectada ao contrato de produto.']
+        ? ['Sandbox posture is not connected to the product contract.']
         : [],
     };
   }
@@ -519,10 +511,8 @@ export class ZavorthProductizationContractService {
     const runRoute = activeRun?.modelProfile || null;
     const hasGatewayProvider = Boolean(gatewayControlApi?.providers.currentProvider || modelPickerSelected);
     const hasRunProvider = Boolean(runRoute?.providerLabel && runRoute?.modelLabel);
-    const status: ZavorthProductizationStatus = hasGatewayProvider && hasRunProvider
-      ? 'ready'
-      : hasGatewayProvider || hasRunProvider
-        ? 'partial'
+    const status: ZavorthProductizationStatus = hasGatewayProvider && hasRunProvider ? 'ready'
+      : hasGatewayProvider || hasRunProvider ? 'partial'
         : 'blocked';
 
     return {
@@ -538,7 +528,7 @@ export class ZavorthProductizationContractService {
         runRoute?.routeId ? `routeId=${runRoute.routeId}` : '',
       ].filter(Boolean),
       blockers: status === 'blocked'
-        ? ['Provider/modelo/rota nao estao visiveis no Gateway Control nem no run ativo.']
+        ? ['Provider/model/route are not visible in Gateway Control or the active run.']
         : [],
     };
   }
@@ -553,25 +543,23 @@ export class ZavorthProductizationContractService {
     const hasGovernance = Boolean(governance);
     const status: ZavorthProductizationStatus = hasGovernance || tools.length > 0 || blockedTools.length > 0
       ? 'ready'
-      : activeRun
-        ? 'partial'
+      : activeRun ? 'partial'
         : 'blocked';
 
     return {
       id: 'capabilities',
-      label: 'Capabilities ativas e quarentenadas',
+      label: 'Capabilities active and quarentenadas',
       status,
       source: hasGovernance ? 'agent-gateway' : 'shared',
       evidence: [
         hasGovernance ? 'CapabilityLoopGovernanceService anexado ao snapshot.' : '',
-        `ativas=${tools.length}`,
+        `actives=${tools.length}`,
         `quarentenadas=${blockedTools.length}`,
-        activeRun?.toolExposure.toolExposureGatedByImportedCapabilityTrust
-          ? 'imported capability trust gate ativo.'
+        activeRun?.toolExposure.toolExposureGatedByImportedCapabilityTrust ? 'imported capability trust gate active.'
           : '',
       ].filter(Boolean),
       blockers: status === 'blocked'
-        ? ['Capabilities ativas/quarentenadas nao estao expostas ao produto.']
+        ? ['Active/quarantined capabilities are not exposed to the product.']
         : [],
     };
   }
@@ -597,64 +585,56 @@ export class ZavorthProductizationContractService {
         label: 'Host local',
         status: firstRunStatus === 'ready'
           ? 'ready'
-          : firstRunAvailable
-            ? 'partial'
+          : firstRunAvailable ? 'partial'
             : 'blocked',
         evidence: [
           firstRunAvailable ? `first-run status=${firstRunStatus}` : '',
           input.firstRunSnapshot?.route ? `route=${input.firstRunSnapshot.route}` : '',
         ].filter(Boolean),
-        blockers: firstRunAvailable ? [] : ['Onboarding /start nao esta anexado ao contrato C9.'],
+        blockers: firstRunAvailable ? [] : ['Onboarding /start is not attached to the C9 contract.'],
       }),
       this.onboardingArea({
         id: 'providers',
         label: 'Providers e modelos',
-        status: providerReady && modelPickerReady
-          ? 'ready'
-          : input.gatewayControlApi
-            ? 'partial'
+        status: providerReady && modelPickerReady ? 'ready'
+          : input.gatewayControlApi ? 'partial'
             : 'blocked',
         evidence: [
           input.gatewayControlApi ? `providers ready=${input.gatewayControlApi.providers.summary.ready}/${input.gatewayControlApi.providers.summary.total}` : '',
-          modelPickerReady ? 'ModelPickerContract visivel.' : '',
+          modelPickerReady ? 'ModelPickerContract visible.' : '',
         ].filter(Boolean),
-        blockers: input.gatewayControlApi ? [] : ['Gateway Control API nao foi anexada ao onboarding de providers.'],
+        blockers: input.gatewayControlApi ? [] : ['Gateway Control API was not attached to provider onboarding.'],
       }),
       this.onboardingArea({
         id: 'channels',
         label: 'Channels',
         status: transports.length > 0
           ? 'ready'
-          : input.runtimeSnapshot
-            ? 'partial'
+          : input.runtimeSnapshot ? 'partial'
             : 'blocked',
         evidence: transports.length > 0 ? [`transportes=${transports.join(', ')}`] : [],
-        blockers: transports.length > 0 ? [] : ['Control plane nao publicou transportes/canais para onboarding.'],
+        blockers: transports.length > 0 ? [] : ['Control plane did not publish transports/channels for onboarding.'],
       }),
       this.onboardingArea({
         id: 'workspace',
         label: 'Workspace',
-        status: workspaceArtifactReady
-          ? 'ready'
-          : firstRunAvailable
-            ? 'partial'
+        status: workspaceArtifactReady ? 'ready'
+          : firstRunAvailable ? 'partial'
             : 'blocked',
-        evidence: workspaceArtifactReady ? ['fixture/zavorth-first-run-workspace presente no contrato.'] : [],
-        blockers: workspaceArtifactReady ? [] : ['Onboarding nao declarou fixture de workspace.'],
+        evidence: workspaceArtifactReady ? ['fixture/zavorth-first-run-workspace present no contrato.'] : [],
+        blockers: workspaceArtifactReady ? [] : ['Onboarding did not declare a workspace fixture.'],
       }),
       this.onboardingArea({
         id: 'safety-posture',
         label: 'Safety posture',
-        status: sandboxReady
-          ? 'ready'
-          : input.sandboxSnapshot || input.trustItem
-            ? 'partial'
+        status: sandboxReady ? 'ready'
+          : input.sandboxSnapshot || input.trustItem ? 'partial'
             : 'blocked',
         evidence: [
           input.sandboxSnapshot ? `sandbox=${input.sandboxSnapshot.summary.posture}` : '',
           input.trustItem ? `trust=${input.trustItem.status}` : '',
         ].filter(Boolean),
-        blockers: sandboxReady ? [] : ['Safety posture ainda nao une sandbox e trust posture no onboarding.'],
+        blockers: sandboxReady ? [] : ['Safety posture does not yet join sandbox and trust posture in onboarding.'],
       }),
     ];
   }
@@ -686,7 +666,7 @@ export class ZavorthProductizationContractService {
       evidence: sameContract
         ? ['CLI usa ZavorthProductizationContractSnapshot e espelha todos os itens de /zavorthControl.']
         : [],
-      blockers: sameContract ? [] : ['CLI nao espelha todos os itens obrigatorios do /zavorthControl.'],
+      blockers: sameContract ? [] : ['CLI does not mirror all required /zavorthControl items.'],
     };
   }
 
@@ -700,8 +680,7 @@ export class ZavorthProductizationContractService {
     const requiredControlReady = CONTROL_ITEM_IDS.every((id) => controlItems.some((item) => item.id === id));
     const requiredOnboardingReady = ['host', 'providers', 'channels', 'workspace', 'safety-posture']
       .every((id) => onboardingAreas.some((area) => area.id === id));
-    const status: ZavorthProductizationStatus = paths.length > 0 && requiredTopics.length > 0 && requiredControlReady && requiredOnboardingReady
-      ? 'ready'
+    const status: ZavorthProductizationStatus = paths.length > 0 && requiredTopics.length > 0 && requiredControlReady && requiredOnboardingReady ? 'ready'
       : paths.length > 0
         ? 'partial'
         : 'blocked';
@@ -711,10 +690,10 @@ export class ZavorthProductizationContractService {
       paths,
       requiredTopics,
       evidence: [
-        `${paths.length} documento(s) C9 declarados.`,
-        `${requiredTopics.length} topico(s) obrigatorios declarados.`,
+        `${paths.length} C9 document(s) declared.`,
+        `${requiredTopics.length} required topic(s) declared.`,
       ],
-      blockers: status === 'ready' ? [] : ['Docs C9 nao cobrem runtime, CLI, onboarding e website.'],
+      blockers: status === 'ready' ? [] : ['C9 docs do not cover runtime, CLI, onboarding, and website.'],
     };
   }
 
@@ -723,10 +702,8 @@ export class ZavorthProductizationContractService {
   ): ZavorthProductizationContractSnapshot['website'] {
     const sourceStatus = websiteSnapshot?.status || 'missing';
     const forbiddenClaimsBlocked = websiteSnapshot ? !hasForbiddenWebsiteFailure(websiteSnapshot) : false;
-    const status: ZavorthProductizationStatus = websiteSnapshot?.status === 'ready' && forbiddenClaimsBlocked
-      ? 'ready'
-      : websiteSnapshot && forbiddenClaimsBlocked
-        ? 'partial'
+    const status: ZavorthProductizationStatus = websiteSnapshot?.status === 'ready' && forbiddenClaimsBlocked ? 'ready'
+      : websiteSnapshot && forbiddenClaimsBlocked ? 'partial'
         : 'blocked';
 
     return {
@@ -737,12 +714,12 @@ export class ZavorthProductizationContractService {
       evidence: [
         websiteSnapshot ? `website status=${websiteSnapshot.status}` : '',
         websiteSnapshot ? `checks=${websiteSnapshot.summary.passed}/${websiteSnapshot.summary.passed + websiteSnapshot.summary.warnings + websiteSnapshot.summary.failed}` : '',
-        forbiddenClaimsBlocked ? 'claims proibidas bloqueadas pelo contrato publico.' : '',
+        forbiddenClaimsBlocked ? 'forbidden claims blocked by the public contract.' : '',
       ].filter(Boolean),
       blockers: status === 'ready' ? [] : [
-        ...(!websiteSnapshot ? ['WebsitePublicContractSnapshot ausente.'] : []),
-        ...(!forbiddenClaimsBlocked ? ['Website ainda pode conter claim proibida ou nao validada.'] : []),
-        ...(websiteSnapshot && websiteSnapshot.status !== 'ready' ? [`Website publico esta ${websiteSnapshot.status}.`] : []),
+        ...(!websiteSnapshot ? ['WebsitePublicContractSnapshot missing.'] : []),
+        ...(!forbiddenClaimsBlocked ? ['Website may still contain forbidden or unvalidated claims.'] : []),
+        ...(websiteSnapshot && websiteSnapshot.status !== 'ready' ? [`Public website is ${websiteSnapshot.status}.`] : []),
       ],
     };
   }

@@ -55,9 +55,8 @@ export class ContextRecoveryService {
       id: `context-recovery:${this.stableId(text || allOptions.map((option) => option.id).join('|') || 'idle')}`,
       status: ambiguous ? 'needs-selection' : 'idle',
       question: ambiguous
-        ? allOptions.length > options.length
-          ? `I found ${allOptions.length} possible targets. Showing the ${options.length} most relevant here; see all in ZavorthControl.`
-          : 'I found more than one possible target. Which one do you want to use?'
+        ? allOptions.length > options.length ? `I found ${allOptions.length} possible targets. Showing the ${options.length} most relevant here; see all in ZavorthControl.`
+          : 'I found more than one possible target. Which one do you want to use...'
         : 'Enough context to continue without an extra question.',
       options: ambiguous ? options : [],
       overflow: {

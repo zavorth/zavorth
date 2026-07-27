@@ -57,7 +57,7 @@ type ZavorthSkillMarketplaceRuntime = {
 };
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }
 
 function hashObject(value: unknown): string {

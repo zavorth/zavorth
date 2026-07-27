@@ -65,8 +65,7 @@ export async function GET(request: Request) {
         ...runtimePayload,
         settings: null,
         message:
-          runtime.installed && !runtime.runnable
-            ? `${DISPLAY_NAME} CLI is installed but not runnable`
+          runtime.installed && !runtime.runnable ? `${DISPLAY_NAME} CLI is installed but not runnable`
             : `${DISPLAY_NAME} CLI is not installed`,
       });
     }

@@ -8,7 +8,7 @@ export type ZavorthHandoffEnvelopeSectionId =
   | 'security-approvals-granted'
   | 'verbatim-user-directives'
   | 'remaining-todo-checklist'
-  | 'simulated-state-preview'
+  | 'dry-run-state-preview'
   | 'next-prescribed-action';
 
 export type ZavorthHandoffEnvelopeSection = {
@@ -26,7 +26,7 @@ export type ZavorthHandoffEnvelopeInput = {
   modifiedPaths?: string[] | null;
   securityApprovals?: string[] | null;
   remainingTodos?: string[] | null;
-  simulatedStatePreview?: string[] | null;
+  dryRunStatePreview?: string[] | null;
   nextPrescribedAction?: string | null;
 };
 
@@ -57,7 +57,7 @@ export const ZAVORTH_HANDOFF_ENVELOPE_SECTION_TITLES: Record<ZavorthHandoffEnvel
   'security-approvals-granted': 'Security Approvals Granted',
   'verbatim-user-directives': 'Verbatim User Directives',
   'remaining-todo-checklist': 'Remaining TODO Checklist',
-  'simulated-state-preview': 'Simulated State Preview',
+  'dry-run-state-preview': 'Dry-Run State Preview',
   'next-prescribed-action': 'Next Prescribed Action',
 };
 
@@ -69,6 +69,6 @@ export const ZAVORTH_HANDOFF_ENVELOPE_SECTION_ORDER: ZavorthHandoffEnvelopeSecti
   'security-approvals-granted',
   'verbatim-user-directives',
   'remaining-todo-checklist',
-  'simulated-state-preview',
+  'dry-run-state-preview',
   'next-prescribed-action',
 ];

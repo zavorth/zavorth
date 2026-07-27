@@ -3,7 +3,7 @@ import type { MemoryArtifactConsistencySnapshot } from '../MemoryArtifactConsist
 import type { ReleaseCertificationSnapshot } from '../ReleaseCertificationContract.js';
 import type { SatelliteAppConsistencySnapshot } from '../SatelliteAppConsistencyContract.js';
 
-export const ZAVORTH_REMAINING_RUNTIME_DECISIONS_CONTRACT_VERSION = '2026-05-04.checkpoint-13';
+export const ZAVORTH_REMAINING_RUNTIME_DECISIONS_CONTRACT_VERSION = '2026-05-04.gate-13';
 
 export type RemainingRuntimeDecisionStatus = 'closed' | 'attention';
 
@@ -53,7 +53,7 @@ export type RemainingRuntimeDecisionsSnapshot = {
   commands: {
     check: string;
     certify: string;
-    nextStage: 'Release certification profile hardening';
+    nextAction: 'Release certification profile hardening';
   };
   policy: {
     decisionsAreRuntimeScoped: true;

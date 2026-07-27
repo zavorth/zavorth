@@ -130,7 +130,7 @@ export class DailyReportService {
 
   public async sendNow(updatedBy: string | null = null): Promise<{ sent: boolean; message: string }> {
     if (!this.broadcaster) {
-      return { sent: false, message: 'Broadcast do relatorio diario ainda nao esta conectado.' };
+      return { sent: false, message: 'Daily report broadcast is not connected yet.' };
     }
 
     const report = await this.buildReport();
@@ -141,10 +141,10 @@ export class DailyReportService {
       lastSentDateKey: this.dateKey(this.now()),
       updatedAt: this.now().toISOString(),
       updatedBy: updatedBy || this.state.updatedBy,
-      note: updatedBy ? 'Envio manual do relatorio diario.' : this.state.note,
+      note: updatedBy ? 'Manual daily report send.' : this.state.note,
     };
     this.persist();
-    return { sent: true, message: 'Relatorio diario enviado agora.' };
+    return { sent: true, message: 'Daily report sent now.' };
   }
 
   public async buildReport(referenceDate: Date = this.now()): Promise<string> {
@@ -167,30 +167,30 @@ export class DailyReportService {
     const recentFailures = snapshot.tasks.recentFailures.slice(0, 3);
 
     const lines = [
-      'Resumo diario do Zavorth',
+      'Zavorth daily summary',
       '',
-      `Gerado em: ${referenceDate.toISOString()}`,
-      `Mothe operator: ${this.readOperatorMode(snapshot)}`,
-      `Tasks ativas agora: ${activeCount}`,
-      `Ultimas 24h: ${completedCount} concluidas | ${failedCount} com falha | ${approvalCount} aguardando aprovacao`,
-      `Permissoes pendentes agora: ${pendingPermissions.length}`,
-      executorSummary ? `Executores mais usados nas ultimas 24h: ${executorSummary}` : null,
+      `Generated at: ${referenceDate.toISOString()}`,
+      `Operator mode: ${this.readOperatorMode(snapshot)}`,
+      `Active tasks now: ${activeCount}`,
+      `Latest 24h: ${completedCount} completed | ${failedCount} failed | ${approvalCount} waiting for approval`,
+      `Pending permissions now: ${pendingPermissions.length}`,
+      executorSummary ? `Most used executors in the last 24h: ${executorSummary}` : null,
       '',
-      'Saude do runtime:',
+      'Runtime health:',
       `- Host supervisor: ${snapshot.runtime.hostSupervisor.alive ? 'online' : 'offline'} (${snapshot.runtime.hostSupervisor.pid || 'n/a'})`,
       `- Worker Telegram: ${snapshot.runtime.telegramWorker.alive ? 'online' : 'offline'} (${snapshot.runtime.telegramWorker.pid || 'n/a'})`,
-      `- Memoria atual: RSS ${snapshot.process.rssMb} MB | heap ${snapshot.process.heapMb} MB`,
+      `- Current memory: RSS ${snapshot.process.rssMb} MB | heap ${snapshot.process.heapMb} MB`,
       '',
-      recentFailures.length > 0 ? 'Falhas relevantes:' : 'Falhas relevantes: nenhuma nova nas tasks recentes.',
+      recentFailures.length > 0 ? 'Relevant failures:' : 'Relevant failures: no new ones in recent tasks.',
       ...(
         recentFailures.length > 0
           ? recentFailures.map((failure) =>
-              `- ${failure.executor || failure.commandType}: task ${failure.taskId.substring(0, 8)} | ${String(failure.errorSummary || 'sem resumo').substring(0, 110)}`,
+              `- ${failure.executor || failure.commandType}: task ${failure.taskId.substring(0, 8)} | ${String(failure.errorSummary || 'without summary').substring(0, 110)}`,
             )
           : []
       ),
       '',
-      pendingPermissions.length > 0 ? 'Permissoes pendentes:' : 'Permissoes pendentes: nenhuma.',
+      pendingPermissions.length > 0 ? 'Pending permissions:' : 'Pending permissions: none.',
       ...(
         pendingPermissions.length > 0
           ? pendingPermissions.slice(0, 3).map((permission) =>
@@ -244,7 +244,7 @@ export class DailyReportService {
   private buildExecutorSummary(tasks: Task[]): string {
     const counts = new Map<string, number>();
     for (const task of tasks) {
-      const key = String(task.executor_used || task.command_type || 'desconhecido').trim();
+      const key = String(task.executor_used || task.command_type || 'unknown').trim();
       if (!key) {
         continue;
       }
@@ -259,7 +259,7 @@ export class DailyReportService {
   }
 
   private readOperatorMode(snapshot: RuntimeDiagnosticsSnapshot): string {
-    const note = snapshot.tasks.byStatus.waiting_approval > 0 ? 'com checkpoints ativos' : 'inativo ou sem checkpoints';
+    const note = snapshot.tasks.byStatus.waiting_approval > 0 ? 'com checkpoints actives' : 'inactive ou without checkpoints';
     return note;
   }
 

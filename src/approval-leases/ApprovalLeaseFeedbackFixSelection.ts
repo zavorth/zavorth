@@ -5,6 +5,12 @@
  */
 
 import { FeedbackTriageRecord } from './ApprovalLeaseFeedbackTriage.js';
+import {
+  AUTH_BEARER_REDACT_REGEX,
+  SECRET_KEY_REDACT_REGEX,
+  RAW_PROMPT_REDACT_REGEX,
+  PROVIDER_RESPONSE_REDACT_REGEX,
+} from './shared/redactionPatterns.js';
 
 export interface FeedbackFixSelectionRecord {
   selectionId: string;
@@ -133,7 +139,7 @@ export class ApprovalLeaseFeedbackFixSelection {
     sanitized = sanitized.replace(/choices\s*:\s*\[|response\s*:\s*\{/gi, '[REDACTED_PROVIDER_RESPONSE]');
 
     // Redact handler source / functions
-    sanitized = sanitized.replace(/function\s*\([\s\S]*?\)|=>|handlerSource/gi, '[REDACTED_SECRET]');
+    sanitized = sanitized.replace(/function\s*\([\s\S]*...\)|=>|handlerSource/gi, '[REDACTED_SECRET]');
 
     // Redact env / process.env
     sanitized = sanitized.replace(/process\.env\S*/gi, '[REDACTED_SECRET]');

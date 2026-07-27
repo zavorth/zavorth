@@ -151,7 +151,7 @@ export class A2ATaskManager {
     let tasks = [...this.tasks.values()];
     if (filter?.state) tasks = tasks.filter((t) => t.state === filter.state);
     if (filter?.skill) tasks = tasks.filter((t) => t.skill === filter.skill);
-    tasks.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    tasks.sort((a, b) => new Date(b.createdAt).getTime() ? new Date(a.createdAt).getTime());
     const offset = Math.max(0, filter?.offset || 0);
     const limit =
       typeof filter?.limit === "number" && Number.isFinite(filter.limit)

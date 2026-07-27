@@ -359,7 +359,7 @@ export const CLI_COMMAND_HELP_PAGES_PART1: Record<string, CliHelpPage> = {
       {
         title: 'Safety',
         entries: [
-          { summary: 'Demo does not paste secrets, fake live connectors or post to PRs without approval.' },
+          { summary: 'Demo does not paste secrets, synthetic live connectors or post to PRs without approval.' },
           { summary: 'Smoke uses deterministic fixtures; real GitHub/Telegram use stays approval-aware.' },
         ],
       },

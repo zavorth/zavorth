@@ -70,7 +70,7 @@ function checkWhatsAppBridge(projectRoot: string, env: Record<string, string>): 
       id: 'whatsapp-bridge',
       title: 'WhatsApp Baileys bridge',
       status: 'pass',
-      summary: 'Baileys provider not selected (Cloud API/stub path).',
+      summary: 'Baileys provider not selected (Cloud API/local path).',
       impact: 'No experimental Baileys runtime is required for the current provider.',
       fixCommand: null,
       canAutoFix: false,
@@ -97,14 +97,11 @@ function checkWhatsAppBridge(projectRoot: string, env: Record<string, string>): 
       id: 'whatsapp-bridge',
       title: 'WhatsApp Baileys bridge',
       status: packageReady ? (ready ? 'pass' : 'warn') : 'fail',
-      summary: packageReady
-        ? `Baileys T2 experimental bridge package ready; connection=${connection}.`
+      summary: packageReady ? `Baileys T2 experimental bridge package ready; connection=${connection}.`
         : 'Baileys bridge dependencies are missing under scripts/whatsapp-bridge.',
-      impact: packageReady
-        ? 'Unofficial protocol path; expect disconnects and delayed fixes versus Cloud API.'
+      impact: packageReady ? 'Unofficial protocol path; expect disconnects and delayed fixes versus Cloud API.'
         : 'WHATSAPP_PROVIDER=baileys cannot connect until bridge deps are installed.',
-      fixCommand: packageReady
-        ? 'npx tsx scripts/zavorth-whatsapp-bridge.ts start'
+      fixCommand: packageReady ? 'npx tsx scripts/zavorth-whatsapp-bridge.ts start'
         : 'cd scripts/whatsapp-bridge && npm install',
       canAutoFix: false,
       evidence: [
@@ -207,7 +204,7 @@ function checkSqliteIntegrity(projectRoot: string): ZavorthDoctorPremiumCheck {
       const db = new Database(databasePath, { readonly: true });
       try { const row = db.prepare('PRAGMA integrity_check').get() as { integrity_check?: string }; return row.integrity_check === 'ok' ? [] : [path.basename(databasePath)]; } finally { db.close(); }
     });
-    return { id: 'sqlite-integrity', title: 'SQLite integrity', status: failures.length ? 'fail' : 'pass', summary: failures.length ? `Integrity check failed: ${failures.join(', ')}.` : `${databases.length} SQLite database(s) passed integrity_check.`, impact: failures.length ? 'Local state may be corrupted and should be restored from a known-good backup.' : 'Local agent state is structurally readable.', fixCommand: failures.length ? 'Restore the affected database from backup before using governed writes.' : null, canAutoFix: false, evidence: databases.map((databasePath) => `database=${path.basename(databasePath)}`) };
+    return { id: 'sqlite-integrity', title: 'SQLite integrity', status: failures.length ? 'fail' : 'pass', summary: failures.length ? `Integrity check failed: ${failures.join(', ')}.` : `${databases.length} SQLite database(s) passed integrity_check.`, impact: failures.length ? 'local state may be corrupted and should be restored from a known-good backup.' : 'local agent state is structurally readable.', fixCommand: failures.length ? 'Restore the affected database from backup before using governed writes.' : null, canAutoFix: false, evidence: databases.map((databasePath) => `database=${path.basename(databasePath)}`) };
   } catch (error: unknown) {
     const err = asErrorLike(error);
     logger.warn('[Zavorth Doctor Check Registry] filesystem check failed', error);
@@ -224,7 +221,7 @@ function checkLocalStorage(projectRoot: string): ZavorthDoctorPremiumCheck {
     }
     return {
       id: 'local-storage',
-      title: 'Local storage',
+      title: 'local storage',
       status: 'pass',
       summary: fs.existsSync(storageRoot) ? 'Project and local data storage are readable and writable.' : 'Project is writable; local data storage will be created on demand.',
       impact: 'Memory, audit receipts and local channel outboxes can persist safely.',
@@ -235,7 +232,7 @@ function checkLocalStorage(projectRoot: string): ZavorthDoctorPremiumCheck {
   } catch (error: unknown) {logger.warn('[Zavorth Doctor Check Registry] filesystem operation failed', error);
     return {
       id: 'local-storage',
-      title: 'Local storage',
+      title: 'local storage',
       status: 'fail',
       summary: 'Project or local data storage is not writable.',
       impact: 'Memory, audit receipts and channel outboxes may fail to persist.',
@@ -349,8 +346,7 @@ function checkTelegram(env: Record<string, string>): ZavorthDoctorPremiumCheck {
     summary: hasToken
       ? hasAllowlist ? 'Telegram token and user allowlist detected.' : 'Telegram token detected without user allowlist.'
       : 'Telegram is not configured.',
-    impact: hasToken && hasAllowlist
-      ? 'Remote ChatOps can be used with an operator boundary.'
+    impact: hasToken && hasAllowlist ? 'Remote ChatOps can be used with an operator boundary.'
       : 'Telegram should not be treated as ready for safe daily use yet.',
     fixCommand: 'zavorth channels telegram',
     canAutoFix: false,
@@ -381,7 +377,7 @@ function checkSandboxAndEffectBoundary(projectRoot: string): ZavorthDoctorPremiu
 
 function checkTrustAndSecrets(projectRoot: string, env: Record<string, string>): ZavorthDoctorPremiumCheck {
   const secretLikeKeys = Object.keys(env).filter((key) =>
-    /(TOKEN|SECRET|API_KEY|PASSWORD)/i.test(key) && !/MAX_TOKENS?/i.test(key));
+    /(TOKEN|SECRET|API_KEY|PASSWORD)/i.test(key) && !/MAX_TOKENS.../i.test(key));
   const hasSecurityDocs = fileExists(projectRoot, 'docs/security.md');
   const status: ZavorthDoctorPremiumStatus = !hasSecurityDocs ? 'fail' : secretLikeKeys.length > 0 ? 'warn' : 'pass';
   return {

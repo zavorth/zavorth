@@ -79,7 +79,7 @@ export default function UsageStats() {
       params.set("sortBy", field);
       params.set("sortOrder", "asc");
     }
-    router.replace(`?${params.toString()}`, { scroll: false });
+    router.replace(`...${params.toString()}`, { scroll: false });
   };
 
   const sortData = useCallback(

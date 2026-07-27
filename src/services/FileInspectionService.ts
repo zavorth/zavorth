@@ -4,7 +4,6 @@ import path from 'path';
 import { createPatch } from 'diff';
 import { config } from '../config/index.js';
 import { PolicyEngine } from '../security/PolicyEngine.js';
-import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import { logger } from '../logger.js';
 
 type RootKey = string;
@@ -60,10 +59,10 @@ export class FileInspectionService {
     const workspaceRootDir = options?.workspaceRootDir || config.workspaceRoot || path.dirname(workspaceDir);
     const configuredRoots: SearchRoot[] = [
       { key: 'workspace', label: 'Workspace', absolutePath: workspaceDir },
-      { key: 'workspace_root', label: path.basename(workspaceRootDir) || 'Raiz de trabalho', absolutePath: workspaceRootDir },
+      { key: 'workspace_root', label: path.basename(workspaceRootDir) || 'Workspace root', absolutePath: workspaceRootDir },
       { key: 'downloads', label: 'Downloads', absolutePath: path.join(homeDir, 'Downloads') },
       { key: 'desktop', label: 'Desktop', absolutePath: path.join(homeDir, 'Desktop') },
-      { key: 'documents', label: 'Documentos', absolutePath: path.join(homeDir, 'Documents') },
+      { key: 'documents', label: 'Documents', absolutePath: path.join(homeDir, 'Documents') },
       ...(options?.extraRoots || []),
     ];
     this.roots = configuredRoots.filter(
@@ -81,23 +80,7 @@ export class FileInspectionService {
       return false;
     }
 
-    const hasExplicitPath = /[A-Za-z]:(?:[\\/][^\n\r]+)+/.test(normalized);
-    const hasFileLocationHint =
-      /\b(downloads?|desktop|documentos?|documents?|workspace|projeto|repo|repositorio|pasta|folder|diretorio|arquivo|file|logs?)\b/i.test(normalized)
-      || hasExplicitPath;
-    const hasInspectionVerb =
-      /\b(liste|listar|lista|mostre|mostrar|analise|analisar|analise|inspecione|inspecionar|veja|olhe)\b/i.test(normalized);
-    const hasFileTypeHint =
-      /\b(html|imagem|imagens|png|jpg|jpeg|gif|svg|json|markdown|md|css|js|ts|tsx|jsx)\b/i.test(normalized);
-
-    return (
-      /\b(compare|comparar|comparacao|diff|diferenca)\b/i.test(normalized) ||
-      /\b(o que mudou|mudou|alterad|modificad|desde ontem|desde hoje|esta semana|esse mes|ultimos \d+ dias)\b/i.test(normalized) ||
-      (hasInspectionVerb && (hasFileLocationHint || hasFileTypeHint)) ||
-      (hasFileTypeHint && hasFileLocationHint) ||
-      (/\bmaiores? que\b/i.test(normalized) && hasFileLocationHint) ||
-      hasExplicitPath
-    );
+    return /[A-Za-z]:(?:[\\/][^\n\r]+)+/.test(normalized);
   }
 
   public async prepare(rawRequest: string, options: FileInspectionPrepareOptions = {}): Promise<FileInspectionPlan> {
@@ -142,12 +125,8 @@ export class FileInspectionService {
   }
 
   private detectMode(lowered: string): InspectionDescriptor['mode'] {
-    if (/\b(compare|comparar|comparacao|comparaÃ§Ã£o|diff|diferenca|diferenÃ§a)\b/i.test(lowered)) {
+    if (['compare', 'diff'].some((term) => lowered.includes(term))) {
       return 'compare';
-    }
-
-    if (/\b(o que mudou|mudou|alterad|modificad|desde ontem|desde hoje|esta semana|esse mes|ultimos \d+ dias)\b/i.test(lowered)) {
-      return 'changes';
     }
 
     return 'filtered_list';
@@ -158,7 +137,7 @@ export class FileInspectionService {
       String(match[1] || '').trim(),
     );
     const fromDrivePaths = Array.from(rawRequest.matchAll(/[A-Za-z]:(?:[\\/][^\s"']+)+/g)).map((match) =>
-      String(match[0] || '').trim().replace(/[.,;:!?]+$/, ''),
+      String(match[0] || '').trim().replace(/[.,;:!...]+$/, ''),
     );
 
     return Array.from(new Set([...fromQuotes, ...fromDrivePaths])).filter(Boolean).slice(0, 2);
@@ -166,10 +145,7 @@ export class FileInspectionService {
 
   private detectRootHints(loweredRequest: string): RootKey[] {
     const roots: RootKey[] = [];
-    if (/\b(download|downloads|baixados?)\b/i.test(loweredRequest)) roots.push('downloads');
-    if (/\b(desktop|area de trabalho)\b/i.test(loweredRequest)) roots.push('desktop');
-    if (/\b(documentos|documento|documents|docs)\b/i.test(loweredRequest)) roots.push('documents');
-    if (/\b(workspace|repo|repositorio|projeto|zavorth)\b/i.test(loweredRequest)) roots.push('workspace');
+    void loweredRequest;
     return roots.length > 0 ? roots : ['workspace', 'workspace_root', 'downloads', 'desktop', 'documents'];
   }
 
@@ -177,79 +153,19 @@ export class FileInspectionService {
     const extensions = new Set<string>();
     const pushAll = (...values: string[]) => values.forEach((value) => extensions.add(value));
 
-    if (/\bhtml?\b/i.test(loweredRequest)) pushAll('.html', '.htm');
-    if (/\bimagem|imagens|png|jpg|jpeg|gif|svg|webp\b/i.test(loweredRequest)) {
-      pushAll('.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp');
-    }
-    if (/\bjson\b/i.test(loweredRequest)) pushAll('.json');
-    if (/\bmarkdown|md\b/i.test(loweredRequest)) pushAll('.md');
-    if (/\bcss\b/i.test(loweredRequest)) pushAll('.css');
-    if (/\bjsx?\b/i.test(loweredRequest)) pushAll('.js', '.jsx');
-    if (/\btsx?\b/i.test(loweredRequest)) pushAll('.ts', '.tsx');
+    void loweredRequest;
 
     return Array.from(extensions);
   }
 
   private parseSizeFilter(loweredRequest: string, mode: 'min' | 'max'): number | null {
-    const regex =
-      mode === 'min'
-        ? /\bmaiores?\s+que\s+(\d+(?:[.,]\d+)?)\s*(b|kb|mb|gb)\b/i
-        : /\bmenores?\s+que\s+(\d+(?:[.,]\d+)?)\s*(b|kb|mb|gb)\b/i;
-    const match = loweredRequest.match(regex);
-    if (!match) {
-      return null;
-    }
-
-    const value = Number.parseFloat(match[1].replace(',', '.'));
-    if (!Number.isFinite(value) || value <= 0) {
-      return null;
-    }
-
-    const unit = String(match[2] || 'b').toLowerCase();
-    const multiplier =
-      unit === 'gb' ? 1024 * 1024 * 1024 : unit === 'mb' ? 1024 * 1024 : unit === 'kb' ? 1024 : 1;
-
-    return Math.floor(value * multiplier);
+    void loweredRequest;
+    void mode;
+    return null;
   }
 
   private parseTimeFilter(loweredRequest: string): { sinceMs: number | null; untilMs: number | null; label: string | null } {
-    const now = new Date();
-
-    if (/\bhoje\b/.test(loweredRequest)) {
-      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-      return { sinceMs: start.getTime(), untilMs: end.getTime(), label: 'de hoje' };
-    }
-    if (/\bontem\b/.test(loweredRequest)) {
-      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      return { sinceMs: start.getTime(), untilMs: end.getTime(), label: 'de ontem' };
-    }
-    if (/\b(essa|esta)\s+semana\b/.test(loweredRequest)) {
-      const start = new Date(now);
-      const day = start.getDay();
-      const mondayOffset = day === 0 ? -6 : 1 - day;
-      start.setDate(start.getDate() + mondayOffset);
-      start.setHours(0, 0, 0, 0);
-      return { sinceMs: start.getTime(), untilMs: null, label: 'desta semana' };
-    }
-    if (/\b(esse|este)\s+mes\b/.test(loweredRequest)) {
-      const start = new Date(now.getFullYear(), now.getMonth(), 1);
-      return { sinceMs: start.getTime(), untilMs: null, label: 'deste mes' };
-    }
-
-    const lastDaysMatch = loweredRequest.match(/\bultim(?:os|as)?\s+(\d+)\s+dias?\b/);
-    if (lastDaysMatch) {
-      const days = safeParseInt(lastDaysMatch[1], 0);
-      if (days > 0) {
-        return {
-          sinceMs: Date.now() - days * 24 * 60 * 60 * 1000,
-          untilMs: null,
-          label: `dos ultimos ${days} dias`,
-        };
-      }
-    }
-
+    void loweredRequest;
     return { sinceMs: null, untilMs: null, label: null };
   }
 
@@ -296,7 +212,7 @@ export class FileInspectionService {
         requestedPath,
         previewPath: requestedPath,
         originalRequest,
-        reason: 'Esse caminho existe, mas ainda nao esta liberado para inspecao local do Zavorth.',
+        reason: 'This path exists, but is not released for local Zavorth inspection yet.',
       };
     }
 
@@ -327,10 +243,10 @@ export class FileInspectionService {
       return {
         kind: 'result',
         text: [
-          `Comparacao entre ${leftName} e ${rightName}`,
+          `Comparison entre ${leftName} and ${rightName}`,
           '',
-          'Os dois arquivos estao identicos.',
-          `Tamanho: ${this.formatBytes(leftStats.size)} e ${this.formatBytes(rightStats.size)}`,
+          'Os dois files are identicos.',
+          `Size: ${this.formatBytes(leftStats.size)} and ${this.formatBytes(rightStats.size)}`,
           `Modificados em: ${this.formatDateTime(leftStats.mtimeMs)} | ${this.formatDateTime(rightStats.mtimeMs)}`,
         ].join('\n'),
       };
@@ -346,10 +262,10 @@ export class FileInspectionService {
       return {
         kind: 'result',
         text: [
-          `Comparacao entre ${leftName} e ${rightName}`,
+          `Comparison entre ${leftName} and ${rightName}`,
           '',
-          'Os arquivos sao diferentes, mas pelo menos um deles e grande ou binario demais para diff textual seguro.',
-          `Tamanho: ${this.formatBytes(leftStats.size)} vs ${this.formatBytes(rightStats.size)}`,
+          'Files differ, but at least one is too large or binary for safe textual diff.',
+          `Size: ${this.formatBytes(leftStats.size)} vs ${this.formatBytes(rightStats.size)}`,
           `Locais: ${resolved.left} | ${resolved.right}`,
         ].join('\n'),
       };
@@ -359,23 +275,23 @@ export class FileInspectionService {
       `${leftName} -> ${rightName}`,
       leftBuffer.toString('utf8'),
       rightBuffer.toString('utf8'),
-      'antes',
-      'depois',
+      'before',
+      'after',
     );
     const diffLines = patch
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .filter((line) => line.startsWith('+') || line.startsWith('-'))
       .slice(0, 24);
 
     return {
       kind: 'result',
       text: [
-        `Comparacao entre ${leftName} e ${rightName}`,
+        `Comparison entre ${leftName} and ${rightName}`,
         '',
-        `Tamanho: ${this.formatBytes(leftStats.size)} vs ${this.formatBytes(rightStats.size)}`,
-        `Mudancas destacadas:`,
+        `Size: ${this.formatBytes(leftStats.size)} vs ${this.formatBytes(rightStats.size)}`,
+        `changes destacadas:`,
         ...diffLines.map((line) => line),
-        ...(patch.split(/\r?\n/).filter((line) => line.startsWith('+') || line.startsWith('-')).length > diffLines.length
+        ...(patch.split(/\r...\n/).filter((line) => line.startsWith('+') || line.startsWith('-')).length > diffLines.length
           ? ['... (diff truncado para caber no Telegram)']
           : []),
       ].join('\n'),
@@ -395,14 +311,14 @@ export class FileInspectionService {
     if (changed.length === 0) {
       return {
         kind: 'message',
-        text: `Nao encontrei arquivos alterados ${descriptor.timeFilterLabel || 'no periodo pedido'} em ${root.label}.`,
+        text: `Could not find changed files ${descriptor.timeFilterLabel || 'in the requested period'} em ${root.label}.`,
       };
     }
 
     return {
       kind: 'result',
       text: [
-        `Arquivos alterados ${descriptor.timeFilterLabel || 'recentemente'} em ${root.label}`,
+        `Changed files ${descriptor.timeFilterLabel || 'recently'} em ${root.label}`,
         '',
         ...changed.map((entry, index) =>
           `${index + 1}. ${entry.relativePath} - ${this.formatDateTime(entry.modifiedAtMs)} - ${this.formatBytes(entry.sizeBytes)}`,
@@ -424,7 +340,7 @@ export class FileInspectionService {
     if (filtered.length === 0) {
       return {
         kind: 'message',
-        text: `Nao encontrei arquivos compativeis em ${root.label} com os filtros pedidos.`,
+        text: `Could not find compatible files in ${root.label} with the requested filters.`,
       };
     }
 
@@ -678,7 +594,7 @@ export class FileInspectionService {
     if (['.json'].includes(extension)) return 'json';
     if (['.md'].includes(extension)) return 'markdown';
     if (['.css'].includes(extension)) return 'css';
-    if (['.js', '.jsx', '.ts', '.tsx'].includes(extension)) return 'codigo';
-    return 'arquivo';
+    if (['.js', '.jsx', '.ts', '.tsx'].includes(extension)) return 'code';
+    return 'file';
   }
 }

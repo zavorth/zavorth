@@ -202,8 +202,7 @@ function SetupStudioInkApp(props: {
   });
   const [activeSecretField, setActiveSecretField] = useState<SecretField | null>(null);
   const [secretBuffer, setSecretBuffer] = useState('');
-  const [hint, setHint] = useState(canUseInput
-    ? 'Tab pages | arrows move | f search | ? keys | a apply'
+  const [hint, setHint] = useState(canUseInput ? 'Tab pages | arrows move | f search | - keys | a apply'
     : 'Single preview. Interaction requires raw mode.');
   const compactLayout = Number(process.stdout?.columns || 80) < 110;
   const reducedMotion = process.env.NO_COLOR === '1' || process.env.ZAVORTH_REDUCED_MOTION === '1';
@@ -519,7 +518,7 @@ function SetupStudioInkApp(props: {
       app.exit();
       return;
     }
-    if (input === '?') {
+    if (input === '...') {
       setHint('Keys: Tab pages, f search, o model, l provider live, m channel live, v skills, x hatch.');
     }
   }, { isActive: canUseInput });
@@ -594,7 +593,7 @@ function Header({ Box, Text, snapshot, page, pageIndex, motionFrame }: any) {
       ...charElements
     ),
     createElement(Text, { color: COLORS.muted, dimColor: true }, 'Natural language in. Governed action out.'),
-    createElement(Text, { color: '#565f73', dimColor: true }, 'Local-first agent OS · evidence · approvals · native integrations'),
+    createElement(Text, { color: '#565f73', dimColor: true }, 'local-first agent OS · evidence · approvals · native integrations'),
     createElement(Box, { marginY: 1 }, createElement(Text, { color: '#313540' }, '────────────────────────────────────────────────────────────')),
     createElement(
       Box,
@@ -602,7 +601,7 @@ function Header({ Box, Text, snapshot, page, pageIndex, motionFrame }: any) {
       createElement(
         Text,
         { color: COLORS.cyan },
-        `${PAGE_TITLES[page as SetupPage] || page} - ${PAGE_INTENTS[page as SetupPage] || 'Prepare Zavorth safely.'}`
+        `${PAGE_TITLES[page as SetupPage] || page} ? ${PAGE_INTENTS[page as SetupPage] || 'Prepare Zavorth safely.'}`
       ),
       createElement(
         Text,
@@ -639,7 +638,7 @@ function LeftRail({ Box, Text, snapshot, selectedStepIndex, page, compactLayout 
       `${index === selectedStepIndex ? '>' : ' '} ${symbolForStatus(step.status)} ${truncate(step.title, compactLayout ? 24 : 12)}`,
     )),
     ...(compactLayout && snapshot.steps.length > checklist.length ? [
-      createElement(Text, { key: 'checklist-more', color: COLORS.muted }, `  ... ${snapshot.steps.length - checklist.length} more checks in full-width terminals`),
+      createElement(Text, { key: 'checklist-more', color: COLORS.muted }, `  ? ${snapshot.steps.length - checklist.length} more checks in full-width terminals`),
     ] : []),
     createElement(Text, { color: COLORS.muted }, ''),
     createElement(Text, { color: COLORS.amber, bold: true }, 'Workspace'),
@@ -785,7 +784,7 @@ function RightRail({ Box, Text, snapshot, secrets, activeSecretField, secretBuff
     createElement(Text, { color: COLORS.text }, 'a apply       d doctor'),
     createElement(Text, { color: COLORS.text }, 'l provider    m channel'),
     createElement(Text, { color: COLORS.text }, 'v skills      x hatch'),
-    createElement(Text, { color: COLORS.text }, '? keymap      q exit'),
+    createElement(Text, { color: COLORS.text }, '... keymap      q exit'),
     createElement(Text, { color: COLORS.muted }, ''),
     createElement(Text, { color: COLORS.amber, bold: true }, 'Launch Deck'),
     ...snapshot.hatch.commands.map((command: string) => createElement(
@@ -829,12 +828,9 @@ function Footer({
     createElement(
       Text,
       { color: activeSecretField || activeTextField || searchMode ? COLORS.cyan : COLORS.muted },
-      activeSecretField
-        ? `Typing ${SECRET_FIELD_LABELS[activeSecretField]}: ${maskSecret(secretBuffer)}  Enter saves, Esc cancels.`
-        : activeTextField
-          ? `Editing model: ${textBuffer || '_'}  Enter saves, Esc cancels.`
-        : searchMode
-          ? `Searching ${searchMode}: ${searchBuffer || '_'}  Enter selects, Esc cancels.`
+      activeSecretField ? `Typing ${SECRET_FIELD_LABELS[activeSecretField]}: ${maskSecret(secretBuffer)}  Enter saves, Esc cancels.`
+        : activeTextField ? `Editing model: ${textBuffer || '_'}  Enter saves, Esc cancels.`
+        : searchMode ? `Searching ${searchMode}: ${searchBuffer || '_'}  Enter selects, Esc cancels.`
         : snapshot.safety.dryRun
         ? `${interactive ? hint : 'Single preview.'} ${motionFrame} Command bar: Tab pages | f filter | o model | a apply | d doctor | x hatch | q exit.`
         : 'Applied with governance. Run zavorth ready.',

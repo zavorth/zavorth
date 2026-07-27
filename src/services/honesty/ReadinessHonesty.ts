@@ -143,21 +143,14 @@ export function honestReadinessFromTool(entry: {
   risk?: string | null;
   liveReady?: boolean | null;
 }): HonestReadinessBadge {
-  const status = String(entry.status || '').toLowerCase();
-  if (status.includes('block') || status.includes('deny') || status.includes('untrust')) {
+  const status = String(entry.status || '').trim().toLowerCase();
+  if (new Set(['blocked', 'denied', 'untrusted']).has(status)) {
     return classifyHonestReadiness({ blocked: true, reason: entry.risk || entry.status });
   }
   if (entry.liveReady === true) {
     return classifyHonestReadiness({ liveReady: true, status: entry.status, reason: entry.risk || undefined });
   }
-  if (
-    status.includes('ready')
-    || status.includes('trust')
-    || status.includes('available')
-    || status === 'active'
-    || status === 'healthy'
-    || status === 'ok'
-  ) {
+  if (new Set(['ready', 'trusted', 'available', 'active', 'healthy', 'ok']).has(status)) {
     return classifyHonestReadiness({
       status: 'available',
       configured: true,
@@ -165,7 +158,7 @@ export function honestReadinessFromTool(entry: {
       reason: entry.risk || 'Catalog/tool support is not the same as live readiness.',
     });
   }
-  if (status.includes('setup') || status.includes('config') || status.includes('pending')) {
+  if (new Set(['setup', 'needs_setup', 'config', 'configuration', 'pending']).has(status)) {
     return classifyHonestReadiness({ status: 'needs_setup', reason: entry.risk || entry.status });
   }
   return classifyHonestReadiness({

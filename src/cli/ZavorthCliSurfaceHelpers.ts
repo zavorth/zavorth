@@ -279,11 +279,8 @@ const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {
   devices: 'nodes',
   companions: 'nodes',
   reference: 'reference',
-  referencia: 'reference',
   all: 'reference',
   full: 'reference',
-  completo: 'reference',
-  completa: 'reference',
 };
 
 const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage> = {
@@ -357,9 +354,9 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
     ],
     notesTitle: 'Next',
     notes: [
-      'First time? zavorth setup',
-      'Daily? zavorth ask "…" or talk in Telegram',
-      'Need mesh/ops? zavorth help advanced',
+      'First time... zavorth setup',
+      'Daily... zavorth ask "…" or talk in Telegram',
+      'Need mesh/ops... zavorth help advanced',
     ],
   };
 }
@@ -646,7 +643,7 @@ function formatPublicRootHelp(): string {
         formatCliHelpEntry({ command: 'zavorth ask "…"', summary: 'Talk / ask (also: chat, run→ask).' }),
         formatCliHelpEntry({ command: 'zavorth connect …', summary: 'Attach providers & channels (telegram, whatsapp…).' }),
         formatCliHelpEntry({ command: 'zavorth learn', summary: 'What was learned / undo (same as anyone digest).' }),
-        formatCliHelpEntry({ command: 'zavorth ready', summary: 'Is it healthy? (also: status, health).' }),
+        formatCliHelpEntry({ command: 'zavorth ready', summary: 'Is it healthy... (also: status, health).' }),
       ],
     },
     {
@@ -668,7 +665,7 @@ function formatPublicRootHelp(): string {
         formatCliHelpEntry({ command: 'zavorth anyone digest', summary: 'Same as: zavorth learn.' }),
         formatCliHelpEntry({ command: 'zavorth anyone learn-on|learn-off', summary: 'Toggle autonomous learning.' }),
         formatCliHelpEntry({ command: 'zavorth anyone undo <id>', summary: 'Forget a learned item.' }),
-        formatCliHelpEntry({ command: 'zavorth reach|where', summary: 'Where can you reach me?' }),
+        formatCliHelpEntry({ command: 'zavorth reach|where', summary: 'Where can you reach me...' }),
         formatCliHelpEntry({ command: 'zavorth power|product|proof', summary: 'Short product fabric names only.' }),
       ],
     },
@@ -790,7 +787,7 @@ function formatCliChatFooter(shortcuts: Array<{ command?: string; summary: strin
     : 'status | doctor | history | quit';
   return [
     paintCliTone('--------------------------------------------------------', 'muted'),
-    `${paintCliTone('?', 'muted')} shortcuts: ${shortcutLine}`,
+    `${paintCliTone('...', 'muted')} shortcuts: ${shortcutLine}`,
     `${paintCliTone('safe', 'success')}: sensitive actions ask before they run`,
   ].join('\n');
 }
@@ -983,8 +980,7 @@ export function formatLearningSnapshot(
   }
 
   lines.push(...formatSurfaceSection('Do now', [
-    mode === 'candidates' && featuredCandidate
-      ? `- zavorth learning approve ${featuredCandidate.id}`
+    mode === 'candidates' && featuredCandidate ? `- zavorth learning approve ${featuredCandidate.id}`
       : '- zavorth learning candidates',
     featuredCandidate ? `- zavorth learning promote ${featuredCandidate.id}` : '- zavorth learning metrics',
   ]));

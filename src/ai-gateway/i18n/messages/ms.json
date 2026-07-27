@@ -6,7 +6,7 @@
     "loading": "Memuatkan...",
     "error": "Ralat berlaku",
     "success": "Kejayaan",
-    "confirm": "Adakah anda pasti?",
+    "confirm": "Adakah anda pasti...",
     "refresh": "Segarkan semula",
     "close": "tutup",
     "add": "Tambah",
@@ -164,8 +164,8 @@
     "auditLog": "Log Audit",
     "shutdown": "Tutup",
     "restart": "Mulakan semula",
-    "shutdownConfirm": "Tutup ZavorthGateway?",
-    "restartConfirm": "Mulakan semula ZavorthGateway?",
+    "shutdownConfirm": "Tutup ZavorthGateway...",
+    "restartConfirm": "Mulakan semula ZavorthGateway...",
     "version": "v{version}",
     "debug": "Nyahpepijat",
     "system": "Sistem",
@@ -288,7 +288,7 @@
     "createKey": "Cipta Kunci API",
     "key": "kunci",
     "revokeKey": "Batalkan Kunci",
-    "revokeConfirm": "Adakah anda pasti mahu membatalkan kunci API ini?",
+    "revokeConfirm": "Adakah anda pasti mahu membatalkan kunci API ini...",
     "noKeys": "Tiada kunci API lagi",
     "noKeysDesc": "Cipta kunci API pertama anda untuk mengesahkan permintaan ke titik akhir anda",
     "keyLabel": "Label Kunci",
@@ -320,7 +320,7 @@
     "actions": "Tindakan",
     "reqs": "reqs",
     "neverUsed": "Tidak pernah digunakan",
-    "deleteConfirm": "Padamkan kunci API ini?",
+    "deleteConfirm": "Padamkan kunci API ini...",
     "usageTips": "Petua Penggunaan",
     "tipAuth": "Gunakan kunci API dalam pengepala Kebenaran sebagai Pembawa YOUR_KEY",
     "tipSecure": "Kunci hanya ditunjukkan sekali semasa penciptaan — simpannya dengan selamat",
@@ -803,7 +803,7 @@
     "leastLatency": "Kependaman Terkecil",
     "comboName": "Nama Kombo",
     "comboNamePlaceholder": "kombo saya",
-    "deleteConfirm": "Padamkan kombo ini?",
+    "deleteConfirm": "Padamkan kombo ini...",
     "noCombosYet": "Tiada kombo lagi",
     "comboCreated": "Kombo berjaya dibuat",
     "comboUpdated": "Kombo berjaya dikemas kini",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "Bersedia untuk menyimpan?",
+    "readinessTitle": "Bersedia untuk menyimpan...",
     "readinessDescription": "Semak senarai semak sebelum membuat atau mengemas kini kombo ini.",
     "readinessCheckName": "Nama kombo adalah sah",
     "readinessCheckModels": "Sekurang-kurangnya satu model dipilih",
@@ -1013,7 +1013,7 @@
     "title": "Titik Akhir API",
     "available": "Titik Akhir Tersedia",
     "cloudProxy": "Proksi Awan",
-    "disableConfirm": "Adakah anda pasti mahu melumpuhkan proksi awan?",
+    "disableConfirm": "Adakah anda pasti mahu melumpuhkan proksi awan...",
     "baseUrl": "URL asas",
     "apiKeyLabel": "Kunci API",
     "registeredKeys": "Kunci Berdaftar",
@@ -1154,13 +1154,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "aktifkan",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"?",
+    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"...",
     "switchComboFailed": "Failed to switch combo state.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Circuit breakers reset.",
     "processStatus": "Process status",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} berjalan",
     "ok": "OK",
     "activeLockouts": "Sekatan Aktif",
-    "resetConfirm": "Tetapkan semula semua pemutus litar kepada keadaan sihat? Ini akan mengosongkan semua kiraan kegagalan dan memulihkan semua pembekal kepada status operasi.",
+    "resetConfirm": "Tetapkan semula semua pemutus litar kepada keadaan sihat... Ini akan mengosongkan semua kiraan kegagalan dan memulihkan semua pembekal kepada status operasi.",
     "resetAllTitle": "Tetapkan semula semua pemutus litar kepada keadaan sihat",
     "resetting": "Menetapkan semula...",
     "resetAll": "Tetapkan Semula Semua",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Ketersediaan Model",
     "accounts": "Akaun",
     "newAccount": "Akaun Baru",
-    "deleteConfirm": "Adakah anda pasti mahu memadamkan pembekal ini?",
+    "deleteConfirm": "Adakah anda pasti mahu memadamkan pembekal ini...",
     "testing": "Menguji...",
     "testConnection": "Sambungan Ujian",
     "testSuccess": "Sambungan berjaya",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "Uji Kunci API",
     "testKeyPlaceholder": "sk-... (untuk pengesahan sahaja)",
     "providerNotFound": "Pembekal tidak ditemui",
-    "deleteConnectionConfirm": "Padamkan sambungan ini?",
+    "deleteConnectionConfirm": "Padamkan sambungan ini...",
     "failedSetAlias": "Gagal menetapkan alias",
     "failedSaveConnection": "Gagal menyimpan sambungan",
     "failedSaveConnectionRetry": "Gagal menyimpan sambungan. Sila cuba lagi.",
     "failedRetestConnection": "Gagal menguji semula sambungan",
-    "deleteCompatibleNodeConfirm": "Padamkan {type} nod yang serasi ini?",
+    "deleteCompatibleNodeConfirm": "Padamkan {type} nod yang serasi ini...",
     "anthropicCompatibleDetails": "Butiran Serasi Anthropic",
     "openaiCompatibleDetails": "Butiran Serasi OpenAI",
     "messagesApi": "API Messages",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Autosegerak dilumpuhkan",
     "autoSyncToggleFailed": "Gagal untuk menogol autosegerak",
     "clearAllModels": "Kosongkan Semua Model",
-    "clearAllModelsConfirm": "Adakah anda pasti mahu mengalih keluar semua model untuk pembekal ini? Ini tidak boleh dibuat asal.",
+    "clearAllModelsConfirm": "Adakah anda pasti mahu mengalih keluar semua model untuk pembekal ini... Ini tidak boleh dibuat asal.",
     "clearAllModelsSuccess": "Semua model dibersihkan",
     "clearAllModelsFailed": "Gagal mengosongkan model",
     "addConnectionToImport": "Tambahkan sambungan untuk mendayakan pengimportan.",
@@ -1814,7 +1814,7 @@
     "exportData": "Eksport Data",
     "importData": "Import Data",
     "clearData": "Kosongkan Semua Data",
-    "clearDataConfirm": "Ini akan memadamkan semua data secara kekal. Adakah anda pasti?",
+    "clearDataConfirm": "Ini akan memadamkan semua data secara kekal. Adakah anda pasti...",
     "enableRequestLogs": "Dayakan Log Permintaan",
     "logRetention": "Pengekalan Log",
     "ipWhitelist": "Senarai Putih IP",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Panggilan setiap akaun sebelum bertukar",
     "modelAliases": "Alias Model",
     "modelAliasesTitle": "Alias Model",
-    "modelAliasesDesc": "Corak kad liar untuk memetakan semula nama model • Gunakan * dan ?",
+    "modelAliasesDesc": "Corak kad liar untuk memetakan semula nama model • Gunakan * dan ...",
     "addCustomAlias": "Tambah Alias Tersuai",
     "deprecatedModelId": "ID model yang ditamatkan",
     "newModelId": "ID model baharu",
@@ -1974,7 +1974,7 @@
     "browser": "pelayar",
     "clearLocalData": "Kosongkan Data Tempatan",
     "logout": "Log keluar",
-    "clearLocalDataConfirm": "Kosongkan semua data setempat? Ini akan menetapkan semula pilihan anda.",
+    "clearLocalDataConfirm": "Kosongkan semua data setempat... Ini akan menetapkan semula pilihan anda.",
     "unknown": "Tidak diketahui",
     "systemActor": "sistem",
     "ipAccessControl": "Kawalan Capaian IP",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Tiada Rantai Fallback",
     "noFallbackChainsDesc": "Buat rantaian untuk menentukan pesanan sandaran pembekal untuk model.",
     "loadingFallbackChains": "Memuatkan rantaian sandaran...",
-    "deleteChainConfirm": "Padamkan rantaian sandaran untuk \"{model}\"?",
+    "deleteChainConfirm": "Padamkan rantaian sandaran untuk \"{model}\"...",
     "chainCreated": "Rantaian dibuat untuk {model}",
     "chainDeleted": "Rantaian dipadamkan untuk {model}",
     "failedCreateChain": "Gagal membuat rantaian",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Tiada sandaran tersedia lagi. Sandaran akan dibuat secara automatik apabila data berubah.",
     "backupsAvailable": "{count} sandaran tersedia",
     "refresh": "Segarkan semula",
-    "confirm": "Sahkan?",
+    "confirm": "Sahkan...",
     "yes": "ya",
     "no": "Tidak",
     "restore": "Pulihkan",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Polisi & Pemutus Litar",
     "activeIssuesDetected": "Isu aktif dikesan",
     "off": "Mati",
-    "resetPricingConfirm": "Tetapkan semula semua harga untuk {provider} kepada lalai?",
+    "resetPricingConfirm": "Tetapkan semula semua harga untuk {provider} kepada lalai...",
     "pricingDescInput": "Input: token dihantar kepada model",
     "pricingDescOutput": "Output: token dijana",
     "pricingDescCached": "Dicache: input yang digunakan semula (~50% daripada kadar input)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Anda seorang pembantu yang membantu.",
-        "userGreeting": "hello! Apa khabar hari ini?"
+        "userGreeting": "hello! Apa khabar hari ini..."
       },
       "toolCalling": {
-        "userWeather": "Bagaimanakah cuaca di São Paulo?",
+        "userWeather": "Bagaimanakah cuaca di São Paulo...",
         "toolDescription": "Dapatkan cuaca semasa untuk lokasi",
         "cityNameDescription": "nama bandar"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Sekarang buat ia disusun mengikut tertib menurun."
       },
       "thinking": {
-        "question": "Apakah hasil tambah bagi 100 nombor perdana pertama?"
+        "question": "Apakah hasil tambah bagi 100 nombor perdana pertama..."
       },
       "systemPrompt": {
         "systemInstruction": "Anda seorang jurutera perisian kanan yang pakar dalam sistem teragih. Jawab soalan dengan ringkas menggunakan amalan terbaik industri. Sentiasa berikan contoh kod apabila berkaitan. Formatkan jawapan anda menggunakan penurunan nilai.",
-        "question": "Bagaimanakah saya melaksanakan corak pemutus litar?"
+        "question": "Bagaimanakah saya melaksanakan corak pemutus litar..."
       },
       "streaming": {
         "prompt": "Beritahu saya cerita pendek tentang robot yang belajar melukis."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "atau alih keluar medan passwordHash",
     "restartServerWithNewPassword": "Mulakan semula pelayan - ia akan menggunakan kata laluan baharu",
     "backToLogin": "Kembali ke Log Masuk",
-    "forgotPassword": "Lupa kata laluan?",
+    "forgotPassword": "Lupa kata laluan...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Keizinan",
     "Content-Disposition": "Kandungan-Pelupusan",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Gemini",
     "flowProviderGithubCopilot": "GitHub Copilot",
     "interactiveDiagram": "Gambar rajah interaktif kelihatan pada desktop",
-    "ctaTitle": "Bersedia untuk Memudahkan Infrastruktur AI Anda?",
+    "ctaTitle": "Bersedia untuk Memudahkan Infrastruktur AI Anda...",
     "ctaDescription": "Sertai pembangun yang memperkemas penyepaduan AI mereka dengan Zavorth. Sumber terbuka dan percuma untuk bermula.",
     "startFree": "Mula Percuma",
     "readDocumentation": "Baca Dokumentasi"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Kemas kini terakhir: {date}",
     "policyLastUpdatedDate": "13 Februari 2026",
     "listSeparator": "-",
-    "questionsVisit": "Soalan? Lawati kami",
+    "questionsVisit": "Soalan... Lawati kami",
     "githubRepository": "repositori GitHub",
     "privacySection1Title": "1. Seni Bina Tempatan-Pertama",
     "privacySection1Text": "Zavorth direka sebagai aplikasi tempatan pertama. Semua pemprosesan dan penyimpanan data berlaku sepenuhnya pada mesin anda. Tiada pelayan berpusat yang mengumpul maklumat anda.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Anda seorang pembantu AI yang membantu.",
-      "userGreeting": "hello! Bagaimana saya boleh membantu anda hari ini?"
+      "userGreeting": "hello! Bagaimana saya boleh membantu anda hari ini..."
     },
     "streaming": {
       "prompt": "Tulis cerita tentang"
     },
     "systemPrompt": {
-      "question": "Apakah erti kehidupan?",
+      "question": "Apakah erti kehidupan...",
       "systemInstruction": "Berikan jawapan yang bernas dan berfalsafah."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "Nama bandar untuk mendapatkan cuaca",
       "toolDescription": "Dapatkan cuaca semasa untuk lokasi",
-      "userWeather": "Bagaimanakah cuaca di Tokyo?"
+      "userWeather": "Bagaimanakah cuaca di Tokyo..."
     },
     "multiTurn": {
       "system": "Anda seorang pembantu yang membantu.",
       "assistantExample": "Saya berbesar hati untuk membantu anda dengan itu.",
       "userInitial": "Saya perlukan bantuan",
-      "userFollowUp": "Bolehkah anda menghuraikan perkara itu?"
+      "userFollowUp": "Bolehkah anda menghuraikan perkara itu..."
     }
   },
   "cache": {

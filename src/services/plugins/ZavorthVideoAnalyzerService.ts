@@ -13,7 +13,7 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
   public readonly name = 'zavorth_video_analyzer';
 
   public readonly description =
-    'Video intelligence — analyze videos for content, scenes, objects, text, and generate summaries. Extract frames and thumbnails.';
+    'Video intelligence - analyze videos for content, scenes, objects, text, and generate summaries. Extract frames and thumbnails.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',

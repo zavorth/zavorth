@@ -35,8 +35,7 @@ export class VoiceDuplexSessionStore {
   constructor(options: { filePath?: string; enabled?: boolean } = {}) {
     this.filePath = options.filePath || storePath();
     this.enabled =
-      options.enabled ??
-      (storeEnabled() && !(process.env.NODE_ENV === 'test' && !process.env.ZAVORTH_VOICE_DUPLEX_STORE_PATH));
+      options.enabled ??       (storeEnabled() && !(process.env.NODE_ENV === 'test' && !process.env.ZAVORTH_VOICE_DUPLEX_STORE_PATH));
   }
 
   public save(snapshot: VoiceDuplexSessionSnapshot, ownerUserId: string | null): void {

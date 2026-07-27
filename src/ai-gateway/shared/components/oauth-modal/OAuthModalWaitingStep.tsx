@@ -19,7 +19,7 @@ export function OAuthModalWaitingStep({ onEnterManualMode }: OAuthModalWaitingSt
         switch to manual URL input mode.
       </p>
       <Button variant="ghost" onClick={onEnterManualMode}>
-        Popup blocked? Enter URL manually
+        Popup blocked... Enter URL manually
       </Button>
     </div>
   );

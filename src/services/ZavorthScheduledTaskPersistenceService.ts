@@ -475,19 +475,19 @@ function buildReceipts(
 ): ZavorthScheduledTaskPersistenceReceipt[] {
   return [
     {
-      id: 'checkpoint-3-persisted-scheduled-task-registration',
-      kind: 'checkpoint-3-persisted-scheduled-task-registration',
+      id: 'gate-3-persisted-scheduled-task-registration',
+      kind: 'gate-3-persisted-scheduled-task-registration',
       status: status === 'blocked' ? 'blocked' : 'recorded',
       summary: `Persistence action ${action} resolved as ${status}.`,
     },
     {
-      id: 'checkpoint-3-runtime-consumed',
+      id: 'gate-3-runtime-consumed',
       kind: 'runtime-consumed',
       status: runtime.status === 'ready' ? 'recorded' : 'blocked',
       summary: `Consumed Preview engine runtime status ${runtime.status}.`,
     },
     {
-      id: task?.id || 'checkpoint-3-scheduler-task-created',
+      id: task?.id || 'gate-3-scheduler-task-created',
       kind: action === 'pause'
         ? 'scheduler-task-paused'
         : action === 'resume'
@@ -501,13 +501,13 @@ function buildReceipts(
       summary: task ? `Scheduler task ${task.id} handled through SchedulerService.` : 'No scheduler task was mutated.',
     },
     {
-      id: metadata?.approvedScopeHash || 'checkpoint-3-metadata-boundary',
+      id: metadata?.approvedScopeHash || 'gate-3-metadata-boundary',
       kind: 'metadata-boundary',
       status: metadata ? 'recorded' : 'blocked',
       summary: metadata ? 'Governed metadata is attached to guardrail_json.' : 'Governed metadata is missing.',
     },
     {
-      id: 'checkpoint-3-execution-boundary',
+      id: 'gate-3-execution-boundary',
       kind: 'execution-boundary',
       status: 'recorded',
       summary: 'No scheduled workload is executed during register, pause, resume, revoke or reapprove.',

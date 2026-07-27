@@ -104,7 +104,7 @@ function safeSensitiveContextText(value: unknown, maxChars = 2000): string {
   text = text.replace(/\bAKIA[0-9A-Z]{16}\b/g, '[redacted-secret]');
   text = text.replace(/\bBearer\s+[A-Za-z0-9._~+/=-]{12,}\b/gi, 'Bearer [redacted-secret]');
   text = text.replace(
-    /\b((?:api[_-]?key|token|secret|password|passwd|credential)\s*[:=]\s*["']?)([^"'\s]{6,})/gi,
+    /\b((?:api[_-]...key|token|secret|password|passwd|credential)\s*[:=]\s*["']...)([^"'\s]{6,})/gi,
     '$1[redacted-secret]',
   );
   return text;
@@ -384,8 +384,8 @@ export class AgentRunLlmRuntimeExecutor {
       'buildIntelligenceFabricDraftGuidancePrompt',
       'Intelligence Fabric context pack:',
       'Intelligence Fabric draft guidance:',
-      'nao trate como prova de execucao de ferramenta',
-      'nao afirme que patch, arquivo ou comando foi aplicado',
+      'do not treat as proof of tool execution',
+      'do not claim that a patch, file, or command was applied',
     ].join('\n');
   }
 
@@ -440,8 +440,7 @@ export class AgentRunLlmRuntimeExecutor {
       ? event.accumulated
       : typeof event.response?.content === 'string'
         ? event.response.content
-        : delta
-          ? `${state.accumulated}${delta}`
+        : delta ? `${state.accumulated}${delta}`
           : state.accumulated;
     state.accumulated = eventAccumulated;
     if (event.type === 'delta') {
@@ -766,8 +765,7 @@ export class AgentRunLlmRuntimeExecutor {
         ? this.summarizeInitialResultForLiveSteering(initialResult)
         : [
           'Previous model call was interrupted before returning a completed response.',
-          abortSignalUsed
-            ? 'AbortSignal was sent to the provider runtime before reissuing.'
+          abortSignalUsed ? 'AbortSignal was sent to the provider runtime before reissuing.'
             : 'Provider runtime did not expose AbortSignal for this call.',
         ].join('\n'),
     });
@@ -887,7 +885,7 @@ export class AgentRunLlmRuntimeExecutor {
       return {
         id: `failed-${run.id}`,
         status: 'failed',
-        summary: `Super Zavorth speculative autonomy falhou: ${detail}`,
+        summary: `Super Zavorth speculative autonomy failed: ${detail}`,
         workspaceRoot,
         runRoot: '',
         attempts: [],
@@ -1001,22 +999,22 @@ export class AgentRunLlmRuntimeExecutor {
       {
         role: 'system',
         content: [
-          'Voce esta no ciclo executor-critico do Super Zavorth.',
-          'A tentativa anterior foi aplicada somente em sandbox e falhou na validacao/critica.',
-          'Retorne apenas uma proposta corrigida usando um bloco ```zavorth-workspace-writes``` ou ```zavorth-workspace-patches```.',
-          'Nao afirme que arquivos reais foram alterados; o runtime fara novo ensaio especulativo antes de criar plano aprovavel.',
+          'You are in the executor-critical cycle of Zavorth.',
+          'The previous attempt was applied only in sandbox and failed validation/critical checks.',
+          'Return only one corrected proposal using a ```zavorth-workspace-writes``` or ```zavorth-workspace-patches``` block.',
+          'Do not claim real files were changed; the runtime will run a new speculative rehearsal before creating an approvable plan.',
         ].join('\n'),
       },
       {
         role: 'user',
         content: [
-          `Pedido original: ${safeSensitiveContextText(request.text || run.input, 2400)}`,
-          `Arquivos tocados: ${attempt.touchedFiles.join(', ') || 'nenhum'}`,
-          'Falhas do critico:',
-          criticSummary || '- sem detalhes adicionais',
-          'Validacao:',
-          validationSummary || 'sem resultados de validacao',
-          'Diff anterior:',
+          `Original request: ${safeSensitiveContextText(request.text || run.input, 2400)}`,
+          `Touched files: ${attempt.touchedFiles.join(', ') || 'none'}`,
+          'Critical failures:',
+          criticSummary || '- without additional details',
+          'Validation:',
+          validationSummary || 'without validation results',
+          'Previous diff:',
           safeSensitiveContextText(attempt.diffText, 6000),
         ].join('\n\n'),
       },
@@ -1031,19 +1029,18 @@ export class AgentRunLlmRuntimeExecutor {
       return replyText;
     }
     if (result.status === 'approved') {
-      const planText = result.mutationPlan
-        ? ` Governed plan created: ${result.mutationPlan.id}.`
+      const planText = result.mutationPlan ? ` Governed plan created: ${result.mutationPlan.id}.`
         : '';
       return [
         replyText,
         '',
-        `Super Zavorth: ensaio especulativo aprovado em sandbox, validacao registrada e diff final pronto para aprovacao.${planText} Nenhuma alteracao foi aplicada diretamente ao workspace real.`,
+        `Super Zavorth: speculative rehearsal approved in sandbox, validation registered, and final diff ready for approval.${planText} No change was applied directly to the real workspace.`,
       ].join('\n');
     }
     return [
       replyText,
       '',
-      `Super Zavorth: a proposta ficou retida como rascunho porque o ensaio especulativo retornou status ${result.status}. ${result.summary}`,
+      `Super Zavorth: the proposal was kept as a draft because the speculative rehearsal returned status ${result.status}. ${result.summary}`,
     ].join('\n');
   }
 

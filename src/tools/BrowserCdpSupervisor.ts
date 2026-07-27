@@ -243,7 +243,7 @@ export class BrowserCdpSupervisor extends EventEmitter {
         await this.handleDialogResponse(dialog, false);
         break;
       case 'must_respond':
-        // Espera resposta externa via respondToDialog()
+        // Waits for external response through respondToDialog()
         break;
     }
   }

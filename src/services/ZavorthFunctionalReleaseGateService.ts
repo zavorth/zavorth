@@ -82,7 +82,7 @@ export class ZavorthFunctionalReleaseGateService {
       blockers.push(`${item.id} has invalid P0 decision ${item.decision}.`);
     }
     if (item.priority === 'P1' && !['implemented', 'replaced', 'optional-pack', 'rejected', 'owner-waived'].includes(item.decision)) {
-      blockers.push(`${item.id} has invalid P1 decision ${item.decision}.`);
+      blockers.push(`${item.id} has invalid decision ${item.decision}.`);
     }
     if (item.priority === 'P2' && !['optional-pack', 'rejected', 'owner-waived', 'implemented', 'replaced'].includes(item.decision)) {
       blockers.push(`${item.id} has invalid P2 decision ${item.decision}.`);

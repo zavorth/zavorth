@@ -1,11 +1,11 @@
 import type { CapabilityNormalizationFamily } from '../CapabilityNormalizationContract.js';
 
-export const ZAVORTH_LIVE_READINESS_CONTRACT_VERSION = '2026-05-04.live-checkpoint-1' as const;
+export const ZAVORTH_LIVE_READINESS_CONTRACT_VERSION = '2026-05-04.live-gate-1' as const;
 
 export type LiveReadinessProfile =
   | 'dry-audit'
   | 'configured-doctor'
-  | 'mock-live'
+  | 'dry-live'
   | 'staging-live'
   | 'production-live';
 
@@ -32,7 +32,7 @@ export type LiveReadinessGateKind =
   | 'safety-policy'
   | 'runtime-wiring'
   | 'artifact-receipt'
-  | 'mock-smoke'
+  | 'dry-smoke'
   | 'configured-doctor'
   | 'live-smoke'
   | 'truthful-status';
@@ -125,6 +125,6 @@ export type LiveReadinessSnapshot = {
     check: 'npm run live-readiness:check --silent';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Preview engine - Channel Live Activation P0';
+    nextAction: 'Preview engine - Channel Live Activation';
   };
 };

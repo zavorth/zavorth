@@ -80,8 +80,8 @@ export class ZavorthPlatformRegistryCollectionRecipeMapper {
       capabilities: [...collection.capabilities],
       details: [
         ...collection.details,
-        `${items.length} item(ns) resolvido(s) no plane atual.`,
-        ...(missingCount > 0 ? [`${missingCount} referencia(s) ainda nao visivel(is) neste runtime.`] : []),
+        `${items.length} item(s) resolved no plane current.`,
+        ...(missingCount > 0 ? [`${missingCount} reference(s) still not visible in this runtime.`] : []),
       ],
       entryIds: [...collection.entryIds],
       searchText: normalizePlatformSearchText([
@@ -140,8 +140,8 @@ export class ZavorthPlatformRegistryCollectionRecipeMapper {
       tags: [...recipe.tags],
       details: [
         ...recipe.details,
-        `${targets.length} alvo(s) resolvido(s) no plane atual.`,
-        ...(missingCount > 0 ? [`${missingCount} alvo(s) ainda nao visivel(is) no runtime.`] : []),
+        `${targets.length} alvo(s) resolved no plane current.`,
+        ...(missingCount > 0 ? [`${missingCount} target(s) still not visible in the runtime.`] : []),
       ],
       steps: [...recipe.steps],
       targetIds: [...recipe.targetIds],

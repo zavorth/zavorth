@@ -80,13 +80,11 @@ export class NodeHostCapabilityHostSurfaceService {
       const hadTargetUrl = Boolean(String(requestedTargetUrl || '').trim());
       return {
         ok: false,
-        resultSummary: hadTargetUrl
-          ? 'browser.proxy bloqueou uma URL fora da politica do node host.'
-          : 'browser.proxy precisa de payload.url ou payload.proxyUrl.',
+        resultSummary: hadTargetUrl ? 'browser.proxy blocked a URL outside the node host policy.'
+          : 'browser.proxy needs payload.url or payload.proxyUrl.',
         stdout: null,
-        stderr: hadTargetUrl
-          ? 'payload.url deve usar http/https; file: exige opt-in e caminho dentro das raizes permitidas'
-          : 'payload.url ausente',
+        stderr: hadTargetUrl ? 'payload.url must use http/https; file: requires opt-in and a path inside allowed roots'
+          : 'payload.url missing',
         exitCode: null,
         data: null,
       };
@@ -99,9 +97,8 @@ export class NodeHostCapabilityHostSurfaceService {
 
     return {
       ok: result.ok,
-      resultSummary: result.ok
-        ? `Navegador aberto no node host para ${targetUrl}.`
-        : `Nao consegui abrir o navegador para ${targetUrl}.`,
+      resultSummary: result.ok ? `Navegador aberto no node host para ${targetUrl}.`
+        : `Could not open the browser for ${targetUrl}.`,
       stdout: result.stdout,
       stderr: result.stderr,
       exitCode: result.exitCode,
@@ -172,7 +169,7 @@ export class NodeHostCapabilityHostSurfaceService {
         const stats = fs.statSync(outputPath);
         return {
           ok: true,
-          resultSummary: `Captura de tela salva em ${outputPath}.`,
+          resultSummary: `Screenshot saved to ${outputPath}.`,
           stdout: result.stdout,
           stderr: result.stderr,
           exitCode: result.exitCode ?? 0,
@@ -190,7 +187,7 @@ export class NodeHostCapabilityHostSurfaceService {
 
     return {
       ok: false,
-      resultSummary: 'Nao consegui capturar a tela neste node host.',
+      resultSummary: 'Could not capture the screen on this node host.',
       stdout: null,
       stderr: errors.join(' | ') || 'screen capture unsupported',
       exitCode: null,
@@ -231,7 +228,7 @@ export class NodeHostCapabilityHostSurfaceService {
       fs.writeFileSync(outputPath, buffer);
       return {
         ok: true,
-        resultSummary: `Captura de camera salva em ${outputPath}.`,
+        resultSummary: `Camera capture saved to ${outputPath}.`,
         stdout: outputPath,
         stderr: null,
         exitCode: 0,
@@ -255,9 +252,9 @@ export class NodeHostCapabilityHostSurfaceService {
     if (!rawSourcePath) {
       return {
         ok: false,
-        resultSummary: 'camera.capture precisa de payload.sourcePath, payload.contentBase64 ou ZAVORTH_NODE_HOST_CAMERA_SOURCE.',
+        resultSummary: 'camera.capture needs payload.sourcePath, payload.contentBase64, or ZAVORTH_NODE_HOST_CAMERA_SOURCE.',
         stdout: null,
-        stderr: 'camera source ausente',
+        stderr: 'camera source missing',
         exitCode: null,
         data: {
           path: outputPath,
@@ -281,7 +278,7 @@ export class NodeHostCapabilityHostSurfaceService {
     if (!fs.existsSync(sourcePath)) {
       return {
         ok: false,
-        resultSummary: 'camera.capture nao encontrou o artefato de camera solicitado.',
+        resultSummary: 'camera.capture did not find the requested camera artifact.',
         stdout: null,
         stderr: `ENOENT: ${sourcePath}`,
         exitCode: null,
@@ -296,7 +293,7 @@ export class NodeHostCapabilityHostSurfaceService {
     const stats = fs.statSync(outputPath);
     return {
       ok: true,
-      resultSummary: `Captura de camera salva em ${outputPath}.`,
+      resultSummary: `Camera capture saved to ${outputPath}.`,
       stdout: outputPath,
       stderr: null,
       exitCode: 0,
@@ -316,7 +313,7 @@ export class NodeHostCapabilityHostSurfaceService {
     if (direct) {
       return {
         ok: true,
-        resultSummary: `Localizacao do node host lida${direct.label ? ` para ${direct.label}` : ''}.`,
+        resultSummary: `Node host location read${direct.label ? ` for ${direct.label}` : ''}.`,
         stdout: JSON.stringify(direct, null, 2),
         stderr: null,
         exitCode: 0,
@@ -345,7 +342,7 @@ export class NodeHostCapabilityHostSurfaceService {
       if (!fs.existsSync(sourcePath)) {
         return {
           ok: false,
-          resultSummary: 'location.read nao encontrou o arquivo de localizacao solicitado.',
+          resultSummary: 'location.read did not find the requested location file.',
           stdout: null,
           stderr: `ENOENT: ${sourcePath}`,
           exitCode: null,
@@ -363,7 +360,7 @@ export class NodeHostCapabilityHostSurfaceService {
         logger.warn('[Node Host Capability Host Surface] JSON parse failed', error);
     return {
           ok: false,
-          resultSummary: 'location.read nao conseguiu ler o arquivo de localizacao informado.',
+          resultSummary: 'location.read could not read the specified location file.',
           stdout: null,
           stderr: error instanceof Error ? err.message : String(error || 'invalid location file'),
           exitCode: null,
@@ -377,7 +374,7 @@ export class NodeHostCapabilityHostSurfaceService {
       if (!parsed) {
         return {
           ok: false,
-          resultSummary: 'location.read nao conseguiu interpretar o arquivo de localizacao informado.',
+          resultSummary: 'location.read could not interpret the specified location file.',
           stdout: null,
           stderr: `invalid location payload: ${sourcePath}`,
           exitCode: null,
@@ -389,7 +386,7 @@ export class NodeHostCapabilityHostSurfaceService {
 
       return {
         ok: true,
-        resultSummary: `Localizacao do node host lida${parsed.label ? ` para ${parsed.label}` : ''}.`,
+        resultSummary: `Localizaction do node host lida${parsed.label ? ` para ${parsed.label}` : ''}.`,
         stdout: JSON.stringify(parsed, null, 2),
         stderr: null,
         exitCode: 0,
@@ -410,7 +407,7 @@ export class NodeHostCapabilityHostSurfaceService {
     if (envLocation) {
       return {
         ok: true,
-        resultSummary: `Localizacao do node host lida${envLocation.label ? ` para ${envLocation.label}` : ''}.`,
+        resultSummary: `Localizaction do node host lida${envLocation.label ? ` para ${envLocation.label}` : ''}.`,
         stdout: JSON.stringify(envLocation, null, 2),
         stderr: null,
         exitCode: 0,
@@ -423,9 +420,9 @@ export class NodeHostCapabilityHostSurfaceService {
 
     return {
       ok: false,
-      resultSummary: 'location.read ainda precisa de payload de localizacao, arquivo ou variaveis de ambiente configuradas.',
+      resultSummary: 'location.read still needs location payload, file, or configured environment variables.',
       stdout: null,
-      stderr: 'location source ausente',
+      stderr: 'location source missing',
       exitCode: null,
       data: {
         expected: ['payload.latitude/longitude', 'payload.sourcePath', 'ZAVORTH_NODE_HOST_LOCATION_FILE'],
@@ -461,7 +458,7 @@ export class NodeHostCapabilityHostSurfaceService {
 
     return {
       ok: false,
-      resultSummary: 'Nao consegui ler o clipboard neste node host.',
+      resultSummary: 'Could not read clipboard on this node host.',
       stdout: null,
       stderr: errors.join(' | ') || 'clipboard unsupported',
       exitCode: null,
@@ -482,9 +479,9 @@ export class NodeHostCapabilityHostSurfaceService {
     if (!text) {
       return {
         ok: false,
-        resultSummary: 'clipboard.write precisa de payload.text, payload.content ou payload.value.',
+        resultSummary: 'clipboard.write needs payload.text, payload.content, or payload.value.',
         stdout: null,
-        stderr: 'clipboard text ausente',
+        stderr: 'clipboard text missing',
         exitCode: null,
         data: null,
       };
@@ -494,9 +491,9 @@ export class NodeHostCapabilityHostSurfaceService {
     if (text.length > maxChars) {
       return {
         ok: false,
-        resultSummary: `clipboard.write bloqueou texto acima de ${maxChars} caractere(s).`,
+        resultSummary: `clipboard.write blocked text above ${maxChars} character(s).`,
         stdout: null,
-        stderr: `clipboard payload excede limite seguro de ${maxChars} caractere(s)`,
+        stderr: `clipboard payload exceeds the safe limit of ${maxChars} character(s)`,
         exitCode: null,
         data: {
           length: text.length,
@@ -531,7 +528,7 @@ export class NodeHostCapabilityHostSurfaceService {
 
     return {
       ok: false,
-      resultSummary: 'Nao consegui escrever no clipboard neste node host.',
+      resultSummary: 'Could not write clipboard on this node host.',
       stdout: null,
       stderr: errors.join(' | ') || 'clipboard write unsupported',
       exitCode: null,
@@ -543,8 +540,8 @@ export class NodeHostCapabilityHostSurfaceService {
 
   public async sendNotification(payload: Record<string, unknown> | null): Promise<Omit<NodeHostExecutionResult, 'invocationId'>> {
     const title = String(payload?.title || 'Zavorth').trim() || 'Zavorth';
-    const body = String(payload?.message || payload?.body || 'Notificacao do Node Mesh.').trim()
-      || 'Notificacao do Node Mesh.';
+    const body = String(payload?.message || payload?.body || 'Notificaction do Node Mesh.').trim()
+      || 'Notificaction do Node Mesh.';
     const attempts = buildNodeHostNotificationCommands(this.platform, title, body);
     const timeoutMs = normalizeTimeout(payload?.timeoutMs, 15000);
     const errors: string[] = [];
@@ -556,7 +553,7 @@ export class NodeHostCapabilityHostSurfaceService {
       if (result.ok) {
         return {
           ok: true,
-          resultSummary: 'Notificacao enviada pelo node host.',
+          resultSummary: 'Notification sent by node host.',
           stdout: result.stdout,
           stderr: result.stderr,
           exitCode: result.exitCode ?? 0,
@@ -572,7 +569,7 @@ export class NodeHostCapabilityHostSurfaceService {
 
     return {
       ok: false,
-      resultSummary: 'Nao consegui exibir a notificacao neste node host.',
+      resultSummary: 'Could not show notification on this node host.',
       stdout: null,
       stderr: errors.join(' | ') || 'notification unsupported',
       exitCode: null,
@@ -593,7 +590,7 @@ export class NodeHostCapabilityHostSurfaceService {
     if (!userPresent) {
       return {
         ok: false,
-        resultSummary: 'device.confirm exige presenca explicita do usuario no dispositivo pareado.',
+        resultSummary: 'device.confirm requires explicit user presence on the paired device.',
         stdout: null,
         stderr: 'user presence missing',
         exitCode: null,
@@ -607,7 +604,7 @@ export class NodeHostCapabilityHostSurfaceService {
 
     return {
       ok: true,
-      resultSummary: `Confirmacao sensivel aprovada no dispositivo para ${action}.`,
+      resultSummary: `Sensitive confirmation approved no dispositivo para ${action}.`,
       stdout: JSON.stringify({
         action,
         confirmedAt: this.now().toISOString(),
@@ -638,7 +635,7 @@ export class NodeHostCapabilityHostSurfaceService {
     if (!supported) {
       return {
         ok: false,
-        resultSummary: 'haptics.vibrate nao esta disponivel neste companion; a limitacao foi registrada explicitamente.',
+        resultSummary: 'haptics.vibrate is not available on this companion; the limitation was explicitly recorded.',
         stdout: null,
         stderr: 'navigator.vibrate unsupported',
         exitCode: null,
@@ -651,7 +648,7 @@ export class NodeHostCapabilityHostSurfaceService {
 
     return {
       ok: true,
-      resultSummary: 'Pulso haptico aceito pelo companion quando navigator.vibrate esta disponivel.',
+      resultSummary: 'Haptic pulse accepted by companion when navigator.vibrate is available.',
       stdout: JSON.stringify({ pattern }, null, 2),
       stderr: null,
       exitCode: 0,

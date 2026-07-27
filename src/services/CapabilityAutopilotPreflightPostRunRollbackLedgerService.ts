@@ -226,7 +226,7 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
         gate: 'capability-autopilot-beta-readiness',
         title: 'Capability Autopilot v1.1 Beta Readiness Gate',
         reason:
-          'Depois da verificacao pos-run e rollback ledger, o proximo passo e decidir se o Capability Autopilot pode avancar do alpha para beta com gates agregados.',
+          'After post-run verification and rollback ledger, decide whether Capability Autopilot can move from alpha to beta with aggregated gates.',
       },
       metadata: {
         gate: 'capability-autopilot-preflight-post-run-rollback',
@@ -257,7 +257,7 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -336,7 +336,7 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
         'capability-autopilot-preflight-post-run:coverage',
         'ledger entry por controlled execution',
         entries.length === source.executions.length && blocked.length === 0 && rollbackRequired.length === 0 ? 'pass' : 'fail',
-        'Cada controlled execution precisa gerar ledger entry verificado.',
+        'Each controlled execution must generate a verified ledger entry.',
         [
           `executions=${source.executions.length}`,
           `entries=${entries.length}`,
@@ -348,13 +348,13 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
       ),
       this.check(
         'capability-autopilot-preflight-post-run:source-controlled',
-        'fonte controlada concluida',
+        'source controlada completed',
         entries.every((entry) =>
           entry.sourceExecutionStatus === 'controlled_apply_succeeded' &&
           entry.sourceSideEffectInvoked &&
           entry.sourceAdapterReceiptId !== null
         ) ? 'pass' : 'fail',
-        'Post-run so pode verificar execucoes controladas bem-sucedidas.',
+        'Post-run can only verify successful controlled executions.',
         entries.map((entry) =>
           `${entry.sourceSurface}:${entry.sourceAction?.kind || '<none>'}:status=${entry.sourceExecutionStatus}:sideEffect=${entry.sourceSideEffectInvoked}`,
         ),
@@ -367,7 +367,7 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
           entry.verificationPassed &&
           entry.postRunVerified
         ) ? 'pass' : 'fail',
-        'Resultado real precisa ser verificado antes de fechar a execucao.',
+        'Real result must be verified before closing execution.',
         entries.map((entry) =>
           `${entry.sourceSurface}:${entry.sourceAction?.kind || '<none>'}:confirmed=${entry.postRunVerificationConfirmed}:verified=${entry.postRunVerified}`,
         ),
@@ -380,43 +380,43 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
           entry.rollback.rollbackLedgerId !== null &&
           (!entry.rollback.rollbackRequired || (entry.rollback.rollbackAvailable && entry.rollback.rollbackToken !== null))
         ) ? 'pass' : 'fail',
-        'Toda execucao com side effect precisa deixar rollback token no ledger.',
+        'Every side-effecting execution must leave a rollback token in the ledger.',
         entries.map((entry) =>
           `${entry.sourceSurface}:rollbackRequired=${entry.rollback.rollbackRequired}:available=${entry.rollback.rollbackAvailable}:ledger=${entry.rollback.rollbackLedgerId || '<none>'}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-post-run:audit',
-        'auditoria pos-run persistida',
+        'persisted post-run audit',
         entries.every((entry) =>
           entry.auditPersisted &&
           entry.audit.auditReceiptId !== null &&
           entry.audit.postRunReceiptId !== null &&
           entry.audit.verificationReceiptId !== null
         ) ? 'pass' : 'fail',
-        'Post-run precisa registrar audit receipt, verification receipt e post-run receipt.',
+        'Post-run must record audit receipt, verification receipt, and post-run receipt.',
         entries.map((entry) =>
           `${entry.sourceSurface}:audit=${entry.audit.auditReceiptId || '<none>'}:verification=${entry.audit.verificationReceiptId || '<none>'}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-post-run:no-auto-rollback',
-        'rollback nao invocado automaticamente',
+        'rollback not invoked automatically',
         entries.every((entry) =>
           entry.rollback.rollbackInvoked === false &&
           entry.shouldRunAutomatically === false &&
           entry.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'Este gate registra rollback ledger, mas nao dispara rollback automatico.',
+        'This gate records rollback ledger, but does not trigger automatic rollback.',
         entries.map((entry) =>
           `${entry.sourceSurface}:rollbackInvoked=${entry.rollback.rollbackInvoked}:auto=${entry.shouldRunAutomatically}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-post-run:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Snapshots publicos pos-run nao podem reintroduzir intent cru.',
+        'Public post-run snapshots must not reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],
@@ -473,12 +473,12 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
     status: CapabilityPreflightPostRunRollbackLedgerStatus,
   ): string {
     if (status === 'post_run_verified') {
-      return `Post-run verificado para ${execution.sourceAction?.kind || '<sem-action>'}; rollback token registrado.`;
+      return `Post-run verificado para ${execution.sourceAction?.kind || '<without-action>'}; rollback token registrado.`;
     }
     if (status === 'rollback_required') {
-      return `Post-run falhou para ${execution.sourceAction?.kind || '<sem-action>'}; rollback disponivel no ledger.`;
+      return `Post-run failed para ${execution.sourceAction?.kind || '<without-action>'}; rollback available no ledger.`;
     }
-    return `Post-run bloqueado para ${execution.sourceAction?.kind || '<sem-action>'}; ledger incompleto.`;
+    return `Post-run blocked para ${execution.sourceAction?.kind || '<without-action>'}; ledger incompleto.`;
   }
 
   private check(

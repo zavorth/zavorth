@@ -101,7 +101,7 @@ export async function handleZavorthCliRegistrySkillsCommand(
   }
   if (subcommand === 'trusted-hosts' || subcommand === 'trusted-domains') {
     const domains = getTrustedSkillGitDomains();
-    const lines = ['Trusted skill git hosts:', ...domains.map((d) => `  - ${d}`)];
+    const lines = ['Trusted skill git hosts:', ...domains.map((d) => ` ? ${d}`)];
     if (process.env.ZAVORTH_SKILL_TRUSTED_DOMAINS) {
       lines.push(`(extra via ZAVORTH_SKILL_TRUSTED_DOMAINS)`);
     }
@@ -254,13 +254,11 @@ async function handleSkillCatalog(rest: string[], writer: CliWriter): Promise<Cl
     if (!hasConsent) {
       const preview = catalog.previewInstall(id);
       const lines = [
-        preview.entry
-          ? `Catalog entry: ${preview.entry.id} → ${preview.entry.source}`
+        preview.entry ? `Catalog entry: ${preview.entry.id} → ${preview.entry.source}`
           : `Catalog entry not found: ${id}`,
         'Consent required — no install performed.',
         `Re-run: zavorth skill catalog install ${id} --consent`,
-        preview.plan
-          ? `Preview skill: ${preview.plan.skillName || preview.plan.skillId || '—'} risks=${preview.plan.risks.length}`
+        preview.plan ? `Preview skill: ${preview.plan.skillName || preview.plan.skillId || '—'} risks=${preview.plan.risks.length}`
           : null,
       ].filter(Boolean) as string[];
       writer.line(lines.join('\n'));
@@ -334,7 +332,7 @@ function handleList(skillsDir: string, registry: SkillLocalRegistry, writer: Cli
           const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
           version = manifest.version ? ` v${manifest.version}` : '';
         }
-        lines.push(`  ${dir}${version}${description ? ` - ${description}` : ''}`);
+        lines.push(`  ${dir}${version}${description ? ` ? ${description}` : ''}`);
       } catch {
         lines.push(`  ${dir}`);
       }
@@ -353,11 +351,11 @@ function trustIcon(level: string): string {
     case 'trusted':
       return '\u25cb';
     case 'unknown':
-      return '?';
+      return '...';
     case 'suspicious':
       return '\u2717';
     default:
-      return '?';
+      return '...';
   }
 }
 
@@ -481,7 +479,7 @@ function handleSkillTrust(rest: string[], writer: CliWriter): CliExecutionResult
     `Skill trust profile: ${trust.getProfile()} (env ZAVORTH_SKILL_TRUST_PROFILE=safe|daily|power)`,
     'Owner-trusted entries (generic; no competitor brands required):',
     ...(entries.length
-      ? entries.map((e) => `  - [${e.kind}] ${e.pattern}  id=${e.id}`)
+      ? entries.map((e) => ` ? [${e.kind}] ${e.pattern}  id=${e.id}`)
       : ['  (none — remote sources need consent under daily/safe)']),
     '',
     'Add: zavorth skill trust add domain github.com/my-org/',
@@ -696,7 +694,7 @@ async function handleInstall(
       lines.push(`Found ${skills.length} skills in repository:`);
       lines.push('');
       skills.forEach((s, i) => {
-        lines.push(`  ${i + 1}. ${s.name} v${s.version}${s.description ? ` - ${s.description}` : ''}`);
+        lines.push(`  ${i + 1}. ${s.name} v${s.version}${s.description ? ` ? ${s.description}` : ''}`);
       });
       lines.push('');
       lines.push('Install all:  zavorth skill install <url> --all');
@@ -875,7 +873,7 @@ function handlePublishPlan(rest: string[], skillsDir: string, writer: CliWriter)
     `  repo: ${plan.repoUrl || '(none)'}  allowed: ${plan.repoAllowed}`,
     `  artifact: ${written.path}`,
     ...plan.messages.map((m) => `  · ${m}`),
-    ...(plan.nextSteps.length ? ['  next:', ...plan.nextSteps.map((s) => `    - ${s}`)] : []),
+    ...(plan.nextSteps.length ? ['  next:', ...plan.nextSteps.map((s) => `    ? ${s}`)] : []),
   ];
   writer.line(lines.join('\n'));
   return {

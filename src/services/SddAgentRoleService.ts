@@ -30,22 +30,22 @@ export class SddAgentRoleService {
   private buildSpecBrief(snapshot: SddFeatureWorkspaceSnapshot): SddRoleBrief {
     const writeScope = [snapshot.paths.specFile];
     const checklist = [
-      'Refinar problema, objetivo, requisitos e criterios de aceitacao.',
+      'Refinar problema, objetivo, requisitos e criterios de aceitaction.',
       'Explicitar impacto em runtime, security, tenancy e surfaces.',
-      'Remover ambiguidades antes da implementacao.',
+      'Remover ambiguidades before da implementation.',
     ];
     return {
       role: 'spec',
       label: 'Spec Agent',
-      purpose: 'Clarificar o contrato funcional da feature antes de qualquer implementacao relevante.',
+      purpose: 'Clarify the feature functional contract before any relevant implementation.',
       writeScope,
       checklist,
       prompt: [
         `Feature: ${snapshot.featureId}`,
-        `Titulo: ${snapshot.title}`,
+        `Title: ${snapshot.title}`,
         'Papel: Spec Agent',
         `Write scope: ${writeScope.join(', ')}`,
-        'Objetivo: consolidar ou corrigir o spec da feature antes da execucao.',
+        'Objective: consolidate or fix the feature spec before execution.',
       ].join('\n'),
     };
   }
@@ -53,19 +53,19 @@ export class SddAgentRoleService {
   private buildPlannerBrief(snapshot: SddFeatureWorkspaceSnapshot): SddRoleBrief {
     const writeScope = [snapshot.paths.planFile, snapshot.paths.tasksFile];
     const checklist = [
-      'Alinhar plano com os arquivos reais e os riscos.',
+      'Align plan with real files and risks.',
       'Transformar o trabalho em tasks pequenas, verificaveis e em ordem.',
-      'Declarar validacao, rollout e rollback.',
+      'Declarar validation, rollout e rollback.',
     ];
     return {
       role: 'planner',
       label: 'Planner Agent',
-      purpose: 'Traduzir o spec em plano tecnico e tasks executaveis.',
+      purpose: 'Translate the spec into a technical plan and executable tasks.',
       writeScope,
       checklist,
       prompt: [
         `Feature: ${snapshot.featureId}`,
-        `Titulo: ${snapshot.title}`,
+        `Title: ${snapshot.title}`,
         'Papel: Planner Agent',
         `Write scope: ${writeScope.join(', ')}`,
         `Tasks abertas hoje: ${snapshot.openTasks.length}.`,
@@ -75,12 +75,12 @@ export class SddAgentRoleService {
 
   private buildExecutionBrief(snapshot: SddFeatureWorkspaceSnapshot): SddRoleBrief {
     const writeScope = Array.from(new Set([snapshot.paths.tasksFile, ...snapshot.referencedFiles]));
-    const currentTask = snapshot.currentTask?.text || 'Sem task aberta identificada.';
+    const currentTask = snapshot.currentTask?.text || 'without task aberta identificada.';
     const checklist = [
-      `Executar a task ativa: ${currentTask}`,
+      `run a task ativa: ${currentTask}`,
       'Respeitar estritamente o spec e o plan.',
-      'Adicionar ou ajustar testes quando a task tocar comportamento.',
-      'Nao expandir o escopo fora da primeira task aberta sem atualizar o plano.',
+      'Adicionar ou ajustar testes when a task tocar comportamento.',
+      'Do not expand scope outside the first open task without updating the plan.',
     ];
     return {
       role: 'execution',
@@ -90,7 +90,7 @@ export class SddAgentRoleService {
       checklist,
       prompt: [
         `Feature: ${snapshot.featureId}`,
-        `Titulo: ${snapshot.title}`,
+        `Title: ${snapshot.title}`,
         'Papel: Execution Agent',
         `Task ativa: ${currentTask}`,
         `Write scope inicial: ${writeScope.join(', ') || snapshot.paths.tasksFile}`,
@@ -101,22 +101,22 @@ export class SddAgentRoleService {
   private buildReviewBrief(snapshot: SddFeatureWorkspaceSnapshot): SddRoleBrief {
     const writeScope = [snapshot.paths.tasksFile, snapshot.paths.handoffFile, snapshot.paths.runStateFile];
     const checklist = [
-      'Comparar implementacao com spec, plan e tasks.',
-      'Confirmar build/testes/validacao operacional.',
-      'Marcar pronto, bloqueado ou devolver findings objetivos.',
+      'Comparar implementation com spec, plan e tasks.',
+      'Confirmar build/testes/validation operational.',
+      'Marcar ready, blocked ou devolver findings objetivos.',
     ];
     return {
       role: 'review',
       label: 'Review Agent',
-      purpose: 'Validar coerencia entre especificacao, execucao e evidencias antes de considerar a feature pronta.',
+      purpose: 'Validate coherence between specification, execution, and evidence before considering the feature ready.',
       writeScope,
       checklist,
       prompt: [
         `Feature: ${snapshot.featureId}`,
-        `Titulo: ${snapshot.title}`,
+        `Title: ${snapshot.title}`,
         'Papel: Review Agent',
         `Write scope: ${writeScope.join(', ')}`,
-        'Validar a feature contra spec, plan e tasks antes de promover para pronta.',
+        'validate a feature against spec, plan, and tasks before promoting to ready.',
       ].join('\n'),
     };
   }

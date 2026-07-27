@@ -44,9 +44,9 @@ export function formatSafetyNarrativeSnapshot(
     `- contract: ${snapshot.contractVersion}`,
     `- status: ${snapshot.status}`,
     `- high-risk: ${String(snapshot.highRiskBlockPresent)}`,
-    `- approvals continuam: ${String(snapshot.policy.approvalsRemainRequired)}`,
-    `- preview continua: ${String(snapshot.policy.previewRemainsRequired)}`,
-    `- segredos redigidos: ${snapshot.redaction.secretCount}`,
+    `- approvals remain required: ${String(snapshot.policy.approvalsRemainRequired)}`,
+    `- preview remains required: ${String(snapshot.policy.previewRemainsRequired)}`,
+    `- secrets redacted: ${snapshot.redaction.secretCount}`,
     `- paths redigidos: ${snapshot.redaction.sensitivePathCount}`,
     `- next step: ${snapshot.nextSafeAction}`,
   ];

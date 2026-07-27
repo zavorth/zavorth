@@ -213,7 +213,7 @@ export class ZavorthSkillAbsorptionMaterializationService {
       }
     }
     lines.push('', 'Policy: imported skills are governed instructions; support files are not executable tools.');
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -347,7 +347,7 @@ export class ZavorthSkillAbsorptionMaterializationService {
         preview: 'npm run zavorth:skill-absorption-materialize -- --source <path>',
         apply: 'npm run zavorth:skill-absorption-materialize -- --source <path> --apply --approval-id <approval-id> --allow-source --skills <name>',
         check: 'npm run zavorth:skill-absorption-materialize:check --silent',
-        nextStage: 'Surface controls - Natural Cross-Surface Commands',
+        nextAction: 'Surface controls - Natural Cross-Surface Commands',
       },
     };
   }

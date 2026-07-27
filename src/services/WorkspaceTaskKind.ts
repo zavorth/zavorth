@@ -36,33 +36,33 @@ type WorkspaceTaskKindSignal = {
   executor?: unknown;
 };
 
-const CODE_HINTS = ['corrig', 'ajust', 'refator', 'implem', 'bug', 'teste', 'test', 'review', 'revis', 'codigo', 'repo', 'projeto'];
-const RESEARCH_HINTS = ['pesquis', 'compare', 'levant', 'resuma', 'noticia', 'web', 'artigo', 'fonte', 'investig'];
-const DESIGN_HINTS = ['layout', 'design', 'ui', 'ux', 'tela', 'interface visual', 'figma', 'stitch', 'wireframe'];
-const AUTOMATION_HINTS = ['abra', 'navegue', 'clique', 'preencha', 'app', 'janela', 'interface', 'zavorthBridge', 'automat'];
+const CODE_HINTS = ['fix', 'adjust', 'refactor', 'implement', 'bug', 'test', 'tests', 'review', 'revision', 'code', 'repo', 'project'];
+const RESEARCH_HINTS = ['research', 'compare', 'survey', 'summar', 'news', 'web', 'article', 'source', 'investig'];
+const DESIGN_HINTS = ['layout', 'design', 'ui', 'ux', 'screen', 'interface', 'figma', 'stitch', 'wireframe'];
+const AUTOMATION_HINTS = ['open', 'navigate', 'click', 'fill', 'app', 'window', 'interface', 'zavorthBridge', 'automat'];
 
 const CODE_SUBTYPES: Array<{ subtype: WorkspaceTaskSubtype; hints: string[] }> = [
-  { subtype: 'testing', hints: ['teste', 'test', 'tests', 'spec', 'jest', 'pytest', 'coverage'] },
-  { subtype: 'review', hints: ['review', 'revis', 'auditoria', 'inspec', 'code review'] },
-  { subtype: 'debugging', hints: ['bug', 'erro', 'falha', 'quebra', 'stack trace', 'exception', 'crash', 'corrig'] },
-  { subtype: 'implementation', hints: ['implement', 'adicione', 'crie', 'construa', 'desenvolva', 'refator', 'ajust'] },
+  { subtype: 'testing', hints: ['test', 'tests', 'spec', 'jest', 'pytest', 'coverage'] },
+  { subtype: 'review', hints: ['review', 'revision', 'audit', 'inspect', 'code review'] },
+  { subtype: 'debugging', hints: ['bug', 'error', 'failure', 'break', 'stack trace', 'exception', 'crash', 'fix'] },
+  { subtype: 'implementation', hints: ['implement', 'add', 'create', 'build', 'develop', 'refactor', 'adjust'] },
 ];
 
 const RESEARCH_SUBTYPES: Array<{ subtype: WorkspaceTaskSubtype; hints: string[] }> = [
-  { subtype: 'comparison', hints: ['compare', 'comparar', 'versus', 'vs', 'diferenc'] },
-  { subtype: 'summarization', hints: ['resuma', 'resumo', 'sumar', 'sintet', 'explique'] },
-  { subtype: 'web_research', hints: ['pesquis', 'levant', 'fonte', 'artigo', 'noticia', 'web', 'investig'] },
+  { subtype: 'comparison', hints: ['compare', 'versus', 'vs', 'difference'] },
+  { subtype: 'summarization', hints: ['summar', 'summary', 'summarize', 'synthesize', 'explain'] },
+  { subtype: 'web_research', hints: ['research', 'survey', 'source', 'article', 'news', 'web', 'investig'] },
 ];
 
 const DESIGN_SUBTYPES: Array<{ subtype: WorkspaceTaskSubtype; hints: string[] }> = [
-  { subtype: 'figma_design', hints: ['figma', 'component', 'variantes', 'design system'] },
-  { subtype: 'ui_design', hints: ['layout', 'ui', 'ux', 'tela', 'interface', 'wireframe'] },
+  { subtype: 'figma_design', hints: ['figma', 'component', 'variants', 'design system'] },
+  { subtype: 'ui_design', hints: ['layout', 'ui', 'ux', 'screen', 'interface', 'wireframe'] },
 ];
 
 const AUTOMATION_SUBTYPES: Array<{ subtype: WorkspaceTaskSubtype; hints: string[] }> = [
-  { subtype: 'form_fill', hints: ['preencha', 'digite', 'submit', 'formulario', 'login'] },
-  { subtype: 'navigation', hints: ['abra', 'navegue', 'clique', 'acesse', 'menu'] },
-  { subtype: 'app_control', hints: ['app', 'janela', 'zavorthBridge', 'processo', 'desktop'] },
+  { subtype: 'form_fill', hints: ['fill', 'type', 'submit', 'form', 'login'] },
+  { subtype: 'navigation', hints: ['open', 'navigate', 'click', 'access', 'menu'] },
+  { subtype: 'app_control', hints: ['app', 'window', 'zavorthBridge', 'process', 'desktop'] },
 ];
 
 export function classifyWorkspaceTaskProfile(signal: WorkspaceTaskKindSignal): WorkspaceTaskProfile {

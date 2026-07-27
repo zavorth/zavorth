@@ -22,9 +22,8 @@ export class SynologyChatGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/synology-chat',
       doctorCommand: '/channels doctor synology-chat',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Synology Chat webhook configurado. Pronto para enviar mensagens.'
-        : 'Defina SYNOLOGY_CHAT_WEBHOOK_URL para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'Synology Chat webhook configured. Ready to send messages.'
+        : 'Set SYNOLOGY_CHAT_WEBHOOK_URL to enable.',
     };
   }
 

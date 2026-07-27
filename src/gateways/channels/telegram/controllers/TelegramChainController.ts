@@ -50,7 +50,7 @@ export class TelegramChainController {
     ]);
 
     if (segments.length > maxChainSegments) {
-      await ctx.reply(`Chains aceitam no maximo ${maxChainSegments} comandos por vez.`);
+      await ctx.reply(`Chains accept at most ${maxChainSegments} commands at a time.`);
       return;
     }
 
@@ -75,7 +75,7 @@ export class TelegramChainController {
       let command = await this.resolveChainTemplates(segmentDefinition.command, chainArtifacts, userId);
 
       if (i > 0 && previousOutput && !/{{[^}]+}}/.test(segmentDefinition.command)) {
-        command = `${command}\n\nContexto do passo anterior:\n${previousOutput.slice(0, 500)}`;
+        command = `${command}\n\nPrevious step context:\n${previousOutput.slice(0, 500)}`;
       }
 
       const capturedOutputs: string[] = [];
@@ -87,7 +87,7 @@ export class TelegramChainController {
         return { message_id: 0, text: message, options };
       };
       (chainedCtx as any).replyWithDocument = async (_file: unknown, extra?: Record<string, unknown>) => {
-        const summary = String(extra?.caption || '[documento enviado]');
+        const summary = String(extra?.caption || '[document sent]');
         capturedOutputs.push(summary);
         return { message_id: 0, caption: summary };
       };
@@ -106,23 +106,22 @@ export class TelegramChainController {
         const aliasSuffix = segmentDefinition.alias ? ` => ${segmentDefinition.alias}` : '';
         summaries.push(
           `Passo ${i + 1}${aliasSuffix}: ${segments[i]}${
-            previousOutput
-              ? `\n${this.deps.truncateForTelegram(previousOutput, 700)}`
-              : '\nSem resposta textual.'
+            previousOutput ? `\n${this.deps.truncateForTelegram(previousOutput, 700)}`
+              : '\nNo text response.'
           }`,
         );
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        summaries.push(`Passo ${i + 1}: ${segments[i]}\nFalhou: ${error instanceof Error ? err.message : String(error)}`);
+        summaries.push(`Passo ${i + 1}: ${segments[i]}\nFailed: ${error instanceof Error ? err.message : String(error)}`);
         previousOutput = '';
       }
     }
 
-    await SmartOutputService.reply(ctx, `Chain concluida.\n\n${summaries.join('\n\n---\n\n')}`);
+    await SmartOutputService.reply(ctx, `Chain completed.\n\n${summaries.join('\n\n---\n\n')}`);
   }
 
   public parseChainSegment(rawSegment: string): { command: string; alias: string | null } {
-    const match = rawSegment.match(/^(.*?)(?:\s+=>\s+([A-Za-z][\w-]{1,31}))$/);
+    const match = rawSegment.match(/^(.*...)(?:\s+=>\s+([A-Za-z][\w-]{1,31}))$/);
     if (!match) {
       return { command: rawSegment.trim(), alias: null };
     }
@@ -155,7 +154,7 @@ export class TelegramChainController {
         return artifacts[artifacts.length - 1]?.summary || '';
       }
 
-      const stepMatch = normalized.match(/^step(\d+)(?:\.(summary|command))?$/);
+      const stepMatch = normalized.match(/^step(\d+)(?:\.(summary|command))...$/);
       if (stepMatch) {
         const artifact = artifacts.find((item) => item.index === Number(stepMatch[1]));
         if (!artifact) {

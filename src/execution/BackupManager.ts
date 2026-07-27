@@ -4,11 +4,11 @@ import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 import { FileManager } from './FileManager.js';
 
 export class BackupManager {
-  
+
   public static createBackup(workspace: string, targetPath: string, taskId: string): void {
     const resolvedWorkspace = WorkspaceResolver.validate(workspace);
     const safePath = WorkspaceResolver.ensurePathInsideWorkspace(resolvedWorkspace, targetPath);
-    
+
     // If the file does not exist, the rollback backup is a delete marker for the new file.
     let content = null;
     if (fs.existsSync(safePath)) {

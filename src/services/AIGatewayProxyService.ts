@@ -181,8 +181,7 @@ export class AIGatewayProxyService {
   }
 
   public readPersistedStatus(): AIGatewayProxyStatus {
-    const fallback = this.buildStatus(false, false, config.zavorthAIGatewayGatewayEnabled
-      ? 'AIGateway local gateway has not started in this session yet.'
+    const fallback = this.buildStatus(false, false, config.zavorthAIGatewayGatewayEnabled ? 'AIGateway local gateway has not started in this session yet.'
       : 'AIGateway local gateway is disabled.');
 
     try {
@@ -206,7 +205,7 @@ export class AIGatewayProxyService {
     const normalizedPath = requestUrl.pathname.replace(/\/+$/, '') || '/';
 
     // The configured gateway base URL includes `/v1`, so internal probes end up
-    // hitting `/v1/health`. Accept both shapes to avoid false-negative restarts.
+    // hitting `/v1/health`. Accept both shapes to avoid false-denytive restarts.
     if (normalizedPath === '/health' || normalizedPath === '/v1/health') {
       const ready = await this.isUpstreamHealthy();
       this.writeJson(res, ready
@@ -235,7 +234,7 @@ export class AIGatewayProxyService {
       }
 
       const upstreamUrl = new URL(
-        requestUrl.pathname.replace(/^\/v1\/?/, '').replace(/^\/+/, '') + requestUrl.search,
+        requestUrl.pathname.replace(/^\/v1\/.../, '').replace(/^\/+/, '') + requestUrl.search,
         `${config.AIGatewayUpstreamBaseUrl.replace(/\/+$/, '')}/`,
       );
       const headers = new Headers();
@@ -392,7 +391,7 @@ export class AIGatewayProxyService {
       return response.ok;
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      logger.warn('Local gateway healthcheck failed.', { err });
+      logger.warn('local gateway healthcheck failed.', { err });
       return false;
     }
   }
@@ -411,7 +410,7 @@ export class AIGatewayProxyService {
       return response.ok;
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      logger.warn('Healthcheck do upstream falhou.', { err });
+      logger.warn('Healthcheck do upstream failed.', { err });
       return false;
     }
   }
@@ -610,7 +609,7 @@ export class AIGatewayProxyService {
 
   private resolveUpstreamHealthUrl(): string {
     if (this.isGoogleAiStudioUpstream()) {
-      return this.joinUrl(config.AIGatewayUpstreamBaseUrl, 'v1/models?pageSize=1');
+      return this.joinUrl(config.AIGatewayUpstreamBaseUrl, 'v1/models...pageSize=1');
     }
     return this.joinUrl(config.AIGatewayUpstreamBaseUrl, 'models');
   }
@@ -636,7 +635,7 @@ export class AIGatewayProxyService {
   }
 
   private isGoogleAiStudioUpstream(): boolean {
-    return /\/google-ai-studio\/?$/i.test(config.AIGatewayUpstreamBaseUrl);
+    return /\/google-ai-studio\/...$/i.test(config.AIGatewayUpstreamBaseUrl);
   }
 
   private readOverlay(): GatewayOverlay {

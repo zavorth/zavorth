@@ -37,7 +37,7 @@ function getColumnNames(db: SqliteDatabase, tableName: string): Set<string> {
 
 function tableExists(db: SqliteDatabase, tableName: string): boolean {
   const row = db
-    .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?")
+    .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ...")
     .get(tableName);
   return Boolean(row);
 }
@@ -108,5 +108,5 @@ export function recordZavorthMigration(
   ensureZavorthMigrationLedger(db);
 
   const table = quoteSqlIdentifier(ZAVORTH_STORAGE_PLANE.migrationLedgerTable);
-  db.prepare(`INSERT OR IGNORE INTO ${table} (version, name) VALUES (?, ?)`).run(version, name);
+  db.prepare(`INSERT OR IGNORE INTO ${table} (version, name) VALUES (..., ...)`).run(version, name);
 }

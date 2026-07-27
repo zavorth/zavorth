@@ -1074,7 +1074,7 @@ export class WebAppRuntimeStateRouteService {
           require('../../../../services/ExperienceSkillLearningLoopService.js') as typeof import('../../../../services/ExperienceSkillLearningLoopService.js');
         const { resolveLearningLoopApiUserId, isLoopbackRemoteAddress } =
           require('../../../../services/ZavorthLearningWriteAuth.js') as typeof import('../../../../services/ZavorthLearningWriteAuth.js');
-        // Prefer session identity. Local UI ids (control/desktop) only on loopback socket peer.
+        // Prefer session identity. local UI ids (control/desktop) only on loopback socket peer.
         const requestedUserId = String(url.searchParams.get('userId') || '').trim();
         const isLoopback = isLoopbackRemoteAddress(req.socket?.remoteAddress);
         const authIdentity = deps.auth?.resolveAuthenticatedIdentity?.(req) || null;
@@ -1424,7 +1424,7 @@ export class WebAppRuntimeStateRouteService {
             ok: false,
             error: 'provider_model_catalog_live_probe_requires_explicit_operator_cli_or_approved_api',
             detail:
-              'O zavorthControl renderiza o catalogo de providers/modelos sem chamada live oculta. Prova live precisa ser acionada explicitamente pelo operador.',
+              'zavorthControl renders the provider/model catalog without hidden live calls. Live proof must be triggered explicitly by the operator.',
           },
           403,
         );
@@ -1453,7 +1453,7 @@ export class WebAppRuntimeStateRouteService {
             ok: false,
             error: 'provider_activation_live_probe_requires_explicit_operator_cli_or_approved_api',
             detail:
-              'O zavorthControl renderiza ativacao de providers sem chamada live oculta. Prova live deve ser acionada explicitamente pelo operador.',
+              'zavorthControl renders provider activation without hidden live calls. Live proof must be explicitly triggered by the operator.',
           },
           403,
         );
@@ -1496,7 +1496,7 @@ export class WebAppRuntimeStateRouteService {
             candidates: [],
             narrative: {
               headline: 'Learning plane unavailable.',
-              operatorSummary: 'O runtime atual nao carregou o learning plane.',
+              operatorSummary: 'The current runtime did not load the learning plane.',
             },
           },
         },
@@ -1512,11 +1512,11 @@ export class WebAppRuntimeStateRouteService {
         .trim()
         .toLowerCase();
       if (!candidateId) {
-        deps.writeJson(res, { ok: false, error: 'candidateId obrigatorio.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'candidateId required.' }, 400);
         return true;
       }
       if (!['approve', 'reject', 'promote'].includes(actionId)) {
-        deps.writeJson(res, { ok: false, error: 'actionId invalido para learning plane.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'actionId invalid para learning plane.' }, 400);
         return true;
       }
       const execution = await deps.executeLearningAction({

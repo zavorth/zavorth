@@ -45,8 +45,7 @@ export class ZavorthSkillPackReceiptEmitterService {
           manifest,
           status: evaluation?.enableAllowed ? 'pass' : 'deny',
           ownerApprovalRequired: evaluation?.ownerApprovalRequired ?? manifest.ownerApprovalRequiredForEnablement,
-          reason: evaluation?.enableAllowed
-            ? `${manifest.id} can be enabled by current local policy.`
+          reason: evaluation?.enableAllowed ? `${manifest.id} can be enabled by current local policy.`
             : `${manifest.id} enablement denied safely: ${evaluation?.reason || 'approval required'}.`,
         }),
         this.receipt({
@@ -54,8 +53,7 @@ export class ZavorthSkillPackReceiptEmitterService {
           manifest,
           status: evaluation?.executeAllowed ? 'pass' : 'deny',
           ownerApprovalRequired: evaluation?.ownerApprovalRequired ?? manifest.ownerApprovalRequiredForEnablement,
-          reason: evaluation?.executeAllowed
-            ? `${manifest.id} can run in non-destructive dry-run mode.`
+          reason: evaluation?.executeAllowed ? `${manifest.id} can run in non-destructive dry-run mode.`
             : `${manifest.id} execution denied safely: ${evaluation?.reason || 'approval required'}.`,
         }),
       ];

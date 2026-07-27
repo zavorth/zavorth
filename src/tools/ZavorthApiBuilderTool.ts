@@ -8,7 +8,7 @@ export class ZavorthApiBuilderTool extends BaseTool {
   public readonly name = 'zavorth_api_builder';
 
   public readonly description =
-    'API builder — generate OpenAPI/Swagger specs, create REST endpoints, mock servers, test endpoints, validate schemas, generate client SDKs, and API documentation.';
+    'API builder — generate OpenAPI/Swagger specs, create REST endpoints, local servers, test endpoints, validate schemas, generate client SDKs, and API documentation.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -59,7 +59,7 @@ export class ZavorthApiBuilderTool extends BaseTool {
       },
       port: {
         type: 'number',
-        description: 'Port for mock server. Default: 3000.',
+        description: 'Port for local server. Default: 3000.',
       },
       language: {
         type: 'string',
@@ -224,7 +224,7 @@ export class ZavorthApiBuilderTool extends BaseTool {
       const { execFileSync } = await import('child_process');
 
       try {
-        execFileSync('npx', ['--yes', 'openapi-mock-cli', '--port', String(port), specPath], {
+        execFileSync('npx', ['--yes', 'openapi-local-cli', '--port', String(port), specPath], {
           timeout: 5000,
         });
       } catch (error: unknown) {// The server runs in background, this is expected to timeout
@@ -426,7 +426,7 @@ ${pathsHtml || '<p>No endpoints defined.</p>'}
           const required = (s.required || []) as string[];
           for (const [prop, propSchema] of Object.entries(s.properties as Record<string, unknown>)) {
             const ps = propSchema as Record<string, unknown>;
-            const optional = required.includes(prop) ? '' : '?';
+            const optional = required.includes(prop) ? '' : '...';
             const tsType = this.openapiTypeToTs(ps);
             types.push(`  ${prop}${optional}: ${tsType};`);
           }

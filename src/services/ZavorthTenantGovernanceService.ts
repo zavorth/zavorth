@@ -192,34 +192,34 @@ export class ZavorthTenantGovernanceService {
     );
     const reviewTeams = this.createAction(
       'review-teams',
-      'Revisar /teams',
-      'Confere quais workflows compostos podem operar nesta superficie.',
+      'review /teams',
+      'Confere quais workflows compostos podem operar nesta surface.',
       '/teams',
     );
     const reviewChannels = this.createAction(
       'review-channels',
-      'Revisar /channels',
-      'Confere o channel mesh oficial antes de abrir novas superficies.',
+      'review /channels',
+      'Confere o channel mesh oficial before abrir new surfaces.',
       '/channels',
     );
     const reviewRuntime = this.createAction(
       'review-runtime',
-      'Revisar /runtime',
+      'review /runtime',
       'Confere posture, fail-closed e sinais do runtime principal.',
       '/runtime',
     );
     const reviewMemoryPlane = this.createAction(
       'review-memoryplane',
-      'Revisar /memoryplane',
-      'Retoma contexto, entregas e memorys ligadas a este tenant.',
+      'review /memoryplane',
+      'Resumes contexto, entregas e memorys ligadas a este tenant.',
       '/memoryplane',
       'secondary',
       'guided',
     );
     const reviewSessions = this.createAction(
       'review-sessions',
-      'Revisar /sessions',
-      'Abre o session plane para retomadas e handoffs ligados ao tenant.',
+      'review /sessions',
+      'Opens the session plane for resume points and handoffs linked to the tenant.',
       '/sessions',
       'secondary',
       'guided',
@@ -235,7 +235,7 @@ export class ZavorthTenantGovernanceService {
         this.createAction(
           'start-onboarding-review',
           'Abrir review de onboarding',
-          'Dispara um workflow de review para fechar onboarding e policy do tenant.',
+          'Starts a review workflow to close tenant onboarding and policy.',
           `/workflow review Fechar onboarding do tenant ${record.tenantId}`,
           'primary',
         ),
@@ -256,8 +256,8 @@ export class ZavorthTenantGovernanceService {
         inspectTenant,
         this.createAction(
           'start-tenant-audit',
-          'Abrir auditoria do tenant',
-          'Dispara um workflow de review para auditar governanca e superficie publica.',
+          'Open audit do tenant',
+          'Starts a review workflow to audit governance and public surface.',
           `/workflow review Auditar governanca do tenant ${record.tenantId}`,
           'primary',
         ),
@@ -278,7 +278,7 @@ export class ZavorthTenantGovernanceService {
         this.createAction(
           'start-onboarding-review',
           'Abrir review de onboarding',
-          'Dispara um workflow de review para fechar onboarding e policy do tenant.',
+          'Starts a review workflow to close tenant onboarding and policy.',
           `/workflow review Fechar onboarding do tenant ${record.tenantId}`,
           'primary',
         ),
@@ -291,8 +291,8 @@ export class ZavorthTenantGovernanceService {
       inspectTenant,
       this.createAction(
         'start-tenant-audit',
-        'Abrir auditoria do tenant',
-        'Dispara um workflow de review para auditar governanca e continuidade do tenant.',
+        'Open audit do tenant',
+        'Starts a review workflow to audit tenant governance and continuity.',
         `/workflow review Auditar governanca do tenant ${record.tenantId}`,
         'primary',
       ),
@@ -315,8 +315,8 @@ export class ZavorthTenantGovernanceService {
         id: `recipe:${record.tenantId}:personal-retake`,
         tenantId: record.tenantId,
         governanceStatus,
-        label: 'Retomar tenant pessoal',
-        summary: 'Use o session/memory plane antes de abrir novas automacoes ou trocar de superficie.',
+        label: 'resume tenant pessoal',
+        summary: 'Use the session/memory plane before opening new automations or changing surface.',
         actions,
       };
     }
@@ -326,8 +326,8 @@ export class ZavorthTenantGovernanceService {
         id: `recipe:${record.tenantId}:public-onboarding`,
         tenantId: record.tenantId,
         governanceStatus,
-        label: 'Fechar onboarding do tenant publico',
-        summary: 'Mantenha o tenant fail-closed ate owners, allowlists e workflows refletirem o runtime oficial.',
+        label: 'Close public tenant onboarding',
+        summary: 'Keep the tenant fail-closed until owners, allowlists, and workflows reflect the official runtime.',
         actions,
       };
     }
@@ -337,8 +337,8 @@ export class ZavorthTenantGovernanceService {
         id: `recipe:${record.tenantId}:public-audit`,
         tenantId: record.tenantId,
         governanceStatus,
-        label: 'Auditar tenant publico',
-        summary: 'Revalide allowlists, channel mesh e workflows compostos antes de ampliar o uso publico.',
+        label: 'Audit public tenant',
+        summary: 'Revalidate allowlists, channel mesh, and composed workflows before expanding public usage.',
         actions,
       };
     }
@@ -349,7 +349,7 @@ export class ZavorthTenantGovernanceService {
         tenantId: record.tenantId,
         governanceStatus,
         label: 'Fechar onboarding compartilhado',
-        summary: 'Conclua policy e revisao de workflows antes de tratar o tenant como pronto.',
+        summary: 'Conclua policy e review de workflows before tratar o tenant como ready.',
         actions,
       };
     }
@@ -359,7 +359,7 @@ export class ZavorthTenantGovernanceService {
       tenantId: record.tenantId,
       governanceStatus,
       label: 'Auditar tenant compartilhado',
-      summary: 'Revise workflow surface, sessoes e policy profile antes da proxima rodada operacional.',
+      summary: 'Review workflow surface, sessions, and policy profile before the next operational run.',
       actions,
     };
   }
@@ -439,24 +439,23 @@ export class ZavorthTenantGovernanceService {
     governanceStatus: ZavorthTenantGovernanceStatus,
   ): string {
     if (governanceStatus === 'personal') {
-      return `Tenant pessoal em ${record.platform}, isolado por ${record.isolationMode}.`;
+      return `Personal tenant on ${record.platform}, isolated by ${record.isolationMode}.`;
     }
 
     if (governanceStatus === 'pending_onboarding') {
-      return record.publicServerMode
-        ? `Tenant publico de ${record.platform} ainda aguarda onboarding e allowlist explicita.`
+      return record.publicServerMode ? `Public tenant on ${record.platform} still awaits onboarding and explicit allowlist.`
         : `Tenant compartilhado de ${record.platform} ainda pede onboarding formal.`;
     }
 
     if (governanceStatus === 'restricted') {
-      return `Tenant publico de ${record.platform} esta fail-closed: nenhum canal permitido foi definido.`;
+      return `Public tenant on ${record.platform} is fail-closed: no allowed channel was defined.`;
     }
 
     if (record.publicServerMode) {
-      return `Tenant publico de ${record.platform} pronto com ${record.allowedChannelIds.length} canal(is) permitido(s) e ${record.ownerUserIds.length} owner(s).`;
+      return `Public tenant on ${record.platform} ready with ${record.allowedChannelIds.length} allowed channel(s) and ${record.ownerUserIds.length} owner(s).`;
     }
 
-    return `Tenant compartilhado de ${record.platform} pronto com policy ${record.policyProfile}.`;
+    return `Tenant compartilhado de ${record.platform} ready com policy ${record.policyProfile}.`;
   }
 
   private buildEntryNextAction(
@@ -465,13 +464,13 @@ export class ZavorthTenantGovernanceService {
   ): string | null {
     if (governanceStatus === 'pending_onboarding' || governanceStatus === 'restricted') {
       if (record.publicServerMode) {
-        return 'Configurar owners e canais permitidos antes de liberar a superficie publica.';
+        return 'Configure owners and allowed channels before enabling the public surface.';
       }
-      return 'Fechar onboarding e policy antes de tratar este tenant como pronto.';
+      return 'Fechar onboarding e policy before tratar este tenant como ready.';
     }
 
     if (governanceStatus === 'ready' && record.publicServerMode && record.allowedChannelIds.length > 0) {
-      return 'Validar que a allowlist continua refletindo os canais oficiais do runtime.';
+      return 'validate que a allowlist continua refletindo os channels oficiais do runtime.';
     }
 
     return null;
@@ -484,16 +483,14 @@ export class ZavorthTenantGovernanceService {
   }): string {
     const parts = [
       `${input.summary.sharedCount} compartilhado(s)`,
-      `${input.readyShared} pronto(s)`,
-      input.summary.pendingOnboardingCount
-        ? `${input.summary.pendingOnboardingCount} pendente(s) de onboarding`
-        : 'nenhum onboarding pendente',
-      input.restrictedShared
-        ? `${input.restrictedShared} fail-closed por falta de allowlist`
-        : 'sem tenants compartilhados restritos',
+      `${input.readyShared} ready`,
+      input.summary.pendingOnboardingCount ? `${input.summary.pendingOnboardingCount} pending(s) de onboarding`
+        : 'nenhum onboarding pending',
+      input.restrictedShared ? `${input.restrictedShared} fail-closed por missing de allowlist`
+        : 'without tenants compartilhados restritos',
     ];
     if (input.summary.publicServerCount) {
-      parts.push(`${input.summary.publicServerCount} em modo servidor publico`);
+      parts.push(`${input.summary.publicServerCount} in public server mode`);
     }
     return parts.join(' | ');
   }
@@ -503,11 +500,11 @@ export class ZavorthTenantGovernanceService {
     restrictedShared: number;
   }): string {
     if (input.summary.pendingOnboardingCount > 0 || input.restrictedShared > 0) {
-      return 'Usar este plano para fechar onboarding, owner scope e allowlists antes de abrir novas superficies.';
+      return 'Use this plan to close onboarding, owner scope, and allowlists before opening new surfaces.';
     }
     if (input.summary.sharedCount > 0) {
-      return 'Revisar periodicamente owners, canais allowed e policy profiles dos tenants compartilhados.';
+      return 'review periodicamente owners, channels allowed e policy profiles dos tenants compartilhados.';
     }
-    return 'Quando novas superficies nascerem, observe os tenants aqui antes de liberar automacoes.';
+    return 'when new surfaces nascerem, observe os tenants aqui before enable automations.';
   }
 }

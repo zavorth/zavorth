@@ -58,7 +58,7 @@ export async function PUT(request) {
   }
 }
 
-// DELETE /api/models/alias?alias=xxx - Delete alias
+// DELETE /api/models/alias...alias=xxx - Delete alias
 export async function DELETE(request) {
   try {
     // Require authentication for security

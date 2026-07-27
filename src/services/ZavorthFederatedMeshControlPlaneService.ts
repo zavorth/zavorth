@@ -407,10 +407,10 @@ export class ZavorthFederatedMeshControlPlaneService {
         ...(input.hostHints || {}),
         surface: profile,
       },
-      operatorSummary: `${profile} pareado no Federated Mesh. Aguardando heartbeat para receber workloads.`,
+      operatorSummary: `${profile} paired in Federated Mesh. Awaiting heartbeat to receive workloads.`,
     });
     if (!approved) {
-      throw new Error(`Nao foi possivel parear node federado ${draft.entry.id}.`);
+      throw new Error(`Could not pair federated node ${draft.entry.id}.`);
     }
     this.registryService.patchNode(approved.id, {
       notes: this.mergeFederatedNotes(approved.notes, {
@@ -426,7 +426,7 @@ export class ZavorthFederatedMeshControlPlaneService {
       node,
       pairingCode: draft.pairingCode,
       bootstrapCommand: draft.bootstrap?.command || null,
-      summary: `${node.label} pareado como ${node.profile}; heartbeat ainda define online/offline.`,
+      summary: `${node.label} paired como ${node.profile}; heartbeat ainda define online/offline.`,
     };
   }
 
@@ -454,7 +454,7 @@ export class ZavorthFederatedMeshControlPlaneService {
         generatedAt: this.now().toISOString(),
         status: 'missing',
         node: null,
-        summary: 'Heartbeat rejeitado: node nao encontrado no registry federado.',
+        summary: 'Heartbeat rejected: node not found in federated registry.',
       };
     }
     const patched = this.registryService.patchNode(heartbeat.id, {
@@ -469,7 +469,7 @@ export class ZavorthFederatedMeshControlPlaneService {
       generatedAt: this.now().toISOString(),
       status: 'accepted',
       node,
-      summary: `${node.label} publicou heartbeat; status federado agora e ${node.status}.`,
+      summary: `${node.label} published heartbeat; federated status is now ${node.status}.`,
     };
   }
 
@@ -482,13 +482,13 @@ export class ZavorthFederatedMeshControlPlaneService {
     node: FederatedMeshNodeView | null;
     summary: string;
   } {
-    const revoked = this.pairingService.revokePairing(input.nodeId, input.reason || 'Revogado no Federated Mesh.');
+    const revoked = this.pairingService.revokePairing(input.nodeId, input.reason || 'Revoked in Federated Mesh.');
     if (!revoked) {
       return {
         generatedAt: this.now().toISOString(),
         status: 'missing',
         node: null,
-        summary: 'Node nao encontrado para revogacao.',
+        summary: 'Node not found for revocation.',
       };
     }
     const node = this.buildNodeView(revoked);
@@ -496,7 +496,7 @@ export class ZavorthFederatedMeshControlPlaneService {
       generatedAt: this.now().toISOString(),
       status: 'revoked',
       node,
-      summary: `${node.label} revogado; nao entra mais no route planner.`,
+      summary: `${node.label} revoked; no longer enters the route planner.`,
     };
   }
 
@@ -527,7 +527,7 @@ export class ZavorthFederatedMeshControlPlaneService {
         status: candidates.some((entry) => entry.node.source === 'node-mesh') ? 'blocked' : 'dormant',
         selectedNode: null,
         candidates,
-        reasons: ['Nenhum node elegivel para a capability solicitada e fallback local foi desabilitado.'],
+        reasons: ['No eligible node for the requested capability and local fallback is disabled.'],
         blockers: candidates.flatMap((entry) => entry.blockers),
         queueControl,
         mutationPlan: null,
@@ -548,7 +548,7 @@ export class ZavorthFederatedMeshControlPlaneService {
         reasons: [
           ...selected.reasons,
           remoteEligible.length === 0
-            ? 'Nenhum node remoto online e confiavel cobre a capability; mantendo fallback local.'
+            ? 'No node remote online e trusted cobre a capability; mantendo fallback local.'
             : 'Policy preferiu fallback local.',
         ],
         blockers: candidates.filter((entry) => entry.node.source === 'node-mesh').flatMap((entry) => entry.blockers),
@@ -579,7 +579,7 @@ export class ZavorthFederatedMeshControlPlaneService {
         riskLevel: mutationPlan.riskLevel,
         approvalRequired: true,
         capabilityId,
-        reason: `Invocacao mutavel remota em ${selected.node.label} exige approval.`,
+        reason: `Remote mutable invocation on ${selected.node.label} requires approval.`,
         payload: {
           nodeId: selected.node.id,
           profile: selected.node.profile,
@@ -607,7 +607,7 @@ export class ZavorthFederatedMeshControlPlaneService {
         candidates,
         reasons: [
           ...selected.reasons,
-          'Invocacao mutavel remota foi convertida em MutationPlan antes de tocar a fila.',
+          'Remote mutable invocation was converted into a MutationPlan before touching the queue.',
         ],
         blockers: [],
         queueControl,
@@ -645,9 +645,8 @@ export class ZavorthFederatedMeshControlPlaneService {
       candidates,
       reasons: [
         ...selected.reasons,
-        invocationResult
-          ? 'Workload read-only enfileirado com idempotency key, retry/backoff e cancel token.'
-          : 'Route planner escolheu o node, mas nao enfileirou porque persist=false.',
+        invocationResult ? 'Workload read-only enfileirado with idempotency key, retry/backoff e cancel token.'
+          : 'Route planner selected the node, but did not enqueue because persist=false.',
       ],
       blockers: [],
       queueControl,
@@ -668,7 +667,7 @@ export class ZavorthFederatedMeshControlPlaneService {
     const capabilityIds = this.defaultCapabilities('local');
     return {
       id: this.localNodeId,
-      label: `Local host (${os.hostname() || 'host'})`,
+      label: `local host (${os.hostname() || 'host'})`,
       source: 'local',
       profile: 'local',
       trust: 'trusted',
@@ -694,8 +693,8 @@ export class ZavorthFederatedMeshControlPlaneService {
         workspace: config.projectRoot,
         surface: 'local',
       },
-      operatorSummary: 'Fallback local sempre disponivel sem iniciar runtime remoto pesado.',
-      reasons: ['Node local sintetico para fallback quando a malha remota estiver offline.'],
+      operatorSummary: 'Fallback local sempre available without iniciar runtime remote pesado.',
+      reasons: ['Synthetic local node for fallback when the remote mesh is offline.'],
     };
   }
 
@@ -753,31 +752,31 @@ export class ZavorthFederatedMeshControlPlaneService {
       const blockers: string[] = [];
       const reasons: string[] = [];
       if (!node.capabilityIds.includes(input.capabilityId)) {
-        blockers.push(`Node nao declarou ${input.capabilityId}.`);
+        blockers.push(`Node did not declare ${input.capabilityId}.`);
       } else {
         reasons.push(`Node declarou ${input.capabilityId}.`);
       }
       if (!node.approvedCapabilityIds.includes(input.capabilityId)) {
-        blockers.push(`Allowlist do node nao aprovou ${input.capabilityId}.`);
+        blockers.push(`Node allowlist did not approve ${input.capabilityId}.`);
       }
       if (node.revoked || node.trust === 'blocked') {
-        blockers.push('Node revogado ou bloqueado pelo trust federado.');
+        blockers.push('Node revogado ou blocked pelo trust federado.');
       }
       if (node.source === 'node-mesh' && node.status !== 'online') {
-        blockers.push(`Node remoto nao esta online (${node.status}).`);
+        blockers.push(`Remote node is not online (${node.status}).`);
       }
       if (input.mutable && node.source === 'node-mesh' && node.trust !== 'trusted') {
-        blockers.push('Invocacao mutavel remota exige trust=trusted.');
+        blockers.push('Remote mutable invocation requires trust=trusted.');
       }
       if (input.mutable && !node.commandScopes.some((scope) => scope === 'write' || scope === 'execute')) {
-        blockers.push('Escopo de comandos nao permite write/execute.');
+        blockers.push('Command scope does not allow write/execute.');
       }
       const eligible = blockers.length === 0;
       const score = this.scoreNode(node, input.preferProfile || null, input.capabilityId);
       if (eligible) {
         reasons.push(`score=${score}`);
-        reasons.push(`latencia=${node.transportHealth.latencyMs}ms`);
-        reasons.push(`custo=${node.transportHealth.costScore}`);
+        reasons.push(`latency=${node.transportHealth.latencyMs}ms`);
+        reasons.push(`cost=${node.transportHealth.costScore}`);
       }
       return {
         node,
@@ -829,13 +828,13 @@ export class ZavorthFederatedMeshControlPlaneService {
     return this.mutationPlaneService.createPlan({
       domain: 'federated-mesh',
       actionId: 'invoke-remote-capability',
-      title: `Invocar ${input.capabilityId} em ${input.node.label}`,
-      summary: `Workload mutavel remoto para ${input.node.profile}/${input.node.id} com approval antes da fila.`,
+      title: `Invoke ${input.capabilityId} em ${input.node.label}`,
+      summary: `Remote mutable workload for ${input.node.profile}/${input.node.id} with approval before queueing.`,
       requestedBy: input.requestedBy,
       sourceSurface: input.sourceSurface || 'federated-mesh',
       riskLevel: input.riskLevel,
       approvalRequired: true,
-      approvalReason: 'Invocacao mutavel em node remoto exige Trust Plane e audit local/remoto.',
+      approvalReason: 'Mutable invocation on a remote node requires Trust Plane and local/remote audit.',
       resourceImpact: {
         ramMb: input.node.profile === 'gpu-worker' ? 2048 : 512,
         diskMb: 256,
@@ -850,19 +849,19 @@ export class ZavorthFederatedMeshControlPlaneService {
       },
       readinessGates: this.buildRemoteReadinessGates(input.node),
       validationPlan: [
-        'Confirmar que node continua online antes de enfileirar.',
-        'Confirmar idempotency key antes de retry.',
-        'Registrar audit local e remoto no completion do node.',
+        'Confirmar que node continua online before enfileirar.',
+        'Confirmar idempotency key before retry.',
+        'Registrar audit local e remote no completion do node.',
       ],
       rollbackPlan: [
-        'Usar cancel token antes do claim quando possivel.',
-        'Se ja executado, exigir rollback especifico da capability remota.',
+        'Use a cancel token before claiming when possible.',
+        'If already executed, require specific rollback for the remote capability.',
       ],
       retentionPolicy: {
         ttlMs: 24 * 60 * 60 * 1000,
         cleanupOnSuccess: true,
         cleanupOnBoot: true,
-        notes: ['Fila remota nao deve sobreviver sem lease e audit.'],
+        notes: ['Remote queue must not survive without lease and audit.'],
       },
       payload: {
         nodeId: input.node.id,
@@ -886,7 +885,7 @@ export class ZavorthFederatedMeshControlPlaneService {
         scope: node.id,
         reasons: [`status=${node.status}`],
         warnings: [],
-        blockers: node.status === 'online' ? [] : ['Node precisa heartbeat online antes de mutacao remota.'],
+        blockers: node.status === 'online' ? [] : ['Node needs online heartbeat before remote mutation.'],
         checkedAt,
       },
       {
@@ -895,8 +894,8 @@ export class ZavorthFederatedMeshControlPlaneService {
         canProceed: node.trust === 'trusted',
         scope: node.id,
         reasons: [`trust=${node.trust}`],
-        warnings: node.trust === 'review' ? ['Node em review pode receber leitura, mas nao mutacao.'] : [],
-        blockers: node.trust === 'trusted' ? [] : ['Mutacao remota exige trust=trusted.'],
+        warnings: node.trust === 'review' ? ['Node under review can receive reads, but not mutations.'] : [],
+        blockers: node.trust === 'trusted' ? [] : ['Remote mutation requires trust=trusted.'],
         checkedAt,
       },
     ];
@@ -935,7 +934,7 @@ export class ZavorthFederatedMeshControlPlaneService {
         dormant: profile !== 'local' && entries.length === 0,
         summary: entries.length > 0
           ? `${entries.length} node(s), ${online} online/local.`
-          : 'Perfil dormente; nenhum runtime foi iniciado.',
+          : 'Perfil dormant; nenhum runtime foi iniciado.',
       };
     });
   }
@@ -947,10 +946,8 @@ export class ZavorthFederatedMeshControlPlaneService {
       const revoked = entries.filter((entry) => entry.revoked).length;
       const status = entries.length === 0
         ? 'dormant'
-        : revoked === entries.length
-          ? 'revoked'
-          : online > 0
-            ? (profile === 'local' ? 'local' : 'online')
+        : revoked === entries.length ? 'revoked'
+          : online > 0 ? (profile === 'local' ? 'local' : 'online')
             : 'offline';
       return {
         profile,
@@ -958,8 +955,8 @@ export class ZavorthFederatedMeshControlPlaneService {
         online,
         configured: entries.length,
         summary: entries.length === 0
-          ? 'Dormente sob demanda.'
-          : `${online}/${entries.length} online/local; revogados ${revoked}.`,
+          ? 'dormant on demand.'
+          : `${online}/${entries.length} online/local; revoked ${revoked}.`,
       };
     });
   }
@@ -977,37 +974,37 @@ export class ZavorthFederatedMeshControlPlaneService {
     if (!remoteNodes.length) {
       return [{
         id: 'pair-first-federated-node',
-        label: 'Parear primeiro node federado',
+        label: 'Pair first federated node',
         severity: 'info',
         command: 'npm run ops:federated-mesh -- --pair --profile lan --node work-pc',
-        reason: 'A implementacao esta pronta, mas a malha remota ainda esta dormente.',
+        reason: 'The implementation is ready, but the remote mesh is still dormant.',
       }];
     }
     if (infrastructureState === 'offline') {
       return [{
         id: 'restore-heartbeat',
-        label: 'Restaurar heartbeat da malha',
+        label: 'Restore mesh heartbeat',
         severity: 'warn',
         command: 'npm run ops:federated-mesh -- --heartbeat --node <nodeId>',
-        reason: 'Ha node pareado, mas nenhum heartbeat online agora.',
+        reason: 'There is a paired node, but no heartbeat is online now.',
       }];
     }
     const review = remoteNodes.find((entry) => entry.trust === 'review');
     if (review) {
       return [{
         id: 'promote-node-trust',
-        label: `Revisar trust de ${review.label}`,
+        label: `Review trust for ${review.label}`,
         severity: 'info',
         command: `npm run ops:federated-mesh -- --heartbeat --node ${review.id} --trust trusted`,
-        reason: 'Node em review pode receber leitura, mas mutacoes remotas exigem trust=trusted.',
+        reason: 'Node under review can receive reads, but remote mutations require trust=trusted.',
       }];
     }
     return [{
       id: 'route-capability',
-      label: 'Testar route planner',
+      label: 'Test route planner',
       severity: 'info',
       command: 'npm run ops:federated-mesh -- --route files.read',
-      reason: 'Malha online; route planner ja pode explicar uma escolha por capability.',
+      reason: 'Mesh is online; route planner can already explain a capability choice.',
     }];
   }
 
@@ -1032,7 +1029,7 @@ export class ZavorthFederatedMeshControlPlaneService {
   }
 
   private buildOperatorSummary(summary: FederatedMeshSnapshot['summary']): string {
-    return `Implementation pronta, infra ${summary.infrastructureState}, ${summary.onlineNodes}/${summary.remoteNodes} node(s) remoto(s) online, ${summary.revokedNodes} revogado(s), ${summary.routeableCapabilities}/${summary.capabilityCount} capability(ies) roteaveis.`;
+    return `Implementation ready, infra ${summary.infrastructureState}, ${summary.onlineNodes}/${summary.remoteNodes} remote node(s) online, ${summary.revokedNodes} revoked, ${summary.routeableCapabilities}/${summary.capabilityCount} routeable capability(ies).`;
   }
 
   private buildNextAction(
@@ -1040,16 +1037,16 @@ export class ZavorthFederatedMeshControlPlaneService {
     state: FederatedMeshInfrastructureState,
   ): string {
     if (state === 'dormant') {
-      return 'Pareie um node federado quando quiser usar PC, servidor, mobile ou worker GPU sem iniciar processos em background agora.';
+      return 'Pair a federated node when a PC, server, mobile device, or GPU worker should be used without starting background processes now.';
     }
     if (state === 'offline') {
-      return 'Ligue o node host/companion e publique heartbeat antes de enviar workloads remotos.';
+      return 'Start the host or companion node and publish a heartbeat before sending remote workloads.';
     }
     const mutableBlocked = remoteNodes.find((entry) => entry.trust !== 'trusted');
     if (mutableBlocked) {
-      return `Promova trust de ${mutableBlocked.label} depois de revisar escopos e capabilities.`;
+      return `Promote trust for ${mutableBlocked.label} after reviewing scopes and capabilities.`;
     }
-    return 'Use route planner para escolher node por capability e custo antes de enfileirar workloads.';
+    return 'Use route planner to select node by capability and cost before enqueueing workloads.';
   }
 
   private describeOfflineReason(
@@ -1057,10 +1054,10 @@ export class ZavorthFederatedMeshControlPlaneService {
     state: FederatedMeshInfrastructureState,
   ): string | null {
     if (state === 'dormant') {
-      return 'Nenhum node remoto pareado. O core segue local e leve.';
+      return 'No remote node is paired. The core stays local and lightweight.';
     }
     if (state === 'offline') {
-      return `${remoteNodes.filter((entry) => entry.paired && !entry.revoked).length} node(s) pareado(s), mas sem heartbeat online.`;
+      return `${remoteNodes.filter((entry) => entry.paired && !entry.revoked).length} paired node(s), but none with an online heartbeat.`;
     }
     return null;
   }
@@ -1178,12 +1175,12 @@ export class ZavorthFederatedMeshControlPlaneService {
 
   private describeNodeStatus(status: FederatedMeshNodeStatus, profile: FederatedMeshProfile): string {
     if (status === 'online') {
-      return `${profile} online e elegivel para rota.`;
+      return `${profile} online and eligible for routing.`;
     }
     if (status === 'revoked') {
-      return `${profile} revogado no Federated Mesh.`;
+      return `${profile} revoked in Federated Mesh.`;
     }
-    return `${profile} pareado, mas sem heartbeat online agora.`;
+    return `${profile} paired, but without an online heartbeat now.`;
   }
 
   private normalizeProfile(value: unknown): FederatedMeshProfile {
@@ -1225,7 +1222,7 @@ export class ZavorthFederatedMeshControlPlaneService {
         return 'LAN node';
       case 'local':
       default:
-        return 'Local node';
+        return 'local node';
     }
   }
 

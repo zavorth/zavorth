@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -47,11 +47,11 @@ export class FileDeliveryService {
     if (!normalized) {
       return false;
     }
-    normalized = normalized.replace(/^\/(?:task|arquivo)\b/i, '').trim();
+    normalized = normalized.replace(/^\/(?:task|file)\b/i, '').trim();
     if (!normalized) {
       return false;
     }
-    if (this.hasPendingSelection(userId) && /^\s*(?:op(?:cao)?\s*)?(\d{1,2})\s*$/i.test(normalized)) {
+    if (this.hasPendingSelection(userId) && /^\s*(?:op(?:cao)...\s*)...(\d{1,2})\s*$/i.test(normalized)) {
       return true;
     }
     if (normalized.startsWith('/')) {
@@ -92,10 +92,10 @@ export class FileDeliveryService {
             requestedPath: permissionPath,
             previewPath: permissionPath,
             originalRequest: rawRequest,
-            reason: 'Esse caminho existe, mas ainda nao esta nas areas liberadas para leitura e envio pelo Zavorth.',
+            reason: 'This path exists, but is not in the areas released for reading and sending by Zavorth yet.',
           };
         }
-        return { kind: 'message', text: 'Esse caminho ficou fora das areas permitidas ou nao existe. Tente informar um arquivo dentro de Downloads, Desktop, Documentos, da raiz de trabalho ou do workspace atual.' };
+        return { kind: 'message', text: 'This path is outside the allowed areas or does not exist. Try a file inside Downloads, Desktop, Documents, the work root, or the current workspace.' };
       }
       if (resolvedExplicit.isDirectory) {
         if (descriptor.wantsListing) {
@@ -116,10 +116,10 @@ export class FileDeliveryService {
             if (previewEntries.length > 0) {
               return this.presentationSupport.createChoicesPlan(userId, rawRequest, resolvedExplicit.baseName, previewEntries, {
                 mentionFallback: true,
-                intro: `Nao encontrei uma correspondencia exata em ${resolvedExplicit.baseName}. Estes sao alguns itens visiveis:`,
+                intro: `Could not find an exact match in ${resolvedExplicit.baseName}. These are some visible items:`,
               });
             }
-            return { kind: 'message', text: `Nao encontrei um arquivo compativel dentro de ${resolvedExplicit.baseName}.` };
+            return { kind: 'message', text: `Could not find a compatible file inside ${resolvedExplicit.baseName}.` };
           }
           if (this.searchSupport.shouldAutoSend(candidates, scopedDescriptor)) {
             return this.presentationSupport.createSendPlan(candidates[0], this.pathSupport.shouldSkipAbsolutePath.bind(this.pathSupport));
@@ -148,9 +148,9 @@ export class FileDeliveryService {
     if (!hasSpecificQuery) {
       const topEntries = await this.searchSupport.listTopLevelEntries(roots[0], descriptor);
       if (topEntries.length === 0) {
-        return { kind: 'message', text: `A pasta ${roots[0].label} esta vazia ou inacessivel no momento.` };
+        return { kind: 'message', text: `The folder ${roots[0].label} is empty or inaccessible right now.` };
       }
-      return this.presentationSupport.createChoicesPlan(userId, rawRequest, roots[0].label, topEntries, { intro: `Itens visiveis em ${roots[0].label}:` });
+      return this.presentationSupport.createChoicesPlan(userId, rawRequest, roots[0].label, topEntries, { intro: `Visible items in ${roots[0].label}:` });
     }
 
     const candidates = await this.searchSupport.searchCandidates(roots, descriptor);
@@ -161,7 +161,7 @@ export class FileDeliveryService {
           mentionFallback: true,
         });
       }
-      return { kind: 'message', text: `Nao encontrei um arquivo correspondente em ${roots.map((root) => root.label).join(', ')}.` };
+      return { kind: 'message', text: `Could not find a matching file in ${roots.map((root) => root.label).join(', ')}.` };
     }
 
     if (descriptor.wantsLatest) {
@@ -178,20 +178,20 @@ export class FileDeliveryService {
     if (!pending) {
       return null;
     }
-    const match = rawRequest.trim().match(/^\s*(?:op(?:cao)?\s*)?(\d{1,2})\s*$/i);
+    const match = rawRequest.trim().match(/^\s*(?:op(?:cao)...\s*)...(\d{1,2})\s*$/i);
     if (!match) {
       return null;
     }
 
     const selectedIndex = safeParseInt(match[1], 1) - 1;
     if (selectedIndex < 0 || selectedIndex >= pending.entries.length) {
-      return { kind: 'message', text: `Escolha invalida. Responda com um numero entre 1 e ${pending.entries.length}.` };
+      return { kind: 'message', text: `Invalid choice. Reply with a number between 1 e ${pending.entries.length}.` };
     }
 
     const chosen = pending.entries[selectedIndex];
     this.pendingSelections.delete(userId);
     if (!fs.existsSync(chosen.absolutePath)) {
-      return { kind: 'message', text: 'A opcao escolhida nao existe mais no disco. Tente pedir novamente.' };
+      return { kind: 'message', text: 'The selected option no longer exists on disk. Try asking again.' };
     }
     if (pending.selectionAction === 'list' && chosen.isDirectory) {
       return this.createDirectoryListingPlan(userId, pending.originalRequest, chosen, this.parser.parseRequest(pending.originalRequest));
@@ -204,10 +204,10 @@ export class FileDeliveryService {
     if (!hasSpecificQuery) {
       const topEntries = await this.searchSupport.listTopLevelEntries(roots[0], descriptor);
       if (topEntries.length === 0) {
-        return { kind: 'message', text: `Nao encontrei itens visiveis em ${roots[0].label}${descriptor.timeFilterLabel ? ` ${descriptor.timeFilterLabel}` : ''}.` };
+        return { kind: 'message', text: `Could not find visible items in ${roots[0].label}${descriptor.timeFilterLabel ? ` ${descriptor.timeFilterLabel}` : ''}.` };
       }
       return this.presentationSupport.createChoicesPlan(userId, rawRequest, roots[0].label, topEntries, {
-        intro: `Conteudo atual de ${roots[0].label}${descriptor.timeFilterLabel ? ` ${descriptor.timeFilterLabel}` : ''}:`,
+        intro: `Current content from ${roots[0].label}${descriptor.timeFilterLabel ? ` ${descriptor.timeFilterLabel}` : ''}:`,
       });
     }
 
@@ -220,8 +220,8 @@ export class FileDeliveryService {
       if (directoryCandidates.length > 1 && directoryCandidates[0].score >= 600) {
         return this.presentationSupport.createChoicesPlan(userId, rawRequest, directoryCandidates[0].rootLabel, directoryCandidates, {
           selectionAction: 'list',
-          intro: `Encontrei varias pastas parecidas em ${directoryCandidates[0].rootLabel}.`,
-          closingLine: 'Responda com o numero da pasta que voce quer abrir.',
+          intro: `Found several similar folders in ${directoryCandidates[0].rootLabel}.`,
+          closingLine: 'Reply with the number of the folder you want to open.',
         });
       }
     }
@@ -232,24 +232,24 @@ export class FileDeliveryService {
       if (previewEntries.length > 0) {
         return this.presentationSupport.createChoicesPlan(userId, rawRequest, roots[0].label, previewEntries, {
           mentionFallback: true,
-          intro: `Nao encontrei uma correspondencia exata. Estes sao alguns itens em ${roots[0].label}:`,
+          intro: `Could not find an exact match. These are some items in ${roots[0].label}:`,
         });
       }
-      return { kind: 'message', text: `Nao encontrei itens compativeis em ${roots.map((root) => root.label).join(', ')}.` };
+      return { kind: 'message', text: `Could not find compatible items in ${roots.map((root) => root.label).join(', ')}.` };
     }
 
     return this.presentationSupport.createChoicesPlan(userId, rawRequest, candidates[0].rootLabel, candidates, {
-      intro: `Encontrei estes itens em ${candidates[0].rootLabel}:`,
+      intro: `Found these items in ${candidates[0].rootLabel}:`,
     });
   }
 
   private async createDirectoryListingPlan(userId: string, rawRequest: string, directoryEntry: ReturnType<FileDeliveryPathSupport['makeEntry']>, descriptor: ReturnType<FileDeliveryRequestParser['parseRequest']>): Promise<FileDeliveryPlan> {
     const entries = await this.searchSupport.listEntriesInDirectory(directoryEntry, descriptor);
     if (entries.length === 0) {
-      return { kind: 'message', text: `A pasta ${directoryEntry.baseName} nao tem itens visiveis${descriptor.timeFilterLabel ? ` ${descriptor.timeFilterLabel}` : ''}.` };
+      return { kind: 'message', text: `A folder ${directoryEntry.baseName} has no visible items${descriptor.timeFilterLabel ? ` ${descriptor.timeFilterLabel}` : ''}.` };
     }
     return this.presentationSupport.createChoicesPlan(userId, rawRequest, directoryEntry.baseName, entries, {
-      intro: `Conteudo de ${directoryEntry.relativePath}${descriptor.timeFilterLabel ? ` ${descriptor.timeFilterLabel}` : ''}:`,
+      intro: `Content from ${directoryEntry.relativePath}${descriptor.timeFilterLabel ? ` ${descriptor.timeFilterLabel}` : ''}:`,
     });
   }
 

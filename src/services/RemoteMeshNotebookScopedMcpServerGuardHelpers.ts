@@ -18,8 +18,7 @@ export function buildNotebookScopedMcpGuards(input: {
         guard(
           'bind-host-safe',
           bindSafe ? 'passed' : 'blocked',
-          bindSafe
-            ? `Bind host ${config.host} is allowed.`
+          bindSafe ? `Bind host ${config.host} is allowed.`
             : `Bind host ${config.host} requires explicit private bind allowance.`,
           'Use 127.0.0.1 for local testing or pass --allow-private-bind intentionally for a tailnet/private interface.',
         ),
@@ -38,8 +37,7 @@ export function buildNotebookScopedMcpGuards(input: {
         guard(
           'auth-token-min-length',
           !config.authToken ? 'waiting' : config.authToken.length >= 16 ? 'passed' : 'blocked',
-          !config.authToken
-            ? 'Token length cannot be checked until a token is configured.'
+          !config.authToken ? 'Token length cannot be checked until a token is configured.'
             : `Token length is ${config.authToken.length}.`,
           'Use a scoped random token with at least 16 characters.',
         ),
@@ -70,24 +68,21 @@ export function buildNotebookScopedMcpGuards(input: {
         guard(
           'tool-call-locked',
           'passed',
-          config.enableDockerObservability
-            ? 'tools/call accepts status and read-only Docker observability tools with schema validation.'
+          config.enableDockerObservability ? 'tools/call accepts status and read-only Docker observability tools with schema validation.'
             : 'tools/call accepts only notebook.get_status with empty arguments.',
           null,
         ),
         guard(
           'docker-observability-opt-in',
           'passed',
-          config.enableDockerObservability
-            ? 'Docker observability is explicitly enabled.'
+          config.enableDockerObservability ? 'Docker observability is explicitly enabled.'
             : 'Docker observability is disabled by default.',
           null,
         ),
         guard(
           'docker-container-allowlist',
           !config.enableDockerObservability || config.allowedDockerContainers.length > 0 ? 'passed' : 'blocked',
-          !config.enableDockerObservability
-            ? 'No Docker container allowlist is required while Docker observability is disabled.'
+          !config.enableDockerObservability ? 'No Docker container allowlist is required while Docker observability is disabled.'
             : config.allowedDockerContainers.length > 0
               ? `${config.allowedDockerContainers.length} Docker container(s) are allowlisted.`
               : 'Docker observability requires at least one allowlisted container.',
@@ -95,8 +90,7 @@ export function buildNotebookScopedMcpGuards(input: {
         ),
         guard(
           'docker-log-line-limit',
-          !config.enableDockerObservability || (config.maxDockerLogLines >= 1 && config.maxDockerLogLines <= 500)
-            ? 'passed'
+          !config.enableDockerObservability || (config.maxDockerLogLines >= 1 && config.maxDockerLogLines <= 500) ? 'passed'
             : 'blocked',
           `Docker log line limit is ${config.maxDockerLogLines}.`,
           'Use a max Docker log line limit between 1 and 500.',
@@ -104,24 +98,21 @@ export function buildNotebookScopedMcpGuards(input: {
         guard(
           'no-docker-mutation-tool',
           'passed',
-          config.enableDockerControl
-            ? 'Docker lifecycle control is available only through preview, approval, and receipt tools.'
+          config.enableDockerControl ? 'Docker lifecycle control is available only through preview, approval, and receipt tools.'
             : 'No Docker start, stop, restart, remove, exec, build, pull, push, or compose control tool is registered.',
           null,
         ),
         guard(
           'docker-control-opt-in',
           'passed',
-          config.enableDockerControl
-            ? 'Docker control is explicitly enabled.'
+          config.enableDockerControl ? 'Docker control is explicitly enabled.'
             : 'Docker control is disabled by default.',
           null,
         ),
         guard(
           'docker-control-action-allowlist',
           !config.enableDockerControl || config.allowedDockerControlActions.length > 0 ? 'passed' : 'blocked',
-          !config.enableDockerControl
-            ? 'No Docker control action allowlist is required while Docker control is disabled.'
+          !config.enableDockerControl ? 'No Docker control action allowlist is required while Docker control is disabled.'
             : config.allowedDockerControlActions.length > 0
               ? `${config.allowedDockerControlActions.length} Docker control action(s) are allowlisted.`
               : 'Docker control requires at least one allowlisted action.',
@@ -148,16 +139,14 @@ export function buildNotebookScopedMcpGuards(input: {
         guard(
           'project-file-read-opt-in',
           'passed',
-          config.enableProjectFileRead
-            ? 'Project file reads are explicitly enabled.'
+          config.enableProjectFileRead ? 'Project file reads are explicitly enabled.'
             : 'Project file reads are disabled by default.',
           null,
         ),
         guard(
           'project-file-root-allowlist',
           !config.enableProjectFileRead || config.allowedProjectFileRoots.length > 0 ? 'passed' : 'blocked',
-          !config.enableProjectFileRead
-            ? 'No project file root allowlist is required while project file reads are disabled.'
+          !config.enableProjectFileRead ? 'No project file root allowlist is required while project file reads are disabled.'
             : config.allowedProjectFileRoots.length > 0
               ? `${config.allowedProjectFileRoots.length} project file root(s) are allowlisted.`
               : 'Project file reads require at least one allowlisted project root.',
@@ -165,8 +154,7 @@ export function buildNotebookScopedMcpGuards(input: {
         ),
         guard(
           'project-file-size-limit',
-          !config.enableProjectFileRead || (config.projectFileReadMaxBytes >= 1 && config.projectFileReadMaxBytes <= 262_144)
-            ? 'passed'
+          !config.enableProjectFileRead || (config.projectFileReadMaxBytes >= 1 && config.projectFileReadMaxBytes <= 262_144) ? 'passed'
             : 'blocked',
           `Project file read max bytes is ${config.projectFileReadMaxBytes}.`,
           'Use a project file read limit between 1 and 262144 bytes.',

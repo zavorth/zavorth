@@ -88,11 +88,11 @@ export class ZavorthRuntimeModesService {
       summary,
       entries,
       narrative: {
-        headline: `Zavorth expoe ${summary.total} modos oficiais no Runtime & Security Mesh.`,
+        headline: `Zavorth exposes ${summary.total} modos oficiais no Runtime & Security Mesh.`,
         operatorSummary: [
-          `${summary.coreReady} tier(s) core pronto(s) agora.`,
-          `${summary.extensionReady} extensao(oes) ja ampliam o runtime.`,
-          `${summary.partial} modo(s) ainda estao em preparo e ${summary.planned} seguem planejados.`,
+          `${summary.coreReady} tier(s) core ready agora.`,
+          `${summary.extensionReady} extension(s) already ampliam o runtime.`,
+          `${summary.partial} modo(s) ainda are em preparo e ${summary.planned} seguem planejados.`,
         ].join(' '),
       },
     };
@@ -101,27 +101,26 @@ export class ZavorthRuntimeModesService {
   private buildLocalJailMode(): ZavorthRuntimeModeSnapshot {
     return {
       id: 'local-jail',
-      label: 'Local jail',
+      label: 'local jail',
       family: 'local',
       tier: 'core',
       readiness: 'ready',
       available: true,
-      operatorSummary: 'Runtime efemero local para codigo confiavel e experimentos de baixo risco.',
-      recommendedFor: 'Trechos leves, validacoes curtas e exploracao rapida sem depender de bridge externa.',
+      operatorSummary: 'Runtime efemero local para code trusted e experimentos de baixo risk.',
+      recommendedFor: 'Trechos leves, validations curtas e exploraction rapida without depender de bridge external.',
       actionHint: '/runtime',
       details: [
-        'Isolamento leve para codigo confiavel.',
-        'Melhor ponto de partida antes de subir para container ou microVM.',
+        'Isolamento leve para code trusted.',
+        'Melhor ponto de partida before subir para container ou microVM.',
       ],
     };
   }
 
   private buildContainerMode(health: OperationsHealthSnapshot): ZavorthRuntimeModeSnapshot {
-    const readiness: ZavorthRuntimeModeReadiness = health.docker.canRun
-      ? 'ready'
+    const readiness: ZavorthRuntimeModeReadiness = health.docker.canRun ? 'ready'
       : (health.docker.enabled || health.docker.available ? 'partial' : 'planned');
     const runtimeLabel = health.docker.sandboxRuntime || 'runc';
-    const gvisorLabel = health.docker.gvisorActive ? 'gVisor ativo' : 'gVisor inativo';
+    const gvisorLabel = health.docker.gvisorActive ? 'gVisor active' : 'gVisor inactive';
 
     return {
       id: 'container-hardened',
@@ -130,15 +129,14 @@ export class ZavorthRuntimeModesService {
       tier: 'core',
       readiness,
       available: health.docker.canRun,
-      operatorSummary: health.docker.canRun
-        ? `Container forte pronto com ${runtimeLabel}. ${gvisorLabel}.`
-        : `Container forte ainda nao esta pronto. ${health.docker.detail || 'Falta disponibilidade do runtime.'}`,
-      recommendedFor: 'Codigo de risco moderado, shell sensivel, rede bloqueada e validacoes seguras.',
+      operatorSummary: health.docker.canRun ? `Container forte ready with ${runtimeLabel}. ${gvisorLabel}.`
+        : `Strong container is not ready yet. ${health.docker.detail || 'Runtime availability is missing.'}`,
+      recommendedFor: 'code de risk moderado, shell sensitive, rede blocked e validations seguras.',
       actionHint: health.docker.recommendedAction || 'npm run sandbox:doctor',
       details: [
         `Runtime: ${runtimeLabel}.`,
         `${gvisorLabel}.`,
-        `${health.docker.hardeningActive ? 'Hardening ativo.' : 'Hardening ainda incompleto.'}`,
+        `${health.docker.hardeningActive ? 'Hardening active.' : 'Hardening ainda incompleto.'}`,
         `JavaScript: ${health.docker.languages.javascript.detail}`,
         `Python: ${health.docker.languages.python.detail}`,
       ],
@@ -146,10 +144,8 @@ export class ZavorthRuntimeModesService {
   }
 
   private buildMicrovmMode(health: OperationsHealthSnapshot): ZavorthRuntimeModeSnapshot {
-    const readiness: ZavorthRuntimeModeReadiness = health.firecracker.canRun
-      ? 'ready'
-      : (health.firecracker.enabled || health.firecracker.kernelPresent || health.firecracker.rootfsPresent
-        ? 'partial'
+    const readiness: ZavorthRuntimeModeReadiness = health.firecracker.canRun ? 'ready'
+      : (health.firecracker.enabled || health.firecracker.kernelPresent || health.firecracker.rootfsPresent ? 'partial'
         : 'planned');
     const transport = health.firecracker.transport === 'wsl'
       ? 'bridge WSL'
@@ -162,23 +158,21 @@ export class ZavorthRuntimeModesService {
       tier: 'core',
       readiness,
       available: health.firecracker.canRun,
-      operatorSummary: health.firecracker.canRun
-        ? `MicroVM pronta via ${transport} para alto risco com never-downgrade.`
-        : `MicroVM ainda nao esta completamente pronta. ${health.firecracker.detail || 'Falta preparar o host da microVM.'}`,
-      recommendedFor: 'Conteudo nao confiavel, origem externa e execucoes que nao podem cair para container.',
+      operatorSummary: health.firecracker.canRun ? `MicroVM ready via ${transport} para alto risk with never-downgrade.`
+        : `MicroVM is not fully ready yet. ${health.firecracker.detail || 'The MicroVM host still needs preparation.'}`,
+      recommendedFor: 'Untrusted content, external origin, and executions that cannot fall back to container.',
       actionHint: health.firecracker.recommendedAction || 'npm run sandbox:firecracker:smoke',
       details: [
         `Transport: ${transport}.`,
-        `KVM: ${health.firecracker.kvmAvailable ? 'disponivel' : 'indisponivel'}.`,
-        `Kernel: ${health.firecracker.kernelPresent ? 'presente' : 'ausente'}.`,
-        `Rootfs: ${health.firecracker.rootfsPresent ? 'presente' : 'ausente'}.`,
+        `KVM: ${health.firecracker.kvmAvailable ? 'available' : 'unavailable'}.`,
+        `Kernel: ${health.firecracker.kernelPresent ? 'present' : 'missing'}.`,
+        `Rootfs: ${health.firecracker.rootfsPresent ? 'present' : 'missing'}.`,
       ],
     };
   }
 
   private buildWasmMode(health: OperationsHealthSnapshot): ZavorthRuntimeModeSnapshot {
-    const readiness: ZavorthRuntimeModeReadiness = health.wasm.canRun
-      ? 'ready'
+    const readiness: ZavorthRuntimeModeReadiness = health.wasm.canRun ? 'ready'
       : (health.wasm.enabled || health.wasm.available ? 'partial' : 'planned');
 
     return {
@@ -188,14 +182,13 @@ export class ZavorthRuntimeModesService {
       tier: 'extension',
       readiness,
       available: health.wasm.canRun,
-      operatorSummary: health.wasm.canRun
-        ? 'Tier Wasm pronto para modulos WebAssembly literais e controlados.'
+      operatorSummary: health.wasm.canRun ? 'Tier Wasm ready for modulos WebAssembly literais e controlados.'
         : health.wasm.detail,
-      recommendedFor: 'Execucao controlada de modulos .wasm leves antes de escalar para container ou microVM.',
+      recommendedFor: 'Execution controlada de modulos .wasm leves before escalar para container ou microVM.',
       actionHint: health.wasm.recommendedAction,
       details: [
         `Runtime: ${health.wasm.runtime}.`,
-        `Linguagens iniciais: ${(health.wasm.supportedLanguages || []).join(', ') || 'nenhuma'}.`,
+        `Initial languages: ${(health.wasm.supportedLanguages || []).join(', ') || 'none'}.`,
         health.wasm.detail,
       ],
     };
@@ -220,15 +213,15 @@ export class ZavorthRuntimeModesService {
       operatorSummary: readiness === 'ready'
         ? `${nodeMesh.summary.online} node(s) online e invocavel(is) agora.`
         : readiness === 'partial'
-          ? `${nodeMesh.summary.paired} node(s) pareado(s), mas o transporte ainda pede ajuste.`
-          : 'Ainda nao ha node host pareado para ampliar o runtime.',
-      recommendedFor: 'Execucao remota segura, device actions e expansao do Zavorth para hosts pareados.',
+          ? `${nodeMesh.summary.paired} node(s) paired(s), mas o transporte ainda pede ajuste.`
+          : 'There is no paired node host to expand the runtime yet.',
+      recommendedFor: 'Safe remote execution, device actions, and Zavorth expansion for paired hosts.',
       actionHint: selected?.id ? `/nodeinvoke ${selected.id} system.run` : '/nodepair headless',
       details: [
-        `Nodes visiveis: ${nodeMesh.summary.total}.`,
+        `Visible nodes: ${nodeMesh.summary.total}.`,
         `Pareados: ${nodeMesh.summary.paired}.`,
         `Invocaveis: ${nodeMesh.summary.invokable}.`,
-        selected?.nextAction || 'Gere um pairing draft para subir o primeiro node host.',
+        selected?.nextAction || 'Generate a pairing draft for subir o primeiro node host.',
       ],
     };
   }
@@ -253,14 +246,14 @@ export class ZavorthRuntimeModesService {
       available: readiness === 'ready',
       operatorSummary: manifest
         ? (entry?.readiness === 'ready'
-          ? `${manifest.label} pronto para ampliar o roteamento remoto do Zavorth.`
-          : `${manifest.label} existe no hub, mas ainda precisa de configuracao guiada.`)
-        : 'Nenhum sidecar remoto first-class foi registrado ainda no Integration Hub.',
-      recommendedFor: manifest?.summary || 'Roteamento remoto, sidecars especializados e bridges externas.',
+          ? `${manifest.label} ready for ampliar o roteamento remote do Zavorth.`
+          : `${manifest.label} exists in the hub, but still needs guided configuration.`)
+        : 'No sidecar remote first-class foi registrado ainda no Integration Hub.',
+      recommendedFor: manifest?.summary || 'Roteamento remote, sidecars especializados e bridges externas.',
       actionHint: doctor?.nextAction?.command || '/connect AIGateway',
       details: [
-        manifest?.description || 'Sem manifesto detalhado carregado.',
-        doctor?.nextAction?.reason || 'Use o Integration Hub para preparar o sidecar remoto.',
+        manifest?.description || 'without manifest detalhado loaded.',
+        doctor?.nextAction?.reason || 'Use Integration Hub to prepare the remote sidecar.',
       ],
     };
   }
@@ -294,4 +287,3 @@ export class ZavorthRuntimeModesService {
     return summary;
   }
 }
-

@@ -255,7 +255,6 @@ export class AutonomySchedulePlane {
     const requiresApproval = typeof input.requiresApproval === 'boolean'
       ? input.requiresApproval
       : ['high', 'critical'].includes(riskLevel);
-    // Phase 5: resolve intervalMs from NL phrases (every 30m / a cada 2h) when not explicit
     const natural = parseNaturalSchedule(schedule);
     const resolvedIntervalMs = typeof input.intervalMs === 'number'
       ? Math.max(1, Math.floor(input.intervalMs))
@@ -347,12 +346,10 @@ export class AutonomySchedulePlane {
       allowed: true,
       rule: 'autonomy-schedule:run-now',
       reasons: [
-        task
-          ? 'Routine materialized into Task Plane without a parallel task store.'
+        task ? 'Routine materialized into Task Plane without a parallel task store.'
           : 'Routine marked for manual trigger; Task Plane not wired on this surface.',
       ],
-      summary: task
-        ? `Materialized routine ${next.id} as task ${task.id}.`
+      summary: task ? `Materialized routine ${next.id} as task ${task.id}.`
         : `Manually triggered routine ${next.id}.`,
       routine: next,
       task,
@@ -442,8 +439,7 @@ export class AutonomySchedulePlane {
     envelope = this.continuity.attachResult(envelope, resultFromToolOutcome({
       ok: true,
       status: input.dryRun ? 'preview' : 'applied',
-      summary: input.dryRun
-        ? `Previewed ${materialized.length} due routine(s).`
+      summary: input.dryRun ? `Previewed ${materialized.length} due routine(s).`
         : `Materialized ${materialized.length} due routine(s) into Task Plane.`,
       data: { processed: materialized.length, dryRun: Boolean(input.dryRun) },
     }));
@@ -760,7 +756,7 @@ export class AutonomySchedulePlane {
       const target = Date.parse(routine.schedule);
       return Number.isFinite(target) && target > nowMs ? new Date(target).toISOString() : null;
     }
-    // Phase 5: cron / natural_language via shared PT/EN parser (fallback +1 min)
+    // Schedule resolution: canonical schedule data via shared resolver
     const natural = parseNaturalSchedule(routine.schedule, now);
     if (natural) {
       const next = nextRunFromNaturalSchedule(natural, now);

@@ -70,7 +70,7 @@ export class EchoVoiceAssetStoreService {
 
     const publicBaseUrl = normalizeBaseUrl(input.publicBaseUrl);
     if (!publicBaseUrl) {
-      throw new Error('ZAVORTH_PUBLIC_BASE_URL precisa estar configurado para entregar audio ao Home Assistant.');
+      throw new Error('ZAVORTH_PUBLIC_BASE_URL must be configured to deliver audio to Home Assistant.');
     }
 
     this.pruneExpired();

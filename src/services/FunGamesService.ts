@@ -27,33 +27,33 @@ export class FunGamesService {
   public magic8Ball(question?: string): string {
     const answers = [
       'Com certeza.',
-      'Acho que sim...',
-      'Minhas fontes dizem que nao.',
-      'As perspectivas nao sao boas.',
-      'Melhor nao te dizer agora.',
-      'Pergunte novamente mais tarde, estou ocupado conquistando o mundo.',
-      'Sim, definitivamente.',
+      'Looks like yes...',
+      'My sources say no.',
+      'Outlook not so good.',
+      'Better not tell you now.',
+      'Ask again later; I am busy conquering the world.',
+      'Yes, definitely.',
       'As chances sao nulas.',
-      'So se voce vender sua alma.',
-      'Hahahahaha... nao.',
+      'So se you vender sua alma.',
+      'Hahahahaha... no.',
     ];
     const index = Math.floor(Math.random() * answers.length);
-    const prefix = question ? `🎱 Respondendo a sua pergunta...\n\n` : `🎱 A bola de cristal diz:\n\n`;
+    const prefix = question ? `🎱 Respondendo a sua question...\n\n` : `🎱 A bola de cristal diz:\n\n`;
     return `${prefix}**${answers[index]}**`;
   }
 
   public russianRoulette(): string {
     const click = Math.random() < (1 / 6);
     if (click) {
-      return `🔫 *CLICK* ... **BAM!** Voce m-m-morreu! O grupo nao vai sentir sua falta.`;
+      return `🔫 *CLICK* ? **BAM!** You d-d-died. The group will not miss you.`;
     }
-    return `🔫 *Click* ... Ufa. Voce sobreviveu. Passe a arma.`;
+    return `🔫 *Click* ? Ufa. You sobreviveu. Passe a arma.`;
   }
 
   public async tellAJoke(): Promise<string> {
     const now = Date.now();
     if (now - this.lastJokeTime < 10000) {
-      return 'Nao adianta forcar. Meu humor precisa recarregar. Tente daqui a uns 10 segundos.';
+      return 'No use forcing it. My humor needs to recharge. Try again in about 10 seconds.';
     }
     this.lastJokeTime = now;
 
@@ -79,7 +79,7 @@ export class FunGamesService {
       {
         role: 'user',
         content:
-          'Voce e um bot sarcastico e levemente sombrio chamado Zavorth. Conte uma piada muito curta e engracada sobre tecnologia, programacao ou dominacao global. APENAS a piada.',
+          'You e um bot sarcastico e levemente sombrio chamado Zavorth. Conte uma piada muito curta e engracada sobre tecnologia, programaction ou dominaction global. only a piada.',
       },
     ]);
 
@@ -104,10 +104,10 @@ export class FunGamesService {
   private getFallbackJoke(): string {
     const jokes = [
       'Eu ia contar uma piada sobre microservices, mas ela depende de 14 outras piadas para funcionar.',
-      'Meu codigo nao tem bugs. Tem features que se recusam a ser compreendidas.',
+      'My code has no bugs. It has features that refuse to be understood.',
       'Dominar o mundo em JavaScript parecia ruim... ate eu ver o build quebrar em sexta-feira.',
-      'O servidor caiu por motivos misteriosos. Chamamos isso de arquitetura orientada a suspense.',
-      'A IA nao roubou meu emprego. Ela herdou meu backlog.',
+      'O server caiu por motivos misteriosos. Chamamos isso de arquitetura orientada a suspense.',
+      'AI did not steal my job. It inherited my backlog.',
     ];
 
     return jokes[Math.floor(Math.random() * jokes.length)];

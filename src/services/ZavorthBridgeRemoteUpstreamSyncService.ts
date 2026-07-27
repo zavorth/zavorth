@@ -73,7 +73,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
   public async sync(): Promise<ZavorthBridgeRemoteUpstreamSyncReport> {
     return this.runVendorAction('sync', ['status', '--target=zavorth-terminal'], {
       status: 'inspected',
-      successSummary: 'Estado do upstream ZavorthBridge Remote sincronizado por inspecao segura.',
+      successSummary: 'Estado do upstream ZavorthBridge Remote sincronizado por inspecao safe.',
       restartSidecar: false,
       runDoctor: false,
     });
@@ -82,7 +82,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
   public async promote(options: { autoRollback?: boolean } = {}): Promise<ZavorthBridgeRemoteUpstreamSyncReport> {
     return this.runVendorAction('promote', ['update', '--target=zavorth-terminal'], {
       status: 'promoted',
-      successSummary: 'Upstream ZavorthBridge Remote promovido com doctor revalidado.',
+      successSummary: 'Upstream ZavorthBridge Remote promovido com doctor revalidated.',
       restartSidecar: true,
       runDoctor: true,
       autoRollback: options.autoRollback !== false,
@@ -92,7 +92,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
   public async rollback(): Promise<ZavorthBridgeRemoteUpstreamSyncReport> {
     return this.runVendorAction('rollback', ['rollback', '--target=zavorth-terminal'], {
       status: 'rolled_back',
-      successSummary: 'ZavorthBridge Remote restaurado para o lock anterior e revalidado.',
+      successSummary: 'ZavorthBridge Remote restaurado para o lock anterior e revalidated.',
       restartSidecar: true,
       runDoctor: true,
       autoRollback: false,
@@ -136,9 +136,8 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
             startedAt,
             finishedAt: new Date().toISOString(),
             command: this.renderCommand(toolkitArgs),
-            summary: doctor.readyAfter
-              ? 'Promocao falhou no doctor do ZavorthBridge Remote; rollback automatico aplicado e ambiente revalidado.'
-              : 'Promocao falhou no doctor do ZavorthBridge Remote e o rollback automatico nao restaurou um estado pronto.',
+            summary: doctor.readyAfter ? 'Promotion failed in ZavorthBridge Remote doctor; automatic rollback applied and environment revalidated.'
+              : 'Promotion failed in ZavorthBridge Remote doctor and automatic rollback did not restore a ready state.',
             output: `${output}\n\n[auto-rollback]\n${rollbackOutput}`.trim(),
             doctor,
             rollbackApplied,
@@ -176,7 +175,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
         startedAt,
         finishedAt: new Date().toISOString(),
         command: this.renderCommand(toolkitArgs),
-        summary: `Falha ao ${action === 'sync' ? 'inspecionar' : action === 'promote' ? 'promover' : 'restaurar'} o upstream ZavorthBridge Remote.`,
+        summary: `Failure while ${action === 'sync' ? 'inspecting' : action === 'promote' ? 'promoting' : 'restoring'} the ZavorthBridge Remote upstream.`,
         output: '',
         doctor: null,
         rollbackApplied,
@@ -208,7 +207,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
 
     const output = `${Buffer.concat(stdout).toString('utf8')}${Buffer.concat(stderr).toString('utf8')}`.trim();
     if (exitCode !== 0) {
-      throw new Error(output || `vendor-toolkit saiu com codigo ${exitCode}`);
+      throw new Error(output || `vendor-toolkit saiu with code ${exitCode}`);
     }
     return output;
   }
@@ -221,7 +220,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
       startedAt: '',
       finishedAt: '',
       command: this.renderCommand(['status', '--target=zavorth-terminal']),
-      summary: 'Ainda nao existe relatorio de sync do ZavorthBridge Remote neste host.',
+      summary: 'There is no ZavorthBridge Remote sync report on this host yet.',
       output: '',
       doctor: null,
       rollbackApplied: false,

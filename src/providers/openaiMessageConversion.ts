@@ -16,7 +16,7 @@ export function convertChatMessagesToOpenAI(
 
     const content = buildOpenAIUserContent({
       role: 'user',
-      content: '[Midia capturada pela ferramenta para analise multimodal]',
+      content: '[Media captured by the tool for multimodal analysis]',
       inlineData: pendingToolInlineData,
     });
     if (Array.isArray(content)) {

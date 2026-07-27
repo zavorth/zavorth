@@ -230,12 +230,12 @@ export class TelegramOpsInsightService {
     const topPolicy = snapshot.learning?.approvedPolicies?.[0] || null;
 
     if (topSurface) {
-      lines.push(`- Superficie mais ativa: ${topSurface.label} (${topSurface.count} pedido(s)).`);
+      lines.push(`- Most active surface: ${topSurface.label} (${topSurface.count} request(s)).`);
     }
 
     if (topRoute) {
       lines.push(
-        `- Melhor rota recente: ${topRoute.executor} em ${topRoute.kind}/${topRoute.subtype} (${topRoute.completed}/${topRoute.total} concluida(s)).`,
+        `- Best recent route: ${topRoute.executor} at ${topRoute.kind}/${topRoute.subtype} (${topRoute.completed}/${topRoute.total} completed).`,
       );
     }
 

@@ -55,8 +55,7 @@ export class PdfExtractionAdapter {
       replayable: true,
       liveIoPerformed: false,
       secretValuesSerialized: false,
-      reason: artifact.text.trim()
-        ? 'PDF text extracted into an artifact-first receipt.'
+      reason: artifact.text.trim() ? 'PDF text extracted into an artifact-first receipt.'
         : 'PDF parser could not extract readable text from the provided bytes.',
     };
 
@@ -79,7 +78,7 @@ function extractPdfText(bytes: Buffer): {
     .filter((value) => /[a-z0-9]/i.test(value));
   const fallbackStrings = objectStrings.length > 0
     ? []
-    : (raw.match(/[A-Za-z0-9][A-Za-z0-9 ,.;:'"!?()/_-]{4,}/g) || [])
+    : (raw.match(/[A-Za-z0-9][A-Za-z0-9 ,.;:'"!...()/_-]{4,}/g) || [])
       .map(cleanText)
       .filter((value) => value.length > 3 && !value.startsWith('obj') && !value.startsWith('endobj'));
   const chunks = (objectStrings.length > 0 ? objectStrings : fallbackStrings)

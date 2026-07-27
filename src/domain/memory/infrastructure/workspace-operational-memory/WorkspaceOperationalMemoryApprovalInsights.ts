@@ -43,14 +43,14 @@ function buildApprovalFrictionRationale(bucket: MutableApprovalFrictionAggregate
     : 0;
 
   return [
-    bucket.rejected_count ? `${bucket.rejected_count} rejeicao(oes)` : null,
-    bucket.pending_count ? `${bucket.pending_count} espera(s) de confirmacao` : null,
-    bucket.high_risk_count ? `${bucket.high_risk_count} gate(s) de alto risco` : null,
-    bucket.permission_count ? `${bucket.permission_count} pedido(s) de permissao` : null,
-    bucket.granted_count ? `${bucket.granted_count} liberacao(oes) concluida(s)` : null,
-    bucket.delivered_after_approval_count ? `${bucket.delivered_after_approval_count} entrega(s) apos aprovacao` : null,
+    bucket.rejected_count ? `${bucket.rejected_count} rejection(s)` : null,
+    bucket.pending_count ? `${bucket.pending_count} wait(s) de confirmation` : null,
+    bucket.high_risk_count ? `${bucket.high_risk_count} gate(s) de alto risk` : null,
+    bucket.permission_count ? `${bucket.permission_count} permission request(s)` : null,
+    bucket.granted_count ? `${bucket.granted_count} liberaction(oes) completed(s)` : null,
+    bucket.delivered_after_approval_count ? `${bucket.delivered_after_approval_count} delivery/deliveries after approval` : null,
     averageWaitMs > 0 ? `espera media ${formatWorkspaceMemoryDurationMs(averageWaitMs)}` : null,
-    averageRecoveryMs > 0 ? `retomada media ${formatWorkspaceMemoryDurationMs(averageRecoveryMs)}` : null,
+    averageRecoveryMs > 0 ? `average resume time ${formatWorkspaceMemoryDurationMs(averageRecoveryMs)}` : null,
   ].filter(Boolean).join(', ');
 }
 

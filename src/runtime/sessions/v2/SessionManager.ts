@@ -196,7 +196,7 @@ export class SessionManager {
       return;
     }
     if (!this.childProcess) {
-      const output = 'Nao ha processo ativo para receber input.';
+      const output = 'There is no active process to receive input.';
       this.appendLog(`[stdin:error] ${output}`);
       this.events.emit('pty:error', output);
       this.setStatus('ERROR');
@@ -254,10 +254,9 @@ export class SessionManager {
   }
 
   private formatSpawnError(command: string, args: string[], error: unknown): string {
-    const message = error instanceof Error ? error.message : String(error || 'erro desconhecido');
+    const message = error instanceof Error ? error.message : String(error || 'unknown error');
     const commandLine = [command, ...args].filter(Boolean).join(' ');
-    const formatted = commandLine && !message.includes(command)
-      ? `${message} (${commandLine})`
+    const formatted = commandLine && !message.includes(command) ? `${message} (${commandLine})`
       : message;
     return this.redactTerminalText(formatted);
   }

@@ -82,7 +82,7 @@ export class FailureSemanticsRegistry {
     const errorMessage = messageFromError(input.error);
     const message = normalizeText(
       input.message,
-      errorMessage || 'Executor falhou sem mensagem detalhada.',
+      errorMessage || 'Executor failed without a detailed message.',
     );
     const code = normalizeText(
       input.code,

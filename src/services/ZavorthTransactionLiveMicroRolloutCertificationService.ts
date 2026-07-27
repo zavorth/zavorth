@@ -198,7 +198,7 @@ function buildRolloutStages(limits: ZavorthTransactionLiveMicroRolloutLimits): Z
     phase(1, 'observe-only', 'certified', undefined, 'Observation and market/product data lookup only.'),
     phase(2, 'preview-only', 'certified', undefined, 'Transaction preview generation remains allowed without execution.'),
     phase(3, 'sandbox-certified', 'certified', undefined, 'Intent model2 adapter certification and Intent model3 sandbox receipt are prerequisites.'),
-    phase(4, 'paper-trading', 'certified', undefined, 'Paper or fake-cart flow remains the highest executed mode in the current code path.'),
+    phase(4, 'paper-trading', 'certified', undefined, 'Paper or synthetic-cart flow remains the highest executed mode in the current code path.'),
     phase(5, 'micro-transaction-hold', 'hold', limits.maxMicroAmount ?? undefined, 'Future live microtransaction is held behind separate live executor approval.'),
     phase(6, 'daily-limit-hold', 'hold', limits.maxDailyAmount ?? undefined, 'Future daily spend remains held behind limit enforcement.'),
     phase(7, 'mandate-limit-hold', 'hold', limits.maxDailyAmount ?? undefined, 'Future mandate-scoped execution remains held behind explicit mandate policy.'),
@@ -309,8 +309,7 @@ function buildCertificationScenarios(
   return descriptors.map((descriptor) => ({
     ...descriptor,
     passed: descriptor.id !== failedScenario,
-    observed: descriptor.id === failedScenario
-      ? `failed scenario injected for ${descriptor.id}`
+    observed: descriptor.id === failedScenario ? `failed scenario injected for ${descriptor.id}`
       : descriptor.observed,
   }));
 }
@@ -364,7 +363,7 @@ function buildGates(input: {
     ),
     gate(
       'sandbox-execution-receipt-present',
-      Boolean(receipt?.localSandboxSimulationPerformed && receipt.sandboxExternalIoPerformed === false),
+      Boolean(receipt?.localSandboxDryRunPerformed && receipt.sandboxExternalIoPerformed === false),
       'A local sandbox execution receipt with no external I/O must be present.',
       [`receipt=${receipt?.id ?? 'none'}`],
     ),
@@ -645,7 +644,7 @@ function sanitizeId(value: string): string {
 }
 
 function rawSecretValue(text: string): string {
-  const assignment = /\b(?:api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/i.exec(text)?.[1];
+  const assignment = /\b(?:api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]\s*([^\s,;]+)/i.exec(text)?.[1];
   if (assignment) {
     return assignment;
   }

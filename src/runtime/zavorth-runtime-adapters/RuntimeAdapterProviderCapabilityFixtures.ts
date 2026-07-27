@@ -740,10 +740,10 @@ export function createCanonicalProviderMediaUnderstandingFixtures(): RuntimeAdap
       sourceEvidence: sourceEvidence({
         sourcePaths: [
           'extensions/media/file-handler.ts',
-          'extensions/image/processors.ts',
+          'extensions/image/processrs.ts',
         ],
         sourceProviderId: 'external-executor-provider-media-understanding',
-        notes: ['Source file processors are evidence only and remain blocked.'],
+        notes: ['Source file processrs are evidence only and remain blocked.'],
       }),
     },
   ];

@@ -104,8 +104,7 @@ export async function proxy(request: any) {
         return response;
       }
     } catch (error: unknown) {
-      const err = asErrorLike(error);
-      // FASE-01: Log settings fetch errors instead of silencing them
+      const err = asErrorLike(error);// Log settings fetch errors instead of silencing them
       console.error("[Middleware] settings_error: Settings read failed:", err.message, {
         path: pathname,
         requestId,
@@ -161,8 +160,7 @@ export async function proxy(request: any) {
 
         return response;
       } catch (error: unknown) {
-        const err = asErrorLike(error);
-        // FASE-01: Log auth errors instead of silently redirecting
+        const err = asErrorLike(error);// Log auth errors instead of silently redirecting
         console.error("[Middleware] auth_error: JWT verification failed:", err.message, {
           path: pathname,
           tokenPresent: true,

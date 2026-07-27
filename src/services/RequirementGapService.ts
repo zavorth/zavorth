@@ -31,11 +31,11 @@ export class RequirementGapService {
         kind: 'missing_docker',
         blocking: true,
         summary: input.intent.preferredCapability === 'docker.exec'
-          ? 'Docker ainda nao esta pronto para executar essa acao supervisionada.'
-          : 'Docker ainda nao esta pronto para execucao mutavel guardada.',
+          ? 'Docker is not ready to execute this supervised action yet.'
+          : 'Docker is not ready for guarded mutable execution yet.',
         detail: input.intent.preferredCapability === 'docker.exec'
-          ? `Para seguir com "${input.intent.objective}", o Zavorth precisa do runtime Docker acessivel neste host.`
-          : `Para seguir com "${input.intent.objective}", o Zavorth quer usar container por padrao e nao encontrou Docker pronto no host.`,
+          ? `To continue with "${input.intent.objective}", Zavorth needs Docker runtime accessible on this host.`
+          : `To continue with "${input.intent.objective}", Zavorth wants to use container by default and did not find Docker ready on the host.`,
         operatorAction: 'enable_docker',
       });
     }
@@ -71,14 +71,14 @@ export class RequirementGapService {
 
     const missingModuleMatch =
       stderr.match(/cannot find module ['"]([^'"]+)['"]/i)
-      || stderr.match(/module not found[:\s]+['"]?([^'"\s]+)/i);
+      || stderr.match(/module not found[:\s]+['"]...([^'"\s]+)/i);
     if (missingModuleMatch) {
       gaps.push({
         id: randomUUID(),
         kind: 'missing_dependency',
         blocking: false,
         summary: `Dependencia faltando: ${missingModuleMatch[1]}.`,
-        detail: `O runtime reportou que a dependencia ${missingModuleMatch[1]} nao esta disponivel.`,
+        detail: `The runtime reported that dependency ${missingModuleMatch[1]} is not available.`,
         operatorAction: 'approve_install',
       });
     }
@@ -88,8 +88,8 @@ export class RequirementGapService {
         id: randomUUID(),
         kind: 'missing_toolchain',
         blocking: true,
-        summary: 'Uma ferramenta necessaria nao esta disponivel no ambiente.',
-        detail: 'O comando pedido nao existe neste host ou container atual.',
+        summary: 'A required tool is not available in the environment.',
+        detail: 'The requested command does not exist on this host or current container.',
         operatorAction: 'install_toolchain',
       });
     }
@@ -99,8 +99,8 @@ export class RequirementGapService {
         id: randomUUID(),
         kind: 'missing_secret',
         blocking: true,
-        summary: 'Falta uma credencial, token ou variavel de ambiente.',
-        detail: 'O run depende de configuracao sensivel que ainda nao foi fornecida.',
+        summary: 'missing uma credential, token ou variable de ambiente.',
+        detail: 'The run depends on sensitive configuration that has not been provided yet.',
         operatorAction: 'provide_secret',
       });
     }
@@ -110,8 +110,8 @@ export class RequirementGapService {
         id: randomUUID(),
         kind: 'external_transient_error',
         blocking: false,
-        summary: 'Houve um erro externo/transitorio durante a tentativa.',
-        detail: 'A falha parece temporaria e pode exigir retry ou troca de boundary.',
+        summary: 'Houve um error external/transitorio durante a tentactive.',
+        detail: 'A failure parece temporaria e pode exigir retry ou troca de boundary.',
         operatorAction: 'manual_step',
       });
     }

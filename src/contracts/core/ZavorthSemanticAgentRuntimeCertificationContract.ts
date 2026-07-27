@@ -119,6 +119,6 @@ export type ZavorthSemanticAgentRuntimeCertificationSnapshot = {
     inspectJson: 'npm run semantic-agent-runtime-certification:json --silent';
     check: 'npm run semantic-agent-runtime-certification:check --silent';
     qa: 'npm run qa:semantic-agent-runtime-certification --silent';
-    nextStage: 'S3 - Provider Mesh Semantics';
+    nextAction: 'Provider mesh semantics';
   };
 };

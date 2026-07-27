@@ -245,13 +245,8 @@ export class ZavorthSkillEcosystemImporterService {
   }
 
   private tagsFromCatalogEntry(entry: SkillCatalogEntry): ZavorthSkillCapabilityTag[] {
-    const text = `${entry.name} ${entry.description} ${entry.bundleTags.join(' ')}`.toLowerCase();
+    void entry;
     const tags = new Set<ZavorthSkillCapabilityTag>();
-    if (/(research|buscar|investig)/.test(text)) tags.add('research');
-    if (/(doc|document|arquivo|markdown)/.test(text)) tags.add('document');
-    if (/(security|seguran|threat|risk)/.test(text)) tags.add('security');
-    if (/(test|qa|debug|triage)/.test(text)) tags.add('workspace-qa');
-    if (/(release|publish|ship)/.test(text)) tags.add('release');
     if (tags.size === 0) tags.add('workflow');
     return Array.from(tags.values());
   }

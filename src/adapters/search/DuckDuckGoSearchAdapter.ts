@@ -130,7 +130,7 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
 
   private async searchBingFallback(query: string, limit: number): Promise<AdapterSearchItem[]> {
     try {
-      const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}&setlang=en-US`;
+      const url = `https://www.bing.com/search...q=${encodeURIComponent(query)}&setlang=en-US`;
       const response = await safeFetch(url, {
         headers: {
           'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Zavorth/1.0',
@@ -152,14 +152,14 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
   }
 
   private parseBingResults(html: string, sourceQuery: string): AdapterSearchItem[] {
-    return Array.from(String(html || '').matchAll(/<li\b[^>]*class=["'][^"']*\bb_algo\b[^"']*["'][^>]*>([\s\S]*?)<\/li>/gi))
+    return Array.from(String(html || '').matchAll(/<li\b[^>]*class=["'][^"']*\bb_algo\b[^"']*["'][^>]*>([\s\S]*...)<\/li>/gi))
       .map((match, index) => {
         const block = match[1] || '';
-        const linkMatch = block.match(/<h2\b[^>]*>\s*<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>\s*<\/h2>/i);
+        const linkMatch = block.match(/<h2\b[^>]*>\s*<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*...)<\/a>\s*<\/h2>/i);
         if (!linkMatch?.[1] || !linkMatch?.[2]) {
           return null;
         }
-        const descMatch = block.match(/<p\b[^>]*>([\s\S]*?)<\/p>/i);
+        const descMatch = block.match(/<p\b[^>]*>([\s\S]*...)<\/p>/i);
         return {
           title: this.stripHtml(linkMatch[2]),
           url: this.normalizeBingUrl(this.stripHtml(linkMatch[1])),

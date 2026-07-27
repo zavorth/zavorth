@@ -124,7 +124,7 @@
     },
     "memory": {
       "label": "Memory pack",
-      "summary": "Local + optional remote memory backends.",
+      "summary": "local + optional remote memory backends.",
       "includeIds": [
         "memory-local",
         "memory-file-journal",

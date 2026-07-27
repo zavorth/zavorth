@@ -158,32 +158,32 @@ export class SupervisedRuntimeService {
 
   public summarizeRecentChanges(): string {
     const inspection = this.inspect();
-    const lines: string[] = ['Mudancas e estado do Zavorth', ''];
+    const lines: string[] = ['changes e estado do Zavorth', ''];
 
     if (inspection.gitAvailable) {
-      lines.push(`Branch atual: ${inspection.branch || 'indisponivel'}.`);
+      lines.push(`Branch current: ${inspection.branch || 'unavailable'}.`);
       lines.push(
         `Git local: ${inspection.stagedFiles.length} staged | ${inspection.modifiedFiles.length} modificados | ${inspection.untrackedFiles.length} novos.`,
       );
     } else {
-      lines.push('Git local: indisponivel ou repo nao detectado nesta pasta.');
+      lines.push('local git: unavailable or repo not detected in this folder.');
     }
 
     lines.push(
-      `Runtime supervisionado: host ${inspection.hostSupervisor.alive ? inspection.hostSupervisor.pid : 'offline'} | worker ${
+      `Runtime supervised: host ${inspection.hostSupervisor.alive ? inspection.hostSupervisor.pid : 'offline'} | worker ${
         inspection.telegramWorker.alive ? inspection.telegramWorker.pid : 'offline'
       }.`,
     );
     lines.push(
-      `Acesso: local ${inspection.accessReadiness.local.ready ? 'pronto' : 'pendente'} | remoto ${
-        inspection.accessReadiness.remote.ready ? 'pronto' : 'pendente'
+      `access: local ${inspection.accessReadiness.local.ready ? 'ready' : 'pending'} | remote ${
+        inspection.accessReadiness.remote.ready ? 'ready' : 'pending'
       }.`,
     );
-    lines.push(`Dependencias: ${inspection.installRequired ? 'precisam de npm install' : 'sincronizadas'}.`);
-    lines.push(`Build: ${inspection.buildRequired ? 'desatualizado, precisa recompilar' : 'em dia'}.`);
+    lines.push(`dependencies: ${inspection.installRequired ? 'need npm install' : 'synced'}.`);
+    lines.push(`Build: ${inspection.buildRequired ? 'outdated, needs rebuild' : 'up to date'}.`);
 
     if (inspection.recentCommits.length > 0) {
-      lines.push('', 'Ultimos commits:');
+      lines.push('', 'Latests commits:');
       for (const commit of inspection.recentCommits.slice(0, 3)) {
         lines.push(`- ${commit.hash} (${commit.relativeDate}): ${commit.subject}`);
       }
@@ -196,12 +196,12 @@ export class SupervisedRuntimeService {
     ].slice(0, 8);
 
     if (changeLines.length > 0) {
-      lines.push('', 'Arquivos em destaque:');
+      lines.push('', 'Highlighted files:');
       for (const entry of changeLines) {
         lines.push(`- ${entry}`);
       }
     } else if (inspection.gitAvailable) {
-      lines.push('', 'Nenhuma mudanca local pendente no Git agora.');
+      lines.push('', 'No local Git change pending now.');
     }
 
     if (inspection.lastReloadReport?.status) {
@@ -212,24 +212,24 @@ export class SupervisedRuntimeService {
         : '';
       lines.push(
         '',
-        `Ultimo reload supervisionado: ${status}${finishedAt ? ` em ${finishedAt}` : ''}.`,
+        `Latest reload supervised: ${status}${finishedAt ? ` em ${finishedAt}` : ''}.`,
       );
       if (actions) {
-        lines.push(`Acoes: ${actions}`);
+        lines.push(`Actions: ${actions}`);
       }
       if (inspection.lastReloadReport.errorMessage) {
-        lines.push(`Falha registrada: ${inspection.lastReloadReport.errorMessage}`);
+        lines.push(`Failure registrada: ${inspection.lastReloadReport.errorMessage}`);
       }
     }
 
     if (inspection.accessReadiness.nextSteps.length > 0) {
-      lines.push('', 'Prontos passos de acesso:');
+      lines.push('', 'Prontos passos de access:');
       for (const step of inspection.accessReadiness.nextSteps.slice(0, 3)) {
         lines.push(`- ${step.title}: ${step.description}`);
       }
     }
 
-    lines.push('', 'Atalhos: /changes para este resumo | /selfupdate para reciclar o runtime supervisionado | /autorepair para diagnosticar, corrigir e validar.');
+    lines.push('', 'shortcuts: /changes for this summary | /selfupdate to recycle the supervised runtime | /autorepair to diagnose, fix, and validate.');
     return lines.join('\n');
   }
 
@@ -242,7 +242,7 @@ export class SupervisedRuntimeService {
         accepted: false,
         requestId,
         summary:
-          'O runtime atual nao esta sob o Host Supervisor. Clique no atalho "Zavorth Supervisionado" ou suba com npm run launcher:supervised antes de usar /selfupdate.',
+          'The current runtime is not under Host Supervisor. Click the "Supervised Zavorth" shortcut or start with npm run launcher:supervised before using /selfupdate.',
       };
     }
 
@@ -261,7 +261,7 @@ export class SupervisedRuntimeService {
           accepted: false,
           requestId,
           summary:
-            'O runtime supervisionado ja parece saudavel e sem pendencias de install/build. Use /selfupdate force se quiser reciclar mesmo assim.',
+            'The supervised runtime already appears healthy and has no pending install/build items. Use /selfupdate force if you still want to recycle it.',
         };
       }
     }
@@ -273,7 +273,7 @@ export class SupervisedRuntimeService {
           accepted: false,
           requestId,
           summary:
-            'O host supervisor nao confirmou o handoff do reload a tempo. Confira data/runtime/supervised-launcher-last.log no host.',
+            'The host supervisor did not confirm reload handoff in time. Check data/runtime/supervised-launcher-last.log on the host.',
         });
       }, 5_000);
 
@@ -287,7 +287,7 @@ export class SupervisedRuntimeService {
           requestId,
           summary:
             String(message?.summary || '').trim() ||
-            'O host supervisor recebeu o pedido de reload.',
+            'O host supervisor recebeu o request de reload.',
         });
       };
 
@@ -306,7 +306,7 @@ export class SupervisedRuntimeService {
         type: 'handoff_reload',
         requestId,
         payload: {
-          reason: String(input.reason || '').trim() || 'Reload supervisionado solicitado by the operator.',
+          reason: String(input.reason || '').trim() || 'Supervised reload requested by the operator.',
           requestedBy: String(input.requestedBy || '').trim() || 'unknown',
           notifyChatId: String(input.notifyChatId || '').trim() || null,
           forceRestart: input.forceRestart === true,
@@ -332,7 +332,7 @@ export class SupervisedRuntimeService {
 
     try {
       const statusRaw = this.captureGit(['status', '--porcelain=v1', '--branch']);
-      const lines = statusRaw.split(/\r?\n/).map((entry) => entry.trimEnd()).filter(Boolean);
+      const lines = statusRaw.split(/\r...\n/).map((entry) => entry.trimEnd()).filter(Boolean);
       const branchLine = lines.find((entry) => entry.startsWith('## ')) || '';
       const branch = this.parseBranch(branchLine);
       const stagedFiles: string[] = [];
@@ -350,7 +350,7 @@ export class SupervisedRuntimeService {
           continue;
         }
 
-        if (code === '??') {
+        if (code === '......') {
           untrackedFiles.push(filePath);
           continue;
         }
@@ -364,7 +364,7 @@ export class SupervisedRuntimeService {
       }
 
       const recentCommits = this.captureGit(['log', '-3', '--date=relative', '--pretty=format:%h%x09%ar%x09%s'])
-        .split(/\r?\n/)
+        .split(/\r...\n/)
         .map((entry) => this.parseCommitLine(entry))
         .filter((entry): entry is GitCommitSummary => Boolean(entry));
 

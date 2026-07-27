@@ -105,7 +105,7 @@ export class ZavorthSelfHealingReceiptService {
   public list(limit = 12): ZavorthSelfHealingReceipt[] {
     try {
       if (!fs.existsSync(this.storePath)) return [];
-      const lines = fs.readFileSync(this.storePath, 'utf8').split(/\r?\n/).filter(Boolean);
+      const lines = fs.readFileSync(this.storePath, 'utf8').split(/\r...\n/).filter(Boolean);
       return lines
         .slice(-Math.max(0, limit))
         .map((line) => {

@@ -52,25 +52,9 @@ type ServiceDeps = {
 function normalizeFirstRunUserId(userId?: string | null): string {
   const raw = String(userId || '').trim();
   if (!raw) return 'local-user';
-  const safe = raw.replace(/[^a-zA-Z0-9._@+-]+/g, '_').slice(0, 120);
+  const safe = Array.from(raw).map((char) => isSafeUserIdChar(char) ? char : '_').join('').slice(0, 120);
   return safe || 'local-user';
 }
-
-const SURFACE_ALIASES: Record<string, FirstRunSurface> = {
-  desktop: 'desktop',
-  app: 'desktop',
-  pc: 'desktop',
-  computador: 'desktop',
-  casa: 'desktop',
-  telegram: 'telegram',
-  tg: 'telegram',
-  celular: 'telegram',
-  web: 'web',
-  browser: 'web',
-  navegador: 'web',
-  cli: 'cli',
-  terminal: 'cli',
-};
 
 export class ZavorthFirstRunHumanOnboardingService {
   private readonly projectRoot: string;
@@ -112,11 +96,10 @@ export class ZavorthFirstRunHumanOnboardingService {
       required: !state.completed,
       completed: state.completed,
       currentStep: state.completed ? 4 : currentStep,
-      headline: state.completed
-        ? 'Ready. You can use Zavorth normally.'
+      headline: state.completed ? 'Ready. You can use Zavorth normally.'
         : 'Let us set up Zavorth in 3 simple steps.',
       summary: state.completed
-        ? `Language ${state.language || 'en'} · talk via ${state.surface || 'desktop'} · learning ${state.allowLearning ? 'on' : 'reviewed'}.`
+        ? `Language ${state.language || 'en'} ? talk via ${state.surface || 'desktop'} ? learning ${state.allowLearning ? 'on' : 'reviewed'}.`
         : 'No jargon: language, where you talk to me, and whether I may learn with you.',
       steps,
       nextPrompt: next?.prompt || null,
@@ -148,7 +131,7 @@ export class ZavorthFirstRunHumanOnboardingService {
     }
 
     // Prefer applyStep / slash+button paths. answer() remains for structured
-    // API payloads (lang/surface/yes values), not free-text NLU interception.
+    // API payloads, not free-text NLU interception.
     const text = String(rawText || '').trim();
     if (!text) {
       return {
@@ -160,7 +143,7 @@ export class ZavorthFirstRunHumanOnboardingService {
       };
     }
 
-    if (/^(skip|later)$/i.test(text)) {
+    if (text === 'skip' || text === 'later') {
       return this.complete({
         language: state.language || 'en',
         surface: state.surface || 'desktop',
@@ -174,7 +157,7 @@ export class ZavorthFirstRunHumanOnboardingService {
         return {
           ok: false,
           handled: true,
-          summary: 'Which language? Examples: english, portuguese, spanish. Or use /start buttons.',
+          summary: 'Which language tag should I use... Send a BCP-47 tag such as lang:en or use /start buttons.',
           snapshot: this.buildSnapshot(),
           completedNow: false,
         };
@@ -200,7 +183,7 @@ export class ZavorthFirstRunHumanOnboardingService {
         return {
           ok: false,
           handled: true,
-          summary: 'Where will you talk to me? Examples: app, telegram, web, terminal. Or use /start buttons.',
+          summary: 'Where will you talk to me... Send surface:desktop, surface:telegram, surface:web, or surface:cli.',
           snapshot: this.buildSnapshot(),
           completedNow: false,
         };
@@ -226,7 +209,7 @@ export class ZavorthFirstRunHumanOnboardingService {
         return {
           ok: false,
           handled: true,
-          summary: 'May I learn with you (always with undo)? Answer yes or no, or use /start buttons.',
+          summary: 'May I learn with you... Send learning:on or learning:off, or use /start buttons.',
           snapshot: this.buildSnapshot(),
           completedNow: false,
         };
@@ -337,8 +320,7 @@ export class ZavorthFirstRunHumanOnboardingService {
     }
 
     const snapshot = this.buildSnapshot();
-    const learningHint = input.allowLearning
-      ? 'I will remember useful preferences and you can undo anytime.'
+    const learningHint = input.allowLearning ? 'I will remember useful preferences and you can undo anytime.'
       : 'I will not store preferences alone; learning stays in reviewed mode.';
     return {
       ok: true,
@@ -372,7 +354,7 @@ export class ZavorthFirstRunHumanOnboardingService {
   }
 
   /**
-   * Free-text NLU packs removed (agent-first: free text → agent).
+   * Free-text NLU packs removed; free text goes to the agent.
    * Surfaces use /start + buttons; applyStep for structured API.
    */
   public matchNaturalCommand(_text: string): null | { kind: 'status' | 'restart' | 'skip' } {
@@ -385,8 +367,8 @@ export class ZavorthFirstRunHumanOnboardingService {
         id: 1,
         key: 'language',
         title: 'Language',
-        prompt: 'Which language should I reply in? (e.g. english, portuguese, spanish)',
-        examples: ['english', 'portuguese', 'spanish'],
+        prompt: 'Which language tag should I reply in...',
+        examples: ['lang:en', 'lang:es', 'lang:pt-BR'],
         done: Boolean(state.language),
         value: state.language,
       },
@@ -394,8 +376,8 @@ export class ZavorthFirstRunHumanOnboardingService {
         id: 2,
         key: 'surface',
         title: 'Where to talk',
-        prompt: 'Where will you talk to me most? (app, telegram, web, or terminal)',
-        examples: ['app', 'telegram', 'web', 'terminal'],
+        prompt: 'Where will you talk to me most...',
+        examples: ['surface:desktop', 'surface:telegram', 'surface:web', 'surface:cli'],
         done: Boolean(state.surface),
         value: state.surface,
       },
@@ -403,10 +385,10 @@ export class ZavorthFirstRunHumanOnboardingService {
         id: 3,
         key: 'learning',
         title: 'Learning',
-        prompt: 'May I learn with you and improve over time (always with an undo option)? Answer yes or no.',
-        examples: ['yes', 'no'],
+        prompt: 'May I learn with you and improve over time...',
+        examples: ['learning:on', 'learning:off'],
         done: typeof state.allowLearning === 'boolean',
-        value: typeof state.allowLearning === 'boolean' ? (state.allowLearning ? 'yes' : 'no') : null,
+        value: typeof state.allowLearning === 'boolean' ? (state.allowLearning ? 'learning:on' : 'learning:off') : null,
       },
     ];
   }
@@ -419,7 +401,7 @@ export class ZavorthFirstRunHumanOnboardingService {
       ];
     }
     return [
-      'Hi — I am Zavorth.',
+      'Hi - I am Zavorth.',
       'In 3 quick steps I make the agent useful for anyone.',
       next?.prompt || "Let's start.",
     ];
@@ -476,34 +458,48 @@ export class ZavorthFirstRunHumanOnboardingService {
 function normalizeLanguage(raw: string): string | null {
   const value = String(raw || '').trim().toLowerCase();
   if (!value) return null;
-  if (/^(pt|portugues|português|br|brasil)$/i.test(value)) return 'pt';
-  if (/^(en|english|ingles|inglês)$/i.test(value)) return 'en';
-  if (/^(es|espanol|español|spanish)$/i.test(value)) return 'es';
-  if (value.length <= 12 && /^[a-z-]+$/.test(value)) return value;
-  if (/portug/.test(value)) return 'pt';
-  if (/engl|ingl/.test(value)) return 'en';
-  if (/span|espa/.test(value)) return 'es';
-  return value.slice(0, 16);
+  const tag = value.startsWith('lang:') ? value.slice('lang:'.length).trim() : value;
+  return isBcp47LikeLanguageTag(tag) ? tag.slice(0, 32) : null;
 }
 
 function normalizeSurface(raw: string): FirstRunSurface | null {
   const value = String(raw || '').trim().toLowerCase();
   if (!value) return null;
-  if (SURFACE_ALIASES[value]) return SURFACE_ALIASES[value];
-  if (value.includes('telegram') || value.includes('celular')) return 'telegram';
-  if (value.includes('desktop') || value.includes('app') || value.includes('pc')) return 'desktop';
-  if (value.includes('web') || value.includes('browser')) return 'web';
-  if (value.includes('cli') || value.includes('terminal')) return 'cli';
+  const surface = value.startsWith('surface:') ? value.slice('surface:'.length).trim() : value;
+  if (surface === 'desktop' || surface === 'telegram' || surface === 'web' || surface === 'cli') return surface;
   return null;
 }
 
 function normalizeYesNo(raw: string): boolean | null {
   const value = String(raw || '').trim().toLowerCase();
-  if (/^(s|sim|yes|y|pode|quero|claro|ok|ligado|on)$/i.test(value)) return true;
-  if (/^(n|nao|não|no|nunca|depois|desligado|off)$/i.test(value)) return false;
-  if (/aprend/.test(value) && /(sim|pode|quero)/.test(value)) return true;
-  if (/aprend/.test(value) && /(nao|não|sem)/.test(value)) return false;
+  const learning = value.startsWith('learning:') ? value.slice('learning:'.length).trim() : value;
+  if (learning === 'on' || learning === 'true') return true;
+  if (learning === 'off' || learning === 'false') return false;
   return null;
+}
+
+function isSafeUserIdChar(char: string): boolean {
+  return (
+    (char >= 'a' && char <= 'z') ||
+    (char >= 'A' && char <= 'Z') ||
+    (char >= '0' && char <= '9') ||
+    char === '.' ||
+    char === '_' ||
+    char === '@' ||
+    char === '+' ||
+    char === '-'
+  );
+}
+
+function isBcp47LikeLanguageTag(value: string): boolean {
+  if (!value || value.length > 32) return false;
+  const parts = value.split('-');
+  if (parts.length === 0) return false;
+  return parts.every((part) => part.length > 0 && Array.from(part).every(isLanguageTagChar));
+}
+
+function isLanguageTagChar(char: string): boolean {
+  return (char >= 'a' && char <= 'z') || (char >= '0' && char <= '9');
 }
 
 export function createFirstRunLearningNotice(

@@ -112,24 +112,24 @@ function buildRouteOutcomeRationale(
   averageArtifactDeliveryMs: number,
 ): string {
   return (
-    `${entry.completed_count} concluida(s), ${entry.failed_count} falha(s), `
-    + `${entry.rejected_count} rejeicao(oes), ${entry.approval_pending_count} aguardando aprovacao, `
-    + `${entry.permission_pending_count} permissao(oes) pendente(s), `
-    + `${entry.approval_granted_count + entry.permission_granted_count} liberacao(oes) registrada(s)`
+    `${entry.completed_count} completed(s), ${entry.failed_count} failure(s), `
+    + `${entry.rejected_count} rejection(s), ${entry.approval_pending_count} waiting for approval, `
+    + `${entry.permission_pending_count} pending permission(s), `
+    + `${entry.approval_granted_count + entry.permission_granted_count} liberaction(oes) registrada(s)`
     + `${entry.gated_completion_count > 0
-      ? `, ${entry.gated_completion_count} fluxo(s) aprovados concluido(s)`
+      ? `, ${entry.gated_completion_count} flow(s) approved completed(s)`
       : ''}`
     + `${entry.gated_artifactful_count > 0
-      ? ` com ${entry.gated_artifactful_count} entrega(s) apos aprovacao`
+      ? ` com ${entry.gated_artifactful_count} delivery/deliveries after approval`
       : ''}`
     + `${entry.workflow_recovery_success_count > 0
-      ? `, ${entry.workflow_recovery_success_count} retomada(s) concluida(s)`
+      ? `, ${entry.workflow_recovery_success_count} resumption(s) completed(s)`
       : ''}`
     + `${entry.workflow_recovery_artifactful_count > 0
-      ? ` com ${entry.workflow_recovery_artifactful_count} entrega(s) finais`
+      ? ` com ${entry.workflow_recovery_artifactful_count} delivery item(s) finais`
       : ''}`
     + `${averageApprovalWaitMs > 0 ? `, espera media ${formatWorkspaceMemoryDurationMs(averageApprovalWaitMs)}` : ''}`
-    + `${averageRecoveryMs > 0 ? `, retomada media ${formatWorkspaceMemoryDurationMs(averageRecoveryMs)}` : ''}`
+    + `${averageRecoveryMs > 0 ? `, average resume time ${formatWorkspaceMemoryDurationMs(averageRecoveryMs)}` : ''}`
     + `${averageArtifactDeliveryMs > 0 ? `, entrega final media ${formatWorkspaceMemoryDurationMs(averageArtifactDeliveryMs)}` : ''}`
     + `${entry.source_surface ? ` via ${entry.source_surface}` : ''}.`
   );

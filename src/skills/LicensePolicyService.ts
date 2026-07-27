@@ -11,13 +11,13 @@ export type SkillLicenseClassificationInput = {
 
 const PERMISSIVE_PATTERNS = [
   /^mit$/i,
-  /^apache(?:-|\s*)2(?:\.0)?$/i,
-  /^bsd(?:[-\s].*)?$/i,
+  /^apache(?:-|\s*)2(?:\.0)...$/i,
+  /^bsd(?:[-\s].*)...$/i,
   /^isc$/i,
   /^unlicense$/i,
 ];
 const ATTRIBUTION_PATTERNS = [
-  /^cc[\s-]*by(?:[\s-]*4(?:\.0)?)?$/i,
+  /^cc[\s-]*by(?:[\s-]*4(?:\.0)...)...$/i,
   /creative commons attribution/i,
 ];
 const RECIPROCAL_PATTERNS = [

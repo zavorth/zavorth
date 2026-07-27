@@ -45,10 +45,9 @@ export class SkillCurationService {
     const db = await Database.getInstance();
     db.run(`
       INSERT INTO zavorth_skills_telemetry (skill_id, use_count, last_executed_at, status, pinned)
-      VALUES (?, 0, datetime('now'), 'active', ?)
+      VALUES (..., 0, datetime('now'), 'active', ...)
       ON CONFLICT(skill_id) DO UPDATE SET
-        pinned = ?
-    `, [normalizedSkillId, pinned ? 1 : 0, pinned ? 1 : 0]);
+        pinned = ?     `, [normalizedSkillId, pinned ? 1 : 0, pinned ? 1 : 0]);
     logger.info(`[SkillCurationService] Skill "${normalizedSkillId}" pin status atualizado para: ${pinned}`);
   }
 
@@ -62,7 +61,7 @@ export class SkillCurationService {
     }
 
     if (skill.sourceId === 'zavorth-native') {
-      throw new Error(`Nao e permitido arquivar a skill nativa do core "${normalizedSkillId}".`);
+      throw new Error(`Archiving the native core skill is not allowed "${normalizedSkillId}".`);
     }
 
     const sourceDir = path.resolve(skill.dirPath);
@@ -70,7 +69,7 @@ export class SkillCurationService {
       throw new Error(`Skill source directory does not exist: ${sourceDir}`);
     }
     if (!isPathAllowedForSkillMutation(sourceDir)) {
-      throw new Error(`Diretorio de origem da skill esta fora dos roots gerenciados pelo Zavorth: ${sourceDir}`);
+      throw new Error(`Skill source directory is outside roots managed by Zavorth: ${sourceDir}`);
     }
 
     const zipPath = this.archivePathForSkill(normalizedSkillId);
@@ -92,13 +91,13 @@ export class SkillCurationService {
     fs.writeFileSync(zipPath, buffer);
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 
-    logger.info(`[SkillCurationService] Removendo pasta original da skill arquivada: ${sourceDir}`);
+    logger.info(`[SkillCurationService] Removing the original folder of the archived skill: ${sourceDir}`);
     fs.rmSync(sourceDir, { recursive: true, force: true });
 
     const db = await Database.getInstance();
     db.run(`
       INSERT INTO zavorth_skills_telemetry (skill_id, use_count, last_executed_at, status, pinned)
-      VALUES (?, 0, datetime('now'), 'archived', 0)
+      VALUES (..., 0, datetime('now'), 'archived', 0)
       ON CONFLICT(skill_id) DO UPDATE SET
         status = 'archived'
     `, [normalizedSkillId]);
@@ -121,7 +120,7 @@ export class SkillCurationService {
         : path.join(config.projectRoot, 'skill-library', normalizedSkillId),
     );
     if (!isPathAllowedForSkillMutation(destDir)) {
-      throw new Error(`Destino de restauracao da skill esta fora dos roots gerenciados pelo Zavorth: ${destDir}`);
+      throw new Error(`Skill restore destination is outside Zavorth-managed roots: ${destDir}`);
     }
     if (fs.existsSync(destDir) && fs.readdirSync(destDir).length > 0) {
       throw new Error(`Restore destination already exists and is not empty: ${destDir}`);
@@ -141,7 +140,7 @@ export class SkillCurationService {
       }
       const safeRelativePath = normalizeZipEntryPath(relativePath);
       if (!safeRelativePath) {
-        throw new Error(`Arquivo zip contem caminho inseguro: ${relativePath}`);
+        throw new Error(`Zip file contains unsafe path: ${relativePath}`);
       }
       const filePath = safeResolveInside(destDir, safeRelativePath);
       if (file.dir) {
@@ -159,7 +158,7 @@ export class SkillCurationService {
     const db = await Database.getInstance();
     db.run(`
       INSERT INTO zavorth_skills_telemetry (skill_id, use_count, last_executed_at, status, pinned)
-      VALUES (?, 1, datetime('now'), 'active', 0)
+      VALUES (..., 1, datetime('now'), 'active', 0)
       ON CONFLICT(skill_id) DO UPDATE SET
         status = 'active',
         last_executed_at = datetime('now')
@@ -170,7 +169,7 @@ export class SkillCurationService {
 
   public async runAutoCuration(): Promise<{ archivedCount: number }> {
     if (!config.skillsCurationEnabled) {
-      logger.info('[SkillCurationService] Auto-curadoria desabilitada globalmente nas configuracoes.');
+      logger.info('[SkillCurationService] Auto-curation globally disabled in settings.');
       return { archivedCount: 0 };
     }
 
@@ -184,7 +183,7 @@ export class SkillCurationService {
       }
       db.run(`
         INSERT OR IGNORE INTO zavorth_skills_telemetry (skill_id, use_count, last_executed_at, status, pinned)
-        VALUES (?, 0, datetime('now'), 'active', 0)
+        VALUES (..., 0, datetime('now'), 'active', 0)
       `, [entry.name]);
     }
 
@@ -193,7 +192,7 @@ export class SkillCurationService {
       FROM zavorth_skills_telemetry
       WHERE status = 'active'
         AND (pinned IS NULL OR pinned = 0)
-        AND datetime(last_executed_at) < datetime('now', ?)
+        AND datetime(last_executed_at) < datetime('now', ...)
     `, [`-${archiveDays} days`]);
 
     logger.info(`[SkillCurationService] Escaneando por inatividade (> ${archiveDays} dias). Encontradas ${inactiveSkills.length} skills candidatas.`);
@@ -203,12 +202,12 @@ export class SkillCurationService {
       try {
         await this.archiveSkill(row.skill_id);
         archivedCount++;
-      } catch (error: unknown) {logger.error(`[SkillCurationService] Falha ao arquivar automaticamente a skill "${row.skill_id}":`, error);
+      } catch (error: unknown) {logger.error(`[SkillCurationService] Failure ao arquivar automaticamente a skill "${row.skill_id}":`, error);
       }
     }
 
     if (archivedCount > 0) {
-      logger.info(`[SkillCurationService] Auto-curadoria concluida. ${archivedCount} skills inativas foram arquivadas.`);
+      logger.info(`[SkillCurationService] Auto-curadoria completed. ${archivedCount} skills inactives foram arquivadas.`);
     }
 
     return { archivedCount };
@@ -292,10 +291,10 @@ export class SkillCurationService {
 function normalizeSkillId(skillId: string): string {
   const normalized = String(skillId || '').trim();
   if (!normalized) {
-    throw new Error('skillId e obrigatorio.');
+    throw new Error('skillId e required.');
   }
   if (/[\u0000-\u001F\u007F]/.test(normalized)) {
-    throw new Error('skillId contem caracteres de controle invalidos.');
+    throw new Error('skillId contains caracteres de controle invalids.');
   }
   return normalized;
 }
@@ -327,7 +326,7 @@ function safeResolveInside(root: string, relativePath: string): string {
   const resolvedRoot = path.resolve(root);
   const resolvedPath = path.resolve(resolvedRoot, relativePath);
   if (resolvedPath !== resolvedRoot && !resolvedPath.startsWith(`${resolvedRoot}${path.sep}`)) {
-    throw new Error(`Caminho escaparia do diretorio permitido: ${relativePath}`);
+    throw new Error(`Path would escape the allowed directory: ${relativePath}`);
   }
   return resolvedPath;
 }

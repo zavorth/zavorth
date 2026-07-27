@@ -137,9 +137,8 @@ export class CodexRemoteProfileRegistryService {
       readiness,
       narrative: {
         headline: `Codex Remote exposes ${profiles.length} configurable profile(s).`,
-        operatorSummary: activeProfile
-          ? `Perfil ativo: ${activeProfile.label}. ${profiles.filter((profile) => profile.enabled).length} perfil(is) habilitado(s).`
-          : 'Nenhum perfil do Codex Remote foi resolvido.',
+        operatorSummary: activeProfile ? `Perfil active: ${activeProfile.label}. ${profiles.filter((profile) => profile.enabled).length} profile(is) habilitado(s).`
+          : 'No profile do Codex Remote foi resolvido.',
       },
     };
   }
@@ -159,7 +158,7 @@ export class CodexRemoteProfileRegistryService {
       return {
         id: 'default',
         label: 'Default Codex',
-        description: 'Perfil padrao do Codex CLI.',
+        description: 'Perfil default do Codex CLI.',
         codexCliPath: config.codexCliPath,
         codexHome: this.deriveCodexHome(config.codexCliPath),
         workspaceRoot: config.defaultWorkspace,
@@ -194,17 +193,17 @@ export class CodexRemoteProfileRegistryService {
   ): CodexRemoteExecutionProfile {
     const normalizedId = String(profile?.id || '').trim();
     if (!normalizedId) {
-      throw new Error('profileId obrigatorio.');
+      throw new Error('profileId required.');
     }
     if (normalizedId === 'default') {
-      throw new Error('Nao e possivel sobrescrever o perfil default.');
+      throw new Error('Cannot overwrite the default profile.');
     }
 
     const currentState = this.readState().state;
     const existingProfile = currentState.profiles.find((entry) => entry.id === normalizedId) || null;
     const nextProfile = this.normalizeStoredProfile(profile, existingProfile);
     if (!nextProfile) {
-      throw new Error('profileId obrigatorio.');
+      throw new Error('profileId required.');
     }
 
     const profiles = currentState.profiles.slice();
@@ -265,9 +264,8 @@ export class CodexRemoteProfileRegistryService {
       profileCount: profiles.length,
       enabledProfileCount,
       issues,
-      operatorSummary: healthy
-        ? `Registry de perfis pronto com ${profiles.length} perfil(is) e ${enabledProfileCount} habilitado(s).`
-        : `Registry de perfis com ${issues.length} problema(s) detectado(s).`,
+      operatorSummary: healthy ? `Registry de profiles ready com ${profiles.length} profile(is) e ${enabledProfileCount} habilitado(s).`
+        : `Registry de profiles com ${issues.length} problema(s) detectado(s).`,
     };
   }
 
@@ -282,13 +280,12 @@ export class CodexRemoteProfileRegistryService {
     const issues: string[] = [];
 
     if (requestedProfileId && !resolvedProfile) {
-      issues.push(`Perfil solicitado nao esta disponivel: ${requestedProfileId}.`);
+      issues.push(`Requested profile is not available: ${requestedProfileId}.`);
     }
 
     const ready = Boolean(resolvedProfile);
     const recommendedAction: CodexRemoteProfileRegistryReadinessSnapshot['recommendedAction'] =
-      !readResult.stateFileExists
-        ? 'none'
+      !readResult.stateFileExists ? 'none'
         : issues.length > 0
           ? 'select-profile'
           : profiles.length <= 1
@@ -307,22 +304,21 @@ export class CodexRemoteProfileRegistryService {
       availableActions: ['select-profile', 'upsert-profile', 'delete-profile'],
       recommendedAction,
       issues,
-      operatorSummary: ready
-        ? `Perfil pronto para uso: ${resolvedProfile?.label || activeProfile?.label || 'Default Codex'}.`
-        : 'Nenhum perfil pronto para uso.',
+      operatorSummary: ready ? `Profile ready for use: ${resolvedProfile?.label || activeProfile?.label || 'Default Codex'}.`
+        : 'No profile ready for use.',
     };
   }
 
   public selectProfile(profileId: string): CodexRemoteExecutionProfile {
     const normalizedId = String(profileId || '').trim();
     if (!normalizedId) {
-      throw new Error('profileId obrigatorio.');
+      throw new Error('profileId required.');
     }
 
     const snapshot = this.buildSnapshot();
     const target = snapshot.profiles.find((profile) => profile.id === normalizedId && profile.enabled);
     if (!target) {
-      throw new Error(`Perfil do Codex Remote nao encontrado: ${normalizedId}.`);
+      throw new Error(`Codex Remote profile not found: ${normalizedId}.`);
     }
 
     const state = this.readState().state;
@@ -359,7 +355,7 @@ export class CodexRemoteProfileRegistryService {
     return {
       id: 'default',
       label: 'Default Codex',
-      description: 'Usa o Codex CLI padrao configurado no host.',
+      description: 'Usa o Codex CLI default configured no host.',
       codexCliPath: config.codexCliPath,
       codexHome: this.deriveCodexHome(config.codexCliPath),
       workspaceRoot: config.defaultWorkspace,
@@ -473,7 +469,7 @@ export class CodexRemoteProfileRegistryService {
           issues: [
             {
               code: 'state-file-invalid',
-              message: 'O arquivo de estado do registry nao possui um objeto valido.',
+              message: 'The registry state file does not contain a valid object.',
             },
           ],
           stateFileExists,
@@ -501,7 +497,7 @@ export class CodexRemoteProfileRegistryService {
         issues: [
           {
             code: 'state-file-invalid',
-            message: 'Falha ao ler ou interpretar o arquivo de estado do registry.',
+            message: 'Failure reading or interpreting the registry state file.',
             },
           ],
           stateFileExists,
@@ -550,7 +546,7 @@ export class CodexRemoteProfileRegistryService {
     if (!rawProfile || typeof rawProfile !== 'object' || Array.isArray(rawProfile)) {
       issues.push({
         code: 'profile-invalid',
-        message: 'Entrada de perfil invalida ignorada.',
+        message: 'Invalid profile entry ignored.',
       });
       return null;
     }
@@ -560,7 +556,7 @@ export class CodexRemoteProfileRegistryService {
     if (!id) {
       issues.push({
         code: 'profile-invalid',
-        message: 'Entrada de perfil sem id foi ignorada.',
+        message: 'Entrada de profile without id foi ignorada.',
       });
       return null;
     }
@@ -591,7 +587,7 @@ export class CodexRemoteProfileRegistryService {
     if (rawActiveProfileId && !activeProfileExists) {
       issues.push({
         code: 'active-profile-missing',
-        message: `O perfil ativo salvo nao existe mais: ${rawActiveProfileId}.`,
+        message: `The saved active profile no longer exists: ${rawActiveProfileId}.`,
         profileId: rawActiveProfileId,
       });
     }
@@ -610,8 +606,8 @@ export class CodexRemoteProfileRegistryService {
       this.writeFileSync(this.stateFilePath, JSON.stringify(normalizedState, null, 2), 'utf8');
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : 'erro desconhecido';
-      throw new Error(`Falha ao persistir o registry de perfis do Codex Remote: ${message}`);
+      const message = error instanceof Error ? err.message : 'unknown error';
+      throw new Error(`Failure ao persistir o registry de profiles do Codex Remote: ${message}`);
     }
   }
 }

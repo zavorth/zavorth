@@ -49,39 +49,39 @@ export function buildNodeCapabilitiesRegistry(
   const descriptors: Array<{ id: CapabilityId; description: string }> = [
     {
       id: 'device.info',
-      description: 'Descreve identidade, plataforma e sinais operacionais do device pareado.',
+      description: 'Describes identity, platform and operational signals of the paired device.',
     },
     {
       id: 'browser.proxy',
-      description: 'Abre ou confirma endpoint de navegador/proxy no host pareado.',
+      description: 'Opens or confirms browser/proxy endpoint on the paired host.',
     },
     {
       id: 'files.read',
-      description: 'Le arquivos dentro das raizes autorizadas do node.',
+      description: 'Reads files within authorized roots of the node.',
     },
     {
       id: 'files.write',
-      description: 'Escreve arquivos dentro das raizes autorizadas do node.',
+      description: 'Writes files within authorized roots of the node.',
     },
     {
       id: 'files.watch',
-      description: 'Observa mudancas em arquivos ou diretorios por uma janela controlada.',
+      description: 'Watches for changes in files or directories within a controlled window.',
     },
     {
       id: 'screen.capture',
-      description: 'Captura passiva da tela atual do device do operador.',
+      description: 'Passive capture of the operator device current screen.',
     },
     {
       id: 'camera.capture',
-      description: 'Captura imagem de camera a partir de fonte explicitamente configurada.',
+      description: 'Captures image from camera from an explicitly configured source.',
     },
     {
       id: 'location.read',
-      description: 'Le localizacao configurada do device quando a policy local permite.',
+      description: 'Reads configured location of the device when local policy allows.',
     },
     {
       id: 'clipboard.read',
-      description: 'Le o conteudo atual do clipboard do host pareado.',
+      description: 'Reads the current clipboard content of the paired host.',
     },
     {
       id: 'clipboard.write',
@@ -89,15 +89,15 @@ export function buildNodeCapabilitiesRegistry(
     },
     {
       id: 'notifications.send',
-      description: 'Envia uma notificacao nativa no host pareado.',
+      description: 'Sends a native notification on the paired host.',
     },
     {
       id: 'system.run',
-      description: 'Executa comandos controlados no host pareado sob policy local.',
+      description: 'Executes controlled commands on the paired host under local policy.',
     },
     {
       id: 'node.maintenance',
-      description: 'Executa doctor e repair do state local do node host.',
+      description: 'Runs doctor and repair on the local state of the node host.',
     },
   ];
 

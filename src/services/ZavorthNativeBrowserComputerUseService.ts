@@ -121,8 +121,7 @@ export class ZavorthNativeBrowserComputerUseService {
       }
       const visualKind = visualKindForAction(action);
       if (visualKind) {
-        visualReceipts.push(visualReceipt(visualKind, sidecarUsed ? 'ready' : input.live ? 'blocked' : 'skipped', sidecarUsed
-          ? `Visual interaction receipt recorded for ${action}.`
+        visualReceipts.push(visualReceipt(visualKind, sidecarUsed ? 'ready' : input.live ? 'blocked' : 'skipped', sidecarUsed ? `Visual interaction receipt recorded for ${action}.`
           : `Visual interaction prepared for ${action}.`));
       }
     }

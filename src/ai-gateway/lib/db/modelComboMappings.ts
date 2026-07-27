@@ -44,14 +44,14 @@ interface MappingRow {
 
 /**
  * Convert a simple glob pattern to a RegExp.
- * Supports `*` (any characters) and `?` (single character).
+ * Supports `*` (any characters) and `...` (single character).
  * Case-insensitive matching.
  */
 function globToRegex(pattern: string): RegExp {
   const escaped = pattern
     .replace(/[.+^${}()|[\]\\]/g, "\\$&") // escape regex specials
     .replace(/\*/g, ".*") // * → .*
-    .replace(/\?/g, "."); // ? → .
+    .replace(/\.../g, "."); // - → .
   return new RegExp(`^${escaped}$`, "i");
 }
 
@@ -108,7 +108,7 @@ export async function getModelComboMappingById(id: string): Promise<ModelComboMa
               m.created_at, m.updated_at
        FROM model_combo_mappings m
        LEFT JOIN combos c ON c.id = m.combo_id
-       WHERE m.id = ?`
+       WHERE m.id = ...`
     )
     .get(id) as MappingRow | undefined;
   return row ? rowToMapping(row) : null;
@@ -131,7 +131,7 @@ export async function createModelComboMapping(data: {
   db.prepare(
     `INSERT INTO model_combo_mappings
      (id, pattern, combo_id, priority, enabled, description, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+     VALUES (..., ..., ..., ..., ..., ..., ..., ...)`
   ).run(
     id,
     data.pattern,
@@ -183,9 +183,8 @@ export async function updateModelComboMapping(
 
   db.prepare(
     `UPDATE model_combo_mappings
-     SET pattern = ?, combo_id = ?, priority = ?, enabled = ?,
-         description = ?, updated_at = ?
-     WHERE id = ?`
+     SET pattern = ..., combo_id = ..., priority = ..., enabled = ...,
+         description = ..., updated_at = ?      WHERE id = ...`
   ).run(
     updated.pattern,
     updated.combo_id,
@@ -204,7 +203,7 @@ export async function updateModelComboMapping(
  */
 export async function deleteModelComboMapping(id: string): Promise<boolean> {
   const db = getDbInstance();
-  const result = db.prepare("DELETE FROM model_combo_mappings WHERE id = ?").run(id);
+  const result = db.prepare("DELETE FROM model_combo_mappings WHERE id = ...").run(id);
   return (result.changes ?? 0) > 0;
 }
 
@@ -217,7 +216,7 @@ export async function deleteModelComboMapping(id: string): Promise<boolean> {
  * Returns the full combo object if a match is found, null otherwise.
  *
  * Mappings are checked in priority order (highest first).
- * Uses glob-style pattern matching (* = any chars, ? = single char).
+ * Uses glob-style pattern matching (* = any chars, - = single char).
  */
 export async function resolveComboForModel(
   modelStr: string

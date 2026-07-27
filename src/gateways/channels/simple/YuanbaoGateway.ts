@@ -21,9 +21,8 @@ export class YuanbaoGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/yuanbao',
       doctorCommand: '/channels doctor yuanbao',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Yuanbao bridge configurado. Pronto para enviar mensagens.'
-        : 'Defina YUANBAO_BRIDGE_URL, YUANBAO_BRIDGE_SCRIPT ou YUANBAO_OUTBOX_DIR para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'Yuanbao bridge configured. Ready to send messages.'
+        : 'Set YUANBAO_BRIDGE_URL, YUANBAO_BRIDGE_SCRIPT, or YUANBAO_OUTBOX_DIR to enable.',
     };
   }
 

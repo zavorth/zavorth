@@ -4,7 +4,7 @@ import type {
 } from './ZavorthVisionControlPlaneContract.js';
 
 export const ZAVORTH_BROWSER_VISION_BRIDGE_CONTRACT_VERSION =
-  '2026-05-11.browser-vision-checkpoint-2' as const;
+  '2026-05-11.browser-vision-gate-2' as const;
 
 export type ZavorthBrowserVisionAction =
   | 'browser.status'
@@ -120,7 +120,7 @@ export type ZavorthBrowserVisionBridgeSnapshot = {
   };
   policy: {
     decision: ZavorthVisionPolicyDecision;
-    profile: 'browser-vision-checkpoint-2';
+    profile: 'browser-vision-gate-2';
     reason: string;
     publicEgressAllowed: boolean;
     mutationAllowed: false;
@@ -145,7 +145,7 @@ export type ZavorthBrowserVisionBridgeSnapshot = {
     inspect: '/vision browser inspect';
     plan: '/computer browser plan';
     apply: '/computer browser apply <plan>';
-    nextStage: 'Approval gate - Desktop Computer Use Governado';
+    nextAction: 'Approval gate - Desktop Computer Use Governado';
   };
   nextSafeAction: string;
 };

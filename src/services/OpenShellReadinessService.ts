@@ -30,8 +30,7 @@ export class OpenShellReadinessService {
       },
       {
         id: 'managed-remote-roots',
-        status: config.remoteWorkspaceDir.startsWith('/sandbox') && config.remoteAgentWorkspaceDir.startsWith('/agent')
-          ? 'pass' as const
+        status: config.remoteWorkspaceDir.startsWith('/sandbox') && config.remoteAgentWorkspaceDir.startsWith('/agent') ? 'pass' as const
           : 'fail' as const,
         observed: `${config.remoteWorkspaceDir} / ${config.remoteAgentWorkspaceDir}`,
         nextAction: null,

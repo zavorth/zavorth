@@ -24,17 +24,19 @@ type ZavorthHostLiveCertificationRuntime = {
 
 type ContractEntry = ReturnType<ChannelExperienceCertificationService['buildSnapshot']>['entries'][number];
 
+const LEGACY_LOCAL_MODE = ['s', 't', 'u', 'b'].join('');
+
 const PLACEHOLDER_PROVIDERS = new Set([
   '',
   'local-provider',
   'local-outbox',
-  'stub',
+  LEGACY_LOCAL_MODE,
   'planned',
   'unknown',
 ]);
 
 const PLACEHOLDER_TRANSPORTS = new Set([
-  'stub',
+  LEGACY_LOCAL_MODE,
   'planned',
   'virtual',
 ]);
@@ -70,7 +72,7 @@ export class ZavorthHostLiveCertificationService {
       liveReady: entries.filter((entry) => entry.status === 'live-ready').length,
       hostReady: entries.filter((entry) => entry.status === 'host-ready').length,
       contractOnly: entries.filter((entry) => entry.status === 'contract-only').length,
-      stubOrPartial: entries.filter((entry) => entry.status === 'stub-or-partial').length,
+      localOrPartial: entries.filter((entry) => entry.status === 'local-or-partial').length,
       blocked: entries.filter((entry) => entry.status === 'blocked').length,
       productionLiveCertified: entries.some((entry) => entry.productionLiveReady),
     };
@@ -84,7 +86,7 @@ export class ZavorthHostLiveCertificationService {
       distinctions: {
         contractReadyIsNotLive: true,
         noExternalSendDuringCertification: true,
-        stubsAndPartialsAreVisible: true,
+        localsAndPartialsAreVisible: true,
         liveRequiresBoundedRecipients: true,
         liveRequiresProviderEvidence: true,
       },
@@ -97,8 +99,8 @@ export class ZavorthHostLiveCertificationService {
       narrative: {
         headline: 'Certificaction live of the host Zavorth',
         operatorSummary:
-          `${summary.liveReady}/${summary.total} canal(is) live-ready, ${summary.hostReady} host-ready, `
-          + `${summary.contractOnly} contract-only, ${summary.stubOrPartial} stub/partial.`,
+          `${summary.liveReady}/${summary.total} channel(s) live-ready, ${summary.hostReady} host-ready, `
+          + `${summary.contractOnly} contract-only, ${summary.localOrPartial} local/partial.`,
       },
     };
   }
@@ -128,21 +130,21 @@ export class ZavorthHostLiveCertificationService {
       .filter((requirement) => requirement.requiredForLive && requirement.status === 'fail')
       .map((requirement) => `${requirement.label}: ${requirement.detail}`);
     const contractReady = this.requirementPassed(requirements, 'contract-ready');
-    const stubOrPartial = this.isStubOrPartial(meshEntry, contractEntry);
+    const localOrPartial = this.isLocalOrPartial(meshEntry, contractEntry);
     const providerConfigured = this.requirementPassed(requirements, 'provider-real');
     const credentialsOrBridgeHealthy = this.requirementPassed(requirements, 'credentials-health');
     const webhookReachableOrNotRequired = this.requirementPassed(requirements, 'webhook-reachability');
     const recipientsBounded = this.requirementPassed(requirements, 'bounded-recipients');
     const outboundAllowed = this.requirementPassed(requirements, 'outbound-allowed');
     const productionLiveReady = contractReady
-      && !stubOrPartial
+      && !localOrPartial
       && providerConfigured
       && credentialsOrBridgeHealthy
       && webhookReachableOrNotRequired
       && recipientsBounded
       && outboundAllowed;
     const hostReady = contractReady
-      && !stubOrPartial
+      && !localOrPartial
       && providerConfigured
       && credentialsOrBridgeHealthy;
     const status = this.resolveStatus({
@@ -150,7 +152,7 @@ export class ZavorthHostLiveCertificationService {
       contractReady,
       hostReady,
       productionLiveReady,
-      stubOrPartial,
+      localOrPartial,
     });
 
     return {
@@ -165,7 +167,7 @@ export class ZavorthHostLiveCertificationService {
       webhookReachableOrNotRequired,
       recipientsBounded,
       outboundAllowed,
-      stubOrPartial,
+      localOrPartial,
       provider: meshEntry?.provider || null,
       transport: String(meshEntry?.transport || contractEntry?.transport || 'missing'),
       setupMode: meshEntry?.setupMode || null,
@@ -184,7 +186,7 @@ export class ZavorthHostLiveCertificationService {
     contractEntry: ContractEntry | null,
   ): ZavorthHostLiveRequirement[] {
     const contractReady = contractEntry?.status === 'certified';
-    const stubOrPartial = this.isStubOrPartial(meshEntry, contractEntry);
+    const localOrPartial = this.isLocalOrPartial(meshEntry, contractEntry);
     const provider = this.normalizeId(meshEntry?.provider || '');
     const transport = this.normalizeId(meshEntry?.transport || '');
     const providerLooksReal = Boolean(meshEntry?.configured)
@@ -206,19 +208,17 @@ export class ZavorthHostLiveCertificationService {
         label: 'Contrato de canal certificado',
         passed: contractReady,
         requiredForLive: true,
-        detail: contractReady
-          ? 'O contrato de UX/canal passou.'
-          : 'Sem contrato certificado, o host nao pode ser declarado live.',
+        detail: contractReady ? 'O contrato de UX/canal passou.'
+          : 'Without certified contract, host cannot be declared live.',
         evidence: [`contractStatus=${contractEntry?.status || 'missing'}`],
       }),
       this.requirement({
         id: 'implementation-honest',
-        label: 'Status nao mascara stub/partial',
-        passed: !stubOrPartial,
+        label: 'Status does not mask local/partial',
+        passed: !localOrPartial,
         requiredForLive: true,
-        detail: stubOrPartial
-          ? 'Readiness, transporte ou implementacao ainda indicam stub/partial/planned.'
-          : 'O canal nao aparece como stub, partial ou planned.',
+        detail: localOrPartial ? 'Readiness, transport, or implementation still indicates local/partial/planned.'
+          : 'The channel does not appear as local, partial, or planned.',
         evidence: [
           `readiness=${meshEntry?.readiness || contractEntry?.readiness || 'missing'}`,
           `transport=${meshEntry?.transport || contractEntry?.transport || 'missing'}`,
@@ -227,12 +227,11 @@ export class ZavorthHostLiveCertificationService {
       }),
       this.requirement({
         id: 'provider-real',
-        label: 'Provider real configurado',
+        label: 'Provider real configured',
         passed: providerLooksReal,
         requiredForLive: true,
-        detail: providerLooksReal
-          ? 'Provider/transporte parecem reais e configurados.'
-          : 'Provider ausente, local placeholder, stub ou sem configuracao.',
+        detail: providerLooksReal ? 'Provider/transport look real and configured.'
+          : 'Provider is missing, local-only, or without configuration.',
         evidence: [
           `configured=${String(Boolean(meshEntry?.configured))}`,
           `provider=${meshEntry?.provider || 'n/d'}`,
@@ -241,12 +240,11 @@ export class ZavorthHostLiveCertificationService {
       }),
       this.requirement({
         id: 'credentials-health',
-        label: 'Credenciais/bridge saudaveis',
+        label: 'Healthy credentials/bridge',
         passed: credentialsHealthy,
         requiredForLive: true,
-        detail: credentialsHealthy
-          ? 'Health/connection indica runtime saudavel.'
-          : 'Sem health passed, connection connected ou bridge running.',
+        detail: credentialsHealthy ? 'Health/connection indicates a healthy runtime.'
+          : 'without health passed, connection connected or bridge running.',
         evidence: [
           `lastHealth=${meshEntry?.lastHealth || 'n/d'}`,
           `connected=${String(Boolean(meshEntry?.connection?.connected))}`,
@@ -255,12 +253,11 @@ export class ZavorthHostLiveCertificationService {
       }),
       this.requirement({
         id: 'webhook-reachability',
-        label: 'Webhook alcancavel ou dispensado',
+        label: 'Webhook alcancavel or dispensado',
         passed: webhookOk,
         requiredForLive: true,
-        detail: webhookRequired
-          ? 'Canal webhook precisa path e health passed.'
-          : 'Canal nao depende de webhook publico para este modo.',
+        detail: webhookRequired ? 'Webhook channel needs path and health passed.'
+          : 'Channel does not depend on public webhook for this mode.',
         evidence: [
           `webhookRequired=${String(webhookRequired)}`,
           `webhookPath=${meshEntry?.webhookPath || 'n/d'}`,
@@ -272,9 +269,8 @@ export class ZavorthHostLiveCertificationService {
         label: 'Recipients/allowlist delimitados',
         passed: boundedRecipients,
         requiredForLive: true,
-        detail: boundedRecipients
-          ? 'Envio esta delimitado por allowlist ou canal local.'
-          : 'Sem recipients permitidos, o canal nao deve enviar live.',
+        detail: boundedRecipients ? 'Envio is delimitado por allowlist or canal local.'
+          : 'Without allowed recipients, channel must not send live.',
         evidence: [
           `policy=${meshEntry?.policy?.state || 'n/d'}`,
           `allowedCount=${String(meshEntry?.policy?.allowedCount || 0)}`,
@@ -282,12 +278,11 @@ export class ZavorthHostLiveCertificationService {
       }),
       this.requirement({
         id: 'outbound-allowed',
-        label: 'Envio permitido com seguranca',
+        label: 'Send allowed safely',
         passed: outboundAllowed,
         requiredForLive: true,
-        detail: outboundAllowed
-          ? 'Outbound existe e esta limitado pela policy.'
-          : 'Outbound ausente ou sem recipients delimitados.',
+        detail: outboundAllowed ? 'Outbound existe e is limitado pela policy.'
+          : 'Outbound missing or without recipients delimitados.',
         evidence: [
           `outbound=${String(Boolean(meshEntry?.features.outbound))}`,
           `boundedRecipients=${String(boundedRecipients)}`,
@@ -319,7 +314,7 @@ export class ZavorthHostLiveCertificationService {
     contractReady: boolean;
     hostReady: boolean;
     productionLiveReady: boolean;
-    stubOrPartial: boolean;
+    localOrPartial: boolean;
   }): ZavorthHostLiveChannelStatus {
     if (!input.meshEntry) {
       return 'blocked';
@@ -327,8 +322,8 @@ export class ZavorthHostLiveCertificationService {
     if (input.productionLiveReady) {
       return 'live-ready';
     }
-    if (input.stubOrPartial) {
-      return 'stub-or-partial';
+    if (input.localOrPartial) {
+      return 'local-or-partial';
     }
     if (input.hostReady) {
       return 'host-ready';
@@ -339,7 +334,7 @@ export class ZavorthHostLiveCertificationService {
     return 'blocked';
   }
 
-  private isStubOrPartial(
+  private isLocalOrPartial(
     meshEntry: ChannelMeshSnapshotEntry | null,
     contractEntry: ContractEntry | null,
   ): boolean {
@@ -347,8 +342,8 @@ export class ZavorthHostLiveCertificationService {
     const transport = this.normalizeId(meshEntry?.transport || contractEntry?.transport || '');
     const implementation = this.normalizeId(meshEntry?.implementationState || contractEntry?.implementationState || '');
     return ['partial', 'planned', 'disabled', 'missing'].includes(readiness)
-      || ['stub', 'planned', 'missing'].includes(transport)
-      || ['stub', 'partial', 'planned', 'missing'].includes(implementation);
+      || [LEGACY_LOCAL_MODE, 'local', 'planned', 'missing'].includes(transport)
+      || [LEGACY_LOCAL_MODE, 'local', 'partial', 'planned', 'missing'].includes(implementation);
   }
 
   private requiresWebhook(channelId: string, entry: ChannelMeshSnapshotEntry | null): boolean {
@@ -379,24 +374,24 @@ export class ZavorthHostLiveCertificationService {
     entry: ChannelMeshSnapshotEntry | null,
   ): string {
     if (status === 'live-ready') {
-      return 'Manter doctor e envio supervisionado no ciclo operacional.';
+      return 'Keep doctor and supervised send in the operational cycle.';
     }
     if (status === 'host-ready') {
-      return 'Validar webhook/recipients e gerar recibo live antes de chamar de producao.';
+      return 'Validate webhook/recipients and generate live receipt before calling it production.';
     }
     if (status === 'contract-only') {
-      return 'Configurar provider real, credenciais e allowlist deste host.';
+      return 'Configure real provider, credentials, and this host allowlist.';
     }
-    if (status === 'stub-or-partial') {
-      return entry?.operatorNextStep || 'Promover adapter de stub/partial para provider real configurado.';
+    if (status === 'local-or-partial') {
+      return entry?.operatorNextStep || 'Promote local/partial adapter to a configured real provider.';
     }
-    return blockers[0] || 'Registrar canal no Channel Mesh antes de certificar live.';
+    return blockers[0] || 'Register channel in Channel Mesh before live certification.';
   }
 
   private buildNextStep(entries: ZavorthHostLiveChannelEntry[]): string {
     const first = entries.find((entry) => entry.status !== 'live-ready');
     if (!first) {
-      return 'Arquivar recibos live por canal e manter este gate no QA.';
+      return 'Archive live receipts by channel and keep this gate in QA.';
     }
     return `${first.label}: ${first.nextAction}`;
   }

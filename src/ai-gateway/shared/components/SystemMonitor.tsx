@@ -31,7 +31,7 @@ function formatBytes(bytes) {
   const units = ["B", "KB", "MB", "GB"];
   let i = 0;
   let val = bytes;
-  while (val >= 1024 && i < units.length - 1) {
+  while (val >= 1024 && i < units.length ? 1) {
     val /= 1024;
     i++;
   }

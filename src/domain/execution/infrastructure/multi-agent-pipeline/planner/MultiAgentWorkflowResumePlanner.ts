@@ -33,7 +33,7 @@ export class MultiAgentWorkflowResumePlanner {
       executor: stage.executor,
       role: stage.role,
       label: stage.label,
-      intro: `Etapa ${index + 1}/${persistedStages.length}: retomando ${stage.label} do plano persistido.`,
+      intro: `Stage ${index + 1}/${persistedStages.length}: resuming ${stage.label} from the persisted plan.`,
       strategy_note: stage.strategy_note || stage.handoff_summary || stage.result_summary || null,
       buildObjective: ({ originalObjective, previousResults, workspaceContext: stageContext }) => {
         if (stage.objective) {
@@ -59,7 +59,7 @@ export class MultiAgentWorkflowResumePlanner {
   ): string {
     if (workflow === 'research' && stage.id === 'researcher') {
       return this.support.joinObjectiveParts([
-        'Pesquise e responda de forma estruturada ao seguinte objetivo:',
+        'Research and answer the following objective in a structured way:',
         originalObjective,
         this.support.buildStageWorkspaceGuidance('researcher', workflow, workspaceContext),
       ]);
@@ -72,10 +72,10 @@ export class MultiAgentWorkflowResumePlanner {
         stage.result_summary ||
         '';
       return this.support.joinObjectiveParts([
-        'Use a pesquisa abaixo para escrever um briefing final curto, claro e acionavel.',
-        `Objetivo original: ${originalObjective}`,
-        researchOut ? `Pesquisa bruta: ${researchOut}` : null,
-        'Entregue um resumo objetivo em portugues, com pontos principais e proximo passo recomendado.',
+        'Use the research below to write a short, clear, actionable final brief.',
+        `Original objective: ${originalObjective}`,
+        researchOut ? `Raw research: ${researchOut}` : null,
+        'Deliver an objective summary in the user language, with key points and a recommended next action.',
         this.support.buildStageWorkspaceGuidance('synthesizer', workflow, workspaceContext),
       ]);
     }
@@ -87,12 +87,12 @@ export class MultiAgentWorkflowResumePlanner {
         stage.result_summary ||
         '';
       return this.support.joinObjectiveParts([
-        'Revise as mudancas recentes no workspace feitas para atingir o objetivo anterior.',
+        'Review the recent workspace changes made to satisfy the previous objective.',
         `Objetivo original: ${originalObjective}`,
-        previousOut ? `Output da etapa anterior: ${previousOut}` : null,
+        previousOut ? `Output da stage anterior: ${previousOut}` : null,
         workflow === 'ship'
-          ? 'Procure bugs, regressao, risco tecnico e aderencia ao projeto. Ajuste se necessario.'
-          : 'Verifique bugs, padroes de projeto e seguranca. Faca alteracoes se necessario.',
+          ? 'Look for bugs, regressions, technical risk, and project fit. Adjust if needed.'
+          : 'Check bugs, project patterns, and safety. Make changes only if needed.',
         this.support.buildStageWorkspaceGuidance('reviewer', workflow, workspaceContext),
       ]);
     }

@@ -164,7 +164,7 @@ function normalizeKey(providerName: string): string {
 export function isTransientProviderFailure(error: unknown): boolean {
   const message = (error instanceof Error ? error.message : String(error || '')).toLowerCase();
   if (!message) return true;
-  if (/invalid[_ ]?request|tool.?schema|json.?schema|context.?length|too many tokens/.test(message)) {
+  if (/invalid[_ ]...request|tool?.schema|json?.schema|context?.length|too many tokens/.test(message)) {
     return false;
   }
   return true;

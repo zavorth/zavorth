@@ -91,7 +91,7 @@ export type ZavorthDynamicWorkflowSnapshot = {
   };
   surface: {
     cliCommand: string;
-    zavorthControlPath: '/control?sector=workflow';
+    zavorthControlPath: '/control...sector=workflow';
     receiptPreview: string;
   };
 };

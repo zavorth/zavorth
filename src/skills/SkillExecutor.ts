@@ -1,4 +1,4 @@
-import { logger } from '../logger.js';
+﻿import { logger } from '../logger.js';
 import { SkillLoader, SkillMetadata } from './SkillLoader.js';
 
 export interface ActiveSkill {
@@ -27,11 +27,11 @@ export class SkillExecutor {
     const content = this.loader.getSkillContent(skill.dirPath);
 
     if (!content) {
-      logger.warn(`Conteudo vazio para skill "${skillName}".`);
+      logger.warn(`Empty content for skill "${skillName}".`);
       return '';
     }
 
-    logger.info(`Skill "${skillName}" carregada (${content.length} chars)`);
+    logger.info(`Skill "${skillName}" loaded (${content.length} chars)`);
     return content;
   }
 
@@ -46,7 +46,7 @@ export class SkillExecutor {
       const content = this.loader.buildSkillPrompt(activeSkill.metadata);
 
       if (!content) {
-        logger.warn(`Conteudo vazio para skill "${activeSkill.metadata.name}".`);
+        logger.warn(`Empty content for skill "${activeSkill.metadata.name}".`);
         continue;
       }
 

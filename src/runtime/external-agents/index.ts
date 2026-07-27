@@ -1,4 +1,4 @@
-// Public external agent runtime surface. Keep this file product-facing and free of historical phase packs.
+// Public external agent runtime surface. Keep this file product-facing and free of historical roadmap packs.
 export * from './ExternalAgentApprovalGrantContract.js';
 export * from './ExternalAgentApprovalRequiredMutationRehearsal.js';
 export * from './ExternalAgentApprovedMutationExecutionHarness.js';

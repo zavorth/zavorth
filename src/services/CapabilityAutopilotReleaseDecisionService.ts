@@ -21,10 +21,10 @@ export type CapabilityAutopilotReleaseDecisionSnapshot = {
     defaultEnabled: boolean;
     reason: string;
   };
-  requiredCheckpoints: string[];
-  passedCheckpoints: string[];
-  missingCheckpoints: string[];
-  failedCheckpoints: string[];
+  requiredGates: string[];
+  passedGates: string[];
+  missingGates: string[];
+  failedGates: string[];
   riskPosture: 'low' | 'medium' | 'high';
   releaseChannel: 'alpha' | 'beta' | 'stable' | 'backlog';
   rolloutPlan: string[];
@@ -64,19 +64,19 @@ export class CapabilityAutopilotReleaseDecisionService {
     input: CapabilityAutopilotReleaseDecisionInput,
   ): CapabilityAutopilotReleaseDecisionSnapshot {
     const evidence = this.normalizeEvidence(input.evidence);
-    const passedCheckpoints = REQUIRED_PHASES.filter((id) =>
+    const passedGates = REQUIRED_PHASES.filter((id) =>
       evidence.some((entry) => entry.id === id && entry.passed),
     );
-    const failedCheckpoints = REQUIRED_PHASES.filter((id) =>
+    const failedGates = REQUIRED_PHASES.filter((id) =>
       evidence.some((entry) => entry.id === id && !entry.passed),
     );
-    const missingCheckpoints = REQUIRED_PHASES.filter((id) =>
+    const missingGates = REQUIRED_PHASES.filter((id) =>
       !evidence.some((entry) => entry.id === id),
     );
-    const riskPosture = this.resolveRiskPosture(evidence, failedCheckpoints, missingCheckpoints);
+    const riskPosture = this.resolveRiskPosture(evidence, failedGates, missingGates);
     const decision = this.resolveDecision({
-      failedCheckpoints,
-      missingCheckpoints,
+      failedGates,
+      missingGates,
       riskPosture,
       allowDefaultOn: Boolean(input.allowDefaultOn),
     });
@@ -90,23 +90,23 @@ export class CapabilityAutopilotReleaseDecisionService {
         defaultEnabled: decision === 'ship_v1_1_default_on',
         reason: this.featureFlagReason(decision, riskPosture),
       },
-      requiredCheckpoints: REQUIRED_PHASES.slice(),
-      passedCheckpoints,
-      missingCheckpoints,
-      failedCheckpoints,
+      requiredGates: REQUIRED_PHASES.slice(),
+      passedGates,
+      missingGates,
+      failedGates,
       riskPosture,
       releaseChannel: this.resolveReleaseChannel(decision),
       rolloutPlan: this.buildRolloutPlan(decision),
       rollbackPlan: this.buildRollbackPlan(decision),
       guardrails: this.buildGuardrails(),
       evidence,
-      summary: this.buildSummary(decision, passedCheckpoints, missingCheckpoints, failedCheckpoints, riskPosture),
+      summary: this.buildSummary(decision, passedGates, missingGates, failedGates, riskPosture),
       metadata: {
         gate: 'capability-autopilot-fallback-handoff',
         baseline: 'v1.0.0',
         candidate: 'v1.1.0',
         defaultOnAllowed: Boolean(input.allowDefaultOn),
-        requiredCheckpointCount: REQUIRED_PHASES.length,
+        requiredGateCount: REQUIRED_PHASES.length,
       },
     };
   }
@@ -147,13 +147,13 @@ export class CapabilityAutopilotReleaseDecisionService {
 
   private resolveRiskPosture(
     evidence: CapabilityAutopilotReleaseGateEvidence[],
-    failedCheckpoints: string[],
-    missingCheckpoints: string[],
+    failedGates: string[],
+    missingGates: string[],
   ): CapabilityAutopilotReleaseDecisionSnapshot['riskPosture'] {
-    if (failedCheckpoints.length > 0) {
+    if (failedGates.length > 0) {
       return 'high';
     }
-    if (missingCheckpoints.length > 0) {
+    if (missingGates.length > 0) {
       return 'medium';
     }
     if (evidence.some((entry) => entry.risk === 'high')) {
@@ -166,15 +166,15 @@ export class CapabilityAutopilotReleaseDecisionService {
   }
 
   private resolveDecision(input: {
-    failedCheckpoints: string[];
-    missingCheckpoints: string[];
+    failedGates: string[];
+    missingGates: string[];
     riskPosture: CapabilityAutopilotReleaseDecisionSnapshot['riskPosture'];
     allowDefaultOn: boolean;
   }): CapabilityAutopilotReleaseDecision {
-    if (input.failedCheckpoints.length > 0) {
+    if (input.failedGates.length > 0) {
       return 'hold_backlog';
     }
-    if (input.missingCheckpoints.length > 0) {
+    if (input.missingGates.length > 0) {
       return 'needs_more_evidence';
     }
     if (input.allowDefaultOn && input.riskPosture === 'low') {
@@ -194,7 +194,7 @@ export class CapabilityAutopilotReleaseDecisionService {
       return `All gates passed, but risk posture is ${riskPosture}; ship behind explicit feature flag.`;
     }
     if (decision === 'needs_more_evidence') {
-      return 'Missing phase evidence; keep feature disabled until gates are complete.';
+      return 'Missing gate evidence; keep feature disabled until gates are complete.';
     }
     return 'At least one required gate failed; keep feature out of release.';
   }
@@ -220,7 +220,7 @@ export class CapabilityAutopilotReleaseDecisionService {
       return [
         'Do not include Capability Autopilot in the v1.1 release train.',
         'Keep scripts and docs available only as development evidence.',
-        'Re-run missing or failed checkpoint gates before reconsidering release.',
+        'Re-run missing or failed verification gates before reconsidering release.',
       ];
     }
 
@@ -228,7 +228,7 @@ export class CapabilityAutopilotReleaseDecisionService {
       'Ship Capability Autopilot in v1.1.0 behind ZAVORTH_CAPABILITY_AUTOPILOT.',
       'Keep default disabled for stable users; enable only for alpha/operator sessions.',
       'Require explicit permission for repair, fallback and provider handoff.',
-      'Collect redacted receipts and checkpoint gate evidence before beta promotion.',
+      'Collect redacted receipts and verification gate evidence before beta promotion.',
     ];
   }
 
@@ -258,20 +258,20 @@ export class CapabilityAutopilotReleaseDecisionService {
 
   private buildSummary(
     decision: CapabilityAutopilotReleaseDecision,
-    passedCheckpoints: string[],
-    missingCheckpoints: string[],
-    failedCheckpoints: string[],
+    passedGates: string[],
+    missingGates: string[],
+    failedGates: string[],
     riskPosture: CapabilityAutopilotReleaseDecisionSnapshot['riskPosture'],
   ): string {
     if (decision === 'ship_v1_1_flagged') {
-      return `Capability Autopilot can enter v1.1.0 behind flag: ${passedCheckpoints.length}/${REQUIRED_PHASES.length} checkpoint gates passed; risk=${riskPosture}.`;
+      return `Capability Autopilot can enter v1.1.0 behind flag: ${passedGates.length}/${REQUIRED_PHASES.length} verification gates passed; risk=${riskPosture}.`;
     }
     if (decision === 'ship_v1_1_default_on') {
       return 'Capability Autopilot can enter v1.1.0 default-on because all evidence is low risk.';
     }
     if (decision === 'needs_more_evidence') {
-      return `Capability Autopilot needs more evidence before release; missing phases: ${missingCheckpoints.join(', ') || 'none'}.`;
+      return `Capability Autopilot needs more evidence before release; missing gates: ${missingGates.join(', ') || 'none'}.`;
     }
-    return `Capability Autopilot stays in backlog; failed phases: ${failedCheckpoints.join(', ') || 'unknown'}.`;
+    return `Capability Autopilot stays in backlog; failed gates: ${failedGates.join(', ') || 'unknown'}.`;
   }
 }

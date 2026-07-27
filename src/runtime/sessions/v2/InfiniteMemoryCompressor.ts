@@ -321,7 +321,7 @@ ${combined}`;
    */
   private generateDenseSummary(text: string): string {
     const sentences = text
-      .split(/[.!?\n]+/)
+      .split(/[.!...\n]+/)
       .map((s) => s.trim())
       .filter((s) => s.length > 15);
 
@@ -349,17 +349,7 @@ ${combined}`;
    * Extract salient keywords from text for retrieval matching.
    */
   private extractKeywords(text: string): string[] {
-    const stopwords = new Set([
-      'a', 'o', 'e', 'de', 'do', 'da', 'em', 'um', 'uma', 'para', 'com', 'que',
-      'the', 'is', 'at', 'on', 'in', 'to', 'and', 'of', 'for', 'it', 'this',
-      'no', 'se', 'por', 'os', 'as', 'ao', 'na', 'ou',
-    ]);
-
-    const words = text
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9àáâãéêíóôõúç\s]/g, ' ')
-      .split(/\s+/)
-      .filter((w) => w.length > 2 && !stopwords.has(w));
+    const words = this.tokenizeKeywordCandidates(text).filter((word) => word.length > 2);
 
     const freq = new Map<string, number>();
     for (const word of words) {
@@ -370,6 +360,25 @@ ${combined}`;
       .sort((a, b) => b[1] - a[1])
       .slice(0, 20)
       .map(([word]) => word);
+  }
+
+  private tokenizeKeywordCandidates(text: string): string[] {
+    const tokens: string[] = [];
+    let current = '';
+    for (const char of String(text || '').toLowerCase()) {
+      if (isKeywordChar(char)) {
+        current += char;
+        continue;
+      }
+      if (current.length > 0) {
+        tokens.push(current);
+        current = '';
+      }
+    }
+    if (current.length > 0) {
+      tokens.push(current);
+    }
+    return tokens;
   }
 
   /**
@@ -383,7 +392,7 @@ ${combined}`;
   }
 
   /**
-   * Fast token estimation heuristic: ~1.3 tokens per word for pt/en mixed text.
+   * Fast token estimation heuristic.
    */
   private estimateTokens(messages: string[]): number {
     const totalWords = messages.reduce((sum, msg) => {
@@ -391,4 +400,17 @@ ${combined}`;
     }, 0);
     return Math.ceil(totalWords * 1.3);
   }
+}
+
+function isKeywordChar(char: string): boolean {
+  const codePoint = char.codePointAt(0);
+  if (codePoint === undefined) {
+    return false;
+  }
+  if (codePoint >= 48 && codePoint <= 57) {
+    return true;
+  }
+  const upper = char.toUpperCase();
+  const lower = char.toLowerCase();
+  return upper !== lower;
 }

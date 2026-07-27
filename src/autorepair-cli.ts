@@ -5,6 +5,6 @@ void runAutoRepairCli(process.argv.slice(2))
     process.exit(exitCode);
   })
   .catch((error) => {
-    console.error(`Falha no CLI de autoreparo: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(`Failure no CLI de self-repair: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
   });

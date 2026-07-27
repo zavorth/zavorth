@@ -28,9 +28,9 @@ export class NodeHostCapabilityFilesystemService {
     if (!rawTargetPath) {
       return {
         ok: false,
-        resultSummary: 'files.read precisa de payload.path.',
+        resultSummary: 'files.read requires payload.path.',
         stdout: null,
-        stderr: 'payload.path ausente',
+        stderr: 'payload.path missing',
         exitCode: null,
         data: null,
       };
@@ -56,7 +56,7 @@ export class NodeHostCapabilityFilesystemService {
     if (!fs.existsSync(targetPath)) {
       return {
         ok: false,
-        resultSummary: 'Arquivo solicitado nao existe no node host.',
+        resultSummary: 'Requested file does not exist on the node host.',
         stdout: null,
         stderr: `ENOENT: ${targetPath}`,
         exitCode: null,
@@ -74,7 +74,7 @@ export class NodeHostCapabilityFilesystemService {
 
     return {
       ok: true,
-      resultSummary: 'Arquivo lido do node host.',
+      resultSummary: 'File read from the node host.',
       stdout: looksBinary ? null : preview.toString(encoding as BufferEncoding),
       stderr: null,
       exitCode: 0,
@@ -94,9 +94,9 @@ export class NodeHostCapabilityFilesystemService {
     if (!rawTargetPath) {
       return {
         ok: false,
-        resultSummary: 'files.write precisa de payload.path.',
+        resultSummary: 'files.write requires payload.path.',
         stdout: null,
-        stderr: 'payload.path ausente',
+        stderr: 'payload.path missing',
         exitCode: null,
         data: null,
       };
@@ -151,9 +151,9 @@ export class NodeHostCapabilityFilesystemService {
     if (!hasBase64 && !hasTextContent) {
       return {
         ok: false,
-        resultSummary: 'files.write precisa de payload.content ou payload.contentBase64.',
+        resultSummary: 'files.write requires payload.content or payload.contentBase64.',
         stdout: null,
-        stderr: 'payload.content ausente',
+        stderr: 'payload.content missing',
         exitCode: null,
         data: {
           path: targetPath,
@@ -164,7 +164,7 @@ export class NodeHostCapabilityFilesystemService {
     if (fs.existsSync(targetPath) && fs.statSync(targetPath).isDirectory()) {
       return {
         ok: false,
-        resultSummary: 'O caminho informado aponta para um diretorio, nao para um arquivo.',
+        resultSummary: 'The specified path points to a directory, not a file.',
         stdout: null,
         stderr: `EISDIR: ${targetPath}`,
         exitCode: null,
@@ -182,9 +182,9 @@ export class NodeHostCapabilityFilesystemService {
     if (buffer.length > maxBytes) {
       return {
         ok: false,
-        resultSummary: `files.write bloqueou um payload acima de ${maxBytes} byte(s).`,
+        resultSummary: `files.write blocked a payload exceeding ${maxBytes} byte(s).`,
         stdout: null,
-        stderr: `payload excede limite seguro de ${maxBytes} byte(s)`,
+        stderr: `payload exceeds safe limit of ${maxBytes} byte(s)`,
         exitCode: null,
         data: {
           path: targetPath,
@@ -200,7 +200,7 @@ export class NodeHostCapabilityFilesystemService {
     if (writeMode === 'create' && fs.existsSync(targetPath)) {
       return {
         ok: false,
-        resultSummary: 'files.write recusou sobrescrever um arquivo existente sem confirmacao explicita.',
+        resultSummary: 'files.write refused to overwrite an existing file without explicit confirmation.',
         stdout: null,
         stderr: `EEXIST: ${targetPath}`,
         exitCode: null,
@@ -220,7 +220,7 @@ export class NodeHostCapabilityFilesystemService {
     const stats = fs.statSync(targetPath);
     return {
       ok: true,
-      resultSummary: `Arquivo gravado no node host em ${targetPath}.`,
+      resultSummary: `File written to the node host at ${targetPath}.`,
       stdout: null,
       stderr: null,
       exitCode: 0,
@@ -239,9 +239,9 @@ export class NodeHostCapabilityFilesystemService {
     if (!rawTargetPath) {
       return {
         ok: false,
-        resultSummary: 'files.watch precisa de payload.path.',
+        resultSummary: 'files.watch requires payload.path.',
         stdout: null,
-        stderr: 'payload.path ausente',
+        stderr: 'payload.path missing',
         exitCode: null,
         data: null,
       };
@@ -268,7 +268,7 @@ export class NodeHostCapabilityFilesystemService {
     if (!fs.existsSync(targetPath)) {
       return {
         ok: false,
-        resultSummary: 'Arquivo ou diretorio observado nao existe no node host.',
+        resultSummary: 'Observed file or directory does not exist on the node host.',
         stdout: null,
         stderr: `ENOENT: ${targetPath}`,
         exitCode: null,
@@ -303,7 +303,7 @@ export class NodeHostCapabilityFilesystemService {
       const timeout = setTimeout(() => {
         finish({
           ok: true,
-          resultSummary: `Nenhuma mudanca observada em ${targetPath} dentro de ${timeoutMs} ms.`,
+          resultSummary: `No change observed at ${targetPath} within ${timeoutMs} ms.`,
           stdout: null,
           stderr: null,
           exitCode: 0,
@@ -334,7 +334,7 @@ export class NodeHostCapabilityFilesystemService {
           });
           cleanupAndFinish({
             ok: true,
-            resultSummary: `Mudanca observada em ${targetPath}.`,
+            resultSummary: `Change observed em ${targetPath}.`,
             stdout: null,
             stderr: null,
             exitCode: 0,
@@ -351,7 +351,7 @@ export class NodeHostCapabilityFilesystemService {
         watcher.on('error', (error) => {
           cleanupAndFinish({
             ok: false,
-            resultSummary: `Falha ao observar ${targetPath}.`,
+            resultSummary: `Failure ao observar ${targetPath}.`,
             stdout: null,
             stderr: error instanceof Error ? error.message : String(error || 'watch failed'),
             exitCode: null,
@@ -366,7 +366,7 @@ export class NodeHostCapabilityFilesystemService {
         const err = asErrorLike(error);
         cleanupAndFinish({
           ok: false,
-          resultSummary: `Falha ao iniciar observacao em ${targetPath}.`,
+          resultSummary: `Failure ao iniciar observation em ${targetPath}.`,
           stdout: null,
           stderr: error instanceof Error ? err.message : String(error || 'watch failed'),
           exitCode: null,

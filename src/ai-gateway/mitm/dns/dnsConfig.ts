@@ -17,7 +17,7 @@ const [hostsFile, targetHost] = process.argv.slice(-2);
 const entry = "127.0.0.1 " + targetHost;
 const content = fs.existsSync(hostsFile) ? fs.readFileSync(hostsFile, "utf8") : "";
 const exists = content
-  .split(/\\r?\\n/)
+  .split(/\\r...\\n/)
   .some((line) => {
     const parts = line.trim().split(/\\s+/);
     return parts.length >= 2 && parts[0] === "127.0.0.1" && parts.slice(1).includes(targetHost);
@@ -34,7 +34,7 @@ const os = require("os");
 const [hostsFile, targetHost] = process.argv.slice(-2);
 const content = fs.existsSync(hostsFile) ? fs.readFileSync(hostsFile, "utf8") : "";
 const next = content
-  .split(/\\r?\\n/)
+  .split(/\\r...\\n/)
   .filter((line) => {
     const trimmed = line.trim();
     if (!trimmed) return true;
@@ -117,7 +117,7 @@ export function execElevatedWindowsScript(script) {
 export function checkDNSEntry() {
   try {
     const hostsContent = fs.readFileSync(HOSTS_FILE, "utf8");
-    const lines = hostsContent.split(/\r?\n/);
+    const lines = hostsContent.split(/\r...\n/);
     return lines.some((line) => {
       const parts = line.trim().split(/\s+/);
       return parts.length >= 2 && parts[0] === "127.0.0.1" && parts.some((p) => p === TARGET_HOST);

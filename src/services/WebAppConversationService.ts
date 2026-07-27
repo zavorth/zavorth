@@ -147,7 +147,7 @@ export class WebAppConversationService {
     const providerRouteOverride = this.buildProviderRouteOverride(body);
     const composerRuntimeHints = this.buildComposerRuntimeHints(body, message);
     if (!message) {
-      throw new Error('Mensagem vazia.');
+      throw new Error('Empty message.');
     }
     if (
       this.composerContext.hasPendingFollowupActionWithoutMessage(
@@ -155,7 +155,7 @@ export class WebAppConversationService {
         normalizedComposerPayload.mentions,
       )
     ) {
-      throw new Error('Essa action precisa ir junto com o proximo pedido na mesma mensagem.');
+      throw new Error('This action must be sent with the next request in the same message.');
     }
 
     const sessionId = String(body.sessionId || '').trim() || this.deps.realtime.createSession();
@@ -491,14 +491,7 @@ export class WebAppConversationService {
     ) {
       return explicit;
     }
-    if (/\b(rm\s+-rf|remove-item|del\s+\/s|git\s+reset|git\s+clean)\b/i.test(message)) return 'shell';
-    if (/\b(deploy|release|publish)\b/i.test(message)) return 'deploy';
-    if (
-      /\b(create|edit|write|modify|patch|apply|delete|remove|rename|move|criar|editar|apagar|remover)\b/i.test(message)
-    )
-      return 'write';
-    if (/\b(read|summari[sz]e|resuma|summary)\b/i.test(message)) return 'summarize';
-    if (/\b(code|function|class|bug|error|stack|typescript|react|vite)\b/i.test(message)) return 'code-question';
+    void message;
     return 'chat';
   }
 
@@ -601,8 +594,10 @@ export class WebAppConversationService {
     }
     // Free text stays agent-owned; only deterministic slash/callback tokens may resolve here.
     if (
-      !/^\/(approve|reject|aprovar|rejeitar)\b/i.test(text) &&
-      !/\b(?:approval|agent|run|task):?(approve|reject|aprovar|rejeitar):/i.test(text)
+      !text.startsWith('/approve ') &&
+      !text.startsWith('/reject ') &&
+      !text.startsWith('approval:approve:') &&
+      !text.startsWith('approval:reject:')
     ) {
       return false;
     }
@@ -927,19 +922,16 @@ export class WebAppConversationService {
 
       return {
         status: task.taskId ? 'running' : 'completed',
-        summary: task.taskId
-          ? 'Pedido encaminhado pelo motor universal para execucao supervisionada.'
-          : 'Pedido processado pelo motor universal.',
-        replyText: task.taskId
-          ? 'Recebi. Encaminhei para execucao supervisionada e vou mostrar o resultado aqui.'
-          : 'Recebi. O motor universal processou a solicitacao.',
+        summary: task.taskId ? 'Request forwarded by the universal engine for supervised execution.'
+          : 'request processado pelo motor universal.',
+        replyText: task.taskId ? 'Received. I forwarded it for supervised execution and will show the result here.'
+          : 'Received. The universal engine processed the request.',
         events: [
           {
             kind: 'tool',
-            title: 'Despacho supervisionado',
-            detail: task.taskId
-              ? `Task ${task.taskId} criada a partir do run ${run.id}.`
-              : 'A execucao nao retornou task rastreavel.',
+            title: 'Despacho supervised',
+            detail: task.taskId ? `Task ${task.taskId} criada a partir do run ${run.id}.`
+              : 'Execution did not return a traceable task.',
             status: 'done',
             metadata: {
               taskId: task.taskId || null,
@@ -1121,7 +1113,7 @@ export class WebAppConversationService {
       case 'ollama':
         return 'Ollama';
       default:
-        return 'Provider nao informado';
+        return 'Provider not provided';
     }
   }
 
@@ -1135,24 +1127,24 @@ export class WebAppConversationService {
 
     switch (this.normalizeProviderName(config.llmProvider || '')) {
       case 'aigateway':
-        return config.AIGatewayModel || 'modelo atual nao informado';
+        return config.AIGatewayModel || 'current model not provided';
       case 'gemini':
-        return config.geminiModel || 'modelo atual nao informado';
+        return config.geminiModel || 'current model not provided';
       case 'deepseek':
-        return config.deepseekModel || 'modelo atual nao informado';
+        return config.deepseekModel || 'current model not provided';
       case 'openai':
-        return config.openaiModel || 'modelo atual nao informado';
+        return config.openaiModel || 'current model not provided';
       case 'minimax':
-        return config.minimaxModel || 'modelo atual nao informado';
+        return config.minimaxModel || 'current model not provided';
       case 'openrouter':
-        return config.openRouterModel || 'modelo atual nao informado';
+        return config.openRouterModel || 'current model not provided';
       case 'qwen':
       case 'puter':
-        return config.qwenModel || 'modelo atual nao informado';
+        return config.qwenModel || 'current model not provided';
       case 'opencode':
-        return config.openCodeModel || 'modelo atual nao informado';
+        return config.openCodeModel || 'current model not provided';
       default:
-        return 'modelo atual nao informado';
+        return 'current model not provided';
     }
   }
 
@@ -1200,7 +1192,7 @@ export class WebAppConversationService {
       editMessage: async (_messageId: string, text: string) => {
         this.deps.realtime.recordAssistantMessage(
           sessionId,
-          String(text || '').trim() || '(mensagem vazia)',
+          String(text || '').trim() || '(empty message)',
           null,
           'shared-surface-edit',
         );
@@ -1323,7 +1315,7 @@ export class WebAppConversationService {
   private async deliverWebOutput(sessionId: string, text: string, kind: string, rawInput: string): Promise<void> {
     const outputStage = this.deps.runtime.echoOutputStage || null;
     if (!outputStage) {
-      this.deps.realtime.recordAssistantMessage(sessionId, String(text || '').trim() || '(mensagem vazia)', null, kind);
+      this.deps.realtime.recordAssistantMessage(sessionId, String(text || '').trim() || '(empty message)', null, kind);
       return;
     }
 
@@ -1337,7 +1329,7 @@ export class WebAppConversationService {
         sendText: async (nextText) => {
           this.deps.realtime.recordAssistantMessage(
             sessionId,
-            String(nextText || '').trim() || '(mensagem vazia)',
+            String(nextText || '').trim() || '(empty message)',
             null,
             kind,
           );

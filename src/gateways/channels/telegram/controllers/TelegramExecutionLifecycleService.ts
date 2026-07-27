@@ -72,7 +72,7 @@ export class TelegramExecutionLifecycleService {
         operational_mode: this.deps.executionGateway.getModeManager().getMode(),
         executor: task.executor_used || 'local',
         execution_success: success,
-        execution_summary: success ? 'Execucao concluida com sucesso' : 'Execucao failed',
+        execution_summary: success ? 'Execution completed successfully' : 'Execution failed',
         metadata: { dry_run: isDryRun },
       }).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 

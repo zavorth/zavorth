@@ -109,7 +109,7 @@ export function buildReliabilityCompatReport(options: ReliabilityCompatOptions =
         id: `benchmark:${requirement.report}`,
         label: requirement.label,
         status: 'failed',
-        summary: 'Relatorio de benchmark ausente.',
+        summary: 'Benchmark report is missing.',
         details: [reportPath],
       });
       continue;
@@ -124,11 +124,11 @@ export function buildReliabilityCompatReport(options: ReliabilityCompatOptions =
       label: requirement.label,
       status: missingOperations.length === 0 ? 'passed' : 'failed',
       summary: missingOperations.length === 0
-        ? `${requirement.operations.length} metrica(s) presentes no relatorio.`
-        : 'Relatorio nao cobre todas as metricas minimas da etapa 7.',
+        ? `${requirement.operations.length} metric(s) present in the report.`
+        : 'Report does not cover all minimum metrics for the release step.',
       details: missingOperations.length === 0
         ? requirement.operations.map((entry) => `ok: ${formatBenchmarkOperationRequirement(entry)}`)
-        : missingOperations.map((entry) => `ausente: ${formatBenchmarkOperationRequirement(entry)}`),
+        : missingOperations.map((entry) => `missing: ${formatBenchmarkOperationRequirement(entry)}`),
     });
   }
 
@@ -137,9 +137,9 @@ export function buildReliabilityCompatReport(options: ReliabilityCompatOptions =
   if (!regression) {
     checks.push({
       id: 'regression:critical',
-      label: 'Regressao critica',
+      label: 'Critical regression',
       status: 'failed',
-      summary: 'Relatorio de regressao critica ausente.',
+      summary: 'Critical regression report is missing.',
       details: [regressionPath],
     });
   } else {
@@ -148,14 +148,14 @@ export function buildReliabilityCompatReport(options: ReliabilityCompatOptions =
       !tests.some((entry) => entry.id === testId && entry.success));
     checks.push({
       id: 'regression:critical',
-      label: 'Regressao critica',
+      label: 'Critical regression',
       status: missingTests.length === 0 ? 'passed' : 'failed',
       summary: missingTests.length === 0
-        ? `${REGRESSION_REQUIREMENTS.length} fluxo(s) critico(s) cobrindo gateway, web e transportes.`
-        : 'A regressao critica nao cobre todos os fluxos minimos esperados.',
+        ? `${REGRESSION_REQUIREMENTS.length} critical flow(s) covering gateway, web, and transports.`
+        : 'Critical regression does not cover all expected minimum flows.',
       details: missingTests.length === 0
         ? REGRESSION_REQUIREMENTS.map((entry) => `ok: ${entry}`)
-        : missingTests.map((entry) => `ausente ou falhou: ${entry}`),
+        : missingTests.map((entry) => `missing or failed: ${entry}`),
     });
   }
 
@@ -167,8 +167,8 @@ export function buildReliabilityCompatReport(options: ReliabilityCompatOptions =
       id: 'autorepair:success-rate',
       label: 'Autorepair success rate',
       status: 'warning',
-      summary: 'Ainda nao existe historico persistido do autorepair para calcular taxa de sucesso.',
-      details: ['Registre uma execucao do autorepair para materializar a metrica historica.'],
+      summary: 'No persisted autorepair history exists yet to calculate the success rate.',
+      details: ['Record an autorepair execution to materialize the historical metric.'],
     });
   } else {
     const successfulRuns = autoRepairEntries.filter((entry) =>
@@ -178,10 +178,10 @@ export function buildReliabilityCompatReport(options: ReliabilityCompatOptions =
       id: 'autorepair:success-rate',
       label: 'Autorepair success rate',
       status: 'passed',
-      summary: `Taxa de sucesso calculada em ${(successRate * 100).toFixed(1)}% nas ultimas ${autoRepairEntries.length} execucao(oes).`,
+      summary: `Success rate calculated at ${(successRate * 100).toFixed(1)}% over the last ${autoRepairEntries.length} execution(s).`,
       details: [
-        `sucessos: ${successfulRuns.length}`,
-        `falhas: ${autoRepairEntries.length - successfulRuns.length}`,
+        `successes: ${successfulRuns.length}`,
+        `failures: ${autoRepairEntries.length - successfulRuns.length}`,
       ],
     });
   }
@@ -229,10 +229,10 @@ export function buildReliabilityCompatReport(options: ReliabilityCompatOptions =
 
 export function renderReliabilityCompatReport(report: ReliabilityCompatReport): string {
   const lines = [
-    'Reliability compat da etapa 7',
+    'Reliability compatibility check',
     `Status: ${report.status}.`,
     `Checks: ${report.summary.passed} passed, ${report.summary.warning} warning, ${report.summary.failed} failed.`,
-    `Metricas: boot=${formatMetric(report.metrics.bootMs)} | status=${formatMetric(report.metrics.statusMs)} | doctor=${formatMetric(report.metrics.doctorMs)} | /app=${formatMetric(report.metrics.appLatencyMs)} | nodeinvoke=${formatMetric(report.metrics.nodeInvokeMs)} | autorepair=${formatRate(report.metrics.autorepairSuccessRate, report.metrics.autorepairSamples)}`,
+    `Metrics: boot=${formatMetric(report.metrics.bootMs)} | status=${formatMetric(report.metrics.statusMs)} | doctor=${formatMetric(report.metrics.doctorMs)} | /app=${formatMetric(report.metrics.appLatencyMs)} | nodeinvoke=${formatMetric(report.metrics.nodeInvokeMs)} | autorepair=${formatRate(report.metrics.autorepairSuccessRate, report.metrics.autorepairSamples)}`,
     '',
     ...report.checks.map((check) => `- [${check.status}] ${check.label}: ${check.summary}`),
   ];

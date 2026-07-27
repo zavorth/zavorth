@@ -37,10 +37,10 @@ export function buildArtifactMemoryCliSnapshot(input: {
           summary: 'Plan to turn artifacts into searchable memory with receipts.',
         },
         'artifact-memory-report': {
-          summary: 'Relatorio de validacao de Artifact Memory com gates e testes focados.',
+          summary: 'Artifact Memory validation report with focused gates and tests.',
         },
         'artifact-memory-diff': {
-          summary: 'Diff de implementaction conectando runtime, CLI e ZavorthControl.',
+          summary: 'Implementation diff connecting runtime, CLI, and ZavorthControl.',
         },
       },
     },
@@ -49,7 +49,7 @@ export function buildArtifactMemoryCliSnapshot(input: {
   run.artifacts = [
     {
       id: 'artifact-memory-plan',
-      title: 'Plano Artifact Memory',
+      title: 'Artifact Memory Plan',
       kind: 'plan',
       createdAt: run.updatedAt,
       sessionId: input.sessionId,
@@ -57,7 +57,7 @@ export function buildArtifactMemoryCliSnapshot(input: {
     },
     {
       id: 'artifact-memory-report',
-      title: 'Relatorio de validacao Artifact Memory',
+      title: 'Artifact Memory Validation Report',
       kind: 'report',
       createdAt: run.updatedAt,
       sessionId: input.sessionId,
@@ -65,7 +65,7 @@ export function buildArtifactMemoryCliSnapshot(input: {
     },
     {
       id: 'artifact-memory-diff',
-      title: 'Diff de implementaction Artifact Memory',
+      title: 'Artifact Memory Implementation Diff',
       kind: 'diff',
       createdAt: run.updatedAt,
       sessionId: input.sessionId,

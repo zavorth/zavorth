@@ -23,12 +23,12 @@ export function formatUptime(uptimeSeconds: number): string {
 
 export function formatAge(now: OperationsCockpitNow, isoTimestamp: string | null): string {
   if (!isoTimestamp) {
-    return 'nenhum publish registrado';
+    return 'none publish registrado';
   }
 
   const timestamp = Date.parse(isoTimestamp);
   if (!Number.isFinite(timestamp)) {
-    return 'publish com data invalida';
+    return 'publish com invalid date';
   }
 
   const diffMs = Math.max(0, now().getTime() - timestamp);
@@ -50,7 +50,7 @@ export function formatAge(now: OperationsCockpitNow, isoTimestamp: string | null
 export function formatShortHash(hash: string | null): string {
   const normalized = String(hash || '').trim();
   if (!normalized) {
-    return 'sem hash';
+    return 'without hash';
   }
 
   return normalized.slice(0, 10);
@@ -89,22 +89,22 @@ export function describeLocalChannelAttention(
   bootstrapLabel: string,
 ): string {
   if (channel?.lastError) {
-    return `Ultimo erro do ${channelLabel}: ${channel.lastError}`;
+    return `Latest error do ${channelLabel}: ${channel.lastError}`;
   }
   if (channel?.mode === 'cloud-api' && channel.providerConfigured === false) {
-    return `${channelLabel} em Cloud API, mas ainda sem credenciais minimas completas para webhook e outbound reais.`;
+    return `${channelLabel} em Cloud API, mas ainda without credentials minimas complete para webhook e outbound reais.`;
   }
   if (channel?.mode === 'cloud-api' && channel.webhookConfigured === false) {
-    return `${channelLabel} em Cloud API, mas o verify token ou a validacao do webhook ainda nao foi confirmada.`;
+    return `${channelLabel} in Cloud API, but verify token or webhook validation has not been confirmed yet.`;
   }
   if (channel?.mode === 'native' && channel.nativeConfigured === false) {
-    return `${channelLabel} em modo nativo, mas ainda sem credencial valida para confirmar o runtime real.`;
+    return `${channelLabel} em modo nactive, mas ainda without credential valida para confirmar o runtime real.`;
   }
   if (!channel?.started) {
-    return `${channelLabel} habilitado, mas o ${bootstrapLabel} ainda nao confirmou estado pronto.`;
+    return `${channelLabel} enabled, but ${bootstrapLabel} has not confirmed ready state yet.`;
   }
   if ((channel?.recipientsConfigured || 0) < 1) {
-    return `${channelLabel} habilitado, mas ainda sem ${recipientsLabel} permitidos para rollout no mesh.`;
+    return `${channelLabel} habilitado, mas ainda without ${recipientsLabel} permitidos para rollout no mesh.`;
   }
-  return `${channelLabel} ainda precisa de preparacao operacional.`;
+  return `${channelLabel} still needs operational preparation.`;
 }

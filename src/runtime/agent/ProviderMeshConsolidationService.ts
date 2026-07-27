@@ -471,9 +471,9 @@ export class ProviderMeshConsolidationService {
       },
       surface: {
         cliCommand: `zavorth provider-mesh run ${input.run.id} --json`,
-        zavorthControlPath: '/zavorthControl?sector=config',
-        pickerHint: 'Use o Model Picker para escolher familia, rota e modelo pelo mesmo contrato em todas as surfaces.',
-        onboardingHint: 'Onboarding pergunta primeiro pela capability desejada, depois sugere provider/modelo.',
+        zavorthControlPath: '/zavorthControl...sector=config',
+        pickerHint: 'Use Model Picker to choose family, route, and model through the same contract across all surfaces.',
+        onboardingHint: 'Onboarding asks for the desired capability first, then suggests provider/model.',
       },
       nextSafeAction: this.resolveNextSafeAction({
         status,
@@ -570,35 +570,35 @@ export class ProviderMeshConsolidationService {
         id: `provider-mesh:${input.input.run.id}:contracts`,
         kind: 'contracts',
         source: 'ModelPickerContract',
-        detail: 'Contratos canonicals de familia, rota, modelo e perfil selecionado estao ligados.',
+        detail: 'Contratos canonicals de familia, route, model e profile selecionado are ligados.',
         status: 'ready',
       },
       {
         id: `provider-mesh:${input.input.run.id}:registry`,
         kind: 'registry',
         source: 'ProviderIntegrationRegistry',
-        detail: `${input.registrySnapshot.manifestCount} manifest(s), ${input.registrySnapshot.routeCount} rota(s), ${input.registrySnapshot.familyCount} familia(s).`,
+        detail: `${input.registrySnapshot.manifestCount} manifest(s), ${input.registrySnapshot.routeCount} route(s), ${input.registrySnapshot.familyCount} family/families.`,
         status: input.registrySnapshot.manifestCount > 0 ? 'ready' : 'missing',
       },
       {
         id: `provider-mesh:${input.input.run.id}:model-catalog`,
         kind: 'model-catalog',
         source: 'ModelCatalogAggregationService',
-        detail: `${input.aggregation.models.length} modelo(s) agregados de ${input.aggregation.sources.length} fonte(s).`,
+        detail: `${input.aggregation.models.length} model(s) agregados de ${input.aggregation.sources.length} source(s).`,
         status: input.aggregation.models.length > 0 ? 'ready' : 'partial',
       },
       {
         id: `provider-mesh:${input.input.run.id}:routes`,
         kind: 'route-resolution',
         source: 'AccessRouteResolutionService',
-        detail: `${input.routeResolution.summary.readyRoutes}/${input.routeResolution.summary.totalRoutes} rota(s) prontas.`,
+        detail: `${input.routeResolution.summary.readyRoutes}/${input.routeResolution.summary.totalRoutes} ready route(s).`,
         status: input.routeResolution.summary.totalRoutes > 0 ? 'ready' : 'missing',
       },
       {
         id: `provider-mesh:${input.input.run.id}:picker`,
         kind: 'model-picker',
         source: 'ModelPickerService',
-        detail: `${input.picker.families.length} familia(s) expostas pelo picker.`,
+        detail: `${input.picker.families.length} family/families exposed by picker.`,
         status: input.picker.families.length > 0 ? 'ready' : 'missing',
       },
       {
@@ -612,7 +612,7 @@ export class ProviderMeshConsolidationService {
         id: `provider-mesh:${input.input.run.id}:onboarding`,
         kind: 'onboarding',
         source: 'ProviderMeshOnboardingProductService',
-        detail: `${input.onboarding.providerMeshOnboarding.capabilities.length} capability suggestion(s); surfaces usam o mesmo contrato.`,
+        detail: `${input.onboarding.providerMeshOnboarding.capabilities.length} capability suggestion(s); surfaces use the same contract.`,
         status: input.onboarding.providerMeshOnboarding.status === 'ready'
           ? 'ready'
           : input.onboarding.providerMeshOnboarding.status === 'blocked'
@@ -630,16 +630,15 @@ export class ProviderMeshConsolidationService {
         id: `provider-mesh:${input.input.run.id}:provider-arena`,
         kind: 'provider-arena',
         source: 'ProviderArenaService',
-        detail: input.providerArenaLinked
-          ? 'Provider Arena esta vinculada para comparar rota, budget e fallback.'
-          : 'Provider Arena ainda nao publicou evidencia para este run.',
+        detail: input.providerArenaLinked ? 'Provider Arena is vinculada para comparar route, budget e fallback.'
+          : 'Provider arena has not published evidence for this run yet.',
         status: input.providerArenaLinked ? 'ready' : 'partial',
       },
       {
         id: `provider-mesh:${input.input.run.id}:policy`,
         kind: 'policy',
         source: 'ProviderMeshConsolidationService',
-        detail: 'Snapshot e read-only: nao executa provider, nao troca modelo e nao serializa secrets.',
+        detail: 'Snapshot is read-only: it does not execute providers, switch models, or serialize secrets.',
         status: 'ready',
       },
     ];
@@ -652,17 +651,17 @@ export class ProviderMeshConsolidationService {
     providerArenaLinked: boolean;
   }): string {
     if (input.status === 'blocked') {
-      return 'Reparar registry/rotas antes de expor provider mesh como fonte canonica.';
+      return 'Repair registry and routes before exposing provider mesh as the canonical source.';
     }
     if (!input.selection.selected.ready) {
-      return 'Completar credenciais/base URL/probe da rota selecionada antes de usar como default.';
+      return 'Complete credentials, base URL, and probe for the selected route before using it as default.';
     }
     if (input.incompleteProviderCount > 0) {
-      return 'Finalizar onboarding dos providers incompletos antes de marcar como stable.';
+      return 'Finish onboarding incomplete providers before marking them stable.';
     }
     if (!input.providerArenaLinked) {
-      return 'Executar ou observar uma rota real para alimentar Provider Arena com budget, health e fallback.';
+      return 'Executar ou observar uma route real para alimentar Provider Arena with budget, health e fallback.';
     }
-    return 'Usar Provider Mesh como fonte canonica para picker, onboarding, ProviderFactory e surfaces.';
+    return 'Use Provider Mesh as the canonical source for picker, onboarding, ProviderFactory, and surfaces.';
   }
 }

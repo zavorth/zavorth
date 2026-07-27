@@ -48,7 +48,7 @@ export class SharedSurfaceZavorthBridgeMobileCommandPack {
       result.summary,
       `Estado: ${result.state}.`,
       `Modo: ${result.mode}.`,
-      `Pronto para uso remoto: ${result.readyForRemoteUse ? 'yes' : 'no'}.`,
+      `Ready for remote use: ${result.readyForRemoteUse ? 'yes' : 'no'}.`,
       `URL: ${result.accessUrl || 'unavailable'}`,
     ];
 
@@ -56,8 +56,8 @@ export class SharedSurfaceZavorthBridgeMobileCommandPack {
       lines.push(`Senha: ${result.secret}`);
     }
     if (result.verification) {
-      lines.push(`Confirmacao final: ${result.verification.ok ? 'yes' : 'pending'}.`);
-      lines.push(`Verificacao: ${result.verification.summary}`);
+      lines.push(`Confirmaction final: ${result.verification.ok ? 'yes' : 'pending'}.`);
+      lines.push(`Verificaction: ${result.verification.summary}`);
       if (result.verification.targetUrl) {
         lines.push(`URL verificada: ${result.verification.targetUrl}`);
       }
@@ -73,13 +73,13 @@ export class SharedSurfaceZavorthBridgeMobileCommandPack {
     }
 
     if (result.action === 'start' && result.ok && result.verification?.ok) {
-      lines.push('', 'Pronto agora:');
-      lines.push('1. Abra o link no celular.');
+      lines.push('', 'Ready now:');
+      lines.push('1. Open the link on the phone.');
       if (result.secret) {
         lines.push('2. Entre com a senha configurada.');
-        lines.push('3. Rode /agmobile stop quando terminar.');
+        lines.push('3. Run /agmobile stop when terminar.');
       } else {
-        lines.push('2. Rode /agmobile stop quando terminar.');
+        lines.push('2. Run /agmobile stop when terminar.');
       }
     }
 

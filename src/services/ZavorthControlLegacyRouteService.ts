@@ -225,13 +225,13 @@ export class ZavorthControlLegacyRouteService {
     if (pathname.startsWith('/api/skills/') && req.method === 'GET') {
       const selectedId = decodeURIComponent(pathname.replace('/api/skills/', '').trim());
       if (!selectedId || ['recipes', 'mcp', 'library', 'install-plan', 'bridge'].includes(selectedId)) {
-        deps.writeJson(res, { ok: false, error: 'Skill invalida.' }, 404);
+        deps.writeJson(res, { ok: false, error: 'Skill invalid.' }, 404);
         return true;
       }
 
       const snapshot = deps.getSkillCatalogSnapshot({ selectedId });
       if (!snapshot.selected) {
-        deps.writeJson(res, { ok: false, error: `Skill nao encontrada: ${selectedId}.` }, 404);
+        deps.writeJson(res, { ok: false, error: `Skill not found: ${selectedId}.` }, 404);
         return true;
       }
 

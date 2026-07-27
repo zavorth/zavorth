@@ -41,12 +41,12 @@ export function buildPlatformRegistrySummaryNarrative(
   summary: ZavorthPlatformRegistrySnapshot['summary'],
 ): ZavorthPlatformRegistrySnapshot['narrative'] {
   return {
-    headline: `Platform plane unifica ${summary.total} item(ns) entre plugins, skills e MCPs.`,
+    headline: `Platform plane unifica ${summary.total} item(s) entre plugins, skills e MCPs.`,
     operatorSummary: `${summary.plugins} plugin(s), ${summary.skills} skill(s), ${summary.mcps} MCP(s); `
-      + `${summary.ready} pronto(s), ${summary.partial} parcial(is), ${summary.planned} planejado(s), `
+      + `${summary.ready} ready(s), ${summary.partial} parcial(is), ${summary.planned} planejado(s), `
       + `${summary.discoveryOnly} descoberta(s) pura(s), ${summary.trusted} trusted, `
-      + `${summary.reviewPending} em review, ${summary.learnedLocal} learned-local e ${summary.quarantined} em quarentena, `
-      + `${summary.collections} colecao(oes) e ${summary.recipes} recipe(s).`,
+      + `${summary.reviewPending} under review, ${summary.learnedLocal} learned-local e ${summary.quarantined} quarantined, `
+      + `${summary.collections} collection(oes) e ${summary.recipes} recipe(s).`,
   };
 }
 
@@ -54,8 +54,8 @@ export function buildPlatformRegistryStatusNarrative(
   summary: ZavorthPlatformRegistryStatusSummarySnapshot['summary'],
 ): ZavorthPlatformRegistryStatusSummarySnapshot['narrative'] {
   return {
-    headline: `Platform plane resume ${summary.total} item(ns) para o fast path da CLI.`,
+    headline: `Platform plane resume ${summary.total} item(s) para o fast path da CLI.`,
     operatorSummary: `${summary.plugins} plugin(s), ${summary.skills} skill(s), ${summary.mcps} MCP(s), `
-      + `${summary.collections} colecao(oes) e ${summary.recipes} recipe(s).`,
+      + `${summary.collections} collection(oes) e ${summary.recipes} recipe(s).`,
   };
 }

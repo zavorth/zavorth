@@ -52,7 +52,7 @@ function buildCliDomainsSnapshot(
 
 function formatCliDomainsSnapshot(snapshot: CliDomainsSnapshot): string {
   const headline = snapshot.summary.pending > 0
-    ? `Ainda ha ${formatCount(snapshot.summary.pending, 'dominio', 'dominios')} needs attention.`
+    ? `There are still ${formatCount(snapshot.summary.pending, 'domain', 'domains')} needs attention.`
     : 'All primary domains are initialized.';
   return renderCliScreen({
     eyebrow: 'Domains',
@@ -118,7 +118,7 @@ function normalizeStatusHeadline(headline: string | null | undefined): string {
   }
 
   return sanitized
-    .replace(/acao do operador/gi, 'sua atencao')
+    .replace(/action do operador/gi, 'your attention')
     .replace(/runtime/gi, 'Zavorth');
 }
 
@@ -128,15 +128,16 @@ function normalizeStatusAttentionItem(item: string): string {
     return normalized;
   }
 
-  if (/remote transports are not ready yet/i.test(normalized)) {
+  const lower = normalized.toLowerCase();
+  if (lower.includes('remote transports are not ready yet')) {
     return 'The remote connection is not ready yet.';
   }
 
-  if (/security posture needs attention/i.test(normalized)) {
+  if (lower.includes('security posture needs attention')) {
     return 'Basic security still needs attention.';
   }
 
-  if (/no remote transport eligible for doctor/i.test(normalized)) {
+  if (lower.includes('no remote transport eligible for doctor')) {
     return 'The remote connection does not have a ready validation path yet.';
   }
 
@@ -151,7 +152,7 @@ function normalizeStatusActionLabel(label: string | null | undefined): string | 
     return 'Follow the main suggested step.';
   }
 
-  if (/reconcile local runtime/i.test(normalized)) {
+  if (normalized.toLowerCase().includes('reconcile local runtime')) {
     return 'Reconcile local Zavorth';
   }
 
@@ -203,13 +204,13 @@ function resolveStatusPrimaryAction(
 
   if (normalizedCommand) {
     return {
-      label: 'Abrir o diagnostico principal',
+      label: 'Abrir o diagnostic principal',
       command: 'zavorth doctor',
     };
   }
 
   return {
-    label: 'Nenhuma acao imediata sugerida.',
+    label: 'No immediate action suggested.',
     command: null,
   };
 }
@@ -242,13 +243,11 @@ function formatStatusConversationLine(snapshot: CliStatusSnapshot): string {
     return '- The conversation cannot be evaluated in this snapshot yet.';
   }
 
-  const readiness = snapshot.sessions.sendReady && snapshot.sessions.spawnReady
-    ? 'pronta para continuar e abrir novas sessions'
-    : snapshot.sessions.sendReady || snapshot.sessions.spawnReady
-      ? 'partial'
-      : 'ainda limitada';
+  const readiness = snapshot.sessions.sendReady && snapshot.sessions.spawnReady ? 'ready to continue and open new sessions'
+    : snapshot.sessions.sendReady || snapshot.sessions.spawnReady ? 'partial'
+      : 'still limited';
 
-  if (readiness === 'pronta para continuar e abrir novas sessions') {
+  if (readiness === 'ready to continue and open new sessions') {
     return '- The conversation is ready to continue.';
   }
 
@@ -265,10 +264,10 @@ function formatStatusDomainsLine(snapshot: CliStatusSnapshot): string | null {
   }
 
   if (snapshot.domains.pending === 0) {
-    return '- Os recursos principais ja estao carregados.';
+    return '- Core resources are already loaded.';
   }
 
-  return '- Alguns recursos principais ainda pedem atencao.';
+  return '- Some core resources still need attention.';
 }
 
 function formatStatusNodesLine(snapshot: CliStatusSnapshot): string | null {
@@ -296,7 +295,7 @@ function formatStatusCatalogLine(snapshot: CliStatusSnapshot): string | null {
     return null;
   }
 
-  return '- As integracoes principais ja foram carregadas.';
+  return '- As integrations principais already foram carregadas.';
 }
 
 function buildStatusAttentionItems(snapshot: CliStatusSnapshot): string[] {
@@ -335,7 +334,7 @@ function buildStatusSummaryLines(snapshot: CliStatusSnapshot, attentionItems: st
   ];
 
   if (attentionItems.length === 0) {
-    lines.push('- Nenhum bloqueio imediato apareceu neste retrato.');
+    lines.push('- No block imediato apareceu neste retrato.');
   }
 
   if (lines.filter(Boolean).length < 4) {
@@ -569,7 +568,7 @@ function formatCliStatusSnapshot(snapshot: CliStatusSnapshot): string {
   const attentionItems = buildStatusAttentionItems(snapshot);
   const primaryAction = resolveStatusPrimaryAction(snapshot, attentionItems);
 
-  // 1. Panel: Geral
+  // 1. Panel: General
   const generalLines: string[] = [];
   if (snapshot.llm) {
     const providerCapitalized = snapshot.llm.provider.charAt(0).toUpperCase() + snapshot.llm.provider.slice(1);
@@ -584,8 +583,8 @@ function formatCliStatusSnapshot(snapshot: CliStatusSnapshot): string {
     }));
   }
 
-  const readinessLabel = attentionItems.length === 0 
-    ? i18n.t('cli.status.state_ready', { fallback: 'Ready to use' }) 
+  const readinessLabel = attentionItems.length === 0
+    ? i18n.t('cli.status.state_ready', { fallback: 'Ready to use' })
     : i18n.t('cli.status.state_pending', { fallback: 'Awaiting setup / attention' });
   generalLines.push(i18n.t('cli.status.agent_state', {
     fallback: `- Agent state: ${readinessLabel}`,
@@ -657,11 +656,11 @@ function formatCliStatusSnapshot(snapshot: CliStatusSnapshot): string {
     cognitionLines.push(i18n.t('cli.status.memory_procedural', { fallback: '- Procedural Memory: 0 routines saved', vars: { count: '0' } }));
   }
 
-  // 3. Panel: Faça Agora
+  // 3. Panel: Do Now
   const actionLines = [
     `> ${primaryAction.label}`,
     ...(primaryAction.command ? [`> ${primaryAction.command}`] : []),
-    i18n.t('cli.status.diagnose', { fallback: '? for deep diagnostics: zavorth doctor' }),
+    i18n.t('cli.status.diagnose', { fallback: '... for deep diagnostics: zavorth doctor' }),
   ];
 
   return renderCliScreen({

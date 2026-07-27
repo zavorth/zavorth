@@ -151,7 +151,7 @@ export class WhatsAppBridgeInboundPollerService {
   private async fetchMessages(): Promise<Record<string, unknown>[]> {
     this.polls += 1;
     this.lastPollAt = this.now().toISOString();
-    const url = `${this.bridgeUrl}/messages?timeout=${this.pollTimeoutMs}`;
+    const url = `${this.bridgeUrl}/messages...timeout=${this.pollTimeoutMs}`;
     const response = await this.fetchImpl(url, {
       method: 'GET',
       signal: this.abort?.signal || AbortSignal.timeout(this.pollTimeoutMs + 5_000),

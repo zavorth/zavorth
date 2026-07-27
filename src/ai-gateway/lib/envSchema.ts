@@ -1,5 +1,5 @@
 /**
- * Environment Schema Validation — FASE-01 Security Hardening
+ * Environment Schema Validation — Security Hardening
  *
  * Validates critical environment variables at server boot using Zod.
  * Called from instrumentation-node.ts after secrets are auto-generated.

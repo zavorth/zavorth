@@ -11,7 +11,7 @@
  *   const stats = loader.loadAll();
  *   console.log(stats);
  *
- * Resultado: O Cognitive Firewall agora sabe quais tools pertencem a cada
+ * Result: O Cognitive Firewall agora sabe quais tools pertencem a cada
  * intent category, without hardcoding.
  */
 
@@ -105,7 +105,7 @@ export class SkillLoader {
   }
 
   /**
-   * Retorna os nomes de tools que pertencem a uma categoria de firewall.
+   * Retorna os names de tools que pertencem a uma categoria de firewall.
    */
   public getToolsForCategory(category: IntentCategory): string[] {
     const allNames: string[] = [];

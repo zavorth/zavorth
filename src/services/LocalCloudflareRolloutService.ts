@@ -89,20 +89,18 @@ export class LocalCloudflareRolloutService {
     const steps: LocalCloudflareRolloutStep[] = [
       {
         id: 'launcher-installer',
-        title: 'Instalador de atalhos do Windows',
+        title: 'Instalador de shortcuts do Windows',
         status: this.existsSync(launcherInstaller) ? 'done' : 'pending',
-        detail: this.existsSync(launcherInstaller)
-          ? 'O repo ja consegue criar os atalhos do Zavorth supervisionado no desktop e menu iniciar.'
-          : 'Falta o instalador dos atalhos locais do Zavorth.',
+        detail: this.existsSync(launcherInstaller) ? 'O repo already consegue criar os shortcuts do Zavorth supervised no desktop e menu iniciar.'
+          : 'missing o instalador dos shortcuts locais do Zavorth.',
         command: 'npm run launcher:install',
       },
       {
         id: 'startup-installer',
-        title: 'Startup automatico opcional do Windows',
+        title: 'Optional Windows automatic startup',
         status: this.existsSync(startupInstaller) ? 'done' : 'pending',
-        detail: this.existsSync(startupInstaller)
-          ? 'Ja existe um instalador opcional para login automatico, mas o Zavorth leve recomenda deixar isso desligado por padrao.'
-          : 'Falta apenas o instalador opcional para login automatico do Windows; isso nao bloqueia o rollout normal.',
+        detail: this.existsSync(startupInstaller) ? 'an optional automatic-login installer already exists, but the lightweight Zavorth setup recommends leaving it off by default.'
+          : 'Only the optional Windows auto-login installer is missing; this does not block the normal rollout.',
         command: 'npm run launcher:startup:install',
       },
       {
@@ -111,42 +109,39 @@ export class LocalCloudflareRolloutService {
         status: this.llmProvider === 'gemini' ? 'done' : 'pending',
         detail:
           this.llmProvider === 'gemini'
-            ? 'O Zavorth esta apontando para o provider certo para usar Gemma via Gemini API.'
+            ? 'O Zavorth is apontando para o provider certo para usar Gemma via Gemini API.'
             : 'Troque LLM_PROVIDER para gemini para usar Gemma hospedado.',
         command: 'definir LLM_PROVIDER=gemini',
       },
       {
         id: 'gemini-credential',
-        title: 'Credencial Gemini',
+        title: 'Gemini credential',
         status: this.geminiCredentialReady ? 'done' : 'pending',
-        detail: this.geminiCredentialReady
-          ? 'Ja existe credencial Gemini/AI Studio configurada.'
-          : 'Falta GEMINI_API_KEY ou AISTUDIO_API_KEY.',
+        detail: this.geminiCredentialReady ? 'already existe credential Gemini/AI Studio configurada.'
+          : 'missing GEMINI_API_KEY ou AISTUDIO_API_KEY.',
         command: 'definir GEMINI_API_KEY ou AISTUDIO_API_KEY',
       },
       {
         id: 'cloudflare-ai-gateway',
         title: 'Cloudflare AI Gateway',
         status: this.cloudflareAiGatewayEnabled ? 'done' : 'pending',
-        detail: this.cloudflareAiGatewayEnabled
-          ? `Gateway pronto em ${this.cloudflareAiGatewayAccountId}/${this.cloudflareAiGatewayId}.`
-          : 'Faltam CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID e CLOUDFLARE_AI_GATEWAY_ID.',
+        detail: this.cloudflareAiGatewayEnabled ? `Gateway ready em ${this.cloudflareAiGatewayAccountId}/${this.cloudflareAiGatewayId}.`
+          : 'missing CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID e CLOUDFLARE_AI_GATEWAY_ID.',
         command: 'definir CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID e CLOUDFLARE_AI_GATEWAY_ID',
       },
       {
         id: 'cloudflare-tunnel',
-        title: 'Hostname publico do Tunnel',
+        title: 'Public Tunnel hostname',
         status: this.resolvePublicHostname() ? 'done' : 'pending',
-        detail: this.resolvePublicHostname()
-          ? `URL publica prevista: ${this.publicBaseUrl || `https://${this.cloudflareTunnelPublicHostname}`}.`
-          : 'Falta um hostname publico valido; o caminho mais curto e subir um quick tunnel local para o /zavorthControl.',
+        detail: this.resolvePublicHostname() ? `URL public prevista: ${this.publicBaseUrl || `https://${this.cloudflareTunnelPublicHostname}`}.`
+          : 'missing a valid public hostname; the shortest path is to start a local quick tunnel for /zavorthControl.',
         command: 'npm run ops:public:tunnel',
       },
       {
         id: 'validate-runtime',
-        title: 'Validar plano B',
+        title: 'validate fallback path',
         status: 'pending',
-        detail: 'Depois de configurar Tunnel e Gateway, valide o runtime supervisionado local, a ZavorthControl em /zavorthControl e o profile recomendado para este host.',
+        detail: 'After configuring Tunnel and Gateway, validate the local supervised runtime, ZavorthControl at /zavorthControl, and the recommended profile for this host.',
         command: 'npm run build && npm run ops:access && npm run profile:status && npm run ops:local-cloudflare',
       },
     ];
@@ -158,9 +153,8 @@ export class LocalCloudflareRolloutService {
     return {
       generatedAt: this.now().toISOString(),
       readyForPlanB,
-      summary: readyForPlanB
-        ? 'Plano B local com Cloudflare e Gemini/Gemma pronto para rollout gateway-first.'
-        : `Plano B ainda pendente: ${steps.find((step) => step.status === 'pending' && step.id !== 'validate-runtime')?.detail || 'Ainda existem passos externos para concluir.'}`,
+      summary: readyForPlanB ? 'Local Plan B with Cloudflare and Gemini/Gemma ready for gateway-first rollout.'
+        : `Plan B still pending: ${steps.find((step) => step.status === 'pending' && step.id !== 'validate-runtime')?.detail || 'External steps still need completion.'}`,
       target: {
         host: 'windows-local',
         edge: 'cloudflare',
@@ -182,7 +176,7 @@ export class LocalCloudflareRolloutService {
       '',
       snapshot.summary,
       `Modelo alvo: ${snapshot.target.modelName}`,
-      'Arquivos de apoio:',
+      'Support files:',
       `- Launcher: ${snapshot.helpers.launcherInstaller}`,
       `- Startup: ${snapshot.helpers.startupInstaller}`,
       `- Guia: ${snapshot.helpers.guide}`,
@@ -193,7 +187,7 @@ export class LocalCloudflareRolloutService {
     for (const step of snapshot.steps) {
       lines.push(`- [${step.status}] ${step.title}`);
       lines.push(`  ${step.detail}`);
-      lines.push(`  comando: ${step.command}`);
+      lines.push(`  command: ${step.command}`);
     }
 
     return lines.join('\n');

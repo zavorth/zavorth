@@ -63,9 +63,9 @@ export type SecurityProfileConfigurationInspection = {
 const PROFILE_POLICIES: Record<SecurityProfileId, SecurityProfilePolicy> = {
   personal: {
     id: 'personal',
-    label: 'Uso pessoal',
-    audience: 'Usuario comum',
-    summary: 'Baixa friccao para tarefas cotidianas, com confirmacao clara para acoes sensiveis.',
+    label: 'Personal use',
+    audience: 'Standard user',
+    summary: 'Low friction for daily tasks, with clear confirmation for sensitive actions.',
     confirmationStyle: 'minimal',
     denyCapabilities: ['unknown'],
     requireConfirmationCapabilities: ['credential', 'configuration', 'desktop', 'destructive', 'external-send', 'shell', 'webhook'],
@@ -75,9 +75,9 @@ const PROFILE_POLICIES: Record<SecurityProfileId, SecurityProfilePolicy> = {
   },
   professional: {
     id: 'professional',
-    label: 'Uso profissional',
-    audience: 'Desenvolvedor ou operador individual',
-    summary: 'Padrao seguro para trabalho diario: observacao flui, mutacao e egress externo pedem confirmacao.',
+    label: 'Professional use',
+    audience: 'Developer or individual operator',
+    summary: 'Secure default for daily work: observation flows, mutation and external egress require confirmation.',
     confirmationStyle: 'balanced',
     denyCapabilities: ['unknown'],
     requireConfirmationCapabilities: [
@@ -98,9 +98,9 @@ const PROFILE_POLICIES: Record<SecurityProfileId, SecurityProfilePolicy> = {
   },
   enterprise: {
     id: 'enterprise',
-    label: 'Uso corporativo',
-    audience: 'Ambiente gerenciado',
-    summary: 'Perfil mais rigido para workspaces corporativos, com fail-closed e auditoria forte.',
+    label: 'Enterprise use',
+    audience: 'Managed environment',
+    summary: 'Stricter profile for corporate workspaces, with fail-closed and strong auditing.',
     confirmationStyle: 'strict',
     denyCapabilities: ['unknown'],
     requireConfirmationCapabilities: [
@@ -124,20 +124,13 @@ const PROFILE_POLICIES: Record<SecurityProfileId, SecurityProfilePolicy> = {
 };
 
 const PROFILE_ALIASES: Record<string, SecurityProfileId> = {
-  casa: 'personal',
-  comum: 'personal',
-  dona_maria: 'personal',
   home: 'personal',
-  pessoal: 'personal',
   personal: 'personal',
-  trabalho: 'professional',
+  work: 'professional',
   dev: 'professional',
   professional: 'professional',
-  profissional: 'professional',
-  work: 'professional',
   bigtech: 'enterprise',
   corporate: 'enterprise',
-  corporativo: 'enterprise',
   enterprise: 'enterprise',
   managed: 'enterprise',
 };
@@ -176,7 +169,7 @@ export function resolveSecurityProfile(input: SecurityProfileResolutionInput = {
     return {
       profile: getSecurityProfilePolicy(explicit),
       source: 'explicit',
-      reason: 'Perfil informado explicitamente por metadata/configuracao do runtime.',
+      reason: 'Profile explicitly set by metadata/runtime configuration.',
     };
   }
 
@@ -189,7 +182,7 @@ export function resolveSecurityProfile(input: SecurityProfileResolutionInput = {
     return {
       profile: getSecurityProfilePolicy(envProfile),
       source: 'environment',
-      reason: 'Perfil definido por variavel de ambiente.',
+      reason: 'Profile defined by environment variable.',
     };
   }
 
@@ -197,7 +190,7 @@ export function resolveSecurityProfile(input: SecurityProfileResolutionInput = {
     return {
       profile: getSecurityProfilePolicy('enterprise'),
       source: 'enterprise-signal',
-      reason: 'Sinais de ambiente gerenciado/corporativo foram detectados.',
+      reason: 'Managed/corporate environment signals were detected.',
     };
   }
 
@@ -208,14 +201,14 @@ export function resolveSecurityProfile(input: SecurityProfileResolutionInput = {
     return {
       profile: getSecurityProfilePolicy(presetState.securityProfile),
       source: 'preset',
-      reason: `Perfil definido pelo preset operacional ${presetState.activePreset}.`,
+      reason: `Profile defined by operational preset ${presetState.activePreset}.`,
     };
   }
 
   return {
     profile: getSecurityProfilePolicy('professional'),
     source: 'default',
-    reason: 'Nenhum perfil explicito foi informado; usando professional como padrao seguro sem alta friccao.',
+    reason: 'No explicit profile provided; using professional as a secure default without high friction.',
   };
 }
 
@@ -259,10 +252,9 @@ export function inspectSecurityProfileConfiguration(
       configuredValue: firstConfigured?.text || null,
       configuredSource: firstConfigured?.source || null,
       invalidValues,
-      summary: 'Existe perfil de seguranca configurado com valor desconhecido.',
+      summary: 'A security profile is configured with an unknown value.',
       recommendations: [
-        'Use um destes perfis: personal, professional ou enterprise.',
-        'Aliases em portugues tambem funcionam: pessoal, profissional ou corporativo.',
+        'Use one of these profiles: personal, professional, or enterprise.',
       ],
     };
   }
@@ -273,7 +265,7 @@ export function inspectSecurityProfileConfiguration(
     configuredValue: firstConfigured?.text || null,
     configuredSource: firstConfigured?.source || null,
     invalidValues: [],
-    summary: `Perfil ativo: ${resolution.profile.label}.`,
+    summary: `Perfil active: ${resolution.profile.label}.`,
     recommendations: [],
   };
 }
@@ -291,7 +283,7 @@ export function resolveSecurityProfileConfirmationRequirement(
       profile.requireConfirmationCapabilities.includes(capability)
       && !isObservationOnlyCapabilitySet(uniqueCapabilities)
     ) {
-      reasons.push(`Perfil ${profile.id} pede confirmacao para capacidade ${capability}.`);
+      reasons.push(`Profile ${profile.id} requires confirmation for capability ${capability}.`);
     }
   }
 
@@ -300,7 +292,7 @@ export function resolveSecurityProfileConfirmationRequirement(
     && definition?.canMutateHost
     && !isObservationOnlyCapabilitySet(uniqueCapabilities)
   ) {
-    reasons.push(`Perfil ${profile.id} pede confirmacao para mudancas no host/workspace.`);
+    reasons.push(`Profile ${profile.id} requires confirmation for host/workspace mutations.`);
   }
 
   if (profile.requireConfirmationForExternalSend && definition?.canExfiltrateData) {
@@ -308,7 +300,7 @@ export function resolveSecurityProfileConfirmationRequirement(
       && uniqueCapabilities.includes('untrusted-input')
       && !uniqueCapabilities.includes('external-send');
     if (!isSafeLookup) {
-      reasons.push(`Perfil ${profile.id} pede confirmacao para envio externo de dados.`);
+      reasons.push(`Profile ${profile.id} requires confirmation for external data send.`);
     }
   }
 
@@ -316,7 +308,7 @@ export function resolveSecurityProfileConfirmationRequirement(
     profile.requireConfirmationForCredentials
     && (uniqueCapabilities.includes('credential') || uniqueCapabilities.includes('configuration'))
   ) {
-    reasons.push(`Perfil ${profile.id} pede confirmacao para credenciais/configuracao.`);
+    reasons.push(`Profile ${profile.id} requires confirmation for credentials/configuration.`);
   }
 
   return {
@@ -333,13 +325,13 @@ export function resolveSecurityProfileDeniedCapabilities(
 }
 
 export function formatUserFacingSecurityApprovalMessage(decision: AgentPolicyDecision): string {
-  const profileLabel = decision.securityProfile?.label || 'perfil de seguranca ativo';
+  const profileLabel = decision.securityProfile?.label || 'active security profile';
   const capabilitySummary = humanizeCapabilities(decision.capabilities);
   return [
-    `O Zavorth quer executar "${decision.toolName}".`,
-    `Perfil: ${profileLabel}.`,
-    `Por seguranca, confirme antes de permitir ${capabilitySummary}.`,
-    'A acao so continua se voce aprovar.',
+    `Zavorth wants to run "${decision.toolName}".`,
+    `Profile: ${profileLabel}.`,
+    `For security, please confirm before allowing ${capabilitySummary}.`,
+    'The action will only proceed if you approve.',
   ].join(' ');
 }
 
@@ -376,19 +368,19 @@ function isEnterpriseSignal(
 
 function humanizeCapabilities(capabilities: AgentToolCapability[]): string {
   if (capabilities.includes('external-send') || capabilities.includes('webhook')) {
-    return 'envio de dados para fora do computador';
+    return 'sending data outside the computer';
   }
   if (capabilities.includes('shell')) {
-    return 'execucao de comandos';
+    return 'executing commands';
   }
   if (capabilities.includes('desktop')) {
-    return 'controle da interface do computador';
+    return 'controlling the computer interface';
   }
   if (capabilities.includes('credential') || capabilities.includes('configuration')) {
-    return 'alteracao de credenciais ou configuracoes';
+    return 'modifying credentials or configuration';
   }
   if (capabilities.includes('filesystem') || capabilities.includes('destructive')) {
-    return 'mudancas em arquivos ou workspace';
+    return 'changing files or workspace';
   }
-  return 'uma acao sensivel';
+  return 'a sensitive action';
 }

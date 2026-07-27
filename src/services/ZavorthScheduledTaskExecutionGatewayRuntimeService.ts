@@ -44,7 +44,7 @@ type NormalizedTick = {
   };
 };
 
-const DEFAULT_TASK_ID = 'scheduled-task-checkpoint-2-preview';
+const DEFAULT_TASK_ID = 'scheduled-task-gate-2-preview';
 
 export class ZavorthScheduledTaskExecutionGatewayRuntimeService {
   private readonly now: () => Date;
@@ -151,8 +151,7 @@ class ScheduledTaskDryRunGateway implements GatewayLike {
   public async submit(task: Task, plan: Plan, dryRun = true): Promise<GatewayDecision> {
     return {
       allowed: true,
-      reason: dryRun
-        ? 'Scheduled task dry-run reached ExecutionGateway boundary.'
+      reason: dryRun ? 'Scheduled task dry-run reached ExecutionGateway boundary.'
         : 'Scheduled task fixture gateway does not perform live execution.',
       requires_confirmation: false,
       correlation: {
@@ -263,7 +262,7 @@ function buildTask(registry: ZavorthScheduledTaskSnapshot, tick: NormalizedTick,
     requires_planning: false,
     requires_approval: false,
     approval_status: registry.approvalVerification.ok ? 'approved' : 'pending',
-    planner_used: 'scheduled-task-runtime-checkpoint-2',
+    planner_used: 'scheduled-task-runtime-gate-2',
     executor_used: null,
     fallback_used: false,
     parent_task_id: null,
@@ -278,7 +277,7 @@ function buildTask(registry: ZavorthScheduledTaskSnapshot, tick: NormalizedTick,
     error_summary: null,
     rollback_available: false,
     metadata: {
-      scheduledTaskRuntime: 'checkpoint-2-scheduled-task-execution-gateway',
+      scheduledTaskRuntime: 'gate-2-scheduled-task-execution-gateway',
       scheduledTaskApprovalId: registry.approvalEnvelope?.approvalId || null,
       schedule: registry.schedule?.normalized || null,
       budget: registry.budget,
@@ -364,43 +363,43 @@ function buildReceipts(
 ): ZavorthScheduledTaskRuntimeReceipt[] {
   return [
     {
-      id: 'checkpoint-2-scheduled-task-execution-gateway',
-      kind: 'checkpoint-2-scheduled-task-execution-gateway',
+      id: 'gate-2-scheduled-task-execution-gateway',
+      kind: 'gate-2-scheduled-task-execution-gateway',
       status: status === 'blocked' ? 'blocked' : 'recorded',
       summary: `Scheduled task runtime status is ${status}.`,
     },
     {
-      id: 'checkpoint-2-registry-consumed',
+      id: 'gate-2-registry-consumed',
       kind: 'registry-consumed',
       status: registry.status === 'active' ? 'recorded' : 'blocked',
       summary: `Consumed Intent model registry snapshot with status ${registry.status}.`,
     },
     {
-      id: registry.approvalEnvelope?.approvalId || 'checkpoint-2-scope-revalidated',
+      id: registry.approvalEnvelope?.approvalId || 'gate-2-scope-revalidated',
       kind: 'scope-revalidated',
       status: registry.approvalVerification.ok ? 'recorded' : 'blocked',
       summary: `Approval envelope revalidation result: ${registry.approvalVerification.reason}.`,
     },
     {
-      id: 'checkpoint-2-scope-invariance',
+      id: 'gate-2-scope-invariance',
       kind: 'scope-invariance',
       status: scopeInvariant ? 'recorded' : 'blocked',
       summary: scopeInvariant ? 'Tick preserved the approved command, workspace and schedule.' : 'Tick tried to change the approved scope.',
     },
     {
-      id: 'checkpoint-2-gateway-submit',
+      id: 'gate-2-gateway-submit',
       kind: 'gateway-submit',
       status: gatewayDecision.called ? 'submitted' : tick.submit ? 'blocked' : 'skipped',
       summary: gatewayDecision.called ? 'Tick entered ExecutionGateway.submit().' : 'Tick did not submit to ExecutionGateway.',
     },
     {
-      id: gatewayDecision.executionId || 'checkpoint-2-gateway-result',
+      id: gatewayDecision.executionId || 'gate-2-gateway-result',
       kind: 'gateway-result',
       status: gatewayDecision.called && gatewayDecision.allowed ? 'recorded' : gatewayDecision.called ? 'failed' : 'skipped',
       summary: gatewayDecision.reason || 'No gateway result was produced.',
     },
     {
-      id: 'checkpoint-2-execution-boundary',
+      id: 'gate-2-execution-boundary',
       kind: 'execution-boundary',
       status: 'recorded',
       summary: 'Scheduler path delegates through ExecutionGateway and does not directly execute tools.',

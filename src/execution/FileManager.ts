@@ -3,7 +3,7 @@ import path from 'path';
 import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 
 export class FileManager {
-  
+
   public static readSafe(workspace: string, targetPath: string): string {
     const safePath = this.resolveSafePath(workspace, targetPath);
     if (!fs.existsSync(safePath)) {
@@ -24,7 +24,7 @@ export class FileManager {
   public static deleteSafe(workspace: string, targetPath: string): void {
     const safePath = this.resolveSafePath(workspace, targetPath);
     if (!fs.existsSync(safePath)) {
-      return; 
+      return;
     }
     const stat = fs.statSync(safePath);
     if (stat.isDirectory()) {

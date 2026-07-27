@@ -28,9 +28,9 @@ export class PlatformFacade extends DomainFacadeBase<PlatformDomainSnapshot> {
   public buildSnapshot(): PlatformDomainSnapshot {
     if (!this.platformRegistry) {
       return this.composeSnapshot({
-        summary: 'Platform facade registrada, aguardando injecao do platform registry.',
+        summary: 'Platform facade registered, waiting for platform registry injection.',
         details: [
-          'Sem registry injetado, o dominio nao sobe loaders/catalogos por conta propria.',
+          'Without injected registry, the domain does not start loaders/catalogs on its own.',
         ],
         metrics: {
           total: 0,

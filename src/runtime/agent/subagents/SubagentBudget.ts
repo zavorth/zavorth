@@ -60,8 +60,7 @@ export function applySubagentBudgetUsage(
   return {
     ...budget,
     usedToolCalls: nonNegativeInteger(
-      typeof usage.toolCalls === 'number'
-        ? budget.usedToolCalls + usage.toolCalls
+      typeof usage.toolCalls === 'number' ? budget.usedToolCalls + usage.toolCalls
         : budget.usedToolCalls,
       budget.usedToolCalls,
     ),
@@ -70,8 +69,7 @@ export function applySubagentBudgetUsage(
       budget.elapsedMs,
     ),
     outputBytes: nonNegativeInteger(
-      typeof usage.outputBytes === 'number'
-        ? budget.outputBytes + usage.outputBytes
+      typeof usage.outputBytes === 'number' ? budget.outputBytes + usage.outputBytes
         : budget.outputBytes,
       budget.outputBytes,
     ),
@@ -81,23 +79,17 @@ export function applySubagentBudgetUsage(
 }
 
 export function evaluateSubagentBudget(budget: SubagentBudget): SubagentBudgetDecision {
-  const remainingToolCalls = budget.maxToolCalls > 0
-    ? budget.maxToolCalls - budget.usedToolCalls
+  const remainingToolCalls = budget.maxToolCalls > 0 ? budget.maxToolCalls - budget.usedToolCalls
     : Number.POSITIVE_INFINITY;
-  const remainingWallClockMs = budget.maxWallClockMs > 0
-    ? budget.maxWallClockMs - budget.elapsedMs
+  const remainingWallClockMs = budget.maxWallClockMs > 0 ? budget.maxWallClockMs - budget.elapsedMs
     : Number.POSITIVE_INFINITY;
-  const remainingOutputBytes = budget.maxOutputBytes > 0
-    ? budget.maxOutputBytes - budget.outputBytes
+  const remainingOutputBytes = budget.maxOutputBytes > 0 ? budget.maxOutputBytes - budget.outputBytes
     : Number.POSITIVE_INFINITY;
 
   const exceeded =
-    budget.maxToolCalls > 0 && budget.usedToolCalls > budget.maxToolCalls
-      ? 'tool_calls'
-      : budget.maxWallClockMs > 0 && budget.elapsedMs > budget.maxWallClockMs
-        ? 'wall_clock_ms'
-        : budget.maxOutputBytes > 0 && budget.outputBytes > budget.maxOutputBytes
-          ? 'output_bytes'
+    budget.maxToolCalls > 0 && budget.usedToolCalls > budget.maxToolCalls ? 'tool_calls'
+      : budget.maxWallClockMs > 0 && budget.elapsedMs > budget.maxWallClockMs ? 'wall_clock_ms'
+        : budget.maxOutputBytes > 0 && budget.outputBytes > budget.maxOutputBytes ? 'output_bytes'
           : null;
 
   return {

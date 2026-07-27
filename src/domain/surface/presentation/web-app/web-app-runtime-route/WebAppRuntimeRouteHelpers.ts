@@ -372,4 +372,3 @@ export function isWebAppRuntimeFullDetailRequested(url: URL): boolean {
   const detail = String(url.searchParams.get('detail') || '').trim().toLowerCase();
   return detail === 'full' || detail === 'resolved' || detail === 'hydrated';
 }
-

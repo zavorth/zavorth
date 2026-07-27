@@ -44,7 +44,7 @@ export type DistributionPolicyContractSnapshot = {
 };
 
 export const DISTRIBUTION_POLICY_REQUIRED_EDITIONS = [
-  'Local',
+  'local',
   'Pro Preview',
   'Team Preview',
   'Lab',
@@ -52,7 +52,7 @@ export const DISTRIBUTION_POLICY_REQUIRED_EDITIONS = [
 
 export const DISTRIBUTION_POLICY_REQUIRED_POLICIES = [
   'Privacidade e dados',
-  'Atualizacoes',
+  'Atualizactions',
   'Plugins e skills externos',
   'Licenciamento inicial',
   'alpha',
@@ -67,7 +67,7 @@ export const DISTRIBUTION_POLICY_REQUIRED_COPY = [
   'cloud required',
   'opt-in',
   'No required cloud',
-  'Local-first remains functional without a cloud account',
+  'local-first remains functional without a cloud account',
 ] as const;
 
 export const DISTRIBUTION_POLICY_REQUIRED_LINKS = [

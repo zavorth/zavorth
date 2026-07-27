@@ -91,7 +91,7 @@ export class RemainingRuntimeDecisionsService {
       commands: {
         check: 'npm run remaining-runtime-decisions:check --silent',
         certify: 'npm run release-certify --silent',
-        nextStage: 'Release certification profile hardening',
+        nextAction: 'Release certification profile hardening',
       },
       policy: {
         decisionsAreRuntimeScoped: true,

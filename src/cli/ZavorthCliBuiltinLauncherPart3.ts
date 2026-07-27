@@ -336,7 +336,7 @@ export async function runBuiltinLauncherPart3(command: string, restArgs: string[
     } else if (action === 'navigate') {
       const url = restArgs[1] || restArgs.find((arg) => arg.startsWith('--url='))?.split('=').slice(1).join('=');
       if (!url) {
-        await logCliError('Informe o URL para navegar.', 'Browser Sidecar Error');
+        await logCliError('Provide the URL to navigate.', 'Browser Sidecar Error');
         return 1;
       }
       result = await client.navigate(url, {
@@ -356,7 +356,7 @@ export async function runBuiltinLauncherPart3(command: string, restArgs: string[
     } else if (action === 'click') {
       const selector = restArgs[1] || restArgs.find((arg) => arg.startsWith('--selector='))?.split('=').slice(1).join('=');
       if (!selector) {
-        await logCliError('Informe o selector para clicar.', 'Browser Sidecar Error');
+        await logCliError('Provide the selector to click.', 'Browser Sidecar Error');
         return 1;
       }
       result = await client.click(selector, { timeoutMs });
@@ -364,7 +364,7 @@ export async function runBuiltinLauncherPart3(command: string, restArgs: string[
       const selector = restArgs[1] || restArgs.find((arg) => arg.startsWith('--selector='))?.split('=').slice(1).join('=');
       const text = restArgs[2] || restArgs.find((arg) => arg.startsWith('--text='))?.split('=').slice(1).join('=') || '';
       if (!selector) {
-        await logCliError('Informe o selector para digitar.', 'Browser Sidecar Error');
+        await logCliError('Provide the selector to type into.', 'Browser Sidecar Error');
         return 1;
       }
       result = await client.type(selector, text, { timeoutMs });

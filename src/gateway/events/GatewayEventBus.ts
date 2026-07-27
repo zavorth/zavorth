@@ -1,7 +1,7 @@
 import { PublicSseEvent } from '../../contracts/public/events/sse';
 import { PublicWsMessage } from '../../contracts/public/ws/ws';
 
-export type InternalGatewayEvent = 
+export type InternalGatewayEvent =
   | { type: 'gateway_starting' }
   | { type: 'gateway_ready'; uptime: number }
   | { type: 'channel_registered'; channelId: string }
@@ -40,7 +40,7 @@ export class GatewayEventBus {
   async emit(event: GatewayEvent): Promise<void> {
     const eventType = event.type;
     const handlers = this.handlers.get(eventType);
-    
+
     if (handlers) {
       const promises = Array.from(handlers).map(handler => handler(event));
       await Promise.allSettled(promises);

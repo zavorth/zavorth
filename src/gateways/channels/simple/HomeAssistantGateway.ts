@@ -22,9 +22,8 @@ export class HomeAssistantGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/home-assistant',
       doctorCommand: '/channels doctor home-assistant',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Home Assistant configurado. Pronto para enviar notificacoes.'
-        : 'Defina HOME_ASSISTANT_WEBHOOK_URL ou HOME_ASSISTANT_URL e HOME_ASSISTANT_TOKEN para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'Home Assistant configured. Ready to send notifications.'
+        : 'Set HOME_ASSISTANT_WEBHOOK_URL or HOME_ASSISTANT_URL and HOME_ASSISTANT_TOKEN to enable.',
     };
   }
 

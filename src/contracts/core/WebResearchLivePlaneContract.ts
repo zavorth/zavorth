@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_WEB_RESEARCH_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-checkpoint-8' as const;
+export const ZAVORTH_WEB_RESEARCH_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-gate-8' as const;
 
 export type WebResearchLiveTargetId =
   | 'brave'
@@ -41,7 +41,7 @@ export type WebResearchLiveGateKind =
   | 'robots-policy'
   | 'network-policy'
   | 'configured-doctor'
-  | 'mock-smoke'
+  | 'dry-smoke'
   | 'staging-live-smoke'
   | 'redacted-receipt'
   | 'truthful-browser-live';
@@ -141,6 +141,6 @@ export type WebResearchLivePlaneSnapshot = {
     stagingLiveSmoke: 'npm run web-research-live-plane -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Certification matrix - File, Document, Diff And Prose Live Plane';
+    nextAction: 'Certification matrix - File, Document, Diff And Prose Live Plane';
   };
 };

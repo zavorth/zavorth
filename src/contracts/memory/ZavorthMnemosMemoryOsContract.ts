@@ -1,4 +1,4 @@
-export const ZAVORTH_MNEMOS_MEMORY_OS_VERSION = 'mnemos-memory-os-v3-checkpoint-0-1';
+export const ZAVORTH_MNEMOS_MEMORY_OS_VERSION = 'mnemos-memory-os-v3-gate-0-1';
 
 export const ZAVORTH_MNEMOS_WIKI_ROOT = '.zavorth/wiki';
 export const ZAVORTH_MNEMOS_RAW_ROOT = '.zavorth/raw';
@@ -68,7 +68,7 @@ export type ZavorthMnemosMemoryOsContractSnapshot = {
   compaction: ZavorthMnemosCompactionContract[];
   wiki: ZavorthMnemosWikiContract;
   hardRules: string[];
-  nextStages: string[];
+  nextActions: string[];
 };
 
 export function buildZavorthMnemosMemoryOsContractSnapshot(now: Date = new Date()): ZavorthMnemosMemoryOsContractSnapshot {
@@ -134,7 +134,7 @@ export function buildZavorthMnemosMemoryOsContractSnapshot(now: Date = new Date(
     },
     {
       mode: 'incremental-anchored-compaction',
-      trigger: `estimated tokens > usable context - ${ZAVORTH_MNEMOS_RESERVED_TOKEN_BUFFER}`,
+      trigger: `estimated tokens > usable context ? ${ZAVORTH_MNEMOS_RESERVED_TOKEN_BUFFER}`,
       preserves: [
         'recent 3-5 turns verbatim',
         'active intent',
@@ -216,7 +216,7 @@ export function buildZavorthMnemosMemoryOsContractSnapshot(now: Date = new Date(
       'Semantic wiki updates are source-linked and lintable.',
       'Procedural memory stores habits and policy, not credentials.',
     ],
-    nextStages: [
+    nextActions: [
       'Preview engine: Zavorth Handoff Envelope',
       'Approval gate: .zavorth/wiki baseline',
       'Connector registry: mnemos:ingest',

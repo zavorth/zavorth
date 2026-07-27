@@ -50,7 +50,7 @@ const DANGEROUS_PATTERNS = [
 ];
 
 const PROMPT_INJECTION_PATTERNS = [
-  { pattern: /ignore\s+(all\s+)?previous\s+instructions/i, code: 'prompt-injection', message: 'Prompt injection attempt detected' },
+  { pattern: /ignore\s+(all\s+)...previous\s+instructions/i, code: 'prompt-injection', message: 'Prompt injection attempt detected' },
   { pattern: /you\s+are\s+now\s+(a|an)\s+/i, code: 'role-hijack', message: 'Potential role hijacking attempt' },
   { pattern: /system\s*:\s*/i, code: 'system-prompt-injection', message: 'System prompt injection attempt' },
   { pattern: /\b(dont\s+tell|hide\s+this|secret\s+instruction|do\s+not\s+share)\b/i, code: 'hidden-instruction', message: 'Hidden instruction detected' },

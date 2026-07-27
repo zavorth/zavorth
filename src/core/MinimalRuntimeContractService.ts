@@ -160,10 +160,8 @@ export class MinimalRuntimeContractService {
       return this.buildProfileSummary(profile, capabilitySnapshot);
     });
 
-    const status = issues.some((issue) => issue.severity === 'error')
-      ? 'failed'
-      : issues.some((issue) => issue.severity === 'warning')
-        ? 'warning'
+    const status = issues.some((issue) => issue.severity === 'error') ? 'failed'
+      : issues.some((issue) => issue.severity === 'warning') ? 'warning'
         : 'passed';
     const manifestCapabilities = selectedCapabilities.allCapabilities.filter((capability) => capability.source === 'manifest');
     const kernelCapabilities = selectedCapabilities.allCapabilities.filter((capability) => capability.source === 'kernel');
@@ -596,8 +594,7 @@ export class MinimalRuntimeContractService {
         severity: 'error',
         subject,
         filePath,
-        message: allowEmpty
-          ? `Capability ${field} must be a string array.`
+        message: allowEmpty ? `Capability ${field} must be a string array.`
           : `Capability ${field} must be a non-empty string array.`,
       });
       return;
@@ -780,7 +777,7 @@ export class MinimalRuntimeContractService {
   }
 
   private isSemverLike(value: string): boolean {
-    return /^\d+\.\d+\.\d+(?:[-+][a-z0-9.-]+)?$/i.test(value);
+    return /^\d+\.\d+\.\d+(?:[-+][a-z0-9.-]+)...$/i.test(value);
   }
 
   private pushIssue(issues: MinimalRuntimeContractIssue[], issue: MinimalRuntimeContractIssue): void {

@@ -61,23 +61,23 @@ const DEFAULT_FULL_PROMPT = `You are Zavorth, a helpful AI assistant with compre
 5. Prioritize accuracy over speed.
 
 ## Tool Guidelines
-- Always verify file paths before reading or writing.
-- Use search tools before making assumptions about codebase state.
-- Prefer incremental changes over large refactors.
-- Run tests after significant changes.
-- Log important decisions and their rationale.
+? Always verify file paths before reading or writing.
+? Use search tools before making assumptions about codebase state.
+? Prefer incremental changes over large refactors.
+? Run tests after significant changes.
+? Log important decisions and their rationale.
 
 ## Security Guidelines
-- Never expose API keys or secrets in responses.
-- Validate user inputs before processing.
-- Follow principle of least privilege for file access.
-- Audit external tool calls for injection risks.
+? Never expose API keys or secrets in responses.
+? Validate user inputs before processing.
+? Follow principle of least privilege for file access.
+? Audit external tool calls for injection risks.
 
 ## Response Formatting
-- Use markdown for structured content.
-- Keep responses focused and actionable.
-- Include file paths and line numbers when referencing code.
-- Summarize complex operations before executing them.`;
+? Use markdown for structured content.
+? Keep responses focused and actionable.
+? Include file paths and line numbers when referencing code.
+? Summarize complex operations before executing them.`;
 
 export class DynamicSystemPromptService {
   private readonly tierPrompts: Record<PromptTier, string>;

@@ -71,7 +71,7 @@ export type IntelligenceProposedAction = {
 export type IntelligenceExecutionProposal = {
   id: string;
   summary: string;
-  mode: 'draft' | 'simulation' | 'commit';
+  mode: 'draft' | 'dryRun' | 'commit';
   actions: IntelligenceProposedAction[];
   riskLevel: IntelligenceRiskLevel;
   requiresApproval: boolean;
@@ -252,7 +252,7 @@ export type IntelligenceFabricSnapshot = {
   safety: {
     thinkingRequiresApproval: false;
     planningRequiresApproval: false;
-    simulationRequiresApproval: false;
+    dryRunRequiresApproval: false;
     dangerousActionsRequireGate: true;
     naturalLanguageDoesNotBypassPolicy: true;
   };

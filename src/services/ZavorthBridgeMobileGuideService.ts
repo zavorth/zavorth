@@ -22,13 +22,12 @@ export type ZavorthBridgeMobileGuide = {
 
 export class ZavorthBridgeMobileGuideService {
   public buildReadyGuide(input: BuildReadyGuideInput): ZavorthBridgeMobileGuide {
-    const accessKind = input.mode === 'public' ? 'link publico' : 'link da rede local';
+    const accessKind = input.mode === 'public' ? 'public link' : 'link da rede local';
     const steps = [
       input.mode === 'public'
         ? `Open ${input.accessUrl} in the phone browser.`
         : `Connect the phone to the same network as the host and open ${input.accessUrl}.`,
-      input.requiresPassword
-        ? `Use the current remote password: ${input.secret || 'password configured on the host'}.`
+      input.requiresPassword ? `Use the current remote password: ${input.secret || 'password configured on the host'}.`
         : 'Enter directly; the current remote does not require an extra password.',
       'Keep the Windows session unlocked while using ZavorthBridge remotely.',
       'When finished, ask Zavorth to close access with /agmobile stop.',

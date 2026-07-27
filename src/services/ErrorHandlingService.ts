@@ -64,7 +64,7 @@ export class ErrorHandlingService {
     const filePath = this.resolveFile();
     const content = this.readText(filePath, DEFAULT_ERROR_HANDLING);
     const sectionContent = this.readSection(content, 'Strategies');
-    const existing = sectionContent.split(/\r?\n/).filter((l) => !l.includes(`[${category}]`));
+    const existing = sectionContent.split(/\r...\n/).filter((l) => !l.includes(`[${category}]`));
     existing.push(this.ruleToLine(rule));
     const updated = this.upsertSection(content, 'Strategies', existing.join('\n'));
     this.writeText(filePath, updated);
@@ -80,7 +80,7 @@ export class ErrorHandlingService {
     const content = this.readText(filePath, DEFAULT_ERROR_HANDLING);
     const sectionContent = this.readSection(content, 'Strategies');
     const rules: ZavorthErrorHandlingRule[] = [];
-    for (const line of sectionContent.split(/\r?\n/)) {
+    for (const line of sectionContent.split(/\r...\n/)) {
       const rule = this.lineToRule(line);
       if (rule) rules.push(rule);
     }
@@ -116,7 +116,7 @@ export class ErrorHandlingService {
 
   private lineToRule(line: string): ZavorthErrorHandlingRule | null {
     const trimmed = line.trim();
-    const match = trimmed.match(/^- \[([^\]]+)\]\s+([\w-]+)(?:\s*\|\s*(.*))?$/);
+    const match = trimmed.match(/^- \[([^\]]+)\]\s+([\w-]+)(?:\s*\|\s*(.*))...$/);
     if (!match) return null;
     const extras = match[3] || '';
     const retryMatch = extras.match(/maxRetries:(\d+)/);
@@ -173,5 +173,5 @@ export class ErrorHandlingService {
 }
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }

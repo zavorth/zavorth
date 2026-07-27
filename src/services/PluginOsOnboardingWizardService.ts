@@ -276,7 +276,7 @@ export class PluginOsOnboardingWizardService {
           )),
           '',
           'Profiles:',
-          ...status.profiles.map((p) => `  - ${p.id}: ${p.label}`),
+          ...status.profiles.map((p) => ` ? ${p.id}: ${p.label}`),
         ];
         return lines.join('\n');
       },

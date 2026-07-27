@@ -57,7 +57,7 @@ export async function executeQuotaManagement(task: A2ATask): Promise<QuotaManage
 
   // Query classification
   if (query.includes("ranking") || query.includes("most quota") || query.includes("best")) {
-    const sorted = [...providers].sort((a, b) => availableQuota(b) - availableQuota(a));
+    const sorted = [...providers].sort((a, b) => availableQuota(b) ? availableQuota(a));
     return {
       artifacts: [
         {

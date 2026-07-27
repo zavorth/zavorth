@@ -65,7 +65,9 @@ export function humanizeArtifactType(artifactType: string): string {
     case 'ARTIFACT_TYPE_TASK':
       return 'Task';
     default:
-      return artifactType.replace(/^ARTIFACT_TYPE_/i, '').replace(/_/g, ' ');
+      return artifactType.toUpperCase().startsWith('ARTIFACT_TYPE_')
+        ? artifactType.slice('ARTIFACT_TYPE_'.length).replaceAll('_', ' ')
+        : artifactType.replaceAll('_', ' ');
   }
 }
 
@@ -83,12 +85,13 @@ export function formatTelegramFriendlyResponse(
 ): string {
   const normalized = normalizeTelegramFriendlyText(content);
   const lines = normalized
-    .split(/\r?\n/)
+    .replaceAll('\r\n', '\n')
+    .split('\n')
     .map((line) => line.trim())
     .filter(Boolean)
     .filter((line) => !isDiscardableZavorthBridgeClosingLine(line));
 
-  while (lines.length > 0 && /^[):\]\[>.-]+$/.test(lines[0] || '')) {
+  while (lines.length > 0 && isPunctuationOnlyLine(lines[0] || '')) {
     lines.shift();
   }
 
@@ -108,15 +111,6 @@ export function tryFormatStructuredInventory(
   session: PendingZavorthBridgeSession,
   lines: string[],
 ): string | null {
-  const prompt = normalizeZavorthBridgeUiText(session.prompt);
-  const inventoryHint =
-    prompt.includes('pasta') ||
-    prompt.includes('diretorio') ||
-    prompt.includes('directory') ||
-    prompt.includes('folder') ||
-    prompt.includes('arquivo') ||
-    prompt.includes('file');
-
   const groups: Array<{ heading: string; items: string[] }> = [];
   const prose: string[] = [];
   let currentGroup: { heading: string; items: string[] } | null = null;
@@ -152,7 +146,7 @@ export function tryFormatStructuredInventory(
   }
 
   const totalItems = groups.reduce((acc, group) => acc + group.items.length, 0);
-  if (!inventoryHint && totalItems < 3) {
+  if (totalItems < 3) {
     return null;
   }
 
@@ -163,8 +157,6 @@ export function tryFormatStructuredInventory(
   const linesOut: string[] = [];
   if (prose.length > 0) {
     linesOut.push(...prose, '');
-  } else if (inventoryHint) {
-    linesOut.push('Found content:', '');
   }
 
   groups.forEach((group, index) => {
@@ -191,21 +183,8 @@ export function extractInventoryHeading(line: string): string | null {
     return null;
   }
 
-  const normalized = normalizeZavorthBridgeUiText(candidate);
   if (looksLikeInventoryItem(candidate)) {
     return null;
-  }
-
-  if (normalized === 'arquivos de texto/log') {
-    return 'Text and log files';
-  }
-
-  if (normalized === 'arquivos de texto e log') {
-    return 'Text and log files';
-  }
-
-  if (normalized === 'pastas e scripts') {
-    return 'Folders and scripts';
   }
 
   return candidate.charAt(0).toUpperCase() + candidate.slice(1);
@@ -217,16 +196,16 @@ export function extractInventoryItem(line: string): string | null {
     return null;
   }
 
-  const taggedMatch = trimmed.match(/^[-*\u2022]\s+\[(DIR|FILE|OTHER)\]\s+(.+)$/i);
-  if (taggedMatch) {
-    return taggedMatch[2].trim();
+  const taggedItem = extractTaggedInventoryItem(trimmed);
+  if (taggedItem) {
+    return taggedItem;
   }
 
   if (!looksLikeInventoryItem(trimmed)) {
     return null;
   }
 
-  return trimmed.replace(/^[-*\u2022]\s+/, '').trim();
+  return stripLeadingBullet(trimmed).trim();
 }
 
 export function looksLikeInventoryItem(line: string): boolean {
@@ -235,11 +214,11 @@ export function looksLikeInventoryItem(line: string): boolean {
     return false;
   }
 
-  if (/^[-*\u2022]\s+\[(DIR|FILE|OTHER)\]\s+/i.test(trimmed)) {
+  if (extractTaggedInventoryItem(trimmed)) {
     return true;
   }
 
-  if (/^[):\]\[>.-]+$/.test(trimmed)) {
+  if (isPunctuationOnlyLine(trimmed)) {
     return false;
   }
 
@@ -247,32 +226,32 @@ export function looksLikeInventoryItem(line: string): boolean {
     return false;
   }
 
-  if (/[?!]$/.test(trimmed)) {
+  if (trimmed.endsWith('...') || trimmed.endsWith('!')) {
     return false;
   }
 
-  if (/\s{2,}/.test(trimmed)) {
+  if (hasRepeatedWhitespace(trimmed)) {
     return false;
   }
 
-  const words = trimmed.split(/\s+/).filter(Boolean);
+  const words = trimmed.split(' ').filter(Boolean);
   if (words.length > 4) {
     return false;
   }
 
-  if (/^[A-Za-z]:[\\/]/.test(trimmed)) {
+  if (looksLikeWindowsPath(trimmed)) {
     return true;
   }
 
-  if (/^[./\\][\w .-]+$/.test(trimmed)) {
+  if (looksLikeRelativePath(trimmed)) {
     return true;
   }
 
-  if (/^[\w .-]+\.[A-Za-z0-9_-]{1,12}$/.test(trimmed)) {
+  if (looksLikeFilename(trimmed)) {
     return true;
   }
 
-  if (/^[\w .-]+$/.test(trimmed) && !/\s/.test(trimmed)) {
+  if (isSingleSafePathToken(trimmed)) {
     return true;
   }
 
@@ -286,18 +265,17 @@ export function isDiscardableZavorthBridgeClosingLine(line: string): boolean {
   }
 
   return [
-    'se precisar de detalhes',
+    'if you need details',
     'if you need more details',
-    'fico a disposicao',
-    'estou a disposicao',
+    'I am available',
     'i am available',
   ].some((pattern) => normalized.startsWith(pattern));
 }
 
 export function normalizeTelegramFriendlyText(value: string): string {
-  let normalized = String(value || '').replace(/\r\n/g, '\n').trim();
+  let normalized = String(value || '').replaceAll('\r\n', '\n').trim();
 
-  if (/[\u00c3\u00c2]/.test(normalized) && !/\uFFFD/.test(normalized)) {
+  if (hasLatin1MojibakeMarker(normalized) && !normalized.includes('\uFFFD')) {
     try {
       const decoded = Buffer.from(normalized, 'latin1').toString('utf8');
       if (decoded && decoded.includes(' ') && !decoded.includes('\u00c3')) {
@@ -309,4 +287,82 @@ export function normalizeTelegramFriendlyText(value: string): string {
   }
 
   return normalized;
+}
+
+function isPunctuationOnlyLine(value: string): boolean {
+  const allowed = new Set([')', ':', ']', '[', '>', '.', '-']);
+  const trimmed = value.trim();
+  return trimmed.length > 0 && Array.from(trimmed).every((char) => allowed.has(char));
+}
+
+function extractTaggedInventoryItem(value: string): string | null {
+  const withoutBullet = stripLeadingBullet(value);
+  if (!withoutBullet.startsWith('[')) {
+    return null;
+  }
+  const closeIndex = withoutBullet.indexOf(']');
+  if (closeIndex <= 1) {
+    return null;
+  }
+  const tag = withoutBullet.slice(1, closeIndex).toUpperCase();
+  if (tag !== 'DIR' && tag !== 'FILE' && tag !== 'OTHER') {
+    return null;
+  }
+  const item = withoutBullet.slice(closeIndex + 1).trim();
+  return item || null;
+}
+
+function stripLeadingBullet(value: string): string {
+  const trimmed = value.trimStart();
+  const first = trimmed.charAt(0);
+  if (first !== '-' && first !== '*' && first !== '\u2022') {
+    return trimmed;
+  }
+  return trimmed.slice(1).trimStart();
+}
+
+function hasRepeatedWhitespace(value: string): boolean {
+  return value.includes('  ') || value.includes('\t');
+}
+
+function looksLikeWindowsPath(value: string): boolean {
+  return value.length > 3 && isAsciiLetter(value.charAt(0)) && value.charAt(1) === ':' && (value.charAt(2) === '\\' || value.charAt(2) === '/');
+}
+
+function looksLikeRelativePath(value: string): boolean {
+  const startsWithPathPrefix = value.startsWith('./') || value.startsWith('../') || value.startsWith('.\\') || value.startsWith('..\\') || value.startsWith('/') || value.startsWith('\\');
+  return startsWithPathPrefix && isSafePathText(value);
+}
+
+function looksLikeFilename(value: string): boolean {
+  if (!isSafePathText(value) || value.includes(' ')) {
+    return false;
+  }
+  const dotIndex = value.lastIndexOf('.');
+  if (dotIndex <= 0 || dotIndex === value.length - 1) {
+    return false;
+  }
+  const extension = value.slice(dotIndex + 1);
+  return extension.length <= 12 && Array.from(extension).every(isFilenameChar);
+}
+
+function isSingleSafePathToken(value: string): boolean {
+  return !value.includes(' ') && isSafePathText(value);
+}
+
+function isSafePathText(value: string): boolean {
+  return Array.from(value).every((char) => isFilenameChar(char) || char === ' ' || char === '.' || char === '-' || char === '/' || char === '\\');
+}
+
+function isFilenameChar(char: string): boolean {
+  return isAsciiLetter(char) || (char >= '0' && char <= '9') || char === '_' || char === '-';
+}
+
+function isAsciiLetter(char: string): boolean {
+  const lower = char.toLowerCase();
+  return lower >= 'a' && lower <= 'z';
+}
+
+function hasLatin1MojibakeMarker(value: string): boolean {
+  return value.includes('\u00c3') || value.includes('\u00c2');
 }

@@ -16,8 +16,8 @@ type OperationalMaturityServiceOptions = {
 };
 
 const STATUS_LABELS: Record<OperationalMaturityStatus, string> = {
-  stable: 'pronto',
-  'official-but-provisioned': 'precisa configurar',
+  stable: 'ready',
+  'official-but-provisioned': 'needs configuration',
   experimental: 'experimental',
   draft: 'rascunho',
   deprecated: 'depreciado',
@@ -101,12 +101,12 @@ export class OperationalMaturityService {
       ids.add(capability.id);
 
       if (!allowed.has(capability.status)) {
-        issues.push(this.issue('error', 'invalid-status', `Status invalido em ${capability.id}: ${capability.status}`, capability.id));
+        issues.push(this.issue('error', 'invalid-status', `Status invalid em ${capability.id}: ${capability.status}`, capability.id));
       }
 
       for (const evidence of capability.evidence) {
         if (!fs.existsSync(path.join(this.projectRoot, evidence))) {
-          issues.push(this.issue('error', 'missing-evidence', `Evidencia ausente em ${capability.id}: ${evidence}`, evidence));
+          issues.push(this.issue('error', 'missing-evidence', `Evidencia missing em ${capability.id}: ${evidence}`, evidence));
         }
       }
 
@@ -115,17 +115,17 @@ export class OperationalMaturityService {
         issues.push(this.issue(
           'error',
           'brain-boundary-violation',
-          `${capability.id} nao pode ser declarado como cerebro principal ou runtime paralelo.`,
+          `${capability.id} cannot be declared as main brain or parallel runtime.`,
           capability.id,
         ));
       }
     }
 
     if (!snapshot.invariants.nexusIsSurfaceOnly) {
-      issues.push(this.issue('error', 'nexus-invariant', 'Nexus precisa permanecer surface/API convergida, nao runtime paralelo.'));
+      issues.push(this.issue('error', 'nexus-invariant', 'Nexus must remain surface/API converged, not parallel runtime.'));
     }
     if (!snapshot.invariants.echoIsEdgeLayerOnly) {
-      issues.push(this.issue('error', 'echo-invariant', 'Echo precisa permanecer edge/fallback, nao cerebro principal.'));
+      issues.push(this.issue('error', 'echo-invariant', 'Echo must remain edge/fallback, not main brain.'));
     }
 
     return {
@@ -138,7 +138,7 @@ export class OperationalMaturityService {
 
   public renderConsole(snapshot: OperationalMaturitySnapshot = this.buildSnapshot()): string {
     const rows = snapshot.consoleRows.map((row) => (
-      `- ${row.label}: ${row.displayStatus} | ${row.role} | proximo: ${row.nextStep}`
+      `- ${row.label}: ${row.displayStatus} | ${row.role} | next: ${row.nextStep}`
     ));
     return [
       'Zavorth Operational Maturity',

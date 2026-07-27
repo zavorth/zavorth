@@ -68,11 +68,11 @@ export class SessionSearchFts5Tool extends BaseTool {
       },
       startDate: {
         type: 'string',
-        description: 'Data inicial para filtro (ISO 8601).',
+        description: 'Start date filter (ISO 8601).',
       },
       endDate: {
         type: 'string',
-        description: 'Data final para filtro (ISO 8601).',
+        description: 'End date filter (ISO 8601).',
       },
       limit: {
         type: 'number',
@@ -328,7 +328,7 @@ export class SessionSearchFts5Tool extends BaseTool {
     if (mode === 'discover' && !query) return 'Error: modo discover requer campo "query".';
     if (mode === 'read' && !sessionId) return 'Error: modo read requer campo "sessionId".';
     if (!['discover', 'scroll', 'read', 'browse'].includes(mode)) {
-      return `Modo desconhecido: ${mode}. Use: discover, scroll, read, browse.`;
+      return `Unknown mode: ${mode}. Use: discover, scroll, read, browse.`;
     }
 
     let result = this.searchViaContinuum(options);
@@ -347,12 +347,12 @@ export class SessionSearchFts5Tool extends BaseTool {
           result = this.browse(options);
           break;
         default:
-          return `Modo desconhecido: ${mode}. Use: discover, scroll, read, browse.`;
+          return `Unknown mode: ${mode}. Use: discover, scroll, read, browse.`;
       }
     }
 
     const lines: string[] = [
-      `Resultados: ${result.total} total, ${result.entries.length} retornados`,
+      `Results: ${result.total} total, ${result.entries.length} retornados`,
       result.storePath ? `store: ${result.storePath}` : '',
       result.hasMore ? 'More results available (use offset)' : '',
       '',

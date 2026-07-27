@@ -280,9 +280,9 @@ const FLOW_DEFINITIONS: Record<ZavorthSelfHealFlowId, FlowDefinition> = {
     flowId: 'sidecar_down',
     label: 'Sidecars',
     executor: 'runtime',
-    healthyEvidence: 'Sidecars habilitados estao prontos ou dormentes por configuracao.',
+    healthyEvidence: 'Enabled sidecars are ready or dormant by configuration.',
     severity: 'medium',
-    actionLabel: 'Recuperar sidecars',
+    actionLabel: 'Recover sidecars',
     command: 'zavorth ops autorepair dryrun --json',
     applyCommand: 'zavorth ops autorepair --json',
     risk: 'medium',
@@ -293,9 +293,9 @@ const FLOW_DEFINITIONS: Record<ZavorthSelfHealFlowId, FlowDefinition> = {
     flowId: 'runtime_slow',
     label: 'Runtime lento',
     executor: 'host',
-    healthyEvidence: 'Nenhum timeout ou sinal de lentidao recente foi encontrado.',
+    healthyEvidence: 'No timeout ou sinal de lentidao recente foi encontrado.',
     severity: 'low',
-    actionLabel: 'Renovar diagnostico rapido',
+    actionLabel: 'Renovar diagnostic rapido',
     command: 'zavorth status --live --json',
     applyCommand: 'zavorth ops autorepair dryrun --json',
     risk: 'low',
@@ -306,9 +306,9 @@ const FLOW_DEFINITIONS: Record<ZavorthSelfHealFlowId, FlowDefinition> = {
     flowId: 'publish_failed',
     label: 'Publish',
     executor: 'release',
-    healthyEvidence: 'There is no publish falho no snapshot operacional.',
+    healthyEvidence: 'No failed publish was found in the operational snapshot.',
     severity: 'high',
-    actionLabel: 'Preparar reparo de publish',
+    actionLabel: 'Prepare publish repair',
     command: 'zavorth ops autorepair dryrun --json',
     applyCommand: 'zavorth ops autorepair --json',
     risk: 'high',
@@ -319,7 +319,7 @@ const FLOW_DEFINITIONS: Record<ZavorthSelfHealFlowId, FlowDefinition> = {
     flowId: 'rollback_recommended',
     label: 'Rollback',
     executor: 'release',
-    healthyEvidence: 'Nenhum rollback foi recomendado pelo runtime.',
+    healthyEvidence: 'No rollback foi recomendado pelo runtime.',
     severity: 'high',
     actionLabel: 'Abrir rollback guiado',
     command: 'npm run remote:rollback -- --dry-run',
@@ -332,9 +332,9 @@ const FLOW_DEFINITIONS: Record<ZavorthSelfHealFlowId, FlowDefinition> = {
     flowId: 'cache_growth',
     label: 'Cache e temporarys',
     executor: 'storage',
-    healthyEvidence: 'Hotspots de storage estao dentro do limite de revisao.',
+    healthyEvidence: 'Hotspots de storage are dentro do limite de review.',
     severity: 'medium',
-    actionLabel: 'Planejar limpeza segura',
+    actionLabel: 'Plan safe cleanup',
     command: 'zavorth ops quality --json',
     applyCommand: null,
     risk: 'medium',
@@ -343,11 +343,11 @@ const FLOW_DEFINITIONS: Record<ZavorthSelfHealFlowId, FlowDefinition> = {
   },
   remote_executor_session_lost: {
     flowId: 'remote_executor_session_lost',
-    label: 'Executor remoto',
+    label: 'Remote executor',
     executor: 'node-mesh',
-    healthyEvidence: 'Transportes remotos nao reportaram perda de sessao.',
+    healthyEvidence: 'Remote transports did not report session loss.',
     severity: 'medium',
-    actionLabel: 'Recuperaction padronizada do executor',
+    actionLabel: 'Standard executor recovery',
     command: 'zavorth ops autorepair dryrun --json',
     applyCommand: 'zavorth ops autorepair --json',
     risk: 'medium',
@@ -356,11 +356,11 @@ const FLOW_DEFINITIONS: Record<ZavorthSelfHealFlowId, FlowDefinition> = {
   },
   missing_config: {
     flowId: 'missing_config',
-    label: 'Config e tokens',
+    label: 'Configuration and tokens',
     executor: 'config',
-    healthyEvidence: 'Nenhum token ou provider obrigatorio parece ausente.',
+    healthyEvidence: 'No required token or provider appears missing.',
     severity: 'high',
-    actionLabel: 'Gerar checklist de configuracao',
+    actionLabel: 'Generate configuration checklist',
     command: 'zavorth ops access --json',
     applyCommand: null,
     risk: 'high',
@@ -369,11 +369,11 @@ const FLOW_DEFINITIONS: Record<ZavorthSelfHealFlowId, FlowDefinition> = {
   },
   artifact_delivery_failed: {
     flowId: 'artifact_delivery_failed',
-    label: 'Entrega de artefatos',
+    label: 'Artifact delivery',
     executor: 'artifact-pipeline',
-    healthyEvidence: 'Nenhuma falha recente de entrega de artefatos foi encontrada.',
+    healthyEvidence: 'No recent artifact delivery failure was found.',
     severity: 'medium',
-    actionLabel: 'Revalidar entrega de artefatos',
+    actionLabel: 'Revalidate artifact delivery',
     command: 'zavorth ops autorepair dryrun --json',
     applyCommand: 'zavorth ops autorepair --json',
     risk: 'medium',
@@ -486,7 +486,7 @@ export class ZavorthSelfHealControlPlaneService {
         enabled: false,
         alwaysOn: false,
         command: 'zavorth heal --preview --json',
-        reason: 'Watchdog fica dormente; so roda quando configurado explicitamente por automacao com budget.',
+        reason: 'Watchdog stays dormant; it only runs when explicitly configured by automation with budget.',
       },
       automationBudgets,
       repetitionGuard,
@@ -510,7 +510,7 @@ export class ZavorthSelfHealControlPlaneService {
     if (!this.operationsHealthService) {
       return {
         snapshot: null,
-        error: 'OperationsHealthService indisponivel neste runtime.',
+        error: 'OperationsHealthService unavailable in this runtime.',
       };
     }
 
@@ -524,7 +524,7 @@ export class ZavorthSelfHealControlPlaneService {
       const message = error instanceof Error ? err.message : String(error);
       return {
         snapshot: null,
-        error: `Falha ao ler OperationsHealthService: ${message}`,
+        error: `Failure ao ler OperationsHealthService: ${message}`,
       };
     }
   }
@@ -552,10 +552,10 @@ export class ZavorthSelfHealControlPlaneService {
           severity: flowId === 'runtime_slow' ? 'high' : definition.severity,
           executor: definition.executor,
           evidence: flowId === 'runtime_slow'
-            ? [healthError || 'Snapshot operacional indisponivel.']
-            : ['Probe depende do snapshot operacional.'],
+            ? [healthError || 'Snapshot operational unavailable.']
+            : ['Probe depends on the operational snapshot.'],
           recommendedAction: flowId === 'runtime_slow'
-            ? 'Restaurar leitura do snapshot operacional antes do apply.'
+            ? 'Restore operational snapshot read before applying.'
             : definition.actionLabel,
         };
       });
@@ -580,7 +580,7 @@ export class ZavorthSelfHealControlPlaneService {
       severity: result.issue ? result.severity || definition.severity : 'low',
       executor: definition.executor,
       evidence: result.issue ? result.evidence : [definition.healthyEvidence],
-      recommendedAction: result.issue ? definition.actionLabel : 'Nenhuma acao necessaria.',
+      recommendedAction: result.issue ? definition.actionLabel : 'No action needed.',
     };
   }
 
@@ -631,7 +631,7 @@ export class ZavorthSelfHealControlPlaneService {
       ? sidecars
       : Object.values(sidecars).filter((value) => value && typeof value === 'object');
     const failing = cards.filter((card: SidecarCard) =>
-      card.enabled === true && (card.ready === false || card.running === false || /fail|down|erro|error/i.test(String(card.message || ''))));
+      card.enabled === true && (card.ready === false || card.running === false || hasAnySelfHealToken(card.message, ['fail', 'failed', 'down', 'error'])));
     if (failing.length === 0) {
       const unhealthy = Number((sidecars as SidecarsSnapshot).down ?? (sidecars as SidecarsSnapshot).unhealthy ?? (sidecars as SidecarsSnapshot).failed ?? 0);
       if (unhealthy <= 0) {
@@ -639,8 +639,8 @@ export class ZavorthSelfHealControlPlaneService {
       }
     }
     const evidence = failing.length > 0
-      ? failing.map((card: SidecarCard) => `${card.name || card.id || 'sidecar'}: ${card.message || 'nao esta pronto'}`)
-      : [`${Number((sidecars as SidecarsSnapshot).down ?? (sidecars as SidecarsSnapshot).unhealthy ?? (sidecars as SidecarsSnapshot).failed ?? 0)} sidecar(s) reportaram falha.`];
+      ? failing.map((card: SidecarCard) => `${card.name || card.id || 'sidecar'}: ${card.message || 'is not ready'}`)
+      : [`${Number((sidecars as SidecarsSnapshot).down ?? (sidecars as SidecarsSnapshot).unhealthy ?? (sidecars as SidecarsSnapshot).failed ?? 0)} sidecar(s) reported failure.`];
     return { issue: true, failed: true, severity: 'medium', evidence };
   }
 
@@ -659,10 +659,10 @@ export class ZavorthSelfHealControlPlaneService {
       return {
         issue: true,
         severity: p95 > 12_000 ? 'medium' : 'low',
-        evidence: [`P95 do runtime em ${p95}ms.`],
+        evidence: [`Runtime P95 at ${p95}ms.`],
       };
     }
-    if (/\b(timeout|slow|lento|latency|hung|travou)\b/i.test(lastErrorText)) {
+    if (hasAnySelfHealToken(lastErrorText, ['timeout', 'slow', 'latency', 'hung'])) {
       return {
         issue: true,
         severity: 'low',
@@ -681,10 +681,10 @@ export class ZavorthSelfHealControlPlaneService {
     severity?: ZavorthSelfHealRisk;
     evidence: string[];
   } {
-    const publish = (snapshot as SelfHealDynamic).publish || {};
+    const publish = ((snapshot as SelfHealDynamic).publish || {}) as Record<string, unknown>;
     const smoke = String(publish.smokeTest || publish.status || '').toLowerCase();
     const gitPush = String(publish.gitPush || '').toLowerCase();
-    if (smoke === 'failed' || gitPush === 'failed' || /\bpublish\b.*\b(fail|failed|falhou|erro)\b/i.test(lastErrorText)) {
+    if (smoke === 'failed' || gitPush === 'failed' || textHasAllSelfHealGroups(lastErrorText, [['publish'], ['fail', 'failed', 'error']])) {
       return {
         issue: true,
         failed: true,
@@ -692,7 +692,7 @@ export class ZavorthSelfHealControlPlaneService {
         evidence: [
           publish.smokeTest ? `smokeTest=${publish.smokeTest}` : null,
           publish.gitPush ? `gitPush=${publish.gitPush}` : null,
-          /\bpublish\b/i.test(lastErrorText) ? this.compact(lastErrorText, 160) : null,
+          hasAnySelfHealToken(lastErrorText, ['publish']) ? this.compact(lastErrorText, 160) : null,
         ].filter(Boolean) as string[],
       };
     }
@@ -708,13 +708,19 @@ export class ZavorthSelfHealControlPlaneService {
     severity?: ZavorthSelfHealRisk;
     evidence: string[];
   } {
-    const publish = (snapshot as SelfHealDynamic).publish || {};
+    const publish = ((snapshot as SelfHealDynamic).publish || {}) as Record<string, unknown>;
+    void snapshotText;
     const recommended = String(publish.recommendedAction || publish.recommendation || '');
-    if (/\brollback|reverter|reversao\b/i.test(`${recommended}\n${snapshotText}`)) {
+    const rollbackRequested = publish.rollbackRequired === true
+      || publish.requiresRollback === true
+      || publish.action === 'rollback'
+      || publish.recommendedAction === 'rollback'
+      || publish.recommendation === 'rollback';
+    if (rollbackRequested) {
       return {
         issue: true,
         severity: 'high',
-        evidence: [this.compact(recommended || 'Snapshot menciona rollback/reversao.', 160)],
+        evidence: [this.compact(recommended || 'Snapshot requests rollback.', 160)],
       };
     }
     return { issue: false, evidence: [] };
@@ -760,9 +766,9 @@ export class ZavorthSelfHealControlPlaneService {
     const doctor = (snapshot as SelfHealDynamic).remoteTransportDoctor || {};
     const status = String(doctor.status || '').toLowerCase();
     const failedItems = Array.isArray(doctor.items)
-      ? doctor.items.filter((item: RemoteTransportItem) => /failed|missing|lost|expired/i.test(String(item.status || item.error || item.summary || '')))
+      ? doctor.items.filter((item: RemoteTransportItem) => hasAnySelfHealToken(`${item.status || ''} ${item.error || ''} ${item.summary || ''}`, ['failed', 'missing', 'lost', 'expired']))
       : [];
-    if (status === 'failed' || failedItems.length > 0 || /\b(remote|executor|session|transport).*\b(lost|expired|falhou|failed)\b/i.test(lastErrorText)) {
+    if (status === 'failed' || failedItems.length > 0 || textHasAllSelfHealGroups(lastErrorText, [['remote', 'executor', 'session', 'transport'], ['lost', 'expired', 'failed']])) {
       return {
         issue: true,
         failed: status === 'failed',
@@ -771,7 +777,7 @@ export class ZavorthSelfHealControlPlaneService {
           doctor.summary ? String(doctor.summary) : null,
           ...failedItems.slice(0, 3).map((item: RemoteTransportItem) =>
             `${item.transportId || 'transport'}: ${item.error || item.summary || item.status}`),
-          /\b(remote|executor|session|transport)/i.test(lastErrorText) ? this.compact(lastErrorText, 160) : null,
+          hasAnySelfHealToken(lastErrorText, ['remote', 'executor', 'session', 'transport']) ? this.compact(lastErrorText, 160) : null,
         ].filter(Boolean) as string[],
       };
     }
@@ -791,18 +797,15 @@ export class ZavorthSelfHealControlPlaneService {
     const failedConfigs = Array.isArray(channelDoctor.items)
       ? channelDoctor.items.filter((item: ChannelConfigItem) => item.configured === false && item.status !== 'skipped')
       : [];
-    if (
-      failedConfigs.length > 0
-      || /\b(token|secret|api key|apikey|config|provider).*\b(missing|ausente|not configured|nao configurado)\b/i.test(snapshotText)
-    ) {
+    if (failedConfigs.length > 0) {
       return {
         issue: true,
         failed: failedConfigs.length > 0,
         severity: 'high',
         evidence: failedConfigs.length > 0
           ? failedConfigs.slice(0, 3).map((item: ChannelConfigItem) =>
-              `${item.channelId || 'provider'}: ${item.error || item.summary || 'config ausente'}`)
-          : [this.compact(snapshotText, 180)],
+              `${item.channelId || 'provider'}: ${item.error || item.summary || 'missing config'}`)
+          : [],
       };
     }
     return { issue: false, evidence: [] };
@@ -817,7 +820,7 @@ export class ZavorthSelfHealControlPlaneService {
     severity?: ZavorthSelfHealRisk;
     evidence: string[];
   } {
-    if (/\b(artifact|artefato|delivery|entrega).*\b(fail|failed|falhou|erro|missing)\b/i.test(lastErrorText)) {
+    if (textHasAllSelfHealGroups(lastErrorText, [['artifact', 'delivery'], ['fail', 'failed', 'error', 'missing']])) {
       return {
         issue: true,
         failed: true,
@@ -868,7 +871,7 @@ export class ZavorthSelfHealControlPlaneService {
         execution: {
           attempted: false,
           status: 'noop',
-          summary: 'Nenhuma recuperacao necessaria no momento.',
+          summary: 'No recovery needed at this time.',
           result: null,
         },
       };
@@ -912,7 +915,7 @@ export class ZavorthSelfHealControlPlaneService {
         execution: {
           attempted: false,
           status: 'approval_required',
-          summary: 'Plano contem recuperacao sensivel; ficou na outbox para aprovacao.',
+          summary: 'Plan contains sensitive recovery; it stayed in the outbox for approval.',
           result: null,
         },
       };
@@ -925,7 +928,7 @@ export class ZavorthSelfHealControlPlaneService {
         execution: {
           attempted: false,
           status: 'autorepair_unavailable',
-          summary: 'AutoRepairService indisponivel neste runtime.',
+          summary: 'AutoRepairService unavailable in this runtime.',
           result: null,
         },
       };
@@ -936,7 +939,7 @@ export class ZavorthSelfHealControlPlaneService {
       force: input.force,
       goal: 'auto',
       requestedBy: input.requestedBy || 'cli-operator',
-      reason: 'Self-Heal aplicou recuperaction segura e supervisionada.',
+      reason: 'Self-Heal aplicou recovery safe e supervised.',
     } as AutoRepairRunInput);
 
     return {
@@ -958,7 +961,7 @@ export class ZavorthSelfHealControlPlaneService {
         threshold: 2,
         paused: false,
         reason: null,
-        source: 'sem relatorio anterior de autorepair',
+        source: 'without report anterior de autorepair',
       };
     }
 
@@ -976,8 +979,7 @@ export class ZavorthSelfHealControlPlaneService {
       failures,
       threshold: 2,
       paused,
-      reason: paused
-        ? 'Falhas repetidas detectadas; self-heal pausou para evitar loop infinito.'
+      reason: paused ? 'Repeated failures detected; self-heal paused to avoid an infinite loop.'
         : null,
       source: `autorepair:${String(reportDynamic.status || 'unknown')}`,
     };
@@ -992,8 +994,7 @@ export class ZavorthSelfHealControlPlaneService {
         flowId: action.flowId,
         approvalRequired: true,
         command: action.applyCommand || action.command,
-        reason: action.previewOnly
-          ? `${action.label} precisa de aprovacao/manualizacao antes de executar.`
+        reason: action.previewOnly ? `${action.label} needs approval/manual handling before execution.`
           : action.reason,
         status: 'proposed',
       }));
@@ -1003,7 +1004,7 @@ export class ZavorthSelfHealControlPlaneService {
     return [
       {
         id: 'daily-report',
-        label: 'Relatorio diario opcional',
+        label: 'Optional daily report',
         maxCost: 0.6,
         estimatedCost: 0.2,
         remainingCost: 0.4,
@@ -1012,7 +1013,7 @@ export class ZavorthSelfHealControlPlaneService {
       },
       {
         id: 'recovery',
-        label: 'Recuperaction supervisionada',
+        label: 'Recuperaction supervised',
         maxCost: budgetLimit,
         estimatedCost: Number(budgetCost.toFixed(2)),
         remainingCost: Number((budgetLimit - budgetCost).toFixed(2)),
@@ -1041,23 +1042,23 @@ export class ZavorthSelfHealControlPlaneService {
     const failed = probes.filter((probe) => probe.status === 'failed' || probe.status === 'attention');
     const topFailures = failed.length > 0
       ? failed.slice(0, 5).map((probe) => `${probe.label}: ${probe.evidence[0] || probe.status}`)
-      : ['Nenhuma falha operacional prioritizada hoje.'];
+      : ['No prioritized operational failure today.'];
     const pendingItems = [
-      ...outbox.map((item) => `${item.actionId}: aprovacao pendente`),
+      ...outbox.map((item) => `${item.actionId}: approval pending`),
       repetitionGuard.paused ? repetitionGuard.reason : null,
     ].filter(Boolean) as string[];
     const proposedActions = plan.length > 0
       ? plan.slice(0, 5).map((action) => `${action.label}: ${action.command}`)
-      : ['Manter self-heal em preview e revisar novamente no proximo ciclo.'];
+      : ['Manter self-heal at preview e review again no next ciclo.'];
 
     return {
       generatedAt,
       topFailures,
-      pendingItems: pendingItems.length > 0 ? pendingItems : ['Nenhuma pendencia bloqueante.'],
+      pendingItems: pendingItems.length > 0 ? pendingItems : ['No blocking pending item.'],
       proposedActions,
       summary: failed.length > 0
-        ? `${failed.length} fluxo(s) precisam de atencao; ${outbox.length} item(ns) ficaram na outbox.`
-        : 'Operacao continua sem recuperacao pendente.',
+        ? `${failed.length} flow(s) need attention; ${outbox.length} item(s) remained in the outbox.`
+        : 'Operation continues with no pending recovery.',
     };
   }
 
@@ -1127,31 +1128,31 @@ export class ZavorthSelfHealControlPlaneService {
   ): ZavorthSelfHealPlanSnapshot['narrative'] {
     if (summary.issues === 0) {
       return {
-        headline: 'Self-Heal nao encontrou recuperacoes obrigatorias.',
-        operatorSummary: 'Watchdog permanece lazy e o relatorio diario esta pronto para auditoria.',
+        headline: 'Self-Heal did not find required recoveries.',
+        operatorSummary: 'Watchdog remains lazy and the daily report is ready for audit.',
       };
     }
     if (status === 'paused') {
       return {
-        headline: 'Self-Heal pausou antes de executar.',
-        operatorSummary: 'Budget ou repeticao de falhas exige revisao humana antes de continuar.',
+        headline: 'Self-Heal pausou before run.',
+        operatorSummary: 'Budget or repeated failures require human review before continuing.',
       };
     }
     if (status === 'blocked') {
       return {
-        headline: 'Self-Heal preparou acoes, mas aguardou aprovacao.',
+        headline: 'Self-Heal prepared actions, but waited for approval.',
         operatorSummary: dailyReport.summary,
       };
     }
     if (status === 'applied') {
       return {
-        headline: 'Self-Heal aplicou recuperaction supervisionada.',
-        operatorSummary: `${summary.actions} acao(oes) processadas com budget ${summary.budgetCost}/${summary.budgetLimit}.`,
+        headline: 'Self-Heal aplicou recovery supervised.',
+        operatorSummary: `${summary.actions} action(oes) processadas com budget ${summary.budgetCost}/${summary.budgetLimit}.`,
       };
     }
     return {
-      headline: 'Self-Heal gerou um plano de recuperaction seguro.',
-      operatorSummary: `${summary.actions} acao(oes) prontas para apply supervisionado.`,
+      headline: 'Self-heal generated a safe recovery plan.',
+      operatorSummary: `${summary.actions} action(s) ready for supervised apply.`,
     };
   }
 
@@ -1179,7 +1180,7 @@ export class ZavorthSelfHealControlPlaneService {
   private compact(value: string | null | undefined, maxLength = 120): string {
     const normalized = String(value || '').replace(/\s+/g, ' ').trim();
     if (normalized.length <= maxLength) {
-      return normalized || 'nao informado';
+      return normalized || 'not provided';
     }
     return `${normalized.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
   }
@@ -1205,4 +1206,34 @@ export class ZavorthSelfHealControlPlaneService {
     }
     return Number(parsed.toFixed(2));
   }
+}
+
+function hasAnySelfHealToken(value: unknown, candidates: string[]): boolean {
+  const tokens = splitSelfHealTokens(value);
+  return candidates.some((candidate) => tokens.has(candidate));
+}
+
+function textHasAllSelfHealGroups(value: unknown, groups: string[][]): boolean {
+  const tokens = splitSelfHealTokens(value);
+  return groups.every((group) => group.some((candidate) => tokens.has(candidate)));
+}
+
+function splitSelfHealTokens(value: unknown): Set<string> {
+  const tokens = new Set<string>();
+  let current = '';
+  for (const char of String(value || '').toLowerCase()) {
+    const keep = (char >= 'a' && char <= 'z') || (char >= '0' && char <= '9') || char === '-' || char === '_';
+    if (keep) {
+      current += char;
+      continue;
+    }
+    if (current) {
+      tokens.add(current);
+      current = '';
+    }
+  }
+  if (current) {
+    tokens.add(current);
+  }
+  return tokens;
 }

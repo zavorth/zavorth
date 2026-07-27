@@ -206,8 +206,7 @@ if (command === 'doctor' && ['activation-ledger', 'activation-receipts', 'receip
 
 if (command === 'doctor' && ['activation-replay', 'activation-rollback', 'replay'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
   const { MinimalCapabilityActivationReplayService } = await import('../core/MinimalCapabilityActivationReplayService.js');
-  const action = String(restArgs[0] || '').trim().toLowerCase() === 'activation-rollback' || restArgs.includes('--rollback')
-    ? 'rollback'
+  const action = String(restArgs[0] || '').trim().toLowerCase() === 'activation-rollback' || restArgs.includes('--rollback') ? 'rollback'
     : 'replay';
   const profileArg = restArgs.find((arg) => arg.startsWith('--profile='))?.split('=').slice(1).join('=');
   const capabilityId = restArgs.find((arg) => arg.startsWith('--capability='))?.split('=').slice(1).join('=');

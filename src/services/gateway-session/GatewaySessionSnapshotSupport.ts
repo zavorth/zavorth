@@ -105,7 +105,7 @@ export class GatewaySessionSnapshotSupport {
       latestTaskLabel:
         snapshot.handoff?.canonicalTarget?.label
         || snapshot.replay?.headline
-        || 'Sessao sem headline registrada.',
+        || 'Session without recorded headline.',
       latestTaskId: latestTask?.task_id || null,
       latestStatus: latestTask?.status || null,
       taskCount: snapshot.tasks.length,
@@ -394,8 +394,7 @@ export class GatewaySessionSnapshotSupport {
       return {
         kind: 'review-latest',
         label: titleHint ? `Continuar ${titleHint}` : 'Continuar contexto',
-        reason: reason
-          ? `O workflow anterior foi encerrado by the operator: ${reason}.`
+        reason: reason ? `O workflow anterior foi encerrado by the operator: ${reason}.`
           : 'O workflow anterior foi encerrado by the operator.',
         prompt,
       };

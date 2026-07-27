@@ -203,24 +203,24 @@ export class ZavorthEvalHistoryFileService {
     previous: StoredEvalHistoryEntry | null,
   ): string | null {
     if (!latest) {
-      return 'Ainda nao existe baseline historico de evals neste host.';
+      return 'There is no historical eval baseline on this host yet.';
     }
     if (latest.posture === 'critical') {
-      return 'A posture atual esta critica; use replay e doctor antes de promover novas mudancas.';
+      return 'Current posture is critical; use replay and doctor before promoting new changes.';
     }
     if (Number(latest.failureEvents || 0) > 0) {
-      return 'Existem traces falhas recentes; cruze a tendencia com scorecards e approvals.';
+      return 'Existem traces failures recentes; cruze a trend com scorecards e approvals.';
     }
     if (!previous) {
-      return 'Baseline inicial capturado. Gere mais janelas para ter tendencia comparavel.';
+      return 'Baseline inicial capturado. Gere mais windows para ter trend comparavel.';
     }
     if (latest.regressions > previous.regressions) {
-      return 'As regressions aumentaram nesta janela; revise o delta antes do proximo rollout.';
+      return 'As regressions aumentaram nesta window; revise o delta before do next rollout.';
     }
     if (latest.posture === 'healthy' && latest.regressions <= previous.regressions) {
-      return 'A tendencia esta estavel ou melhorando; este host ja tem baseline reutilizavel.';
+      return 'A trend is stable ou melhorando; este host already tem baseline reutilizavel.';
     }
-    return 'Historia de evals atualizada; acompanhe as proximas janelas para confirmar a tendencia.';
+    return 'Eval history updated; monitor the next windows to confirm the trend.';
   }
 
   private buildBaselineSnapshot(
@@ -234,7 +234,7 @@ export class ZavorthEvalHistoryFileService {
         posture: 'unknown',
         manifestHash: null,
         comparableWindows: 0,
-        summary: 'Sem baseline historico comparavel neste host.',
+        summary: 'without comparable historical baseline on this host.',
       };
     }
     const baseline = entries[0];
@@ -249,8 +249,8 @@ export class ZavorthEvalHistoryFileService {
       comparableWindows,
       summary:
         comparableWindows > 1
-          ? `${comparableWindows} janela(s) comparaveis para window=${latest.windowHours}h.`
-          : 'Baseline inicial capturado; ainda falta mais uma janela comparavel.',
+          ? `${comparableWindows} window(s) comparaveis para window=${latest.windowHours}h.`
+          : 'Baseline inicial capturado; ainda missing mais uma window comparavel.',
     };
   }
 

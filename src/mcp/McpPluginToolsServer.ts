@@ -176,7 +176,7 @@ export class McpPluginToolsServer {
   }
 
   /**
-   * Inicia o servidor MCP via stdin/stdout.
+   * starts o server MCP via stdin/stdout.
    */
   async start(): Promise<void> {
     this.running = true;

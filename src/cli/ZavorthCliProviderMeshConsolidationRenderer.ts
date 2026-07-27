@@ -26,7 +26,7 @@ export function buildProviderMeshConsolidationCliSnapshot(input: {
     userId: input.userId,
     channel: 'cli',
     sessionId: input.sessionId,
-    text: input.text || 'escolha o melhor modelo para coding e reasoning',
+    text: input.text || 'choose the best model for coding and reasoning',
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
     requestedTools: ['workspace.read'],
     metadata: {
@@ -47,7 +47,7 @@ export function buildProviderMeshConsolidationCliSnapshot(input: {
       },
     },
   });
-  run.summary = 'Provider Mesh consolidado sem executar provider.';
+  run.summary = 'Provider Mesh consolidado without run provider.';
   return buildProviderMeshConsolidationSnapshotFromRun(run);
 }
 
@@ -87,7 +87,7 @@ export function formatProviderMeshConsolidationSnapshot(
   for (const family of snapshot.families.slice(0, 8)) {
     lines.push(
       `- ${family.label}: ${family.readyRouteCount}/${family.routeCount} routes ready`,
-      `  caps: ${family.capabilities.slice(0, 6).join(', ') || 'n/a'}${family.selected ? ' - selecionada' : ''}`,
+      `  caps: ${family.capabilities.slice(0, 6).join(', ') || 'n/a'}${family.selected ? ' ? selecionada' : ''}`,
     );
   }
 
@@ -106,12 +106,12 @@ export function formatProviderMeshConsolidationSnapshot(
 
   lines.push('', 'Politica');
   lines.push('- no provider was executed');
-  lines.push('- ModelPickerContract e a fonte de verdade');
+  lines.push('- ModelPickerContract e a source de verdade');
   lines.push('- ProviderFactory usa SelectedModelProfile');
   lines.push('- no legacy provider switch was made');
   lines.push('- secrets were not serialized');
 
-  lines.push('', 'Superficies');
+  lines.push('', 'surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Picker: ${snapshot.surface.pickerHint}`);

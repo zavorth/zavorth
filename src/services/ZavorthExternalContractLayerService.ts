@@ -103,7 +103,7 @@ export class ZavorthExternalContractLayerService {
         inspect: 'npm run zavorth:external-contract-layer',
         inspectJson: 'npm run zavorth:external-contract-layer:json',
         check: 'npm run zavorth:external-contract-layer:check --silent',
-        nextStage: '291 Preview engine - Native Engine Absorption',
+        nextAction: 'Preview engine - Native Engine Absorption',
       },
     };
   }
@@ -194,7 +194,7 @@ export class ZavorthExternalContractLayerService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
 
     return lines.join('\n');

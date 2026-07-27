@@ -69,21 +69,21 @@ export class ArtifactPipelineService {
     const detail = String(artifact?.summary || artifact?.description || '').trim();
     const isStitch = String(artifact?.source || '').trim().toLowerCase() === 'stitch';
     return [
-      isStitch ? `Entrega visual da tarefa ${taskId.substring(0, 8)}` : `Artefato da tarefa ${taskId.substring(0, 8)}`,
+      isStitch ? `Visual delivery for task ${taskId.substring(0, 8)}` : `Artifact for task ${taskId.substring(0, 8)}`,
       label,
       detail && detail !== label ? detail : '',
     ].filter(Boolean).join('\n');
   }
 
   public formatLinkLine(artifact: Partial<ArtifactRecord> | null | undefined): string {
-    const name = String(artifact?.name || artifact?.url || artifact?.path || 'artefato').trim();
+    const name = String(artifact?.name || artifact?.url || artifact?.path || 'artifact').trim();
     const label = this.describeArtifact(artifact);
     const url = String(artifact?.url || '').trim();
     return `- ${name} (${label})${url ? `: ${url}` : ''}`;
   }
 
   public formatArtifactLine(artifact: Partial<ArtifactRecord> | null | undefined): string {
-    const name = String(artifact?.name || artifact?.path || artifact?.url || artifact?.id || 'artefato').trim();
+    const name = String(artifact?.name || artifact?.url || artifact?.path || 'artifact').trim();
     const label = this.describeArtifact(artifact);
     const location = String(artifact?.path || artifact?.url || '').trim();
     const summary = String(artifact?.summary || artifact?.description || '').trim();
@@ -298,7 +298,7 @@ export class ArtifactPipelineService {
     exists: boolean,
   ): ArtifactDeliveryChannel {
     if (rawPath && exists) {
-      if (String(mimeType || '').startsWith('image/') || /\.(png|jpe?g|gif|webp)$/i.test(name)) {
+      if (String(mimeType || '').startsWith('image/') || /\.(png|jpe...g|gif|webp)$/i.test(name)) {
         return 'photo';
       }
       return 'document';
@@ -318,7 +318,7 @@ export class ArtifactPipelineService {
     if (deliveryChannel === 'link') {
       return 'link';
     }
-    if (String(mimeType || '').includes('html') || /\.html?$/i.test(name)) {
+    if (String(mimeType || '').includes('html') || /\.html...$/i.test(name)) {
       return 'html';
     }
     if (/\.zip$/i.test(name)) {
@@ -328,7 +328,7 @@ export class ArtifactPipelineService {
   }
 
   private deriveKind(type: string, mimeType: string | null, name: string): string {
-    if (type === 'html' || String(mimeType || '').includes('html') || /\.html?$/i.test(name)) {
+    if (type === 'html' || String(mimeType || '').includes('html') || /\.html...$/i.test(name)) {
       return 'html_export';
     }
     if (type === 'archive' || /\.zip$/i.test(name)) {
@@ -349,20 +349,20 @@ export class ArtifactPipelineService {
   private deriveSummary(kind: string, deliveryChannel: ArtifactDeliveryChannel, name: string): string {
     switch (kind) {
       case 'html_export':
-        return 'HTML gerado';
+        return 'Generated HTML';
       case 'archive':
-        return 'Arquivo compactado';
+        return 'Compressed file';
       case 'image_preview':
         return 'Imagem gerada';
       case 'manifest':
-        return 'Manifesto do artefato';
+        return 'artifact manifest';
       case 'report':
-        return 'Relatorio gerado';
+        return 'Generated report';
       default:
         if (deliveryChannel === 'link') {
-          return 'Link remoto do artefato';
+          return 'remote artifact link';
         }
-        return `Arquivo gerado: ${name}`;
+        return `Generated file: ${name}`;
     }
   }
 
@@ -376,7 +376,7 @@ export class ArtifactPipelineService {
       case 'stitch_html_url':
         return 'HTML da interface';
       case 'stitch_manifest':
-        return 'Manifesto da geracao';
+        return 'generation manifest';
       case 'html_export':
       case 'html':
         return 'HTML';
@@ -386,13 +386,13 @@ export class ArtifactPipelineService {
       case 'image':
         return 'Imagem';
       case 'manifest':
-        return 'Manifesto';
+        return 'manifest';
       case 'report':
-        return 'Relatorio';
+        return 'Report';
       case 'link':
         return 'Link';
       default:
-        return String(artifact?.summary || artifact?.type || 'Arquivo').trim() || 'Arquivo';
+        return String(artifact?.summary || artifact?.type || 'File').trim() || 'File';
     }
   }
 

@@ -38,8 +38,7 @@ export class CanaryPlanDryRunHoldService {
     const blockedControls = controls.filter((control) => control.status === 'blocked').length;
     const status: CanaryPlanDryRunHoldStatus = alignmentSnapshot.status === 'blocked' || failedGates > 0 || blockedControls > 0
       ? 'blocked'
-      : controls.some((control) => control.status === 'dry-run-ready')
-        ? 'dry-run-ready'
+      : controls.some((control) => control.status === 'dry-run-ready') ? 'dry-run-ready'
         : 'attention';
 
     return {
@@ -137,7 +136,7 @@ export class CanaryPlanDryRunHoldService {
           'npm run canary-plan-dry-run-hold --silent -- --require-dry-run-ready',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Canary execution approval ledger',
+        nextAction: 'Canary execution approval ledger',
       },
       policy: {
         canaryPlanOnly: true,
@@ -193,7 +192,7 @@ export class CanaryPlanDryRunHoldService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ].join('\n');
   }
 

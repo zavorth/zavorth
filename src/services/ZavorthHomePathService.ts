@@ -304,7 +304,7 @@ export class ZavorthHomePathService {
   private buildDailyUseCommands(root: string): ZavorthHomeSnapshot['dailyUse'] {
     const quoted = quoteCliPath(root);
     return {
-      setupPrompt: 'Where should Zavorth store this instance home?',
+      setupPrompt: 'Where should Zavorth store this instance home...',
       statusCommand: 'zavorth home status',
       switchCommand: `zavorth home switch --home ${quoted} --apply`,
       migratePreviewCommand: `zavorth home migrate --home ${quoted} --preview`,

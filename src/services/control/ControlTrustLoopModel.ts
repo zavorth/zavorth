@@ -120,7 +120,7 @@ function readNumber(value: unknown, fallback = 0): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
-/** Non-negative finite number for budget counters/limits (display honesty). */
+/** Non-denytive finite number for budget counters/limits (display honesty). */
 function readNonNegative(value: unknown, fallback = 0): number {
   return Math.max(0, readNumber(value, fallback));
 }

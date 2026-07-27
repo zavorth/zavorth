@@ -167,11 +167,9 @@ export class ZavorthAgentKernelSnapshotService {
       `- capability atlas: ${input.capabilityAtlas.summary.total} mapped; ${input.capabilityAtlas.summary.actionHarnessBacked} action-backed; ${input.capabilityAtlas.summary.llmVisible} visible to LLM context.`,
       input.capabilityAtlas.llmContextBlock,
       `- missing/setup: ${passport.missing.slice(0, 6).map(safeText).join('; ') || 'none critical'}.`,
-      intent
-        ? `- intent route: ${intent.kind}; next=${safeText(intent.nextSurface)}; preview=${intent.requiresPreview}; approval=${intent.requiresApproval}; reason=${safeText(intent.reason)}.`
+      intent ? `- intent route: ${intent.kind}; next=${safeText(intent.nextSurface)}; preview=${intent.requiresPreview}; approval=${intent.requiresApproval}; reason=${safeText(intent.reason)}.`
         : '',
-      performanceRecommendation
-        ? `- performance memory: prefer ${safeText(performanceRecommendation.providerId)}/${safeText(performanceRecommendation.routeId)} for ${safeText(performanceRecommendation.taskKind)} when compatible.`
+      performanceRecommendation ? `- performance memory: prefer ${safeText(performanceRecommendation.providerId)}/${safeText(performanceRecommendation.routeId)} for ${safeText(performanceRecommendation.taskKind)} when compatible.`
         : '- performance memory: no route history yet; choose by current provider capability and policy.',
       `- quiet autonomy: ${input.quietAutonomy.mode}; interrupt=${input.quietAutonomy.interruptMode}; summary=${safeText(input.quietAutonomy.operatorSummary)}.`,
       `- daily product: ${safeText(input.quietAutonomy.dailyProductRule)}.`,

@@ -125,7 +125,7 @@ export function stripUnsafeAuthSettings(data: ZavorthSettingsBackup): ZavorthSet
 }
 
 const SENSITIVE_BACKUP_KEY_PATTERN =
-  /apiKey|accessToken|refreshToken|idToken|clientSecret|privateKey|api[_-]?key|access[_-]?token|refresh[_-]?token|id[_-]?token|client[_-]?secret|secret|password|private[_-]?key|authorization|bearer|credential/i;
+  /apiKey|accessToken|refreshToken|idToken|clientSecret|privateKey|api[_-]...key|access[_-]...token|refresh[_-]...token|id[_-]...token|client[_-]...secret|secret|password|private[_-]...key|authorization|bearer|credential/i;
 
 function redactSensitiveBackupValue(value: unknown, key = ""): unknown {
   if (SENSITIVE_BACKUP_KEY_PATTERN.test(key)) {

@@ -160,7 +160,7 @@ export class RuntimeBootstrapService {
     const issues: string[] = [];
 
     if (!envFilePresent) {
-      issues.push('O arquivo .env ainda nao foi criado.');
+      issues.push('The .env file has not been created yet.');
     }
 
     if (!llmCredentialReady) {
@@ -248,8 +248,7 @@ export class RuntimeBootstrapService {
         id: 'repair-skill-sources-config',
         title: 'Repair skill-sources.json configuration',
         command: 'npx tsx scripts/ops-doctor-repair-helper.ts repair-skill-sources',
-        reason: skillSourcesMissing
-          ? 'The skill-sources.json configuration file is missing.'
+        reason: skillSourcesMissing ? 'The skill-sources.json configuration file is missing.'
           : 'The skill-sources.json configuration file contains invalid JSON syntax.',
         blocking: false,
         autoFixCommand: {
@@ -279,7 +278,7 @@ export class RuntimeBootstrapService {
         id: 'setup-env',
         title: 'Criar o .env inicial',
         command: 'npm run setup',
-        reason: 'Sem .env o Zavorth nao consegue subir com configuracao minima confiavel.',
+        reason: 'Without .env, Zavorth cannot start with reliable minimum configuration.',
         blocking: true,
         autoFixCommand: null,
       });
@@ -288,9 +287,9 @@ export class RuntimeBootstrapService {
     if (!telegram?.configured || telegram.readiness !== 'ready') {
       actions.push({
         id: 'prepare-telegram',
-        title: 'Preparar o Telegram como canal opcional',
+        title: 'Preparar o Telegram como canal optional',
         command: 'npm run setup:channels',
-        reason: 'Telegram agora e opcional, mas continua sendo a entrada mais leve para retomar e aprovar fluxos quando voce quiser operar pelo chat.',
+        reason: 'Telegram is now optional, but remains the lightest entry point to resume and approve flows from chat.',
         blocking: false,
         autoFixCommand: null,
       });
@@ -299,9 +298,9 @@ export class RuntimeBootstrapService {
     if (preparedChannels.length === 0) {
       actions.push({
         id: 'prepare-operator-channels',
-        title: 'Preparar canais opcionais',
+        title: 'Preparar channels optional',
         command: 'npm run setup:channels',
-        reason: 'Depois do /zavorthControl e da CLI, voce pode ligar os canais que quiser no mesmo runtime: Telegram, Discord, Slack e WhatsApp.',
+        reason: 'After /zavorthControl and the CLI, you can connect the channels you want in the same runtime: Telegram, Discord, Slack, and WhatsApp.',
         blocking: false,
         autoFixCommand: null,
       });
@@ -310,9 +309,9 @@ export class RuntimeBootstrapService {
     if (partialChannels.length > 0) {
       actions.push({
         id: 'finish-channel-rollout',
-        title: 'Fechar a configuracao dos canais escolhidos',
+        title: 'Complete configuration for the selected channels',
         command: 'npm run setup:channels',
-        reason: `Ainda ha canais parcialmente configurados: ${partialChannels.map((entry) => entry.platform).join(', ')}.`,
+        reason: `There are still partially configured channels: ${partialChannels.map((entry) => entry.platform).join(', ')}.`,
         blocking: false,
         autoFixCommand: null,
       });
@@ -321,7 +320,7 @@ export class RuntimeBootstrapService {
     if (!input.llmCredentialReady) {
       actions.push({
         id: 'configure-llm',
-        title: 'Configurar uma credencial de modelo',
+        title: 'Configure a model credential',
         command: 'editar .env',
         reason: this.getProviderCredentialMessage(this.llmProvider),
         blocking: true,
@@ -332,9 +331,9 @@ export class RuntimeBootstrapService {
     if (input.supervisedRuntime.installRequired) {
       actions.push({
         id: 'install-dependencies',
-        title: 'Instalar dependencias',
+        title: 'Instalar dependencies',
         command: 'npm install',
-        reason: 'As dependencias locais ainda nao estao sincronizadas com package.json/package-lock.json.',
+        reason: 'local dependencies are not synchronized with package.json/package-lock.json yet.',
         blocking: true,
         autoFixCommand: {
           command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
@@ -347,9 +346,9 @@ export class RuntimeBootstrapService {
     if (input.supervisedRuntime.buildRequired) {
       actions.push({
         id: 'build-runtime',
-        title: 'Gerar build do runtime',
+        title: 'Generate runtime build',
         command: 'npm run build',
-        reason: 'O build TypeScript esta ausente ou desatualizado.',
+        reason: 'O build TypeScript is missing ou desatualizado.',
         blocking: false,
         autoFixCommand: {
           command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
@@ -363,9 +362,9 @@ export class RuntimeBootstrapService {
       const firstBlockingStep = input.supervisedRuntime.accessReadiness.nextSteps.find((step) => step.blocking);
       actions.push({
         id: 'start-supervised-runtime',
-        title: 'Subir o Zavorth supervisionado',
+        title: 'Subir o Zavorth supervised',
         command: 'npm run dev:supervised',
-        reason: firstBlockingStep?.description || 'O runtime local ainda nao esta pronto para uso continuo.',
+        reason: firstBlockingStep?.description || 'The local runtime is not ready for continuous use yet.',
         blocking: true,
         autoFixCommand: null,
       });
@@ -460,10 +459,10 @@ export class RuntimeBootstrapService {
     if (this.llmProvider === 'gemini' && !input.supervisedRuntime.accessReadiness.remote.ready) {
       actions.push({
         id: 'oracle-cloudflare-rollout',
-        title: 'Planejar rollout Oracle + Cloudflare',
+        title: 'Plan Oracle + Cloudflare rollout',
         command: 'npm run ops:oracle-cloudflare',
         reason:
-          'Para expor o Zavorth com Gemini/Gemma em uma arquitetura remota mais robusta, falta fechar o rollout Oracle + Cloudflare.',
+          'To expose Zavorth with Gemini/Gemma in a more robust remote architecture, finish the Oracle + Cloudflare rollout.',
         blocking: false,
         autoFixCommand: null,
       });
@@ -478,13 +477,12 @@ export class RuntimeBootstrapService {
     actions: RuntimeBootstrapAction[],
   ): string {
     if (envIssues.length === 0 && !supervisedRuntime.installRequired && !supervisedRuntime.buildRequired && supervisedRuntime.accessReadiness.local.ready) {
-      return supervisedRuntime.accessReadiness.remote.ready
-        ? 'Bootstrap fechado: Zavorth pronto para uso local e remoto.'
-        : 'Bootstrap basico fechado: Zavorth pronto para uso local.';
+      return supervisedRuntime.accessReadiness.remote.ready ? 'Bootstrap closed: Zavorth ready for usage local e remote.'
+        : 'Bootstrap basico closed: Zavorth ready for usage local.';
     }
 
     const firstBlocking = actions.find((entry) => entry.blocking);
-    return `Bootstrap ainda pendente: ${firstBlocking?.reason || 'Ainda existem ajustes operacionais a concluir.'}`;
+    return `Bootstrap still pending: ${firstBlocking?.reason || 'Operational adjustments still need completion.'}`;
   }
 
   private resolveLlmCredentialReady(): boolean {
@@ -511,23 +509,23 @@ export class RuntimeBootstrapService {
   private getProviderCredentialMessage(provider: string): string {
     switch (provider) {
       case 'gemini':
-        return 'Falta configurar GEMINI_API_KEY ou AISTUDIO_API_KEY para o provider atual.';
+        return 'missing GEMINI_API_KEY or AISTUDIO_API_KEY for the current provider.';
       case 'deepseek':
-        return 'Falta configurar DEEPSEEK_API_KEY para o provider atual.';
+        return 'missing DEEPSEEK_API_KEY for the current provider.';
       case 'openai':
-        return 'Falta configurar OPENAI_API_KEY para o provider atual.';
+        return 'missing OPENAI_API_KEY for the current provider.';
       case 'minimax':
-        return 'Falta configurar MINIMAX_API_KEY para o provider atual.';
+        return 'missing MINIMAX_API_KEY for the current provider.';
       case 'openrouter':
-        return 'Falta configurar OPENROUTER_API_KEY para o provider atual.';
+        return 'missing OPENROUTER_API_KEY for the current provider.';
       case 'opencode':
-        return 'Falta configurar OPENCODE_API_KEY para o provider atual.';
+        return 'missing OPENCODE_API_KEY for the current provider.';
       case 'qwen':
-        return 'Falta configurar PUTER_AUTH_TOKEN ou outra credencial valida para o provider atual.';
+        return 'missing PUTER_AUTH_TOKEN or another valid credential for the current provider.';
       case 'AIGateway':
-        return 'Falta configurar AIGateway_API_KEY ou uma credencial de modelo que o AIGateway possa usar.';
+        return 'missing AIGateway_API_KEY or a model credential that AIGateway can use.';
       default:
-        return `Falta configurar uma credencial valida para o provider ${provider}.`;
+        return `missing a valid credential for provider ${provider}.`;
     }
   }
 

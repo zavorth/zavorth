@@ -148,9 +148,9 @@ export class ZavorthExternalAgentOnboardingService {
       status,
       headline: headlineFor(status, hint, consent),
       userPrompt: [
-        'Quer me dizer se existe algum agente externo no ambiente?',
-        'Se sim, passe uma pasta exata, uma pasta aproximada, um comando CLI ou um endpoint ACP/MCP.',
-        'Eu so vou inspecionar o escopo que voce autorizar.',
+        'Quer me dizer se existe algum agente external no ambiente...',
+        'If so, provide an exact folder, an approximate folder, a CLI command, or an ACP/MCP endpoint.',
+        'I will only inspect the scope you approve.',
       ].join(' '),
       requestedBy: String(input.requestedBy || 'operator').trim() || 'operator',
       consent: {
@@ -176,22 +176,22 @@ export class ZavorthExternalAgentOnboardingService {
         {
           kind: 'exact-path',
           example: 'zavorth external-agent-onboarding --path C:/agents/my-agent --consent',
-          safety: 'Inspeciona somente essa pasta em modo leitura.',
+          safety: 'Inspects only this folder in read mode.',
         },
         {
           kind: 'approximate-path',
           example: 'zavorth external-agent-onboarding --approx-path <workspace-parent> --consent',
-          safety: 'Procura candidatos abaixo da pasta indicada com profundidade limitada.',
+          safety: 'Searches candidates below the indicated folder with limited depth.',
         },
         {
           kind: 'cli-command',
           example: 'zavorth external-agent-onboarding --command claude --consent',
-          safety: 'Procura o executavel no PATH sem executar o comando.',
+          safety: 'Searches for the executable in PATH without running the command.',
         },
         {
           kind: 'endpoint',
           example: 'zavorth external-agent-onboarding --endpoint http://127.0.0.1:8765/acp --consent',
-          safety: 'Registra candidato de endpoint sem fazer probe de rede.',
+          safety: 'Registra candidato de endpoint without fazer probe de rede.',
         },
       ],
       policy: {
@@ -306,9 +306,9 @@ export class ZavorthExternalAgentOnboardingService {
       snapshot.headline,
       '',
       `Status: ${snapshot.status}`,
-      `Consentimento: ${snapshot.consent.provided ? 'read-only concedido' : 'nao concedido'}`,
+      `Consent: ${snapshot.consent.provided ? 'read-only granted' : 'not granted'}`,
       `Escopo: ${snapshot.consent.scope.kind}${snapshot.consent.scope.value ? ` | ${snapshot.consent.scope.value}` : ''}`,
-      `Inspecao: ${snapshot.inspection.performed ? 'realizada' : 'nao realizada'}`,
+      `Inspection: ${snapshot.inspection.performed ? 'performed' : 'not performed'}`,
       '',
     ];
 
@@ -328,42 +328,42 @@ export class ZavorthExternalAgentOnboardingService {
     if (!snapshot.consent.provided) {
       lines.push(
         'Nada foi inspecionado.',
-        'Proximo passo: rode novamente com --consent depois de revisar o escopo.',
+        'next passo: run again com --consent after de review o escopo.',
       );
       return `${lines.join('\n')}\n`;
     }
 
     lines.push(
       `Raizes inspecionadas: ${snapshot.inspection.inspectedRoots.length || 0}`,
-      `Arquivos manifesto lidos: ${snapshot.inspection.filesRead.length || 0}`,
+      `Manifest files read: ${snapshot.inspection.filesRead.length || 0}`,
       `Diretorios escaneados: ${snapshot.inspection.directoriesScanned}`,
-      `Candidatos: ${snapshot.candidates.length}`,
+      `Candidates: ${snapshot.candidates.length}`,
     );
 
     if (snapshot.candidates.length > 0) {
-      lines.push('', 'Candidatos');
+      lines.push('', 'Candidates');
       for (const candidate of snapshot.candidates) {
         lines.push(
           `- ${candidate.label} (${candidate.confidence})`,
           `  id: ${candidate.id}`,
           `  protocolos: ${candidate.protocols.join(', ')}`,
           `  adapter sugerido: ${candidate.suggestedAdapter}`,
-          `  perfil gateway: ${candidate.gatewayProfileDraft.canRegisterAutomatically ? 'pronto para registrar' : `precisa de ${candidate.gatewayProfileDraft.missingFields.join(', ')}`}`,
-          `  proximo: ${candidate.nextAction.command}`,
+          `  gateway profile: ${candidate.gatewayProfileDraft.canRegisterAutomatically ? 'ready to register' : `needs ${candidate.gatewayProfileDraft.missingFields.join(', ')}`}`,
+          `  next: ${candidate.nextAction.command}`,
         );
       }
     } else {
-      lines.push('', 'Nenhum candidato claro foi encontrado nesse escopo.');
+      lines.push('', 'No candidato claro foi encontrado nesse escopo.');
     }
 
     lines.push(
       '',
       'Garantias',
-      '- descoberta automatica segue desligada por padrao',
-      '- nenhum processo externo foi iniciado',
-      '- nenhum endpoint foi chamado',
-      '- nenhum agente foi registrado ou usado',
-      '- uso live exige aprovacao separada',
+      '- descoberta automatica segue desligada por default',
+      '- none process external foi iniciado',
+      '- none endpoint foi chamado',
+      '- none agente foi registrado or usado',
+      '- live use requires separate approval',
     );
 
     return `${lines.join('\n')}\n`;
@@ -377,9 +377,9 @@ export class ZavorthExternalAgentOnboardingService {
       '',
     ];
     if (result.status === 'blocked') {
-      lines.push('Bloqueado: conceda consentimento read-only e informe um escopo antes de materializar perfil.');
+      lines.push('Blocked: grant read-only consent and provide scope before materializing profile.');
     } else if (result.status === 'candidate-not-found') {
-      lines.push('Nenhum candidato correspondente foi encontrado nesse escopo.');
+      lines.push('No candidato correspondente foi encontrado nesse escopo.');
     } else if (result.receipt) {
       lines.push(
         result.receipt.output.text,
@@ -390,9 +390,9 @@ export class ZavorthExternalAgentOnboardingService {
     lines.push(
       '',
       'Garantias',
-      '- nenhum agente externo foi invocado',
-      '- registro exige aprovacao explicita',
-      '- execucao live continua exigindo aprovacao por chamada',
+      '- none agente external foi invocado',
+      '- registration requires explicit approval',
+      '- live execution still requires per-call approval',
     );
     return `${lines.join('\n')}\n`;
   }
@@ -733,18 +733,18 @@ function headlineFor(
   consent: boolean,
 ): string {
   if (status === 'needs-user-hint') {
-    return 'Informe uma pista antes de qualquer descoberta externa.';
+    return 'Provide a hint before any external discovery.';
   }
   if (!consent) {
-    return `Consentimento necessario antes de inspecionar ${hint.kind}.`;
+    return `Consent is required before inspecting ${hint.kind}.`;
   }
   if (status === 'ready-for-review') {
-    return 'Candidatos externos encontrados para revisao; nada foi registrado ou usado.';
+    return 'External candidates found for review; nothing was registered or used.';
   }
   if (status === 'no-candidate-found') {
-    return 'Nenhum agente externo claro foi encontrado no escopo autorizado.';
+    return 'No clear external agent was found in the approved scope.';
   }
-  return 'Onboarding bloqueado pela politica de consentimento.';
+  return 'Onboarding blocked by consent policy.';
 }
 
 function resolvePossiblePathRoots(raw: string): string[] {
@@ -1019,11 +1019,10 @@ function sanitizeCommandName(command: string): string {
 
 function maskHome(value: string): string {
   const home = process.env.USERPROFILE || process.env.HOME || '';
-  return home && value.toLowerCase().startsWith(home.toLowerCase())
-    ? `~${value.slice(home.length)}`
+  return home && value.toLowerCase().startsWith(home.toLowerCase()) ? `~${value.slice(home.length)}`
     : value;
 }
 
 function redactEndpoint(value: string): string {
-  return value.replace(/:\/\/([^/@]+)@/g, '://***@').replace(/([?&](?:token|key|secret)=)[^&]+/gi, '$1***');
+  return value.replace(/:\/\/([^/@]+)@/g, '://***@').replace(/([...&](?:token|key|secret)=)[^&]+/gi, '$1***');
 }

@@ -17,8 +17,8 @@ export function buildMcpChildEnv(
 }
 
 /**
- * McpClientManager - Responsavel por gerenciar os processos filhos (servidores MCP locais),
- * invocar suas ferramentas e registrar no ToolRegistry do Zavorth dinamicamente.
+ * McpClientManager - Responsible for managing child processes (local MCP servers),
+ * invoking their tools and registering them in the Zavorth ToolRegistry dynamically.
  */
 export class McpClientManager {
   private client: Client;
@@ -43,28 +43,28 @@ export class McpClientManager {
   }
 
   /**
-   * Conecta ao servidor STDIO, descobre as tools e cadastra no registry.
+   * Connects to the STDIO server, discovers tools and registers them in the registry.
    */
   public async connect(registry: ToolRegistry): Promise<void> {
-    logger.info(`[MCP] Tentando conexao via STDIO com servidor: ${this.name}...`);
+    logger.info(`[MCP] Attempting STDIO connection to server: ${this.name}...`);
     await this.client.connect(this.transport);
-    logger.info(`[MCP] Servidor [${this.name}] connected successfully!`);
+    logger.info(`[MCP] Server [${this.name}] connected successfully!`);
 
     await this.discoverAndRegisterTools(registry);
   }
 
   /**
-   * Pede a lista de ferramentas que esse servidor possui e converte pro JSON Schema do LLM.
+   * Requests the list of tools this server has and converts them to LLM JSON Schema.
    */
   private async discoverAndRegisterTools(registry: ToolRegistry): Promise<void> {
     const response = await this.client.listTools();
 
     if (!response || !response.tools) {
-      logger.warn(`[MCP] Nenhum tool exposto pelo servidor ${this.name}.`);
+      logger.warn(`[MCP] No tools exposed by server ${this.name}.`);
       return;
     }
 
-    logger.info(`[MCP] ${response.tools.length} modulos/tools encontrados no servidor ${this.name}`);
+    logger.info(`[MCP] ${response.tools.length} modules/tools found on server ${this.name}`);
 
     for (const tool of response.tools) {
       const inputSchema = tool.inputSchema as Record<string, any>;
@@ -90,7 +90,7 @@ export class McpClientManager {
 
       const baseToolName = normalizeMcpToolName(tool.name);
       if (!baseToolName) {
-        logger.warn(`[MCP] Tool com nome invalido ignorada no servidor ${this.name}: ${tool.name}`);
+        logger.warn(`[MCP] Tool with invalid name ignored on server ${this.name}: ${tool.name}`);
         continue;
       }
 
@@ -129,18 +129,18 @@ export class McpClientManager {
       candidate = `${serverPrefix}_${baseToolName}_${suffix}`;
       suffix += 1;
     }
-    logger.warn(`[MCP] Tool "${baseToolName}" ja existia; registrando como "${candidate}".`);
+    logger.warn(`[MCP] Tool "${baseToolName}" already existed; registering as "${candidate}".`);
     return candidate;
   }
 
   /**
-   * Desconecta graciosamente o processo e a stream stdio.
+   * Gracefully disconnects the process and stdio stream.
    */
   public async disconnect(): Promise<void> {
-    logger.info(`[MCP] Desconectando servidor ${this.name}...`);
+    logger.info(`[MCP] Disconnecting server ${this.name}...`);
     try {
       await this.transport.close();
-    } catch (error: unknown) { const err = asErrorLike(error); logger.error(`[MCP] Erro desconectando transport: ${err.message}`);
+    } catch (error: unknown) { const err = asErrorLike(error); logger.error(`[MCP] Error disconnecting transport: ${err.message}`);
     }
   }
 }

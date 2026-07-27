@@ -11,20 +11,20 @@ export class OperationsReportOverviewSupport implements OperationsReportProductS
   public buildProductExecutiveSummary(snapshot: ProductObservabilitySnapshot): string[] {
     const lines: string[] = [];
     if (snapshot.routes.strategies[0]) {
-      lines.push(`Rota mais frequente: ${snapshot.routes.strategies[0].label} (${snapshot.routes.strategies[0].count}).`);
+      lines.push(`Route mais frequente: ${snapshot.routes.strategies[0].label} (${snapshot.routes.strategies[0].count}).`);
     }
     if (snapshot.workflows.recent[0]) {
       const run = snapshot.workflows.recent[0];
-      const resume = run.resume_stage_label ? `, retomada em ${run.resume_stage_label}` : '';
+      const resume = run.resume_stage_label ? `, resumption em ${run.resume_stage_label}` : '';
       lines.push(`Workflow em destaque: ${run.workflow} | ${run.status}${resume}.`);
     }
     if (snapshot.executors.top[0]) {
       const executor = snapshot.executors.top[0];
-      lines.push(`Executor lider: ${executor.executor} (${executor.completed}/${executor.total} concluido(s)).`);
+      lines.push(`Executor lider: ${executor.executor} (${executor.completed}/${executor.total} completed(s)).`);
     }
     if (snapshot.approvals.pending > 0 || snapshot.approvals.permissionPending > 0) {
       lines.push(
-        `Fila de aprovacao: ${snapshot.approvals.pending} task(s) e ${snapshot.approvals.permissionPending} permissao(oes) pendente(s).`,
+        `Approval queue: ${snapshot.approvals.pending} task(s) e ${snapshot.approvals.permissionPending} pending permission(s).`,
       );
     }
     return lines.slice(0, 4);
@@ -39,22 +39,19 @@ export class OperationsReportOverviewSupport implements OperationsReportProductS
     const topArtifact = snapshot.artifacts.topKinds[0];
 
     return {
-      routeHeadline: topRoute
-        ? `${topRoute.label} lidera com ${topRoute.count} pedido(s) recentes`
+      routeHeadline: topRoute ? `${topRoute.label} lidera com ${topRoute.count} request(s) recentes`
         : null,
       workflowHeadline: topWorkflow
-        ? `${topWorkflow.workflow} ${topWorkflow.status}${topWorkflow.resume_stage_label ? ` | retomar em ${topWorkflow.resume_stage_label}` : ''}`
+        ? `${topWorkflow.workflow} ${topWorkflow.status}${topWorkflow.resume_stage_label ? ` | resume em ${topWorkflow.resume_stage_label}` : ''}`
         : null,
-      executorHeadline: topExecutor
-        ? `${topExecutor.executor} com taxa ${Math.round(topExecutor.success_rate * 100)}% em ${topExecutor.total} execucao(oes)`
+      executorHeadline: topExecutor ? `${topExecutor.executor} with ${Math.round(topExecutor.success_rate * 100)}% rate across ${topExecutor.total} execution(s)`
         : null,
       approvalsHeadline:
         snapshot.approvals.pending > 0 || snapshot.approvals.permissionPending > 0
-          ? `${snapshot.approvals.pending} task(s) e ${snapshot.approvals.permissionPending} permissao(oes) pendente(s)`
-          : 'Sem pendencias de aprovacao relevantes',
-      artifactHeadline: topArtifact
-        ? `${snapshot.totals.artifacts} entrega(s) na janela; ${topArtifact.label}/${topArtifact.type} lidera`
-        : (snapshot.totals.artifacts > 0 ? `${snapshot.totals.artifacts} entrega(s) observadas` : 'Sem entregas recentes'),
+          ? `${snapshot.approvals.pending} task(s) and ${snapshot.approvals.permissionPending} pending permission(s)`
+          : 'No relevant approval pending items',
+      artifactHeadline: topArtifact ? `${snapshot.totals.artifacts} delivery item(s) na window; ${topArtifact.label}/${topArtifact.type} lidera`
+        : (snapshot.totals.artifacts > 0 ? `${snapshot.totals.artifacts} delivery item(s) observadas` : 'without entregas recentes'),
       topRoutes: snapshot.routes.taskSubtypes
         .slice(0, 3)
         .map((entry) => `${entry.kind}/${entry.label}:${entry.count}`),
@@ -108,17 +105,17 @@ export class OperationsReportOverviewSupport implements OperationsReportProductS
         .slice(0, 4)
         .map((action) => ({
           source: String(action?.source || 'overview'),
-          label: String(action?.label || 'Acao recomendada'),
+          label: String(action?.label || 'Action recomendada'),
           command: action?.command ? String(action.command) : null,
-          reason: String(action?.reason || 'Sem detalhe.'),
+          reason: String(action?.reason || 'without detalhe.'),
         }))
       : [];
 
     return {
       generatedAt: snapshot.generatedAt ? String(snapshot.generatedAt) : null,
       posture: String(snapshot.summary?.posture || 'attention'),
-      headline: String(snapshot.narrative?.headline || 'Overview canonico'),
-      operatorSummary: String(snapshot.narrative?.operatorSummary || 'Sem resumo canonico disponivel.'),
+      headline: String(snapshot.narrative?.headline || 'Overview canonical'),
+      operatorSummary: String(snapshot.narrative?.operatorSummary || 'without summary canonical available.'),
       nextAction: snapshot.narrative?.nextAction ? String(snapshot.narrative.nextAction) : null,
       actions,
     };

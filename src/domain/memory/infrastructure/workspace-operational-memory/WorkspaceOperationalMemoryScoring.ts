@@ -103,7 +103,7 @@ export function aggregateFailures(tasks: Task[]): FailureAggregate[] {
     }
 
     const executor = getWorkspaceMemoryLearningExecutor(task);
-    const summary = normalizeWorkspaceFailure(task.error_summary || task.stderr_summary || 'falha sem resumo');
+    const summary = normalizeWorkspaceFailure(task.error_summary || task.stderr_summary || 'failure without summary');
     const key = `${executor}::${summary}`;
     const existing = grouped.get(key);
     if (existing) {
@@ -215,7 +215,7 @@ export function buildTaskKindLlmRecommendations(tasks: Task[]): TaskKindLlmRecom
         success_count: topLlm.count,
         last_seen_at: topLlm.last_seen_at,
         confidence: confidenceFromCount(topLlm.count),
-        rationale: `${topLlm.count} tarefa(s) concluida(s) deste tipo usaram ${topLlm.provider}${topLlm.model ? `/${topLlm.model}` : ''}.`,
+        rationale: `${topLlm.count} task(s) completed(s) deste tipo usaram ${topLlm.provider}${topLlm.model ? `/${topLlm.model}` : ''}.`,
       } satisfies TaskKindLlmRecommendation;
     })
     .filter((entry): entry is TaskKindLlmRecommendation => Boolean(entry))
@@ -241,7 +241,7 @@ export function buildTaskSubtypeLlmRecommendations(tasks: Task[]): TaskSubtypeLl
         success_count: topLlm.count,
         last_seen_at: topLlm.last_seen_at,
         confidence: confidenceFromCount(topLlm.count),
-        rationale: `${topLlm.count} tarefa(s) concluida(s) deste subtipo usaram ${topLlm.provider}${topLlm.model ? `/${topLlm.model}` : ''}.`,
+        rationale: `${topLlm.count} task(s) completed(s) deste subtipo usaram ${topLlm.provider}${topLlm.model ? `/${topLlm.model}` : ''}.`,
       } satisfies TaskSubtypeLlmRecommendation;
     })
     .filter((entry): entry is TaskSubtypeLlmRecommendation => Boolean(entry))
@@ -296,8 +296,8 @@ export function buildAutonomousModeRecommendations(outcomes: AutonomousOutcomeAg
       const confidence = confidenceFromTotal(total);
       const rationale =
         preferred_mode === 'autonomous'
-          ? `${bucket.approved_count} ciclo(s) autonomos aprovados contra ${bucket.failed_count} falha(s)`
-          : `${bucket.failed_count} falha(s) autonomas contra ${bucket.approved_count} sucesso(s)`;
+          ? `${bucket.approved_count} ciclo(s) autonomos approved contra ${bucket.failed_count} failure(s)`
+          : `${bucket.failed_count} failure(s) autonomas contra ${bucket.approved_count} success(s)`;
 
       return {
         kind: bucket.kind,
@@ -311,11 +311,9 @@ export function buildAutonomousModeRecommendations(outcomes: AutonomousOutcomeAg
       } satisfies AutonomousModeRecommendation;
     })
     .sort((left, right) => {
-      const leftWeight = left.preferred_mode === 'autonomous'
-        ? left.approved_count - left.failed_count
+      const leftWeight = left.preferred_mode === 'autonomous' ? left.approved_count - left.failed_count
         : left.failed_count - left.approved_count;
-      const rightWeight = right.preferred_mode === 'autonomous'
-        ? right.approved_count - right.failed_count
+      const rightWeight = right.preferred_mode === 'autonomous' ? right.approved_count - right.failed_count
         : right.failed_count - right.approved_count;
 
       return rightWeight - leftWeight || right.last_seen_at.localeCompare(left.last_seen_at);
@@ -374,7 +372,7 @@ export function buildDirectResponseStyleRecommendations(tasks: Task[]): DirectRe
         success_count: bucket.success_count,
         last_seen_at: bucket.last_seen_at,
         confidence,
-        rationale: `${bucket.success_count} tarefa(s) concluida(s) deste perfil favoreceram ${bucket.preferred_style}.`,
+        rationale: `${bucket.success_count} task(s) completed(s) deste profile favoreceram ${bucket.preferred_style}.`,
       } satisfies DirectResponseStyleRecommendation;
     })
     .sort((left, right) => compareByCountThenRecent(left.success_count, left.last_seen_at, right.success_count, right.last_seen_at))
@@ -427,5 +425,5 @@ function normalizeWorkspaceFailure(value: string): string {
   return String(value || '')
     .trim()
     .replace(/\s+/g, ' ')
-    .slice(0, 180) || 'falha sem resumo';
+    .slice(0, 180) || 'failure without summary';
 }

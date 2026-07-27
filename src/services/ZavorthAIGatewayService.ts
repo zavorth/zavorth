@@ -45,14 +45,14 @@ export class ZavorthGatewayService {
 
   public async start(): Promise<ZavorthGatewayStatus> {
     if (!config.zavorthAIGatewayGatewayEnabled) {
-      const status = this.buildStatus(false, false, 'Gateway proprio do AIGateway desativado.');
+      const status = this.buildStatus(false, false, 'Gateway own do AIGateway desativado.');
       this.writeStatus(status);
       return status;
     }
 
     if (ZavorthGatewayService.server) {
       this.server = ZavorthGatewayService.server;
-      const status = await this.readLiveStatus('Gateway proprio do AIGateway ja estava ativo.');
+      const status = await this.readLiveStatus('Gateway own do AIGateway already estava active.');
       this.writeStatus(status);
       return status;
     }
@@ -78,7 +78,7 @@ export class ZavorthGatewayService {
     } catch (error: unknown) {server.removeAllListeners();
       this.server = null;
       if (asErrorLike(error).code === 'EADDRINUSE' && await this.isGatewayHealthy()) {
-        const status = this.buildExternalGatewayStatus('Gateway proprio do AIGateway ja estava ativo em outro processo.');
+        const status = this.buildExternalGatewayStatus('Gateway own do AIGateway already estava active em outro process.');
         this.writeStatus(status);
         return status;
       }
@@ -87,7 +87,7 @@ export class ZavorthGatewayService {
 
     ZavorthGatewayService.server = server;
     ZavorthGatewayService.startedAt = new Date().toISOString();
-    const status = await this.readLiveStatus('Gateway proprio do AIGateway ativo.');
+    const status = await this.readLiveStatus('Gateway own do AIGateway active.');
     this.writeStatus(status);
     return status;
   }
@@ -116,7 +116,7 @@ export class ZavorthGatewayService {
     ZavorthGatewayService.wss?.close();
     ZavorthGatewayService.wss = null;
     ZavorthGatewayService.startedAt = null;
-    const status = this.buildStatus(false, false, 'Gateway proprio do AIGateway encerrado.');
+    const status = this.buildStatus(false, false, 'Gateway own do AIGateway encerrado.');
     this.writeStatus(status);
   }
 
@@ -125,8 +125,7 @@ export class ZavorthGatewayService {
   }
 
   public readPersistedStatus(): ZavorthGatewayStatus {
-    const fallback = this.buildStatus(false, false, config.zavorthAIGatewayGatewayEnabled
-      ? 'AIGateway own gateway has not started in this session yet.'
+    const fallback = this.buildStatus(false, false, config.zavorthAIGatewayGatewayEnabled ? 'AIGateway own gateway has not started in this session yet.'
       : 'AIGateway own gateway disabled.');
 
     try {
@@ -146,7 +145,7 @@ export class ZavorthGatewayService {
     const normalizedPath = requestUrl.pathname.replace(/\/+$/, '') || '/';
 
     // The configured gateway base URL includes `/v1`, so internal probes end up
-    // hitting `/v1/health`. Accept both shapes to avoid false-negative restarts.
+    // hitting `/v1/health`. Accept both shapes to avoid false-denytive restarts.
     if (normalizedPath === '/health' || normalizedPath === '/v1/health') {
       const ready = await this.isUpstreamHealthy();
       this.writeJson(res, ready

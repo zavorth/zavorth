@@ -71,8 +71,8 @@ export class MultiAgentPipeline {
     if (this.sddOrchestrator.isKnownFeature && !this.sddOrchestrator.isKnownFeature(featureId)) {
       await ctx.reply(
         [
-          `A feature ${featureId} ainda nao existe no workspace SDD oficial.`,
-          'Crie primeiro spec/plan/tasks via scaffold antes de rodar /workflow sdd nela.',
+          `Feature ${featureId} does not exist in the official SDD workspace yet.`,
+          'Crie primeiro spec/plan/tasks via scaffold before run /workflow sdd nela.',
         ].join('\n'),
       );
       return;
@@ -80,7 +80,7 @@ export class MultiAgentPipeline {
 
     const workOrder = this.sddOrchestrator.inspect(featureId);
     const phase = this.workflowPlanner.buildSddWorkflowStage(workOrder, workspaceContext);
-    const objective = `Executar o loop SDD da feature ${workOrder.featureId}.`;
+    const objective = `run o loop SDD da feature ${workOrder.featureId}.`;
 
     await this.runWorkflow(
       ctx,
@@ -115,7 +115,7 @@ export class MultiAgentPipeline {
       const run = this.workflowRuns.createRun(workflow, objective, workspace, phases, workspaceContext, options);
       await ctx.reply(this.presentation.formatWorkflowIntro(workflow, objective, workspace, phases, run, workspaceContext));
       await this.runner.continueWorkflow(ctx, run, phases, 0, [], workspaceContext);
-    } catch (error: unknown) { const err = asErrorLike(error); await ctx.reply(`Workflow interrompido.\n\nReason: ${err.message}`);
+    } catch (error: unknown) { const err = asErrorLike(error); await ctx.reply(`Workflow interrupted.\n\nReason: ${err.message}`);
     }
   }
 
@@ -129,7 +129,7 @@ export class MultiAgentPipeline {
   ): Promise<void> {
     const run = this.workflowRuns.getRun(workflowRunId);
     if (!run) {
-      await ctx.reply(`Nao encontrei o workflow ${workflowRunId}.`);
+      await ctx.reply(`Workflow not found ${workflowRunId}.`);
       return;
     }
 
@@ -139,8 +139,8 @@ export class MultiAgentPipeline {
     if (resumeIndex < 0) {
       await ctx.reply(
         run.status === 'completed'
-          ? 'Esse workflow ja terminou. Nao existe etapa pendente para retomar.'
-          : `Nao achei uma etapa retomavel para o run ${workflowRunId}.`,
+          ? 'This workflow already finished. There is no pending step to resume.'
+          : `Could not find a resumable step for run ${workflowRunId}.`,
       );
       return;
     }
@@ -149,12 +149,12 @@ export class MultiAgentPipeline {
     const persistedStage = run.phases.find((entry) => entry.id === phase.id) || null;
     const stageVerb = String(persistedStage?.status || '').trim().toLowerCase() === 'completed'
       ? 'Reexecutando'
-      : 'Retomando';
+      : 'Resumesndo';
     await ctx.reply(
       [
         `${stageVerb} workflow ${run.workflow_run_id}.`,
-        `Fluxo: ${this.presentation.describeWorkflow(run.workflow_name)}`,
-        `Etapa: ${phase.label}`,
+        `Flow: ${this.presentation.describeWorkflow(run.workflow_name)}`,
+        `Stage: ${phase.label}`,
       ].join('\n'),
     );
 
@@ -172,12 +172,12 @@ export class MultiAgentPipeline {
   ): Promise<void> {
     const run = this.workflowRuns.getRun(workflowRunId);
     if (!run) {
-      await ctx.reply(`Nao encontrei o workflow ${workflowRunId}.`);
+      await ctx.reply(`Workflow not found ${workflowRunId}.`);
       return;
     }
 
     if (!['blocked', 'failed'].includes(run.status)) {
-      await ctx.reply(`O workflow ${workflowRunId} so pode ser encerrado quando estiver bloqueado ou com falha.`);
+      await ctx.reply(`Workflow ${workflowRunId} can only be closed when it is blocked or failed.`);
       return;
     }
 
@@ -194,8 +194,8 @@ export class MultiAgentPipeline {
     await ctx.reply(
       [
         `Workflow ${workflowRunId} encerrado by the operator.`,
-        `Fluxo: ${this.presentation.describeWorkflow(run.workflow_name)}`,
-        options.reason ? `Reason: ${options.reason}` : 'Esse run deixa de aparecer como retomada sugerida.',
+        `Flow: ${this.presentation.describeWorkflow(run.workflow_name)}`,
+        options.reason ? `Reason: ${options.reason}` : 'Esse run deixa de aparecer como resumption sugerida.',
       ].join('\n'),
     );
   }

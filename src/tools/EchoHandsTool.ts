@@ -28,7 +28,7 @@ export class EchoHandsTool extends BaseTool {
       },
       requestId: {
         type: 'string',
-        description: 'ID opcional para auditoria.',
+        description: 'Optional ID for auditing.',
       },
       trusted: {
         type: 'boolean',

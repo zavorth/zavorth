@@ -185,8 +185,7 @@ function evaluateConsistencyCase(
     label: consistencyCase.label,
     contract: consistencyCase.contract,
     passed,
-    reason: passed
-      ? 'Native behavior matches adapter behavior at the Zavorth public-contract layer.'
+    reason: passed ? 'Native behavior matches adapter behavior at the Zavorth public-contract layer.'
       : 'Native behavior differs from adapter behavior at the Zavorth public-contract layer.',
   };
 }

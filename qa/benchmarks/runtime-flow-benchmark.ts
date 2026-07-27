@@ -26,7 +26,7 @@ function parseCliJsonResult(result: {
   extractJsonPayloadFromText(stdout);
   const warnings: string[] = [];
   if (result.exitCode !== 0) {
-    warnings.push(`CLI retornou exit ${String(result.exitCode)} com payload JSON valido`);
+    warnings.push(`CLI returned exit ${String(result.exitCode)} with a valid JSON payload`);
   }
   if (stderr) {
     warnings.push(`CLI emitiu stderr informativo durante o probe: ${stderr.split(/\r?\n/u)[0]}`);
@@ -94,7 +94,7 @@ async function runRuntimeBenchmarks() {
       userId: 'qa-operator',
       platform: 'web',
       sessionId: 'qa-session-flow',
-      text: 'Executar validacao critica do runtime',
+    text: 'Run critical runtime validation',
     });
   }, {
     detail: (result) => ({
@@ -164,6 +164,6 @@ async function runRuntimeBenchmarks() {
 }
 
 runRuntimeBenchmarks().catch((error) => {
-  console.error('[qa] runtime benchmark falhou:', error);
+  console.error('[qa] runtime benchmark failed:', error);
   process.exit(1);
 });

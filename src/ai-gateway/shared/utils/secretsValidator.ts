@@ -1,5 +1,5 @@
 /**
- * Secrets Validator — FASE-01 Security Hardening
+ * Secrets Validator — Security Hardening
  *
  * Validates that required secrets are configured with strong values.
  * Called during server initialization (fail-fast on missing or weak secrets).

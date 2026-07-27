@@ -23,28 +23,28 @@ const SCENARIOS: ZavorthControlVisualQaScenario[] = [
   {
     id: 'channel-status-and-actions',
     label: 'Channel status/actions',
-    route: '/control/review?fixture=all',
+    route: '/control/review...fixture=all',
     fixture: 'all',
     requiredEvidence: ['channel cards', 'actions', 'status rows', 'empty/error states'],
   },
   {
     id: 'qr-and-auth-states',
     label: 'QR/login and protected states',
-    route: '/control/review?fixture=awaiting-approval',
+    route: '/control/review...fixture=awaiting-approval',
     fixture: 'awaiting-approval',
     requiredEvidence: ['QR/login placeholder', 'auth unlock', 'operator actions'],
   },
   {
     id: 'runtime-live-shell',
     label: 'Live shell without false claims',
-    route: '/control/review?fixture=live',
+    route: '/control/review...fixture=live',
     fixture: 'live',
-    requiredEvidence: ['token prompt', 'runtime bridge', 'no fake metrics'],
+    requiredEvidence: ['token prompt', 'runtime bridge', 'no synthetic metrics'],
   },
   {
     id: 'auto-subagent-telemetry',
     label: 'Automatic subagent telemetry',
-    route: '/control/review?fixture=auto-subagents',
+    route: '/control/review...fixture=auto-subagents',
     fixture: 'auto-subagents',
     requiredEvidence: ['Auto Subagents card', 'roles', 'triggers', 'policy row', 'next safe action'],
   },
@@ -88,8 +88,7 @@ export class ZavorthControlVisualQaService {
         check: 'npm run zavorth:zavorthControl-visual-qa:check',
         preview: 'npm run qa:zavorthControl-browser-preview',
         capture: 'npm run zavorth:zavorthControl-visual-qa -- --capture',
-        nextStep: evidenceReady
-          ? 'Attach screenshots to the review cycle before approving a new visual change.'
+        nextStep: evidenceReady ? 'Attach screenshots to the review cycle before approving a new visual change.'
           : 'Generate preview and screenshots with npm run zavorth:zavorthControl-visual-qa -- --capture.',
       },
       narrative: {

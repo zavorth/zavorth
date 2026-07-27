@@ -196,7 +196,7 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
         gate: 'capability-autopilot-preflight-dispatch-adapter',
         title: 'Preflight Dispatch Adapter Integration',
         reason:
-          'Depois de registrar receipts de dispatch explicito, o proximo passo e conectar adapters reais de CLI, web, chat, Telegram e API sem perder approval, validation e auditoria.',
+          'After registering explicit dispatch receipts, the next step is connecting real CLI, web, chat, Telegram, and API adapters without losing approval, validation, and audit.',
       },
       metadata: {
         gate: 'capability-autopilot-preflight-dispatch-receipt',
@@ -225,7 +225,7 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -299,34 +299,34 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
       ),
       this.check(
         'capability-autopilot-preflight-dispatch:no-execution',
-        'sem execucao no receipt',
+        'no execution in the receipt',
         receipts.every((receipt) =>
           receipt.dispatchExecuted === false &&
           receipt.shouldRunAutomatically === false &&
           receipt.sideEffectLevel === 'none' &&
           receipt.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'Receipt de dispatch registra a tentativa explicita, mas nao executa side effect.',
+        'Dispatch receipt records the explicit attempt, but does not execute side effects.',
         receipts.map((receipt) =>
           `${receipt.sourceSurface}:${receipt.sourceAction?.kind || '<none>'}:executed=${receipt.dispatchExecuted}:sideEffect=${receipt.sideEffectLevel}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-dispatch:explicit-confirmation',
-        'confirmacao explicita registrada',
+        'explicit confirmation registrada',
         receipts.every((receipt) =>
           receipt.explicitlyConfirmed &&
           receipt.requiresExplicitUserAction &&
           receipt.dispatchPrepared
         ) ? 'pass' : 'fail',
-        'Este gate so prepara receipt pronto quando existe confirmacao explicita.',
+        'Este gate so prepara receipt ready when there is explicit confirmation.',
         receipts.map((receipt) =>
           `${receipt.sourceSurface}:${receipt.sourceAction?.kind || '<none>'}:confirmed=${receipt.explicitlyConfirmed}:prepared=${receipt.dispatchPrepared}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-dispatch:sensitive-gates',
-        'gates sensiveis preservados',
+        'sensitive gates preserved',
         sensitive.every((receipt) =>
           (
             receipt.sourceAction?.kind === 'request_permission'
@@ -339,16 +339,16 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
               : true
           )
         ) ? 'pass' : 'fail',
-        'Receipts de permissao, fallback, validacao e resume precisam preservar approval/validation gates.',
+        'Permission, fallback, validation, and resume receipts must preserve approval/validation gates.',
         sensitive.map((receipt) =>
           `${receipt.sourceSurface}:${receipt.sourceAction?.kind}:approval=${receipt.requiresApproval}:validation=${receipt.requiresValidation}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-dispatch:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Receipts publicos de dispatch nao podem reintroduzir intent cru.',
+        'Public dispatch receipts cannot reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],
@@ -380,9 +380,9 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
     status: CapabilityPreflightDispatchReceiptStatus,
   ): string {
     if (status === 'blocked') {
-      return `Dispatch receipt bloqueado para ${plan.sourceAction?.kind || '<sem-action>'}; nenhum side effect foi executado.`;
+      return `Dispatch receipt blocked para ${plan.sourceAction?.kind || '<without-action>'}; nenhum side effect foi executado.`;
     }
-    return `Dispatch receipt preparado para ${plan.sourceAction?.kind || '<sem-action>'}; nenhum side effect foi executado.`;
+    return `Dispatch receipt prepared para ${plan.sourceAction?.kind || '<without-action>'}; nenhum side effect foi executado.`;
   }
 
   private check(

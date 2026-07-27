@@ -48,20 +48,20 @@ export class ZavorthSubagentSkillLiveCompletionService {
       explicitSubagents: true,
       persistState: false,
     });
-    const mockLiveSubagent = await this.subagentRuntime.execute({
+    const dryLiveSubagent = await this.subagentRuntime.execute({
       action: 'subagents.spawn',
       task: 'use subagents and run safe mocked workers in read-only mode',
       mode: 'oneshot',
       roleIds: ['planner', 'qa'],
       explicitSubagents: true,
-      mockLive: true,
+      dryLive: true,
       maxLiveWorkers: 2,
       persistState: false,
     });
     const naturalSubagent = await this.naturalRouter.plan({
       text: 'use subagents and send one agent to inspect and another to review in read-only mode',
       autoExecute: true,
-      mockLiveSubagents: true,
+      dryLiveSubagents: true,
       skillCatalog: skills,
     });
     const naturalSkill = await this.naturalRouter.plan({
@@ -72,8 +72,8 @@ export class ZavorthSubagentSkillLiveCompletionService {
     const skillEntries = skills.map(toSkillEntry);
     const entries = this.buildEntries({
       explicitSubagentStatus: explicitSubagent.status,
-      mockLiveSubagentStatus: mockLiveSubagent.status,
-      mockLiveRuns: mockLiveSubagent.summary.liveRuns,
+      dryLiveSubagentStatus: dryLiveSubagent.status,
+      dryLiveRuns: dryLiveSubagent.summary.liveRuns,
       naturalSubagentStatus: naturalSubagent.status,
       naturalSubagentLiveRuns: naturalSubagent.execution.subagentRuntime?.summary.liveRuns || 0,
       naturalSkillStatus: naturalSkill.status,
@@ -98,7 +98,7 @@ export class ZavorthSubagentSkillLiveCompletionService {
         passed,
         attention,
         blocked,
-        subagentRuntimeLiveReady: mockLiveSubagent.status === 'completed' && mockLiveSubagent.summary.liveRuns >= 1,
+        subagentRuntimeLiveReady: dryLiveSubagent.status === 'completed' && dryLiveSubagent.summary.liveRuns >= 1,
         naturalInvocationReady: naturalSubagent.status === 'ready' && naturalSkill.status !== 'denied',
         importedSkills,
         bridgeReadySkills,
@@ -110,7 +110,7 @@ export class ZavorthSubagentSkillLiveCompletionService {
       },
       liveCompletion: {
         subagentsCanSpawnExplicitly: explicitSubagent.status === 'completed',
-        subagentsCanRunMockLiveWorkers: mockLiveSubagent.status === 'completed' && mockLiveSubagent.summary.liveRuns >= 1,
+        subagentsCanRunDryLiveWorkers: dryLiveSubagent.status === 'completed' && dryLiveSubagent.summary.liveRuns >= 1,
         subagentsCanUseLiveWorkersWhenProviderReady: true,
         naturalRouterCanSelectSubagents: naturalSubagent.status === 'ready',
         naturalRouterCanSelectSkills: naturalSkill.status !== 'denied',
@@ -135,7 +135,7 @@ export class ZavorthSubagentSkillLiveCompletionService {
         inspect: 'npm run zavorth:subagent-skill-live-completion',
         inspectJson: 'npm run zavorth:subagent-skill-live-completion:json',
         check: 'npm run zavorth:subagent-skill-live-completion:check --silent',
-        nextStage: 'Surface controls - Scheduler, Perception and Device Live Completion',
+        nextAction: 'Surface controls - Scheduler, Perception and Device Live Completion',
       },
     };
   }
@@ -157,7 +157,7 @@ export class ZavorthSubagentSkillLiveCompletionService {
       if (entry.defaultBlockReason) lines.push(`  block: ${entry.defaultBlockReason}`);
     }
     lines.push('', 'Safety: imported skills remain instruction-only; live skill use requires owner approval.');
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -169,8 +169,8 @@ export class ZavorthSubagentSkillLiveCompletionService {
 
   private buildEntries(input: {
     explicitSubagentStatus: string;
-    mockLiveSubagentStatus: string;
-    mockLiveRuns: number;
+    dryLiveSubagentStatus: string;
+    dryLiveRuns: number;
     naturalSubagentStatus: string;
     naturalSubagentLiveRuns: number;
     naturalSkillStatus: string;
@@ -193,16 +193,16 @@ export class ZavorthSubagentSkillLiveCompletionService {
         evidence: [`subagents.spawn status=${input.explicitSubagentStatus}`],
       }),
       entry({
-        id: 'subagents.mock-live-workers',
+        id: 'subagents.dry-live-workers',
         label: 'Live worker path with safe mocked workers',
         kind: 'subagent-runtime',
-        passed: input.mockLiveSubagentStatus === 'completed' && input.mockLiveRuns >= 1,
+        passed: input.dryLiveSubagentStatus === 'completed' && input.dryLiveRuns >= 1,
         catalogReady: true,
-        liveReady: input.mockLiveSubagentStatus === 'completed' && input.mockLiveRuns >= 1,
+        liveReady: input.dryLiveSubagentStatus === 'completed' && input.dryLiveRuns >= 1,
         defaultRouteAllowed: false,
-        readinessProof: input.mockLiveSubagentStatus === 'completed' ? 'mock-live-worker' : 'policy-blocked',
+        readinessProof: input.dryLiveSubagentStatus === 'completed' ? 'dry-live-worker' : 'policy-blocked',
         defaultBlockReason: 'External live workers still require explicit live mode, provider readiness and policy approval when they touch mutable or external surfaces.',
-        evidence: [`mock-live status=${input.mockLiveSubagentStatus}`, `liveRuns=${input.mockLiveRuns}`],
+        evidence: [`dry-live status=${input.dryLiveSubagentStatus}`, `liveRuns=${input.dryLiveRuns}`],
       }),
       entry({
         id: 'natural.subagent-router',
@@ -212,7 +212,7 @@ export class ZavorthSubagentSkillLiveCompletionService {
         catalogReady: true,
         liveReady: input.naturalSubagentStatus === 'ready',
         defaultRouteAllowed: true,
-        readinessProof: input.naturalSubagentStatus === 'ready' ? 'mock-live-worker' : 'policy-blocked',
+        readinessProof: input.naturalSubagentStatus === 'ready' ? 'dry-live-worker' : 'policy-blocked',
         defaultBlockReason: null,
         evidence: [`naturalSubagent=${input.naturalSubagentStatus}`, `naturalLiveRuns=${input.naturalSubagentLiveRuns}`],
       }),
@@ -285,8 +285,7 @@ function toSkillEntry(skill: SkillMetadata): ZavorthSubagentSkillCompletionSkill
     readinessProof: bridgeReady ? (imported ? 'imported-skill' : 'catalog') : imported ? 'policy-blocked' : 'catalog',
     defaultBlockReason: bridgeReady
       ? null
-      : imported
-        ? 'Imported skill is blocked by license, risk or policy metadata.'
+      : imported ? 'Imported skill is blocked by license, risk or policy metadata.'
         : 'Third-party or unclassified local skill is catalog-only for this completion check.',
     riskLevel,
     instructionsOnly: true,
@@ -347,7 +346,7 @@ function syntheticSkill(): SkillMetadata {
     sourceLabel: 'Synthetic imported skill',
     sourceKind: 'workspace',
     sourceTrust: 'review',
-    sourceRegistrySource: 'zavorth:checkpoint-6-completion',
+    sourceRegistrySource: 'zavorth:gate-6-completion',
     license: 'MIT',
     bundleTags: ['review'],
     provenance: {
@@ -355,7 +354,7 @@ function syntheticSkill(): SkillMetadata {
       sourceLabel: 'Synthetic imported skill',
       sourceKind: 'workspace',
       sourceTrust: 'review',
-      registrySource: 'zavorth:checkpoint-6-completion',
+      registrySource: 'zavorth:gate-6-completion',
       ownership: 'zavorth',
       license: 'MIT',
       importMode: 'manual',

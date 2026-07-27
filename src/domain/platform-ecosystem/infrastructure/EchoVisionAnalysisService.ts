@@ -51,7 +51,7 @@ export class EchoVisionAnalysisService {
   private readonly runtime: Pick<LlmRuntimeService, 'chatDetailed'>;
 
   constructor(runtime?: Pick<LlmRuntimeService, 'chatDetailed'>) {
-    this.runtime = runtime || new LlmRuntimeService('gemini');
+    this.runtime = runtime || new LlmRuntimeService();
   }
 
   public async analyzeScreenshot(input: {
@@ -64,20 +64,20 @@ export class EchoVisionAnalysisService {
       {
         role: 'system',
         content:
-          'Voce analisa screenshots para o Zavorth Echo. Responda apenas com JSON puro. ' +
-          'Campos obrigatorios: summary, responseText, observedTexts, suggestedNextAction, confidence. ' +
-          'summary deve resumir o que importa na tela em uma frase curta. ' +
-          'responseText deve ser a resposta falada pelo agent para o operador. ' +
-          'observedTexts deve listar no maximo 5 textos curtos importantes observados. ' +
-          'suggestedNextAction deve sugerir o proximo passo ou null se nao houver. ' +
-          'confidence deve ser um numero entre 0 e 1.',
+          'You analyze screenshots for Zavorth Echo. Respond only with plain JSON. ' +
+          'Required fields: summary, responseText, observedTexts, suggestedNextAction, confidence. ' +
+          'summary should summarize what matters on the screen in a short sentence. ' +
+          'responseText should be the spoken response from the agent to the operator. ' +
+          'observedTexts should list up to 5 short important texts observed. ' +
+          'suggestedNextAction should suggest the next step or null if none. ' +
+          'confidence should be a number between 0 and 1.',
       },
       {
         role: 'user',
         content: [
-          input.sourceLabel ? `Origem: ${String(input.sourceLabel).trim()}.` : null,
-          `Instrucao: ${String(input.instruction || '').trim()}.`,
-          'Analise a imagem anexada e retorne apenas JSON.',
+          input.sourceLabel ? `Source: ${String(input.sourceLabel).trim()}.` : null,
+          `Instruction: ${String(input.instruction || '').trim()}.`,
+          'Analyze the attached image and return only JSON.',
         ].filter(Boolean).join('\n'),
         inlineData: [{
           mimeType: input.mimeType,
@@ -88,17 +88,15 @@ export class EchoVisionAnalysisService {
 
     try {
       const result = await this.runtime.chatDetailed(messages, undefined, {
-        providerName: 'gemini',
         allowFallback: true,
-        fallbackOrder: ['openai', 'qwen', 'aigateway', 'openrouter', 'minimax', 'ollama'],
       });
       const parsed = this.parseVisionPayload(result.response.content || '');
       if (!parsed) {
         return {
           ok: false,
           providerName: result.providerName,
-          summary: 'Nao foi possivel interpretar a tela com JSON estruturado.',
-          responseText: 'Capturei a tela, mas nao consegui interpretar a imagem com seguranca.',
+          summary: 'It was not possible to interpret the screen with structured JSON.',
+          responseText: 'I captured the screen, but I could not interpret the image with confidence.',
           observedTexts: [],
           suggestedNextAction: null,
           confidence: 0,
@@ -114,11 +112,11 @@ export class EchoVisionAnalysisService {
       return {
         ok: true,
         providerName: result.providerName,
-        summary: String(parsed.summary || '').trim() || 'Tela analisada.',
+        summary: String(parsed.summary || '').trim() || 'Screen analyzed.',
         responseText:
           String(parsed.responseText || '').trim()
           || String(parsed.summary || '').trim()
-          || 'Tela analisada.',
+          || 'Screen analyzed.',
         observedTexts,
         suggestedNextAction: this.optionalText(parsed.suggestedNextAction),
         confidence: this.normalizeConfidence(parsed.confidence),
@@ -131,8 +129,8 @@ export class EchoVisionAnalysisService {
     return {
         ok: false,
         providerName: null,
-        summary: 'Nenhum provider multimodal conseguiu analisar a tela.',
-        responseText: 'Capturei a tela, mas nenhum provider multimodal respondeu.',
+        summary: 'No multimodal provider could analyze the screen.',
+        responseText: 'Captured the screen, but no multimodal provider responded.',
         observedTexts: [],
         suggestedNextAction: null,
         confidence: 0,
@@ -155,25 +153,25 @@ export class EchoVisionAnalysisService {
       {
         role: 'system',
         content:
-          'Voce repara seletores quebrados para automacao web do Zavorth. Responda apenas com JSON puro. ' +
-          'Campos obrigatorios: healed, selector, textHint, reason, confidence. ' +
-          'healed deve ser true somente se houver um alvo plausivel. ' +
-          'selector deve preferir CSS robusto (#id, [name], [aria-label], [data-testid]) e nunca nth-child. ' +
-          'textHint deve trazer o texto visivel do alvo quando isso for mais robusto do que CSS. ' +
-          'reason deve explicar por que o alvo parece correto. ' +
-          'confidence deve ser um numero entre 0 e 1.',
+          'Repair broken selectors for Zavorth web automation. Respond with pure JSON only. ' +
+          'Required fields: healed, selector, textHint, reason, confidence. ' +
+          'healed must be true only when there is a plausible target. ' +
+          'selector should prefer robust CSS (#id, [name], [aria-label], [data-testid]) and never nth-child. ' +
+          'textHint should include the target visible text when that is more robust than CSS. ' +
+          'reason should explain why the target seems correct. ' +
+          'confidence should be a number between 0 and 1.',
       },
       {
         role: 'user',
         content: [
-          `Acao desejada: ${String(input.action || '').trim()}.`,
-          `Selector que falhou: ${String(input.failedSelector || '').trim()}.`,
-          input.pageTitle ? `Titulo atual: ${String(input.pageTitle).trim()}.` : null,
-          input.currentUrl ? `URL atual: ${String(input.currentUrl).trim()}.` : null,
+          `Desired action: ${String(input.action || '').trim()}.`,
+          `Failed selector: ${String(input.failedSelector || '').trim()}.`,
+          input.pageTitle ? `Current title: ${String(input.pageTitle).trim()}.` : null,
+          input.currentUrl ? `Current URL: ${String(input.currentUrl).trim()}.` : null,
           input.candidateHints && input.candidateHints.length > 0
-            ? `Candidatos heuristicos locais: ${input.candidateHints.join(' | ')}.`
+            ? `Local candidate hints: ${input.candidateHints.join(' | ')}.`
             : null,
-          'Analise a screenshot e responda apenas com JSON.',
+          'Analyze the screenshot and reply only with JSON.',
         ].filter(Boolean).join('\n'),
         inlineData: [{
           mimeType: input.mimeType,
@@ -184,9 +182,7 @@ export class EchoVisionAnalysisService {
 
     try {
       const result = await this.runtime.chatDetailed(messages, undefined, {
-        providerName: 'gemini',
         allowFallback: true,
-        fallbackOrder: ['openai', 'qwen', 'aigateway', 'openrouter', 'minimax', 'ollama'],
       });
       const parsed = this.parseBrowserRepairPayload(result.response.content || '');
       if (!parsed) {
@@ -196,7 +192,7 @@ export class EchoVisionAnalysisService {
           healed: false,
           selector: null,
           textHint: null,
-          reason: 'Provider multimodal retornou payload nao interpretavel.',
+          reason: 'Multimodal provider returned an uninterpretable payload.',
           confidence: 0,
           rawResponse: result.response.content || null,
           error: 'browser_repair_parse_failed',

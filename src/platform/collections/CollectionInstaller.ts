@@ -39,7 +39,7 @@ export class CollectionInstaller {
     const snapshot = this.platformRegistry.buildSnapshot({ selectedId: normalizedId });
     const selectedCollection = snapshot.selectedCollection;
     if (!selectedCollection || this.normalizeValue(selectedCollection.id) !== this.normalizeValue(normalizedId)) {
-      throw new Error(`Colecao nao encontrada no platform plane: ${collectionId}.`);
+      throw new Error(`Collection not found in the platform plane: ${collectionId}.`);
     }
 
     const resolvedPackageIds = selectedCollection.entryIds.slice();

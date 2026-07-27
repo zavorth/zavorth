@@ -76,17 +76,17 @@ export class CodexExecutor implements IExecutor {
       .filter((value): value is string => Boolean(value));
 
     if (extraAllowedPaths.length > 0) {
-      policyLines.push(`Pastas extras aprovadas pelo Zavorth: ${extraAllowedPaths.join(', ')}`);
+      policyLines.push(`Extra folders approved by Zavorth: ${extraAllowedPaths.join(', ')}`);
     }
 
     if (writeScopePaths.length > 0) {
       policyLines.push(`Approved base workspace: ${workspace}`);
-      policyLines.push('Regra de escrita do Zavorth: trate o restante do workspace como somente leitura.');
-      policyLines.push(`Write scope approved by Zavorth: ${writeScopePaths.join(', ')}`);
+      policyLines.push('Zavorth write rule: treat the rest of the workspace as read-only.');
+      policyLines.push(`Write approved scope by Zavorth: ${writeScopePaths.join(', ')}`);
     }
 
     if (extraAllowedCommands.length > 0) {
-      policyLines.push(`Comandos extras aprovados pelo Zavorth: ${extraAllowedCommands.join(', ')}`);
+      policyLines.push(`Extra commands approved by Zavorth: ${extraAllowedCommands.join(', ')}`);
     }
 
     if (policyLines.length === 0) {

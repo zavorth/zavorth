@@ -28,9 +28,9 @@ export class SecurityFacade extends DomainFacadeBase<SecurityDomainSnapshot> {
   public buildSnapshot(): SecurityDomainSnapshot {
     if (!this.securityMesh) {
       return this.composeSnapshot({
-        summary: 'Security facade registrada, aguardando injecao do security mesh.',
+        summary: 'Security facade registered, waiting for security mesh injection.',
         details: [
-          'Sem security mesh injetado, o dominio nao instancia posture/runtime readers por padrao.',
+          'Without injected security mesh, the domain does not instantiate posture/runtime readers by default.',
         ],
         metrics: {
           totalModes: 0,

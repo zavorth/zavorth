@@ -7,7 +7,7 @@ import type {
 import type { ZavorthTransactionRuntimeStatus } from './ZavorthTransactionRuntimeContract.js';
 
 export const ZAVORTH_TRANSACTION_ZAVORTH_CONTROL_CONTRACT_VERSION =
-  'zavorth-transaction-zavorthControl/checkpoint-8' as const;
+  'zavorth-transaction-zavorthControl/gate-8' as const;
 
 export type ZavorthTransactionZavorthControlLaneKind =
   | 'intake'
@@ -87,7 +87,7 @@ export type ZavorthTransactionZavorthControlSafety = {
   noLiveExecution: true;
   noHiddenLiveAction: true;
   noRawSecretSerialized: true;
-  approvalBeforeSimulation: true;
+  approvalBeforeDryRun: true;
   credentialRefsOnly: true;
   externalSideEffects: false;
   liveExecutionAuthorized: false;

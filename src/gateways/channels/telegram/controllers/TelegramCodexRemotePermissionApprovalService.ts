@@ -38,15 +38,12 @@ export class TelegramCodexRemotePermissionApprovalService {
 
     const lines = [
       result.action.note,
-      result.permission?.permission_id
-        ? `Permission: ${result.permission.permission_id} (${result.permission.status}).`
+      result.permission?.permission_id ? `Permission: ${result.permission.permission_id} (${result.permission.status}).`
         : null,
-      result.session
-        ? `${result.session.record.title} (${result.session.record.sessionId})`
+      result.session ? `${result.session.record.title} (${result.session.record.sessionId})`
         : null,
       result.session?.operatorSummary || null,
-      result.session?.record.handoffCommand
-        ? `Handoff web: ${result.session.record.handoffCommand}`
+      result.session?.record.handoffCommand ? `Handoff web: ${result.session.record.handoffCommand}`
         : null,
     ].filter(Boolean);
 

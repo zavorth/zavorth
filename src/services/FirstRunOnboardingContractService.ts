@@ -97,7 +97,7 @@ export class FirstRunOnboardingContractService {
         gate: 'external-docs',
         title: 'External Docs And Examples',
         reason:
-          'Depois do first-run publico mostrar como chegar ao primeiro uso local, o proximo passo e expandir docs externas e exemplos por caso de uso.',
+          'after do public first-run mostrar como chegar ao primeiro usage local, o next passo e expandir docs externas e exemplos por caso de usage.',
       },
     };
   }
@@ -118,7 +118,7 @@ export class FirstRunOnboardingContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -127,11 +127,10 @@ export class FirstRunOnboardingContractService {
     const exists = this.existsSync(this.websiteRoot);
     return this.check(
       'first-run:website-root',
-      'base publica zavorth-website',
+      'base public zavorth-website',
       exists ? 'pass' : 'fail',
-      exists
-        ? 'repositorio zavorth-website encontrado para renderizar /start.'
-        : 'repositorio zavorth-website nao foi encontrado. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
+      exists ? 'repositorio zavorth-website encontrado para renderizar /start.'
+        : 'zavorth-website repository was not found. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
       this.websiteRoot,
     );
   }
@@ -144,11 +143,10 @@ export class FirstRunOnboardingContractService {
         `first-run:website-script:${scriptName}`,
         `script do site ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `site expoe "${scriptName}" para validar o first-run publico.`
-          : `site precisa expor "${scriptName}" no package.json.`,
+        command ? `site exposes "${scriptName}" to validate public first-run.`
+          : `site must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -159,13 +157,12 @@ export class FirstRunOnboardingContractService {
       const command = String(scripts[scriptName] || '').trim();
       return this.check(
         `first-run:core-script:${scriptName}`,
-        `script canonico ${scriptName}`,
+        `script canonical ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `repo principal expoe "${scriptName}" para o gate first-run.`
-          : `repo principal precisa expor "${scriptName}" no package.json.`,
+        command ? `main repository exposes "${scriptName}" para o gate first-run.`
+          : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -179,7 +176,7 @@ export class FirstRunOnboardingContractService {
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'rota /start, fixture e gate local existem.'
-        : 'rota /start, fixture ou gate local estao ausentes.',
+        : 'rota /start, fixture ou gate local are missings.',
       undefined,
       missing,
     );
@@ -190,16 +187,16 @@ export class FirstRunOnboardingContractService {
     const required = [
       ...FIRST_RUN_REQUIRED_STATES,
       ...FIRST_RUN_REQUIRED_ARTIFACTS,
-      'sem credencial externa obrigatoria',
-      'sem watcher persistente por padrao',
+      'without credential external obrigatoria',
+      'without watcher persistente por default',
     ];
     const missing = required.filter((phrase) => !fixture.includes(phrase));
     return this.check(
       'first-run:fixture-contract',
-      'fixture segura do first-run',
+      'fixture safe do first-run',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'fixture cobre requisitos, preview, modo local, health, cleanup e garantias de seguranca.'
+        ? 'fixture covers requirements, preview, local mode, health, cleanup, and safety guarantees.'
         : 'fixture perdeu estado, artifact ou garantia obrigatoria.',
       'data/first-run.ts',
       missing.map((phrase) => `faltando: ${phrase}`),
@@ -214,11 +211,11 @@ export class FirstRunOnboardingContractService {
     const missing = FIRST_RUN_REQUIRED_COPY.filter((phrase) => !source.includes(phrase));
     return this.check(
       'first-run:route-contract',
-      'rota /start publica',
+      'rota /start public',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'rota /start renderiza checklist, requisitos, preview, health check e cleanup.'
-        : 'rota /start perdeu texto ou bloco publico obrigatorio.',
+        : '/start route lost required text or public block.',
       'app/start/page.tsx',
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -241,8 +238,8 @@ export class FirstRunOnboardingContractService {
       'links para first-run',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'site publico aponta para /start e roteiro do first-run.'
-        : 'links publicos para /start ou roteiro estao ausentes.',
+        ? 'public site points to /start and first-run guide.'
+        : 'public /start or guide links are absent.',
       undefined,
       missing.map((href) => `faltando: ${href}`),
     );
@@ -259,11 +256,11 @@ export class FirstRunOnboardingContractService {
     const evidence = [...forbiddenMatches, ...tokenMatches, ...pathMatches];
     return this.check(
       'first-run:forbidden-claims',
-      'claims e vazamentos proibidos',
+      'forbidden claims and leaks',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'first-run nao expoe paths pessoais, tokens ou claims proibidos.'
-        : 'first-run contem path pessoal, token ou claim proibido.',
+        ? 'first-run does not expose personal paths, tokens, or forbidden claims.'
+        : 'first-run contains path pessoal, token ou claim proibido.',
       undefined,
       evidence,
     );
@@ -276,9 +273,8 @@ export class FirstRunOnboardingContractService {
         'first-run:exported-route',
         'rota /start exportada',
         this.requireExport ? 'fail' : 'pass',
-        this.requireExport
-          ? 'out/ precisa existir depois de website:build.'
-          : 'export estatico nao exigido neste snapshot; qa:first-run valida /start depois do build.',
+        this.requireExport ? 'out/ must exist after website:build.'
+          : 'static export not required in this snapshot; qa:first-run valida /start after do build.',
         'out',
       );
     }
@@ -288,20 +284,20 @@ export class FirstRunOnboardingContractService {
         'first-run:exported-route',
         'rota /start exportada',
         'fail',
-        'build estatico nao exportou /start.',
+        'static build did not export /start.',
         'out',
         ['/start'],
       );
     }
     const html = this.safeReadAbsolute(filePath);
-    const missing = ['Primeiro uso local', 'Health check', 'cleanup'].filter((phrase) => !html.includes(phrase));
+    const missing = ['Primeiro usage local', 'Health check', 'cleanup'].filter((phrase) => !html.includes(phrase));
     return this.check(
       'first-run:exported-route',
       'rota /start exportada',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? '/start existe no export estatico com conteudo essencial.'
-        : '/start exportado perdeu conteudo essencial.',
+        ? '/start exists in the static export with essential content.'
+        : 'exported /start lost essential content.',
       'out',
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -313,7 +309,7 @@ export class FirstRunOnboardingContractService {
         'first-run:screenshots',
         'screenshots do first-run',
         'pass',
-        'screenshots nao exigidos neste snapshot; qa:first-run captura desktop e mobile.',
+        'screenshots not required in this snapshot; qa:first-run captura desktop e mobile.',
         this.screenshotDir,
       );
     }
@@ -331,8 +327,8 @@ export class FirstRunOnboardingContractService {
       'screenshots do first-run',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'screenshots desktop e mobile do first-run foram gerados.'
-        : 'screenshots desktop/mobile do first-run estao ausentes ou invalidos.',
+        ? 'screenshots desktop e mobile do first-run foram generated.'
+        : 'screenshots desktop/mobile do first-run are missings ou invalids.',
       this.screenshotDir,
       missing,
     );

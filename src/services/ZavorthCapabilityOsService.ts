@@ -142,10 +142,10 @@ const FALLBACK_MATRIX: Record<string, string[]> = {
 };
 
 const DEFAULT_ROUTE_EXAMPLES = [
-  'pesquise noticias de IA de hoje na web',
+  'research today AI news on the web',
   'gere uma landing page moderna com hero e CTA',
-  'investigue esse bug no projeto e revise o codigo',
-  'corrija src/app.ts e rode os testes',
+  'investigue esse bug no projeto e revise o code',
+  'fix src/app.ts and run the tests',
 ];
 
 export class ZavorthCapabilityOsService {
@@ -292,8 +292,8 @@ export class ZavorthCapabilityOsService {
         chain: fallbackChain,
         reason:
           fallbackChain.length > 0
-            ? `Se ${capability.executor_preference || 'a rota principal'} failurer, tente ${fallbackChain[0]}.`
-            : 'Sem fallback automatico alem da conversa supervisionada.',
+            ? `Se ${capability.executor_preference || 'a rota principal'} failurer, try ${fallbackChain[0]}.`
+            : 'without automatic fallback beyond the supervised conversation.',
       },
       routing: {
         reason: capability.routing_reason || capability.description,
@@ -312,16 +312,16 @@ export class ZavorthCapabilityOsService {
       .trim()
       .toLowerCase();
     if (danger === 'high' || danger === 'critical') {
-      return { level: 'high', reason: `Policy declarou risco ${danger}.` };
+      return { level: 'high', reason: `Policy declarou risk ${danger}.` };
     }
     if (danger === 'medium') {
-      return { level: 'medium', reason: 'Policy declarou risco medio.' };
+      return { level: 'medium', reason: 'Policy declarou risk medio.' };
     }
     if (policy?.requiresApproval || policy?.networkScope === 'external-policy') {
-      return { level: 'high', reason: 'Capability exige aprovacao ou rede externa governada.' };
+      return { level: 'high', reason: 'Capability requires approval or governed external network.' };
     }
     if (!policy && this.inferNetworkScope(capability) === 'external-policy') {
-      return { level: 'high', reason: 'Capability usa rede externa e recebe guardrail inferido.' };
+      return { level: 'high', reason: 'Capability usa rede external e recebe guardrail inferido.' };
     }
     if (!policy && this.isSensitiveCapability(capability)) {
       return { level: 'high', reason: 'Sensitive capability without explicit policy gets an inferred guardrail.' };
@@ -502,7 +502,7 @@ export class ZavorthCapabilityOsService {
       secrets: 'redacted',
       serverAllowlist: mcpAllowlist.map((entry) => entry.id),
       reason:
-        'Servidores MCP ficam em allowlist local, escopados ao workspace e sem expor payloads sensiveis no snapshot.',
+        'MCP servers stay in the local allowlist, scoped to the workspace and without exposing sensitive payloads in the snapshot.',
     };
   }
 
@@ -562,7 +562,7 @@ export class ZavorthCapabilityOsService {
         recorded: false,
         entryId: null,
         status: null,
-        reason: `Nao foi possivel registrar no ledger: ${errorMessage(error)}`,
+        reason: `Could not register in ledger: ${errorMessage(error)}`,
       };
     }
   }
@@ -571,7 +571,7 @@ export class ZavorthCapabilityOsService {
     return String(value || '')
       .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2}\b/gi, '[redacted-email]')
       .replace(/\b(?:sk|pk|rk|ghp|github_pat)_[A-Za-z0-9_=-]{12}\b/g, '[redacted-secret]')
-      .replace(/\b(?:api[_-]?key|token|secret|password|senha)\s*[:=]\s*\S+/gi, '$1=[redacted]')
+      .replace(/\b(?:api[_-]...key|token|secret|password)\s*[:=]\s*\S+/gi, '$1=[redacted]')
       .slice(0, 500);
   }
 
@@ -592,8 +592,8 @@ export class ZavorthCapabilityOsService {
     const ready = manifests.filter((manifest) => manifest.health.status === 'ready').length;
     const approval = manifests.filter((manifest) => manifest.permissions.requiresApproval).length;
     return {
-      headline: `${summary.total} capabilities registradas; ${ready} prontas para roteamento.`,
-      operatorSummary: `${summary.commands} comandos, ${summary.implicitRoutes} rotas implicitas, ${approval} com aprovacao e ${mcpAllowlist.length} entradas MCP allowlisted.`,
+      headline: `${summary.total} registered capabilities; ${ready} ready for routing.`,
+      operatorSummary: `${summary.commands} commands, ${summary.implicitRoutes} implicit routes, ${approval} with approval and ${mcpAllowlist.length} MCP allowlisted entries.`,
     };
   }
 

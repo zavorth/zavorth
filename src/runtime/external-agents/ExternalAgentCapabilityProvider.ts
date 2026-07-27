@@ -325,10 +325,8 @@ export class ExternalAgentCapabilityProvider {
     const exposure: ExternalAgentCapabilityInventoryItem['policy']['exposure'] =
       status === 'unavailable'
         ? 'unavailable'
-        : blocked
-          ? 'blocked'
-          : requiresApproval
-            ? 'approval-required'
+        : blocked ? 'blocked'
+          : requiresApproval ? 'approval-required'
             : 'allowed';
 
     return {
@@ -397,7 +395,7 @@ export class ExternalAgentCapabilityProvider {
       adapterSource: {
         kind: 'universal-agent-runtime',
         label: 'Zavorth External Capability Provider',
-        version: 'checkpoint-4',
+        version: 'gate-4',
       },
       capabilities: items.map((item) => ({
         id: item.id,

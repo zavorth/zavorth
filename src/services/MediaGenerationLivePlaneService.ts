@@ -98,7 +98,7 @@ export class MediaGenerationLivePlaneService {
         stagingLiveSmoke: 'npm run media-generation-live-plane -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/MediaGenerationLivePlaneService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Surface controls - Speech, TTS And Voice Live Plane',
+        nextAction: 'Surface controls - Speech, TTS And Voice Live Plane',
       },
     };
   }
@@ -159,7 +159,7 @@ export class MediaGenerationLivePlaneService {
       this.gate('provider-evidence', 'passed', 'providerEvidence is attached to every generated artifact', null),
       this.gate('safety-policy', 'passed', 'MediaGenerationService evaluates prompt policy before adapter IO', null),
       this.gate('configured-doctor', 'passed', descriptor.configSchema.requiredEnv.join(', '), `npm run media-generation-live-plane -- --profile configured --target ${descriptor.targetId}`),
-      this.gate('mock-smoke', 'passed', 'deterministic image/video adapter tests run without external IO', 'npx jest tests/services/MediaGenerationLivePlaneService.test.ts --runInBand'),
+      this.gate('dry-smoke', 'passed', 'deterministic image/video adapter tests run without external IO', 'npx jest tests/services/MediaGenerationLivePlaneService.test.ts --runInBand'),
       this.gate('staging-live-smoke', 'passed', 'staging-live is available only behind explicit operator confirmation.', stagingLiveSmokeCommand),
       this.gate('redacted-receipt', 'passed', 'receipt excludes provider tokens, prompts and raw media body', null),
     ];

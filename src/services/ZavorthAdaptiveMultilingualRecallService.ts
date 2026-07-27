@@ -12,27 +12,23 @@ type AdaptiveRecallRuntime = {
 const QUERY_ALIASES: Array<{ canonical: string; aliases: RegExp[] }> = [
   {
     canonical: 'direct',
-    aliases: [/\bdirect(as?|o|os)?\b/i, /\bdireto?s?\b/i, /\bobjetiv[oa]s?\b/i],
+    aliases: [/\bdirect(?:ly)...\b/i, /\bstraightforward\b/i],
   },
   {
     canonical: 'evidence',
-    aliases: [/\bevid[eê]ncias?\b/i, /\bevidences?\b/i, /\bevidence\b/i, /\bproof\b/i, /\bpruebas?\b/i],
+    aliases: [/\bevidence\b/i, /\bproof\b/i],
   },
   {
     canonical: 'concise',
-    aliases: [/\bconciso?s?\b/i, /\bbreve?s?\b/i, /\bcurt[oa]s?\b/i, /\bshort\b/i],
-  },
-  {
-    canonical: 'portuguese',
-    aliases: [/\bportugu[eê]s(a|as|es)?\b/i, /\bportugues(a|as|es)?\b/i],
+    aliases: [/\bconcise\b/i, /\bbrief\b/i, /\bshort\b/i],
   },
   {
     canonical: 'response style',
-    aliases: [/\brespostas?\b/i, /\banswers?\b/i, /\brespuestas?\b/i, /\breplies?\b/i],
+    aliases: [/\banswers...\b/i, /\breplies...\b/i],
   },
   {
     canonical: 'github pull request changed files test gaps',
-    aliases: [/\bgithub\b/i, /\bpull\s+request\b/i, /\bpr\b/i, /\bchanged\s+files?\b/i, /\barchivos?\s+cambiad[oa]s?\b/i],
+    aliases: [/\bgithub\b/i, /\bpull\s+request\b/i, /\bpr\b/i, /\bchanged\s+files...\b/i],
   },
 ];
 
@@ -101,12 +97,10 @@ export class ZavorthAdaptiveMultilingualRecallService {
       if (!canonicalTerms.has('response')) canonicalTerms.add('response');
       if (!canonicalTerms.has('style')) canonicalTerms.add('style');
       if (!canonicalTerms.has('concise')) canonicalTerms.add('concise');
-      if (!canonicalTerms.has('portuguese')) canonicalTerms.add('portuguese');
       const ordered = [
         'direct',
         'evidence',
         'concise',
-        'portuguese',
         'response',
         'style',
         'github',

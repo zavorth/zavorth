@@ -31,7 +31,7 @@ export class GeminiCLIService {
       prompt: "consent",
     });
 
-    return `${this.config.authorizeUrl}?${params.toString()}`;
+    return `${this.config.authorizeUrl}...${params.toString()}`;
   }
 
   /**
@@ -113,7 +113,7 @@ export class GeminiCLIService {
    * Get user info from Google
    */
   async getUserInfo(accessToken: string) {
-    const response = await fetch(`${this.config.userInfoUrl}?alt=json`, {
+    const response = await fetch(`${this.config.userInfoUrl}...alt=json`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Accept: "application/json",
@@ -175,7 +175,7 @@ export class GeminiCLIService {
       });
 
       const redirectUri = `http://localhost:${port}/callback`;
-      spinner.succeed(`Local server started on port ${port}`);
+      spinner.succeed(`local server started on port ${port}`);
 
       // Generate state
       const state = crypto.randomBytes(32).toString("base64url");

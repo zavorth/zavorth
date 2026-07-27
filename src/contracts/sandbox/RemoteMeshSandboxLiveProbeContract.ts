@@ -19,7 +19,7 @@ export type RemoteMeshLiveProbeExecutionStatus =
 
 export type RemoteMeshLiveProbeTransportKind =
   | 'not-configured'
-  | 'mock'
+  | 'local'
   | 'mcp-http-status';
 
 export type RemoteMeshLiveProbeGuardId =
@@ -125,6 +125,6 @@ export type RemoteMeshSandboxLiveProbeSnapshot = {
     check: 'npm run remote-mesh:sandbox:live-probe --silent';
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxLiveProbeExecutorService.test.ts --runInBand';
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'R6 - Remote Session Timeline and Audit Surface';
+    nextAction: 'Remote session timeline and audit surface';
   };
 };

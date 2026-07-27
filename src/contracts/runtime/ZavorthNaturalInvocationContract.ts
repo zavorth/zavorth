@@ -8,7 +8,7 @@ import type { ZavorthSubagentAutoInvocationTelemetry } from './ZavorthSubagentAu
 import type { ZavorthSandboxLifecyclePlan } from '../ZavorthSandboxLifecycleContract.js';
 
 export const ZAVORTH_NATURAL_INVOCATION_CONTRACT_VERSION =
-  '2026-05-10.natural-invocation-checkpoint-5' as const;
+  '2026-05-10.natural-invocation-gate-5' as const;
 
 export type ZavorthNaturalInvocationAction =
   | 'answer_directly'
@@ -96,6 +96,6 @@ export type ZavorthNaturalInvocationPlan = {
     invoke: 'npm run zavorth:natural-invocation -- --text "<request>"';
     invokeJson: 'npm run zavorth:natural-invocation:json -- --text "<request>"';
     check: 'npm run zavorth:natural-invocation:check --silent';
-    nextStage: 'Runtime gateway - Absorption Materialization And Bridge Handoff';
+    nextAction: 'Runtime gateway - Absorption Materialization And Bridge Handoff';
   };
 };

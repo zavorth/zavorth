@@ -79,7 +79,7 @@ export class ZavorthAgentCapabilityAssimilationService {
         report: 'npx tsx scripts/zavorth-agent-capability-assimilation.ts',
         json: 'npx tsx scripts/zavorth-agent-capability-assimilation.ts --json',
         check: 'node scripts/zavorth-agent-capability-assimilation-check.mjs',
-        nextStage: 'Preview engine - Reasoning And Action Patterns',
+        nextAction: 'Preview engine - Reasoning And Action Patterns',
       },
       narrative: {
         headline: 'Agent capability assimilation matrix ready',
@@ -108,7 +108,7 @@ export class ZavorthAgentCapabilityAssimilationService {
       '- Pattern assimilation only; no source code or prompt copy.',
       '- Risky actions require Policy Broker, approval, receipts and redaction as applicable.',
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }

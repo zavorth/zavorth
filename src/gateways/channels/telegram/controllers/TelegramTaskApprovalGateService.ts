@@ -101,8 +101,7 @@ export class TelegramTaskApprovalGateService {
       approvalId: task.task_id,
       title: 'Approval needed',
       summary: userFacingText,
-      riskLabel: highRiskRequiresPin
-        ? 'high'
+      riskLabel: highRiskRequiresPin ? 'high'
         : String(classification.reason || task.risk_level || ''),
       callbackPrefix: 'task',
     });

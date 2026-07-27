@@ -170,7 +170,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
     if (!countResult || countResult.count === 0) {
       const insert = db.prepare(`
         INSERT INTO token_budgets (id, name, scope, limit_tokens, limit_cost_usd, alert_threshold, action_on_exceed, period, enabled)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (..., ..., ..., ..., ..., ..., ..., ..., ...)
       `);
       const defaults = [
         ['BUDGET-001', 'Global Daily Limit', 'global', 1000000, 10.0, 0.8, 'warn', 'daily', 1],
@@ -239,7 +239,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
     const cost = typeof args.cost_usd === 'number' ? args.cost_usd : 0;
 
     const db = await this.getDb();
-    const applicable = db.prepare('SELECT * FROM token_budgets WHERE enabled = 1 AND scope = ?').all(scope) as any[];
+    const applicable = db.prepare('SELECT * FROM token_budgets WHERE enabled = 1 AND scope = ...').all(scope) as any[];
     if (applicable.length === 0) return `No budgets configured for scope "${scope}".`;
 
     const results: string[] = [`Budget check for ${scope} (${totalTokens} tokens, $${cost.toFixed(4)}):`];
@@ -284,7 +284,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
     const db = await this.getDb();
     db.prepare(`
       INSERT INTO token_usage_records (timestamp, scope, model, input_tokens, output_tokens, cost_usd, task_type)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      VALUES (..., ..., ..., ..., ..., ..., ...)
     `).run(timestamp, scope, model, inputTokens, outputTokens, cost, taskType);
 
     return `Usage recorded: ${inputTokens + outputTokens} tokens ($${cost.toFixed(4)}) via ${model}`;
@@ -296,7 +296,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
       return `Error: invalid scope "${scope}". Allowed values: ${ALLOWED_SCOPES.join(', ')}.`;
     }
     const db = await this.getDb();
-    const budgets = db.prepare('SELECT * FROM token_budgets WHERE enabled = 1 AND scope = ?').all(scope) as any[];
+    const budgets = db.prepare('SELECT * FROM token_budgets WHERE enabled = 1 AND scope = ...').all(scope) as any[];
     if (budgets.length === 0) return `No active budget for scope "${scope}".`;
 
     const lines: string[] = [`Budget Status (${scope}):`];
@@ -337,7 +337,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
     }
 
     const db = await this.getDb();
-    const existing = db.prepare('SELECT * FROM token_budgets WHERE scope = ? LIMIT 1').get(scope) as any;
+    const existing = db.prepare('SELECT * FROM token_budgets WHERE scope = - LIMIT 1').get(scope) as any;
 
     if (existing) {
       let limit_tokens = existing.limit_tokens;
@@ -352,9 +352,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
 
       db.prepare(`
         UPDATE token_budgets
-        SET limit_tokens = ?, limit_cost_usd = ?, alert_threshold = ?, period = ?, action_on_exceed = ?
-        WHERE id = ?
-      `).run(limit_tokens, limit_cost_usd, alert_threshold, period, actionOnExceed, existing.id);
+        SET limit_tokens = ..., limit_cost_usd = ..., alert_threshold = ..., period = ..., action_on_exceed = ?         WHERE id = ?       `).run(limit_tokens, limit_cost_usd, alert_threshold, period, actionOnExceed, existing.id);
 
       return `Budget "${existing.name}" updated.`;
     }
@@ -371,7 +369,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
 
     db.prepare(`
       INSERT INTO token_budgets (id, name, scope, limit_tokens, limit_cost_usd, alert_threshold, action_on_exceed, period, enabled)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (..., ..., ..., ..., ..., ..., ..., ..., ...)
     `).run(budgetId, name, scope, limit_tokens, limit_cost_usd, alert_threshold, actionOnExceed, period, enabled);
 
     return `Budget "${name}" created for scope "${scope}".`;
@@ -396,7 +394,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
       return `Error: invalid scope "${scope}". Allowed values: ${ALLOWED_SCOPES.join(', ')}.`;
     }
     const db = await this.getDb();
-    const result = db.prepare('DELETE FROM token_usage_records WHERE scope = ?').run(scope);
+    const result = db.prepare('DELETE FROM token_usage_records WHERE scope = ...').run(scope);
     return `Reset ${result.changes} usage records for scope "${scope}".`;
   }
 
@@ -522,16 +520,14 @@ export class ZavorthTokenBudgetTool extends BaseTool {
           SUM(input_tokens + output_tokens) as total_tokens,
           SUM(cost_usd) as total_cost
         FROM token_usage_records
-        WHERE timestamp >= ?
-      `).get(cutoffMs);
+        WHERE timestamp >= ?       `).get(cutoffMs);
     } else {
       row = db.prepare(`
         SELECT
           SUM(input_tokens + output_tokens) as total_tokens,
           SUM(cost_usd) as total_cost
         FROM token_usage_records
-        WHERE scope = ? AND timestamp >= ?
-      `).get(budget.scope, cutoffMs);
+        WHERE scope = - AND timestamp >= ?       `).get(budget.scope, cutoffMs);
     }
 
     return {

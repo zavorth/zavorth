@@ -18,7 +18,7 @@ async function inspectDockerRuntime(
     autonomyLevel: 3,
     approved: true,
     timeoutMs: 15_000,
-    objective: 'Inspecionar containers Docker disponiveis para execucao supervisionada.',
+    objective: 'Inspect Docker containers available for supervised execution.',
     command: JSON.stringify({
       action: 'inspect',
     }),
@@ -48,7 +48,7 @@ async function removeDockerProbeContainer(
     autonomyLevel: 3,
     approved: true,
     timeoutMs: 15_000,
-    objective: `Remover o container temporario ${container} criado apenas para o smoke supervisionado.`,
+    objective: `Remove the temporary container ${container} created only for the supervised smoke.`,
     command: JSON.stringify({
       action: 'rm',
       container,
@@ -91,18 +91,16 @@ export async function runDockerSmoke(input: {
         return skipFromSmokeAction(
           'docker.exec',
           inspect,
-          dockerStartedBySmoke
-            ? 'Docker supervisionado tentou acordar o Docker Desktop, mas o daemon ainda nao ficou pronto neste host.'
-            : 'Docker supervisionado pulado porque o daemon ou o CLI ainda nao estao prontos neste host.',
-          dockerStartedBySmoke
-            ? 'Revise o Docker Desktop e o companion docker-desktop antes de usar docker.exec supervisionado.'
-            : 'Instale/inicie o Docker Desktop ou daemon equivalente antes de usar docker.exec supervisionado.',
+          dockerStartedBySmoke ? 'Supervised Docker tried to wake Docker Desktop, but the daemon was not ready on this host yet.'
+            : 'Supervised Docker skipped because the daemon or CLI is not ready on this host yet.',
+          dockerStartedBySmoke ? 'Revise o Docker Desktop e o companion docker-desktop before usar docker.exec supervised.'
+            : 'Instale/inicie o Docker Desktop ou daemon equivalente before usar docker.exec supervised.',
         );
       }
       return failFromSmokeAction(
         'docker.exec',
         inspect,
-        'Docker supervisionado falhou ainda na etapa de inspecao do runtime.',
+        'Docker supervised failed ainda na stage de inspecao do runtime.',
       );
     }
 
@@ -116,7 +114,7 @@ export async function runDockerSmoke(input: {
         autonomyLevel: 3,
         approved: true,
         timeoutMs: 30_000,
-        objective: 'Provisionar um container temporario para validar docker.exec supervisionado de ponta a ponta.',
+        objective: 'Provision a temporary container to validate supervised docker.exec end to end.',
         command: JSON.stringify({
           action: 'run',
           container: `zavorth-overlord-smoke-${Date.now().toString(36)}`,
@@ -129,7 +127,7 @@ export async function runDockerSmoke(input: {
         return failFromSmokeAction(
           'docker.exec',
           provision,
-          'Docker supervisionado encontrou o daemon, mas falhou ao provisionar o container temporario do smoke.',
+          'Supervised Docker found the daemon, but failed to provision the temporary smoke container.',
         );
       }
       container = String(provision.metadata?.container || '').trim();
@@ -140,10 +138,10 @@ export async function runDockerSmoke(input: {
           status: 'failed',
           actionId: provision.actionId,
           runtimeTarget: provision.decision.runtimeTarget,
-          summary: 'Docker supervisionado criou um run temporario, mas nao devolveu um container valido para o smoke.',
+          summary: 'Supervised Docker created a temporary run, but did not return a valid container for the smoke check.',
           detail: provision.stdout || null,
-          error: provision.errorMessage || 'Container temporario nao identificado.',
-          operatorNextStep: 'Revise o adapter docker supervisionado antes de usar docker.exec em producao.',
+          error: provision.errorMessage || 'Temporary container not identified.',
+          operatorNextStep: 'Review the supervised Docker adapter before using docker.exec in production.',
         };
       }
     }
@@ -163,7 +161,7 @@ export async function runDockerSmoke(input: {
           autonomyLevel: 3,
           approved: true,
           timeoutMs: 15_000,
-          objective: `Executar comando supervisionado de diagnostico no container ${container}.`,
+          objective: `run comando supervised de diagnostic no container ${container}.`,
           command: JSON.stringify({
             action: 'exec',
             container,
@@ -181,10 +179,10 @@ export async function runDockerSmoke(input: {
               status: 'failed',
               actionId: cleanup.actionId,
               runtimeTarget: cleanup.decision.runtimeTarget,
-              summary: `Docker supervisionado executou ${probe.command} no container ${container}, mas nao conseguiu remover o container temporario do smoke.`,
+              summary: `Docker supervised executou ${probe.command} no container ${container}, but could not remove the temporary smoke-check container.`,
               detail: cleanup.stderr || cleanup.stdout || null,
-              error: cleanup.errorMessage || 'Falha ao remover container temporario.',
-              operatorNextStep: `Run "docker rm -f ${container}" e revise o adapter supervisionado do Docker.`,
+              error: cleanup.errorMessage || 'Failure while removing temporary container.',
+              operatorNextStep: `Run "docker rm -f ${container}" e revise o adapter supervised do Docker.`,
             };
           }
           containerProvisionedBySmoke = false;
@@ -193,7 +191,7 @@ export async function runDockerSmoke(input: {
             status: 'passed',
             actionId: exec.actionId,
             runtimeTarget: exec.decision.runtimeTarget,
-            summary: `Docker supervisionado executou ${probe.command} no container ${container}.`,
+            summary: `Docker supervised executou ${probe.command} no container ${container}.`,
             detail: String(exec.stdout || '').trim() || `Probe executado com ${probe.command}.`,
             error: null,
             operatorNextStep: null,
@@ -216,10 +214,10 @@ export async function runDockerSmoke(input: {
       status: 'failed',
       actionId: inspect.actionId,
       runtimeTarget: inspect.decision.runtimeTarget,
-      summary: `Docker supervisionado encontrou o container ${container}, mas nenhum probe basico conseguiu executar dentro dele.`,
+      summary: `Docker supervised encontrou o container ${container}, mas nenhum probe basico conseguiu run dentro dele.`,
       detail: failures.join(' | ') || null,
-      error: failures[0] || 'Nenhum probe supervisionado conseguiu executar no container.',
-      operatorNextStep: 'Revise o container alvo e garanta que ele aceite ao menos um shell/command basico para smoke supervisionado.',
+      error: failures[0] || 'No probe supervised conseguiu run no container.',
+      operatorNextStep: 'Revise o container alvo e garanta que ele aceite ao menos um shell/command basico para smoke supervised.',
     };
   } finally {
     if (dockerStartedBySmoke && input.stopDockerDesktop) {

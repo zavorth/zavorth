@@ -242,7 +242,7 @@ export class CapabilityAutopilotReleaseCandidateGateService {
         gate: 'capability-autopilot-release-rollout-plan',
         title: 'Capability Autopilot v1.1 Release Rollout Plan',
         reason:
-          'Depois do release candidate, o proximo passo e preparar rollout gradual de v1.1 com cohorts, rollback, changelog e promocao manual.',
+          'after do release candidate, o next passo e preparar rollout gradual de v1.1 com cohorts, rollback, changelog e promotion manual.',
       },
       metadata: {
         gate: 'capability-autopilot-release-candidate',
@@ -280,7 +280,7 @@ export class CapabilityAutopilotReleaseCandidateGateService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -408,7 +408,7 @@ export class CapabilityAutopilotReleaseCandidateGateService {
         'capability-autopilot-release-candidate:source-ready',
         'field trial source ready',
         source.status === 'field_trial_ready' && source.recommendation === 'start_limited_beta_field_trial' && source.summary.ok ? 'pass' : 'fail',
-        'Release candidate so pode partir de field trial beta pronto.',
+        'Release candidate can only start from ready field-trial beta.',
         [
           `sourceStatus=${source.status}`,
           `sourceRecommendation=${source.recommendation}`,
@@ -417,16 +417,15 @@ export class CapabilityAutopilotReleaseCandidateGateService {
       ),
       this.check(
         'capability-autopilot-release-candidate:trial-evidence',
-        'evidencia de field trial suficiente',
+        'evidence de field trial suficiente',
         options.releaseCandidateApproved &&
           options.fieldTrialCompleted &&
           options.observedParticipants >= options.minObservedParticipants &&
           options.feedbackResponseCount >= options.minFeedbackResponses &&
           options.satisfactionScore >= options.minSatisfactionScore &&
-          options.successCriteriaPassed
-          ? 'pass'
+          options.successCriteriaPassed ? 'pass'
           : 'fail',
-        'RC exige trial concluido, aprovacao explicita, participantes, feedback e criterios de sucesso cumpridos.',
+        'RC requires completed trial, explicit approval, participants, feedback, and fulfilled success criteria.',
         [
           `releaseCandidateApproved=${options.releaseCandidateApproved}`,
           `fieldTrialCompleted=${options.fieldTrialCompleted}`,
@@ -441,13 +440,13 @@ export class CapabilityAutopilotReleaseCandidateGateService {
       ),
       this.check(
         'capability-autopilot-release-candidate:incident-budget',
-        'orcamento de incidentes respeitado',
+        'budget de incidentes respeitado',
         options.p0IncidentCount === 0 &&
           options.p1IncidentCount <= options.maxP1Incidents &&
           options.openRollbackRequiredCount === 0
           ? 'pass'
           : 'fail',
-        'RC nao pode ter P0, P1 acima do budget ou rollback required aberto.',
+        'RC cannot have P0, above budget, or open rollback required.',
         [
           `p0IncidentCount=${options.p0IncidentCount}`,
           `p1IncidentCount=${options.p1IncidentCount}`,
@@ -457,16 +456,15 @@ export class CapabilityAutopilotReleaseCandidateGateService {
       ),
       this.check(
         'capability-autopilot-release-candidate:operational-readiness',
-        'readiness operacional para RC',
+        'readiness operational para RC',
         options.rollbackRehearsalFresh &&
           options.supportLoadOk &&
           options.docsUpdated &&
           options.releaseNotesReady &&
           options.stagedRolloutPlanReady &&
-          options.killSwitchReady
-          ? 'pass'
+          options.killSwitchReady ? 'pass'
           : 'fail',
-        'RC exige rollback rehearsal fresco, suporte saudavel, docs, release notes, plano staged e kill switch.',
+        'RC requires fresh rollback rehearsal, healthy support, docs, release notes, staged plan, and kill switch.',
         [
           `rollbackRehearsalFresh=${options.rollbackRehearsalFresh}`,
           `supportLoadOk=${options.supportLoadOk}`,
@@ -478,15 +476,14 @@ export class CapabilityAutopilotReleaseCandidateGateService {
       ),
       this.check(
         'capability-autopilot-release-candidate:governance',
-        'governanca de RC aprovada',
+        'approved RC governance',
         options.telemetryReviewPassed &&
           options.privacyReviewPassed &&
           options.rcFlagDefaultOff &&
           !options.globalRolloutEnabled &&
-          !options.autoPromoteEnabled
-          ? 'pass'
+          !options.autoPromoteEnabled ? 'pass'
           : 'fail',
-        'RC exige revisao de telemetry/privacy, flag off por padrao e nenhuma promocao automatica.',
+        'RC requires telemetry/privacy review, default-off flag, and no automatic promotion.',
         [
           `telemetryReviewPassed=${options.telemetryReviewPassed}`,
           `privacyReviewPassed=${options.privacyReviewPassed}`,
@@ -497,16 +494,16 @@ export class CapabilityAutopilotReleaseCandidateGateService {
       ),
       this.check(
         'capability-autopilot-release-candidate:no-blockers',
-        'sem blockers de release candidate',
+        'without blockers de release candidate',
         blockers.length === 0 ? 'pass' : 'fail',
-        'Nao pode haver blocker agregado para promover release candidate.',
+        'There can be no aggregate blocker to promote release candidate.',
         blockers.length > 0 ? blockers : ['blockers=0'],
       ),
       this.check(
         'capability-autopilot-release-candidate:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Snapshot publico de RC nao pode reintroduzir intent cru.',
+        'Public RC snapshot cannot reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],

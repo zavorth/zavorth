@@ -22,7 +22,7 @@ provider:
 channel:
   connection_lost: "Conexão com {channel} perdida."
   authentication_failed: "Autenticação falhou para {channel}."
-  message_send_failed: "Falha ao enviar mensagem via {channel}: {error}"
+  message_send_failed: "Failure ao enviar mensagem via {channel}: {error}"
   webhook_invalid: "Payload de webhook inválido de {channel}."
 
 security:
@@ -33,13 +33,13 @@ security:
   secret_detected: "Segredo detectado na saída. Redigindo."
 
 memory:
-  load_failed: "Falha ao carregar memória: {error}"
-  save_failed: "Falha ao salvar memória: {error}"
+  load_failed: "Failure ao carregar memória: {error}"
+  save_failed: "Failure ao salvar memória: {error}"
   search_failed: "Busca na memória falhou: {error}"
   corrupted: "Dados da memória parecem corrompidos."
 
 skill:
-  load_failed: "Falha ao carregar skill '{skill}': {error}"
+  load_failed: "Failure ao carregar skill '{skill}': {error}"
   not_found: "Skill '{skill}' não encontrada."
   execution_failed: "Execução da skill '{skill}' falhou: {error}"
   invalid_manifest: "Manifesto inválido para a skill '{skill}'."

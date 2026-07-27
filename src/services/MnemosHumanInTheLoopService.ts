@@ -95,7 +95,7 @@ export class MnemosHumanInTheLoopService {
       '',
       candidateList,
       '',
-      '📌 Should I index any of them so I can answer your question?',
+      '📌 Should I index any of them so I can answer your question...',
     ].join('\n');
 
     const buttons: Array<{ text: string; callback_data: string }[]> = [];
@@ -230,8 +230,7 @@ export class MnemosHumanInTheLoopService {
       };
     }
 
-    const chunks = typeof parsed.chunksIndexed === 'number'
-      ? ` (${parsed.chunksIndexed} chunk(s))`
+    const chunks = typeof parsed.chunksIndexed === 'number' ? ` (${parsed.chunksIndexed} chunk(s))`
       : '';
     return {
       handled: true,
@@ -268,7 +267,7 @@ export class MnemosHumanInTheLoopService {
         chunksIndexed: typeof parsed.chunks_indexed === 'number' ? parsed.chunks_indexed : null,
       };
     } catch (error: unknown) {
-      if (/error executing tool|erro/i.test(text)) {
+      if (/error executing tool|error/i.test(text)) {
         return { error: text, chunksIndexed: null };
       }
       return { error: null, chunksIndexed: null };

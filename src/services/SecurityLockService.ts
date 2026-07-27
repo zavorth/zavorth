@@ -15,13 +15,13 @@ export type LockState = {
  * SecurityLockService — Tranca e destranca o Zavorth com senha.
  * 
  * Quando trancado:
- *   - Todos os comandos de execução são bloqueados
+ *   - All execution commands are blocked
  *   - Apenas /unlock e /status funcionam
  *   - O status mostra "🔒 Trancado" sem revelar detalhes
  * 
- * Segurança:
+ * Security:
  *   - Senha armazenada como hash SHA-256 com salt fixo
- *   - Mensagens com senha são apagadas automaticamente
+ *   - Password messages are deleted automatically
  *   - Nenhum log registra a senha em texto
  */
 export class SecurityLockService {
@@ -41,7 +41,7 @@ export class SecurityLockService {
   }
 
   /**
-   * Verifica se o bot está trancado.
+   * Checks whether the bot is locked.
    */
   public isLocked(): boolean {
     return this.state.locked;
@@ -55,7 +55,7 @@ export class SecurityLockService {
   }
 
   /**
-   * Verifica se a senha já foi configurada.
+   * Checks whether the password has already been configured.
    */
   public isPasswordConfigured(): boolean {
     return this.passwordHash !== null;
@@ -89,7 +89,7 @@ export class SecurityLockService {
 
   /**
    * Tenta destrancar com a senha fornecida.
-   * Retorna true se a senha está correta e o bot foi destrancado.
+   * Returns true when the password is correct and the bot was unlocked.
    */
   public unlock(plainPassword: string): boolean {
     if (!this.passwordHash) {
@@ -112,7 +112,7 @@ export class SecurityLockService {
   }
 
   /**
-   * Verifica se um comando deve ser permitido quando trancado.
+   * Checks whether a command should be allowed while locked.
    */
   public isCommandAllowedWhenLocked(commandType: string): boolean {
     const allowed = new Set(['/unlock', '/status']);

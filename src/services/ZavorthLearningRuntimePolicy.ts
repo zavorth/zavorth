@@ -159,8 +159,7 @@ export function resolveLearningRuntimePolicy(
     autoInstallSkills: false,
     canModifySecurityPolicy: false,
     userConsentRequired: !autonomous,
-    summary: autonomous
-      ? 'Autonomous learning writes reversible green preferences and yellow skill drafts with receipts; security policy never auto-changes.'
+    summary: autonomous ? 'Autonomous learning writes reversible green preferences and yellow skill drafts with receipts; security policy never auto-changes.'
       : 'Governed learning keeps candidates for review; no silent skill or preference install.',
   };
 }

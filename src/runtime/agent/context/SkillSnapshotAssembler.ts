@@ -78,7 +78,7 @@ function normalizeRecord(value: unknown): Record<string, unknown> {
 function summarizeMarkdown(value: string | null): string | null {
   const firstLine = normalizeText(
     String(value || '')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((line) => line.trim())
       .find(Boolean),
   );
@@ -228,14 +228,13 @@ export class SkillSnapshotAssembler {
 
   private buildPrompt(skills: SkillSnapshotEntry[], maxPromptChars: number): string {
     const lines = [
-      'SKILLS DISPONIVEIS:',
-      'Executores resolvidos ; nao invente tool names fora da lista do runtime.',
+      'AVAILABLE SKILLS:',
+      'Resolved executors; do not invent tool names outside the runtime list.',
       ...skills.map((skill) => {
-        const tools = skill.quarantined
-          ? 'tools ocultas ate review'
+        const tools = skill.quarantined ? 'tools ocultas ate review'
           : skill.toolNames.length > 0
             ? skill.toolNames.join(', ')
-            : 'sem tools resolvidas';
+            : 'without tools resolvidas';
         const prefix = sanitizeTrustPlaneText(`- ${skill.id} [${skill.trustState}]: ${tools}`, {
           maxChars: 600,
         });
@@ -246,7 +245,7 @@ export class SkillSnapshotAssembler {
           skill_id: skill.id,
           source: 'skill_manifest_summary',
         }).replace(/\n/g, ' ');
-        return `${prefix} - resumo: ${wrappedSummary}`;
+        return `${prefix} - summary: ${wrappedSummary}`;
       }),
     ];
 

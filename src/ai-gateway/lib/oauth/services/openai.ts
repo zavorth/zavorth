@@ -28,7 +28,7 @@ export class OpenAIService extends OAuthService {
       ...OPENAI_CONFIG.extraParams,
     });
 
-    return `${OPENAI_CONFIG.authorizeUrl}?${params.toString()}`;
+    return `${OPENAI_CONFIG.authorizeUrl}...${params.toString()}`;
   }
 
   /**

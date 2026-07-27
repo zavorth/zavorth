@@ -148,7 +148,7 @@ function buildProfiles(): ChannelCapabilityProfile[] {
     profile('telegram', 'Telegram', 'telegram', 'telegram_inline_keyboard', true, {
       buttons: true,
       menus: true,
-      pagination: true,
+      pagetion: true,
       tables: true,
       lists: false,
       safeMarkdown: true,
@@ -160,7 +160,7 @@ function buildProfiles(): ChannelCapabilityProfile[] {
     profile('discord', 'Discord', 'discord', 'discord_components', true, {
       buttons: true,
       menus: true,
-      pagination: true,
+      pagetion: true,
       tables: true,
       lists: false,
       safeMarkdown: true,
@@ -172,7 +172,7 @@ function buildProfiles(): ChannelCapabilityProfile[] {
     profile('whatsapp', 'WhatsApp', 'whatsapp', 'structured_text_fallback', true, {
       buttons: false,
       menus: false,
-      pagination: true,
+      pagetion: true,
       tables: true,
       lists: true,
       safeMarkdown: false,
@@ -184,7 +184,7 @@ function buildProfiles(): ChannelCapabilityProfile[] {
     profile('signal', 'Signal', 'signal', 'structured_text_fallback', true, {
       buttons: false,
       menus: false,
-      pagination: true,
+      pagetion: true,
       tables: true,
       lists: true,
       safeMarkdown: false,
@@ -196,7 +196,7 @@ function buildProfiles(): ChannelCapabilityProfile[] {
     profile('imessage', 'iMessage', 'imessage', 'structured_text_fallback', true, {
       buttons: false,
       menus: false,
-      pagination: true,
+      pagetion: true,
       tables: true,
       lists: true,
       safeMarkdown: false,
@@ -208,7 +208,7 @@ function buildProfiles(): ChannelCapabilityProfile[] {
     profile('cli', 'CLI', 'cli', 'dense_cli', true, {
       buttons: false,
       menus: false,
-      pagination: true,
+      pagetion: true,
       tables: true,
       lists: true,
       safeMarkdown: false,
@@ -220,7 +220,7 @@ function buildProfiles(): ChannelCapabilityProfile[] {
     profile('web', 'Web/API', 'web', 'web_api_payload', true, {
       buttons: true,
       menus: true,
-      pagination: true,
+      pagetion: true,
       tables: true,
       lists: true,
       safeMarkdown: true,
@@ -232,7 +232,7 @@ function buildProfiles(): ChannelCapabilityProfile[] {
     profile('slack', 'Slack', 'slack', 'structured_text_fallback', false, {
       buttons: false,
       menus: false,
-      pagination: true,
+      pagetion: true,
       tables: true,
       lists: true,
       safeMarkdown: true,
@@ -244,7 +244,7 @@ function buildProfiles(): ChannelCapabilityProfile[] {
     profile('instagram', 'Instagram', 'instagram', 'structured_text_fallback', false, {
       buttons: false,
       menus: false,
-      pagination: true,
+      pagetion: true,
       tables: false,
       lists: true,
       safeMarkdown: false,
@@ -256,7 +256,7 @@ function buildProfiles(): ChannelCapabilityProfile[] {
     profile('teams', 'Teams', 'teams', 'structured_text_fallback', false, {
       buttons: false,
       menus: false,
-      pagination: true,
+      pagetion: true,
       tables: true,
       lists: true,
       safeMarkdown: true,
@@ -268,7 +268,7 @@ function buildProfiles(): ChannelCapabilityProfile[] {
     profile('email', 'Email', 'email', 'structured_text_fallback', false, {
       buttons: false,
       menus: false,
-      pagination: false,
+      pagetion: false,
       tables: true,
       lists: true,
       safeMarkdown: false,

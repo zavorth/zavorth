@@ -1,5 +1,5 @@
 /**
- * Circuit Breaker — FASE-04 Observability & Resilience
+ * Circuit Breaker — Observability & Resilience
  *
  * Implements the circuit breaker pattern for external API calls.
  * Prevents cascading failures by short-circuiting requests to
@@ -89,7 +89,7 @@ export class CircuitBreaker {
           this.halfOpenAllowed = this.halfOpenRequests;
         }
       }
-    } catch (error: unknown) {// DB may not be ready yet (build phase)
+    } catch (error: unknown) {// DB may not be ready yet during build
       logger.warn('[circuit Breaker] resource cleanup failed', error);
     }
   }
@@ -119,7 +119,7 @@ export class CircuitBreaker {
    * Execute a function through the circuit breaker.
    *
    * @template T
-   * @param {() => Promise<T>} fn - Function to execute
+   * @param {() => Promise<T>} fn ? Function to execute
    * @returns {Promise<T>}
    * @throws {Error} If circuit is OPEN
    */

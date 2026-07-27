@@ -22,7 +22,7 @@ export class HostActionLedgerService {
       return [];
     }
     const lines = fs.readFileSync(this.ledgerFile, 'utf8')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((line) => line.trim())
       .filter(Boolean);
     return lines

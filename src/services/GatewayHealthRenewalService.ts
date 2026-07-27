@@ -47,25 +47,25 @@ export class GatewayHealthRenewalService {
     if (channelProviderDoctor?.status === 'passed' && channelProviderDoctor.stale) {
       items.push({
         id: 'channel-provider-doctor',
-        label: 'Doctor de canais nativos',
+        label: 'Native channel doctor',
         command: 'npm run test:channels:smoke',
-        summary: 'O doctor dos canais nativos ficou velho e merece renovaction leve.',
+        summary: 'The native channel doctor is stale and should be renewed lightly.',
       });
     }
 
     if (remoteTransportDoctor?.status === 'passed' && remoteTransportDoctor.stale) {
       items.push({
         id: 'remote-transport-doctor',
-        label: 'Doctor de transportes remotos',
+        label: 'Doctor de remote transports',
         command: 'npm run test:transports:smoke',
-        summary: 'O doctor dos transportes remotos ficou velho e merece renovaction leve.',
+        summary: 'O doctor dos remote transports ficou velho e merece renovaction leve.',
       });
     }
 
     if (items.length === 0) {
       return {
         status: 'fresh',
-        summary: 'Checks de health estao frescos ou ainda nao exigem renovacao leve.',
+        summary: 'Health checks are fresh or do not require lightweight renewal yet.',
         items: [],
         commands: [],
       };
@@ -73,10 +73,9 @@ export class GatewayHealthRenewalService {
 
     return {
       status: 'renewal_recommended',
-      summary: `Existem ${items.length} check(s) de health com renovacao leve recomendada.`,
+      summary: `Existem ${items.length} check(s) de health com renovaction leve recomendada.`,
       items,
       commands: Array.from(new Set(items.map((entry) => entry.command))),
     };
   }
 }
-

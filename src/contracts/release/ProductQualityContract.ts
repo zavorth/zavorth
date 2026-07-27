@@ -90,7 +90,7 @@ export const PRODUCT_QUALITY_COMMANDS: ProductQualityCommandSpec[] = [
     localAlias: 'chat',
   },
   {
-    command: 'zavorth run "<pedido>"',
+    command: 'zavorth run "<request>"',
     family: 'work',
     summary: 'sends a single natural-language request',
   },
@@ -142,7 +142,7 @@ export const PRODUCT_QUALITY_COMMANDS: ProductQualityCommandSpec[] = [
     jsonExample: 'zavorth artifacts task latest --json',
   },
   {
-    command: 'zavorth supervisor plan "<pedido>"',
+    command: 'zavorth supervisor plan "<request>"',
     family: 'capabilities',
     summary: 'builds a supervised DAG when the task justifies it',
     localAlias: 'supervisor',

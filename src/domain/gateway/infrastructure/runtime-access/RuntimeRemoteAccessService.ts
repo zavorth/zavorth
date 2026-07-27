@@ -93,29 +93,26 @@ export class RuntimeRemoteAccessService {
     return [
       {
         id: 'official',
-        label: 'Caminho oficial do app remoto',
+        label: 'path oficial do app remote',
         status: officialReady ? 'ready' : 'pending',
-        summary: officialReady
-          ? `App remoto validado em ${official.remote.appUrl || official.manifest.remote.appUrl || official.manifest.remote.baseUrl || 'URL publica atual'}.`
+        summary: officialReady ? `App remote validated em ${official.remote.appUrl || official.manifest.remote.appUrl || official.manifest.remote.baseUrl || 'URL public current'}.`
           : this.buildOfficialPendingSummary(official),
         command: official.manifest.commands.remote,
         steps: [
           {
             id: 'probe-app',
-            title: 'Provar a superficie web remota',
+            title: 'Prove the remote web surface',
             status: official.remote.appProbe?.ok ? 'done' : 'pending',
-            detail: official.remote.appProbe?.ok
-              ? `GET ${official.remote.appProbe.targetUrl} respondeu ${official.remote.appProbe.statusCode}.`
-              : `Valide ${official.remote.appUrl || official.manifest.remote.appUrl || official.manifest.remote.baseUrl || 'a URL publica'} com ${official.manifest.commands.remote}.`,
+            detail: official.remote.appProbe?.ok ? `GET ${official.remote.appProbe.targetUrl} respondeu ${official.remote.appProbe.statusCode}.`
+              : `Validate ${official.remote.appUrl || official.manifest.remote.appUrl || official.manifest.remote.baseUrl || 'the public URL'} with ${official.manifest.commands.remote}.`,
             command: official.manifest.commands.remote,
           },
           {
             id: 'probe-auth',
-            title: 'Validar auth web remoto',
+            title: 'validate auth web remote',
             status: official.remote.authProbe?.ok ? 'done' : 'pending',
-            detail: official.remote.authProbe?.ok
-              ? `POST ${official.remote.authProbe.targetUrl} respondeu ${official.remote.authProbe.statusCode}.`
-              : 'Confira ZAVORTH_WEB_AUTH_TOKEN e a exposicao publica antes de abrir o app remoto.',
+            detail: official.remote.authProbe?.ok ? `POST ${official.remote.authProbe.targetUrl} respondeu ${official.remote.authProbe.statusCode}.`
+              : 'Confira ZAVORTH_WEB_AUTH_TOKEN e a exposure public before abrir o app remote.',
             command: official.manifest.commands.remote,
           },
         ],
@@ -124,9 +121,8 @@ export class RuntimeRemoteAccessService {
         id: 'windows-local-cloudflare',
         label: 'Windows local + Cloudflare Tunnel',
         status: officialReady ? 'ready' : localCloudflare?.ready ? 'rollout-ready' : 'pending',
-        summary: officialReady
-          ? `O caminho local do Windows ja fecha o acesso remoto oficial em ${official.remote.appUrl || official.manifest.remote.appUrl || official.manifest.remote.baseUrl || 'URL publica atual'}.`
-          : (localCloudflare?.summary || 'Plano B local ainda pendente.'),
+        summary: officialReady ? `The local Windows path already closes official remote access at ${official.remote.appUrl || official.manifest.remote.appUrl || official.manifest.remote.baseUrl || 'current public URL'}.`
+          : (localCloudflare?.summary || 'Local fallback plan is still pending.'),
         command: 'npm run ops:local-cloudflare',
         steps: this.buildRolloutSteps(localCloudflare),
       },
@@ -134,9 +130,8 @@ export class RuntimeRemoteAccessService {
         id: 'oracle-cloudflare',
         label: 'Oracle + Cloudflare + Gemini/Gemma',
         status: officialReady ? 'ready' : oracleCloudflare?.ready ? 'rollout-ready' : 'pending',
-        summary: officialReady
-          ? `O runtime remoto ja fechou o caminho oficial em ${official.remote.appUrl || official.manifest.remote.appUrl || official.manifest.remote.baseUrl || 'URL publica atual'}.`
-          : (oracleCloudflare?.summary || 'Rollout Oracle ainda pendente.'),
+        summary: officialReady ? `The remote runtime already closed the official path at ${official.remote.appUrl || official.manifest.remote.appUrl || official.manifest.remote.baseUrl || 'current public URL'}.`
+          : (oracleCloudflare?.summary || 'Rollout Oracle ainda pending.'),
         command: 'npm run ops:oracle-cloudflare',
         steps: this.buildRolloutSteps(oracleCloudflare),
       },
@@ -151,21 +146,21 @@ export class RuntimeRemoteAccessService {
     if (official.remote.ready) {
       return {
         id: 'official',
-        reason: 'O app remoto e a auth web ja responderam; so mantenha esse caminho como trilha oficial.',
+        reason: 'O app remote e a auth web already responderam; so mantenha esse path como trilha oficial.',
       };
     }
 
     if (officialRemote.rollout.activeId === 'local-cloudflare') {
       return {
         id: 'windows-local-cloudflare',
-        reason: 'O rollout oficial atual usa Cloudflare no host local.',
+        reason: 'O rollout oficial current usa Cloudflare no host local.',
       };
     }
 
     if (officialRemote.rollout.activeId === 'oracle-cloudflare') {
       return {
         id: 'oracle-cloudflare',
-        reason: 'O rollout oficial atual usa Oracle + Cloudflare.',
+        reason: 'O rollout oficial current usa Oracle + Cloudflare.',
       };
     }
 
@@ -175,12 +170,12 @@ export class RuntimeRemoteAccessService {
       if (localCloudflare?.ready) {
         return {
           id: 'windows-local-cloudflare',
-          reason: 'Este host e Windows e o plano com Cloudflare Tunnel ja esta pronto para fechar a publicacao oficial.',
+          reason: 'This host is Windows and the Cloudflare Tunnel plan is ready to complete official publication.',
         };
       }
       return {
         id: 'windows-local-cloudflare',
-        reason: 'Este host e Windows; o menor caminho para publicar o app remoto e fechar o rollout local com Cloudflare.',
+        reason: 'This host is Windows; the shortest path for publishing the remote app is completing the local rollout with Cloudflare.',
       };
     }
 
@@ -188,20 +183,20 @@ export class RuntimeRemoteAccessService {
     if (oracleCloudflare?.ready) {
       return {
         id: 'oracle-cloudflare',
-        reason: 'A trilha Oracle + Cloudflare ja tem os prerequisitos do rollout remoto bem encaminhados.',
+        reason: 'A trilha Oracle + Cloudflare already tem os prerequisitos do rollout remote bem encaminhados.',
       };
     }
 
     if (paths.find((path) => path.id === 'official')?.status === 'pending') {
       return {
         id: 'official',
-        reason: 'O caminho oficial ainda pede prova de app e auth remotos; feche isso antes de mudar de arquitetura.',
+        reason: 'The official path still requires remote app and auth proof; close that gap before changing architecture.',
       };
     }
 
     return {
       id: 'oracle-cloudflare',
-      reason: 'A trilha Oracle + Cloudflare e a rota mais direta para um host remoto persistente fora do Windows local.',
+      reason: 'The Oracle + Cloudflare path is the most direct route to a persistent remote host outside the local Windows environment.',
     };
   }
 
@@ -212,13 +207,12 @@ export class RuntimeRemoteAccessService {
   ): string {
     const official = officialRemote.official;
     if (official.remote.ready) {
-      return `Acesso remoto oficial pronto em ${official.remote.appUrl || official.manifest.remote.appUrl || official.manifest.remote.baseUrl || 'URL publica atual'}.`;
+      return `access remote oficial ready em ${official.remote.appUrl || official.manifest.remote.appUrl || official.manifest.remote.baseUrl || 'URL public current'}.`;
     }
 
     const recommended = paths.find((path) => path.id === recommendedPathId);
-    return recommended
-      ? `Acesso remoto oficial ainda pendente. Melhor proximo caminho: ${recommended.label}.`
-      : 'Acesso remoto oficial ainda pendente.';
+    return recommended ? `access remote oficial ainda pending. Melhor next path: ${recommended.label}.`
+      : 'access remote oficial ainda pending.';
   }
 
   private buildNextSteps(
@@ -270,22 +264,21 @@ export class RuntimeRemoteAccessService {
   private buildOfficialPendingSummary(official: RuntimeOfficialAccessReport): string {
     const remoteUrl = official.remote.appUrl || official.manifest.remote.appUrl || official.manifest.remote.baseUrl;
     if (!remoteUrl) {
-      return 'Ainda falta definir e validar uma URL publica HTTPS para o app remoto.';
+      return 'Still missing definition and validation for a public HTTPS URL for the remote app.';
     }
 
     if (!official.remote.appProbe?.ok && !official.remote.authProbe?.ok) {
-      return `A URL publica ${remoteUrl} ainda nao respondeu como app remoto nem como auth web.`;
+      return `The public URL ${remoteUrl} has not responded as remote app or web auth yet.`;
     }
 
     if (!official.remote.appProbe?.ok) {
-      return `A auth web respondeu, mas o app remoto em ${remoteUrl} ainda nao abriu do jeito esperado.`;
+      return `Web auth responded, but the remote app at ${remoteUrl} has not opened as expected yet.`;
     }
 
     if (!official.remote.authProbe?.ok) {
-      return `O app remoto abriu em ${remoteUrl}, mas a auth web ainda nao foi validada com sucesso.`;
+      return `The remote app opened at ${remoteUrl}, but web auth has not been successfully validated yet.`;
     }
 
-    return 'O caminho oficial remoto ainda pede fechamento final.';
+    return 'O path oficial remote ainda pede closure final.';
   }
 }
-

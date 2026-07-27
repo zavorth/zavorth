@@ -321,9 +321,9 @@ export class ZavorthMemoryPlaneService {
     if (input.artifacts[0] && sessionTarget) {
       actions.push({
         id: 'artifact-resume',
-        label: `Retomar a partir de ${input.artifacts[0].label}`,
+        label: `resume a partir de ${input.artifacts[0].label}`,
         command: `/sessionhistory ${sessionTarget}`,
-        reason: input.artifacts[0].summary || 'Existe uma entrega recente pronta para reaproveitar.',
+        reason: input.artifacts[0].summary || 'A recent delivery is ready for reuse.',
         kind: 'artifact',
       });
     }
@@ -331,9 +331,9 @@ export class ZavorthMemoryPlaneService {
     if (!input.recentMemories.length) {
       actions.push({
         id: 'memory-seed',
-        label: 'Semear memoria persistente',
-        command: '/remember <chave> <valor>',
-        reason: 'Ainda nao existem memorias persistentes registradas para este operador.',
+        label: 'Semear memory persistente',
+        command: '/remember <chave> <value>',
+        reason: 'There are no persistent memories registered for this operator yet.',
         kind: 'memory',
       });
     }
@@ -341,9 +341,9 @@ export class ZavorthMemoryPlaneService {
     if (!input.workspace && input.workspaceHint) {
       actions.push({
         id: 'workspace-build',
-        label: 'Materializar memoria operacional',
-        command: '/task revisar workspace atual',
-        reason: 'O workspace em foco ainda nao virou memoria operacional reutilizavel.',
+        label: 'Materializar memory operational',
+        command: '/task review workspace current',
+        reason: 'The focused workspace has not become reusable operational memory yet.',
         kind: 'workspace',
       });
     }
@@ -351,9 +351,9 @@ export class ZavorthMemoryPlaneService {
     if (input.timelineConflicts.length > 0) {
       actions.push({
         id: 'memory-conflict-review',
-        label: 'Revisar fatos que mudaram',
+        label: 'review fatos que mudaram',
         command: '/memoryplane',
-        reason: `${input.timelineConflicts.length} fato(s) mudaram e agora aparecem como historico no contexto.`,
+        reason: `${input.timelineConflicts.length} fact(s) changed and now appear as history in context.`,
         kind: 'memory',
       });
     }
@@ -370,25 +370,22 @@ export class ZavorthMemoryPlaneService {
     timeline: ZavorthMemoryPlaneSnapshot['timeline'];
   }): string {
     const parts = [
-      input.replay
-        ? `${input.replay.stats?.tasks || 0} tarefa(s) no replay`
-        : 'sem replay relevante',
-      input.artifacts.length
-        ? `${input.artifacts.length} artefato(s) reutilizavel(is)`
-        : 'sem artefatos recentes',
-      input.recentMemories.length
-        ? `${input.recentMemories.length} memoria(s) persistente(s)`
-        : 'sem memoria persistente',
+      input.replay ? `${input.replay.stats?.tasks || 0} task(s) no replay`
+        : 'without replay relevante',
+      input.artifacts.length ? `${input.artifacts.length} artifact(s) reutilizavel(is)`
+        : 'without recent artifacts',
+      input.recentMemories.length ? `${input.recentMemories.length} persistent memory item(s)`
+        : 'without memory persistente',
     ];
 
     if (input.relevantMemories.length) {
-      parts.push(`${input.relevantMemories.length} memoria(s) relevante(s) para o contexto atual`);
+      parts.push(`${input.relevantMemories.length} relevant memory item(s) for current context`);
     }
     if (input.workspace) {
-      parts.push(`workspace ${input.workspace.workspace} com memoria operacional pronta`);
+      parts.push(`workspace ${input.workspace.workspace} com memory operational ready`);
     }
     if (input.timeline.conflicts.length) {
-      parts.push(`${input.timeline.conflicts.length} fato(s) mudaram e seguem visiveis na timeline`);
+      parts.push(`${input.timeline.conflicts.length} fato(s) mudaram e seguem visible na timeline`);
     }
 
     return parts.join(' | ');
@@ -445,7 +442,7 @@ export class ZavorthMemoryPlaneService {
         happenedAt: artifact.createdAt || null,
         category: artifact.kind || null,
         source: 'replay.artifact',
-        summary: artifact.summary || 'Artefato recente reutilizavel.',
+        summary: artifact.summary || 'Artifact recente reutilizavel.',
       });
     }
 
@@ -458,8 +455,7 @@ export class ZavorthMemoryPlaneService {
         happenedAt: workflow.updatedAt || null,
         category: workflow.status || null,
         source: 'workspace.workflow',
-        summary: workflow.primaryArtifactName
-          ? `${workflow.status} | artefato ${workflow.primaryArtifactName}`
+        summary: workflow.primaryArtifactName ? `${workflow.status} | artifact ${workflow.primaryArtifactName}`
           : workflow.status,
       });
     }
@@ -550,7 +546,7 @@ export class ZavorthMemoryPlaneService {
         currentValue: String(current.value || '').trim(),
         previousValue: String(previous.value || '').trim(),
         detectedAt: current.updated_at || current.created_at || null,
-        reason: 'O fato atual difere do historico recente recuperado para o mesmo identificador.',
+        reason: 'The current fact differs from recent history recovered for the same identifier.',
       });
     }
 

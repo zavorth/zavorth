@@ -45,7 +45,7 @@ export const kimiCoding = {
       verification_uri: data.verification_uri || `https://auth.kimi.com/activate`,
       verification_uri_complete:
         data.verification_uri_complete ||
-        `https://auth.kimi.com/activate?user_code=${data.user_code}`,
+        `https://auth.kimi.com/activate...user_code=${data.user_code}`,
       expires_in: data.expires_in,
       interval: data.interval || 5,
     };

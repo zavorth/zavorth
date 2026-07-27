@@ -42,8 +42,7 @@ export class FinalCanaryReleaseClosureService {
     const blockedItems = items.filter((item) => item.status === 'blocked').length;
     const status: FinalCanaryReleaseClosureStatus = promotionDecisionLedgerSnapshot.status === 'blocked' || failedGates > 0 || blockedItems > 0
       ? 'blocked'
-      : items.some((item) => item.status === 'closure-ready')
-        ? 'closure-ready'
+      : items.some((item) => item.status === 'closure-ready') ? 'closure-ready'
         : 'attention';
 
     const phaseChainComplete = this.phaseChainComplete(items) && promotionDecisionLedgerSnapshot.summary.promotionDecisionLedgerReady;
@@ -93,10 +92,10 @@ export class FinalCanaryReleaseClosureService {
         promotionDecisionLedgerStatus: promotionDecisionLedgerSnapshot.status,
         promotionDecisionLedgerReady: promotionDecisionLedgerSnapshot.summary.promotionDecisionLedgerReady,
         heldReleaseExecutionGateLinked: items.some((item) => item.id === 'held-release-execution-gate' && item.status === 'linked'),
-        previewEngine0Linked: items.some((item) => item.id === 'checkpoint-20-approval-ledger-link' && item.status === 'closure-ready'),
-        previewEngine1Linked: items.some((item) => item.id === 'checkpoint-21-launch-rehearsal-link' && item.status === 'closure-ready'),
-        previewEngine2Linked: items.some((item) => item.id === 'checkpoint-22-monitoring-rollback-link' && item.status === 'closure-ready'),
-        previewEngine3Linked: items.some((item) => item.id === 'checkpoint-23-promotion-decision-link' && item.status === 'closure-ready'),
+        previewEngine0Linked: items.some((item) => item.id === 'gate-20-approval-ledger-link' && item.status === 'closure-ready'),
+        previewEngine1Linked: items.some((item) => item.id === 'gate-21-launch-rehearsal-link' && item.status === 'closure-ready'),
+        previewEngine2Linked: items.some((item) => item.id === 'gate-22-monitoring-rollback-link' && item.status === 'closure-ready'),
+        previewEngine3Linked: items.some((item) => item.id === 'gate-23-promotion-decision-link' && item.status === 'closure-ready'),
         phaseChainComplete,
         closureEvidenceComplete,
         manualHandoffsReady,
@@ -132,7 +131,7 @@ export class FinalCanaryReleaseClosureService {
         requireClosureReady: 'npm run final-canary-release-closure --silent -- --require-closure-ready',
         promotionDecisionLedger: 'npm run canary-promotion-decision-ledger --silent -- --require-ledger-ready',
         releaseExecutionHeld: 'npm run capability-autopilot:release-execution --silent -- --no-execution-approval --no-tag-approval --no-publish-approval --no-canary-launch-approval',
-        chainValidation: 'dry-run:validate-canary-chain --phases 20-24 --no-execute',
+        chainValidation: 'dry-run:validate-canary-chain --gates 20-24 --no-execute',
         manualReleaseDecisionHandoff: 'manual:open-release-decision-outside-dry-run-chain --requires-signed-evidence',
         focusedTests: [
           'npx jest tests/services/FinalCanaryReleaseClosureService.test.ts --runInBand',
@@ -186,7 +185,7 @@ export class FinalCanaryReleaseClosureService {
       `Canary dry-run sequence complete: ${snapshot.closure.canaryDryRunSequenceComplete}`,
       `Ready for separate manual release decision: ${snapshot.closure.readyForSeparateManualReleaseDecision}`,
       `Manual release decision recorded: ${snapshot.closure.manualReleaseDecisionRecorded}`,
-      `No further automated phase: ${snapshot.closure.noFurtherAutomatedStage}`,
+      `No further automated release state: ${snapshot.closure.noFurtherAutomatedStage}`,
       `Sequence closes at Preview engine4: ${snapshot.closure.sequenceClosesAtStage24}`,
       `Items: ${snapshot.summary.linkedItems} linked, ${snapshot.summary.closureReadyItems} closure-ready, ${snapshot.summary.operatorReadyItems} operator-ready, ${snapshot.summary.lockedItems} locked, ${snapshot.summary.blockedItems} blocked`,
       `Gates: ${snapshot.summary.passedGates}/${snapshot.summary.gates} pass`,
@@ -235,33 +234,33 @@ export class FinalCanaryReleaseClosureService {
         evidence: 'Release execution remains linked in explicit hold mode.',
       }),
       closureItem({
-        id: 'checkpoint-20-approval-ledger-link',
-        surface: 'phase-chain',
-        command: 'dry-run:verify-checkpoint-20-approval-ledger-link --no-network',
+        id: 'gate-20-approval-ledger-link',
+        surface: 'release-chain',
+        command: 'dry-run:verify-gate-20-approval-ledger-link --no-network',
         evidence: 'Preview engine0 approval ledger is part of the closed canary chain.',
       }),
       closureItem({
-        id: 'checkpoint-21-launch-rehearsal-link',
-        surface: 'phase-chain',
-        command: 'dry-run:verify-checkpoint-21-launch-rehearsal-link --no-network',
+        id: 'gate-21-launch-rehearsal-link',
+        surface: 'release-chain',
+        command: 'dry-run:verify-gate-21-launch-rehearsal-link --no-network',
         evidence: 'Preview engine1 launch rehearsal is part of the closed canary chain.',
       }),
       closureItem({
-        id: 'checkpoint-22-monitoring-rollback-link',
-        surface: 'phase-chain',
-        command: 'dry-run:verify-checkpoint-22-monitoring-rollback-link --no-network',
+        id: 'gate-22-monitoring-rollback-link',
+        surface: 'release-chain',
+        command: 'dry-run:verify-gate-22-monitoring-rollback-link --no-network',
         evidence: 'Preview engine2 monitoring rollback gate is part of the closed canary chain.',
       }),
       closureItem({
-        id: 'checkpoint-23-promotion-decision-link',
-        surface: 'phase-chain',
-        command: 'dry-run:verify-checkpoint-23-promotion-decision-link --no-network',
+        id: 'gate-23-promotion-decision-link',
+        surface: 'release-chain',
+        command: 'dry-run:verify-gate-23-promotion-decision-link --no-network',
         evidence: 'Preview engine3 promotion decision ledger is part of the closed canary chain.',
       }),
       closureItem({
         id: 'side-effect-zeroing-evidence',
         surface: 'evidence',
-        command: 'dry-run:verify-zero-live-side-effects --phases 20-24 --no-execute',
+        command: 'dry-run:verify-zero-live-side-effects --gates 20-24 --no-execute',
         evidence: 'All live side effects remain zero across the canary closure chain.',
       }),
       closureItem({
@@ -279,14 +278,14 @@ export class FinalCanaryReleaseClosureService {
       closureItem({
         id: 'audit-closure-record',
         surface: 'audit',
-        command: 'dry-run:audit-final-canary-closure --phases 20-24 --no-upload',
+        command: 'dry-run:audit-final-canary-closure --gates 20-24 --no-upload',
         evidence: 'Final canary closure audit record is prepared without upload.',
       }),
       operatorItem({
         id: 'manual-release-decision-handoff',
         surface: 'release-handoff',
         command: 'manual:open-release-decision-outside-dry-run-chain --requires-signed-evidence',
-        evidence: 'Future release decision is explicitly outside this dry-run phase chain.',
+        evidence: 'Future release decision is explicitly outside this dry-run release chain.',
       }),
       operatorItem({
         id: 'incident-commander-handoff',
@@ -382,12 +381,12 @@ export class FinalCanaryReleaseClosureService {
         nextAction: 'link release execution in explicit hold mode',
       }),
       gate({
-        id: 'phase-chain-complete',
+        id: 'release-chain-complete',
         status: phaseChainComplete ? 'pass' : 'fail',
-        title: 'Canary dry-run phase chain is complete from 20 through 24',
+        title: 'Canary dry-run release chain is complete.',
         observed: phaseChainComplete,
         threshold: true,
-        receipt: 'final-canary-release-closure.phase-chain-complete.receipt',
+        receipt: 'final-canary-release-closure.release-chain-complete.receipt',
         nextAction: 'restore Preview engine0, 21, 22, or 23 closure links',
       }),
       gate({
@@ -480,10 +479,10 @@ export class FinalCanaryReleaseClosureService {
 
   private phaseChainComplete(items: FinalCanaryReleaseClosureItem[]): boolean {
     return [
-      'checkpoint-20-approval-ledger-link',
-      'checkpoint-21-launch-rehearsal-link',
-      'checkpoint-22-monitoring-rollback-link',
-      'checkpoint-23-promotion-decision-link',
+      'gate-20-approval-ledger-link',
+      'gate-21-launch-rehearsal-link',
+      'gate-22-monitoring-rollback-link',
+      'gate-23-promotion-decision-link',
     ].every((id) => items.some((item) => item.id === id && item.status === 'closure-ready'));
   }
 

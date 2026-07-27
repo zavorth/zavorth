@@ -224,8 +224,7 @@ export function ExpressivePromptBar({
               transition-all duration-200
               disabled:opacity-30 disabled:cursor-not-allowed
               ${
-                isActive
-                  ? "bg-red-500/20 text-red-400 shadow-[0_0_14px_rgba(239,68,68,0.35)] hover:bg-red-500/30"
+                isActive ? "bg-red-500/20 text-red-400 shadow-[0_0_14px_rgba(239,68,68,0.35)] hover:bg-red-500/30"
                   : "bg-white/10 text-white hover:bg-white/[0.18] active:bg-white/[0.24]"
               }
             `}

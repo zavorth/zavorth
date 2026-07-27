@@ -201,7 +201,7 @@ export class PluginOsOnboardingService {
           this.undoneAt ? `undoneAt=${this.undoneAt}` : null,
           `default=${this.defaultProfile} injectAgentSurface=${this.injectAgentSurface}`,
           `optional: ${(this.optionalIds || []).join(', ') || 'none'}`,
-          ...this.profiles.map((p) => `  - ${p.id}: ${p.label} — ${p.summary}`),
+          ...this.profiles.map((p) => ` ? ${p.id}: ${p.label} — ${p.summary}`),
         ].filter(Boolean).join('\n');
       },
     };
@@ -651,8 +651,8 @@ function finishPlan(input: Omit<PluginOsOnboardingPlan, 'formatText'>): PluginOs
         input.optionalIds.length ? `optional: ${input.optionalIds.join(', ')}` : 'optional: (none)',
         ...input.toEnable.map((id) => `  + enable ${id}`),
         ...input.alreadyEnabled.map((id) => `  ~ already ${id}`),
-        ...input.missing.map((id) => `  ? missing ${id}`),
-        ...input.findings.map((line) => `  - ${line}`),
+        ...input.missing.map((id) => ` ? missing ${id}`),
+        ...input.findings.map((line) => ` ? ${line}`),
       ].join('\n');
     },
   };
@@ -668,7 +668,7 @@ function finishApply(input: Omit<PluginOsOnboardingApplyResult, 'formatText'>): 
         ...input.enabled.map((id) => `  + ${id}`),
         ...input.skipped.slice(0, 20).map((item) => `  ~ ${item.pluginId}: ${item.reason}`),
         input.statePath ? `state: ${input.statePath}` : null,
-        ...input.findings.map((line) => `  - ${line}`),
+        ...input.findings.map((line) => ` ? ${line}`),
       ].filter(Boolean).join('\n');
     },
   };
@@ -681,10 +681,10 @@ function finishUndo(input: Omit<PluginOsOnboardingUndoResult, 'formatText'>): Pl
       return [
         `Onboarding undo: ${input.profile || 'n/a'}`,
         `ok=${input.ok} disabled=${input.disabled.length} skipped=${input.skipped.length}`,
-        ...input.disabled.map((id) => `  - ${id}`),
+        ...input.disabled.map((id) => ` ? ${id}`),
         ...input.skipped.slice(0, 20).map((item) => `  ~ ${item.pluginId}: ${item.reason}`),
         input.statePath ? `state: ${input.statePath}` : null,
-        ...input.findings.map((line) => `  - ${line}`),
+        ...input.findings.map((line) => ` ? ${line}`),
         'Packages were not deleted.',
       ].filter(Boolean).join('\n');
     },

@@ -126,7 +126,7 @@ export class ZavorthPerceptionDeviceControlCompletionService {
         inspect: 'npm run zavorth:perception-device-control-completion',
         inspectJson: 'npm run zavorth:perception-device-control-completion:json',
         check: 'npm run zavorth:perception-device-control-completion:check --silent',
-        nextStage: 'Intent model1 - ZavorthControl Final Product Polish',
+        nextAction: 'ZavorthControl Final Product Polish',
       },
     };
   }
@@ -155,7 +155,7 @@ export class ZavorthPerceptionDeviceControlCompletionService {
       lines.push(`- "${command.utterance}" -> ${command.route} (${command.defaultMode}) via ${command.commandHint}`);
     }
     lines.push('', 'Safety: read-only vision may route naturally; tap/type/click/install/ZavorthControl always stays policy/approval-gated.');
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 }

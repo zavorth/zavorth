@@ -99,7 +99,7 @@ export class SkillInstallPlanPresentationService {
       steps,
       mcp: library.mcp.summary,
       narrative: {
-        headline: `Plano operacional: ${focus.label}`,
+        headline: `Operational plan: ${focus.label}`,
         operatorSummary: this.buildOperatorSummary(focus, relatedSkills, relatedRecipes, library.vendors),
         caution,
       },
@@ -109,66 +109,65 @@ export class SkillInstallPlanPresentationService {
   public renderReport(input: SkillCatalogApiQuery = {}): string {
     const snapshot = this.buildSnapshot(input);
     const lines = [
-      'Plano de instalacao de skills',
+      'Skill installation plan',
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
     ];
 
     if (snapshot.narrative.caution) {
-      lines.push(`Cautela: ${snapshot.narrative.caution}`);
+      lines.push(`Caution: ${snapshot.narrative.caution}`);
     }
 
     lines.push(
       '',
-      `MCP previsto: ${snapshot.mcp.tools} tool(s) | ${snapshot.mcp.resources} resource(s).`,
+      `Expected MCP: ${snapshot.mcp.tools} tool(s) | ${snapshot.mcp.resources} resource(s).`,
     );
 
     if (snapshot.skill) {
       lines.push(
         '',
-        `Skill em foco: ${snapshot.skill.name}`,
+        `Focused skill: ${snapshot.skill.name}`,
         snapshot.skill.description,
-        `Fonte: ${snapshot.skill.sourceLabel || snapshot.skill.sourceId || 'local'} | trust: ${snapshot.skill.sourceTrust || 'n/d'} | licenca: ${snapshot.skill.license || 'n/d'}.`,
+        `source: ${snapshot.skill.sourceLabel || snapshot.skill.sourceId || 'local'} | trust: ${snapshot.skill.sourceTrust || 'n/a'} | license: ${snapshot.skill.license || 'n/a'}.`,
       );
     }
 
     if (snapshot.recipe) {
       lines.push(
         '',
-        `Recipe em foco: ${snapshot.recipe.label}`,
+        `Focused recipe: ${snapshot.recipe.label}`,
         snapshot.recipe.summary,
-        snapshot.recipe.ready
-          ? 'Status: pronta para uso.'
-          : `Status: pendente, faltam ${snapshot.recipe.missingSkillIds.join(', ')}.`,
+        snapshot.recipe.ready ? 'Status: ready for usage.'
+          : `Status: pending, missing ${snapshot.recipe.missingSkillIds.join(', ')}.`,
       );
     }
 
     if (snapshot.relatedSkills.length > 0) {
-      lines.push('', 'Skills relacionadas:');
+      lines.push('', 'Related skills:');
       for (const skill of snapshot.relatedSkills.slice(0, 5)) {
         lines.push(`- ${skill.name}: ${skill.description}`);
       }
     }
 
     if (snapshot.steps.length > 0) {
-      lines.push('', 'Passos do plano:');
+      lines.push('', 'Plan steps:');
       for (const step of snapshot.steps) {
         lines.push(
-          `- ${step.label}: ${step.detail}${step.command ? ` | ${step.command}` : ''}${step.optional ? ' | opcional' : ''}`,
+          `- ${step.label}: ${step.detail}${step.command ? ` | ${step.command}` : ''}${step.optional ? ' | optional' : ''}`,
         );
       }
     }
 
     if (snapshot.vendors.length > 0) {
-      lines.push('', 'Vendors observados:');
+      lines.push('', 'Observed vendors:');
       for (const vendor of snapshot.vendors.slice(0, 3)) {
         lines.push(`- ${vendor.displayName}: ${vendor.summary}`);
       }
     }
 
     if (snapshot.actions.length > 0) {
-      lines.push('', 'Atalhos sugeridos:');
+      lines.push('', 'Suggested shortcuts:');
       for (const action of snapshot.actions.slice(0, 5)) {
         lines.push(`- ${action.label}: ${action.command}`);
       }
@@ -270,7 +269,7 @@ export class SkillInstallPlanPresentationService {
     return {
       kind: 'library',
       id: null,
-      label: 'Biblioteca de skills',
+      label: 'Skill library',
       summary: library.narrative.operatorSummary,
     };
   }
@@ -293,15 +292,15 @@ export class SkillInstallPlanPresentationService {
     if (focus.kind === 'recipe' && recipe) {
       pushStep({
         id: 'recipe-open',
-        label: 'Abrir recipe',
-        detail: 'Confirme escopo, skills exigidas e rationale antes de rodar a composicao.',
+        label: 'Open recipe',
+        detail: 'Confirm scope, required skills, and rationale before running the composition.',
         command: `/skills recipe ${recipe.id}`,
         optional: false,
       });
       recipe.steps.forEach((detail, index) => {
         pushStep({
           id: `recipe-step-${index + 1}`,
-          label: `Etapa ${index + 1}`,
+          label: `Stage ${index + 1}`,
           detail,
           command: null,
           optional: false,
@@ -309,65 +308,65 @@ export class SkillInstallPlanPresentationService {
       });
       pushStep({
         id: 'recipe-mcp',
-        label: 'Checar sidecar MCP',
-        detail: 'Valide se a recipe ja aparece com tools e resources no sidecar unificado.',
+        label: 'Check MCP sidecar',
+        detail: 'Validate that the recipe already appears with tools and resources in the unified sidecar.',
         command: `/skills mcp ${recipe.id}`,
         optional: true,
       });
     } else if (focus.kind === 'skill' && skill) {
       pushStep({
         id: 'skill-open',
-        label: 'Inspecionar a skill',
-        detail: 'Leia descricao, provenance, licenca e trust antes de plugar a skill no fluxo.',
+        label: 'Inspect the skill',
+        detail: 'Read description, provenance, license, and trust before plugging the skill into the flow.',
         command: `/skills ${skill.name}`,
         optional: false,
       });
       pushStep({
         id: 'skill-support',
-        label: 'Revisar arquivos de apoio',
+        label: 'Review support files',
         detail: skill.supportFileCount > 0
-          ? `A skill carrega ${skill.supportFileCount} arquivo(s) de apoio; valide se todos fazem sentido para o runtime atual.`
-          : 'A skill nao tem arquivos de apoio adicionais; foco principal fica no SKILL.md e na provenance.',
+          ? `The skill loads ${skill.supportFileCount} support file(s); validate that each one makes sense for the current runtime.`
+          : 'The skill has no additional support files; main focus remains on SKILL.md and provenance.',
         command: null,
         optional: false,
       });
       if (relatedRecipes[0]) {
         pushStep({
           id: 'skill-recipe',
-          label: 'Acoplar recipe sugerida',
-          detail: `A recipe ${relatedRecipes[0].label} organiza esta skill em um fluxo maior.`,
+          label: 'Attach suggested recipe',
+          detail: `Recipe ${relatedRecipes[0].label} organizes this skill in a larger flow.`,
           command: `/skills plan recipe ${relatedRecipes[0].id}`,
           optional: false,
         });
       }
       pushStep({
         id: 'skill-mcp',
-        label: 'Validar exposicao MCP',
-        detail: 'Confirme tools e resources para discovery em surfaces externas.',
+        label: 'Validate MCP exposure',
+        detail: 'Confirm tools and resources for discovery on external surfaces.',
         command: `/skills mcp ${skill.name}`,
         optional: true,
       });
     } else {
       pushStep({
         id: 'library-open',
-        label: 'Abrir biblioteca',
-        detail: 'Revise bundles, trust, sources e vendors antes de escolher uma rota.',
+        label: 'Open library',
+        detail: 'Review bundles, trust, sources, and vendors before choosing a route.',
         command: '/skills library',
         optional: false,
       });
       if (relatedRecipes[0]) {
         pushStep({
           id: 'library-recipe',
-          label: 'Comecar por uma recipe pronta',
-          detail: `A recipe ${relatedRecipes[0].label} e o atalho mais objetivo para sair do catalogo e entrar em execucao.`,
+          label: 'Start with a ready recipe',
+          detail: `A recipe ${relatedRecipes[0].label} is the most direct shortcut from catalog to execution.`,
           command: `/skills plan recipe ${relatedRecipes[0].id}`,
           optional: false,
         });
       }
       pushStep({
         id: 'library-mcp',
-        label: 'Expor catalogo via MCP',
-        detail: 'Use o sidecar MCP para discovery e handoff entre superfices.',
+        label: 'Expose catalog through MCP',
+        detail: 'Use the MCP sidecar for discovery and handoff between surfaces.',
         command: '/skills mcp',
         optional: true,
       });
@@ -376,8 +375,8 @@ export class SkillInstallPlanPresentationService {
     relatedSkills.slice(0, 3).forEach((entry) => {
       pushStep({
         id: `related-skill:${entry.id}`,
-        label: `Validar ${entry.name}`,
-        detail: `Confirme se a skill ${entry.name} esta apta para o uso atual, especialmente trust ${entry.sourceTrust || 'n/d'}.`,
+        label: `Validate ${entry.name}`,
+        detail: `Confirm whether skill ${entry.name} is suitable for current use, especially trust ${entry.sourceTrust || 'n/a'}.`,
         command: `/skills ${entry.name}`,
         optional: true,
       });
@@ -389,10 +388,9 @@ export class SkillInstallPlanPresentationService {
       .forEach((vendor) => {
         pushStep({
           id: `vendor:${vendor.vendorId}`,
-          label: `Preparar ${vendor.displayName}`,
-          detail: vendor.updateAvailable
-            ? 'Existe update pendente antes de depender deste vendor no fluxo.'
-            : 'O vendor ainda nao esta pronto no runtime atual.',
+          label: `Prepare ${vendor.displayName}`,
+          detail: vendor.updateAvailable ? 'There is a pending update before depending on this vendor in the flow.'
+            : 'The vendor is not ready in the current runtime yet.',
           command: vendor.actionCommand,
           optional: true,
         });
@@ -407,9 +405,9 @@ export class SkillInstallPlanPresentationService {
     relatedRecipes: SkillRecipeSnapshot[],
     vendors: SkillLibraryVendorCard[],
   ): string {
-    return `${focus.kind === 'library' ? 'Plano geral' : `Plano para ${focus.label}`} com `
-      + `${relatedSkills.length} skill(s) relacionada(s), ${relatedRecipes.length} recipe(s) relacionada(s) `
-      + `e ${vendors.filter((vendor) => vendor.ready).length}/${vendors.length} vendor(s) pronto(s).`;
+    return `${focus.kind === 'library' ? 'General plan' : `Plan for ${focus.label}`} with `
+      + `${relatedSkills.length} related skill(s), ${relatedRecipes.length} related recipe(s), `
+      + `and ${vendors.filter((vendor) => vendor.ready).length}/${vendors.length} ready vendor(s).`;
   }
 
   private resolveCaution(
@@ -417,15 +415,15 @@ export class SkillInstallPlanPresentationService {
     vendors: SkillLibraryVendorCard[],
   ): string | null {
     if (skill?.sourceTrust === 'blocked') {
-      return 'A skill em foco esta bloqueada pela policy de trust e deve permanecer fora do core.';
+      return 'The focused skill is blocked by trust policy and must remain outside the core.';
     }
     if (skill?.sourceTrust === 'review') {
-      return 'A skill em foco ainda pede review manual de trust antes de virar dependencia rotineira.';
+      return 'A skill in foco ainda pede review manual de trust before virar dependencia rotineira.';
     }
 
     const restrictedVendor = vendors.find((vendor) => !vendor.licenseDecision.allowCoreCopy);
     if (restrictedVendor) {
-      return `${restrictedVendor.displayName} permanece isolado por licenca; copie ideias, nao codigo, para o core do Zavorth.`;
+      return `${restrictedVendor.displayName} remains isolated by license; copy ideas, not code, into the Zavorth core.`;
     }
 
     return null;

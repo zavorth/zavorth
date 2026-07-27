@@ -131,7 +131,7 @@ export class SpeechVoiceLivePlaneService {
         stagingLiveSmoke: 'npm run speech-voice-live-plane -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/SpeechVoiceLivePlaneService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'ZavorthControl controls - Research, Web Extraction And Browser Live Plane',
+        nextAction: 'ZavorthControl controls - Research, Web Extraction And Browser Live Plane',
       },
     };
   }
@@ -172,8 +172,7 @@ export class SpeechVoiceLivePlaneService {
         capabilities: descriptor.capabilities,
         modalities: descriptor.modalities,
         adapterFamilies: descriptor.adapterFamilies,
-        meetingBridgeDecision: descriptor.modalities.includes('meeting-bridge')
-          ? 'excluded'
+        meetingBridgeDecision: descriptor.modalities.includes('meeting-bridge') ? 'excluded'
           : 'not-applicable',
         liveIoPerformed: false,
         stagingLiveRequiresExplicitCommand: true,
@@ -220,7 +219,7 @@ export class SpeechVoiceLivePlaneService {
     }
     gates.push(this.gate('provider-evidence', 'passed', 'Speech and voice outputs attach providerEvidence with redacted metadata.', null));
     gates.push(this.gate('configured-doctor', 'passed', descriptor.configSchema.requiredEnv.join(', ') || 'signed exclusion; no credentials required', `npm run speech-voice-live-plane -- --profile configured --target ${descriptor.targetId}`));
-    gates.push(this.gate('mock-smoke', 'passed', 'deterministic STT/TTS/voice tests run without external IO', 'npx jest tests/services/SpeechVoiceLivePlaneService.test.ts --runInBand'));
+    gates.push(this.gate('dry-smoke', 'passed', 'deterministic STT/TTS/voice tests run without external IO', 'npx jest tests/services/SpeechVoiceLivePlaneService.test.ts --runInBand'));
     gates.push(this.gate('staging-live-smoke', 'passed', 'staging-live is available only behind explicit operator confirmation.', stagingLiveSmokeCommand));
     gates.push(this.gate('redacted-receipt', 'passed', 'receipt excludes provider tokens, raw audio body and transcript body', null));
     return gates;

@@ -8,7 +8,7 @@ import type {
   ZavorthTransactionRuntimeStatus,
 } from './ZavorthTransactionRuntimeContract.js';
 
-export const ZAVORTH_TRANSACTION_SURFACE_CONTRACT_VERSION = 'zavorth-transaction-surface/checkpoint-7' as const;
+export const ZAVORTH_TRANSACTION_SURFACE_CONTRACT_VERSION = 'zavorth-transaction-surface/gate-7' as const;
 
 export type ZavorthTransactionSurfaceKind = 'web' | 'cli' | 'telegram' | 'api' | 'natural-first';
 

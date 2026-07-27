@@ -33,7 +33,7 @@ export class ZavorthPredictiveCostService {
    */
   public predictCost(taskType: string): CostPrediction {
     const defaultVal = DEFAULT_PREDICTIONS[taskType] || { input: 2000, output: 800, cost: 0.01, model: 'gemini-2.5-flash' };
-    
+
     if (!fs.existsSync(this.dbPath)) {
       return {
         avgInputTokens: defaultVal.input,
@@ -47,14 +47,13 @@ export class ZavorthPredictiveCostService {
     try {
       const db = new sqlite3(this.dbPath, { readonly: true });
       const row = db.prepare(`
-        SELECT 
+        SELECT
           COUNT(*) as count,
           AVG(input_tokens) as avg_input,
           AVG(output_tokens) as avg_output,
           AVG(cost_usd) as avg_cost
         FROM token_usage_records
-        WHERE task_type = ?
-      `).get(taskType) as { count: number; avg_input: number | null; avg_output: number | null; avg_cost: number | null } | undefined;
+        WHERE task_type = ?       `).get(taskType) as { count: number; avg_input: number | null; avg_output: number | null; avg_cost: number | null } | undefined;
 
       db.close();
 

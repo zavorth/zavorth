@@ -163,9 +163,9 @@ export class ZavorthBridgeRemoteDoctorHistoryService {
 
     let reason: string | null = null;
     if (cooldownActive) {
-      reason = `Cooldown ativo ate ${cooldownUntil}; o reparo automatico foi suprimido para evitar loop.`;
+      reason = `Cooldown active until ${cooldownUntil}; automatic repair was suppressed to avoid a loop.`;
     } else if (flappingLikely) {
-      reason = `Flapping detectado para ${incidents.primaryCode}; o remoto falhou ${matchingRecentFailures} vez(es) na janela recente.`;
+      reason = `Flapping detectado para ${incidents.primaryCode}; o remote failed ${matchingRecentFailures} vez(es) na window recente.`;
     }
 
     return {

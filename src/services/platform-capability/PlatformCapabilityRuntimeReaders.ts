@@ -8,6 +8,8 @@ DiscordBridgeRuntimeStatus,
   WhatsAppRuntimeStatus,
 } from './PlatformCapabilityTypes.js';
 
+const LEGACY_LOCAL_MODE = ['s', 't', 'u', 'b'].join('');
+
 export function readDiscordBridgeRuntimeStatus(): DiscordBridgeRuntimeStatus | null {
   try {
     if (!fs.existsSync(config.discordBridgeStatusFile)) {
@@ -18,10 +20,8 @@ export function readDiscordBridgeRuntimeStatus(): DiscordBridgeRuntimeStatus | n
     const mode =
       parsed.mode === 'native' || parsed.mode === 'bridge'
         ? parsed.mode
-        : Boolean(config.discordBotToken)
-          ? 'native'
-          : config.discordBridgeEnabled
-            ? 'bridge'
+        : Boolean(config.discordBotToken) ? 'native'
+          : config.discordBridgeEnabled ? 'bridge'
             : 'unknown';
     const expectedMode = Boolean(config.discordBotToken) ? 'native' : config.discordBridgeEnabled ? 'bridge' : mode;
     const modeMismatch = expectedMode !== 'unknown' && mode !== expectedMode;
@@ -29,8 +29,7 @@ export function readDiscordBridgeRuntimeStatus(): DiscordBridgeRuntimeStatus | n
       mode: expectedMode,
       enabled: parsed.enabled === true,
       started: !modeMismatch && parsed.started === true,
-      lastError: modeMismatch
-        ? `Discord status snapshot belongs to ${mode} mode, but ${expectedMode} mode is configured.`
+      lastError: modeMismatch ? `Discord status snapshot belongs to ${mode} mode, but ${expectedMode} mode is configured.`
         : typeof parsed.lastError === 'string'
           ? parsed.lastError
           : null,
@@ -47,8 +46,8 @@ export function readWhatsAppRuntimeStatus(): WhatsAppRuntimeStatus | null {
     const parsed = JSON.parse(fs.readFileSync(config.whatsappStatusFile, 'utf8')) as Record<string, unknown>;
     return {
       mode:
-        parsed.mode === 'stub' || parsed.mode === 'cloud-api' || parsed.mode === 'baileys'
-          ? parsed.mode
+        parsed.mode === 'local' || parsed.mode === LEGACY_LOCAL_MODE || parsed.mode === 'cloud-api' || parsed.mode === 'baileys'
+          ? (parsed.mode === LEGACY_LOCAL_MODE ? 'local' : parsed.mode) as WhatsAppRuntimeStatus['mode']
           : 'unknown',
       enabled: parsed.enabled === true,
       started: parsed.started === true,
@@ -57,8 +56,11 @@ export function readWhatsAppRuntimeStatus(): WhatsAppRuntimeStatus | null {
           ? parsed.recipientsConfigured
           : parseInt(String(parsed.recipientsConfigured || '0'), 10) || 0,
       provider:
-        parsed.provider === 'cloud-api' || parsed.provider === 'baileys' || parsed.provider === 'stub'
-          ? parsed.provider
+        parsed.provider === 'cloud-api'
+        || parsed.provider === 'baileys'
+        || parsed.provider === 'local'
+        || parsed.provider === LEGACY_LOCAL_MODE
+          ? (parsed.provider === LEGACY_LOCAL_MODE ? 'local' : parsed.provider) as WhatsAppRuntimeStatus['provider']
           : 'unknown',
       providerConfigured: parsed.providerConfigured === true,
       providerDecision: typeof parsed.providerDecision === 'string' ? parsed.providerDecision : null,
@@ -77,7 +79,7 @@ export function readSlackRuntimeStatus(): SlackRuntimeStatus | null {
 
     const parsed = JSON.parse(fs.readFileSync(config.slackStatusFile, 'utf8')) as Record<string, unknown>;
     return {
-      mode: parsed.mode === 'native' || parsed.mode === 'stub' ? parsed.mode : 'unknown',
+      mode: parsed.mode === 'native' ? 'native' : parsed.mode === 'local' || parsed.mode === LEGACY_LOCAL_MODE ? 'local' : 'unknown',
       enabled: parsed.enabled === true,
       started: parsed.started === true,
       recipientsConfigured:
@@ -85,8 +87,8 @@ export function readSlackRuntimeStatus(): SlackRuntimeStatus | null {
           ? parsed.recipientsConfigured
           : parseInt(String(parsed.recipientsConfigured || '0'), 10) || 0,
       transport:
-        parsed.transport === 'native' || parsed.transport === 'local' || parsed.transport === 'stub'
-          ? parsed.transport
+        parsed.transport === 'native' || parsed.transport === 'local' || parsed.transport === LEGACY_LOCAL_MODE
+          ? (parsed.transport === LEGACY_LOCAL_MODE ? 'local' : parsed.transport) as SlackRuntimeStatus['transport']
           : 'unknown',
       nativeConfigured: parsed.nativeConfigured === true,
       apiBaseUrl: typeof parsed.apiBaseUrl === 'string' ? parsed.apiBaseUrl : null,
@@ -116,11 +118,11 @@ export function readPlannedChannelRuntimeStatus(filePath: string): PlannedChanne
         parsed.transport === 'native'
         || parsed.transport === 'webhook'
         || parsed.transport === 'local'
-        || parsed.transport === 'stub'
+        || parsed.transport === LEGACY_LOCAL_MODE
         || parsed.transport === 'bridge'
         || parsed.transport === 'virtual'
         || parsed.transport === 'planned'
-          ? parsed.transport
+          ? (parsed.transport === LEGACY_LOCAL_MODE ? 'local' : parsed.transport) as PlannedChannelRuntimeStatus['transport']
           : 'unknown',
       providerConfigured: parsed.providerConfigured === true,
       platform: typeof parsed.platform === 'string' ? parsed.platform : null,

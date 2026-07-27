@@ -195,8 +195,7 @@ export class ZavorthLearnSkillService {
     }
     return {
       headline: 'Learn skill partial',
-      operatorSummary: applyRequested && consentGranted
-        ? 'Some candidates staged or held; see fabric receipts.'
+      operatorSummary: applyRequested && consentGranted ? 'Some candidates staged or held; see fabric receipts.'
         : 'Preview completed with partial results.',
       nextStep: 'Inspect receipts and re-run with elevated flags only if you accept the risk.',
     };

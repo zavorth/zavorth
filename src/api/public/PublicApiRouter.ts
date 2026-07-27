@@ -59,7 +59,7 @@ export class PublicApiRouter {
     try {
       const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
       const method = String(req.method || 'GET').toUpperCase();
-      
+
       this.applyCors(req, res);
       this.applySecurityHeaders(res);
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');

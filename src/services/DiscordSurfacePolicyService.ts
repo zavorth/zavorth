@@ -224,7 +224,7 @@ export class DiscordSurfacePolicyService {
       return {
         valid: false,
         reason:
-          'O Discord esta em modo de servidor publico e exige DISCORD_ALLOWED_CHANNEL_IDS antes de aceitar trafego.',
+          'Discord is in public server mode and requires DISCORD_ALLOWED_CHANNEL_IDS before accepting traffic.',
       };
     }
 
@@ -243,7 +243,7 @@ export class DiscordSurfacePolicyService {
     ) {
       return {
         valid: false,
-        reason: `Essa mensagem excede o limite seguro deste canal do Discord. Limite atual: ${this.maxMessageChars} caracteres.`,
+        reason: `This message exceeds the safe limit for this Discord channel. Current limit: ${this.maxMessageChars} characters.`,
       };
     }
 
@@ -255,14 +255,14 @@ export class DiscordSurfacePolicyService {
     ) {
       return {
         valid: false,
-        reason: 'Anexos estao bloqueados por padrao no Discord publico deste runtime.',
+        reason: 'Attachments are blocked by default on this runtime public Discord.',
       };
     }
 
     if (!input.isDirectMessage && this.blockMassMentions && /@(?:everyone|here)\b/i.test(rawText)) {
       return {
         valid: false,
-        reason: 'Mensagens com @everyone ou @here estao bloqueadas neste servidor do Discord.',
+        reason: 'Messages with @everyone or @here are blocked on this Discord server.',
       };
     }
 
@@ -271,7 +271,7 @@ export class DiscordSurfacePolicyService {
       if (linkCount > this.maxLinksPerMessage) {
         return {
           valid: false,
-          reason: `Essa mensagem tem links demais para este canal do Discord. Limite atual: ${this.maxLinksPerMessage}.`,
+          reason: `This message has too many links for this Discord channel. Current limit: ${this.maxLinksPerMessage}.`,
         };
       }
     }
@@ -279,7 +279,7 @@ export class DiscordSurfacePolicyService {
     if (this.shouldRateLimit(String(input.userId || '').trim())) {
       return {
         valid: false,
-        reason: 'Voce atingiu o limite temporario deste canal do Discord. Aguarde um pouco antes de tentar de novo.',
+        reason: 'You reached the temporary limit for this Discord channel. Wait a bit before trying again.',
       };
     }
 
@@ -287,7 +287,7 @@ export class DiscordSurfacePolicyService {
   }
 
   public formatChannelDenied(): string {
-    return 'Este canal do Discord nao esta liberado para o Zavorth. Use um canal allowlisted pelo operador.';
+    return 'This Discord channel is not enabled for Zavorth. Use an operator-allowlisted channel.';
   }
 
   public formatOperationalCommandDenied(): string {

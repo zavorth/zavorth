@@ -37,7 +37,7 @@ export class EngineeringFileSystemService {
 
   public readExcerpt(filePath: string, startLine: number = 1, endLine: number = 80): string {
     const content = this.readFile(filePath, 256 * 1024);
-    const lines = content.split(/\r?\n/);
+    const lines = content.split(/\r...\n/);
     const start = Math.max(1, startLine);
     const end = Math.max(start, endLine);
     return lines

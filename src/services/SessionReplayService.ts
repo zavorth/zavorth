@@ -173,19 +173,19 @@ export class SessionReplayService {
     tasks: SessionContinuityTask[];
   }): string {
     if (input.focusTask && input.recommendedEntry.kind !== 'fresh') {
-      return `Replay pronto para retomar ${input.focusTask.shortId} em ${String(input.focusTask.source || 'runtime').trim()}.`;
+      return `Replay ready to resume ${input.focusTask.shortId} in ${String(input.focusTask.source || 'runtime').trim()}.`;
     }
 
     const resumableWorkflow = input.workflowRuns.find((run) => Boolean(run.resume_stage));
     if (resumableWorkflow) {
-      return `Replay pronto para reabrir o workflow ${String(resumableWorkflow.workflow_name || 'composto').trim()}.`;
+      return `Replay ready to reopen workflow ${String(resumableWorkflow.workflow_name || 'composite').trim()}.`;
     }
 
     if (input.tasks.length) {
-      return `Replay pronto com ${input.tasks.length} tarefa(s) recente(s).`;
+      return `Replay ready com ${input.tasks.length} task(s) recente(s).`;
     }
 
-    return 'Nenhum replay relevante registrado ainda.';
+    return 'No replay relevante registrado ainda.';
   }
 
   private buildOperatorSummary(input: {
@@ -196,15 +196,12 @@ export class SessionReplayService {
     recentArtifacts: SessionReplayArtifactSnapshot[];
   }): string {
     const parts = [
-      input.tasks.length
-        ? `${input.tasks.length} recent task(s)`
+      input.tasks.length ? `${input.tasks.length} recent task(s)`
         : 'no recent tasks',
-      input.workflowRuns.length
-        ? `${input.workflowRuns.length} composite workflow(s)`
-        : 'sem workflows compostos',
-      input.permissions.filter((permission) => permission.status === 'pending').length
-        ? `${input.permissions.filter((permission) => permission.status === 'pending').length} confirmacao(oes) pendente(s)`
-        : 'sem confirmacoes pendentes',
+      input.workflowRuns.length ? `${input.workflowRuns.length} composite workflow(s)`
+        : 'without workflows compostos',
+      input.permissions.filter((permission) => permission.status === 'pending').length ? `${input.permissions.filter((permission) => permission.status === 'pending').length} confirmation(s) pending(s)`
+        : 'without confirmations pending',
     ];
 
     if (input.recentArtifacts.length) {
@@ -226,8 +223,8 @@ export class SessionReplayService {
     if (input.continuity?.suggestedAction?.kind === 'fresh-session') {
       return {
         kind: 'fresh',
-        label: input.continuity.suggestedAction.label || 'Iniciar nova sessao',
-        reason: input.continuity.suggestedAction.reason || 'Nao ha continuidade suficiente para retomada.',
+        label: input.continuity.suggestedAction.label || 'Iniciar nova session',
+        reason: input.continuity.suggestedAction.reason || 'There is not enough continuity for resume.',
         targetId: null,
       };
     }
@@ -235,10 +232,10 @@ export class SessionReplayService {
     if (input.focusTask) {
       return {
         kind: 'task',
-        label: input.continuity?.suggestedAction?.label || `Retomar ${input.focusTask.shortId}`,
+        label: input.continuity?.suggestedAction?.label || `resume ${input.focusTask.shortId}`,
         reason:
           input.continuity?.suggestedAction?.reason
-          || `A tarefa ${input.focusTask.shortId} ainda e o melhor ponto de entrada.`,
+          || `A task ${input.focusTask.shortId} ainda e o melhor ponto de entrada.`,
         targetId: input.focusTask.taskId,
       };
     }
@@ -247,8 +244,8 @@ export class SessionReplayService {
     if (resumableWorkflow) {
       return {
         kind: 'workflow',
-        label: `Retomar ${String(resumableWorkflow.workflow_name || 'workflow').trim()}`,
-        reason: resumableWorkflow.resume_stage?.reason || 'Existe um workflow composto esperando retomada.',
+        label: `resume ${String(resumableWorkflow.workflow_name || 'workflow').trim()}`,
+        reason: resumableWorkflow.resume_stage?.reason || 'Existe um workflow composto esperando resumed.',
         targetId: resumableWorkflow.workflow_run_id,
       };
     }
@@ -258,15 +255,15 @@ export class SessionReplayService {
       return {
         kind: 'task',
         label: `Abrir ${latestTask.shortId}`,
-        reason: `A ultima tarefa registrada veio de ${String(latestTask.source || 'runtime').trim()}.`,
+        reason: `A ultima task registrada veio de ${String(latestTask.source || 'runtime').trim()}.`,
         targetId: latestTask.taskId,
       };
     }
 
     return {
       kind: 'fresh',
-      label: 'Iniciar nova sessao',
-      reason: 'Ainda nao existe historico suficiente para replay guiado.',
+      label: 'Iniciar nova session',
+      reason: 'There is not enough history for guided replay yet.',
       targetId: null,
     };
   }
@@ -294,8 +291,8 @@ export class SessionReplayService {
       addStep({
         id: `permission:${permission.permissionId}`,
         kind: 'permission',
-        label: `${permission.executor || 'runtime'} precisa de confirmacao`,
-        detail: permission.reason || `Permissao ${permission.kind || 'operacional'} em aberto.`,
+        label: `${permission.executor || 'runtime'} needs confirmation`,
+        detail: permission.reason || `Permission ${permission.kind || 'operational'} em aberto.`,
         status: permission.status,
         source: 'web',
         happenedAt: permission.updatedAt,
@@ -319,7 +316,7 @@ export class SessionReplayService {
         id: `task:${task.taskId}`,
         kind: 'task',
         label: `${task.shortId} | ${task.commandType || '/task'} | ${task.status || 'n/d'}`,
-        detail: task.summary || `Tarefa recente vinda de ${String(task.source || 'runtime').trim()}.`,
+        detail: task.summary || `task recente vinda de ${String(task.source || 'runtime').trim()}.`,
         status: task.status,
         source: task.source,
         happenedAt: task.updatedAt,
@@ -331,7 +328,7 @@ export class SessionReplayService {
         id: `artifact:${artifact.id}`,
         kind: 'artifact',
         label: artifact.label,
-        detail: artifact.summary || artifact.path || 'Entrega recente pronta para reuso.',
+        detail: artifact.summary || artifact.path || 'Recent delivery ready for reuse.',
         status: 'available',
         source: null,
         happenedAt: artifact.createdAt,
@@ -358,11 +355,11 @@ export class SessionReplayService {
     return {
       id: `focus:${focusTask.taskId}`,
       kind: 'focus',
-      label: continuity?.suggestedAction?.label || `Retomar ${focusTask.shortId}`,
+      label: continuity?.suggestedAction?.label || `resume ${focusTask.shortId}`,
       detail:
         continuity?.suggestedAction?.reason
         || focusTask.summary
-        || `Contexto ativo vindo de ${String(focusTask.source || 'runtime').trim()}.`,
+        || `Contexto active vindo de ${String(focusTask.source || 'runtime').trim()}.`,
       status: focusTask.status,
       source: focusTask.source,
       happenedAt: focusTask.updatedAt,

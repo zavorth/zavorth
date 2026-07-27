@@ -30,7 +30,7 @@ function normalizeEventCardLine(value: string | null | undefined): string {
 function normalizeEventCardLines(value: string | string[] | null | undefined): string[] {
   const lines = Array.isArray(value)
     ? value
-    : String(value || '').split(/\r?\n/);
+    : String(value || '').split(/\r...\n/);
   return lines
     .map((line) => normalizeEventCardLine(line))
     .filter(Boolean);
@@ -116,7 +116,7 @@ export function formatCliRecoverableErrorEventCard(options: {
 
 export function extractCliApprovalCommand(text: string): string | null {
   const normalized = sanitizeHumanCliText(text || '').trim();
-  const commandMatch = normalized.match(/\b(?:zavorth\s+)?approve\s+([a-z0-9:_-]+)(?:\s+pin=([a-z0-9:_-]+))?/i);
+  const commandMatch = normalized.match(/\b(?:zavorth\s+)...approve\s+([a-z0-9:_-]+)(?:\s+pin=([a-z0-9:_-]+)).../i);
   if (!commandMatch) {
     return null;
   }
@@ -132,27 +132,10 @@ export function formatCliChatReplyEventCard(reply: string): string | null {
   }
 
   const approvalCommand = extractCliApprovalCommand(normalized);
-  if (
-    approvalCommand
-    && /\b(approval|authorize|permission|permit|confirm)\w*/i.test(normalized)
-  ) {
+  if (approvalCommand) {
     return formatCliApprovalRequiredEventCard({
       body: normalized,
       command: approvalCommand,
-    });
-  }
-
-  if (/^(aprovacao enviada|rejeicao enviada|retomada de workflow|reinicio de etapa|encerramento de workflow)/i.test(normalized)) {
-    return formatCliSuccessEventCard({
-      title: 'Done',
-      body: normalized,
-    });
-  }
-
-  if (/\b(erro|falha|failed|error|travou|unavailable|unavailable|nao consegui)\b/i.test(normalized)) {
-    return formatCliRecoverableErrorEventCard({
-      body: normalized,
-      command: 'doctor',
     });
   }
 

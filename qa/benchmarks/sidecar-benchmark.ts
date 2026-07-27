@@ -35,6 +35,6 @@ async function runSidecarBenchmarks() {
 }
 
 runSidecarBenchmarks().catch((error) => {
-  console.error('[qa] sidecar benchmark falhou:', error);
+  console.error('[qa] sidecar benchmark failed:', error);
   process.exit(1);
 });

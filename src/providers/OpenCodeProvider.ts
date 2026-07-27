@@ -25,7 +25,7 @@ export class OpenCodeProvider implements ILlmProvider {
       throw new Error('OPENCODE_API_KEY not configured in .env. Get your key at https://opencode.ai/auth');
     }
 
-    logger.info(`[OpenCode] Inicializado com modelo: ${config.openCodeModel}`);
+    logger.info(`[OpenCode] Initialized with model: ${config.openCodeModel}`);
     this.client = new OpenAI({
       apiKey: config.openCodeApiKey,
       baseURL: 'https://opencode.ai/zen/v1',

@@ -210,8 +210,8 @@ export class ZavorthOneCommandOperatorCheckService {
       snapshot.headline,
       '',
       `Status: ${renderStatus(snapshot.status)}`,
-      `Uso remoto: ${snapshot.summary.remoteReady ? 'pronto' : 'com atencao'}`,
-      `Uso local: ${snapshot.summary.localReady ? 'pronto' : 'bloqueado'}`,
+      `usage remote: ${snapshot.summary.remoteReady ? 'ready' : 'com attention'}`,
+      `usage local: ${snapshot.summary.localReady ? 'ready' : 'blocked'}`,
       `Areas: ${snapshot.summary.ready} ready, ${snapshot.summary.attention} attention, ${snapshot.summary.blocked} blocked`,
       '',
       'Areas',
@@ -222,9 +222,8 @@ export class ZavorthOneCommandOperatorCheckService {
       `- Trust: ${snapshot.commands.trust}`,
       `- Ready: ${snapshot.commands.ready}`,
       `- JSON: ${snapshot.commands.json}`,
-      snapshot.summary.liveProviderProbeRequested
-        ? 'Live provider probe: solicitado explicitamente.'
-        : 'Live provider probe: nao executado. Use --live quando quiser testar providers agora.',
+      snapshot.summary.liveProviderProbeRequested ? 'Live provider probe: explicitly requested.'
+        : 'Live provider probe: not executed. Use --live when you want to test providers now.',
       '',
     ].join('\n');
   }
@@ -250,9 +249,9 @@ function buildDailyUseArea(snapshot: ZavorthDailyUseScenarioTestSnapshot): Zavor
     id: 'daily-use',
     label: 'Daily Use Scenarios',
     status: mapScenarioStatus(snapshot.status),
-    summary: `${snapshot.summary.passed}/${snapshot.summary.scenarios} cenarios passaram; ${snapshot.summary.failed} falharam; ${snapshot.summary.attention} pedem atencao.`,
+    summary: `${snapshot.summary.passed}/${snapshot.summary.scenarios} cenarios passaram; ${snapshot.summary.failed} falharam; ${snapshot.summary.attention} need attention.`,
     evidence: snapshot.findings.slice(0, 3).map((finding) => `${finding.severity}: ${finding.summary}`),
-    nextAction: snapshot.findings[0]?.nextAction || 'Manter os fluxos diarios verdes.',
+    nextAction: snapshot.findings[0]?.nextAction || 'Keep daily flows green.',
   };
 }
 
@@ -268,15 +267,14 @@ function buildZavorthControlPermissionArea(snapshot: ZavorthControlExperienceHom
     id: 'zavorthControl-permissions',
     label: 'ZavorthControl Permissions',
     status: complete && zavorthControlCanExecute === false ? 'ready' : 'blocked',
-    summary: complete
-      ? 'ZavorthControl expoe permissoes, auto-aprovacoes, modo extremo, revogacao e receipts sem autoridade direta.'
-      : 'ZavorthControl ainda nao expoe todas as areas de permissao pedidas.',
+    summary: complete ? 'ZavorthControl exposes permissions, auto-approvals, extreme mode, revocation, and receipts without direct authority.'
+      : 'ZavorthControl does not expose all requested permission areas yet.',
     evidence: [
       `items=${itemIds.join(',')}`,
       `zavorthControlCanExecute=${zavorthControlCanExecute}`,
       permissionPanel?.defaultPosture || 'permissionPanel=missing',
     ],
-    nextAction: complete ? '/zavorthControl' : 'Rodar zavorth zavorthControl-home e corrigir projection de permissions.',
+    nextAction: complete ? '/zavorthControl' : 'run zavorth zavorthControl-home e fix permission projection.',
   };
 }
 
@@ -312,16 +310,15 @@ function buildSafetyArea(input: {
     id: 'operator-safety',
     label: 'Operator Safety',
     status: ok ? 'ready' : 'blocked',
-    summary: ok
-      ? 'Sem prompt/tool/transaction live oculta; segredos e approvals seguem governados.'
-      : 'Uma garantia de seguranca do operador falhou.',
+    summary: ok ? 'without prompt/tool/transaction live oculta; secrets e approvals seguem governados.'
+      : 'An operator safety guarantee failed.',
     evidence: [
       `liveProbeRequested=${input.live}`,
-      `dailyUseSimulationOnly=${input.dailyUse.safety.simulationOnly}`,
+      `dailyUseDryRunOnly=${input.dailyUse.safety.dryRunOnly}`,
       `noRawSecrets=${input.readyToGo.safety.noRawSecretsSerialized && input.trust.safety.rawSecretsSerialized === false}`,
       `approvalBypass=${!input.trust.safety.naturalLanguageCanRequestApprovalButNotBypass}`,
     ],
-    nextAction: ok ? 'Nenhuma acao critica.' : 'Rodar npm run security:ci antes de operar.',
+    nextAction: ok ? 'No critical action.' : 'run npm run security:ci before operar.',
   };
 }
 
@@ -336,13 +333,13 @@ function mapScenarioStatus(status: ZavorthDailyUseScenarioTestSnapshot['status']
 }
 
 function buildHeadline(status: ZavorthOneCommandOperatorCheckStatus, readyToGo: ZavorthReadyToGoSnapshot): string {
-  if (status === 'ready') return 'Tudo pronto para operar: local, remoto, trust e zavorthControl estao coerentes.';
-  if (status === 'attention') return 'Zavorth esta utilizavel, mas ha avisos que merecem revisao antes de depender remoto.';
+  if (status === 'ready') return 'Everything is ready to operate: local, remote, trust, and zavorthControl are coherent.';
+  if (status === 'attention') return 'Zavorth is utilizavel, mas ha avisos que merecunder review before depender remote.';
   return readyToGo.actions.primary;
 }
 
 function renderStatus(status: ZavorthOneCommandOperatorCheckStatus): string {
-  if (status === 'ready') return 'pronto';
-  if (status === 'attention') return 'atencao';
-  return 'bloqueado';
+  if (status === 'ready') return 'ready';
+  if (status === 'attention') return 'attention';
+  return 'blocked';
 }

@@ -170,7 +170,7 @@ export class SharedSurfaceLearningCommandPack {
     const normalized = String(ref || '').trim();
     if (!normalized) return null;
 
-    const ordinal = normalized.match(/^#?(\d{1,2})$/)?.[1];
+    const ordinal = normalized.match(/^#...(\d{1,2})$/)?.[1];
     if (ordinal) {
       const index = Number(ordinal) - 1;
       if (Number.isFinite(index) && index >= 0 && index < candidates.length) {

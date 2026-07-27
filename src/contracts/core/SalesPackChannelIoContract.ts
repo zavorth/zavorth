@@ -6,7 +6,7 @@ import type {
 
 export const ZAVORTH_SALES_PACK_CHANNEL_IO_CONTRACT_VERSION = '2026-05-09.sales-pack-channel-io' as const;
 
-export type SalesPackChannelIoProvider = 'local-stub' | 'whatsapp-cloud-api' | 'generic-webhook';
+export type SalesPackChannelIoProvider = 'local-outbox' | 'whatsapp-cloud-api' | 'generic-webhook';
 
 export type SalesPackChannelIoEventKind =
   | 'inbound.normalized'

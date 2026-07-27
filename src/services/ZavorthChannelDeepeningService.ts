@@ -344,8 +344,7 @@ export class ZavorthChannelDeepeningService {
     const summary = summarize(items);
     const status = summary.blocked > 0
       ? 'blocked'
-      : summary.liveReady + summary.nativeReady + summary.outboxReady < items.length
-        ? 'attention'
+      : summary.liveReady + summary.nativeReady + summary.outboxReady < items.length ? 'attention'
         : 'passed';
 
     return {

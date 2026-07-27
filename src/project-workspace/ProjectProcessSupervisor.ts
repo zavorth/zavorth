@@ -120,7 +120,7 @@ export class ProjectProcessSupervisor extends EventEmitter {
   ): ProjectProcessRecord {
     const manifestProcess = resolved.manifest.processes.find((entry) => entry.id === processId);
     if (!manifestProcess) {
-      throw new ProjectProcessSupervisorError(`Processo "${processId}" nao existe no manifesto.`);
+      throw new ProjectProcessSupervisorError(`Process "${processId}" does not exist in the manifest.`);
     }
     return this.startManifestProcess(resolved, manifestProcess, input);
   }
@@ -399,8 +399,7 @@ export class ProjectProcessSupervisor extends EventEmitter {
   ): ProjectProcessOwner {
     const runId = normalizeNullable(input.runId);
     const projectName = resolved.manifest.project.name;
-    const ownerRef = runId
-      ? `project:${projectName}:${manifestProcess.id}:run:${runId}`
+    const ownerRef = runId ? `project:${projectName}:${manifestProcess.id}:run:${runId}`
       : `project:${projectName}:${manifestProcess.id}`;
     return {
       projectName,
@@ -440,7 +439,7 @@ export class ProjectProcessSupervisor extends EventEmitter {
       return;
     }
     throw new ProjectProcessSupervisorError(
-      `Processo "${manifestProcess.id}" tentaria executar fora de project.root (${resolved.projectRoot}).`,
+      `Process "${manifestProcess.id}" tentaria run outside de project.root (${resolved.projectRoot}).`,
     );
   }
 
@@ -454,7 +453,7 @@ export class ProjectProcessSupervisor extends EventEmitter {
   private requireProcess(processId: string): ManagedProjectProcess {
     const entry = this.processes.get(normalizeText(processId));
     if (!entry) {
-      throw new ProjectProcessSupervisorError(`Processo "${processId}" nao esta sob este supervisor.`);
+      throw new ProjectProcessSupervisorError(`Process "${processId}" is not under this supervisor.`);
     }
     return entry;
   }
@@ -466,7 +465,7 @@ export class ProjectProcessSupervisor extends EventEmitter {
     }
     if (normalizedOwner !== entry.record.owner.ownerRef) {
       throw new ProjectProcessOwnershipError(
-        `Owner "${normalizedOwner}" nao pode controlar "${entry.record.id}".`,
+        `Owner "${normalizedOwner}" cannot control "${entry.record.id}".`,
       );
     }
   }

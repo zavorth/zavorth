@@ -99,7 +99,7 @@ export class BehavioralRulesService {
     if (!target) return false;
     const section = CONTEXT_SECTIONS[target.context] || CONTEXT_SECTIONS.custom;
     const sectionContent = this.readSection(content, section);
-    const lines = sectionContent.split(/\r?\n/).filter((l) => !l.includes(`id:${id}`));
+    const lines = sectionContent.split(/\r...\n/).filter((l) => !l.includes(`id:${id}`));
     const updated = this.upsertSection(content, section, lines.join('\n'));
     this.writeText(filePath, updated);
     return true;
@@ -112,7 +112,7 @@ export class BehavioralRulesService {
     for (const [ctx, sectionTitle] of Object.entries(CONTEXT_SECTIONS)) {
       if (context && ctx !== context) continue;
       const sectionContent = this.readSection(content, sectionTitle);
-      for (const line of sectionContent.split(/\r?\n/)) {
+      for (const line of sectionContent.split(/\r...\n/)) {
         const rule = this.lineToRule(line, ctx as ZavorthRuleContext);
         if (rule) rules.push(rule);
       }
@@ -216,5 +216,5 @@ export class BehavioralRulesService {
 }
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }

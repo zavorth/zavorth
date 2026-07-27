@@ -147,8 +147,7 @@ export class ZavorthCapabilityAtlasService {
       ? missing.length === 0
         ? 'ready'
         : 'partial'
-      : requiredFilesMissing.length < definition.keyFiles.length
-        ? 'partial'
+      : requiredFilesMissing.length < definition.keyFiles.length ? 'partial'
         : 'missing';
     return {
       ...definition,
@@ -212,7 +211,7 @@ function definitions(): AtlasDefinition[] {
       surfaces({ llm: true, actionHarness: true, cli: true, zavorthControl: true, tui: true, docs: true }),
       'safe-read'),
     entry('mnemos', 'Mnemos Memory', 'Mnemos', 'memory',
-      'Local memory, recall, FTS, lifecycle hooks, forget/correct/promote and procedural candidates.',
+      'local memory, recall, FTS, lifecycle hooks, forget/correct/promote and procedural candidates.',
       'Recall prior context, search memory and manage facts through reversible contracts.',
       ['mnemos', 'memory', 'recall', 'forget', 'procedural memory'],
       ['memory.search', 'mnemos.session_recall', 'memory.forget'],
@@ -312,7 +311,7 @@ function definitions(): AtlasDefinition[] {
       surfaces({ llm: true, cli: true, zavorthControl: true, tui: true, docs: true }),
       'approval-gated'),
     entry('sandbox-control-plane', 'Sandbox Control Plane', 'Sandbox', 'execution',
-      'Local/process/Docker/WSL/remote sandbox readiness, limits, policies and receipts.',
+      'local/process/Docker/WSL/remote sandbox readiness, limits, policies and receipts.',
       'Preview or run risky commands through the strongest available execution boundary.',
       ['sandbox', 'execution', 'docker', 'wsl', 'safe run'],
       ['sandbox.status'],
@@ -342,7 +341,7 @@ function definitions(): AtlasDefinition[] {
       surfaces({ llm: true, actionHarness: true, cli: true, zavorthControl: true, tui: true, docs: true }),
       'external-gated'),
     entry('satellite-companion', 'Satellite Companion', 'Satellite', 'interfaces',
-      'Local/PWA companion for approvals, readiness, pairing and mobile-style operator decisions.',
+      'local/PWA companion for approvals, readiness, pairing and mobile-style operator decisions.',
       'Review approval cards and readiness away from the main zavorthControl without direct execution.',
       ['satellite', 'companion', 'approval companion', 'pwa'],
       [],

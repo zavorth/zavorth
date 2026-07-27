@@ -1,8 +1,8 @@
 import type { LiveReadinessStatus } from '../LiveReadinessContract.js';
 
-export const ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-checkpoint-2' as const;
+export const ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-gate-2' as const;
 
-export type ChannelLiveActivationP0Id =
+export type ChannelLiveActivationPriorityId =
   | 'signal'
   | 'msteams'
   | 'slack'
@@ -13,8 +13,8 @@ export type ChannelLiveActivationP0Id =
 export type ChannelLiveActivationGateKind =
   | 'config-schema'
   | 'setup-doctor'
-  | 'inbound-mock'
-  | 'outbound-mock'
+  | 'local-inbound-envelope'
+  | 'local-outbound-delivery'
   | 'staging-live-smoke'
   | 'real-send-path'
   | 'inbound-validation'
@@ -44,7 +44,7 @@ export type ChannelLiveActivationConfigSchema = {
 
 export type ChannelLiveActivationReceipt = {
   id: string;
-  channelId: ChannelLiveActivationP0Id;
+  channelId: ChannelLiveActivationPriorityId;
   status: LiveReadinessStatus;
   liveIoPerformed: false;
   stagingLiveRequiresExplicitCommand: true;
@@ -52,7 +52,7 @@ export type ChannelLiveActivationReceipt = {
 };
 
 export type ChannelLiveActivationEntry = {
-  channelId: ChannelLiveActivationP0Id;
+  channelId: ChannelLiveActivationPriorityId;
   platformId: string;
   status: Extract<LiveReadinessStatus, 'live-ready' | 'partial-live' | 'configured-only' | 'blocked'>;
   previousStatus: LiveReadinessStatus;
@@ -80,7 +80,7 @@ export type ChannelLiveActivationEntry = {
 export type ChannelLiveActivationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION;
-  gate: 'channel-live-activation-p0';
+  gate: 'channel-live-activation-priority';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     channels: 6;
@@ -91,17 +91,17 @@ export type ChannelLiveActivationSnapshot = {
     signalAndTeamsOutboxOnly: false;
     configSchemas: number;
     setupDoctors: number;
-    inboundMockTests: number;
-    outboundMockTests: number;
+    localInboundEnvelopeTests: number;
+    localOutboundDeliveryTests: number;
     stagingLiveSmokeCommands: number;
     redactedReceipts: number;
-    liveIoRequiredByStage2Check: false;
+    liveIoRequiredByCertificationCheck: false;
     secretValuesSerialized: false;
   };
   entries: ChannelLiveActivationEntry[];
   receipts: ChannelLiveActivationReceipt[];
   policy: {
-    noLiveIoDuringStage2Check: true;
+    noLiveIoDuringCertificationCheck: true;
     stagingLiveRequiresExplicitOperatorCommand: true;
     outboxAllowedOnlyAsFallback: true;
     signalUsesJsonRpcOrSignalCli: true;
@@ -114,6 +114,6 @@ export type ChannelLiveActivationSnapshot = {
     stagingLiveSmoke: 'npm run channel-live-activation -- --profile staging-live --channel <channel> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Connector registry - Provider Runtime Activation P0';
+    nextGate: 'Connector registry - Provider Runtime Activation';
   };
 };

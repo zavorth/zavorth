@@ -19,8 +19,7 @@ export function renderExistingConfigPanel(snapshot: ZavorthSetupStudioSnapshot):
 
 export function renderHomeSelectionPanel(home: string | null, previousSource: string): string {
   return [
-    home
-      ? `Selected ZAVORTH_HOME: ${home}`
+    home ? `Selected ZAVORTH_HOME: ${home}`
       : `Keeping current home mode: ${previousSource}`,
     'Setup writes the selection only after final confirmation.',
     'You can switch later with: zavorth home switch --home <path> --apply',
@@ -111,14 +110,13 @@ export function renderWebSearchProviderPanel(provider: string, secretProvided: b
   }
   if (provider === 'local') {
     return [
-      'Local/model context selected.',
+      'local/model context selected.',
       'No external web request is made by this provider.',
     ].join('\n');
   }
   return [
     `${provider} selected.`,
-    secretProvided
-      ? 'A key was captured through a secret field.'
+    secretProvided ? 'A key was captured through a secret field.'
       : 'No key was provided; this provider is configurable, not live yet.',
   ].join('\n');
 }
@@ -136,8 +134,7 @@ export function renderSkillsStatusPanel(snapshot: ZavorthSetupStudioSnapshot): s
 
 export function renderAutomationHooksPanel(enabled: boolean): string {
   return [
-    enabled
-      ? 'Automation templates will be prepared in .zavorth/hooks.'
+    enabled ? 'Automation templates will be prepared in .zavorth/hooks.'
       : 'No automation templates will be prepared now.',
     'Templates stay disabled until you review and enable them.',
     'They can create local Mnemos summaries, evidence and governed notification outbox entries.',

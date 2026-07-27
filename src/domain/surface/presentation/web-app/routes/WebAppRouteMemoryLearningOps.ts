@@ -67,7 +67,7 @@ export async function handleMemoryLearningOpsRoutes(
               candidates: [],
               narrative: {
                 headline: 'Learning plane unavailable.',
-                operatorSummary: 'O runtime atual nao carregou o learning plane.',
+                operatorSummary: 'The current runtime did not load the learning plane.',
               },
             },
           },
@@ -75,17 +75,17 @@ export async function handleMemoryLearningOpsRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/web/learning/actions' && req.method === 'POST') {
         const body = await deps.readJsonBody(req);
         const candidateId = String(body?.candidateId || '').trim();
         const actionId = String(body?.actionId || '').trim().toLowerCase();
         if (!candidateId) {
-          deps.writeJson(res, { ok: false, error: 'candidateId obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'candidateId required.' }, 400);
           return true;
         }
         if (!['approve', 'reject', 'promote'].includes(actionId)) {
-          deps.writeJson(res, { ok: false, error: 'actionId invalido para learning plane.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'actionId invalid para learning plane.' }, 400);
           return true;
         }
         const execution = await deps.executeLearningAction({
@@ -95,7 +95,7 @@ export async function handleMemoryLearningOpsRoutes(
         deps.writeJson(res, { ok: true, execution }, 200);
         return true;
       }
-  
+
       if (pathname === '/api/web/learning/metrics' && req.method === 'GET') {
         const sessionId = deps.resolveSessionId(url);
         const metrics = await deps.buildLearningPlaneMetrics(sessionId);
@@ -127,7 +127,7 @@ export async function handleMemoryLearningOpsRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/web/memory/procedures' && req.method === 'GET') {
         const sessionId = deps.resolveSessionId(url);
         const procedures = await deps.readLayeredMemoryProcedures(sessionId);
@@ -145,7 +145,7 @@ export async function handleMemoryLearningOpsRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/web/memory/metrics' && req.method === 'GET') {
         const sessionId = deps.resolveSessionId(url);
         const metrics = await deps.readLayeredMemoryMetrics(sessionId);
@@ -181,7 +181,7 @@ export async function handleMemoryLearningOpsRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/web/ops/quality' && req.method === 'GET') {
         const sessionId = deps.resolveSessionId(url);
         const quality = await deps.buildOpsQuality(sessionId);
@@ -236,7 +236,7 @@ export async function handleMemoryLearningOpsRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/web/memory/search' && req.method === 'GET') {
         const sessionId = deps.resolveSessionId(url);
         const query = String(url.searchParams.get('q') || '').trim();
@@ -261,7 +261,7 @@ export async function handleMemoryLearningOpsRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/web/memory/recall' && req.method === 'GET') {
         const sessionId = deps.resolveSessionId(url);
         const query = String(url.searchParams.get('q') || url.searchParams.get('query') || '').trim();
@@ -274,35 +274,35 @@ export async function handleMemoryLearningOpsRoutes(
         deps.writeJson(res, recall, 200);
         return true;
       }
-  
+
       if (pathname === '/api/web/memory/sources' && req.method === 'GET') {
         const sessionId = deps.resolveSessionId(url);
         const sources = await helpers.listGatewayMemorySources({ sessionId });
         deps.writeJson(res, sources, 200);
         return true;
       }
-  
+
       if (pathname === '/api/web/session/continuity' && req.method === 'GET') {
         const sessionId = deps.resolveSessionId(url);
         const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
         deps.writeJson(res, { ok: true, continuity: snapshot.continuity }, 200);
         return true;
       }
-  
+
       if (pathname === '/api/web/session/replay' && req.method === 'GET') {
         const sessionId = deps.resolveSessionId(url);
         const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
         deps.writeJson(res, { ok: true, replay: snapshot.replay }, 200);
         return true;
       }
-  
+
       if (pathname === '/api/web/session/handoff' && req.method === 'GET') {
         const sessionId = deps.resolveSessionId(url);
         const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
         deps.writeJson(res, { ok: true, handoff: snapshot.handoff }, 200);
         return true;
       }
-  
+
       if (helpers.isCanonicalSessionPlaneRoute(pathname) && req.method === 'GET') {
         const sessionTools = deps.runtimeSessionTools || deps.sessionTools;
         if (!sessionTools) {
@@ -339,7 +339,7 @@ export async function handleMemoryLearningOpsRoutes(
         );
         return true;
       }
-  
+
       if (pathname === GATEWAY_SESSION_ROUTE_PATHS.history && req.method === 'GET') {
         const sessionId = deps.resolveSessionId(url);
         const canonicalState = await helpers.buildCanonicalStatePayload(sessionId, {

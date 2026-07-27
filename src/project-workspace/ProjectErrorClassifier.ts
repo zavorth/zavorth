@@ -49,7 +49,7 @@ const CLASSIFICATION_RULES: readonly ClassificationRule[] = [
     category: 'destructive_command',
     severity: 'fatal',
     risk: 'critical',
-    summary: 'Log menciona comando destrutivo ou remocao ampla.',
+    summary: 'Log mentions a destructive command or broad removal.',
     signal: 'destructive_command',
     pattern: /\b(rm\s+-rf|Remove-Item\b.*-(?:Recurse|Force)|del\s+\/[fsq]|format\s+[a-z]:|git\s+clean\s+-fd|DROP\s+DATABASE)\b/i,
     confidence: 0.92,
@@ -59,9 +59,9 @@ const CLASSIFICATION_RULES: readonly ClassificationRule[] = [
     category: 'credential_or_auth',
     severity: 'fatal',
     risk: 'critical',
-    summary: 'Log indica credencial, segredo ou falha de autenticacao/autorizacao.',
+    summary: 'Log indicates a credential, secret, authentication, or authorization failure.',
     signal: 'credential_or_auth',
-    pattern: /\b(API[_-]?KEY|TOKEN|SECRET|PASSWORD|PASSWD|AUTHORIZATION|Bearer\s+[A-Za-z0-9._~+/-]+=*|401|403|unauthori[sz]ed|forbidden)\b/i,
+    pattern: /\b(API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASSWD|AUTHORIZATION|Bearer\s+[A-Za-z0-9._~+/-]+=*|401|403|unauthori[sz]ed|forbidden)\b/i,
     confidence: 0.9,
     autoApplySafe: false,
   },
@@ -69,7 +69,7 @@ const CLASSIFICATION_RULES: readonly ClassificationRule[] = [
     category: 'typecheck_failure',
     severity: 'error',
     risk: 'medium',
-    summary: 'Log indica falha de typecheck ou compilacao TypeScript.',
+    summary: 'Log indica failure de typecheck or compilation TypeScript.',
     signal: 'typescript',
     pattern: /\b(error TS\d+|TypeScript error|tsc\b.*failed|Cannot find name|Type '.*' is not assignable)\b/i,
     confidence: 0.88,
@@ -79,7 +79,7 @@ const CLASSIFICATION_RULES: readonly ClassificationRule[] = [
     category: 'test_failure',
     severity: 'error',
     risk: 'medium',
-    summary: 'Log indica falha de teste.',
+    summary: 'Log indica failure de teste.',
     signal: 'test_failure',
     pattern: /\b(FAIL|FAILED|AssertionError|expect\(.*\)|Tests?:\s+\d+\s+failed|npm\s+test|jest)\b/i,
     confidence: 0.84,
@@ -89,7 +89,7 @@ const CLASSIFICATION_RULES: readonly ClassificationRule[] = [
     category: 'port_conflict',
     severity: 'warning',
     risk: 'low',
-    summary: 'Log indica conflito de porta ou endereco ja em uso.',
+    summary: 'Log indica conflito de porta or address already em usage.',
     signal: 'port_conflict',
     pattern: /\b(EADDRINUSE|address already in use|port\s+\d+\s+is already in use)\b/i,
     confidence: 0.86,
@@ -99,7 +99,7 @@ const CLASSIFICATION_RULES: readonly ClassificationRule[] = [
     category: 'dependency_failure',
     severity: 'error',
     risk: 'medium',
-    summary: 'Log indica dependencia ou modulo ausente.',
+    summary: 'Log indica dependencia or modulo missing.',
     signal: 'dependency_failure',
     pattern: /\b(MODULE_NOT_FOUND|Cannot find module|ERR_MODULE_NOT_FOUND|Could not resolve|missing dependency)\b/i,
     confidence: 0.82,
@@ -109,7 +109,7 @@ const CLASSIFICATION_RULES: readonly ClassificationRule[] = [
     category: 'runtime_exception',
     severity: 'error',
     risk: 'medium',
-    summary: 'Log indica excecao ou erro de runtime.',
+    summary: 'Log indica excecao or error de runtime.',
     signal: 'runtime_exception',
     pattern: /\b(UnhandledPromiseRejection|Uncaught|Exception|TypeError|ReferenceError|SyntaxError|ECONNREFUSED|Command failed|Error:)\b/i,
     confidence: 0.78,
@@ -119,9 +119,9 @@ const CLASSIFICATION_RULES: readonly ClassificationRule[] = [
     category: 'process_exit',
     severity: 'warning',
     risk: 'low',
-    summary: 'Processo saiu com codigo nao zero.',
+    summary: 'Process exited with a non-zero code.',
     signal: 'process_exit',
-    pattern: /\[process:exit\]\s+code=(?!0\b|null\b)\S+/i,
+    pattern: /\[process:exit\]\s+code=(...!0\b|null\b)\S+/i,
     confidence: 0.74,
     autoApplySafe: true,
   },
@@ -158,7 +158,7 @@ export class ProjectErrorClassifier {
       category: 'generic_error',
       severity: log.stream === 'stderr' ? 'error' : 'warning',
       risk: 'medium',
-      summary: 'Hook encontrou um padrao de erro que precisa de diagnostico.',
+      summary: 'Hook found an error pattern that needs diagnosis.',
       signal: streamSignal,
       pattern: /./,
       confidence: 0.55,
@@ -171,18 +171,18 @@ export class ProjectErrorClassifier {
     primary: ClassificationRule,
     text: string,
   ): string {
-    const projectName = input.resolved?.manifest.project.name || 'projeto atual';
+    const projectName = input.resolved?.manifest.project.name || 'projeto current';
     const hookPrompt = normalizeText(input.hook?.action.prompt);
     const snippet = firstLine(text).slice(0, 320);
-    const base = hookPrompt || 'Diagnostique a falha e proponha a menor acao segura.';
+    const base = hookPrompt || 'diagnose a failure e propose a smallest action safe.';
     return [
       base,
-      `Projeto: ${projectName}.`,
+      `Project: ${projectName}.`,
       `Processo: ${input.log.processId}.`,
-      `Categoria: ${primary.category}; risco: ${primary.risk}; severidade: ${primary.severity}.`,
+      `Categoria: ${primary.category}; risk: ${primary.risk}; severidade: ${primary.severity}.`,
       `Resumo: ${primary.summary}`,
-      `Trecho do log: ${snippet || 'sem trecho'}`,
-      'Use o agent loop canonico e respeite tools/policies/approvals existentes.',
+      `snippet do log: ${snippet || 'without snippet'}`,
+      'Use the canonical agent loop and respect existing tools/policies/approvals.',
     ].join('\n');
   }
 }
@@ -192,5 +192,5 @@ function normalizeText(value: unknown): string {
 }
 
 function firstLine(text: string): string {
-  return text.split(/\r?\n/).map((line) => line.trim()).find(Boolean) || '';
+  return text.split(/\r...\n/).map((line) => line.trim()).find(Boolean) || '';
 }

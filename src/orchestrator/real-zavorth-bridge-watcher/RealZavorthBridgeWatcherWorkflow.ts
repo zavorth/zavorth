@@ -496,8 +496,7 @@ export class RealZavorthBridgeWatcherWorkflow {
     } catch (error: unknown) {
   const err = asErrorLike(error);const broadcastError = error instanceof Error ? error : new Error(String(errorMessage(error)));
       throw new Error(
-        directError
-          ? `Direct delivery failed (${directError.message}) and broadcast also failed (${broadcastError.message}).`
+        directError ? `Direct delivery failed (${directError.message}) and broadcast also failed (${broadcastError.message}).`
           : `Failed to deliver response by broadcast: ${broadcastError.message}`,
       );
     }

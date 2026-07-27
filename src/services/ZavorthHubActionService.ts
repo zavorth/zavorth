@@ -64,7 +64,7 @@ export class ZavorthHubActionService {
   }): Promise<ZavorthHubActionExecution> {
     const actionId = this.normalizeActionId(input.actionId);
     if (!actionId) {
-      throw new Error('actionId obrigatorio.');
+      throw new Error('actionId required.');
     }
 
     const requestedBy = this.normalizeText(input.requestedBy);
@@ -72,7 +72,7 @@ export class ZavorthHubActionService {
     const before = this.hubControlPlaneService.buildSnapshot(this.buildQuery(input));
     const action = this.resolveAction(before, actionId);
     if (!action) {
-      throw new Error(`Acao do hub nao encontrada: ${actionId}.`);
+      throw new Error(`Hub action not found: ${actionId}.`);
     }
 
     let status: ZavorthHubActionExecution['status'] = 'completed';
@@ -85,35 +85,35 @@ export class ZavorthHubActionService {
       const sync = await this.platformCatalogSyncService.sync();
       result = sync;
       status = sync.ok ? 'completed' : 'blocked';
-      summary = sync.ok ? 'Registry remoto sincronizado pelo Hub.' : 'Falha ao sincronizar o registry remoto pelo Hub.';
+      summary = sync.ok ? 'Registry remote sincronizado pelo Hub.' : 'Failure ao sincronizar o registry remote pelo Hub.';
       details = [
         sync.summary,
         `Status: ${sync.status}.`,
         `Entradas: ${sync.entryCount} | colecoes: ${sync.collectionCount} | recipes: ${sync.recipeCount}.`,
       ];
       if (sync.error) {
-        details.push(`Erro: ${sync.error}`);
+        details.push(`error: ${sync.error}`);
       }
     } else if (action.id === 'mcp-browser-doctor') {
       if (!this.mcpBrowserDoctorService) {
         status = 'blocked';
-        summary = 'Doctor MCP indisponivel neste runtime.';
+        summary = 'MCP doctor is unavailable in this runtime.';
         details = [
-          'O browser doctor do MCP nao foi ligado nesta surface.',
-          'Use o runtime com MCP browser doctor habilitado antes de repetir esta acao.',
+          'MCP browser doctor was not connected on this surface.',
+          'Use the runtime with MCP browser doctor enabled before repeating this action.',
         ];
       } else {
         const doctor = await this.mcpBrowserDoctorService.run();
         result = doctor;
         status = doctor.ok ? 'completed' : 'blocked';
-        summary = doctor.ok ? 'Doctor MCP executado pelo Hub.' : 'Doctor MCP encontrou pendencias no runtime.';
+        summary = doctor.ok ? 'Doctor MCP executado pelo Hub.' : 'Doctor MCP encontrou pending items no runtime.';
         details = [
           `Modulo: ${doctor.moduleName || 'n/d'}.`,
-          `Launchable: ${doctor.launchable ? 'sim' : 'nao'}.`,
+          `Launchable: ${doctor.launchable ? 'yes' : 'no'}.`,
           ...(Array.isArray(doctor.recommendations) ? doctor.recommendations.slice(0, 4) : []),
         ];
         if (doctor.error) {
-          details.push(`Erro: ${doctor.error}`);
+          details.push(`error: ${doctor.error}`);
         }
       }
     } else if (action.surface === 'integrations') {
@@ -125,14 +125,14 @@ export class ZavorthHubActionService {
       });
       result = draft;
       status = 'completed';
-      summary = `${draft.manifest.label} preparado pelo Hub.`;
+      summary = `${draft.manifest.label} prepared pelo Hub.`;
       details = [
         draft.resolution.note,
         `Modo: ${draft.selectedMode}.`,
-        `Capacidades: ${draft.enabledCapabilities.join(', ') || 'nenhuma'}.`,
+        `Capabilities: ${draft.enabledCapabilities.join(', ') || 'none'}.`,
         draft.unansweredQuestions.length > 0
-          ? `${draft.unansweredQuestions.length} pergunta(s) ainda precisam ser respondidas.`
-          : 'Nenhuma pergunta bloqueante ficou pendente nesta passada.',
+          ? `${draft.unansweredQuestions.length} question(s) still need answers.`
+          : 'No blocking question remained pending in this pass.',
       ];
       nextSelectedId = integrationId;
     } else if (action.surface === 'plugins') {
@@ -163,17 +163,17 @@ export class ZavorthHubActionService {
       nextSelectedId = entryId;
     } else if (action.surface === 'skills') {
       status = 'manual';
-      summary = `${action.label}: trilha guiada pronta.`;
+      summary = `${action.label}: trilha guiada ready.`;
       details = [
         action.rationale,
-        action.command ? `Atalho sugerido: ${action.command}` : 'Use a biblioteca de skills para seguir.',
+        action.command ? `shortcut sugerido: ${action.command}` : 'Use a biblioteca de skills para seguir.',
       ];
     } else {
       status = 'manual';
-      summary = `${action.label}: acao guiada pronta.`;
+      summary = `${action.label}: action guiada ready.`;
       details = [
         action.rationale,
-        action.command ? `Atalho sugerido: ${action.command}` : 'Revise o recorte atual do Hub para seguir.',
+        action.command ? `shortcut sugerido: ${action.command}` : 'Revise o recorte current do Hub para seguir.',
       ];
     }
 
@@ -220,7 +220,7 @@ export class ZavorthHubActionService {
     if (normalized === 'platform-sync') {
       return {
         id: 'platform-sync',
-        label: 'Sincronizar registry remoto',
+        label: 'Sincronizar registry remote',
         surface: 'platform',
         kind: 'sync',
         rationale: snapshot.sync.summary,
@@ -230,10 +230,10 @@ export class ZavorthHubActionService {
     if (normalized === 'mcp-browser-doctor' || normalized === 'mcp-doctor' || normalized === 'doctor') {
       return {
         id: 'mcp-browser-doctor',
-        label: 'Rodar doctor MCP',
+        label: 'run doctor MCP',
         surface: 'mcp',
         kind: 'doctor',
-        rationale: 'Verifique se o manifesto MCP e o runtime vivo continuam coerentes.',
+        rationale: 'Check that the MCP manifest and live runtime remain coherent.',
         command: '/hub run mcp-browser-doctor',
       };
     }

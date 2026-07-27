@@ -1,4 +1,4 @@
-import { readLegacyZavorthControlSegments } from "./legacyZavorthControlSource";
+﻿import { readLegacyZavorthControlSegments } from "./legacyZavorthControlSource";
 import { TerminalInboxSector } from "./TerminalInboxSector";
 import { ZavorthControlBridge } from "./ZavorthControlBridge";
 import { ZavorthControlDock } from "./ZavorthControlDock";
@@ -32,7 +32,7 @@ function HtmlFragment({ markup }: { markup: string }) {
 }
 
 /**
- * Phase 8 — remaining inactive sectors are React surfaces (not HTML fragments).
+ * Inactive sectors are React surfaces, not HTML fragments.
  * Overlays still come from the built Vite shell HTML for event-bridge compatibility.
  */
 function ZavorthControlInactiveSectors(_props: {

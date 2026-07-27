@@ -131,7 +131,7 @@ export class RemoteMeshSandboxPolicyService {
         check: 'npm run remote-mesh:sandbox:policy --silent',
         focusedTests: 'npx jest tests/services/RemoteMeshSandboxPolicyService.test.ts --runInBand',
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'R3 - Remote Adapter Dry-Run Bindings',
+        nextAction: 'Remote adapter dry-run bindings',
       },
     };
   }
@@ -263,8 +263,7 @@ export class RemoteMeshSandboxPolicyService {
       ? 'denied'
       : clarificationCount > 0
         ? 'needs-clarification'
-        : approvalCount > 0 || this.requiresApproval(action, tool, rule)
-          ? 'requires-approval'
+        : approvalCount > 0 || this.requiresApproval(action, tool, rule) ? 'requires-approval'
           : 'allowed';
     const approval = this.resolveApproval(status, action, tool, rule);
     const sanitizedParams = this.redactParams(action.params);
@@ -324,8 +323,7 @@ export class RemoteMeshSandboxPolicyService {
         deniedPattern ? 'prohibited-action' : 'unknown-tool',
         deniedPattern ? 'blocker' : 'clarification',
         'toolId',
-        deniedPattern
-          ? `Tool ${action.toolId} matches denied tool pattern ${deniedPattern}.`
+        deniedPattern ? `Tool ${action.toolId} matches denied tool pattern ${deniedPattern}.`
           : 'Requested tool is not known by the R2 allowlist.',
       ));
     }
@@ -647,7 +645,7 @@ export class RemoteMeshSandboxPolicyService {
       return value
         .replace(/sk-[A-Za-z0-9_-]{12,}/g, 'sk-[redacted]')
         .replace(/xox[baprs]-[A-Za-z0-9-]{12,}/g, 'xox-[redacted]')
-        .replace(/([?&](?:token|key|secret|password)=)[^&\s]+/gi, '$1[redacted]');
+        .replace(/([...&](?:token|key|secret|password)=)[^&\s]+/gi, '$1[redacted]');
     }
     if (Array.isArray(value)) {
       return value.map((item) => this.redactJson(item));
@@ -655,8 +653,7 @@ export class RemoteMeshSandboxPolicyService {
     if (value && typeof value === 'object') {
       const nested: Record<string, RemoteMeshJson> = {};
       for (const [key, nestedValue] of Object.entries(value)) {
-        nested[key] = /token|secret|password|key/i.test(key)
-          ? '[redacted]'
+        nested[key] = /token|secret|password|key/i.test(key) ? '[redacted]'
           : this.redactJson(nestedValue);
       }
       return nested;

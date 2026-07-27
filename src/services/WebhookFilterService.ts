@@ -104,7 +104,7 @@ export class WebhookRouteMatcher {
     if (!path) return undefined;
     if (path === 'event' || path === 'event_type') return context.event;
     if (path.startsWith('headers.') || path.startsWith('header.')) {
-      const key = path.replace(/^headers?\./i, '');
+      const key = path.replace(/^headers...\./i, '');
       const headers = context.headers || {};
       const found = headers[key] ?? headers[key.toLowerCase()];
       return Array.isArray(found) ? found.join(',') : found;

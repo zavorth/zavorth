@@ -55,10 +55,10 @@ type EchoOutputStageDeps = {
 };
 
 /**
- * Cross-surface output post-processor for Echo voice mode.
+ * Cross-surface output post-processr for Echo voice mode.
  *
  * Surfaces provide delivery primitives (text, optional voice, optional action)
- * and this phase decides whether a reply should become voice or remain text.
+ * and this output stage decides whether a reply should become voice or remain text.
  */
 export class EchoOutputStageService {
   constructor(private readonly deps: EchoOutputStageDeps = {}) {}
@@ -175,7 +175,7 @@ export class EchoOutputStageService {
         policyHint,
         traceId,
         surface: request.surface,
-        requestedBy: request.requestedBy || `${request.surface}-output-phase`,
+        requestedBy: request.requestedBy || `${request.surface}-output-stage`,
         sessionId: request.sessionId || '',
       };
       if (usePreferenceTts && preferenceTts.ok) {
@@ -233,7 +233,7 @@ export class EchoOutputStageService {
       return true;
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : String(error || 'erro desconhecido');
+      const message = error instanceof Error ? err.message : String(error || 'unknown error');
       recordVoiceMetric({
         kind: 'tts',
         ok: false,
@@ -269,7 +269,7 @@ export class EchoOutputStageService {
     }
 
     const sentences = normalized
-      .split(/(?<=[.!?])\s+/)
+      .split(/(...<=[.!...])\s+/)
       .map((entry) => entry.trim())
       .filter(Boolean);
     let output = '';
@@ -285,13 +285,9 @@ export class EchoOutputStageService {
 
   private resolvePolicyHint(spokenText: string, preferredLanguageCode: string): AudioSynthesisOptions['policyHint'] {
     const normalized = String(spokenText || '').trim();
-    const language = String(preferredLanguageCode || '')
-      .trim()
-      .toLowerCase();
-    const edgeFriendly =
-      language === 'auto' || language.startsWith('pt') || language.startsWith('en') || language.startsWith('es');
+    void preferredLanguageCode;
 
-    if (normalized.length <= 900 && edgeFriendly) {
+    if (normalized.length <= 900) {
       return 'short_reply';
     }
 
@@ -299,37 +295,8 @@ export class EchoOutputStageService {
   }
 
   private resolvePreferredLanguageCode(rawInput: string, responseText: string): string {
-    const explicitMatch = String(rawInput || '').match(/Detected language:\s*([^\n]+)/i);
-    if (explicitMatch?.[1]) {
-      return explicitMatch[1].trim();
-    }
-
-    return this.detectLanguageCode(responseText || rawInput);
-  }
-
-  private detectLanguageCode(text: string): string {
-    const normalized = String(text || '')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-    const ptHits = (
-      normalized.match(
-        /\b(voce|nao|sim|audio|noticias?|ultimas?|obrigado|consegue|ouvir|resuma|explique|ola|fale|resposta|voz|certo|tudo)\b/g,
-      ) || []
-    ).length;
-    const enHits = (
-      normalized.match(
-        /\b(you|not|yes|audio|news|latest|thanks|can|hear|summarize|explain|hello|reply|voice|right|okay)\b/g,
-      ) || []
-    ).length;
-    const esHits = (
-      normalized.match(
-        /\b(usted|tu|no|si|audio|noticias?|ultimas?|gracias|puedes|oir|resume|explica|hola|respuesta|voz|claro)\b/g,
-      ) || []
-    ).length;
-    if (ptHits >= enHits && ptHits >= esHits && ptHits > 0) return 'en-US';
-    if (esHits >= enHits && esHits > 0) return 'es';
-    if (enHits > 0) return 'en';
+    void rawInput;
+    void responseText;
     return 'auto';
   }
 

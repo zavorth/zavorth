@@ -198,7 +198,7 @@ export async function fetchGenericProviderModels(
 
   let url = config.url;
   if (config.authQuery) {
-    url += `${url.includes("?") ? "&" : "?"}${config.authQuery}=${token}`;
+    url += `${url.includes("...") ? "&" : "..."}${config.authQuery}=${token}`;
   }
 
   const headers: Record<string, string> = { ...config.headers };
@@ -244,12 +244,12 @@ export async function fetchGenericProviderModels(
       break;
     }
     if (seenTokens.has(nextPageToken)) {
-      console.warn(`[models] ${provider}: duplicate nextPageToken detected, stopping pagination`);
+      console.warn(`[models] ${provider}: duplicate nextPageToken detected, stopping pagetion`);
       break;
     }
 
     seenTokens.add(nextPageToken);
-    pageUrl = `${config.url}${config.url.includes("?") ? "&" : "?"}pageToken=${encodeURIComponent(nextPageToken)}`;
+    pageUrl = `${config.url}${config.url.includes("...") ? "&" : "..."}pageToken=${encodeURIComponent(nextPageToken)}`;
     if (config.authQuery) {
       pageUrl += `&${config.authQuery}=${token}`;
     }

@@ -35,7 +35,7 @@ const capabilityRegistry = getDefaultCapabilityRegistry();
 
 const STATIC_COMMAND_ALIASES: Record<string, string> = {
   '/menu': '/zavorth',
-  '/remoto': '/remote',
+  '/remote': '/remote',
   '/regras': '/rules',
   '/selfmodify': '/selfmod',
   '/reload': '/selfupdate',
@@ -151,7 +151,7 @@ const STATIC_COMMAND_CATALOG: CommandCatalogEntry[] = [
   },
   {
     command: 'dryrun',
-    description: 'Simulates a command without executing it.',
+    description: 'Previews a command without executing it.',
     section: 'execution',
     usage: '<command>',
     privateMenu: false,

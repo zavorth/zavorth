@@ -133,9 +133,8 @@ export class CapabilityAutopilotFallbackHandoffService {
           validationResult: null,
           receipt: permissionRequestResult ? this.appendPermissionTimeline(receipt, permissionRequestResult, generatedAt) : receipt,
           resumeIntent,
-          summary: permissionRequestResult
-            ? `Fallback '${selectedFallback.label}' escolhido; permissao contextual solicitada.`
-            : `Fallback '${selectedFallback.label}' escolhido; aguardando permissao contextual aprovada.`,
+          summary: permissionRequestResult ? `Fallback '${selectedFallback.label}' selected; contextual permission requested.`
+            : `Fallback '${selectedFallback.label}' selected; waiting for approved contextual permission.`,
           technicalSummary: `fallback_handoff=permission_gate; status=${permissionRequestResult ? 'requested' : 'waiting'}; capability=${capabilityId}`,
         });
       }
@@ -222,32 +221,32 @@ export class CapabilityAutopilotFallbackHandoffService {
       {
         id: 'explain-fallback',
         kind: 'explain',
-        title: 'Explicar fallback escolhido',
-        summary: `Fallback escolhido: ${input.selectedFallback.label}.`,
+        title: 'Explain selected fallback',
+        summary: `Fallback selected: ${input.selectedFallback.label}.`,
         command: null,
         installStep: null,
         permissionIds: [],
-        expectedOutcome: 'Usuario entende a troca antes da execucao.',
+        expectedOutcome: 'User understands the swap before execution.',
       },
       {
         id: 'request-fallback-permission',
         kind: 'ask_user',
-        title: 'Pedir permissao para fallback',
+        title: 'Ask for fallback permission',
         summary: permission.reason,
         command: null,
         installStep: null,
         permissionIds: [permission.id],
-        expectedOutcome: 'Permissao contextual aprovada.',
+        expectedOutcome: 'Contextual permission approved.',
       },
       {
         id: 'switch-to-selected-fallback',
         kind: 'switch_executor',
         title: 'Registrar troca de executor',
-        summary: 'A troca fica registrada, mas nao e executada invisivelmente.',
+        summary: 'The switch is recorded, but not executed invisibly.',
         command: null,
         installStep: null,
         permissionIds: [permission.id],
-        expectedOutcome: 'Executor alternativo fica autorizado para o proximo run governado.',
+        expectedOutcome: 'Alternative executor is approved for the next governed run.',
       },
     ];
 
@@ -257,7 +256,7 @@ export class CapabilityAutopilotFallbackHandoffService {
       diagnosisId: null,
       createdAt: input.generatedAt,
       status: 'approval_required',
-      summary: `Autorizar fallback '${input.selectedFallback.label}' para continuar o pedido original.`,
+      summary: `Authorize fallback '${input.selectedFallback.label}' to continue the original request.`,
       riskLevel: permission.riskLevel,
       trustLevelRequired: permission.trustLevelRequired,
       permissionRequirements: [permission],
@@ -267,7 +266,7 @@ export class CapabilityAutopilotFallbackHandoffService {
         title: 'Validate fallback readiness',
         kind: 'manual',
         target: capabilityId,
-        successCondition: 'Capability alternativa pronta e segura para retomar.',
+        successCondition: 'Capability alternactive ready e safe para resume.',
         required: true,
       }],
       fallbackOptions: [],
@@ -292,7 +291,7 @@ export class CapabilityAutopilotFallbackHandoffService {
       id: `fallback-${selectedFallback.id}-switch-executor-session`,
       kind: 'switch_executor',
       scope: 'session',
-      reason: `Voce escolheu usar '${selectedFallback.label}' como alternativa. Preciso registrar essa troca antes de continuar.`,
+      reason: `You chose to use '${selectedFallback.label}' as an alternative. I need to record that switch before continuing.`,
       requestedValue: target,
       resolvedValue: target,
       riskLevel: 5,
@@ -381,25 +380,25 @@ export class CapabilityAutopilotFallbackHandoffService {
     validationResult: CapabilityAutopilotValidationResumeResult,
   ): string {
     if (validationResult.status === 'ready_to_resume') {
-      return `Fallback '${selectedFallback.label}' esta pronto para retomar o pedido original.`;
+      return `Fallback '${selectedFallback.label}' is ready to resume the original request.`;
     }
     if (validationResult.status === 'waiting_permission') {
-      return `Fallback '${selectedFallback.label}' ainda aguarda permissao aprovada.`;
+      return `Fallback '${selectedFallback.label}' is still waiting for approved permission.`;
     }
     if (validationResult.status === 'permission_rejected') {
-      return `Permissao rejeitada para fallback '${selectedFallback.label}'.`;
+      return `Permission rejected for fallback '${selectedFallback.label}'.`;
     }
-    return `Fallback '${selectedFallback.label}' ainda precisa de reparo antes de retomar.`;
+    return `Fallback '${selectedFallback.label}' still needs repair before resuming.`;
   }
 
   private buildBlockedSummary(status: CapabilityFallbackSelectionResult['status']): string {
     if (status === 'policy_blocked') {
-      return 'Fallback bloqueado pela policy; nao devo continuar.';
+      return 'Fallback blocked by policy; I should not continue.';
     }
     if (status === 'not_found') {
-      return 'Fallback solicitado nao foi encontrado; nao devo continuar.';
+      return 'Requested fallback was not found; I should not continue.';
     }
-    return 'Nenhum fallback foi escolhido explicitamente.';
+    return 'No fallback was explicitly selected.';
   }
 
   private result(input: {

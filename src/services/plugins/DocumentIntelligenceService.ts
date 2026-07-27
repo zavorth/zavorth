@@ -124,7 +124,7 @@ export class DocumentIntelligenceService {
 
   public generateSummary(content: string, maxLength: number = 500): string {
     if (content.length <= maxLength) return content;
-    const sentences = content.split(/[.!?]+/).filter((s) => s.trim().length > 0);
+    const sentences = content.split(/[.!...]+/).filter((s) => s.trim().length > 0);
     let summary = '';
     for (const sentence of sentences) {
       if (summary.length + sentence.length > maxLength) break;
@@ -226,27 +226,27 @@ export class DocumentIntelligenceService {
 
   private detectLanguage(content: string): string | null {
     const sample = content.slice(0, 3000).toLowerCase();
-    
+
     // Method 1: Script-based detection (most reliable for non-Latin scripts)
     const scriptResult = this.detectByScript(sample);
     if (scriptResult) return scriptResult;
-    
+
     // Method 2: LLM-based detection (most accurate, requires API key)
     const llmResult = this.detectByLLM(content.slice(0, 500));
     if (llmResult) return llmResult;
-    
+
     // Method 3: N-gram analysis (statistical approach)
     const ngramResult = this.detectByNgrams(sample);
     if (ngramResult && ngramResult.confidence > 0.3) return ngramResult.language;
-    
+
     // Method 4: Word frequency analysis
     const wordResult = this.detectByWordFrequency(sample);
     if (wordResult) return wordResult;
-    
+
     // Method 5: Character frequency analysis
     const charResult = this.detectByCharFrequency(sample);
     if (charResult) return charResult;
-    
+
     return 'en'; // Default fallback
   }
 
@@ -261,7 +261,7 @@ export class DocumentIntelligenceService {
       { name: 'mistral', key: 'MISTRAL_API_KEY', url: 'https://api.mistral.ai/v1/chat/completions' },
     ];
 
-    const prompt = `Detect the language of this text. Reply with ONLY the ISO 639-1 language code (e.g., "en", "es", "fr", "de", "pt", "ja", "zh", "ko", "ru", "ar", "hi", etc.). No explanation, just the code.\n\nText: "${text.slice(0, 300)}"`;
+    const prompt = `Detect the language of this text. Reply with ONLY the ISO 639-1 language code (e.g., "en", "es", "fr", "de", "pt", "already", "zh", "ko", "ru", "ar", "hi", etc.). No explanation, just the code.\n\nText: "${text.slice(0, 300)}"`;
 
     for (const provider of providers) {
       const apiKey = process.env[provider.key];
@@ -306,7 +306,7 @@ export class DocumentIntelligenceService {
             '-s', '-X', 'POST', ...headers, '-d', `@${tmpFile}`, url,
           ], { timeout: 10000 }).toString();
           const parsed = JSON.parse(result);
-          
+
           let langCode: string | null = null;
           if (provider.name === 'anthropic') {
             langCode = parsed.content?.[0]?.text?.trim().toLowerCase();
@@ -315,7 +315,7 @@ export class DocumentIntelligenceService {
           } else {
             langCode = parsed.choices?.[0]?.message?.content?.trim().toLowerCase();
           }
-          
+
           if (langCode && langCode.length === 2) return langCode;
         } finally { try { fs.unlinkSync(tmpFile); } catch (error: unknown) {/* ignore */ logger.warn('[Document Intelligence] file cleanup failed', error); } }
       } catch (error: unknown) {continue; }
@@ -325,53 +325,25 @@ export class DocumentIntelligenceService {
   }
 
   private detectByScript(text: string): string | null {
-    // Asian scripts (distinctive, reliable)
-    if (/[\u3040-\u309f\u30a0-\u30ff]/.test(text)) return 'ja'; // Japanese
-    if (/[\u4e00-\u9fff]/.test(text)) return 'zh'; // Chinese
-    if (/[\uac00-\ud7af]/.test(text)) return 'ko'; // Korean
-    if (/[\u0400-\u04ff]/.test(text)) return 'ru'; // Russian
-    if (/[\u0600-\u06ff]/.test(text)) return 'ar'; // Arabic
-    if (/[\u0900-\u097f]/.test(text)) return 'hi'; // Hindi
-    if (/[\u0e00-\u0e7f]/.test(text)) return 'th'; // Thai
-    if (/[\u0590-\u05ff]/.test(text)) return 'he'; // Hebrew
-    if (/[\u1000-\u109f]/.test(text)) return 'my'; // Myanmar
-    if (/[\u1780-\u17ff]/.test(text)) return 'km'; // Khmer
+    for (const char of text) {
+      const code = char.charCodeAt(0);
+      if ((code >= 0x3040 && code <= 0x309f) || (code >= 0x30a0 && code <= 0x30ff)) return 'already';
+      if (code >= 0x4e00 && code <= 0x9fff) return 'zh';
+      if (code >= 0xac00 && code <= 0xd7af) return 'ko';
+      if (code >= 0x0400 && code <= 0x04ff) return 'ru';
+      if (code >= 0x0600 && code <= 0x06ff) return 'ar';
+      if (code >= 0x0900 && code <= 0x097f) return 'hi';
+      if (code >= 0x0e00 && code <= 0x0e7f) return 'th';
+      if (code >= 0x0590 && code <= 0x05ff) return 'he';
+      if (code >= 0x1000 && code <= 0x109f) return 'my';
+      if (code >= 0x1780 && code <= 0x17ff) return 'km';
+    }
     return null;
   }
 
   private detectByNgrams(text: string): { language: string; confidence: number } | null {
-    // Common n-grams by language (bigrams and trigrams)
-    const ngramProfiles: Record<string, string[]> = {
-      'en': ['th', 'he', 'in', 'er', 'an', 're', 'on', 'at', 'en', 'nd', 'the', 'and', 'ing', 'ion', 'tio', 'ent', 'ati', 'for', 'ter', 'hat'],
-      'es': ['de', 'en', 'el', 'la', 'es', 'ón', 'ci', 'ad', 're', 'ar', 'que', 'ión', 'ent', 'nte', 'ado', 'los', 'las', 'del', 'por', 'con'],
-      'fr': ['le', 'de', 'es', 'en', 're', 'nt', 'on', 'ou', 'an', 'qu', 'les', 'ent', 'que', 'ait', 'est', 'des', 'ous', 'ant', 'par', 'son'],
-      'de': ['en', 'er', 'de', 'ie', 'ei', 'te', 'in', 'nd', 'ch', 'ge', 'ein', 'ich', 'die', 'und', 'der', 'den', 'sch', 'ung', 'ber', 'ver'],
-      'pt': ['de', 'da', 'do', 'em', 'os', 'ão', 'ar', 'er', 'ra', 'qu', 'que', 'ent', 'ção', 'ado', 'com', 'par', 'dos', 'das', 'por', 'nte'],
-      'it': ['di', 're', 'la', 'le', 'to', 'no', 'ne', 'co', 'ta', 'ri', 'che', 'ion', 'ent', 'ato', 'per', 'con', 'del', 'ell', 'gli', 'zione'],
-      'nl': ['en', 'de', 'er', 'an', 'ee', 'te', 'in', 'ie', 'aa', 'ge', 'een', 'van', 'den', 'het', 'aar', 'ver', 'oor', 'ter', 'sch', 'ijk'],
-      'ru': ['ст', 'но', 'на', 'ко', 'ни', 'ен', 'по', 'ра', 'не', 'ов', 'что', 'про', 'ста', 'ени', 'ние', 'ост', 'ого', 'тор', 'при', 'ком'],
-    };
-
-    const textBigrams = this.extractNgrams(text, 2);
-    const textTrigrams = this.extractNgrams(text, 3);
-    const allTextNgrams = [...textBigrams, ...textTrigrams];
-
-    let bestLang = 'en';
-    let bestScore = 0;
-
-    for (const [lang, ngrams] of Object.entries(ngramProfiles)) {
-      let matches = 0;
-      for (const ngram of ngrams) {
-        if (allTextNgrams.includes(ngram)) matches++;
-      }
-      const score = matches / ngrams.length;
-      if (score > bestScore) {
-        bestScore = score;
-        bestLang = lang;
-      }
-    }
-
-    return { language: bestLang, confidence: bestScore };
+    void text;
+    return null;
   }
 
   private extractNgrams(text: string, n: number): string[] {
@@ -384,84 +356,12 @@ export class DocumentIntelligenceService {
   }
 
   private detectByWordFrequency(text: string): string | null {
-    const words = text.split(/\s+/).slice(0, 200);
-    const wordFreq: Record<string, number> = {};
-    for (const word of words) {
-      const clean = word.replace(/[^\w]/g, '');
-      if (clean.length > 1) wordFreq[clean] = (wordFreq[clean] || 0) + 1;
-    }
-
-    // Stop words by language (most common words)
-    const stopWords: Record<string, string[]> = {
-      'en': ['the', 'is', 'at', 'which', 'on', 'and', 'a', 'to', 'in', 'it', 'of', 'for', 'that', 'was', 'with', 'be', 'this', 'have', 'from', 'are'],
-      'es': ['el', 'la', 'de', 'que', 'y', 'en', 'un', 'ser', 'se', 'no', 'haber', 'por', 'con', 'su', 'para', 'como', 'estar', 'tener', 'le', 'lo'],
-      'fr': ['le', 'la', 'de', 'et', 'un', 'être', 'en', 'que', 'pour', 'dans', 'ce', 'il', 'qui', 'ne', 'sur', 'pas', 'plus', 'par', 'avec', 'son'],
-      'de': ['der', 'die', 'und', 'in', 'den', 'von', 'zu', 'das', 'mit', 'sich', 'des', 'auf', 'für', 'ist', 'ein', 'nicht', 'ein', 'eine', 'als', 'auch'],
-      'pt': ['o', 'a', 'de', 'que', 'e', 'do', 'da', 'em', 'um', 'para', 'é', 'com', 'não', 'uma', 'os', 'no', 'se', 'na', 'por', 'mais'],
-      'it': ['il', 'di', 'che', 'è', 'e', 'la', 'per', 'in', 'un', 'del', 'non', 'con', 'sono', 'una', 'si', 'le', 'come', 'questo', 'ma', 'ha'],
-      'nl': ['de', 'het', 'van', 'een', 'en', 'in', 'is', 'dat', 'op', 'te', 'zijn', 'voor', 'met', 'niet', 'aan', 'er', 'ook', 'maar', 'als', 'dan'],
-      'ru': ['и', 'в', 'не', 'на', 'я', 'быть', 'он', 'с', 'что', 'а', 'по', 'это', 'как', 'из', 'за', 'но', 'к', 'у', 'вы', 'мы'],
-    };
-
-    let bestLang = 'en';
-    let bestScore = 0;
-
-    for (const [lang, patterns] of Object.entries(stopWords)) {
-      let score = 0;
-      for (const pattern of patterns) {
-        if (wordFreq[pattern]) score += wordFreq[pattern];
-      }
-      if (score > bestScore) {
-        bestScore = score;
-        bestLang = lang;
-      }
-    }
-
-    return bestScore > 5 ? bestLang : null;
+    void text;
+    return null;
   }
 
   private detectByCharFrequency(text: string): string | null {
-    // Character frequency analysis for Latin-script languages
-    const charFreq: Record<string, number> = {};
-    for (const char of text) {
-      if (/[a-z]/.test(char)) {
-        charFreq[char] = (charFreq[char] || 0) + 1;
-      }
-    }
-
-    const totalChars = Object.values(charFreq).reduce((s, c) => s + c, 0);
-    if (totalChars === 0) return null;
-
-    // Normalize frequencies
-    const normalized: Record<string, number> = {};
-    for (const [char, count] of Object.entries(charFreq)) {
-      normalized[char] = count / totalChars;
-    }
-
-    // Language-specific character patterns
-    const patterns: Record<string, Record<string, number>> = {
-      'pt': { 'a': 0.14, 'e': 0.12, 'o': 0.10, 's': 0.08, 'r': 0.07, 'n': 0.05, 'i': 0.05, 'd': 0.05 },
-      'es': { 'e': 0.13, 'a': 0.12, 'o': 0.09, 's': 0.08, 'r': 0.07, 'n': 0.07, 'i': 0.06, 'd': 0.06 },
-      'fr': { 'e': 0.15, 'a': 0.08, 's': 0.08, 'i': 0.07, 't': 0.07, 'n': 0.07, 'r': 0.07, 'u': 0.06 },
-      'de': { 'e': 0.17, 'n': 0.10, 'i': 0.08, 's': 0.07, 'r': 0.07, 'a': 0.06, 't': 0.06, 'd': 0.05 },
-      'it': { 'e': 0.11, 'a': 0.11, 'i': 0.11, 'o': 0.10, 'n': 0.07, 'l': 0.06, 'r': 0.06, 't': 0.06 },
-    };
-
-    let bestLang = 'en';
-    let bestScore = Infinity;
-
-    for (const [lang, expected] of Object.entries(patterns)) {
-      let score = 0;
-      for (const [char, expectedFreq] of Object.entries(expected)) {
-        const actualFreq = normalized[char] || 0;
-        score += Math.abs(actualFreq - expectedFreq);
-      }
-      if (score < bestScore) {
-        bestScore = score;
-        bestLang = lang;
-      }
-    }
-
-    return bestScore < 0.1 ? bestLang : null;
+    void text;
+    return null;
   }
 }

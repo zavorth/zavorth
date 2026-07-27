@@ -128,8 +128,7 @@ export class ZavorthAgentOperatingSystemService {
         operatorSummary: [
           `${summary.activeLoops} active loop(s).`,
           `${summary.resumableLoops} resumable loop(s).`,
-          summary.sddLoopReady
-            ? 'The SDD loop already serves as the limited Agent OS core.'
+          summary.sddLoopReady ? 'The SDD loop already serves as the limited Agent OS core.'
             : 'The SDD loop has not appeared in the operational catalog yet.',
         ].join(' '),
       },
@@ -160,7 +159,7 @@ export class ZavorthAgentOperatingSystemService {
           ? [
               {
                 id: 'resume_loop' as const,
-                label: 'Retomar ultimo run',
+                label: 'Resumesr latest run',
                 requiresInput: false,
                 payload: {
                   teamId: team.id,

@@ -20,7 +20,7 @@ type RegistryCommandParams = {
 /**
  * Explicit CLI profile tokens only — never free-text keyword feature routing.
  * Accepts: short|dev|executive|mentor as a standalone token, or --profile <id>.
- * Natural-language phrases ("resuma impacto…") stay model-owned.
+ * Natural-language phrases ("summarize impacto…") stay model-owned.
  */
 function parseExperienceResponseProfile(args: string): 'short' | 'dev' | 'executive' | 'mentor' | null {
   const raw = String(args || '').trim();
@@ -31,7 +31,7 @@ function parseExperienceResponseProfile(args: string): 'short' | 'dev' | 'execut
     const id = String(tokens[profileFlagIdx + 1] || '').toLowerCase();
     if (id === 'short' || id === 'dev' || id === 'executive' || id === 'mentor') return id;
     if (id === 'curto' || id === 'objetivo') return 'short';
-    if (id === 'developer' || id === 'technical' || id === 'tecnico') return 'dev';
+    if (id === 'developer' || id === 'technical' || id === 'technical') return 'dev';
     if (id === 'executivo' || id === 'manager') return 'executive';
     if (id === 'teacher' || id === 'didatico') return 'mentor';
     return null;
@@ -41,7 +41,7 @@ function parseExperienceResponseProfile(args: string): 'short' | 'dev' | 'execut
   if (tokens.length === 1) {
     if (first === 'short' || first === 'dev' || first === 'executive' || first === 'mentor') return first;
     if (first === 'curto' || first === 'objetivo') return 'short';
-    if (first === 'developer' || first === 'technical' || first === 'tecnico') return 'dev';
+    if (first === 'developer' || first === 'technical' || first === 'technical') return 'dev';
     if (first === 'executivo' || first === 'manager') return 'executive';
     if (first === 'teacher' || first === 'didatico' || first === 'mentor') return 'mentor';
   }

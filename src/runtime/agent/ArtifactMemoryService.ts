@@ -174,7 +174,7 @@ function listStrings(value: unknown): string[] {
 
 function redactText(value: unknown, fallback = '', maxLength = 260): string {
   const text = normalizeText(value, fallback)
-    .replace(/((?:api[_-]?key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/((?:api[_-]...key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
     .replace(/\s+/g, ' ')
     .trim();
   return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;
@@ -202,42 +202,26 @@ type ArtifactMemoryStatusLike = UniversalArtifactSummary['status'] | 'ready';
 
 function categoryFromArtifact(artifact: { kind: ArtifactMemoryKind; title: string }): ArtifactMemoryCategory {
   const title = normalizeText(artifact.title).toLowerCase();
-  if (artifact.kind === 'plan' || /plano|plan|roadmap/.test(title)) {
+  if (artifact.kind === 'plan' || title.includes('plan') || title.includes('roadmap')) {
     return 'plan';
   }
-  if (artifact.kind === 'diff' || /diff|patch|mudan/.test(title)) {
+  if (artifact.kind === 'diff' || title.includes('diff') || title.includes('patch')) {
     return 'diff';
   }
-  if (artifact.kind === 'report' || /report|relat[oó]rio|auditoria|qa/.test(title)) {
+  if (artifact.kind === 'report' || title.includes('report') || title.includes('qa')) {
     return 'report';
   }
-  if (/spec|rfc|contrato|design/.test(title)) {
+  if (['spec', 'rfc', 'contract', 'design'].some((term) => title.includes(term))) {
     return 'spec';
   }
-  if (/decis[aã]o|decision|adr/.test(title)) {
+  if (title.includes('decision') || title.includes('adr')) {
     return 'decision';
   }
-  if (/execu|run|teste|workflow/.test(title)) {
+  if (['run', 'test', 'workflow', 'execution'].some((term) => title.includes(term))) {
     return 'execution';
-  }
-  if (/prompt/.test(title)) {
-    return 'prompt';
-  }
-  if (/release|vers[aã]o|rollback/.test(title)) {
-    return 'release';
-  }
-  if (artifact.kind === 'log') {
-    return 'log';
-  }
-  if (artifact.kind === 'handoff') {
-    return 'handoff';
-  }
-  if (artifact.kind === 'file') {
-    return 'file';
   }
   return 'unknown';
 }
-
 function importanceForCategory(category: ArtifactMemoryCategory, status: ArtifactMemoryStatusLike): ArtifactMemoryEntry['importance'] {
   if (status === 'failed') {
     return 'low';
@@ -357,9 +341,9 @@ export class ArtifactMemoryService {
       },
       surface: {
         cliCommand: `zavorth artifact-memory run ${run.id} --json`,
-        zavorthControlPath: '/zavorthControl?sector=dreams',
-        searchHint: 'Procure por tarefa, projeto, categoria, data ou runId antes de reutilizar um artifact.',
-        reuseHint: 'Ao reutilizar artifact em resposta, cite artifactId, runId e receipt de origem.',
+        zavorthControlPath: '/zavorthControl...sector=dreams',
+        searchHint: 'Search by task, project, category, date, or runId before reusing an artifact.',
+        reuseHint: 'When reusing an artifact in a response, cite artifactId, runId, and origin receipt.',
       },
       nextSafeAction: this.nextSafeAction(status, entries, linkedMemoryReceiptCount),
     };
@@ -415,7 +399,7 @@ export class ArtifactMemoryService {
     memoryReceipts: LooseRecord[],
   ): ArtifactMemoryEntry[] {
     const summary = redactText(run.summary);
-    if (!summary || summary === 'Execucao recebida pelo runtime universal.' || summary === 'Request received by Zavorth.') {
+    if (!summary || summary === 'Execution received by the universal runtime.' || summary === 'Request received by Zavorth.') {
       return [];
     }
     const artifactId = `run-summary:${run.id}`;
@@ -573,7 +557,7 @@ export class ArtifactMemoryService {
     return redactText(
       directSummary?.summary
         || directSummary?.description
-        || `${artifact.title} (${category}) criado em ${artifact.createdAt} para ${run.title}.`,
+        || `${artifact.title} (${category}) created em ${artifact.createdAt} para ${run.title}.`,
       artifact.title,
     );
   }
@@ -663,7 +647,7 @@ export class ArtifactMemoryService {
         id: 'artifact-memory:receipt:artifact-ledger:empty',
         kind: 'artifact-ledger',
         source: 'artifact-ledger',
-        detail: 'Nenhum artifact estruturado foi encontrado neste run.',
+        detail: 'No artifact estruturado foi encontrado neste run.',
         status: input.entries.length > 0 ? 'needs-index' : 'missing',
       });
     }
@@ -689,21 +673,21 @@ export class ArtifactMemoryService {
       id: 'artifact-memory:receipt:memory-with-receipts',
       kind: 'memory-with-receipts',
       source: 'MemoryWithReceiptsService',
-      detail: `${input.memoryReceipts.length} memory receipt(s) disponiveis para correlacionar origem.`,
+      detail: `${input.memoryReceipts.length} memory receipt(s) available to correlate origin.`,
       status: input.memoryReceipts.length > 0 ? 'ready' : 'needs-index',
     });
     receipts.push({
       id: 'artifact-memory:receipt:policy',
       kind: 'policy',
       source: 'ArtifactMemoryService',
-      detail: 'Artifact Memory indexa e prepara reuso, mas nao le arquivo, nao muta artifact e nao escreve memoria.',
+      detail: 'Artifact Memory indexes and prepares reuse, but does not read files, mutate artifacts, or write memory.',
       status: 'ready',
     });
     receipts.push({
       id: 'artifact-memory:receipt:surface',
       kind: 'surface',
       source: '/zavorthControl',
-      detail: 'Artifact Memory projetado em /zavorthControl?sector=dreams e CLI.',
+      detail: 'Artifact Memory projected in /zavorthControl...sector=dreams and CLI.',
       status: 'ready',
     });
     return receipts;
@@ -732,17 +716,17 @@ export class ArtifactMemoryService {
     linkedMemoryReceiptCount: number,
   ): string {
     if (status === 'blocked') {
-      return 'Resolver falha do run antes de promover artifacts para memoria.';
+      return 'Resolve run failure before promoting artifacts to memory.';
     }
     if (status === 'empty') {
-      return 'Continuar sem inventar artifact; criar plano, report, diff ou resumo antes de reutilizar.';
+      return 'Continue without inventing artifacts; create a plan, report, diff, or summary before reusing.';
     }
     if (status === 'needs-index') {
-      return 'Indexar artifacts com receipt e promover memoria apenas por comando explicito.';
+      return 'Index artifacts with receipt and promote memory only through explicit command.';
     }
     if (linkedMemoryReceiptCount < entries.length) {
-      return 'Reutilizar artifacts citando artifactId/runId; promover receipts faltantes quando necessario.';
+      return 'Reuse artifacts by citing artifactId/runId; promote missing receipts when necessary.';
     }
-    return 'Artifacts podem ser pesquisados e reutilizados, sempre citando origem.';
+    return 'Artifacts can be searched and reused while always citing origin.';
   }
 }

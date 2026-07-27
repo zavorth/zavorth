@@ -44,10 +44,10 @@ const runtimeStateHelpers = {
 type RuntimeRecord = Record<string, unknown>;
 
 const SENSITIVE_WORKSPACE_PATH_PATTERN =
-  /(^|[\\/])(\.env(?:\.|$)|\.ssh|\.aws|\.gnupg|secrets?|credentials?|private[-_]?key|id_rsa|id_ed25519)([\\/]|$)/i;
-const BROAD_WINDOWS_ROOT_PATTERN = /^[a-z]:[\\/]?$/i;
+  /(^|[\\/])(\.env(?:\.|$)|\.ssh|\.aws|\.gnupg|secrets...|credentials...|private[-_]...key|id_rsa|id_ed25519)([\\/]|$)/i;
+const BROAD_WINDOWS_ROOT_PATTERN = /^[a-z]:[\\/]...$/i;
 const SYSTEM_WORKSPACE_PATH_PATTERN =
-  /(^[a-z]:[\\/](windows|program files|program files \(x86\)|programdata)([\\/]|$)|^[\\/]?(etc|bin|usr|var|root)([\\/]|$))/i;
+  /(^[a-z]:[\\/](windows|program files|program files \(x86\)|programdata)([\\/]|$)|^[\\/]...(etc|bin|usr|var|root)([\\/]|$))/i;
 
 type ZavorthRuntimeStateBusRuntime = {
   now?: () => Date;
@@ -106,8 +106,8 @@ const DEFAULT_MODEL_SPECS: ZavorthRuntimeModelSpec[] = [
   },
   {
     id: 'local-private',
-    label: 'Local private',
-    summary: 'Local-first route for private work and offline-ready providers.',
+    label: 'local private',
+    summary: 'local-first route for private work and offline-ready providers.',
     allowedProviderIds: ['zavorth', 'local', 'ollama', 'lm-studio', 'vllm'],
     preferredModelIds: ['zavorth:core', 'local:default'],
     fallbackModelIds: ['zavorth:governed'],
@@ -394,8 +394,7 @@ export class ZavorthRuntimeStateBusService {
       state.context = {
         ...state.context,
         status: 'ready',
-        summary: workspaceResult.workspace.path
-          ? `Workspace confined to ${workspaceResult.workspace.label}.`
+        summary: workspaceResult.workspace.path ? `Workspace confined to ${workspaceResult.workspace.label}.`
           : 'Workspace is in chat/local mode with no folder scope.',
         updatedAt: now,
       };
@@ -720,12 +719,10 @@ export class ZavorthRuntimeStateBusService {
       const targetDomain = runtimeStateHelpers.normalizeDomain(rawDomain?.domain);
       const sensitive = operation === 'restart' || operation === 'close' || operation === 'approve' || operation === 'reject';
       return {
-        mutation: targetDomain && operation
-          ? `${operation} ${targetDomain}`
+        mutation: targetDomain && operation ? `${operation} ${targetDomain}`
           : 'operate runtime domain',
         requiresApproval: sensitive,
-        reason: sensitive
-          ? 'This runtime operation changes lifecycle state and needs an operator receipt.'
+        reason: sensitive ? 'This runtime operation changes lifecycle state and needs an operator receipt.'
           : 'This runtime operation is reversible and receipt-backed.',
         blockedReason: targetDomain && operation ? null : 'domain_operation_payload_required',
         pathValidated: false,
@@ -737,8 +734,7 @@ export class ZavorthRuntimeStateBusService {
       return {
         mutation: permission ? `set permission ${permission.domain}.${permission.action}` : 'set runtime permission',
         requiresApproval: sensitive,
-        reason: sensitive
-          ? 'Relaxing a permission requires an operator receipt.'
+        reason: sensitive ? 'Relaxing a permission requires an operator receipt.'
           : 'Permission changes are stored as runtime governance state.',
         blockedReason: permission ? null : 'permission_payload_required',
         pathValidated: false,
@@ -822,10 +818,8 @@ export class ZavorthRuntimeStateBusService {
       action: input.input.type,
       status: input.status,
       phase: runtimeStateHelpers.receiptPhaseFor(input.input, input.status),
-      summary: input.error
-        ? `Runtime state ${input.input.type} blocked: ${input.error}.`
-        : input.applied
-          ? `Runtime state ${input.input.type} applied.`
+      summary: input.error ? `Runtime state ${input.input.type} blocked: ${input.error}.`
+        : input.applied ? `Runtime state ${input.input.type} applied.`
           : `Runtime state ${input.input.type} recorded as ${input.status}.`,
       preview: {
         mutation: input.preview.mutation,
@@ -1077,7 +1071,7 @@ export class ZavorthRuntimeStateBusService {
       },
       workspace: {
         id: 'local',
-        label: 'Local',
+        label: 'local',
         kind: 'local',
         path: null,
         confinement: 'runtime-local',
@@ -1110,7 +1104,7 @@ export class ZavorthRuntimeStateBusService {
       },
       workspaceKnowledge: {
         workspaceId: 'local',
-        activeWorkspaceLabel: 'Local',
+        activeWorkspaceLabel: 'local',
         isolation: 'runtime-local',
         trustedWorkspaceIds: [],
         allowedPaths: [],
@@ -1186,7 +1180,7 @@ export class ZavorthRuntimeStateBusService {
     if (!pathResult.ok) {
       return { ok: false, workspace: null, pathValidated: pathResult.pathValidated, error: pathResult.error };
     }
-    const label = runtimeStateHelpers.clean(raw.label || raw.shortLabel || pathResult.label) || (kind === 'chat' ? 'Chats' : 'Local');
+    const label = runtimeStateHelpers.clean(raw.label || raw.shortLabel || pathResult.label) || (kind === 'chat' ? 'Chats' : 'local');
     const confinement = runtimeStateHelpers.normalizeConfinement(raw.confinement, kind);
     return {
       ok: true,

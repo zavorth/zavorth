@@ -6,8 +6,8 @@ welcome:
 
 security:
   short: "Zavorth định tuyến ngôn ngữ tự nhiên đến mô hình, kênh và công cụ cục bộ. Hành động nhạy cảm cần sự chấp thuận của bạn."
-  confirm_first_run: "Chào mừng! Sẵn sàng cấu hình Zavorth?"
-  confirm_reconfigure: "Cấu hình lại cài đặt Zavorth hiện có?"
+  confirm_first_run: "Chào mừng! Sẵn sàng cấu hình Zavorth..."
+  confirm_reconfigure: "Cấu hình lại cài đặt Zavorth hiện có..."
 
 existing_config:
   title: "Phát hiện cấu hình hiện có"
@@ -21,12 +21,12 @@ config_issues:
   no_api_keys: "Không tìm thấy API key trong .env"
   env_not_found: "Không tìm thấy file .env — cần cấu hình nhà cung cấp"
   env_unreadable: "File .env tồn tại nhưng không đọc được"
-  run_doctor: "Chạy zavorth doctor để sửa lỗi?"
+  run_doctor: "Chạy zavorth doctor để sửa lỗi..."
   doctor_hint: "Chạy \"zavorth doctor\" trong terminal khác."
 
 mode:
-  prompt_first_run: "Bạn muốn cấu hình như thế nào?"
-  prompt_reconfigure: "Bạn muốn cấu hình lại như thế nào?"
+  prompt_first_run: "Bạn muốn cấu hình như thế nào..."
+  prompt_reconfigure: "Bạn muốn cấu hình lại như thế nào..."
   complete: "Cấu hình đầy đủ"
   complete_hint: "tất cả các bước — nhà cung cấp, kênh, kỹ năng, bộ nhớ"
   quickstart: "Bắt đầu nhanh"
@@ -37,27 +37,27 @@ mode:
   blank_hint: "tối thiểu — kích hoạt từng tính năng riêng"
 
 home:
-  prompt: "Lưu instance này ở đâu?"
+  prompt: "Lưu instance này ở đâu..."
   keep_current: "Giữ ZAVORTH_HOME hiện tại"
   use_isolated: "Thư mục cô lập bên cạnh dự án"
   choose_custom: "Chọn đường dẫn tùy chỉnh"
   path_prompt: "Đường dẫn ZAVORTH_HOME"
 
 config_handling:
-  prompt: "Xử lý cấu hình hiện có như thế nào?"
+  prompt: "Xử lý cấu hình hiện có như thế nào..."
   keep: "Giữ giá trị hiện tại"
   review: "Xem xét và cập nhật"
   reset: "Đặt lại trước khi cấu hình"
 
 skill_governance:
-  prompt: "Xử lý kỹ năng nhập khẩu như thế nào?"
+  prompt: "Xử lý kỹ năng nhập khẩu như thế nào..."
   casual: "Thân mật"
   casual_hint: "đề xuất cho sử dụng cá nhân; nhập khẩu nhanh"
   governed: "Quản trị"
   governed_hint: "đánh giá doanh nghiệp nghiêm ngặt cho rủi ro, giấy phép"
 
 wake_detector:
-  prompt: "Bật thiết lập từ khóa đánh thức Echo?"
+  prompt: "Bật thiết lập từ khóa đánh thức Echo..."
   default_local: "Bộ phát hiện cục bộ mặc định"
   custom_command: "Lệnh bộ phát hiện tùy chỉnh"
   disabled: "Giữ tắt"
@@ -65,7 +65,7 @@ wake_detector:
   args_prompt: "Tham số bộ phát hiện đánh thức"
 
 migration:
-  prompt: "Di chuyển cài đặt từ agent AI khác?"
+  prompt: "Di chuyển cài đặt từ agent AI khác..."
   path_prompt: "Đường dẫn thư mục workspace của agent:"
   complete: "Di chuyển hoàn tất. Xem xét các cài đặt đã nhập."
   skipped: "Di chuyển bị bỏ qua hoặc thất bại. Chạy sau: zavorth migrate"
@@ -74,7 +74,7 @@ provider:
   auto_detected: "Tìm thấy API key cho {provider}."
   auto_selected: "Sử dụng {provider} với mô hình {model}."
   none_found: "Không tìm thấy API key nhà cung cấp LLM trong biến môi trường."
-  select_prompt: "Bạn muốn sử dụng nhà cung cấp nào?"
+  select_prompt: "Bạn muốn sử dụng nhà cung cấp nào..."
   all_providers: "Tất cả route nhà cung cấp gốc"
   api_key_prompt: "Dán API key {provider} (để trống để bỏ qua):"
   testing: "Đang kiểm tra API key..."
@@ -96,7 +96,7 @@ channels:
 
 search:
   title: "Tìm kiếm web"
-  prompt: "Nhà cung cấp tìm kiếm nào?"
+  prompt: "Nhà cung cấp tìm kiếm nào..."
   local: "Cục bộ (không cần API key)"
   brave: "Brave Search"
   google: "Google Search"
@@ -104,16 +104,16 @@ search:
 
 hooks:
   title: "Tự động hóa"
-  prompt: "Chuẩn bị mẫu tự động hóa?"
+  prompt: "Chuẩn bị mẫu tự động hóa..."
   hint: "tắt cho đến khi xem xét và kích hoạt"
 
 memory:
   title: "Bộ nhớ"
-  prompt: "Chế độ bộ nhớ?"
+  prompt: "Chế độ bộ nhớ..."
   local_metadata: "Siêu dữ liệu cục bộ (sở thích, phê duyệt, tín hiệu sử dụng)"
   local_summary: "Tóm tắt cục bộ (tóm tắt ngắn dự án/ngữ cảnh)"
   off: "Tắt (không dùng bộ nhớ khi cấu hình)"
-  vault_scope: "Phạm vi quét bộ nhớ?"
+  vault_scope: "Phạm vi quét bộ nhớ..."
   skip: "Bỏ qua bây giờ"
   documents: "Tài liệu"
   downloads: "Tải xuống"
@@ -130,7 +130,7 @@ gateway:
 
 hatch:
   title: "Khởi động agent"
-  prompt: "Bạn muốn khởi động agent như thế nào sau khi cấu hình?"
+  prompt: "Bạn muốn khởi động agent như thế nào sau khi cấu hình..."
   terminal: "Khởi động trong Terminal"
   browser: "Khởi động trong ZavorthControl"
   later: "Khởi động sau"

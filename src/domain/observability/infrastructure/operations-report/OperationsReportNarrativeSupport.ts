@@ -7,31 +7,31 @@ export class OperationsReportNarrativeSupport {
 
   public formatRelativeTime(value: string | null): string {
     if (!value) {
-      return 'sem agenda';
+      return 'no schedule';
     }
 
     const target = Date.parse(value);
     if (!Number.isFinite(target)) {
-      return 'data invalida';
+      return 'invalid date';
     }
 
     const diffMs = target - this.now().getTime();
     const absoluteMinutes = Math.round(Math.abs(diffMs) / 60000);
     if (absoluteMinutes < 1) {
-      return 'agora';
+      return 'now';
     }
 
     if (absoluteMinutes < 60) {
-      return diffMs >= 0 ? `em ${absoluteMinutes} min` : `ha ${absoluteMinutes} min`;
+      return diffMs >= 0 ? `in ${absoluteMinutes} min` : `${absoluteMinutes} min ago`;
     }
 
     const absoluteHours = Math.round(absoluteMinutes / 60);
     if (absoluteHours < 24) {
-      return diffMs >= 0 ? `em ${absoluteHours} h` : `ha ${absoluteHours} h`;
+      return diffMs >= 0 ? `in ${absoluteHours} h` : `${absoluteHours} h ago`;
     }
 
     const absoluteDays = Math.round(absoluteHours / 24);
-    return diffMs >= 0 ? `em ${absoluteDays} d` : `ha ${absoluteDays} d`;
+    return diffMs >= 0 ? `in ${absoluteDays} d` : `${absoluteDays} d ago`;
   }
 
   public buildChannelSummary(cockpit: OperationsCockpitSnapshot): string {
@@ -45,14 +45,13 @@ export class OperationsReportNarrativeSupport {
       if (discordBridge.started) {
         summaries.push(
           discordBridge.mode === 'native'
-            ? `${channelLabel} ativo; ${discordBridge.pendingOutbox} envios recentes registrados.`
-            : `${channelLabel} ativo; inbox ${discordBridge.pendingInbox} e outbox ${discordBridge.pendingOutbox}.`,
+            ? `${channelLabel} active; ${discordBridge.pendingOutbox} recent sends recorded.`
+            : `${channelLabel} active; inbox ${discordBridge.pendingInbox} and outbox ${discordBridge.pendingOutbox}.`,
         );
       } else {
         summaries.push(
-          discordBridge.lastError
-            ? `${channelLabel} requer atencao: ${discordBridge.lastError}.`
-            : `${channelLabel} habilitado, mas ainda nao entrou em estado pronto.`,
+          discordBridge.lastError ? `${channelLabel} requires attention: ${discordBridge.lastError}.`
+            : `${channelLabel} enabled, but has not yet reached ready state.`,
         );
       }
     }
@@ -80,7 +79,7 @@ export class OperationsReportNarrativeSupport {
     }
 
     if (!summaries.length) {
-      return 'Nenhum canal complementar habilitado no host atual.';
+      return 'No complementary channels enabled on the current host.';
     }
 
     return summaries.join(' ');
@@ -96,9 +95,9 @@ export class OperationsReportNarrativeSupport {
       labels.push(
         discordBridge.started
           ? discordBridge.mode === 'native'
-            ? `discord pronto | nativo | envios ${discordBridge.pendingOutbox}`
-            : `discord pronto | bridge | inbox ${discordBridge.pendingInbox} | outbox ${discordBridge.pendingOutbox}`
-          : 'discord pendente',
+            ? `discord ready | native | sends ${discordBridge.pendingOutbox}`
+            : `discord ready | bridge | inbox ${discordBridge.pendingInbox} | outbox ${discordBridge.pendingOutbox}`
+          : 'discord pending',
       );
     }
 
@@ -118,14 +117,14 @@ export class OperationsReportNarrativeSupport {
         this.describeLocalChannelLabel(
           slackChannel,
           'slack',
-          'canais',
+          'channels',
           this.resolveLocalChannelModeLabel(slackChannel.mode, 'slack'),
         ),
       );
     }
 
     if (!labels.length) {
-      return 'sem canais adicionais';
+      return 'no additional channels';
     }
 
     return labels.join(' ; ');
@@ -134,53 +133,52 @@ export class OperationsReportNarrativeSupport {
   public buildTenantSummary(cockpit: OperationsCockpitSnapshot): string {
     const summary = this.getTenantSummary(cockpit);
     if (!summary.totalCount) {
-      return 'Nenhum tenant multi-superficie foi observado ainda.';
+      return 'No multi-surface tenants have been observed yet.';
     }
     if (summary.pendingOnboardingCount > 0) {
-      return `${summary.totalCount} tenant(s) observados; ${summary.pendingOnboardingCount} compartilhado(s) ainda exigem onboarding.`;
+      return `${summary.totalCount} tenant(s) observed; ${summary.pendingOnboardingCount} shared tenant(s) still require onboarding.`;
     }
-    return `${summary.totalCount} tenant(s) observados; isolamento compartilhado sem onboarding pendente.`;
+    return `${summary.totalCount} tenant(s) observed; shared isolation with no pending onboarding.`;
   }
 
   public buildTenantLabel(cockpit: OperationsCockpitSnapshot): string {
     const summary = this.getTenantSummary(cockpit);
     if (!summary.totalCount) {
-      return 'sem tenants observados';
+      return 'no tenants observed';
     }
     return summary.pendingOnboardingCount > 0
-      ? `${summary.totalCount} observados | onboarding pendente ${summary.pendingOnboardingCount}`
+      ? `${summary.totalCount} observados | onboarding pending ${summary.pendingOnboardingCount}`
       : `${summary.totalCount} observed | onboarding current`;
   }
 
   public buildNodeMeshSummary(cockpit: OperationsCockpitSnapshot): string {
     const smoke = cockpit.operations.nodeMeshSmoke;
     if (!smoke || smoke.status === 'missing') {
-      return 'Node Mesh ainda sem smoke real recente registrado.';
+      return 'Node Mesh has no recent real smoke test recorded yet.';
     }
     if (smoke.status === 'running') {
-      return 'Node Mesh com smoke real em andamento; aguarde a validacao da malha.';
+      return 'Node Mesh has a real smoke test in progress; please wait for mesh validation.';
     }
     if (smoke.status === 'failed') {
-      return smoke.error
-        ? `Node Mesh com falha no ultimo smoke real: ${smoke.error}.`
-        : 'Node Mesh com falha no ultimo smoke real; revise a malha antes de confiar em invokes remotos.';
+      return smoke.error ? `Node Mesh failed the last real smoke test: ${smoke.error}.`
+        : 'Node Mesh failed the last real smoke test; review the mesh before trusting remote invokes.';
     }
     if (smoke.stale) {
-      return `Node Mesh com smoke real vencido ${this.formatRelativeTime(smoke.checkedAt)}; rode ${smoke.recommendedAction || smoke.command || 'npm run test:nodes:smoke'} para renovar a validacao da malha.`;
+      return `Node Mesh real smoke test expired ${this.formatRelativeTime(smoke.checkedAt)}; run ${smoke.recommendedAction || smoke.command || 'npm run test:nodes:smoke'} to renew mesh validation.`;
     }
-    return `Node Mesh validado por smoke real ${this.formatRelativeTime(smoke.checkedAt)}; ultimo invoke ${smoke.recentCapabilityId || 'n/d'}.`;
+    return `Node Mesh validated by real smoke test ${this.formatRelativeTime(smoke.checkedAt)}; last invoke ${smoke.recentCapabilityId || 'n/d'}.`;
   }
 
   public buildNodeMeshLabel(cockpit: OperationsCockpitSnapshot): string {
     const smoke = cockpit.operations.nodeMeshSmoke;
     if (!smoke || smoke.status === 'missing') {
-      return 'sem smoke recente';
+      return 'no recent smoke';
     }
     if (smoke.status === 'running') {
       return `running | ${this.formatRelativeTime(smoke.checkedAt)}`;
     }
     if (smoke.status === 'failed') {
-      return `falhou | ${this.formatRelativeTime(smoke.checkedAt)}`;
+      return `failed | ${this.formatRelativeTime(smoke.checkedAt)}`;
     }
     if (smoke.stale) {
       return `expired | ${this.formatRelativeTime(smoke.checkedAt)}`;
@@ -191,25 +189,24 @@ export class OperationsReportNarrativeSupport {
   public buildZavorthBridgeMobileSummary(cockpit: OperationsCockpitSnapshot): string {
     const mobile = cockpit.operations.zavorthBridgeMobileAccess;
     if (!mobile || mobile.status === 'missing') {
-      return 'ZavorthBridge mobile sem lease ativo no momento.';
+      return 'ZavorthBridge mobile has no active lease at the moment.';
     }
     if (mobile.status === 'active') {
-      return `ZavorthBridge mobile ativo via ${mobile.mode === 'public' ? 'URL publica' : 'LAN'}${mobile.expiresAt ? ` ate ${mobile.expiresAt}` : ''}.`;
+      return `ZavorthBridge mobile active via ${mobile.mode === 'public' ? 'public URL' : 'LAN'}${mobile.expiresAt ? ` until ${mobile.expiresAt}` : ''}.`;
     }
     if (mobile.status === 'expired') {
-      return 'ZavorthBridge mobile tinha lease ativo, mas ele expirou.';
+      return 'ZavorthBridge mobile had an active lease, but it expired.';
     }
-    return 'ZavorthBridge mobile foi encerrado manualmente.';
+    return 'ZavorthBridge mobile was manually terminated.';
   }
 
   public buildMaintenanceAutomationSummary(cockpit: OperationsCockpitSnapshot): string {
     const automation = cockpit.operations.maintenanceAutomation;
-    const summary = automation.enabled
-      ? `Automacao recorrente ativa; proxima janela ${this.formatRelativeTime(automation.nextPlannedAt)}.`
-      : 'Automacao recorrente desativada neste host.';
+    const summary = automation.enabled ? `Recurring automation active; next window ${this.formatRelativeTime(automation.nextPlannedAt)}.`
+      : 'Recurring automation disabled on this host.';
 
     if (automation.lastTriggerSource === 'priority') {
-      return `${summary} Ultimo autodisparo prioritario: ${automation.lastPriorityReason || 'revalidacao operacional antecipada.'}`;
+      return `${summary} Last priority auto-trigger: ${automation.lastPriorityReason || 'early operational revalidation.'}`;
     }
 
     return summary;
@@ -260,16 +257,16 @@ export class OperationsReportNarrativeSupport {
   public buildChannelProviderDoctorSummary(cockpit: OperationsCockpitSnapshot): string {
     const doctor = cockpit.operations.channelProviderDoctor;
     if (!doctor || doctor.status === 'missing') {
-      return 'Doctor dos canais nativos ainda nao foi executado neste host.';
+      return 'Native channel doctor has not yet been executed on this host.';
     }
     if (doctor.status === 'skipped') {
-      return doctor.summary || 'Doctor dos canais nativos foi pulado porque nenhum provider real esta configurado.';
+      return doctor.summary || 'Native channel doctor was skipped because no real provider is configured.';
     }
     if (doctor.status === 'failed') {
-      return doctor.summary || 'Doctor dos canais nativos encontrou pendencias em Slack native ou WhatsApp Cloud API.';
+      return doctor.summary || 'Native channel doctor found pending issues in Slack native or WhatsApp Cloud API.';
     }
     if (doctor.stale) {
-      return `Doctor dos canais nativos venceu ${this.formatRelativeTime(doctor.checkedAt)}; rode ${doctor.recommendedAction || doctor.command || 'npm run test:channels:smoke'} antes de ampliar o rollout.`;
+      return `Native channel doctor expired ${this.formatRelativeTime(doctor.checkedAt)}; run ${doctor.recommendedAction || doctor.command || 'npm run test:channels:smoke'} before expanding the rollout.`;
     }
 
     const passedProviders = (doctor.items || [])
@@ -284,13 +281,13 @@ export class OperationsReportNarrativeSupport {
   public buildChannelProviderDoctorLabel(cockpit: OperationsCockpitSnapshot): string {
     const doctor = cockpit.operations.channelProviderDoctor;
     if (!doctor || doctor.status === 'missing') {
-      return 'sem doctor recente';
+      return 'no recent doctor';
     }
     if (doctor.status === 'skipped') {
       return 'skipped';
     }
     if (doctor.status === 'failed') {
-      return `falhou | ${this.formatRelativeTime(doctor.checkedAt)}`;
+      return `failed | ${this.formatRelativeTime(doctor.checkedAt)}`;
     }
     if (doctor.stale) {
       return `expired | ${this.formatRelativeTime(doctor.checkedAt)}`;
@@ -305,19 +302,19 @@ export class OperationsReportNarrativeSupport {
   public buildRemoteTransportDoctorSummary(cockpit: OperationsCockpitSnapshot): string {
     const doctor = cockpit.operations.remoteTransportDoctor;
     if (!doctor || doctor.status === 'missing') {
-      return 'Doctor dos transportes remotos ainda nao foi executado neste host.';
+      return 'Remote transport doctor has not yet been executed on this host.';
     }
     if (doctor.status === 'running') {
       return 'Remote transport doctor is validating right now.';
     }
     if (doctor.status === 'skipped') {
-      return doctor.summary || 'Doctor dos transportes remotos foi pulado neste host.';
+      return doctor.summary || 'Remote transport doctor was skipped on this host.';
     }
     if (doctor.status === 'failed') {
       return doctor.summary || 'Remote transport doctor found pending items on the remote plane.';
     }
     if (doctor.stale) {
-      return `Doctor dos transportes remotos venceu ${this.formatRelativeTime(doctor.checkedAt)}; rode ${doctor.recommendedAction || doctor.command || 'npm run test:transports:smoke'} antes de confiar em sidecars, gateways e nodes pareados.`;
+      return `Remote transport doctor expired ${this.formatRelativeTime(doctor.checkedAt)}; run ${doctor.recommendedAction || doctor.command || 'npm run test:transports:smoke'} before trusting sidecars, gateways, and paired nodes.`;
     }
 
     const passedItems = (doctor.items || [])
@@ -329,7 +326,7 @@ export class OperationsReportNarrativeSupport {
   public buildRemoteTransportDoctorLabel(cockpit: OperationsCockpitSnapshot): string {
     const doctor = cockpit.operations.remoteTransportDoctor;
     if (!doctor || doctor.status === 'missing') {
-      return 'sem doctor recente';
+      return 'no recent doctor';
     }
     if (doctor.status === 'running') {
       return 'validating';
@@ -338,7 +335,7 @@ export class OperationsReportNarrativeSupport {
       return 'skipped';
     }
     if (doctor.status === 'failed') {
-      return `falhou | ${this.formatRelativeTime(doctor.checkedAt)}`;
+      return `failed | ${this.formatRelativeTime(doctor.checkedAt)}`;
     }
     if (doctor.stale) {
       return `expired | ${this.formatRelativeTime(doctor.checkedAt)}`;
@@ -366,21 +363,21 @@ export class OperationsReportNarrativeSupport {
     modeLabel: string,
   ): string {
     if (channel.lastError) {
-      return `${label} requer atencao: ${channel.lastError}.`;
+      return `${label} requires attention: ${channel.lastError}.`;
     }
     if (!channel.started) {
       return modeLabel === 'supervised local'
-        ? `${label} habilitado, mas ainda nao entrou em estado pronto.`
-        : `${label} ${modeLabel} habilitado, mas ainda nao entrou em estado pronto.`;
+        ? `${label} enabled, but has not yet reached ready state.`
+        : `${label} ${modeLabel} enabled, but has not yet reached ready state.`;
     }
     if (channel.recipientsConfigured < 1) {
       return modeLabel === 'supervised local'
-        ? `${label} habilitado, mas ainda sem ${recipientsLabel} permitidos para rollout no mesh.`
-        : `${label} ${modeLabel} habilitado, mas ainda sem ${recipientsLabel} permitidos para rollout no mesh.`;
+        ? `${label} enabled, but no ${recipientsLabel} allowed for mesh rollout yet.`
+        : `${label} ${modeLabel} enabled, but no ${recipientsLabel} allowed for mesh rollout yet.`;
     }
     return modeLabel === 'supervised local'
-      ? `${label} ativo em modo local supervisionado; ${channel.recipientsConfigured} ${recipientsLabel} permitidos.`
-      : `${label} ${modeLabel} ativo; ${channel.recipientsConfigured} ${recipientsLabel} permitidos.`;
+      ? `${label} active in supervised local mode; ${channel.recipientsConfigured} ${recipientsLabel} allowed.`
+      : `${label} ${modeLabel} active; ${channel.recipientsConfigured} ${recipientsLabel} allowed.`;
   }
 
   private describeLocalChannelLabel(
@@ -398,9 +395,9 @@ export class OperationsReportNarrativeSupport {
       return `${label} error`;
     }
     if (!channel.started || channel.recipientsConfigured < 1) {
-      return modeLabel === 'local supervisionado' ? `${label} pendente` : `${label} pendente | ${modeLabel}`;
+      return modeLabel === 'supervised local' ? `${label} pending` : `${label} pending | ${modeLabel}`;
     }
-    return `${label} pronto | ${modeLabel} | ${recipientsLabel} ${channel.recipientsConfigured}`;
+    return `${label} ready | ${modeLabel} | ${recipientsLabel} ${channel.recipientsConfigured}`;
   }
 
   private resolveLocalChannelModeLabel(

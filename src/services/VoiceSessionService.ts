@@ -36,8 +36,7 @@ export class VoiceSessionService {
         granted: false,
         grantedBy: null,
         grantedAt: null,
-        reason: consentRequired
-          ? 'Live call and meeting bridge sessions require explicit operator consent.'
+        reason: consentRequired ? 'Live call and meeting bridge sessions require explicit operator consent.'
           : 'Push-to-talk can be planned without opening a live call.',
       },
       turns: [],

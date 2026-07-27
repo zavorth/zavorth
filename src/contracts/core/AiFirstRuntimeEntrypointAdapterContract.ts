@@ -9,7 +9,7 @@ import type {
   ZavorthResponseDecisionTarget,
 } from '../ZavorthResponseDecisionContract.js';
 
-export const AI_FIRST_RUNTIME_ENTRYPOINT_ADAPTER_CONTRACT_VERSION = '2026-05-06.checkpoint-7' as const;
+export const AI_FIRST_RUNTIME_ENTRYPOINT_ADAPTER_CONTRACT_VERSION = '2026-05-06.gate-7' as const;
 
 export type AiFirstRuntimeEntrypointSelectedPath = 'ai-first-canary' | 'current-runtime';
 
@@ -84,7 +84,7 @@ export type AiFirstRuntimeEntrypointAdapterSnapshot = {
     currentRuntimeWouldHandle: true;
     aiFirstCanaryWouldHandle: boolean;
     selectedDecisionRecordedBesideCurrent: true;
-    canaryDecisionSource: 'checkpoint-6-switchboard' | 'missing';
+    canaryDecisionSource: 'gate-6-switchboard' | 'missing';
   };
   receipts: Array<{
     id: string;

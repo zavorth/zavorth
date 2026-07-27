@@ -327,12 +327,12 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
     }
     const swarmId = String(url.searchParams.get('swarmId') || '').trim();
     if (!swarmId) {
-      deps.writeJson(res, { ok: false, error: 'swarmId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'swarmId required.' }, 400);
       return true;
     }
     const replay = service.getSwarmReplay(swarmId);
     if (!replay) {
-      deps.writeJson(res, { ok: false, error: `${swarmV2Label} replay nao encontrado.` }, 404);
+      deps.writeJson(res, { ok: false, error: `${swarmV2Label} replay not found.` }, 404);
       return true;
     }
     deps.writeJson(res, {
@@ -351,12 +351,12 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
     }
     const swarmId = String(url.searchParams.get('swarmId') || '').trim();
     if (!swarmId) {
-      deps.writeJson(res, { ok: false, error: 'swarmId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'swarmId required.' }, 400);
       return true;
     }
     const swarm = service.getSwarm(swarmId);
     if (!swarm) {
-      deps.writeJson(res, { ok: false, error: `${swarmV2Label} nao encontrado.` }, 404);
+      deps.writeJson(res, { ok: false, error: `${swarmV2Label} not found.` }, 404);
       return true;
     }
     deps.writeJson(res, {
@@ -376,7 +376,7 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
     const body = await deps.readJsonBody(req);
     const swarmId = String(body.swarmId || '').trim();
     if (!swarmId) {
-      deps.writeJson(res, { ok: false, error: 'swarmId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'swarmId required.' }, 400);
       return true;
     }
     deps.writeJson(

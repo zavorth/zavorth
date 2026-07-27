@@ -96,7 +96,7 @@ function sessionsFromNativeRegistry(sessionHistoryRegistry: AnyRecord): AnyRecor
 function healthFromNative(policy: AnyRecord, zavorthControlRegistry: AnyRecord): AnyRecord {
   return {
     status: array(policy.blockedSurfaces).length > 0 ? 'degraded' : 'ready',
-    summary: 'ZavorthControl usando registries Zavorth-native no caminho padrao.',
+    summary: 'ZavorthControl usando registries Zavorth-native no path default.',
     checks: [
       {
         id: 'native-first-zavorthControl',
@@ -106,15 +106,15 @@ function healthFromNative(policy: AnyRecord, zavorthControlRegistry: AnyRecord):
       },
       {
         id: 'native-registry-only',
-        label: 'Superficie nativa',
+        label: 'surface nativa',
         status: 'ready',
-        detail: 'Renderizacao nao depende de adapter legado.',
+        detail: 'Rendering does not depend on a legacy adapter.',
       },
       {
         id: 'zavorthControl-registry-degraded-rows',
-        label: 'Estados degradados preservados',
+        label: 'Degraded states preserved',
         status: zavorthControlRegistry.list({ degradedOrUnavailable: true }).length > 0 ? 'degraded' : 'ready',
-        detail: 'Linhas degraded/unavailable continuam renderizaveis.',
+        detail: 'Degraded or unavailable lines remain renderable.',
       },
     ],
   };
@@ -185,7 +185,7 @@ function createPolicy(): AnyRecord {
         id: 'native-first-policy:default',
         level: 'info',
         source: 'native-registry-policy',
-        message: 'ZavorthControl renderiza direto dos registries Zavorth-native.',
+        message: 'ZavorthControl renderiza direct dos registries Zavorth-native.',
         createdAt: ZAVORTH_CONTROL_NATIVE_FIRST_RUNTIME_NOW,
       },
     ],
@@ -331,10 +331,8 @@ export function buildZavorthControlNativeFirstRuntimeProjection(
     memorySignals: [],
     capabilities,
     toolExposure: {
-      mode: capabilities.some((capability: AnyRecord) => capability.risk === 'danger')
-        ? 'restricted'
-        : capabilities.some((capability: AnyRecord) => capability.requiresApproval || capability.risk === 'attention')
-          ? 'confirm'
+      mode: capabilities.some((capability: AnyRecord) => capability.risk === 'danger') ? 'restricted'
+        : capabilities.some((capability: AnyRecord) => capability.requiresApproval || capability.risk === 'attention') ? 'confirm'
           : 'safe',
       summary: 'Capabilities loaded from Zavorth-native registries.',
       tools: capabilities,

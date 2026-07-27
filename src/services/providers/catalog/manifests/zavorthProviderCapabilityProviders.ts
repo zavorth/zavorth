@@ -39,7 +39,7 @@ const REQUIRED_CAPABILITY_ROUTES: CapabilityProviderRoute[] = [
   cloud('senseaudio', 'SenseAudio', 'https://github.com/FunAudioLLM/SenseVoice'),
   cloud('vydra', 'Vydra', 'https://vydra.ai'),
   cloud('inworld', 'Inworld', 'https://inworld.ai'),
-  local('tts-local-cli', 'Local CLI TTS', 'https://github.com'),
+  local('tts-local-cli', 'local CLI TTS', 'https://github.com'),
   local('comfy', 'ComfyUI', 'https://www.comfy.org', {
     authKind: 'local_endpoint',
     credentialRefs: ['COMFY_BASE_URL', 'COMFY_API_KEY', 'COMFY_CLOUD_API_KEY'],

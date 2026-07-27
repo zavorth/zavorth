@@ -78,7 +78,7 @@ export class HybridMemoryService {
         query,
         topK,
         contextTokenBudget,
-        warnings: ['Informe uma consulta para recuperar memoria hibrida.'],
+        warnings: ['Provide a query to retrieve hybrid memory.'],
         embeddingStatus: 'not_requested',
       });
     }
@@ -132,7 +132,7 @@ export class HybridMemoryService {
       label: 'Session ledger',
       status: memoryPlane && Number(memoryPlane.summary.timelineEvents || 0) > 0 ? 'available' : 'empty',
       count: Number(memoryPlane?.summary.timelineEvents || 0),
-      reason: 'Fonte factual para transcript, replay, artifacts e historico operacional da sessao.',
+      reason: 'source factual para transcript, replay, artifacts e operational history da session.',
     });
     inventory.push({
       id: 'ledger:memory',
@@ -141,7 +141,7 @@ export class HybridMemoryService {
       label: 'Layered memory',
       status: this.layeredMemory ? 'available' : 'unavailable',
       count: Number(memoryPlane?.summary.persistedMemories || 0) + Number(memoryPlane?.summary.relevantMemories || 0),
-      reason: 'Fonte autoritativa para memoria episodica, semantica e procedural.',
+      reason: 'Authoritative source for episodic, semantic, and procedural memory.',
     });
     inventory.push({
       id: 'ledger:artifact',
@@ -150,7 +150,7 @@ export class HybridMemoryService {
       label: 'Artifacts e diffs',
       status: memoryPlane && Number(memoryPlane.summary.artifacts || 0) > 0 ? 'available' : 'empty',
       count: Number(memoryPlane?.summary.artifacts || 0),
-      reason: 'Artifacts ficam ligados ao replay da sessao e vencem qualquer recall inferido.',
+      reason: 'Artifacts ficam ligados ao replay da session e vencem qualquer recall inferido.',
     });
 
     const vectorStore = this.readVectorStore(warnings);
@@ -160,8 +160,8 @@ export class HybridMemoryService {
         vectorCount = Number(vectorStore.count()) || 0;
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'erro desconhecido';
-        warnings.push(`Vector store indisponivel para contagem: ${message}.`);
+        const message = error instanceof Error ? err.message : 'unknown error';
+        warnings.push(`Vector store unavailable para contagem: ${message}.`);
       }
     }
     inventory.push({
@@ -171,7 +171,7 @@ export class HybridMemoryService {
       label: 'MemoryVectorStore',
       status: vectorStore ? (vectorCount > 0 ? 'available' : 'empty') : 'unavailable',
       count: vectorCount,
-      reason: 'Recall de resumos comprimidos; usado como apoio, nunca como fonte de verdade contra o ledger.',
+      reason: 'Recall de summarys comprimidos; usado como apoio, nunca como source de verdade contra o ledger.',
     });
 
     return {
@@ -207,8 +207,8 @@ export class HybridMemoryService {
         }
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'erro desconhecido';
-        warnings.push(`Layered memory indisponivel: ${message}.`);
+        const message = error instanceof Error ? err.message : 'unknown error';
+        warnings.push(`Layered memory unavailable: ${message}.`);
       }
     }
 
@@ -237,14 +237,14 @@ export class HybridMemoryService {
       } catch (error: unknown) {
         const err = asErrorLike(error);
         embeddingStatus = 'failed';
-        const message = error instanceof Error ? err.message : 'erro desconhecido';
+        const message = error instanceof Error ? err.message : 'unknown error';
         warnings.push(`Embeddings indisponiveis; usando recall por palavras-chave: ${message}.`);
       }
     }
 
     if (!vectorStore) {
       if (!embeddingService) {
-        warnings.push('MemoryVectorStore indisponivel; recall segue em modo ledger_only.');
+        warnings.push('MemoryVectorStore unavailable; recall segue em modo ledger_only.');
       }
       return { embeddingStatus, sources: [] };
     }
@@ -260,8 +260,8 @@ export class HybridMemoryService {
       };
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : 'erro desconhecido';
-      warnings.push(`Falha ao consultar MemoryVectorStore: ${message}.`);
+      const message = error instanceof Error ? err.message : 'unknown error';
+      warnings.push(`Failure ao consultar MemoryVectorStore: ${message}.`);
       return { embeddingStatus, sources: [] };
     }
   }
@@ -284,8 +284,8 @@ export class HybridMemoryService {
       });
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : 'erro desconhecido';
-      warnings.push(`Memory plane indisponivel: ${message}.`);
+      const message = error instanceof Error ? err.message : 'unknown error';
+      warnings.push(`Memory plane unavailable: ${message}.`);
       return null;
     }
   }
@@ -301,7 +301,7 @@ export class HybridMemoryService {
       type: 'ledger',
       kind,
       label: this.normalizeText(entry.label, entry.id),
-      summary: this.normalizeText(entry.summary, 'Memoria sem resumo curto.'),
+      summary: this.normalizeText(entry.summary, 'Memory without short summary.'),
       source: this.normalizeText(entry.source, 'layered-memory'),
       score: this.normalizeScore(entry.confidence),
       reason: `Lembrei porque o ledger ${entry.memoryLayer} corresponde a consulta e tem prioridade factual.`,
@@ -331,7 +331,7 @@ export class HybridMemoryService {
         summary: this.normalizeText(entry.summary, 'Evento do memory plane.'),
         source: this.normalizeText(entry.source, 'memory-plane'),
         score: entry.status === 'current' ? 0.8 : 0.58,
-        reason: 'Lembrei porque este evento esta no memory plane factual da sessao.',
+        reason: 'Lembrei porque este evento is no memory plane factual da session.',
         lastValidatedAt: entry.happenedAt || null,
         metadata: {
           category: entry.category,
@@ -351,10 +351,10 @@ export class HybridMemoryService {
         type: 'ledger',
         kind: 'memory',
         label: this.normalizeText(entry.key, 'memory'),
-        summary: this.normalizeText(entry.value, 'Memoria relevante.'),
+        summary: this.normalizeText(entry.value, 'Relevant memory.'),
         source: 'memory-plane',
         score: 0.82,
-        reason: 'Lembrei porque esta memoria esta marcada como relevante no ledger atual.',
+        reason: 'Remembered because this memory is marked as relevant in the current ledger.',
         lastValidatedAt: entry.updatedAt || null,
         metadata: {
           category: entry.category,
@@ -376,7 +376,7 @@ export class HybridMemoryService {
         summary,
         source: 'session-replay',
         score: 0.76,
-        reason: 'Lembrei porque este artifact foi produzido ou reutilizado na sessao.',
+        reason: 'Lembrei porque este artifact foi produzido or reutilizado na session.',
         lastValidatedAt: this.normalizeText(artifact.createdAt) || null,
         metadata: {
           kind: artifact.kind || null,
@@ -396,12 +396,12 @@ export class HybridMemoryService {
       type: 'recall',
       kind: 'vector',
       label: `Compressed memory ${chunk.id}`,
-      summary: this.normalizeText(chunk.compressedSummary, 'Resumo comprimido sem conteudo.'),
+      summary: this.normalizeText(chunk.compressedSummary, 'Compressed summary without content.'),
       source: 'MemoryVectorStore',
       score: this.normalizeScore(chunk.relevanceScore),
       reason: matched.length > 0
         ? `Lembrei por sobreposicao de palavras-chave: ${matched.slice(0, 5).join(', ')}.`
-        : 'Lembrei por similaridade semantica do resumo comprimido no MemoryVectorStore.',
+        : 'Lembrei por similaridade semantica do summary comprimido no MemoryVectorStore.',
       lastValidatedAt: chunk.createdAt || null,
       metadata: {
         sessionId: chunk.sessionId,
@@ -491,8 +491,8 @@ export class HybridMemoryService {
       return this.lazyVectorStore;
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : 'erro desconhecido';
-      warnings.push(`MemoryVectorStore nao inicializou: ${message}.`);
+      const message = error instanceof Error ? err.message : 'unknown error';
+      warnings.push(`MemoryVectorStore did not initialize: ${message}.`);
       this.lazyVectorStore = null;
       return null;
     }

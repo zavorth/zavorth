@@ -181,10 +181,8 @@ export class ZavorthGatewayAgentHandoffAdapterService {
     const runtimeReady = runtimeHealth?.status === 'ready';
     const runtimePartial = runtimeHealth?.status === 'partial';
     const runtimeAvailable = Boolean(runtimeHealth);
-    const apiSurfaceStatus: ZavorthAgentGatewayPlaneStatus = input.runtime?.controlPlane
-      ? 'ready'
-      : runtimeAvailable
-        ? 'partial'
+    const apiSurfaceStatus: ZavorthAgentGatewayPlaneStatus = input.runtime?.controlPlane ? 'ready'
+      : runtimeAvailable ? 'partial'
         : 'blocked';
 
     return [
@@ -455,7 +453,7 @@ export class ZavorthGatewayAgentHandoffAdapterService {
         id: 'legacy-pass-through-equivalents-mapped',
         status: 'ready',
         owner: 'shared',
-        description: 'P0-003b mapped the current legacy pass-through equivalents before any gateway wiring change.',
+        description: 'Mapped the current legacy pass-through equivalents before any gateway wiring change.',
         evidence: [
           'src/core/CoreOrchestrator.ts',
           'src/services/SurfaceTaskDispatchService.ts',
@@ -467,7 +465,7 @@ export class ZavorthGatewayAgentHandoffAdapterService {
         id: 'single-entrypoint-wiring-gate',
         status: 'pending',
         owner: 'shared',
-        description: 'P0-003c keeps real wiring pending until one legacy entrypoint is explicitly selected and consistency-tested.',
+        description: 'Real wiring remains pending until one legacy entrypoint is explicitly selected and consistency-tested.',
         evidence: [
           'CoreOrchestrator and SurfaceTaskDispatchService remain legacy pass-through boundaries.',
           'Telegram natural requests already use the existing ZavorthAgentGateway selectively before legacy fallback.',

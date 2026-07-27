@@ -776,7 +776,7 @@
         break;
       case 'auth.error':
         setState('disconnected');
-        settingsStatus.textContent = `Auth falhou: ${env.payload?.message || 'token invalido.'}`;
+        settingsStatus.textContent = `Auth failed: ${env.payload?.message || 'token invalid.'}`;
         addSystemMessage('Authentication failed. Check the token.');
         break;
       case 'chat.response':

@@ -34,7 +34,7 @@ export class ZavorthBridgeAppLauncherService {
           resolve({
             ok: true,
             pid: pidMatch ? Number(pidMatch[1]) : null,
-            message: 'ZavorthBridge enviado para background no modo de depuracao remota.',
+            message: 'ZavorthBridge sent to the background in remote debugging mode.',
             summary: output || null,
           });
         },

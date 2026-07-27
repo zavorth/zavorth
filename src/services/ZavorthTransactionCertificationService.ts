@@ -68,14 +68,12 @@ export class ZavorthTransactionCertificationService {
   public constructor(deps: CertificationDeps = {}) {
     this.now = deps.now ?? (() => new Date());
     this.credentialRefs =
-      deps.credentialRefs ??
-      new ZavorthTransactionCredentialRefService({
+      deps.credentialRefs ??       new ZavorthTransactionCredentialRefService({
         storeFile: deps.credentialStoreFile,
         now: this.now,
       });
     this.zavorthControl =
-      deps.zavorthControl ??
-      createZavorthControl({
+      deps.zavorthControl ??       createZavorthControl({
         now: this.now,
         credentialRefs: this.credentialRefs,
         ledgerFile: deps.ledgerFile,
@@ -109,7 +107,7 @@ export class ZavorthTransactionCertificationService {
       gates,
       scenarios,
       safety: SAFETY,
-      nextStage: 'Intent model0 - Owner-Gated Live Candidate Envelope',
+      nextAction: 'Owner-Gated Live Candidate Envelope',
     };
   }
 
@@ -129,7 +127,7 @@ export class ZavorthTransactionCertificationService {
         (scenario) =>
           `[transaction-certification] scenario: ${scenario.id} status=${scenario.status} observed=${scenario.observedStatus}/${scenario.observedTone}`,
       ),
-      `[transaction-certification] next: ${report.nextStage}`,
+      `[transaction-certification] next: ${report.nextAction}`,
     ].join('\n');
   }
 
@@ -231,7 +229,7 @@ function buildScenarioSpecs(): CertificationScenarioSpec[] {
     },
     {
       id: 'api-approved-paper-trade',
-      label: 'API approved paper trade reaches typed connector simulation.',
+      label: 'API approved paper trade reaches typed connector dry-run.',
       surface: 'api',
       input: (credentialRef) => ({
         text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
@@ -242,7 +240,7 @@ function buildScenarioSpecs(): CertificationScenarioSpec[] {
         mode: 'paper',
         credentialRef,
       }),
-      expectedStatus: 'simulated',
+      expectedStatus: 'dryRun',
       expectedTone: 'success',
       expectedRoute: 'approval-proposal',
       expectedLane: 'connector',
@@ -251,7 +249,7 @@ function buildScenarioSpecs(): CertificationScenarioSpec[] {
         credential: 'done',
         connector: 'done',
       },
-      expectedConnectorStatus: 'simulated',
+      expectedConnectorStatus: 'dryRun',
     },
     {
       id: 'cli-credential-required',
@@ -279,7 +277,7 @@ function buildScenarioSpecs(): CertificationScenarioSpec[] {
     },
     {
       id: 'telegram-price-monitor',
-      label: 'Telegram monitor runs as non-live market-data simulation.',
+      label: 'Telegram monitor runs as non-live market-data dryRun.',
       surface: 'telegram',
       input: () => ({
         text: 'Monitor notebook below R$3500 and notify me.',
@@ -288,7 +286,7 @@ function buildScenarioSpecs(): CertificationScenarioSpec[] {
         surface: 'telegram',
         mode: 'sandbox',
       }),
-      expectedStatus: 'simulated',
+      expectedStatus: 'dryRun',
       expectedTone: 'success',
       expectedRoute: 'tool-preview',
       expectedLane: 'connector',
@@ -296,7 +294,7 @@ function buildScenarioSpecs(): CertificationScenarioSpec[] {
         approval: 'skipped',
         connector: 'done',
       },
-      expectedConnectorStatus: 'simulated',
+      expectedConnectorStatus: 'dryRun',
     },
     {
       id: 'web-raw-secret-blocked',
@@ -447,7 +445,7 @@ function buildGates(scenarios: ZavorthTransactionCertificationScenario[]): Zavor
       passed:
         scenarioById.get('web-trade-approval')?.observedStatus === 'approval-required' &&
         scenarioById.get('web-trade-approval')?.enabledActions.includes('request-approval') === true,
-      summary: 'Real value movement blocks at explicit approval before simulation continues.',
+      summary: 'Real value movement blocks at explicit approval before dry-run continues.',
       evidence: evidenceForScenario(scenarioById.get('web-trade-approval')),
     },
     {
@@ -455,15 +453,15 @@ function buildGates(scenarios: ZavorthTransactionCertificationScenario[]): Zavor
       passed:
         scenarioById.get('cli-credential-required')?.observedStatus === 'credential-required' &&
         scenarioById.get('cli-credential-required')?.enabledActions.includes('provide-credential-ref') === true,
-      summary: 'Credential-dependent connector simulation asks for SecretRef metadata only.',
+      summary: 'Credential-dependent connector dry-run asks for SecretRef metadata only.',
       evidence: evidenceForScenario(scenarioById.get('cli-credential-required')),
     },
     {
-      kind: 'typed-connector-simulation',
+      kind: 'typed-connector-dry-run',
       passed:
-        scenarioById.get('api-approved-paper-trade')?.connectorStatus === 'simulated' &&
-        scenarioById.get('telegram-price-monitor')?.connectorStatus === 'simulated',
-      summary: 'Approved trade and monitor requests reach typed connector simulation without live effects.',
+        scenarioById.get('api-approved-paper-trade')?.connectorStatus === 'dryRun' &&
+        scenarioById.get('telegram-price-monitor')?.connectorStatus === 'dryRun',
+      summary: 'Approved trade and monitor requests reach typed connector dry-run without live effects.',
       evidence: [
         ...evidenceForScenario(scenarioById.get('api-approved-paper-trade')),
         ...evidenceForScenario(scenarioById.get('telegram-price-monitor')),

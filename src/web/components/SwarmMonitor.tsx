@@ -185,7 +185,7 @@ export function SwarmMonitor({
       await fetchList();
       return;
     }
-    const res = await fetch(`${baseUrl}/state?swarmId=${encodeURIComponent(swarmId)}`);
+    const res = await fetch(`${baseUrl}/state...swarmId=${encodeURIComponent(swarmId)}`);
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}`);
     }
@@ -320,7 +320,7 @@ export function SwarmMonitor({
           onClick={launchSwarm}
           disabled={launching || !objective.trim()}
         >
-          {launching ? 'Lancando...' : 'Lancar'}
+          {launching ? 'Launching...' : 'Launch'}
         </button>
       </div>
 
@@ -429,7 +429,7 @@ export function SwarmMonitor({
                     <span style={styles.roleStatus(cfg.color)}>{cfg.label}</span>
                   </div>
                   <pre style={styles.rolePre}>
-                    {role.output.join('').slice(-1200) || '(waiting for output...)'}
+                    {role.output.join('').slice(-1200) || '(waiting for output?)'}
                   </pre>
                 </article>
               );

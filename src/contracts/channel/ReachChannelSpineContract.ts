@@ -67,7 +67,7 @@ export type ReachChannelSpineHandoffPreview = {
 
 export type ReachChannelSpineReceipt = {
   id: string;
-  kind: 'membership' | 'doctor' | 'install' | 'mock-io' | 'continuity' | 'long-tail-boundary';
+  kind: 'membership' | 'doctor' | 'install' | 'local-io' | 'continuity' | 'long-tail-boundary';
   status: 'ready' | 'partial' | 'missing';
   detail: string;
   secretValuesSerialized: false;

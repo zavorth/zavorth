@@ -24,7 +24,7 @@ export type ZavorthExternalAgentProfile = {
   endpoint: string | null;
   acp: {
     serverId: string | null;
-    transport: 'mock-jsonrpc' | 'stdio-jsonrpc' | 'acp-sdk-stdio' | null;
+    transport: 'local-jsonrpc' | 'stdio-jsonrpc' | 'acp-sdk-stdio' | null;
   };
   promptMode: 'stdin' | 'arg' | 'json';
   allowedCapabilities: string[];

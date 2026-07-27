@@ -183,7 +183,7 @@ export class MemoryHonchoService {
     }
 
     this.saveData();
-    return `Interacao registrada para usuario "${userId}". Total: ${profile.interaction_history.total_interactions}`;
+    return `Interaction registered for user "${userId}". Total: ${profile.interaction_history.total_interactions}`;
   }
 
   public learnFact(userId: string, fact: string, sourceOrConfidence: string | number = 'manual', confidence: number = 0.8): string {
@@ -210,7 +210,7 @@ export class MemoryHonchoService {
       profile.updated_at = new Date().toISOString();
       this.saveData();
     }
-    return `Trait "${trait}" added ao perfil de "${userId}".`;
+    return `Trait "${trait}" added ao profile de "${userId}".`;
   }
 
   public setPreference(userId: string, key: string, value: unknown): string {
@@ -218,7 +218,7 @@ export class MemoryHonchoService {
     profile.preferences[key] = value;
     profile.updated_at = new Date().toISOString();
     this.saveData();
-    return `Preferencia "${key}" updated para usuario "${userId}".`;
+    return `Preference "${key}" updated for user "${userId}".`;
   }
 
   public setCommunicationPreference(userId: string, key: string, value: string): string {
@@ -239,7 +239,7 @@ export class MemoryHonchoService {
       profile.updated_at = new Date().toISOString();
       this.saveData();
     }
-    return `Knowledge area "${area}" added ao perfil de "${userId}".`;
+    return `Knowledge area "${area}" added ao profile de "${userId}".`;
   }
 
   public getProfile(userId: string): string {
@@ -247,9 +247,9 @@ export class MemoryHonchoService {
     if (!profile) return `Profile "${userId}" not found.`;
     const lines: string[] = [
       `Profile: ${profile.id}`,
-      `  - Nome: ${profile.name || 'nao definido'}`,
+      `  - Name: ${profile.name || 'not defined'}`,
       `  - Estilo: ${profile.interaction_style}`,
-      `  - Idioma: ${profile.communication_preferences.language}`,
+      `  - Language: ${profile.communication_preferences.language}`,
       `  - Formalidade: ${profile.communication_preferences.formality}`,
       `  - Verbosidade: ${profile.communication_preferences.verbosity}`,
       `  - Tracos: ${profile.traits.join(', ') || 'none'}`,
@@ -257,12 +257,12 @@ export class MemoryHonchoService {
       `  - Learned facts: ${profile.learned_facts.length}`,
       `  - Dialectic insights: ${profile.dialectic_insights.length}`,
       `  - Total de interactions: ${profile.interaction_history.total_interactions}`,
-      `  - Primeira interacao: ${profile.interaction_history.first_interaction}`,
-      `  - Ultima interacao: ${profile.interaction_history.last_interaction}`,
+      `  - Primeira interaction: ${profile.interaction_history.first_interaction}`,
+      `  - Latest interaction: ${profile.interaction_history.last_interaction}`,
     ];
 
     if (Object.keys(profile.preferences).length > 0) {
-      lines.push(`  - Preferencias:`);
+      lines.push(`  - Preferences:`);
       for (const [key, value] of Object.entries(profile.preferences)) {
         lines.push(`    ${key}: ${JSON.stringify(value)}`);
       }
@@ -340,10 +340,10 @@ export class MemoryHonchoService {
 
   public getConversationHistory(userId: string, limit: number = 10): string {
     const history = this.conversations.get(userId) || [];
-    if (history.length === 0) return `No conversa encontrada para "${userId}".`;
+    if (history.length === 0) return `No conversation found for "${userId}".`;
 
     const recent = history.slice(-limit);
-    const lines: string[] = [`Historico de conversas para "${userId}" (ultimas ${recent.length}):`];
+    const lines: string[] = [`Conversation history for "${userId}" (latest ${recent.length}):`];
     for (const turn of recent) {
       const preview = turn.content.slice(0, 80);
       lines.push(`  [${turn.role}] (${turn.channel}) ${preview}${turn.content.length > 80 ? '...' : ''}`);
@@ -352,9 +352,9 @@ export class MemoryHonchoService {
   }
 
   public listProfiles(): string {
-    if (this.profiles.size === 0) return 'No profiles de usuario.';
+    if (this.profiles.size === 0) return 'No user profiles.';
 
-    const lines: string[] = [`Perfis de usuario (${this.profiles.size}):`];
+    const lines: string[] = [`User profiles (${this.profiles.size}):`];
     for (const [id, profile] of this.profiles) {
       lines.push(`  ${id}: ${profile.name || 'unnamed'} | ${profile.interaction_history.total_interactions} interactions | traits: ${profile.traits.length}`);
     }
@@ -362,25 +362,8 @@ export class MemoryHonchoService {
   }
 
   private extractInsights(turn: DialecticTurn, profile: UserProfile): string[] {
-    const insights: string[] = [];
-    const content = turn.content.toLowerCase();
-
-    if (content.includes('prefiro') || content.includes('gosto de') || content.includes('eu gosto')) {
-      insights.push(`User expressed preference: ${turn.content.slice(0, 100)}`);
-    }
-
-    if (content.includes('nao gosto') || content.includes('odeio') || content.includes('nao prefiro')) {
-      insights.push(`User expressed aversion: ${turn.content.slice(0, 100)}`);
-    }
-
-    if (content.includes('me chamo') || content.includes('meu nome') || content.includes('sou o')) {
-      const nameMatch = turn.content.match(/(?:me chamo|meu nome é|sou o)\s+(\w+)/i);
-      if (nameMatch) {
-        profile.name = nameMatch[1];
-        insights.push(`User name discovered: ${nameMatch[1]}`);
-      }
-    }
-
-    return insights;
+    void turn;
+    void profile;
+    return [];
   }
 }

@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import crypto from 'crypto';
-import { config } from '../../config/index.js';export interface PublishOptions {
+import { config } from '../../config/index.js';
+export interface PublishOptions {
   packagePath: string;
   authToken?: string;
   signLocal: boolean;
@@ -80,7 +81,7 @@ export class ZavorthPackagePublisher {
     const packageId = String(manifest.id || '').trim();
     const version = String(manifest.version || '').trim();
     if (!packageId || !version) {
-      throw new Error('plugin.json precisa de id e version.');
+      throw new Error('plugin.json requires id and version.');
     }
 
     const inventory = this.collectInventory(packageRoot);
@@ -88,8 +89,7 @@ export class ZavorthPackagePublisher {
       manifest,
       inventory,
     }));
-    const signature = options.signLocal
-      ? `sha256:${packageSha256}`
+    const signature = options.signLocal ? `sha256:${packageSha256}`
       : `unsigned:${packageSha256}`;
     const releaseId = `${packageId}@${version}`;
     const timestamp = this.now().toISOString().replace(/[:.]/g, '-');

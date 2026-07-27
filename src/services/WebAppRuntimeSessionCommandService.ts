@@ -58,7 +58,7 @@ export class WebAppRuntimeSessionCommandService {
     } catch (error: unknown) {logger.error('[WebAppRuntimeSessionCommandService] command failed', error);
       deps.writeJson(res, {
         ok: false,
-        error: 'Falha ao executar comando de sessao.',
+        error: 'Failure ao run comando de session.',
         rawSecretsSerialized: false,
       }, 500);
     }
@@ -72,7 +72,7 @@ export class WebAppRuntimeSessionCommandService {
   ): Promise<RuntimeRecord> {
     const command = this.normalizeCommand(input.command);
     if (!command) {
-      throw new Error('Comando de sessao obrigatorio.');
+      throw new Error('Comando de session required.');
     }
     const args = String(input.args || '').trim();
     if (command === 'model') {
@@ -178,7 +178,7 @@ export class WebAppRuntimeSessionCommandService {
       case 'test-loop':
         return this.buildTestLoopResult(context);
       default:
-        throw new Error(`Comando de sessao sem backend dedicado: ${command}.`);
+        throw new Error(`Comando de session without backend dedicado: ${command}.`);
     }
   }
 
@@ -565,10 +565,10 @@ export class WebAppRuntimeSessionCommandService {
   private normalizeModelRoute(value: string): string {
     const text = String(value || '').trim();
     if (!text || text.length > 180) {
-      throw new Error('Rota de modelo invalida.');
+      throw new Error('Rota de modelo invalid.');
     }
     if (!/^[a-z0-9][a-z0-9._:/@+-]*$/i.test(text)) {
-      throw new Error('Rota de modelo invalida: use apenas provider/model ou model-id.');
+      throw new Error('Rota de modelo invalid: use only provider/model ou model-id.');
     }
     return text;
   }
@@ -747,7 +747,7 @@ export class WebAppRuntimeSessionCommandService {
       .replace(/\b(xox[baprs]-[A-Za-z0-9-]{8,})\b/g, 'xox-[redacted]')
       .replace(/\b(gh[pousr]_[A-Za-z0-9_]{8,})\b/g, 'gh_[redacted]')
       .replace(/\b([A-Za-z0-9+/]{40,}={0,2})\b/g, '[redacted-secret-like-token]')
-      .replace(/\b([A-Z0-9_]*(?:API[_-]?KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL|AUTHORIZATION)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]');
+      .replace(/\b([A-Z0-9_]*(?:API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL|AUTHORIZATION)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]');
   }
 }
 

@@ -77,14 +77,14 @@ export type AbsorbRiskReportServiceOptions = {
 };
 
 const SECRET_PATTERNS = [
-  /api[_-]?key/i,
+  /api[_-]...key/i,
   /secret/i,
   /token/i,
   /password/i,
   /credential/i,
-  /private[_-]?key/i,
-  /BEGIN (RSA |OPENSSH )?PRIVATE KEY/i,
-  /secret[_-]?like/i,
+  /private[_-]...key/i,
+  /BEGIN (RSA |OPENSSH )...PRIVATE KEY/i,
+  /secret[_-]...like/i,
 ];
 
 const SEVERITY_RANK: Record<AbsorbRiskFinding['severity'], number> = {
@@ -146,7 +146,7 @@ function looksSecretLike(text: string): boolean {
 export function redactSecretLikeText(text: string): string {
   let out = String(text || '');
   out = out.replace(
-    /\b(api[_-]?key|secret|token|password|credential|auth)\s*[=:]\s*['"]?[^\s'"]+/gi,
+    /\b(api[_-]...key|secret|token|password|credential|auth)\s*[=:]\s*['"]...[^\s'"]+/gi,
     '$1=[REDACTED]',
   );
   out = out.replace(/\bsk-[a-zA-Z0-9_-]{8,}\b/g, 'sk-[REDACTED]');
@@ -193,8 +193,7 @@ export class AbsorbRiskReportService {
   constructor(options: AbsorbRiskReportServiceOptions = {}) {
     this.now = options.now ?? (() => new Date());
     this.idFactory =
-      options.idFactory ??
-      ((prefix) => `${prefix}-${this.now().getTime().toString(36)}-${++this.sequence}`);
+      options.idFactory ??       ((prefix) => `${prefix}-${this.now().getTime().toString(36)}-${++this.sequence}`);
   }
 
   public fromFabricSnapshot(snapshot: CapabilityFabricSnapshotLike | null | undefined): AbsorbRiskReport {
@@ -212,8 +211,7 @@ export class AbsorbRiskReportService {
     ): void => {
       const safeTitle = redactSecretLikeText(title);
       const rawDetail = String(detail || '');
-      const safeDetail = looksSecretLike(rawDetail)
-        ? 'Secret-like pattern detected (value redacted).'
+      const safeDetail = looksSecretLike(rawDetail) ? 'Secret-like pattern detected (value redacted).'
         : redactSecretLikeText(rawDetail);
       findings.push({
         id: this.idFactory(`finding-${++findingSeq}`),
@@ -263,8 +261,7 @@ export class AbsorbRiskReportService {
         const fileSeverity =
           cRisk === 'critical' || cRisk === 'high'
             ? cRisk
-            : c.executableCodeDetected
-              ? 'medium'
+            : c.executableCodeDetected ? 'medium'
               : 'info';
         pushFinding(
           'files',
@@ -358,14 +355,10 @@ export class AbsorbRiskReportService {
       }
 
       const dimension: AbsorbRiskDimension =
-        /execut|plugin|code/i.test(blob)
-          ? 'executable'
-          : /network|http|mcp|remote/i.test(blob)
-            ? 'network'
-            : /permission|trust|approv|consent|enable/i.test(blob)
-              ? 'permissions'
-              : /file|path|archiv|quarantine/i.test(blob)
-                ? 'files'
+        /execut|plugin|code/i.test(blob) ? 'executable'
+          : /network|http|mcp|remote/i.test(blob) ? 'network'
+            : /permission|trust|approv|consent|enable/i.test(blob) ? 'permissions'
+              : /file|path|archiv|quarantine/i.test(blob) ? 'files'
                 : 'unknown';
 
       pushFinding(
@@ -412,10 +405,8 @@ export class AbsorbRiskReportService {
     }
 
     const primaryKind =
-      kindCounts.mcp > 0 && kindCounts.mcp >= kindCounts.plugin && kindCounts.mcp >= kindCounts.skill
-        ? 'mcp'
-        : kindCounts.plugin > 0 && kindCounts.plugin >= kindCounts.skill
-          ? 'plugin'
+      kindCounts.mcp > 0 && kindCounts.mcp >= kindCounts.plugin && kindCounts.mcp >= kindCounts.skill ? 'mcp'
+        : kindCounts.plugin > 0 && kindCounts.plugin >= kindCounts.skill ? 'plugin'
           : kindCounts.skill > 0
             ? 'skill'
             : candidates.length === 0
@@ -488,7 +479,7 @@ export class AbsorbRiskReportService {
         }
       }
       if (report.findings.length > 24) {
-        lines.push(`  ... +${report.findings.length - 24} more findings`);
+        lines.push(`  ? +${report.findings.length - 24} more findings`);
       }
     }
 

@@ -18,7 +18,7 @@ export type ZavorthSubagentInvocationGatewayInput = {
   roleIds?: string[] | null;
   approvalId?: string | null;
   live?: boolean | null;
-  mockLive?: boolean | null;
+  dryLive?: boolean | null;
   providerName?: string | null;
   modelName?: string | null;
   maxLiveWorkers?: number | null;
@@ -90,9 +90,9 @@ export class ZavorthSubagentInvocationGatewayService {
       approvalId: input.approvalId || null,
       explicitSubagents: true,
       sourceSurface: source,
-      live: input.live === true || input.mockLive === true,
-      mockLive: input.mockLive === true,
-      executionMode: input.mockLive ? 'mock-live' : input.live ? 'live-llm' : 'governed-in-process',
+      live: input.live === true || input.dryLive === true,
+      dryLive: input.dryLive === true,
+      executionMode: input.dryLive ? 'dry-live' : input.live ? 'live-llm' : 'governed-in-process',
       providerName: input.providerName || null,
       modelName: input.modelName || null,
       maxLiveWorkers: input.maxLiveWorkers || null,

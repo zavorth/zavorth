@@ -19,7 +19,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 ): Promise<boolean> {
   if (pathname === '/api/web/operations/product-observability' && req.method === 'GET') {
     if (!deps.productObservability) {
-      deps.writeJson(res, { ok: false, error: 'Observabilidade de produto indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Observabilidade de produto unavailable.' }, 503);
       return true;
     }
 
@@ -41,7 +41,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/operations/evals' && req.method === 'GET') {
     if (!deps.evalControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'Control plane de evals indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Control plane de evals unavailable.' }, 503);
       return true;
     }
 
@@ -63,7 +63,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/operations/qa' && req.method === 'GET') {
     if (!deps.qaControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'Control plane de QA indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Control plane de QA unavailable.' }, 503);
       return true;
     }
 
@@ -82,7 +82,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/operations/governance' && req.method === 'GET') {
     if (!deps.governanceControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'Control plane de governance indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Control plane de governance unavailable.' }, 503);
       return true;
     }
 
@@ -101,7 +101,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/operations/replay-learning' && req.method === 'GET') {
     if (!deps.replayLearningControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'Control plane de replay/learning indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Control plane de replay/learning unavailable.' }, 503);
       return true;
     }
 
@@ -126,7 +126,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/operations/ecosystem' && req.method === 'GET') {
     if (!deps.ecosystemControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'Control plane do ecossistema indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Control plane do ecossistema unavailable.' }, 503);
       return true;
     }
 
@@ -146,7 +146,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/operations/distributed-runtime' && req.method === 'GET') {
     if (!deps.distributedRuntimeControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'Control plane do runtime distribuido indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Control plane do runtime distribuido unavailable.' }, 503);
       return true;
     }
 
@@ -166,7 +166,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/operations/runtime-stability' && req.method === 'GET') {
     if (!deps.runtimeStabilityControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'Control plane de estabilidade do runtime indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Control plane de estabilidade do runtime unavailable.' }, 503);
       return true;
     }
 
@@ -183,7 +183,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/operations/rollout-readiness' && req.method === 'GET') {
     if (!deps.rolloutReadinessControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'Control plane de rollout readiness indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Control plane de rollout readiness unavailable.' }, 503);
       return true;
     }
 
@@ -205,7 +205,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/operations/natural-setup' && req.method === 'GET') {
     if (!deps.naturalSetupControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'Control plane de natural setup indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Control plane de natural setup unavailable.' }, 503);
       return true;
     }
 
@@ -230,7 +230,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/operations/natural-setup/actions' && req.method === 'POST') {
     if (!deps.naturalSetupControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'Control plane de natural setup indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Control plane de natural setup unavailable.' }, 503);
       return true;
     }
 
@@ -281,7 +281,7 @@ export async function handleWebAppSurfaceOperationRoutes(
       );
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const errorMessage = error instanceof Error ? err.message : 'Falha no action seguro de Natural Setup.';
+      const errorMessage = error instanceof Error ? err.message : 'Failure no action seguro de Natural Setup.';
       deps.writeJson(res, { ok: false, error: errorMessage }, 400);
     }
     return true;
@@ -289,7 +289,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/operations/automations' && req.method === 'GET') {
     if (!deps.automationControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'Control plane de automacoes indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Control plane de automations unavailable.' }, 503);
       return true;
     }
 
@@ -309,14 +309,14 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/automations/actions' && req.method === 'POST') {
     if (!deps.automationControlPlane || !deps.automationActions) {
-      deps.writeJson(res, { ok: false, error: 'Acoes de automacao indisponiveis.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Automation actions are unavailable.' }, 503);
       return true;
     }
 
     const body = await deps.readJsonBody(req);
     const actionId = String(body?.actionId || '').trim();
     if (!actionId) {
-      deps.writeJson(res, { ok: false, error: 'actionId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'actionId required.' }, 400);
       return true;
     }
 
@@ -345,7 +345,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/operations/watch-mode' && req.method === 'GET') {
     if (!deps.watchModeControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'Control plane de Watch Mode indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Control plane de Watch Mode unavailable.' }, 503);
       return true;
     }
 
@@ -364,7 +364,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/hub' && req.method === 'GET') {
     if (!deps.hubControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'Hub control plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Hub control plane unavailable.' }, 503);
       return true;
     }
 
@@ -385,7 +385,7 @@ export async function handleWebAppSurfaceOperationRoutes(
 
   if (pathname === '/api/web/hub/actions' && req.method === 'POST') {
     if (!deps.hubControlPlane || !deps.hubActions) {
-      deps.writeJson(res, { ok: false, error: 'Acoes do Hub + MCP indisponiveis.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Actions do Hub + MCP indisponiveis.' }, 503);
       return true;
     }
 
@@ -393,7 +393,7 @@ export async function handleWebAppSurfaceOperationRoutes(
       const body = await deps.readJsonBody(req);
       const actionId = String(body?.actionId || '').trim();
       if (!actionId) {
-        deps.writeJson(res, { ok: false, error: 'actionId obrigatorio.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'actionId required.' }, 400);
         return true;
       }
 
@@ -416,7 +416,7 @@ export async function handleWebAppSurfaceOperationRoutes(
       );
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const errorMessage = error instanceof Error ? err.message : 'Falha ao agir no Hub + MCP.';
+      const errorMessage = error instanceof Error ? err.message : 'Failure ao agir no Hub + MCP.';
       deps.writeJson(res, { ok: false, error: errorMessage }, 400);
     }
     return true;
@@ -436,14 +436,14 @@ export async function handleWebAppSurfaceOperationRoutes(
   if (pathname === '/api/web/kanban/board' && req.method === 'GET') {
     const boardId = readTrimmedSearchParam(url, 'boardId');
     if (!boardId) {
-      deps.writeJson(res, { ok: false, error: 'boardId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'boardId required.' }, 400);
       return true;
     }
     const kanban = new KanbanSQLiteDispatcherService();
     try {
       const data = kanban.getBoardFull(boardId);
       if (!data) {
-        deps.writeJson(res, { ok: false, error: 'Board nao encontrado.' }, 404);
+        deps.writeJson(res, { ok: false, error: 'Board not found.' }, 404);
       } else {
         deps.writeJson(res, { ok: true, board: data.board, cards: data.cards }, 200);
       }
@@ -457,7 +457,7 @@ export async function handleWebAppSurfaceOperationRoutes(
     const body = await deps.readJsonBody(req) as any;
     const name = String(body?.name || '').trim();
     if (!name) {
-      deps.writeJson(res, { ok: false, error: 'name obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'name required.' }, 400);
       return true;
     }
     const kanban = new KanbanSQLiteDispatcherService();
@@ -475,7 +475,7 @@ export async function handleWebAppSurfaceOperationRoutes(
     const boardId = String(body?.boardId || '').trim();
     const title = String(body?.title || '').trim();
     if (!boardId || !title) {
-      deps.writeJson(res, { ok: false, error: 'boardId e title sao obrigatorios.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'boardId e title sao requireds.' }, 400);
       return true;
     }
     const kanban = new KanbanSQLiteDispatcherService();
@@ -502,7 +502,7 @@ export async function handleWebAppSurfaceOperationRoutes(
     const cardId = String(body?.cardId || '').trim();
     const targetColumn = String(body?.targetColumn || '').trim();
     if (!boardId || !cardId || !targetColumn) {
-      deps.writeJson(res, { ok: false, error: 'boardId, cardId e targetColumn sao obrigatorios.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'boardId, cardId e targetColumn sao requireds.' }, 400);
       return true;
     }
     const kanban = new KanbanSQLiteDispatcherService();
@@ -521,7 +521,7 @@ export async function handleWebAppSurfaceOperationRoutes(
     const author = String(body?.author || '').trim();
     const content = String(body?.content || '').trim();
     if (!cardId || !author || !content) {
-      deps.writeJson(res, { ok: false, error: 'cardId, author e content sao obrigatorios.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'cardId, author e content sao requireds.' }, 400);
       return true;
     }
     const kanban = new KanbanSQLiteDispatcherService();
@@ -537,7 +537,7 @@ export async function handleWebAppSurfaceOperationRoutes(
   if (pathname === '/api/web/kanban/card/comments' && req.method === 'GET') {
     const cardId = readTrimmedSearchParam(url, 'cardId');
     if (!cardId) {
-      deps.writeJson(res, { ok: false, error: 'cardId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'cardId required.' }, 400);
       return true;
     }
     const kanban = new KanbanSQLiteDispatcherService();
@@ -555,7 +555,7 @@ export async function handleWebAppSurfaceOperationRoutes(
     const cardId = String(body?.cardId || '').trim();
     const subagentId = body?.subagentId ? String(body.subagentId).trim() : null;
     if (!cardId) {
-      deps.writeJson(res, { ok: false, error: 'cardId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'cardId required.' }, 400);
       return true;
     }
     const kanban = new KanbanSQLiteDispatcherService();

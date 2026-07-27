@@ -50,7 +50,7 @@ export class TrustedWorkspaceService {
   }
 
   public getTrustEntry(workspaceId: string): TrustedWorkspaceEntry | null {
-    const row = this.db.get('SELECT * FROM workspace_trust_entries WHERE workspace_id = ?', [workspaceId]);
+    const row = this.db.get('SELECT * FROM workspace_trust_entries WHERE workspace_id = ...', [workspaceId]);
     if (!row) {
       return null;
     }
@@ -121,7 +121,7 @@ export class TrustedWorkspaceService {
       `INSERT OR REPLACE INTO workspace_trust_entries (
         workspace_id, root_hash, root_suffix, trusted, allow_risk_up_to,
         allow_package_install, allow_network, created_at, updated_at
-      ) VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?)`,
+      ) VALUES (..., ..., ..., 1, ..., ..., ..., ..., ...)`,
       [
         workspaceId,
         rootHash,
@@ -164,7 +164,7 @@ export class TrustedWorkspaceService {
     const rootSuffix = entry ? entry.rootSuffix : 'redacted';
     const rootPathHash = entry ? entry.rootHash : 'redacted';
 
-    this.db.run('DELETE FROM workspace_trust_entries WHERE workspace_id = ?', [workspaceId]);
+    this.db.run('DELETE FROM workspace_trust_entries WHERE workspace_id = ...', [workspaceId]);
 
     // Remove active session grants
     const sessionCache = WorkspaceSessionGrantCache.getInstance();
@@ -172,7 +172,7 @@ export class TrustedWorkspaceService {
     sessionCache.revokeGrant(workspaceId);
 
     // Invalidate approvals/operationIds pending in that workspace
-    this.db.run('DELETE FROM workspace_command_approvals WHERE workspace_id = ?', [workspaceId]);
+    this.db.run('DELETE FROM workspace_command_approvals WHERE workspace_id = ...', [workspaceId]);
 
     // Revoke active task mandate
     WorkspaceTaskMandateService.getInstance().revokeMandate(workspaceId);

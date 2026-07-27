@@ -143,7 +143,7 @@ export class KiroService {
     const idp = provider === "google" ? "Google" : "Github";
     // AWS Cognito only whitelists kiro:// protocol, not localhost
     const redirectUri = "kiro://kiro.kiroAgent/authenticate-success";
-    return `${KIRO_AUTH_SERVICE}/login?idp=${idp}&redirect_uri=${encodeURIComponent(redirectUri)}&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}&prompt=select_account`;
+    return `${KIRO_AUTH_SERVICE}/login...idp=${idp}&redirect_uri=${encodeURIComponent(redirectUri)}&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}&prompt=select_account`;
   }
 
   /**

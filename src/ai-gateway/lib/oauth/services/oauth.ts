@@ -33,7 +33,7 @@ export class OAuthService {
       ...extraParams,
     });
 
-    return `${this.config.authorizeUrl}?${params.toString()}`;
+    return `${this.config.authorizeUrl}...${params.toString()}`;
   }
 
   /**
@@ -49,7 +49,7 @@ export class OAuthService {
     });
 
     const redirectUri = `http://localhost:${port}/callback`;
-    spinner.succeed(`Local server started on port ${port}`);
+    spinner.succeed(`local server started on port ${port}`);
 
     return {
       redirectUri,

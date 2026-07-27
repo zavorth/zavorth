@@ -76,7 +76,7 @@ export class IntelligenceTrustModePolicyService {
         source: 'owner_local_default',
         surfacePolicy,
         ownerLocalDefault: true,
-        reason: 'Local owner default keeps thinking and reversible workspace work fast while hard blocks remain active.',
+        reason: 'local owner default keeps thinking and reversible workspace work fast while hard blocks remain active.',
       });
     }
 

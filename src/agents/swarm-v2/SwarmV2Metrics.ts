@@ -81,7 +81,7 @@ export function buildReplayInsights(snapshot: SwarmSnapshot, state: SwarmV2Offic
     bottlenecks.push({
       id: 'role-failed',
       severity: 'warning',
-      summary: `${failedRoles} role(s) terminaram sem sucesso limpo.`,
+      summary: `${failedRoles} role(s) finished without clean success.`,
     });
   }
   if (outputSpreadBytes > 16_000) {
@@ -94,14 +94,13 @@ export function buildReplayInsights(snapshot: SwarmSnapshot, state: SwarmV2Offic
   const synthesisConfidence = Math.max(0, Math.min(100, Math.round(
     100
     - failedRoles * 18
-    - (state.synthesisStatus === 'completed' ? 0 : 25)
-    - (roles.length === 0 ? 20 : 0)
+    - (state.synthesisStatus === 'completed' ? 0 : 25) - (roles.length === 0 ? 20 : 0)
     - (bottlenecks.some((item) => item.severity === 'critical') ? 25 : 0),
   )));
   return {
     status: events.length === 0 ? 'empty' : state.queueStatus === 'running' ? 'recording' : 'ready',
     operatorSummary: events.length === 0
-      ? 'Replay ainda sem eventos.'
+      ? 'Replay still has no events.'
       : `${events.length} event(s), ${completedRoles}/${state.roles.length} completed role(s), confidence ${synthesisConfidence}/100.`,
     timeline: [
       buildReplayTimelineItem('queued', 'Queue', events, ['swarm.queued', 'batch.queued'], state.queueStatus === 'queued' ? 'active' : 'done'),
@@ -127,10 +126,10 @@ export function buildReplayInsights(snapshot: SwarmSnapshot, state: SwarmV2Offic
     },
     synthesisConfidence,
     nextReplayAction: bottlenecks.length > 0
-      ? 'Abra os eventos por role e compare a sintese antes de confiar no resultado.'
+      ? 'Open the events by role and compare the synthesis before trusting the result.'
       : state.synthesisStatus === 'completed'
-        ? 'Use a sintese final e mantenha o replay como evidencia.'
-        : 'Aguarde a sintese ou cancele se o swarm travar.',
+        ? 'Use the final synthesis and keep the replay as evidence.'
+        : 'Wait for the synthesis or cancel if the swarm stalls.',
   };
 }
 
@@ -177,8 +176,7 @@ export function buildBenchmarkSnapshot(
   const qualityScore = Math.max(0, Math.min(100, Math.round(
     100
     - failureRate * 100
-    - (metrics.synthesisChars > 0 ? 0 : 20)
-    - (metrics.outputBytes > 0 ? 0 : 20),
+    - (metrics.synthesisChars > 0 ? 0 : 20) - (metrics.outputBytes > 0 ? 0 : 20),
   )));
   return {
     enabled: true,

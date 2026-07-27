@@ -134,8 +134,7 @@ export class ZavorthMlOpsTool extends BaseTool {
     const features = String(args.feature_columns || '');
     const hyperparams = String(args.hyperparameters || '');
 
-    const featureSelect = features
-      ? `X = df[[${features.split(',').map(f => `'${f.trim()}'`).join(', ')}]]`
+    const featureSelect = features ? `X = df[[${features.split(',').map(f => `'${f.trim()}'`).join(', ')}]]`
       : `X = df.drop(columns=['${target.replace(/'/g, "\\'")}'])`;
 
     const script = `
@@ -354,7 +353,7 @@ if hasattr(model, 'feature_importances_'):
     names = model.feature_names_in_
   else:
     names = [f'feature_{i}' for i in range(len(importances))]
-  
+
   sorted_idx = np.argsort(importances)[::-1]
   print("Feature Importance (top 20):")
   for i in sorted_idx[:20]:

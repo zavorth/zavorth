@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import fsp from 'fs/promises';
 import path from 'path';
 import { MemoryService } from '../../services/MemoryService.js';
@@ -305,17 +305,6 @@ function buildDefaultActions(runtime: ZavorthActionCatalogRuntime = {}): Zavorth
         'quiet-autonomy',
         'autonomy',
         'profiles',
-        'produto',
-        'diario',
-        'produto diario',
-        'produto diário',
-        'autonomia',
-        'silenciosa',
-        'autonomia silenciosa',
-        'uso diario',
-        'uso diário',
-        'melhoria silenciosa',
-        'auto melhoria silenciosa',
       ], dailyProductHandler],
       ['capabilities.verified.status', 'Verified capability action exposure status', 'Read verified capability candidates exposed through the Action Harness.', ['capabilities', 'innovation', 'adapter', 'verification'], capabilityExposureHandler],
       ['capabilities.verified.expose', 'Expose verified capability actions', 'Expose verified adapter candidates through the Action Harness without enabling live execution.', ['capabilities', 'innovation', 'adapter', 'verification'], capabilityExposureHandler],

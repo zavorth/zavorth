@@ -83,7 +83,7 @@ export class AiFirstRuntimeEntrypointAdapterService {
         currentRuntimeWouldHandle: true,
         aiFirstCanaryWouldHandle: effective.canarySelected,
         selectedDecisionRecordedBesideCurrent: true,
-        canaryDecisionSource: canary.decision === 'unavailable' ? 'missing' : 'checkpoint-6-switchboard',
+        canaryDecisionSource: canary.decision === 'unavailable' ? 'missing' : 'gate-6-switchboard',
       },
       receipts: [
         {
@@ -99,8 +99,7 @@ export class AiFirstRuntimeEntrypointAdapterService {
         {
           id: this.idFactory('receipt'),
           kind: 'canary',
-          detail: effective.canarySelected
-            ? 'AI-first canary selected by Runtime gateway switchboard.'
+          detail: effective.canarySelected ? 'AI-first canary selected by Runtime gateway switchboard.'
             : 'AI-first canary was not selected; fallback/current runtime remains active.',
         },
         {
@@ -116,27 +115,27 @@ export class AiFirstRuntimeEntrypointAdapterService {
       ],
       gates: [
         {
-          id: 'checkpoint-7-switchboard-required',
+          id: 'gate-7-switchboard-required',
           status: 'passed',
           detail: 'Canary selection requires a Runtime gateway switchboard decision.',
         },
         {
-          id: 'checkpoint-7-current-runtime-retained',
+          id: 'gate-7-current-runtime-retained',
           status: 'passed',
           detail: 'Current runtime decision is retained beside the canary decision.',
         },
         {
-          id: 'checkpoint-7-fallback-preserved',
+          id: 'gate-7-fallback-preserved',
           status: 'passed',
           detail: 'Every adapted decision preserves fallback to the current runtime.',
         },
         {
-          id: 'checkpoint-7-adapter-only-no-execution',
+          id: 'gate-7-adapter-only-no-execution',
           status: 'passed',
           detail: 'Adapter records selected path but does not execute.',
         },
         {
-          id: 'checkpoint-7-default-runtime-preserved',
+          id: 'gate-7-default-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },
@@ -231,8 +230,7 @@ export class AiFirstRuntimeEntrypointAdapterService {
 
   private buildEffectiveDecision(canary: AiFirstRuntimeEntrypointCanarySummary): AiFirstRuntimeEntrypointEffectiveDecision {
     const canarySelected = canary.decision === 'select-ai-first-canary';
-    const status: AiFirstRuntimeEntrypointStatus = canarySelected
-      ? 'canary-selected'
+    const status: AiFirstRuntimeEntrypointStatus = canarySelected ? 'canary-selected'
       : canary.decision === 'unavailable'
         ? 'current-runtime-only'
         : 'fallback-current-runtime';
@@ -241,8 +239,7 @@ export class AiFirstRuntimeEntrypointAdapterService {
       status,
       selectedPath,
       dispatchTarget: selectedPath,
-      reason: canarySelected
-        ? 'Runtime gateway switchboard selected AI-first canary for this request.'
+      reason: canarySelected ? 'Runtime gateway switchboard selected AI-first canary for this request.'
         : `Current runtime selected because canary is not available (${canary.fallbackReason || 'unknown'}).`,
       canarySelected,
       currentRuntimeDecisionRetained: true,

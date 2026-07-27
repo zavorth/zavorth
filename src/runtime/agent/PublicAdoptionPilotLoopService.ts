@@ -1,6 +1,7 @@
 import type { PilotLoopSnapshot } from '../../contracts/PilotLoopContract.js';
 import type { FeedbackTelemetryProductLoopSnapshot } from './FeedbackTelemetryProductLoopService.js';
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export const PUBLIC_ADOPTION_PILOT_LOOP_CONTRACT_VERSION = '2026-05-04.adoption-pilot' as const;
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
+export const PUBLIC_ADOPTION_PILOT_LOOP_CONTRACT_VERSION = '2026-05-04.adoption-pilot' as const;
 export const PUBLIC_ADOPTION_PILOT_LOOP_METADATA_KEY = 'publicAdoptionPilotLoop' as const;
 
 export type PublicAdoptionPilotLoopStatus =
@@ -28,7 +29,7 @@ export type PublicAdoptionPilotLoopGate = {
 };
 
 export type PublicAdoptionPilotLoopSurface = {
-  id: 'cli' | 'control' | 'feedback' | 'docs' | 'pilot-ledger' | 'zavorthControl' | 'next-phase';
+  id: 'cli' | 'control' | 'feedback' | 'docs' | 'pilot-ledger' | 'zavorthControl' | 'next-release-state';
   label: string;
   routeOrCommand: string;
   status: PublicAdoptionPilotLoopGateStatus;
@@ -72,7 +73,7 @@ export type PublicAdoptionPilotLoopSnapshot = {
     ledgerEntryCount: number;
     supportPolicyCount: number;
     zavorthControlMetricCount: number;
-    nextStage: string | null;
+    nextAction: string | null;
   };
   artifacts: {
     feedbackPreviewPath: string | null;
@@ -285,7 +286,7 @@ export class PublicAdoptionPilotLoopService {
         ledgerEntryCount: ledgerEntries.length,
         supportPolicyCount,
         zavorthControlMetricCount: zavorthControlMetrics.length,
-        nextStage: normalizeText(pilot?.nextRecommendedGate?.gate) || null,
+        nextAction: normalizeText(pilot?.nextRecommendedGate?.gate) || null,
       },
       artifacts: {
         feedbackPreviewPath: normalizeText(pilot?.artifacts.feedbackPreviewPath) || null,
@@ -348,7 +349,7 @@ export class PublicAdoptionPilotLoopService {
       },
       surface: {
         cliCommand: `zavorth public-adoption-pilot-loop run ${run.id} --json`,
-        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(run.id)}&sector=config`,
         feedbackRoute: '/feedback',
         docsAnchor: '/docs#pilot-loop',
         pilotLoopCommand: 'npm run pilot-loop',
@@ -421,8 +422,7 @@ export class PublicAdoptionPilotLoopService {
         status: input.feedbackProductLoopReady ? 'ready' : 'needs-action',
         source: 'FeedbackTelemetryProductLoopService',
         command: 'zavorth feedback-product-loop --json',
-        detail: input.feedbackProductLoopReady
-          ? 'Feedback esta opt-in-ready, redigido e reversivel.'
+        detail: input.feedbackProductLoopReady ? 'Feedback is opt-in-ready, redacted, and reversible.'
           : 'Piloto depende da Feedback Telemetry opt-in-ready.',
         critical: true,
       },
@@ -433,19 +433,18 @@ export class PublicAdoptionPilotLoopService {
         source: 'PilotLoopService',
         command: 'npm run qa:pilot-loop',
         detail: input.pilotStatus === 'ready'
-          ? 'Pilot loop validou templates, triagem, ledger e zavorthControl.'
-          : 'Rodar gate de piloto antes de abrir adoption loop.',
+          ? 'Pilot loop validated templates, intake, ledger, and zavorthControl.'
+          : 'run gate de piloto before abrir adoption loop.',
         critical: true,
       },
       {
         id: 'feedback-preview-redacted',
-        label: 'Feedback preview redigido',
+        label: 'Redacted feedback preview',
         status: input.feedbackPreviewReady ? 'ready' : 'needs-action',
         source: 'PilotLoopService',
         command: 'npm run pilot-loop -- --preview',
-        detail: input.feedbackPreviewReady
-          ? 'Preview redigido de piloto esta disponivel.'
-          : 'Gerar preview redigido antes de qualquer piloto.',
+        detail: input.feedbackPreviewReady ? 'Redacted pilot preview is available.'
+          : 'Generate drafted preview before any pilot.',
         critical: true,
       },
       {
@@ -454,9 +453,8 @@ export class PublicAdoptionPilotLoopService {
         status: input.pilotLedgerReady && input.noPayloadPolicy ? 'ready' : 'needs-action',
         source: 'PilotLoopService',
         command: 'npm run pilot-loop -- --ledger',
-        detail: input.pilotLedgerReady && input.noPayloadPolicy
-          ? 'Ledger local registra pilotos sem payload de workspace.'
-          : 'Ledger precisa existir e excluir payload sensivel.',
+        detail: input.pilotLedgerReady && input.noPayloadPolicy ? 'Ledger local registra pilotos without payload de workspace.'
+          : 'Ledger must exist and exclude sensitive payload.',
         critical: true,
       },
       {
@@ -465,9 +463,8 @@ export class PublicAdoptionPilotLoopService {
         status: input.zavorthControlReady && input.zavorthControlAggregationOnly ? 'ready' : 'needs-action',
         source: 'PilotLoopService',
         command: 'npm run pilot-loop -- --zavorthControl',
-        detail: input.zavorthControlReady && input.zavorthControlAggregationOnly
-          ? 'ZavorthControl usa somente metricas agregadas.'
-          : 'ZavorthControl precisa ser agregado e sem payload bruto.',
+        detail: input.zavorthControlReady && input.zavorthControlAggregationOnly ? 'ZavorthControl uses only aggregate metrics.'
+          : 'ZavorthControl must be aggregated and without raw payload.',
         critical: true,
       },
       {
@@ -476,9 +473,8 @@ export class PublicAdoptionPilotLoopService {
         status: input.templatesReady && input.triageReady && input.supportReady ? 'ready' : 'needs-action',
         source: 'PublicAdoptionPilotLoopService',
         command: 'npm run qa:pilot-loop',
-        detail: input.templatesReady && input.triageReady && input.supportReady
-          ? 'Templates, triagem e suporte cobrem o piloto controlado.'
-          : 'Completar templates, triagem e suporte antes do piloto.',
+        detail: input.templatesReady && input.triageReady && input.supportReady ? 'Templates, triagem e suporte cobrem o piloto controlado.'
+          : 'Completar templates, triagem e suporte before do piloto.',
         critical: true,
       },
     ];
@@ -497,12 +493,12 @@ export class PublicAdoptionPilotLoopService {
         label: 'CLI public adoption pilot loop',
         routeOrCommand: 'zavorth public-adoption-pilot-loop --json',
         status: 'ready',
-        detail: 'Snapshot read-only para pilotos publicos controlados.',
+        detail: 'Read-only snapshot for controlled public pilots.',
       },
       {
         id: 'control',
         label: 'ZavorthControl',
-        routeOrCommand: '/zavorthControl?sector=config',
+        routeOrCommand: '/zavorthControl...sector=config',
         status: 'ready',
         detail: 'Config mostra readiness, ledger e zavorthControl do piloto.',
       },
@@ -511,35 +507,35 @@ export class PublicAdoptionPilotLoopService {
         label: 'Feedback opt-in',
         routeOrCommand: '/feedback',
         status: input.feedbackProductLoopReady ? 'ready' : 'needs-action',
-        detail: 'Piloto so usa feedback com opt-in e preview redigido.',
+        detail: 'Pilot only uses feedback with opt-in and redacted preview.',
       },
       {
         id: 'docs',
         label: 'Docs pilot loop',
         routeOrCommand: '/docs#pilot-loop',
         status: input.pilotStatus === 'ready' ? 'ready' : 'needs-action',
-        detail: 'Docs devem explicar templates, triagem, suporte e ledger.',
+        detail: 'Docs must explain templates, triagem, suporte e ledger.',
       },
       {
         id: 'pilot-ledger',
         label: 'Pilot ledger',
         routeOrCommand: 'pilot-ledger.json',
         status: input.pilotLedgerReady ? 'ready' : 'needs-action',
-        detail: 'Ledger local e revisavel antes de qualquer metric publicavel.',
+        detail: 'Local reviewable ledger before any publishable metric.',
       },
       {
         id: 'zavorthControl',
         label: 'Support zavorthControl',
         routeOrCommand: 'support-zavorthControl.json',
         status: input.zavorthControlReady ? 'ready' : 'needs-action',
-        detail: 'ZavorthControl agrega area, severidade, status e follow-ups.',
+        detail: 'ZavorthControl aggregates area, severity, status, and follow-ups.',
       },
       {
-        id: 'next-phase',
+        id: 'next-release-state',
         label: 'Integration showcase',
         routeOrCommand: 'npm run qa:integration-showcase',
         status: input.canStartControlledPilot ? 'ready' : 'needs-action',
-        detail: 'Readiness checkpoint 8 so deve abrir depois do piloto estar pronto.',
+        detail: 'readiness gate opens only after the pilot is ready.',
       },
     ];
   }
@@ -558,42 +554,42 @@ export class PublicAdoptionPilotLoopService {
         id: 'public-adoption-pilot:feedback-loop',
         kind: 'feedback-loop',
         source: 'FeedbackTelemetryProductLoopService',
-        detail: input.feedbackProductLoopReady ? 'Feedback opt-in pronto.' : 'Feedback opt-in pendente.',
+        detail: input.feedbackProductLoopReady ? 'Feedback opt-in ready.' : 'Feedback opt-in pending.',
         status: input.feedbackProductLoopReady ? 'ready' : 'needs-action',
       },
       {
         id: 'public-adoption-pilot:pilot-loop',
         kind: 'pilot-loop',
         source: 'PilotLoopService',
-        detail: input.pilotLinked ? 'PilotLoopSnapshot anexado.' : 'PilotLoopSnapshot ausente.',
+        detail: input.pilotLinked ? 'PilotLoopSnapshot anexado.' : 'PilotLoopSnapshot missing.',
         status: input.pilotLinked ? 'ready' : 'needs-action',
       },
       {
         id: 'public-adoption-pilot:triage',
         kind: 'triage',
         source: 'PilotLoopService',
-        detail: input.triageReady && input.supportReady ? 'Triagem e suporte prontos.' : 'Triagem ou suporte pendente.',
+        detail: input.triageReady && input.supportReady ? 'Triagem e suporte ready.' : 'Triagem ou suporte pending.',
         status: input.triageReady && input.supportReady ? 'ready' : 'needs-action',
       },
       {
         id: 'public-adoption-pilot:ledger',
         kind: 'ledger',
         source: 'PilotLoopService',
-        detail: input.pilotLedgerReady && input.noPayloadPolicy ? 'Ledger local sem payload.' : 'Ledger ou data policy pendente.',
+        detail: input.pilotLedgerReady && input.noPayloadPolicy ? 'Ledger local without payload.' : 'Ledger ou data policy pending.',
         status: input.pilotLedgerReady && input.noPayloadPolicy ? 'ready' : 'needs-action',
       },
       {
         id: 'public-adoption-pilot:zavorthControl',
         kind: 'zavorthControl',
         source: 'PilotLoopService',
-        detail: input.zavorthControlReady ? 'ZavorthControl agregado disponivel.' : 'ZavorthControl agregado pendente.',
+        detail: input.zavorthControlReady ? 'ZavorthControl agregado available.' : 'ZavorthControl agregado pending.',
         status: input.zavorthControlReady ? 'ready' : 'needs-action',
       },
       {
         id: 'public-adoption-pilot:policy',
         kind: 'policy',
         source: 'PublicAdoptionPilotLoopService',
-        detail: 'Piloto exige opt-in, ledger local e nenhuma coleta implicita.',
+        detail: 'Pilot requires opt-in, local ledger, and no implicit collection.',
         status: 'ready',
       },
     ];
@@ -601,23 +597,23 @@ export class PublicAdoptionPilotLoopService {
 
   private resolveNextSafeAction(status: PublicAdoptionPilotLoopStatus): string {
     if (status === 'needs-feedback-product-loop') {
-      return 'Publicar Feedback Telemetry como opt-in-ready antes de iniciar piloto.';
+      return 'Publicar Feedback Telemetry como opt-in-ready before iniciar piloto.';
     }
     if (status === 'needs-pilot-loop') {
-      return 'Rodar npm run qa:pilot-loop e anexar PilotLoopSnapshot ao run.';
+      return 'run npm run qa:pilot-loop e anexar PilotLoopSnapshot ao run.';
     }
     if (status === 'needs-artifacts') {
-      return 'Gerar preview redigido e pilot-ledger local com npm run pilot-loop -- --preview --ledger.';
+      return 'Generate drafted preview and local pilot ledger with npm run pilot-loop -- --preview --ledger.';
     }
     if (status === 'needs-zavorthControl') {
-      return 'Gerar support-zavorthControl agregado com npm run pilot-loop -- --zavorthControl.';
+      return 'Generate aggregated support-zavorthControl with npm run pilot-loop -- --zavorthControl.';
     }
     if (status === 'blocked') {
-      return 'Corrigir bloqueios de feedback/piloto antes de qualquer coleta publica.';
+      return 'Fix feedback/pilot blockers before any public collection.';
     }
     if (status === 'adoption-disabled') {
-      return 'Manter piloto desligado ate haver owner e opt-in explicito.';
+      return 'Keep the pilot disabled until an owner and explicit opt-in exist.';
     }
-    return 'Abrir apenas piloto controlado, opt-in, redigido e com ledger revisavel.';
+    return 'Open only a controlled opt-in pilot with redacted preview and reviewable ledger.';
   }
 }

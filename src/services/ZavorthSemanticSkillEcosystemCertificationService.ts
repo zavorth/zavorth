@@ -70,8 +70,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
       && scenarios.every((scenario) => scenario.status === 'passed')
       && pack.summary.enabledByDefault === false
       && pack.summary.liveExternalIoPerformed === false
-      && pack.summary.secretValuesSerialized === false
-        ? 'passed'
+      && pack.summary.secretValuesSerialized === false ? 'passed'
         : 'failed';
 
     return {
@@ -146,7 +145,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
         inspectJson: 'npm run semantic-skill-ecosystem-certification:json --silent',
         check: 'npm run semantic-skill-ecosystem-certification:check --silent',
         qa: 'npm run qa:semantic-skill-ecosystem-certification --silent',
-        nextStage: 'S9 - Full Functional Closure Semantics',
+        nextAction: 'Full functional closure semantics',
       },
     };
   }
@@ -173,7 +172,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
       ...snapshot.claims.map((claim) =>
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`,
       ),
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -205,8 +204,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
       status: manifest.optional
         && manifest.inspectableBeforeEnablement
         && manifest.enabledByDefault === false
-        && manifest.secretValuesSerialized === false
-          ? 'covered'
+        && manifest.secretValuesSerialized === false ? 'covered'
           : 'gap',
       priority: manifest.permissionProfileId === 'connector-live-secretref' || manifest.permissionProfileId === 'tool-execution-approval' ? 'P1' : 'P0',
       manifestId: manifest.id,
@@ -255,8 +253,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
       kind: 'permission-profile-policy',
       status: profile.enabledByDefault === false
         && profile.liveExternalIoAllowedByDefault === false
-        && profile.id
-          ? 'covered'
+        && profile.id ? 'covered'
           : 'gap',
       priority: profile.ownerApprovalRequired ? 'P1' : 'P0',
       profileId: profile.id,
@@ -309,10 +306,8 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
   ): ZavorthSemanticSkillEcosystemClaim {
     return this.claim({
       kind: 'secretref-policy',
-      status: secretRef.configured
-        ? 'covered'
-        : secretRef.secretValueSerialized === false
-          ? 'owner-gated'
+      status: secretRef.configured ? 'covered'
+        : secretRef.secretValueSerialized === false ? 'owner-gated'
           : 'gap',
       priority: 'P0',
       manifestId: manifest.id,
@@ -424,8 +419,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
         status: pack.policy.optionalEcosystemCapacity
           && pack.summary.optionalSkills === pack.summary.manifests
           && pack.summary.inspectableBeforeEnablement === pack.summary.manifests
-          && pack.summary.enabledByDefault === false
-            ? 'covered'
+          && pack.summary.enabledByDefault === false ? 'covered'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'Skill ecosystem capacity is optional, inspectable before enablement and never enabled by default.',
@@ -445,8 +439,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
         status: pack.summary.liveExternalIoPerformed === false
           && pack.summary.liveSkillsRequireOwnerApproval
           && pack.summary.liveSkillsRequireSecretRef
-          && pack.summary.secretValuesSerialized === false
-            ? 'covered'
+          && pack.summary.secretValuesSerialized === false ? 'covered'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'Live connector/tool skills require owner approval and SecretRef; certification performs no live external I/O.',
@@ -465,8 +458,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
         status: pack.receipts.receipts.length > 0
           && pack.receipts.receipts.every((receipt) => receipt.artifactFirst)
           && pack.receipts.receipts.every((receipt) => receipt.secretValuesSerialized === false)
-          && pack.smokeRunner.results.every((result) => result.artifactFirst)
-            ? 'covered'
+          && pack.smokeRunner.results.every((result) => result.artifactFirst) ? 'covered'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'Skill import, inspect, enable, execute, denial and smoke behavior is artifact-first and receipt-backed.',
@@ -523,8 +515,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
       this.claim({
         kind: 'unsafe-skill-policy',
         status: pack.smokeRunner.nonDestructiveOnly
-          && pack.smokeRunner.results.every((result) => result.destructive === false)
-            ? 'rejected'
+          && pack.smokeRunner.results.every((result) => result.destructive === false) ? 'rejected'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'The architecture must reject destructive skill smoke tests.',
@@ -539,8 +530,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
       this.claim({
         kind: 'unsafe-skill-policy',
         status: pack.summary.liveExternalIoPerformed === false
-          && pack.smokeRunner.liveSecretsUsed === false
-            ? 'rejected'
+          && pack.smokeRunner.liveSecretsUsed === false ? 'rejected'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'The architecture must reject live external I/O and live secret use during skill certification.',
@@ -574,8 +564,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
         id: 'inspect-before-enable',
         status: pack.importer.manifests.every((manifest) => manifest.inspectableBeforeEnablement)
           && pack.importer.manifests.every((manifest) => manifest.enabledByDefault === false)
-          && pack.receipts.inspections === pack.importer.manifests.length
-            ? 'passed'
+          && pack.receipts.inspections === pack.importer.manifests.length ? 'passed'
             : 'failed',
         evidence: [
           `manifests=${pack.importer.manifests.length}`,
@@ -595,8 +584,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
         id: 'live-connector-denied-without-secretref',
         status: connectorEvaluations.length > 0
           && connectorEvaluations.every((evaluation) => evaluation.status === 'deny')
-          && connectorEvaluations.every((evaluation) => evaluation.missingSecretRefs.length > 0)
-            ? 'passed'
+          && connectorEvaluations.every((evaluation) => evaluation.missingSecretRefs.length > 0) ? 'passed'
             : 'failed',
         evidence: [
           `connectorEvaluations=${connectorEvaluations.length}`,
@@ -619,8 +607,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
         status: pack.smokeRunner.nonDestructiveOnly
           && pack.smokeRunner.failed === 0
           && pack.smokeRunner.results.every((result) => result.destructive === false)
-          && pack.smokeRunner.liveExternalIoPerformed === false
-            ? 'passed'
+          && pack.smokeRunner.liveExternalIoPerformed === false ? 'passed'
             : 'failed',
         evidence: [
           `smokeTests=${pack.smokeRunner.smokeTests}`,
@@ -641,8 +628,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
         status: pack.receipts.status === 'pass'
           && pack.receipts.secretValuesSerialized === false
           && pack.receipts.liveExternalIoPerformed === false
-          && pack.receipts.receipts.every((receipt) => receipt.secretValuesSerialized === false)
-            ? 'passed'
+          && pack.receipts.receipts.every((receipt) => receipt.secretValuesSerialized === false) ? 'passed'
             : 'failed',
         evidence: [
           `receipts=${pack.receipts.receipts.length}`,

@@ -123,7 +123,7 @@ export const LONG_TAIL_PROVIDER_ACTIVATION_MANIFESTS: ProviderIntegrationManifes
   compatible('opencode', 'OpenCode', 'opencode/minimax-m2.5-free', 'https://opencode.ai'),
   managedGateway('opencode-go', 'OpenCode Go Gateway', 'opencode/minimax-m2.5-free', 'https://opencode.ai'),
   compatible('qianfan', 'Baidu Qianfan', 'ernie-4.0-turbo-8k', 'https://cloud.baidu.com/product/wenxinworkshop'),
-  local('sglang', 'SGLang Local Runtime', 'local-model', 'https://docs.sglang.ai'),
+  local('sglang', 'SGLang local Runtime', 'local-model', 'https://docs.sglang.ai'),
   compatible('stepfun', 'StepFun', 'step-2-mini', 'https://platform.stepfun.com'),
   compatible('tencent', 'Tencent Hunyuan', 'hunyuan-turbos-latest', 'https://cloud.tencent.com/product/hunyuan'),
   compatible('tokenjuice', 'TokenJuice', 'auto', 'https://tokenjuice.ai'),

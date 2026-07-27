@@ -51,7 +51,7 @@ export class GeminiVideoAnalyzer {
       return null;
     }
 
-    const prompt = this.buildVideoPrompt(titleHint, 'URL publica do YouTube');
+    const prompt = this.buildVideoPrompt(titleHint, 'public YouTube URL');
     const analysisText = await this.generateContent([
       { file_data: { file_uri: videoUrl } },
       { text: prompt },
@@ -59,7 +59,7 @@ export class GeminiVideoAnalyzer {
 
     return {
       analysisText,
-      source: `analise nativa do Gemini (${this.model}) via YouTube URL`,
+      source: `native Gemini analysis (${this.model}) via YouTube URL`,
       warnings: [],
     };
   }
@@ -73,7 +73,7 @@ export class GeminiVideoAnalyzer {
       return null;
     }
 
-    const prompt = this.buildPureTranscriptionPrompt(titleHint, 'URL publica do YouTube', extraInstruction);
+    const prompt = this.buildPureTranscriptionPrompt(titleHint, 'public YouTube URL', extraInstruction);
     const analysisText = await this.generateContent([
       { file_data: { file_uri: videoUrl } },
       { text: prompt },
@@ -81,7 +81,7 @@ export class GeminiVideoAnalyzer {
 
     return {
       analysisText,
-      source: `transcricao pura com Gemini (${this.model}) via YouTube URL`,
+      source: `pure transcription with Gemini (${this.model}) via YouTube URL`,
       warnings: [],
     };
   }
@@ -95,14 +95,14 @@ export class GeminiVideoAnalyzer {
       return null;
     }
 
-    const prompt = this.buildVideoPrompt(titleHint, 'arquivo de video');
+    const prompt = this.buildVideoPrompt(titleHint, 'video file');
     return this.analyzeLocalMediaFile(
       filePath,
       mimeType,
       titleHint,
       prompt,
-      `analise nativa do Gemini (${this.model}) com video inline`,
-      `analise nativa do Gemini (${this.model}) com Files API`
+      `native Gemini analysis (${this.model}) with inline video`,
+      `native Gemini analysis (${this.model}) with Files API`
     );
   }
 
@@ -115,14 +115,14 @@ export class GeminiVideoAnalyzer {
       return null;
     }
 
-    const prompt = this.buildAudioPrompt(titleHint, 'arquivo de audio extraido de um video');
+    const prompt = this.buildAudioPrompt(titleHint, 'audio file extracted from a video');
     return this.analyzeLocalMediaFile(
       filePath,
       mimeType,
       titleHint,
       prompt,
-      `analise de audio com Gemini (${this.model}) inline`,
-      `analise de audio com Gemini (${this.model}) via Files API`
+      `audio analysis with Gemini (${this.model}) inline`,
+      `audio analysis with Gemini (${this.model}) via Files API`
     );
   }
 
@@ -136,14 +136,14 @@ export class GeminiVideoAnalyzer {
       return null;
     }
 
-    const prompt = this.buildPureTranscriptionPrompt(titleHint, 'arquivo de audio', extraInstruction);
+    const prompt = this.buildPureTranscriptionPrompt(titleHint, 'audio file', extraInstruction);
     return this.analyzeLocalMediaFile(
       filePath,
       mimeType,
       titleHint,
       prompt,
-      `transcricao pura com Gemini (${this.model}) inline`,
-      `transcricao pura com Gemini (${this.model}) via Files API`
+      `pure transcription with Gemini (${this.model}) inline`,
+      `pure transcription with Gemini (${this.model}) via Files API`
     );
   }
 
@@ -169,60 +169,60 @@ export class GeminiVideoAnalyzer {
     if (batchSummaries.length === 1) {
       return {
         analysisText: batchSummaries[0].replace(/^## Lote 1\s*/m, '').trim(),
-        source: `sintese textual com Gemini (${this.model})`,
+        source: `text synthesis com Gemini (${this.model})`,
         warnings,
       };
     }
 
-    warnings.push(`A sintese final foi consolidada em ${batchSummaries.length} lotes para lidar com um conteudo longo.`);
+    warnings.push(`The final synthesis was consolidated into ${batchSummaries.length} batches to handle long content.`);
 
     const finalPrompt = this.buildFinalSummaryPrompt(batchSummaries, titleHint);
     const finalSummary = await this.generateContent([{ text: finalPrompt }]);
 
     return {
       analysisText: finalSummary,
-      source: `sintese textual hierarquica com Gemini (${this.model})`,
+      source: `hierarchical text synthesis com Gemini (${this.model})`,
       warnings,
     };
   }
 
   private buildVideoPrompt(titleHint: string | undefined, sourceLabel: string): string {
-    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do video not foi fornecido.';
+    const titleLine = titleHint ? `Suggested title: ${titleHint}.` : 'The video title was not provided.';
 
     return [
-      'Analise este video para servir como base de conversa posterior.',
+      'Analyze this video to serve as a basis for subsequent conversation.',
       titleLine,
-      `Origem do material: ${sourceLabel}.`,
-      'Responda em portugues brasileiro, em Markdown, com as secoes abaixo:',
-      '1. Resumo executivo',
-      '2. Pontos centrais',
-      '3. Linha do tempo com timestamps importantes',
-      '4. Elementos visuais relevantes',
-      '5. Falas, ideias ou dados importantes',
-      '6. Limites ou incertezas da analise',
-      'Se houver texto na tela, mencione o que for relevante.',
-      'Se a fala ou o visual not estiverem claros, diga isso explicitamente em vez de inventar.',
-      'Se for apropriado, destaque o que seria mais util para discutir este video depois.',
+      `Material source: ${sourceLabel}.`,
+      'Respond in Brazilian Portuguese, in Markdown, with the following sections:',
+      '1. Executive summary',
+      '2. Key points',
+      '3. Timeline with important timestamps',
+      '4. Relevant visual elements',
+      '5. Speeches, ideas, or important data',
+      '6. Limitations or uncertainties of the analysis',
+      'If there is text on screen, mention what is relevant.',
+      'If the speech or visuals are not clear, state that explicitly rather than making things up.',
+      'If appropriate, highlight what would be most useful for discussing this video later.',
     ].join(' ');
   }
 
   private buildAudioPrompt(titleHint: string | undefined, sourceLabel: string): string {
-    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do audio not foi fornecido.';
+    const titleLine = titleHint ? `Suggested title: ${titleHint}.` : 'The audio title was not provided.';
 
     return [
-      'Analise este audio extraido de um video para servir como base de conversa posterior.',
+      'Analyze this audio extracted from a video to serve as a basis for subsequent conversation.',
       titleLine,
-      `Origem do material: ${sourceLabel}.`,
-      'Responda em portugues brasileiro, em Markdown, com as secoes abaixo:',
-      '1. Resumo executivo',
-      '2. Transcricao estruturada aproximada do que for compreensivel',
-      '3. Pontos centrais',
-      '4. Falas, ideias ou dados importantes',
-      '5. Limites ou incertezas da analise',
-      'Priorize fidelidade ao que foi dito quando o audio estiver claro.',
-      'Se not conseguir entender algum trecho, diga explicitamente que ele esta inaudivel ou incerto.',
-      'Preserve nomes proprios, termos tecnicos, numeros e dados quando possivel.',
-      'Se houver boa sinalizacao temporal, inclua timestamps aproximados nos trechos mais importantes.',
+      `Material source: ${sourceLabel}.`,
+      'Respond in Brazilian Portuguese, in Markdown, with the following sections:',
+      '1. Executive summary',
+      '2. Approximate structured transcription of what is understandable',
+      '3. Key points',
+      '4. Speeches, ideas, or important data',
+      '5. Limitations or uncertainties of the analysis',
+      'Prioritize fidelity to what was said when the audio is clear.',
+      'If you cannot understand a section, explicitly state that it is inaudible or uncertain.',
+      'Preserve proper names, technical terms, numbers, and data when possible.',
+      'If there is good temporal signaling, include approximate timestamps in the most important sections.',
     ].join(' ');
   }
 
@@ -231,21 +231,20 @@ export class GeminiVideoAnalyzer {
     sourceLabel: string,
     extraInstruction?: string
   ): string {
-    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do audio not foi fornecido.';
-    const extraInstructionLine = extraInstruction?.trim()
-      ? `Instrucao adicional do usuario: ${extraInstruction.trim()}`
+    const titleLine = titleHint ? `Suggested title: ${titleHint}.` : 'The audio title was not provided.';
+    const extraInstructionLine = extraInstruction?.trim() ? `Additional user instruction: ${extraInstruction.trim()}`
       : '';
 
     return [
-      'Transcreva este audio de forma fiel para servir como base textual de consulta posterior.',
+      'Transcribe this audio faithfully to serve as a textual reference for later consultation.',
       titleLine,
-      `Origem do material: ${sourceLabel}.`,
-      'Responda em portugues brasileiro, em Markdown.',
-      'Priorize transcricao literal ou o mais proximo possivel do que foi dito, sem resumir o conteudo.',
-      'Inclua timestamps aproximados em pontos de troca de assunto ou a cada bloco relevante, quando possivel.',
-      'Mantenha nomes proprios, termos tecnicos, numeros e dados factuais.',
-      'Quando algum trecho estiver inaudivel ou duvidoso, marque isso explicitamente em vez de inventar.',
-      'Se houver muito conteudo, entregue a transcricao em blocos claros e cronologicos.',
+      `Material source: ${sourceLabel}.`,
+      'Respond in Brazilian Portuguese, in Markdown.',
+      'Prioritize literal transcription or as close as possible to what was said, without summarizing the content.',
+      'Include approximate timestamps at subject change points or at each relevant block, when possible.',
+      'Preserve proper names, technical terms, numbers, and factual data.',
+      'When a section is inaudible or doubtful, mark that explicitly rather than making things up.',
+      'If there is a lot of content, deliver the transcription in clear, chronological blocks.',
       extraInstructionLine,
     ].join(' ');
   }
@@ -256,41 +255,41 @@ export class GeminiVideoAnalyzer {
     totalBatches: number,
     titleHint?: string
   ): string {
-    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do material not foi fornecido.';
+    const titleLine = titleHint ? `Suggested title: ${titleHint}.` : 'The material title was not provided.';
     const renderedSections = sections
       .map((section) => `### ${section.label}\n${section.text}`)
       .join('\n\n');
 
     return [
-      'Voce esta resumindo um conjunto de trechos de um video longo, podcast ou documentario.',
+      'You are summarizing a set of excerpts from a long video, podcast, or documentary.',
       titleLine,
-      `Este e o lote ${batchIndex} de ${totalBatches}.`,
-      'Responda em portugues brasileiro, em Markdown, com as secoes:',
-      '1. Resumo do lote',
-      '2. Pontos centrais do lote',
-      '3. Linha do tempo aproximada do lote',
-      '4. Falas, ideias ou dados relevantes',
-      '5. Pontos de atencao ou incertezas',
-      'Se algum trecho vier de transcricao automatica, preserve a cautela e not invente detalhes ausentes.',
+      `This is batch ${batchIndex} of ${totalBatches}.`,
+      'Respond in Brazilian Portuguese, in Markdown, with the following sections:',
+      '1. Batch summary',
+      '2. Key points of the batch',
+      '3. Approximate timeline of the batch',
+      '4. Relevant speeches, ideas, or data',
+      '5. Points of attention or uncertainties',
+      'If any section comes from automatic transcription, preserve caution and do not invent missing details.',
       '',
       renderedSections,
     ].join('\n');
   }
 
   private buildFinalSummaryPrompt(batchSummaries: string[], titleHint?: string): string {
-    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do material not foi fornecido.';
+    const titleLine = titleHint ? `Suggested title: ${titleHint}.` : 'The material title was not provided.';
 
     return [
-      'Voce vai consolidar resumos parciais de um video longo, podcast ou documentario.',
+      'You will consolidate partial summaries from a long video, podcast, or documentary.',
       titleLine,
-      'Responda em portugues brasileiro, em Markdown, com as secoes abaixo:',
-      '1. Resumo executivo',
-      '2. Pontos centrais',
-      '3. Linha do tempo aproximada',
-      '4. Ideias, falas ou dados marcantes',
-      '5. Pontos que valem conversa depois',
-      '6. Limites ou incertezas da cobertura',
-      'Nao invente detalhes que not estejam sustentados pelos lotes.',
+      'Respond in Brazilian Portuguese, in Markdown, with the following sections:',
+      '1. Executive summary',
+      '2. Key points',
+      '3. Approximate timeline',
+      '4. Notable ideas, speeches, or data',
+      '5. Points worth discussing later',
+      '6. Limitations or uncertainties of the coverage',
+      'Do not invent details that are not supported by the batches.',
       '',
       batchSummaries.join('\n\n'),
     ].join('\n');
@@ -407,7 +406,7 @@ export class GeminiVideoAnalyzer {
     const payload = await response.json();
     const textParts = this.extractTextParts(payload);
     if (!textParts) {
-      throw new Error('Gemini not retornou texto util para esta analise de video.');
+      throw new Error('Gemini did not return useful text for this video analysis.');
     }
 
     return textParts;
@@ -453,7 +452,7 @@ export class GeminiVideoAnalyzer {
 
     const uploadUrl = startResponse.headers.get('x-goog-upload-url');
     if (!uploadUrl) {
-      throw new Error('Gemini not retornou a URL de upload resumable.');
+      throw new Error('Gemini did not return a resumable upload URL.');
     }
 
     const uploadResponse = await safeFetch(uploadUrl, {
@@ -475,7 +474,7 @@ export class GeminiVideoAnalyzer {
 
     const payload = await uploadResponse.json();
     if (!payload?.file?.name || !payload?.file?.uri) {
-      throw new Error('Gemini not retornou metadados validos apos upload do arquivo.');
+      throw new Error('Gemini did not return valid metadata after file upload.');
     }
 
     return {
@@ -498,13 +497,13 @@ export class GeminiVideoAnalyzer {
       }
 
       if (state === 'FAILED') {
-        throw new Error(`Gemini marcou o arquivo ${fileName} como FAILED durante o processamento.`);
+        throw new Error(`Gemini marked file ${fileName} as FAILED during processing.`);
       }
 
       await this.sleep(FILE_ACTIVE_POLL_INTERVAL_MS);
     }
 
-    throw new Error(`Gemini not ativou o arquivo ${fileName} dentro do tempo limite.`);
+    throw new Error(`Gemini did not activate file ${fileName} within the time limit.`);
   }
 
   private async getFile(fileName: string): Promise<GeminiFile> {
@@ -542,7 +541,7 @@ export class GeminiVideoAnalyzer {
       }, {
         serviceName: 'Gemini video file cleanup',
       });
-    } catch (error: unknown) {logger.warn(`[GeminiVideoAnalyzer] Failed to remove arquivo temporario do Gemini: ${error}`);
+    } catch (error: unknown) {logger.warn(`[GeminiVideoAnalyzer] Failed to remove Gemini temporary file: ${error}`);
     }
   }
 

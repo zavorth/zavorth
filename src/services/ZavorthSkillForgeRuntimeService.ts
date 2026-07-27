@@ -21,8 +21,6 @@ const EXECUTABLE_CAPABILITIES = new Set([
   'policy_change',
 ]);
 
-const WORKFLOW_SIGNAL = /\b(workflow|procedure|playbook|checklist|fluxo|procedimento|release notes|repeat|repeated|da proxima vez|next time)\b/i;
-
 export class ZavorthSkillForgeRuntimeService {
   private readonly now: () => Date;
 
@@ -33,7 +31,7 @@ export class ZavorthSkillForgeRuntimeService {
   public reviewSkillOpportunity(input: ZavorthSkillForgeInput): ZavorthSkillForgeRuntimeSnapshot {
     const generatedAt = this.now().toISOString();
     const shouldDraft = input.outcome === 'success'
-      && (input.toolCallCount >= 5 || WORKFLOW_SIGNAL.test(input.userMessage) || WORKFLOW_SIGNAL.test(input.assistantResponse));
+      && this.hasStructuredDraftSignal(input);
     const drafts = shouldDraft ? [this.buildDraft(input)] : [];
     const needsApproval = drafts.some((draft) => draft.approvalRequired);
 
@@ -96,8 +94,36 @@ export class ZavorthSkillForgeRuntimeService {
 
   private titleFromInput(input: ZavorthSkillForgeInput): string {
     const redacted = redactSensitiveText(input.userMessage).trim();
-    if (/release notes/i.test(redacted)) return 'Release Notes Workflow';
-    if (/resumo|summary/i.test(redacted)) return 'Summary Workflow';
-    return redacted.split(/\s+/).slice(0, 5).join(' ') || 'Native Workflow';
+    return this.firstWords(redacted, 5) || 'Native Workflow';
+  }
+
+  private hasStructuredDraftSignal(input: ZavorthSkillForgeInput): boolean {
+    return input.toolCallCount >= 5
+      || (input.observedFiles || []).length >= 2
+      || (input.requestedCapabilities || []).some((capability) => capability.includes('workflow')
+        || capability.includes('procedure')
+        || capability.includes('playbook')
+        || capability.includes('checklist')
+        || capability.includes('skill'));
+  }
+
+  private firstWords(text: string, count: number): string {
+    const words: string[] = [];
+    let current = '';
+    for (const char of text) {
+      if (char.trim()) {
+        current += char;
+        continue;
+      }
+      if (current) {
+        words.push(current);
+        current = '';
+        if (words.length >= count) break;
+      }
+    }
+    if (current && words.length < count) {
+      words.push(current);
+    }
+    return words.join(' ');
   }
 }

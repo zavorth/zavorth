@@ -55,7 +55,7 @@ export default function Button({
       aria-busy={loading || undefined}
       {...props}
     >
-      {loading ? (
+      {loading - (
         <span
           className="material-symbols-outlined animate-spin text-[18px] pointer-events-none"
           aria-hidden="true"

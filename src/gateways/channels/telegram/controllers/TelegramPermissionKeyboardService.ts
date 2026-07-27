@@ -15,7 +15,7 @@ export class TelegramPermissionKeyboardService {
     if (permission.executor === 'external_executor' && permission.kind === 'agent_binding') {
       keyboard
         .text('Usar neste projeto', `perm:approve:${shortId}:workspace`)
-        .text('Salvar para futuros pedidos', `perm:approve:${shortId}:persistent`)
+        .text('Save for future requests', `perm:approve:${shortId}:persistent`)
         .row()
         .text('Rejeitar', `perm:reject:${shortId}`);
       return keyboard;

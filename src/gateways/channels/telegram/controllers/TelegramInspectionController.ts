@@ -51,7 +51,7 @@ export class TelegramInspectionController {
     }
 
     const lines = logs.map((entry) => {
-      const timestamp = (entry.timestamp || '').replace('T', ' ').slice(0, 19) || 'sem-data';
+      const timestamp = (entry.timestamp || '').replace('T', ' ').slice(0, 19) || 'without-data';
       return `- [${entry.level.toUpperCase()}] ${timestamp} | ${entry.category}\n  ${this.truncateForTelegram(entry.message, 160)}`;
     });
 

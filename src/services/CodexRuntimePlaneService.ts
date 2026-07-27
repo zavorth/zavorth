@@ -216,8 +216,7 @@ export class CodexRuntimePlaneService {
         label: String(tool.label || id),
         exposed,
         policy,
-        reason: exposed
-          ? 'Host tool is exposed through the governed dynamic tool bridge.'
+        reason: exposed ? 'Host tool is exposed through the governed dynamic tool bridge.'
           : 'Codex owns this tool natively; native-first policy keeps it out of the host exposure set.',
       };
     });

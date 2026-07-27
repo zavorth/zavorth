@@ -1,4 +1,4 @@
-import { Bot, Context } from 'grammy';
+﻿import { Bot, Context } from 'grammy';
 import { logger } from '../logger.js';
 
 export type ClearResult = {
@@ -9,15 +9,15 @@ export type ClearResult = {
 };
 
 /**
- * ChatCleanupService — Rastreia e apaga mensagens enviadas pelo bot.
+ * ChatCleanupService - Tracks and deletes messages sent by the bot.
  * 
- * Limitações da API do Telegram:
- *   - Bots só podem apagar mensagens com menos de 48 horas em chats privados.
- *   - Bots podem apagar qualquer mensagem em grupos onde são admins.
- *   - deleteMessages (batch) apaga até 100 por chamada em grupos.
+ * Telegram API limits:
+ *   - Bots can delete messages less than 48 hours old in private chats.
+ *   - Bots can delete messages in groups where they are admins.
+ *   - deleteMessages batches up to 100 messages per call in groups.
  */
 export class ChatCleanupService {
-  /** Buffer circular de IDs de mensagens enviadas pelo bot */
+  /** Circular buffer of message IDs sent by the bot */
   private sentMessageIds: Map<string, number[]> = new Map();
   private readonly maxTrackedPerChat: number;
 
@@ -26,7 +26,7 @@ export class ChatCleanupService {
   }
 
   /**
-   * Registra uma mensagem enviada pelo bot para futura limpeza.
+   * Registers a bot-sent message for future cleanup.
    */
   public trackMessage(chatId: string, messageId: number): void {
     if (!this.sentMessageIds.has(chatId)) {
@@ -36,7 +36,7 @@ export class ChatCleanupService {
     const ids = this.sentMessageIds.get(chatId)!;
     ids.push(messageId);
 
-    // Manter apenas os últimos N
+    // Keep only the last N entries.
     if (ids.length > this.maxTrackedPerChat) {
       ids.splice(0, ids.length - this.maxTrackedPerChat);
     }
@@ -44,7 +44,7 @@ export class ChatCleanupService {
 
   /**
    * Apaga todas as mensagens rastreadas do bot em um chat.
-   * Usa batch deleteMessages quando possível (até 100 por chamada).
+   * Uses batch deleteMessages when available, up to 100 per call.
    */
   public async clearChat(bot: Bot, chatId: string): Promise<ClearResult> {
     const ids = this.sentMessageIds.get(chatId);
@@ -54,7 +54,7 @@ export class ChatCleanupService {
         ok: true,
         deleted: 0,
         failed: 0,
-        message: 'Nenhuma mensagem rastreada para apagar neste chat.',
+        message: 'No tracked message to delete in this chat.',
       };
     }
 
@@ -97,18 +97,18 @@ export class ChatCleanupService {
       }
     }
 
-    // Limpar o buffer após a operação
+    // Clear the buffer after the operation.
     this.sentMessageIds.set(chatId, []);
 
     const message = deleted > 0
-      ? `Limpeza concluida. ${deleted} mensagem(ns) apagada(s).${failed > 0 ? ` ${failed} nao puderam ser apagadas.` : ''}`
-      : `Nenhuma mensagem pode ser apagada (todas com mais de 48h ou ja removidas).`;
+      ? `Cleanup completed. ${deleted} message(s) deleted.${failed > 0 ? ` ${failed} could not be deleted.` : ''}`
+      : `No messages can be deleted because they are older than 48h or already removed.`;
 
     return { ok: true, deleted, failed, message };
   }
 
   /**
-   * Retorna quantas mensagens estão sendo rastreadas em um chat.
+   * Returns how many messages are being tracked in a chat.
    */
   public getTrackedCount(chatId: string): number {
     return this.sentMessageIds.get(chatId)?.length || 0;

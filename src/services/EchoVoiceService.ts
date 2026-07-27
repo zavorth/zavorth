@@ -38,7 +38,7 @@ export class EchoVoiceService {
         transcript,
         request: null,
         result: null,
-        responseText: 'Não encontrei uma ação Echo segura para esse comando de voz.',
+        responseText: 'No structured Echo action was provided for this voice turn.',
       };
     }
 
@@ -53,50 +53,23 @@ export class EchoVoiceService {
 
   private parseTranscript(transcript: string): EchoHandsRequest | null {
     const text = String(transcript || '').trim();
-    const normalized = text.toLowerCase();
-
-    if (/(bloco de notas|notepad)/i.test(normalized)) {
-      return { action: 'open_app', args: { app: 'notepad' }, risk: 'low' };
+    if (!text.startsWith('{')) {
+      return null;
     }
 
-    if (/(calculadora|calculator)/i.test(normalized)) {
-      return { action: 'open_app', args: { app: 'calculator' }, risk: 'low' };
-    }
-
-    if (normalized.includes('youtube')) {
-      return {
-        action: 'browser_search',
-        args: { engine: 'youtube', query: this.extractQuery(text, 'youtube') },
-        risk: 'low',
-      };
-    }
-
-    if (normalized.includes('github')) {
-      return {
-        action: 'browser_search',
-        args: { engine: 'github', query: this.extractQuery(text, 'github') },
-        risk: 'low',
-      };
-    }
-
-    if (/(pesquise|procure|google)/i.test(normalized)) {
-      return {
-        action: 'browser_search',
-        args: { engine: 'google', query: this.extractQuery(text, 'google') },
-        risk: 'low',
-      };
+    try {
+      const parsed = JSON.parse(text) as Partial<EchoHandsRequest>;
+      if (parsed && typeof parsed.action === 'string') {
+        return {
+          action: parsed.action as EchoHandsRequest['action'],
+          args: parsed.args && typeof parsed.args === 'object' ? parsed.args as Record<string, unknown> : {},
+          risk: parsed.risk || 'low',
+        };
+      }
+    } catch {
+      return null;
     }
 
     return null;
-  }
-
-  private extractQuery(text: string, marker: string): string {
-    const normalized = text.trim();
-    const index = normalized.toLowerCase().indexOf(marker);
-    const tail = index >= 0 ? normalized.slice(index + marker.length) : normalized;
-    const query = tail
-      .replace(/^(sobre|por|para|pesquise|procure|buscar|busque)\s+/i, '')
-      .trim();
-    return query || normalized;
   }
 }

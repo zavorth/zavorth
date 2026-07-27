@@ -63,7 +63,7 @@ export function formatSubagentRuntimeSnapshotText(snapshot: ZavorthSubagentRunti
     ].join(' | '));
   }
   if (snapshot.sessions.length === 0) {
-    lines.push('- none yet. Use /agents spawn <task> or /invoke "use subagentes para <task>".');
+    lines.push('- none yet. Use /agents spawn <task> or /invoke "use delegated review for <task>".');
   }
   if (snapshot.timeline.length > 0) {
     lines.push('', 'Timeline:');
@@ -95,7 +95,7 @@ export function formatSubagentRuntimeSnapshotText(snapshot: ZavorthSubagentRunti
   lines.push('- /agents summarize latest');
   lines.push('- /agents cancel latest');
   lines.push('', 'Policy: read-only explicit subagents can run; writes, sensitive network and live I/O require approval.');
-  lines.push(`Next: ${snapshot.commands.nextStage}`);
+  lines.push(`Next: ${snapshot.commands.nextAction}`);
   return lines.join('\n');
 }
 

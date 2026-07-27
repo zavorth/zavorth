@@ -99,7 +99,7 @@ export class BrowserPlaywrightService {
         this.cleanupTempScript(tmpScript);
         const parsed = JSON.parse(result);
         if (parsed.error) return `Playwright error: ${parsed.error}`;
-        return `Pagina carregada: "${parsed.title}" (${parsed.load_time_ms}ms)\nURL: ${parsed.url}\nScreenshot: ${parsed.screenshot}\nConteudo: ${parsed.content_length} characters`;
+        return `Pagina loaded: "${parsed.title}" (${parsed.load_time_ms}ms)\nURL: ${parsed.url}\nScreenshot: ${parsed.screenshot}\nConteudo: ${parsed.content_length} characters`;
       } catch (error: unknown) { this.cleanupTempScript(tmpScript);
         throw error;
       }
@@ -249,7 +249,7 @@ export class BrowserPlaywrightService {
         this.cleanupTempScript(tmpScript);
         const parsed = JSON.parse(result);
         if (parsed.error) return `Error: ${parsed.error}`;
-        return `PDF gerado: ${parsed.pdf}`;
+        return `Generated PDF: ${parsed.pdf}`;
       } catch (error: unknown) { this.cleanupTempScript(tmpScript);
         throw error;
       }

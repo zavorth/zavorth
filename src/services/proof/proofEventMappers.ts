@@ -36,41 +36,32 @@ export function normalizeProofEventKind(value: unknown): ProofEventKind {
   if (KIND_SET.has(text)) {
     return text as ProofEventKind;
   }
-  if (text.includes('approv')) return 'approval';
-  if (text.includes('chat') || text.includes('message')) return 'chat';
-  if (text.includes('channel')) return 'channel';
-  if (text.includes('memory') || text.includes('recall')) return 'memory';
-  if (text.includes('market')) return 'marketplace';
-  if (text.includes('workboard') || text.includes('board') || text.includes('kanban')) return 'workboard';
-  if (text.includes('runtime') || text.includes('agent')) return 'runtime';
-  if (text.includes('evidence') || text.includes('proof')) return 'evidence';
-  if (text.includes('action') || text.includes('tool') || text.includes('exec')) return 'action';
-  if (text.includes('system') || text.includes('boot') || text.includes('config')) return 'system';
-  return 'unknown';
+  const aliases: Record<string, ProofEventKind> = {
+    approval: 'approval', approved: 'approval',
+    chat: 'chat', message: 'chat',
+    channel: 'channel',
+    memory: 'memory', recall: 'memory',
+    market: 'marketplace', marketplace: 'marketplace',
+    workboard: 'workboard', board: 'workboard', kanban: 'workboard',
+    runtime: 'runtime', agent: 'runtime',
+    evidence: 'evidence', proof: 'evidence',
+    action: 'action', tool: 'action', exec: 'action',
+    system: 'system', boot: 'system', config: 'system',
+  };
+  return aliases[text] || 'unknown';
 }
 
 export function normalizeProofEventStatus(value: unknown): ProofEventStatus {
-  const text = String(value || '').toLowerCase();
+  const text = String(value || '').trim().toLowerCase();
   if (STATUS_SET.has(text)) {
     return text as ProofEventStatus;
   }
-  if (text.includes('fail') || text.includes('error') || text.includes('denied') || text.includes('block')) {
-    return 'failed';
-  }
-  if (text.includes('pend') || text.includes('wait') || text.includes('hold')) {
-    return 'pending';
-  }
-  if (
-    text.includes('ok')
-    || text.includes('success')
-    || text.includes('applied')
-    || text.includes('approved')
-    || text.includes('pass')
-    || text.includes('done')
-    || text.includes('complete')
-  ) {
-    return 'ok';
-  }
+  const failed = new Set(['fail', 'failed', 'failure', 'error', 'denied', 'blocked']);
+  const pending = new Set(['pending', 'waiting', 'wait', 'hold', 'queued']);
+  const ok = new Set(['ok', 'success', 'succeeded', 'applied', 'approved', 'pass', 'passed', 'done', 'complete', 'completed']);
+  if (failed.has(text)) return 'failed';
+  if (pending.has(text)) return 'pending';
+  if (ok.has(text)) return 'ok';
   return 'info';
 }
 
@@ -79,11 +70,8 @@ export function normalizeProofRiskLevel(value: unknown): ProofRiskLevel {
   if (RISK_SET.has(text)) {
     return text as ProofRiskLevel;
   }
-  if (text.includes('critical') || text.includes('severe')) return 'critical';
-  if (text.includes('high')) return 'high';
-  if (text.includes('med')) return 'medium';
-  if (text.includes('low')) return 'low';
-  return 'none';
+  const aliases: Record<string, ProofRiskLevel> = { severe: 'critical', critical: 'critical', high: 'high', medium: 'medium', med: 'medium', low: 'low' };
+  return aliases[text] || 'none';
 }
 
 export function proofEventFromDesktopReceipt(

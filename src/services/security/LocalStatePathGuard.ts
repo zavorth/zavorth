@@ -1,5 +1,5 @@
 /**
- * Local state path integrity for `.zavorth/*` stores (S9).
+ * local state path integrity for `.zavorth/*` stores (S9).
  *
  * - Paths must resolve under the project root (or explicit allowed root).
  * - Optional realpath checks reject symlink escapes when the path exists.
@@ -32,10 +32,10 @@ export function resolveZavorthLocalPath(
   const zavorthRoot = path.join(root, '.zavorth');
   const candidate = path.resolve(zavorthRoot, ...segments);
   if (!isPathInsideRoot(zavorthRoot, candidate) && candidate !== zavorthRoot) {
-    throw new Error(`Local state path escapes .zavorth root: ${candidate}`);
+    throw new Error(`local state path escapes .zavorth root: ${candidate}`);
   }
   if (!isPathInsideRoot(root, candidate)) {
-    throw new Error(`Local state path escapes project root: ${candidate}`);
+    throw new Error(`local state path escapes project root: ${candidate}`);
   }
   return candidate;
 }

@@ -51,8 +51,7 @@ export class ClaudeCodeCliBridgeAdapter {
           'agent-runtime.bridge.execution-receipt',
         ],
       },
-      reason: hasSourceUsage
-        ? 'Source has a Claude Code CLI backend; Zavorth keeps it as an owner-gated bridge instead of enabling CLI execution by default.'
+      reason: hasSourceUsage ? 'Source has a Claude Code CLI backend; Zavorth keeps it as an owner-gated bridge instead of enabling CLI execution by default.'
         : 'Claude Code CLI usage was not found in the scanned Source checkout.',
     };
   }

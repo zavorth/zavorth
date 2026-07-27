@@ -60,12 +60,12 @@ function redactSecrets(value: unknown): unknown {
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
         key,
-        /(token|secret|password|pass|api[_-]?key|credential|authorization)/iu.test(key) ? '***' : redactSecrets(entry),
+        /(token|secret|password|pass|api[_-]...key|credential|authorization)/iu.test(key) ? '***' : redactSecrets(entry),
       ]),
     );
   }
   if (typeof value === 'string') {
-    return value.replace(/([?&](?:access_token|token|key|secret|code)=)[^&\s]+/giu, '$1[redacted]');
+    return value.replace(/([...&](?:access_token|token|key|secret|code)=)[^&\s]+/giu, '$1[redacted]');
   }
   return value;
 }
@@ -288,11 +288,9 @@ export class IntegrationConnectorMeshService {
         checkedTarget: null,
         httpStatus: null,
         latencyMs: null,
-        summary: executionTarget
-          ? `${manifest.label} execution endpoint is configured; no non-mutating readiness probe is configured.`
+        summary: executionTarget ? `${manifest.label} execution endpoint is configured; no non-mutating readiness probe is configured.`
           : `${manifest.label} credentials are present; no standard probe target is configured.`,
-        nextAction: manifest.env.healthUrl
-          ? `Set ${manifest.env.healthUrl} to enable live readiness.`
+        nextAction: manifest.env.healthUrl ? `Set ${manifest.env.healthUrl} to enable live readiness.`
           : 'Use a non-mutating health URL to enable live readiness.',
       });
     }
@@ -369,8 +367,7 @@ export class IntegrationConnectorMeshService {
         toolSlug: preview.toolSlug,
         httpStatus: response.status,
         data: redactSecrets(data),
-        summary: response.ok
-          ? `${manifest.label} tool executed through the governed connector mesh.`
+        summary: response.ok ? `${manifest.label} tool executed through the governed connector mesh.`
           : `${manifest.label} tool execution returned HTTP ${response.status}.`,
       };
     } finally {
@@ -457,8 +454,7 @@ export class IntegrationConnectorMeshService {
       manifest.env.apiKey,
       manifest.env.baseUrl,
     ].filter(Boolean);
-    return keys.length
-      ? `Set ${keys.join(' or ')}.`
+    return keys.length ? `Set ${keys.join(' or ')}.`
       : 'Configure a connector execution or readiness endpoint.';
   }
 
@@ -509,8 +505,7 @@ export class IntegrationConnectorMeshService {
         checkedTarget,
         httpStatus: null,
         latencyMs: Math.max(1, Date.now() - startedAt),
-        summary: aborted
-          ? `${manifest.label} probe timed out.`
+        summary: aborted ? `${manifest.label} probe timed out.`
           : `${manifest.label} probe failed: ${error instanceof Error ? err.message : String(error)}`,
         nextAction: 'Review connector network access and configured base URL.',
       });

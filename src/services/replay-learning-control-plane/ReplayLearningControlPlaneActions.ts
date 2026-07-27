@@ -24,14 +24,14 @@ export function buildReplayLearningActions(input: {
       label: 'Comparar runs recentes',
       severity: 'info',
       command: '/memoryplane',
-      reason: 'Existe timeline suficiente para comparar contexto, workflows e retomadas.',
-      prompt: 'Compare os runs recentes e diga qual e o melhor ponto de retomada.',
+      reason: 'Existe timeline suficiente para comparar contexto, workflows e resumptions.',
+      prompt: 'Compare os runs recentes e tell qual e o melhor ponto de resumed.',
     });
   }
   if (reusableArtifact) {
     actions.push({
       id: 'resume-from-artifact',
-      label: `Retomar pelo artifact ${reusableArtifact.label}`,
+      label: `resume pelo artifact ${reusableArtifact.label}`,
       severity: 'info',
       command: '/memoryplane',
       reason: reusableArtifact.summary,
@@ -44,38 +44,38 @@ export function buildReplayLearningActions(input: {
       label: `Resume workflow ${resumableRun.workflow_name}`,
       severity: 'warn',
       command: '/workflow resume',
-      reason: resumableRun.resume_stage?.reason || 'Workflow possui phase de retomada.',
+      reason: resumableRun.resume_stage?.reason || 'Workflow possui phase de resumed.',
       prompt: resumableRun.resume_prompt || null,
     });
   }
   if (highConfidenceCandidate) {
     actions.push({
       id: 'review-learning-candidate',
-      label: `Revisar ${highConfidenceCandidate.id}`,
+      label: `review ${highConfidenceCandidate.id}`,
       severity: highConfidenceCandidate.score >= 0.8 ? 'warn' : 'info',
       command: highConfidenceCandidate.actionHint,
-      reason: `${highConfidenceCandidate.title} esta ${highConfidenceCandidate.reviewState} com score ${highConfidenceCandidate.score}.`,
+      reason: `${highConfidenceCandidate.title} is ${highConfidenceCandidate.reviewState} com score ${highConfidenceCandidate.score}.`,
       prompt: null,
     });
   }
   if (input.summary.memoryPressure !== 'ok') {
     actions.push({
       id: 'review-memory-budget',
-      label: 'Revisar budgets da memoria',
+      label: 'Review memory budgets',
       severity: input.summary.memoryPressure === 'critical' ? 'critical' : 'warn',
       command: '/memory status',
-      reason: `Layered memory esta com pressao ${input.summary.memoryPressure}.`,
+      reason: `Layered memory is com pressure ${input.summary.memoryPressure}.`,
       prompt: null,
     });
   }
   if (actions.length === 0) {
     actions.push({
       id: 'inspect-memory-plane',
-      label: 'Revisar memory plane',
+      label: 'review memory plane',
       severity: 'info',
       command: '/memoryplane',
-      reason: 'Replay, artifacts e learning estao sem bloqueios imediatos.',
-      prompt: 'Mostre replay, artifacts reutilizaveis e candidatos de learning do workspace atual.',
+      reason: 'Replay, artifacts e learning are without bloqueios imediatos.',
+      prompt: 'Show replay, reusable artifacts, and learning candidates for the current workspace.',
     });
   }
   return actions.slice(0, 8);

@@ -1,7 +1,7 @@
 {
   "name": "Zavorth Satellite",
   "short_name": "Satellite",
-  "description": "Interface remota para o runtime Zavorth via Node Mesh.",
+  "description": "Remote interface for the Zavorth runtime through Node Mesh.",
   "start_url": "/satellite",
   "scope": "/satellite/",
   "display": "standalone",

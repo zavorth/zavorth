@@ -6,7 +6,7 @@
     "loading": "लोड हो रहा है...",
     "error": "एक त्रुटि हुई",
     "success": "सफलता",
-    "confirm": "क्या आप निश्चित हैं?",
+    "confirm": "क्या आप निश्चित हैं...",
     "refresh": "ताज़ा करें",
     "close": "बंद करें",
     "add": "जोड़ें",
@@ -164,8 +164,8 @@
     "auditLog": "ऑडिट लॉग",
     "shutdown": "बंद",
     "restart": "पुनः प्रारंभ करें",
-    "shutdownConfirm": "ओम्निरूट बंद करें?",
-    "restartConfirm": "ओम्निरूट पुनः आरंभ करें?",
+    "shutdownConfirm": "ओम्निरूट बंद करें...",
+    "restartConfirm": "ओम्निरूट पुनः आरंभ करें...",
     "version": "v{version}",
     "debug": "डीबग करें",
     "system": "सिस्टम",
@@ -288,7 +288,7 @@
     "createKey": "एपीआई कुंजी बनाएं",
     "key": "कुंजी",
     "revokeKey": "कुंजी निरस्त करें",
-    "revokeConfirm": "क्या आप वाकई इस एपीआई कुंजी को निरस्त करना चाहते हैं?",
+    "revokeConfirm": "क्या आप वाकई इस एपीआई कुंजी को निरस्त करना चाहते हैं...",
     "noKeys": "अभी तक कोई API कुंजी नहीं है",
     "noKeysDesc": "अपने एंडपॉइंट पर अनुरोधों को प्रमाणित करने के लिए अपनी पहली एपीआई कुंजी बनाएं",
     "keyLabel": "कुंजी लेबल",
@@ -320,7 +320,7 @@
     "actions": "क्रियाएँ",
     "reqs": "अनुरोध",
     "neverUsed": "कभी उपयोग नहीं किया गया",
-    "deleteConfirm": "यह API कुंजी हटाएँ?",
+    "deleteConfirm": "यह API कुंजी हटाएँ...",
     "usageTips": "उपयोग युक्तियाँ",
     "tipAuth": "प्राधिकरण शीर्षलेख में बियरर Your_KEY के रूप में एपीआई कुंजियों का उपयोग करें",
     "tipSecure": "निर्माण के दौरान कुंजियाँ केवल एक बार दिखाई जाती हैं - उन्हें सुरक्षित रूप से संग्रहीत करें",
@@ -803,7 +803,7 @@
     "leastLatency": "न्यूनतम विलंबता",
     "comboName": "कॉम्बो नाम",
     "comboNamePlaceholder": "मेरा-कॉम्बो",
-    "deleteConfirm": "यह कॉम्बो हटाएं?",
+    "deleteConfirm": "यह कॉम्बो हटाएं...",
     "noCombosYet": "अभी तक कोई कॉम्बो नहीं",
     "comboCreated": "कॉम्बो सफलतापूर्वक बनाया गया",
     "comboUpdated": "कॉम्बो सफलतापूर्वक अपडेट किया गया",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "Siap menabung?",
+    "readinessTitle": "Siap menabung...",
     "readinessDescription": "Tinjau daftar periksa sebelum membuat atau memperbarui kombo ini.",
     "readinessCheckName": "Nama kombo valid",
     "readinessCheckModels": "Setidaknya satu model dipilih",
@@ -1013,7 +1013,7 @@
     "title": "एपीआई समापन बिंदु",
     "available": "उपलब्ध समापनबिंदु",
     "cloudProxy": "क्लाउड प्रॉक्सी",
-    "disableConfirm": "क्या आप वाकई क्लाउड प्रॉक्सी को अक्षम करना चाहते हैं?",
+    "disableConfirm": "क्या आप वाकई क्लाउड प्रॉक्सी को अक्षम करना चाहते हैं...",
     "baseUrl": "आधार यूआरएल",
     "apiKeyLabel": "एपीआई कुंजी",
     "registeredKeys": "पंजीकृत कुंजियाँ",
@@ -1154,13 +1154,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"?",
+    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"...",
     "switchComboFailed": "Failed to switch combo state.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Circuit breakers reset.",
     "processStatus": "Process status",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} चल रहा है",
     "ok": "ठीक है",
     "activeLockouts": "सक्रिय तालाबंदी",
-    "resetConfirm": "सभी सर्किट ब्रेकरों को स्वस्थ स्थिति में रीसेट करें? यह सभी विफलताओं को साफ़ कर देगा और सभी प्रदाताओं को परिचालन स्थिति में बहाल कर देगा।",
+    "resetConfirm": "सभी सर्किट ब्रेकरों को स्वस्थ स्थिति में रीसेट करें... यह सभी विफलताओं को साफ़ कर देगा और सभी प्रदाताओं को परिचालन स्थिति में बहाल कर देगा।",
     "resetAllTitle": "सभी सर्किट ब्रेकरों को स्वस्थ स्थिति में रीसेट करें",
     "resetting": "रीसेट किया जा रहा है...",
     "resetAll": "सभी रीसेट करें",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "मॉडल उपलब्धता",
     "accounts": "लेखा",
     "newAccount": "नया खाता",
-    "deleteConfirm": "क्या आप वाकई इस प्रदाता को हटाना चाहते हैं?",
+    "deleteConfirm": "क्या आप वाकई इस प्रदाता को हटाना चाहते हैं...",
     "testing": "परीक्षण...",
     "testConnection": "परीक्षण कनेक्शन",
     "testSuccess": "कनेक्शन सफल",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "परीक्षण एपीआई कुंजी",
     "testKeyPlaceholder": "एसके-... (केवल सत्यापन के लिए)",
     "providerNotFound": "प्रदाता नहीं मिला",
-    "deleteConnectionConfirm": "यह कनेक्शन हटाएं?",
+    "deleteConnectionConfirm": "यह कनेक्शन हटाएं...",
     "failedSetAlias": "उपनाम सेट करने में विफल",
     "failedSaveConnection": "कनेक्शन सहेजने में विफल",
     "failedSaveConnectionRetry": "कनेक्शन सहेजने में विफल. कृपया पुन: प्रयास करें।",
     "failedRetestConnection": "कनेक्शन का पुनः परीक्षण करने में विफल",
-    "deleteCompatibleNodeConfirm": "इस {type} संगत नोड को हटाएं?",
+    "deleteCompatibleNodeConfirm": "इस {type} संगत नोड को हटाएं...",
     "anthropicCompatibleDetails": "मानवशास्त्रीय संगत विवरण",
     "openaiCompatibleDetails": "OpenAI संगत विवरण",
     "messagesApi": "संदेश एपीआई",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Auto-sync disabled",
     "autoSyncToggleFailed": "Failed to toggle auto-sync",
     "clearAllModels": "Clear All Models",
-    "clearAllModelsConfirm": "Are you sure you want to remove all models for this provider? This cannot be undone.",
+    "clearAllModelsConfirm": "Are you sure you want to remove all models for this provider... This cannot be undone.",
     "clearAllModelsSuccess": "All models cleared",
     "clearAllModelsFailed": "Failed to clear models",
     "addConnectionToImport": "आयात सक्षम करने के लिए एक कनेक्शन जोड़ें.",
@@ -1814,7 +1814,7 @@
     "exportData": "डेटा निर्यात करें",
     "importData": "डेटा आयात करें",
     "clearData": "सभी डेटा साफ़ करें",
-    "clearDataConfirm": "इससे सारा डेटा स्थायी रूप से हट जाएगा. क्या आपको यकीन है?",
+    "clearDataConfirm": "इससे सारा डेटा स्थायी रूप से हट जाएगा. क्या आपको यकीन है...",
     "enableRequestLogs": "अनुरोध लॉग सक्षम करें",
     "logRetention": "लॉग प्रतिधारण",
     "ipWhitelist": "आईपी श्वेतसूची",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "स्विच करने से पहले प्रति खाता कॉल",
     "modelAliases": "मॉडल उपनाम",
     "modelAliasesTitle": "Model Alias",
-    "modelAliasesDesc": "मॉडल नामों को रीमैप करने के लिए वाइल्डकार्ड पैटर्न • * और ? का उपयोग करें",
+    "modelAliasesDesc": "मॉडल नामों को रीमैप करने के लिए वाइल्डकार्ड पैटर्न • * और - का उपयोग करें",
     "addCustomAlias": "Kustom Alias Tambahkan",
     "deprecatedModelId": "ID model yang tidak digunakan lagi",
     "newModelId": "ID model baru",
@@ -1974,7 +1974,7 @@
     "browser": "ब्राउज़र",
     "clearLocalData": "स्थानीय डेटा साफ़ करें",
     "logout": "लॉगआउट करें",
-    "clearLocalDataConfirm": "सभी स्थानीय डेटा साफ़ करें? इससे आपकी प्राथमिकताएं रीसेट हो जाएंगी.",
+    "clearLocalDataConfirm": "सभी स्थानीय डेटा साफ़ करें... इससे आपकी प्राथमिकताएं रीसेट हो जाएंगी.",
     "unknown": "अज्ञात",
     "systemActor": "प्रणाली",
     "ipAccessControl": "आईपी ​​अभिगम नियंत्रण",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "कोई फ़ॉलबैक चेन नहीं",
     "noFallbackChainsDesc": "किसी मॉडल के लिए प्रदाता फ़ॉलबैक ऑर्डर को परिभाषित करने के लिए एक श्रृंखला बनाएं।",
     "loadingFallbackChains": "फ़ॉलबैक चेन लोड हो रही हैं...",
-    "deleteChainConfirm": "\"{model}\" के लिए फ़ॉलबैक श्रृंखला हटाएं?",
+    "deleteChainConfirm": "\"{model}\" के लिए फ़ॉलबैक श्रृंखला हटाएं...",
     "chainCreated": "{model} के लिए श्रृंखला बनाई गई",
     "chainDeleted": "{model} के लिए श्रृंखला हटा दी गई",
     "failedCreateChain": "श्रृंखला बनाने में विफल",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "अभी तक कोई बैकअप उपलब्ध नहीं है. डेटा बदलने पर बैकअप स्वचालित रूप से बनाया जाएगा।",
     "backupsAvailable": "{count} बैकअप उपलब्ध है",
     "refresh": "ताज़ा करें",
-    "confirm": "पुष्टि करें?",
+    "confirm": "पुष्टि करें...",
     "yes": "हाँ",
     "no": "नहीं",
     "restore": "पुनर्स्थापित करें",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "नीतियां और सर्किट ब्रेकर",
     "activeIssuesDetected": "सक्रिय समस्याओं का पता चला",
     "off": "बंद",
-    "resetPricingConfirm": "{provider} के सभी मूल्यों को डिफ़ॉल्ट पर रीसेट करें?",
+    "resetPricingConfirm": "{provider} के सभी मूल्यों को डिफ़ॉल्ट पर रीसेट करें...",
     "pricingDescInput": "इनपुट: मॉडल को टोकन भेजे गए",
     "pricingDescOutput": "आउटपुट: टोकन उत्पन्न",
     "pricingDescCached": "कैश्ड: पुन: उपयोग किया गया इनपुट (~इनपुट दर का 50%)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "आप एक सहायक सहायक हैं.",
-        "userGreeting": "नमस्कार! आज आप कैसे हैं?"
+        "userGreeting": "नमस्कार! आज आप कैसे हैं..."
       },
       "toolCalling": {
-        "userWeather": "साओ पाउलो में मौसम कैसा है?",
+        "userWeather": "साओ पाउलो में मौसम कैसा है...",
         "toolDescription": "किसी स्थान के लिए वर्तमान मौसम प्राप्त करें",
         "cityNameDescription": "शहर का नाम"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "अब इसे घटते क्रम में क्रमबद्ध करें।"
       },
       "thinking": {
-        "question": "प्रथम 100 अभाज्य संख्याओं का योग क्या है?"
+        "question": "प्रथम 100 अभाज्य संख्याओं का योग क्या है..."
       },
       "systemPrompt": {
         "systemInstruction": "आप एक वरिष्ठ सॉफ्टवेयर इंजीनियर हैं जो वितरित प्रणालियों में विशेषज्ञता रखते हैं। उद्योग की सर्वोत्तम प्रथाओं का उपयोग करके प्रश्नों के उत्तर संक्षेप में दें। प्रासंगिक होने पर हमेशा कोड उदाहरण प्रदान करें। मार्कडाउन का उपयोग करके अपनी प्रतिक्रियाएँ प्रारूपित करें।",
-        "question": "मैं सर्किट ब्रेकर पैटर्न कैसे लागू करूं?"
+        "question": "मैं सर्किट ब्रेकर पैटर्न कैसे लागू करूं..."
       },
       "streaming": {
         "prompt": "मुझे पेंटिंग सीखने वाले एक रोबोट के बारे में एक छोटी कहानी बताओ।"
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "या पासवर्डहैश फ़ील्ड हटा दें",
     "restartServerWithNewPassword": "सर्वर को पुनरारंभ करें - यह नए पासवर्ड का उपयोग करेगा",
     "backToLogin": "लॉगइन पर वापस जाएँ",
-    "forgotPassword": "पासवर्ड भूल गए?",
+    "forgotPassword": "पासवर्ड भूल गए...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Authorization",
     "Content-Disposition": "Content-Disposition",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "मिथुन",
     "flowProviderGithubCopilot": "गिटहब कोपायलट",
     "interactiveDiagram": "इंटरएक्टिव आरेख डेस्कटॉप पर दिखाई दे रहा है",
-    "ctaTitle": "क्या आप अपने एआई इंफ्रास्ट्रक्चर को सरल बनाने के लिए तैयार हैं?",
+    "ctaTitle": "क्या आप अपने एआई इंफ्रास्ट्रक्चर को सरल बनाने के लिए तैयार हैं...",
     "ctaDescription": "उन डेवलपर्स से जुड़ें जो ओमनीरूट के साथ अपने एआई एकीकरण को सुव्यवस्थित कर रहे हैं। खुला स्रोत और प्रारंभ करने के लिए निःशुल्क।",
     "startFree": "निःशुल्क प्रारंभ करें",
     "readDocumentation": "दस्तावेज़ीकरण पढ़ें"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "अंतिम अद्यतन: {date}",
     "policyLastUpdatedDate": "13 फ़रवरी 2026",
     "listSeparator": "-",
-    "questionsVisit": "प्रश्न? हमारे पर जाएँ",
+    "questionsVisit": "प्रश्न... हमारे पर जाएँ",
     "githubRepository": "गिटहब रिपॉजिटरी",
     "privacySection1Title": "1. स्थानीय-प्रथम वास्तुकला",
     "privacySection1Text": "ओमनीरूट को स्थानीय-प्रथम एप्लिकेशन के रूप में डिज़ाइन किया गया है। सभी डेटा प्रोसेसिंग और भंडारण पूरी तरह से आपकी मशीन पर होता है। आपकी जानकारी एकत्र करने वाला कोई केंद्रीकृत सर्वर नहीं है।",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "You are a helpful AI assistant.",
-      "userGreeting": "Hello! How can I help you today?"
+      "userGreeting": "Hello! How can I help you today..."
     },
     "streaming": {
       "prompt": "Write a story about"
     },
     "systemPrompt": {
-      "question": "What is the meaning of life?",
+      "question": "What is the meaning of life...",
       "systemInstruction": "Provide a thoughtful, philosophical answer."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "The name of the city to get weather for",
       "toolDescription": "Get current weather for a location",
-      "userWeather": "What's the weather in Tokyo?"
+      "userWeather": "What's the weather in Tokyo..."
     },
     "multiTurn": {
       "system": "You are a helpful assistant.",
       "assistantExample": "I'd be happy to help you with that.",
       "userInitial": "I need help with",
-      "userFollowUp": "Can you elaborate on that?"
+      "userFollowUp": "Can you elaborate on that..."
     }
   },
   "cache": {

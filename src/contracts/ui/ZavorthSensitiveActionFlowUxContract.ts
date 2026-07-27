@@ -4,7 +4,7 @@ import type {
 } from '../ZavorthSensitiveActionFlowContract.js';
 import type { ZavorthMissionRiskLevel } from '../ZavorthMissionContract.js';
 
-export const ZAVORTH_SENSITIVE_ACTION_FLOW_UX_CONTRACT_VERSION = '2026-05-13.checkpoint-15';
+export const ZAVORTH_SENSITIVE_ACTION_FLOW_UX_CONTRACT_VERSION = '2026-05-13.gate-15';
 
 export type ZavorthSensitiveActionFlowUxTone = 'ok' | 'info' | 'warn' | 'danger';
 

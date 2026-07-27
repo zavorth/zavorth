@@ -129,9 +129,8 @@ export class ToolChainBudgetGuard {
 
     const firstFailure = failures[0] || null;
     const allowed = !firstFailure;
-    const summary = allowed
-      ? 'Cadeia de tools dentro do budget minimo do agent loop.'
-      : `Cadeia de tools degradada antes da execucao: ${firstFailure.reason}.`;
+    const summary = allowed ? 'Tool chain inside the minimum agent-loop budget.'
+      : `Tool chain degraded before execution: ${firstFailure.reason}.`;
 
     return {
       allowed,

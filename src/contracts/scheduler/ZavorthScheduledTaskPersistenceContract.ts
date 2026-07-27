@@ -2,7 +2,7 @@ import type { ZavorthScheduledTaskRuntimeSnapshot } from './ZavorthScheduledTask
 import type { ZavorthScheduledTaskInput } from './ZavorthScheduledTaskContract.js';
 
 export const ZAVORTH_SCHEDULED_TASK_PERSISTENCE_CONTRACT_VERSION =
-  '2026-05-12.persisted-scheduled-task-registration-checkpoint-3' as const;
+  '2026-05-12.persisted-scheduled-task-registration-gate-3' as const;
 
 export type ZavorthScheduledTaskPersistenceAction =
   | 'preview'
@@ -105,7 +105,7 @@ export type ZavorthScheduledTaskPersistenceCheck = {
 export type ZavorthScheduledTaskPersistenceReceipt = {
   id: string;
   kind:
-    | 'checkpoint-3-persisted-scheduled-task-registration'
+    | 'gate-3-persisted-scheduled-task-registration'
     | 'runtime-consumed'
     | 'scheduler-task-created'
     | 'scheduler-task-paused'

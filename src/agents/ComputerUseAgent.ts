@@ -401,8 +401,7 @@ If the objective has already been reached, return: {"action": "done", "reasoning
           capabilities: readOnly ? ['desktop', 'local-observation'] : ['desktop'],
           requiresConfirmation: false,
           reasons: [
-            readOnly
-              ? 'Computer Use observation is sealed by operator continuity.'
+            readOnly ? 'Computer Use observation is sealed by operator continuity.'
               : 'Computer Use mutation is sealed by operator continuity after explicit enablement.',
           ],
           rule: 'COMPUTER_USE_DESKTOP_CONTINUITY',
@@ -422,8 +421,7 @@ If the objective has already been reached, return: {"action": "done", "reasoning
         return resultFromToolOutcome({
           ok: !failed,
           status: failed ? 'failed' : (readOnly ? 'observation' : 'applied'),
-          summary: failed
-            ? `Computer Use action "${action}" failed.`
+          summary: failed ? `Computer Use action "${action}" failed.`
             : `Computer Use action "${action}" completed.`,
           output,
           data: {

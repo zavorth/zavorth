@@ -35,7 +35,7 @@ export function estimateTokens(text: string): number {
 function hasTable(tableName: string): boolean {
   const db = getDbInstance();
   const row = db
-    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?")
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ...")
     .get(tableName) as { name?: string } | undefined;
   return row?.name === tableName;
 }
@@ -92,7 +92,7 @@ function getRelevanceScore(memory: Memory, query: string): number {
         continue;
       }
 
-      const matches = haystack.match(new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"));
+      const matches = haystack.match(new RegExp(token.replace(/[.*+...^${}()|[\]\\]/g, "\\$&"), "g"));
       score += (matches?.length || 0) * 3;
     }
   }
@@ -148,12 +148,12 @@ export async function retrieveMemories(
 
   // Build base query
   let query =
-    `SELECT * FROM ${tableName} WHERE ${columns.apiKeyId} = ? ` +
+    `SELECT * FROM ${tableName} WHERE ${columns.apiKeyId} = - ` +
     `AND (${columns.expiresAt} IS NULL OR datetime(${columns.expiresAt}) > datetime('now'))`;
   const params: any[] = [apiKeyId];
 
   if (normalizedConfig.scope === "session" && config.sessionId) {
-    query += ` AND ${columns.sessionId} = ?`;
+    query += ` AND ${columns.sessionId} = ...`;
     params.push(config.sessionId);
   }
 
@@ -161,7 +161,7 @@ export async function retrieveMemories(
     const cutoff = new Date(
       Date.now() - normalizedConfig.retentionDays * 24 * 60 * 60 * 1000
     ).toISOString();
-    query += ` AND datetime(${columns.createdAt}) >= datetime(?)`;
+    query += ` AND datetime(${columns.createdAt}) >= datetime(...)`;
     params.push(cutoff);
   }
 

@@ -27,7 +27,7 @@
   },
   {
     "id": "memory-local",
-    "name": "Local Memory",
+    "name": "local Memory",
     "summary": "Workspace-local key/value memory under .zavorth/memory-local.",
     "moduleKind": "memory",
     "source": "bundled://memory-local",
@@ -158,7 +158,7 @@
   {
     "id": "calendar",
     "name": "Calendar",
-    "summary": "Local file calendar with approval-gated create.",
+    "summary": "local file calendar with approval-gated create.",
     "moduleKind": "tool",
     "source": "bundled://calendar",
     "signed": true,
@@ -210,7 +210,7 @@
   {
     "id": "task-board",
     "name": "Task Board",
-    "summary": "Local kanban/todo board for agent multi-step plans.",
+    "summary": "local kanban/todo board for agent multi-step plans.",
     "moduleKind": "tool",
     "source": "bundled://task-board",
     "signed": true,
@@ -275,7 +275,7 @@
   {
     "id": "notify-outbox",
     "name": "Notify Outbox",
-    "summary": "Local notification outbox with optional Slack/Discord webhook deliver.",
+    "summary": "local notification outbox with optional Slack/Discord webhook deliver.",
     "moduleKind": "channel",
     "source": "bundled://notify-outbox",
     "signed": true,
@@ -469,7 +469,7 @@
   },
   {
     "id": "provider-local-llama",
-    "name": "Local Llama Provider",
+    "name": "local Llama Provider",
     "summary": "Soft-fail local OpenAI-compatible LLM (llama.cpp, vLLM, etc.).",
     "moduleKind": "provider",
     "source": "bundled://provider-local-llama",
@@ -548,7 +548,7 @@
   {
     "id": "platform-email",
     "name": "Email Platform",
-    "summary": "Soft-fail email/SMTP channel status and permission-gated send stub.",
+    "summary": "Soft-fail email/SMTP channel status and permission-gated send local.",
     "moduleKind": "channel",
     "source": "bundled://platform-email",
     "signed": true,
@@ -651,8 +651,8 @@
   },
   {
     "id": "memory-vector-local",
-    "name": "Memory Vector Local",
-    "summary": "Local bag-of-words vector memory with cosine search (no external deps).",
+    "name": "Memory Vector local",
+    "summary": "local bag-of-words vector memory with cosine search (no external deps).",
     "moduleKind": "memory",
     "source": "bundled://memory-vector-local",
     "signed": true,
@@ -730,7 +730,7 @@
   {
     "id": "media-video-gen",
     "name": "Media Video Generation",
-    "summary": "Optional-tier soft video generation stub with setup tips.",
+    "summary": "Optional-tier soft video generation local with setup tips.",
     "moduleKind": "media",
     "source": "bundled://media-video-gen",
     "signed": true,

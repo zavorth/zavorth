@@ -32,7 +32,7 @@ export function getRequestId() {
  *
  * @template T
  * @param {Request} request - Incoming request
- * @param {() => T | Promise<T>} handler - Handler to execute
+ * @param {() => T | Promise<T>} handler ? Handler to execute
  * @returns {Promise<T>}
  */
 export async function withRequestId(request, handler) {
@@ -45,7 +45,7 @@ export async function withRequestId(request, handler) {
  * Create headers object with the current request ID.
  * Useful for outgoing provider requests.
  *
- * @param {Record<string, string>} [headers={}] - Existing headers
+ * @param {Record<string, string>} [headers={}] ? Existing headers
  * @returns {Record<string, string>} Headers with x-request-id added
  */
 export function addRequestIdHeader(headers = {}) {

@@ -108,9 +108,9 @@ export class WebsitePublicContractService {
         expectedPackageName: 'zavorth-website',
       },
       narrative: {
-        headline: 'Zavorth como runtime local-first para execucao governada',
+        headline: 'Zavorth as a local-first runtime for governed execution',
         promise:
-          'Linguagem natural vira trabalho auditavel com preview, aprovacao, evidencia e controle local.',
+          'Natural language becomes auditable work with preview, approval, evidence, and local control.',
         requiredSections: [...WEBSITE_PUBLIC_REQUIRED_SECTIONS],
       },
       requiredRoutes: WEBSITE_PUBLIC_REQUIRED_ROUTES,
@@ -122,7 +122,7 @@ export class WebsitePublicContractService {
         gate: 'public-demo',
         title: 'Public Demo And Guided Story',
         reason:
-          'Com a landing real protegida por build, links, narrativa e screenshots, o proximo passo e provar a promessa em uma demo publica fixture-first.',
+          'Com a landing real protegida por build, links, narractive e screenshots, o next passo e provar a promessa em uma demo public fixture-first.',
       },
     };
   }
@@ -143,7 +143,7 @@ export class WebsitePublicContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -152,11 +152,10 @@ export class WebsitePublicContractService {
     const exists = this.existsSync(this.websiteRoot);
     return this.check(
       'website:root',
-      'base publica zavorth-website',
+      'base public zavorth-website',
       exists ? 'pass' : 'fail',
-      exists
-        ? 'repositorio zavorth-website encontrado como base publica oficial.'
-        : 'repositorio zavorth-website nao foi encontrado. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
+      exists ? 'repositorio zavorth-website encontrado como base public oficial.'
+        : 'zavorth-website repository was not found. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
       this.websiteRoot,
     );
   }
@@ -171,11 +170,10 @@ export class WebsitePublicContractService {
       'website:package-name',
       'package oficial do site',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'package.json e package-lock.json apontam para zavorth-website.'
-        : 'package.json e package-lock.json do site precisam usar name=zavorth-website.',
+      ok ? 'package.json and package-lock.json point to zavorth-website.'
+        : 'website package.json and package-lock.json must use name=zavorth-website.',
       'package.json',
-      [`package=${packageName || '<ausente>'}`, `lock=${lockName || '<ausente>'}`],
+      [`package=${packageName || '<missing>'}`, `lock=${lockName || '<missing>'}`],
     );
   }
 
@@ -187,11 +185,10 @@ export class WebsitePublicContractService {
         `website:script:${scriptName}`,
         `script do site ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `site expoe "${scriptName}" para build/contrato local.`
-          : `site precisa expor "${scriptName}" no package.json.`,
+        command ? `site exposes "${scriptName}" para build/contrato local.`
+          : `site must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -202,13 +199,12 @@ export class WebsitePublicContractService {
       const command = String(scripts[scriptName] || '').trim();
       return this.check(
         `core:script:${scriptName}`,
-        `script canonico ${scriptName}`,
+        `script canonical ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `repo principal expoe "${scriptName}" para o gate website-public.`
-          : `repo principal precisa expor "${scriptName}" no package.json.`,
+        command ? `main repository exposes "${scriptName}" para o gate website-public.`
+          : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -222,8 +218,7 @@ export class WebsitePublicContractService {
       'website:static-export',
       'export estatico do Next',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'site esta configurado para build/export estatico sem servidor persistente.'
+      ok ? 'site is configured para build/export estatico without server persistente.'
         : 'next.config.js must keep output export e images.unoptimized=true.',
       'next.config.js',
       [`outputExport=${hasExport}`, `imagesUnoptimized=${hasUnoptimized}`],
@@ -238,7 +233,7 @@ export class WebsitePublicContractService {
           `website:route-source:${route.route}`,
           route.label,
           'fail',
-          `fonte da rota ${route.route} nao encontrada.`,
+          `route source ${route.route} not found.`,
           route.sourcePath,
         );
       }
@@ -248,7 +243,7 @@ export class WebsitePublicContractService {
         route.label,
         missing.length === 0 ? 'pass' : 'fail',
         missing.length === 0
-          ? `rota ${route.route} preserva a copy/estrutura publica esperada.`
+          ? `rota ${route.route} preserva a copy/estrutura public esperada.`
           : `rota ${route.route} perdeu copy ou estrutura obrigatoria.`,
         route.sourcePath,
         missing.map((phrase) => `faltando: ${phrase}`),
@@ -267,9 +262,8 @@ export class WebsitePublicContractService {
       'website:landing-composition',
       'composicao da landing',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'landing segue a ordem publica: nav, hero, demo, runtime, capacidades, conexoes, CTA e footer.'
-        : 'landing perdeu componente obrigatorio ou ordem publica.',
+      ok ? 'landing segue a ordem public: nav, hero, demo, runtime, capacidades, conexoes, CTA e footer.'
+        : 'landing perdeu componente required ou ordem public.',
       'app/page.tsx',
       [
         ...missing.map((name) => `faltando: ${name}`),
@@ -282,23 +276,23 @@ export class WebsitePublicContractService {
     const source = this.readPublicSourceBundle();
     const required = [
       'A IA local',
-      'execucao real',
-      'Local-first',
+      'real execution',
+      'local-first',
       'Preview',
-      'aprovacao',
-      'evidencia',
-      'runtime unico',
+      'approval',
+      'evidence',
+      'runtime single',
       'replay',
       'opt-in',
     ];
     const missing = required.filter((phrase) => !source.includes(phrase));
     return this.check(
       'website:narrative-copy',
-      'narrativa publica permitida',
+      'public narrative allowed',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'copy publica cobre produto, local-first, approvals, evidencia, replay e opt-in.'
-        : 'copy publica ainda nao cobre toda a narrativa minima do website publico.',
+        ? 'copy public cobre produto, local-first, approvals, evidence, replay e opt-in.'
+        : 'public copy does not yet cover the minimum public website narrative.',
       undefined,
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -312,8 +306,8 @@ export class WebsitePublicContractService {
       'ancoras principais',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'secoes principais tem ids estaveis para navegacao e links.'
-        : 'alguma secao principal perdeu id estavel.',
+        ? 'main sections have stable IDs for navigation and links.'
+        : 'alguma section principal perdeu id stable.',
       undefined,
       missing.map((id) => `faltando id=${id}`),
     );
@@ -324,11 +318,11 @@ export class WebsitePublicContractService {
     const missing = WEBSITE_PUBLIC_REQUIRED_LINKS.filter((link) => !source.includes(link.href));
     return this.check(
       'website:source-links',
-      'links publicos obrigatorios',
+      'required public links',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'fontes do site preservam links principais de produto, docs, seguranca e changelog.'
-        : 'algum link publico obrigatorio esta ausente na fonte.',
+        ? 'site sources preserve main product, docs, security, and changelog links.'
+        : 'some required public link is missing in the source.',
       undefined,
       missing.map((link) => `faltando: ${link.href} (${link.label})`),
     );
@@ -342,11 +336,11 @@ export class WebsitePublicContractService {
     const evidence = [...matches, ...secretLike, ...pathLike];
     return this.check(
       'website:forbidden-claims',
-      'claims e vazamentos proibidos',
+      'forbidden claims and leaks',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'site nao expoe paths pessoais, secrets, placeholders ou promessas proibidas.'
-        : 'site contem path pessoal, secret, placeholder ou claim proibido.',
+        ? 'site does not expose personal paths, secrets, placeholders, or forbidden promises.'
+        : 'site contains path pessoal, secret, placeholder ou claim proibido.',
       undefined,
       evidence,
     );
@@ -359,9 +353,8 @@ export class WebsitePublicContractService {
         'website:exported-routes',
         'rotas exportadas',
         this.requireExport ? 'fail' : 'warn',
-        this.requireExport
-          ? 'out/ precisa existir depois de website:build.'
-          : 'out/ ainda nao existe; rode website:build para validar rotas exportadas.',
+        this.requireExport ? 'out/ must exist after website:build.'
+          : 'out/ does not exist yet; run website:build to validate exported routes.',
         'out',
       );
     }
@@ -374,8 +367,8 @@ export class WebsitePublicContractService {
       'rotas exportadas',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'build exportou todas as rotas publicas required.'
-        : 'build nao exportou todas as rotas publicas obrigatorias.',
+        ? 'build exported every required public route.'
+        : 'build did not export every required public route.',
       'out',
       missing.map((route) => `faltando: ${route}`),
     );
@@ -386,11 +379,10 @@ export class WebsitePublicContractService {
     if (!this.existsSync(outRoot)) {
       return this.check(
         'website:exported-links',
-        'links no HTML exportado',
+        'links in exported HTML',
         this.requireExport ? 'fail' : 'warn',
-        this.requireExport
-          ? 'links exportados precisam ser validados depois do build.'
-          : 'out/ ausente; links exportados ficam pendentes ate o build.',
+        this.requireExport ? 'exported links need validation after build.'
+          : 'out/ missing; exported links remain pending until build.',
         'out',
       );
     }
@@ -421,16 +413,16 @@ export class WebsitePublicContractService {
     });
     const evidence = [
       ...Array.from(broken).map((href) => `link quebrado: ${href}`),
-      ...Array.from(missingAnchors).map((href) => `ancora ausente: ${href}`),
-      ...requiredMissing.map((link) => `required ausente: ${link.href}`),
+      ...Array.from(missingAnchors).map((href) => `ancora missing: ${href}`),
+      ...requiredMissing.map((link) => `required missing: ${link.href}`),
     ];
     return this.check(
       'website:exported-links',
-      'links no HTML exportado',
+      'links in exported HTML',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
         ? 'links internos e ancoras principais resolvem no export estatico.'
-        : 'export estatico contem link interno ou ancora quebrada.',
+        : 'export estatico contains link interno ou ancora quebrada.',
       'out',
       evidence,
     );
@@ -442,7 +434,7 @@ export class WebsitePublicContractService {
         'website:screenshots',
         'screenshots desktop/mobile',
         'warn',
-        'screenshots nao exigidos neste snapshot; use qa:website-public para capturar desktop e mobile.',
+        'screenshots not required in this snapshot; use qa:website-public para capturar desktop e mobile.',
         this.screenshotDir,
       );
     }
@@ -460,8 +452,8 @@ export class WebsitePublicContractService {
       'screenshots desktop/mobile',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'screenshots desktop e mobile foram gerados como artefatos de QA.'
-        : 'screenshots desktop/mobile estao ausentes ou invalidos.',
+        ? 'screenshots desktop e mobile foram generated como artifacts de QA.'
+        : 'screenshots desktop/mobile are missings ou invalids.',
       this.screenshotDir,
       missing,
     );

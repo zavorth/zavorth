@@ -227,14 +227,14 @@ export class PluginOsControlPlaneService {
       lines.push('', `Curated marketplace (${view.curatedMarketplace.length}):`);
       for (const entry of view.curatedMarketplace.slice(0, 20)) {
         lines.push(
-          `  - ${entry.id} [${entry.tier || 'curated'}] ${entry.enabled ? 'on' : 'off'} — ${entry.summary || entry.name}`,
+          `  ? ${entry.id} [${entry.tier || 'curated'}] ${entry.enabled ? 'on' : 'off'} — ${entry.summary || entry.name}`,
         );
       }
     }
 
-    lines.push('', 'Commands:', ...view.commands.map((command) => `  - plugins ${command}`));
+    lines.push('', 'Commands:', ...view.commands.map((command) => ` ? plugins ${command}`));
     if (view.deepLinks && view.deepLinks.length > 0) {
-      lines.push('', 'Deep links:', ...view.deepLinks.slice(0, 10).map((link) => `  - ${link}`));
+      lines.push('', 'Deep links:', ...view.deepLinks.slice(0, 10).map((link) => ` ? ${link}`));
     }
     return lines.join('\n');
   }

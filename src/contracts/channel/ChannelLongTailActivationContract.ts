@@ -4,7 +4,7 @@ import type {
 } from '../../adapters/channels/ChannelLongTailLiveClients.js';
 import type { LiveReadinessStatus } from '../LiveReadinessContract.js';
 
-export const ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-checkpoint-3' as const;
+export const ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-gate-3' as const;
 
 export type ChannelLongTailActivationId =
   | 'bluebubbles'
@@ -37,8 +37,8 @@ export type ChannelLongTailActivationGateKind =
   | 'family-adapter'
   | 'config-schema'
   | 'configured-doctor'
-  | 'inbound-mock'
-  | 'outbound-mock'
+  | 'inbound-local'
+  | 'outbound-local'
   | 'staging-live-smoke'
   | 'allowlist-policy'
   | 'redacted-receipt';
@@ -166,6 +166,6 @@ export type ChannelLongTailActivationSnapshot = {
     stagingLiveSmoke: 'npm run channel-long-tail-activation -- --profile staging-live --channel <channel> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Connector registry - Provider Runtime Activation P0';
+    nextAction: 'Connector registry - Provider Runtime Activation';
   };
 };

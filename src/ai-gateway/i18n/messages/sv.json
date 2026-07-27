@@ -6,7 +6,7 @@
     "loading": "Laddar...",
     "error": "Ett fel uppstod",
     "success": "Framgång",
-    "confirm": "Är du säker?",
+    "confirm": "Är du säker...",
     "refresh": "Uppdatera",
     "close": "Stäng",
     "add": "Lägg till",
@@ -164,8 +164,8 @@
     "auditLog": "Revisionslogg",
     "shutdown": "Avstängning",
     "restart": "Starta om",
-    "shutdownConfirm": "Stänga av ZavorthGateway?",
-    "restartConfirm": "Starta om ZavorthGateway?",
+    "shutdownConfirm": "Stänga av ZavorthGateway...",
+    "restartConfirm": "Starta om ZavorthGateway...",
     "version": "v{version}",
     "debug": "Felsök",
     "system": "System",
@@ -288,7 +288,7 @@
     "createKey": "Skapa API-nyckel",
     "key": "Nyckel",
     "revokeKey": "Återkalla nyckel",
-    "revokeConfirm": "Är du säker på att du vill återkalla denna API-nyckel?",
+    "revokeConfirm": "Är du säker på att du vill återkalla denna API-nyckel...",
     "noKeys": "Inga API-nycklar ännu",
     "noKeysDesc": "Skapa din första API-nyckel för att autentisera förfrågningar till din slutpunkt",
     "keyLabel": "Nyckeletikett",
@@ -320,7 +320,7 @@
     "actions": "Åtgärder",
     "reqs": "reqs",
     "neverUsed": "Aldrig använd",
-    "deleteConfirm": "Vill du ta bort denna API-nyckel?",
+    "deleteConfirm": "Vill du ta bort denna API-nyckel...",
     "usageTips": "Användningstips",
     "tipAuth": "Använd API-nycklar i auktoriseringshuvudet som Bärare YOUR_KEY",
     "tipSecure": "Nycklar visas bara en gång under skapandet – förvara dem säkert",
@@ -803,7 +803,7 @@
     "leastLatency": "Minsta latens",
     "comboName": "Kombinationsnamn",
     "comboNamePlaceholder": "min-kombo",
-    "deleteConfirm": "Vill du ta bort den här kombinationen?",
+    "deleteConfirm": "Vill du ta bort den här kombinationen...",
     "noCombosYet": "Inga kombinationer än",
     "comboCreated": "Kombinationen skapades framgångsrikt",
     "comboUpdated": "Kombinationen har uppdaterats",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin är mest användbar med minst 2 modeller.",
     "warningCostOptimizedPartialPricing": "Endast {priced} av {total} modeller har prissättning. Rutning kan vara delvis kostnadsmedveten.",
     "warningCostOptimizedNoPricing": "Inga prisuppgifter hittades för denna kombination. Kostnadsoptimerad kan väga oväntat.",
-    "readinessTitle": "Redo att spara?",
+    "readinessTitle": "Redo att spara...",
     "readinessDescription": "Granska checklistan innan du skapar eller uppdaterar den här kombinationen.",
     "readinessCheckName": "Kombinationsnamnet är giltigt",
     "readinessCheckModels": "Minst en modell är vald",
@@ -1013,7 +1013,7 @@
     "title": "API-slutpunkt",
     "available": "Tillgängliga slutpunkter",
     "cloudProxy": "Molnproxy",
-    "disableConfirm": "Är du säker på att du vill inaktivera molnproxy?",
+    "disableConfirm": "Är du säker på att du vill inaktivera molnproxy...",
     "baseUrl": "Bas-URL",
     "apiKeyLabel": "API-nyckel",
     "registeredKeys": "Registrerade nycklar",
@@ -1154,13 +1154,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"?",
+    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"...",
     "switchComboFailed": "Failed to switch combo state.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Circuit breakers reset.",
     "processStatus": "Process status",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} igång",
     "ok": "OK",
     "activeLockouts": "Aktiva lockouter",
-    "resetConfirm": "Återställa alla strömbrytare till friskt tillstånd? Detta kommer att radera alla felräkningar och återställa alla leverantörer till driftstatus.",
+    "resetConfirm": "Återställa alla strömbrytare till friskt tillstånd... Detta kommer att radera alla felräkningar och återställa alla leverantörer till driftstatus.",
     "resetAllTitle": "Återställ alla strömbrytare till friskt tillstånd",
     "resetting": "Återställer...",
     "resetAll": "Återställ alla",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Modelltillgänglighet",
     "accounts": "konton",
     "newAccount": "Nytt konto",
-    "deleteConfirm": "Är du säker på att du vill ta bort den här leverantören?",
+    "deleteConfirm": "Är du säker på att du vill ta bort den här leverantören...",
     "testing": "Testar...",
     "testConnection": "Testa anslutningen",
     "testSuccess": "Anslutningen lyckades",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "Testa API-nyckel",
     "testKeyPlaceholder": "sk-... (endast för validering)",
     "providerNotFound": "Det gick inte att hitta leverantören",
-    "deleteConnectionConfirm": "Vill du ta bort den här anslutningen?",
+    "deleteConnectionConfirm": "Vill du ta bort den här anslutningen...",
     "failedSetAlias": "Det gick inte att ange alias",
     "failedSaveConnection": "Det gick inte att spara anslutningen",
     "failedSaveConnectionRetry": "Det gick inte att spara anslutningen. Försök igen.",
     "failedRetestConnection": "Det gick inte att testa om anslutningen",
-    "deleteCompatibleNodeConfirm": "Ta bort denna {type} kompatibla nod?",
+    "deleteCompatibleNodeConfirm": "Ta bort denna {type} kompatibla nod...",
     "anthropicCompatibleDetails": "Antropiska kompatibla detaljer",
     "openaiCompatibleDetails": "OpenAI-kompatibla detaljer",
     "messagesApi": "Messages API",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Automatisk synkronisering inaktiverad",
     "autoSyncToggleFailed": "Det gick inte att växla automatisk synkronisering",
     "clearAllModels": "Rensa alla modeller",
-    "clearAllModelsConfirm": "Är du säker på att du vill ta bort alla modeller för den här leverantören? Detta kan inte ångras.",
+    "clearAllModelsConfirm": "Är du säker på att du vill ta bort alla modeller för den här leverantören... Detta kan inte ångras.",
     "clearAllModelsSuccess": "Alla modeller rensade",
     "clearAllModelsFailed": "Det gick inte att rensa modeller",
     "addConnectionToImport": "Lägg till en anslutning för att aktivera import.",
@@ -1814,7 +1814,7 @@
     "exportData": "Exportera data",
     "importData": "Importera data",
     "clearData": "Rensa alla data",
-    "clearDataConfirm": "Detta kommer att radera all data permanent. Är du säker?",
+    "clearDataConfirm": "Detta kommer att radera all data permanent. Är du säker...",
     "enableRequestLogs": "Aktivera förfrågningsloggar",
     "logRetention": "Logglagring",
     "ipWhitelist": "IP vitlista",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Samtal per konto innan byte",
     "modelAliases": "Modellalias",
     "modelAliasesTitle": "Modellalias",
-    "modelAliasesDesc": "Jokerteckenmönster för att mappa om modellnamn • Använd * och ?",
+    "modelAliasesDesc": "Jokerteckenmönster för att mappa om modellnamn • Använd * och ...",
     "addCustomAlias": "Lägg Till Anpassat Alias",
     "deprecatedModelId": "Föråldrat modell-ID",
     "newModelId": "Nytt modell-ID",
@@ -1974,7 +1974,7 @@
     "browser": "Webbläsare",
     "clearLocalData": "Rensa lokal data",
     "logout": "Logga ut",
-    "clearLocalDataConfirm": "Rensa alla lokala data? Detta kommer att återställa dina inställningar.",
+    "clearLocalDataConfirm": "Rensa alla lokala data... Detta kommer att återställa dina inställningar.",
     "unknown": "Okänd",
     "systemActor": "systemet",
     "ipAccessControl": "IP-åtkomstkontroll",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Inga reservkedjor",
     "noFallbackChainsDesc": "Skapa en kedja för att definiera leverantörs reservorder för en modell.",
     "loadingFallbackChains": "Laddar reservkedjor...",
-    "deleteChainConfirm": "Vill du ta bort reservkedjan för \"{model}\"?",
+    "deleteChainConfirm": "Vill du ta bort reservkedjan för \"{model}\"...",
     "chainCreated": "Kedja skapad för {model}",
     "chainDeleted": "Kedjan raderad för {model}",
     "failedCreateChain": "Det gick inte att skapa kedja",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Inga säkerhetskopior tillgängliga ännu. Säkerhetskopieringar skapas automatiskt när data ändras.",
     "backupsAvailable": "{count} säkerhetskopior tillgängliga",
     "refresh": "Uppdatera",
-    "confirm": "Bekräfta?",
+    "confirm": "Bekräfta...",
     "yes": "Ja",
     "no": "Nej",
     "restore": "Återställ",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Policyer och strömbrytare",
     "activeIssuesDetected": "Aktiva problem upptäcktes",
     "off": "Av",
-    "resetPricingConfirm": "Vill du återställa alla priser för {provider} till standardvärdena?",
+    "resetPricingConfirm": "Vill du återställa alla priser för {provider} till standardvärdena...",
     "pricingDescInput": "Indata: tokens skickas till modellen",
     "pricingDescOutput": "Utdata: tokens genererade",
     "pricingDescCached": "Cachad: återanvänd indata (~50 % av inmatningshastighet)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Du är en hjälpsam assistent.",
-        "userGreeting": "Hej! Hur mår du idag?"
+        "userGreeting": "Hej! Hur mår du idag..."
       },
       "toolCalling": {
-        "userWeather": "Hur är vädret i São Paulo?",
+        "userWeather": "Hur är vädret i São Paulo...",
         "toolDescription": "Få aktuellt väder för en plats",
         "cityNameDescription": "Stadsnamn"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Sortera det nu i fallande ordning."
       },
       "thinking": {
-        "question": "Vad är summan av de första 100 primtalen?"
+        "question": "Vad är summan av de första 100 primtalen..."
       },
       "systemPrompt": {
         "systemInstruction": "Du är en senior mjukvaruingenjör specialiserad på distribuerade system. Svara på frågor kortfattat med hjälp av branschens bästa praxis. Ge alltid kodexempel när det är relevant. Formatera dina svar med markdown.",
-        "question": "Hur implementerar jag ett strömbrytarmönster?"
+        "question": "Hur implementerar jag ett strömbrytarmönster..."
       },
       "streaming": {
         "prompt": "Berätta en kort historia om en robot som lär sig måla."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "eller ta bort fältet passwordHash",
     "restartServerWithNewPassword": "Starta om servern - den kommer att använda det nya lösenordet",
     "backToLogin": "Tillbaka till inloggning",
-    "forgotPassword": "Glömt lösenordet?",
+    "forgotPassword": "Glömt lösenordet...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Auktorisation",
     "Content-Disposition": "Innehåll-Disposition",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Tvillingarna",
     "flowProviderGithubCopilot": "GitHub Copilot",
     "interactiveDiagram": "Interaktivt diagram synligt på skrivbordet",
-    "ctaTitle": "Är du redo att förenkla din AI-infrastruktur?",
+    "ctaTitle": "Är du redo att förenkla din AI-infrastruktur...",
     "ctaDescription": "Gå med utvecklare som effektiviserar sina AI-integrationer med Zavorth. Öppen källkod och gratis att starta.",
     "startFree": "Börja gratis",
     "readDocumentation": "Läs dokumentation"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Senast uppdaterad: {date}",
     "policyLastUpdatedDate": "13 februari 2026",
     "listSeparator": "-",
-    "questionsVisit": "Frågor? Besök vår",
+    "questionsVisit": "Frågor... Besök vår",
     "githubRepository": "GitHub-förråd",
     "privacySection1Title": "1. Lokal-först arkitektur",
     "privacySection1Text": "Zavorth är designad som en lokal-först-applikation. All databehandling och lagring sker helt och hållet på din maskin. Det finns ingen centraliserad server som samlar in din information.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Du är en hjälpsam AI-assistent.",
-      "userGreeting": "Hej! Hur kan jag hjälpa dig idag?"
+      "userGreeting": "Hej! Hur kan jag hjälpa dig idag..."
     },
     "streaming": {
       "prompt": "Skriv en berättelse om"
     },
     "systemPrompt": {
-      "question": "Vad är meningen med livet?",
+      "question": "Vad är meningen med livet...",
       "systemInstruction": "Ge ett genomtänkt, filosofiskt svar."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "Namnet på staden att få väder för",
       "toolDescription": "Få aktuellt väder för en plats",
-      "userWeather": "Hur är vädret i Tokyo?"
+      "userWeather": "Hur är vädret i Tokyo..."
     },
     "multiTurn": {
       "system": "Du är en hjälpsam assistent.",
       "assistantExample": "Jag hjälper dig gärna med det.",
       "userInitial": "Jag behöver hjälp med",
-      "userFollowUp": "Kan du utveckla det?"
+      "userFollowUp": "Kan du utveckla det..."
     }
   },
   "cache": {

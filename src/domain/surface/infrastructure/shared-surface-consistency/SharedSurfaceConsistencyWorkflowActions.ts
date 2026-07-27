@@ -31,11 +31,9 @@ export function pushWorkflowActions(
   const workflowStageLabel = String(resumableWorkflow.resume_stage?.label || '').trim();
   const workflowReason = String(resumableWorkflow.resume_stage?.reason || '').trim();
   const workflowName = String(resumableWorkflow.workflow_name || 'workflow').trim();
-  const telegramResumeCommand = workflowStageId
-    ? `/workflow resume ${workflowRunId} ${workflowStageId}`
+  const telegramResumeCommand = workflowStageId ? `/workflow resume ${workflowRunId} ${workflowStageId}`
     : `/workflow resume ${workflowRunId}`;
-  const discordResumeCommand = workflowStageId
-    ? `/workflow mode:resume input:${workflowRunId} stage:${workflowStageId}`
+  const discordResumeCommand = workflowStageId ? `/workflow mode:resume input:${workflowRunId} stage:${workflowStageId}`
     : `/workflow mode:resume input:${workflowRunId}`;
 
   actions.push({
@@ -43,8 +41,8 @@ export function pushWorkflowActions(
     snapshot: buildActionSnapshot({
       actionId: `resume-workflow:${workflowRunId}:${workflowStageId || 'latest'}`,
       actionType: 'resume-workflow',
-      title: workflowStageLabel ? `Retomar ${workflowStageLabel}` : 'Resume workflow',
-      description: workflowReason || `Continue ${workflowName} a partir da etapa interrompida.`,
+      title: workflowStageLabel ? `Resumesr ${workflowStageLabel}` : 'Resume workflow',
+      description: workflowReason || `Continue ${workflowName} from the stage interrupted.`,
       category: 'workflow',
       availability: buildActionAvailability(
         { mode: 'inline' },
@@ -55,12 +53,12 @@ export function pushWorkflowActions(
       equivalents: {
         web: {
           mode: 'inline',
-          label: workflowStageLabel ? `Retomar ${workflowStageLabel}` : 'Resume workflow',
+          label: workflowStageLabel ? `Resumesr ${workflowStageLabel}` : 'Resume workflow',
           value: workflowRunId,
         },
         telegram: {
           mode: 'command',
-          label: 'Copiar comando do Telegram',
+          label: 'Copy Telegram command',
           value: telegramResumeCommand,
         },
         discord: {
@@ -91,11 +89,9 @@ export function pushWorkflowActions(
       const stageStatus = String(stage.status || '').trim().toLowerCase();
       const stageTaskId = String(stage.task_id || '').trim();
       const isCompletedStage = stageStatus === 'completed';
-      const telegramStageCommand = isCompletedStage
-        ? `/workflow restart-stage ${workflowRunId} ${stageId}`
+      const telegramStageCommand = isCompletedStage ? `/workflow restart-stage ${workflowRunId} ${stageId}`
         : `/workflow resume ${workflowRunId} ${stageId}`;
-      const discordStageCommand = isCompletedStage
-        ? `/workflow mode:restart-stage input:${workflowRunId} stage:${stageId}`
+      const discordStageCommand = isCompletedStage ? `/workflow mode:restart-stage input:${workflowRunId} stage:${stageId}`
         : `/workflow mode:resume input:${workflowRunId} stage:${stageId}`;
       const actionVerb = getWorkflowStageActionVerb(stageStatus);
 
@@ -105,7 +101,7 @@ export function pushWorkflowActions(
           actionId: `resume-workflow-stage:${workflowRunId}:${stageId}`,
           actionType: isCompletedStage ? 'restart-workflow-stage' : 'resume-workflow',
           title: `${actionVerb} ${stageLabel}`,
-          description: stageReason || `Continue ${workflowName} a partir da etapa ${stageLabel}.`,
+          description: stageReason || `Continue ${workflowName} from the stage ${stageLabel}.`,
           category: 'workflow',
           availability: buildActionAvailability(
             { mode: 'inline' },
@@ -121,7 +117,7 @@ export function pushWorkflowActions(
             },
             telegram: {
               mode: 'command',
-              label: 'Copiar comando do Telegram',
+              label: 'Copy Telegram command',
               value: telegramStageCommand,
             },
             discord: {
@@ -146,7 +142,7 @@ export function pushWorkflowActions(
   const workflowStatus = String(resumableWorkflow.status || '').trim().toLowerCase();
   if (workflowStatus === 'blocked' || workflowStatus === 'failed') {
     const closeReason = workflowReason
-      || `Encerrar ${workflowName} para ele deixar de aparecer como retomada.`;
+      || `Encerrar ${workflowName} para ele deixar de aparecer como resumed.`;
     actions.push({
       priority: 70,
       snapshot: buildActionSnapshot({
@@ -169,7 +165,7 @@ export function pushWorkflowActions(
           },
           telegram: {
             mode: 'command',
-            label: 'Copiar comando do Telegram',
+            label: 'Copy Telegram command',
             value: `/workflow close ${workflowRunId}`,
           },
           discord: {

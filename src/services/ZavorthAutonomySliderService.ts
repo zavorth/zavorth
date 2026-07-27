@@ -189,22 +189,7 @@ function resolveRequestedLevel(value: unknown, intent: string | null): ZavorthAu
   if (explicit) {
     return explicit;
   }
-  const text = normalize(`${intent || ''} ${value || ''}`);
-  if (!text) {
-    return null;
-  }
-  if (/business|company|enterprise|audit|compliance|governed/.test(text)) {
-    return 'business';
-  }
-  if (/advanced|power|technical|developer|repo|coding|more autonomous|less friction/.test(text)) {
-    return 'advanced';
-  }
-  if (/careful|safe|conservative|ask before|strict|read only|read-only/.test(text)) {
-    return 'conservative';
-  }
-  if (/balanced|normal|daily|practical|default/.test(text)) {
-    return 'balanced';
-  }
+  void intent;
   return null;
 }
 

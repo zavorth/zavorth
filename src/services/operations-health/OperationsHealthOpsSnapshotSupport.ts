@@ -176,7 +176,7 @@ export class OperationsHealthOpsSnapshotSupport {
         source: zavorthControlAuthSource,
         tokenFile: config.zavorthWebAuthTokenFile,
         tokenFileExists: this.existsSync(config.zavorthWebAuthTokenFile),
-        note: 'Fast snapshot reutilizou verificacoes basicas. Use --live para auditar a trilha completa.',
+        note: 'Fast snapshot reused basic checks. Use --live to audit the complete trail.',
       },
       mailboxSecret: {
         source: mailboxSource,
@@ -478,7 +478,7 @@ export class OperationsHealthOpsSnapshotSupport {
 
     if (
       category === 'AIGatewayGateway'
-      && message.includes('nao estava online durante o bootstrap principal')
+      && message.includes('was not online during main bootstrap')
       && message.includes('iniciado sob demanda')
     ) {
       return true;
@@ -487,7 +487,7 @@ export class OperationsHealthOpsSnapshotSupport {
     if (
       category === 'Bootstrap'
       && (
-        message.includes('planned/stub via stub')
+        message.includes('planned/local via local')
         || message.includes('discord native gateway is present')
         || message.includes('native discord client is preferred')
       )

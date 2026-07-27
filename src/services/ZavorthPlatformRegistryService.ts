@@ -201,7 +201,7 @@ export class ZavorthPlatformRegistryService {
       `Total: ${snapshot.summary.total} | plugins: ${snapshot.summary.plugins} | skills: ${snapshot.summary.skills} | MCPs: ${snapshot.summary.mcps}.`,
       `Colecoes: ${snapshot.summary.collections} | featured: ${snapshot.summary.featuredCollections}.`,
       `Recipes: ${snapshot.summary.recipes} | featured: ${snapshot.summary.featuredRecipes}.`,
-      `Sync do catalogo: ${snapshot.catalogSync.summary}`,
+      `Sync do catalog: ${snapshot.catalogSync.summary}`,
     ];
 
     if (snapshot.selectedCollection && hasFocusedSelection) {
@@ -210,13 +210,13 @@ export class ZavorthPlatformRegistryService {
         snapshot.selectedCollection.label,
         '',
         snapshot.selectedCollection.summary,
-        `Itens: ${snapshot.selectedCollection.itemCount} | prontos: ${snapshot.selectedCollection.readyCount} | adotados: ${snapshot.selectedCollection.adoptedCount}.`,
-        `Proximo passo: ${snapshot.selectedCollection.actionHint || 'n/d'}`,
+        `Itens: ${snapshot.selectedCollection.itemCount} | ready: ${snapshot.selectedCollection.readyCount} | adotados: ${snapshot.selectedCollection.adoptedCount}.`,
+        `next passo: ${snapshot.selectedCollection.actionHint || 'n/d'}`,
       );
       if (snapshot.selectedCollection.items.length > 0) {
         lines.push(
           '',
-          'Itens da colecao:',
+          'Itens da collection:',
           ...snapshot.selectedCollection.items.slice(0, 6).map((item) =>
             `- ${item.label} [${item.kind}] ${item.readiness}/${item.installState}`),
         );
@@ -233,8 +233,8 @@ export class ZavorthPlatformRegistryService {
         snapshot.selectedRecipe.label,
         '',
         snapshot.selectedRecipe.summary,
-        `Alvos: ${snapshot.selectedRecipe.itemCount} | prontos: ${snapshot.selectedRecipe.readyCount} | adotados: ${snapshot.selectedRecipe.adoptedCount}.`,
-        `Proximo passo: ${snapshot.selectedRecipe.actionHint || 'n/d'}`,
+        `Alvos: ${snapshot.selectedRecipe.itemCount} | ready: ${snapshot.selectedRecipe.readyCount} | adotados: ${snapshot.selectedRecipe.adoptedCount}.`,
+        `next passo: ${snapshot.selectedRecipe.actionHint || 'n/d'}`,
       );
       if (snapshot.selectedRecipe.steps.length > 0) {
         lines.push('', 'Passos sugeridos:', ...snapshot.selectedRecipe.steps.slice(0, 4).map((step) => `- ${step}`));
@@ -265,7 +265,7 @@ export class ZavorthPlatformRegistryService {
         `Signature: ${snapshot.selected.signatureState}`,
         `Install: ${snapshot.selected.installState}`,
         `Permissions: ${snapshot.selected.runtimePermissionProfile}`,
-        `Proximo passo: ${snapshot.selected.actionHint}`,
+        `next passo: ${snapshot.selected.actionHint}`,
       );
       if (snapshot.selected.details.length > 0) {
         lines.push('', 'Detalhes:', ...snapshot.selected.details.slice(0, 5).map((detail) => `- ${detail}`));

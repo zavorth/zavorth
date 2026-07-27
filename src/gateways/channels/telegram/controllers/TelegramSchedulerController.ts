@@ -14,6 +14,13 @@ import { asErrorLike } from '../../../../utils/errorLike.js';
 
 type SchedulerResolver = () => SchedulerService | undefined;
 
+type TelegramStructuredScheduleRequest = {
+  schedule?: unknown;
+  command?: unknown;
+  topic?: unknown;
+  intent?: unknown;
+};
+
 export class TelegramSchedulerController {
   private readonly automationControlPlane = new ZavorthAutomationControlPlaneService();
   private readonly automationActionService = new ZavorthAutomationActionService({
@@ -35,14 +42,14 @@ export class TelegramSchedulerController {
       return;
     }
 
-    const match = args.match(/^(every\s+\d+[mh])\s+(.+)$/i);
-    if (!match) {
+    const parsed = this.parseStructuredScheduleRequest(args);
+    if (!parsed?.schedule || !parsed.command) {
       await ctx.reply(t('scheduler.invalid_format'));
       return;
     }
 
-    const schedule = match[1].toLowerCase();
-    const commandToRun = match[2];
+    const schedule = parsed.schedule;
+    const commandToRun = parsed.command;
 
     try {
       const surface = new ZavorthScheduledTaskSurfaceService({ schedulerService });
@@ -57,7 +64,6 @@ export class TelegramSchedulerController {
         maxCommands: 1,
         maxMutations: 0,
       });
-      // Marker: Agendamento governado criado
       await this.replySchedulerReport(
         ctx,
         result.ok ? 'schedule-created' : 'schedule-blocked',
@@ -151,17 +157,17 @@ export class TelegramSchedulerController {
       return;
     }
 
-    const match = trimmedArgs.match(/^every\s+(\d+[mh])\s+(.+)$/i);
-    if (!match) {
+    const parsed = this.parseStructuredScheduleRequest(trimmedArgs);
+    if (!parsed?.schedule || !parsed.topic) {
       await ctx.reply(t('scheduler.report_format'));
       return;
     }
 
-    const schedule = `every ${match[1]}`;
-    const topic = match[2].trim();
+    const schedule = parsed.schedule;
+    const topic = parsed.topic;
     const surface = new ZavorthScheduledTaskSurfaceService({ schedulerService });
     const result = await surface.register({
-      intent: `Relatorio recorrente: ${topic}`,
+      intent: `Recurring report: ${topic}`,
       command: `/deepresearch ${topic}`,
       schedule,
       requestedBy: userId,
@@ -173,7 +179,6 @@ export class TelegramSchedulerController {
       maxNetworkRequests: 1,
     });
 
-    // Marker: Relatorio governado agendado
     await this.replySchedulerReport(
       ctx,
       result.ok ? 'report-scheduled' : 'report-blocked',
@@ -233,16 +238,15 @@ export class TelegramSchedulerController {
       return;
     }
 
-    const taskMatch = normalizedArgs.match(/^(pause|resume|remove|delete|reapprove|renew)\s+(.+)$/i);
-    if (taskMatch) {
-      const verb = taskMatch[1].toLowerCase();
+    const taskAction = this.parseTaskAction(normalizedArgs);
+    if (taskAction) {
       const execution = await this.automationActionService.execute({
-        actionId: verb === 'pause'
+        actionId: taskAction.verb === 'pause'
           ? 'pause'
-          : verb === 'resume'
+          : taskAction.verb === 'resume'
             ? 'resume'
-            : (verb === 'reapprove' || verb === 'renew') ? 'reapprove' : 'remove',
-        taskId: String(taskMatch[2] || '').trim() || null,
+            : (taskAction.verb === 'reapprove' || taskAction.verb === 'renew') ? 'reapprove' : 'remove',
+        taskId: taskAction.taskId,
         requestedBy: userId,
         sourceSurface: 'telegram',
       });
@@ -311,7 +315,83 @@ export class TelegramSchedulerController {
       ...execution.details.map((entry) => `- ${entry}`),
       '',
       execution.snapshot.narrative.operatorSummary,
-      `Proximo passo: ${execution.snapshot.narrative.nextAction}`,
+      `Next step: ${execution.snapshot.narrative.nextAction}`,
     ].join('\n');
+  }
+
+  private parseStructuredScheduleRequest(args: string): { schedule: string; command: string; topic?: string } | null {
+    const raw = String(args || '').trim();
+    if (!raw || !this.looksLikeJsonObject(raw)) {
+      return null;
+    }
+    let parsed: TelegramStructuredScheduleRequest;
+    try {
+      parsed = JSON.parse(raw) as TelegramStructuredScheduleRequest;
+    } catch {
+      return null;
+    }
+    if (!parsed || typeof parsed !== 'object') {
+      return null;
+    }
+    const schedule = this.serializeSchedule(parsed.schedule);
+    const command = typeof parsed.command === 'string' ? parsed.command.trim() : '';
+    const topic = typeof parsed.topic === 'string' ? parsed.topic.trim() : '';
+    const intent = typeof parsed.intent === 'string' ? parsed.intent.trim() : '';
+    const resolvedCommand = command || intent;
+    if (!schedule || !resolvedCommand) {
+      return null;
+    }
+    return {
+      schedule,
+      command: resolvedCommand,
+      topic: topic || undefined,
+    };
+  }
+
+  private serializeSchedule(schedule: unknown): string | null {
+    if (typeof schedule === 'string') {
+      const trimmed = schedule.trim();
+      return trimmed || null;
+    }
+    if (schedule && typeof schedule === 'object') {
+      return JSON.stringify(schedule);
+    }
+    return null;
+  }
+
+  private looksLikeJsonObject(value: string): boolean {
+    return value.startsWith('{') && value.endsWith('}');
+  }
+
+  private parseTaskAction(args: string): { verb: string; taskId: string } | null {
+    const parts = this.splitWhitespace(args);
+    if (parts.length < 2) {
+      return null;
+    }
+    const verb = parts[0]?.toLowerCase() || '';
+    if (!['pause', 'resume', 'remove', 'delete', 'reapprove', 'renew'].includes(verb)) {
+      return null;
+    }
+    const taskId = parts.slice(1).join(' ').trim();
+    return taskId ? { verb, taskId } : null;
+  }
+
+  private splitWhitespace(value: string): string[] {
+    const parts: string[] = [];
+    let current = '';
+    for (const char of value) {
+      if (char.trim() === '') {
+        if (current) {
+          parts.push(current);
+          current = '';
+        }
+        continue;
+      }
+      current += char;
+    }
+    if (current) {
+      parts.push(current);
+    }
+    return parts;
   }
 }

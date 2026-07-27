@@ -129,7 +129,7 @@ export function normalizeExternalAgentPluginGatewayMethodSurfaces<TRuntimeId ext
     kind: record.kind,
     requestShape: record.sourceRequestFields.map((field, fieldIndex) => ({
       id: `request-field-${fieldIndex + 1}`,
-      required: !field.endsWith('?'),
+      required: !field.endsWith('...'),
       sourceFieldStoredAsEvidenceOnly: true,
     })),
     responseShape: record.sourceResponseFields.map((field, fieldIndex) => ({

@@ -15,8 +15,8 @@ type McpTextContent = {
 };
 
 /**
- * Wrapper dinamico que transforma qualquer ferramenta importada via MCP
- * numa ferramenta nativa que o Zavorth (e o ToolRegistry) entendem e repassam aos LLMs.
+ * Dynamic wrapper that transforms any tool imported via MCP
+ * into a native tool that Zavorth (and the ToolRegistry) understand and pass to LLMs.
  */
 export class McpToolWrapper extends BaseTool {
   constructor(
@@ -31,7 +31,7 @@ export class McpToolWrapper extends BaseTool {
   }
 
   async execute(args: Record<string, unknown>): Promise<string> {
-    console.log(`[MCP] Executando ferramenta remota: ${this.name}...`);
+    console.log(`[MCP] Executing remote tool: ${this.name}...`);
     const opId = args.operationId as string;
     try {
       const policyDecision = decideSecurityPolicy({

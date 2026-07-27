@@ -1,6 +1,6 @@
 import type { NodeMeshCapabilityId, NodeMeshTransport } from '../NodeMeshContract.js';
 
-export const ZAVORTH_NATIVE_COMPANION_DEVICE_CONTRACT_VERSION = '2026-05-05.checkpoint-6' as const;
+export const ZAVORTH_NATIVE_COMPANION_DEVICE_CONTRACT_VERSION = '2026-05-05.gate-6' as const;
 
 export type ZavorthNativeRuntimeTarget =
   | 'satellite-pwa'
@@ -28,7 +28,7 @@ export type ZavorthNativeCapabilityId =
 
 export type ZavorthNativeCapabilityStatus =
   | 'available'
-  | 'simulated'
+  | 'dryRun'
   | 'owner-gated'
   | 'unsupported'
   | 'blocked';
@@ -66,7 +66,7 @@ export type ZavorthPairedDeviceStatus = 'pending' | 'approved' | 'revoked' | 'bl
 
 export type ZavorthPairedDeviceTransport =
   | NodeMeshTransport
-  | 'mock-device-node'
+  | 'local-device-node'
   | 'pwa'
   | 'native-ios'
   | 'native-android';
@@ -262,6 +262,6 @@ export type ZavorthNativeCompanionDeviceSnapshot = {
     check: 'npm run zavorth-native-companion-device-pack:check --silent';
     qa: 'npm run qa:zavorth-native-companion-device-pack --silent';
     liveMlxTts: 'npm run zavorth-native-companion-device-pack -- --mlx-tts "hello" --approval-id <id>';
-    nextStage: 'Surface controls - QA, Security And Release Certification Pack';
+    nextAction: 'Surface controls - QA, Security And Release Certification Pack';
   };
 };

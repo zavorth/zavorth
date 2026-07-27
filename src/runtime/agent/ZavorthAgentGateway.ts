@@ -311,7 +311,7 @@ export class ZavorthAgentGateway {
       id: `${approval.id}:approved`,
       runId: run.id,
       kind: 'approval',
-      title: 'Aprovacao recebida',
+      title: 'Approval received',
       detail: `${approval.title} (${choice})`,
       status: 'done',
       createdAt: now,
@@ -349,14 +349,14 @@ export class ZavorthAgentGateway {
     const executionOptions = this.mergeExecutionOptions(pending?.options, options);
     if (!this.runService.canExecute(executionOptions, resumeRequest)) {
       run.status = 'queued';
-      run.summary = 'Aprovacao registrada. Execucao duravel aguardando um executor disponivel.';
+      run.summary = 'Approval recorded. Durable execution is waiting for an available executor.';
       run.updatedAt = now;
       run.events.push({
         id: `${job.id}:queued`,
         runId: run.id,
         kind: 'status',
-        title: 'Execucao duravel na fila',
-        detail: 'O pedido sobreviveu ao restart e aguardara um worker/executor disponivel.',
+        title: 'Execution duravel na queue',
+        detail: 'O request sobreviveu ao restart e aguardara um worker/executor available.',
         status: 'pending',
         createdAt: now,
         metadata: {
@@ -407,13 +407,13 @@ export class ZavorthAgentGateway {
     const now = this.nowIso();
     approval.status = 'rejected';
     run.status = 'cancelled';
-    run.summary = 'Execucao cancelada pelo operador antes de tocar ferramentas sensiveis.';
+    run.summary = 'Execution canceled by the operator before touching sensitive tools.';
     run.updatedAt = now;
     run.events.push({
       id: `${approval.id}:rejected`,
       runId: run.id,
       kind: 'approval',
-      title: 'Aprovacao rejeitada',
+      title: 'Approval rejected',
       detail: approval.title,
       status: 'done',
       createdAt: now,
@@ -484,7 +484,7 @@ export class ZavorthAgentGateway {
       ok: Boolean(result),
       resolution,
       result,
-      error: result ? null : 'Approval universal nao encontrado ou ja resolvido.',
+      error: result ? null : 'Universal approval not found or already resolved.',
     };
   }
 
@@ -506,7 +506,7 @@ export class ZavorthAgentGateway {
       const run = this.runs.get(job.runId);
       if (!run) {
         job.status = 'failed';
-        job.lastError = 'Run original nao encontrada para processar a fila duravel.';
+        job.lastError = 'Original run not found to process the durable queue.';
         job.updatedAt = this.nowIso();
         job.failedAt = job.updatedAt;
         job.leaseOwner = null;
@@ -759,7 +759,7 @@ export class ZavorthAgentGateway {
         job.status = 'completed';
         job.completedAt = finishedAt;
       } else {
-        this.applyWorkflowFailure(job, result.run, failureMessage || 'Executor duravel falhou.', finishedAt);
+        this.applyWorkflowFailure(job, result.run, failureMessage || 'Executor duravel failed.', finishedAt);
       }
       job.resultRunStatus = result.run.status;
       job.updatedAt = finishedAt;
@@ -778,7 +778,7 @@ export class ZavorthAgentGateway {
       return result;
     } catch (error: unknown) {
       const failedAt = this.nowIso();
-      const message = normalizeText(errorMessage(error), 'Executor duravel falhou ao retomar a execucao.');
+      const message = normalizeText(errorMessage(error), 'Durable executor failed to resume execution.');
       this.applyWorkflowFailure(job, run, message, failedAt);
       const retryScheduled = String(job.status) === 'queued';
       run.updatedAt = failedAt;
@@ -787,7 +787,7 @@ export class ZavorthAgentGateway {
         id: `${job.id}:failed`,
         runId: run.id,
         kind: 'error',
-        title: retryScheduled ? 'Workflow duravel reagendado' : 'Workflow duravel falhou',
+        title: retryScheduled ? 'Workflow duravel reagendado' : 'Workflow duravel failed',
         detail: message,
         status: retryScheduled ? 'pending' : 'failed',
         createdAt: failedAt,
@@ -969,7 +969,7 @@ export class ZavorthAgentGateway {
 
   private resolveWorkflowFailureMessage(run: UniversalAgentRun): string {
     const failureSemantics = toSerializableRecord(run.metadata?.failureSemantics);
-    return normalizeText(failureSemantics.message, normalizeText(run.summary, 'Executor duravel falhou.'));
+    return normalizeText(failureSemantics.message, normalizeText(run.summary, 'Executor duravel failed.'));
   }
 
   private buildReplies(run: UniversalAgentRun, text: string, createdAt: string): UniversalReplyPacket[] {
@@ -1033,7 +1033,7 @@ export class ZavorthAgentGateway {
       job.nextRunAt = this.addMs(failedAt, backoffMs);
       this.clearWorkflowLease(job);
       run.status = 'queued';
-      run.summary = `Workflow duravel falhou e foi reagendado: ${message}`;
+      run.summary = `Workflow duravel failed e foi reagendado: ${message}`;
       return;
     }
 

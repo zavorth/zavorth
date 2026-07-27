@@ -128,7 +128,7 @@ export class NodeRegistryService {
       },
       operatorSummary:
         input.status === 'online'
-          ? 'Node respondeu ao ultimo heartbeat e parece pronto para transporte remoto.'
+          ? 'Node responded to the latest heartbeat and appears ready for remote transport.'
           : current.operatorSummary,
     });
   }
@@ -172,13 +172,13 @@ export class NodeRegistryService {
         approvedBy: String(input.approvedBy || current.requestedBy || '').trim() || null,
         reason:
           String(input.reason || '').trim() ||
-          (normalized.length > 0 ? 'Allowlist atualizada no shell oficial.' : 'Allowlist limpa no shell oficial.'),
+          (normalized.length > 0 ? 'Allowlist updated no shell oficial.' : 'Allowlist limpa no shell oficial.'),
         mode: String(input.mode || '').trim() || (normalized.length > 0 ? 'custom' : 'clear'),
       },
       operatorSummary:
         normalized.length > 0
-          ? `Node com allowlist ativa (${normalized.length} capability(s) aprovada(s)).`
-          : 'Node sem allowlist ativa; todas as capabilities declaradas continuam disponiveis conforme a policy local.',
+          ? `Node com allowlist ativa (${normalized.length} approved capability(s)(s)).`
+          : 'Node without active allowlist; all declared capabilities remain available according to local policy.',
     });
   }
 

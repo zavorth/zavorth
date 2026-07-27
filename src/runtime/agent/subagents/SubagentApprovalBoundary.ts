@@ -35,8 +35,7 @@ export function createSubagentApprovalBoundary(
     requiresApproval,
     approvalReason:
       normalizeText(input.approvalReason) ||
-      (requiresApproval
-        ? 'Subagent execution requires explicit approval before leaving the proposal boundary.'
+      (requiresApproval ? 'Subagent execution requires explicit approval before leaving the proposal boundary.'
         : 'Read-only subagent scope was explicitly precleared.'),
     risk,
     inheritedApprovalId: normalizeText(input.inheritedApprovalId) || null,

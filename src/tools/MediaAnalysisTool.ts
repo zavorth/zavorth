@@ -1,4 +1,4 @@
-import { BaseTool } from './BaseTool.js';
+﻿import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { MediaUnderstandingService } from '../services/MediaUnderstandingService.js';
 import type {
@@ -10,22 +10,22 @@ export class MediaAnalysisTool extends BaseTool {
   public readonly name = 'analyze_media';
 
   public readonly description =
-    'Analisa midia recebida como artefato Zavorth. Pode descrever, extrair texto, classificar ou responder perguntas sobre o conteudo.';
+    'Analyzes media received as a Zavorth artifact. Can describe, extract text, classify, or answer questions about the content.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       artifact_id: {
         type: 'string',
-        description: 'ID do artefato Zavorth de midia a ser analisado.',
+        description: 'Zavorth media artifact id to analyze.',
       },
       analysis_type: {
         type: 'string',
-        description: "Tipo de analise: 'describe', 'extract', 'classify' ou 'qa'. Default: 'describe'.",
+        description: "Analysis type: 'describe', 'extract', 'classify', or 'qa'. Default: 'describe'.",
       },
       prompt: {
         type: 'string',
-        description: 'Pergunta ou instrucao adicional para guiar a analise.',
+        description: 'Additional question or instruction to guide the analysis.',
       },
     },
     required: ['artifact_id'],
@@ -66,23 +66,23 @@ export class MediaAnalysisTool extends BaseTool {
 
   private formatSuccessResponse(result: MediaUnderstandingResult): string {
     if (!result.analysis) {
-      return 'Analise concluida, mas sem resultado estruturado.';
+      return 'Analysis completed, but no structured result.';
     }
 
     const lines: string[] = [];
     const analysis = result.analysis;
     const meta = analysis.detectedMetadata;
 
-    lines.push(`Analise '${result.analysisType}' concluida (${result.modality}).`);
+    lines.push(`Analysis '${result.analysisType}' completed (${result.modality}).`);
     lines.push('');
     lines.push('Metadados:');
     lines.push(`- Tipo: ${meta.contentType}`);
-    lines.push(`- Tamanho: ${(meta.sizeBytes / 1024).toFixed(1)} KB`);
+    lines.push(`- Size: ${(meta.sizeBytes / 1024).toFixed(1)} KB`);
     if (meta.dimensions) {
       lines.push(`- Dimensoes: ${meta.dimensions.width}x${meta.dimensions.height}`);
     }
     if (meta.durationSeconds) {
-      lines.push(`- Duracao: ${meta.durationSeconds.toFixed(1)}s`);
+      lines.push(`- Duraction: ${meta.durationSeconds.toFixed(1)}s`);
     }
     if (meta.hasVisibleText) {
       lines.push('- Visible text detected: yes');
@@ -97,22 +97,22 @@ export class MediaAnalysisTool extends BaseTool {
 
     switch (result.analysisType) {
       case 'extract':
-        lines.push('Texto extraido:');
+        lines.push('Extracted text:');
         lines.push(analysis.extractedText || analysis.description);
         break;
       case 'classify':
-        lines.push('Classificacoes:');
+        lines.push('Classifications:');
         if (analysis.classifications && analysis.classifications.length > 0) {
           for (const cls of analysis.classifications) {
             const confLabel = cls.confidence >= 0.8 ? 'alta' : cls.confidence >= 0.5 ? 'media' : 'baixa';
-            lines.push(`- ${cls.label} (confianca: ${confLabel})`);
+            lines.push(`- ${cls.label} (trust: ${confLabel})`);
           }
         } else {
           lines.push(analysis.description);
         }
         break;
       case 'qa':
-        lines.push('Resposta:');
+        lines.push('Response:');
         lines.push(analysis.answer || analysis.description);
         break;
       case 'describe':

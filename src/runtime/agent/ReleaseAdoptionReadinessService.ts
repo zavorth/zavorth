@@ -3,7 +3,8 @@ import type { ReleaseTrainSnapshot } from '../../contracts/ReleaseTrainContract.
 import type { IntegrationShowcasePartnerSurfaceSnapshot } from './IntegrationShowcasePartnerSurfaceService.js';
 import type { PublicAdoptionPilotLoopSnapshot } from './PublicAdoptionPilotLoopService.js';
 import type { FeedbackTelemetryProductLoopSnapshot } from './FeedbackTelemetryProductLoopService.js';
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export const RELEASE_ADOPTION_READINESS_CONTRACT_VERSION = '2026-05-04.release-readiness' as const;
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
+export const RELEASE_ADOPTION_READINESS_CONTRACT_VERSION = '2026-05-04.release-readiness' as const;
 export const RELEASE_ADOPTION_READINESS_METADATA_KEY = 'releaseAdoptionReadiness' as const;
 
 export type ReleaseAdoptionReadinessStatus =
@@ -389,7 +390,7 @@ export class ReleaseAdoptionReadinessService {
       },
       surface: {
         cliCommand: `zavorth release-adoption-readiness run ${run.id} --json`,
-        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(run.id)}&sector=config`,
         releaseRoute: '/release',
         feedbackRoute: '/feedback',
         docsRoute: '/docs',
@@ -468,13 +469,12 @@ export class ReleaseAdoptionReadinessService {
     return [
       {
         id: 'integration-showcase',
-        label: 'Integration showcase fechado',
+        label: 'Integration showcase closed',
         status: gateStatus(input.showcaseReady, true, input.partnerClaimBlocked),
         source: 'IntegrationShowcasePartnerSurfaceService',
         command: 'zavorth integration-showcase-partner-surface --json',
-        detail: input.showcaseReady
-          ? 'Integration Showcase publicou showcase fixture-first e partner surface auditavel.'
-          : 'Release/adoption depende da showcase de integracoes sem claim formal indevido.',
+        detail: input.showcaseReady ? 'Integration Showcase published a fixture-first showcase and auditable partner surface.'
+          : 'Release/adoption depende da showcase de integrations without claim formal indevido.',
         critical: true,
       },
       {
@@ -483,9 +483,8 @@ export class ReleaseAdoptionReadinessService {
         status: gateStatus(input.releaseReady, input.releaseLinked),
         source: 'ReleaseTrainService',
         command: 'npm run qa:release-train',
-        detail: input.releaseReady
-          ? 'Release train cobre baseline, RC, rollback, hotfix e LTS.'
-          : 'Anexar ReleaseTrainSnapshot ready antes de abrir adocao publica.',
+        detail: input.releaseReady ? 'Release train cobre baseline, RC, rollback, hotfix e LTS.'
+          : 'Attach a ready ReleaseTrainSnapshot before opening public adoption.',
         critical: true,
       },
       {
@@ -494,9 +493,8 @@ export class ReleaseAdoptionReadinessService {
         status: gateStatus(input.adoptionReady, input.adoptionLinked),
         source: 'PublicAdoptionReadinessService',
         command: 'npm run qa:public-adoption',
-        detail: input.adoptionReady
-          ? 'Onboarding, docs, claims, riscos e runbook publico estao prontos.'
-          : 'Adoção publica precisa score, runbook e claims com evidencia.',
+        detail: input.adoptionReady ? 'Onboarding, docs, claims, risks, and public runbook are ready.'
+          : 'Public adoption needs score, runbook, and evidence-backed claims.',
         critical: true,
       },
       {
@@ -505,20 +503,18 @@ export class ReleaseAdoptionReadinessService {
         status: gateStatus(input.supportLoopReady),
         source: 'PublicAdoptionPilotLoopService',
         command: 'npm run qa:pilot-loop',
-        detail: input.supportLoopReady
-          ? 'Pilotos, triagem, suporte e zavorthControl agregado estao disponiveis.'
-          : 'Suporte precisa ledger, triagem, pilotos planejados e zavorthControl agregado.',
+        detail: input.supportLoopReady ? 'Pilots, triage, support, and aggregated zavorthControl are available.'
+          : 'Support needs ledger, triage, planned pilots, and aggregated zavorthControl.',
         critical: true,
       },
       {
         id: 'feedback-metrics',
-        label: 'Feedback e metricas agregadas',
+        label: 'Feedback and aggregate metrics',
         status: gateStatus(input.feedbackMetricsReady),
         source: 'FeedbackTelemetryProductLoopService',
         command: 'npm run feedback:preview',
-        detail: input.feedbackMetricsReady
-          ? 'Feedback segue opt-in, redigido e agregado.'
-          : 'Feedback nao pode ligar telemetry, envio externo ou payload bruto.',
+        detail: input.feedbackMetricsReady ? 'Feedback remains opt-in, redacted, and aggregated.'
+          : 'Feedback cannot enable telemetry, external send, or raw payload.',
         critical: true,
       },
       {
@@ -527,20 +523,18 @@ export class ReleaseAdoptionReadinessService {
         status: gateStatus(input.ltsHotfixPolicyReady, input.releaseLinked),
         source: 'ReleaseTrainService',
         command: 'npm run qa:release-train',
-        detail: input.ltsHotfixPolicyReady
-          ? 'Patch, minor, breaking, calendario e hotfix playbook estao definidos.'
-          : 'Release train precisa politica LTS/hotfix antes de publicacao forte.',
+        detail: input.ltsHotfixPolicyReady ? 'Patch, minor, breaking, calendario e hotfix playbook are definidos.'
+          : 'Release train needs LTS/hotfix policy before strong publication.',
         critical: true,
       },
       {
         id: 'docs-runbook',
-        label: 'Docs e runbook publico',
+        label: 'Docs and public runbook',
         status: gateStatus(input.docsRunbookReady, input.adoptionLinked),
         source: 'PublicAdoptionReadinessService',
         command: 'npm run public-adoption',
-        detail: input.docsRunbookReady
-          ? 'Runbook, riscos e claims tem evidencia local.'
-          : 'Docs/runbook precisam explicar limites, suporte e fluxo de adocao.',
+        detail: input.docsRunbookReady ? 'Runbook, risks e claims tem evidence local.'
+          : 'Docs/runbook must explain limits, support, and adoption flow.',
         critical: true,
       },
     ];
@@ -559,12 +553,12 @@ export class ReleaseAdoptionReadinessService {
         label: 'CLI release/adoption readiness',
         routeOrCommand: 'zavorth release-adoption-readiness --json',
         status: 'ready',
-        detail: 'Snapshot read-only para release, adocao, suporte e feedback.',
+        detail: 'Read-only snapshot for release, adoption, support, and feedback.',
       },
       {
         id: 'control',
         label: 'ZavorthControl',
-        routeOrCommand: '/zavorthControl?sector=config',
+        routeOrCommand: '/zavorthControl...sector=config',
         status: 'ready',
         detail: 'Config mostra release train, adoption readiness e suporte.',
       },
@@ -573,42 +567,42 @@ export class ReleaseAdoptionReadinessService {
         label: 'Release route',
         routeOrCommand: '/release',
         status: input.releaseReady ? 'ready' : 'needs-action',
-        detail: 'Release publica baseline, rollback, changelog e hotfix.',
+        detail: 'Release public baseline, rollback, changelog e hotfix.',
       },
       {
         id: 'adoption',
         label: 'Public adoption gate',
         routeOrCommand: 'npm run qa:public-adoption',
         status: input.adoptionReady ? 'ready' : 'needs-action',
-        detail: 'Onboarding publico e claims precisam evidencia local.',
+        detail: 'Public onboarding and claims need local evidence.',
       },
       {
         id: 'support',
         label: 'Support zavorthControl',
         routeOrCommand: 'support-zavorthControl.json',
         status: input.supportLoopReady ? 'ready' : 'needs-action',
-        detail: 'Suporte usa triagem e metricas agregadas.',
+        detail: 'Support uses triage and aggregate metrics.',
       },
       {
         id: 'feedback',
         label: 'Feedback opt-in',
         routeOrCommand: '/feedback',
         status: input.feedbackMetricsReady ? 'ready' : 'needs-action',
-        detail: 'Feedback permanece preview/redigido/revoke-delete.',
+        detail: 'Feedback remains preview/redacted/revoke-delete.',
       },
       {
         id: 'docs',
-        label: 'Docs publicas',
+        label: 'Public docs',
         routeOrCommand: '/docs',
         status: input.adoptionReady ? 'ready' : 'needs-action',
-        detail: 'Docs explicam limites, rollback e suporte.',
+        detail: 'Docs explain limits, rollback, and support.',
       },
       {
         id: 'next-cycle',
-        label: 'Proximo ciclo',
+        label: 'next ciclo',
         routeOrCommand: 'v1.1.0 planning',
         status: input.canOpenPublicAdoption ? 'ready' : 'needs-action',
-        detail: 'Novas features devem entrar como v1.1.0 planejado ou hotfix estreito.',
+        detail: 'New features must enter as planned v1.1.0 work or a narrow hotfix.',
       },
     ];
   }
@@ -626,44 +620,43 @@ export class ReleaseAdoptionReadinessService {
         id: 'release-adoption:showcase',
         kind: 'showcase',
         source: 'IntegrationShowcasePartnerSurfaceService',
-        detail: input.showcaseReady ? 'Showcase pronto.' : 'Showcase pendente.',
+        detail: input.showcaseReady ? 'Showcase ready.' : 'Showcase pending.',
         status: input.showcaseReady ? 'ready' : 'needs-action',
       },
       {
         id: 'release-adoption:release-train',
         kind: 'release-train',
         source: 'ReleaseTrainService',
-        detail: input.releaseReady ? 'Release train ready.' : 'Release train pendente.',
+        detail: input.releaseReady ? 'Release train ready.' : 'Release train pending.',
         status: input.releaseReady ? 'ready' : 'needs-action',
       },
       {
         id: 'release-adoption:public-adoption',
         kind: 'adoption',
         source: 'PublicAdoptionReadinessService',
-        detail: input.adoptionReady ? 'Public adoption ready.' : 'Public adoption pendente.',
+        detail: input.adoptionReady ? 'Public adoption ready.' : 'Public adoption pending.',
         status: input.adoptionReady ? 'ready' : 'needs-action',
       },
       {
         id: 'release-adoption:support',
         kind: 'support',
         source: 'PublicAdoptionPilotLoopService',
-        detail: input.supportLoopReady ? 'Support loop controlado pronto.' : 'Support loop pendente.',
+        detail: input.supportLoopReady ? 'Support loop controlado ready.' : 'Support loop pending.',
         status: input.supportLoopReady ? 'ready' : 'needs-action',
       },
       {
         id: 'release-adoption:feedback',
         kind: 'feedback',
         source: 'FeedbackTelemetryProductLoopService',
-        detail: input.feedbackMetricsReady ? 'Metricas agregadas e feedback opt-in.' : 'Metricas/feedback pendentes.',
+        detail: input.feedbackMetricsReady ? 'Aggregated metrics and feedback opt-in.' : 'Metrics/feedback pending.',
         status: input.feedbackMetricsReady ? 'ready' : 'needs-action',
       },
       {
         id: 'release-adoption:policy',
         kind: 'policy',
         source: 'ReleaseAdoptionReadinessService',
-        detail: input.ltsHotfixPolicyReady
-          ? 'Sem deploy/canary, sem telemetry implicita e com rollback preview obrigatorio.'
-          : 'Politica LTS/hotfix precisa ficar pronta antes de release forte.',
+        detail: input.ltsHotfixPolicyReady ? 'No deploy/canary, no implicit telemetry, and rollback preview required.'
+          : 'LTS/hotfix policy must be ready before strong release.',
         status: input.ltsHotfixPolicyReady ? 'ready' : 'needs-action',
       },
     ];
@@ -671,23 +664,23 @@ export class ReleaseAdoptionReadinessService {
 
   private resolveNextSafeAction(status: ReleaseAdoptionReadinessStatus): string {
     if (status === 'needs-integration-showcase') {
-      return 'Fechar Integration Showcase como showcase-ready antes de consolidar release/adoption.';
+      return 'Close Integration Showcase as showcase-ready before consolidating release adoption.';
     }
     if (status === 'needs-release-train') {
-      return 'Anexar ReleaseTrainSnapshot ready com baseline, rollback, hotfix e LTS.';
+      return 'Anexar ReleaseTrainSnapshot ready with baseline, rollback, hotfix e LTS.';
     }
     if (status === 'needs-public-adoption') {
-      return 'Anexar PublicAdoptionReadinessSnapshot ready com runbook, claims e riscos.';
+      return 'Attach a ready PublicAdoptionReadinessSnapshot with runbook, claims, and risks.';
     }
     if (status === 'needs-support-loop') {
-      return 'Fechar suporte com pilotos planejados, triagem, ledger e zavorthControl agregado.';
+      return 'Fechar suporte with pilotos planejados, triagem, ledger e zavorthControl agregado.';
     }
     if (status === 'needs-feedback-metrics') {
-      return 'Manter feedback opt-in e publicar apenas metricas agregadas.';
+      return 'Keep feedback opt-in and publish only aggregate metrics.';
     }
     if (status === 'blocked') {
-      return 'Remover bloqueios de showcase, release train ou public adoption antes de abrir adocao.';
+      return 'Remove showcase, release-train, or public-adoption blockers before opening adoption.';
     }
-    return 'Abrir adocao publica controlada sem deploy/canary automatico; novas features entram em v1.1.0 planejado.';
+    return 'Open controlled public adoption without automatic deploy or canary; new features enter planned v1.1.0 work.';
   }
 }

@@ -97,7 +97,7 @@ export class ZavorthCapabilityActionSurfaceService {
         status: 'npm run zavorth:capability-action-surface --silent -- --list',
         preview: 'zavorth actions preview <action-id>',
         receipts: 'zavorth actions receipts --action <action-id>',
-        nextStage: 'Publish clear public usage documentation for verified capabilities.',
+        nextAction: 'Publish clear public usage documentation for verified capabilities.',
       },
       safety: {
         readOnlyProjection: true,

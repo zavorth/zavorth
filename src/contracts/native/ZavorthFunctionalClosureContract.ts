@@ -1,4 +1,4 @@
-export const ZAVORTH_FUNCTIONAL_CLOSURE_CONTRACT_VERSION = '2026-05-05.checkpoint-9' as const;
+export const ZAVORTH_FUNCTIONAL_CLOSURE_CONTRACT_VERSION = '2026-05-05.gate-9' as const;
 
 export type ZavorthFunctionalClosureStatus = 'passed' | 'failed';
 

@@ -12,7 +12,7 @@ import type {
 import type { ZavorthInvocationReceipt } from '../ZavorthInvocationReceiptContract.js';
 
 export const ZAVORTH_SKILL_ABSORPTION_MATERIALIZATION_CONTRACT_VERSION =
-  '2026-05-10.skill-absorption-materialization-checkpoint-6' as const;
+  '2026-05-10.skill-absorption-materialization-gate-6' as const;
 
 export type ZavorthSkillAbsorptionMaterializationStatus =
   | 'preview-only'
@@ -98,7 +98,7 @@ export type ZavorthSkillAbsorptionMaterializationSnapshot = {
     preview: 'npm run zavorth:skill-absorption-materialize -- --source <path>';
     apply: 'npm run zavorth:skill-absorption-materialize -- --source <path> --apply --approval-id <approval-id> --allow-source --skills <name>';
     check: 'npm run zavorth:skill-absorption-materialize:check --silent';
-    nextStage: 'Surface controls - Natural Cross-Surface Commands';
+    nextAction: 'Surface controls - Natural Cross-Surface Commands';
   };
 };
 

@@ -69,9 +69,9 @@ export class RuntimeBrowserSidecarService {
         auditId,
         status: 'blocked',
         durationMs: Date.now() - startedAt,
-        summary: 'Browser sidecar remoto nao configurado.',
+        summary: 'Remote browser sidecar not configured.',
       });
-      throw new Error('Browser sidecar remoto nao configurado. Defina ZAVORTH_BROWSER_SIDECAR_URL.');
+      throw new Error('Remote browser sidecar not configured. set ZAVORTH_BROWSER_SIDECAR_URL.');
     }
 
     const controller = new AbortController();
@@ -97,7 +97,7 @@ export class RuntimeBrowserSidecarService {
       const parsed = this.parseJson(rawText);
       if (!response.ok) {
         const message = this.extractError(parsed) || rawText || `HTTP ${response.status}`;
-        throw new Error(`Browser sidecar recusou ${request.action}: ${message}`);
+        throw new Error(`Browser sidecar rejected ${request.action}: ${message}`);
       }
 
       const output: RuntimeBrowserSidecarResponse = {
@@ -174,7 +174,7 @@ export class RuntimeBrowserSidecarService {
           origin: this.safeOrigin(),
         },
       });
-    } catch (error: unknown) {// Receipts nao podem derrubar ou mascarar uma chamada ao sidecar remoto.
+    } catch (error: unknown) {// Receipts cannot bring down or mask a remote sidecar call.
       logger.warn('[Runtime Browser Sidecar] operation failed', error);
     }
   }

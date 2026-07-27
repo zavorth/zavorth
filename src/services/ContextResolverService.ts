@@ -33,7 +33,7 @@ export type ContextResolverSnapshot = {
 type ContextResolverOptions = {
   workspaceProfileService?: WorkspaceProfileService;
   globalPolicySummary?: string | null;
-  /** Nomes das tools MCP atualmente conectadas. Usado para decidir se inclui a layer do Mnemos. */
+  /** names das tools MCP atualmente conectadas. Usado para decidir se inclui a layer do Mnemos. */
   connectedToolNames?: string[];
   connectedToolNamesProvider?: () => string[] | Promise<string[]>;
 };
@@ -57,7 +57,7 @@ export class ContextResolverService {
     this.workspaceProfiles = options.workspaceProfileService || new WorkspaceProfileService();
     this.globalPolicySummary = String(
       options.globalPolicySummary
-      || 'Politica global do Zavorth: core leve por padrao, approvals para mutacoes sensiveis e capabilities sob demanda.',
+      || 'Politica global do Zavorth: core leve por default, approvals para mutations sensitive e capabilities sob demanda.',
     ).trim();
     this.connectedToolNames = options.connectedToolNames || [];
     this.connectedToolNamesProvider = options.connectedToolNamesProvider || null;
@@ -69,7 +69,7 @@ export class ContextResolverService {
       workspace: workspace.replace(/\\/g, '/'),
       workspace_name: path.basename(workspace),
       slug: path.basename(workspace).toLowerCase(),
-      summary: 'Workspace sem profile persistido; usando contexto minimo.',
+      summary: 'Workspace without profile persistido; usando contexto minimo.',
       preferred_executors: {
         code_editing: 'local',
         code_review: 'local',
@@ -144,7 +144,7 @@ export class ContextResolverService {
       layers.push({
         id: 'workspace-manual',
         label: 'ZAVORTH.md do workspace',
-        summary: profile.instruction_summary || 'Workspace com manual operacional Zavorth.',
+        summary: profile.instruction_summary || 'Workspace com manual operational Zavorth.',
         source: profile.instruction_file || null,
       });
     }
@@ -154,7 +154,7 @@ export class ContextResolverService {
       layers.push({
         id: 'agents-compat',
         label: 'Compatibilidade AGENTS.md',
-        summary: 'Compatibilidade opcional com convencoes de agentes do workspace.',
+        summary: 'Compatibilidade optional com convencoes de agentes do workspace.',
         source: agentsSource,
       });
     }
@@ -171,8 +171,8 @@ export class ContextResolverService {
     if (input.capabilityIds.length > 0) {
       layers.push({
         id: 'capabilities',
-        label: 'Capabilities disponiveis',
-        summary: `Capabilities sob demanda visiveis para esta sessao: ${input.capabilityIds.join(', ')}.`,
+        label: 'Available capabilities',
+        summary: `On-demand capabilities visible for this session: ${input.capabilityIds.join(', ')}.`,
         source: 'zavorth://capabilities',
       });
     }
@@ -181,7 +181,7 @@ export class ContextResolverService {
       layers.push({
         id: 'tool-contracts',
         label: 'Contratos de tool',
-        summary: `Executores padronizados nesta sessao: ${input.toolContracts.join(', ')}.`,
+        summary: `Standardized executors in this session: ${input.toolContracts.join(', ')}.`,
         source: 'zavorth://tools/contracts',
       });
     }
@@ -199,7 +199,7 @@ export class ContextResolverService {
     if (input.sessionOverrides.length > 0) {
       layers.push({
         id: 'session-overrides',
-        label: 'Overrides da sessao',
+        label: 'Session overrides',
         summary: input.sessionOverrides.join(' | '),
         source: 'zavorth://session/overrides',
       });
@@ -221,7 +221,7 @@ export class ContextResolverService {
 
       layers.push({
         id: 'user-request',
-        label: 'Pedido do usuario',
+        label: 'User request',
         summary: input.userRequest,
         source: 'zavorth://session/request',
       });

@@ -6,7 +6,7 @@
     "loading": "Se încarcă...",
     "error": "A apărut o eroare",
     "success": "Succes",
-    "confirm": "esti sigur?",
+    "confirm": "esti sigur...",
     "refresh": "Reîmprospătați",
     "close": "Închide",
     "add": "Adăugați",
@@ -164,8 +164,8 @@
     "auditLog": "Jurnal de audit",
     "shutdown": "Închidere",
     "restart": "Reporniți",
-    "shutdownConfirm": "Închideți ZavorthGateway?",
-    "restartConfirm": "Reporniți ZavorthGateway?",
+    "shutdownConfirm": "Închideți ZavorthGateway...",
+    "restartConfirm": "Reporniți ZavorthGateway...",
     "version": "v{version}",
     "debug": "Depanați",
     "system": "Sistem",
@@ -288,7 +288,7 @@
     "createKey": "Creați cheia API",
     "key": "cheie",
     "revokeKey": "Revocați cheia",
-    "revokeConfirm": "Sigur doriți să revocați această cheie API?",
+    "revokeConfirm": "Sigur doriți să revocați această cheie API...",
     "noKeys": "Încă nu există chei API",
     "noKeysDesc": "Creați prima cheie API pentru a autentifica solicitările către punctul final",
     "keyLabel": "Eticheta cheii",
@@ -320,7 +320,7 @@
     "actions": "Acțiuni",
     "reqs": "solicită",
     "neverUsed": "Nu a fost folosit niciodată",
-    "deleteConfirm": "Ștergeți această cheie API?",
+    "deleteConfirm": "Ștergeți această cheie API...",
     "usageTips": "Sfaturi de utilizare",
     "tipAuth": "Folosiți cheile API în antetul de autorizare ca purtător YOUR_KEY",
     "tipSecure": "Cheile sunt afișate o singură dată în timpul creării - stocați-le în siguranță",
@@ -803,7 +803,7 @@
     "leastLatency": "Latență minimă",
     "comboName": "Nume combinat",
     "comboNamePlaceholder": "combo-ul meu",
-    "deleteConfirm": "Ștergeți această combinație?",
+    "deleteConfirm": "Ștergeți această combinație...",
     "noCombosYet": "Nicio combinație încă",
     "comboCreated": "Combo creat cu succes",
     "comboUpdated": "Combo actualizat cu succes",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "Sunteți gata să economisiți?",
+    "readinessTitle": "Sunteți gata să economisiți...",
     "readinessDescription": "Examinați lista de verificare înainte de a crea sau a actualiza această combinație.",
     "readinessCheckName": "Numele combinației este valid",
     "readinessCheckModels": "Este selectat cel puțin un model",
@@ -1013,7 +1013,7 @@
     "title": "API Endpoint",
     "available": "Puncte finale disponibile",
     "cloudProxy": "Cloud Proxy",
-    "disableConfirm": "Sigur doriți să dezactivați proxy-ul cloud?",
+    "disableConfirm": "Sigur doriți să dezactivați proxy-ul cloud...",
     "baseUrl": "Adresa URL de bază",
     "apiKeyLabel": "Cheia API",
     "registeredKeys": "Chei înregistrate",
@@ -1154,13 +1154,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirmați {action} combo „{combo}”?",
+    "confirmSwitchCombo": "Confirmați {action} combo „{combo}”...",
     "switchComboFailed": "Nu s-a putut comuta starea combo.",
     "switchComboSuccess": "Combo „{combo}” a fost actualizat.",
-    "confirmApplyProfile": "Aplicați profilul de rezistență „{profile}”?",
+    "confirmApplyProfile": "Aplicați profilul de rezistență „{profile}”...",
     "applyProfileFailed": "Nu s-a putut aplica profilul de rezistență.",
     "applyProfileSuccess": "S-a aplicat profilul „{profile}”.",
-    "confirmResetBreakers": "Resetați toate întreruptoarele?",
+    "confirmResetBreakers": "Resetați toate întreruptoarele...",
     "resetBreakersFailed": "Nu s-au resetat întreruptoarele.",
     "resetBreakersSuccess": "Întrerupătoarele se resetează.",
     "processStatus": "Starea procesului",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1310,7 +1310,7 @@
     "hitRate": "Rata de lovituri",
     "hitsMisses": "Hits / Misses",
     "signatureCache": "Cache pentru semnături",
-    "signatureDefaults": "Valori implicite",
+    "signatureDefaults": "Valuei implicite",
     "signatureTool": "Instrument",
     "signatureFamily": "Familie",
     "signatureSession": "Sesiune",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} rulează",
     "ok": "OK",
     "activeLockouts": "Blocări active",
-    "resetConfirm": "Resetați toate întreruptoarele la starea sănătoasă? Acest lucru va șterge toate numărul de eșecuri și va restabili toți furnizorii la starea operațională.",
+    "resetConfirm": "Resetați toate întreruptoarele la starea sănătoasă... Acest lucru va șterge toate numărul de eșecuri și va restabili toți furnizorii la starea operațională.",
     "resetAllTitle": "Resetați toate întreruptoarele la starea sănătoasă",
     "resetting": "Se resetează...",
     "resetAll": "Resetați toate",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Disponibilitatea modelului",
     "accounts": "Conturi",
     "newAccount": "Cont nou",
-    "deleteConfirm": "Sigur doriți să ștergeți acest furnizor?",
+    "deleteConfirm": "Sigur doriți să ștergeți acest furnizor...",
     "testing": "Testare...",
     "testConnection": "Testează conexiunea",
     "testSuccess": "Conexiune reușită",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "Testați cheia API",
     "testKeyPlaceholder": "sk-... (doar pentru validare)",
     "providerNotFound": "Furnizorul nu a fost găsit",
-    "deleteConnectionConfirm": "Ștergeți această conexiune?",
+    "deleteConnectionConfirm": "Ștergeți această conexiune...",
     "failedSetAlias": "Nu s-a putut seta aliasul",
     "failedSaveConnection": "Nu s-a putut salva conexiunea",
     "failedSaveConnectionRetry": "Nu s-a putut salva conexiunea. Vă rugăm să încercați din nou.",
     "failedRetestConnection": "Nu s-a retestat conexiunea",
-    "deleteCompatibleNodeConfirm": "Ștergeți acest nod {type} compatibil?",
+    "deleteCompatibleNodeConfirm": "Ștergeți acest nod {type} compatibil...",
     "anthropicCompatibleDetails": "Detalii compatibile antropice",
     "openaiCompatibleDetails": "Detalii compatibile cu OpenAI",
     "messagesApi": "Messages API",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Sincronizarea automată a fost dezactivată",
     "autoSyncToggleFailed": "Nu s-a putut comuta sincronizarea automată",
     "clearAllModels": "Ștergeți toate modelele",
-    "clearAllModelsConfirm": "Sigur doriți să eliminați toate modelele pentru acest furnizor? Acest lucru nu poate fi anulat.",
+    "clearAllModelsConfirm": "Sigur doriți să eliminați toate modelele pentru acest furnizor... Acest lucru nu poate fi anulat.",
     "clearAllModelsSuccess": "Toate modelele au fost eliminate",
     "clearAllModelsFailed": "Nu s-au șters modelele",
     "addConnectionToImport": "Adăugați o conexiune pentru a activa importul.",
@@ -1814,7 +1814,7 @@
     "exportData": "Exportați date",
     "importData": "Importați date",
     "clearData": "Ștergeți toate datele",
-    "clearDataConfirm": "Aceasta va șterge definitiv toate datele. esti sigur?",
+    "clearDataConfirm": "Aceasta va șterge definitiv toate datele. esti sigur...",
     "enableRequestLogs": "Activați jurnalele de solicitări",
     "logRetention": "Păstrarea jurnalelor",
     "ipWhitelist": "Lista albă IP",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Apeluri pe cont înainte de a comuta",
     "modelAliases": "Aliasuri de model",
     "modelAliasesTitle": "Aliasuri de model",
-    "modelAliasesDesc": "Modele wildcard pentru a remapa numele modelelor • Utilizați * și ?",
+    "modelAliasesDesc": "Modele wildcard pentru a remapa numele modelelor • Utilizați * și ...",
     "addCustomAlias": "Adaugă Alias Personalizat",
     "deprecatedModelId": "ID model depreciat",
     "newModelId": "ID model nou",
@@ -1974,7 +1974,7 @@
     "browser": "Browser",
     "clearLocalData": "Ștergeți datele locale",
     "logout": "Deconectare",
-    "clearLocalDataConfirm": "Ștergeți toate datele locale? Aceasta vă va reseta preferințele.",
+    "clearLocalDataConfirm": "Ștergeți toate datele locale... Aceasta vă va reseta preferințele.",
     "unknown": "Necunoscut",
     "systemActor": "sistem",
     "ipAccessControl": "Control acces IP",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Fără lanțuri de rezervă",
     "noFallbackChainsDesc": "Creați un lanț pentru a defini ordinea de rezervă a furnizorului pentru un model.",
     "loadingFallbackChains": "Se încarcă lanțurile alternative...",
-    "deleteChainConfirm": "Ștergeți lanțul alternativ pentru „{model}”?",
+    "deleteChainConfirm": "Ștergeți lanțul alternativ pentru „{model}”...",
     "chainCreated": "Lanț creat pentru {model}",
     "chainDeleted": "Lanțul a fost șters pentru {model}",
     "failedCreateChain": "Nu s-a putut crea lanțul",
@@ -2021,7 +2021,7 @@
     "comboDefaultsTitle": "Setări implicite combinate",
     "comboDefaultsGuideTitle": "Cum să reglați setările implicite de combo",
     "comboDefaultsGuideHint1": "Menține reîncercările scăzute în fluxurile cu latență scăzută; crește timpul de expirare numai pentru sarcini de generație lungă.",
-    "comboDefaultsGuideHint2": "Folosiți suprascrierile furnizorului atunci când un furnizor are nevoie de un comportament de timeout/reîncercare diferit față de valorile prestabilite globale.",
+    "comboDefaultsGuideHint2": "Folosiți suprascrierile furnizorului atunci când un furnizor are nevoie de un comportament de timeout/reîncercare diferit față de valueile prestabilite globale.",
     "globalComboConfig": "Configurație globală combo",
     "defaultStrategy": "Strategia implicită",
     "defaultStrategyDesc": "Aplicat combo-urilor noi fără strategie explicită",
@@ -2033,10 +2033,10 @@
     "timeoutLabel": "Timeout (ms)",
     "healthCheck": "Verificare de sănătate",
     "healthCheckDesc": "Verificați prealabil disponibilitatea furnizorului",
-    "trackMetrics": "Urmăriți valorile",
-    "trackMetricsDesc": "Înregistrați valorile pentru fiecare cerere combinată",
+    "trackMetrics": "Urmăriți valueile",
+    "trackMetricsDesc": "Înregistrați valueile pentru fiecare cerere combinată",
     "providerOverrides": "Suprascrierea furnizorului",
-    "providerOverridesDesc": "Suprascrierea timpului de expirare și reîncercări pentru fiecare furnizor. Setările furnizorului înlocuiesc valorile prestabilite globale.",
+    "providerOverridesDesc": "Suprascrierea timpului de expirare și reîncercări pentru fiecare furnizor. Setările furnizorului înlocuiesc valueile prestabilite globale.",
     "providerMaxRetriesAria": "{provider} max. reîncercări",
     "providerTimeoutAria": "{provider} timeout ms",
     "removeProviderOverrideAria": "Eliminați anularea {provider}",
@@ -2058,7 +2058,7 @@
     "cbThreshold": "Pragul CB",
     "cbResetTime": "Timp de resetare CB",
     "rateLimiting": "Limitarea ratei",
-    "rateLimitingDesc": "Furnizorii de chei API sunt limitate automat la rate cu valori implicite sigure. Limitele sunt învățate din anteturile de răspuns și se adaptează în timp.",
+    "rateLimitingDesc": "Furnizorii de chei API sunt limitate automat la rate cu valuei implicite sigure. Limitele sunt învățate din anteturile de răspuns și se adaptează în timp.",
     "defaultSafetyNet": "Rețea de siguranță implicită",
     "rpm": "RPM",
     "minGap": "Gap min",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Nu există copii de rezervă disponibile încă. Backup-urile vor fi create automat când datele se schimbă.",
     "backupsAvailable": "{count} backup(uri) disponibil(e).",
     "refresh": "Reîmprospătați",
-    "confirm": "Confirm?",
+    "confirm": "Confirm...",
     "yes": "Da",
     "no": "Nu",
     "restore": "Restaurați",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Politici și întrerupătoare de circuit",
     "activeIssuesDetected": "Au fost detectate probleme active",
     "off": "Oprit",
-    "resetPricingConfirm": "Resetați toate prețurile pentru {provider} la valorile prestabilite?",
+    "resetPricingConfirm": "Resetați toate prețurile pentru {provider} la valueile prestabilite...",
     "pricingDescInput": "Intrare: jetoane trimise modelului",
     "pricingDescOutput": "Ieșire: jetoane generate",
     "pricingDescCached": "În cache: intrare reutilizată (~50% din rata de intrare)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Ești un asistent util.",
-        "userGreeting": "Bună ziua! Cum te simți azi?"
+        "userGreeting": "Bună ziua! Cum te simți azi..."
       },
       "toolCalling": {
-        "userWeather": "Care este vremea în São Paulo?",
+        "userWeather": "Care este vremea în São Paulo...",
         "toolDescription": "Obțineți vremea actuală pentru o locație",
         "cityNameDescription": "Numele orașului"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Acum sortați în ordine descrescătoare."
       },
       "thinking": {
-        "question": "Care este suma primelor 100 de numere prime?"
+        "question": "Care este suma primelor 100 de numere prime..."
       },
       "systemPrompt": {
         "systemInstruction": "Sunteți un inginer de software senior specializat în sisteme distribuite. Răspundeți concis la întrebări folosind cele mai bune practici din industrie. Furnizați întotdeauna exemple de cod atunci când este relevant. Formatați răspunsurile folosind markdown.",
-        "question": "Cum implementez un model de întrerupător?"
+        "question": "Cum implementez un model de întrerupător..."
       },
       "streaming": {
         "prompt": "Spune-mi o scurtă poveste despre un robot care învață să picteze."
@@ -2434,7 +2434,7 @@
     "run": "Fugi",
     "runStepDescription": "Execută cazuri de testare împotriva punctelor finale LLM prin ZavorthGateway. Fiecare caz este trimis ca o cerere API reală.",
     "evaluate": "Evaluează",
-    "evaluateStepDescription": "Răspunsurile sunt comparate cu criteriile așteptate. Vedeți succes/eșec pentru fiecare caz cu valori de latență și feedback detaliat.",
+    "evaluateStepDescription": "Răspunsurile sunt comparate cu criteriile așteptate. Vedeți succes/eșec pentru fiecare caz cu valuei de latență și feedback detaliat.",
     "evalSuites": "Suite de evaluare",
     "evalSuitesHint": "Faceți clic pe o suită pentru a vedea cazurile de testare, apoi rulați pentru a evalua punctele finale LLM",
     "evalsLoading": "Se încarcă apartamentele de evaluare...",
@@ -2594,7 +2594,7 @@
     "lastCheck": "Ultima verificare",
     "noData": "Fără date",
     "share": "Distribuie",
-    "unableToLoad": "Nu se pot încărca valorile sistemului",
+    "unableToLoad": "Nu se pot încărca valueile sistemului",
     "product": "Produs",
     "resources": "Resurse",
     "company": "Compania"
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "sau eliminați câmpul passwordHash",
     "restartServerWithNewPassword": "Reporniți serverul - va folosi noua parolă",
     "backToLogin": "Înapoi la Logare",
-    "forgotPassword": "Ai uitat parola?",
+    "forgotPassword": "Ai uitat parola...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Autorizare",
     "Content-Disposition": "Conținut-Dispoziție",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Gemeni",
     "flowProviderGithubCopilot": "Copilotul GitHub",
     "interactiveDiagram": "Diagrama interactivă vizibilă pe desktop",
-    "ctaTitle": "Sunteți gata să vă simplificați infrastructura AI?",
+    "ctaTitle": "Sunteți gata să vă simplificați infrastructura AI...",
     "ctaDescription": "Alăturați-vă dezvoltatorilor care își eficientizează integrările AI cu Zavorth. Open source și liber pentru a începe.",
     "startFree": "Începe gratuit",
     "readDocumentation": "Citiți documentația"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Ultima actualizare: {date}",
     "policyLastUpdatedDate": "13 februarie 2026",
     "listSeparator": "-",
-    "questionsVisit": "Întrebări? Vizitează-ne",
+    "questionsVisit": "Întrebări... Vizitează-ne",
     "githubRepository": "Depozitul GitHub",
     "privacySection1Title": "1. Local-First Architecture",
     "privacySection1Text": "Zavorth este proiectat ca o aplicație mai întâi locală. Toate procesarea și stocarea datelor au loc în întregime pe mașina dvs. Nu există un server centralizat care să vă colecteze informațiile.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Sunteți un asistent AI util.",
-      "userGreeting": "Bună ziua! Cum te pot ajuta azi?"
+      "userGreeting": "Bună ziua! Cum te pot ajuta azi..."
     },
     "streaming": {
       "prompt": "Scrie o poveste despre"
     },
     "systemPrompt": {
-      "question": "Care este sensul vieții?",
+      "question": "Care este sensul vieții...",
       "systemInstruction": "Oferă un răspuns gânditor, filozofic."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "Numele orașului pentru care să aflați vremea",
       "toolDescription": "Obțineți vremea actuală pentru o locație",
-      "userWeather": "Care este vremea în Tokyo?"
+      "userWeather": "Care este vremea în Tokyo..."
     },
     "multiTurn": {
       "system": "Ești un asistent util.",
       "assistantExample": "Aș fi bucuros să te ajut cu asta.",
       "userInitial": "Am nevoie de ajutor cu",
-      "userFollowUp": "Puteți detalia asta?"
+      "userFollowUp": "Puteți detalia asta..."
     }
   },
   "cache": {

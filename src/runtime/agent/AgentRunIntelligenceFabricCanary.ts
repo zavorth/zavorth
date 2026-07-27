@@ -3,7 +3,8 @@ import type { ZavorthIntelligenceFabricLearningService } from '../../services/Za
 import { ZavorthIntelligenceFabricService } from '../../services/ZavorthIntelligenceFabricService.js';
 import { AgentRunIntelligenceFabricDraftMutation } from './AgentRunIntelligenceFabricDraftMutation.js';
 import type { AgentRunIntelligenceFabricDraftApplyResult, AgentRunIntelligenceFabricDraftMutationRuntime } from './AgentRunIntelligenceFabricDraftMutation.js';
-import type { UniversalAgentRequest, UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export type { AgentRunIntelligenceFabricDraftApplyResult, AgentRunIntelligenceFabricDraftGuidance } from './AgentRunIntelligenceFabricDraftMutation.js';
+import type { UniversalAgentRequest, UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
+export type { AgentRunIntelligenceFabricDraftApplyResult, AgentRunIntelligenceFabricDraftGuidance } from './AgentRunIntelligenceFabricDraftMutation.js';
 export type AgentRunIntelligenceFabricMode = 'disabled' | 'shadow' | 'canary' | 'default';
 export type AgentRunIntelligenceFabricCanaryMetadata = {
   source: 'AgentRunIntelligenceFabricCanary';
@@ -788,10 +789,10 @@ function uniqueStrings(values: Array<string | null>): string[] {
 
 function isConcreteProviderLabel(value: unknown): boolean {
   const provider = String(value || '').trim().toLowerCase();
-  return Boolean(provider && !['zavorth', 'provider nao informado', 'provider não informado'].includes(provider));
+  return Boolean(provider && !['zavorth', 'provider not informed', 'provider not informed'].includes(provider));
 }
 
 function isConcreteModelLabel(value: unknown): boolean {
   const model = String(value || '').trim().toLowerCase();
-  return Boolean(model && !['modelo atual', 'modelo nao informado', 'modelo não informado'].includes(model));
+  return Boolean(model && !['current model', 'model not informed', 'model not informed'].includes(model));
 }

@@ -37,9 +37,8 @@ export class VendorLicenseGuardService {
       allowCoreCopy,
       rationale: contract.rationale,
       recommendedAction: contract.recommendedAction,
-      summary: allowCoreCopy
-        ? `${contract.displayName} pode ser sincronizado como vendor com atribuicao e trilha de versao.`
-        : `${contract.displayName} deve permanecer isolado como vendor; ideias podem ser absorvidas, codigo do core nao.`,
+      summary: allowCoreCopy ? `${contract.displayName} can be synchronized as vendor with attribution and version trail.`
+        : `${contract.displayName} must remain isolated as vendor; ideas can be absorbed, core code cannot.`,
     };
   }
 }

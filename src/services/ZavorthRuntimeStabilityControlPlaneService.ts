@@ -175,7 +175,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
         headline: 'Fleet e transports supervisionados',
         operatorSummary:
           `${summary.onlineNodes}/${summary.totalNodes} node(s) online, `
-          + `${summary.readyTransports}/${summary.totalTransports} transporte(s) prontos e `
+          + `${summary.readyTransports}/${summary.totalTransports} ready transport(s) and `
           + `${summary.recoverableIssues} issue(s) recuperavel(is) no mesh atual. `
           + `Gate de estabilidade: ${gate.status}.`,
         nextAction: gate.blockingReasons[0] || actions[0]?.label || 'Rodar keepalive, doctor e recover do runtime distribuido.',
@@ -192,7 +192,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
       `Postura: ${snapshot.summary.posture}.`,
       `Node Mesh: ${snapshot.summary.onlineNodes}/${snapshot.summary.totalNodes} online | paired ${snapshot.summary.pairedNodes} | fila ${snapshot.summary.queuedInvocations} | stale ${snapshot.summary.staleQueued}.`,
       `Transports: ${snapshot.summary.readyTransports}/${snapshot.summary.totalTransports} pronto(s) | attention ${snapshot.summary.transportAttention}.`,
-      `Keepalive: ${snapshot.summary.keepaliveActive ? 'ativo' : 'ausente'} | processos ${snapshot.summary.keepaliveReadyProcesses}/${snapshot.summary.keepaliveTotalProcesses}${snapshot.summary.keepaliveStale ? ' | stale' : ''}.`,
+      `Keepalive: ${snapshot.summary.keepaliveActive ? 'active' : 'missing'} | processos ${snapshot.summary.keepaliveReadyProcesses}/${snapshot.summary.keepaliveTotalProcesses}${snapshot.summary.keepaliveStale ? ' | stale' : ''}.`,
       `Gate: ${snapshot.gate.status} | rollout ${snapshot.gate.canProceedToRollout ? 'permitido' : 'bloqueado'}.`,
       '',
       'Cards operacionais:',
@@ -211,7 +211,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
       lines.push(
         '',
         'Gate de estabilidade:',
-        ...snapshot.gate.blockingReasons.map((entry) => `- bloqueio: ${entry}`),
+        ...snapshot.gate.blockingReasons.map((entry) => `- blocking reason: ${entry}`),
         ...snapshot.gate.warnings.map((entry) => `- aviso: ${entry}`),
       );
     }
@@ -257,7 +257,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
           + `attention ${Number(input.transports?.summary?.attentionRequired || 0) || 0}.`,
         nextAction: Number(input.transports?.summary?.attentionRequired || 0) > 0
           ? 'Rodar o smoke/doctor dos transports e reparar sidecars ou bridges pendentes.'
-          : 'Manter o doctor dos transports fresco antes do proximo rollout.',
+          : 'Keep the transport doctor fresh before the next rollout.',
         command: 'npm run test:transports:smoke',
       },
       {
@@ -266,7 +266,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
         posture: keepaliveReady ? 'healthy' : 'attention',
         summary: input.keepalive
           ? `${input.keepalive.summary.ready}/${input.keepalive.summary.total} processo(s) ready | ${input.keepalive.summary.restarts} restart(s).`
-          : 'Ainda nao existe snapshot de keepalive para sidecars e node host.',
+          : 'No keepalive snapshot exists yet for sidecars and node host.',
         nextAction: keepaliveReady
           ? 'Renovar o keepalive e acompanhar o snapshot recorrente.'
           : 'Executar o keepalive oficial para revalidar AIGateway, proxy e node host.',
@@ -274,7 +274,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
       },
       {
         id: 'recovery',
-        label: 'Recover canônico',
+        label: 'Canonical recovery',
         posture: recoverableIssues > 0 || String(input.transportDoctor?.status || '') === 'failed'
           ? 'attention'
           : 'healthy',
@@ -304,7 +304,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
         severity: 'warn',
         reason: input.keepalive
           ? 'O snapshot do keepalive esta stale ou com processos unhealthy.'
-          : 'Ainda nao existe snapshot oficial de keepalive para esta malha.',
+          : 'No official keepalive snapshot exists yet for this mesh.',
         command: 'npm run ops:remote:keepalive -- --once',
       });
     }
@@ -322,7 +322,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
         id: 'transport-doctor',
         label: 'Renovar o doctor dos transports',
         severity: 'critical',
-        reason: this.text(input.transportDoctor?.summary, 'O doctor dos transports ainda encontrou falhas.'),
+        reason: this.text(input.transportDoctor?.summary, 'The transport doctor still found failures.'),
         command: 'npm run test:transports:smoke',
       });
     }
@@ -331,7 +331,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
         id: 'node-host-bootstrap',
         label: 'Subir um node supervised host',
         severity: 'warn',
-        reason: 'Nenhum node esta online neste momento; a fleet ainda nao sustenta invokes remotos.',
+        reason: 'No node is online right now; the fleet does not support remote invokes yet.',
         command: 'npm run nodes:host',
       });
     }
@@ -400,7 +400,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
         id: 'posture-not-critical',
         ok: summary.posture !== 'critical' && !actions.some((entry) => entry.severity === 'critical'),
         severity: 'critical',
-        detail: 'Stability gate nao aceita postura critical ou action critical.',
+        detail: 'Stability gate does not accept critical posture or critical action.',
       },
       {
         id: 'paired-node-online-when-queued',
@@ -418,13 +418,13 @@ export class ZavorthRuntimeStabilityControlPlaneService {
         id: 'stale-queue-budget',
         ok: summary.staleQueued <= 0,
         severity: 'warn',
-        detail: 'Fila stale deve ficar em zero para rollout limpo.',
+        detail: 'Stale queue must be zero for a clean rollout.',
       },
       {
         id: 'transport-attention-budget',
         ok: summary.transportAttention <= 0,
         severity: 'warn',
-        detail: 'Transports nao devem pedir attention antes de rollout.',
+        detail: 'Transports must not require attention before rollout.',
       },
       {
         id: 'keepalive-fresh',
@@ -436,7 +436,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
         id: 'recoverable-issues-budget',
         ok: summary.recoverableIssues <= 0,
         severity: 'warn',
-        detail: 'Issues recuperaveis precisam ser zeradas antes de promover rollout.',
+        detail: 'Recoverable issues must be cleared before promoting rollout.',
       },
     ];
     const failedCritical = checks.filter((entry) => !entry.ok && entry.severity === 'critical');

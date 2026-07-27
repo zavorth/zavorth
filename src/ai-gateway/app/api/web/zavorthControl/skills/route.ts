@@ -13,13 +13,13 @@ import { asErrorLike } from '../../../../../../utils/errorLike.js';
 export const runtime = "nodejs";
 
 /**
- * Retorna a lista unificada de todas as skills (ativas e arquivadas no Vault).
+ * Returns the unified list of all skills (active and archived in the Vault).
  */
 async function buildUnifiedSkillsResponse() {
   const catalogService = new SkillCatalogService();
   const curationService = new SkillCurationService(catalogService);
   const curatorPlane = new SkillCuratorPlaneService({ catalogService, curationService });
-  
+
   const activeEntries = catalogService.listEntries();
   const db = await Database.getInstance();
   const telemetryRows = db.all<{
@@ -29,9 +29,9 @@ async function buildUnifiedSkillsResponse() {
     status: 'active' | 'archived';
     pinned: number;
   }>(`SELECT * FROM zavorth_skills_telemetry`);
-  
+
   const telemetryMap = new Map(telemetryRows.map((r) => [r.skill_id, r]));
-  
+
   // Map active skills and cross-reference with their telemetry data
   const activeSkills = activeEntries.map((entry) => {
     const telemetry = telemetryMap.get(entry.name) || {

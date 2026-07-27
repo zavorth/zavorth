@@ -9,11 +9,11 @@
       "readiness": "partial",
       "trust": "review",
       "installState": "available",
-      "summary": "Gateway remoto recomendado para ampliar fallback cloud e roteamento multi-provider.",
+      "summary": "Recommended remote gateway to expand cloud fallback and multi-provider routing.",
       "actionHint": "/plugins install openrouter",
       "tags": ["registry", "gateway", "remote", "featured"],
       "capabilities": ["chat", "code"],
-      "details": ["Pack: remote-gateways", "Bom ponto de partida para ampliar o plano de providers."],
+      "details": ["Pack: remote-gateways", "Good starting point to expand the provider plan."],
       "featured": true
     },
     {
@@ -24,11 +24,11 @@
       "readiness": "partial",
       "trust": "review",
       "installState": "available",
-      "summary": "Conector agent-to-agent recomendado para consistency e federacao com runtimes externos.",
+      "summary": "Recommended agent-to-agent connector for consistency and federation with external runtimes.",
       "actionHint": "/plugins install runtime-adapter-bridge",
       "tags": ["registry", "agents", "featured"],
       "capabilities": ["code", "agents"],
-      "details": ["Pack: agent-federation", "Conector governado para interoperar com runtimes externos."],
+      "details": ["Pack: agent-federation", "Governed connector to interoperate with external runtimes."],
       "featured": true
     },
     {
@@ -39,7 +39,7 @@
       "readiness": "partial",
       "trust": "review",
       "installState": "available",
-      "summary": "Gateway de roteamento recomendado para cenarios com sidecars e observabilidade de provider.",
+      "summary": "Recommended routing gateway for scenarios with sidecars and provider observability.",
       "actionHint": "/plugins install AIGateway",
       "tags": ["registry", "routing", "gateway"],
       "capabilities": ["chat", "code", "automation"],
@@ -54,11 +54,11 @@
       "readiness": "planned",
       "trust": "planned",
       "installState": "available",
-      "summary": "Skill recomendada para debugar superfícies web e automações de navegador de forma iterativa.",
-      "actionHint": "Instalar/ativar a skill playwright-interactive",
+      "summary": "Recommended skill to debug web surfaces and browser automations interactively.",
+      "actionHint": "Install/activate the playwright-interactive skill",
       "tags": ["registry", "browser", "debug"],
       "capabilities": ["prompt-workflow", "support-files"],
-      "details": ["Pack: ui-debug", "Boa candidata para ampliar o Agent OS no desktop/web."],
+      "details": ["Pack: ui-debug", "Good candidate to expand the Agent OS on desktop/web."],
       "featured": true
     },
     {
@@ -69,8 +69,8 @@
       "readiness": "planned",
       "trust": "planned",
       "installState": "available",
-      "summary": "Skill sugerida para tornar design-to-code e canvas writes parte do ecossistema operacional do Zavorth.",
-      "actionHint": "Instalar/ativar a skill figma-use",
+      "summary": "Suggested skill to make design-to-code and canvas writes part of the Zavorth operational ecosystem.",
+      "actionHint": "Install/activate the figma-use skill",
       "tags": ["registry", "design", "figma"],
       "capabilities": ["prompt-workflow", "design-ops"],
       "details": ["Pack: design-system"],
@@ -84,11 +84,11 @@
       "readiness": "partial",
       "trust": "review",
       "installState": "installed",
-      "summary": "Servidor MCP declarado no manifesto local para expor arquivos e workspaces; execucao segue desabilitada ate revisao.",
+      "summary": "MCP server declared in the local manifest to expose files and workspaces; execution remains disabled until review.",
       "actionHint": "/platform mcp:filesystem",
       "tags": ["registry", "mcp", "files", "manifest-backed"],
       "capabilities": ["filesystem"],
-      "details": ["Pack: core-mcp", "Declarado em config/mcp-servers.json com enabled=false."],
+      "details": ["Pack: core-mcp", "Declared in config/mcp-servers.json with enabled=false."],
       "featured": true
     },
     {
@@ -99,11 +99,11 @@
       "readiness": "partial",
       "trust": "review",
       "installState": "installed",
-      "summary": "Servidor MCP declarado no manifesto local para reasoning tools; execucao segue desabilitada ate revisao.",
+      "summary": "MCP server declared in the local manifest for reasoning tools; execution remains disabled until review.",
       "actionHint": "/platform mcp:reasoning",
       "tags": ["registry", "mcp", "reasoning", "manifest-backed"],
       "capabilities": ["reasoning"],
-      "details": ["Pack: core-mcp", "Declarado em config/mcp-servers.json com enabled=false."],
+      "details": ["Pack: core-mcp", "Declared in config/mcp-servers.json with enabled=false."],
       "featured": false
     },
     {
@@ -114,11 +114,11 @@
       "readiness": "partial",
       "trust": "review",
       "installState": "installed",
-      "summary": "Servidor MCP declarado no manifesto local para browser automation; execucao segue desabilitada ate revisao.",
+      "summary": "MCP server declared in the local manifest for browser automation; execution remains disabled until review.",
       "actionHint": "/platform mcp:playwright",
       "tags": ["registry", "mcp", "browser", "manifest-backed"],
       "capabilities": ["browser"],
-      "details": ["Pack: ui-debug", "Declarado em config/mcp-servers.json com enabled=false."],
+      "details": ["Pack: ui-debug", "Declared in config/mcp-servers.json with enabled=false."],
       "featured": false
     },
     {
@@ -129,11 +129,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Vector DB local para busca semantica de memoria com embeddings e similaridade de cosseno.",
+      "summary": "local vector DB for semantic memory search with embeddings and cosine similarity.",
       "actionHint": "/plugins install memory-lancedb",
       "tags": ["registry", "memory", "vector", "search"],
       "capabilities": ["memory", "vector-search"],
-      "details": ["Pack: memory-backends", "Backed por JSON local, dimensao configuravel, colecoes multiplas."],
+      "details": ["Pack: memory-backends", "Backed by local JSON, configurable dimensions, multiple collections."],
       "featured": true
     },
     {
@@ -144,11 +144,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Modelagem dialectica de usuario com perfis, preferencias, tracos, insights e historico de conversas.",
+      "summary": "Dialectic user modeling with profiles, preferences, traits, insights and conversation history.",
       "actionHint": "/plugins install memory-honcho",
       "tags": ["registry", "memory", "user-modeling", "dialectic"],
       "capabilities": ["memory", "user-profiling"],
-      "details": ["Pack: memory-backends", "Aprende fatos, extrai insights, rastreia preferencias entre sessoes."],
+      "details": ["Pack: memory-backends", "Learns facts, extracts insights, tracks preferences across sessions."],
       "featured": true
     },
     {
@@ -159,11 +159,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Observabilidade com spans, metricas e logs no padrao OpenTelemetry.",
+      "summary": "Observability with spans, metrics and logs in the OpenTelemetry standard.",
       "actionHint": "/plugins install diagnostics-otel",
       "tags": ["registry", "observability", "telemetry", "otel"],
       "capabilities": ["tracing", "metrics", "logging"],
-      "details": ["Pack: observability", "Spans com trace_id, counters, gauges, export OTEL JSON."],
+      "details": ["Pack: observability", "Spans with trace_id, counters, gauges, OTEL JSON export."],
       "featured": true
     },
     {
@@ -174,11 +174,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Sistema de gamificação com achievements, niveis, streaks e leaderboard.",
+      "summary": "Gamification system with achievements, levels, streaks and leaderboard.",
       "actionHint": "/plugins install achievements",
       "tags": ["registry", "gamification", "achievements", "engagement"],
       "capabilities": ["gamification", "progress-tracking"],
-      "details": ["Pack: engagement", "16 achievements em 7 categorias, 5 tiers, sistema de pontos e niveis."],
+      "details": ["Pack: engagement", "16 achievements across 7 categories, 5 tiers, points and levels system."],
       "featured": true
     },
     {
@@ -189,11 +189,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Engine de temas visuais com skins built-in e instalacao de skins customizados.",
+      "summary": "Visual themes engine with built-in skins and custom skin installation.",
       "actionHint": "/plugins install skin-engine",
       "tags": ["registry", "themes", "ui", "customization"],
       "capabilities": ["theming", "ui-customization"],
-      "details": ["Pack: ui-experience", "4 skins built-in (default, ares, mono, slate), preview, export YAML/JSON."],
+      "details": ["Pack: ui-experience", "4 built-in skins (default, ares, mono, slate), preview, YAML/JSON export."],
       "featured": false
     },
     {
@@ -204,11 +204,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Pesquisa estruturada com trajetorias, evidencias, citacoes, relatorios e export para training.",
+      "summary": "Structured research with trajectories, evidence, citations, reports and export for training.",
       "actionHint": "/plugins install trajectory-research",
       "tags": ["registry", "research", "trajectories", "training"],
       "capabilities": ["research", "data-export"],
-      "details": ["Pack: research-tools", "Metodologia estruturada, quality scoring, export Alpaca/ShareGPT/JSONL."],
+      "details": ["Pack: research-tools", "Structured methodology, quality scoring, Alpaca/ShareGPT/JSONL export."],
       "featured": true
     },
     {
@@ -219,11 +219,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Memoria ativa que decide o que lembrar/esquecer em tempo real com decay de importancia e consolidacao automatica.",
+      "summary": "Active memory that decides what to remember/forget in real-time with importance decay and automatic consolidation.",
       "actionHint": "/plugins install active-memory",
       "tags": ["registry", "memory", "active", "learning"],
       "capabilities": ["memory", "active-learning"],
-      "details": ["Pack: memory-backends", "Auto-eviccao, categorizacao, recall por relevancia, processamento de interacoes."],
+      "details": ["Pack: memory-backends", "Auto-eviction, categorization, relevance-based recall, interaction processing."],
       "featured": true
     },
     {
@@ -234,11 +234,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Export de metricas no formato Prometheus com counters, gauges, histograms e servidor HTTP /metrics.",
+      "summary": "Metrics export in Prometheus format with counters, gauges, histograms and HTTP server /metrics.",
       "actionHint": "/plugins install diagnostics-prometheus",
       "tags": ["registry", "observability", "prometheus", "metrics"],
       "capabilities": ["metrics", "monitoring"],
-      "details": ["Pack: observability", "20+ metricas built-in, labels, histogram buckets, endpoint /metrics e /health."],
+      "details": ["Pack: observability", "20+ built-in metrics, labels, histogram buckets, /metrics and /health endpoints."],
       "featured": true
     },
     {
@@ -249,11 +249,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Acesso a modelos open-source baratos via API Novita (Llama, Mistral, Qwen, Deepseek, Yi, Phi).",
+      "summary": "Access affordable open-source models via Novita API (Llama, Mistral, Qwen, Deepseek, Yi, Phi).",
       "actionHint": "/plugins install provider-novita",
       "tags": ["registry", "provider", "novita", "open-source"],
       "capabilities": ["chat", "code"],
-      "details": ["Pack: remote-providers", "8+ modelos, ~80% mais barato que OpenAI equivalente."],
+      "details": ["Pack: remote-providers", "8+ models, ~80% cheaper than equivalent OpenAI."],
       "featured": true
     },
     {
@@ -264,11 +264,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Automacao de navegador via Playwright com navigate, screenshot, extract, PDF e multi-tab.",
+      "summary": "Browser automation via Playwright with navigate, screenshot, extract, PDF and multi-tab.",
       "actionHint": "/plugins install browser-playwright",
       "tags": ["registry", "browser", "playwright", "automation"],
       "capabilities": ["browser", "scraping", "screenshot"],
-      "details": ["Pack: browser-automation", "Headless Chromium, extracao por selectors, geracao de PDF."],
+      "details": ["Pack: browser-automation", "Headless Chromium, selector-based extraction, PDF generation."],
       "featured": true
     },
     {
@@ -279,11 +279,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Busca semantica neural via Exa com findSimilar e getContents para pesquisa profunda.",
+      "summary": "Neural semantic search via Exa with findSimilar and getContents for deep research.",
       "actionHint": "/plugins install search-exa",
       "tags": ["registry", "search", "exa", "semantic"],
       "capabilities": ["search", "research"],
-      "details": ["Pack: search-providers", "Busca neural, keyword e auto. Categorias: company, research, news, github, pdf."],
+      "details": ["Pack: search-providers", "Neural, keyword and auto search. Categories: company, research, news, github, pdf."],
       "featured": true
     },
     {
@@ -294,11 +294,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Kanban SQLite-backed com dispatcher multi-agent, auto-blocking, priorizacao e dispatch paralelo.",
+      "summary": "SQLite-backed Kanban with multi-agent dispatcher, auto-blocking, prioritization and parallel dispatch.",
       "actionHint": "/plugins install kanban-dispatcher",
       "tags": ["registry", "kanban", "orchestration", "dispatch"],
       "capabilities": ["task-management", "orchestration"],
-      "details": ["Pack: orchestration", "Colunas customizaveis, bloqueio automatico, dispatch por prioridade, max concurrent."],
+      "details": ["Pack: orchestration", "Custom columns, automatic blocking, priority-based dispatch, max concurrent."],
       "featured": true
     },
     {
@@ -309,11 +309,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Consulta interativa de politicas de seguranca, OWASP Top 10, code scanning e hardening guide.",
+      "summary": "Interactive security policy lookup, OWASP Top 10, code scanning and hardening guide.",
       "actionHint": "/plugins install security-guidance",
       "tags": ["registry", "security", "owasp", "guidance"],
       "capabilities": ["security", "code-analysis"],
-      "details": ["Pack: security", "15 politicas built-in, check_code, audit_checklist, hardening guide."],
+      "details": ["Pack: security", "15 built-in policies, check_code, audit_checklist, hardening guide."],
       "featured": true
     },
     {
@@ -324,11 +324,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Replicate — rode modelos de ML na nuvem (Llama, SDXL, Whisper, centenas de modelos da comunidade).",
+      "summary": "Replicate — run ML models in the cloud (Llama, SDXL, Whisper, hundreds of community models).",
       "actionHint": "/plugins install provider-replicate",
       "tags": ["registry", "provider", "replicate", "ml"],
       "capabilities": ["chat", "image", "audio"],
-      "details": ["Pack: remote-providers", "Pay-per-second, modelos populares, fine-tuning."],
+      "details": ["Pack: remote-providers", "Pay-per-second, popular models, fine-tuning."],
       "featured": false
     },
     {
@@ -339,11 +339,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "HuggingFace Inference API — rode modelos open-source diretamente (texto, imagem, audio).",
+      "summary": "HuggingFace Inference API — run open-source models directly (text, image, audio).",
       "actionHint": "/plugins install provider-huggingface",
       "tags": ["registry", "provider", "huggingface", "open-source"],
       "capabilities": ["chat", "image", "audio"],
-      "details": ["Pack: remote-providers", "Llama, Mistral, SDXL, Whisper e mais."],
+      "details": ["Pack: remote-providers", "Llama, Mistral, SDXL, Whisper and more."],
       "featured": false
     },
     {
@@ -354,11 +354,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Firecrawl — web scraping avancado que converte paginas em Markdown limpo. Scrape, crawl, map e extract.",
+      "summary": "Firecrawl — advanced web scraping that converts pages to clean Markdown. Scrape, crawl, map and extract.",
       "actionHint": "/plugins install web-firecrawl",
       "tags": ["registry", "scraping", "firecrawl", "web"],
       "capabilities": ["scraping", "research"],
-      "details": ["Pack: web-tools", "Markdown limpo, extracao estruturada, batch scrape."],
+      "details": ["Pack: web-tools", "Clean Markdown, structured extraction, batch scrape."],
       "featured": false
     },
     {
@@ -369,11 +369,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "fal.ai — geracao de imagens via API. FLUX, Stable Diffusion, e modelos proprietarios.",
+      "summary": "fal.ai — image generation via API. FLUX, Stable Diffusion, and proprietary models.",
       "actionHint": "/plugins install image-gen-fal",
       "tags": ["registry", "image", "fal", "generation"],
       "capabilities": ["image-generation"],
-      "details": ["Pack: media-generation", "FLUX Schnell/Dev/Pro, SD3, ~$0.003-0.05/imagem."],
+      "details": ["Pack: media-generation", "FLUX Schnell/Dev/Pro, SD3, ~$0.003-0.05/image."],
       "featured": false
     },
     {
@@ -384,11 +384,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "SearXNG — meta-buscador self-hosted e privado. Agrega Google, Bing, DuckDuckGo sem rastreamento.",
+      "summary": "SearXNG — self-hosted private meta-search engine. Aggregates Google, Bing, DuckDuckGo without tracking.",
       "actionHint": "/plugins install search-searxng",
       "tags": ["registry", "search", "searxng", "privacy"],
       "capabilities": ["search", "privacy"],
-      "details": ["Pack: search-providers", "Self-hosted, multi-engine, sem rastreamento."],
+      "details": ["Pack: search-providers", "Self-hosted, multi-engine, no tracking."],
       "featured": false
     },
     {
@@ -399,11 +399,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Runway ML — geracao de video via API. Gen-3 Alpha Turbo, text-to-video e image-to-video.",
+      "summary": "Runway ML — video generation via API. Gen-3 Alpha Turbo, text-to-video and image-to-video.",
       "actionHint": "/plugins install video-gen-runway",
       "tags": ["registry", "video", "runway", "generation"],
       "capabilities": ["video-generation"],
-      "details": ["Pack: media-generation", "5-10s, 720p/1080p, ~$0.05-0.10/seg."],
+      "details": ["Pack: media-generation", "5-10s, 720p/1080p, ~$0.05-0.10/sec."],
       "featured": false
     },
     {
@@ -414,7 +414,7 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Spotify — controle de musica. Play, pause, skip, busca, playlists, volume, dispositivos.",
+      "summary": "Spotify — music control. Play, pause, skip, search, playlists, volume, devices.",
       "actionHint": "/plugins install spotify-player",
       "tags": ["registry", "spotify", "music", "player"],
       "capabilities": ["music", "media-control"],
@@ -429,11 +429,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "ComfyUI — geracao de imagens local e privada. Node-based workflow para SD, FLUX, modelos customizados.",
+      "summary": "ComfyUI — local and private image generation. Node-based workflow for SD, FLUX, custom models.",
       "actionHint": "/plugins install image-gen-comfyui",
       "tags": ["registry", "image", "comfyui", "local", "private"],
       "capabilities": ["image-generation", "local-inference"],
-      "details": ["Pack: media-generation", "txt2img, img2img, inpaint, upscale. Rode tudo localmente."],
+      "details": ["Pack: media-generation", "txt2img, img2img, inpaint, upscale. Run everything locally."],
       "featured": false
     },
     {
@@ -444,7 +444,7 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Qdrant — vector DB production-grade para busca semantica com collections, filtragem e CRUD.",
+      "summary": "Qdrant — production-grade vector DB for semantic search with collections, filtering and CRUD.",
       "actionHint": "/plugins install memory-qdrant",
       "tags": ["registry", "memory", "qdrant", "vector-db"],
       "capabilities": ["memory", "vector-search"],
@@ -459,11 +459,11 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Limpeza automatica de disco com regras configuraveis, scan, dry-run e relatorio de uso.",
+      "summary": "Automatic disk cleanup with configurable rules, scan, dry-run and usage report.",
       "actionHint": "/plugins install disk-cleanup",
       "tags": ["registry", "maintenance", "cleanup", "disk"],
       "capabilities": ["maintenance", "disk-management"],
-      "details": ["Pack: maintenance", "7 regras built-in, glob patterns, usage report."],
+      "details": ["Pack: maintenance", "7 built-in rules, glob patterns, usage report."],
       "featured": false
     },
     {
@@ -474,7 +474,7 @@
       "readiness": "ready",
       "trust": "review",
       "installState": "available",
-      "summary": "Supervisao de execucao de comandos com timeout, retries, concorrencia controlada e logging.",
+      "summary": "Command execution supervision with timeout, retries, controlled concurrency and logging.",
       "actionHint": "/plugins install codex-supervisor",
       "tags": ["registry", "execution", "supervisor", "commands"],
       "capabilities": ["execution", "supervision"],
@@ -486,56 +486,56 @@
     {
       "id": "remote-gateways",
       "label": "Remote Gateways",
-      "summary": "Colecao para ampliar roteamento cloud, fallback multi-provider e observabilidade de providers.",
+      "summary": "Collection to expand cloud routing, multi-provider fallback and provider observability.",
       "actionHint": "/platform collection:remote-gateways",
       "entries": ["plugin:openrouter", "plugin:AIGateway"],
       "tags": ["registry", "gateway", "routing"],
       "capabilities": ["chat", "code", "automation"],
-      "details": ["Pack curado para providers e fallback cloud."],
+      "details": ["Curated pack for providers and cloud fallback."],
       "featured": true
     },
     {
       "id": "agent-federation",
       "label": "Agent Federation",
-      "summary": "Colecao curada para consistency e federacao com runtimes externos no mesmo plano.",
+      "summary": "Curated collection for consistency and federation with external runtimes on the same plane.",
       "actionHint": "/platform collection:agent-federation",
       "entries": ["plugin:runtime-adapter-bridge"],
       "tags": ["registry", "agents", "federation"],
       "capabilities": ["agents", "code"],
-      "details": ["Bom ponto de partida para consistency e federacao governada com runtimes externos."],
+      "details": ["Good starting point for consistency and governed federation with external runtimes."],
       "featured": true
     },
     {
       "id": "ui-debug",
       "label": "UI Debug",
-      "summary": "Colecao para browser automation, debug visual e iteracao guiada no app web.",
+      "summary": "Collection for browser automation, visual debugging and guided iteration in the web app.",
       "actionHint": "/platform collection:ui-debug",
       "entries": ["skill:playwright-interactive", "mcp:playwright"],
       "tags": ["registry", "browser", "debug"],
       "capabilities": ["prompt-workflow", "browser"],
-      "details": ["Trilha recomendada para fortalecer o Zavorth como Agent OS web-first."],
+      "details": ["Recommended path to strengthen Zavorth as a web-first Agent OS."],
       "featured": true
     },
     {
       "id": "core-mcp",
       "label": "Core MCP",
-      "summary": "Colecao base para tornar capabilities MCP mais explicitas e operacionais no Zavorth.",
+      "summary": "Base collection to make MCP capabilities more explicit and operational in Zavorth.",
       "actionHint": "/platform collection:core-mcp",
       "entries": ["mcp:filesystem", "mcp:reasoning"],
       "tags": ["registry", "mcp", "core"],
       "capabilities": ["filesystem", "reasoning"],
-      "details": ["Trilha recomendada para amadurecer o tool plane e reasoning plane."],
+      "details": ["Recommended path to mature the tool plane and reasoning plane."],
       "featured": false
     },
     {
       "id": "design-system",
       "label": "Design System",
-      "summary": "Colecao para design-to-code, canvas writes e design system ops como parte do ecossistema do Zavorth.",
+      "summary": "Collection for design-to-code, canvas writes and design system ops as part of the Zavorth ecosystem.",
       "actionHint": "/platform collection:design-system",
       "entries": ["skill:figma-use"],
       "tags": ["registry", "design", "figma"],
       "capabilities": ["prompt-workflow", "design-ops"],
-      "details": ["Trilha natural para aproximar Figma, skills e MCPs do platform plane."],
+      "details": ["Natural path to bring Figma, skills and MCPs closer to the platform plane."],
       "featured": false
     }
   ],
@@ -543,46 +543,46 @@
     {
       "id": "remote-provider-rollout",
       "label": "Remote Provider Rollout",
-      "summary": "Recipe guiada para sincronizar gateways remotos e fechar o primeiro rollout de providers externos.",
+      "summary": "Guided recipe to sync remote gateways and complete the first external provider rollout.",
       "actionHint": "/platform recipe:remote-provider-rollout",
       "targets": ["collection:remote-gateways", "plugin:runtime-adapter-bridge"],
       "steps": [
-        "Sincronize o catalogo remoto para puxar novidades do ecossistema.",
-        "Adote a colecao Remote Gateways no platform plane.",
-        "Prepare o conector agent-to-agent para consistency e federacao externa."
+        "Sync the remote catalog to pull ecosystem updates.",
+        "Adopt the Remote Gateways collection in the platform plane.",
+        "Prepare the agent-to-agent connector for external consistency and federation."
       ],
       "tags": ["registry", "remote", "providers"],
-      "details": ["Recipe curada para o rollout inicial do ecossistema remoto do Zavorth."],
+      "details": ["Curated recipe for the initial rollout of the Zavorth remote ecosystem."],
       "featured": true
     },
     {
       "id": "ui-debug-onboarding",
       "label": "UI Debug Onboarding",
-      "summary": "Recipe para deixar browser automation, debug visual e playwright-first parte do platform plane.",
+      "summary": "Recipe to make browser automation, visual debugging and playwright-first part of the platform plane.",
       "actionHint": "/platform recipe:ui-debug-onboarding",
       "targets": ["collection:ui-debug"],
       "steps": [
-        "Adote a colecao UI Debug.",
-        "Marque a stack de browser automation como trusted apenas apos smoke local.",
-        "Leve a trilha para o app web e para o CLI conforme o runtime confirmar readiness."
+        "Adopt the UI Debug collection.",
+        "Mark the browser automation stack as trusted only after local smoke tests.",
+        "Take the path to the web app and CLI as the runtime confirms readiness."
       ],
       "tags": ["registry", "browser", "debug"],
-      "details": ["Boa trilha para reforcar o Zavorth como Agent OS com surface web forte."],
+      "details": ["Good path to reinforce Zavorth as an Agent OS with a strong web surface."],
       "featured": true
     },
     {
       "id": "core-mcp-adoption",
       "label": "Core MCP Adoption",
-      "summary": "Recipe para transformar MCPs centrais em capabilities mais operacionais no produto.",
+      "summary": "Recipe to transform core MCPs into more operational capabilities in the product.",
       "actionHint": "/platform recipe:core-mcp-adoption",
       "targets": ["collection:core-mcp", "collection:design-system"],
       "steps": [
-        "Adote a colecao Core MCP.",
-        "Feche a trilha de design system quando Figma e MCPs precisarem convergir.",
-        "Use o plane para acompanhar trust e estado de instalacao dos servidores MCP."
+        "Adopt the Core MCP collection.",
+        "Close the design system path when Figma and MCPs need to converge.",
+        "Use the plane to track trust and installation status of MCP servers."
       ],
       "tags": ["registry", "mcp", "design"],
-      "details": ["Ajuda a tornar o tool plane mais explicito e mais proximo de um marketplace operacional."],
+      "details": ["Helps make the tool plane more explicit and closer to an operational marketplace."],
       "featured": false
     }
   ]

@@ -53,7 +53,7 @@ export function clampConfidence(value: unknown, fallback = 0.72): number {
 
 export function redactAndShorten(value: unknown, fallback: string, maxLength = 220): string {
   const text = normalizeText(value, fallback)
-    .replace(/((?:api[_-]?key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/((?:api[_-]...key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
     .replace(/\s+/g, ' ')
     .trim();
   return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;
@@ -116,7 +116,7 @@ export function titleFromIdentityFile(path: string): string {
   if (fileName.includes('MEMORY')) {
     return 'MEMORY.md';
   }
-  return path.split(/[\\/]/).pop() || 'Arquivo de identidade';
+  return path.split(/[\\/]/).pop() || 'Identity file';
 }
 
 export function cardActions(section: SelfingZavorthControlSectionId, cardId: string): SelfingZavorthControlCard['actions'] {

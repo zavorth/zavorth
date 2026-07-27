@@ -11,7 +11,7 @@ const KEEP_ALIVE_MS = 15_000;
 
 /**
  * SSE stream of duplex turn/phase events for a session.
- * GET /api/experience/voice/duplex/events?sessionId=...
+ * GET /api/experience/voice/duplex/events...sessionId=...
  *
  * On connect: emits current session snapshot (if any) as a session event.
  * Then streams live bus events until client abort or type=ended.

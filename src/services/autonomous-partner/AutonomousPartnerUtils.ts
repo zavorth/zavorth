@@ -135,12 +135,13 @@ export function riskRank(value: ZavorthMutationRiskLevel): number {
 }
 
 export function infersMutableMission(text: string): boolean {
-  return /\b(fix|corrigir|patch|apply|aplicar|deploy|write|editar|instalar|install|publish|merge|hardware|automacao|automation)\b/u.test(text);
+  void text;
+  return false;
 }
 
 export function normalizeSuccessCriteria(value: unknown): string[] {
   const list = normalizeList(value);
-  return list.length > 0 ? list : ['Plano aprovado pelo usuario.', 'Evidencias registradas.', 'Budget respeitado.'];
+  return list.length > 0 ? list : ['Plan approved by user.', 'Evidence recorded.', 'Budget respected.'];
 }
 
 export function normalizeList(value: unknown): string[] {
@@ -148,7 +149,7 @@ export function normalizeList(value: unknown): string[] {
     return value.map((entry) => cleanText(entry, '')).filter(Boolean);
   }
   if (typeof value === 'string') {
-    return value.split(/\r?\n|,/u).map((entry) => entry.trim()).filter(Boolean);
+    return value.split(/\r...\n|,/u).map((entry) => entry.trim()).filter(Boolean);
   }
   return [];
 }

@@ -3,7 +3,7 @@ import type {
   ZavorthPluginReceipt,
 } from './PluginManifestContract.js';
 
-export const ZAVORTH_SOURCE_PLUGIN_PACKAGE_ABSORPTION_CONTRACT_VERSION = '2026-05-05.checkpoint-1' as const;
+export const ZAVORTH_SOURCE_PLUGIN_PACKAGE_ABSORPTION_CONTRACT_VERSION = '2026-05-05.gate-1' as const;
 
 export const SOURCE_INTERNAL_PLUGIN_PACKAGES = [
   '@source/memory-host-sdk',
@@ -179,6 +179,6 @@ export type SourcePluginOsAbsorptionSnapshot = {
     inspectJson: 'npm run source-plugin-os-absorption:json --silent';
     check: 'npm run source-plugin-os-absorption:check --silent';
     qa: 'npm run qa:source-plugin-os-absorption --silent';
-    nextStage: 'Preview engine - Agent Runtime Bridge Pack';
+    nextAction: 'Preview engine - Agent Runtime Bridge Pack';
   };
 };

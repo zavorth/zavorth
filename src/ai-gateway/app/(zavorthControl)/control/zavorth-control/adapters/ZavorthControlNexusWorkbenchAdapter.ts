@@ -28,7 +28,7 @@ export function buildNexusWorkbench(input: AnyRecord = {}): AnyRecord | null {
     ...workbench,
     canonicalApiPath: '/api/v2/nexus/workbench',
     status: normalizeStatus(workbench.status || (workbench.ok === false ? 'degraded' : 'ready')),
-    headline: workbench.headline || 'Nexus pronto pelo runtime principal.',
+    headline: workbench.headline || 'Nexus ready through the main runtime.',
     runtime: {
       ...record(workbench.runtime),
       primaryLabel: workbench.runtime?.primary === 'ZavorthAgentGateway'

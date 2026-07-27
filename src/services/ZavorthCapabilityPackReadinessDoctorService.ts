@@ -123,8 +123,7 @@ export class ZavorthCapabilityPackReadinessDoctorService {
       id: `secret:${ref}`,
       kind: 'secret-ref' as const,
       status: available.has(ref) ? 'passed' as const : 'missing' as const,
-      summary: available.has(ref)
-        ? `${ref} is present as a secret ref.`
+      summary: available.has(ref) ? `${ref} is present as a secret ref.`
         : `${ref} must be configured as a secret ref.`,
     }));
   }
@@ -140,8 +139,7 @@ export class ZavorthCapabilityPackReadinessDoctorService {
         id: `env:${key}`,
         kind: 'env-key' as const,
         status: present ? 'passed' as const : 'missing' as const,
-        summary: present
-          ? `${key} is present. Value was not read.`
+        summary: present ? `${key} is present. Value was not read.`
           : `${key} must exist. Value will not be read by the doctor.`,
       };
     });
@@ -156,8 +154,7 @@ export class ZavorthCapabilityPackReadinessDoctorService {
       id: `binary:${binary}`,
       kind: 'binary' as const,
       status: available.has(binary) ? 'passed' as const : 'missing' as const,
-      summary: available.has(binary)
-        ? `${binary} binary is available.`
+      summary: available.has(binary) ? `${binary} binary is available.`
         : `${binary} binary must be available before activation.`,
     }));
   }
@@ -171,8 +168,7 @@ export class ZavorthCapabilityPackReadinessDoctorService {
       id: `manual:${step}`,
       kind: 'manual-step' as const,
       status: completed.has(step) ? 'passed' as const : 'manual' as const,
-      summary: completed.has(step)
-        ? `${step} completed.`
+      summary: completed.has(step) ? `${step} completed.`
         : `${step} needs operator confirmation.`,
     }));
   }
@@ -190,8 +186,7 @@ export class ZavorthCapabilityPackReadinessDoctorService {
       id: `local-route:${item.id}`,
       kind: 'local-route',
       status: present ? 'passed' : 'missing',
-      summary: present
-        ? `${item.label} local route is reachable.`
+      summary: present ? `${item.label} local route is reachable.`
         : `${item.label} local route needs a local health check.`,
     }];
   }
@@ -205,8 +200,7 @@ export class ZavorthCapabilityPackReadinessDoctorService {
       id: `readiness:${check}`,
       kind: 'readiness-check' as const,
       status: completed.has(check) ? 'passed' as const : 'pending' as const,
-      summary: completed.has(check)
-        ? `${check} passed.`
+      summary: completed.has(check) ? `${check} passed.`
         : `${check} still needs a doctor/probe result.`,
     }));
   }
@@ -217,8 +211,7 @@ export class ZavorthCapabilityPackReadinessDoctorService {
       id: 'policy:governance',
       kind: 'policy',
       status: hasGovernance ? 'passed' : 'blocked',
-      summary: hasGovernance
-        ? 'Governance policy is declared.'
+      summary: hasGovernance ? 'Governance policy is declared.'
         : 'Governance policy is missing.',
     };
   }

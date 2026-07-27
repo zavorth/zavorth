@@ -264,6 +264,6 @@ export type ZavorthExternalSidecarAdapterSnapshot = {
     inspect: 'npm run zavorth:external-sidecar-adapter';
     inspectJson: 'npm run zavorth:external-sidecar-adapter:json';
     check: 'npm run zavorth:external-sidecar-adapter:check --silent';
-    nextStage: '291 Connector registry - Capability Providers';
+    nextAction: 'Connector registry - Capability Providers';
   };
 };

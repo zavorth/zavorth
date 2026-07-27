@@ -24,6 +24,7 @@ import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import type { AudioSynthesisOptions } from '../../../../gateways/channels/telegram/AudioHandler.js';
 import { TelegramConversationAutonomousService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationAutonomousService.js';
 import { TelegramConversationDecisionService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationDecisionService.js';
+import { classifyAutonomyIntent } from '../shared/intentClassifier.js';
 import { TelegramConversationContextService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationContextService.js';
 import { TelegramConversationDirectReplyService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationDirectReplyService.js';
 import { TelegramConversationStateService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationStateService.js';
@@ -202,12 +203,11 @@ export class TelegramConversationController {
       ]
         .map((value) => String(value || '').trim())
         .filter(Boolean);
-      const contextualMessage = contextSections.length
-        ? `${wrapUntrustedContent('untrusted_telegram_content', contextSections.join('\n\n'), {
+      const contextualMessage = contextSections.length ? `${wrapUntrustedContent('untrusted_telegram_content', contextSections.join('\n\n'), {
             source: 'telegram_conversation_context_bundle',
           })}\n\nCURRENT USER MESSAGE:\n${effectiveMessageText}`
         : effectiveMessageText;
-      const preLlmAutonomyDecision = this.decisionService.decideAutonomousExecution(
+      const preLlmAutonomyDecision = await this.decisionService.decideAutonomousExecution(
         task,
         messageText,
         effectiveMessageText,
@@ -516,11 +516,9 @@ export class TelegramConversationController {
   }
 
   private hasStrongAutonomyIntent(originalMessage: string, autonomousPayload: string): boolean {
-    const combined = `${String(originalMessage || '')}\n${String(autonomousPayload || '')}`.toLowerCase();
-
-    return /(arrume|corrija|conserte|modifique|altere|implante|implemente|crie|gere arquivo|rode|execute|automatize|fa[cç]a sozinho|pode seguir|pode fazer|aplique|mude o sistema|edite|fix|repair|modify|change|implement|create|generate file|run|execute|automate|do it yourself|go ahead|apply|edit)/i.test(
-      combined,
-    );
+    const original = String(originalMessage || '').trim();
+    const payload = String(autonomousPayload || '').trim();
+    return Boolean(payload && payload !== original);
   }
 
   */

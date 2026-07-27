@@ -169,7 +169,7 @@ export class ComposerCatalogService {
       .map((task) => {
         const shortId = task.task_id.substring(0, 8);
         const summary = this.truncate(
-          task.raw_message || task.normalized_message || 'tarefa sem resumo',
+          task.raw_message || task.normalized_message || 'task without summary',
           96,
         );
 
@@ -198,7 +198,7 @@ export class ComposerCatalogService {
       (Array.isArray(task.artifacts) ? task.artifacts : [])
         .filter((artifact): artifact is ArtifactRecord => Boolean(artifact))
         .map((artifact) => {
-          const token = this.toToken(artifact.key || artifact.name || artifact.id || 'artefato');
+          const token = this.toToken(artifact.key || artifact.name || artifact.id || 'artifact');
           return {
             id: `artifact:${artifact.id || artifact.key || artifact.path || artifact.url || `${task.task_id}:${token}`}`,
             type: 'artifact' as const,
@@ -235,7 +235,7 @@ export class ComposerCatalogService {
         .filter(Boolean)
         .map((filePath) => {
           const fileName = this.extractFileName(filePath);
-          const token = this.toToken(fileName || filePath || 'arquivo');
+          const token = this.toToken(fileName || filePath || 'file');
           return {
             id: `file:${filePath}`,
             type: 'file' as const,
@@ -316,8 +316,8 @@ export class ComposerCatalogService {
       actions.push({
         id: `action:approve:${firstPermission.id}`,
         type: 'action',
-        label: `#aprovar:${String(firstPermission.payload?.shortId || '').trim()}`,
-        description: 'Aprovar uma vez a permissao pendente mais recente desta sessao',
+        label: `#approve:${String(firstPermission.payload?.shortId || '').trim()}`,
+        description: 'Approve the most recent pending permission once for this session',
         trigger: '#',
         payload: {
           action: 'approve_permission',
@@ -344,10 +344,10 @@ export class ComposerCatalogService {
           actions.push({
             id: `action:resume-workflow:${workflowRunId}`,
             type: 'action',
-            label: `#retomar-workflow:${this.toToken(workflowRunId)}`,
+            label: `#resume-workflow:${this.toToken(workflowRunId)}`,
             description: resumeStageLabel
-              ? `Retomar o workflow composto pela etapa ${resumeStageLabel}${resumeStageReason ? ` (${resumeStageReason})` : ''}`
-              : 'Retomar o workflow composto mais recente desta sessao',
+              ? `resume the composed workflow at stage ${resumeStageLabel}${resumeStageReason ? ` (${resumeStageReason})` : ''}`
+              : 'resume the most recent composed workflow for this session',
             trigger: '#',
             payload: {
               action: 'resume_workflow',
@@ -364,7 +364,7 @@ export class ComposerCatalogService {
               id: `action:close-workflow:${workflowRunId}`,
               type: 'action',
               label: `#encerrar-workflow:${this.toToken(workflowRunId)}`,
-              description: 'Encerrar este workflow bloqueado e remover a retomada sugerida desta sessao',
+              description: 'End this blocked workflow and remove the suggested resumption for this session',
               trigger: '#',
               payload: {
                 action: 'close_workflow',
@@ -376,12 +376,12 @@ export class ComposerCatalogService {
 
           if (resumeStageId) {
             actions.push({
-              id: `action:resume-workflow-phase:${workflowRunId}:${resumeStageId}`,
+              id: `action:resume-workflow-stage:${workflowRunId}:${resumeStageId}`,
               type: 'action',
-              label: `#retomar-etapa:${this.toToken(resumeStageLabel || resumeStageId)}`,
+              label: `#resume-stage:${this.toToken(resumeStageLabel || resumeStageId)}`,
               description: resumeStageLabel
-                ? `Retomar o workflow diretamente pela etapa ${resumeStageLabel}${resumeStageReason ? ` (${resumeStageReason})` : ''}`
-                : 'Retomar o workflow pela etapa interrompida',
+                ? `resume the workflow directly at stage ${resumeStageLabel}${resumeStageReason ? ` (${resumeStageReason})` : ''}`
+                : 'resume the workflow at the interrupted stage',
               trigger: '#',
               payload: {
                 action: 'resume_workflow',
@@ -398,10 +398,10 @@ export class ComposerCatalogService {
           const workflowStages = Array.isArray(workflowRun?.phases)
             ? [...workflowRun.phases].sort((left, right) => Number(left?.index || 0) - Number(right?.index || 0))
             : [];
-          for (const phase of workflowStages) {
-            const stageId = String(phase?.id || '').trim();
-            const stageLabel = String(phase?.label || stageId || '').trim();
-            const stageStatus = String(phase?.status || '').trim().toLowerCase();
+          for (const stage of workflowStages) {
+            const stageId = String(stage?.id || '').trim();
+            const stageLabel = String(stage?.label || stageId || '').trim();
+            const stageStatus = String(stage?.status || '').trim().toLowerCase();
             if (!stageId || !stageLabel || stageId === resumeStageId) {
               continue;
             }
@@ -413,12 +413,11 @@ export class ComposerCatalogService {
             }
 
             actions.push({
-              id: `action:resume-workflow-phase:${workflowRunId}:${stageId}:${stageStatus || 'phase'}`,
+              id: `action:resume-workflow-stage:${workflowRunId}:${stageId}:${stageStatus || 'stage'}`,
               type: 'action',
-              label: `${isCompletedStage ? '#reiniciar-etapa' : '#retomar-etapa'}:${this.toToken(stageLabel)}`,
-              description: isCompletedStage
-                ? `Reexecutar o workflow a partir da etapa ${stageLabel}`
-                : `Retomar o workflow diretamente pela etapa ${stageLabel}`,
+              label: `${isCompletedStage ? '#restart-stage' : '#resume-stage'}:${this.toToken(stageLabel)}`,
+              description: isCompletedStage ? `Rerun the workflow from stage ${stageLabel}`
+                : `Resume the workflow directly from stage ${stageLabel}`,
               trigger: '#',
               payload: {
                 action: isCompletedStage ? 'restart_workflow_stage' : 'resume_workflow',
@@ -426,7 +425,7 @@ export class ComposerCatalogService {
                 taskId: String(firstTask.payload?.taskId || '').trim() || null,
                 resumeStageId: stageId,
                 resumeStageLabel: stageLabel,
-                resumeStageReason: String(phase?.result_summary || phase?.handoff_summary || '').trim() || null,
+                resumeStageReason: String(stage?.result_summary || stage?.handoff_summary || '').trim() || null,
                 resumePrompt: String(workflowRun?.resume_prompt || '').trim() || null,
               },
             });
@@ -437,7 +436,7 @@ export class ComposerCatalogService {
             this.buildComposeFollowupAction({
               id: `action:workflow-sdd:${workflowFeatureId}`,
               label: `#workflow-sdd:${this.toToken(workflowFeatureId)}`,
-              description: 'Montar o comando para rodar o loop SDD desta feature no composer',
+              description: 'Build the command to run this feature loop in the composer',
               draftMessage: `/workflow sdd ${workflowFeatureId}`,
               workflowFeatureId,
               attachedMentions: [],
@@ -448,8 +447,8 @@ export class ComposerCatalogService {
       actions.push({
         id: `action:resume:${firstTask.id}`,
         type: 'action',
-        label: `#retomar:${String(firstTask.payload?.shortId || '').trim()}`,
-        description: 'Retomar ou consultar a tarefa mais recente desta sessao',
+        label: `#resume:${String(firstTask.payload?.shortId || '').trim()}`,
+        description: 'resume or inspect the most recent task for this session',
         trigger: '#',
         payload: {
           action: 'resume_task',
@@ -463,8 +462,8 @@ export class ComposerCatalogService {
       const attachArtifactAction: WebComposerMention = {
         id: `action:attach-artifact:${firstArtifact.id}`,
         type: 'action',
-        label: `#usar-artefato:${String(firstArtifact.payload?.token || '').trim()}`,
-        description: 'Levar este artefato como contexto para o proximo pedido',
+        label: `#use-artifact:${String(firstArtifact.payload?.token || '').trim()}`,
+        description: 'Use this artifact as context for the next request',
         trigger: '#',
         payload: {
           action: 'attach_artifact_context',
@@ -475,18 +474,18 @@ export class ComposerCatalogService {
       actions.push(
         this.buildComposeFollowupAction({
           id: `action:compose-artifact:${firstArtifact.id}`,
-          label: `#responder-com-artefato:${String(firstArtifact.payload?.token || '').trim()}`,
-          description: 'Montar um follow-up para responder usando este artefato',
+          label: `#respond-with-artifact:${String(firstArtifact.payload?.token || '').trim()}`,
+          description: 'Build a follow-up to respond using this artifact',
           draftMessage:
-            '/task use este artefato como contexto principal e gere uma resposta objetiva com resumo e proximo passo.',
+            '/task use this artifact as the main context and generate an objective response with summary and next step.',
           attachedMentions: [attachArtifactAction],
         }),
       );
       actions.push({
         id: `action:artifact:${firstArtifact.id}`,
         type: 'action',
-        label: `#ver-artefato:${String(firstArtifact.payload?.token || '').trim()}`,
-        description: 'Mostrar detalhes do artefato mais recente desta sessao',
+        label: `#view-artifact:${String(firstArtifact.payload?.token || '').trim()}`,
+        description: 'Show details for the most recent artifact in this session',
         trigger: '#',
         payload: {
           action: 'describe_artifact',
@@ -496,8 +495,8 @@ export class ComposerCatalogService {
       actions.push({
         id: `action:redeliver-artifact:${firstArtifact.id}`,
         type: 'action',
-        label: `#reentregar-artefato:${String(firstArtifact.payload?.token || '').trim()}`,
-        description: 'Reapresentar a referencia mais util do artefato no chat',
+        label: `#redeliver-artifact:${String(firstArtifact.payload?.token || '').trim()}`,
+        description: 'Present the most useful artifact reference in chat again',
         trigger: '#',
         payload: {
           action: 'redeliver_artifact',
@@ -511,8 +510,8 @@ export class ComposerCatalogService {
       const attachFileAction: WebComposerMention = {
         id: `action:attach-file:${firstFile.id}`,
         type: 'action',
-        label: `#usar-arquivo:${String(firstFile.payload?.token || '').trim()}`,
-        description: 'Levar este arquivo como contexto para o proximo pedido',
+        label: `#usar-file:${String(firstFile.payload?.token || '').trim()}`,
+        description: 'Levar este file como contexto para o next request',
         trigger: '#',
         payload: {
           action: 'attach_file_context',
@@ -524,10 +523,10 @@ export class ComposerCatalogService {
         actions.push(
           this.buildComposeFollowupAction({
             id: `action:compose-debug-file:${firstFile.id}`,
-            label: `#debug-arquivo:${String(firstFile.payload?.token || '').trim()}`,
-            description: 'Montar um follow-up para revisar este arquivo com @debugging',
+            label: `#debug-file:${String(firstFile.payload?.token || '').trim()}`,
+            description: 'Montar um follow-up para review este file com @debugging',
             draftMessage:
-              `/task revise este arquivo com ${debuggingSkill.label} e aponte bugs, riscos e correcoes.`,
+            '/task review this file and highlight problems, risks and next steps.',
             attachedMentions: [attachFileAction],
           }),
         );
@@ -535,18 +534,18 @@ export class ComposerCatalogService {
       actions.push(
         this.buildComposeFollowupAction({
           id: `action:compose-review-file:${firstFile.id}`,
-          label: `#revisar-arquivo:${String(firstFile.payload?.token || '').trim()}`,
-          description: 'Montar um follow-up para revisar este arquivo no proximo pedido',
+          label: `#review-file:${String(firstFile.payload?.token || '').trim()}`,
+          description: 'Montar um follow-up para review este file no next request',
           draftMessage:
-            '/task revise este arquivo e destaque problemas, riscos e proximos passos.',
+            '/task review this file and highlight problems, risks and next steps.',
           attachedMentions: [attachFileAction],
         }),
       );
       actions.push({
         id: `action:file:${firstFile.id}`,
         type: 'action',
-        label: `#ver-arquivo:${String(firstFile.payload?.token || '').trim()}`,
-        description: 'Mostrar detalhes do arquivo mais recente desta sessao',
+        label: `#ver-file:${String(firstFile.payload?.token || '').trim()}`,
+        description: 'Show details for the most recent file in this session',
         trigger: '#',
         payload: {
           action: 'describe_file',
@@ -616,7 +615,7 @@ export class ComposerCatalogService {
 
   private buildArtifactDescription(artifact: ArtifactRecord): string {
     const parts = [
-      artifact.kind || artifact.type || 'artefato',
+      artifact.kind || artifact.type || 'artifact',
       artifact.name || artifact.key || null,
       artifact.summary || artifact.description || artifact.path || artifact.url || null,
     ]
@@ -624,7 +623,7 @@ export class ComposerCatalogService {
       .map((item) => String(item).trim())
       .filter(Boolean);
 
-    return this.truncate(parts.join(' - ') || 'Artefato da sessao', 96);
+    return this.truncate(parts.join(' - ') || 'Session artifact', 96);
   }
 
   private uniqueMentions(mentions: WebComposerMention[]): WebComposerMention[] {

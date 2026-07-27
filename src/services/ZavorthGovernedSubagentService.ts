@@ -319,7 +319,7 @@ export class ZavorthGovernedSubagentService {
         previewJson: 'npm run zavorth:governed-subagents:json',
         prepareDeveloper: 'npm run zavorth:governed-subagents -- --preset developer --prepare',
         check: 'npm run zavorth:governed-subagents:check --silent',
-        nextStage: 'Approval gate - Large Skill Absorption Pipeline',
+        nextAction: 'Approval gate - Large Skill Absorption Pipeline',
       },
     };
   }
@@ -351,7 +351,7 @@ export class ZavorthGovernedSubagentService {
     lines.push('- compiler-only; no subagents launched');
     lines.push('- no tools invoked and no workspace mutation');
     lines.push('- launch requires user approval, Policy Broker, budget and receipts');
-    lines.push('', `Next: ${snapshot.commands.nextStage}`);
+    lines.push('', `Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -376,27 +376,8 @@ export class ZavorthGovernedSubagentService {
   }
 
   private rolesFromTask(task: string | null): ZavorthGovernedSubagentProfileId[] {
-    const text = String(task || '').toLowerCase();
-    const roles: ZavorthGovernedSubagentProfileId[] = [];
-    if (/\b(vulnerab|seguran|security|audit|brecha|prompt injection|ssrf)\b/.test(text)) {
-      roles.push('auditor');
-    }
-    if (/\b(skill|absor|biblioteca|library|research|pesquis|document|web)\b/.test(text)) {
-      roles.push('researcher');
-    }
-    if (/\b(codigo|code|implementar|patch|editar|fix|corrigir|build)\b/.test(text)) {
-      roles.push('coder');
-    }
-    if (/\b(test|qa|valid|verific|regress|smoke)\b/.test(text)) {
-      roles.push('qa');
-    }
-    if (/\b(provider|canal|channel|zavorthControl|runtime|operac|whatsapp|telegram|discord|signal|imessage)\b/.test(text)) {
-      roles.push('operator');
-    }
-    if (/\b(memoria|memory|retenc|forget|lembrar|contexto)\b/.test(text)) {
-      roles.push('memory-curator');
-    }
-    return roles;
+    void task;
+    return [];
   }
 
   private prepareRole(input: {
@@ -440,7 +421,7 @@ export class ZavorthGovernedSubagentService {
       deniedPaths: input.profile.deniedPaths,
       requiresApproval: true,
       policyTags: [
-        'governed-subagent-checkpoint-2',
+        'governed-subagent-gate-2',
         `native-preset:${input.selectedPreset}`,
         `native-role:${input.profile.id}`,
       ],
@@ -478,8 +459,7 @@ export class ZavorthGovernedSubagentService {
     });
     const runtimeStatus = missingSkillIds.length > 0 || policyDecision.requiresAdminPolicy || policyDecision.action === 'deny'
       ? 'blocked'
-      : policyDecision.requiresUserConfirmation
-        ? 'approval-required'
+      : policyDecision.requiresUserConfirmation ? 'approval-required'
         : 'ready';
     const subagentReceipt = createSubagentResultReceipt({
       roleId: input.profile.id,

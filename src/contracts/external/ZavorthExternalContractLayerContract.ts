@@ -199,6 +199,6 @@ export type ZavorthExternalContractLayerSnapshot = {
     inspect: 'npm run zavorth:external-contract-layer';
     inspectJson: 'npm run zavorth:external-contract-layer:json';
     check: 'npm run zavorth:external-contract-layer:check --silent';
-    nextStage: '291 Preview engine - Native Engine Absorption';
+    nextAction: 'Preview engine - Native Engine Absorption';
   };
 };

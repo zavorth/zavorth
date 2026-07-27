@@ -84,7 +84,7 @@ function shortDraftId(id: string): string {
 
 function draftRefError(action: string, ref: string, serviceText: string): string {
   const raw = String(ref || '').trim();
-  if (/^#?\d{1,2}$/.test(raw)) {
+  if (/^#...\d{1,2}$/.test(raw)) {
     return `No draft at that number. Run list, then ${action} 1.`;
   }
   if (raw.length > 8) {

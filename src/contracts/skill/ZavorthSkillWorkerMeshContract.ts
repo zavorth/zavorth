@@ -29,27 +29,27 @@ export const ZAVORTH_SKILL_WORKER_GLOSSARY = {
   skill: {
     id: 'skill',
     en: 'Instruction pack + metadata; not an executor by itself.',
-    pt: 'Pacote de instrução + metadados; não é executor sozinho.',
+    pt: 'Instruction pack + metadata; not an executor by itself.',
   },
   tool: {
     id: 'tool',
     en: 'Real executable capability registered on the agent ToolRegistry.',
-    pt: 'Capacidade executável real registrada no ToolRegistry do agent.',
+    pt: 'Real executable capability registered on the agent ToolRegistry.',
   },
   plugin: {
     id: 'plugin',
     en: 'Packaged capability module (Plugin OS) that can bind tools/channels/providers.',
-    pt: 'Módulo de capability (Plugin OS) que pode ligar tools/canais/providers.',
+    pt: 'Packaged capability module (Plugin OS) that can bind tools/channels/providers.',
   },
   worker: {
     id: 'worker',
     en: 'Runnable actor (external process/service or internal subagent) with health + invoke.',
-    pt: 'Ator executável (processo/serviço externo ou subagent interno) com health + invoke.',
+    pt: 'Runnable actor (external process/service or internal subagent) with health + invoke.',
   },
   receipt: {
     id: 'receipt',
     en: 'Durable proof of preview/approve/install/invoke; no raw secrets.',
-    pt: 'Prova durável de preview/approve/install/invoke; sem secrets em claro.',
+    pt: 'Durable proof of preview/approve/install/invoke; no raw secrets.',
   },
 } as const;
 
@@ -239,10 +239,10 @@ export type WorkerInvokeReceipt = {
 export function formatSkillWorkerMeshPitch(locale: 'en' | 'pt' = 'en'): string {
   if (locale === 'pt') {
     return [
-      'Skill = instrução (não executa sozinha).',
-      'Tool/Plugin = o que de fato executa no Zavorth.',
-      'Worker = processo externo ou subagent com health + invoke + receipt.',
-      'Install de skill e register de worker são genéricos: path, URL ou comando — sem marca de concorrente.',
+      'Skill = instructions (not an executor alone).',
+      'Tool/Plugin = what actually runs inside Zavorth.',
+      'Worker = external process or subagent with health + invoke + receipt.',
+      'Skill install and worker register are generic: path, URL, or command — no competitor branding.',
     ].join(' ');
   }
   return [

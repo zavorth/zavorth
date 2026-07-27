@@ -54,17 +54,17 @@ export function appendApprovalFrictionRationale(base: string, friction: Approval
   }
 
   const details = [
-    friction.rejected_count ? `${friction.rejected_count} rejeicao(oes)` : null,
-    friction.high_risk_count ? `${friction.high_risk_count} gate(s) de alto risco` : null,
-    friction.permission_count ? `${friction.permission_count} pedido(s) de permissao` : null,
-    friction.pending_count ? `${friction.pending_count} espera(s) de confirmacao` : null,
-    friction.granted_count ? `${friction.granted_count} liberacao(oes) concluida(s)` : null,
-    friction.delivered_after_approval_count ? `${friction.delivered_after_approval_count} entrega(s) apos aprovacao` : null,
+    friction.rejected_count ? `${friction.rejected_count} rejection(s)` : null,
+    friction.high_risk_count ? `${friction.high_risk_count} gate(s) de alto risk` : null,
+    friction.permission_count ? `${friction.permission_count} permission request(s)` : null,
+    friction.pending_count ? `${friction.pending_count} wait(s) de confirmation` : null,
+    friction.granted_count ? `${friction.granted_count} liberaction(oes) completed(s)` : null,
+    friction.delivered_after_approval_count ? `${friction.delivered_after_approval_count} delivery/deliveries after approval` : null,
     Number(friction.average_wait_ms || 0) > 0 ? `espera media ${formatDurationMs(Number(friction.average_wait_ms || 0))}` : null,
-    Number(friction.average_recovery_ms || 0) > 0 ? `retomada media ${formatDurationMs(Number(friction.average_recovery_ms || 0))}` : null,
+    Number(friction.average_recovery_ms || 0) > 0 ? `average resume time ${formatDurationMs(Number(friction.average_recovery_ms || 0))}` : null,
   ].filter(Boolean).join(', ');
 
-  return `${base} Ha friccao operacional recente com ${friction.executor} neste contexto (${details}).`;
+  return `${base} Ha operational friction recente com ${friction.executor} neste contexto (${details}).`;
 }
 
 export function shouldUseCheckpointedStyle(friction: ApprovalFrictionRecommendation | null): boolean {
@@ -169,7 +169,7 @@ export function buildBlockedExecutorReason(
 ): string | null {
   const routeOutcome = findRouteOutcome(routeOutcomes, executor, kind, subtype, surfaceSource);
   if (routeOutcome && shouldBlockByRouteOutcome(routeOutcome)) {
-    return `Mantive ${executor} fora desta rota por rejeicoes recentes ou friccao acumulada (${routeOutcome.rationale}).`;
+    return `Mantive ${executor} outside desta rota por rejeicoes recentes ou friction acumulada (${routeOutcome.rationale}).`;
   }
 
   const approvalFriction = findApprovalFriction(
@@ -179,7 +179,7 @@ export function buildBlockedExecutorReason(
     subtype,
   );
   if (approvalFriction && shouldBlockByApprovalFriction(approvalFriction)) {
-    return `Mantive ${executor} fora desta rota por friccao operacional forte (${approvalFriction.rationale}).`;
+    return `Mantive ${executor} outside desta rota por operational friction forte (${approvalFriction.rationale}).`;
   }
 
   return null;
@@ -221,14 +221,14 @@ export function enrichCandidate(
       && routeOutcome.completed_count >= routeOutcome.failed_count
     ) {
       confidence = Math.min(0.98, confidence + 0.08);
-      rationale = `${rationale} Esse executor ja concluiu rotas parecidas neste workspace (${routeOutcome.rationale}).`.trim();
+      rationale = `${rationale} Esse executor already completed rotas parecidas in this workspace (${routeOutcome.rationale}).`.trim();
     } else if (routeOutcome.failed_count > routeOutcome.completed_count) {
       confidence = Math.max(0.2, confidence - 0.08);
-      rationale = `${rationale} Considerei tambem que esse executor falhou mais do que concluiu em rotas parecidas (${routeOutcome.rationale}).`.trim();
+      rationale = `${rationale} Considerei also que esse executor failed mais do que completed at rotas parecidas (${routeOutcome.rationale}).`.trim();
     }
     if (routeOutcome.source_surface && input.surfaceSource && routeOutcome.source_surface === input.surfaceSource) {
       confidence = Math.min(0.98, confidence + 0.03);
-      rationale = `${rationale} Esse historico veio da mesma superficie (${routeOutcome.source_surface}), entao ganhou mais peso.`.trim();
+      rationale = `${rationale} This history came from the same surface (${routeOutcome.source_surface}), so it received more weight.`.trim();
     }
     if (routeOutcome.approval_pending_count > 0 || routeOutcome.permission_pending_count > 0) {
       confidence = Math.max(0.2, confidence - 0.03);
@@ -247,7 +247,7 @@ export function enrichCandidate(
     }
     if (Number(routeOutcome.rejected_count || 0) > 0) {
       confidence = Math.max(0.18, confidence - Math.min(0.18, Number(routeOutcome.rejected_count || 0) * 0.05));
-      rationale = `${rationale} Tambem considerei rejeicoes recentes nesta rota (${routeOutcome.rejected_count}).`.trim();
+      rationale = `${rationale} Also considerei rejeicoes recentes nesta rota (${routeOutcome.rejected_count}).`.trim();
     }
     if (Number(routeOutcome.high_risk_count || 0) > 0) {
       confidence = Math.max(0.18, confidence - Math.min(0.1, Number(routeOutcome.high_risk_count || 0) * 0.04));
@@ -265,7 +265,7 @@ export function enrichCandidate(
         0.98,
         confidence + Math.min(0.14, recoverySuccessCount * 0.04 + recoveryArtifactfulCount * 0.03),
       );
-      rationale = `${rationale} Essa rota ja recuperou interrupcoes recentes${recoveryArtifactfulCount > 0 ? ` e entregou ${recoveryArtifactfulCount} artefato(s) final(is)` : ''}.`.trim();
+      rationale = `${rationale} This route already recovered recent interruptions${recoveryArtifactfulCount > 0 ? ` and delivered ${recoveryArtifactfulCount} artifact(s) final` : ''}.`.trim();
       if (Number(routeOutcome.friction_rate || 0) >= 0.5 && recoveryArtifactfulCount > 0) {
         confidence = Math.min(0.98, confidence + 0.04);
       }
@@ -277,7 +277,7 @@ export function enrichCandidate(
         0.98,
         confidence + Math.min(0.12, gatedCompletionCount * 0.03 + gatedArtifactfulCount * 0.03),
       );
-      rationale = `${rationale} Essa rota costuma passar pelo gate humano e ainda concluir${gatedArtifactfulCount > 0 ? ` com ${gatedArtifactfulCount} entrega(s) apos liberacao` : ''}.`.trim();
+      rationale = `${rationale} Essa rota costuma passar pelo gate humano e ainda concluir${gatedArtifactfulCount > 0 ? ` com ${gatedArtifactfulCount} delivery item(s) after liberaction` : ''}.`.trim();
       if (Number(routeOutcome.approval_pending_count || 0) > 0 && gatedArtifactfulCount > 0) {
         confidence = Math.min(0.98, confidence + 0.03);
       }
@@ -287,13 +287,13 @@ export function enrichCandidate(
     const averageArtifactDeliveryMs = Number(routeOutcome.average_artifact_delivery_after_approval_ms || 0);
     if (averageApprovalWaitMs >= 2 * 60 * 60 * 1000) {
       confidence = Math.max(0.18, confidence - 0.08);
-      rationale = `${rationale} O gate humano costuma segurar essa rota por ${formatDurationMs(averageApprovalWaitMs)} em media.`.trim();
+      rationale = `${rationale} O gate humano costuma segurar essa rota por ${formatDurationMs(averageApprovalWaitMs)} at media.`.trim();
     } else if (averageApprovalWaitMs > 0 && averageApprovalWaitMs <= 15 * 60 * 1000 && gatedCompletionCount > 0) {
       confidence = Math.min(0.98, confidence + 0.03);
     }
     if (averageRecoveryMs >= 60 * 60 * 1000 && gatedCompletionCount > 0 && gatedArtifactfulCount === 0) {
       confidence = Math.max(0.18, confidence - 0.05);
-      rationale = `${rationale} Mesmo depois da liberacao, a retomada ainda demora ${formatDurationMs(averageRecoveryMs)} em media.`.trim();
+      rationale = `${rationale} Mesmo after da liberaction, a resumption ainda demora ${formatDurationMs(averageRecoveryMs)} at media.`.trim();
     } else if (averageRecoveryMs > 0 && averageRecoveryMs <= 20 * 60 * 1000 && gatedCompletionCount > 0) {
       confidence = Math.min(0.98, confidence + 0.03);
     }
@@ -304,7 +304,7 @@ export function enrichCandidate(
 
   if (approvedPolicy) {
     confidence = Math.min(0.98, confidence + 0.05);
-    rationale = `${rationale} Ja existem politicas aprovadas que reduzem atrito para ${candidate.executor} (${approvedPolicy.rationale}).`.trim();
+    rationale = `${rationale} already existem policys approved que reduzem atrito para ${candidate.executor} (${approvedPolicy.rationale}).`.trim();
   }
 
   return {

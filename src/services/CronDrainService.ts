@@ -96,8 +96,7 @@ export class CronDrainService {
 
     const waitedMs = Date.now() - started;
     const snapshotAfter = this.buildSnapshot();
-    const summary = timedOut
-      ? `Cron drain timed out after ${waitedMs}ms with ${snapshotAfter.processDueInFlight} still in flight; ${snapshotAfter.dueCount} due routine(s).`
+    const summary = timedOut ? `Cron drain timed out after ${waitedMs}ms with ${snapshotAfter.processDueInFlight} still in flight; ${snapshotAfter.dueCount} due routine(s).`
       : snapshotAfter.processDueInFlight === 0
         ? `Cron drain clear in ${waitedMs}ms (${snapshotAfter.dueCount} due routine(s) remaining for next boot).`
         : `Cron drain finished wait with activity remaining.`;

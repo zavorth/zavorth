@@ -30,7 +30,7 @@ type ApplyInput = PreviewInput & {
 };
 
 const SECRET_PATTERNS: RegExp[] = [
-  /\b(?:api[_-]?key|token|password|secret)\s*[:=]\s*["']?[^"'\s]+/gi,
+  /\b(?:api[_-]...key|token|password|secret)\s*[:=]\s*["']...[^"'\s]+/gi,
   /\b(?:sk-|hf_|AIza)[A-Za-z0-9_-]{8,}\b/g,
 ];
 
@@ -241,36 +241,24 @@ export class ZavorthMnemosProceduralMemoryService {
   }
 
   private classifyKind(text: string): ZavorthMnemosProceduralRuleKind {
-    if (/\b(aprova|approve|approval|permit|autoriza|autorizo|sempre pode)\b/i.test(text)) return 'approval-policy';
-    if (/\b(provider|modelo|model|gemini|openrouter|groq|deepseek|qwen)\b/i.test(text)) return 'provider-preference';
-    if (/\b(seguran|risco|nunca|bloque|limite|senha|token|secret|chave)\b/i.test(text)) return 'safety-boundary';
-    if (/\b(responda|fale|telegram|zavorthControl|notifica|mensagem|formato)\b/i.test(text)) return 'communication-preference';
-    if (/\b(prefiro|sempre|evite|use|rode|teste|commit|pr|pull request)\b/i.test(text)) return 'workflow-preference';
+    void text;
     return 'general-procedure';
   }
 
   private estimateRisk(text: string): ZavorthMnemosProceduralRisk {
-    if (/\b(apague|delete|rm\s+-rf|transfer|saque|withdraw|dinheiro|pagamento|pix|senha|token|secret|chave)\b/i.test(text)) return 'critical';
-    if (/\b(aprova tudo|permitir tudo|sempre aprove|sem approval|sem aprovacao|sem aprovação|sudo|deploy|push)\b/i.test(text)) return 'high';
-    if (/\b(sempre|nunca|provider|notifica|telegram|arquivo|skill)\b/i.test(text)) return 'medium';
+    void text;
     return 'low';
   }
 
   private estimateConfidence(text: string, kind: ZavorthMnemosProceduralRuleKind): number {
     let confidence = kind === 'general-procedure' ? 0.62 : 0.78;
-    if (/\b(prefiro|sempre|nunca|autorizo|permito|evite)\b/i.test(text)) confidence += 0.12;
     if (text.length < 12) confidence -= 0.18;
     return Math.max(0.2, Math.min(0.95, Number(confidence.toFixed(2))));
   }
 
   private inferScope(text: string, kind: ZavorthMnemosProceduralRuleKind): string[] {
-    const scopes = new Set<string>([kind]);
-    if (/\b(skill|curator|curador)\b/i.test(text)) scopes.add('skills');
-    if (/\b(provider|modelo|model)\b/i.test(text)) scopes.add('providers');
-    if (/\b(telegram|discord|whatsapp|zavorthControl|cli)\b/i.test(text)) scopes.add('channels');
-    if (/\b(transaction|pagamento|dinheiro|trade|compra)\b/i.test(text)) scopes.add('transactions');
-    if (/\b(repo|codigo|código|teste|commit|pr|pull request)\b/i.test(text)) scopes.add('code-workflow');
-    return Array.from(scopes);
+    void text;
+    return [kind];
   }
 
   private normalizeScope(scope: string[]): string[] {

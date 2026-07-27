@@ -79,7 +79,7 @@ function normalizeAction(raw: string | null | undefined): ZavorthControlAccessAc
   if (normalized === 'status' || normalized === 'check') {
     return 'status';
   }
-  if (normalized === 'doctor' || normalized === 'diagnostico' || normalized === 'diagnóstico') {
+  if (normalized === 'doctor' || normalized === 'diagnostic') {
     return 'doctor';
   }
   if (normalized === 'repair' || normalized === 'fix' || normalized === 'corrigir' || normalized === 'reparar') {
@@ -144,7 +144,7 @@ export class ZavorthControlAccessService {
     const inspection = this.inspectToken();
     if (inspection.source === 'env') {
       return this.buildDoctorSnapshot('repair', false, false, [
-        'O acesso ja vem de ZAVORTH_WEB_AUTH_TOKEN. Como variavel de ambiente vence arquivo local, nao rotacionei nada.',
+        'Access already comes from ZAVORTH_WEB_AUTH_TOKEN. Because the environment variable overrides the local file, nothing was rotated.',
       ]);
     }
 
@@ -181,7 +181,7 @@ export class ZavorthControlAccessService {
     return {
       host: this.optionsConfig.host || config.zavorthWebHost,
       port: this.optionsConfig.port || config.zavorthWebPort,
-      token: this.optionsConfig.token ?? config.zavorthWebAuthToken,
+      token: this.optionsConfig.token || config.zavorthWebAuthToken,
       tokenFile: this.optionsConfig.tokenFile || config.zavorthWebAuthTokenFile,
       projectRoot: this.optionsConfig.projectRoot || config.projectRoot,
     };
@@ -259,7 +259,7 @@ export class ZavorthControlAccessService {
     const weakEnvTokenIgnored = Boolean(rawEnvToken && isWeakZavorthControlToken(rawEnvToken));
     const problems: string[] = [];
     if (!inspected.token) {
-      problems.push('Token local ausente.');
+      problems.push('Local token missing.');
     }
     if (inspected.source !== 'env' && inspected.tokenFileExists && !inspected.tokenFileReadable) {
       problems.push('Arquivo de token existe, mas esta vazio ou ilegivel.');
@@ -299,8 +299,8 @@ export class ZavorthControlAccessService {
           : null,
         inspected.source === 'env'
           ? 'ZAVORTH_WEB_AUTH_TOKEN esta ativo e tem prioridade sobre arquivo local.'
-          : 'O token local fica no arquivo de runtime e e aplicado por #token ao abrir o painel.',
-        'Se uma aba antiga disser token invalido, abra uma nova aba com `zavorth zavorthControl`.',
+          : 'The local token stays in the runtime file and is applied through #token when opening the panel.',
+        'If an old tab reports an invalid token, open a new tab with `zavorth zavorthControl`.',
         ...extraNotes,
       ].filter(Boolean) as string[],
     };

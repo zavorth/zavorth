@@ -84,8 +84,8 @@ export class AutonomousHousekeepingAgentService {
       label: 'Log Rotation',
       status: 'completed',
       summary: rotated > 0
-        ? `${rotated} log(s) rotacionado(s) na manutencao autonoma.`
-        : 'Nenhum log excedeu o limite configurado.',
+        ? `${rotated} log(s) rotated during autonomous maintenance.`
+        : 'No log exceeded the configured limit.',
       command: 'npm run ops:maintain',
       artifactId: null,
     });
@@ -96,8 +96,8 @@ export class AutonomousHousekeepingAgentService {
       label: 'Artifact Cleanup',
       status: 'completed',
       summary: artifactCleanup.deletedEntries > 0
-        ? `${artifactCleanup.deletedEntries} perfil(is) de visual smoke removido(s), liberando ${artifactCleanup.freedBytes} bytes.`
-        : 'Nenhum artefato de visual smoke precisou ser removido.',
+        ? `${artifactCleanup.deletedEntries} visual smoke profile(s) removed, freeing ${artifactCleanup.freedBytes} bytes.`
+        : 'No visual smoke artifacts needed to be removed.',
       command: 'npm run ops:maintain',
       artifactId: null,
     });
@@ -111,8 +111,7 @@ export class AutonomousHousekeepingAgentService {
         id: 'scheduled-maintenance',
         label: 'Maintenance Trigger',
         status: 'completed',
-        summary: status.lastActionId
-          ? `Supervised maintenance triggered via ${status.lastActionId}.`
+        summary: status.lastActionId ? `Supervised maintenance triggered via ${status.lastActionId}.`
           : (status.note || 'Supervised maintenance triggered.'),
         command: 'npm run ops:maintain:scheduled',
         artifactId: status.lastActionId || null,
@@ -122,7 +121,7 @@ export class AutonomousHousekeepingAgentService {
         id: 'scheduled-maintenance',
         label: 'Maintenance Trigger',
         status: 'skipped',
-        summary: 'Manutencao supervisionada nao foi disparada nesta rodada.',
+        summary: 'Supervised maintenance was not triggered in this run.',
         command: 'npm run ops:maintain:scheduled',
         artifactId: null,
       });
@@ -136,7 +135,7 @@ export class AutonomousHousekeepingAgentService {
           id: 'refactor-preview',
           label: 'Refactor Preview',
           status: preview.success ? 'completed' : 'failed',
-          summary: preview.summary || 'Preview de refactor concluida.',
+          summary: preview.summary || 'Refactor preview completed.',
           command: 'npm run qa:selfmod-optimization',
           artifactId: preview.previewId || preview.artifactId || null,
         });
@@ -144,7 +143,7 @@ export class AutonomousHousekeepingAgentService {
           id: 'refactor-preview',
           label: 'Refactor Preview',
           status: 'skipped',
-          summary: errorMessage(error, 'Preview de refactor indisponivel neste host.'),
+          summary: errorMessage(error, 'Refactor preview unavailable on this host.'),
           command: 'npm run qa:selfmod-optimization',
           artifactId: null,
         });
@@ -154,7 +153,7 @@ export class AutonomousHousekeepingAgentService {
         id: 'refactor-preview',
         label: 'Refactor Preview',
         status: 'skipped',
-        summary: 'Preview de refactor nao foi solicitada nesta rodada.',
+        summary: 'Refactor preview was not requested in this run.',
         command: 'npm run qa:selfmod-optimization',
         artifactId: null,
       });
@@ -210,9 +209,9 @@ export class AutonomousHousekeepingAgentService {
   private deriveRefactorGoal(architecture: ArchitectureRefactorSnapshot): string {
     const mostUrgentAction = architecture.actions[0];
     if (mostUrgentAction) {
-      return `Prepare supervised refactor for: ${mostUrgentAction.label}. Motivo: ${mostUrgentAction.reason}`;
+      return `Prepare supervised refactor for: ${mostUrgentAction.label}. Reason: ${mostUrgentAction.reason}`;
     }
-    return 'Preparar uma rodada pequena de limpeza arquitetural supervisionada no Zavorth.';
+    return 'Prepare a small round of supervised architectural cleanup in Zavorth.';
   }
 
   private resolvePosture(
@@ -236,8 +235,8 @@ export class AutonomousHousekeepingAgentService {
     const skipped = operations.filter((entry) => entry.status === 'skipped').length;
     const failed = operations.filter((entry) => entry.status === 'failed').length;
     return [
-      `Housekeeping autonomo executou ${completed} operacao(oes), ${skipped} skip(s) e ${failed} falha(s).`,
-      `Arquitetura segue em postura ${architecture.summary.posture} com gate ${architecture.gate.status}.`,
+      `Autonomous housekeeping executed ${completed} operation(s), ${skipped} skip(s), and ${failed} failure(s).`,
+      `Architecture remains in ${architecture.summary.posture} posture with gate ${architecture.gate.status}.`,
     ].join(' ');
   }
 }

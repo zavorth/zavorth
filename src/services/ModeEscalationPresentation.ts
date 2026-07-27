@@ -60,8 +60,7 @@ export function buildModeEscalationPendingCard(input: ModeEscalationCardInput): 
     `Suggested scope: ${scope}`,
     req.fallback ? `Light fallback: ${req.fallback}` : null,
     '',
-    buttons
-      ? 'Use the buttons below (or /mode approve · /mode reject).'
+    buttons ? 'Use the buttons below (or /mode approve · /mode reject).'
       : 'This surface has no clickable buttons. Reply with:\n  /mode approve\n  /mode approve once|session|host\n  /mode reject',
   ]
     .filter((line) => line !== null)

@@ -20,7 +20,7 @@ export class TrustPostureService {
     if (input.requiresClarification) {
       return {
         posture: 'clarify-first',
-        reason: 'Pergunta de esclarecimento obrigatoria antes de assumir alvo ou acao.',
+        reason: 'Pergunta de esclarecimento obrigatoria before assumir alvo ou action.',
         userRole: input.userRole,
         trustMode,
         approvalRequired: false,
@@ -78,7 +78,7 @@ export class TrustPostureService {
     if (input.permissionRequest && input.classification.risk === 'danger') {
       return {
         posture: 'approval-required',
-        reason: 'Acao perigosa exige preview e approval antes da execucao.',
+        reason: 'Dangerous action requires preview and approval before execution.',
         userRole: input.userRole,
         trustMode,
         approvalRequired: true,
@@ -92,7 +92,7 @@ export class TrustPostureService {
     if (input.permissionRequest) {
       return {
         posture: 'preview-first',
-        reason: 'Acao mutavel exige preview e permissao conversacional.',
+        reason: 'Mutable action requires preview and conversational permission.',
         userRole: input.userRole,
         trustMode,
         approvalRequired: input.permissionRequest.approvalRequired,
@@ -106,7 +106,7 @@ export class TrustPostureService {
     if (input.classification.signals.inspection || input.classification.signals.network) {
       return {
         posture: 'governed-execution',
-        reason: 'Leitura ou consulta pode seguir pelo runtime governado.',
+        reason: 'Reading or lookup can continue through the governed runtime.',
         userRole: input.userRole,
         trustMode,
         approvalRequired: false,
@@ -119,7 +119,7 @@ export class TrustPostureService {
 
     return {
       posture: 'direct-answer',
-      reason: 'Conversa comum nao requer ferramenta nem permissao.',
+      reason: 'Common conversation requires no tool or permission.',
       userRole: input.userRole,
       trustMode,
       approvalRequired: false,
@@ -141,13 +141,13 @@ export class TrustPostureService {
       'watchmode.control',
     ].includes(tool));
     if (classification.signals.hostScopeRequested) {
-      return 'Permissao conversacional nao cobre host inteiro.';
+      return 'Conversational permission does not cover the whole host.';
     }
     if (classification.signals.operatorRequired && trustMode !== 'overlord' && !governedOperatorTool) {
-      return 'Pedido exige Overlord; modo atual nao permite controle de operador.';
+      return 'Request requires Overlord; current mode does not allow operator control.';
     }
     if (trustMode === 'protected' && classification.risk === 'danger' && !governedOperatorTool) {
-      return 'Modo protected bloqueia operacoes perigosas.';
+      return 'Modo protected blocks operactions perigosas.';
     }
     return null;
   }

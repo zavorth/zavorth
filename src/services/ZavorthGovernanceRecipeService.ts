@@ -38,8 +38,8 @@ export type ZavorthGovernanceRecipeRuntime = ZavorthCapabilityHubRuntime & {
 const DEFAULT_GOVERNANCE_RECIPES: GovernanceRecipeDefinition[] = [
   {
     id: 'safe-channel-activation',
-    label: 'Ativaction segura de canal',
-    summary: 'Configura um canal com readiness, allowlist, approval para envio e receipts por mensagem.',
+    label: 'Ativaction safe de canal',
+    summary: 'Configures a channel with readiness, allowlist, send approval, and per-message receipts.',
     targetKinds: ['channel', 'integration'],
     tags: ['channel', 'setup', 'approval', 'receipt'],
     defaultScope: {
@@ -75,8 +75,8 @@ const DEFAULT_GOVERNANCE_RECIPES: GovernanceRecipeDefinition[] = [
   },
   {
     id: 'governed-skill-run',
-    label: 'Execucao governada de skill',
-    summary: 'Roda skill ou receita com policy de ferramentas, budget, sandbox e artifact-first receipts.',
+    label: 'Execution governada de skill',
+    summary: 'Runs skill or recipe with tool policy, budget, sandbox, and artifact-first receipts.',
     targetKinds: ['skill', 'recipe', 'runtime-capability'],
     tags: ['skill', 'recipe', 'sandbox', 'artifact'],
     defaultScope: {
@@ -113,7 +113,7 @@ const DEFAULT_GOVERNANCE_RECIPES: GovernanceRecipeDefinition[] = [
   {
     id: 'provider-mcp-readiness',
     label: 'Readiness de provider e MCP',
-    summary: 'Valida provider, MCP ou runtime externo sem vazar secrets e sem habilitar live por padrao.',
+    summary: 'Valida provider, MCP ou runtime external without vazar secrets e without habilitar live por default.',
     targetKinds: ['provider', 'mcp', 'integration'],
     tags: ['provider', 'mcp', 'readiness', 'doctor'],
     defaultScope: {
@@ -189,7 +189,7 @@ export class ZavorthGovernanceRecipeService {
       plans,
       narrative: {
         headline: `Governance Recipes cobre ${plans.length} target(s) do Capability Hub.`,
-        operatorSummary: `${this.definitions.length} receita(s) canonica(s), ${plans.filter((plan) => plan.permissions.approvalRequired).length} plano(s) com approval e ${plans.filter((plan) => plan.rollback.available).length} rollback(s) definidos.`,
+        operatorSummary: `${this.definitions.length} canonical recipe(s), ${plans.filter((plan) => plan.permissions.approvalRequired).length} plan(s) with approval e ${plans.filter((plan) => plan.rollback.available).length} rollback(s) definidos.`,
       },
     };
   }
@@ -242,8 +242,7 @@ export class ZavorthGovernanceRecipeService {
       targetItemId: plan.targetItemId,
       status: plan.status === 'blocked'
         ? 'blocked'
-        : plan.permissions.approvalRequired && !input.approvalId
-          ? 'waiting_approval'
+        : plan.permissions.approvalRequired && !input.approvalId ? 'waiting_approval'
           : 'dry_run_completed',
       dryRun: true,
       approvalId: input.approvalId || null,
@@ -453,8 +452,7 @@ export class ZavorthGovernanceRecipeService {
         label: 'Live activation',
         kind: 'activation',
         status: permissions.liveExecutionAllowed && target.activation.liveAllowed ? 'pending' : 'blocked',
-        summary: permissions.liveExecutionAllowed
-          ? 'Ready for a later live executor handoff.'
+        summary: permissions.liveExecutionAllowed ? 'Ready for a later live executor handoff.'
           : 'Waiting for approval before live handoff.',
       },
     ];
@@ -487,8 +485,7 @@ export class ZavorthGovernanceRecipeService {
     return {
       headline: `${recipe.label} -> ${target.label}`,
       operatorSummary: `Status ${status}; dryRunOnly=${dryRunOnly}; target readiness=${target.readiness}; risk=${target.governance.risk}.`,
-      nextAction: dryRunOnly
-        ? 'Review the receipt plan and request explicit approval before live activation.'
+      nextAction: dryRunOnly ? 'Review the receipt plan and request explicit approval before live activation.'
         : 'Plan can be handed to a live executor with receipts and rollback enabled.',
     };
   }

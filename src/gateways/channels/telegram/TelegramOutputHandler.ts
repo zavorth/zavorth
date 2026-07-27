@@ -43,12 +43,12 @@ export class TelegramOutputHandler {
       if (result.isAudio) {
         await this.sendAudio(ctx, result.text);
       } else if (result.isFile) {
-        await this.sendFile(ctx, result.text, result.fileName || 'documento.md');
+        await this.sendFile(ctx, result.text, result.fileName || 'document.md');
       } else {
         await this.sendText(ctx, result.text);
       }
-    } catch (error: unknown) {logger.error(`[OutputHandler] Erro ao enviar resposta: ${error}`);
-      await this.sendError(ctx, 'Failed to enviar resposta. Tente novamente.');
+    } catch (error: unknown) {logger.error(`[OutputHandler] Error sending response: ${error}`);
+      await this.sendError(ctx, 'Failed to send response. Please try again.');
     }
   }
 
@@ -76,10 +76,10 @@ export class TelegramOutputHandler {
       fs.writeFileSync(filePath, content, 'utf-8');
 
       await ctx.replyWithDocument(new InputFile(filePath, fileName), {
-        caption: `Documento gerado: ${fileName}`,
+        caption: `Generated document: ${fileName}`,
       });
-    } catch (error: unknown) {logger.error(`[OutputHandler] Erro ao enviar arquivo: ${error}`);
-      await this.sendText(ctx, `Could not gerar o arquivo. Conteudo em texto:\n\n${content}`);
+    } catch (error: unknown) {logger.error(`[OutputHandler] Error sending file: ${error}`);
+      await this.sendText(ctx, `Could not generate file. Text content:\n\n${content}`);
     } finally {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
@@ -88,7 +88,7 @@ export class TelegramOutputHandler {
   }
 
   /**
-   * Sintetiza TTS e envia como voice note ou audio, dependendo do formato gerado.
+   * Synthesizes TTS and sends as voice note or audio depending on the generated format.
    */
   public async sendAudio(ctx: Context, text: string): Promise<void> {
     try {
@@ -100,7 +100,7 @@ export class TelegramOutputHandler {
       } catch (error: unknown) {if (isCapabilityUnavailableError(error)) {
           await this.sendText(
             ctx,
-            `A resposta em audio pediu a capability opcional de midia, que ainda not esta ativa neste host.\n${buildCapabilityProvisionHint(error.capabilityId)}\n\nResposta em texto:\n\n${text}`,
+            `The audio response requested the optional media capability, which is not yet active on this host.\n${buildCapabilityProvisionHint(error.capabilityId)}\n\nText response:\n\n${text}`,
           );
           return;
         }
@@ -111,19 +111,19 @@ export class TelegramOutputHandler {
         const file = new InputFile(audioPath, path.basename(audioPath));
         await this.sendTelegramAudio(ctx, file, audioPath);
         this.audioHandler.cleanup(audioPath);
-        logger.info('[OutputHandler] Audio enviado com sucesso.');
+        logger.info('[OutputHandler] Audio sent successfully.');
         return;
       }
 
-      logger.warn('[OutputHandler] TTS failed, enviando como texto.');
+      logger.warn('[OutputHandler] TTS failed, sending as text.');
       await this.sendText(ctx, text);
-    } catch (error: unknown) {logger.error(`[OutputHandler] Erro no envio de audio: ${error}`);
-      await this.sendText(ctx, `Failed to gerar audio. Resposta em texto:\n\n${text}`);
+    } catch (error: unknown) {logger.error(`[OutputHandler] Error sending audio: ${error}`);
+      await this.sendText(ctx, `Failed to generate audio. Text response:\n\n${text}`);
     }
   }
 
   public async sendError(ctx: Context, errorMessage: string): Promise<void> {
-    await this.safeSend(ctx, `Aviso: ${errorMessage}`);
+    await this.safeSend(ctx, `Warning: ${errorMessage}`);
   }
 
   private async sendTelegramAudio(ctx: Context, file: InputFile, filePath: string): Promise<void> {
@@ -136,7 +136,7 @@ export class TelegramOutputHandler {
 
     if (typeof ctx.replyWithAudio === 'function') {
       await (ctx.replyWithAudio as (file: InputFile, options?: AudioOptions) => Promise<Message>)(file, {
-        caption: 'Resposta em audio',
+        caption: 'Audio response',
         title: path.basename(filePath),
       });
       return;
@@ -147,7 +147,7 @@ export class TelegramOutputHandler {
       return;
     }
 
-    throw new Error('Nenhum metodo de envio de audio disponivel no Telegram.');
+    throw new Error('No audio sending method available on Telegram.');
   }
 
   private splitIntoChunks(text: string, maxLength: number): string[] {
@@ -187,7 +187,7 @@ export class TelegramOutputHandler {
       }
 
       if (telegramError?.error_code === 403) {
-        logger.warn('[OutputHandler] Usuario bloqueou o bot. Mensagem descartada.');
+        logger.warn('[OutputHandler] User blocked the bot. Message discarded.');
         return;
       }
 

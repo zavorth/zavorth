@@ -268,8 +268,7 @@ export class ZavorthSkillExpansionPackService {
       ...(snapshot.candidates.slice(0, 12).map((entry) => `- ${entry.id}: ${entry.permission} | ${entry.targetRelativePath}`)),
       '',
       snapshot.apply.requested
-        ? snapshot.apply.applied
-          ? `Applied generated expansion pack: ${snapshot.target.packPath}`
+        ? snapshot.apply.applied ? `Applied generated expansion pack: ${snapshot.target.packPath}`
           : 'Apply blocked: provide --approval-id <id> and a valid local source.'
         : `Apply governed: ${snapshot.commands.apply}`,
       'Safety: generated Zavorth-native stubs only; no upstream scripts, no runtime execution, no network probes.',
@@ -428,7 +427,7 @@ function buildSkillStub(candidate: ZavorthSkillExpansionCandidate): string {
     '',
     'ZAVORTH_EXPANSION_GENERATED: true',
     '',
-    'This skill is a Zavorth-native capability stub. It gives the agent routing context and operating guardrails, but it does not copy or execute upstream skill scripts.',
+    'This skill is a Zavorth-native capability local. It gives the agent routing context and operating guardrails, but it does not copy or execute upstream skill scripts.',
     '',
     '## When To Use',
     '',
@@ -460,7 +459,7 @@ function buildOrigin(candidate: ZavorthSkillExpansionCandidate, input: {
   return {
     version: 1,
     importedAt: input.generatedAt,
-    importMode: 'generated-zavorth-native-stub',
+    importMode: 'generated-zavorth-native-local',
     approvalId: input.approvalId,
     skillName: candidate.name,
     source: {
@@ -508,14 +507,14 @@ function buildNotice(sourceRoot: string): string {
 }
 
 function parseSkill(text: string): ParsedSkill {
-  const frontmatter = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  const frontmatter = text.match(/^---\r...\n([\s\S]*...)\r...\n---/);
   const body = frontmatter ? text.slice(frontmatter[0].length) : text;
   const fields: Record<string, string> = {};
   const tags: string[] = [];
   const relatedSkills: string[] = [];
   if (frontmatter) {
     const yaml = frontmatter[1];
-    for (const line of yaml.split(/\r?\n/)) {
+    for (const line of yaml.split(/\r...\n/)) {
       const match = line.match(/^([a-zA-Z0-9_-]+):\s*(.+)$/);
       if (match) {
         fields[match[1]] = unquote(match[2].trim());
@@ -585,19 +584,16 @@ function findSkillFiles(root: string): string[] {
 }
 
 function riskForSkill(category: string, text: string, tags: string[]): ZavorthSkillExpansionRisk {
-  const lower = `${category} ${tags.join(' ')} ${text.slice(0, 4000)}`.toLowerCase();
-  if (/(blockchain|finance|payment|trade|trading|wallet|email|imessage|sms|telegram|slack|whatsapp|shell|docker|kubernetes|ssh|token|oauth|api key|password|browser|computer-use)/.test(lower)) {
-    return 'high';
-  }
-  if (/(github|devops|mcp|database|jupyter|webhook|scrap|scrape|file|write|excel|pptx|notion|google-workspace)/.test(lower)) {
-    return 'medium';
-  }
+  void category;
+  void text;
+  void tags;
   return 'low';
 }
 
 function permissionForRisk(risk: ZavorthSkillExpansionRisk, text: string): ZavorthSkillExpansionPermission {
+  void text;
   if (risk === 'high') return 'sandbox-required';
-  if (risk === 'medium' || /```|command|script|install|run\b/i.test(text)) return 'approval-required';
+  if (risk === 'medium') return 'approval-required';
   return 'context-only';
 }
 

@@ -63,9 +63,8 @@ export class RuntimeOfficialRemoteAccessActionSupport {
       appUrl: official.remote.appUrl || official.manifest?.remote?.appUrl || null,
       baseUrl: official.manifest?.remote?.baseUrl || null,
       issues: this.reportBuilder.getOfficialRemoteIssues(official),
-      summary: selectedCandidate
-        ? `Caminho remoto oficial selecionado: ${selectedCandidate.label}.`
-        : 'Caminho remoto oficial selecionado.',
+      summary: selectedCandidate ? `path remote oficial selecionado: ${selectedCandidate.label}.`
+        : 'path remote oficial selecionado.',
     });
 
     this.persist(nextState, options);
@@ -86,9 +85,8 @@ export class RuntimeOfficialRemoteAccessActionSupport {
       appUrl: official.remote.appUrl || official.manifest?.remote?.appUrl || null,
       baseUrl: official.manifest?.remote?.baseUrl || null,
       issues: this.reportBuilder.getOfficialRemoteIssues(official),
-      summary: official.remote.ready
-        ? 'Acesso remoto oficial validado com sucesso.'
-        : 'A validacao do acesso remoto oficial ainda encontrou pendencias.',
+      summary: official.remote.ready ? 'access remote oficial validated successfully.'
+        : 'A validation do access remote oficial ainda encontrou pending items.',
     });
 
     this.persist(nextState, options);
@@ -106,7 +104,7 @@ export class RuntimeOfficialRemoteAccessActionSupport {
       appUrl: official.remote.appUrl || official.manifest?.remote?.appUrl || null,
       baseUrl: official.manifest?.remote?.baseUrl || null,
       issues: this.reportBuilder.getOfficialRemoteIssues(official),
-      summary: 'A configuracao guiada do acesso remoto oficial foi limpa.',
+      summary: 'The guided official remote access configuration was cleared.',
     });
 
     this.persist(nextState, options);
@@ -130,11 +128,9 @@ export class RuntimeOfficialRemoteAccessActionSupport {
       appUrl: official.remote.appUrl || official.manifest?.remote?.appUrl || null,
       baseUrl: official.manifest?.remote?.baseUrl || null,
       issues: this.reportBuilder.getOfficialRemoteIssues(official),
-      summary: official.remote.ready
-        ? 'Caminho remoto oficial fechado em um comando.'
-        : (selectedCandidate
-          ? `Caminho remoto oficial iniciado em um comando com ${selectedCandidate.label}.`
-          : 'Caminho remoto oficial iniciado em um comando.'),
+      summary: official.remote.ready ? 'Official remote path completed in one command.'
+        : (selectedCandidate ? `Official remote path started in one command with ${selectedCandidate.label}.`
+          : 'Official remote path started in one command.'),
     });
 
     this.persist(nextState, options);

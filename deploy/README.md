@@ -55,9 +55,9 @@ Esse perfil sobe:
 - healthcheck em `/api/auth/status`
 - perfil `ops` com capability policy `ask-on-demand`
 - selfmod restrito a `owner_trusted`
-- startup install bloqueado por padrao
+- startup install blocked by default
 - limite de 2048 MB, 2 CPUs e 256 processos
-- rotacao de logs `25 MB x 5 arquivos`
+- log rotation `25 MB x 5 files`
 
 ## Hardening do host Linux
 
@@ -93,7 +93,7 @@ npm run ops:restore -- --manifest data/backups/<snapshot-id>/manifest.json --dry
 npm run ops:production:check -- --json
 ```
 
-O snapshot padrao cobre apenas o estado critico do produto:
+The default snapshot covers only the product-critical state:
 
 - `data/zavorth.db`, `-wal`, `-shm`
 - `memory/`
@@ -101,4 +101,4 @@ O snapshot padrao cobre apenas o estado critico do produto:
 - `data/workspace-profiles/`
 - arquivos canonicos de `data/runtime/` como tokens, pairing, locks, doctors e status de runtime
 
-Logs, caches, perfis de smoke visual e artefatos pesados de `data/runtime/` ficam de fora por padrao.
+Logs, caches, visual smoke profiles, and heavy `data/runtime/` artifacts stay out by default.

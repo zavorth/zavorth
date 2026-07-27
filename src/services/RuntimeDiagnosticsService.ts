@@ -267,10 +267,8 @@ export class RuntimeDiagnosticsService {
       const mode =
         raw.mode === 'native' || raw.mode === 'bridge'
           ? raw.mode
-          : config.discordBotToken
-            ? 'native'
-            : config.discordBridgeEnabled
-              ? 'bridge'
+          : config.discordBotToken ? 'native'
+            : config.discordBridgeEnabled ? 'bridge'
               : 'unknown';
       const expectedMode = config.discordBotToken ? 'native' : config.discordBridgeEnabled ? 'bridge' : mode;
       const modeMismatch = expectedMode !== 'unknown' && mode !== expectedMode;
@@ -280,8 +278,7 @@ export class RuntimeDiagnosticsService {
         started: !modeMismatch && raw.started === true,
         pendingInbox: Number(raw.pendingInbox || 0) || 0,
         pendingOutbox: Number(raw.pendingOutbox || 0) || 0,
-        lastError: modeMismatch
-          ? `Discord status snapshot belongs to ${mode} mode, but ${expectedMode} mode is configured.`
+        lastError: modeMismatch ? `Discord status snapshot belongs to ${mode} mode, but ${expectedMode} mode is configured.`
           : typeof raw.lastError === 'string'
             ? raw.lastError
             : null,

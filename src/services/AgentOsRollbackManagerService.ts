@@ -58,7 +58,7 @@ export class AgentOsRollbackManagerService {
           artifactPath: null,
           records: [],
           rawSecretsSerialized: false,
-          summary: 'Rollback bloqueado para evitar serializar conteudo sensivel.',
+          summary: 'Rollback blocked to avoid serializing sensitive content.',
         };
       }
       const target = WorkspaceResolver.ensurePathInsideWorkspace(input.workspaceRoot, file.path);

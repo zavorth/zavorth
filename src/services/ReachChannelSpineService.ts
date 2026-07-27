@@ -106,7 +106,7 @@ const MEMBER_DESCRIPTORS: MemberDescriptor[] = [
     id: 'discord',
     label: 'Discord',
     preferredOrder: 3,
-    gatewayTarget: 'src/gateways/channels/discord/DiscordGateway.stub.ts',
+    gatewayTarget: 'src/gateways/channels/discord/DiscordGateway.ts',
     requiredEnvKeys: ['DISCORD_BOT_TOKEN'],
     allowlistEnvKeys: ['DISCORD_ALLOWED_GUILD_IDS', 'DISCORD_ALLOWED_CHANNEL_IDS'],
     capabilities: {
@@ -130,7 +130,7 @@ const MEMBER_DESCRIPTORS: MemberDescriptor[] = [
     id: 'slack',
     label: 'Slack',
     preferredOrder: 4,
-    gatewayTarget: 'src/gateways/channels/slack/SlackGateway.stub.ts',
+    gatewayTarget: 'src/gateways/channels/slack/SlackGateway.ts',
     requiredEnvKeys: ['SLACK_BOT_TOKEN'],
     allowlistEnvKeys: ['SLACK_ALLOWED_CHANNEL_IDS'],
     capabilities: {
@@ -146,7 +146,7 @@ const MEMBER_DESCRIPTORS: MemberDescriptor[] = [
     },
     notes: [
       'Preferred third chat surface after Telegram and Discord.',
-      'Web API + signing secret + allowlist; stub outbox when native transport is off.',
+      'Web API + signing secret + allowlist; local outbox when native transport is off.',
     ],
     platformKey: 'slack',
   },
@@ -412,17 +412,14 @@ export class ReachChannelSpineService {
       configured: configured || descriptor.id === 'web' || descriptor.id === 'cli',
       liveReady: readiness === 'live-ready' || descriptor.id === 'web' || descriptor.id === 'cli',
       gatewayTarget: descriptor.gatewayTarget,
-      doctorCommand: descriptor.platformKey
-        ? `npm run test:channels:smoke`
+      doctorCommand: descriptor.platformKey ? `npm run test:channels:smoke`
         : 'zavorth gateway status',
-      installCommand: descriptor.platformKey
-        ? `npm run channels:install -- --channel ${descriptor.platformKey}`
+      installCommand: descriptor.platformKey ? `npm run channels:install -- --channel ${descriptor.platformKey}`
         : 'n/a',
       liveActivationCommand: descriptor.platformKey
         ? `npm run channel-live-activation -- --profile configured --channel ${descriptor.id === 'slack' ? 'slack' : descriptor.id}`
         : 'n/a',
-      smokeCommand: descriptor.platformKey
-        ? 'npx jest tests/gateways/ReachChannelSpine.discord-slack.smoke.test.ts --runInBand'
+      smokeCommand: descriptor.platformKey ? 'npx jest tests/gateways/ReachChannelSpine.discord-slack.smoke.test.ts --runInBand'
         : 'npx jest tests/services/ReachChannelSpineService.test.ts --runInBand',
       requiredEnvKeys: [...descriptor.requiredEnvKeys],
       allowlistEnvKeys: [...descriptor.allowlistEnvKeys],
@@ -537,20 +534,18 @@ export class ReachChannelSpineService {
         secretValuesSerialized: false,
       },
       {
-        id: 'reach-channel-spine.mock-io',
-        kind: 'mock-io',
+        id: 'reach-channel-spine.local-io',
+        kind: 'local-io',
         status: members.filter((member) => member.id === 'discord' || member.id === 'slack')
-          .every((member) => member.capabilities.mockIo)
-          ? 'ready'
+          .every((member) => member.capabilities.mockIo) ? 'ready'
           : 'partial',
-        detail: 'Discord and Slack expose mock inbound/outbound without live network.',
+        detail: 'Discord and Slack expose local inbound/outbound without live network.',
         secretValuesSerialized: false,
       },
       {
         id: 'reach-channel-spine.continuity',
         kind: 'continuity',
-        status: handoffs.length > 0 && handoffs.every((handoff) => handoff.requiresApproval)
-          ? 'ready'
+        status: handoffs.length > 0 && handoffs.every((handoff) => handoff.requiresApproval) ? 'ready'
           : 'missing',
         detail: `${handoffs.length} spine handoff preview(s) require approval before channel switch.`,
         secretValuesSerialized: false,

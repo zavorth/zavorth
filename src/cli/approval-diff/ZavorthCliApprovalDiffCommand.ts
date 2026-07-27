@@ -33,8 +33,7 @@ export function runZavorthCliApprovalDiff(input: RunZavorthCliApprovalDiffInput)
     approvedBy: readFlag(args, 'by') || 'cli',
     scope: normalizeScope(readFlag(args, 'scope')),
   });
-  const output = input.json || args.includes('--json')
-    ? `${JSON.stringify(snapshot, null, 2)}\n`
+  const output = input.json || args.includes('--json') ? `${JSON.stringify(snapshot, null, 2)}\n`
     : `${renderZavorthCliApprovalDiff(snapshot)}\n`;
 
   return {

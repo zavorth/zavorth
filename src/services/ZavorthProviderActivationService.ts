@@ -248,8 +248,7 @@ export class ZavorthProviderActivationService {
     const executionReady = hasExecutionPath(provider, adapterKind, connectorReady);
     const status: ZavorthProviderActivationStatus = executionReady && provider.status === 'ready'
       ? 'ready'
-      : executionReady
-        ? 'attention'
+      : executionReady ? 'attention'
         : 'blocked';
     return {
       id: provider.id,

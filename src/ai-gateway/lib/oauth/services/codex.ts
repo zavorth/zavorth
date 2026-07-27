@@ -35,7 +35,7 @@ export class CodexService extends OAuthService {
       .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
       .join("&");
 
-    return `${CODEX_CONFIG.authorizeUrl}?${queryString}`;
+    return `${CODEX_CONFIG.authorizeUrl}...${queryString}`;
   }
 
   /**
@@ -84,7 +84,7 @@ export class CodexService extends OAuthService {
       }, fixedPort);
 
       const redirectUri = `http://localhost:${port}/auth/callback`;
-      spinner.succeed(`Local server started on port ${port}`);
+      spinner.succeed(`local server started on port ${port}`);
 
       // Generate PKCE
       const { codeVerifier, codeChallenge, state } = generatePKCE();

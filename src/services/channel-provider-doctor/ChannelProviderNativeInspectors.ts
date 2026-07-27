@@ -27,10 +27,10 @@ export async function inspectTelegramChannel(
       enabled: false,
       configured: false,
       status: 'skipped',
-      summary: 'Telegram nativo nao esta habilitado neste runtime.',
+      summary: 'Telegram native is not enabled in this runtime.',
       error: null,
       recommendedAction: null,
-      details: ['Defina TELEGRAM_BOT_TOKEN para ativar o doctor oficial do Telegram.'],
+      details: ['set TELEGRAM_BOT_TOKEN to enable the official Telegram doctor.'],
     };
   }
 
@@ -41,10 +41,10 @@ export async function inspectTelegramChannel(
       enabled: true,
       configured: false,
       status: 'failed',
-      summary: 'Telegram nativo esta habilitado, mas ainda faltam prerequisitos operacionais.',
-      error: 'Campos ausentes: TELEGRAM_ALLOWED_USER_IDS.',
+      summary: 'Telegram native is enabled, but operational prerequisites are still missing.',
+      error: 'Missing fields: TELEGRAM_ALLOWED_USER_IDS.',
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Telegram exige bot token e ao menos um operator permitido.'],
+      details: ['Telegram requires a bot token and at least one allowed operator.'],
     };
   }
 
@@ -55,7 +55,7 @@ export async function inspectTelegramChannel(
       enabled: true,
       configured: true,
       status: 'passed',
-      summary: 'Telegram nativo validado localmente pela configuracao do operador.',
+      summary: 'Telegram native validated locally by configuration do operador.',
       error: null,
       recommendedAction: null,
       details: [`Operatores permitidos: ${config.allowedUserIds.length}.`],
@@ -80,7 +80,7 @@ export async function inspectTelegramChannel(
       enabled: true,
       configured: true,
       status: 'passed',
-      summary: 'Telegram nativo validado por getMe e pela policy de operadores.',
+      summary: 'Telegram native validated by getMe and the operator policy.',
       error: null,
       recommendedAction: null,
       details: [
@@ -96,10 +96,10 @@ export async function inspectTelegramChannel(
       enabled: true,
       configured: true,
       status: 'failed',
-      summary: 'Telegram nativo falhou no probe remoto do Bot API.',
+      summary: 'Telegram native failed the remote Bot API probe.',
       error: errorMessage(error),
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Revise o bot token e a reachability da Telegram Bot API.'],
+      details: ['Review the bot token and Telegram Bot API reachability.'],
     };
   }
 }
@@ -107,8 +107,7 @@ export async function inspectTelegramChannel(
 export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<ChannelProviderDoctorItem> {
   const status = deps.readStatusFile(config.discordBridgeStatusFile);
   const lifecycle = deps.readCapabilityLifecycleHint('discord');
-  const mode: ChannelProviderDoctorItem['mode'] = String(config.discordBotToken || '').trim()
-    ? 'native'
+  const mode: ChannelProviderDoctorItem['mode'] = String(config.discordBotToken || '').trim() ? 'native'
     : (config.discordBridgeEnabled ? 'bridge' : 'unknown');
   const enabled = Boolean(String(config.discordBotToken || '').trim() || config.discordBridgeEnabled);
 
@@ -119,10 +118,10 @@ export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<
       enabled,
       configured: false,
       status: 'skipped',
-      summary: 'Discord nativo nao esta habilitado neste runtime.',
+      summary: 'Discord native is not enabled in this runtime.',
       error: null,
       recommendedAction: null,
-      details: ['Defina DISCORD_BOT_TOKEN para ativar o doctor oficial do Discord nativo.'],
+      details: ['set DISCORD_BOT_TOKEN to enable the official Discord native doctor.'],
     };
   }
 
@@ -141,10 +140,10 @@ export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<
       enabled,
       configured: false,
       status: 'failed',
-      summary: 'Discord nativo esta habilitado, mas ainda faltam prerequisitos operacionais.',
-      error: `Campos ausentes: ${missing.join(', ')}.`,
+      summary: 'Discord native is enabled, but operational prerequisites are still missing.',
+      error: `Missing fields: ${missing.join(', ')}.`,
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Discord native exige bot token e escopo de operacao explicito.'],
+      details: ['Discord native requires bot token and explicit operation scope.'],
     };
   }
 
@@ -156,14 +155,13 @@ export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<
         enabled,
         configured: true,
         status: 'skipped',
-        summary: lifecycle.dormant
-          ? 'Discord nativo esta configurado, mas dormente no perfil atual.'
-          : 'Discord nativo esta configurado, mas continua opcional no perfil atual.',
+        summary: lifecycle.dormant ? 'Discord native is configured, but dormant in the current profile.'
+          : 'Discord native is configured, but remains optional in the current profile.',
         error: null,
         recommendedAction: null,
         details: [
-          lifecycle.notes || 'Discord nao e obrigatorio no boot deste perfil e pode ficar desligado ate o usuario precisar dele.',
-          'Ligue o gateway do Discord apenas quando houver uso real desse canal ou quando o rollout exigir prewarm explicito.',
+          lifecycle.notes || 'Discord is not required at boot for this profile and can stay disabled until the user needs it.',
+          'Enable the Discord gateway only when real channel usage exists or rollout requires explicit prewarm.',
         ],
       };
     }
@@ -174,10 +172,10 @@ export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<
       enabled,
       configured: true,
       status: 'failed',
-      summary: 'Discord nativo ainda nao confirmou runtime pronto.',
+      summary: 'Discord nactive has not confirmed runtime readiness yet.',
       error: 'O snapshot do Discord indica started=false.',
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Suba o gateway do Discord e confirme o status do bridge/runtime.'],
+      details: ['Start the Discord gateway and confirm bridge/runtime status.'],
     };
   }
 
@@ -191,7 +189,7 @@ export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<
       summary: 'Native Discord recorded a recent error.',
       error: status.lastError,
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Revise o ultimo erro do snapshot antes de ampliar o rollout.'],
+      details: ['Revise o latest error do snapshot before ampliar o rollout.'],
     };
   }
 
@@ -202,11 +200,11 @@ export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<
       enabled,
       configured: true,
       status: 'passed',
-      summary: 'Discord nativo validado localmente pela configuracao e pelo snapshot do runtime.',
+      summary: 'Discord native validated locally by configuration and runtime snapshot.',
       error: null,
       recommendedAction: null,
       details: [
-        `Guilds permitidas: ${config.discordAllowedGuildIds.length}.`,
+        `Allowed guilds: ${config.discordAllowedGuildIds.length}.`,
         `Owners permitidos: ${config.discordOwnerUserIds.length}.`,
       ],
     };
@@ -230,12 +228,12 @@ export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<
       enabled,
       configured: true,
       status: 'passed',
-      summary: 'Discord nativo validado pela Discord API e pelo snapshot do runtime.',
+      summary: 'Discord native validated by the Discord API and runtime snapshot.',
       error: null,
       recommendedAction: null,
       details: [
         `Bot user id: ${String(payload.id)}.`,
-        `Guilds permitidas: ${config.discordAllowedGuildIds.length}.`,
+        `Allowed guilds: ${config.discordAllowedGuildIds.length}.`,
       ],
     };
   } catch (error: unknown) {
@@ -246,10 +244,10 @@ export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<
       enabled,
       configured: true,
       status: 'failed',
-      summary: 'Discord nativo falhou no probe remoto da Discord API.',
+      summary: 'Discord native failed the remote Discord API probe.',
       error: errorMessage(error),
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Revise token, guild allowlist e reachability da Discord API.'],
+      details: ['Review token, guild allowlist, and Discord API reachability.'],
     };
   }
 }
@@ -261,14 +259,14 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       ? 'native'
       : config.slackTransport === 'native'
         ? 'native'
-        : String(config.slackBotToken || '').trim() && config.slackTransport !== 'stub'
+        : String(config.slackBotToken || '').trim() && config.slackTransport !== 'local'
         ? 'native'
-        : status?.mode === 'stub' || config.slackTransport === 'stub'
-          ? 'stub'
+        : status?.mode === 'local' || config.slackTransport === 'local'
+          ? 'local'
           : 'unknown';
   const enabled = Boolean(status?.enabled === true || config.slackEnabled || String(config.slackBotToken || '').trim());
 
-  if (mode === 'stub') {
+  if (mode === 'local') {
     if (status?.started === false) {
       return {
         channelId: 'slack',
@@ -276,10 +274,10 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
         enabled,
         configured: true,
         status: 'failed',
-        summary: 'Slack stub ainda nao confirmou runtime pronto.',
+        summary: 'Slack local transport has not confirmed runtime readiness yet.',
         error: 'O snapshot do Slack indica started=false.',
         recommendedAction: 'npm run test:channels:smoke',
-        details: ['Suba o runtime do host para validar o outbox local e o snapshot do Slack stub.'],
+        details: ['Start the host runtime to validate the local outbox and Slack local transport snapshot.'],
       };
     }
 
@@ -290,10 +288,10 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
         enabled,
         configured: true,
         status: 'failed',
-        summary: 'Slack stub recorded a recent error.',
+        summary: 'Slack local transport recorded a recent error.',
         error: status.lastError,
         recommendedAction: 'npm run test:channels:smoke',
-        details: ['Revise o ultimo erro do snapshot antes de ampliar o uso do Slack local.'],
+        details: ['Revise o latest error do snapshot before ampliar o usage do Slack local.'],
       };
     }
 
@@ -303,14 +301,13 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       enabled,
       configured: true,
       status: 'passed',
-      summary: 'Slack stub validated locally by the runtime snapshot.',
+      summary: 'Slack local transport validated locally by the runtime snapshot.',
       error: null,
       recommendedAction: null,
       details: [
         `Canais permitidos: ${Number(status?.recipientsConfigured || config.slackAllowedChannelIds.length || 0)}.`,
-        status?.workspaceId
-          ? `Workspace alvo: ${String(status.workspaceId)}.`
-          : 'Workspace nao configurado; o stub local continua valido para smoke e Channel Mesh.',
+        status?.workspaceId ? `Workspace alvo: ${String(status.workspaceId)}.`
+          : 'Workspace not configured; the local transport remains valid for smoke and Channel Mesh.',
       ],
     };
   }
@@ -322,10 +319,10 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       enabled,
       configured: false,
       status: 'skipped',
-      summary: 'Slack nativo nao esta habilitado neste runtime.',
+      summary: 'Slack native is not enabled in this runtime.',
       error: null,
       recommendedAction: null,
-      details: ['Defina SLACK_TRANSPORT=native e SLACK_BOT_TOKEN para ativar o doctor do Slack.'],
+      details: ['set SLACK_TRANSPORT=native and SLACK_BOT_TOKEN to enable the Slack doctor.'],
     };
   }
 
@@ -347,11 +344,11 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       enabled,
       configured: false,
       status: 'failed',
-      summary: 'Slack nativo esta habilitado, mas ainda faltam prerequisitos operacionais.',
-      error: `Campos ausentes: ${missing.join(', ')}.`,
+      summary: 'Slack native is enabled, but operational prerequisites are still missing.',
+      error: `Missing fields: ${missing.join(', ')}.`,
       recommendedAction: 'npm run test:channels:smoke',
       details: [
-        'Slack native exige bot token, signing secret e ao menos um canal permitido.',
+        'Slack native requires a bot token, signing secret, and at least one allowed channel.',
       ],
     };
   }
@@ -363,10 +360,10 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       enabled,
       configured: true,
       status: 'failed',
-      summary: 'Slack nativo ainda nao confirmou runtime pronto.',
+      summary: 'Slack nactive has not confirmed runtime readiness yet.',
       error: 'O snapshot do Slack indica started=false.',
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Suba o runtime of the host e confirme o webhook /api/webhooks/slack.'],
+      details: ['Start the host runtime and confirm webhook /api/webhooks/slack.'],
     };
   }
 
@@ -380,7 +377,7 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       summary: 'Native Slack recorded a recent error.',
       error: status.lastError,
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Revise o ultimo erro do snapshot antes de ampliar o rollout.'],
+      details: ['Revise o latest error do snapshot before ampliar o rollout.'],
     };
   }
 
@@ -391,10 +388,10 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       enabled,
       configured: true,
       status: 'passed',
-      summary: 'Slack nativo validado localmente pelo snapshot e pela configuracao.',
+      summary: 'Slack nactive validated locally by snapshot and configuration.',
       error: null,
       recommendedAction: null,
-      details: ['Probe remoto pulado; o doctor usou apenas config e snapshot local.'],
+      details: ['Remote probe skipped; the doctor used only config and local snapshot.'],
     };
   }
 
@@ -423,7 +420,7 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       enabled,
       configured: true,
       status: 'passed',
-      summary: 'Slack nativo validado por auth.test e pelo snapshot do runtime.',
+      summary: 'Slack native validated by auth.test and runtime snapshot.',
       error: null,
       recommendedAction: null,
       details: [
@@ -439,10 +436,10 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       enabled,
       configured: true,
       status: 'failed',
-      summary: 'Slack nativo falhou no probe remoto da Web API.',
+      summary: 'Slack native failed the remote Web API probe.',
       error: errorMessage(error),
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Revise token, signing secret e reachability da Slack Web API.'],
+      details: ['Review token, signing secret, and Slack Web API reachability.'],
     };
   }
 }
@@ -455,24 +452,24 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       ? 'cloud-api'
       : status?.provider === 'baileys' || config.whatsappProvider === 'baileys'
         ? 'baileys'
-        : 'stub';
+        : 'local';
   const mode: ChannelProviderDoctorItem['mode'] =
     status?.mode === 'cloud-api' || provider === 'cloud-api'
       ? 'cloud-api'
       : status?.mode === 'baileys' || provider === 'baileys'
         ? 'baileys'
-        : status?.mode === 'stub' || provider === 'stub'
-          ? 'stub'
+        : status?.mode === 'local' || provider === 'local'
+          ? 'local'
           : 'unknown';
   const enabled = Boolean(
     status?.enabled === true
     || config.whatsappEnabled
     || provider === 'cloud-api'
     || provider === 'baileys'
-    || provider === 'stub',
+    || provider === 'local',
   );
 
-  if (mode === 'stub') {
+  if (mode === 'local') {
     if (status?.started === false) {
       return {
         channelId: 'whatsapp',
@@ -480,10 +477,10 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
         enabled,
         configured: true,
         status: 'failed',
-        summary: 'WhatsApp stub ainda nao confirmou runtime pronto.',
+        summary: 'WhatsApp local transport has not confirmed runtime readiness yet.',
         error: 'O snapshot do WhatsApp indica started=false.',
         recommendedAction: 'npm run test:channels:smoke',
-        details: ['Suba o runtime do host para validar o outbox local do WhatsApp stub.'],
+        details: ['Start the host runtime to validate the WhatsApp local outbox snapshot.'],
       };
     }
 
@@ -494,10 +491,10 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
         enabled,
         configured: true,
         status: 'failed',
-        summary: 'WhatsApp stub recorded a recent error.',
+        summary: 'WhatsApp local transport recorded a recent error.',
         error: status.lastError,
         recommendedAction: 'npm run test:channels:smoke',
-        details: ['Revise o ultimo erro do snapshot antes de ampliar o uso do WhatsApp local.'],
+        details: ['Revise o latest error do snapshot before ampliar o usage do WhatsApp local.'],
       };
     }
 
@@ -507,14 +504,14 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       enabled,
       configured: true,
       status: 'passed',
-      summary: 'WhatsApp stub validated locally by the runtime snapshot.',
+      summary: 'WhatsApp local transport validated locally by the runtime snapshot.',
       error: null,
       recommendedAction: null,
       details: [
         `Chats permitidos: ${Number(status?.recipientsConfigured || config.whatsappAllowedChatIds.length || 0)}.`,
         typeof status?.providerDecision === 'string' && status.providerDecision.trim()
           ? status.providerDecision
-          : 'Stub local mantido enquanto o provider oficial do WhatsApp nao e conectado.',
+          : 'local transport is kept while the official WhatsApp provider is not connected.',
       ],
     };
   }
@@ -527,10 +524,10 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
         enabled,
         configured: false,
         status: 'failed',
-        summary: 'WhatsApp Baileys foi escolhido, mas ainda faltam prerequisitos operacionais.',
-        error: 'Campos ausentes: WHATSAPP_SESSION_DIR.',
+        summary: 'WhatsApp Baileys was selected, but operational prerequisites are still missing.',
+        error: 'Missing fields: WHATSAPP_SESSION_DIR.',
         recommendedAction: 'npm run test:channels:smoke',
-        details: ['Baileys exige ao menos um diretorio de sessao persistente antes de validar o runtime local.'],
+        details: ['Baileys requires at least one persistent session directory before validating the local runtime.'],
       };
     }
 
@@ -541,10 +538,10 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
         enabled,
         configured: true,
         status: 'failed',
-        summary: 'WhatsApp Baileys ainda nao confirmou runtime pronto.',
+        summary: 'WhatsApp Baileys has not confirmed runtime readiness yet.',
         error: 'O snapshot do WhatsApp indica started=false.',
         recommendedAction: 'npm run test:channels:smoke',
-        details: ['Suba o runtime do host e confirme a sessao persistente do provider Baileys.'],
+        details: ['Start the host runtime and confirm the persistent Baileys provider session.'],
       };
     }
 
@@ -558,7 +555,7 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
         summary: 'WhatsApp Baileys recorded a recent error.',
         error: status.lastError,
         recommendedAction: 'npm run test:channels:smoke',
-        details: ['Revise o ultimo erro do snapshot antes de ampliar o rollout do provider Baileys.'],
+        details: ['Revise o latest error do snapshot before ampliar o rollout do provider Baileys.'],
       };
     }
 
@@ -572,12 +569,11 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       error: null,
       recommendedAction: null,
       details: [
-        String(config.whatsappSessionDir || '').trim()
-          ? `Sessao persistente: ${String(config.whatsappSessionDir).trim()}.`
-          : 'Sessao persistente confirmada pelo snapshot do provider Baileys.',
+        String(config.whatsappSessionDir || '').trim() ? `Session persistent session: ${String(config.whatsappSessionDir).trim()}.`
+          : 'Session persistent session confirmed by the Baileys provider snapshot.',
         typeof status?.providerDecision === 'string' && status.providerDecision.trim()
           ? status.providerDecision
-          : 'Provider Baileys ativo para validacao local do Channel Mesh.',
+          : 'Provider Baileys active para validation local do Channel Mesh.',
       ],
     };
   }
@@ -589,10 +585,10 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       enabled,
       configured: false,
       status: 'skipped',
-      summary: 'WhatsApp Cloud API nao esta habilitada neste runtime.',
+      summary: 'WhatsApp Cloud API is not enabled in this runtime.',
       error: null,
       recommendedAction: null,
-      details: ['Defina WHATSAPP_PROVIDER=cloud-api para ativar o doctor oficial do WhatsApp.'],
+      details: ['set WHATSAPP_PROVIDER=cloud-api to enable the official WhatsApp doctor.'],
     };
   }
 
@@ -617,10 +613,10 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       enabled,
       configured: false,
       status: 'failed',
-      summary: 'WhatsApp Cloud API esta habilitada, mas ainda faltam prerequisitos operacionais.',
-      error: `Campos ausentes: ${missing.join(', ')}.`,
+      summary: 'WhatsApp Cloud API is enabled, but operational prerequisites are still missing.',
+      error: `Missing fields: ${missing.join(', ')}.`,
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Cloud API exige credenciais completas, verify token e ao menos um chat permitido.'],
+      details: ['Cloud API requires complete credentials, verify token, and at least one allowed chat.'],
     };
   }
 
@@ -631,10 +627,10 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       enabled,
       configured: true,
       status: 'failed',
-      summary: 'WhatsApp Cloud API ainda nao confirmou runtime pronto.',
+      summary: 'WhatsApp Cloud API has not confirmed runtime readiness yet.',
       error: 'O snapshot do WhatsApp indica started=false.',
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Suba o runtime of the host e confirme o callback /api/webhooks/whatsapp.'],
+      details: ['Start the host runtime and confirm callback /api/webhooks/whatsapp.'],
     };
   }
 
@@ -645,10 +641,10 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       enabled,
       configured: true,
       status: 'failed',
-      summary: 'WhatsApp Cloud API ainda nao confirmou validacao de webhook.',
+      summary: 'WhatsApp Cloud API has not confirmed webhook validation yet.',
       error: 'webhookConfigured=false no snapshot do WhatsApp.',
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Revise WHATSAPP_WEBHOOK_VERIFY_TOKEN e o callback da Meta.'],
+      details: ['Review WHATSAPP_WEBHOOK_VERIFY_TOKEN and the Meta callback.'],
     };
   }
 
@@ -662,7 +658,7 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       summary: 'WhatsApp Cloud API recorded a recent error.',
       error: status.lastError,
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Revise o ultimo erro do snapshot antes de ampliar o rollout.'],
+      details: ['Revise o latest error do snapshot before ampliar o rollout.'],
     };
   }
 
@@ -673,10 +669,10 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       enabled,
       configured: true,
       status: 'passed',
-      summary: 'WhatsApp Cloud API validada localmente pelo snapshot e pela configuracao.',
+      summary: 'WhatsApp Cloud API validated locally by snapshot and configuration.',
       error: null,
       recommendedAction: null,
-      details: ['Probe remoto pulado; o doctor usou apenas config e snapshot local.'],
+      details: ['Remote probe skipped; the doctor used only config and local snapshot.'],
     };
   }
 
@@ -684,7 +680,7 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
     const apiVersion = String(config.whatsappCloudApiVersion || 'v20.0').trim() || 'v20.0';
     const phoneNumberId = String(config.whatsappPhoneNumberId || '').trim();
     const response = await deps.fetchImpl(
-      `https://graph.facebook.com/${apiVersion}/${phoneNumberId}?fields=id`,
+      `https://graph.facebook.com/${apiVersion}/${phoneNumberId}...fields=id`,
       {
         method: 'GET',
         headers: {
@@ -707,7 +703,7 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       enabled,
       configured: true,
       status: 'passed',
-      summary: 'WhatsApp Cloud API validada pelo Graph API e pelo snapshot do runtime.',
+      summary: 'WhatsApp Cloud API validated by Graph API and the runtime snapshot.',
       error: null,
       recommendedAction: null,
       details: [
@@ -723,10 +719,10 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       enabled,
       configured: true,
       status: 'failed',
-      summary: 'WhatsApp Cloud API falhou no probe remoto do Graph API.',
+      summary: 'WhatsApp Cloud API failed no probe remote do Graph API.',
       error: errorMessage(error),
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Revise token, phone number id e reachability do Graph API.'],
+      details: ['Review token, phone number id, and Graph API reachability.'],
     };
   }
 }

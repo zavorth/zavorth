@@ -117,7 +117,7 @@ function sourceToAssimilationSource(source: ExternalExecutorRealCapabilitySnapsh
   return {
     sourceRuntimeName: source.sourceRuntimeName,
     sourceRuntimeVersion: source.sourceRuntimeVersion,
-    gatewayMode: 'read-only-simulated',
+    gatewayMode: 'read-only-preview',
     healthStatus: healthAvailable ? 'ready' : 'degraded',
     capabilities: [
       {
@@ -144,8 +144,7 @@ function sourceToAssimilationSource(source: ExternalExecutorRealCapabilitySnapsh
         risk: 'attention',
         trustState: 'safe',
         availability: availabilityForSkippedSurface(source.readOnlySafeguards.providersSkipped),
-        sourceReportedState: source.readOnlySafeguards.providersSkipped
-          ? 'providers skipped by read-only gate'
+        sourceReportedState: source.readOnlySafeguards.providersSkipped ? 'providers skipped by read-only gate'
           : 'providers observed',
         toolNames: ['external-executor.provider.inventory.read'],
         evidenceHints: [
@@ -161,8 +160,7 @@ function sourceToAssimilationSource(source: ExternalExecutorRealCapabilitySnapsh
         risk: 'attention',
         trustState: 'safe',
         availability: availabilityForSkippedSurface(source.readOnlySafeguards.channelsSkipped),
-        sourceReportedState: source.readOnlySafeguards.channelsSkipped
-          ? 'channels skipped by read-only gate'
+        sourceReportedState: source.readOnlySafeguards.channelsSkipped ? 'channels skipped by read-only gate'
           : 'channels observed',
         toolNames: ['external-executor.channel.inventory.read'],
         evidenceHints: [

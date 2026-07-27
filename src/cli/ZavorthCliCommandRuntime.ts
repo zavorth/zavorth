@@ -104,7 +104,7 @@ export const PUBLIC_COMMANDS = [
   'retry',
   'cancel',
   'diagnostics',
-  'mock-gateway',
+  'offline-gateway',
 ];
 
 export function normalizePublicCommandAliases(rawArgs: string[]): string[] {
@@ -241,7 +241,7 @@ export function readDurationMsFlag(argv: string[], name: string): number | null 
   if (!raw) {
     return null;
   }
-  const match = raw.trim().match(/^(\d+)(ms|s|m|h)?$/i);
+  const match = raw.trim().match(/^(\d+)(ms|s|m|h)...$/i);
   if (!match) {
     return readNumberFlag(argv, name);
   }

@@ -24,7 +24,7 @@ export type RiskBudgetCounters = Record<RiskBudgetDimension, number>;
 export type RiskBudgetState = {
   contractVersion: typeof RISK_BUDGET_CONTRACT_VERSION;
   mode: RiskBudgetMode;
-  /** Local calendar day key YYYY-MM-DD (from configured timezone / local offset). */
+  /** local calendar day key YYYY-MM-DD (from configured timezone / local offset). */
   dayKey: string;
   counters: RiskBudgetCounters;
   /** Effective limits for the current mode. */

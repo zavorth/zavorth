@@ -64,10 +64,10 @@ export class LocalDocumentTextExtractionAdapter {
   }
 
   private extractHtml(html: string): DocumentExtractionAdapterOutput {
-    const title = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || null;
+    const title = html.match(/<title[^>]*>([\s\S]*...)<\/title>/i)?.[1] || null;
     const text = this.cleanText(html
-      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<script[\s\S]*...<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*...<\/style>/gi, ' ')
       .replace(/<[^>]+>/g, ' '));
     return {
       text,

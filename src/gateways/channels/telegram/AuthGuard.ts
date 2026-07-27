@@ -86,7 +86,7 @@ export class AuthGuard {
     '/disable',
     '/workspace',
     '/remote',
-    '/remoto',
+    '/remote',
     '/schedule',
     '/schedules',
     '/unschedule',
@@ -282,19 +282,19 @@ export class AuthGuard {
       return false;
     }
 
-    return (
-      /^\/ag_prompt\b/.test(normalized) ||
-      /^\/ag_model\b/.test(normalized) ||
-      normalized === '/ag_open' ||
-      normalized === '/ag_status' ||
-      normalized === '/ag_restart' ||
-      /^\/remote\b/.test(normalized) ||
-      /^\/remoto\b/.test(normalized) ||
-      /^\/selfupdate\b/.test(normalized) ||
-      normalized === '/reload' ||
-      /^\/autorepair\b/.test(normalized) ||
-      normalized === '/repair'
-    );
+    const command = normalized.split(' ')[0] || '';
+    return [
+      '/ag_prompt',
+      '/ag_model',
+      '/ag_open',
+      '/ag_status',
+      '/ag_restart',
+      '/remote',
+      '/selfupdate',
+      '/reload',
+      '/autorepair',
+      '/repair',
+    ].includes(command);
   }
 
   private static isMutableCommandWhileHostReadonly(command: string, rawText: string): boolean {

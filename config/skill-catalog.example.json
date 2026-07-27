@@ -9,7 +9,7 @@
   "entries": [
     {
       "id": "example-local-demo",
-      "name": "Example Local Demo Skill",
+      "name": "Example local Demo Skill",
       "summary": "Placeholder entry pointing at an in-repo skill pack path (adjust source for your host).",
       "source": "skill-library/native",
       "version": "1.0.0",

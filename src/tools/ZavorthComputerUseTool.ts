@@ -154,7 +154,7 @@ export class ZavorthComputerUseTool extends BaseTool {
     const result = await this.executeDesktopCommand('type', { text });
     if (!result.success) return `Error typing: ${result.error}`;
 
-    return `Texto digitado: "${text.slice(0, 50)}${text.length > 50 ? '...' : ''}"`;
+    return `Typed text: "${text.slice(0, 50)}${text.length > 50 ? '...' : ''}"`;
   }
 
   private async pressKey(args: Record<string, unknown>): Promise<string> {
@@ -176,7 +176,7 @@ export class ZavorthComputerUseTool extends BaseTool {
     const result = await this.executeDesktopCommand('scroll', { direction, amount, x, y });
     if (!result.success) return `Error scrolling: ${result.error}`;
 
-    return `Scroll ${direction} x${amount}${x !== undefined && y !== undefined ? ` em (${x}, ${y})` : ''}.`;
+    return `Scroll ${direction} x${amount}${x !== undefined && y !== undefined ? ` at (${x}, ${y})` : ''}.`;
   }
 
   private async drag(args: Record<string, unknown>): Promise<string> {

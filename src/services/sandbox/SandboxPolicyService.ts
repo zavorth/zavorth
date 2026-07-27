@@ -13,18 +13,18 @@ const TEST_COMMAND_PATTERNS = [
 ];
 
 const CODE_CAPABLE_EXECUTION_PATTERNS = [
-  /\bnode(?:\.exe)?\b/i,
-  /\bnpm(?:\.cmd)?\b/i,
-  /\bnpx(?:\.cmd)?\b/i,
-  /\bpnpm(?:\.cmd)?\b/i,
-  /\byarn(?:\.cmd)?\b/i,
+  /\bnode(?:\.exe)...\b/i,
+  /\bnpm(?:\.cmd)...\b/i,
+  /\bnpx(?:\.cmd)...\b/i,
+  /\bpnpm(?:\.cmd)...\b/i,
+  /\byarn(?:\.cmd)...\b/i,
   /\bjest\b/i,
   /\bvitest\b/i,
-  /\btsc(?:\.cmd)?\b/i,
-  /\bpython(?:3)?(?:\.exe)?\b/i,
-  /\bpy(?:\.exe)?\b/i,
+  /\btsc(?:\.cmd)...\b/i,
+  /\bpython(?:3)...(?:\.exe)...\b/i,
+  /\bpy(?:\.exe)...\b/i,
   /\bpytest\b/i,
-  /\bpip(?:3)?\b/i,
+  /\bpip(?:3)...\b/i,
 ];
 
 const JAVASCRIPT_COMMAND_PATTERNS = [
@@ -37,14 +37,14 @@ const JAVASCRIPT_COMMAND_PATTERNS = [
 ];
 
 const PYTHON_COMMAND_PATTERNS = [
-  /\bpython(?:3)?\b/i,
+  /\bpython(?:3)...\b/i,
   /\bpytest\b/i,
-  /\bpip(?:3)?\b/i,
+  /\bpip(?:3)...\b/i,
 ];
 
 /**
- * Padroes de codigo que indicam risco medio (container/gVisor).
- * Operacoes de rede, instalacao de pacotes, manipulacao de sistema.
+ * Padroes de code que indicam risk medio (container/gVisor).
+ * Operactions de rede, installation de pacotes, manipulaction de sistema.
  */
 const SENSITIVE_CODE_PATTERNS = [
   /\brm\s+-rf\b/i,
@@ -56,16 +56,16 @@ const SENSITIVE_CODE_PATTERNS = [
   /\bnpm\s+install\b/i,
   /\bpnpm\s+install\b/i,
   /\bpip\s+install\b/i,
-  /\bapt(-get)?\s+install\b/i,
+  /\bapt(-get)...\s+install\b/i,
   /\bdocker\b/i,
 ];
 
 /**
- * Padroes de codigo que indicam risco CRITICO (microvm/Firecracker).
- * Acesso a kernel, manipulaction de processos, rede raw, exploit-like.
+ * Code patterns that indicate CRITICAL risk (microvm/Firecracker).
+ * access a kernel, manipulaction de processs, rede raw, exploit-like.
  */
 const HIGH_RISK_CODE_PATTERNS = [
-  // Acesso direto a dispositivos e kernel
+  // access direct a dispositivos e kernel
   /\/dev\/(mem|kmem|sda|vda|null|zero|random)/i,
   /\bmodprobe\b/i,
   /\binsmod\b/i,
@@ -158,14 +158,14 @@ export class SandboxPolicyService {
   }
 
   /**
-   * Resolve a politica de sandbox com 3 niveis de seguranca:
+   * Resolve a sandbox policy with 3 security levels:
    *
-   *   1. local-jail   - Experimentos leves, codigo confiavel, sem rede
-   *   2. container    - Codigo sensivel rodando em Docker + gVisor
-   *   3. microvm      - Codigo de alto risco ou nao-confiavel em Firecracker MicroVM
+   *   1. local-jail   - Experimentos leves, code trusted, without rede
+   *   2. container    - code sensitive rodando em Docker + gVisor
+   *   3. microvm      - High-risk or untrusted code in a Firecracker MicroVM
    *
    * O parametro preferredLevel pode forcar qualquer nivel, mas nunca rebaixa
-   * a segurança se o codigo for detectado como perigoso.
+   * security when code is detected as dangerous.
    */
   public resolveCodeExecutionPolicy(
     language: SandboxLanguage,
@@ -173,11 +173,11 @@ export class SandboxPolicyService {
     preferredLevel: 'auto' | 'local-jail' | 'wasm' | 'container' | 'microvm' = 'auto',
     options: { allowTrustedLocalJail?: boolean } = {},
   ): CodeSandboxPolicy {
-    // Se o usuario pediu explicitamente microvm, sempre respeita
+    // If the user explicitly requested microvm, always respect it
     if (preferredLevel === 'microvm') {
       return {
         securityLevel: 'microvm',
-        reason: 'MicroVM Firecracker solicitada explicitamente',
+        reason: 'MicroVM Firecracker solicitada explicitmente',
       };
     }
 
@@ -187,7 +187,7 @@ export class SandboxPolicyService {
     if (highRiskMatch) {
       return {
         securityLevel: 'microvm',
-        reason: `codigo com padrao de alto risco detectado (${highRiskMatch.source}). Isolamento maximo via MicroVM.`,
+        reason: `code com default de alto risk detectado (${highRiskMatch.source}). Isolamento maximo via MicroVM.`,
       };
     }
 
@@ -195,7 +195,7 @@ export class SandboxPolicyService {
     if (preferredLevel === 'container') {
       return {
         securityLevel: 'container',
-        reason: 'container solicitado explicitamente',
+        reason: 'container explicitly requested',
       };
     }
 
@@ -230,15 +230,14 @@ export class SandboxPolicyService {
     if (preferredLevel === 'local-jail' && (this.canUseLocalJail() || options.allowTrustedLocalJail === true)) {
       return {
         securityLevel: 'local-jail',
-        reason: options.allowTrustedLocalJail === true
-          ? 'local-jail autorizado por envelope governado de baixo risco'
-          : 'local-jail solicitado explicitamente e habilitado por politica local confiavel',
+        reason: options.allowTrustedLocalJail === true ? 'local jail approved by a governed low-risk envelope'
+          : 'local-jail explicitly requested and enabled by trusted local policy',
       };
     }
 
     return {
       securityLevel: 'container',
-      reason: 'codigo dinamico sem risco conhecido ainda exige container; regex e heuristica, nao fronteira de seguranca',
+      reason: 'dynamic code without known risk still requires a container; pattern checks are not a security boundary',
     };
   }
 
@@ -294,8 +293,8 @@ export class SandboxPolicyService {
       return true;
     }
 
-    // Permite ls/dir/cd/where/which apenas com argumentos simples e seguros
-    if (/^(ls|dir|cd|where|which)(?:\s+[^;&|><`$]+)?$/i.test(normalized)) {
+    // Permite ls/dir/cd/where/which only com argumentos simples e seguros
+    if (/^(ls|dir|cd|where|which)(?:\s+[^;&|><`$]+)...$/i.test(normalized)) {
       if (/[$-]/.test(normalized) && !/^ls\s+-[a-zA-Z]+$/i.test(normalized) && !/^dir\s+\/[a-zA-Z]+$/i.test(normalized)) {
         if (!/^(ls\s+-[a-zA-Z]+|dir\s+\/[a-zA-Z]+|cd\s+[a-zA-Z0-9_\-./\\]+)$/i.test(normalized)) {
           return false;
@@ -308,8 +307,8 @@ export class SandboxPolicyService {
   }
 
   /**
-   * Determina se uma ExecutionRequest precisa do nivel MAXIMO de isolamento (MicroVM).
-   * Retorna true para conteudo nao-confiavel ou tarefas autonomas do God-Mode.
+   * Determines whether an ExecutionRequest needs the MAXIMUM isolation level (MicroVM).
+   * Returns true for untrusted content or autonomous God-Mode tasks.
    */
   public requiresMicrovmForExecution(request: ExecutionRequest): boolean {
     // Content explicitly marked as untrusted

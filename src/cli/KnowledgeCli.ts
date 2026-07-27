@@ -210,8 +210,7 @@ export async function runKnowledgeCli(rawArgs: string[] = []): Promise<number> {
           `  available: ${advanced.dreamCycle.available ? 'yes' : 'no'} · previewOnly=${advanced.dreamCycle.previewOnly}`,
           `  lastRun: ${advanced.dreamCycle.lastRunAt || 'never'}` +
             (advanced.dreamCycle.lastStatus ? ` · status=${advanced.dreamCycle.lastStatus}` : '') +
-            (typeof advanced.dreamCycle.lastCandidateCount === 'number'
-              ? ` · candidates=${advanced.dreamCycle.lastCandidateCount}`
+            (typeof advanced.dreamCycle.lastCandidateCount === 'number' ? ` · candidates=${advanced.dreamCycle.lastCandidateCount}`
               : ''),
           `  ${advanced.dreamCycle.summary}`,
           `  cadence: ${advanced.dreamCycle.nextEligibleHint}`,
@@ -443,7 +442,7 @@ export async function runKnowledgeCli(rawArgs: string[] = []): Promise<number> {
           preview.promotionGate.note,
           '',
           'Next steps:',
-          ...preview.nextSteps.map((s) => `  - ${s}`),
+          ...preview.nextSteps.map((s) => ` ? ${s}`),
         ].join('\n'),
       );
     }

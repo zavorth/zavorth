@@ -329,8 +329,7 @@ export class OperationsHealthService {
           && config.dockerSandboxPidsLimit > 0,
         recommendedAction: !dockerJavascript.enabled
           ? null
-          : (!dockerJavascript.canRun
-            ? 'npm run sandbox:doctor'
+          : (!dockerJavascript.canRun ? 'npm run sandbox:doctor'
             : (dockerJavascript.sandboxRuntime === 'runsc' ? 'npm run sandbox:doctor:smoke' : 'npm run sandbox:doctor')),
         languages: {
           javascript: {
@@ -473,7 +472,7 @@ export class OperationsHealthService {
         autoPullEnabled: config.dockerSandboxAutoPull,
         sandboxRuntime,
         canRun: false,
-        detail: 'docker sandbox desabilitado por configuracao.',
+        detail: 'docker sandbox disabled by configuration.',
       };
     }
 
@@ -489,9 +488,8 @@ export class OperationsHealthService {
       canRun: cachedCanRun,
       detail:
         cachedLanguage?.detail
-        || (cachedAvailable
-          ? `Fast snapshot reutilizou o ultimo status conhecido do Docker (${sandboxRuntime}). Use --live para renovar o probe.`
-          : 'Fast snapshot sem probe ao vivo do Docker. Use --live para validar daemon, runtime e imagens agora.'),
+        || (cachedAvailable ? `Fast snapshot reutilizou o latest status conhecido do Docker (${sandboxRuntime}). Use --live para renew o probe.`
+          : 'Fast snapshot without probe ao vivo do Docker. Use --live para validate daemon, runtime e imagens agora.'),
     };
   }
 
@@ -510,7 +508,7 @@ export class OperationsHealthService {
         kernelPresent: false,
         rootfsPresent: false,
         canRun: false,
-        detail: 'Firecracker MicroVM desabilitado por configuracao (ZAVORTH_FIRECRACKER_ENABLED).',
+        detail: 'Firecracker MicroVM disabled by configuration (ZAVORTH_FIRECRACKER_ENABLED).',
       };
     }
 
@@ -527,7 +525,7 @@ export class OperationsHealthService {
       canRun: cachedFirecracker?.canRun === true,
       detail:
         cachedFirecracker?.detail
-        || 'Fast snapshot sem probe ao vivo do Firecracker. Use --live para validar a MicroVM agora.',
+        || 'Fast snapshot without probe ao vivo do Firecracker. Use --live para validate a MicroVM agora.',
     };
   }
 

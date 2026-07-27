@@ -45,7 +45,7 @@ export function getExperienceCoreService(): ExperienceCoreService {
   }
   const agentGateway = new ZavorthAgentGateway({
     defaultProviderLabel: config.llmProvider || 'Zavorth',
-    defaultModelLabel: config.geminiModel || config.geminiDefaultModel || config.openaiModel || 'modelo atual',
+    defaultModelLabel: config.geminiModel || config.geminiDefaultModel || config.openaiModel || 'model current',
     llmRuntime: new LlmRuntimeService(),
     toolRuntime,
     runStore,
@@ -126,7 +126,7 @@ function parseResponseProfileToken(value: unknown): ExperienceCommand['responseP
     return candidate;
   }
   if (candidate === 'curto' || candidate === 'objetivo') return 'short';
-  if (candidate === 'developer' || candidate === 'technical' || candidate === 'tecnico') return 'dev';
+  if (candidate === 'developer' || candidate === 'technical' || candidate === 'technical') return 'dev';
   if (candidate === 'executivo' || candidate === 'manager') return 'executive';
   if (candidate === 'teacher' || candidate === 'didatico') return 'mentor';
   return null;

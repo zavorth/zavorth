@@ -57,7 +57,7 @@ export class TelegramPermissionMutationService {
       workspace: scope === 'workspace' ? workspace : null,
       requested_value: value,
       resolved_value: value,
-      reason: `Politica persistente criada manualmente para ${executor}/${kind}.`,
+      reason: `Persistent policy manually created for ${executor}/${kind}.`,
       requested_by: userId,
       metadata: {
         created_via: 'telegram_permallow',
@@ -80,7 +80,7 @@ export class TelegramPermissionMutationService {
     const userId = ctx.from?.id.toString() || '';
     const [reference, ...noteParts] = String(args || '').trim().split(/\s+/).filter(Boolean);
     const permission = await this.deps.resolvePermissionReference(reference || '');
-    const note = noteParts.join(' ').trim() || 'Politica revogada pelo operator.';
+    const note = noteParts.join(' ').trim() || 'Policy revoked by operator.';
     const revoked = await this.deps.permissionService.rejectRequest(permission.permission_id, userId, note);
     await replyWithTelegramSurfaceResponse(
       ctx,

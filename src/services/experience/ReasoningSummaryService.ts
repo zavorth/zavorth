@@ -38,8 +38,7 @@ export class ReasoningSummaryService {
       tools,
       approvalReason: pendingApproval?.reason || (input.trust?.approvalCount ? input.trust.summary : null),
       result: summarize(run?.summary || lastTimeline?.detail || '', 'No execution result in this session yet.'),
-      nextAction: pendingApproval
-        ? `Decide approval ${pendingApproval.id}.`
+      nextAction: pendingApproval ? `Decide approval ${pendingApproval.id}.`
         : input.trust?.actions?.[0]?.command || 'Send a natural request or open /zavorthControl.',
     };
   }

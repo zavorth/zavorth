@@ -50,11 +50,11 @@ export class ZavorthReceiptSearchTool extends BaseTool {
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'search', 'get', 'stats', 'export', 'verify', 'list_tools', 'list_sessions'.",
+        description: "Action: 'search', 'get', 'stats', 'export', 'verify', 'list_tools', 'list_sessions'.",
       },
       receipt_id: {
         type: 'string',
-        description: 'ID do receipt especifico (para get/verify).',
+        description: 'Specific receipt ID for get/verify.',
       },
       query: {
         type: 'string',
@@ -86,7 +86,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       },
       risk_level: {
         type: 'string',
-        description: "Filtrar por nivel de risco: 'low', 'medium', 'high', 'critical'.",
+        description: "Filtrar por nivel de risk: 'low', 'medium', 'high', 'critical'.",
       },
       approval_status: {
         type: 'string',
@@ -106,7 +106,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       },
       sort_by: {
         type: 'string',
-        description: "Ordenacao: 'date_desc' (default), 'date_asc', 'risk_desc', 'tool'.",
+        description: "Ordenaction: 'date_desc' (default), 'date_asc', 'risk_desc', 'tool'.",
       },
       export_format: {
         type: 'string',
@@ -190,10 +190,10 @@ export class ZavorthReceiptSearchTool extends BaseTool {
 
       lines.push('');
       lines.push(`${icon} ${risk} ${approval} [${receipt.id}]`);
-      lines.push(`  Tool: ${receipt.tool} | Acao: ${receipt.action}`);
+      lines.push(`  Tool: ${receipt.tool} | Action: ${receipt.action}`);
       lines.push(`  Timestamp: ${receipt.timestamp}`);
       lines.push(`  Session: ${receipt.session_id} | Channel: ${receipt.channel} | User: ${receipt.user}`);
-      lines.push(`  Risco: ${receipt.risk_level} | Aprovacao: ${receipt.approval_status} | Duration: ${receipt.duration_ms}ms`);
+      lines.push(`  Risk: ${receipt.risk_level} | Approval: ${receipt.approval_status} | Duration: ${receipt.duration_ms}ms`);
       lines.push(`  Result: ${receipt.result_summary.slice(0, 120)}`);
     }
 
@@ -211,12 +211,12 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       `Receipt: ${receipt.id}`,
       `  - Timestamp: ${receipt.timestamp}`,
       `  - Tool: ${receipt.tool}`,
-      `  - Acao: ${receipt.action}`,
+      `  - Action: ${receipt.action}`,
       `  - Args: ${JSON.stringify(receipt.args).slice(0, 200)}`,
       `  - Result: ${receipt.result_summary}`,
-      `  - Success: ${receipt.success ? 'Yes' : 'No'}`,
+      `  ? Success: ${receipt.success ? 'Yes' : 'No'}`,
       `  - Risk level: ${receipt.risk_level}`,
-      `  - Aprovacao: ${receipt.approval_status}`,
+      `  - Approval: ${receipt.approval_status}`,
       `  - Session: ${receipt.session_id}`,
       `  - User: ${receipt.user}`,
       `  - Channel: ${receipt.channel}`,
@@ -260,7 +260,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       `Receipt statistics (${receipts.length} total):`,
       '',
       `Sucesso: ${successCount} (${((successCount / receipts.length) * 100).toFixed(1)}%)`,
-      `Falha: ${failCount} (${((failCount / receipts.length) * 100).toFixed(1)}%)`,
+      `Failure: ${failCount} (${((failCount / receipts.length) * 100).toFixed(1)}%)`,
       `Average duration: ${(totalDuration / receipts.length).toFixed(0)}ms`,
       '',
       'By tool:',
@@ -269,7 +269,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       'By risk:',
       ...Object.entries(byRisk).map(([risk, count]) => `  ${risk}: ${count}`),
       '',
-      'Por Aprovacao:',
+      'Por Approval:',
       ...Object.entries(byApproval).map(([status, count]) => `  ${status}: ${count}`),
     ];
 
@@ -318,7 +318,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       const dir = path.dirname(path.resolve(outputPath));
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.resolve(outputPath), output, 'utf-8');
-      return `Exported ${receipts.length} receipts para ${outputPath} (formato: ${exportFormat}).`;
+      return `Exported ${receipts.length} receipts to ${outputPath} (format: ${exportFormat}).`;
     }
 
     return `Export (${exportFormat}) com ${receipts.length} receipts:\n${output.slice(0, 2000)}`;
@@ -335,24 +335,24 @@ export class ZavorthReceiptSearchTool extends BaseTool {
     let allValid = true;
 
     if (receipt.id && receipt.timestamp && receipt.tool) {
-      checks.push('✅ Campos requireds presentes');
+      checks.push('[OK] Required fields are present');
     } else {
-      checks.push('❌ Campos requireds ausentes');
+      checks.push('[FAIL] Required fields are missing');
       allValid = false;
     }
 
     try {
       new Date(receipt.timestamp).toISOString();
-      checks.push('✅ Timestamp valido');
-    } catch (error: unknown) {checks.push('❌ Timestamp invalid');
+      checks.push('[OK] Valid timestamp');
+    } catch (error: unknown) {checks.push('[FAIL] Invalid timestamp');
       allValid = false;
     }
 
     const validRiskLevels = ['low', 'medium', 'high', 'critical'];
     if (validRiskLevels.includes(receipt.risk_level)) {
-      checks.push('✅ Risk level valido');
+      checks.push('[OK] Valid risk level');
     } else {
-      checks.push('❌ Risk level invalid');
+      checks.push('[FAIL] Invalid risk level');
       allValid = false;
     }
 
@@ -365,16 +365,16 @@ export class ZavorthReceiptSearchTool extends BaseTool {
     }
 
     if (receipt.duration_ms >= 0) {
-      checks.push('✅ Duration valida');
+      checks.push('[OK] Valid duration');
     } else {
-      checks.push('❌ Duration invalid');
+      checks.push('[FAIL] Invalid duration');
       allValid = false;
     }
 
     const lines: string[] = [
-      `Verification do Receipt ${receiptId}:`,
+      `Receipt verification ${receiptId}:`,
       ...checks,
-      `Resultado: ${allValid ? '✅ Receipt valido e integro' : '❌ Receipt com problemas de integridade'}`,
+      `Result: ${allValid ? '[OK] Receipt is valid and intact' : '[FAIL] Receipt has integrity problems'}`,
     ];
 
     return lines.join('\n');
@@ -396,7 +396,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
 
     const lines: string[] = [`Tools com receipts (${Object.keys(tools).length}):`];
     for (const [tool, info] of Object.entries(tools).sort((a, b) => b[1].count - a[1].count)) {
-      lines.push(`  ${tool}: ${info.count} receipts (ultimo: ${info.last_used})`);
+      lines.push(`  ${tool}: ${info.count} receipts (latest: ${info.last_used})`);
     }
     return lines.join('\n');
   }
@@ -415,9 +415,9 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       }
     }
 
-    const lines: string[] = [`Sessoes com receipts (${Object.keys(sessions).length}):`];
+    const lines: string[] = [`Sessions com receipts (${Object.keys(sessions).length}):`];
     for (const [session, info] of Object.entries(sessions).sort((a, b) => b[1].count - a[1].count)) {
-      lines.push(`  ${session}: ${info.count} receipts (ultimo: ${info.last_activity})`);
+      lines.push(`  ${session}: ${info.count} receipts (latest: ${info.last_activity})`);
     }
     return lines.join('\n');
   }

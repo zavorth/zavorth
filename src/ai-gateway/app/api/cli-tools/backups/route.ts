@@ -43,7 +43,7 @@ const resolveBackupToolId = async (tool: string, backupId: string) => {
   return normalizeToolId(tool);
 };
 
-// GET /api/cli-tools/backups?tool=claude — list backups
+// GET /api/cli-tools/backups...tool=claude — list backups
 export async function GET(request) {
   const authError = await requireStrictManagementAuth(request);
   if (authError) return authError;

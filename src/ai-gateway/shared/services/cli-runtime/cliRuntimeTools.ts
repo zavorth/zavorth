@@ -180,8 +180,8 @@ const getExpectedParentPaths = (): string[] => {
 
   const validatedAppData = validateEnvPath(process.env.APPDATA, [home, userProfile]);
   const validatedLocalAppData = validateEnvPath(process.env.LOCALAPPDATA, [
-    path.join(home, "AppData", "Local"),
-    path.join(userProfile, "AppData", "Local"),
+    path.join(home, "AppData", "local"),
+    path.join(userProfile, "AppData", "local"),
     userProfile,
   ]);
   const validatedProgramFiles = validateEnvPath(process.env.ProgramFiles, [
@@ -258,8 +258,8 @@ export const getKnownToolPaths = (toolId: string): string[] => {
     const userProfile = process.env.USERPROFILE || home;
     const appData = validateEnvPath(process.env.APPDATA, [home, userProfile]);
     const localAppData = validateEnvPath(process.env.LOCALAPPDATA, [
-      path.join(home, "AppData", "Local"),
-      path.join(userProfile, "AppData", "Local"),
+      path.join(home, "AppData", "local"),
+      path.join(userProfile, "AppData", "local"),
       userProfile,
     ]);
 

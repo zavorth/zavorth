@@ -23,10 +23,10 @@ export class ZavorthIntelligenceFabricApiService {
       snapshot.reply.nextAction,
       '',
       `Modo: ${snapshot.mode}`,
-      `Risco: ${snapshot.classification.riskLevel}`,
+      `Risk: ${snapshot.classification.riskLevel}`,
       `Trust: ${snapshot.trust.requested}`,
       `Gate: ${snapshot.riskGate.overallDecision}`,
-      `Acao live aplicada: ${snapshot.activation.liveActionApplied ? 'sim' : 'nao'}`,
+      `Live action applied: ${snapshot.activation.liveActionApplied ? 'yes' : 'no'}`,
     ].join('\n');
   }
 }

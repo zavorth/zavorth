@@ -131,19 +131,19 @@ export class LiveReadinessCertificationService {
     const satelliteDevice = this.satelliteDevice.buildSnapshot();
     const memoryArtifactsRuntime = this.memoryArtifactsRuntime.buildSnapshot();
 
-    const phases = [
-      this.phaseReport('checkpoint-1-live-readiness', 'Intent model - Live Readiness Kernel', readiness.status, readiness.summary.sourceModules, readiness.summary.blocked, readiness.summary.receipts, 0, readiness.commands.check, readiness.commands.focusedTests),
-      this.phaseReport('checkpoint-2-channel-p0', channelP0.gate, channelP0.status, channelP0.summary.channels, channelP0.summary.blocked, channelP0.summary.redactedReceipts, channelP0.summary.stagingLiveSmokeCommands, channelP0.commands.check, channelP0.commands.focusedTests),
-      this.phaseReport('checkpoint-3-channel-long-tail', channelLongTail.gate, channelLongTail.status, channelLongTail.summary.channels, channelLongTail.summary.blocked, channelLongTail.summary.redactedReceipts, channelLongTail.summary.stagingLiveSmokeCommands, channelLongTail.commands.check, channelLongTail.commands.focusedTests),
-      this.phaseReport('checkpoint-4-provider-p0', providerP0.gate, providerP0.status, providerP0.summary.providers, providerP0.summary.blocked, providerP0.summary.redactedReceipts, providerP0.summary.chatSmokeCommands, providerP0.commands.check, providerP0.commands.focusedTests),
-      this.phaseReport('checkpoint-5-provider-long-tail', providerLongTail.gate, providerLongTail.status, providerLongTail.summary.providers, providerLongTail.summary.blocked, providerLongTail.summary.redactedReceipts, providerLongTail.summary.smokeCommands, providerLongTail.commands.check, providerLongTail.commands.focusedTests),
-      this.phaseReport('checkpoint-6-media-generation', mediaGeneration.gate, mediaGeneration.status, mediaGeneration.summary.targets, mediaGeneration.summary.blocked, mediaGeneration.summary.redactedReceipts, mediaGeneration.summary.stagingLiveSmokeCommands, mediaGeneration.commands.check, mediaGeneration.commands.focusedTests),
-      this.phaseReport('checkpoint-7-speech-voice', speechVoice.gate, speechVoice.status, speechVoice.summary.targets, speechVoice.summary.blocked, speechVoice.summary.redactedReceipts, speechVoice.summary.stagingLiveSmokeCommands, speechVoice.commands.check, speechVoice.commands.focusedTests),
-      this.phaseReport('checkpoint-8-web-research', webResearch.gate, webResearch.status, webResearch.summary.targets, webResearch.summary.blocked, webResearch.summary.redactedReceipts, webResearch.summary.stagingLiveSmokeCommands, webResearch.commands.check, webResearch.commands.focusedTests),
-      this.phaseReport('checkpoint-9-file-document-diff', fileDocumentDiff.gate, fileDocumentDiff.status, fileDocumentDiff.summary.targets, fileDocumentDiff.summary.blocked, fileDocumentDiff.summary.redactedReceipts, fileDocumentDiff.summary.stagingLiveSmokeCommands, fileDocumentDiff.commands.check, fileDocumentDiff.commands.focusedTests),
-      this.phaseReport('checkpoint-10-diagnostics-qa-migration', diagnosticsQaMigration.gate, diagnosticsQaMigration.status, diagnosticsQaMigration.summary.targets, diagnosticsQaMigration.summary.blocked, diagnosticsQaMigration.summary.redactedReceipts, diagnosticsQaMigration.summary.stagingLiveSmokeCommands, diagnosticsQaMigration.commands.check, diagnosticsQaMigration.commands.focusedTests),
-      this.phaseReport('checkpoint-11-satellite-device', satelliteDevice.gate, satelliteDevice.status, satelliteDevice.summary.targets, satelliteDevice.summary.blocked, satelliteDevice.summary.redactedReceipts, satelliteDevice.summary.stagingLiveSmokeCommands, satelliteDevice.commands.check, satelliteDevice.commands.focusedTests),
-      this.phaseReport('checkpoint-12-memory-artifacts-runtime', memoryArtifactsRuntime.gate, memoryArtifactsRuntime.status, memoryArtifactsRuntime.summary.targets, memoryArtifactsRuntime.summary.blocked, memoryArtifactsRuntime.summary.redactedReceipts, memoryArtifactsRuntime.summary.stagingLiveSmokeCommands, memoryArtifactsRuntime.commands.check, memoryArtifactsRuntime.commands.focusedTests),
+    const activationReports = [
+      this.activationReport('gate-1-live-readiness', 'Intent model - Live Readiness Kernel', readiness.status, readiness.summary.sourceModules, readiness.summary.blocked, readiness.summary.receipts, 0, readiness.commands.check, readiness.commands.focusedTests),
+      this.activationReport('gate-2-channel-p0', channelP0.gate, channelP0.status, channelP0.summary.channels, channelP0.summary.blocked, channelP0.summary.redactedReceipts, channelP0.summary.stagingLiveSmokeCommands, channelP0.commands.check, channelP0.commands.focusedTests),
+      this.activationReport('gate-3-channel-long-tail', channelLongTail.gate, channelLongTail.status, channelLongTail.summary.channels, channelLongTail.summary.blocked, channelLongTail.summary.redactedReceipts, channelLongTail.summary.stagingLiveSmokeCommands, channelLongTail.commands.check, channelLongTail.commands.focusedTests),
+      this.activationReport('gate-4-provider-p0', providerP0.gate, providerP0.status, providerP0.summary.providers, providerP0.summary.blocked, providerP0.summary.redactedReceipts, providerP0.summary.chatSmokeCommands, providerP0.commands.check, providerP0.commands.focusedTests),
+      this.activationReport('gate-5-provider-long-tail', providerLongTail.gate, providerLongTail.status, providerLongTail.summary.providers, providerLongTail.summary.blocked, providerLongTail.summary.redactedReceipts, providerLongTail.summary.smokeCommands, providerLongTail.commands.check, providerLongTail.commands.focusedTests),
+      this.activationReport('gate-6-media-generation', mediaGeneration.gate, mediaGeneration.status, mediaGeneration.summary.targets, mediaGeneration.summary.blocked, mediaGeneration.summary.redactedReceipts, mediaGeneration.summary.stagingLiveSmokeCommands, mediaGeneration.commands.check, mediaGeneration.commands.focusedTests),
+      this.activationReport('gate-7-speech-voice', speechVoice.gate, speechVoice.status, speechVoice.summary.targets, speechVoice.summary.blocked, speechVoice.summary.redactedReceipts, speechVoice.summary.stagingLiveSmokeCommands, speechVoice.commands.check, speechVoice.commands.focusedTests),
+      this.activationReport('gate-8-web-research', webResearch.gate, webResearch.status, webResearch.summary.targets, webResearch.summary.blocked, webResearch.summary.redactedReceipts, webResearch.summary.stagingLiveSmokeCommands, webResearch.commands.check, webResearch.commands.focusedTests),
+      this.activationReport('gate-9-file-document-diff', fileDocumentDiff.gate, fileDocumentDiff.status, fileDocumentDiff.summary.targets, fileDocumentDiff.summary.blocked, fileDocumentDiff.summary.redactedReceipts, fileDocumentDiff.summary.stagingLiveSmokeCommands, fileDocumentDiff.commands.check, fileDocumentDiff.commands.focusedTests),
+      this.activationReport('gate-10-diagnostics-qa-migration', diagnosticsQaMigration.gate, diagnosticsQaMigration.status, diagnosticsQaMigration.summary.targets, diagnosticsQaMigration.summary.blocked, diagnosticsQaMigration.summary.redactedReceipts, diagnosticsQaMigration.summary.stagingLiveSmokeCommands, diagnosticsQaMigration.commands.check, diagnosticsQaMigration.commands.focusedTests),
+      this.activationReport('gate-11-satellite-device', satelliteDevice.gate, satelliteDevice.status, satelliteDevice.summary.targets, satelliteDevice.summary.blocked, satelliteDevice.summary.redactedReceipts, satelliteDevice.summary.stagingLiveSmokeCommands, satelliteDevice.commands.check, satelliteDevice.commands.focusedTests),
+      this.activationReport('gate-12-memory-artifacts-runtime', memoryArtifactsRuntime.gate, memoryArtifactsRuntime.status, memoryArtifactsRuntime.summary.targets, memoryArtifactsRuntime.summary.blocked, memoryArtifactsRuntime.summary.redactedReceipts, memoryArtifactsRuntime.summary.stagingLiveSmokeCommands, memoryArtifactsRuntime.commands.check, memoryArtifactsRuntime.commands.focusedTests),
     ];
 
     const disallowed = this.countDisallowed(readiness);
@@ -160,8 +160,8 @@ export class LiveReadinessCertificationService {
       + channelLongTail.summary.stagingLiveSmokeCommands
       + providerP0.summary.chatSmokeCommands
       + providerLongTail.summary.smokeCommands;
-    const stagingLiveSmokeCommands = phases.reduce((sum, phase) => sum + phase.stagingLiveSmokeCommands, 0);
-    const redactedReceipts = phases.reduce((sum, phase) => sum + phase.redactedReceipts, 0);
+    const stagingLiveSmokeCommands = activationReports.reduce((sum, report) => sum + report.stagingLiveSmokeCommands, 0);
+    const redactedReceipts = activationReports.reduce((sum, report) => sum + report.redactedReceipts, 0);
 
     const evidence = [
       this.evidence({
@@ -191,7 +191,7 @@ export class LiveReadinessCertificationService {
       }),
       this.evidence({
         id: 'provider-channel-live-smokes',
-        title: 'Provider and channel smokes expose mock and opt-in live modes',
+        title: 'Provider and channel smokes expose local and opt-in live modes',
         passed: channelP0.summary.blocked === 0
           && channelLongTail.summary.blocked === 0
           && providerP0.summary.blocked === 0
@@ -199,7 +199,7 @@ export class LiveReadinessCertificationService {
           && providerChannelSmokeCommands >= channelRoutes + providerRoutes
           && providerLongTail.summary.generatedProviderManifestsRemainingTotal === false,
         observed: `${channelRoutes} channels, ${providerRoutes} providers, ${providerChannelSmokeCommands} opt-in smoke commands`,
-        required: `${channelRoutes} channel routes and ${providerRoutes} provider routes with mock/focused tests and opt-in staging-live commands`,
+        required: `${channelRoutes} channel routes and ${providerRoutes} provider routes with local/focused tests and opt-in staging-live commands`,
         command: 'npm run qa:channel-live-activation --silent && npm run qa:provider-long-tail-activation --silent',
         evidence: [
           `${providerLongTail.summary.generatedProviderManifestsRemainingLongTail} generated long-tail provider manifests remaining.`,
@@ -278,15 +278,15 @@ export class LiveReadinessCertificationService {
       }),
       this.evidence({
         id: 'phase-check-command-coverage',
-        title: 'All live activation phase check commands are present',
-        passed: phases.length === 12
-          && phases.every((phase) => phase.blocked === 0)
-          && phases.every((phase) => phase.checkCommand.length > 0)
+        title: 'All live activation report check commands are present',
+        passed: activationReports.length === 12
+          && activationReports.every((report) => report.blocked === 0)
+          && activationReports.every((report) => report.checkCommand.length > 0)
           && stagingLiveSmokeCommands >= acceptedSourceModules,
-        observed: `${phases.length} phase reports, ${stagingLiveSmokeCommands} staging-live smoke commands, ${redactedReceipts} redacted receipts`,
-        required: `12 completed live phase reports, at least ${acceptedSourceModules} opt-in staging-live commands, no blocked phase report`,
+        observed: `${activationReports.length} activation reports, ${stagingLiveSmokeCommands} staging-live smoke commands, ${redactedReceipts} redacted receipts`,
+        required: `12 completed live activation reports, at least ${acceptedSourceModules} opt-in staging-live commands, no blocked activation report`,
         command: 'npm run live-readiness-certification:check --silent',
-        evidence: phases.map((phase) => `${phase.phase}: ${phase.status}, ${phase.targetCount} target(s).`),
+        evidence: activationReports.map((report) => `${report.phase}: ${report.status}, ${report.targetCount} target(s).`),
       }),
     ];
 
@@ -322,7 +322,7 @@ export class LiveReadinessCertificationService {
         providers: providerRoutes,
         channels: channelRoutes,
         livePhases: 12,
-        phaseReports: phases.length,
+        phaseReports: activationReports.length,
         stagingLiveSmokeCommands,
         redactedReceipts,
         signedScopeGapGroups: gapLedger.length,
@@ -338,7 +338,7 @@ export class LiveReadinessCertificationService {
         liveDeviceRequiredToBuildCertificate: false,
         secretValuesSerialized: false,
       },
-      phases,
+      phases: activationReports,
       evidence,
       gapLedger,
       signedExclusionsLedger,
@@ -429,7 +429,7 @@ export class LiveReadinessCertificationService {
     return exclusions;
   }
 
-  private phaseReport(
+  private activationReport(
     phaseId: LiveReadinessCertificationPhaseId,
     phase: string,
     status: string,

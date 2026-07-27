@@ -6,7 +6,7 @@ export const builtinSkills: Record<string, SkillHandler> = {
     if (!path || typeof path !== "string") {
       throw new Error("Missing required field: path");
     }
-    return { success: true, path, content: "[File read stub]", context: context.apiKeyId };
+    return { success: false, path, error: "No file-read adapter is connected to this gateway.", context: context.apiKeyId };
   },
 
   file_write: async (input, context) => {
@@ -14,7 +14,7 @@ export const builtinSkills: Record<string, SkillHandler> = {
     if (!path || !content) {
       throw new Error("Missing required fields: path, content");
     }
-    return { success: true, path, bytesWritten: content.length, context: context.apiKeyId };
+    return { success: false, path, requestedBytes: content.length, error: "No file-write adapter is connected to this gateway.", context: context.apiKeyId };
   },
 
   http_request: async (input, context) => {
@@ -22,7 +22,7 @@ export const builtinSkills: Record<string, SkillHandler> = {
     if (!url) {
       throw new Error("Missing required field: url");
     }
-    return { success: true, url, method, status: 200, context: context.apiKeyId };
+    return { success: false, url, method, error: "No HTTP adapter is connected to this gateway.", context: context.apiKeyId };
   },
 
   web_search: async (input, context) => {
@@ -31,9 +31,10 @@ export const builtinSkills: Record<string, SkillHandler> = {
       throw new Error("Missing required field: query");
     }
     return {
-      success: true,
+      success: false,
       query,
-      results: [{ title: "Stub result", url: "https://example.com", snippet: "Stub" }],
+      results: [],
+      error: "No search adapter is connected to this gateway.",
       context: context.apiKeyId,
     };
   },
@@ -43,7 +44,7 @@ export const builtinSkills: Record<string, SkillHandler> = {
     if (!code) {
       throw new Error("Missing required field: code");
     }
-    return { success: true, language, output: "[Code execution stub]", context: context.apiKeyId };
+    return { success: false, language, error: "No code execution adapter is connected to this gateway.", context: context.apiKeyId };
   },
 
   execute_command: async (input, context) => {
@@ -52,10 +53,10 @@ export const builtinSkills: Record<string, SkillHandler> = {
       throw new Error("Missing required field: command");
     }
     return {
-      success: true,
+      success: false,
       command,
       args,
-      output: "[Command execution stub]",
+      error: "No command execution adapter is connected to this gateway.",
       context: context.apiKeyId,
     };
   },

@@ -52,8 +52,8 @@ const FEATURES: ZavorthNativeEngineFeatureSpec[] = [
 
 const ERROR_RULES: ErrorRule[] = [
   errorRule('destructive_intent', 'block_and_require_approval', 'critical', 'destructive_intent', /\b(rm\s+-rf|Remove-Item\b.*-(?:Recurse|Force)|git\s+clean\s+-fd|DROP\s+DATABASE|format\s+[a-z]:)\b/i, 0.94, false, true, 'Potential destructive action detected.', 'Stop and request an explicit Zavorth approval envelope before continuing.'),
-  errorRule('credential_or_auth', 'use_secret_ref_or_reauthenticate', 'critical', 'credential_or_auth', /\b(401|403|unauthori[sz]ed|forbidden|API[_-]?KEY|TOKEN|SECRET|Bearer\s+[A-Za-z0-9._~+/-]+=*)\b/i, 0.91, false, true, 'Authentication, authorization, or secret handling failure detected.', 'Use a secret reference, reauthenticate, or rotate credentials without printing secret values.'),
-  errorRule('billing_or_quota', 'stop_for_provider_configuration', 'high', 'billing_or_quota', /\b(billing|quota exceeded|insufficient_quota|payment required|credits? exhausted)\b/i, 0.9, false, false, 'Provider billing or quota failure detected.', 'Stop provider calls and ask the operator to configure quota or billing.'),
+  errorRule('credential_or_auth', 'use_secret_ref_or_reauthenticate', 'critical', 'credential_or_auth', /\b(401|403|unauthori[sz]ed|forbidden|API[_-]...KEY|TOKEN|SECRET|Bearer\s+[A-Za-z0-9._~+/-]+=*)\b/i, 0.91, false, true, 'Authentication, authorization, or secret handling failure detected.', 'Use a secret reference, reauthenticate, or rotate credentials without printing secret values.'),
+  errorRule('billing_or_quota', 'stop_for_provider_configuration', 'high', 'billing_or_quota', /\b(billing|quota exceeded|insufficient_quota|payment required|credits... exhausted)\b/i, 0.9, false, false, 'Provider billing or quota failure detected.', 'Stop provider calls and ask the operator to configure quota or billing.'),
   errorRule('rate_limit', 'retry_with_backoff', 'medium', 'rate_limit', /\b(429|rate limit|too many requests|RESOURCE_EXHAUSTED|throttl(?:ed|ing))\b/i, 0.88, true, false, 'Rate limit or throttling detected.', 'Wait with backoff and retry only inside the configured retry budget.'),
   errorRule('context_overflow', 'compress_or_summarize_context', 'medium', 'context_overflow', /\b(context window|maximum context|context_length_exceeded|token limit|too many tokens)\b/i, 0.86, false, false, 'Context overflow detected.', 'Compress memory/context and continue with a smaller prompt.'),
   errorRule('permission', 'request_operator_approval', 'high', 'permission', /\b(EACCES|EPERM|permission denied|access is denied|operation not permitted)\b/i, 0.85, false, true, 'Permission boundary blocked the action.', 'Ask for operator approval or adjust the workspace permission path.'),
@@ -147,7 +147,7 @@ export class ZavorthNativeEngineAbsorptionService {
         inspect: 'npm run zavorth:native-engine-absorption',
         inspectJson: 'npm run zavorth:native-engine-absorption:json',
         check: 'npm run zavorth:native-engine-absorption:check --silent',
-        nextStage: '291 Approval gate - Sidecar Adapter',
+        nextAction: 'Approval gate - Sidecar Adapter',
       },
     };
   }
@@ -197,7 +197,7 @@ export class ZavorthNativeEngineAbsorptionService {
     }
 
     if (/^```/.test(candidate)) {
-      candidate = candidate.replace(/^```(?:json|javascript|js)?\s*/i, '').replace(/\s*```$/i, '').trim();
+      candidate = candidate.replace(/^```(?:json|javascript|js)...\s*/i, '').replace(/\s*```$/i, '').trim();
       repairsApplied.push('strip-code-fence');
     }
 
@@ -376,7 +376,7 @@ export class ZavorthNativeEngineAbsorptionService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -596,7 +596,7 @@ function skillCurationSafety(): ZavorthSkillCurationPreviewReceipt['safety'] {
 function redactSecrets(value: string): string {
   return value
     .replace(/\b(Bearer\s+)[A-Za-z0-9._~+/-]+=*/gi, '$1[REDACTED]')
-    .replace(/\b(API[_-]?KEY|TOKEN|SECRET|PASSWORD)=\S+/gi, '$1=[REDACTED]');
+    .replace(/\b(API[_-]...KEY|TOKEN|SECRET|PASSWORD)=\S+/gi, '$1=[REDACTED]');
 }
 
 function normalizeResourceRef(value: string): string {

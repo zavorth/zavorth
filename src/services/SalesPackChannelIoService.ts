@@ -194,10 +194,10 @@ export class SalesPackChannelIoService {
       },
       narrative: {
         headline: 'Sales Pack Channel I/O',
-        operatorSummary: `${this.processed} processada(s), ${this.duplicates} duplicada(s), ${this.rejected} rejeitada(s).`,
+        operatorSummary: `${this.processed} processada(s), ${this.duplicates} duplicada(s), ${this.rejected} rejected(s).`,
         nextAction: this.processed > 0
           ? 'Abrir Inbox/CRM do Sales OS para acompanhar leads atualizados.'
-          : 'Enviar payload local ou WhatsApp Cloud API para validar inbound.',
+          : 'Enviar payload local or WhatsApp Cloud API para validate inbound.',
       },
       actions: [
         {
@@ -208,7 +208,7 @@ export class SalesPackChannelIoService {
         },
         {
           id: 'sales-pack-channel-io:configure-whatsapp-cloud',
-          label: 'Configurar webhook oficial do WhatsApp',
+          label: 'Configure official WhatsApp webhook',
           severity: this.mode === 'cloud-api' ? 'info' : 'warn',
           command: '/channels whatsapp',
         },
@@ -355,7 +355,7 @@ function normalizeProvider(value: unknown): SalesPackChannelIoProvider {
   const normalized = String(value || '').trim().toLowerCase();
   if (normalized === 'whatsapp-cloud-api') return 'whatsapp-cloud-api';
   if (normalized === 'generic-webhook') return 'generic-webhook';
-  return 'local-stub';
+  return 'local-outbox';
 }
 
 function parseRawJson(rawBody: unknown): Record<string, unknown> | null {
@@ -392,7 +392,7 @@ function sanitizeMetadata(input: Record<string, unknown> | null | undefined): Re
 
 function sanitizeText(value: string): string {
   return value
-    .replace(/\b(?:token|secret|password|senha)\s*[:=]\s*['"]?[^,'"\s]+/gi, '[secret-redacted]')
+    .replace(/\b(?:token|secret|password)\s*[:=]\s*['"]...[^,'"\s]+/gi, '[secret-redacted]')
     .slice(0, 500);
 }
 

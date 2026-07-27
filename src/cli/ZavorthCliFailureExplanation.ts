@@ -125,7 +125,7 @@ const SECRET_PATTERNS = [
   /sk-[A-Za-z0-9]{20,}/gu,
   /ghp_[A-Za-z0-9_]{16,}/gu,
   /xox[baprs]-[A-Za-z0-9-]{16,}/gu,
-  /(?:_authToken|authToken|api[_-]?key|token|secret)\s*[:=]\s*["']?[^"'\s]+/giu,
+  /(?:_authToken|authToken|api[_-]...key|token|secret)\s*[:=]\s*["']...[^"'\s]+/giu,
 ];
 
 export function allZavorthFailureKinds(): ZavorthFailureKind[] {
@@ -156,29 +156,30 @@ export function buildZavorthFailureExplanation(
 
 export function classifyZavorthFailureKind(error: unknown): ZavorthFailureKind {
   const message = `${messageFromError(error)} ${errorCodeFrom(error)}`.toLowerCase();
+  const hasAny = (tokens: string[]) => tokens.some((token) => message.includes(token));
 
-  if (/\b(non[- ]?interactive|tty|stdin|stdout|prompt)\b/u.test(message)) {
+  if (hasAny(['non-interactive', 'non interactive', 'tty', 'stdin', 'stdout', 'prompt'])) {
     return 'non-interactive-terminal';
   }
-  if (/\b(timeout|timed out|etimedout)\b/u.test(message)) {
+  if (hasAny(['timeout', 'timed out', 'etimedout'])) {
     return 'timeout';
   }
-  if (/\b(policy|blocked|denied|not allowed|safety)\b/u.test(message)) {
+  if (hasAny(['policy', 'blocked', 'denied', 'not allowed', 'safety'])) {
     return 'policy-blocked';
   }
-  if (/\b(permission|approval|required approval|eacces|eperm)\b/u.test(message)) {
+  if (hasAny(['permission', 'approval', 'required approval', 'eacces', 'eperm'])) {
     return 'permission-required';
   }
-  if (/\b(provider|model|api key|apikey|credential|secret)\b/u.test(message)) {
+  if (hasAny(['provider', 'model', 'api key', 'apikey', 'credential', 'secret'])) {
     return 'provider-not-configured';
   }
-  if (/\b(runtime|listener|port|econnrefused|connection refused|not running|zavorthControl|host)\b/u.test(message)) {
+  if (hasAny(['runtime', 'listener', 'port', 'econnrefused', 'connection refused', 'not running', 'zavorthcontrol', 'host'])) {
     return 'runtime-not-running';
   }
-  if (/\b(workspace|project root|invalid cwd|outside root|enoent)\b/u.test(message)) {
+  if (hasAny(['workspace', 'project root', 'invalid cwd', 'outside root', 'enoent'])) {
     return 'invalid-workspace';
   }
-  if (/\b(config|missing|env|\.env|not configured)\b/u.test(message)) {
+  if (hasAny(['config', 'missing', 'env', '.env', 'not configured'])) {
     return 'missing-config';
   }
 

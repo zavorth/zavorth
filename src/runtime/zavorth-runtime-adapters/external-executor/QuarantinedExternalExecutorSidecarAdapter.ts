@@ -90,7 +90,7 @@ export class QuarantinedExternalExecutorSidecarAdapter implements RuntimeAdapter
     adapterKind: 'sidecar',
     runtimeKind: 'runtime-adapter-runtime',
     transport: 'stdio',
-    version: 'checkpoint-3',
+    version: 'gate-3',
     diagnostics: EXTERNAL_EXECUTOR_DIAGNOSTICS,
     namingQuarantine: RUNTIME_ADAPTER_NAMING_QUARANTINE,
     boundary: RUNTIME_ADAPTER_ADAPTER_BOUNDARY_POLICY,

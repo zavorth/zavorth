@@ -1,32 +1,39 @@
 # Zavorth Public Contracts Versioning
 
-Este documento define a politica de versionamento e evolucao dos contratos publicos do Zavorth, garantindo que clientes externos (Frontends, Nodes, Plugins e Integracoes) possam depender da API de forma confiavel e previsivel.
+This document defines the versioning policy for Zavorth public contracts so external clients can rely on stable APIs.
 
-## Principios
+## Principles
 
-1. **Retrocompatibilidade Rigorosa**: Nenhuma mudanca que quebre a compatibilidade (breaking change) deve ser introduzida em uma versao menor (minor) ou de patch.
-2. **Versionamento Explicito**: Todas as APIs REST, esquemas de Eventos (SSE/WebSocket) e schemas JSON sao versionados no proprio path ou payload (ex: `/api/v1/sessions` ou `{ "version": "1.0", "type": "..." }`).
-3. **Erros Canonicos**: O formato de retorno de erro e padronizado para todas as respostas. Nenhuma variacao ad-hoc e permitida na camada publica.
-4. **DTOs Puros**: Os objetos de transferencia de dados publicos (`DTOs`) nao vazam detalhes de implementacao do runtime interno nem modelos diretos de banco de dados.
+1. Strict backwards compatibility: breaking changes must not be introduced in minor or patch versions.
+2. Explicit versioning: REST APIs, event schemas, and JSON schemas include a versioned path or payload field.
+3. Canonical errors: error responses use one shared shape across public endpoints.
+4. Pure DTOs: public data transfer objects do not leak internal runtime or database models.
 
-## Schemas e Tipos
+## Schemas and Types
 
-Todos os schemas de interacao com a superficie do Zavorth estao definidos em TypeScript e exportados neste modulo.
-Quando distribuirmos os SDKs, estes serao os tipos gerados e consumidos publicamente.
+Surface interaction schemas are defined in TypeScript and exported from this module. SDKs should consume generated types from these contracts.
 
-## Dominios de Superficie
+## Surface Domains
 
-A API publica e dividida nos seguintes dominios canonicos:
-- `sessions`: Gestao de sessoes, conversa, historico e replay.
-- `gateway`: Informacoes globais de runtime e entrada.
-- `platform`: Catalogo de plugins, skills, MCPs e instalacoes.
-- `nodes`: Gestao do Node Mesh, companions, devices e pareamento.
-- `transports`: Transportes remotos, observabilidade remota e rotas.
-- `ops`: Operacoes estruturais, health, doctor e maintenance.
-- `artifacts`: Acesso estruturado aos artefatos extraidos ou gerados.
+The public API is split into these canonical domains:
 
-## Lifecycle de Versoes
+- `sessions`: sessions, conversation state, history, and replay.
+- `gateway`: global runtime and ingress information.
+- `platform`: plugins, skills, MCPs, and installation catalog.
+- `nodes`: node mesh, companions, devices, and pairing.
+- `transports`: remote transports, remote observability, and routes.
+- `ops`: structural operations, health, diagnostics, and maintenance.
+- `artifacts`: structured access to extracted or generated artifacts.
 
-- **Alpha/Beta**: Path `/api/beta/*` ou `/api/alpha/*`. Sem garantias de compatibilidade. Usado para testar novas superficies.
-- **v1 (Atual)**: Path `/api/v1/*`. Estavel. Apenas adicoes permissivas (novos campos opcionais, novos endpoints).
-- **Deprecacao**: Campos obsoletos serao marcados no TS doc com `@deprecated` por pelo menos uma versao maior ou longa janela minor antes de remocao, se necessario.
+## Release Lifecycle
+
+- Alpha/Beta: `/api/beta/*` or `/api/alpha/*`; compatibility is not guaranteed.
+- Stable: `/api/v1/*`; compatibility is maintained for minor and patch releases.
+- Deprecated: stable contracts receive a deprecation notice before removal.
+
+## Compatibility Rules
+
+- Additive fields are allowed when consumers can ignore unknown fields.
+- Required field removals or type changes require a new major version.
+- Error code changes require migration notes.
+- Event payloads must preserve `version`, `type`, and `timestamp`.

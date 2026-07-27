@@ -390,14 +390,13 @@ function formatAggregate(view: Omit<PluginOsTelemetryAggregate, 'formatText'>): 
     `Window: ${view.windowHours}h · events=${view.eventCount} samples=${view.samples}`,
     `Last health: ${view.lastHealth || 'n/a'} @ ${view.lastSampleAt || 'n/a'}`,
     `Recommend=${view.recommendCount} enable=${view.enableCount} disable=${view.disableCount} onboarding=${view.onboardingCount} promptInject=${view.promptInjectCount}`,
-    view.avgEnabled != null
-      ? `Averages: enabled=${view.avgEnabled.toFixed(1)} eligible=${(view.avgEligible || 0).toFixed(1)} firstParty=${(view.avgFirstPartyEnabled || 0).toFixed(1)}`
+    view.avgEnabled != null ? `Averages: enabled=${view.avgEnabled.toFixed(1)} eligible=${(view.avgEligible || 0).toFixed(1)} firstParty=${(view.avgFirstPartyEnabled || 0).toFixed(1)}`
       : 'Averages: n/a (no samples with counts)',
     '',
     'By kind:',
     ...Object.entries(view.byKind)
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-      .map(([kind, count]) => `  - ${kind}: ${count}`),
+      .map(([kind, count]) => ` ? ${kind}: ${count}`),
   ];
 
   if (Object.keys(view.healthCounts).length) {

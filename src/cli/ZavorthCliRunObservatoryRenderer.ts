@@ -89,8 +89,8 @@ export function formatRunObservatorySnapshot(
     `Status: ${snapshot.health.status}`,
     `Runs: ${snapshot.matchedRuns}/${snapshot.totalRuns}`,
     `Receipts: ${snapshot.summary.receiptCount} | Events: ${snapshot.summary.eventCount} | Artifacts: ${snapshot.summary.artifactCount}`,
-    `Replay: ${snapshot.replay.available ? 'disponivel' : 'unavailable'} - ${snapshot.replay.summary}`,
-    `Proximo passo: ${snapshot.health.nextSafeAction}`,
+    `Replay: ${snapshot.replay.available ? 'available' : 'unavailable'} ? ${snapshot.replay.summary}`,
+    `next passo: ${snapshot.health.nextSafeAction}`,
   ];
 
   if (snapshot.health.issues.length > 0) {
@@ -117,10 +117,10 @@ export function formatRunObservatorySnapshot(
   }
 
   if (snapshot.diffPreviews.length > 0) {
-    lines.push('', 'Previas de alteracao:');
+    lines.push('', 'Change Previews:');
     for (const preview of snapshot.diffPreviews.slice(0, 4)) {
       lines.push(`- ${preview.planId || preview.receiptId}: ${preview.summary}`);
-      lines.push(`  acao: ${preview.actions.approveApplyInstruction}`);
+      lines.push(`  action: ${preview.actions.approveApplyInstruction}`);
       lines.push(`  rollback: ${preview.actions.rollbackInstruction}`);
     }
   }
@@ -128,8 +128,8 @@ export function formatRunObservatorySnapshot(
   if (snapshot.sidecars.health.length > 0) {
     lines.push('', 'Sidecars:');
     for (const sidecar of snapshot.sidecars.health.slice(0, 6)) {
-      const status = sidecar.ready ? 'ready' : sidecar.enabled ? 'atencao' : 'desativado';
-      lines.push(`- ${sidecar.name} [${status}] ${sidecar.message || sidecar.baseUrl || 'sem detalhe'}`);
+      const status = sidecar.ready ? 'ready' : sidecar.enabled ? 'attention' : 'disabled';
+      lines.push(`- ${sidecar.name} [${status}] ${sidecar.message || sidecar.baseUrl || 'no detail'}`);
     }
     lines.push(
       `  receipts sidecar: ${snapshot.sidecars.summary.recentReceiptCount}/${snapshot.sidecars.receipts.totalReceipts}`,

@@ -91,7 +91,7 @@ export const PROVIDER_MODELS_CONFIG: Record<string, ProviderModelsConfigEntry> =
     parseResponse: (data) => data.data || [],
   },
   gemini: {
-    url: "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000",
+    url: "https://generativelanguage.googleapis.com/v1beta/models...pageSize=1000",
     method: "GET",
     headers: { "Content-Type": "application/json" },
     authQuery: "key",

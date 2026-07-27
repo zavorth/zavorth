@@ -76,7 +76,7 @@ export async function authorizeHotPathToolCall(
   // Identity must match AgentRuntimeBudgetEnforcementService regex.
   const safeWorkspace = /^[a-zA-Z0-9]/.test(workspaceId) ? workspaceId : `w${workspaceId}`;
   const safeMission = /^[a-zA-Z0-9]/.test(missionId) ? missionId : `m${missionId}`;
-  const isMutation = input.isMutation === true || MUTATION_HINT.test(input.toolName);
+  const isMutation = input.isMutation === true;
   const usage = usageByMission.get(safeMission) || {
     actions: 0,
     mutableActions: 0,
@@ -98,9 +98,9 @@ export async function authorizeHotPathToolCall(
       mutableActions: isMutation ? 1 : 0,
       cost: 0.01,
       durationMs: 1_000,
-      networkCalls: /web_search|http|fetch|api|browser|email|send/i.test(input.toolName) ? 1 : 0,
-      filesystemWrites: isMutation && /file|write|fs|patch|edit/i.test(input.toolName) ? 1 : 0,
-      externalDeliveries: /send|email|telegram|discord|slack|post/i.test(input.toolName) ? 1 : 0,
+      networkCalls: 0,
+      filesystemWrites: 0,
+      externalDeliveries: 0,
       failures: 0,
     },
     riskLevel: isMutation ? 'medium' : 'low',

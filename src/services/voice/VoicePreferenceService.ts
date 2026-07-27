@@ -210,8 +210,7 @@ export class VoicePreferenceService {
       `tts.enabled: ${pref.tts.enabled}`,
       `tts.provider: ${pref.tts.provider}`,
       `tts.voiceId: ${pref.tts.voiceId || '(none)'}`,
-      stt.ok === true
-        ? `resolve: ok source=${stt.source} providers=${stt.providers.join(',')}`
+      stt.ok === true ? `resolve: ok source=${stt.source} providers=${stt.providers.join(',')}`
         : `resolve: FAIL ${stt.code} — ${stt.message}`,
     ];
     if (stt.ok === false) {

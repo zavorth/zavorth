@@ -152,7 +152,7 @@ export class CapabilityAutopilotRepairPlannerService {
           id: this.buildPermissionId(diagnosis.capabilityId, 'install_binary', 'host'),
           kind: 'install_binary',
           scope: 'host',
-          reason: 'Instalar ou localizar uma ferramenta local exige permissao no host.',
+          reason: 'Installing or locating a local tool requires host permission.',
           riskLevel: 7,
           trustLevelRequired: 'collaborator',
           ...base,
@@ -163,7 +163,7 @@ export class CapabilityAutopilotRepairPlannerService {
           id: this.buildPermissionId(diagnosis.capabilityId, 'provide_secret', 'session'),
           kind: diagnosis.failureKind === 'missing_auth' ? 'authenticate' : 'provide_secret',
           scope: 'session',
-          reason: 'Credenciais e login precisam ser fornecidos pelo usuario ou aprovados para a sessao.',
+          reason: 'Credentials and login must be provided by the user or approved for the session.',
           riskLevel: 5,
           trustLevelRequired: 'collaborator',
           ...base,
@@ -173,7 +173,7 @@ export class CapabilityAutopilotRepairPlannerService {
           id: this.buildPermissionId(diagnosis.capabilityId, 'prepare_runtime', 'host'),
           kind: 'prepare_runtime',
           scope: 'host',
-          reason: 'Preparar Docker, browser, servico local ou runtime auxiliar muda o ambiente do host.',
+          reason: 'Preparar Docker, browser, service local ou runtime auxiliar muda o ambiente do host.',
           riskLevel: 8,
           trustLevelRequired: 'overlord',
           ...base,
@@ -185,7 +185,7 @@ export class CapabilityAutopilotRepairPlannerService {
           id: this.buildPermissionId(diagnosis.capabilityId, 'run_diagnostics', 'session'),
           kind: 'run_diagnostics',
           scope: 'session',
-          reason: 'Diagnosticar a capability pode executar doctor, probe ou smoke test controlado.',
+          reason: 'Diagnosticar a capability pode run doctor, probe ou smoke test controlado.',
           riskLevel: 4,
           trustLevelRequired: 'collaborator',
           ...base,
@@ -195,7 +195,7 @@ export class CapabilityAutopilotRepairPlannerService {
           id: this.buildPermissionId(diagnosis.capabilityId, 'enable_capability', 'session'),
           kind: 'enable_capability',
           scope: 'session',
-          reason: 'A capability precisa ser habilitada antes de executar.',
+          reason: 'The capability must be enabled before execution.',
           riskLevel: 4,
           trustLevelRequired: 'collaborator',
           ...base,
@@ -214,17 +214,17 @@ export class CapabilityAutopilotRepairPlannerService {
   ): CapabilityRepairStep[] {
     const permissionIds = permissionRequirements.map((entry) => entry.id);
     const steps: CapabilityRepairStep[] = [
-      this.step('explain-problem', 'explain', 'Explicar o problema', diagnosis.rootCause, [], 'Usuario entende o bloqueio antes de qualquer acao.'),
+      this.step('explain-problem', 'explain', 'Explain the problem', diagnosis.rootCause, [], 'The user understands the blocker before any action.'),
     ];
 
     if (diagnosis.status === 'ready') {
       steps.push(this.step(
         'no-repair-needed',
         'noop',
-        'Nenhum reparo necessario',
-        'Readiness atual ja esta saudavel.',
+        'No repair needed',
+        'Current readiness is already healthy.',
         [],
-        'A capability pode seguir para execucao normal.',
+        'The capability can proceed to normal execution.',
       ));
       if (resumeIntent) {
         steps.push(this.buildResumeStep(resumeIntent, []));
@@ -236,10 +236,10 @@ export class CapabilityAutopilotRepairPlannerService {
       steps.push(this.step(
         'ask-for-context',
         'ask_user',
-        'Pedir contexto adicional',
-        'A falha ainda nao tem reparo seguro suficiente para propor automacao.',
+        'Ask for additional context',
+        'The failure does not yet have a safe enough repair to propose automation.',
         [],
-        'Usuario fornece contexto ou escolhe outra capability.',
+        'The user provides context or chooses another capability.',
       ));
       return steps;
     }
@@ -247,10 +247,10 @@ export class CapabilityAutopilotRepairPlannerService {
     steps.push(this.step(
       'request-permission',
       'ask_user',
-      'Pedir permissao contextual',
+      'Ask for contextual permission',
       this.buildPermissionSummary(permissionRequirements),
       permissionIds,
-      'Permissao aprovada com escopo explicito antes do reparo.',
+      'Permission approved with explicit scope before repair.',
     ));
 
     switch (diagnosis.failureKind) {
@@ -261,27 +261,27 @@ export class CapabilityAutopilotRepairPlannerService {
           'Prepare local binary',
           this.buildMissingBinarySummary(readiness),
           permissionIds,
-          'Binario fica instalado ou visivel no PATH.',
+          'Binary is installed or visible on PATH.',
         ));
         break;
       case 'missing_secret':
         steps.push(this.step(
           'collect-secret',
           'set_env',
-          'Coletar secret ou env ausente',
-          'Solicitar valor ao usuario ou orientar configuracao segura no storage existente.',
+          'Collect missing secret or env value',
+          'Ask the user for the value or guide safe configuration in existing storage.',
           permissionIds,
-          'Credencial fica disponivel somente no escopo aprovado.',
+          'Credential remains available only in the approved scope.',
         ));
         break;
       case 'missing_auth':
         steps.push(this.step(
           'authenticate',
           'authenticate',
-          'Concluir autenticacao',
-          'Guiar login, account setup ou troca de credencial sem capturar senha em texto claro.',
+          'Complete authentication',
+          'Guide login, account setup, or credential rotation without capturing a password in clear text.',
           permissionIds,
-          'Autenticacao fica pronta para novo probe.',
+          'Authentication becomes ready for a new probe.',
         ));
         break;
       case 'missing_runtime':
@@ -289,19 +289,19 @@ export class CapabilityAutopilotRepairPlannerService {
           'prepare-runtime',
           'start_service',
           'Prepare helper runtime',
-          'Preparar Docker, browser, sidecar ou servico necessario conforme policy.',
+          'Prepare Docker, browser, sidecar, or required service according to policy.',
           permissionIds,
-          'Runtime auxiliar fica pronto ou falha com evidencia.',
+          'Auxiliary runtime becomes ready or fails with evidence.',
         ));
         break;
       case 'executor_unavailable':
         steps.push(this.step(
           'repair-executor',
           'run_command',
-          'Diagnosticar executor',
-          `Executar doctor/smoke controlado para ${descriptor?.executor?.executorName || diagnosis.capabilityId}.`,
+          'Diagnose executor',
+          `Run a controlled doctor/smoke check for ${descriptor?.executor?.executorName || diagnosis.capabilityId}.`,
           permissionIds,
-          'Executor fica disponivel ou fallback e apresentado.',
+          'Executor becomes available or a fallback is presented.',
         ));
         break;
       case 'probe_failed':
@@ -309,40 +309,40 @@ export class CapabilityAutopilotRepairPlannerService {
         steps.push(this.step(
           'rerun-health-check',
           'validate',
-          'Reexecutar health check',
-          'Rodar probe/doctor apropriado e guardar evidencia antes de retomar.',
+          'Rerun health check',
+          'Run the appropriate probe/doctor and store evidence before resume.',
           permissionIds,
-          'Probe passa ou falha com causa mais especifica.',
+          'Probe passes or fails with a more specific cause.',
         ));
         break;
       case 'permission_required':
         steps.push(this.step(
           'enable-capability',
           'ask_user',
-          'Habilitar capability no escopo aprovado',
-          'Aplicar enablement somente depois do approval contextual.',
+          'Enable capability in the approved scope',
+          'Apply enablement only after contextual approval.',
           permissionIds,
-          'Capability deixa de estar bloqueada por lifecycle/approval.',
+          'Capability is no longer blocked by lifecycle/approval.',
         ));
         break;
       default:
         steps.push(this.step(
           'manual-repair',
           'manual',
-          'Reparo manual supervisionado',
-          'Sem receita automatica segura nesta etapa.',
+          'Supervised manual repair',
+          'No safe automatic recipe exists at this stage.',
           permissionIds,
-          'Operador decide proximo caminho.',
+          'Operator decides the next path.',
         ));
     }
 
     steps.push(this.step(
       'validate-repair',
       'validate',
-      'Validar reparo',
-      'Recalcular readiness e confirmar que a capability ficou pronta.',
+      'Validate repair',
+      'Recalculate readiness and confirm the capability became ready.',
       [],
-      'Readiness muda para ready antes de retomar.',
+      'Readiness changes to ready before resume.',
     ));
 
     if (resumeIntent) {
@@ -363,7 +363,7 @@ export class CapabilityAutopilotRepairPlannerService {
         title: 'Recalculate readiness',
         kind: 'manual',
         target: diagnosis.capabilityId,
-        successCondition: 'CapabilityReadinessSnapshot.ready deve ser true antes de retomar.',
+        successCondition: 'CapabilityReadinessSnapshot.ready must be true before resume.',
         required: true,
       },
     ];
@@ -371,10 +371,10 @@ export class CapabilityAutopilotRepairPlannerService {
     if (readiness?.probe) {
       validators.push({
         id: 'integration-probe',
-        title: 'Validar probe da integracao',
+        title: 'validate probe da integration',
         kind: 'probe',
         target: readiness.probe.checkedTarget || readiness.probe.integrationId,
-        successCondition: 'Probe deve retornar status ok.',
+        successCondition: 'Probe must return status ok.',
         required: true,
       });
     }
@@ -382,10 +382,10 @@ export class CapabilityAutopilotRepairPlannerService {
     if (descriptor?.executor?.executorName) {
       validators.push({
         id: 'executor-smoke',
-        title: 'Validar executor',
+        title: 'validate executor',
         kind: 'executor_smoke',
         target: descriptor.executor.executorName,
-        successCondition: 'Executor deve responder como disponivel antes da execucao real.',
+        successCondition: 'Executor must report available before real execution.',
         required: descriptor.type === 'executor',
       });
     }
@@ -408,10 +408,10 @@ export class CapabilityAutopilotRepairPlannerService {
     return [
       ...candidates.map((executorName) => ({
         id: `fallback-${executorName}`,
-        label: `Tentar ${executorName}`,
+        label: `try ${executorName}`,
         executorName,
         capabilityId: null,
-        reason: `Fallback visivel caso ${descriptor?.label || diagnosis.capabilityId} nao possa ser reparado agora.`,
+        reason: `Visible fallback if ${descriptor?.label || diagnosis.capabilityId} cannot be repaired now.`,
         requiresPermission: true,
         policyAllowed: null,
       })),
@@ -420,7 +420,7 @@ export class CapabilityAutopilotRepairPlannerService {
         label: 'Orientaction manual',
         executorName: null,
         capabilityId: null,
-        reason: 'Explicar ao usuario como preparar a ferramenta sem automacao.',
+        reason: 'Explain to the user how to prepare the tool without automation.',
         requiresPermission: false,
         policyAllowed: true,
       },
@@ -471,28 +471,27 @@ export class CapabilityAutopilotRepairPlannerService {
   ): string {
     const label = descriptor?.label || diagnosis.capabilityId;
     if (diagnosis.status === 'ready') {
-      return `${label} ja esta pronto; nenhum reparo necessario.`;
+      return `${label} is already ready; no repair is needed.`;
     }
-    const next = readiness?.suggestedNextAction?.label
-      ? ` Proximo passo sugerido: ${readiness.suggestedNextAction.label}.`
+    const next = readiness?.suggestedNextAction?.label ? ` next passo sugerido: ${readiness.suggestedNextAction.label}.`
       : '';
-    return `${label}: plano proposto para ${diagnosis.failureKind}. ${diagnosis.rootCause}.${next}`.trim();
+    return `${label}: proposed plan for ${diagnosis.failureKind}. ${diagnosis.rootCause}.${next}`.trim();
   }
 
   private buildPermissionSummary(requirements: CapabilityPermissionRequirement[]): string {
     if (requirements.length === 0) {
-      return 'Nenhuma permissao adicional foi detectada.';
+      return 'No additional permission was detected.';
     }
 
     return requirements
-      .map((entry) => `${entry.kind} (${entry.scope}, risco ${entry.riskLevel})`)
+      .map((entry) => `${entry.kind} (${entry.scope}, risk ${entry.riskLevel})`)
       .join('; ');
   }
 
   private buildMissingBinarySummary(readiness: CapabilityReadinessSnapshot | null): string {
     const missingBinary = readiness?.missingRequirements.find((entry) => entry.type === 'binary');
     if (!missingBinary) {
-      return 'Preparar o binario ausente conforme doctor/manifest da capability.';
+      return 'Prepare the missing binary according to capability doctor/manifest.';
     }
     return `${missingBinary.label}: ${missingBinary.description}`;
   }
@@ -505,7 +504,7 @@ export class CapabilityAutopilotRepairPlannerService {
       'resume-original-intent',
       'resume_original_intent',
       'Resume original request',
-      `Retomar: ${resumeIntent.rawText || resumeIntent.normalizedText}`,
+      `resume: ${resumeIntent.rawText || resumeIntent.normalizedText}`,
       permissionIds,
       'Original request returns to the flow after validation.',
     );

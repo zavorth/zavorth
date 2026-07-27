@@ -348,7 +348,7 @@ export class ProviderFactory {
         genericCompatible: true,
         explanation: [
           `${normalized} is treated as a local OpenAI-compatible route in the Provider Mesh.`,
-          'Local models should not use Anthropic impersonation.',
+          'local models should not use Anthropic impersonation.',
         ],
       });
     }

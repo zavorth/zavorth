@@ -232,9 +232,8 @@ export class ExecutionEscalationPolicy {
       reason: options.reason,
       taskGoal,
       requiresApproval,
-      summary: shouldEscalate
-        ? `Escalacao estruturada para ${options.target}: ${options.reason}.`
-        : `Sem escalacao de execucao: ${options.reason}.`,
+      summary: shouldEscalate ? `Escalaction estruturada para ${options.target}: ${options.reason}.`
+        : `No execution escalation: ${options.reason}.`,
       subagentReceipts,
     };
 

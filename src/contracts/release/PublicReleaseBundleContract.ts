@@ -73,9 +73,9 @@ export const PUBLIC_RELEASE_BUNDLE_FORBIDDEN_CLAIMS = [
   'C:\\TESTES DEV',
   'instala automaticamente',
   'cloud required to use',
-  'telemetry ligada por padrao',
+  'telemetry ligada por default',
   'without rollback',
-  'segredo real',
+  'secret real',
 ] as const;
 
 export const PUBLIC_RELEASE_BUNDLE_SCREENSHOTS: PublicReleaseBundleScreenshotSpec[] = [

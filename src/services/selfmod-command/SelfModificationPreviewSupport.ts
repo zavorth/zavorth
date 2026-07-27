@@ -86,7 +86,7 @@ export class SelfModificationPreviewSupport {
           success: false,
           mode: 'file',
           relativePath: this.options.toRelativePath(preview.absolutePath),
-          summary: 'A proposta de auto-modificacao foi rejeitada porque a validacao de sintaxe falhou.',
+          summary: 'A proposta de auto-modification foi rejected porque a validation de sintaxe failed.',
           validationOutput: validation.output,
         };
       }
@@ -109,7 +109,7 @@ export class SelfModificationPreviewSupport {
           success: false,
           mode: 'file',
           relativePath,
-          summary: `A validacao ampliada bloqueou o preview em ${failedDeepValidation.filePath}.`,
+          summary: `A validation ampliada bloqueou o preview em ${failedDeepValidation.filePath}.`,
           validationOutput: deepValidations.map((entry) => `[${entry.filePath}] ${entry.output}`).join('\n\n'),
         };
       }

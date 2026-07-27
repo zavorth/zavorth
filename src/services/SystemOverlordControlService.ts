@@ -31,25 +31,25 @@ const PROFILES: SystemOverlordProfileDescriptor[] = [
   {
     profile: 'safe',
     label: 'Safe',
-    summary: 'Leitura, diagnostico e dry-run. E o padrao para usuario comum.',
+    summary: 'Read, diagnostics, and dry-run. It is the default for regular users.',
     defaultAutonomyLevel: 1,
   },
   {
     profile: 'trusted',
     label: 'Trusted',
-    summary: 'Permite patches, build/test/install em ambiente guardado com aprovacao.',
+    summary: 'Allows patches, build/test/install in a guarded environment with approval.',
     defaultAutonomyLevel: 3,
   },
   {
     profile: 'dangerous',
     label: 'Dangerous',
-    summary: 'Permite desktop, navegador, tunnels e superficies externas com aprovacao forte.',
+    summary: 'Allows desktop, browser, tunnels, and external surfaces with strong approval.',
     defaultAutonomyLevel: 5,
   },
   {
     profile: 'owner',
     label: 'Owner',
-    summary: 'Modo de manutencao supervisionada para tarefas longas e sensiveis.',
+    summary: 'Modo de maintenance supervised para tarefas longas e sensitive.',
     defaultAutonomyLevel: 6,
   },
 ];
@@ -57,10 +57,10 @@ const PROFILES: SystemOverlordProfileDescriptor[] = [
 const AUTONOMY_LEVELS: SystemOverlordAutonomyLevelDescriptor[] = [
   {
     level: 1,
-    label: 'Diagnostico',
-    summary: 'Somente le, diagnostica e recomenda proximos passos.',
+    label: 'diagnostic',
+    summary: 'Only reads, diagnoses, and recommends next steps.',
     defaultProfile: 'safe',
-    examples: ['git status', 'listar contexto', 'explicar erro'],
+    examples: ['git status', 'show context', 'explain error'],
     requiresApproval: false,
   },
   {
@@ -68,39 +68,39 @@ const AUTONOMY_LEVELS: SystemOverlordAutonomyLevelDescriptor[] = [
     label: 'Patch de repo',
     summary: 'Pode propor e aplicar patches com rollback no workspace.',
     defaultProfile: 'trusted',
-    examples: ['corrigir TypeScript', 'editar arquivo do repo'],
+    examples: ['fix TypeScript', 'edit repo file'],
     requiresApproval: true,
   },
   {
     level: 3,
     label: 'Build e install guardado',
-    summary: 'Pode rodar build/test/install em sandbox/container quando aplicavel.',
+    summary: 'Pode run build/test/install em sandbox/container when applicable.',
     defaultProfile: 'trusted',
     examples: ['npm install', 'npm run build', 'npm test'],
     requiresApproval: true,
   },
   {
     level: 4,
-    label: 'Host supervisionado',
-    summary: 'Pode operar host local, WSL, Docker e tunnels com politica explicita.',
+    label: 'Host supervised',
+    summary: 'Can operate local host, WSL, Docker, and tunnels with explicit policy.',
     defaultProfile: 'trusted',
     examples: ['docker exec', 'wsl exec', 'subir tunnel'],
     requiresApproval: true,
   },
   {
     level: 5,
-    label: 'Apps e canais externos',
-    summary: 'Pode operar browser, desktop, canais e visao computacional com aprovacao forte.',
+    label: 'Apps e channels externos',
+    summary: 'Can operate browser, desktop, channels, and computer vision with strong approval.',
     defaultProfile: 'dangerous',
     examples: ['controlar navegador', 'operar desktop', 'computer use'],
     requiresApproval: true,
   },
   {
     level: 6,
-    label: 'Owner supervisionado',
-    summary: 'Modo para manutencao longa e auto-recuperacao, sempre auditado.',
+    label: 'Owner supervised',
+    summary: 'Modo para maintenance longa e auto-recovery, sempre auditado.',
     defaultProfile: 'owner',
-    examples: ['manutencao autonoma', 'repair do Zavorth', 'tarefas longas'],
+    examples: ['maintenance autonoma', 'repair do Zavorth', 'tarefas longas'],
     requiresApproval: true,
   },
 ];
@@ -113,69 +113,69 @@ const CAPABILITY_METADATA: Record<SystemOverlordCapability, {
 }> = {
   'host.shell': {
     label: 'Host shell',
-    summary: 'Executa comandos de diagnostico ou comandos mutaveis no host, com policy.',
+    summary: 'Executa diagnostic commands or mutable commands no host, com policy.',
     riskLevel: 'medium',
-    operatorNextStep: 'Use safe para diagnostico; comandos mutaveis exigem trusted e aprovacao.',
+    operatorNextStep: 'Use safe for diagnostics; mutable commands require trusted mode and approval.',
   },
   'host.files.write': {
     label: 'Escrita no filesystem',
-    summary: 'Permite criar ou alterar arquivos por pipeline supervisionado.',
+    summary: 'Permite criar ou alterar files por pipeline supervised.',
     riskLevel: 'medium',
-    operatorNextStep: 'Use patch preview, valide e aplique com rollback quando possivel.',
+    operatorNextStep: 'Use patch preview, validate, and apply with rollback when possible.',
   },
   'host.install': {
-    label: 'Instalacao de dependencias',
+    label: 'Instalaction de dependencies',
     summary: 'Instala pacotes ou toolchains, preferindo container/sandbox.',
     riskLevel: 'high',
-    operatorNextStep: 'Aprove explicitamente e revise o pacote/toolchain antes de executar.',
+    operatorNextStep: 'Approve explicitly and review the package/toolchain before running.',
   },
   'desktop.automation': {
-    label: 'Automacao de desktop',
-    summary: 'Opera janelas, cliques, teclado e screenshots de apps locais.',
+    label: 'Desktop automation',
+    summary: 'Opera windows, cliques, teclado e screenshots de apps locais.',
     riskLevel: 'critical',
-    operatorNextStep: 'Use somente com janela alvo clara, aprovacao forte e kill switch.',
+    operatorNextStep: 'Use only with a clear target window, strong approval, and kill switch.',
   },
   'browser.control': {
     label: 'Controle de navegador',
-    summary: 'Navega e inspeciona paginas; JavaScript arbitrario fica restrito.',
+    summary: 'Navega e inspeciona pages; JavaScript arbitrario fica restrito.',
     riskLevel: 'high',
-    operatorNextStep: 'Permita navigate/inspect primeiro; evaluate_js exige owner e opt-in.',
+    operatorNextStep: 'Allow navigate/inspect first; evaluate_js requires owner and opt-in.',
   },
   'docker.exec': {
     label: 'Docker exec',
     summary: 'Executa comandos em runtime/container Docker.',
     riskLevel: 'medium',
-    operatorNextStep: 'Confirme o container/alvo antes de executar comandos mutaveis.',
+    operatorNextStep: 'Confirm the container/target before running mutable commands.',
   },
   'wsl.exec': {
     label: 'WSL exec',
     summary: 'Executa comandos dentro de distribuicoes WSL.',
     riskLevel: 'high',
-    operatorNextStep: 'Informe a distro/alvo e aprove execucao fora do sandbox padrao.',
+    operatorNextStep: 'Provide the distro/target and approve execution outside the default sandbox.',
   },
   'network.tunnel': {
     label: 'Tunnel de rede',
-    summary: 'Abre ou gerencia tunnels e exposicao remota.',
+    summary: 'Opens or manages tunnels and remote exposure.',
     riskLevel: 'critical',
-    operatorNextStep: 'Aprove apenas quando a URL e o escopo de exposicao forem claros.',
+    operatorNextStep: 'Approve only when the URL and exposure scope are clear.',
   },
   'secrets.read': {
     label: 'Leitura de secrets',
-    summary: 'Acessa variaveis, credenciais ou vaults.',
+    summary: 'Accesses variables, credentials, or vaults.',
     riskLevel: 'critical',
-    operatorNextStep: 'Prefira verificar presenca/health sem revelar valor do secret.',
+    operatorNextStep: 'Prefer checking presence/health without revealing secret values.',
   },
   'node.invoke': {
     label: 'Node Mesh invoke',
     summary: 'Invoca capabilities em nodes pareados.',
     riskLevel: 'high',
-    operatorNextStep: 'Revise allowlist/capabilities do node antes de invocar.',
+    operatorNextStep: 'Review node allowlist/capabilities before invoking.',
   },
   'computer_use.visual_action': {
     label: 'Computer Use visual',
-    summary: 'Usa screenshot, LLM multimodal e automacao para operar UI.',
+    summary: 'Uses screenshot, multimodal LLM, and automation to operate UI.',
     riskLevel: 'critical',
-    operatorNextStep: 'Defina objetivo, janela alvo, limite de iteracoes e aprovacao forte.',
+    operatorNextStep: 'Set objective, target window, iteration limit, and strong approval.',
   },
 };
 
@@ -229,7 +229,7 @@ export class SystemOverlordControlService {
         highestRiskLevel,
       },
       narrative: {
-        headline: 'System Overlord supervisionado',
+        headline: 'System Overlord supervised',
         operatorSummary: this.buildOperatorSummary({
           adapters: adapters.length,
           runningActions,
@@ -275,14 +275,14 @@ export class SystemOverlordControlService {
   public async decideApproval(input: SystemOverlordApprovalDecisionRequest): Promise<SystemOverlordApprovalDecisionResult> {
     const actionId = String(input.actionId || '').trim();
     if (!actionId) {
-      throw new Error('actionId obrigatorio para decidir approval.');
+      throw new Error('actionId required para decidir approval.');
     }
     const latest = this.findLatestAction(actionId);
     if (!latest) {
-      throw new Error('Approval do System Overlord nao encontrado.');
+      throw new Error('Approval do System Overlord no encontrado.');
     }
     if (latest.status !== 'pending_approval') {
-      throw new Error(`Approval ${actionId} nao esta pendente; status atual: ${latest.status}.`);
+      throw new Error(`Approval ${actionId} no is pending; status current: ${latest.status}.`);
     }
 
     const requestedBy = String(input.requestedBy || '').trim() || 'operator';
@@ -486,21 +486,21 @@ export class SystemOverlordControlService {
     highestRiskLevel: SystemOverlordRiskLevel | null;
   }): string {
     if (input.killSwitchActive) {
-      return 'Kill switch supervisionado ativo; novas acoes ficam bloqueadas ate liberacao manual.';
+      return 'Kill switch supervised active; new actions ficam blocked ate liberaction manual.';
     }
     if (input.pendingApprovals > 0) {
-      return `${input.pendingApprovals} acao(oes) aguardam aprovacao humana antes de executar.`;
+      return `${input.pendingApprovals} action(s) wait for human approval before execution.`;
     }
     if (input.runningActions > 0) {
-      return `Ha ${input.runningActions} acao(oes) supervisionada(s) em execucao neste momento.`;
+      return `There are ${input.runningActions} supervised action(s) running right now.`;
     }
     if (input.failedActions > 0 || input.blockedActions > 0) {
-      return `Ha ${input.failedActions} falha(s), ${input.timedOutActions} timeout(s) e ${input.blockedActions} bloqueio(s) recentes para revisar.`;
+      return `There are ${input.failedActions} failure(s), ${input.timedOutActions} timeout(s) e ${input.blockedActions} block(s) recentes para review.`;
     }
     if (input.timedOutActions > 0) {
-      return `Ha ${input.timedOutActions} acao(oes) que excederam o tempo supervisionado e precisam de decisao do operador.`;
+      return `There are ${input.timedOutActions} action(s) exceeded the supervised time window and need an operator decision.`;
     }
-    const risk = input.highestRiskLevel ? `; maior risco recente: ${input.highestRiskLevel}` : '';
-    return `${input.adapters} adapter(s) supervisionados disponiveis${risk}.`;
+    const risk = input.highestRiskLevel ? `; maior risk recente: ${input.highestRiskLevel}` : '';
+    return `${input.adapters} supervised adapter(s) available${risk}.`;
   }
 }

@@ -34,64 +34,63 @@ export function humanizePluginLoadFailure(
     const finding = String(raw || '');
     const lower = finding.toLowerCase();
 
-    if (/entrypoint export not found/i.test(finding)) {
+    if (lower.includes('entrypoint export not found')) {
       tips.push(tip('tip.export_register'));
       continue;
     }
 
-    if (/no capability handlers registered/i.test(finding) || /no capability handlers/i.test(finding)) {
+    if (lower.includes('no capability handlers registered') || lower.includes('no capability handlers')) {
       tips.push(tip('tip.bind_capability'));
       continue;
     }
 
-    if (/bindcapability rejected undeclared/i.test(lower) || /bindCapability rejected undeclared/i.test(finding)) {
-      const match = finding.match(/capability:\s*([^\s]+)/i) || finding.match(/undeclared capability:\s*([^\s]+)/i);
-      const cap = match?.[1] || context.capabilityId || 'X';
+    if (lower.includes('bindcapability rejected undeclared')) {
+      const cap = extractPluginCapabilityId(finding) || context.capabilityId || 'X';
       tips.push(tip('tip.declare_capability', { cap }));
       continue;
     }
 
-    if (/sandbox requires approval/i.test(finding) || /needs_approval/i.test(finding) || /requiredApprovals/i.test(finding)) {
+    if (lower.includes('sandbox requires approval') || lower.includes('needs_approval') || lower.includes('requiredapprovals')) {
       tips.push(tip('tip.enable_plugin'));
       continue;
     }
 
-    if (/not load eligible/i.test(finding) || /is not selected/i.test(finding)) {
+    if (lower.includes('not load eligible') || lower.includes('is not selected')) {
       tips.push(tip('tip.install_enable'));
       continue;
     }
 
-    if (/entrypoint module not found/i.test(finding) || /entrypoint\.module is empty/i.test(finding)) {
+    if (lower.includes('entrypoint module not found') || lower.includes('entrypoint.module is empty')) {
       tips.push(tip('tip.entrypoint_module'));
       continue;
     }
 
-    if (/manifest declares no capabilities/i.test(finding)) {
+    if (lower.includes('manifest declares no capabilities')) {
       tips.push(tip('tip.declare_capabilities'));
       continue;
     }
 
-    if (/missing handlers for capabilities/i.test(finding)) {
+    if (lower.includes('missing handlers for capabilities')) {
       tips.push(tip('tip.bind_all_capabilities'));
       continue;
     }
 
-    if (/manifest is missing/i.test(finding)) {
+    if (lower.includes('manifest is missing')) {
       tips.push(tip('tip.add_manifest'));
       continue;
     }
 
-    if (/entrypoint export is not a function/i.test(finding)) {
+    if (lower.includes('entrypoint export is not a function')) {
       tips.push(tip('tip.export_function'));
       continue;
     }
 
-    if (/import timed out/i.test(finding) || /registration timed out/i.test(finding)) {
+    if (lower.includes('import timed out') || lower.includes('registration timed out')) {
       tips.push(tip('tip.fast_register'));
       continue;
     }
 
-    if (/trust.*blocked|blocked/i.test(lower) && /sandbox|plugin/i.test(lower)) {
+    if (lower.includes('blocked') && (lower.includes('sandbox') || lower.includes('plugin'))) {
       tips.push(tip('tip.clear_block'));
       continue;
     }
@@ -120,4 +119,21 @@ export function withHumanizedPluginLoadFindings(
 
 function unique(values: string[]): string[] {
   return Array.from(new Set(values.filter(Boolean)));
+}
+
+function extractPluginCapabilityId(finding: string): string | null {
+  const lower = finding.toLowerCase();
+  for (const marker of ['capability:', 'undeclared capability:']) {
+    const index = lower.indexOf(marker);
+    if (index < 0) {
+      continue;
+    }
+    const after = finding.slice(index + marker.length).trim();
+    const end = after.indexOf(' ');
+    const value = (end >= 0 ? after.slice(0, end) : after).trim();
+    if (value) {
+      return value;
+    }
+  }
+  return null;
 }

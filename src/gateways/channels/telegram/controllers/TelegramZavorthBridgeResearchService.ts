@@ -87,8 +87,7 @@ export class TelegramZavorthBridgeResearchService {
       return true;
     } catch (fallbackError: unknown) {
   const fallbackErrorLike = asErrorLike(fallbackError);const fallbackMsg = fallbackError instanceof Error ? fallbackErrorLike.message : String(fallbackError);
-      task.error_summary = zavorthBridgeError
-        ? `ZavorthBridge: ${zavorthBridgeError.message}\nFallback web: ${fallbackMsg}`
+      task.error_summary = zavorthBridgeError ? `ZavorthBridge: ${zavorthBridgeError.message}\nFallback web: ${fallbackMsg}`
         : `Web research: ${fallbackMsg}`;
       task.metadata = {
         ...(task.metadata || {}),

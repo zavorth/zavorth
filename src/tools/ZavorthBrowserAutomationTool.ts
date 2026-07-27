@@ -152,7 +152,7 @@ export class ZavorthBrowserAutomationTool extends BaseTool {
    */
   private getMimeTypeCategory(mimeType: string, fileName: string): string {
     const ext = fileName.split('.').pop()?.toLowerCase() || '';
-    
+
     if (ext === 'pdf' || mimeType.includes('pdf')) return 'pdf';
     if (ext.match(/^(jpg|jpeg|png|gif|webp|bmp|svg|ico)$/) || mimeType.includes('image/')) return 'images';
     if (ext.match(/^(zip|rar|gz|tar|7z|bz2)$/) || mimeType.includes('archive') || mimeType.includes('compressed')) return 'archives';
@@ -177,13 +177,13 @@ export class ZavorthBrowserAutomationTool extends BaseTool {
     urlPath?: string
   ): string {
     const category = this.getMimeTypeCategory(mimeType, fileName);
-    
+
     if (mirror && urlPath) {
       // Recreate directory structure from URL
       const dirPath = require('path').dirname(urlPath);
       return require('path').join(outputDir, 'mirror', dirPath, fileName);
     }
-    
+
     // Auto-organize by type
     return require('path').join(outputDir, category, fileName);
   }
@@ -194,12 +194,12 @@ export class ZavorthBrowserAutomationTool extends BaseTool {
   private async getUniqueFilePath(filePath: string): Promise<string> {
     const fs = require('fs');
     if (!fs.existsSync(filePath)) return filePath;
-    
+
     const dir = require('path').dirname(filePath);
     const ext = require('path').extname(filePath);
     const base = require('path').basename(filePath, ext);
     let counter = 1;
-    
+
     while (fs.existsSync(require('path').join(dir, `${base}_${counter}${ext}`))) {
       counter++;
     }
@@ -360,8 +360,7 @@ const path = require('path');
 
     const selectorLiteral = this.jsLiteral(selector);
     const urlLiteral = this.jsLiteral(url);
-    const extractTarget = selector
-      ? `const elements = await page.$$eval(${selectorLiteral}, els => els.map(el => (el.textContent || '').trim())); console.log(JSON.stringify(elements, null, 2));`
+    const extractTarget = selector ? `const elements = await page.$$eval(${selectorLiteral}, els => els.map(el => (el.textContent || '').trim())); console.log(JSON.stringify(elements, null, 2));`
       : `const text = await page.evaluate(() => document.body.innerText); console.log(text);`;
 
     const script = `
@@ -540,7 +539,7 @@ const { chromium } = require('playwright');
           const contentDisposition = res.headers['content-disposition'] || '';
 
           let fileName = 'download';
-          const dispositionMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^\n]*)/i);
+          const dispositionMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*...\2|[^\n]*)/i);
           if (dispositionMatch) {
             fileName = dispositionMatch[1].replace(/['"]/g, '');
           } else {

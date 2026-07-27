@@ -167,7 +167,7 @@ export class RemoteMeshSandboxLiveActivationService {
         check: 'npm run remote-mesh:sandbox:live-activation --silent',
         focusedTests: 'npx jest tests/services/RemoteMeshSandboxLiveActivationService.test.ts --runInBand',
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'R5 - Single Low-Risk Live Probe Executor',
+        nextAction: 'Single low-risk live probe executor',
       },
     };
   }
@@ -201,16 +201,14 @@ export class RemoteMeshSandboxLiveActivationService {
       gate(
         'owner-trust',
         input.ownerTrust.trusted && input.ownerTrust.acknowledgedRisk ? 'passed' : 'waiting',
-        input.ownerTrust.trusted
-          ? `Owner trust provided by ${input.ownerTrust.source}.`
+        input.ownerTrust.trusted ? `Owner trust provided by ${input.ownerTrust.source}.`
           : 'Owner trust has not been provided.',
         'Provide explicit owner trust before any live remote activation.',
       ),
       gate(
         'target-configured',
         input.tailnetTarget ? 'passed' : 'waiting',
-        input.tailnetTarget
-          ? `Tailnet target configured as ${input.tailnetTarget}.`
+        input.tailnetTarget ? `Tailnet target configured as ${input.tailnetTarget}.`
           : 'No tailnet target was configured.',
         'Pass --target <tailnet-node> or set ZAVORTH_REMOTE_MESH_TARGET.',
       ),
@@ -223,18 +221,15 @@ export class RemoteMeshSandboxLiveActivationService {
       gate(
         'r0-target-bound',
         input.tailnetTarget && input.readiness.target.nodeId === input.tailnetTarget ? 'passed' : 'waiting',
-        input.readiness.target.nodeId
-          ? `R0 target is ${input.readiness.target.nodeId}.`
+        input.readiness.target.nodeId ? `R0 target is ${input.readiness.target.nodeId}.`
           : 'R0 readiness is not bound to a target.',
         'Run R0 readiness with the same tailnet target.',
       ),
       gate(
         'r0-route-accepted',
         routeAccepted ? 'passed' : 'waiting',
-        input.readiness.summary.directRouteObserved
-          ? 'R0 observed a direct route.'
-          : input.readiness.summary.relayRouteObserved
-            ? 'R0 observed a relay route that needs explicit acceptance.'
+        input.readiness.summary.directRouteObserved ? 'R0 observed a direct route.'
+          : input.readiness.summary.relayRouteObserved ? 'R0 observed a relay route that needs explicit acceptance.'
             : 'R0 has not observed a target route.',
         'Measure route with R0 or pass accepted relay evidence intentionally.',
       ),
@@ -250,19 +245,16 @@ export class RemoteMeshSandboxLiveActivationService {
         'r3-dry-run-binding',
         input.candidateBinding?.status === 'ready'
           && input.candidateBinding.adapter === 'mcp-dry-run'
-          && input.candidateBinding.guards.noLiveNetworkCall
-          ? 'passed'
+          && input.candidateBinding.guards.noLiveNetworkCall ? 'passed'
           : 'blocked',
-        input.candidateBinding
-          ? `R3 candidate binding is ${input.candidateBinding.status} through ${input.candidateBinding.adapter}.`
+        input.candidateBinding ? `R3 candidate binding is ${input.candidateBinding.status} through ${input.candidateBinding.adapter}.`
           : 'No R3 dry-run binding exists for the candidate.',
         'Generate a ready MCP dry-run binding before live activation.',
       ),
       gate(
         'owner-arm-live-probe',
         input.armLiveProbe ? 'passed' : 'waiting',
-        input.armLiveProbe
-          ? 'Owner armed the low-risk live probe plan.'
+        input.armLiveProbe ? 'Owner armed the low-risk live probe plan.'
           : 'Live probe plan is not armed.',
         'Pass --arm-live-probe only after reviewing R0/R2/R3 evidence.',
       ),

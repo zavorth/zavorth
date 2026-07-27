@@ -71,17 +71,17 @@ export class CustomCompatibleProviderOnboardingService {
   public createDraft(input: CustomCompatibleProviderOnboardingInput): CustomCompatibleProviderOnboardingResult {
     const id = normalizeId(input.id);
     if (!id) {
-      throw new Error('Provider compativel precisa de id.');
+      throw new Error('Compatible provider needs id.');
     }
     if (!input.compatibility) {
-      throw new Error('Provider compativel precisa declarar compatibility.');
+      throw new Error('Compatible provider must declare compatibility.');
     }
     if (!input.authKind) {
-      throw new Error('Provider compativel precisa declarar authKind.');
+      throw new Error('Compatible provider must declare authKind.');
     }
     const baseUrl = String(input.baseUrl || '').trim();
     if (!baseUrl) {
-      throw new Error('Provider compativel precisa declarar baseUrl.');
+      throw new Error('Compatible provider must declare baseUrl.');
     }
     this.assertValidBaseUrl(baseUrl);
 
@@ -121,7 +121,7 @@ export class CustomCompatibleProviderOnboardingService {
       catalogSource: input.modelId ? 'custom_model' : 'fallback_catalog',
       limitations: [
         ...(route.limitations || []),
-        'Provider criado por onboarding custom-compatible; requer validacao antes de virar default.',
+        'Provider created por onboarding custom-compatible; requer validation before virar default.',
       ],
     }));
     manifest.families = manifest.families.map((family) => ({
@@ -130,7 +130,7 @@ export class CustomCompatibleProviderOnboardingService {
     }));
     manifest.notes = [
       `Base URL declarada por ${baseUrlRef}.`,
-      apiKeyRef ? `Credencial declarada por ${apiKeyRef}.` : 'Sem API key declarada para esta rota.',
+      apiKeyRef ? `Credential declared by ${apiKeyRef}.` : 'No API key declared for this route.',
     ];
 
     const classification = this.classifier.classify(manifest);
@@ -153,7 +153,7 @@ export class CustomCompatibleProviderOnboardingService {
       explanation: [
         `Onboarding prepairu ${input.label} como ${input.compatibility}.`,
         ...classification.explanation,
-        'O manifesto declara authKind, base URL e origem de catalogo antes de chegar ao runtime.',
+        'O manifest declara authKind, base URL e origem de catalog before chegar ao runtime.',
       ],
     };
   }
@@ -164,7 +164,7 @@ export class CustomCompatibleProviderOnboardingService {
       if (!['http:', 'https:'].includes(parsed.protocol)) {
         throw new Error('protocol');
       }
-    } catch (error: unknown) {throw new Error('baseUrl precisa ser uma URL http(s) valida.');
+    } catch (error: unknown) {throw new Error('baseUrl must be a valid http(s) URL.');
     }
   }
 
@@ -190,13 +190,13 @@ export class CustomCompatibleProviderOnboardingService {
   ): string[] {
     const warnings: string[] = [];
     if (classification.kind === 'anthropic_compatible' && !classification.runtimeSupported) {
-      warnings.push('Anthropic-compatible foi catalogado, mas ainda nao possui adapter generico ativo no runtime.');
+      warnings.push('Anthropic-compatible was cataloged, but does not yet have an active generic adapter in runtime.');
     }
     if (!input.modelId) {
-      warnings.push('Nenhum modelo principal informado; catalogo ficara como fallback ate discovery/validacao.');
+      warnings.push('No model principal informado; catalog ficara como fallback ate discovery/validation.');
     }
     if (classification.baseUrlRequired) {
-      warnings.push('Base URL precisa permanecer declarada e auditable antes do uso.');
+      warnings.push('Base URL must remain declared and auditable before use.');
     }
     return warnings;
   }

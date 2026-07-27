@@ -33,7 +33,7 @@ export class ProviderModelRegistry {
     if (providerType === 'openai') {
       defaultCaps.supportsChat = true;
       defaultCaps.supportsStreaming = true;
-      
+
       if (modelId) {
         if (modelId.includes('gpt-4') || modelId.includes('gpt-3.5')) {
           defaultCaps.supportsToolCalling = true;
@@ -53,7 +53,7 @@ export class ProviderModelRegistry {
     } else if (providerType === 'anthropic') {
       defaultCaps.supportsChat = true;
       defaultCaps.supportsStreaming = true;
-      
+
       if (modelId && modelId.includes('claude-3')) {
         defaultCaps.supportsToolCalling = true;
         defaultCaps.supportsVision = true;
@@ -61,7 +61,7 @@ export class ProviderModelRegistry {
     } else if (providerType === 'google') {
       defaultCaps.supportsChat = true;
       defaultCaps.supportsStreaming = true;
-      
+
       if (modelId && modelId.includes('gemini-1.5')) {
         defaultCaps.supportsToolCalling = true;
         defaultCaps.supportsVision = true;

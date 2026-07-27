@@ -283,14 +283,14 @@ function buildCost(route: NaturalFirstRoute, context: NaturalFirstRuntimeContext
     return {
       tier: 'cheap',
       budgetHint: 'minimal-context',
-      reason: 'Resposta curta ou atalho operador com contexto minimo.',
+      reason: 'Short response or operator shortcut with minimal context.',
     };
   }
   if (route === 'governed-execution') {
     return {
       tier: 'expensive',
       budgetHint: 'governed-runtime',
-      reason: 'Trabalho operacional pode precisar de contexto, tools, policy e acompanhamento.',
+      reason: 'Trabalho operational pode need de contexto, tools, policy e acompanhamento.',
     };
   }
   if (
@@ -302,14 +302,14 @@ function buildCost(route: NaturalFirstRoute, context: NaturalFirstRuntimeContext
     return {
       tier: 'standard',
       budgetHint: context.workspace.present ? 'workspace-context' : 'session-context',
-      reason: 'Rota governada precisa de contexto suficiente para explicar risco, memoria, capacidade ou preview.',
+      reason: 'Governed route needs enough context to explain risk, memory, capability, or preview.',
     };
   }
   if (context.workspace.present || context.tools.requested.length > 0 || context.memory.hinted) {
     return {
       tier: 'standard',
       budgetHint: context.workspace.present ? 'workspace-context' : 'session-context',
-      reason: 'Classificacao usa contexto de sessao, memoria, workspace ou tools.',
+      reason: 'Classification uses session context, memory, workspace, or tools.',
     };
   }
   return {
@@ -507,7 +507,7 @@ export class NaturalFirstRunClassifier {
         intent: 'slash-command',
         effort: 'light',
         usesLlm: 'not-required',
-        reason: 'Comando slash preserva o roteador de comandos como atalho operador.',
+        reason: 'Slash command preserves the command router as an operator shortcut.',
         signals: ['slash-command'],
         shouldEnterGateway: false,
       };
@@ -519,7 +519,7 @@ export class NaturalFirstRunClassifier {
         intent: 'sensitive-action',
         effort: 'standard',
         usesLlm: 'optional',
-        reason: 'Pedido transacional de compra, pagamento, trade ou valor exige preview e approval governado.',
+        reason: 'Transactional purchase, payment, trade, or value requests require governed preview and approval.',
         signals: ['transaction-intent', 'approval-required'],
       };
     }
@@ -530,7 +530,7 @@ export class NaturalFirstRunClassifier {
         intent: 'tool-use',
         effort: 'standard',
         usesLlm: 'optional',
-        reason: 'Pedido transacional observacional deve virar preview governado sem execucao live.',
+        reason: 'Observational transactional request should become governed preview without live execution.',
         signals: ['transaction-preview-intent', 'preview-required'],
       };
     }
@@ -541,7 +541,7 @@ export class NaturalFirstRunClassifier {
         intent: 'sensitive-action',
         effort: 'standard',
         usesLlm: 'optional',
-        reason: 'Pedido sugere mutacao sensivel ou ferramenta que exige approval.',
+        reason: 'request suggests a sensitive mutation or a tool that requires approval.',
         signals: ['sensitive-action', 'approval-required'],
       };
     }
@@ -552,7 +552,7 @@ export class NaturalFirstRunClassifier {
         intent: 'tool-use',
         effort: 'standard',
         usesLlm: 'optional',
-        reason: 'Pedido sugere ferramenta/comando e deve virar preview governado antes de execucao.',
+        reason: 'Request suggests a tool/command and should become governed preview before execution.',
         signals: ['tool-intent', 'preview-required'],
       };
     }
@@ -563,7 +563,7 @@ export class NaturalFirstRunClassifier {
         intent: 'operational-work',
         effort: 'heavy',
         usesLlm: 'preferred',
-        reason: 'Pedido parece trabalho operacional que deve entrar no runtime agente governado.',
+        reason: 'request appears to be operational work that should enter the governed agent runtime.',
         signals: ['operational-intent'],
       };
     }
@@ -574,7 +574,7 @@ export class NaturalFirstRunClassifier {
         intent: 'memory-recall',
         effort: 'standard',
         usesLlm: 'preferred',
-        reason: 'Pedido pede continuidade, memoria ou reaproveitamento de experiencia.',
+        reason: 'Request asks for continuity, memory, or experience reuse.',
         signals: ['memory-intent'],
       };
     }
@@ -585,7 +585,7 @@ export class NaturalFirstRunClassifier {
         intent: 'capability-discovery',
         effort: 'standard',
         usesLlm: 'preferred',
-        reason: 'Pedido pede descoberta ou configuracao de capacidade.',
+        reason: 'Request asks for capability discovery or configuration.',
         signals: ['capability-intent'],
       };
     }
@@ -596,7 +596,7 @@ export class NaturalFirstRunClassifier {
         intent: 'low-signal-chat',
         effort: 'light',
         usesLlm: 'optional',
-        reason: 'Mensagem conversacional simples entra no gateway com custo minimo.',
+        reason: 'Simple conversational message enters the gateway with minimal cost.',
         signals: ['low-signal-chat'],
       };
     }

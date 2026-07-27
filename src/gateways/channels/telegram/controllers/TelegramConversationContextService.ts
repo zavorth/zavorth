@@ -100,7 +100,7 @@ export class TelegramConversationContextService {
           .slice(0, 4)
       : [];
     if (workspaceCommands.length > 0) {
-      sections.push(`COMANDOS REUTILIZAVEIS DO WORKSPACE:\n- ${workspaceCommands.join('\n- ')}`);
+      sections.push(`REUSABLE WORKSPACE COMMANDS:\n- ${workspaceCommands.join('\n- ')}`);
     }
 
     const operationalSummary = String(task.metadata?.workspace_operational_memory_summary || '').trim();
@@ -126,17 +126,13 @@ export class TelegramConversationContextService {
 
     const continuityLines = [
       continuityContext?.titleHint ? `Current context: ${continuityContext.titleHint}` : null,
-      continuityContext?.workflowRecommendation?.label
-        ? `Suggested workflow: ${continuityContext.workflowRecommendation.label}`
+      continuityContext?.workflowRecommendation?.label ? `Suggested workflow: ${continuityContext.workflowRecommendation.label}`
         : null,
-      continuityContext?.activeFocus?.reason
-        ? `Active focus: ${continuityContext.activeFocus.reason}`
+      continuityContext?.activeFocus?.reason ? `Active focus: ${continuityContext.activeFocus.reason}`
         : null,
-      continuityContext?.recentArtifact?.name
-        ? `Recent delivery: ${continuityContext.recentArtifact.name}`
+      continuityContext?.recentArtifact?.name ? `Recent delivery: ${continuityContext.recentArtifact.name}`
         : null,
-      continuityContext?.followupPrompt
-        ? `Suggested next step: ${continuityContext.followupPrompt}`
+      continuityContext?.followupPrompt ? `Suggested next step: ${continuityContext.followupPrompt}`
         : null,
       Array.isArray(continuityContext?.nextActions) && continuityContext!.nextActions.length > 0
         ? `Useful shortcuts: ${continuityContext!.nextActions
@@ -272,14 +268,14 @@ export class TelegramConversationContextService {
           .filter(Boolean)
       : [];
     if (artifactLines.length > 0) {
-      sections.push(`ARTEFATOS RECENTES DA SESSAO:\n- ${artifactLines.join('\n- ')}`);
+      sections.push(`RECENT SESSION ARTIFACTS:\n- ${artifactLines.join('\n- ')}`);
     }
 
     const touchedFiles = Array.isArray(snapshot.filesTouched)
       ? snapshot.filesTouched.map((entry) => String(entry || '').trim()).filter(Boolean).slice(0, 4)
       : [];
     if (touchedFiles.length > 0) {
-      sections.push(`ARQUIVOS TOCADOS RECENTEMENTE:\n- ${touchedFiles.join('\n- ')}`);
+      sections.push(`RECENTLY TOUCHED FILES:\n- ${touchedFiles.join('\n- ')}`);
     }
 
     return sections.join('\n\n');

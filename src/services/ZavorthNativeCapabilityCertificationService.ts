@@ -302,8 +302,7 @@ export class ZavorthNativeCapabilityCertificationService {
     const credentialReady = Boolean(feature.credentialGated && xai.status === 'missing_env');
     const status: ZavorthNativeCapabilityCertificationStatus = missingZavorth.length === 0
       ? 'ready'
-      : missingZavorth.length < feature.zavorthFiles.length
-        ? 'partial'
+      : missingZavorth.length < feature.zavorthFiles.length ? 'partial'
         : 'missing';
     return {
       id: feature.id,
@@ -492,7 +491,7 @@ function runResult(request: UniversalAgentRequest, reply: string, now: string): 
       toolExposure: { mode: 'safe', summary: 'safe', tools: [] },
       replyPorts: [],
       modelProfile: {
-        providerLabel: 'fake',
+        providerLabel: 'synthetic',
         modelLabel: 'deterministic-certification',
         routingPolicy: 'direct',
       },

@@ -59,13 +59,13 @@ const SLASH_ALIASES: Record<string, (args: string) => string> = {
 };
 
 function escapeRegExp(value: string): string {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(value).replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }
 
 function removeTaggedBlocks(value: string, tags: string[]): string {
   return tags.reduce((current, tag) => {
     const escaped = escapeRegExp(tag);
-    const closedBlock = new RegExp(`<${escaped}\\b[^>]*>[\\s\\S]*?<\\/${escaped}>`, 'gi');
+    const closedBlock = new RegExp(`<${escaped}\\b[^>]*>[\\s\\S]*...<\\/${escaped}>`, 'gi');
     const openBlock = new RegExp(`<${escaped}\\b[^>]*>[\\s\\S]*$`, 'gi');
     return current.replace(closedBlock, '').replace(openBlock, '');
   }, value);
@@ -80,7 +80,7 @@ function normalizeComposerLine(value: string | null | undefined): string {
 function normalizeComposerLines(value: string | string[] | null | undefined): string[] {
   const rawLines = Array.isArray(value)
     ? value
-    : String(value || '').split(/\r?\n/);
+    : String(value || '').split(/\r...\n/);
   return rawLines
     .map((line) => normalizeComposerLine(line))
     .filter(Boolean);

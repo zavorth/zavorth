@@ -155,7 +155,7 @@ export class ZavorthBridgeControlService {
         selectedModel: null,
         modelKey: null,
         errorCode: 'model_not_allowed',
-        errorMessage: `Modelo nao permitido: ${input}`,
+        errorMessage: `Model not allowed: ${input}`,
         logFile: null,
         diagnostics: null,
         remoteModeActive: null,
@@ -163,7 +163,7 @@ export class ZavorthBridgeControlService {
         desktopName: null,
         sessionMessage: null,
         allowedModels: models.map((model) => model.key),
-        message: 'A troca nao foi executada porque o modelo solicitado nao esta na allowlist.',
+        message: 'Switch was not executed because requested model is not in allowlist.',
       };
     }
 
@@ -243,11 +243,10 @@ export class ZavorthBridgeControlService {
         errorCode: 'session_not_accessible',
         errorMessage:
           sessionStatus.desktopName && sessionStatus.desktopName !== 'Default'
-            ? `A sessao do Windows nao esta no desktop interativo (desktop atual: ${sessionStatus.desktopName}).`
-            : sessionStatus.message || 'A sessao do Windows nao esta acessivel para automacao do ZavorthBridge.',
-        message: remoteModeStatus?.active === false
-          ? 'Ative o modo remoto com /remote on e mantenha a sessao desbloqueada antes de usar o ZavorthBridge de longe.'
-          : 'Desbloqueie a sessao do Windows antes de usar o ZavorthBridge.',
+            ? `Windows session is not on the interactive desktop (desktop current: ${sessionStatus.desktopName}).`
+            : sessionStatus.message || 'Windows session is not accessible for ZavorthBridge automation.',
+        message: remoteModeStatus?.active === false ? 'Enable remote mode with /remote on and keep the session unlocked before using ZavorthBridge remotely.'
+          : 'Desbloqueie a Windows session before usar o ZavorthBridge.',
       };
     }
 
@@ -277,7 +276,7 @@ export class ZavorthBridgeControlService {
         statusResult: effectiveResult,
         diagnostics: this.asDiagnostics(effectiveResult.diagnostics),
         errorCode: effectiveResult.errorCode || 'app_not_ready',
-        errorMessage: effectiveResult.errorMessage || effectiveResult.message || 'Nao foi possivel preparar a janela do ZavorthBridge.',
+        errorMessage: effectiveResult.errorMessage || effectiveResult.message || 'Could not prepare ZavorthBridge window.',
         message: effectiveResult.message || null,
       };
     }
@@ -302,8 +301,8 @@ export class ZavorthBridgeControlService {
           focusFailed: true,
         },
         errorCode: 'window_focus_failed',
-        errorMessage: error instanceof Error ? err.message : 'A janela do ZavorthBridge nao respondeu ao foco.',
-        message: 'O ZavorthBridge foi encontrado, mas o Zavorth nao conseguiu trazer a janela para uma superficie operavel.',
+        errorMessage: error instanceof Error ? err.message : 'ZavorthBridge window did not respond to focus.',
+        message: 'ZavorthBridge was found, but Zavorth could not bring the window to an operable surface.',
       };
   }
 
@@ -325,9 +324,8 @@ export class ZavorthBridgeControlService {
       },
       errorCode: null,
       errorMessage: null,
-      message: remoteModeStatus?.active === false
-        ? 'Sessao acessivel, mas o modo remoto esta inativo. Para uso fora de casa, prefira /remote on.'
-        : sessionStatus?.message || 'Sessao acessivel e janela do ZavorthBridge pronta.',
+      message: remoteModeStatus?.active === false ? 'Session accessible, but remote mode is inactive. For use away from the trusted network, prefer /remote on.'
+        : sessionStatus?.message || 'Session accessible and ZavorthBridge window ready.',
     };
   }
 
@@ -485,7 +483,7 @@ export class ZavorthBridgeControlService {
             ),
           ),
         }));
-    } catch (error: unknown) {logger.warn(`[ZavorthBridgeControlService] Falha ao carregar modelos permitidos: ${error}`);
+    } catch (error: unknown) {logger.warn(`[ZavorthBridgeControlService] Failure ao carregar modelos permitidos: ${error}`);
       return [];
     }
   }
@@ -520,13 +518,13 @@ export class ZavorthBridgeControlService {
       await loadOptionalDependency<SqlJsModule>(
         'sql.js',
         'remote',
-        'O editor de estado remoto do ZavorthBridge depende do pacote sql.js opcional.',
+        'O editor de estado remote do ZavorthBridge depende do pacote sql.js optional.',
       )
     ).default;
     const SQL = await initSqlJs();
     const currentDb = await fs.promises.readFile(config.zavorthBridgeStateDbPath);
     const db = new SQL.Database(currentDb);
-    db.run('update ItemTable set value = ? where key = ?', [
+    db.run('update ItemTable set value = - where key = ...', [
       this.buildModelPreferenceValue(sentinelKey),
       'zavorthBridgeUnifiedStateSync.modelPreferences',
     ]);

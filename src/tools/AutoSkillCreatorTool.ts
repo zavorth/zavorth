@@ -294,7 +294,7 @@ export class AutoSkillCreatorTool extends BaseTool {
       {
         code: 'secret-exfiltration',
         severity: 'block',
-        pattern: /\b(exfiltrat|process\.env|env\s+vars?|dump\s+env|print\s+env|curl\b[\s\S]{0,120}\b(token|secret|env))\b/i,
+        pattern: /\b(exfiltrat|process\.env|env\s+vars...|dump\s+env|print\s+env|curl\b[\s\S]{0,120}\b(token|secret|env))\b/i,
         evidence: 'May expose env vars, tokens, or secrets.',
       },
       {

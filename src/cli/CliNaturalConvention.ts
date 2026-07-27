@@ -298,7 +298,7 @@ export function formatCliNaturalConventionHelp(): string {
     'CLI (same rules):',
     '  zavorth <command>',
     '  zavorth <command> <plain language request>',
-    '  zavorth consensus "Should we ship A or B?"',
+    '  zavorth consensus "Should we ship A or B..."',
     '  zavorth hub platform-sync',
     '  zavorth skills automate releases',
     '  zavorth memory gateway release',

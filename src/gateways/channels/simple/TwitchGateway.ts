@@ -36,9 +36,8 @@ export class TwitchGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/twitch',
       doctorCommand: '/channels doctor twitch',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Twitch bridge configurado. Pronto para chat e notificacoes.'
-        : 'Defina TWITCH_BRIDGE_URL, TWITCH_WEBHOOK_URL ou TWITCH_OUTBOX_DIR para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'Twitch bridge configured. Ready for chat and notifications.'
+        : 'set TWITCH_BRIDGE_URL, TWITCH_WEBHOOK_URL ou TWITCH_OUTBOX_DIR para ativar.',
     };
   }
 

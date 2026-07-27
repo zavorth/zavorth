@@ -63,7 +63,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
       },
       sort_by: {
         type: 'string',
-        description: "Ordenacao: 'relevance' (default), 'date_asc', 'date_desc'.",
+        description: "Ordenaction: 'relevance' (default), 'date_asc', 'date_desc'.",
       },
       search_mode: {
         type: 'string',
@@ -109,7 +109,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
           return `No results found for "${query}" in sessions. store=${this.continuum.getStorePath()}`;
         }
         const lines: string[] = [
-          `Encontrados ${snapshot.returned} result(s) para "${query}":`,
+          `Found ${snapshot.returned} result(s) for "${query}":`,
           `store: ${this.continuum.getStorePath()}`,
         ];
         for (const hit of snapshot.hits) {
@@ -142,7 +142,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
         return `No results found for "${query}" in sessions.`;
       }
 
-      const lines: string[] = [`Encontrados ${results.length} result(s) para "${query}":`];
+      const lines: string[] = [`Found ${results.length} result(s) for "${query}":`];
 
       for (const result of results) {
         lines.push('');

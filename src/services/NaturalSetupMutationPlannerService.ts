@@ -114,25 +114,25 @@ export class NaturalSetupMutationPlannerService {
     const plan = this.mutationPlane.createPlan({
       domain: 'setup',
       actionId: 'natural-setup',
-      title: selectedChannelId ? `Aplicar setup natural de ${selectedChannelId}` : 'Aplicar setup natural de canal',
-      summary: 'Executar scaffold, doctor ou send-test detectado pelo Natural Setup somente apos approval.',
+      title: selectedChannelId ? `Apply natural setup for ${selectedChannelId}` : 'Apply natural setup for canal',
+      summary: 'run scaffold, doctor, or send-test detected by Natural Setup only after approval.',
       requestedBy: input.requestedBy || null,
       sourceSurface: input.sourceSurface || 'natural-setup',
       riskLevel: input.apply || input.test ? 'high' : 'medium',
       approvalRequired: true,
-      approvalReason: 'Natural Setup pode escrever .env, gerar scaffold ou enviar mensagens de teste.',
+      approvalReason: 'Natural Setup can write .env, generate scaffolds, or send test messages.',
       resourceImpact,
       readinessGates: [readinessGate],
       validationPlan: [
-        'Mascarar secrets antes de persistir.',
-        'Validar canal e modo antes do apply.',
-        'Consultar Capability Lifecycle e Trust Plane antes de qualquer ativacao.',
-        'Rodar doctor somente depois de scaffold/env valido.',
+        'Mascarar secrets before persistir.',
+        'validate canal e modo before do apply.',
+        'Consult Capability Lifecycle and Trust Plane before any activation.',
+        'run doctor only after valid scaffold/env.',
       ],
       rollbackPlan: [
-        'Restaurar arquivos alterados pelo scaffold se a validacao falhar.',
-        'Nao repetir send-test automaticamente em rollback.',
-        'Preservar fallback manual quando approval for negado.',
+        'Restore files changed by the scaffold if validation fails.',
+        'Do not repeat send-test automatically during rollback.',
+        'Preservar fallback manual when approval for denydo.',
       ],
       payload: {
         intentText: safeIntentText,
@@ -156,7 +156,7 @@ export class NaturalSetupMutationPlannerService {
       riskLevel: input.apply || input.test ? 'high' : 'medium',
       approvalRequired: true,
       capabilityId,
-      reason: 'Natural Setup mutavel exige approval antes de escrever ou enviar teste.',
+      reason: 'Mutable Natural Setup requires approval before writing or sending a test.',
       resourceImpact,
       payload: plan.payload,
     });
@@ -187,13 +187,13 @@ export class NaturalSetupMutationPlannerService {
   }> {
     let plan = this.mutationPlane.readPlan(input.planId);
     if (!plan || plan.domain !== 'setup' || plan.actionId !== 'natural-setup') {
-      throw new Error(`Plano de Natural Setup nao encontrado: ${input.planId || 'n/d'}.`);
+      throw new Error(`Natural Setup plan not found: ${input.planId || 'n/d'}.`);
     }
     if (plan.status === 'blocked' || plan.status === 'expired') {
       return {
         ok: false,
         status: 'blocked',
-        summary: `Natural Setup bloqueado: plano ${plan.status}.`,
+        summary: `Natural Setup blocked: plan ${plan.status}.`,
         mutationPlan: plan,
         snapshot: await this.controlPlane.buildSnapshot(),
         results: [],
@@ -210,11 +210,11 @@ export class NaturalSetupMutationPlannerService {
           scope: permission.scope === 'persistent' ? 'host' : permission.scope === 'session' ? 'session' : 'once',
         });
       } else if (permission?.status === 'rejected') {
-        const blocked = this.mutationPlane.markBlocked(plan.id, 'Approval rejeitado no Permission Plane.');
+        const blocked = this.mutationPlane.markBlocked(plan.id, 'Approval rejected no Permission Plane.');
         return {
           ok: false,
           status: 'blocked',
-          summary: 'Natural Setup bloqueado: approval rejeitado.',
+          summary: 'Natural Setup blocked: approval rejected.',
           mutationPlan: blocked,
           snapshot: await this.controlPlane.buildSnapshot(),
           results: [],
@@ -225,7 +225,7 @@ export class NaturalSetupMutationPlannerService {
       return {
         ok: false,
         status: 'waiting_approval',
-        summary: `Plano ${plan.id} ainda aguarda approval.`,
+        summary: `Plan ${plan.id} is still waiting for approval.`,
         mutationPlan: plan,
         snapshot: await this.controlPlane.buildSnapshot(),
         results: [],
@@ -240,11 +240,11 @@ export class NaturalSetupMutationPlannerService {
     const results: NaturalSetupActionResult[] = [];
 
     if (!channelId) {
-      const blocked = this.mutationPlane.markBlocked(plan.id, 'Plano sem channelId resolvido.');
+      const blocked = this.mutationPlane.markBlocked(plan.id, 'Plan has no resolved channelId.');
       return {
         ok: false,
         status: 'blocked',
-        summary: 'Natural Setup bloqueado: channelId ausente no plano.',
+        summary: 'Natural Setup blocked: channelId missing in plan.',
         mutationPlan: blocked,
         snapshot: await this.controlPlane.buildSnapshot(),
         results,
@@ -253,11 +253,11 @@ export class NaturalSetupMutationPlannerService {
 
     if (actions.apply === true) {
       if (!this.channelSetupAssistant) {
-        const blocked = this.mutationPlane.markBlocked(plan.id, 'Channel setup assistant indisponivel para apply.');
+        const blocked = this.mutationPlane.markBlocked(plan.id, 'Channel setup assistant unavailable para apply.');
         return {
           ok: false,
           status: 'blocked',
-          summary: 'Natural Setup bloqueado: assistant indisponivel para scaffold.',
+          summary: 'Natural Setup blocked: assistant unavailable para scaffold.',
           mutationPlan: blocked,
           snapshot: await this.controlPlane.buildSnapshot({ channelId, mode }),
           results,
@@ -275,11 +275,11 @@ export class NaturalSetupMutationPlannerService {
 
     if (actions.doctor === true) {
       if (!this.channelSetupAssistant) {
-        const blocked = this.mutationPlane.markBlocked(plan.id, 'Channel setup assistant indisponivel para doctor.');
+        const blocked = this.mutationPlane.markBlocked(plan.id, 'Channel setup assistant unavailable para doctor.');
         return {
           ok: false,
           status: 'blocked',
-          summary: 'Natural Setup bloqueado: assistant indisponivel para doctor.',
+          summary: 'Natural Setup blocked: assistant unavailable para doctor.',
           mutationPlan: blocked,
           snapshot: await this.controlPlane.buildSnapshot({ channelId, mode }),
           results,
@@ -296,11 +296,11 @@ export class NaturalSetupMutationPlannerService {
 
     if (actions.test === true) {
       if (!this.channelActions) {
-        const blocked = this.mutationPlane.markBlocked(plan.id, 'Channel actions indisponivel para send-test.');
+        const blocked = this.mutationPlane.markBlocked(plan.id, 'Channel actions unavailable para send-test.');
         return {
           ok: false,
           status: 'blocked',
-          summary: 'Natural Setup bloqueado: channel actions indisponivel para send-test.',
+          summary: 'Natural Setup blocked: channel actions unavailable para send-test.',
           mutationPlan: blocked,
           snapshot: await this.controlPlane.buildSnapshot({ channelId, mode }),
           results,
@@ -318,13 +318,13 @@ export class NaturalSetupMutationPlannerService {
 
     const applied = this.mutationPlane.markApplied(
       plan.id,
-      'Natural Setup aplicado exatamente do mutation plan aprovado.',
+      'Natural Setup aplicado exatamente do mutation plan approved.',
       results.map((entry) => String(entry.action || 'action')),
     );
     return {
       ok: true,
       status: 'applied',
-      summary: 'Natural Setup aplicado com sucesso.',
+      summary: 'Natural Setup applied successfully.',
       mutationPlan: applied,
       snapshot: await this.controlPlane.buildSnapshot({ channelId, mode }),
       results,
@@ -340,16 +340,16 @@ export class NaturalSetupMutationPlannerService {
     const blockers: string[] = [];
     const warnings: string[] = [];
     if (!selectedChannelId) {
-      blockers.push('Canal alvo ainda nao foi resolvido.');
+      blockers.push('Target channel has not been resolved yet.');
     }
     if ((actions.doctor || actions.test) && Number(snapshot.summary?.missingEnvKeys || 0) > 0) {
-      blockers.push('Doctor/teste exige env vars required preenchidas.');
+      blockers.push('Doctor/test requires required env vars to be filled.');
     }
     if (capabilityId && snapshot.planPreview?.capability && !['ready', 'active'].includes(snapshot.planPreview.capability.state)) {
-      warnings.push(`Capability ${capabilityId} ainda esta ${snapshot.planPreview.capability.state}.`);
+      warnings.push(`Capability ${capabilityId} ainda is ${snapshot.planPreview.capability.state}.`);
     }
     if (actions.apply || actions.doctor || actions.test) {
-      warnings.push('A execucao mutavel so pode ocorrer por apply de mutation plan aprovado.');
+      warnings.push('Mutable execution can occur only through apply of an approved mutation plan.');
     }
     return {
       id: `natural-setup:${selectedChannelId || 'unresolved'}`,
@@ -357,9 +357,9 @@ export class NaturalSetupMutationPlannerService {
       canProceed: blockers.length === 0,
       scope: 'preview',
       reasons: [
-        'Plano gerado em preview-first.',
-        'Secrets sao mascarados antes de persistir.',
-        'Trust Plane decide approval antes de apply.',
+        'Plan generated preview-first.',
+        'Secrets sao mascarados before persistir.',
+        'Trust Plane decide approval before apply.',
       ],
       warnings,
       blockers,
@@ -384,8 +384,8 @@ export class NaturalSetupMutationPlannerService {
       externalExposure: actions.test ? 'network' : 'none',
       recurring: false,
       notes: [
-        'Preview persistido sem secrets brutos.',
-        'Apply depende de approval canonico.',
+        'Preview persistido without secrets brutos.',
+        'Apply depende de canonical approval.',
         ...(Array.isArray(previewImpact?.notes) ? previewImpact.notes : []),
       ],
     };
@@ -404,6 +404,6 @@ export class NaturalSetupMutationPlannerService {
     }
     return raw
       .replace(/\b([A-Z0-9_]*(?:TOKEN|SECRET|PASSWORD|PASS|API_KEY|CREDENTIAL)[A-Z0-9_]*)\s*=\s*("[^"]+"|'[^']+'|[^\s,;]+)/gi, '$1=***')
-      .replace(/\b((?:[a-z0-9_-]+\s+){0,4}(?:token|secret|password|senha|api key|credential)(?:\s+[a-z0-9_-]+){0,4})\s*(?:=|:|e|eh|is|\u00e9)\s*("[^"]+"|'[^']+'|[^\s,;]+)/gi, '$1=***');
+      .replace(/\b((?:[a-z0-9_-]+\s+){0,4}(?:token|secret|password|api key|credential)(?:\s+[a-z0-9_-]+){0,4})\s*(?:=|:|e|eh|is|\u00e9)\s*("[^"]+"|'[^']+'|[^\s,;]+)/gi, '$1=***');
   }
 }

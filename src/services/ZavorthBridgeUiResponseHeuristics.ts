@@ -9,7 +9,6 @@ export type ZavorthBridgeUiResponseHints = {
 
 const EXACT_CHROME_LINES = new Set([
   'copy',
-  'copiar',
   'switch to agent manager',
   'code with agent',
   'ctrl',
@@ -32,7 +31,7 @@ const EXACT_CHROME_LINES = new Set([
   'analyzed',
 ]);
 
-const PREFIX_CHROME_PATTERNS = [
+const PREFIX_CHROME_MARKERS = [
   'acknowledge simple request',
   'thought for ',
   'files edited',
@@ -47,32 +46,15 @@ const PREFIX_CHROME_PATTERNS = [
   'selected model:',
   'workspace:',
   'correlation token:',
-  'pedido do usuario:',
   'user request:',
   '[zavorth_task_id:',
   '[zavorth_direct_prompt]',
-  "i've initiated the response protocol",
-  'ive initiated the response protocol',
-  "i've started by reviewing",
-  'ive started by reviewing',
-  'the agents startup procedure',
-  'the final step of the agents start-up process',
-  'the final step of the agents startup process',
-  'currently, i am about to read',
-  'to gather a complete understanding before formulating the requested output.',
-  'zavorth host supervisor',
-  'zavorth foi derrubado e reiniciado com sucesso',
-  'resumo da operacao:',
-  'gateway do telegram',
+  'operation summary:',
   'spawning worker',
-  '1. derrubada:',
-  '2. reinicializacao:',
-  '(ctrl+k m) to get started. start typing to dismiss or',
-  'restricted mode is intended for safe code browsing.',
   'executor_recommendation:',
 ];
 
-const INTERMEDIATE_RESPONSE_PATTERNS = [
+const INTERMEDIATE_RESPONSE_MARKERS = [
   'acknowledge simple request',
   'initiating task execution',
   'i have received the directive',
@@ -84,27 +66,29 @@ const INTERMEDIATE_RESPONSE_PATTERNS = [
   'processing direct request',
   'initiating response protocol',
   'response protocol',
-  'agents startup procedure',
   'formulating the requested output',
   'response sequence',
-  'zavorth host supervisor',
-  'zavorth foi derrubado e reiniciado com sucesso',
   'spawning worker',
-  'gateway do telegram',
-  'resumo da operacao',
   'executor_recommendation:',
 ];
 
-const PATH_NOISE_PATTERNS = [
-  /^#l\d+(?:[-:]\d+)?$/i,
-  /^memory\/[\w./-]+$/i,
-];
-
 export function normalizeZavorthBridgeUiText(value: string | null | undefined): string {
-  return String(value || '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toLowerCase();
+  const source = String(value || '').trim().toLowerCase();
+  let output = '';
+  let previousWasSpace = false;
+  for (const char of source) {
+    const isSpace = char.trim().length === 0;
+    if (isSpace) {
+      if (!previousWasSpace) {
+        output += ' ';
+      }
+      previousWasSpace = true;
+      continue;
+    }
+    output += char;
+    previousWasSpace = false;
+  }
+  return output.trim();
 }
 
 export function sanitizeZavorthBridgeUiResponse(
@@ -112,16 +96,7 @@ export function sanitizeZavorthBridgeUiResponse(
   promptText?: string | null | undefined,
 ): string {
   const normalizedPrompt = normalizeZavorthBridgeUiText(promptText);
-  const lines = String(value || '')
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  const explicitDirectiveResponse = extractExplicitDirectiveResponse(value, promptText);
-  if (explicitDirectiveResponse) {
-    return explicitDirectiveResponse;
-  }
-
+  const lines = splitLines(value).map((line) => line.trim()).filter(Boolean);
   const anchoredDirectiveResponse = extractExplicitAnchorResponse(value, promptText);
   if (anchoredDirectiveResponse) {
     return anchoredDirectiveResponse;
@@ -132,9 +107,7 @@ export function sanitizeZavorthBridgeUiResponse(
     return trailingAnswerBlock.join('\n').trim();
   }
 
-  const cleaned = lines.filter((line) => !isZavorthBridgeUiNoiseLine(line, normalizedPrompt));
-
-  return cleaned.join('\n').trim();
+  return lines.filter((line) => !isZavorthBridgeUiNoiseLine(line, normalizedPrompt)).join('\n').trim();
 }
 
 export function doesZavorthBridgeUiResponseMatchPrompt(
@@ -153,10 +126,10 @@ export function doesZavorthBridgeUiResponseMatchPrompt(
 
   const strongestAnchor = anchors.find((anchor) => isStrongPromptAnchor(anchor));
   if (strongestAnchor) {
-    return normalizedResponse.includes(strongestAnchor);
+    return containsText(normalizedResponse, strongestAnchor);
   }
 
-  return anchors.some((anchor) => normalizedResponse.includes(anchor));
+  return anchors.some((anchor) => containsText(normalizedResponse, anchor));
 }
 
 export function looksLikeZavorthBridgeHomeScreen(
@@ -167,16 +140,11 @@ export function looksLikeZavorthBridgeHomeScreen(
     if (diagnostics.homeScreenBefore === true || diagnostics.homeScreenAfter === true) {
       return true;
     }
-
     return looksLikeZavorthBridgeHomeScreen(valueOrSnapshot.responseText || '');
   }
 
   const normalized = normalizeZavorthBridgeUiText(String(valueOrSnapshot || ''));
-  if (!normalized) {
-    return false;
-  }
-
-  return normalized.includes('switch to agent manager') && normalized.includes('code with agent');
+  return Boolean(normalized && containsText(normalized, 'switch to agent manager') && containsText(normalized, 'code with agent'));
 }
 
 export function looksLikeZavorthBridgeIntermediateNarration(value: string | null | undefined): boolean {
@@ -184,25 +152,19 @@ export function looksLikeZavorthBridgeIntermediateNarration(value: string | null
   if (!normalized) {
     return false;
   }
-
   if (looksLikeZavorthBridgeHomeScreen(normalized)) {
     return true;
   }
-
-  if (INTERMEDIATE_RESPONSE_PATTERNS.some((pattern) => normalized.includes(pattern))) {
+  if (INTERMEDIATE_RESPONSE_MARKERS.some((marker) => containsText(normalized, marker))) {
     return true;
   }
-
-  if (
-    /#l\d+/i.test(normalized) &&
-    /(directive|reviewed and understand|current file context|task is now actively being addressed|analyzed)/i.test(
-      normalized,
-    )
-  ) {
-    return true;
-  }
-
-  return false;
+  return hasLineReference(normalized) && [
+    'directive',
+    'reviewed and understand',
+    'current file context',
+    'task is now actively being addressed',
+    'analyzed',
+  ].some((marker) => containsText(normalized, marker));
 }
 
 function isZavorthBridgeUiNoiseLine(line: string, normalizedPrompt: string): boolean {
@@ -210,37 +172,26 @@ function isZavorthBridgeUiNoiseLine(line: string, normalizedPrompt: string): boo
   if (!normalizedLine) {
     return true;
   }
-
   if (normalizedPrompt && normalizedLine === normalizedPrompt) {
     return true;
   }
-
   if (EXACT_CHROME_LINES.has(normalizedLine)) {
     return true;
   }
-
-  if (PREFIX_CHROME_PATTERNS.some((pattern) => normalizedLine.startsWith(pattern))) {
+  if (PREFIX_CHROME_MARKERS.some((marker) => hasTextPrefix(normalizedLine, marker))) {
     return true;
   }
-
-  if (PATH_NOISE_PATTERNS.some((pattern) => pattern.test(line))) {
+  if (isTechnicalPathNoise(line)) {
     return true;
   }
-
   if (
-    normalizedLine.includes('zavorth_direct_prompt') ||
-    normalizedLine.includes('correlation token:') ||
-    normalizedLine.includes('user request:') ||
-    normalizedLine.includes('pedido do usuario:')
+    containsText(normalizedLine, 'zavorth_direct_prompt') ||
+    containsText(normalizedLine, 'correlation token:') ||
+    containsText(normalizedLine, 'user request:')
   ) {
     return true;
   }
-
-  if (INTERMEDIATE_RESPONSE_PATTERNS.some((pattern) => normalizedLine.includes(pattern))) {
-    return true;
-  }
-
-  return false;
+  return INTERMEDIATE_RESPONSE_MARKERS.some((marker) => containsText(normalizedLine, marker));
 }
 
 function extractTrailingAnswerBlock(lines: string[], normalizedPrompt: string): string[] {
@@ -251,174 +202,50 @@ function extractTrailingAnswerBlock(lines: string[], normalizedPrompt: string): 
   for (let index = lines.length - 1; index >= 0; index -= 1) {
     const line = lines[index] || '';
     const isNoise = isZavorthBridgeUiNoiseLine(line, normalizedPrompt);
-
     if (!started) {
       if (isNoise) {
         sawTrailingNoise = true;
         continue;
       }
-
       block.unshift(line);
       started = true;
       continue;
     }
-
     if (isNoise) {
       return sawTrailingNoise ? block : [];
     }
-
     block.unshift(line);
   }
 
   return sawTrailingNoise ? block : [];
 }
 
-function extractExplicitDirectiveResponse(
-  responseText: string | null | undefined,
-  promptText: string | null | undefined,
-): string | null {
-  const expectedOutputs = extractExplicitDirectiveOutputs(promptText);
-  if (expectedOutputs.length === 0) {
-    return null;
-  }
-
-  const normalizedResponse = normalizeZavorthBridgeUiText(responseText);
-  if (!normalizedResponse) {
-    return null;
-  }
-
-  const matchedOutputs = expectedOutputs.filter((value) =>
-    normalizedResponse.includes(normalizeZavorthBridgeUiText(value)),
-  );
-
-  if (matchedOutputs.length === 0) {
-    return null;
-  }
-
-  if (expectedOutputs.length > 1 && matchedOutputs.length !== expectedOutputs.length) {
-    return null;
-  }
-
-  return matchedOutputs.join('\n').trim();
-}
-
 function extractExplicitAnchorResponse(
   responseText: string | null | undefined,
   promptText: string | null | undefined,
 ): string | null {
-  const normalizedPrompt = normalizeZavorthBridgeUiText(promptText);
-  if (!isExplicitOutputPrompt(normalizedPrompt)) {
-    return null;
-  }
-
   const normalizedResponse = normalizeZavorthBridgeUiText(responseText);
   if (!normalizedResponse) {
     return null;
   }
-
   const matchedAnchors = extractPromptAnchorsPreservingCase(promptText).filter((anchor) =>
-    normalizedResponse.includes(normalizeZavorthBridgeUiText(anchor)),
+    containsText(normalizedResponse, normalizeZavorthBridgeUiText(anchor)),
   );
   if (matchedAnchors.length === 0) {
     return null;
   }
-
-  const compactAnchors = matchedAnchors.filter(
-    (anchor, index) =>
-      !matchedAnchors.some(
-        (other, otherIndex) =>
-          otherIndex !== index &&
-          normalizeZavorthBridgeUiText(other).includes(normalizeZavorthBridgeUiText(anchor)) &&
-          other.length > anchor.length,
-      ),
+  const compactAnchors = matchedAnchors.filter((anchor, index) =>
+    !matchedAnchors.some((other, otherIndex) =>
+      otherIndex !== index &&
+      containsText(normalizeZavorthBridgeUiText(other), normalizeZavorthBridgeUiText(anchor)) &&
+      other.length > anchor.length,
+    ),
   );
-
   return compactAnchors.join('\n').trim() || null;
 }
 
-function extractExplicitDirectiveOutputs(promptText: string | null | undefined): string[] {
-  const prompt = String(promptText || '').trim();
-  if (!prompt) {
-    return [];
-  }
-
-  const outputs: string[] = [];
-  const seen = new Set<string>();
-  const robustPatterns = [
-    /(?:responda|answer|reply)\s+(?:apenas|somente|only)\s+(?:com|with)\s+(?:["'`“”‘’])?(.+?)(?:["'`“”‘’])?(?=(?:\s+e\s+(?:em|na|on)\s+(?:uma?\s+|a\s+)?segunda\s+linha\b)|(?:\s+and\s+(?:on|in)\s+(?:a\s+)?second\s+line\b)|(?:\s+(?:e\s+depois|and\s+then|depois|then)\b)|[\r\n]|$)/gi,
-    /(?:na|em|on)\s+(?:uma?\s+|a\s+)?segunda\s+linha.{0,120}?(?:escreva|write)\s+(?:["'`“”‘’])?(.+?)(?:["'`“”‘’])?(?=(?:\s+e\s+(?:em|na|on)\s+(?:uma?\s+|a\s+)?terceira\s+linha\b)|(?:\s+and\s+(?:on|in)\s+(?:a\s+)?third\s+line\b)|(?:\s+(?:e\s+depois|and\s+then|depois|then)\b)|[\r\n]|$)/gi,
-    /(?:na|em|on)\s+(?:uma?\s+|a\s+)?terceira\s+linha.{0,120}?(?:escreva|write)\s+(?:["'`“”‘’])?(.+?)(?:["'`“”‘’])?(?=(?:\s+(?:e\s+depois|and\s+then|depois|then)\b)|[\r\n]|$)/gi,
-  ];
-  for (const pattern of robustPatterns) {
-    const matches = prompt.matchAll(pattern);
-    for (const match of matches) {
-      const candidate = sanitizeDirectiveCandidate(match[1]);
-      if (!candidate || seen.has(candidate)) {
-        continue;
-      }
-      outputs.push(candidate);
-      seen.add(candidate);
-    }
-  }
-  const patterns = [
-    /(?:responda|answer|reply)\s+(?:apenas|somente|only)\s+(?:com|with)\s+["'`\u201C\u201D\u2018\u2019]([^"'`\u201C\u201D\u2018\u2019]{1,200})["'`\u201C\u201D\u2018\u2019]/gi,
-    /(?:na|em|on)\s+(?:uma?\s+|a\s+)?segunda\s+linha[^"'`\u201C\u201D\u2018\u2019]{0,120}(?:escreva|write)\s+["'`\u201C\u201D\u2018\u2019]([^"'`\u201C\u201D\u2018\u2019]{1,200})["'`\u201C\u201D\u2018\u2019]/gi,
-    /(?:na|em|on)\s+(?:uma?\s+|a\s+)?terceira\s+linha[^"'`\u201C\u201D\u2018\u2019]{0,120}(?:escreva|write)\s+["'`\u201C\u201D\u2018\u2019]([^"'`\u201C\u201D\u2018\u2019]{1,200})["'`\u201C\u201D\u2018\u2019]/gi,
-  ];
-
-  for (const pattern of patterns) {
-    const matches = prompt.matchAll(pattern);
-    for (const match of matches) {
-      const candidate = sanitizeDirectiveCandidate(match[1]);
-      if (!candidate || seen.has(candidate)) {
-        continue;
-      }
-      outputs.push(candidate);
-      seen.add(candidate);
-    }
-  }
-
-  const unquotedPatterns = [
-    /(?:responda|answer|reply)\s+(?:apenas|somente|only)\s+(?:com|with)\s+(.+?)(?=(?:\s+(?:e\s+depois|and\s+then|depois|then)\b)|[\r\n]|$)/gi,
-    /(?:na|em|on)\s+(?:uma?\s+|a\s+)?segunda\s+linha.{0,120}?(?:escreva|write)\s+(.+?)(?=(?:\s+(?:e\s+depois|and\s+then|depois|then)\b)|[\r\n]|$)/gi,
-    /(?:na|em|on)\s+(?:uma?\s+|a\s+)?terceira\s+linha.{0,120}?(?:escreva|write)\s+(.+?)(?=(?:\s+(?:e\s+depois|and\s+then|depois|then)\b)|[\r\n]|$)/gi,
-  ];
-
-  for (const pattern of unquotedPatterns) {
-    const matches = prompt.matchAll(pattern);
-    for (const match of matches) {
-      const candidate = sanitizeDirectiveCandidate(match[1]);
-      if (!candidate || seen.has(candidate)) {
-        continue;
-      }
-      outputs.push(candidate);
-      seen.add(candidate);
-    }
-  }
-
-  return outputs;
-}
-
 function sanitizeDirectiveCandidate(value: string | null | undefined): string {
-  return String(value || '')
-    .trim()
-    .replace(/^[`"'\u201C\u201D\u2018\u2019]+|[`"'\u201C\u201D\u2018\u2019]+$/g, '')
-    .trim()
-    .replace(/[.,;:!?]+$/g, '')
-    .trim();
-}
-
-function isExplicitOutputPrompt(normalizedPrompt: string): boolean {
-  return [
-    'responda apenas com',
-    'responda somente com',
-    'answer only with',
-    'reply only with',
-    'segunda linha',
-    'second line',
-    'terceira linha',
-    'third line',
-  ].some((marker) => normalizedPrompt.includes(marker));
+  return stripTerminalPunctuation(stripSymmetricQuotes(String(value || '').trim())).trim();
 }
 
 function extractPromptAnchorsPreservingCase(promptText: string | null | undefined): string[] {
@@ -426,91 +253,50 @@ function extractPromptAnchorsPreservingCase(promptText: string | null | undefine
   if (!prompt) {
     return [];
   }
-
   const anchors = new Map<string, string>();
   const pushAnchor = (candidate: string | null | undefined, minimumLength: number) => {
     const cleaned = sanitizeDirectiveCandidate(candidate);
     if (!cleaned || cleaned.length < minimumLength) {
       return;
     }
-
     const normalized = normalizeZavorthBridgeUiText(cleaned);
     if (!anchors.has(normalized)) {
       anchors.set(normalized, cleaned);
     }
   };
 
-  const quotedMatches = prompt.matchAll(/["'`\u201C\u201D\u2018\u2019]([^"'`\u201C\u201D\u2018\u2019]{5,160})["'`\u201C\u201D\u2018\u2019]/g);
-  for (const match of quotedMatches) {
-    pushAnchor(match[1], 5);
+  for (const quoted of extractQuotedSegments(prompt, 5, 160)) {
+    pushAnchor(quoted, 5);
   }
-
-  const pathMatches = prompt.matchAll(/[A-Za-z0-9_.-]+(?:[\\/][A-Za-z0-9_.-]+)+(?:\.[A-Za-z0-9_-]+)?/g);
-  for (const match of pathMatches) {
-    pushAnchor(match[0], 5);
+  for (const path of extractPathLikeSegments(prompt)) {
+    pushAnchor(path, 5);
   }
-
-  const symbolicMatches = prompt.matchAll(/\b[A-Z0-9_=-]{6,}\b/g);
-  for (const match of symbolicMatches) {
-    pushAnchor(match[0], 6);
+  for (const symbol of extractSymbolicSegments(prompt)) {
+    pushAnchor(symbol, 6);
   }
 
   return Array.from(anchors.values()).sort((left, right) => right.length - left.length);
 }
 
 function extractPromptAnchors(promptText: string | null | undefined): string[] {
-  const prompt = String(promptText || '').trim();
-  if (!prompt) {
-    return [];
-  }
-
-  const anchors = new Set<string>();
-  const quotedMatches = prompt.matchAll(/["'`“”‘’]([^"'`“”‘’]{5,160})["'`“”‘’]/g);
-  for (const match of quotedMatches) {
-    const normalized = normalizeZavorthBridgeUiText(match[1]);
-    if (normalized.length >= 5) {
-      anchors.add(normalized);
-    }
-  }
-
-  const pathMatches = prompt.matchAll(/[A-Za-z0-9_.-]+(?:[\\/][A-Za-z0-9_.-]+)+(?:\.[A-Za-z0-9_-]+)?/g);
-  for (const match of pathMatches) {
-    const normalized = normalizeZavorthBridgeUiText(match[0]);
-    if (normalized.length >= 5) {
-      anchors.add(normalized);
-    }
-  }
-
-  const symbolicMatches = prompt.matchAll(/\b[A-Z0-9_=-]{6,}\b/g);
-  for (const match of symbolicMatches) {
-    const normalized = normalizeZavorthBridgeUiText(match[0]);
-    if (normalized.length >= 6) {
-      anchors.add(normalized);
-    }
-  }
-
-  return Array.from(anchors).sort((left, right) => right.length - left.length);
+  return extractPromptAnchorsPreservingCase(promptText)
+    .map((anchor) => normalizeZavorthBridgeUiText(anchor))
+    .filter((anchor, index, all) => anchor.length >= 5 && all.indexOf(anchor) === index)
+    .sort((left, right) => right.length - left.length);
 }
 
 function isStrongPromptAnchor(anchor: string): boolean {
-  return (
-    anchor.length >= 12 ||
-    /\d/.test(anchor) ||
-    /[\\/._=-]/.test(anchor) ||
-    /[A-Z]/.test(anchor)
-  );
+  return anchor.length >= 12 || containsDigit(anchor) || containsAny(anchor, ['/', '\\', '.', '_', '=', '-']) || containsUppercase(anchor);
 }
 
 export function isZavorthBridgeUiSurfaceReady(snapshot: ZavorthBridgeUiResponseHints): boolean {
   if (snapshot.hasPermissionPrompt) {
     return false;
   }
-
   const hasInputBar = snapshot.hasInputBar === true;
   if (looksLikeZavorthBridgeHomeScreen(snapshot) && !hasInputBar) {
     return false;
   }
-
   return true;
 }
 
@@ -519,21 +305,185 @@ export function isZavorthBridgeUiResponseReadyForDelivery(
   text: string | null | undefined,
 ): boolean {
   const cleaned = String(text || '').trim();
-  if (!cleaned) {
+  if (!cleaned || !isZavorthBridgeUiSurfaceReady(snapshot)) {
     return false;
   }
-
-  if (!isZavorthBridgeUiSurfaceReady(snapshot)) {
-    return false;
-  }
-
   if (String(snapshot.status || '').trim().toLowerCase() !== 'ready') {
     return false;
   }
+  return !looksLikeZavorthBridgeIntermediateNarration(cleaned);
+}
 
-  if (looksLikeZavorthBridgeIntermediateNarration(cleaned)) {
+function splitLines(value: string | null | undefined): string[] {
+  const output: string[] = [];
+  let current = '';
+  for (const char of String(value || '')) {
+    if (char === '\r') {
+      continue;
+    }
+    if (char === '\n') {
+      output.push(current);
+      current = '';
+      continue;
+    }
+    current += char;
+  }
+  output.push(current);
+  return output;
+}
+
+function extractQuotedSegments(value: string, min: number, max: number): string[] {
+  const quoteChars = new Set(['"', "'", '`', '“', '”', '‘', '’']);
+  const result: string[] = [];
+  let quote: string | null = null;
+  let buffer = '';
+  for (const char of value) {
+    if (!quote && quoteChars.has(char)) {
+      quote = char;
+      buffer = '';
+      continue;
+    }
+    if (quote && quoteChars.has(char)) {
+      if (buffer.length >= min && buffer.length <= max) {
+        result.push(buffer);
+      }
+      quote = null;
+      buffer = '';
+      continue;
+    }
+    if (quote) {
+      buffer += char;
+    }
+  }
+  return result;
+}
+
+function extractPathLikeSegments(value: string): string[] {
+  return tokenize(value).filter((token) =>
+    token.length >= 5 &&
+    (containsText(token, '/') || containsText(token, '\\')) &&
+    token.split('/').join('\\').split('\\').filter(Boolean).length >= 2,
+  );
+}
+
+function extractSymbolicSegments(value: string): string[] {
+  return tokenize(value).filter((token) => token.length >= 6 && allChars(token, isSymbolicAnchorChar) && containsUppercase(token));
+}
+
+function tokenize(value: string): string[] {
+  const tokens: string[] = [];
+  let current = '';
+  for (const char of value) {
+    if (isAnchorTokenChar(char)) {
+      current += char;
+      continue;
+    }
+    if (current) {
+      tokens.push(current);
+    }
+    current = '';
+  }
+  if (current) {
+    tokens.push(current);
+  }
+  return tokens;
+}
+
+function isTechnicalPathNoise(value: string): boolean {
+  const normalized = value.trim().toLowerCase();
+  if (hasTextPrefix(normalized, '#l')) {
+    const rest = normalized.slice(2);
+    return rest.length > 0 && allChars(rest, (char) => isDigit(char) || char === '-' || char === ':');
+  }
+  return hasTextPrefix(normalized, 'memory/') && normalized.length > 'memory/'.length && tokenize(normalized).length === 1;
+}
+
+function hasLineReference(value: string): boolean {
+  const index = value.indexOf('#l');
+  if (index < 0) {
     return false;
   }
+  const next = value[index + 2] || '';
+  return isDigit(next);
+}
 
+function stripSymmetricQuotes(value: string): string {
+  const quoteChars = new Set(['"', "'", '`', '“', '”', '‘', '’']);
+  let start = 0;
+  let end = value.length;
+  while (start < end && quoteChars.has(value[start] || '')) {
+    start += 1;
+  }
+  while (end > start && quoteChars.has(value[end - 1] || '')) {
+    end -= 1;
+  }
+  return value.slice(start, end);
+}
+
+function stripTerminalPunctuation(value: string): string {
+  let end = value.length;
+  while (end > 0 && isTerminalPunctuation(value[end - 1] || '')) {
+    end -= 1;
+  }
+  return value.slice(0, end);
+}
+
+function containsDigit(value: string): boolean {
+  return Array.from(value).some(isDigit);
+}
+
+function containsUppercase(value: string): boolean {
+  return Array.from(value).some((char) => char >= 'A' && char <= 'Z');
+}
+
+function containsAny(value: string, chars: string[]): boolean {
+  return chars.some((char) => containsText(value, char));
+}
+
+function allChars(value: string, predicate: (char: string) => boolean): boolean {
+  return Array.from(value).every(predicate);
+}
+
+function isDigit(char: string): boolean {
+  return char >= '0' && char <= '9';
+}
+
+function isAsciiLetter(char: string): boolean {
+  return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z');
+}
+
+function isAnchorTokenChar(char: string): boolean {
+  return isAsciiLetter(char) || isDigit(char) || isAnchorSymbol(char);
+}
+
+function isSymbolicAnchorChar(char: string): boolean {
+  return isAsciiLetter(char) || isDigit(char) || isCompactSymbol(char);
+}
+
+function containsText(value: string, needle: string): boolean {
+  return value.indexOf(needle) >= 0;
+}
+
+function hasTextPrefix(value: string, prefix: string): boolean {
+  if (prefix.length > value.length) {
+    return false;
+  }
+  for (let index = 0; index < prefix.length; index += 1) {
+    if (value.charAt(index) !== prefix.charAt(index)) {
+      return false;
+    }
+  }
   return true;
+}
+
+function isTerminalPunctuation(char: string): boolean {
+  return char === '.' || char === ',' || char === ';' || char === ':' || char === '!';
+}
+
+function isAnchorSymbol(char: string): boolean {
+  return char === '_' || char === '.' || char === '-' || char === '/' || char === '\\' || char === '=';
+}
+
+function isCompactSymbol(char: string): boolean {
+  return char === '_' || char === '=' || char === '-';
 }

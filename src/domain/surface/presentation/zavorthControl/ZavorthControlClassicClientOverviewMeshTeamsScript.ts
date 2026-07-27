@@ -34,8 +34,7 @@ function zavorthControlClassicClientOverviewMeshTeams() {
                     )
                     .join('')
                 : '<li>No composition registered.</li>';
-            const runSummary = latestRun
-              ? 'Ultimo run: ' +
+            const runSummary = latestRun ? 'Latest run: ' +
                 escapeHtml(latestRun.workflowRunId || 'workflow') +
                 ' · ' +
                 escapeHtml(latestRun.status || 'n/a') +
@@ -91,7 +90,7 @@ function zavorthControlClassicClientOverviewMeshTeams() {
       ' team(s)</span>' +
       '</div>' +
       '<div class="cockpit-headline">' +
-      escapeHtml(teamCatalog.narrative?.operatorSummary || 'Teams compostos prontos para review, entrega e pesquisa.') +
+      escapeHtml(teamCatalog.narrative?.operatorSummary || 'Composed teams are ready for review, delivery, and research.') +
       '</div>' +
       '</div>' +
       '<a class="sidecar-link" href="/api/operations/teams" target="_blank">/api/operations/teams</a>' +
@@ -101,8 +100,8 @@ function zavorthControlClassicClientOverviewMeshTeams() {
       '<div class="cockpit-mini-grid">' +
       '<div class="cockpit-mini-card"><strong>Total</strong><div>' +
       escapeHtml(String(summary.total || 0)) +
-      '</div><small>Times compostos disponiveis</small></div>' +
-      '<div class="cockpit-mini-card"><strong>Retomadas</strong><div>' +
+      '</div><small>Available composed teams</small></div>' +
+      '<div class="cockpit-mini-card"><strong>Resumesdas</strong><div>' +
       escapeHtml(String(summary.resumable || 0)) +
       '</div><small>Runs com volta imediata</small></div>' +
       '<div class="cockpit-mini-card"><strong>Ativos</strong><div>' +
@@ -110,7 +109,7 @@ function zavorthControlClassicClientOverviewMeshTeams() {
       '</div><small>In-progress flows</small></div>' +
       '<div class="cockpit-mini-card"><strong>Fechamentos</strong><div>' +
       escapeHtml(String(summary.completedRecently || 0)) +
-      '</div><small>Runs concluindo recentemente</small></div>' +
+      '</div><small>Runs concluindo recently</small></div>' +
       '</div>' +
       '<div class="sidecar-card"><strong>Team executors</strong><small>' +
       escapeHtml(Array.isArray(summary.executors) ? summary.executors.join(', ') : 'n/a') +

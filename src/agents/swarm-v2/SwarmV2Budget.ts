@@ -78,8 +78,7 @@ export function buildTokenBudgetSnapshot(input: {
     ? input.roles.filter((role) => !role.command && !role.toolSpecId).length
     : 0;
   const estimatedLlmCalls = roleSelectionCalls + synthesisCalls + roleLlmCalls;
-  const estimatedInputTokens = input.hasLlmRuntime
-    ? objectiveTokens * Math.max(1, estimatedLlmCalls)
+  const estimatedInputTokens = input.hasLlmRuntime ? objectiveTokens * Math.max(1, estimatedLlmCalls)
       + rolePromptTokens
       + input.roles.length * (input.benchmark ? 120 : 220)
     : 0;
@@ -96,15 +95,11 @@ export function buildTokenBudgetSnapshot(input: {
   const overLimit = estimatedLlmCalls > limits.maxLlmCalls
     || estimatedTotalTokens > limits.maxEstimatedTokens
     || estimatedUsd > limits.maxEstimatedUsd;
-  const status: SwarmV2TokenBudgetSnapshot['status'] = !input.hasLlmRuntime
-    ? 'passed'
-    : risk === 'critical' && !approved
-      ? 'blocked'
-      : overLimit && !approved
-        ? 'approval_required'
+  const status: SwarmV2TokenBudgetSnapshot['status'] = !input.hasLlmRuntime ? 'passed'
+    : risk === 'critical' && !approved ? 'blocked'
+      : overLimit && !approved ? 'approval_required'
         : 'passed';
-  const rationale = !input.hasLlmRuntime
-    ? 'No LLM runtime is attached; this swarm uses local/tool execution and deterministic synthesis.'
+  const rationale = !input.hasLlmRuntime ? 'No LLM runtime is attached; this swarm uses local/tool execution and deterministic synthesis.'
     : status === 'passed'
       ? `Estimated ${estimatedLlmCalls} LLM call(s), ${estimatedTotalTokens} token(s), US$${estimatedUsd.toFixed(4)} within budget.`
       : `Estimated ${estimatedLlmCalls} LLM call(s), ${estimatedTotalTokens} token(s), US$${estimatedUsd.toFixed(4)} exceeds budget; approve explicitly or lower roles/output.`;

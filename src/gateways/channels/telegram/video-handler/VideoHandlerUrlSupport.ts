@@ -78,7 +78,7 @@ export class VideoHandlerUrlSupport {
     videoUrl: string,
   ): Promise<YouTubeOEmbedResponse | null> {
     try {
-      const endpoint = `https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&format=json`;
+      const endpoint = `https://www.youtube.com/oembed...url=${encodeURIComponent(videoUrl)}&format=json`;
       const response = await VideoHandlerFetchSupport.fetchJson(endpoint);
       return typeof response === "object" && response !== null
         ? (response as YouTubeOEmbedResponse)

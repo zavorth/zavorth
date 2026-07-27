@@ -4,7 +4,8 @@ import {
   resolveRunContextProfile,
   type RunContextDepth,
   type RunContextProfile,
-} from './RunContextProfile.js';export type ContextBudgetLayerId = 'hot' | 'warm' | 'cold';
+} from './RunContextProfile.js';
+export type ContextBudgetLayerId = 'hot' | 'warm' | 'cold';
 
 export type ContextBudgetTokenEvaluation = {
   used: number;
@@ -123,11 +124,9 @@ export class ContextBudgetPolicy {
     }
 
     const degraded = allowedDepth !== requestedDepth;
-    const reason = degraded
-      ? `Contexto degradado de ${requestedDepth} para ${allowedDepth} por budget de tokens/custo.`
-      : lastWithinBudget
-        ? `Contexto ${requestedDepth} dentro do budget configurado.`
-        : `Contexto ${requestedDepth} excede o budget minimo; hot permanece obrigatorio e deve ser compactado upstream.`;
+    const reason = degraded ? `Context degraded from ${requestedDepth} to ${allowedDepth} because of token/cost budget.`
+      : lastWithinBudget ? `Context ${requestedDepth} is inside the configured budget.`
+        : `Context ${requestedDepth} exceeds the minimum budget; hot context remains required and must be compacted upstream.`;
 
     return {
       requestedDepth,

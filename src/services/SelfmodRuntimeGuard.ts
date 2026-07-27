@@ -32,7 +32,7 @@ export class SelfmodRuntimeGuard {
       return {
         level: 'low',
         score: 10,
-        reasons: ['Changeset sem arquivos materiais; risco operacional baixo.'],
+        reasons: ['Changeset without files materiais; risk operational baixo.'],
         requiresRestart: false,
         requiresSupervisorAttention: false,
         launcherTouch: false,
@@ -59,35 +59,35 @@ export class SelfmodRuntimeGuard {
 
     if (testOnly) {
       score = 12;
-      reasons.push('Changeset restrito a testes; risco operacional naturalmente baixo.');
+      reasons.push('Changeset restrito a testes; risk operational naturalmente baixo.');
     } else {
       if (serviceTouch) {
         score += 18;
-        reasons.push('Mudanca em service pode alterar comportamento do runtime e das surfaces.');
+        reasons.push('Service changes can affect runtime and surface behavior.');
       }
       if (configTouch) {
         score += 12;
-        reasons.push('Mudanca em config pode alterar defaults e guardrails do runtime.');
+        reasons.push('Config changes can affect runtime defaults and guardrails.');
       }
       if (scriptTouch) {
         score += 14;
-        reasons.push('Mudanca em scripts pode afetar boot, manutencao ou automacoes locais.');
+        reasons.push('Script changes can affect boot, maintenance, or local automations.');
       }
       if (watcherTouch) {
         score += 14;
-        reasons.push('Mudanca toca watchers/companions e pode refletir em IDEs ou loops de observacao.');
+        reasons.push('Change touches watchers or companions and can affect IDEs or observation loops.');
       }
       if (uiTouch) {
         score += 8;
-        reasons.push('Mudanca toca UI/surface e pede revisao visual e funcional.');
+        reasons.push('Change touches UI or surfaces and needs visual and functional review.');
       }
       if (launcherTouch) {
         score += 28;
-        reasons.push('Mudanca toca launcher/runtime supervisionado e exige atencao extra no boot.');
+        reasons.push('Change touches launcher or supervised runtime and needs extra boot attention.');
       }
       if (wideChangeset) {
         score += 10;
-        reasons.push('Changeset multi-arquivo aumenta a superficie de regressao e rollback.');
+        reasons.push('Multi-file changeset increases regression and rollback surface.');
       }
     }
 

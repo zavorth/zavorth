@@ -111,7 +111,7 @@ export class DeviceCapabilityPolicy {
   public setPolicy(nodeId: string, policy: DevicePolicyInput): DevicePolicy {
     const normalizedNodeId = normalizeNodeId(nodeId);
     if (!normalizedNodeId) {
-      throw new Error('nodeId obrigatorio para persistir policy do device.');
+      throw new Error('nodeId is required to persist device policy.');
     }
 
     const existing = this.readPolicy(normalizedNodeId);
@@ -143,7 +143,7 @@ export class DeviceCapabilityPolicy {
     if (notes.length === 0) {
       notes.push(
         approved.length > 0
-          ? 'Allowlist local sincronizada a partir das capabilities aprovadas no pareamento.'
+          ? 'Allowlist local sincronizada a partir das approved capabilities no pareamento.'
           : 'Allowlist local sincronizada a partir das capabilities declaradas do device node.',
       );
     }

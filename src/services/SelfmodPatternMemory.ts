@@ -81,21 +81,21 @@ export class SelfmodPatternMemory {
         signals.push({
           key: `${entry.key}:rollback`,
           strength: entry.rollbackCount >= 2 ? 'high' : 'medium',
-          summary: `Padrao parecido ja precisou de rollback ${entry.rollbackCount} vez(es).`,
+          summary: `A similar pattern already needed rollback ${entry.rollbackCount} vez(es).`,
         });
       }
       if (entry.previewCount >= 2) {
         signals.push({
           key: `${entry.key}:repeat`,
           strength: entry.previewCount >= 4 ? 'high' : 'low',
-          summary: `Mudancas parecidas ja apareceram ${entry.previewCount} vez(es) no selfmod.`,
+          summary: `changes parecidas already apareceram ${entry.previewCount} vez(es) no selfmod.`,
         });
       }
       if (entry.averageRollbackConfidence < 0.65) {
         signals.push({
           key: `${entry.key}:confidence`,
           strength: 'medium',
-          summary: `Historico parecido teve confianca media de rollback em ${Math.round(entry.averageRollbackConfidence * 100)}%.`,
+          summary: `Similar history had rollback average trust of ${Math.round(entry.averageRollbackConfidence * 100)}%.`,
         });
       }
     }

@@ -208,7 +208,7 @@ export const PILOT_LEDGER_ENTRIES: PilotLedgerEntry[] = [
     scope: 'Validate preview, revoke/delete, and offline feedback ledger.',
     status: 'planned',
     startedAt: '2026-04-26',
-    result: 'Pending simulated opt-in feedback.',
+    result: 'Pending dryRun opt-in feedback.',
     followUp: 'Measure whether the template avoids secrets and raw payload.',
     dataPolicy: 'redacted-only',
   },
@@ -262,7 +262,7 @@ export const PILOT_ZAVORTH_CONTROL_METRICS: PilotZavorthControlMetric[] = [
   },
   {
     id: 'follow-up-aging',
-    label: 'Follow-ups pendentes',
+    label: 'Follow-ups pending',
     aggregateOnly: true,
     excludesPayload: true,
     source: 'local pilot ledger',
@@ -271,8 +271,8 @@ export const PILOT_ZAVORTH_CONTROL_METRICS: PilotZavorthControlMetric[] = [
 
 export const PILOT_LOOP_FORBIDDEN_CLAIMS = [
   'C:\\TESTES DEV',
-  'telemetry ligada por padrao',
-  'envio automatico',
+  'telemetry ligada por default',
+  'automatic send',
   'payload bruto enviado',
   'sending without opt-in',
   'secret required',

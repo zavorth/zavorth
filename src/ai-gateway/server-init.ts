@@ -11,9 +11,7 @@ async function startServer() {
   await import("./lib/usage/migrations");
 
   // Console interceptor: capture all console output to log file (must be first)
-  initConsoleInterceptor();
-
-  // FASE-01: Validate required secrets before anything else (fail-fast)
+  initConsoleInterceptor();// Validate required secrets before anything else (fail-fast)
   enforceSecrets();
 
   // Compliance: Initialize audit_log table

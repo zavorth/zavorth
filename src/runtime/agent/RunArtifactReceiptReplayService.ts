@@ -253,7 +253,7 @@ function listRecords(value: unknown): LooseRecord[] {
 
 function redactText(value: unknown, fallback = '', maxLength = 260): string {
   const text = normalizeText(value, fallback)
-    .replace(/((?:api[_-]?key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/((?:api[_-]...key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
     .replace(/\s+/g, ' ')
     .trim();
   return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;
@@ -392,9 +392,9 @@ export class RunArtifactReceiptReplayService {
       },
       surface: {
         cliCommand: `zavorth replay run ${run.id} --json`,
-        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}`,
-        replayHint: 'Replay usa eventos, artifacts e receipts; nao reexecuta ferramentas.',
-        receiptHint: 'Receipts citam origem de feature, artifact e observatory antes de reutilizar.',
+        zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(run.id)}`,
+        replayHint: 'Replay uses events, artifacts, and receipts; it does not re-execute tools.',
+        receiptHint: 'Receipts citam origem de feature, artifact e observatory before reutilizar.',
       },
       nextSafeAction: this.resolveNextSafeAction(status, replay.available, missingFeatureCount),
     };
@@ -467,7 +467,7 @@ export class RunArtifactReceiptReplayService {
           source: feature.source || feature.label,
           featureId: feature.featureId,
           title: feature.label,
-          detail: `${feature.label} publicou snapshot sem receipts internos.`,
+          detail: `${feature.label} published a snapshot without internal receipts.`,
           status: normalizeStatus(feature.status, 'ready'),
           createdAt: normalizeText(raw.generatedAt, generatedAt),
           runId: run.id,
@@ -533,7 +533,7 @@ export class RunArtifactReceiptReplayService {
         kind: 'approval',
         source: 'approval-gate',
         title: approval.title,
-        detail: redactText(approval.reason, 'Approval aguardando decisao.'),
+        detail: redactText(approval.reason, 'Approval waiting for a decision.'),
         status: normalizeStatus(approval.status, 'pending'),
         createdAt: approval.createdAt,
         runId: run.id,
@@ -633,7 +633,7 @@ export class RunArtifactReceiptReplayService {
         kind: 'feature-snapshot',
         source: feature.source || feature.label,
         title: feature.label,
-        detail: `${feature.label} presente no metadata do run.`,
+        detail: `${feature.label} present no metadata do run.`,
         status: normalizeStatus(feature.status, 'ready'),
         createdAt: generatedAt,
         runId: run.id,
@@ -738,9 +738,8 @@ export class RunArtifactReceiptReplayService {
         'zavorth replay artifact <artifactId> --json',
         'zavorth observatory run <runId> --json',
       ],
-      summary: available
-        ? `${frames.length} frame(s), ${receipts.length} receipt(s) e ${artifacts.length} artifact link(s) prontos para replay auditavel.`
-        : 'Nenhum frame ou receipt disponivel para replay auditavel.',
+      summary: available ? `${frames.length} frame(s), ${receipts.length} receipt(s), and ${artifacts.length} artifact link(s) ready for auditable replay.`
+        : 'No frame or receipt is available for auditable replay.',
     };
   }
 
@@ -768,14 +767,14 @@ export class RunArtifactReceiptReplayService {
     missingFeatureCount: number,
   ): string {
     if (status === 'blocked') {
-      return 'Revisar gates bloqueados antes de reutilizar qualquer artifact ou retomar execucao.';
+      return 'Review blocked gates before reusing any artifact or resuming execution.';
     }
     if (!replayAvailable) {
-      return 'Gerar uma run com eventos, receipts ou artifacts antes de tentar replay.';
+      return 'Generate a run with events, receipts, or artifacts before trying replay.';
     }
     if (missingFeatureCount > 0) {
-      return 'Usar replay como parcial e priorizar features sem snapshot/receipt na proxima execucao.';
+      return 'Use replay as partial and prioritize features without snapshot/receipt in the next execution.';
     }
-    return 'Replay pronto para auditoria; cite receipts antes de reutilizar artifact ou decisao.';
+    return 'Replay ready for audit; cite receipts before reusing artifact or decision.';
   }
 }

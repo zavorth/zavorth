@@ -47,7 +47,7 @@ export class SupervisedNodeInvokeAdapter implements SystemOverlordRuntimeAdapter
       return {
         ok: false,
         errorCode: 'node_invoke_scope_required',
-        errorMessage: 'node.invoke exige nodeId, capabilityId e action em payload estruturado.',
+        errorMessage: 'node.invoke requires nodeId, capabilityId, and action in a structured payload.',
       };
     }
 

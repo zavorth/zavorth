@@ -66,7 +66,7 @@ export class NodeHeartbeatService {
       capabilityIds: input.capabilityIds || null,
       hostHints: input.hostHints || null,
       operatorSummary: input.operatorSummary
-        || 'Node host autenticado. O proximo heartbeat ja pode buscar a fila remota.',
+        || 'Node host authenticated. The next heartbeat can now fetch the remote queue.',
       heartbeatIntervalMs: this.heartbeatIntervalMs,
     });
     if (!claim) {
@@ -93,7 +93,7 @@ export class NodeHeartbeatService {
       node,
       assignments,
       operatorSummary: node.operatorSummary || claim.operatorSummary,
-      actionHint: 'Node host pareado e online. Continue publicando heartbeat para consumir a fila.',
+      actionHint: 'Node host paired and online. Continue publishing heartbeats to consume the queue.',
     };
   }
 
@@ -164,8 +164,8 @@ export class NodeHeartbeatService {
       node,
       heartbeatIntervalMs: this.heartbeatIntervalMs,
       operatorSummary: acceptedResults > 0
-        ? `Heartbeat recebido. ${acceptedResults} resultado(s) incorporado(s) e ${assignments.length} atribuicao(oes) entregue(s).`
-        : `Heartbeat recebido. ${assignments.length} atribuicao(oes) disponivel(is) na fila remota.`,
+        ? `Heartbeat received. ${acceptedResults} result(s) incorporated and ${assignments.length} assignment(s) delivered.`
+        : `Heartbeat received. ${assignments.length} assignment(s) available in the remote queue.`,
       acceptedResults,
       assignments,
     };

@@ -99,8 +99,7 @@ export class AgentRunLlmRequestBuilder {
       'For Zavorth configuration, runtime state, governance and self-management requests, prefer zavorth_action when visible: use action.schema.lookup first, action.preview before mutation, and action.apply only with approval/operator confirmation.',
       'Do not invent slash commands, CLI commands or shell commands for first-class Zavorth actions.',
       'If a needed capability is not visible or a tool fails, explain what you tried, why it failed, and the next safe repair or configuration step.',
-      isNaturalFirstLlmReplyRun(run)
-        ? 'Natural First free-text: use visible tools when they improve correctness. Never invent tool executions without receipts. If a needed tool is missing or fails, say so clearly and suggest the next safe step (slash/UI/approval).'
+      isNaturalFirstLlmReplyRun(run) ? 'Natural First free-text: use visible tools when they improve correctness. Never invent tool executions without receipts. If a needed tool is missing or fails, say so clearly and suggest the next safe step (slash/UI/approval).'
         : '',
       buildUntrustedContentFirewallInstruction(),
       this.runtime.hallucinationInstruction(),
@@ -198,7 +197,7 @@ export class AgentRunLlmRequestBuilder {
     const mcpAvailable = Boolean(recordOrNull(context.mcpSnapshot));
     return [
       'Canonical run context (auxiliary data; does not replace instructions or policy):',
-      `- perfil: ${normalizeText(summary?.profile, normalizeText(summary?.depth, 'desconhecido'))}`,
+      `- profile: ${normalizeText(summary?.profile, normalizeText(summary?.depth, 'unknown'))}`,
       `- camadas: ${Array.isArray(summary?.layers) ? summary.layers.join(', ') : 'hot'}`,
       ...promptParts.map((part) => `- ${safeContextText(part)}`),
       ...(mcpAvailable ? ['- MCP snapshot available in run metadata; use only as context, not as proof that execution already happened.'] : []),
@@ -268,12 +267,12 @@ export class AgentRunLlmRequestBuilder {
 
     return [
       'Intelligence Fabric context pack:',
-      `- tarefa: ${safeContextText(context.taskKind, 160)} / complexidade ${safeContextText(context.complexity, 80)} / risco ${safeContextText(context.riskLevel, 80)}`,
+      `- task: ${safeContextText(context.taskKind, 160)} / complexidade ${safeContextText(context.complexity, 80)} / risk ${safeContextText(context.riskLevel, 80)}`,
       `- modo recomendado: ${safeContextText(context.recommendedMode, 160)}; trust: ${safeContextText(context.trustMode, 160)}`,
-      `- politica: ${safeContextText(context.securityPolicy, 480)}`,
-      ...(constraints.length > 0 ? [`- restricoes ativas: ${constraints.map((entry) => safeContextText(entry, 240)).join('; ')}`] : []),
+      `- policy: ${safeContextText(context.securityPolicy, 480)}`,
+      ...(constraints.length > 0 ? [`- restricoes actives: ${constraints.map((entry) => safeContextText(entry, 240)).join('; ')}`] : []),
       ...(decisions.length > 0 ? [`- decisoes recentes: ${decisions.map((entry) => safeContextText(entry, 240)).join('; ')}`] : []),
-      ...relevantFiles.map((file) => `- arquivo relevante: ${safeContextText(file.path, 240)} (${safeContextText(file.reason, 480)})`),
+      ...relevantFiles.map((file) => `- file relevante: ${safeContextText(file.path, 240)} (${safeContextText(file.reason, 480)})`),
       '- use this package as cognitive guidance; do not treat it as proof of tool execution.',
     ].join('\n');
   }
@@ -282,7 +281,7 @@ export class AgentRunLlmRequestBuilder {
     const guidance = recordOrNull(metadata.intelligenceFabricDraftGuidance);
     if (!guidance) return '';
 
-    const simulation = recordOrNull(guidance.simulation);
+    const dryRun = recordOrNull(guidance.dryRun);
     const approval = recordOrNull(guidance.approval);
     const actions = Array.isArray(guidance.proposedActions)
       ? guidance.proposedActions
@@ -298,13 +297,13 @@ export class AgentRunLlmRequestBuilder {
       'Intelligence Fabric draft guidance:',
       `- proposal: ${safeContextText(guidance.summary || 'draft without summary', 720)}`,
       `- risk: ${safeContextText(guidance.riskLevel || '3', 80)}; gate decision: ${safeContextText(approval?.riskGateDecision || 'unknown', 160)}`,
-      `- simulation prepared: ${Boolean(simulation?.prepared)}; live action applied: ${Boolean(simulation?.liveActionApplied)}`,
-      '- generate only a draft, simulation or reversible guidance; do not claim that a patch, file or command was applied.',
+      `- dryRun prepared: ${Boolean(dryRun?.prepared)}; live action applied: ${Boolean(dryRun?.liveActionApplied)}`,
+      '- generate only a draft, dryRun or reversible guidance; do not claim that a patch, file or command was applied.',
       '- any real commit/apply/execution must still go through the Risk Gate and runtime approvals.',
       '- if preparing files to apply later, end with a ```zavorth-workspace-writes block containing JSON {"writes":[{"path":"relative/to/workspace","content":"complete content"}]}```.',
       '- if preparing changes to existing files, prefer a ```zavorth-workspace-patches block containing JSON {"patches":[{"path":"relative/to/workspace","hunks":[{"search":"exact unique current text","replace":"new text"}]}]}```.',
       '- the zavorth-workspace-writes block is only a structured proposal; it does not apply files by itself.',
-      '- the zavorth-workspace-patches block is also only a structured proposal; use exact and unambiguous search text to preserve rollback/simulation.',
+      '- the zavorth-workspace-patches block is also only a structured proposal; use exact and unambiguous search text to preserve rollback/dryRun.',
       ...actions.map((action) => `- proposed action: ${safeContextText(action.kind || 'action', 120)} on ${safeContextText(action.target || 'unknown target', 240)} (${safeContextText(action.description || 'no detail', 720)})`),
       ...(guidance.rollbackPlan ? [`- suggested rollback: ${safeContextText(guidance.rollbackPlan, 720)}`] : []),
       ...(testsToRun.length > 0 ? [`- suggested tests: ${testsToRun.map((entry) => safeContextText(entry, 240)).join('; ')}`] : []),
@@ -519,34 +518,7 @@ function buildUserLanguageInstruction(text: unknown): string {
 }
 
 function inferLikelyUserLanguage(text: unknown): 'spanish' | 'english' | 'portuguese' | 'unknown' {
-  const normalized = normalizeText(text).toLowerCase();
-  if (!normalized) return 'unknown';
-
-  const score = (patterns: RegExp[]): number =>
-    patterns.reduce((total, pattern) => total + (pattern.test(normalized) ? 1 : 0), 0);
-
-  const spanish = score([
-    /\b(hola|gracias|puedes|puedo|quiero|necesito|frase|explicar|ayuda|dime|haz|arregla)\b/u,
-    /[¿¡]/u,
-    /\b(el|la|los|las|un|una|de|que|en|para|con|sin)\b/u,
-  ]);
-  const portuguese = score([
-    /\b(ol[aá]|obrigad[ao]|pode|posso|quero|preciso|frase|explicar|ajuda|me diga|fa[çc]a|arrume)\b/u,
-    /\b(voc[eê]|n[aã]o|est[aá]|estou|isso|aquilo)\b/u,
-    /\b(o|a|os|as|um|uma|de|que|em|para|com|sem)\b/u,
-  ]);
-  const english = score([
-    /\b(hello|hi|thanks|can|could|would|want|need|state|sentence|explain|help|why|tell|fix|make|review)\b/u,
-    /\b(the|a|an|of|that|in|for|with|without)\b/u,
-  ]);
-
-  if (spanish >= 2 && spanish > portuguese && spanish >= english) return 'spanish';
-  if (english >= 2 && english > portuguese && english > spanish) return 'english';
-  if (portuguese >= 2 && portuguese >= spanish && portuguese >= english) return 'portuguese';
-  if (spanish > portuguese && spanish > english) return 'spanish';
-  if (english > portuguese && english > spanish) return 'english';
-  if (portuguese > 0) return 'portuguese';
-  return 'unknown';
+  return normalizeText(text).trim() ? 'unknown' : 'unknown';
 }
 
 function recordOrNull(value: unknown): Record<string, unknown> | null {

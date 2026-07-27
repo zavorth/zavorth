@@ -155,8 +155,7 @@ export class SharedSurfaceSlashEnhancementCommandPack {
           '',
           'Dream cycle (preview only — never silent promote)',
           `  ${advanced.dreamCycle.summary}`,
-          advanced.dreamCycle.lastRunAt
-            ? `  last: ${advanced.dreamCycle.lastRunAt.slice(0, 16)} · candidates=${advanced.dreamCycle.lastCandidateCount ?? 0}`
+          advanced.dreamCycle.lastRunAt ? `  last: ${advanced.dreamCycle.lastRunAt.slice(0, 16)} · candidates=${advanced.dreamCycle.lastCandidateCount ?? 0}`
             : '  last: never',
           `  ${advanced.dreamCycle.nextEligibleHint}`,
           '',
@@ -323,8 +322,7 @@ export class SharedSurfaceSlashEnhancementCommandPack {
       const hits = this.experienceSkills.searchDrafts(userId, query, 15);
       if (hits.length === 0) {
         await ctx.reply(
-          query
-            ? `No experience skill drafts matching "${query}".`
+          query ? `No experience skill drafts matching "${query}".`
             : 'No experience skill drafts yet. Complete a multi-tool task first.',
         );
         return;
@@ -445,8 +443,7 @@ export class SharedSurfaceSlashEnhancementCommandPack {
       `Drafts: ${status.drafts} · improved: ${status.improved} · promoted: ${status.promoted}`,
       `Weekly metrics (${m.weekKey}): drafts=${m.draftsCreated} · promotes=${m.promotes} · reuses=${m.reuses}`,
       `Nudge cooldown: ${cooldownLabel}`,
-      status.topTools.length
-        ? `Top tools: ${status.topTools
+      status.topTools.length ? `Top tools: ${status.topTools
             .slice(0, 5)
             .map((t) => `${t.tool}(${t.count})`)
             .join(', ')}`
@@ -475,7 +472,7 @@ export class SharedSurfaceSlashEnhancementCommandPack {
   /** Prefer ordinal UX when a long draft id fails; keep service text for short/ordinal misses. */
   private learnDraftRefError(action: 'show' | 'run' | 'promote' | 'forget', ref: string, serviceText: string): string {
     const raw = String(ref || '').trim();
-    if (/^#?\d{1,2}$/.test(raw)) {
+    if (/^#...\d{1,2}$/.test(raw)) {
       return `No draft at that number. Run /learn list, then /learn ${action} 1.`;
     }
     // Long / non-ordinal refs: steer operators to numbered list instead of pasting ids.
@@ -706,12 +703,9 @@ export class SharedSurfaceSlashEnhancementCommandPack {
       .split(/\s+/)
       .filter(Boolean);
     const formatToken = tokens.find((t) => /^(markdown|md|html|prompt|prompt-only)$/i.test(t));
-    const format = !formatToken
-      ? 'markdown'
-      : /html/i.test(formatToken)
-        ? 'html'
-        : /prompt/i.test(formatToken)
-          ? 'prompt'
+    const format = !formatToken ? 'markdown'
+      : /html/i.test(formatToken) ? 'html'
+        : /prompt/i.test(formatToken) ? 'prompt'
           : 'markdown';
     const sessionId = this.resolveSessionId(ctx);
 

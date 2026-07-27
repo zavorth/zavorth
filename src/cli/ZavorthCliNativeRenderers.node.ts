@@ -43,7 +43,7 @@ function formatNodeActionPath(actionHint: string | null | undefined): string | n
   }
 
   if (/regenerate-pairing-draft/i.test(normalized)) {
-    return 'gere um novo codigo de pareamento pelo Node Mesh.';
+    return 'generate a new pairing code through Node Mesh.';
   }
 
   return compactNodeLine(normalized, 110);
@@ -51,22 +51,13 @@ function formatNodeActionPath(actionHint: string | null | undefined): string | n
 
 function compactNodeLine(value: string | null | undefined, maxLength = 150): string {
   const sanitized = sanitizeHumanCliText(value || '')
-    .replace(/^Node Mesh expoe (\d+) nodes registrados no control plane\.?$/i, 'Node Mesh tracks $1 nodes on the internal control plane.')
-    .replace(/^Regenerar pairing\b/gi, 'Gerar novo pareamento')
-    .replace(/\bHeadless Worker\b/g, 'Worker sem tela')
-    .replace(/\bdraft de pairing\b/gi, 'codigo de pareamento')
-    .replace(/\bpairing draft\b/gi, 'codigo de pareamento')
-    .replace(/\bpairing\b/gi, 'pareamento')
-    .replace(/\s+Use doctor\/recover\b.*$/i, '')
-    .replace(/\bnode\.maintenance\b/gi, 'manutencao de node')
-    .replace(/\bcontrol plane\b/gi, 'controle interno')
     .replace(/\s+/g, ' ')
     .trim();
   if (!sanitized || sanitized.length <= maxLength) {
     return sanitized;
   }
 
-  const sentenceMatch = sanitized.match(/^(.+?[.!?])\s+/);
+  const sentenceMatch = sanitized.match(/^(.+...[.!...])\s+/);
   const firstSentence = sentenceMatch?.[1]?.trim();
   if (firstSentence && firstSentence.length >= 32 && firstSentence.length <= maxLength) {
     return firstSentence;
@@ -78,7 +69,7 @@ function compactNodeLine(value: string | null | undefined, maxLength = 150): str
 function formatNodeKindLabel(kind: NodeMeshNodeKind | string | null | undefined): string {
   const normalized = String(kind || '').trim().toLowerCase();
   if (normalized === 'headless') {
-    return 'sem tela';
+    return 'without screen';
   }
   if (normalized === 'desktop') {
     return 'desktop';
@@ -98,13 +89,13 @@ function formatNodeStatusHuman(status: string | null | undefined): string {
     return 'online';
   }
   if (normalized === 'offline') {
-    return 'desconectado';
+    return 'disconnected';
   }
   if (normalized === 'blocked') {
     return 'blocked';
   }
   if (normalized === 'revoked') {
-    return 'revogado';
+    return 'revoked';
   }
   return formatNodeStatus(status);
 }
@@ -156,15 +147,15 @@ function formatNodeMeshSnapshot(
     : null;
   const highlighted = !selected ? pickHighlightedNodes(snapshot.entries, 3) : [];
   const summaryLine = snapshot.summary.total > 0
-    ? `${formatCount(snapshot.summary.paired, 'pareado', 'pareados')}, ${formatCount(snapshot.summary.online, 'online', 'online')}, ${formatCount(snapshot.summary.queued, 'item na fila', 'itens na fila')}.`
-    : 'Nenhum node registrado now.';
+    ? `${formatCount(snapshot.summary.paired, 'paired', 'paired')}, ${formatCount(snapshot.summary.online, 'online', 'online')}, ${formatCount(snapshot.summary.queued, 'item in queue', 'items in queue')}.`
+    : 'No node registered now.';
   const panels: CliVisualPanel[] = [
     {
       title: 'Agora',
       lines: [
-        `- nodes: ${formatCount(snapshot.summary.total, 'total', 'total')} | ${formatCount(snapshot.summary.online, 'online', 'online')} | ${formatCount(snapshot.summary.paired, 'pareado', 'pareados')}`,
-        `- queue: ${formatCount(snapshot.summary.queued, 'item', 'itens')}`,
-        `- resumo: ${summaryLine}`,
+        `- nodes: ${formatCount(snapshot.summary.total, 'total', 'total')} | ${formatCount(snapshot.summary.online, 'online', 'online')} | ${formatCount(snapshot.summary.paired, 'paired', 'paired')}`,
+        `- queue: ${formatCount(snapshot.summary.queued, 'item', 'items')}`,
+        `- summary: ${summaryLine}`,
       ],
       tone: snapshot.summary.online > 0 ? 'info' : 'muted',
     },
@@ -172,27 +163,24 @@ function formatNodeMeshSnapshot(
 
   if (selected) {
     panels.push({
-      title: 'Node em foco',
+      title: 'Focused Node',
       lines: [
         `- ${selected.label} (${formatNodeKindLabel(selected.kind)})`,
         `- status: ${formatCliValue(selected.trustLabel)} / ${formatNodeStatusHuman(selected.status)}`,
         `- capabilities: ${selected.capabilityIds.join(', ') || 'none declared'}`,
         `- queue: ${formatCount(selected.pendingInvocations || 0, 'pending', 'pending')} | ${formatCount(selected.claimedInvocations || 0, 'processing', 'processing')}`,
-        selected.recentInvocation
-          ? `- ultima invocacao: ${selected.recentInvocation.capabilityId} (${formatNodeStatus(selected.recentInvocation.status)})`
-          : '- ultima invocacao: none registered',
+        selected.recentInvocation ? `- last invocation: ${selected.recentInvocation.capabilityId} (${formatNodeStatus(selected.recentInvocation.status)})`
+          : '- last invocation: none registered',
         `- next step: ${formatCliValue(selected.nextAction || selected.operatorSummary, 'follow the next heartbeat')}`,
       ],
       tone: 'info',
     });
   } else if (highlighted.length > 0) {
     panels.push({
-      title: 'Nodes em foco',
+      title: 'Focused Nodes',
       lines: [
         ...highlighted.map((entry) => formatNodeCompactSummary(entry)),
-        snapshot.entries.length > highlighted.length
-          ? `- ${formatAdditionalCount(snapshot.entries.length - highlighted.length, 'outro node', 'outros nodes')} na malha`
-          : null,
+        snapshot.entries.length > highlighted.length ? `- ${formatAdditionalCount(snapshot.entries.length - highlighted.length, 'other node', 'other nodes')} in mesh` : null,
       ].filter(Boolean) as string[],
       tone: 'info',
     });
@@ -201,10 +189,10 @@ function formatNodeMeshSnapshot(
   if (snapshot.suggestedActions.length > 0) {
     const suggested = snapshot.suggestedActions[0];
     panels.push({
-      title: 'Faca agora',
+      title: 'Do now',
       lines: [
         `- ${compactNodeLine(suggested.label, 90)}`,
-        `- motivo: ${compactNodeLine(suggested.reason)}`,
+        `- reason: ${compactNodeLine(suggested.reason)}`,
         suggested.actionHint ? `- path: ${formatNodeActionPath(suggested.actionHint)}` : null,
       ].filter(Boolean) as string[],
       tone: 'brand',
@@ -227,9 +215,9 @@ function formatNodeMeshActivity(
   mode: 'queue' | 'history',
   label: string | null = null,
 ): string {
-  const title = mode === 'queue' ? 'Fila do Node Mesh' : 'Historico do Node Mesh';
+  const title = mode === 'queue' ? 'Node Mesh Queue' : 'Node Mesh History';
   if (!activity?.nodeId) {
-    return `${title}\n\nNenhum node selecionado para consultar ${mode === 'queue' ? 'a fila' : 'o historico'}.`;
+    return `${title}\n\nNo node selected to query ${mode === 'queue' ? 'the queue' : 'the history'}.`;
   }
 
   const items = mode === 'queue' ? activity.activeInvocations : activity.recentInvocations;
@@ -242,18 +230,18 @@ function formatNodeMeshActivity(
     showWordmark: false,
     panels: [
       {
-        title: 'Agora',
+        title: 'Now',
         lines: [
           `- node: ${label || activity.nodeId}`,
           mode === 'queue'
             ? `- queue: ${formatCount(activity.summary.pending, 'pending', 'pending')} | ${formatCount(activity.summary.claimed, 'processing', 'processing')}`
-            : `- historico: ${formatCount(activity.summary.recent, 'recente', 'recentes')} | ${formatCount(activity.summary.completedRecently, 'concluida recentemente', 'concluidas recentemente')}`,
-          `- resumo: ${sanitizeHumanCliText(activity.narrative.operatorSummary)}`,
+            : `- history: ${formatCount(activity.summary.recent, 'recent', 'recent')} | ${formatCount(activity.summary.completedRecently, 'recently completed', 'recently completed')}`,
+          `- summary: ${sanitizeHumanCliText(activity.narrative.operatorSummary)}`,
         ],
         tone: mode === 'queue' ? 'warning' : 'info',
       },
       {
-        title: 'Invocacoes em foco',
+        title: 'Focused Invocations',
         lines: items.length > 0
           ? items.map((entry) =>
             `- ${entry.capabilityId} (${formatNodeStatus(entry.status)})${entry.resultSummary ? ` :: ${entry.resultSummary}` : ''}`)
@@ -263,7 +251,7 @@ function formatNodeMeshActivity(
         tone: 'neutral',
       },
       {
-        title: 'Faca agora',
+        title: 'Do Now',
         lines: [
           mode === 'queue'
             ? `- zavorth nodes history ${activity.nodeId}`
@@ -279,13 +267,13 @@ function formatNodeProfiles(profiles: ReturnType<NodeDeviceProfileService['listP
   return renderCliScreen({
     eyebrow: 'Nodes',
     eyebrowTone: 'info',
-    title: 'Perfis do Node Mesh',
-    summary: 'Escolha o perfil pelo tipo de companion que voce quer colocar na malha.',
+    title: 'Node Mesh Profiles',
+    summary: 'Choose a profile by the type of companion you want to add to the mesh.',
     mode: 'compact',
     showWordmark: false,
     panels: [
       {
-        title: 'Catalogo',
+        title: 'Catalog',
         lines: profiles.map((profile) =>
           `- ${profile.label} [${profile.id}] :: ${profile.summary} | kind ${profile.kind} | transport ${profile.transport} | capabilities ${profile.defaultCapabilityIds.join(', ') || 'none'} | next step zavorth nodes pair ${profile.kind}`),
         tone: 'info',
@@ -298,13 +286,13 @@ function formatNodeCapabilities(capabilities: ReturnType<NodeCapabilityService['
   return renderCliScreen({
     eyebrow: 'Nodes',
     eyebrowTone: 'info',
-    title: 'Capabilities do Node Mesh',
-    summary: 'Catalogo visivel para companions e hosts pareados.',
+    title: 'Node Mesh Capabilities',
+    summary: 'Catalog visible to paired companions and hosts.',
     mode: 'compact',
     showWordmark: false,
     panels: [
       {
-        title: 'Catalogo',
+        title: 'Catalog',
         lines: capabilities.map((capability) =>
           `- ${capability.label} [${capability.id}] :: ${capability.summary} | category ${capability.category} | risk ${capability.risky ? 'high' : 'low'} | next step ${capability.actionHint || 'review before enabling on the host'}`),
         tone: 'info',
@@ -319,33 +307,33 @@ function formatNodePairingDraft(draft: ReturnType<NodePairingService['createPair
   return renderCliScreen({
     eyebrow: 'Nodes',
     eyebrowTone: 'success',
-    title: 'Node ready para pareamento',
-    summary: `${draft.entry.label} ja pode entrar na malha com este draft inicial.`,
+    title: 'Node Ready for Pairing',
+    summary: `${draft.entry.label} can now join the mesh with this initial draft.`,
     mode: 'compact',
     showWordmark: false,
     panels: [
       {
-        title: 'Agora',
+        title: 'Now',
         lines: [
-          `- perfil: ${draft.profile?.label || draft.entry.profileId || draft.entry.kind}`,
+          `- profile: ${draft.profile?.label || draft.entry.profileId || draft.entry.kind}`,
           `- node: ${draft.entry.label} [${draft.entry.id}]`,
           `- pairing code: ${draft.pairingCode}`,
-          `- transporte: ${draft.entry.transport}`,
-          `- capabilities base: ${draft.entry.capabilityIds.join(', ') || 'sem capabilities declaradas'}`,
+          `- transport: ${draft.entry.transport}`,
+          `- base capabilities: ${draft.entry.capabilityIds.join(', ') || 'no capabilities declared'}`,
         ],
         tone: 'success',
       },
       {
-        title: 'No companion',
+        title: 'On the Companion',
         lines: [
-          '- use o pairing code no host ou sidecar que vai se conectar ao Zavorth',
-          '- depois confirme o heartbeat com zavorth nodes list',
-          `- se precisar refazer: zavorth nodes pair ${draft.profile?.kind || draft.entry.kind} ${draft.entry.label}`,
+          '- use the pairing code on the host or sidecar that will connect to Zavorth',
+          '- then confirm the heartbeat with zavorth nodes list',
+          `- if you need to redo: zavorth nodes pair ${draft.profile?.kind || draft.entry.kind} ${draft.entry.label}`,
         ],
         tone: 'info',
       },
       {
-        title: 'Bootstrap sugerido',
+        title: 'Suggested Bootstrap',
         lines: [
           `- ${bootstrapCommand}`,
           draft.bootstrap?.fallbackCommand ? `- fallback: ${draft.bootstrap.fallbackCommand}` : null,
@@ -366,7 +354,7 @@ function formatNodeInvokeResult(result: ReturnType<NodeInvokeService['invoke']>)
     showWordmark: false,
     panels: [
       {
-        title: 'Agora',
+        title: 'Now',
         lines: [
           `- node: ${formatCliValue(result.nodeId)}`,
           `- capability: ${result.capabilityId}`,
@@ -376,7 +364,7 @@ function formatNodeInvokeResult(result: ReturnType<NodeInvokeService['invoke']>)
         tone: result.ok ? 'success' : 'danger',
       },
       {
-        title: 'Faca agora',
+        title: 'Do Now',
         lines: [
           result.nodeId ? `- zavorth nodes queue ${result.nodeId}` : null,
           result.nodeId ? `- zavorth nodes history ${result.nodeId}` : null,
@@ -399,16 +387,16 @@ function resolveNodeIntent(rawArgs: string): {
   if (lower === 'list' || lower === 'all' || lower === 'nodes') {
     return { mode: 'snapshot', selectedNodeId: null };
   }
-  if (lower === 'profiles' || lower === 'profile' || lower === 'perfis') {
+  if (lower === 'profiles' || lower === 'profile' || lower === 'profiles') {
     return { mode: 'profiles', selectedNodeId: null };
   }
   if (lower === 'capabilities' || lower === 'caps' || lower === 'capabilidades') {
     return { mode: 'capabilities', selectedNodeId: null };
   }
-  if (head === 'queue' || head === 'fila' || head === 'pending') {
+  if (head === 'queue' || head === 'queue' || head === 'pending') {
     return { mode: 'queue', selectedNodeId: tail };
   }
-  if (head === 'history' || head === 'historico' || head === 'recent') {
+  if (head === 'history' || head === 'history' || head === 'recent') {
     return { mode: 'history', selectedNodeId: tail };
   }
   if (lower === 'doctor' || lower === 'smoke') {

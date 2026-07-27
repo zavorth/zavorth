@@ -18,7 +18,7 @@ export function useControlPageClient() {
       fetchJson("/api/gateway-control"),
       fetchJson("/api/gateway-control/resilience").catch((error: unknown) => ({
         ok: false,
-        error: error?.message || "Falha ao carregar a resiliencia do gateway.",
+        error: error?.message || "Failure ao carregar a resiliencia do gateway.",
       })),
     ]);
     const developerWorkspace = await fetchJson("/api/developer-workspace");
@@ -30,7 +30,7 @@ export function useControlPageClient() {
       fetchJson("/api/gateway-control"),
       fetchJson("/api/gateway-control/resilience").catch((error: unknown) => ({
         ok: false,
-        error: error?.message || "Falha ao carregar a resiliencia do gateway.",
+        error: error?.message || "Failure ao carregar a resiliencia do gateway.",
       })),
     ]);
     return { ...gatewayControl, resilience };

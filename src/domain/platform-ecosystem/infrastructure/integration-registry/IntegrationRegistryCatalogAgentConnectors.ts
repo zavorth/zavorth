@@ -33,8 +33,8 @@ export const INTEGRATION_AGENT_CONNECTOR_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('composio_api_key', 'What is the Composio API key?', 'secret', 'Paste the workspace or project key Zavorth can use.'),
-      question('composio_base_url', 'Use a custom base URL?', 'text', 'Optional; leave empty for the default endpoint.', {
+      question('composio_api_key', 'What is the Composio API key...', 'secret', 'Paste the workspace or project key Zavorth can use.'),
+      question('composio_base_url', 'Use a custom base URL...', 'text', 'Optional; leave empty for the default endpoint.', {
         required: false,
         placeholder: 'https://backend.composio.dev',
       }),
@@ -87,12 +87,12 @@ export const INTEGRATION_AGENT_CONNECTOR_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('nango_secret_key', 'What is the Nango secret key?', 'secret', 'Use a minimum-scope key for the Zavorth environment.'),
-      question('nango_base_url', 'Use self-hosted Nango or a custom URL?', 'text', 'Optional; leave empty for Nango Cloud.', {
+      question('nango_secret_key', 'What is the Nango secret key...', 'secret', 'Use a minimum-scope key for the Zavorth environment.'),
+      question('nango_base_url', 'Use self-hosted Nango or a custom URL...', 'text', 'Optional; leave empty for Nango Cloud.', {
         required: false,
         placeholder: 'https://api.nango.dev',
       }),
-      question('nango_action_execute_url', 'Which Nango action/proxy endpoint can Zavorth execute?', 'text', 'Optional; used only with preview, approval, and receipt.', {
+      question('nango_action_execute_url', 'Which Nango action/proxy endpoint can Zavorth execute...', 'text', 'Optional; used only with preview, approval, and receipt.', {
         required: false,
       }),
       commonCapabilityQuestion,
@@ -128,9 +128,9 @@ export const INTEGRATION_AGENT_CONNECTOR_MANIFESTS: IntegrationManifest[] = [
       req('pipedream_execute_url', 'Execute URL', 'Allowed endpoint or workflow for governed execution.', { type: 'env', envKey: 'PIPEDREAM_EXECUTE_URL', required: false }),
     ],
     onboardingQuestions: [
-      question('pipedream_api_key', 'What is the Pipedream API key?', 'secret', 'Use a minimum-scope key.'),
-      question('pipedream_health_url', 'Which health URL should Zavorth test?', 'text', 'Optional; enables live doctor checks without assuming a proprietary endpoint.', { required: false }),
-      question('pipedream_execute_url', 'Which execute URL can Zavorth call?', 'text', 'Optional; used only with preview, approval, and receipt.', { required: false }),
+      question('pipedream_api_key', 'What is the Pipedream API key...', 'secret', 'Use a minimum-scope key.'),
+      question('pipedream_health_url', 'Which health URL should Zavorth test...', 'text', 'Optional; enables live doctor checks without assuming a proprietary endpoint.', { required: false }),
+      question('pipedream_execute_url', 'Which execute URL can Zavorth call...', 'text', 'Optional; used only with preview, approval, and receipt.', { required: false }),
     ],
     installSteps: [
       step('credential', 'Add PIPEDREAM_API_KEY', 'Configure the key in a secure location.', 'manual', 'PIPEDREAM_API_KEY=...'),
@@ -159,9 +159,9 @@ export const INTEGRATION_AGENT_CONNECTOR_MANIFESTS: IntegrationManifest[] = [
       req('zapier_execute_url', 'Execute URL', 'Allowed endpoint/action for governed execution.', { type: 'env', envKey: 'ZAPIER_EXECUTE_URL', required: false }),
     ],
     onboardingQuestions: [
-      question('zapier_api_key', 'What is the Zapier API key/token?', 'secret', 'Use the token for the allowed flow.'),
-      question('zapier_health_url', 'Which health URL should Zavorth test?', 'text', 'Optional; enables live doctor checks without a fixed endpoint.', { required: false }),
-      question('zapier_execute_url', 'Which Zapier execute URL can Zavorth call?', 'text', 'Optional; used only with preview, approval, and receipt.', { required: false }),
+      question('zapier_api_key', 'What is the Zapier API key/token...', 'secret', 'Use the token for the allowed flow.'),
+      question('zapier_health_url', 'Which health URL should Zavorth test...', 'text', 'Optional; enables live doctor checks without a fixed endpoint.', { required: false }),
+      question('zapier_execute_url', 'Which Zapier execute URL can Zavorth call...', 'text', 'Optional; used only with preview, approval, and receipt.', { required: false }),
     ],
     installSteps: [
       step('credential', 'Add ZAPIER_API_KEY', 'Configure the credential or allowed endpoint.', 'manual', 'ZAPIER_API_KEY=...'),
@@ -185,22 +185,22 @@ export const INTEGRATION_AGENT_CONNECTOR_MANIFESTS: IntegrationManifest[] = [
     capabilities: ['automation', 'agents'],
     binding: { kind: 'service', key: 'n8n', status: 'ready', summary: 'Governed adapter through N8N_BASE_URL/API key or health URL.' },
     requirements: [
-      req('n8n_base_url', 'n8n base URL', 'Local or remote n8n URL.', { type: 'env', envKey: 'N8N_BASE_URL' }),
+      req('n8n_base_url', 'n8n base URL', 'local or remote n8n URL.', { type: 'env', envKey: 'N8N_BASE_URL' }),
       req('n8n_api_key', 'n8n API key', 'n8n API key.', { type: 'env', secret: true, envKey: 'N8N_API_KEY', required: false }),
       req('n8n_health_url', 'Health URL', 'Safe endpoint for live readiness checks.', { type: 'env', envKey: 'N8N_HEALTH_URL', required: false }),
       req('n8n_execute_url', 'Execute URL', 'Allowed webhook/workflow for governed execution.', { type: 'env', envKey: 'N8N_EXECUTE_URL', required: false }),
     ],
     onboardingQuestions: [
-      question('n8n_base_url', 'What is the n8n base URL?', 'text', 'Example: http://127.0.0.1:5678'),
-      question('n8n_api_key', 'What is the n8n API key?', 'secret', 'Optional if the selected health endpoint does not require auth.', { required: false }),
-      question('n8n_execute_url', 'Which n8n webhook/execute URL can Zavorth call?', 'text', 'Optional; used only with preview, approval, and receipt.', { required: false }),
+      question('n8n_base_url', 'What is the n8n base URL...', 'text', 'Example: http://127.0.0.1:5678'),
+      question('n8n_api_key', 'What is the n8n API key...', 'secret', 'Optional if the selected health endpoint does not require auth.', { required: false }),
+      question('n8n_execute_url', 'Which n8n webhook/execute URL can Zavorth call...', 'text', 'Optional; used only with preview, approval, and receipt.', { required: false }),
     ],
     installSteps: [
       step('base-url', 'Add N8N_BASE_URL', 'Point to local or remote n8n.', 'manual', 'N8N_BASE_URL=http://127.0.0.1:5678'),
       step('execute-url', 'Add N8N_EXECUTE_URL', 'Point to the allowed webhook/workflow.', 'manual', 'N8N_EXECUTE_URL=http://127.0.0.1:5678/webhook/...'),
       step('doctor', 'Run doctor', 'Validate configured readiness.', 'verification', 'zavorth actions preview integration.connectors.doctor --args connectorId=n8n'),
     ],
-    safetyNotes: ['Local workflows can still mutate files or external services; use approval.'],
+    safetyNotes: ['local workflows can still mutate files or external services; use approval.'],
     goodFor: ['Self-hosted automation', 'Personal workflows', 'Private workflows'],
   },
   {
@@ -223,9 +223,9 @@ export const INTEGRATION_AGENT_CONNECTOR_MANIFESTS: IntegrationManifest[] = [
       req('workato_execute_url', 'Execute URL', 'Allowed endpoint/recipe for governed execution.', { type: 'env', envKey: 'WORKATO_EXECUTE_URL', required: false }),
     ],
     onboardingQuestions: [
-      question('workato_api_token', 'What is the Workato API token?', 'secret', 'Use the least-privileged token possible.'),
-      question('workato_health_url', 'Which health URL should Zavorth test?', 'text', 'Optional; recommended for live doctor checks.', { required: false }),
-      question('workato_execute_url', 'Which Workato execute URL can Zavorth call?', 'text', 'Optional; used only with preview, approval, and receipt.', { required: false }),
+      question('workato_api_token', 'What is the Workato API token...', 'secret', 'Use the least-privileged token possible.'),
+      question('workato_health_url', 'Which health URL should Zavorth test...', 'text', 'Optional; recommended for live doctor checks.', { required: false }),
+      question('workato_execute_url', 'Which Workato execute URL can Zavorth call...', 'text', 'Optional; used only with preview, approval, and receipt.', { required: false }),
     ],
     installSteps: [
       step('credential', 'Add WORKATO_API_TOKEN', 'Configure the secure credential.', 'manual', 'WORKATO_API_TOKEN=...'),

@@ -2,13 +2,13 @@
   "id": "configuration",
   "name": "Configuration & LLM Profile",
   "version": "1.0.0",
-  "description": "Ferramentas para configurar e trocar modelos/providers LLM.",
+  "description": "Tools to configure and switch LLM models/providers.",
   "category": "configuration",
   "dangerLevel": "low",
   "tools": [
     {
       "name": "configure_llm_profile",
-      "description": "Lista, negocia e troca o provider/modelo LLM ativo do Zavorth.",
+      "description": "Lista, negocia e troca o provider/modelo LLM active do Zavorth.",
       "parameters": {
         "type": "object",
         "properties": {

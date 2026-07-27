@@ -40,22 +40,22 @@ export function statusLevel(ready: boolean, linked = true, blocked = false): Rel
 
 export function resolveReleaseCandidateNextSafeAction(status: ReleaseCandidatePreCanaryGateStatus): string {
   if (status === 'needs-release-adoption-readiness') {
-    return 'Fechar Release Adoption Readiness como release-adoption-ready antes do gate RC/pre-canary.';
+    return 'Close Release Adoption Readiness as release-adoption-ready before the RC/pre-canary gate.';
   }
   if (status === 'needs-evidence-pack') {
-    return 'Montar evidence pack com checks, artifacts, release notes, changelog, rollback e known issues.';
+    return 'Build evidence pack with checks, artifacts, release notes, changelog, rollback, and known issues.';
   }
   if (status === 'needs-ecosystem-publishing') {
-    return 'Publicar matriz, docs e fixtures do ecossistema sem claim formal indevido.';
+    return 'Publish ecosystem matrix, docs, and fixtures without improper formal claims.';
   }
   if (status === 'needs-autopilot-readiness') {
-    return 'Fechar Capability Autopilot release candidate com kill switch, rollback rehearsal e default-off governance.';
+    return 'Close Capability Autopilot release candidate with kill switch, rollback rehearsal, and default-off governance.';
   }
   if (status === 'needs-go-no-go') {
-    return 'Registrar go/no-go explicito com aprovador, receipt, rollback owner e incident owner.';
+    return 'Record explicit go/no-go with approver, receipt, rollback owner, and incident owner.';
   }
   if (status === 'blocked') {
-    return 'Remover no-go, bloqueios de RC ou qualquer global rollout/auto-promote antes de continuar.';
+    return 'Remove no-go items, RC blockers, or any global rollout/auto-promote before continuing.';
   }
-  return 'Pre-canary gate pronto; planejar canary real em entrega separada sem acionar rollout automaticamente.';
+  return 'Pre-canary gate ready; plan the real canary in a separate delivery without automatically triggering rollout.';
 }

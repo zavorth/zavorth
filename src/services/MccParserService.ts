@@ -5,7 +5,7 @@ import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
 export interface MccNode {
-  id: string; // Caminho relativo ou id do bloco
+  id: string; // Relative path or block id
   name: string;
   type: string; // 'file' | 'class' | 'function' | 'section' | 'data-table'
   content: string;
@@ -28,17 +28,17 @@ export class MccParserService {
   }
 
   /**
-   * Varre e indexa recursivamente o workspace do usuário
+   * Scans and recursively indexes the user workspace
    */
   public async indexWorkspace(workspacePath: string): Promise<void> {
     await this.init();
     const resolvedPath = path.resolve(workspacePath);
-    logger.info(`[MCC Parser] Iniciando indexação do workspace: ${resolvedPath}`);
+    logger.info(`[MCC Parser] Starting workspace indexing: ${resolvedPath}`);
 
     try {
       const files: string[] = [];
       this.collectFilesRecursive(resolvedPath, resolvedPath, files);
-      logger.info(`[MCC Parser] Encontrados ${files.length} arquivos elegíveis para indexação.`);
+      logger.info(`[MCC Parser] Found ${files.length} files eligible for indexing.`);
 
       // To keep indexing clean, we remove old records from the same workspace
       // and rebuild the graph for the found files
@@ -53,17 +53,17 @@ export class MccParserService {
       const dbNodes = this.db.all<{ id: string }>('SELECT id FROM mcc_nodes WHERE type = \'file\'');
       for (const row of dbNodes) {
         if (!normalizedFiles.includes(row.id)) {
-          logger.info(`[MCC Parser] Removendo arquivo deletado do índice: ${row.id}`);
-          this.db.run('DELETE FROM mcc_nodes WHERE id = ? OR id LIKE ?', [row.id, `${row.id}#%`]);
-          this.db.run('DELETE FROM mcc_edges WHERE source_node_id = ? OR source_node_id LIKE ?', [row.id, `${row.id}#%`]);
-          this.db.run('DELETE FROM mcc_edges WHERE target_node_id = ? OR target_node_id LIKE ?', [row.id, `${row.id}#%`]);
+          logger.info(`[MCC Parser] Removing deleted file from index: ${row.id}`);
+          this.db.run('DELETE FROM mcc_nodes WHERE id = - OR id LIKE ...', [row.id, `${row.id}#%`]);
+          this.db.run('DELETE FROM mcc_edges WHERE source_node_id = - OR source_node_id LIKE ...', [row.id, `${row.id}#%`]);
+          this.db.run('DELETE FROM mcc_edges WHERE target_node_id = - OR target_node_id LIKE ...', [row.id, `${row.id}#%`]);
         }
       }
 
-      logger.info(`[MCC Parser] Indexação do workspace concluída com sucesso.`);
+      logger.info(`[MCC Parser] Workspace indexing completed successfully.`);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      logger.error(`[MCC Parser] Falha ao indexar o workspace: ${err.message}`);
+      logger.error(`[MCC Parser] Failed to index workspace: ${err.message}`);
     }
   }
 
@@ -77,18 +77,18 @@ export class MccParserService {
 
     // 1. Clear previous records for this file (and its child nodes)
     this.db.run(
-      'DELETE FROM mcc_nodes WHERE id = ? OR id LIKE ?',
+      'DELETE FROM mcc_nodes WHERE id = - OR id LIKE ...',
       [normalizedRelPath, `${normalizedRelPath}#%`]
     );
     this.db.run(
-      'DELETE FROM mcc_edges WHERE source_node_id = ? OR source_node_id LIKE ?',
+      'DELETE FROM mcc_edges WHERE source_node_id = - OR source_node_id LIKE ...',
       [normalizedRelPath, `${normalizedRelPath}#%`]
     );
 
-    // 2. Salva novos Nodes
+    // 2. Save new Nodes
     for (const node of nodes) {
       this.db.run(
-        'INSERT OR REPLACE INTO mcc_nodes (id, name, type, content, updated_at) VALUES (?, ?, ?, ?, ?)',
+        'INSERT OR REPLACE INTO mcc_nodes (id, name, type, content, updated_at) VALUES (..., ..., ..., ..., ...)',
         [node.id, node.name, node.type, node.content, new Date().toISOString()]
       );
     }
@@ -105,7 +105,7 @@ export class MccParserService {
       // Ensure we only insert if both source and target are valid
       if (edge.source && resolvedTarget) {
         this.db.run(
-          'INSERT OR IGNORE INTO mcc_edges (source_node_id, target_node_id, relation_type) VALUES (?, ?, ?)',
+          'INSERT OR IGNORE INTO mcc_edges (source_node_id, target_node_id, relation_type) VALUES (..., ..., ...)',
           [edge.source, resolvedTarget, edge.type]
         );
       }
@@ -113,7 +113,7 @@ export class MccParserService {
   }
 
   /**
-   * Analisa o conteúdo e gera a lista de nós e conexões
+   * Analyzes content and generates the list of nodes and connections
    */
   private parseFileContent(relativePath: string, content: string): { nodes: MccNode[]; edges: MccEdge[] } {
     const nodes: MccNode[] = [];
@@ -140,13 +140,13 @@ export class MccParserService {
   }
 
   /**
-   * Parser simples de Código (JS, TS, Python)
+   * Simple Code parser (JS, TS, Python)
    */
   private parseCode(relativePath: string, content: string, nodes: MccNode[], edges: MccEdge[]): void {
     const lines = content.split('\n');
 
     // 1. Import extraction
-    const importRegex = /(?:import\s+.*?\s+from\s+['"](.*?)['"]|import\s+['"](.*?)['"]|require\s*\(\s*['"](.*?)['"]\s*\))/g;
+    const importRegex = /(?:import\s+.*...\s+from\s+['"](.*...)['"]|import\s+['"](.*...)['"]|require\s*\(\s*['"](.*...)['"]\s*\))/g;
     let match;
     while ((match = importRegex.exec(content)) !== null) {
       const target = match[1] || match[2] || match[3];
@@ -164,7 +164,7 @@ export class MccParserService {
       const line = lines[index].trim();
 
       // Detect classes
-      const classMatch = /^(?:export\s+)?class\s+([a-zA-Z0-9_]+)/.exec(line);
+      const classMatch = /^(?:export\s+)...class\s+([a-zA-Z0-9_]+)/.exec(line);
       if (classMatch && classMatch[1]) {
         const className = classMatch[1];
         const childId = `${relativePath}#${className}`;
@@ -172,7 +172,7 @@ export class MccParserService {
           id: childId,
           name: className,
           type: 'class',
-          content: lines.slice(index, index + 30).join('\n') // Pega as primeiras 30 linhas da classe
+          content: lines.slice(index, index + 30).join('\n') // Get the first 30 lines of the class
         });
         edges.push({
           source: relativePath,
@@ -181,8 +181,8 @@ export class MccParserService {
         });
       }
 
-      // Detecta Funções principais
-      const funcMatch = /^(?:export\s+)?(?:async\s+)?function\s+([a-zA-Z0-9_]+)/.exec(line);
+      // Detect main Functions
+      const funcMatch = /^(?:export\s+)...(?:async\s+)...function\s+([a-zA-Z0-9_]+)/.exec(line);
       if (funcMatch && funcMatch[1]) {
         const funcName = funcMatch[1];
         const childId = `${relativePath}#${funcName}`;
@@ -202,7 +202,7 @@ export class MccParserService {
   }
 
   /**
-   * Parser simples de Markdown/Textos
+   * Simple Markdown/Text parser
    */
   private parseMarkdown(relativePath: string, content: string, nodes: MccNode[], edges: MccEdge[]): void {
     const lines = content.split('\n');
@@ -241,7 +241,7 @@ export class MccParserService {
       }
 
       // Detect links to other local files: [Label](link)
-      const linkRegex = /\[.*?\]\((.*?)\)/g;
+      const linkRegex = /\[.*...\]\((.*...)\)/g;
       let linkMatch;
       while ((linkMatch = linkRegex.exec(line)) !== null) {
         const linkTarget = linkMatch[1];
@@ -259,7 +259,7 @@ export class MccParserService {
   }
 
   /**
-   * Parser de arquivos de Dados (CSV, JSON)
+   * Data files parser (CSV, JSON)
    */
   private parseData(relativePath: string, content: string, nodes: MccNode[], edges: MccEdge[]): void {
     const ext = path.extname(relativePath).toLowerCase();
@@ -311,7 +311,7 @@ export class MccParserService {
   }
 
   /**
-   * Auxiliar para coletar arquivos recursivamente ignorando diretórios comuns
+   * Helper to recursively collect files ignoring common directories
    */
   private collectFilesRecursive(basePath: string, currentPath: string, files: string[]): void {
     const entries = fs.readdirSync(currentPath, { withFileTypes: true });
@@ -321,7 +321,7 @@ export class MccParserService {
       const relPath = path.relative(basePath, fullPath);
 
       if (entry.isDirectory()) {
-        // Diretórios ignorados
+        // Ignored directories
         if (
           entry.name === 'node_modules' ||
           entry.name === '.git' ||
@@ -369,6 +369,6 @@ export class MccParserService {
       }
     }
 
-    return relativeTarget; // Fallback se não encontrar no disco
+    return relativeTarget; // Fallback if not found on disk
   }
 }

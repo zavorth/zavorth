@@ -22,7 +22,7 @@ export async function handleWebAppSurfaceCoreRoutes(
   if (pathname === '/api/web/gateway' && req.method === 'GET') {
     const gatewayService = deps.runtimeGateway || deps.gateway;
     if (!gatewayService) {
-      deps.writeJson(res, { ok: false, error: 'Gateway unificado indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Gateway unificado unavailable.' }, 503);
       return true;
     }
 
@@ -47,7 +47,7 @@ export async function handleWebAppSurfaceCoreRoutes(
   if (pathname === '/api/web/gateway/domains' && req.method === 'GET') {
     const gatewayService = deps.runtimeGateway || deps.gateway;
     if (!gatewayService) {
-      deps.writeJson(res, { ok: false, error: 'Domain plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Domain plane unavailable.' }, 503);
       return true;
     }
 
@@ -76,7 +76,7 @@ export async function handleWebAppSurfaceCoreRoutes(
   if (pathname === '/api/web/control-plane' && req.method === 'GET') {
     const gatewayService = deps.runtimeGateway || deps.gateway;
     if (!gatewayService) {
-      deps.writeJson(res, { ok: false, error: 'Control plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Control plane unavailable.' }, 503);
       return true;
     }
 
@@ -102,7 +102,7 @@ export async function handleWebAppSurfaceCoreRoutes(
     const sessionId = deps.resolveSessionId(url);
     const memoryPlane = await deps.buildMemoryPlaneSnapshot(sessionId);
     if (!memoryPlane) {
-      deps.writeJson(res, { ok: false, error: 'Memory plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Memory plane unavailable.' }, 503);
       return true;
     }
 

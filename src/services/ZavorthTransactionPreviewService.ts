@@ -38,8 +38,7 @@ export class ZavorthTransactionPreviewService {
   public buildPreview(input: ZavorthTransactionPreviewBuildInput): ZavorthTransactionPreview {
     const now = input.now ?? new Date();
     const intent =
-      input.intent ??
-      this.intentService.parse({
+      input.intent ??       this.intentService.parse({
         text: input.text ?? '',
         kind: input.kind,
         actionKind: input.actionKind,
@@ -255,17 +254,14 @@ function buildApprovalEnvelope(
 ): ZavorthTransactionApprovalEnvelope {
   const required =
     intent.safetyDecision.explicitHumanApprovalRequired || intent.naturalFirstRoute === 'approval-proposal';
-  const scope = intent.limits.some((limit) => limit.scope === 'mandate')
-    ? 'future-mandate'
-    : required
-      ? 'single-preview'
+  const scope = intent.limits.some((limit) => limit.scope === 'mandate') ? 'future-mandate'
+    : required ? 'single-preview'
       : 'none';
   return {
     required,
     status: required ? 'pending' : 'none',
     scope,
-    reason: required
-      ? 'Transaction preview requires explicit human approval before any live execution plan.'
+    reason: required ? 'Transaction preview requires explicit human approval before any live execution plan.'
       : 'Read-only or preview-only transaction does not require approval.',
     ...(required ? { approvalId: `${previewId}.approval` } : {}),
     approvalPrompt: buildApprovalPrompt(intent, required),

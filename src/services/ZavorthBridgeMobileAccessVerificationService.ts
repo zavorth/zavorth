@@ -41,7 +41,7 @@ export class ZavorthBridgeMobileAccessVerificationService {
         route: 'none',
         ok: false,
         httpStatus: null,
-        summary: 'Nenhuma URL final foi publicada para validar o acesso movel.',
+        summary: 'No final URL was published to validate mobile access.',
         error: null,
       });
     }
@@ -81,7 +81,7 @@ export class ZavorthBridgeMobileAccessVerificationService {
       route: 'root',
       ok: false,
       httpStatus: null,
-      summary: 'A URL final ainda nao confirmou resposta externa do ZavorthBridge.',
+      summary: 'The final URL has not confirmed an external ZavorthBridge response yet.',
       error: lastError,
     });
   }

@@ -28,7 +28,7 @@ export function shouldHandleReviewCommand(commandName: string | null, args: stri
   const normalizedArgs = String(args || '').trim();
   return normalizedArgs.length === 0
     || /^\s*github\b/i.test(normalizedArgs)
-    || /(?:^|\s)--(?:github|governed|kernel|security|policy|regression|mode=|file=|base=|target=|repo=|pr=|github-pr=|live-agents|launch-live-agents|mock-live-agents|comment-pr|post-pr-comment|post-comment|apply-patch|approval-id=)\b/i.test(normalizedArgs);
+    || /(?:^|\s)--(?:github|governed|kernel|security|policy|regression|mode=|file=|base=|target=|repo=|pr=|github-pr=|live-agents|launch-live-agents|dry-live-agents|comment-pr|post-pr-comment|post-comment|apply-patch|approval-id=)\b/i.test(normalizedArgs);
 }
 
 export function resolveGovernedReviewMode(commandName: string | null, args: string): GovernedReviewMode | null {
@@ -118,7 +118,7 @@ async function buildGitHubGovernedReviewCliSnapshot(input: {
     approvalId: readStringFlag(input.args, 'approval-id'),
     launchLiveAgents: hasFlag(input.args, 'live-agents')
       || hasFlag(input.args, 'launch-live-agents')
-      || hasFlag(input.args, 'mock-live-agents'),
+      || hasFlag(input.args, 'dry-live-agents'),
     liveAgentMode: readLiveAgentMode(input.args),
     maxLiveWorkers: readIntegerFlag(input.args, 'max-live-workers'),
     maxToolCalls: readIntegerFlag(input.args, 'max-tool-calls'),
@@ -207,7 +207,7 @@ export function formatGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot
   }
 
   if (snapshot.verification.needsHumanReviewFindings.length > 0) {
-    lines.push('', 'Revisao humana');
+    lines.push('', 'Review humana');
     for (const finding of snapshot.verification.needsHumanReviewFindings.slice(0, 5)) {
       lines.push(`- ${finding.title} (${finding.confidence}): ${finding.verification.reasons.join(', ')}`);
     }
@@ -238,10 +238,10 @@ export function formatGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot
     lines.push(`- ${receipt.kind}: ${receipt.status} (${receipt.source})`);
   }
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   lines.push('- CLI JSON: zavorth governed-review --json');
   lines.push('- ZavorthControl: /zavorthControl/reviews');
-  lines.push('- Comentario em PR, patch e live agents continuam approval-gated.');
+  lines.push('- PR comments, patches, and live agents remain approval-gated.');
 
   return lines.join('\n');
 }
@@ -275,7 +275,7 @@ function readFiles(args: string): GovernedReviewContextFile[] {
 function stripReviewFlags(value: string): string {
   return value
     .replace(/^\s*github\b/i, '')
-    .replace(/--(?:github|governed|kernel|security|policy|regression|live-agents|launch-live-agents|mock-live-agents|mock-live|live-llm|comment-pr|post-pr-comment|post-comment|apply-patch)\b/g, '')
+    .replace(/--(?:github|governed|kernel|security|policy|regression|live-agents|launch-live-agents|dry-live-agents|dry-live|live-llm|comment-pr|post-pr-comment|post-comment|apply-patch)\b/g, '')
     .replace(/--(?:mode|file|base|target|workspace|repo|review-id|approval-id|pr|github-pr|pr-target|patch-file|patch|live-mode|max-live-workers|max-tool-calls)=(?:"[^"]+"|'[^']+'|\S+)/g, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -284,7 +284,7 @@ function stripReviewFlags(value: string): string {
 function readRequestedActions(args: string): GovernedReviewRequestedActions | null {
   const launchLiveAgents = hasFlag(args, 'live-agents')
     || hasFlag(args, 'launch-live-agents')
-    || hasFlag(args, 'mock-live-agents');
+    || hasFlag(args, 'dry-live-agents');
   const commentOnPr = hasFlag(args, 'comment-pr') || hasFlag(args, 'post-pr-comment');
   const applyPatch = hasFlag(args, 'apply-patch');
   if (!launchLiveAgents && !commentOnPr && !applyPatch) {
@@ -320,16 +320,16 @@ function hasRequestedActions(actions: GovernedReviewRequestedActions | null | un
 
 function readLiveAgentMode(args: string): GovernedReviewRequestedActions['liveAgentMode'] {
   const explicit = readStringFlag(args, 'live-mode');
-  if (explicit === 'live-llm' || explicit === 'mock-live' || explicit === 'governed-in-process') {
+  if (explicit === 'live-llm' || explicit === 'dry-live' || explicit === 'governed-in-process') {
     return explicit;
   }
-  if (hasFlag(args, 'mock-live-agents') || hasFlag(args, 'mock-live')) {
-    return 'mock-live';
+  if (hasFlag(args, 'dry-live-agents') || hasFlag(args, 'dry-live')) {
+    return 'dry-live';
   }
   if (hasFlag(args, 'live-llm') || hasFlag(args, 'live-agents') || hasFlag(args, 'launch-live-agents')) {
     return 'live-llm';
   }
-  return 'mock-live';
+  return 'dry-live';
 }
 
 function readIntegerFlag(args: string, name: string): number | null {
@@ -376,13 +376,13 @@ function isGitHubGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot): sn
 function formatGitHubGovernedReviewSnapshot(snapshot: GovernedReviewGitHubResult): string {
   const reviewText = formatGovernedReviewSnapshot(snapshot.review);
   const lines = [
-    'Zavorth GitHub Governed Review - Phase B',
+    'Zavorth GitHub Governed Review - Governed review',
     `- repo: ${snapshot.repo.nameWithOwner || snapshot.repo.requestedRepo || 'current'} (${snapshot.repo.status})`,
     `- pr: ${snapshot.pullRequest.number ? `#${snapshot.pullRequest.number}` : snapshot.pullRequest.target} ${snapshot.pullRequest.title}`,
     `- refs: ${snapshot.pullRequest.baseRef || 'base'} <- ${snapshot.pullRequest.headRef || 'head'}`,
     `- diff: ${snapshot.pullRequest.changedFiles.length} file(s); +${snapshot.pullRequest.additions}/-${snapshot.pullRequest.deletions}; sha ${snapshot.pullRequest.diffSha.slice(0, 16)}`,
     `- comment: ${snapshot.review.execution.outcomes.find((outcome) => outcome.action === 'comment-on-pr')?.status || 'not requested'}`,
-    `- comandos gh: ${snapshot.commands.length}`,
+    `- gh commands: ${snapshot.commands.length}`,
     '',
     reviewText,
   ];

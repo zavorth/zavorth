@@ -21,7 +21,7 @@ export class SessionRegistryService {
   public registerSession(input: RegisterSessionOwnershipInput): SessionOwnershipRecord {
     const sessionId = normalizeText(input.sessionId);
     if (!sessionId) {
-      throw new Error('sessionId obrigatorio para registrar ownership de sessao.');
+      throw new Error('sessionId required para registrar ownership de session.');
     }
 
     const now = this.resolveNow(input.now);

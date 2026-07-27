@@ -64,8 +64,7 @@ export class ZavorthNativeCompanionDevicePackService {
     const status = satellite.status === 'passed'
       && (desktop.status === 'passed' || desktop.status === 'attention')
       && targetsOwnerGated >= 3
-      && receipts.every((receipt) => receipt.secretValuesSerialized === false)
-      ? 'passed'
+      && receipts.every((receipt) => receipt.secretValuesSerialized === false) ? 'passed'
       : 'failed';
 
     return {
@@ -117,7 +116,7 @@ export class ZavorthNativeCompanionDevicePackService {
         check: 'npm run zavorth-native-companion-device-pack:check --silent',
         qa: 'npm run qa:zavorth-native-companion-device-pack --silent',
         liveMlxTts: 'npm run zavorth-native-companion-device-pack -- --mlx-tts "hello" --approval-id <id>',
-        nextStage: 'Surface controls - QA, Security And Release Certification Pack',
+        nextAction: 'Surface controls - QA, Security And Release Certification Pack',
       },
     };
   }
@@ -142,7 +141,7 @@ export class ZavorthNativeCompanionDevicePackService {
     for (const entry of snapshot.consistency) {
       lines.push(`- ${entry.target}: ${entry.status}, decision=${entry.decision}, capabilities=${entry.capabilities.length}`);
     }
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -270,7 +269,7 @@ export class ZavorthNativeCompanionDevicePackService {
   ): ZavorthNativeCapabilityReceipt['status'] {
     if (capabilityId === 'offline.queue') return proof.offlineQueueDelivered ? 'available' : 'blocked';
     if (capabilityId === 'device.pairing') return proof.pairingClaimed ? 'available' : 'blocked';
-    if (capabilityId === 'share.invoke' || capabilityId === 'notifications.send') return 'simulated';
+    if (capabilityId === 'share.invoke' || capabilityId === 'notifications.send') return 'dryRun';
     return proof.completedCapabilityIds.includes(capabilityId) ? 'available' : 'blocked';
   }
 

@@ -70,7 +70,7 @@ export class DefaultTrustPolicy implements ZavorthTrustPolicy {
         operation: 'signature_validation',
         target: packageId,
         allowed: false,
-        reason: 'Pacote ausente do catalogo confiavel.',
+        reason: 'Package is missing from the trusted catalog.',
       });
       return false;
     }
@@ -82,7 +82,7 @@ export class DefaultTrustPolicy implements ZavorthTrustPolicy {
         operation: 'signature_validation',
         target: entry.id,
         allowed: false,
-        reason: 'Assinatura do pacote nao confere com o catalogo confiavel.',
+        reason: 'Package signature does not match the trusted catalog.',
       });
       return false;
     }
@@ -98,9 +98,8 @@ export class DefaultTrustPolicy implements ZavorthTrustPolicy {
         operation: 'signature_validation',
         target: entry.id,
         allowed,
-        reason: allowed
-          ? 'Assinatura e catalogo remoto confiavel estao validos.'
-          : 'Catalogo remoto nao esta pronto, confiavel e fresco.',
+        reason: allowed ? 'Signature and trusted remote catalog are valid.'
+          : 'Remote catalog is not ready, trusted, and fresh.',
       });
       return allowed;
     }
@@ -112,7 +111,7 @@ export class DefaultTrustPolicy implements ZavorthTrustPolicy {
         operation: 'signature_validation',
         target: entry.id,
         allowed: false,
-        reason: 'Local state marked the package source as untrusted.',
+        reason: 'local state marked the package source as untrusted.',
       });
       return false;
     }
@@ -122,7 +121,7 @@ export class DefaultTrustPolicy implements ZavorthTrustPolicy {
       operation: 'signature_validation',
       target: entry.id,
       allowed: true,
-      reason: 'Assinatura local validada contra catalogo confiavel.',
+      reason: 'Local signature validated against the trusted catalog.',
     });
     return true;
   }
@@ -135,9 +134,8 @@ export class DefaultTrustPolicy implements ZavorthTrustPolicy {
       operation: 'publisher_trust',
       target: normalized || 'unknown',
       allowed,
-      reason: allowed
-        ? 'Publisher recognized as trusted.'
-        : 'Publisher nao esta na lista confiavel.',
+      reason: allowed ? 'Publisher recognized as trusted.'
+        : 'Publisher is not in the trusted list.',
     });
     return allowed;
   }
@@ -158,12 +156,10 @@ export class DefaultTrustPolicy implements ZavorthTrustPolicy {
       };
     }
 
-    const remoteSource = entry.source.includes('remote-catalog') && sync.remoteUrl
-      ? `${String(sync.remoteUrl).replace(/\/+$/, '')}/packages/${encodeURIComponent(entry.id)}`
+    const remoteSource = entry.source.includes('remote-catalog') && sync.remoteUrl ? `${String(sync.remoteUrl).replace(/\/+$/, '')}/packages/${encodeURIComponent(entry.id)}`
       : null;
     const sourceUrl = remoteSource
-      || (entry.source.startsWith('registry:')
-        ? `zavorth://${entry.source.replace(/^registry:/, 'catalog/')}/${entry.id}`
+      || (entry.source.startsWith('registry:') ? `zavorth://${entry.source.replace(/^registry:/, 'catalog/')}/${entry.id}`
         : entry.source);
     const commitHash = localState?.sourceDigest || sync.contentSha256 || undefined;
 

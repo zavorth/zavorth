@@ -3,7 +3,7 @@ import type {
   ChannelLiveActivationEntry,
   ChannelLiveActivationGate,
   ChannelLiveActivationGateStatus,
-  ChannelLiveActivationP0Id,
+  ChannelLiveActivationPriorityId,
   ChannelLiveActivationSnapshot,
 } from '../contracts/ChannelLiveActivationContract.js';
 import { ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION } from '../contracts/ChannelLiveActivationContract.js';
@@ -17,8 +17,8 @@ type ChannelLiveActivationRuntime = {
   liveReadinessService?: LiveReadinessService;
 };
 
-type P0Descriptor = {
-  channelId: ChannelLiveActivationP0Id;
+type PriorityDescriptor = {
+  channelId: ChannelLiveActivationPriorityId;
   platformId: string;
   status: ChannelLiveActivationEntry['status'];
   runtimeTarget: string;
@@ -29,13 +29,13 @@ type P0Descriptor = {
   gaps: string[];
 };
 
-const P0_CHANNELS: P0Descriptor[] = [
+const PRIORITY_CHANNELS: PriorityDescriptor[] = [
   {
     channelId: 'signal',
     platformId: 'signal',
     status: 'partial-live',
     runtimeTarget: 'Signal JSON-RPC or signal-cli daemon',
-    gatewayTarget: 'src/gateways/channels/signal/SignalGateway.stub.ts',
+    gatewayTarget: 'src/gateways/channels/signal/SignalGateway.ts',
     adapterTarget: 'src/adapters/channels/SignalLiveClient.ts',
     configSchema: schema({
       requiredEnv: ['SIGNAL_ACCOUNT_NUMBER', 'SIGNAL_ALLOWED_RECIPIENTS', 'SIGNAL_JSONRPC_URL or SIGNAL_CLI_PATH'],
@@ -55,7 +55,7 @@ const P0_CHANNELS: P0Descriptor[] = [
     },
     gaps: [
       'operator must run signal-cli daemon or expose JSON-RPC before staging-live smoke',
-      'attachments and edits remain out of Preview engine scope',
+      'attachments and edits remain outside this live activation scope',
     ],
   },
   {
@@ -63,7 +63,7 @@ const P0_CHANNELS: P0Descriptor[] = [
     platformId: 'teams',
     status: 'partial-live',
     runtimeTarget: 'Microsoft Graph chat messages',
-    gatewayTarget: 'src/gateways/channels/teams/TeamsGateway.stub.ts',
+    gatewayTarget: 'src/gateways/channels/teams/TeamsGateway.ts',
     adapterTarget: 'src/adapters/channels/TeamsGraphBotClient.ts',
     configSchema: schema({
       requiredEnv: [
@@ -96,8 +96,8 @@ const P0_CHANNELS: P0Descriptor[] = [
     platformId: 'slack',
     status: 'partial-live',
     runtimeTarget: 'Slack Web API',
-    gatewayTarget: 'src/gateways/channels/slack/SlackGateway.stub.ts',
-    adapterTarget: 'src/gateways/channels/slack/SlackGateway.stub.ts#callSlackApi',
+    gatewayTarget: 'src/gateways/channels/slack/SlackGateway.ts',
+    adapterTarget: 'src/gateways/channels/slack/SlackGateway.ts#callSlackApi',
     configSchema: schema({
       requiredEnv: ['SLACK_BOT_TOKEN', 'SLACK_ALLOWED_CHANNEL_IDS'],
       optionalEnv: ['SLACK_ENABLED', 'SLACK_TRANSPORT', 'SLACK_SIGNING_SECRET', 'SLACK_WORKSPACE_ID', 'SLACK_API_BASE_URL'],
@@ -121,8 +121,8 @@ const P0_CHANNELS: P0Descriptor[] = [
     platformId: 'whatsapp',
     status: 'partial-live',
     runtimeTarget: 'Meta WhatsApp Cloud API',
-    gatewayTarget: 'src/gateways/channels/whatsapp/WhatsAppGateway.stub.ts',
-    adapterTarget: 'src/gateways/channels/whatsapp/WhatsAppGateway.stub.ts#sendCloudApiTextMessage',
+    gatewayTarget: 'src/gateways/channels/whatsapp/WhatsAppGateway.ts',
+    adapterTarget: 'src/gateways/channels/whatsapp/WhatsAppGateway.ts#sendCloudApiTextMessage',
     configSchema: schema({
       requiredEnv: [
         'WHATSAPP_PROVIDER=cloud-api',
@@ -145,15 +145,15 @@ const P0_CHANNELS: P0Descriptor[] = [
       webhookValidation: true,
       fallbackOutbox: true,
     },
-    gaps: ['Baileys remains planned; Preview engine certifies Cloud API as the live path'],
+    gaps: ['Baileys remains a separate connector path; Cloud API is certified as the live path'],
   },
   {
     channelId: 'discord',
     platformId: 'discord',
     status: 'partial-live',
-    runtimeTarget: 'Discord selective spine gateway (stub mock I/O + native services)',
-    gatewayTarget: 'src/gateways/channels/discord/DiscordGateway.stub.ts',
-    adapterTarget: 'src/gateways/channels/discord/DiscordGateway.stub.ts#broadcast',
+    runtimeTarget: 'Discord selective spine gateway (local controlled I/O plus native services)',
+    gatewayTarget: 'src/gateways/channels/discord/DiscordGateway.ts',
+    adapterTarget: 'src/gateways/channels/discord/DiscordGateway.ts#broadcast',
     configSchema: schema({
       requiredEnv: ['DISCORD_BOT_TOKEN', 'DISCORD_ALLOWED_CHANNEL_IDS or DISCORD_ALLOWED_GUILD_IDS'],
       optionalEnv: [
@@ -216,8 +216,8 @@ export class ChannelLiveActivationService {
     this.liveReadiness = runtime.liveReadinessService || new LiveReadinessService({ now: this.now });
   }
 
-  public resolveChannelId(channelId: string): ChannelLiveActivationP0Id | null {
-    const match = P0_CHANNELS.find((entry) =>
+  public resolveChannelId(channelId: string): ChannelLiveActivationPriorityId | null {
+    const match = PRIORITY_CHANNELS.find((entry) =>
       entry.channelId === channelId
       || entry.platformId === channelId
       || channelIdsEqual(entry.channelId, channelId)
@@ -230,7 +230,7 @@ export class ChannelLiveActivationService {
   public buildSnapshot(): ChannelLiveActivationSnapshot {
     const readinessSnapshot = this.liveReadiness.buildSnapshot();
     const readinessByName = new Map(readinessSnapshot.entries.map((entry) => [entry.normalizedSourceName, entry]));
-    const entries = P0_CHANNELS.map((descriptor) =>
+    const entries = PRIORITY_CHANNELS.map((descriptor) =>
       this.buildEntry(
         descriptor,
         readinessByName.get(descriptor.channelId)
@@ -245,7 +245,7 @@ export class ChannelLiveActivationService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION,
-      gate: 'channel-live-activation-p0',
+      gate: 'channel-live-activation-priority',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         channels: 6,
@@ -256,17 +256,17 @@ export class ChannelLiveActivationService {
         signalAndTeamsOutboxOnly: false,
         configSchemas: entries.filter((entry) => entry.configSchema.requiredEnv.length > 0).length,
         setupDoctors: entries.filter((entry) => this.hasGate(entry, 'setup-doctor')).length,
-        inboundMockTests: entries.filter((entry) => this.hasGate(entry, 'inbound-mock')).length,
-        outboundMockTests: entries.filter((entry) => this.hasGate(entry, 'outbound-mock')).length,
+        localInboundEnvelopeTests: entries.filter((entry) => this.hasGate(entry, 'local-inbound-envelope')).length,
+        localOutboundDeliveryTests: entries.filter((entry) => this.hasGate(entry, 'local-outbound-delivery')).length,
         stagingLiveSmokeCommands: entries.filter((entry) => this.hasGate(entry, 'staging-live-smoke')).length,
         redactedReceipts: receipts.filter((receipt) => receipt.secretValuesSerialized === false).length,
-        liveIoRequiredByStage2Check: false,
+        liveIoRequiredByCertificationCheck: false,
         secretValuesSerialized: false,
       },
       entries,
       receipts,
       policy: {
-        noLiveIoDuringStage2Check: true,
+        noLiveIoDuringCertificationCheck: true,
         stagingLiveRequiresExplicitOperatorCommand: true,
         outboxAllowedOnlyAsFallback: true,
         signalUsesJsonRpcOrSignalCli: true,
@@ -279,13 +279,13 @@ export class ChannelLiveActivationService {
         stagingLiveSmoke: 'npm run channel-live-activation -- --profile staging-live --channel <channel> --confirm-live-io',
         focusedTests: ['npx jest tests/services/ChannelLiveActivationService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Connector registry - Provider Runtime Activation P0',
+        nextGate: 'Connector registry - Provider Runtime Activation',
       },
     };
   }
 
   public buildEntry(
-    descriptor: P0Descriptor,
+    descriptor: PriorityDescriptor,
     readinessEntry: LiveReadinessEntry | null = null,
   ): ChannelLiveActivationEntry {
     const previousStatus = readinessEntry?.status || 'planned';
@@ -319,7 +319,7 @@ export class ChannelLiveActivationService {
     };
   }
 
-  private buildGates(descriptor: P0Descriptor, stagingLiveSmokeCommand: string): ChannelLiveActivationGate[] {
+  private buildGates(descriptor: PriorityDescriptor, stagingLiveSmokeCommand: string): ChannelLiveActivationGate[] {
     const channelId = descriptor.channelId;
     return [
       this.gate(
@@ -335,15 +335,15 @@ export class ChannelLiveActivationService {
         `npm run channel-live-activation -- --profile configured --channel ${channelId}`,
       ),
       this.gate(
-        'inbound-mock',
+        'local-inbound-envelope',
         descriptor.capabilities.inbound ? 'passed' : 'partial',
-        `${channelId} inbound envelope can be mocked without external IO.`,
+        `${channelId} inbound envelope can be validated through the local envelope without external IO.`,
         'npx jest tests/services/ChannelLiveActivationService.test.ts --runInBand',
       ),
       this.gate(
-        'outbound-mock',
+        'local-outbound-delivery',
         descriptor.capabilities.outbound ? 'passed' : 'partial',
-        `${channelId} outbound envelope can be mocked without external IO.`,
+        `${channelId} outbound envelope can be validated through the local envelope without external IO.`,
         'npx jest tests/services/ChannelLiveActivationService.test.ts --runInBand',
       ),
       this.gate(
@@ -355,16 +355,14 @@ export class ChannelLiveActivationService {
       this.gate(
         'inbound-validation',
         descriptor.capabilities.webhookValidation || descriptor.capabilities.inbound ? 'passed' : 'partial',
-        descriptor.capabilities.webhookValidation
-          ? `${channelId} validates inbound webhook or event envelopes.`
-          : `${channelId} supports native or mock inbound event normalization.`,
+        descriptor.capabilities.webhookValidation ? `${channelId} validates inbound webhook or event envelopes.`
+          : `${channelId} supports native or local inbound event normalization.`,
         null,
       ),
       this.gate(
         'fallback-policy',
         descriptor.capabilities.fallbackOutbox ? 'passed' : 'passed',
-        descriptor.capabilities.fallbackOutbox
-          ? 'outbox is allowed only when live provider config is missing'
+        descriptor.capabilities.fallbackOutbox ? 'outbox is allowed only when live provider config is missing'
           : 'no outbox fallback is required for this native channel',
         null,
       ),

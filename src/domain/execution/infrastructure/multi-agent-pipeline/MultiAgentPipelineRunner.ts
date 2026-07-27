@@ -70,13 +70,12 @@ export class MultiAgentPipelineRunner {
         ctx,
         run,
         stage,
-        `Etapa ${index + 1}/${stages.length}`,
+        `Stage ${index + 1}/${stages.length}`,
         stage.label,
         this.deps.presentation.formatStageIntro(stage, index, stages.length),
       );
       const handoffSummary = stageResults.length > 0
-        ? this.deps.workflowPlanner.summarizeResult(stageResults[stageResults.length - 1])
-        : null;
+        ? this.deps.workflowPlanner.summarizeResult(stageResults[stageResults.length - 1]) : null;
       const existingStage = run.phases.find((entry) => entry.id === stage.id);
       const shouldReuseObjective = Boolean(existingStage?.objective)
         && ((startIndex > 0 && index === startIndex) || run.workflow_name === 'sdd');
@@ -114,7 +113,7 @@ export class MultiAgentPipelineRunner {
               id: run.workflow_run_id,
               title: `${run.workflow_name} workflow`,
               status: 'require_user_confirmation',
-              reason: 'Workflow pausado antes da conclusao.',
+              reason: 'Workflow paused before completion.',
               policyProfile: 'workflow-runtime',
               redacted: true,
               riskBlocked: false,
@@ -132,7 +131,7 @@ export class MultiAgentPipelineRunner {
       {
         id: `workflow-${run.workflow_run_id}-complete`,
         intent: 'receipt',
-        title: 'Workflow concluido',
+        title: 'Workflow completed',
         summary: this.deps.presentation.describeWorkflow(run.workflow_name),
         tone: 'success',
         text: this.deps.presentation.formatWorkflowCompletion(run.workflow_name, finalResult, run),
@@ -140,7 +139,7 @@ export class MultiAgentPipelineRunner {
           id: run.workflow_run_id,
           title: `${run.workflow_name} workflow`,
           status: 'done',
-          reason: 'Todas as etapas disponiveis foram processadas.',
+          reason: 'All available stages were processed.',
           policyProfile: 'workflow-runtime',
           redacted: true,
           riskBlocked: false,
@@ -220,9 +219,9 @@ export class MultiAgentPipelineRunner {
       });
       this.deps.workflowRuns.markStageInterrupted(run, stage.id, 'failed', err.message);
       await this.replyWorkflowStageEvent(ctx, run, stage, task.task_id, {
-        title: 'Etapa falhou',
+        title: 'Stage failed',
         summary: err.message,
-        text: `Nao consegui concluir a etapa ${stage.label}.\n\nMotivo: ${err.message}`,
+        text: `Could not complete step ${stage.label}.\n\nReason: ${err.message}`,
         status: 'failed',
         reason: err.message,
       });
@@ -250,13 +249,13 @@ export class MultiAgentPipelineRunner {
       });
       this.deps.workflowRuns.markStageInterrupted(run, stage.id, 'approval_pending', decision.reason);
       await this.replyWorkflowStageEvent(ctx, run, stage, task.task_id, {
-        title: 'Etapa aguardando aprovacao',
+        title: 'Stage waiting for approval',
         summary: decision.reason,
         text: [
-          `A etapa ${stage.label} ficou aguardando aprovacao.`,
+          `Step ${stage.label} ficou waiting for approval.`,
           '',
-          `Motivo: ${decision.reason}`,
-          'Assim que voce aprovar, o fluxo pode continuar a partir daqui.',
+          `Reason: ${decision.reason}`,
+          'After approval, the flow can continue from here.',
         ].join('\n'),
         status: 'require_user_confirmation',
         reason: decision.reason,
@@ -277,12 +276,12 @@ export class MultiAgentPipelineRunner {
       });
       this.deps.workflowRuns.markStageInterrupted(run, stage.id, 'blocked', decision.reason);
       await this.replyWorkflowStageEvent(ctx, run, stage, task.task_id, {
-        title: 'Etapa bloqueada',
+        title: 'Stage blocked',
         summary: decision.reason,
         text: [
-          `Stage ${stage.label} foi bloqueada antes de executar.`,
+          `Stage ${stage.label} foi blocked before run.`,
           '',
-          `Motivo: ${decision.reason}`,
+          `Reason: ${decision.reason}`,
         ].join('\n'),
         status: 'blocked',
         reason: decision.reason,
@@ -295,7 +294,7 @@ export class MultiAgentPipelineRunner {
         decision.execution_result.error_message ||
         decision.execution_result.stderr ||
         decision.reason ||
-        'Falha de timeout ou erro desconhecido.';
+        'Timeout failure or unknown error.';
       this.deps.taskSupport.applyExecutionResult(task, decision.execution_result, errorMsg);
       this.deps.taskManager?.advanceState(task, 'failed', {
         reason: 'workflow_stage_failed',
@@ -307,12 +306,12 @@ export class MultiAgentPipelineRunner {
       });
       this.deps.workflowRuns.markStageInterrupted(run, stage.id, 'failed', errorMsg);
       await this.replyWorkflowStageEvent(ctx, run, stage, task.task_id, {
-        title: 'Etapa falhou',
+        title: 'Stage failed',
         summary: errorMsg,
         text: [
-          `A etapa ${stage.label} falhou.`,
+          `Step ${stage.label} failed.`,
           '',
-          `Motivo: ${errorMsg}`,
+          `Reason: ${errorMsg}`,
         ].join('\n'),
         status: 'failed',
         reason: errorMsg,
@@ -331,9 +330,9 @@ export class MultiAgentPipelineRunner {
     });
     this.deps.workflowRuns.markStageCompleted(run, stage.id, decision.execution_result, summary);
     await this.replyWorkflowStageEvent(ctx, run, stage, task.task_id, {
-      title: 'Etapa concluida',
+      title: 'Stage completed',
       summary,
-      text: `Etapa concluida: ${stage.label}.`,
+      text: `Stage completed: ${stage.label}.`,
       status: 'done',
       reason: summary,
     });
@@ -365,14 +364,14 @@ export class MultiAgentPipelineRunner {
       {
         id: `workflow-${run.workflow_run_id}-sdd-${role}`,
         intent: 'receipt',
-        title: 'SDD atualizado',
+        title: 'SDD updated',
         summary: `Feature: ${featureId}`,
         tone: 'success',
         text: [
-          `SDD atualizado para ${featureId}.`,
-          `Proximo papel: ${nextWorkOrder.nextRole}`,
+          `SDD updated for ${featureId}.`,
+          `next role: ${nextWorkOrder.nextRole}`,
           `Lifecycle: ${nextWorkOrder.lifecycle}`,
-          nextWorkOrder.currentTask ? `Task atual: ${nextWorkOrder.currentTask}` : 'Task atual: nenhuma',
+          nextWorkOrder.currentTask ? `Current task: ${nextWorkOrder.currentTask}` : 'Current task: none',
         ].join('\n'),
         receipt: {
           id: `${run.workflow_run_id}:${stage.id}`,

@@ -15,7 +15,7 @@ export type SensitiveDataFinding = {
 };
 
 const SENSITIVE_KEY_PATTERN =
-  /(?:api[_-]?key|apiKey|access[_-]?token|accessToken|auth[_-]?token|authToken|authorization|client[_-]?secret|clientSecret|credential|password|private[_-]?key|privateKey|refresh[_-]?token|refreshToken|secret|senha|token)/i;
+  /(?:api[_-]...key|apiKey|access[_-]...token|accessToken|auth[_-]...token|authToken|authorization|client[_-]...secret|clientSecret|credential|password|private[_-]...key|privateKey|refresh[_-]...token|refreshToken|secret|token)/i;
 
 const SECRET_VALUE_PATTERNS: Array<{ kind: SensitiveDataFinding['kind']; pattern: RegExp }> = [
   { kind: 'private-key', pattern: /-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----/i },
@@ -29,12 +29,12 @@ const SECRET_VALUE_PATTERNS: Array<{ kind: SensitiveDataFinding['kind']; pattern
   { kind: 'credential-url', pattern: /\b[a-z][a-z0-9+.-]*:\/\/[^/\s:@]+:[^@\s/]+@[^/\s]+/gi },
   {
     kind: 'secret-assignment',
-    pattern: /\b[A-Za-z0-9_.-]*(?:api[_ -]?key|token|secret|password|senha|credential|client[_ -]?secret)\s*[:=]\s*['"]?[^,'"\s;]{8,}/gi,
+    pattern: /\b[A-Za-z0-9_.-]*(?:api[_ -]...key|token|secret|password|credential|client[_ -]...secret)\s*[:=]\s*['"]...[^,'"\s;]{8,}/gi,
   },
 ];
 
 const SECRET_REF_PATTERN = /^secret-ref:[a-z0-9_.:/-]+$/i;
-const REDACTED_PATTERN = /^\[?(?:redacted|redacted-secret|secret-redacted)\]?$/i;
+const REDACTED_PATTERN = /^\[...(?:redacted|redacted-secret|secret-redacted)\]...$/i;
 
 const EXFILTRATION_CAPABILITIES = new Set<AgentToolCapability>([
   'configuration',
@@ -131,8 +131,7 @@ function redactSensitiveDataInternal(value: unknown, seen: WeakSet<object>): unk
 
   const output: Record<string, unknown> = {};
   for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
-    output[key] = SENSITIVE_KEY_PATTERN.test(key) && isSensitiveKeyValue(entry)
-      ? '[redacted-secret]'
+    output[key] = SENSITIVE_KEY_PATTERN.test(key) && isSensitiveKeyValue(entry) ? '[redacted-secret]'
       : redactSensitiveDataInternal(entry, seen);
   }
   return output;

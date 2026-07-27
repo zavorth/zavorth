@@ -124,8 +124,7 @@ export async function GET(request: Request) {
         reason: runtime.reason,
         config: null,
         message:
-          runtime.installed && !runtime.runnable
-            ? "Codex CLI is installed but not runnable"
+          runtime.installed && !runtime.runnable ? "Codex CLI is installed but not runnable"
             : "Codex CLI is not installed",
       });
     }

@@ -303,7 +303,7 @@ export class AgentRunPolicyFlows {
           ...(recordOrNull(existing.policy) || {}),
           approvalsStillRequired: false,
         },
-        nextSafeAction: 'Executar apenas dentro do escopo aprovado.',
+        nextSafeAction: 'Execute only inside the approved scope.',
       },
     };
   }
@@ -365,7 +365,7 @@ export class AgentRunPolicyFlows {
           ...(recordOrNull(existing.policy) || {}),
           approvalsStillRequired: false,
         },
-        nextSafeAction: 'Executar somente as calls ensaiadas e aprovadas.',
+        nextSafeAction: 'Execute only rehearsed and approved calls.',
       },
     };
   }
@@ -408,7 +408,7 @@ export class AgentRunPolicyFlows {
       id: this.service.idFactory('agent-event'),
       runId: run.id,
       kind: result.applied ? 'artifact' : 'approval',
-      title: result.applied ? 'Rascunho aplicado pelo Mutation Plane' : 'Rascunho aguardando approval',
+      title: result.applied ? 'Draft applied by the Mutation Plane' : 'Draft waiting for approval',
       detail: result.summary,
       status: result.applied ? 'done' : 'pending',
       createdAt: now,

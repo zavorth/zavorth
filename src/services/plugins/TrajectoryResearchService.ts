@@ -268,10 +268,10 @@ export class TrajectoryResearchService {
       `  ${report.methodology}`,
       '',
       'Findings:',
-      ...report.findings.map((f) => `  - ${f}`),
+      ...report.findings.map((f) => ` ? ${f}`),
       '',
       'Conclusions:',
-      ...report.conclusions.map((c) => `  - ${c}`),
+      ...report.conclusions.map((c) => ` ? ${c}`),
     ];
 
     return lines.join('\n');

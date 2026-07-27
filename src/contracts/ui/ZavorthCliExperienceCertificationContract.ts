@@ -1,4 +1,4 @@
-export const ZAVORTH_CLI_EXPERIENCE_CONSISTENCY_CONTRACT_VERSION = '2026-05-15.experience-layer.checkpoint-13' as const;
+export const ZAVORTH_CLI_EXPERIENCE_CONSISTENCY_CONTRACT_VERSION = '2026-05-15.experience-layer.gate-13' as const;
 
 export type ZavorthCliExperienceCertificationCommandKind =
   | 'home_area'

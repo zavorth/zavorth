@@ -98,19 +98,19 @@ export class ErrorNormalizationService {
       code = 'cross_workspace_access';
       severity = 'error';
       recoverable = false;
-    } else if (lowercaseMsg.includes('workspace ainda não confiável') || lowercaseMsg.includes('workspace not trusted') || lowercaseMsg.includes('workspace ainda nao confiavel')) {
+    } else if (lowercaseMsg.includes('workspace not trusted')) {
       code = 'workspace_not_trusted';
       severity = 'warning';
       recoverable = true;
-    } else if (lowercaseMsg.includes('workspace access denied') || lowercaseMsg.includes('acesso negado ao workspace')) {
+    } else if (lowercaseMsg.includes('workspace access denied')) {
       code = 'workspace_access_denied';
       severity = 'error';
       recoverable = false;
-    } else if (lowercaseMsg.includes('hpm_disabled') || lowercaseMsg.includes('host power mode is disabled') || lowercaseMsg.includes('host power mode desabilitado')) {
+    } else if (lowercaseMsg.includes('hpm_disabled') || lowercaseMsg.includes('host power mode is disabled') || lowercaseMsg.includes('host power mode disabled')) {
       code = 'hpm_disabled';
       severity = 'warning';
       recoverable = true;
-    } else if (lowercaseMsg.includes('pty_disabled') || lowercaseMsg.includes('pty is disabled') || lowercaseMsg.includes('pty desabilitado')) {
+    } else if (lowercaseMsg.includes('pty_disabled') || lowercaseMsg.includes('pty is disabled') || lowercaseMsg.includes('pty disabled')) {
       code = 'pty_disabled';
       severity = 'warning';
       recoverable = true;

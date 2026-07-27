@@ -114,9 +114,8 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
       baseUrl: official.manifest?.remote?.baseUrl || persistedState.baseUrl || null,
       issues: officialIssues.length > 0 ? officialIssues : persistedState.issues,
       summary: persistedState.summary
-        || (activeCandidate
-          ? `Caminho remoto atual: ${activeCandidate.label}.`
-          : 'Nenhum caminho remoto oficial foi aplicado ainda.'),
+        || (activeCandidate ? `path remote current: ${activeCandidate.label}.`
+          : 'No path remote oficial foi aplicado ainda.'),
     };
   }
 
@@ -144,7 +143,7 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
         command: official.manifest?.commands?.remoteGo || 'npm run ops:remote:go',
         baseUrl: official.manifest?.remote?.baseUrl || null,
         appUrl: official.remote.appUrl || official.manifest?.remote?.appUrl || null,
-        label: 'Fechar remoto em 1 comando',
+        label: 'Complete remote setup in one command',
         description: recommendedPathReason,
       },
       apply: {
@@ -152,7 +151,7 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
         command: activeCandidate?.command || candidates[0]?.command || official.manifest?.commands?.remote || 'npm run ops:remote',
         baseUrl: official.manifest?.remote?.baseUrl || null,
         appUrl: official.remote.appUrl || official.manifest?.remote?.appUrl || null,
-        label: 'Aplicar caminho oficial',
+        label: 'Apply official path',
         description: recommendedPathReason,
       },
       verify: {
@@ -160,24 +159,24 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
         command: official.manifest?.commands?.remote || 'npm run ops:remote',
         appUrl: official.remote.appUrl || official.manifest?.remote?.appUrl || null,
         label: 'Verificar agora',
-        description: 'Valida novamente a URL publica, o /zavorthControl remoto e a auth web.',
+        description: 'Valida again a URL public, o /zavorthControl remote e a auth web.',
       },
       rollback: {
         id: 'rollback',
         command: activeCandidate?.command || candidates[0]?.command || official.manifest?.commands?.remote || 'npm run ops:remote',
         label: 'Limpar wizard',
-        description: 'Remove o rollout guiado atual e volta o wizard para o estado neutro.',
+        description: 'Remove o rollout guiado current e volta o wizard para o estado neutro.',
       },
       open: {
         id: 'open',
         url: official.remote.appUrl || official.manifest?.remote?.appUrl || official.manifest?.remote?.baseUrl || null,
         appUrl: official.remote.appUrl || official.manifest?.remote?.appUrl || null,
-        label: 'Abrir app remoto',
+        label: 'Abrir app remote',
       },
       copy: {
         id: 'copy',
         command: activeCandidate?.command || candidates[0]?.command || official.manifest?.commands?.remote || 'npm run ops:remote',
-        label: 'Copiar comando',
+        label: 'Copy command',
       },
       connect: {
         id: 'connect',
@@ -199,22 +198,20 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
     const officialSteps: RuntimeOfficialRemoteAccessReport['paths'][number]['steps'] = [
       {
         id: 'probe-app',
-        title: 'Validar a ZavorthControl remota',
+        title: 'validate remote ZavorthControl',
         status: official.remote.appProbe?.ok ? 'done' : 'pending',
-        detail: official.remote.appProbe?.ok
-          ? `GET ${official.remote.appProbe.targetUrl} respondeu ${official.remote.appProbe.statusCode}.`
-          : `Valide ${official.remote.appUrl || official.manifest?.remote?.appUrl || official.manifest?.remote?.baseUrl || 'a URL publica'} com ${official.manifest?.commands?.remote || 'npm run ops:remote'}.`,
+        detail: official.remote.appProbe?.ok ? `GET ${official.remote.appProbe.targetUrl} respondeu ${official.remote.appProbe.statusCode}.`
+          : `Validate ${official.remote.appUrl || official.manifest?.remote?.appUrl || official.manifest?.remote?.baseUrl || 'the public URL'} with ${official.manifest?.commands?.remote || 'npm run ops:remote'}.`,
         command: official.remote.ready
           ? (official.manifest?.commands?.remote || 'npm run ops:remote')
           : (official.manifest?.commands?.remoteGo || 'npm run ops:remote:go'),
       },
       {
         id: 'probe-auth',
-        title: 'Validar a autenticacao web',
+        title: 'validate a authentication web',
         status: official.remote.authProbe?.ok ? 'done' : 'pending',
-        detail: official.remote.authProbe?.ok
-          ? `POST ${official.remote.authProbe.targetUrl} respondeu ${official.remote.authProbe.statusCode}.`
-          : 'Confira ZAVORTH_WEB_AUTH_TOKEN e a exposicao publica antes de abrir a ZavorthControl remota.',
+        detail: official.remote.authProbe?.ok ? `POST ${official.remote.authProbe.targetUrl} respondeu ${official.remote.authProbe.statusCode}.`
+          : 'Check ZAVORTH_WEB_AUTH_TOKEN and public exposure before opening remote ZavorthControl.',
         command: official.remote.ready
           ? (official.manifest?.commands?.remote || 'npm run ops:remote')
           : (official.manifest?.commands?.remoteGo || 'npm run ops:remote:go'),
@@ -224,10 +221,9 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
     return [
       {
         id: 'official',
-        label: 'Caminho oficial da ZavorthControl remota',
+        label: 'official remote ZavorthControl path',
         status: official.remote.ready ? ('ready' as const) : ('pending' as const),
-        summary: official.remote.ready
-          ? `ZavorthControl remota validada em ${official.remote.appUrl || official.manifest?.remote?.appUrl || official.manifest?.remote?.baseUrl || 'URL publica atual'}.`
+        summary: official.remote.ready ? `Remote ZavorthControl validated at ${official.remote.appUrl || official.manifest?.remote?.appUrl || official.manifest?.remote?.baseUrl || 'current public URL'}.`
           : this.buildOfficialPendingSummary(official),
         command: official.remote.ready
           ? (official.manifest?.commands?.remote || 'npm run ops:remote')
@@ -258,13 +254,13 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
     state: RuntimeOfficialRemoteRolloutState,
   ): string {
     if (official.remote.ready) {
-      return 'Acesso remoto oficial pronto; a ZavorthControl remota ja consegue usar o runtime Zavorth.';
+      return 'official remote access ready; remote ZavorthControl can already use the Zavorth runtime.';
     }
 
     if (state.provider) {
       const selected = candidates.find((item) => item.id === state.provider) || null;
       if (selected) {
-        return `Acesso remoto oficial ainda pendente; o rollout selecionado e ${selected.label.toLowerCase()}.`;
+        return `access remote oficial ainda pending; o rollout selecionado e ${selected.label.toLowerCase()}.`;
       }
     }
 
@@ -272,23 +268,23 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
       ? candidates.find((item) => item.id === recommendedId) || null
       : null;
     if (recommended) {
-      return `Acesso remoto oficial ainda pendente; o melhor caminho agora e ${recommended.label.toLowerCase()}.`;
+      return `access remote oficial ainda pending; o melhor path agora e ${recommended.label.toLowerCase()}.`;
     }
 
-    return 'Acesso remoto oficial ainda pendente; revise a URL publica, o token web e o rollout sugerido.';
+    return 'access remote oficial ainda pending; revise a URL public, o token web e o rollout sugerido.';
   }
 
   private buildOfficialPendingSummary(official: RuntimeOfficialAccessReport): string {
     const issues = this.getOfficialRemoteIssues(official);
     if (issues.length > 0) {
-      return `A URL publica oficial ainda tem pendencias: ${issues[0]}.`;
+      return `A URL public oficial ainda tem pending items: ${issues[0]}.`;
     }
 
     if (official.remote.configured) {
-      return 'A URL publica oficial ja foi configurada, mas ainda falta validar o /zavorthControl remoto e a autenticacao web.';
+      return 'A URL public oficial already foi configurada, mas ainda missing validate o /zavorthControl remote e a authentication web.';
     }
 
-    return 'A URL publica oficial ainda precisa ser configurada e validada.';
+    return 'The official public URL still needs to be configured and validated.';
   }
 
   private buildNextSteps(
@@ -305,9 +301,9 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
       || (recommendedId ? candidates.find((item) => item.id === recommendedId) || null : null);
 
     if (candidate) {
-      steps.push(`Feche o remoto oficial em um comando com ${official.manifest?.commands?.remoteGo || 'npm run ops:remote:go'}.`);
+      steps.push(`Complete official remote setup in one command with ${official.manifest?.commands?.remoteGo || 'npm run ops:remote:go'}.`);
       steps.push(`Revise o rollout recomendado com ${candidate.command}.`);
-      steps.push(`Use o guia ${candidate.guide} para fechar o acesso remoto oficial.`);
+      steps.push(`Use guide ${candidate.guide} to finish official remote access.`);
       steps.push(...candidate.pendingHighlights);
     }
 
@@ -321,13 +317,13 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
     recommendedId: RuntimeOfficialRemoteRolloutCandidateId | null,
   ): string {
     if (official.remote.ready) {
-      return 'O app remoto e a autenticacao web ja responderam; esse ja e o caminho oficial ativo.';
+      return 'O app remote e a authentication web already responderam; esse already e o path oficial active.';
     }
 
     if (state.provider) {
       const active = candidates.find((candidate) => candidate.id === state.provider) || null;
       if (active) {
-        return `O rollout guiado atual usa ${active.label.toLowerCase()}.`;
+        return `O rollout guiado current usa ${active.label.toLowerCase()}.`;
       }
     }
 
@@ -335,9 +331,9 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
       ? candidates.find((candidate) => candidate.id === recommendedId) || null
       : null;
     if (recommended) {
-      return `O melhor proximo passo agora e ${recommended.label.toLowerCase()}.`;
+      return `O melhor next passo agora e ${recommended.label.toLowerCase()}.`;
     }
 
-    return 'O caminho oficial ainda depende da URL publica HTTPS e da validacao do token web.';
+    return 'O path oficial ainda depende da URL public HTTPS e da validation do token web.';
   }
 }

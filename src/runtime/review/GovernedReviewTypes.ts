@@ -1,7 +1,7 @@
 import type { AgentTeamCompilerSnapshot } from '../agent/AgentTeamCompilerService.js';
 import type { SubagentResultReceipt } from '../agent/subagents/index.js';
 
-export const GOVERNED_REVIEW_CONTRACT_VERSION = '2026-05-15.checkpoint-4' as const;
+export const GOVERNED_REVIEW_CONTRACT_VERSION = '2026-05-15.gate-4' as const;
 
 export type GovernedReviewMode =
   | 'code-review'
@@ -124,7 +124,7 @@ export type GovernedReviewPolicyGate = {
 
 export type GovernedReviewLiveAgentMode =
   | 'governed-in-process'
-  | 'mock-live'
+  | 'dry-live'
   | 'live-llm';
 
 export type GovernedReviewPatchRequest = {

@@ -30,7 +30,7 @@ export class ProviderInvocationService {
     try {
       const router = ProviderRuntimeRouter.getInstance();
       resolved = await router.route(request);
-      
+
       const factory = ProviderRuntimeClientFactory.getInstance();
       const invoker = await factory.createInvoker(resolved);
 
@@ -44,9 +44,9 @@ export class ProviderInvocationService {
           capability: request.capability || 'chat'
         }
       });
-      
+
       const result = await invoker.invoke({ messages, stream: false });
-      
+
       const durationMs = Date.now() - startMs;
       await auditLogger.logWorkspaceEvent({
         event: 'provider_invocation_succeeded',
@@ -59,7 +59,7 @@ export class ProviderInvocationService {
           capability: request.capability || 'chat'
         }
       });
-      
+
       return result;
     } catch (error: unknown) {const durationMs = Date.now() - startMs;
       const normalized = ErrorNormalizationService.getInstance().normalize(error);
@@ -78,7 +78,7 @@ export class ProviderInvocationService {
           fallbackUsed: false
         }
       });
-      
+
       throw new Error(normalized.message);
     }
   }

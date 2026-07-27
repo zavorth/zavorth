@@ -294,32 +294,10 @@ export class ActiveMemoryService {
   }
 
   public processInteraction(userMessage: string, assistantResponse: string): MemoryDecision[] {
-    const decisions: MemoryDecision[] = [];
-    const combined = `${userMessage} ${assistantResponse}`.toLowerCase();
-
-    if (combined.includes('me chamo') || combined.includes('meu nome é') || combined.includes('my name is')) {
-      const id = this.remember(`User name: ${userMessage}`, { category: 'relationship', importance: 0.9, source: 'interaction' });
-      decisions.push({ action: 'remember', entry_id: id, reason: 'Nome detectado na conversa' });
-    }
-
-    if (combined.includes('prefiro') || combined.includes('eu gosto') || combined.includes('i prefer') || combined.includes('i like')) {
-      const id = this.remember(`Preferencia: ${userMessage}`, { category: 'preference', importance: 0.7, source: 'interaction' });
-      decisions.push({ action: 'remember', entry_id: id, reason: 'Preferencia detectada' });
-    }
-
-    if (combined.includes('nao gosto') || combined.includes('odeio') || combined.includes('i hate') || combined.includes('i dislike')) {
-      const id = this.remember(`Aversao: ${userMessage}`, { category: 'preference', importance: 0.6, source: 'interaction' });
-      decisions.push({ action: 'remember', entry_id: id, reason: 'Aversao detectada' });
-    }
-
-    if (combined.includes('lembrete') || combined.includes('remember') || combined.includes('não esqueça') || combined.includes("don't forget")) {
-      const id = this.remember(`Lembrete: ${userMessage}`, { category: 'instruction', importance: 0.8, source: 'user-request' });
-      decisions.push({ action: 'remember', entry_id: id, reason: 'Lembrete solicitado pelo usuario' });
-    }
-
-    return decisions;
+    void userMessage;
+    void assistantResponse;
+    return [];
   }
-
   private computeRelevance(query: string, entry: MemoryEntry): number {
     const queryWords = query.toLowerCase().split(/\s+/).filter(Boolean);
     const entryWords = entry.content.toLowerCase().split(/\s+/);
@@ -336,14 +314,9 @@ export class ActiveMemoryService {
   }
 
   private estimateImportance(content: string): number {
-    const lower = content.toLowerCase();
-    if (/\b(nunca|sempre|importante|critico|urgente|never|always|important|critical|urgent)\b/.test(lower)) return 0.8;
-    if (/\b(prefiro|gosto|nao gosto|prefer|like|dislike)\b/.test(lower)) return 0.7;
-    if (/\b(lembrete|remember|não esqueça)\b/.test(lower)) return 0.8;
-    if (/\b(me chamo|meu nome|my name)\b/.test(lower)) return 0.9;
+    void content;
     return 0.5;
   }
-
   private maybeEvict(): void {
     if (this.entries.size <= this.MAX_ENTRIES) return;
 

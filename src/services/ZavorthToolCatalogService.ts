@@ -124,12 +124,12 @@ export class ZavorthToolCatalogService {
         : null)
       || this.resolveQuerySelection(filteredEntries, query);
     const families: ZavorthToolFamilySnapshot[] = [
-      this.buildFamilySnapshot('execution', 'Execucao', filteredEntries),
+      this.buildFamilySnapshot('execution', 'Execution', filteredEntries),
       this.buildFamilySnapshot('search', 'Pesquisa', filteredEntries),
-      this.buildFamilySnapshot('automation', 'Automacao e Schedule', filteredEntries),
+      this.buildFamilySnapshot('automation', 'Automation and Schedule', filteredEntries),
       this.buildFamilySnapshot('session', 'Session Tools', filteredEntries),
       this.buildFamilySnapshot('team', 'Teams', filteredEntries),
-      this.buildFamilySnapshot('integration', 'Integracoes e Plugins', filteredEntries),
+      this.buildFamilySnapshot('integration', 'Integrations e Plugins', filteredEntries),
       this.buildFamilySnapshot('runtime', 'Runtime Tools', filteredEntries),
       this.buildFamilySnapshot('web', 'Web e Control', filteredEntries),
       this.buildFamilySnapshot('mcp', 'MCP', filteredEntries),
@@ -167,8 +167,7 @@ export class ZavorthToolCatalogService {
       featuredIds: filteredEntries.slice(0, 8).map((entry) => entry.id),
       query,
       narrative: {
-        headline: query
-          ? `Tool surface with ${filteredEntries.length} visible item(s) for "${query}".`
+        headline: query ? `Tool surface with ${filteredEntries.length} visible item(s) for "${query}".`
           : `Explicit surface with ${summary.totalTools} tool(s) distributed across ${summary.totalFamilies} family/families.`,
         operatorSummary: query
           ? `${summary.readyFamilies} ready family/families in the current filter; ${selected ? `focused item: ${selected.label}.` : 'no selected item.'}`
@@ -185,10 +184,8 @@ export class ZavorthToolCatalogService {
     const matches = entries.filter((entry) => entry.familyId === id);
     const readiness = matches.length === 0
       ? this.resolvePlannedFamilyReadiness(id)
-      : matches.every((entry) => entry.readiness === 'ready')
-        ? 'ready'
-        : matches.some((entry) => entry.readiness === 'ready' || entry.readiness === 'partial')
-          ? 'partial'
+      : matches.every((entry) => entry.readiness === 'ready') ? 'ready'
+        : matches.some((entry) => entry.readiness === 'ready' || entry.readiness === 'partial') ? 'partial'
           : 'planned';
 
     return {
@@ -330,13 +327,13 @@ export class ZavorthToolCatalogService {
       const readiness = entry?.readiness === 'ready' ? 'ready' : entry?.readiness === 'partial' ? 'partial' : 'planned';
       return {
         id: String(manifest.id || '').trim(),
-        label: String(manifest.label || manifest.id || 'integracao').trim(),
+        label: String(manifest.label || manifest.id || 'integration').trim(),
         familyId: 'integration',
-        familyLabel: 'Integracoes e Plugins',
+        familyLabel: 'Integrations e Plugins',
         kind: 'integration',
         source: `integration:${manifest.category || 'generic'}`,
         readiness,
-        summary: String(manifest.summary || 'Integraction catalogada no Zavorth.').trim(),
+        summary: String(manifest.summary || 'Integration catalogada no Zavorth.').trim(),
         command: manifest.connectCommand || null,
         details: [
           manifest.category ? `Categoria: ${manifest.category}` : null,
@@ -370,7 +367,7 @@ export class ZavorthToolCatalogService {
         command: null,
         details: [
           `${entry.parameterCount} parametro(s).`,
-          entry.requiredCount > 0 ? `${entry.requiredCount} obrigatorio(s).` : 'Sem obrigatorios.',
+          entry.requiredCount > 0 ? `${entry.requiredCount} required(s).` : 'Sem requireds.',
         ],
         searchText: [
           entry.id,
@@ -471,17 +468,17 @@ export class ZavorthToolCatalogService {
   private getFamilyLabel(familyId: string): string {
     switch (familyId) {
       case 'execution':
-        return 'Execucao';
+        return 'Execution';
       case 'search':
         return 'Pesquisa';
       case 'automation':
-        return 'Automacao e Schedule';
+        return 'Automation and Schedule';
       case 'session':
         return 'Session Tools';
       case 'team':
         return 'Teams';
       case 'integration':
-        return 'Integracoes e Plugins';
+        return 'Integrations e Plugins';
       case 'runtime':
         return 'Runtime Tools';
       case 'web':

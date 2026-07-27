@@ -124,7 +124,7 @@ export class TenantTeamOpsService {
       },
       nextRecommendedGate: {
         phase: 'complete',
-        title: 'Ciclo 39-45 fechado',
+        title: 'Ciclo 39-45 closed',
         reason:
           'Com Tenant/Team Ops implementado, o ciclo Product Quality, Web/App Polish, QA, Release, Artifact/Replay, Idle Budget e Tenant Ops fica completo.',
       },
@@ -152,7 +152,7 @@ export class TenantTeamOpsService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.phase} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.phase} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -253,7 +253,7 @@ export class TenantTeamOpsService {
         sharedTenants: 0,
         teams: Number(governance.summary.teams || 0) || 0,
         posture: governance.summary.posture,
-        summary: 'Nenhum tenant observado ainda; workspace pronto para segmentacao quando houver trafego.',
+        summary: 'No tenant observed yet; workspace ready for segmentation when traffic exists.',
       },
     ];
   }
@@ -266,14 +266,12 @@ export class TenantTeamOpsService {
         tenantId: tenant.tenantId,
         memoryScope: `memory:${scope}`,
         artifactScope: `artifact:${scope}`,
-        status: attention
-          ? 'attention'
+        status: attention ? 'attention'
           : tenant.boundary === 'shared'
             ? 'isolated'
             : 'personal',
-        reason: attention
-          ? 'Tenant publico compartilhado precisa de allowlist antes de ampliar automacoes.'
-          : 'Memoria e artifacts ficam referenciados pelo tenant/contexto, sem payload bruto.',
+        reason: attention ? 'Shared public tenant needs allowlist before expanding automations.'
+          : 'Memory e artifacts ficam referenciados pelo tenant/contexto, without payload bruto.',
       };
     });
   }
@@ -286,11 +284,10 @@ export class TenantTeamOpsService {
         `package:${scriptName}`,
         `script ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `package.json expoe ${scriptName} para Tenant/Team Ops.`
-          : `package.json precisa expor ${scriptName}.`,
+        command ? `package.json exposes ${scriptName} para Tenant/Team Ops.`
+          : `package.json must expose ${scriptName}.`,
         'package',
-        [`command=${command || '<ausente>'}`],
+        [`command=${command || '<missing>'}`],
       );
     });
   }
@@ -303,7 +300,7 @@ export class TenantTeamOpsService {
       'card Tenant/Team Ops no /zavorthControl',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'ZavorthControl expoe identidade, policy, permissions e isolamento por tenant/time.'
+        ? 'ZavorthControl exposes identity, policy, permissions, and tenant/team isolation.'
         : 'ZavorthControl perdeu marcadores de Tenant/Team Ops.',
       'web',
       missing.map((marker) => `faltando: ${marker}`),
@@ -321,7 +318,7 @@ export class TenantTeamOpsService {
       'surfaces de policy essenciais',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'Governance control plane expoe tenants, channels, teams e workspace.'
+        ? 'Governance control plane exposes tenants, channels, teams, and workspace.'
         : 'Governance control plane perdeu surfaces essenciais para Tenant/Team Ops.',
       'governance',
       [
@@ -336,13 +333,13 @@ export class TenantTeamOpsService {
       !tenant.tenantId || !tenant.platform || !tenant.boundary || !tenant.policyProfile);
     return this.check(
       'tenant:identity-scopes',
-      'identidade operacional por tenant',
+      'identidade operational por tenant',
       invalid.length === 0 ? 'pass' : 'fail',
       identityScopes.length > 0
         ? 'Tenants observados tem tenantId, platform, boundary e policy profile.'
-        : 'Cold start sem tenants; contrato preserva estrutura para primeira observacao.',
+        : 'Cold start without tenants; contrato preserva estrutura para primeira observation.',
       'tenant',
-      [`tenants=${identityScopes.length}`, `invalid=${invalid.map((tenant) => tenant.tenantId).join(', ') || '<nenhum>'}`],
+      [`tenants=${identityScopes.length}`, `invalid=${invalid.map((tenant) => tenant.tenantId).join(', ') || '<none>'}`],
     );
   }
 
@@ -352,9 +349,9 @@ export class TenantTeamOpsService {
       'policy:scoped-surfaces',
       'policy por escopo',
       missingCommand.length === 0 ? 'pass' : 'fail',
-      'Policy scopes para tenants, channels, teams e workspace estao normalizados.',
+      'Policy scopes para tenants, channels, teams e workspace are normalizados.',
       'policy',
-      policyScopes.map((scope) => `${scope.id}:${scope.posture}:${scope.command || '<sem comando>'}`),
+      policyScopes.map((scope) => `${scope.id}:${scope.posture}:${scope.command || '<without comando>'}`),
     );
   }
 
@@ -366,8 +363,8 @@ export class TenantTeamOpsService {
       'permissions segmentadas por tenant',
       sharedWithoutGuidedAction.length === 0 ? 'pass' : 'fail',
       readouts.length > 0
-        ? 'Permissoes mostram owners, guilds, channels e acoes guiadas por tenant.'
-        : 'Cold start sem tenants; permissao segmentada fica pronta para popular.',
+        ? 'Permissions mostram owners, guilds, channels e actions guiadas por tenant.'
+        : 'Cold start without tenants; segmented permission is ready to populate.',
       'permission',
       readouts.map((entry) => `${entry.tenantId}:owners=${entry.owners}:channels=${entry.allowedChannels}:actions=${entry.guidedActions}`),
     );
@@ -379,7 +376,7 @@ export class TenantTeamOpsService {
       'tenant:project-reports',
       'reports por projeto/workspace',
       invalid.length === 0 ? 'pass' : 'fail',
-      'Relatorios agregam tenants por plataforma/projeto usando workspaceRoot e postura de governance.',
+      'Reports agregam tenants por plataforma/projeto usando workspaceRoot e postura de governance.',
       'tenant',
       reports.map((report) => `${report.id}:tenants=${report.tenantCount}:teams=${report.teams}`),
     );
@@ -390,11 +387,11 @@ export class TenantTeamOpsService {
       !entry.memoryScope.startsWith('memory:') || !entry.artifactScope.startsWith('artifact:'));
     return this.check(
       'isolation:memory-artifacts',
-      'isolamento de memoria e artifacts',
+      'memory and artifact isolation',
       invalid.length === 0 ? 'pass' : 'fail',
       isolationMap.length > 0
-        ? 'Cada tenant possui escopos de memoria e artifact separados por contexto.'
-        : 'Cold start sem tenants; mapa de isolamento fica vazio sem bloquear o gate.',
+        ? 'Each tenant has memory and artifact scopes separated by context.'
+        : 'Cold start without tenants; mapa de isolamento fica vazio without bloquear o gate.',
       'isolation',
       [`isolated=${isolationMap.length}`, `attention=${isolationMap.filter((entry) => entry.status === 'attention').length}`],
     );
@@ -410,11 +407,11 @@ export class TenantTeamOpsService {
     });
     return this.check(
       'tenant:quiet-gate',
-      'Tenant/Team Ops nao inicia background persistente',
+      'Tenant/Team Ops does not start persistent background work',
       offenders.length === 0 ? 'pass' : 'fail',
       offenders.length === 0
-        ? 'Scripts e gate de tenant/team ops sao leituras sob demanda.'
-        : 'Scripts de Tenant/Team Ops apontam para processo persistente.',
+        ? 'Scripts e gate de tenant/team ops sao reads sob demanda.'
+        : 'Scripts de Tenant/Team Ops apontam para process persistente.',
       'tenant',
       offenders,
     );

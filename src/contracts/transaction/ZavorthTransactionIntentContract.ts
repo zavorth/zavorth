@@ -5,7 +5,7 @@ import type {
   ZavorthTransactionRiskLevel,
 } from './ZavorthTransactionPlaneContract.js';
 
-export const ZAVORTH_TRANSACTION_INTENT_CONTRACT_VERSION = 'zavorth-transaction-intent/checkpoint-1' as const;
+export const ZAVORTH_TRANSACTION_INTENT_CONTRACT_VERSION = 'zavorth-transaction-intent/gate-1' as const;
 
 export type ZavorthTransactionIntentKind =
   | 'monitor-price'
@@ -34,7 +34,7 @@ export type ZavorthTransactionIntentTargetKind =
 
 export type ZavorthTransactionApprovalPreference = 'explicit' | 'preview-only' | 'auto-requested' | 'none' | 'unknown';
 
-export type ZavorthTransactionIntentSimulationMode =
+export type ZavorthTransactionIntentDryRunMode =
   | 'preview-first'
   | 'dry-run-first'
   | 'sandbox-first'
@@ -104,7 +104,7 @@ export type ZavorthTransactionIntent = {
   limits: ZavorthTransactionIntentLimit[];
   window?: ZavorthTransactionIntentWindow;
   approvalPreference: ZavorthTransactionApprovalPreference;
-  simulationMode: ZavorthTransactionIntentSimulationMode;
+  dryRunMode: ZavorthTransactionIntentDryRunMode;
   executionMode: ZavorthTransactionExecutionMode;
   riskLevel: ZavorthTransactionRiskLevel;
   naturalFirstRoute: ZavorthNaturalFirstTransactionRoute;

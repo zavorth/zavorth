@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "autonomy-levels.v1",
+  "description": "Autonomy levels for Zavorth agent actions",
+  "levels": {
+    "L0": {
+      "name": "Manual",
+      "description": "All actions require human execution",
+      "monitor": "human",
+      "investigate": "human",
+      "approve": "human",
+      "actuate": "human",
+      "selfDirect": "human"
+    },
+    "L1": {
+      "name": "Assisted",
+      "description": "AI investigates and suggests, human approves and executes",
+      "monitor": "automation",
+      "investigate": "automation",
+      "approve": "human",
+      "actuate": "human",
+      "selfDirect": "human"
+    },
+    "L2": {
+      "name": "Partial Autonomy",
+      "description": "AI investigates and proposes, human approves, AI executes",
+      "monitor": "automation",
+      "investigate": "automation",
+      "approve": "human",
+      "actuate": "automation",
+      "selfDirect": "human"
+    },
+    "L3": {
+      "name": "High Autonomy",
+      "description": "AI handles bounded scenarios end-to-end, human oversees",
+      "monitor": "automation",
+      "investigate": "automation",
+      "approve": "automation",
+      "actuate": "automation",
+      "selfDirect": "human"
+    },
+    "L4": {
+      "name": "Full Autonomy",
+      "description": "AI manages complete lifecycle with human governance",
+      "monitor": "automation",
+      "investigate": "automation",
+      "approve": "automation",
+      "actuate": "automation",
+      "selfDirect": "automation"
+    }
+  },
+  "toolMapping": {
+    "file.read": "L0",
+    "file.write": "L1",
+    "shell.execute": "L2",
+    "network.fetch": "L2",
+    "email.send": "L3",
+    "calendar.write": "L3",
+    "subagent.delegate": "L1",
+    "mcp.execute": "L2"
+  },
+  "progressionRules": {
+    "minSuccessRate": 0.95,
+    "minExecutionsForPromotion": 50,
+    "cooldownPeriodDays": 7,
+    "demotionOnFailure": true,
+    "maxConsecutiveFailures": 3
+  },
+  "overrides": {
+    "userExplicitApproval": "L0",
+    "emergencyMode": "L0",
+    "auditMode": "L0"
+  }
+}

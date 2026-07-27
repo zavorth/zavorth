@@ -70,7 +70,7 @@ type Runtime = {
 
 /**
  * Product channel fabric: every factory-registered channel is first-class and
- * must expose the shared completeness bar (doctor, mock I/O, outbox, command deck, …).
+ * must expose the shared completeness bar (doctor, local I/O, outbox, command deck, …).
  */
 export class ChannelCompletenessService {
   private readonly now: () => Date;
@@ -83,7 +83,7 @@ export class ChannelCompletenessService {
       try {
         const resolvedId = normalizeChannelId(channelId, channelId);
         const policyManager = new ChannelPolicyManager();
-        // Completeness smoke is hermetic: open access so mock inbound is not blocked by empty allowlists.
+        // Completeness smoke is hermetic: open access so local inbound is not blocked by empty allowlists.
         jestCompatibleOpenAccess(policyManager, resolvedId);
         return ChannelGatewayFactory.createFromId(resolvedId, {
           eventBus: new GatewayEventBus(),

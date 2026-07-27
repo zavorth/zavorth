@@ -241,6 +241,6 @@ export type ZavorthNativeEngineAbsorptionSnapshot = {
     inspect: 'npm run zavorth:native-engine-absorption';
     inspectJson: 'npm run zavorth:native-engine-absorption:json';
     check: 'npm run zavorth:native-engine-absorption:check --silent';
-    nextStage: '291 Approval gate - Sidecar Adapter';
+    nextAction: 'Approval gate - Sidecar Adapter';
   };
 };

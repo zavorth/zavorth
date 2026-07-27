@@ -17,8 +17,8 @@ export function createAgentRunApprovalEventIfNeeded(input: {
   const approval: UniversalApprovalRequest = {
     id: input.idFactory('approval'),
     runId: input.run.id,
-    title: `Aprovar ${riskyTool.label}`,
-    reason: riskyTool.description || 'Ferramenta sensivel solicitada pela execucao.',
+    title: `Approve ${riskyTool.label}`,
+    reason: riskyTool.description || 'Sensitive tool requested by execution.',
     risk: riskyTool.risk,
     status: 'pending',
     createdAt: input.now,

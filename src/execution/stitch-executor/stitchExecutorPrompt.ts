@@ -42,40 +42,28 @@ export function buildStructuredStitchBrief(
   compact: boolean,
 ): string {
   const normalized = String(prompt || '').replace(/\r/g, '\n').replace(/\n+/g, '\n').trim();
-  const lower = normalized
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-
-  const titleMatch = normalized.match(/(?:assistente|produto|app|aplicativo|site)\s*[:\-]\s*([^\n]+)/i);
-  const explicitBrand = titleMatch?.[1]?.trim() || extractFirstStitchName(normalized) || 'Zavorth';
+  const explicitBrand = extractFirstStitchName(normalized) || 'Zavorth';
   const focus =
     extractStitchOpeningIntent(normalized) ||
     'Create an application interface inspired by the concept described by the user.';
   const bullets: string[] = [];
 
-  if (/\b(chat|conversa|telegram|mensagens?)\b/.test(lower)) bullets.push('chat principal para conversar com o assistente');
-  if (/\b(orquestra|llm|modelos?|gemini|openai|claude|deepseek|external-executor|zavorthBridge)\b/.test(lower)) bullets.push('hub de orquestracao de agentes e modelos');
-  if (/\b(permiss|secur|policy|trustedboundary|approv)\b/.test(lower)) bullets.push('clear permissions and security panel');
-  if (/\b(memoria|memory|audit|auditoria|log)\b/.test(lower)) bullets.push('blocos para memoria, auditoria e historico');
-  if (/\b(wsl|sistema|terminal|execu|automation|automacao|host supervisor|supervisionado)\b/.test(lower)) bullets.push('cards de automacao e controle do sistema');
-  if (/\b(zavorthControl|web|site|premium|glass|glassmorphism)\b/.test(lower)) bullets.push('premium modern visual layout');
+  bullets.push('primary interaction surface for the requested experience');
+  bullets.push('clear actions, state, and safety affordances');
 
   const uniqueBullets = Array.from(new Set(bullets)).slice(0, compact ? 4 : 6);
-  const aesthetic = compact
-    ? 'Premium, readable, modern style.'
-    : 'Estilo premium e moderno, com identidade forte, layout limpo e boa hierarquia visual.';
+  const aesthetic = compact ? 'Premium, readable, modern style.'
+    : 'Premium modern style, strong identity, clean layout, and clear visual hierarchy.';
   const deviceHint =
-    request.metadata?.stitch_device_type || request.metadata?.task_metadata?.stitch_device_type
-      ? `Dispositivo alvo: ${String(request.metadata?.stitch_device_type || request.metadata?.task_metadata?.stitch_device_type).toUpperCase()}.`
+    request.metadata?.stitch_device_type || request.metadata?.task_metadata?.stitch_device_type ? `Target device: ${String(request.metadata?.stitch_device_type || request.metadata?.task_metadata?.stitch_device_type).toUpperCase()}.`
       : '';
 
   const lines = [
-    `Crie uma UI/app inspirado em ${explicitBrand}.`,
+    `Create a UI/app inspired by ${explicitBrand}.`,
     focus,
     aesthetic,
     deviceHint,
-    uniqueBullets.length > 0 ? 'Inclua:' : '',
+    uniqueBullets.length > 0 ? 'Include:' : '',
     ...uniqueBullets.map((item) => `- ${item}`),
   ].filter(Boolean);
 
@@ -99,8 +87,6 @@ export function extractStitchOpeningIntent(prompt: string): string | null {
 
   const cleaned = firstLine
     .replace(/^\/stitch\s+/i, '')
-    .replace(/^gere\s+/i, 'Crie ')
-    .replace(/^crie\s+/i, 'Crie ')
     .trim();
 
   return cleaned || null;

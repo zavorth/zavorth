@@ -97,7 +97,7 @@ export class ZavorthSchedulerPerceptionDeviceLiveCompletionService {
         inspect: 'npm run zavorth:scheduler-perception-device-live-completion',
         inspectJson: 'npm run zavorth:scheduler-perception-device-live-completion:json',
         check: 'npm run zavorth:scheduler-perception-device-live-completion:check --silent',
-        nextStage: 'ZavorthControl controls - End-to-End Mission Flow and Public Runtime Certification',
+        nextAction: 'ZavorthControl controls - End-to-End Mission Flow and Public Runtime Certification',
       },
     };
   }
@@ -120,7 +120,7 @@ export class ZavorthSchedulerPerceptionDeviceLiveCompletionService {
       if (entry.defaultBlockReason) lines.push(`  block: ${entry.defaultBlockReason}`);
     }
     lines.push('', 'Safety: live ADB/browser/computer control remains owner-gated and policy-gated.');
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 }

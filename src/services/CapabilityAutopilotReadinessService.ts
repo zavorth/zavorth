@@ -274,7 +274,7 @@ export class CapabilityAutopilotReadinessService {
         parts.capability?.description ||
         parts.lifecycleManifest?.description ||
         parts.integrationManifest?.summary ||
-        'Capability operacional descoberta pelo Autopilot.',
+        'Operational capability discovered by Autopilot.',
       source: parts.capability?.source || (parts.integrationManifest ? 'integration' : 'runtime'),
       command: parts.capability?.command?.command || null,
       tags: this.buildTags(parts),
@@ -367,7 +367,7 @@ export class CapabilityAutopilotReadinessService {
       requestedExecutorName: executorName,
       available: null,
       source: capability?.policy?.executor ? 'capability_policy' : 'registry',
-      notes: ['Disponibilidade real sera preenchida por resolver opcional ou pelo ExecutionGateway.'],
+      notes: ['Real availability will be filled by an optional resolver or by the ExecutionGateway.'],
     };
   }
 
@@ -381,7 +381,7 @@ export class CapabilityAutopilotReadinessService {
       id: `${parts.capability?.id || parts.lifecycleManifest?.id || parts.integrationManifest?.id}:detect`,
       kind: 'detect',
       owner: 'capability_registry',
-      summary: 'Detectar intencao/comando usando o CapabilityRegistry atual.',
+      summary: 'Detect intent/command using the current CapabilityRegistry.',
       optional: false,
     });
 
@@ -390,7 +390,7 @@ export class CapabilityAutopilotReadinessService {
         id: `${parts.lifecycleManifest.id}:lifecycle`,
         kind: 'detect',
         owner: 'capability_lifecycle',
-        summary: 'Ler estado, approval scope, provisioning recipe e fallback behavior.',
+        summary: 'Read state, approval scope, provisioning recipe, and fallback behavior.',
         optional: false,
       });
     }
@@ -400,7 +400,7 @@ export class CapabilityAutopilotReadinessService {
         id: `${parts.integrationManifest.id}:probe`,
         kind: 'validate',
         owner: 'integration_probe',
-        summary: 'Reusar ultimo probe conhecido da integracao sem disparar side effects.',
+        summary: 'Reuse the latest known integration probe without triggering side effects.',
         optional: false,
       });
     }
@@ -410,7 +410,7 @@ export class CapabilityAutopilotReadinessService {
         id: `${executor.executorName}:executor-readiness`,
         kind: 'validate',
         owner: 'execution_gateway',
-        summary: 'Ler disponibilidade de executor via resolver injetado ou deixar como unknown.',
+        summary: 'Read executor availability through an injected resolver or leave it unknown.',
         optional: true,
       });
     }
@@ -448,9 +448,8 @@ export class CapabilityAutopilotReadinessService {
       available,
       notes: [
         ...(descriptor.executor.notes || []),
-        available === null
-          ? 'Resolver nao conseguiu determinar disponibilidade.'
-          : `Resolver retornou disponibilidade: ${available ? 'ready' : 'unavailable'}.`,
+        available === null ? 'Resolver could not determine availability.'
+          : `Resolver returned disponibilidade: ${available ? 'ready' : 'unavailable'}.`,
       ],
     };
   }
@@ -493,8 +492,7 @@ export class CapabilityAutopilotReadinessService {
         label: `${input.executor.executorName} executor`,
         value: input.executor.executorName,
         required: input.descriptor.type === 'executor',
-        status: input.executor.available === null
-          ? 'unknown'
+        status: input.executor.available === null ? 'unknown'
           : (input.executor.available ? 'ready' : 'missing'),
         detail: input.executor.notes?.join(' ') || null,
       });
@@ -516,7 +514,7 @@ export class CapabilityAutopilotReadinessService {
       {
         kind: 'capability_registry',
         source: 'CapabilityRegistry',
-        summary: `Capability ${input.descriptor.capabilityId} declarada para ${input.descriptor.intent}.`,
+        summary: `Capability ${input.descriptor.capabilityId} declared for ${input.descriptor.intent}.`,
         status: input.descriptor.source,
         timestamp: this.now().toISOString(),
       },
@@ -526,7 +524,7 @@ export class CapabilityAutopilotReadinessService {
       evidence.push({
         kind: 'lifecycle_manifest',
         source: 'CapabilityLifecycleService',
-        summary: `Lifecycle em estado ${input.lifecycleState.state}.`,
+        summary: `Lifecycle state is ${input.lifecycleState.state}.`,
         status: input.lifecycleState.state,
         timestamp: input.lifecycleState.lastUpdatedAt || this.now().toISOString(),
       });
@@ -536,7 +534,7 @@ export class CapabilityAutopilotReadinessService {
       evidence.push({
         kind: 'integration_registry',
         source: 'IntegrationRegistryService',
-        summary: `Integracao ${input.integrationManifest.id} vinculada em modo ${input.integrationManifest.defaultMode}.`,
+        summary: `Integration ${input.integrationManifest.id} linked in ${input.integrationManifest.defaultMode} mode.`,
         status: input.installedIntegration?.status || 'not_installed',
         timestamp: input.installedIntegration?.updatedAt || this.now().toISOString(),
         metadata: {
@@ -584,12 +582,10 @@ export class CapabilityAutopilotReadinessService {
         severity: 'error',
         ready: false,
         safeToRun: false,
-        summary: `${input.descriptor.label} ainda nao esta pronto.`,
-        detail: missingLabels
-          ? `Faltam requisitos obrigatorios: ${missingLabels}.`
-          : (hasExecutorUnavailable
-              ? `Executor ${input.executor?.executorName} indisponivel neste host.`
-              : String(input.probe?.detail || 'A integracao ainda nao esta configurada.')),
+        summary: `${input.descriptor.label} is not ready yet.`,
+        detail: missingLabels ? `Missing required requirements: ${missingLabels}.`
+          : (hasExecutorUnavailable ? `Executor ${input.executor?.executorName} is unavailable on this host.`
+              : String(input.probe?.detail || 'The integration is not configured yet.')),
         blockingReason: missingLabels || input.probe?.summary || input.executor?.executorName || 'missing_requirement',
       };
     }
@@ -600,8 +596,8 @@ export class CapabilityAutopilotReadinessService {
         severity: input.lifecycleState?.approvalRequired ? 'warning' : 'error',
         ready: false,
         safeToRun: false,
-        summary: `${input.descriptor.label} precisa de preparacao antes de rodar.`,
-        detail: `Lifecycle atual: ${lifecycleState}. ${input.lifecycleState?.notes || ''}`.trim(),
+        summary: `${input.descriptor.label} needs preparation before running.`,
+        detail: `Lifecycle current: ${lifecycleState}. ${input.lifecycleState?.notes || ''}`.trim(),
         blockingReason: `lifecycle:${lifecycleState}`,
       };
     }
@@ -612,8 +608,8 @@ export class CapabilityAutopilotReadinessService {
         severity: 'error',
         ready: false,
         safeToRun: false,
-        summary: `${input.descriptor.label} respondeu com falha no ultimo probe.`,
-        detail: input.probe?.detail || 'Probe falhou sem detalhe adicional.',
+        summary: `${input.descriptor.label} responded with a failure on the last probe.`,
+        detail: input.probe?.detail || 'Probe failed without additional detail.',
         blockingReason: 'probe_failed',
       };
     }
@@ -624,10 +620,9 @@ export class CapabilityAutopilotReadinessService {
         severity: 'warning',
         ready: false,
         safeToRun: false,
-        summary: `${input.descriptor.label} precisa de uma checagem concreta antes de executar.`,
-        detail: hasUnknownExecutor
-          ? `A disponibilidade do executor ${input.executor?.executorName} ainda nao foi medida.`
-          : 'O probe atual ainda nao possui implementacao real.',
+        summary: `${input.descriptor.label} needs a concrete check before execution.`,
+        detail: hasUnknownExecutor ? `Executor availability ${input.executor?.executorName} has not been measured yet.`
+          : 'The current probe does not have real implementation yet.',
         blockingReason: hasUnknownExecutor ? 'executor_unknown' : 'probe_unsupported',
       };
     }
@@ -638,8 +633,8 @@ export class CapabilityAutopilotReadinessService {
         severity: 'warning',
         ready: false,
         safeToRun: false,
-        summary: `${input.descriptor.label} foi encontrado, mas ainda nao tem probe recente.`,
-        detail: 'Este gate e read-only: ele nao dispara probes automaticamente.',
+        summary: `${input.descriptor.label} was found, but has no recent probe yet.`,
+        detail: 'This gate is read-only: it does not trigger probes automatically.',
         blockingReason: 'probe_not_run',
       };
     }
@@ -649,7 +644,7 @@ export class CapabilityAutopilotReadinessService {
       severity: 'info',
       ready: true,
       safeToRun: true,
-      summary: `${input.descriptor.label} esta pronto para uso.`,
+      summary: `${input.descriptor.label} is ready for use.`,
       detail: 'No blockers found by the current read-only adapters.',
       blockingReason: null,
     };
@@ -663,39 +658,39 @@ export class CapabilityAutopilotReadinessService {
   ): CapabilityReadinessSnapshot['suggestedNextAction'] {
     if (evaluation.ready) {
       return {
-        label: 'Continuar execucao',
-        reason: 'Capability pronta nos checks atuais.',
+        label: 'Continue execution',
+        reason: 'Capability passed the current checks.',
         repairable: false,
       };
     }
 
     if (missingRequirements.length > 0) {
       return {
-        label: 'Planejar reparo de requisitos',
-        reason: `Faltam ${missingRequirements.length} requisito(s) obrigatorio(s).`,
+        label: 'Plan requirement repair',
+        reason: `${missingRequirements.length} required requirement(s) missing.`,
         repairable: true,
       };
     }
 
     if (executor?.available === false) {
       return {
-        label: 'Planejar reparo do executor',
-        reason: `Executor ${executor.executorName} indisponivel.`,
+        label: 'Plan executor repair',
+        reason: `Executor ${executor.executorName} unavailable.`,
         repairable: true,
       };
     }
 
     if (probe?.status === 'failed' || probe?.status === 'not_configured') {
       return {
-        label: 'Planejar reparo da integracao',
+        label: 'Plan integration repair',
         reason: probe.summary,
         repairable: true,
       };
     }
 
     return {
-      label: 'Executar probe/doctor antes de reparar',
-      reason: evaluation.blockingReason || 'Readiness desconhecido.',
+      label: 'Run probe or doctor before repair',
+      reason: evaluation.blockingReason || 'Readiness is unknown.',
       repairable: false,
     };
   }
@@ -709,8 +704,8 @@ export class CapabilityAutopilotReadinessService {
       severity: 'warning',
       ready: false,
       safeToRun: false,
-      summary: 'Capability desconhecida.',
-      detail: 'Nao encontrei esta capability no registry, lifecycle ou integration registry.',
+      summary: 'Unknown capability.',
+      detail: 'I could not find this capability in the registry, lifecycle, or integration registry.',
       checkedTargets: [],
       missingRequirements: [],
       blockingReason: 'capability_not_found',
@@ -719,13 +714,13 @@ export class CapabilityAutopilotReadinessService {
       evidence: [{
         kind: 'capability_registry',
         source: 'CapabilityAutopilotReadinessService',
-        summary: 'Busca de capability nao retornou descriptor operacional.',
+        summary: 'Capability search did not return an operational descriptor.',
         status: 'unknown',
         timestamp: generatedAt,
       }],
       suggestedNextAction: {
-        label: 'Revisar ID ou comando da capability',
-        reason: 'A capability nao foi encontrada.',
+        label: 'Review capability ID or command',
+        reason: 'The capability was not found.',
         repairable: false,
       },
       metadata: {

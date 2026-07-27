@@ -216,8 +216,7 @@ export async function runZavorthHomeCommand(rawArgs: string[]): Promise<number> 
         `- ${entry.kind.padEnd(9)} ${entry.exists ? 'found' : 'missing'} ${entry.redactedSource} -> ${entry.redactedDestination} risk=${entry.risk}`
       )),
       '',
-      snapshot.migration.writesPerformed
-        ? `${snapshot.migration.status} with approval ${snapshot.migration.approvalId}`
+      snapshot.migration.writesPerformed ? `${snapshot.migration.status} with approval ${snapshot.migration.approvalId}`
         : 'no data was written without --apply --approval-id=<id>',
     );
   }
@@ -235,7 +234,7 @@ export function writeZavorthHomeEnvSelection(root: string, homeRoot: string): { 
   } catch (error: unknown) {logger.warn('[Zavorth Cli Premium Part1] filesystem operation failed', error);
     current = '';
   }
-  const lines = current.split(/\r?\n/u);
+  const lines = current.split(/\r...\n/u);
   let changed = false;
   let seen = false;
   const next = lines.map((line) => {
@@ -274,10 +273,8 @@ export async function runZavorthEchoWakeCommand(rawArgs: string[]): Promise<numb
   if (subcommand === 'setup' || subcommand === 'configure') {
     const setup = new VoiceWakeDetectorSetupService({ projectRoot, env: process.env });
     const snapshot = setup.buildPlan({
-      choice: rawArgs.includes('--disabled')
-        ? 'disabled'
-        : rawArgs.includes('--custom-command')
-          ? 'custom-command'
+      choice: rawArgs.includes('--disabled') ? 'disabled'
+        : rawArgs.includes('--custom-command') ? 'custom-command'
           : 'default-local',
       command: readFlexibleStringFlag(rawArgs, 'command') || readTaskPositional(rawArgs, 1),
       args: readFlexibleStringFlag(rawArgs, 'args'),
@@ -446,7 +443,7 @@ export async function runPremiumApprovalDiff(view: 'approvals' | 'diff', rawArgs
           type: panelType,
         });
 
-        const confirmed = await TerminalPrompt.confirm(`Approve plan '${targetCard.id}'?`, false);
+        const confirmed = await TerminalPrompt.confirm(`Approve plan '${targetCard.id}'...`, false);
         if (confirmed) {
           const approvedArgs = [...rawArgs, '--yes'];
           const approvedResult = runZavorthCliApprovalDiff({
@@ -545,8 +542,7 @@ export async function runGitWorkflowCommand(
       `workspace: ${snapshot.workspaceRoot}`,
       `branch: ${snapshot.branch || 'unknown'}`,
       `dirty files: ${snapshot.dirtyFiles}`,
-      snapshot.plannedCommands.length
-        ? `plan: ${snapshot.plannedCommands.map((entry) => `${entry.command} ${entry.args.join(' ')}`).join(' && ')}`
+      snapshot.plannedCommands.length ? `plan: ${snapshot.plannedCommands.map((entry) => `${entry.command} ${entry.args.join(' ')}`).join(' && ')}`
         : null,
       snapshot.approval.required
         ? `approval: ${snapshot.approval.satisfied ? snapshot.approval.approvalId : 'required for --apply'}`

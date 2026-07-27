@@ -255,7 +255,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
         gate: 'capability-autopilot-preflight-dispatch-receipt',
         title: 'Preflight Handler Execution Receipts',
         reason:
-          'Depois de mapear actions para handlers explicitos, o proximo passo e gerar receipts de dispatch sem executar repair, fallback ou resume automaticamente.',
+          'after de mapear actions para handlers explicitos, o next passo e gerar receipts de dispatch without run repair, fallback ou resume automaticamente.',
       },
       metadata: {
         gate: 'capability-autopilot-preflight-action-handler',
@@ -284,7 +284,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -332,7 +332,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
         'capability-autopilot-preflight-actions:coverage',
         'actions mapeadas',
         plans.length === sourceActionCount && blocked.length === 0 ? 'pass' : 'fail',
-        'Toda action de preflight precisa ter um handler seguro mapeado.',
+        'Every preflight action must have a safe handler mapped.',
         [
           `sourceActions=${sourceActionCount}`,
           `plans=${plans.length}`,
@@ -342,29 +342,29 @@ export class CapabilityAutopilotPreflightActionHandlerService {
       ),
       this.check(
         'capability-autopilot-preflight-actions:no-auto-dispatch',
-        'sem dispatch automatico',
+        'without automatic dispatch',
         plans.every((plan) =>
           plan.shouldRunAutomatically === false &&
           plan.dispatchAttempted === false &&
           plan.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'Este gate so prepara wiring; nenhum handler pode despachar execucao automaticamente.',
+        'This gate only prepares wiring; no handler can dispatch execution automatically.',
         plans.map((plan) =>
           `${plan.sourceSurface}:${plan.sourceAction?.kind || '<none>'}:auto=${plan.shouldRunAutomatically}:dispatch=${plan.dispatchAttempted}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-actions:explicit-only',
-        'somente acao explicita',
+        'explicit action only',
         plans.every((plan) => plan.requiresExplicitUserAction === true && plan.readyForExplicitDispatch === false) ? 'pass' : 'fail',
-        'O snapshot de wiring nasce sem confirmacao do usuario; dispatch explicito fica para o chamador.',
+        'The wiring snapshot is born without user confirmation; explicit dispatch is left to the caller.',
         plans.map((plan) =>
           `${plan.sourceSurface}:${plan.sourceAction?.kind || '<none>'}:confirmed=${plan.userConfirmed}:ready=${plan.readyForExplicitDispatch}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-actions:sensitive-gates',
-        'acoes sensiveis preservam gates',
+        'actions sensitive preservam gates',
         sensitivePlans.every((plan) =>
           plan.requiresExplicitUserAction &&
           (
@@ -378,16 +378,16 @@ export class CapabilityAutopilotPreflightActionHandlerService {
               : true
           )
         ) ? 'pass' : 'fail',
-        'Permissao, fallback, validacao e resume precisam continuar visiveis e governados.',
+        'Permission, fallback, validation, and resume must remain visible and governed.',
         sensitivePlans.map((plan) =>
           `${plan.sourceSurface}:${plan.sourceAction?.kind}:approval=${plan.requiresApproval}:validation=${plan.requiresValidation}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-actions:no-raw-payload',
-        'sem payload cru serializado',
+        'no serialized raw payload',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Wiring publico nao pode reintroduzir chaves de intent cru.',
+        'Public wiring must not reintroduce raw intent keys.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],
@@ -424,7 +424,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
       shouldRunAutomatically: false,
       dispatchAttempted: false,
       blockers,
-      safeSummary: `Action handler bloqueado: ${blockers.join(', ')}.`,
+      safeSummary: `Action handler blocked: ${blockers.join(', ')}.`,
       metadata: {
         gate: 'capability-autopilot-preflight-action-handler',
         sourceSnapshotGate: snapshot.gate,

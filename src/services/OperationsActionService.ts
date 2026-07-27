@@ -38,77 +38,77 @@ const ACTION_DEFINITIONS: Record<string, OperationActionDefinition> = {
   },
   'security-preflight': {
     id: 'security-preflight',
-    label: 'Rodar preflight de seguranca',
+    label: 'Run security preflight',
     command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
     args: ['run', 'security:preflight'],
     priority: 'high',
   },
   'remote-publish': {
     id: 'remote-publish',
-    label: 'Publicar superficies remotas',
+    label: 'Publicar surfaces remotas',
     command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
     args: ['run', 'remote:publish'],
     priority: 'normal',
   },
   maintenance: {
     id: 'maintenance',
-    label: 'Rodar manutencao operacional',
+    label: 'run maintenance operational',
     command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
     args: ['run', 'ops:maintain'],
     priority: 'normal',
   },
   'maintenance-keepalive': {
     id: 'maintenance-keepalive',
-    label: 'Manter o host saudavel',
+    label: 'Keep the host healthy',
     command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
     args: ['run', 'ops:maintain'],
     priority: 'normal',
   },
   'validate-node-mesh-smoke': {
     id: 'validate-node-mesh-smoke',
-    label: 'Validar Node Mesh',
+    label: 'validate Node Mesh',
     command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
     args: ['run', 'test:nodes:smoke'],
     priority: 'high',
   },
   'validate-channel-providers': {
     id: 'validate-channel-providers',
-    label: 'Validar canais nativos',
+    label: 'Validate native channels',
     command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
     args: ['run', 'test:channels:smoke'],
     priority: 'high',
   },
   'validate-remote-transports': {
     id: 'validate-remote-transports',
-    label: 'Validar transportes remotos',
+    label: 'validate remote transports',
     command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
     args: ['run', 'test:transports:smoke'],
     priority: 'high',
   },
   'validate-wasm-smoke': {
     id: 'validate-wasm-smoke',
-    label: 'Validar tier Wasm',
+    label: 'validate tier Wasm',
     command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
     args: ['run', 'sandbox:wasm:smoke'],
     priority: 'high',
   },
   'scheduled-maintenance': {
     id: 'scheduled-maintenance',
-    label: 'Rodar manutencao recorrente leve',
+    label: 'run maintenance recorrente leve',
     command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
     args: ['run', 'ops:maintain:scheduled'],
     priority: 'normal',
   },
   'zavorth-bridge-remote-doctor': {
     id: 'zavorth-bridge-remote-doctor',
-    label: 'Diagnosticar remoto do ZavorthBridge',
+    label: 'Diagnosticar remote do ZavorthBridge',
     command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
     args: ['run', 'zavorthBridge:remote:doctor'],
     priority: 'normal',
   },
   'zavorth-bridge-remote-history': {
     id: 'zavorth-bridge-remote-history',
-    label: 'Ler historico do remoto do ZavorthBridge',
+    label: 'Read ZavorthBridge remote history',
     command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
     args: ['run', 'zavorthBridge:remote:history'],
     priority: 'normal',
@@ -163,7 +163,7 @@ export class OperationsActionService {
   public execute(actionId: string): OperationsActionExecution {
     const definition = ACTION_DEFINITIONS[actionId];
     if (!definition) {
-      throw new Error(`Acao operacional desconhecida: ${actionId}`);
+      throw new Error(`Unknown operational action: ${actionId}`);
     }
 
     this.mkdirSyncImpl(this.actionLogDir, { recursive: true });
@@ -193,7 +193,7 @@ export class OperationsActionService {
       const err = asErrorLike(error);
       this.writeFileSyncImpl(
         logFd,
-        `[${this.now().toISOString()}] Falha ao iniciar acao: ${errorMessage(error)}${lineBreak}`,
+        `[${this.now().toISOString()}] Failure ao iniciar action: ${errorMessage(error)}${lineBreak}`,
         'utf8',
       );
       this.closeSyncImpl(logFd);
@@ -209,7 +209,7 @@ export class OperationsActionService {
         note: errorMessage(error),
       };
       this.persistRecord(failedRecord);
-      this.logRepo.log('error', 'OperationsActionService', `Falha ao iniciar ${definition.id}: ${failedRecord.note}`);
+      this.logRepo.log('error', 'OperationsActionService', `Failure ao iniciar ${definition.id}: ${failedRecord.note}`);
       return failedRecord;
     }
 
@@ -222,13 +222,13 @@ export class OperationsActionService {
       pid: child.pid ?? null,
       logFile,
       status: 'started',
-      note: 'Acao iniciada em background.',
+      note: 'Action started at background.',
     };
     this.persistRecord(record);
     this.logRepo.log(
       'info',
       'OperationsActionService',
-      `Acao ${definition.id} iniciada em background.`,
+      `Action ${definition.id} started at background.`,
       { pid: record.pid, logFile: record.logFile },
     );
     return record;

@@ -10,7 +10,7 @@ type ZavorthHookPlaneRuntime = {
 export type ZavorthHookEventSnapshot = {
   id: string;
   label: string;
-  phase: 'session' | 'dispatch' | 'tool' | 'workflow' | 'approval' | 'runtime' | 'integration' | 'plugin' | 'transport' | 'release';
+  scope: 'session' | 'dispatch' | 'tool' | 'workflow' | 'approval' | 'runtime' | 'integration' | 'plugin' | 'transport' | 'release';
   description: string;
   status: 'ready' | 'partial' | 'planned';
   registeredHooks: number;
@@ -47,85 +47,85 @@ export type ZavorthHookPlaneSnapshot = {
 const SUPPORTED_EVENTS: Array<{
   id: string;
   label: string;
-  phase: ZavorthHookEventSnapshot['phase'];
+  scope: ZavorthHookEventSnapshot['scope'];
   description: string;
   status: ZavorthHookEventSnapshot['status'];
 }> = [
   {
     id: 'before-task-dispatch',
-    label: 'Antes do dispatch',
-    phase: 'dispatch',
-    description: 'Executa validacoes antes de enviar trabalho para o runtime.',
+    label: 'Before dispatch',
+    scope: 'dispatch',
+    description: 'Runs validations before sending work to the runtime.',
     status: 'ready',
   },
   {
     id: 'after-task-dispatch',
-    label: 'Depois do dispatch',
-    phase: 'dispatch',
-    description: 'Executa passos de pos-processamento apos a criaction da task.',
+    label: 'After dispatch',
+    scope: 'dispatch',
+    description: 'Runs post-processing after task creation.',
     status: 'ready',
   },
   {
     id: 'task-dispatch-failed',
-    label: 'Falha no dispatch',
-    phase: 'dispatch',
-    description: 'Permite resposta operacional quando o dispatch falha.',
+    label: 'Dispatch failure',
+    scope: 'dispatch',
+    description: 'Allows operational response when dispatch fails.',
     status: 'partial',
   },
   {
     id: 'before-tool-execute',
-    label: 'Antes da tool',
-    phase: 'tool',
-    description: 'Permite gates antes de executar tools e acoes sensiveis.',
+    label: 'Before tool',
+    scope: 'tool',
+    description: 'Allows gates before running tools and sensitive actions.',
     status: 'partial',
   },
   {
     id: 'after-tool-execute',
-    label: 'Depois da tool',
-    phase: 'tool',
-    description: 'Permite registrar telemetria e follow-ups apos o uso de tools.',
+    label: 'After tool',
+    scope: 'tool',
+    description: 'Allows telemetry and follow-ups after tool use.',
     status: 'partial',
   },
   {
     id: 'before-workflow-start',
-    label: 'Antes do workflow',
-    phase: 'workflow',
-    description: 'Permite preparar contexto antes de abrir um workflow composto.',
+    label: 'Before workflow',
+    scope: 'workflow',
+    description: 'Allows context preparation before starting a composed workflow.',
     status: 'partial',
   },
   {
     id: 'after-workflow-complete',
-    label: 'Depois do workflow',
-    phase: 'workflow',
-    description: 'Permite publicar artefatos e sumarizar o resultado final.',
+    label: 'After workflow',
+    scope: 'workflow',
+    description: 'Allows artifact publication and final result summarization.',
     status: 'partial',
   },
   {
     id: 'permission-required',
-    label: 'Permissao pendente',
-    phase: 'approval',
-    description: 'Permite automacoes quando uma permissao bloqueia a trilha.',
+    label: 'Permission pending',
+    scope: 'approval',
+    description: 'Allows automation when a permission blocks the path.',
     status: 'partial',
   },
   {
     id: 'handoff-generated',
-    label: 'Handoff gerado',
-    phase: 'session',
-    description: 'Permite automacoes quando um handoff entre superficies e gerado.',
+    label: 'Handoff generated',
+    scope: 'session',
+    description: 'Allows automation when a permission blocks the path.',
     status: 'partial',
   },
   {
     id: 'before-complete',
-    label: 'Antes de concluir',
-    phase: 'release',
-    description: 'Hook operacional de workspace antes de concluir uma entrega.',
+    label: 'Before completion',
+    scope: 'release',
+    description: 'Workspace operational hook before completing a delivery.',
     status: 'ready',
   },
   {
     id: 'before-publish',
-    label: 'Antes de publicar',
-    phase: 'release',
-    description: 'Hook operacional de workspace antes de publicar ou shippar algo.',
+    label: 'Before publishing',
+    scope: 'release',
+    description: 'Workspace operational hook before publishing or shipping work.',
     status: 'ready',
   },
 ];
@@ -156,7 +156,7 @@ export class ZavorthHookPlaneService {
       return {
         id: event.id,
         label: event.label,
-        phase: this.normalizeStage(event.phase),
+        scope: this.normalizeScope(event.scope),
         description: event.summary,
         status: event.status,
         registeredHooks: matchedHooks.length,
@@ -182,19 +182,19 @@ export class ZavorthHookPlaneService {
       events,
       registrations,
       narrative: {
-        headline: `Zavorth expõe ${summary.supportedEvents} eventos de hook para sessao, tool, workflow e release.`,
+        headline: `Zavorth exposes ${summary.supportedEvents} hook events for session, tool, workflow and release.`,
         operatorSummary:
           summary.registeredHooks > 0
             ? `${summary.registeredHooks} hook(s) de workspace registrados em ${summary.workspaces} workspace(s).`
-            : 'Ainda nao ha hooks registrados, mas o plano de eventos ja esta explicito e pronto para crescer.',
+            : 'No hooks are registered yet, but the event plane is explicit and ready to grow.',
       },
     };
   }
 
-  private normalizeStage(
-    phase: string,
-  ): ZavorthHookEventSnapshot['phase'] {
-    switch (phase) {
+  private normalizeScope(
+    scope: string,
+  ): ZavorthHookEventSnapshot['scope'] {
+    switch (scope) {
       case 'session':
       case 'dispatch':
       case 'workflow':
@@ -205,7 +205,7 @@ export class ZavorthHookPlaneService {
       case 'transport':
       case 'release':
       case 'tool':
-        return phase;
+        return scope;
       default:
         return 'tool';
     }

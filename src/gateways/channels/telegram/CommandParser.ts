@@ -22,11 +22,6 @@ export function normalizeTelegramCommandToken(commandToken: string): string {
 export class CommandParser {
   public parse(rawMessage: string): ParsedCommand {
     const text = rawMessage.trim();
-    const normalized = text
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-
     let command_type = 'message';
     let command_args = '';
     let explicit_executor: string | null = null;
@@ -46,24 +41,12 @@ export class CommandParser {
       command_type = '/task';
     }
 
-    const references_last_task =
-      normalized.includes('anterior') ||
-      normalized.includes('ultima') ||
-      normalized.includes('dessa ultima') ||
-      normalized.includes('da ultima') ||
-      normalized.includes('cade') ||
-      normalized.includes('e ai') ||
-      normalized.includes('terminou') ||
-      normalized.includes('deu certo') ||
-      normalized.includes('status') ||
-      normalized === 'andamento';
-
     return {
       command_type,
       command_args,
-      normalized_message: normalized,
+      normalized_message: text.toLowerCase(),
       explicit_executor,
-      references_last_task,
+      references_last_task: false,
       workspace_command_name: null,
     };
   }

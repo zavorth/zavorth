@@ -95,7 +95,7 @@ export class WebAppRuntimeInteractionRouteService {
       try {
         const targetPath = String(url.searchParams.get('path') || '').trim();
         if (!targetPath) {
-          deps.writeJson(res, { ok: false, error: 'path obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'path required.' }, 400);
           return true;
         }
 
@@ -185,7 +185,7 @@ export class WebAppRuntimeInteractionRouteService {
       const toolRuns = asLooseRecordArray(asLooseRecord(snapshot)?.toolRuns);
       const toolRun = toolRuns.find((run: LooseRecord) => String(run?.runId || '').trim() === runId) || null;
       if (!toolRun) {
-        deps.writeJson(res, { ok: false, error: 'Tool run nao encontrado para esta sessao.' }, 404);
+        deps.writeJson(res, { ok: false, error: 'Tool run not found for this session.' }, 404);
         return true;
       }
       deps.writeJson(
@@ -229,7 +229,7 @@ export class WebAppRuntimeInteractionRouteService {
       const toolName = normalizeRemoteMeshNotebookMcpApplyToolName(body.toolName);
       const args = asRemoteMeshNotebookApplyArguments(body.arguments);
       if (!toolName || !args) {
-        deps.writeJson(res, { ok: false, error: 'toolName, arguments e approval validos sao obrigatorios.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'toolName, arguments, and valid approval are required.' }, 400);
         return true;
       }
       const result = await RemoteMeshNotebookMcpProxyService.fromEnv().apply({
@@ -333,7 +333,7 @@ export class WebAppRuntimeInteractionRouteService {
     try {
       const targetPath = String(url.searchParams.get('path') || '').trim();
       if (!targetPath) {
-        deps.writeJson(res, { ok: false, error: 'path obrigatorio.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'path required.' }, 400);
         return true;
       }
 
@@ -536,10 +536,8 @@ export class WebAppRuntimeInteractionRouteService {
           const now = String(execution.generatedAt || new Date().toISOString());
           const status = String(execution.status || 'applied');
           const ok = execution.ok !== false && status !== 'blocked';
-          const lifecycle = status === 'blocked' && (actionId === 'promoteSkill' || actionId === 'promote')
-            ? 'learned_draft'
-            : actionId === 'promote' || actionId === 'promoteSkill' || actionId === 'promoteProcedure'
-              ? (ok ? 'trusted_local' : 'learned_draft')
+          const lifecycle = status === 'blocked' && (actionId === 'promoteSkill' || actionId === 'promote') ? 'learned_draft'
+            : actionId === 'promote' || actionId === 'promoteSkill' || actionId === 'promoteProcedure' ? (ok ? 'trusted_local' : 'learned_draft')
               : actionId === 'reject' || actionId === 'forget'
                 ? 'quarantined'
                 : 'learned_draft';
@@ -601,8 +599,7 @@ export class WebAppRuntimeInteractionRouteService {
         lifecycle: 'learned_draft',
         updatedAt: now,
       };
-      const lifecycle = gateResult.installed
-        ? 'trusted_local'
+      const lifecycle = gateResult.installed ? 'trusted_local'
         : actionId === 'promoteSkill'
           ? 'learned_draft'
           : 'trusted_local';
@@ -783,7 +780,7 @@ export class WebAppRuntimeInteractionRouteService {
       pushEvent({
         id: `message:${messageId}`,
         type: role === 'user' ? 'request' : 'reply',
-        title: role === 'user' ? 'Pedido recebido' : 'Resposta registrada',
+        title: role === 'user' ? 'request received' : 'Response recorded',
         detail: content,
         meta: String(message?.kind || role || 'message').trim(),
         status: role || 'message',
@@ -912,7 +909,7 @@ export class WebAppRuntimeInteractionRouteService {
         type: 'lifecycle',
         title: String(lifecycleEvent.type || 'Mnemos lifecycle').trim(),
         detail: String(payload.objective || payload.content || payload.toolName || payload.status || 'Session lifecycle event captured by Mnemos.').trim(),
-        meta: `mnemos - ${String(source.surface || 'runtime')} - ${String(trust.level || 'raw')}`,
+        meta: `mnemos - ${String(source.surface || 'runtime')} ? ${String(trust.level || 'raw')}`,
         status: String(payload.status || trust.level || 'captured').trim(),
         time: lifecycleEvent.timestamp || lifecycleEvent.createdAt || null,
         runId: payload.runId || payload.workflowRunId || null,

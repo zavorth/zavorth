@@ -3,10 +3,10 @@
  *
  * This module receives the intent classification from IntentClassifier and filters
  * as ToolDefinitions a serem injetadas no prompt do LLM. Em vez de enviar
- * TODAS as 16+ tools em toda chamada (como o ExternalExecutor faz), enviamos apenas
+ * TODAS as 16+ tools em every call (como o ExternalExecutor faz), enviamos only
  * the tools that make sense for the detected intent.
  *
- * RESULTADO: O prompt enviado ao LLM fica ~60-70% mais leve em tokens.
+ * Result: the prompt sent to the LLM is roughly 60-70% lighter in tokens.
  */
 
 import type { IntentCategory } from './IntentClassifier.js';
@@ -231,8 +231,7 @@ export class ToolGatekeeper {
         filteredTools: approvedTools.length,
         toolExposureGatedByCognitiveFirewall: pluginGateApplied,
         isHardGate: pluginGateApplied,
-        reason: pluginGateApplied
-          ? `Intent hint recommends the full toolset; ${quarantinedToolNames.length} tool(s) blocked by operator plugin policy.`
+        reason: pluginGateApplied ? `Intent hint recommends the full toolset; ${quarantinedToolNames.length} tool(s) blocked by operator plugin policy.`
           : 'Intent hint recommends the full available toolset; final exposure belongs to runtime policy.',
         ...(this.compactMode ? { compactTools: toCompactBatch(approvedTools), isCompactMode: true } : {}),
         ...(this.clusterMode ? { activeClusters, isClusterMode: true } : {}),
@@ -311,8 +310,7 @@ export class ToolGatekeeper {
       filteredTools: finalTools.length,
       toolExposureGatedByCognitiveFirewall: pluginGateApplied,
       isHardGate: pluginGateApplied,
-      reason: pluginGateApplied
-        ? `Intent classifier filtered by intent; ${quarantinedToolNames.length} tool(s) blocked by operator plugin policy.`
+      reason: pluginGateApplied ? `Intent classifier filtered by intent; ${quarantinedToolNames.length} tool(s) blocked by operator plugin policy.`
         : 'Intent classifier produced a tool hint only; final exposure belongs to runtime policy.',
       ...(this.compactMode ? { compactTools: toCompactBatch(finalTools), isCompactMode: true } : {}),
       ...(this.clusterMode ? { activeClusters, isClusterMode: true } : {}),
@@ -325,7 +323,7 @@ export class ToolGatekeeper {
    * Returns only the ones the LLM may actually need.
    *
    * @param allTools - Todas as tools registradas no ToolRegistry
-   * @param intentCategory - Categoria detectada pelo IntentClassifier
+   * @param intentCategory - Category detected by IntentClassifier
    * @returns Subconjunto filtrado de ToolDefinitions (ou vazio para chat puro)
    */
   public filterTools(allTools: ToolDefinition[], intentCategory: IntentCategory): ToolDefinition[] {

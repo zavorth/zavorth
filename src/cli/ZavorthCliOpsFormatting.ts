@@ -18,14 +18,13 @@ export function formatRuntimeAccessReadinessReport(report: RuntimeAccessReadines
 
 export function formatRuntimeBootstrapReport(report: RuntimeBootstrapReport): string {
   const selectedModel = report.env.selectedModel || null;
-  const providerLine = selectedModel
-    ? `${selectedModel.providerLabel}/${selectedModel.modelLabel} (${selectedModel.readiness})`
+  const providerLine = selectedModel ? `${selectedModel.providerLabel}/${selectedModel.modelLabel} (${selectedModel.readiness})`
     : report.env.llmProvider;
   return [
     'Zavorth bootstrap',
     `- ${report.summary}`,
     `- project: ${report.projectRoot}`,
-    `- .env: ${report.env.envFilePresent ? 'presente' : 'ausente'} | provider: ${providerLine}`,
+    `- .env: ${report.env.envFilePresent ? 'present' : 'missing'} | provider: ${providerLine}`,
     `- install: ${report.dependencies.installRequired ? 'pending' : 'ok'} | build: ${report.dependencies.buildRequired ? 'pending' : 'ok'}`,
     report.actions[0] ? `- next action: ${report.actions[0].title} (${report.actions[0].command})` : '- next action: none',
   ].join('\n');
@@ -39,7 +38,7 @@ export function formatRuntimeBootstrapRepairReport(report: RuntimeBootstrapRepai
     'Zavorth bootstrap repair',
     `- ${report.summary}`,
     `- dry-run: ${report.dryRun ? 'yes' : 'no'}`,
-    `- etapas: ${report.steps.length} | executadas: ${executed} | falhas: ${failed} | puladas: ${skipped}`,
+    `- stages: ${report.steps.length} | executed: ${executed} | failures: ${failed} | skipped: ${skipped}`,
   ].join('\n');
 }
 
@@ -48,7 +47,7 @@ export function formatSupervisedReloadResult(result: SupervisedReloadRequestResu
     'Zavorth supervised reload',
     `- status: ${result.accepted ? 'accepted' : 'rejected'}`,
     `- request: ${result.requestId}`,
-    `- resumo: ${result.summary}`,
+    `- summary: ${result.summary}`,
   ].join('\n');
 }
 
@@ -57,6 +56,6 @@ export function formatAutoRepairRunResult(result: AutoRepairRunResult): string {
     'Zavorth autorepair',
     `- status: ${result.status}`,
     `- success: ${result.success ? 'yes' : 'no'}`,
-    `- resumo: ${result.summary}`,
+    `- summary: ${result.summary}`,
   ].join('\n');
 }

@@ -47,7 +47,7 @@ export function extractJsonPayloadFromText(output: string): unknown {
     }
   }
 
-  throw new Error(`saida nao contem JSON valido. Primeiro trecho: ${normalized.slice(0, 120)}`);
+    throw new Error(`Output does not contain valid JSON. First segment: ${normalized.slice(0, 120)}`);
 }
 
 export function getQaReportDirectory(): string {

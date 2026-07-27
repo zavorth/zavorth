@@ -146,8 +146,7 @@ export class SupervisedDesktopAutomationAdapter implements SystemOverlordRuntime
           capabilities: readOnly ? ['desktop', 'local-observation'] : ['desktop'],
           requiresConfirmation: false,
           reasons: [
-            readOnly
-              ? 'Supervised desktop observation is sealed by operator continuity.'
+            readOnly ? 'Supervised desktop observation is sealed by operator continuity.'
               : 'Supervised desktop mutation was approved and sealed by operator continuity.',
           ],
           rule: 'SUPERVISED_DESKTOP_CONTINUITY',
@@ -162,8 +161,7 @@ export class SupervisedDesktopAutomationAdapter implements SystemOverlordRuntime
         return resultFromToolOutcome({
           ok: !failed,
           status: failed ? 'failed' : (readOnly ? 'observation' : 'applied'),
-          summary: failed
-            ? `Desktop action "${action}" failed.`
+          summary: failed ? `Desktop action "${action}" failed.`
             : `Desktop action "${action}" completed.`,
           output,
           data: { action, adapterId: this.id },

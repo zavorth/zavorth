@@ -19,7 +19,7 @@ const DEFAULT_OBJECTIVES: PromptEvolutionObjective[] = [
 const BLOCK_PATTERNS: Array<[RegExp, string]> = [
   [/\bignore\b.{0,60}\b(policy|approval|safety|guardrail)/i, 'policy-bypass-language'],
   [/\b(always|automatically)\b.{0,50}\b(approve|allow|execute|shell|send)/i, 'unsafe-auto-approval'],
-  [/\b(raw|print|dump|expose)\b.{0,60}\b(secret|token|api[_ -]?key|password|credential)/i, 'secret-exposure'],
+  [/\b(raw|print|dump|expose)\b.{0,60}\b(secret|token|api[_ -]...key|password|credential)/i, 'secret-exposure'],
   [/\bdo not ask\b.{0,50}\b(user|operator|approval)/i, 'approval-removal'],
   [/\bdisable\b.{0,50}\b(redaction|sandbox|receipt|policy)/i, 'safety-control-removal'],
 ];
@@ -67,8 +67,7 @@ export class PromptEvolutionLabService {
       .filter((candidate) => candidate.status !== 'blocked')
       .sort((left, right) => right.score - left.score || right.safetyScore - left.safetyScore);
     const bestCandidate = viable[0] || null;
-    const status = candidates.every((candidate) => candidate.status === 'blocked')
-      ? 'blocked'
+    const status = candidates.every((candidate) => candidate.status === 'blocked') ? 'blocked'
       : bestCandidate && bestCandidate.family !== 'baseline'
         ? 'needs-review'
         : 'ready';
@@ -210,13 +209,14 @@ function normalizeCases(values: PromptEvolutionEvalCase[] | undefined): PromptEv
 function scoreBehaviors(prompt: string, objectives: PromptEvolutionObjective[], cases: PromptEvolutionEvalCase[]): number {
   let score = 55;
   const text = prompt.toLowerCase();
+  const hasAny = (tokens: string[]) => tokens.some((token) => text.includes(token));
   for (const objective of objectives) {
-    if (objective === 'safety' && /approval|policy|receipt|redaction|sandbox/.test(text)) score += 8;
-    if (objective === 'approval-calm' && /low-risk|reversible|quiet|concise|preview/.test(text)) score += 6;
-    if (objective === 'tool-discipline' && /tool|scoped|allowed|blocked/.test(text)) score += 6;
-    if (objective === 'profile-fit' && /profile|wording|experience/.test(text)) score += 6;
-    if (objective === 'accuracy' && /evidence|uncertainty|verify|source/.test(text)) score += 6;
-    if (objective === 'brevity' && /concise|short|brief/.test(text)) score += 5;
+    if (objective === 'safety' && hasAny(['approval', 'policy', 'receipt', 'redaction', 'sandbox'])) score += 8;
+    if (objective === 'approval-calm' && hasAny(['low-risk', 'reversible', 'quiet', 'concise', 'preview'])) score += 6;
+    if (objective === 'tool-discipline' && hasAny(['tool', 'scoped', 'allowed', 'blocked'])) score += 6;
+    if (objective === 'profile-fit' && hasAny(['profile', 'wording', 'experience'])) score += 6;
+    if (objective === 'accuracy' && hasAny(['evidence', 'uncertainty', 'verify', 'source'])) score += 6;
+    if (objective === 'brevity' && hasAny(['concise', 'short', 'brief'])) score += 5;
   }
   for (const item of cases) {
     const weight = item.weight || 1;
@@ -231,7 +231,7 @@ function scoreBehaviors(prompt: string, objectives: PromptEvolutionObjective[], 
 }
 
 function secretLikePenalty(text: string): number {
-  return /(sk-[a-z0-9]{12,}|api[_-]?key\s*[:=]\s*\S+|bearer\s+\S+)/i.test(text) ? 40 : 0;
+  return /(sk-[a-z0-9]{12,}|api[_-]...key\s*[:=]\s*\S+|bearer\s+\S+)/i.test(text) ? 40 : 0;
 }
 
 function hash(value: string): string {
@@ -245,7 +245,7 @@ function preview(value: string): string {
 function redactPrompt(value: string): string {
   return value
     .replace(/\b(sk-[a-z0-9]{12,})\b/gi, '[REDACTED_API_KEY]')
-    .replace(/\b(api[_-]?key|token|password|secret)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
+    .replace(/\b(api[_-]...key|token|password|secret)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
     .replace(/\bbearer\s+[^\s,;]+/gi, 'bearer [REDACTED]');
 }
 

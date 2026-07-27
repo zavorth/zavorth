@@ -55,7 +55,7 @@ export function buildReleaseInstallerRollbackCliSnapshot(input: {
           writes: [
             { path: 'data/runtime/first-run/profile.json', action: 'skip', reason: 'profile existente' },
           ],
-          summary: ['Primeiro uso configured para release path.'],
+          summary: ['Primeiro usage configured para release path.'],
           willNotWrite: ['tokens ou API keys'],
           nextCommands: ['zavorth doctor', 'zavorth go --dry-run', 'zavorth release-path'],
           redactedJson: '{}',
@@ -76,7 +76,7 @@ export function buildReleaseInstallerRollbackCliSnapshot(input: {
           nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
           configured: true,
           profilePath: 'data/runtime/first-run/profile.json',
-          userDisplayName: 'usuario',
+          userDisplayName: 'user',
           agentDisplayName: 'Zavorth',
           tonePreference: 'equilibrado',
           workspaceRoot: '<workspace>',
@@ -152,7 +152,7 @@ export function buildReleaseInstallerRollbackCliSnapshot(input: {
         nextRecommendedGate: {
           stage: '52',
           title: 'Feedback, Telemetry Opt-In And Product Loop',
-          reason: 'Depois do release path, abrir loop de produto sem canary real.',
+          reason: 'after do release path, abrir loop de produto without canary real.',
         },
       },
     },
@@ -179,7 +179,7 @@ export function formatReleaseInstallerRollbackSnapshot(
     `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- channel: ${snapshot.release.channel}`,
-    `- bundle publico: ${snapshot.release.releaseBundleStatus}`,
+    `- public bundle: ${snapshot.release.releaseBundleStatus}`,
     `- installer preview: ${snapshot.installer.previewAvailable ? 'ready' : 'pending'}`,
     `- rollback: ${snapshot.rollback.rollbackAvailable ? 'ready' : 'pending'}`,
     `- canary: ${snapshot.readiness.canStartCanary ? 'released' : 'dormant'}`,
@@ -195,7 +195,7 @@ export function formatReleaseInstallerRollbackSnapshot(
     );
   }
 
-  lines.push('', 'Superficies');
+  lines.push('', 'surfaces');
   for (const surface of snapshot.surfaces) {
     lines.push(`- ${surface.status}: ${surface.label} (${surface.commandOrPath}) - ${surface.detail}`);
   }
@@ -215,7 +215,7 @@ export function formatReleaseInstallerRollbackSnapshot(
   lines.push('- rollback requires an explicit command');
   lines.push('- secrets were not serialized');
 
-  lines.push('', 'Superficies de consumo');
+  lines.push('', 'surfaces de consumption');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Public release: ${snapshot.surface.publicReleaseRoute}`);

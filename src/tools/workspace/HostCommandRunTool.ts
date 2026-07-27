@@ -36,11 +36,11 @@ export class HostCommandRunTool extends BaseTool {
       },
       shell: {
         type: 'boolean',
-        description: 'Se deve usar shell (deve coincidir exatamente com o proposto).',
+        description: 'Whether to use a shell (must exactly match the proposal).',
       },
       timeoutMs: {
         type: 'number',
-        description: 'Timeout em milissegundos. Max: 60000. Default: 30000.',
+        description: 'Timeout in milliseconds. Max: 60000. Default: 30000.',
       }
     },
     required: ['operationId', 'command', 'args', 'cwd', 'shell'],
@@ -104,7 +104,7 @@ export class HostCommandRunTool extends BaseTool {
 
       // 1. Fetch proposal metadata to perform guards
       const proposal = db.get<{ workspace_id: string; risk_level: string; approved: number }>(
-        'SELECT workspace_id, risk_level, approved FROM workspace_host_command_proposals WHERE operation_id = ?',
+        'SELECT workspace_id, risk_level, approved FROM workspace_host_command_proposals WHERE operation_id = ...',
         [operationId]
       );
 
@@ -133,7 +133,7 @@ export class HostCommandRunTool extends BaseTool {
         if (!hpmState.enabled) {
           return JSON.stringify({
             success: false,
-            error: `Host Power Mode desativado. shell:true ou comandos out-of-workspace exigem Host Power Mode ativo.`
+            error: `Host Power Mode is disabled. shell:true or out-of-workspace commands require active Host Power Mode.`
           });
         }
       }

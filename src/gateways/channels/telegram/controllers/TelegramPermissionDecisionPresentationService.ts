@@ -60,8 +60,7 @@ export class TelegramPermissionDecisionPresentationService {
             `Level: ${accessLabel}`,
             `Scope: ${scopeLabel}`,
           ],
-          nextStep: isInspection
-            ? 'Done. I will resume the comparison or inspection now.'
+          nextStep: isInspection ? 'Done. I will resume the comparison or inspection now.'
             : 'Done. I will resume the listing or delivery request now.',
         });
       }

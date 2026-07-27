@@ -98,10 +98,8 @@ export class ZavorthPerceptionInvocationRouter {
       },
       approval: {
         required: intent.mutationRequested || intent.sensitive,
-        reason: intent.sensitive
-          ? 'Sensitive visual/device target flagged; only explanation is allowed until the user chooses a safe target.'
-          : intent.mutationRequested
-            ? 'Any click, tap, type, keyevent, intent or desktop mutation requires owner approval.'
+        reason: intent.sensitive ? 'Sensitive visual/device target flagged; only explanation is allowed until the user chooses a safe target.'
+          : intent.mutationRequested ? 'Any click, tap, type, keyevent, intent or desktop mutation requires owner approval.'
             : null,
         approvalId: input.approvalId || null,
       },
@@ -154,7 +152,7 @@ export class ZavorthPerceptionInvocationRouter {
       title: entry.kind,
       status: mapReceiptStatus(entry.status),
       reason: entry.reason,
-      policyProfile: 'perception-invocation-checkpoint-5',
+      policyProfile: 'perception-invocation-gate-5',
       redacted: false,
       riskBlocked: entry.status === 'blocked',
       createdAt: plan.generatedAt,
@@ -162,8 +160,7 @@ export class ZavorthPerceptionInvocationRouter {
         rawSecretSerialized: entry.rawSecretSerialized,
       },
     }));
-    const execution = options.subagentRuntime
-      ? `Subagents: ${options.subagentRuntime.status}; workers=${options.subagentRuntime.summary?.workerResults ?? 0}; live=${options.subagentRuntime.summary?.liveRuns ?? 0}.`
+    const execution = options.subagentRuntime ? `Subagents: ${options.subagentRuntime.status}; workers=${options.subagentRuntime.summary?.workerResults ?? 0}; live=${options.subagentRuntime.summary?.liveRuns ?? 0}.`
       : 'Subagents: not executed in this response.';
     const activationItems = buildActivationSetupItems(plan);
 
@@ -602,19 +599,16 @@ function buildFacts(intent: RouteIntent): string[] {
   return [
     `Request classified as target ${intent.targetKind}.`,
     `Primary route selected: ${intent.primaryRoute}.`,
-    intent.explicitSubagents
-      ? 'Structured intent requested subagents / reviewed perception.'
+    intent.explicitSubagents ? 'Structured intent requested subagents / reviewed perception.'
       : 'No structured subagent request.',
   ];
 }
 
 function buildInferences(intent: RouteIntent): string[] {
   return [
-    intent.mutationRequested
-      ? 'Structured intent may alter UI; the correct step is to plan before acting.'
+    intent.mutationRequested ? 'Structured intent may alter UI; the correct step is to plan before acting.'
       : 'Request can be handled as read-only observation.',
-    intent.routes.includes('subagent_perception')
-      ? 'Subagents help separate facts, inferences, and risks without touching the UI.'
+    intent.routes.includes('subagent_perception') ? 'Subagents help separate facts, inferences, and risks without touching the UI.'
       : 'A single perception surface is enough to start.',
   ];
 }
@@ -708,7 +702,7 @@ function uniqueRoutes(values: Array<ZavorthPerceptionRouteKind | null>): Zavorth
 function extractNaturalWindowTitle(value: string): string | null {
   const text = String(value || '').trim();
   const match = text.match(
-    /\b(?:window|app|application|program|janela|aplicativo|programa)\s+(?:do|da|de|of)?\s*([a-z0-9 ._-]{2,48})/i,
+    /\b(?:window|app|application|program|window|aplicactive|programa)\s+(?:do|da|de|of)...\s*([a-z0-9 ._-]{2,48})/i,
   );
   return match?.[1]?.replace(/\b(no|na|em|e|para|que|and|on|in)\b.*$/i, '').trim() || null;
 }

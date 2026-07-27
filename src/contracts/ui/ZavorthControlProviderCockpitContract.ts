@@ -4,7 +4,7 @@ import type {
   ZavorthProviderProbeStatus,
 } from '../ZavorthProviderReadinessMatrixContract.js';
 
-export const ZAVORTH_ZAVORTH_CONTROL_PROVIDER_COCKPIT_CONTRACT_VERSION = '2026-05-13.checkpoint-6' as const;
+export const ZAVORTH_ZAVORTH_CONTROL_PROVIDER_COCKPIT_CONTRACT_VERSION = '2026-05-13.gate-6' as const;
 
 export type ZavorthControlProviderCockpitStatus = 'ready' | 'attention' | 'blocked';
 

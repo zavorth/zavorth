@@ -46,7 +46,7 @@ export type AgentOsPermissionLease = {
   receipts: string[];
 };
 
-export type AgentOsImpactSimulation = {
+export type AgentOsImpactDryRun = {
   id: string;
   source: 'ImpactSimulatorService';
   status: AgentOsStatus;
@@ -138,7 +138,7 @@ export type AgentOsTransactionalPlan = {
   mutationPlanId: string | null;
   status: 'draft' | 'waiting_approval' | 'ready' | 'blocked';
   proposal: IntelligenceExecutionProposal;
-  simulation: AgentOsImpactSimulation;
+  dryRun: AgentOsImpactDryRun;
   permissionLease: AgentOsPermissionLease;
   liveActionApplied: false;
   commitRequiresRiskGate: true;
@@ -200,7 +200,7 @@ export type AgentOsSnapshot = {
   zavorthControl: AgentOsZavorthControlSnapshot;
   safety: {
     thinkingBlocked: false;
-    simulationHasSideEffects: false;
+    dryRunHasSideEffects: false;
     rawSecretsSerialized: false;
     shadowDoesNotMutateRuntime: true;
     dangerousImpactRequiresGate: true;

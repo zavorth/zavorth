@@ -42,7 +42,7 @@ export class FirecrackerSandboxPayloadSupport {
       'PAYLOAD_DIR="$(dirname "$0")"',
       'RESULTS_DIR="${PAYLOAD_DIR}/../results"',
       interpreter + ' "${PAYLOAD_DIR}/' + codeFile + '" >"${RESULTS_DIR}/stdout.txt" 2>"${RESULTS_DIR}/stderr.txt"',
-      'echo $? > "${RESULTS_DIR}/exitcode.txt"',
+      'echo $... > "${RESULTS_DIR}/exitcode.txt"',
       'sync',
     ].join('\n');
 
@@ -60,8 +60,8 @@ export class FirecrackerSandboxPayloadSupport {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : String(error);
       throw new Error(
-        `[FirecrackerSandbox] Falha ao construir payload drive: ${message}. ` +
-        'Verifique se e2fsprogs esta instalado (apt install e2fsprogs).',
+        `[FirecrackerSandbox] Failure ao construir payload drive: ${message}. ` +
+        'Check whether e2fsprogs is installed (apt install e2fsprogs).',
       );
     }
   }
@@ -116,7 +116,7 @@ export class FirecrackerSandboxPayloadSupport {
           clearInterval(poll);
 
           if (timedOut && !completed) {
-            result.stderr += `\n[FirecrackerSandbox] Timeout apos ${timeoutMs}ms. MicroVM destruida.`;
+            result.stderr += `\n[FirecrackerSandbox] Timeout after ${timeoutMs}ms. MicroVM destruida.`;
             result.exitCode = null;
           }
 

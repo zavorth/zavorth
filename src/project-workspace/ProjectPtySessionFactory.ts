@@ -40,12 +40,12 @@ export class ProjectPtySessionFactory {
   ): ProjectPtySessionProfile {
     const manifestProcess = resolved.manifest.processes.find((entry) => entry.id === input.processId);
     if (!manifestProcess) {
-      throw new ProjectProcessSupervisorError(`Processo "${input.processId}" nao existe no manifesto.`);
+      throw new ProjectProcessSupervisorError(`Process "${input.processId}" does not exist in the manifest.`);
     }
     const resolution = this.resolveProcessResolution(resolved, manifestProcess);
     if (resolution.outsideProject && manifestProcess.allowOutsideProject !== true) {
       throw new ProjectProcessSupervisorError(
-        `Processo "${manifestProcess.id}" tentaria abrir PTY fora de project.root (${resolved.projectRoot}).`,
+        `Processo "${manifestProcess.id}" tentaria abrir PTY outside de project.root (${resolved.projectRoot}).`,
       );
     }
 
@@ -92,8 +92,7 @@ export class ProjectPtySessionFactory {
       surface: normalizeText(input.surface, 'project-workspace-pty'),
       runId,
       taskId: manifestProcess.id,
-      ownerRef: runId
-        ? `project-pty:${resolved.manifest.project.name}:${manifestProcess.id}:run:${runId}`
+      ownerRef: runId ? `project-pty:${resolved.manifest.project.name}:${manifestProcess.id}:run:${runId}`
         : `project-pty:${resolved.manifest.project.name}:${manifestProcess.id}`,
       metadata: {
         projectName: resolved.manifest.project.name,

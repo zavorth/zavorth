@@ -22,9 +22,8 @@ export class WeComGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/wecom',
       doctorCommand: '/channels doctor wecom',
-      operatorNextStep: this.resolveConfigured()
-        ? 'WeCom webhook configurado. Pronto para enviar mensagens.'
-        : 'Defina WECOM_WEBHOOK_URL para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'WeCom webhook configured. Ready to send messages.'
+        : 'Set WECOM_WEBHOOK_URL to enable.',
     };
   }
 

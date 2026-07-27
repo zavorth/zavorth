@@ -99,8 +99,7 @@ export class AiFirstOwnerControlledDefaultActivationService {
       applied: false,
       dryRun: true,
       action: 'read-current-state',
-      message: state
-        ? `AI-first default state is ${state.status}.`
+      message: state ? `AI-first default state is ${state.status}.`
         : 'No AI-first owner-controlled default state exists yet.',
       state,
       receipt: null,
@@ -139,10 +138,8 @@ export class AiFirstOwnerControlledDefaultActivationService {
       previousDefaultRouter: state?.defaultRouter || null,
       nextDefaultRouter: 'current-runtime',
       findings,
-      message: blocked
-        ? 'Rollback blocked by missing state, approval or confirmation.'
-        : apply
-          ? 'AI-first default was rolled back to the current runtime.'
+      message: blocked ? 'Rollback blocked by missing state, approval or confirmation.'
+        : apply ? 'AI-first default was rolled back to the current runtime.'
           : 'Dry-run: rollback would restore current runtime as default.',
     });
     const nextState = state && !blocked && apply
@@ -214,10 +211,8 @@ export class AiFirstOwnerControlledDefaultActivationService {
     const findings = this.validateActivationInput(snapshot, input, previousState, apply);
     const blocked = findings.some((finding) => finding.severity === 'high');
     const snapshotHash = snapshot ? this.hashSnapshot(snapshot) : null;
-    const status: AiFirstOwnerControlledDefaultResultStatus = blocked
-      ? 'blocked'
-      : apply
-        ? 'active'
+    const status: AiFirstOwnerControlledDefaultResultStatus = blocked ? 'blocked'
+      : apply ? 'active'
         : 'ready';
     const receipt = this.createReceipt({
       operation,
@@ -230,10 +225,8 @@ export class AiFirstOwnerControlledDefaultActivationService {
       previousDefaultRouter: previousState?.defaultRouter || 'current-runtime',
       nextDefaultRouter: blocked ? previousState?.defaultRouter || 'current-runtime' : 'ai-first',
       findings,
-      message: blocked
-        ? 'AI-first default activation is blocked by validation findings.'
-        : apply
-          ? 'AI-first router default was activated with current-runtime fallback.'
+      message: blocked ? 'AI-first default activation is blocked by validation findings.'
+        : apply ? 'AI-first router default was activated with current-runtime fallback.'
           : 'Dry-run: AI-first router default is ready for owner-controlled activation.',
     });
     const state = snapshot && !blocked
@@ -453,7 +446,7 @@ export class AiFirstOwnerControlledDefaultActivationService {
     }
     const receipts: AiFirstOwnerControlledDefaultReceipt[] = [];
     const errors: Array<{ line: number; reason: string }> = [];
-    const lines = fs.readFileSync(this.ledgerPath, 'utf8').split(/\r?\n/);
+    const lines = fs.readFileSync(this.ledgerPath, 'utf8').split(/\r...\n/);
     lines.forEach((line, index) => {
       if (!line.trim()) {
         return;

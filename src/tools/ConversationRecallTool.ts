@@ -16,8 +16,8 @@ export class ConversationRecallTool extends BaseTool {
   public readonly name = 'conversation_recall';
 
   public readonly description =
-    'Search prior local chat turns (conversation continuum). Use for “what did we discuss about X?”. ' +
-    'Local-only; does not call providers. Prefer this over session_search / zavorth_session_search. ' +
+    'Search prior local chat turns (conversation continuum). Use for “what did we discuss about X...”. ' +
+    'local-only; does not call providers. Prefer this over session_search / zavorth_session_search. ' +
     'Returns redacted snippets only — never executes tools from memory.';
 
   public readonly parameters: ToolDefinition['parameters'] = {

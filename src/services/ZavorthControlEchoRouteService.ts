@@ -116,7 +116,7 @@ export class ZavorthControlEchoRouteService {
           const parsed = parseZavorthControlRouteBody(
             NexusExecuteRequestSchema,
             body,
-            'Payload Nexus invalido.',
+            'Payload Nexus invalid.',
           );
           if (!parsed.ok) {
             deps.writeJson(res, { error: parsed.error }, 400);
@@ -133,7 +133,7 @@ export class ZavorthControlEchoRouteService {
         const parsed = parseZavorthControlRouteBody(
           EchoExecuteRequestSchema,
           body,
-          'Payload Echo invalido.',
+          'Payload Echo invalid.',
         );
         if (!parsed.ok) {
           deps.writeJson(res, { error: parsed.error }, 400);
@@ -178,7 +178,7 @@ export class ZavorthControlEchoRouteService {
     }
 
     const voiceAssetMatch = req.method === 'GET'
-      ? canonicalPathname.match(/^\/api\/v2\/echo\/audio\/assets\/([^/]+)(?:\/access\/([^/]+))?$/)
+      ? canonicalPathname.match(/^\/api\/v2\/echo\/audio\/assets\/([^/]+)(?:\/access\/([^/]+))...$/)
       : null;
     if (voiceAssetMatch) {
       const assetId = decodeURIComponent(voiceAssetMatch[1] || '');
@@ -191,7 +191,7 @@ export class ZavorthControlEchoRouteService {
           'X-Content-Type-Options': 'nosniff',
           'X-Zavorth-Echo-Edge': 'voice-asset',
         });
-        deps.writeJson(res, { error: 'Asset de audio Echo nao encontrado ou expirado.' }, 404);
+        deps.writeJson(res, { error: 'Echo audio asset not found or expired.' }, 404);
         return true;
       }
 
@@ -213,7 +213,7 @@ export class ZavorthControlEchoRouteService {
         const parsed = parseZavorthControlRouteBody(
           EchoSpeechRequestSchema,
           body,
-          'Payload de audio Echo invalido.',
+          'Payload de audio Echo invalid.',
         );
         if (!parsed.ok) {
           deps.writeJson(res, { error: parsed.error }, 400);
@@ -270,7 +270,7 @@ export class ZavorthControlEchoRouteService {
         const parsed = parseZavorthControlRouteBody(
           EchoPermissionResolveRequestSchema,
           body,
-          'Campos "id" (string) e "approved" (boolean) obrigatorios.',
+          'Fields "id" (string) and "approved" (boolean) are required.',
         );
         if (!parsed.ok) {
           deps.writeJson(res, { error: parsed.error }, 400);
@@ -283,7 +283,7 @@ export class ZavorthControlEchoRouteService {
           ? await deps.echo.resolvePermission(id, approved, resolverContext)
           : await deps.echo.resolvePermission(id, approved);
         if (!result.ok) {
-          const statusCode = result.error?.includes('ja foi resolvida') ? 409 : 404;
+          const statusCode = result.error?.includes('already foi resolvida') ? 409 : 404;
           deps.writeJson(res, { error: result.error }, statusCode);
           return true;
         }
@@ -314,7 +314,7 @@ export class ZavorthControlEchoRouteService {
     }
     try {
       return JSON.parse(raw);
-    } catch (error: unknown) { const err = asErrorLike(error); const errorMessage = new Error('Payload JSON invalido.') as RequestBodyTooLargeError;
+    } catch (error: unknown) { const err = asErrorLike(error); const errorMessage = new Error('Payload JSON invalid.') as RequestBodyTooLargeError;
       Object.assign(error as object, { statusCode: 400 });
       err.code = 'invalid_json';
       throw error;

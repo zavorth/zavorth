@@ -1,4 +1,4 @@
-export type ZavorthFirstRunTonePreference = 'conciso' | 'equilibrado' | 'detalhado';
+export type ZavorthFirstRunTonePreference = 'concise' | 'balanced' | 'detailed';
 
 export type ZavorthFirstRunMemoryMode = 'off' | 'local-metadata' | 'local-summary';
 

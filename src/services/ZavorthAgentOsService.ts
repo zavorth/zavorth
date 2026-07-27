@@ -65,7 +65,7 @@ export class ZavorthAgentOsService {
   }): AgentOsSnapshot {
     const fabric = this.fabric.buildShadowSnapshot(input);
     const projectTwin = this.projectTwin.buildSnapshot({ workspaceRoot: input.workspaceRoot || null });
-    const simulation = this.impactSimulator.simulate({
+    const dryRun = this.impactSimulator.simulate({
       proposal: fabric.executionProposal,
       twin: projectTwin,
     });
@@ -76,7 +76,7 @@ export class ZavorthAgentOsService {
     });
     const transaction = this.transactionRuntime.prepare({
       proposal: fabric.executionProposal,
-      simulation,
+      dryRun,
       permissionLease,
       requestedBy: input.userRole || null,
       surface: input.surface || null,
@@ -86,12 +86,12 @@ export class ZavorthAgentOsService {
     });
     const futureComparison = this.futureComparator.compare({
       classification: fabric.classification,
-      simulation,
+      dryRun,
       twin: projectTwin,
     });
     const immuneSystem = this.immuneSystem.inspect({
       proposal: fabric.executionProposal,
-      simulation,
+      dryRun,
       lease: permissionLease,
       twin: projectTwin,
     });
@@ -103,8 +103,8 @@ export class ZavorthAgentOsService {
       decision: fabric.executionProposal.summary,
       alternatives: futureComparison.candidates.map((candidate) => `${candidate.title}: ${candidate.summary}`),
       consequences: [
-        'Toda acao relevante passa por simulacao antes de commit.',
-        'Rollback ou approval explicito e exigido quando houver impacto real.',
+        'Every relevant action goes through dry run before commit.',
+        'Rollback ou approval explicit e exigido when houver impacto real.',
       ],
     });
     const controlData = this.zavorthControl({
@@ -132,7 +132,7 @@ export class ZavorthAgentOsService {
       zavorthControl,
       safety: {
         thinkingBlocked: false,
-        simulationHasSideEffects: false,
+        dryRunHasSideEffects: false,
         rawSecretsSerialized: false,
         shadowDoesNotMutateRuntime: true,
         dangerousImpactRequiresGate: true,

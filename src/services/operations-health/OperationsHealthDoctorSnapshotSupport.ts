@@ -137,7 +137,7 @@ export class OperationsHealthDoctorSnapshotSupport {
                   : 'slack',
               mode: (item.mode === 'native'
                 || item.mode === 'cloud-api'
-                || item.mode === 'stub'
+                || item.mode === 'local'
                 || item.mode === 'baileys'
                 || item.mode === 'bridge'
                 || item.mode === 'signal-cli'
@@ -201,7 +201,7 @@ export class OperationsHealthDoctorSnapshotSupport {
             const item = entry as Record<string, unknown>;
             return {
               transportId: String(item.transportId || item.id || '').trim() || 'unknown',
-              mode: (item.mode === 'native' || item.mode === 'remote' || item.mode === 'local' || item.mode === 'stub' ? item.mode : 'stub') as TransportMode,
+              mode: (item.mode === 'native' || item.mode === 'remote' || item.mode === 'local' || item.mode === 'local' ? item.mode : 'local') as TransportMode,
               status: (item.status === 'passed' || item.status === 'failed' || item.status === 'running' || item.status === 'skipped' ? item.status : 'failed') as TransportDoctorItem['status'],
               configured: item.configured === true,
               summary: String(item.summary || '').trim(),

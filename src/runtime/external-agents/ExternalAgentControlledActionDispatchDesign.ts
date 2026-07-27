@@ -48,7 +48,7 @@ export type ZavorthExternalActionPreflightDecision =
 export type ZavorthExternalActionReceiptStatus =
   | 'approval-requested'
   | 'blocked-by-policy'
-  | 'simulated-dry-run';
+  | 'controlled-dry-run';
 
 export type ZavorthExternalActionSourceCapabilityInput = {
   capabilityCategory: ExternalAgentLiveReadinessCapabilityRowKind;
@@ -165,7 +165,7 @@ export type ZavorthExternalActionReceipt = {
   dispatchPlanId: string;
   status: ZavorthExternalActionReceiptStatus;
   auditAuthority: 'zavorth-audit-receipt';
-  simulated: true;
+  dryRun: true;
   sideEffectFree: true;
   executionActuallyPerformed: false;
   messageActuallySent: false;
@@ -399,7 +399,7 @@ function receiptStatus(preflight: ZavorthExternalActionPreflight): ZavorthExtern
   if (preflight.decision === 'approval-required') {
     return 'approval-requested';
   }
-  return 'simulated-dry-run';
+  return 'controlled-dry-run';
 }
 
 function buildReceipt(
@@ -417,7 +417,7 @@ function buildReceipt(
     dispatchPlanId: dispatchPlan.id,
     status: receiptStatus(preflight),
     auditAuthority: 'zavorth-audit-receipt',
-    simulated: true,
+    dryRun: true,
     sideEffectFree: true,
     executionActuallyPerformed: false,
     messageActuallySent: false,
@@ -552,8 +552,7 @@ export function normalizeZavorthExternalActionDispatchDesign<TRuntimeId extends 
     nativeContract: 'ZavorthControlledActionDispatchDesign/v1',
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
-    decision: zavorthControlAssimilationReady && noExecution
-      ? 'controlled-action-dispatch-design-ready'
+    decision: zavorthControlAssimilationReady && noExecution ? 'controlled-action-dispatch-design-ready'
       : 'blocked',
     readOnlyDesignOnly: true,
     zavorthControlAssimilationReady,

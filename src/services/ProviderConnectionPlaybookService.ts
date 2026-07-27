@@ -65,26 +65,26 @@ export class ProviderConnectionPlaybookService {
       playbooks,
       summary,
       operatorSummary:
-        `${summary.total} providers cobertos; ${summary.needsAuth} precisam de chave, `
-        + `${summary.needsBaseUrl} precisam de base URL, ${summary.readyToProbe} estao prontos para probe e `
-        + `${summary.defaultRouteAllowed} podem virar rota padrao.`,
+        `${summary.total} providers covered; ${summary.needsAuth} need a key, `
+        + `${summary.needsBaseUrl} need a base URL, ${summary.readyToProbe} are ready to probe and `
+        + `${summary.defaultRouteAllowed} podem virar route default.`,
     };
   }
 
   public renderText(input: ProviderConnectionPlaybookInput = {}): string {
     const snapshot = this.buildSnapshot(input);
     const lines = [
-      'Playbook de conexao de providers do Zavorth',
+      'Zavorth provider connection playbook',
       '',
       snapshot.operatorSummary,
-      'Catalogo de modelo nao e prova live de provider.',
+      'Model catalog is not provider live proof.',
     ];
     if (!snapshot.selected) {
       lines.push(
         '',
         'Providers:',
         ...snapshot.playbooks.slice(0, 12).map((entry) =>
-          `- ${entry.label}: ${entry.status}; proximo passo: ${entry.nextAction}`),
+          `- ${entry.label}: ${entry.status}; next passo: ${entry.nextAction}`),
         '',
         'Use --provider <provider> para ver o roteiro completo.',
       );
@@ -95,25 +95,24 @@ export class ProviderConnectionPlaybookService {
       '',
       `${selected.label} (${selected.providerId})`,
       selected.summary,
-      `Modelo padrao: ${selected.defaultModel || 'nao definido'}.`,
-      `Live: ${selected.readiness.liveReady ? 'sim' : 'nao'} (${selected.readiness.readinessProof}).`,
-      selected.readiness.defaultRouteAllowed
-        ? 'Rota padrao: liberada.'
-        : `Rota padrao: bloqueada - ${selected.readiness.defaultBlockReason || 'precisa de prova live.'}`,
-      `Proximo passo: ${selected.nextAction}`,
+      `Default model: ${selected.defaultModel || 'not set'}.`,
+      `Live: ${selected.readiness.liveReady ? 'yes' : 'no'} (${selected.readiness.readinessProof}).`,
+      selected.readiness.defaultRouteAllowed ? 'Rota default: liberada.'
+        : `Default route: blocked ? ${selected.readiness.defaultBlockReason || 'needs live proof.'}`,
+      `Next step: ${selected.nextAction}`,
       '',
-      'Passos:',
+      'Steps:',
       ...selected.steps.map((step) =>
         `- [${step.status}] ${step.label}${step.command ? `: ${step.command}` : ''}`),
       '',
-      `Variaveis necessarias: ${selected.requiredInputKeys.join(', ') || 'nenhuma'}.`,
-      `Variaveis faltantes: ${selected.missingInputKeys.join(', ') || 'nenhuma'}.`,
+      `Required variables: ${selected.requiredInputKeys.join(', ') || 'none'}.`,
+      `Missing variables: ${selected.missingInputKeys.join(', ') || 'none'}.`,
       '',
-      'Comandos:',
-      `- Inspecionar: ${selected.commands.inspect}`,
-      `- Probe seguro: ${selected.commands.safeProbe}`,
+      'Commands:',
+      `- Inspect: ${selected.commands.inspect}`,
+      `- Safe probe: ${selected.commands.safeProbe}`,
       `- Probe live: ${selected.commands.liveProbe}`,
-      `- Definir rota padrao: ${selected.commands.selectDefault}`,
+      `- Set default route: ${selected.commands.selectDefault}`,
     );
     return lines.join('\n');
   }
@@ -187,41 +186,41 @@ export class ProviderConnectionPlaybookService {
     const baseUrlMissing = !entry.baseUrlConfigured;
     const blocked = entry.status === 'blocked' || entry.status === 'unsupported';
     return [
-      step('choose-provider', 'Escolher provider e perfil', 'done', null, [
-        `${entry.label} selecionado com modelo ${entry.currentModelName || 'nao definido'}.`,
+      step('choose-provider', 'Choose provider and profile', 'done', null, [
+        `${entry.label} selected with model ${entry.currentModelName || 'not set'}.`,
       ]),
-      step('add-credentials', 'Adicionar credenciais como segredo local', authMissing ? 'next' : 'done', null, [
-        authMissing ? `Faltam: ${missingInputKeys.join(', ')}.` : 'Chaves required aparecem configuradas.',
-        'Valores brutos nunca entram no snapshot.',
+      step('add-credentials', 'Add credentials as local secrets', authMissing ? 'next' : 'done', null, [
+        authMissing ? `missing: ${missingInputKeys.join(', ')}.` : 'Required keys appear configured.',
+        'Raw values are never stored in the snapshot.',
       ]),
-      step('configure-base-url', 'Configurar base URL quando necessario', baseUrlMissing ? 'next' : 'done', null, [
-        baseUrlMissing ? 'Provider compativel precisa de endpoint/base URL.' : 'Base URL nao esta pendente.',
+      step('configure-base-url', 'Configure base URL when needed', baseUrlMissing ? 'next' : 'done', null, [
+        baseUrlMissing ? 'Compatible provider needs endpoint/base URL.' : 'Base URL is not pending.',
       ]),
-      step('select-model', 'Confirmar modelo padrao', entry.currentModelName ? 'done' : 'pending', null, [
-        entry.currentModelName ? `Modelo atual: ${entry.currentModelName}.` : 'Escolha um modelo antes de tornar padrao.',
+      step('select-model', 'Confirm default model', entry.currentModelName ? 'done' : 'pending', null, [
+        entry.currentModelName ? `Current model: ${entry.currentModelName}.` : 'Choose a model before making it default.',
       ]),
-      step('run-safe-probe', 'Rodar probe sem rede live oculta', entry.liveReady || entry.defaultRouteAllowed ? 'done' : blocked ? 'blocked' : authMissing || baseUrlMissing ? 'blocked' : 'next', commands.safeProbe, [
-        'Probe seguro prepara evidencia sem chamada live escondida.',
+      step('run-safe-probe', 'Run probe without hidden live network access', entry.liveReady || entry.defaultRouteAllowed ? 'done' : blocked ? 'blocked' : authMissing || baseUrlMissing ? 'blocked' : 'next', commands.safeProbe, [
+        'Safe probe prepares evidence without hidden live calls.',
       ]),
-      step('run-live-probe', 'Rodar probe live explicito', entry.liveReady ? 'done' : authMissing || baseUrlMissing || blocked ? 'blocked' : 'next', commands.liveProbe, [
-        'Probe live usa rede apenas quando o operador pede explicitamente.',
+      step('run-live-probe', 'Run explicit live probe', entry.liveReady ? 'done' : authMissing || baseUrlMissing || blocked ? 'blocked' : 'next', commands.liveProbe, [
+        'Live probe uses the network only when the operator explicitly asks.',
       ]),
-      step('allow-default-route', 'Liberar rota padrao', entry.defaultRouteAllowed ? 'done' : entry.liveReady ? 'next' : 'blocked', commands.selectDefault, [
-        'Rota padrao exige provider ready, prova live e policy de fallback.',
+      step('allow-default-route', 'Enable default route', entry.defaultRouteAllowed ? 'done' : entry.liveReady ? 'next' : 'blocked', commands.selectDefault, [
+        'Default route requires provider readiness, live proof, and fallback policy.',
       ]),
     ];
   }
 
   private summaryFor(entry: ZavorthProviderReadinessEntry, missingInputKeys: string[]): string {
-    if (entry.defaultRouteAllowed) return `${entry.label} tem prova live e pode ser rota padrao.`;
-    if (entry.liveReady) return `${entry.label} tem prova live, mas ainda nao virou rota padrao.`;
-    if (missingInputKeys.length > 0) return `${entry.label} precisa de configuracao antes de qualquer probe live.`;
-    return `${entry.label} esta pronto para probe controlado.`;
+    if (entry.defaultRouteAllowed) return `${entry.label} has live proof and can be the default route.`;
+    if (entry.liveReady) return `${entry.label} has live proof, but has not become the default route yet.`;
+    if (missingInputKeys.length > 0) return `${entry.label} needs configuration before any live probe.`;
+    return `${entry.label} is ready for a controlled probe.`;
   }
 
   private nextAction(steps: ProviderConnectionStep[], entry: ZavorthProviderReadinessEntry): string {
-    if (entry.defaultRouteAllowed) return `Usar ${entry.label} como provider padrao com fallback e receipts.`;
-    if (entry.liveReady) return `Revisar fallback e promover ${entry.label} para rota padrao quando fizer sentido.`;
+    if (entry.defaultRouteAllowed) return `Use ${entry.label} as the default provider with fallback and receipts.`;
+    if (entry.liveReady) return `Review fallback and promote ${entry.label} to the default route when it makes sense.`;
     const next = steps.find((candidate) => candidate.status === 'next') || steps.find((candidate) => candidate.status === 'pending');
     if (next?.command) return `${next.label}: ${next.command}`;
     if (next) return next.label;

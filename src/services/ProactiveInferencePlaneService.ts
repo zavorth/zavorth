@@ -37,12 +37,12 @@ export type ProactiveInferenceCycleResult = {
 };
 
 export const ProactiveInferenceSchema = z.object({
-  suggestAction: z.boolean().describe('Defina true quando houver uma acao proativa real para aprovar agora.'),
+  suggestAction: z.boolean().describe('set true when houver uma action proactive real para approve agora.'),
   actionName: z.string().optional().describe('Nome da tool ou capability Echo.'),
-  actionArgs: z.record(z.string(), z.unknown()).optional().describe('Args estruturados da tool quando o schema for claro.'),
-  resource: z.string().optional().describe('Descricao curta do recurso, usada como fallback quando nao houver args.'),
+  actionArgs: z.record(z.string(), z.unknown()).optional().describe('Args estruturados da tool when o schema for claro.'),
+  resource: z.string().optional().describe('Short resource description, used as fallback when there are no args.'),
   category: z.enum(['OS', 'IOT', 'WEB', 'INTERNAL']).optional().describe('Categoria esperada da capability.'),
-  reason: z.string().optional().describe('Justificativa objetiva do insight proativo.'),
+  reason: z.string().optional().describe('Justificactive objetiva do insight proactive.'),
 });
 
 /**
@@ -105,7 +105,7 @@ export class ProactiveInferencePlaneService {
         return {
           ok: false,
           skipped: 'invalid_payload',
-          warnings: ['The Mind retornou um payload invalido para a inferencia proativa.'],
+          warnings: ['The Mind returned um payload invalid para a inferencia proactive.'],
         };
       }
 
@@ -118,7 +118,7 @@ export class ProactiveInferencePlaneService {
 
       const actionArgs = this.normalizeActionArgs(payload.data.actionArgs, payload.data.resource);
       const category = this.resolveCategory(payload.data.category, payload.data.actionName);
-      const prompt = `[Insight Proativo] ${payload.data.reason}`;
+      const prompt = `[Insight Proactive] ${payload.data.reason}`;
       const intent = this.executionBoundary.buildToolIntent({
         prompt,
         toolName: payload.data.actionName,
@@ -151,7 +151,7 @@ export class ProactiveInferencePlaneService {
       const permission = await this.permissionService.request({
         action: payload.data.actionName,
         resource: JSON.stringify(actionArgs),
-        reason: `[Insight Neural Proativo] ${payload.data.reason}`,
+        reason: `[Insight Neural Proactive] ${payload.data.reason}`,
         metadata: {
           kind: 'intent',
           source: 'proactive_inference',
@@ -208,11 +208,11 @@ export class ProactiveInferencePlaneService {
         correlation: pendingIntent.correlation || null,
         warnings: memoryRecall.warnings || [],
       };
-    } catch (error: unknown) {logger.error('[ProactiveInferencePlane] Ciclo de inferencia falhou.', error);
+    } catch (error: unknown) {logger.error('[ProactiveInferencePlane] Ciclo de inferencia failed.', error);
       return {
         ok: false,
         skipped: 'invalid_payload',
-        warnings: [errorMessage(error, 'erro desconhecido')],
+        warnings: [errorMessage(error, 'unknown error')],
       };
     }
   }
@@ -244,13 +244,13 @@ export class ProactiveInferencePlaneService {
     const executionHistoryText = history
       .map((entry) => `- Intent: "${entry.prompt}" | Tools: [${entry.toolCalls.map((tool) => tool.toolName).join(', ')}] | Result: ${entry.status}`)
       .join('\n');
-    const warningText = warnings.length > 0 ? warnings.join(' | ') : 'sem alertas';
-    return `Voce e o "The Mind", o motor preditivo do Zavorth Echo.
-Seu trabalho e sugerir apenas a proxima acao com maior valor real, e somente quando fizer sentido pedir aprovacao.
-Responda estritamente em JSON valido seguindo o schema esperado. Se nao houver uma acao forte, retorne {"suggestAction": false}.
+    const warningText = warnings.length > 0 ? warnings.join(' | ') : 'without alertas';
+    return `You e o "The Mind", o motor preditivo do Zavorth Echo.
+Your job is to suggest only the next action with the highest real value, and only when asking approval makes sense.
+Respond strictly in valid JSON following the expected schema. If there is no strong action, return {"suggestAction": false}.
 
 --- MEMORY HIBRIDA ---
-${memoryContext || 'Sem contexto relevante recuperado.'}
+${memoryContext || 'without contexto relevante recuperado.'}
 
 --- WARNINGS ---
 ${warningText}

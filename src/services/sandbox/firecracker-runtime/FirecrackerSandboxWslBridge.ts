@@ -57,7 +57,7 @@ let wslStatusCache: WslStatusCacheEntry | null = null;
 export function getWslStatus(wslProjectRoot: string | null): FirecrackerSandboxStatus {
   if (!wslProjectRoot) {
     return buildWslUnavailableStatus(
-      'Nao foi possivel converter o workspace do Zavorth para um caminho valido no WSL.',
+      'Could not convert the Zavorth workspace to a valid WSL path.',
     );
   }
 
@@ -74,9 +74,8 @@ export function getWslStatus(wslProjectRoot: string | null): FirecrackerSandboxS
         transport: 'wsl' as const,
         bridgeReady: true,
         detail:
-          typeof response.status.detail === 'string'
-            ? `${response.status.detail} (via WSL ${config.firecrackerWslDistro})`
-            : `Firecracker disponivel via WSL ${config.firecrackerWslDistro}.`,
+          typeof response.status.detail === 'string' ? `${response.status.detail} (via WSL ${config.firecrackerWslDistro})`
+            : `Firecracker available via WSL ${config.firecrackerWslDistro}.`,
       } satisfies FirecrackerSandboxStatus;
       wslStatusCache = {
         status,
@@ -87,11 +86,11 @@ export function getWslStatus(wslProjectRoot: string | null): FirecrackerSandboxS
   } catch (error: unknown) {
     const err = asErrorLike(error);
     logger.warn('[Firecracker Sandbox Wsl Bridge] cache operation failed', error);
-    return buildWslUnavailableStatus(`[FirecrackerSandbox] Ponte WSL indisponivel: ${err.message}`);
+    return buildWslUnavailableStatus(`[FirecrackerSandbox] Ponte WSL unavailable: ${err.message}`);
   }
 
   return buildWslUnavailableStatus(
-    `Falha ao obter status do Firecracker via WSL ${config.firecrackerWslDistro}.`,
+    `Failure ao obter status do Firecracker via WSL ${config.firecrackerWslDistro}.`,
   );
 }
 
@@ -116,14 +115,14 @@ export async function executeViaWsl(
     if (response && typeof response === 'object' && response.result) {
       wslStatusCache = {
         status: buildWslReadyStatus(
-          `Firecracker MicroVM pronto para execucao segura de codigo. (via WSL ${config.firecrackerWslDistro})`,
+          `Firecracker MicroVM ready for safe code execution. (via WSL ${config.firecrackerWslDistro})`,
         ),
         cachedAt: Date.now(),
       };
       return response.result as SandboxResult;
     }
 
-    throw new Error('A ponte WSL retornou um payload invalido.');
+    throw new Error('A ponte WSL returned um payload invalid.');
   } catch (error: unknown) {wslStatusCache = null;
     throw error;
   }
@@ -140,14 +139,14 @@ function runWslBridge(payload: Record<string, unknown>, wslProjectRoot: string, 
 
   const output = String(raw || '').trim();
   if (!output) {
-    throw new Error('A ponte WSL nao retornou saida.');
+    throw new Error('The WSL bridge returned no output.');
   }
 
   try {
     return JSON.parse(output);
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    throw new Error(`Resposta invalida da ponte WSL: ${err.message}`);
+    throw new Error(`Resposta invalid da ponte WSL: ${err.message}`);
   }
 }
 
@@ -209,7 +208,7 @@ async function ensureWslBridge(wslProjectRoot: string | null): Promise<WslBridge
   }
 
   if (!wslProjectRoot) {
-    throw new Error('Workspace do Zavorth nao pode ser convertido para WSL.');
+    throw new Error('Zavorth workspace cannot be converted to WSL.');
   }
 
   const command = [
@@ -237,7 +236,7 @@ async function ensureWslBridge(wslProjectRoot: string | null): Promise<WslBridge
 
   bridge.startupPromise = new Promise<void>((resolve, reject) => {
     const startupTimer = setTimeout(() => {
-      reject(new Error(`Ponte Firecracker WSL nao respondeu em 15000ms.`));
+      reject(new Error(`Firecracker WSL bridge did not respond within 15000ms.`));
     }, 15000);
 
     const failStartup = (error: Error) => {
@@ -248,12 +247,12 @@ async function ensureWslBridge(wslProjectRoot: string | null): Promise<WslBridge
     child.on('error', failStartup);
     child.on('close', (code) => {
       if (!bridge.ready) {
-        failStartup(new Error(`Ponte Firecracker WSL encerrou cedo com codigo ${code}.`));
+        failStartup(new Error(`Ponte Firecracker WSL encerrou cedo with code ${code}.`));
         return;
       }
 
       clearWslBridge(
-        new Error(bridge.stderrTail.trim() || `Ponte Firecracker WSL encerrou com codigo ${code}.`),
+        new Error(bridge.stderrTail.trim() || `Ponte Firecracker WSL encerrou with code ${code}.`),
       );
     });
 
@@ -295,7 +294,7 @@ function handleWslBridgeLine(
     const err = asErrorLike(error);
     if (!bridge.ready) {
       clearTimeout(startupTimer);
-      rejectStartup(new Error(`Ponte Firecracker WSL retornou JSON invalido: ${err.message}`));
+      rejectStartup(new Error(`Ponte Firecracker WSL returned JSON invalid: ${err.message}`));
     }
     return;
   }
@@ -325,7 +324,7 @@ function handleWslBridgeLine(
     return;
   }
 
-  pending.reject(new Error(envelope.error || 'Erro desconhecido na ponte WSL.'));
+  pending.reject(new Error(envelope.error || 'unknown error in WSL bridge.'));
 }
 
 function clearWslBridge(error: Error): void {

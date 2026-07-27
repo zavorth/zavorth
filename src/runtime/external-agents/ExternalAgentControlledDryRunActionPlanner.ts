@@ -103,7 +103,7 @@ export type ZavorthExternalDryRunActionReceipt = {
   status: ZavorthExternalDryRunActionPlannerReceiptStatus;
   classification: ZavorthExternalDryRunActionPlannerClassification;
   auditAuthority: 'zavorth-audit-receipt';
-  simulated: true;
+  dryRun: true;
   sideEffectFree: true;
   redacted: true;
   externalAdapterInvoked: false;
@@ -383,7 +383,7 @@ function receiptStatus(
   if (classification === 'unsupported') {
     return 'unsupported-degraded';
   }
-  return 'simulated-dry-run';
+  return 'controlled-dry-run';
 }
 
 function buildReceipt(
@@ -401,7 +401,7 @@ function buildReceipt(
     status: receiptStatus(preflight.classification),
     classification: preflight.classification,
     auditAuthority: 'zavorth-audit-receipt',
-    simulated: true,
+    dryRun: true,
     sideEffectFree: true,
     redacted: true,
     externalAdapterInvoked: false,
@@ -555,8 +555,7 @@ export function planZavorthExternalDryRunActions<TRuntimeId extends string>(
     nativeContract: 'ZavorthControlledDryRunActionPlanner/v1',
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
-    decision: options.sourceDesignReady && noExecution
-      ? 'controlled-dry-run-action-planner-ready'
+    decision: options.sourceDesignReady && noExecution ? 'controlled-dry-run-action-planner-ready'
       : 'blocked',
     sourceDesignReady: options.sourceDesignReady,
     plannerPolicy: options.policy,

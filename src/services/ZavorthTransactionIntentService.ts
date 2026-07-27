@@ -13,7 +13,7 @@ import {
   type ZavorthTransactionIntentLimit,
   type ZavorthTransactionIntentParseInput,
   type ZavorthTransactionIntentParseResult,
-  type ZavorthTransactionIntentSimulationMode,
+  type ZavorthTransactionIntentDryRunMode,
   type ZavorthTransactionIntentTarget,
   type ZavorthTransactionIntentTargetKind,
   type ZavorthTransactionIntentWindow,
@@ -80,8 +80,8 @@ export class ZavorthTransactionIntentService {
     const window = hasStructuredKind ? extractWindow(redaction.text, now) : undefined;
 
     const approvalPreference = detectApprovalPreference(normalized, actionKind);
-    const simulationMode = detectSimulationMode(normalized, actionKind);
-    const executionMode = simulationModeToExecutionMode(simulationMode);
+    const dryRunMode = detectDryRunMode(normalized, actionKind);
+    const executionMode = dryRunModeToExecutionMode(dryRunMode);
     const naturalFirstRoute = routeIntent(kind, actionKind, approvalPreference);
     const missingFields = buildMissingFields(kind, target, limits, conditions);
     const safetyInput = buildSafetyInput({
@@ -107,7 +107,7 @@ export class ZavorthTransactionIntentService {
       limits,
       ...(window ? { window } : {}),
       approvalPreference,
-      simulationMode,
+      dryRunMode,
       executionMode,
       riskLevel: safetyDecision.riskLevel,
       naturalFirstRoute,
@@ -205,7 +205,7 @@ function buildSafetyInput(input: {
 function redactTransactionSourceText(text: string): { text: string; wasRedacted: boolean; markers: string[] } {
   const markers: string[] = [];
   let redacted = text.replace(
-    /\b(api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/gi,
+    /\b(api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]\s*([^\s,;]+)/gi,
     (_match, label: string) => {
       const marker = label.toLowerCase();
       markers.push(marker);
@@ -254,39 +254,6 @@ function extractTarget(
     };
   }
 
-  const billMatch = rawText.match(
-    /\b(invoice|bill|fatura|boleto|conta|pix)\b(?:\s+(?:do|da|de|of|the)\s+([A-Za-z0-9 _.-]{2,40}))?/i,
-  );
-  if (billMatch) {
-    return {
-      kind: 'bill',
-      label: cleanTargetLabel(billMatch[2] ?? billMatch[1] ?? 'bill'),
-      vendorHints: extractVendorHints(rawText),
-    };
-  }
-
-  const subscriptionMatch = rawText.match(
-    /\b(?:subscription|assinatura|plano|servico|service)\b(?:\s+(?:do|da|de|of|for)\s+([A-Za-z0-9 _.-]{2,50}))?/i,
-  );
-  if (subscriptionMatch) {
-    return {
-      kind: fallbackKind === 'unknown' ? 'subscription' : fallbackKind,
-      label: cleanTargetLabel(subscriptionMatch[1] ?? subscriptionMatch[0]),
-      vendorHints: extractVendorHints(rawText),
-    };
-  }
-
-  const productMatch = normalized.match(
-    /\b(?:monitor|monitore|monitorar|buy|purchase|compre|comprar|restock|repor|reabastecer)\s+([a-z0-9 _.-]{2,60}?)(?:\s+(?:below|above|abaixo|acima|ate|up\s+to|se|if|por|for|em|no|na|in|on)\b|$)/i,
-  );
-  if (productMatch?.[1]) {
-    return {
-      kind: fallbackKind === 'unknown' ? 'product' : fallbackKind,
-      label: cleanTargetLabel(productMatch[1]),
-      vendorHints: extractVendorHints(rawText),
-    };
-  }
-
   return {
     kind: fallbackKind,
     label: fallbackKind === 'unknown' ? 'unknown' : fallbackKind,
@@ -303,99 +270,27 @@ function cleanTargetLabel(value: string): string {
 }
 
 function extractVendorHints(text: string): string[] {
-  const hints = new Set<string>();
-  for (const match of text.matchAll(/\b(?:na|no|pela|pelo|via|on|at|through)\s+([A-Z][A-Za-z0-9_.-]{2,40})/g)) {
-    if (match[1]) {
-      hints.add(match[1]);
-    }
-  }
-  return [...hints];
+  void text;
+  return [];
 }
 
 function extractAssetSymbols(text: string): string[] {
-  const symbols = new Set<string>();
-  for (const symbol of ASSET_SYMBOLS) {
-    if (new RegExp(`\\b${symbol}\\b`, 'i').test(text)) {
-      symbols.add(symbol);
-    }
-  }
-  if (/\bbitcoin\b/i.test(text)) {
-    symbols.add('BTC');
-  }
-  if (/\bethereum\b/i.test(text)) {
-    symbols.add('ETH');
-  }
-  return [...symbols];
+  void text;
+  return [];
 }
 
 function extractCurrencyCodes(text: string): string[] {
-  const currencies = new Set<string>();
-  if (/\b(R\$|BRL|real|reais)\b/i.test(text)) {
-    currencies.add('BRL');
-  }
-  if (/\b(US\$|USD|dolar|dolares|dollar|dollars)\b/i.test(text)) {
-    currencies.add('USD');
-  }
-  if (/\b(EUR|euro|euros)\b/i.test(text)) {
-    currencies.add('EUR');
-  }
-  return [...currencies];
+  void text;
+  return [];
 }
 
 function extractLimits(text: string): ZavorthTransactionIntentLimit[] {
-  const limits: ZavorthTransactionIntentLimit[] = [];
-  const patterns: Array<{ regex: RegExp; currency: string }> = [
-    { regex: /\b(?:R\$|BRL)\s*([0-9][0-9.]*)/gi, currency: 'BRL' },
-    { regex: /\b([0-9][0-9.]*)\s*(?:reais|BRL)\b/gi, currency: 'BRL' },
-    { regex: /\b(?:US\$|USD)\s*([0-9][0-9.]*)/gi, currency: 'USD' },
-    { regex: /\b([0-9][0-9.]*)\s*(?:dolares|dolar|dollars|dollar|USD)\b/gi, currency: 'USD' },
-    { regex: /\b(?:EUR)\s*([0-9][0-9.]*)/gi, currency: 'EUR' },
-  ];
-
-  for (const pattern of patterns) {
-    for (const match of text.matchAll(pattern.regex)) {
-      const amount = parseLocalizedNumber(match[1] ?? '');
-      if (amount !== undefined) {
-        limits.push({
-          amount,
-          currency: pattern.currency,
-          scope: detectLimitScope(text),
-          rawText: match[0],
-        });
-      }
-    }
-  }
-
-  return dedupeLimits(limits);
-}
-
-function parseLocalizedNumber(value: string): number | undefined {
-  const trimmed = value.trim();
-  if (trimmed.length === 0) {
-    return undefined;
-  }
-
-  let normalized = trimmed;
-  if (trimmed.includes(',')) {
-    normalized = trimmed.replace(/\./g, '').replace(',', '.');
-  } else if (/\.[0-9]{3}$/.test(trimmed)) {
-    normalized = trimmed.replace(/\./g, '');
-  }
-
-  const parsed = Number(normalized);
-  return Number.isFinite(parsed) ? parsed : undefined;
+  void text;
+  return [];
 }
 
 function detectLimitScope(text: string): ZavorthTransactionIntentLimit['scope'] {
-  if (/\b(por dia|diario|daily|per day)\b/i.test(text)) {
-    return 'daily';
-  }
-  if (/\b(mandato|mandate|ate eu cancelar|until i cancel)\b/i.test(text)) {
-    return 'mandate';
-  }
-  if (/\b(por transacao|cada compra|cada ordem|per transaction|each purchase|each order)\b/i.test(text)) {
-    return 'per-transaction';
-  }
+  void text;
   return 'per-transaction';
 }
 
@@ -412,146 +307,40 @@ function dedupeLimits(limits: ZavorthTransactionIntentLimit[]): ZavorthTransacti
 }
 
 function extractConditions(text: string, limits: ZavorthTransactionIntentLimit[]): ZavorthTransactionIntentCondition[] {
-  const conditions: ZavorthTransactionIntentCondition[] = [];
-  const percentDrop = text.match(/\b(?:cair|queda|abaixar|abaixe|drop|drops?)\D{0,20}([0-9]+(?:[,.][0-9]+)?)\s*%/i);
-  if (percentDrop?.[1]) {
-    conditions.push({
-      kind: 'percent-drop',
-      value: parseLocalizedNumber(percentDrop[1]),
-      unit: 'percent',
-      rawText: percentDrop[0],
-    });
-  }
-
-  const percentRise = text.match(/\b(?:subir|alta|rise|rises?)\D{0,20}([0-9]+(?:[,.][0-9]+)?)\s*%/i);
-  if (percentRise?.[1]) {
-    conditions.push({
-      kind: 'percent-rise',
-      value: parseLocalizedNumber(percentRise[1]),
-      unit: 'percent',
-      rawText: percentRise[0],
-    });
-  }
-
-  if (
-    limits.length > 0 &&
-    /\b(abaixo|menor que|ate|no maximo|maximo|below|under|up to|at most|maximum)\b/i.test(text)
-  ) {
-    conditions.push({
-      kind: 'price-below',
-      value: limits[0]?.amount,
-      unit: limits[0]?.currency,
-      rawText: limits[0]?.rawText ?? 'price limit',
-    });
-  }
-
-  if (limits.length > 0 && /\b(acima|maior que|pelo menos|minimo|above|over|at least|minimum)\b/i.test(text)) {
-    conditions.push({
-      kind: 'price-above',
-      value: limits[0]?.amount,
-      unit: limits[0]?.currency,
-      rawText: limits[0]?.rawText ?? 'price limit',
-    });
-  }
-
-  if (
-    /\b(peca confirmacao|confirmacao antes|aprovar|aprovacao|me confirme|ask for confirmation|confirm before|require approval)\b/i.test(
-      normalizeText(text),
-    )
-  ) {
-    conditions.push({
-      kind: 'manual-confirmation',
-      rawText: 'manual confirmation requested',
-    });
-  }
-
-  return conditions.length > 0 ? conditions : [{ kind: 'always', rawText: 'no explicit condition detected' }];
+  void text;
+  void limits;
+  return [{ kind: 'always', rawText: 'no explicit condition detected' }];
 }
 
 function extractWindow(text: string, now: Date): ZavorthTransactionIntentWindow | undefined {
-  const duration = text.match(
-    /\b(?:por|durante|for|during)\s+([0-9]+)\s+(minutos?|minutes?|horas?|hours?|dias?|days?|semanas?|weeks?)\b/i,
-  );
-  if (duration?.[1] && duration[2]) {
-    const amount = Number(duration[1]);
-    const unit = normalizeText(duration[2]);
-    const expiresAt = addDuration(now, amount, unit);
-    return {
-      startsAt: now.toISOString(),
-      expiresAt: expiresAt.toISOString(),
-      durationText: duration[0],
-      rawText: duration[0],
-    };
-  }
-
-  const endOfMonth = /\b(fim do mes|final do mes|end of (the )?month)\b/i.test(normalizeText(text));
-  if (endOfMonth) {
-    const expiresAt = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59));
-    return {
-      startsAt: now.toISOString(),
-      expiresAt: expiresAt.toISOString(),
-      durationText: 'end of month',
-      rawText: 'end of month',
-    };
-  }
-
+  void text;
+  void now;
   return undefined;
-}
-
-function addDuration(now: Date, amount: number, unit: string): Date {
-  const copy = new Date(now.getTime());
-  if (unit.startsWith('minuto') || unit.startsWith('minute')) {
-    copy.setUTCMinutes(copy.getUTCMinutes() + amount);
-  } else if (unit.startsWith('hora') || unit.startsWith('hour')) {
-    copy.setUTCHours(copy.getUTCHours() + amount);
-  } else if (unit.startsWith('semana') || unit.startsWith('week')) {
-    copy.setUTCDate(copy.getUTCDate() + amount * 7);
-  } else {
-    copy.setUTCDate(copy.getUTCDate() + amount);
-  }
-  return copy;
 }
 
 function detectApprovalPreference(
   text: string,
   actionKind: ZavorthTransactionActionKind,
 ): ZavorthTransactionApprovalPreference {
-  if (/\b(sem aprovar|automatico|automaticamente|auto|without approval)\b/i.test(text)) {
-    return 'auto-requested';
-  }
-  if (
-    /\b(peca confirmacao|confirmacao antes|aprovar|aprovacao|me confirme|me avise|ask for confirmation|confirm before|require approval)\b/i.test(
-      text,
-    )
-  ) {
-    return 'explicit';
-  }
+  void text;
   if (actionKind === 'price-monitor' || actionKind === 'market-data-read' || actionKind === 'cart-preview') {
     return 'preview-only';
   }
   return 'explicit';
 }
 
-function detectSimulationMode(
+function detectDryRunMode(
   text: string,
   actionKind: ZavorthTransactionActionKind,
-): ZavorthTransactionIntentSimulationMode {
+): ZavorthTransactionIntentDryRunMode {
+  void text;
   if (actionKind === 'price-monitor' || actionKind === 'market-data-read') {
     return 'observe-only';
-  }
-  if (/\b(paper|simulado|simulada)\b/i.test(text)) {
-    return 'paper-first';
-  }
-  if (/\b(sandbox|homologacao)\b/i.test(text)) {
-    return 'sandbox-first';
-  }
-  if (/\b(dry-run|teste|testar|test)\b/i.test(text)) {
-    return 'dry-run-first';
   }
   return 'preview-first';
 }
 
-function simulationModeToExecutionMode(mode: ZavorthTransactionIntentSimulationMode): ZavorthTransactionExecutionMode {
+function dryRunModeToExecutionMode(mode: ZavorthTransactionIntentDryRunMode): ZavorthTransactionExecutionMode {
   if (mode === 'observe-only') {
     return 'observe';
   }
@@ -620,8 +409,8 @@ function buildMissingFields(
 }
 
 function isAmbiguousTargetLabel(label: string): boolean {
-  const normalized = normalizeText(label);
-  return /^(isso|aquilo|esse|essa|este|esta|ele|ela|algo|coisa|this|that|it|something)\b/.test(normalized);
+  void label;
+  return false;
 }
 
 function buildClarifyingQuestions(
@@ -632,17 +421,17 @@ function buildClarifyingQuestions(
   const questions: string[] = [];
   if (kind === 'unknown-transaction') {
     questions.push(
-      'Which transaction do you want to prepare: purchase, payment, trade, conversion, subscription, or monitoring?',
+      'Which transaction do you want to prepare: purchase, payment, trade, conversion, subscription, or monitoring...',
     );
   }
   if (missingFields.includes('target')) {
-    questions.push('What is the target product, asset, service, bill, or subscription?');
+    questions.push('What is the target product, asset, service, bill, or subscription...');
   }
   if (missingFields.includes('amount_or_limit')) {
-    questions.push('What amount limit should I use before preparing any preview?');
+    questions.push('What amount limit should I use before preparing any preview...');
   }
   if (missingFields.includes('condition')) {
-    questions.push('What condition should trigger the preview or alert?');
+    questions.push('What condition should trigger the preview or alert...');
   }
   if (decisionStatus === 'blocked') {
     questions.push('This request contains a raw secret or critical action; confirm a safe vault/preview path.');

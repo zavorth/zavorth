@@ -25,7 +25,7 @@ export interface WsCommandPayload {
 export type WsCommandMessage = BaseWsMessage<'command', WsCommandPayload>;
 
 // The master union type for WebSocket frames
-export type PublicWsMessage = 
+export type PublicWsMessage =
   | WsSubscribeMessage
   | WsEventMessage
   | WsCommandMessage

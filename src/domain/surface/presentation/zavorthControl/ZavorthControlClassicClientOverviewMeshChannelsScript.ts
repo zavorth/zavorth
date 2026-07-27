@@ -199,8 +199,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
       '<p>' +
       escapeHtml(receipt.summary) +
       '</p>' +
-      (details.length
-        ? '<ul class="cockpit-list">' +
+      (details.length ? '<ul class="cockpit-list">' +
           details.map((detail: string) => '<li>' + escapeHtml(detail) + '</li>').join('') +
           '</ul>'
         : '') +
@@ -215,8 +214,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
     if (!supportsQr && !qr) return '';
     const state = qr?.state || (supportsQr ? 'pending' : 'n/a');
     const nextStep = qr?.nextStep || selected?.actionHint || 'No QR next step.';
-    const image = qr?.dataUrl
-      ? '<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:8px;">' +
+    const image = qr?.dataUrl ? '<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:8px;">' +
         '<img src="' +
         escapeHtml(qr.dataUrl) +
         '" alt="QR de login do WhatsApp" style="width:164px; height:164px; border-radius:8px; border:1px solid rgba(148,163,184,.35); background:#fff; padding:8px;" />' +
@@ -258,17 +256,16 @@ function zavorthControlClassicClientOverviewMeshChannels() {
           .map(
             (entry: MeshChannelEntry) =>
               '<li><strong>' +
-              escapeHtml(entry.label || entry.id || 'Canal') +
+              escapeHtml(entry.label || entry.id || 'Channel') +
               '</strong> [' +
               escapeHtml(entry.readiness || 'n/a') +
-              '] - ' +
+              '] ? ' +
               escapeHtml(entry.operatorSummary || entry.summary || 'No summary.') +
               '</li>',
           )
           .join('')
       : '<li>No channel registered on the mesh.</li>';
-    const selectedDetails = selected
-      ? '<div class="sidecar-card"><strong>' +
+    const selectedDetails = selected ? '<div class="sidecar-card"><strong>' +
         escapeHtml(selected.label || selected.id || 'Selected channel') +
         '</strong>' +
         '<p>' +
@@ -320,7 +317,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
       '</div><small>Immediate operation</small></div>' +
       '<div class="cockpit-mini-card"><strong>Parciais</strong><div>' +
       escapeHtml(String(summary.partial || 0)) +
-      '</div><small>Ainda pedem ajuste</small></div>' +
+      '</div><small>Still needs adjustment</small></div>' +
       '<div class="cockpit-mini-card"><strong>Send</strong><div>' +
       escapeHtml(String(summary.sessionSendReady || 0)) +
       '</div><small>Com sessions_send</small></div>' +

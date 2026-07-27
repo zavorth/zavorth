@@ -181,10 +181,8 @@ export class PluginOsMarketplaceService {
     for (const entry of curated.entries || []) {
       const id = String(entry.id || '').trim();
       if (!id) continue;
-      const origin = String(entry.source || '').startsWith('http')
-        ? 'remote'
-        : entry.curated
-          ? 'curated'
+      const origin = String(entry.source || '').startsWith('http') ? 'remote'
+        : entry.curated ? 'curated'
           : 'local';
       byId.set(id, this.enrich(entry as Record<string, unknown>, origin as PluginOsMarketplaceEntry['origin'], root));
     }
@@ -265,7 +263,7 @@ export class PluginOsMarketplaceService {
           )),
         ];
         if (findings.length) {
-          lines.push('', 'findings:', ...findings.map((f) => `  - ${f}`));
+          lines.push('', 'findings:', ...findings.map((f) => ` ? ${f}`));
         }
         return lines.join('\n');
       },
@@ -312,10 +310,8 @@ export class PluginOsMarketplaceService {
     }
 
     const steps = [
-      bundledPath
-        ? `Install copies first-party package from plugins/${entry.id}`
-        : remoteUrl
-          ? `Install downloads ${remoteUrl}`
+      bundledPath ? `Install copies first-party package from plugins/${entry.id}`
+        : remoteUrl ? `Install downloads ${remoteUrl}`
           : 'Install materializes a soft Plugin OS package under .zavorth/plugins/',
       'Enable requires explicit --enable or plugins enable --yes (never automatic).',
       'Review permissions before enable.',
@@ -346,7 +342,7 @@ export class PluginOsMarketplaceService {
           `target: ${path.relative(root, installTarget)}`,
           '',
           'Steps:',
-          ...steps.map((s) => `  - ${s}`),
+          ...steps.map((s) => ` ? ${s}`),
           '',
           'Next:',
           `  zavorth plugins install marketplace:${entry.id} --yes`,
@@ -409,7 +405,7 @@ export class PluginOsMarketplaceService {
               `method: bundled-copy`,
               `package: ${path.relative(root, targetDir)}`,
               `enabled: ${enable ? 'yes' : 'no'}`,
-              ...findings.map((f) => `  - ${f}`),
+              ...findings.map((f) => ` ? ${f}`),
             ].join('\n');
           },
         };
@@ -446,7 +442,7 @@ export class PluginOsMarketplaceService {
         }
       }
 
-      // 3) Soft materialize stub package
+      // 3) Soft materialize local package
       const catalogEntry: MarketplaceCatalogEntry = {
         id: entry.id,
         name: entry.name,

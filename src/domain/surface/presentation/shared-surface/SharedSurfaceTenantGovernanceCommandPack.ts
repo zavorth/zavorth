@@ -243,7 +243,7 @@ export class SharedSurfaceTenantGovernanceCommandPack {
       return {
         tenantId: '',
         actionId: '',
-        error: `Tenant "${tokens[1]}" nao encontrado. Use /tenants para ver os ids observados pelo runtime.`,
+        error: `Tenant "${tokens[1]}" not found. Use /tenants to see ids observed by the runtime.`,
       };
     }
 
@@ -254,11 +254,11 @@ export class SharedSurfaceTenantGovernanceCommandPack {
           .toLowerCase() === tokens[2].toLowerCase(),
     );
     if (!action) {
-      const available = tenant.actions.map((entry) => entry.id).join(', ') || 'nenhuma acao guiada registrada';
+      const available = tenant.actions.map((entry) => entry.id).join(', ') || 'no guided action registered';
       return {
         tenantId: tenant.tenantId,
         actionId: '',
-        error: `A acao "${tokens[2]}" nao existe para o tenant ${tenant.tenantId}. Acoes disponiveis: ${available}.`,
+        error: `Action "${tokens[2]}" does not exist for tenant ${tenant.tenantId}. Available actions: ${available}.`,
       };
     }
 

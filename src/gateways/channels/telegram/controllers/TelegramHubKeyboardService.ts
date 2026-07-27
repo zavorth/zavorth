@@ -55,9 +55,9 @@ export class TelegramHubKeyboardService {
     } else if (section === 'permissions') {
       keyboard
         .row()
-        .text('Ver pendencias', 'hub:action:permissions')
+        .text('Ver pending items', 'hub:action:permissions')
         .row()
-        .text('Abrir auditoria', 'hub:action:audit');
+        .text('Open audit', 'hub:action:audit');
     }
 
     return keyboard;

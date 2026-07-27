@@ -123,7 +123,7 @@ export class JulesExecutor implements IExecutor {
   public async isAvailable(): Promise<boolean> {
     if (!this.apiKey) return false;
     try {
-      const res = await safeFetch(`${this.baseUrl}/sessions?pageSize=1`, {
+      const res = await safeFetch(`${this.baseUrl}/sessions...pageSize=1`, {
         headers: { 'X-Goog-Api-Key': this.apiKey },
       }, {
         serviceName: 'Jules availability check',

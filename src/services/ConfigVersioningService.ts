@@ -53,7 +53,6 @@ export class ConfigVersioningService {
   private async syncTrackedFiles(repoDir: string): Promise<void> {
     const trackedFiles = [
       path.resolve(process.cwd(), 'config', 'security-policy.json'),
-      path.resolve(process.cwd(), 'MEMORY.md'),
       path.resolve(process.cwd(), 'IDENTITY.md'),
       path.resolve(process.cwd(), 'SOUL.md'),
       path.resolve(process.cwd(), 'TOOLS.md'),

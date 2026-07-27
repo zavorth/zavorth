@@ -95,8 +95,7 @@ export function resolveLiveCredentials(input: {
     apiKey: '',
     selection,
     credentialSource: 'none',
-    reason: ambiguous
-      ? 'Multiple provider keys present and no user provider selected. Set LLM_PROVIDER / preference or leave a single key family.'
+    reason: ambiguous ? 'Multiple provider keys present and no user provider selected. Set LLM_PROVIDER / preference or leave a single key family.'
       : 'No provider selected and no API keys found (OPENAI_API_KEY / ANTHROPIC_API_KEY / GEMINI_API_KEY).',
   };
 }

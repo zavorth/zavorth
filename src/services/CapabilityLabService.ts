@@ -7,10 +7,10 @@ export class CapabilityLabService {
       return {
         source: 'CapabilityLabService',
         status: 'passed',
-        simulated: false,
+        dryRun: false,
         activationAllowed: false,
         checks: [
-          { id: 'capability-lab.not-needed', status: 'passed', message: 'No new capability draft needs lab simulation.' },
+          { id: 'capability-lab.not-needed', status: 'passed', message: 'No new capability draft needs lab dry-run.' },
         ],
       };
     }
@@ -31,7 +31,7 @@ export class CapabilityLabService {
     return {
       source: 'CapabilityLabService',
       status: blockers.length > 0 ? 'blocked' : warnings.length > 0 ? 'warning' : 'passed',
-      simulated: true,
+      dryRun: true,
       activationAllowed: false,
       checks,
     };

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Notification Store — FASE-07 UX & Microinteractions
+ * Notification Store — UX & Microinteractions
  *
  * Zustand-based global notification system for the zavorthControl.
  * Replaces ad-hoc feedback patterns with a centralized toast system.

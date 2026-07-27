@@ -117,7 +117,7 @@ export function collectActionableWorkflowStages(
 export function getWorkflowStageActionVerb(status: string): string {
   if (status === 'approval_pending') return 'Continuar';
   if (status === 'blocked') return 'Destravar';
-  if (status === 'failed') return 'Refazer';
+    if (status === 'failed') return 'Retry';
   if (status === 'completed') return 'Reexecutar';
-  return 'Retomar';
+  return 'Resumesr';
 }

@@ -128,27 +128,27 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
   }): AgentRunIntelligenceFabricDraftExecutionResult {
     const payload = readRecord(input.plan.payload);
     if (payload.source !== 'IntelligenceFabricCanary' || payload.applyRequiresRiskGate !== true) {
-      return blocked('Plano nao pertence ao fluxo governado do Intelligence Fabric.');
+      return blocked('Plan does not belong to the governed Intelligence Fabric flow.');
     }
     if (payload.liveActionApplied === true) {
-      return blocked('Plano rejeitado porque declara impacto live anterior.');
+      return blocked('Plan rejected because it declares prior live impact.');
     }
     const proposedActions = parseProposedActions(payload.proposedActions);
     const unsafeAction = proposedActions.find((action) => !isSafeRisk3WorkspaceWriteAction(action));
     if (unsafeAction) {
       return blocked(
-        `Acao ${unsafeAction.id || unsafeAction.kind} nao e write/edit reversivel de Risk 3 dentro do workspace.`,
+        `Action ${unsafeAction.id || unsafeAction.kind} is not a reversible Risk 3 write/edit inside the workspace.`,
       );
     }
     const workspaceRoot = stringOrNull(payload.workspaceRoot) || input.run.workspace || null;
     if (!workspaceRoot) {
-      return blocked('Workspace root ausente; nao ha alvo controlado para aplicar o rascunho.');
+      return blocked('Workspace root missing; there is no controlled target to apply the draft.');
     }
     const writes = parseWorkspaceWrites(payload.workspaceWrites);
     const patches = parseWorkspacePatches(payload.workspacePatches);
     if (writes.length === 0 && patches.length === 0) {
       return blocked(
-        'Nenhuma workspaceWrites explicita ou workspacePatches explicito foi encontrado; o executor nao inventa conteudo.',
+        'No explicit workspaceWrites or workspacePatches were found; the executor does not invent content.',
       );
     }
     const patchVerifier = readRecord(payload.workspacePatchVerifier);
@@ -202,7 +202,7 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
         return {
           status: 'failed',
           ok: false,
-          summary: `Falha ao aplicar rascunho; rollback local executado: ${error instanceof Error ? err.message : String(error)}`,
+          summary: `Failure ao aplicar rascunho; rollback local executado: ${error instanceof Error ? err.message : String(error)}`,
           appliedActions: [],
           rollbackAvailable: true,
           rollbackArtifactPath,
@@ -214,7 +214,7 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
       return {
         status: 'applied',
         ok: true,
-        summary: `${records.length} edicao(oes) reversivel(is) aplicada(s) dentro do workspace.`,
+        summary: `${records.length} reversible edit(s) applied inside the workspace.`,
         appliedActions: records.map((record) => actionLabel(record)),
         rollbackAvailable: true,
         rollbackArtifactPath,
@@ -231,14 +231,14 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
     try {
       const absolute = path.resolve(rollbackArtifactPath);
       if (!absolute.startsWith(path.resolve(this.rollbackRoot))) {
-        return blocked('Rollback artifact fora da raiz controlada.');
+        return blocked('Rollback artifact outside da raiz controlada.');
       }
       const records = JSON.parse(fs.readFileSync(absolute, 'utf8')) as RollbackRecord[];
       this.restoreRollback(records);
       return {
         status: 'applied',
         ok: true,
-        summary: `${records.length} arquivo(s) restaurado(s) a partir do rollback artifact.`,
+        summary: `${records.length} file(s) restored from the rollback artifact.`,
         appliedActions: records.map((record) => `workspace-rollback:${record.relativePath}`),
         rollbackAvailable: true,
         rollbackArtifactPath: absolute,
@@ -250,7 +250,7 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
       return {
         status: 'failed',
         ok: false,
-        summary: `Falha ao restaurar rollback artifact: ${error instanceof Error ? err.message : String(error)}`,
+        summary: `Failure ao restaurar rollback artifact: ${error instanceof Error ? err.message : String(error)}`,
         appliedActions: [],
         rollbackAvailable: false,
         rollbackArtifactPath: rollbackArtifactPath || null,
@@ -300,7 +300,7 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
         return { entries: [], blockedReason };
       }
       if (!fs.existsSync(targetPath)) {
-        return { entries: [], blockedReason: `Patch bloqueado porque o arquivo alvo nao existe: ${relativePath}.` };
+        return { entries: [], blockedReason: `Patch blocked because target file does not exist: ${relativePath}.` };
       }
       const currentContent = fs.readFileSync(targetPath, 'utf8');
       const patchResult = applyStructuredPatch(currentContent, patch, relativePath);
@@ -312,7 +312,7 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
           path: relativePath,
           content: patchResult.content,
           actionId: patch.actionId,
-          description: patch.description || 'Patch estruturado materializado pelo Intelligence Fabric.',
+          description: patch.description || 'Structured patch materialized by Intelligence Fabric.',
         },
         actionLabel: `workspace-patch:${relativePath}`,
       });
@@ -340,7 +340,7 @@ export function previewDraftWorkspacePatches(input: {
   if (input.patches.length === 0) {
     return {
       status: 'passed',
-      summary: 'Nenhum workspacePatch para verificar.',
+      summary: 'No workspacePatch para verificar.',
       files: [],
       blockedReasons: [],
       ambiguous: false,
@@ -349,7 +349,7 @@ export function previewDraftWorkspacePatches(input: {
   }
   const workspaceRoot = stringOrNull(input.workspaceRoot);
   if (!workspaceRoot) {
-    return patchPreviewBlocked('Workspace root ausente; nao ha alvo controlado para verificar patches.');
+    return patchPreviewBlocked('Workspace root missing; there is no controlled target to verify patches.');
   }
   const root = path.resolve(workspaceRoot);
   const files: AgentRunIntelligenceFabricDraftWorkspacePatchPreview['files'] = [];
@@ -363,11 +363,11 @@ export function previewDraftWorkspacePatches(input: {
       if (validation) {
         files.push(patchPreviewFile(relativePath, patch, 'blocked', null, null, [validation]));
         blockedReasons.push(validation);
-        ambiguous = ambiguous || validation.includes('inequivoco') || validation.includes('aparece');
+        ambiguous = ambiguous || validation.includes('inequivoco') || validation.includes('appears');
         continue;
       }
       if (!fs.existsSync(targetPath)) {
-        const reason = `Patch bloqueado porque o arquivo alvo nao existe: ${relativePath}.`;
+        const reason = `Patch blocked because target file does not exist: ${relativePath}.`;
         files.push(patchPreviewFile(relativePath, patch, 'blocked', null, null, [reason]));
         blockedReasons.push(reason);
         continue;
@@ -382,7 +382,7 @@ export function previewDraftWorkspacePatches(input: {
         ambiguous =
           ambiguous ||
           patchResult.blockedReason.includes('inequivoco') ||
-          patchResult.blockedReason.includes('aparece');
+          patchResult.blockedReason.includes('appears');
         continue;
       }
       files.push(
@@ -400,7 +400,7 @@ export function previewDraftWorkspacePatches(input: {
     status,
     summary:
       status === 'passed'
-        ? `${files.length} arquivo(s) verificado(s) para patch multi-hunk sem side effect.`
+        ? `${files.length} file(s) verified for multi-hunk patch without side effects.`
         : `${blockedReasons.length} problema(s) bloquearam o preview de patch multi-hunk.`,
     files,
     blockedReasons,
@@ -460,7 +460,7 @@ export function buildDraftWorkspaceDiffReceipt(input: {
   return {
     id: input.id,
     title: 'Intelligence Fabric diff receipt',
-    summary: `${fileCount} arquivo(s), ${hunkCount} hunk(s), Risk 3 reversivel, apply pendente de pedido explicito.`,
+    summary: `${fileCount} file(s), ${hunkCount} hunk(s), Risk 3 reversible, apply pending explicit request.`,
     riskLevel: 3,
     approvalRequired: input.approvalRequired,
     applyRequiresRequest: true,
@@ -575,39 +575,39 @@ function isSafeRisk3WorkspaceWriteAction(action: ProposedActionRecord): boolean 
 
 function validateWrite(write: AgentRunIntelligenceFabricDraftWorkspaceWrite, relativePath: string): string | null {
   if (!write.path || !relativePath || relativePath.startsWith('../') || path.isAbsolute(relativePath)) {
-    return 'Caminho de escrita invalido ou fora do workspace.';
+    return 'Invalid write path or path outside the workspace.';
   }
   if (looksLikeSecret(relativePath) || looksLikeSecret(write.content)) {
-    return 'Escrita bloqueada porque o alvo ou conteudo parece conter segredo.';
+    return 'Write blocked because target or content appears to contain a secret.';
   }
   if (Buffer.byteLength(write.content, 'utf8') > MAX_WRITE_BYTES) {
-    return 'Escrita bloqueada porque excede o limite de tamanho do draft reversivel.';
+    return 'Write blocked because it exceeds the reversible draft size limit.';
   }
   return null;
 }
 
 function validatePatch(patch: AgentRunIntelligenceFabricDraftWorkspacePatch, relativePath: string): string | null {
   if (!patch.path || !relativePath || relativePath.startsWith('../') || path.isAbsolute(relativePath)) {
-    return 'Caminho de patch invalido ou fora do workspace.';
+    return 'Invalid patch path or path outside the workspace.';
   }
   if (!Array.isArray(patch.hunks) || patch.hunks.length === 0) {
-    return 'Patch bloqueado porque there is no hunks estruturados.';
+    return 'Patch blocked because it has no structured hunks.';
   }
   if (patch.hunks.length > 12) {
-    return 'Patch bloqueado porque excede 12 hunks em um unico arquivo.';
+    return 'Patch blocked because it exceeds 12 hunks in a single file.';
   }
   for (const hunk of patch.hunks) {
     if (!hunk.search) {
-      return 'Patch bloqueado porque um hunk tem search vazio.';
+      return 'Patch blocked porque um hunk tem search vazio.';
     }
     if (looksLikeSecret(relativePath) || looksLikeSecret(hunk.search) || looksLikeSecret(hunk.replace)) {
-      return 'Patch bloqueado porque o alvo ou conteudo parece conter segredo.';
+      return 'Patch blocked because target or content appears to contain a secret.';
     }
     if (
       Buffer.byteLength(hunk.search, 'utf8') > MAX_WRITE_BYTES ||
       Buffer.byteLength(hunk.replace, 'utf8') > MAX_WRITE_BYTES
     ) {
-      return 'Patch bloqueado porque excede o limite de tamanho do draft reversivel.';
+      return 'Patch blocked because it exceeds the reversible draft size limit.';
     }
   }
   return null;
@@ -624,13 +624,13 @@ function applyStructuredPatch(
     if (occurrenceCount === 0) {
       return {
         content: currentContent,
-        blockedReason: `Patch bloqueado porque o hunk ${index + 1} nao foi encontrado em ${relativePath}.`,
+        blockedReason: `Patch blocked because hunk ${index + 1} was not found in ${relativePath}.`,
       };
     }
     if (occurrenceCount > 1) {
       return {
         content: currentContent,
-        blockedReason: `Patch bloqueado porque o hunk ${index + 1} aparece ${occurrenceCount} vezes em ${relativePath}; o patch precisa ser inequivoco.`,
+        blockedReason: `Patch blocked because hunk ${index + 1} appears ${occurrenceCount} times in ${relativePath}; the patch must be unambiguous.`,
       };
     }
     content = content.replace(hunk.search, hunk.replace);
@@ -638,13 +638,13 @@ function applyStructuredPatch(
   if (looksLikeSecret(content)) {
     return {
       content: currentContent,
-      blockedReason: 'Patch bloqueado porque o conteudo resultante parece conter segredo.',
+      blockedReason: 'Patch blocked because resulting content appears to contain a secret.',
     };
   }
   if (Buffer.byteLength(content, 'utf8') > MAX_WRITE_BYTES) {
     return {
       content: currentContent,
-      blockedReason: 'Patch bloqueado porque o arquivo resultante excede o limite do draft reversivel.',
+      blockedReason: 'Patch blocked because the resulting file exceeds the reversible draft limit.',
     };
   }
   return { content, blockedReason: null };
@@ -741,7 +741,7 @@ function blocked(reason: string): AgentRunIntelligenceFabricDraftExecutionResult
 }
 
 function looksLikeSecret(value: string): boolean {
-  return /\b(?:\.env|id_rsa|credentials\.json|secrets?\.json|token|secret|password|api[_-]?key|sk-[a-z0-9_-]{12})\b/i.test(
+  return /\b(?:\.env|id_rsa|credentials\.json|secrets...\.json|token|secret|password|api[_-]...key|sk-[a-z0-9_-]{12})\b/i.test(
     value,
   );
 }

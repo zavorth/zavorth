@@ -133,7 +133,7 @@ export class UniversalSkillBridgeActivationService {
         live: '/skills live <skill> --approval-id <approval-id>',
         origin: '/skills origin <skill>',
         check: 'npm run zavorth:universal-skill-bridge-activation:check --silent',
-        nextStage: 'Runtime gateway - Trust-Governed Skill Expansion at Scale',
+        nextAction: 'Runtime gateway - Trust-Governed Skill Expansion at Scale',
       },
     };
   }
@@ -237,7 +237,7 @@ function parseActivationCommand(args: string): ParsedCommand {
     invoke: false,
   };
 
-  if (!verb || verb === 'help' || verb === '?') {
+  if (!verb || verb === 'help' || verb === '...') {
     return { ...result, help: true };
   }
 
@@ -339,7 +339,7 @@ function buildSurfaceActions(
       label: 'Inspect skill',
       command: `/skills bridge ${selectedName}`,
       callbackData: `/skills bridge ${selectedName}`,
-      apiPath: `/api/skills/bridge?id=${encoded}`,
+      apiPath: `/api/skills/bridge...id=${encoded}`,
       style: 'secondary',
       requiresApproval: false,
       safeDefault: true,
@@ -350,7 +350,7 @@ function buildSurfaceActions(
       label: 'Safe dry-run',
       command: `/skills run ${selectedName}`,
       callbackData: `/skills run ${selectedName}`,
-      apiPath: `/api/skills/bridge?id=${encoded}&invoke=1`,
+      apiPath: `/api/skills/bridge...id=${encoded}&invoke=1`,
       style: 'primary',
       requiresApproval: false,
       safeDefault: true,
@@ -361,7 +361,7 @@ function buildSurfaceActions(
       label: 'Prepare live',
       command: `/skills live ${selectedName} --approval-id <approval-id>`,
       callbackData: `/skills live ${selectedName} --approval-id <approval-id>`,
-      apiPath: `/api/skills/bridge?id=${encoded}&invoke=1&mode=live&approvalId=<approval-id>`,
+      apiPath: `/api/skills/bridge...id=${encoded}&invoke=1&mode=live&approvalId=<approval-id>`,
       style: 'warning',
       requiresApproval: true,
       safeDefault: false,

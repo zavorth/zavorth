@@ -15,8 +15,7 @@
  *     ],
  *   });
  *   const candidate = chain.selectCandidate();
- *   // ... use candidate ...
- *   if (failed) chain.recordFailure(candidate, 'rate_limit');
+ *   // ? use candidate ?  *   if (failed) chain.recordFailure(candidate, 'rate_limit');
  *   if (success) chain.recordSuccess(candidate);
  */
 
@@ -146,7 +145,7 @@ export class ModelFallbackChain {
   }
 
   /**
-   * Registra sucesso e reseta o estado do candidato.
+   * Registra success e reseta o estado do candidato.
    */
   recordSuccess(candidate: ModelCandidate): void {
     const k = this.key(candidate);

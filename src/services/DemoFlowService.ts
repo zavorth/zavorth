@@ -13,119 +13,119 @@ export class DemoFlowService {
   private readonly scenarios: DemoScenario[] = [
     {
       key: 'research',
-      title: 'Pesquisa web',
-      objective: 'Mostrar que o Zavorth responde perguntas cotidianas sem soar tecnico demais.',
-      prompt: '/task pesquise na web se deixar a tampa do notebook quase fechada faz mal a longo prazo',
+      title: 'Web search',
+      objective: 'Show that Zavorth answers everyday questions without sounding too technical.',
+      prompt: '/task search the web whether leaving a notebook lid almost closed causes long-term damage',
       highlight: [
-        'O Zavorth responde pela rota de pesquisa web estruturada, sem pedir AI Studio a toa.',
-        'A resposta deve sair clara, pratica e sem jargao interno.',
+        'Zavorth responds via the structured web search route, without asking for AI Studio unnecessarily.',
+        'The answer should come out clear, practical and without internal jargon.',
       ],
-      speakerNote: 'Use essa etapa para mostrar que ele resolve uma pergunta comum como assistente, nao como painel tecnico.',
-      successSignal: 'A resposta chega no proprio chat, com linguagem simples e utilidade imediata.',
+      speakerNote: 'Use this step to show that it solves a common question as an assistant, not as a technical panel.',
+      successSignal: 'The answer arrives in the chat itself, with simple language and immediate utility.',
     },
     {
       key: 'files',
-      title: 'Arquivos',
-      objective: 'Mostrar listagem de pasta, permissao especifica e envio de arquivo.',
-      prompt: '/arquivo me envie o arquivo index.html da pasta C:/workspace/zavorth-web',
+      title: 'Files',
+      objective: 'Show folder listing, specific permission and file sending.',
+      prompt: '/file send me the index.html file from the C:/workspace/zavorth-web folder',
       highlight: [
-        'Se a pasta estiver fora da area liberada, o Zavorth abre uma aprovacao especifica e read-only.',
-        'Depois da aprovacao, ele retoma sozinho e envia o arquivo corretamente.',
+        'If the folder is outside the allowed area, Zavorth opens a specific read-only approval.',
+        'After approval, it resumes on its own and sends the file correctly.',
       ],
-      speakerNote: 'Aqui o foco e mostrar seguranca com conforto: o usuario aprova so aquela pasta e a tarefa continua sozinha.',
-      successSignal: 'O chat mostra a aprovacao, retoma o fluxo e envia o arquivo solicitado como documento.',
-      permissionNote: 'Se aparecer permissao, destaque que ela e especifica, read-only e limitada a esta tarefa ou projeto.',
+      speakerNote: 'The focus here is showing security with comfort: the user approves only that folder and the task continues on its own.',
+      successSignal: 'The chat shows the approval, resumes the flow and sends the requested file as a document.',
+      permissionNote: 'If a permission appears, highlight that it is specific, read-only and limited to this task or project.',
     },
     {
       key: 'workflow',
-      title: 'Workflow composto',
-      objective: 'Mostrar que o Zavorth encadeia etapas maiores em vez de responder de forma rasa.',
-      prompt: '/workflow research pesquise o mercado de IA local e entregue um briefing curto',
+      title: 'Composed workflow',
+      objective: 'Show that Zavorth chains larger stages instead of answering shallowly.',
+      prompt: '/workflow research research the local AI market and deliver a short briefing',
       highlight: [
-        'Esse fluxo mostra pesquisa, sintese e entrega final dentro do mesmo pedido.',
-        'A percepcao aqui e de orquestrador, nao so de chatbot.',
+        'This flow shows research, synthesis and final delivery within the same request.',
+        'The perception here is of an orchestrator, not just a chatbot.',
       ],
-      speakerNote: 'Vale reforcar que ele nao responde de forma rasa; ele encadeia etapas e devolve uma entrega pronta.',
-      successSignal: 'O resultado final aparece como briefing sintetizado, nao como uma lista crua de passos tecnicos.',
+      speakerNote: 'It is worth reinforcing that it does not answer shallowly; it chains stages and returns a ready deliverable.',
+      successSignal: 'The final result appears as a synthesized briefing, not as a raw list of technical steps.',
     },
     {
       key: 'stitch',
-      title: 'Geracao com Stitch',
-      objective: 'Mostrar geracao visual real com entrega de artefato.',
-      prompt: '/stitch crie uma landing page moderna para um app de tarefas com hero, CTA e secao de beneficios',
+      title: 'Generation with Stitch',
+      objective: 'Show real visual generation with artifact delivery.',
+      prompt: '/stitch create a modern landing page for a task app with hero, CTA and benefits section',
       highlight: [
-        'O Stitch devolve imagem e HTML, e o Zavorth trata isso como artefato de primeira classe.',
-        'Esse e um dos demos mais fortes para mostrar criacao real, nao so texto.',
+        'Stitch returns an image and HTML, and Zavorth treats it as a first-class artifact.',
+        'This is one of the strongest demos for showing real creation, not just text.',
       ],
-      speakerNote: 'Use essa parte para mostrar criacao visual de verdade e entrega de artefatos, nao so conversa.',
-      successSignal: 'O Zavorth entrega imagem, HTML ou link de artefato de forma organizada no chat.',
+      speakerNote: 'Use this part to show real visual creation and artifact delivery, not just conversation.',
+      successSignal: 'Zavorth delivers image, HTML or artifact link in an organized manner in the chat.',
     },
   ];
 
   public formatOverview(options: { demoModeEnabled?: boolean } = {}): string {
     const lines = [
-      'Roteiro de demo do Zavorth',
+      'Zavorth demo script',
       '',
-      options.demoModeEnabled ? 'Modo demo: ativo e pronto para apresentacao.' : 'Modo demo: inativo. Use /demo on para preparar o Zavorth antes de apresentar.',
+      options.demoModeEnabled ? 'Demo mode: active and ready for presentation.' : 'Demo mode: inactive. Use /demo on to prepare Zavorth before presenting.',
       '',
-      'Antes de comecar:',
-      '- Ative /demo on para limpar a experiencia e reduzir jargao interno.',
-      '- Se quiser mais controle na apresentacao, combine com /operator on.',
+      'Before starting:',
+      '- Activate /demo on to clean up the experience and reduce internal jargon.',
+      '- If you want more control over the presentation, combine with /operator on.',
       '',
-      'Cenas prontas para mostrar:',
+      'Ready scenes to show:',
     ];
 
     for (const scenario of this.scenarios) {
       lines.push(`- ${scenario.title}: /demo ${scenario.key}`);
     }
 
-    lines.push('', 'Sequencia guiada sugerida:');
-    lines.push('- /demo start para abrir a apresentacao guiada');
-    lines.push('- /demo next para avancar passo a passo');
-    lines.push('- /demo short para ver a versao resumida');
+    lines.push('', 'Suggested guided sequence:');
+    lines.push('- /demo start to open the guided presentation');
+    lines.push('- /demo next to advance step by step');
+    lines.push('- /demo short to see the shortened version');
     lines.push('1. /demo research');
     lines.push('2. /demo files');
     lines.push('3. /demo workflow');
     lines.push('4. /demo stitch');
-    lines.push('', 'Fechamento sugerido: /demo pitch ou /status');
+    lines.push('', 'Suggested closing: /demo pitch or /status');
 
     return lines.join('\n');
   }
 
   public formatPitch(): string {
     return [
-      'Pitch curto do Zavorth',
+      'Short Zavorth pitch',
       '',
-      'O Zavorth e um assistente operacional inteligente que transforma pedidos em linguagem natural em acoes reais, com memoria, seguranca e varios executores especializados por baixo.',
+      'Zavorth is an intelligent operational assistant that transforms natural language requests into real actions, with memory, security and several specialized executors underneath.',
       '',
-      'Em vez de ser so um chatbot, ele funciona como uma camada de comando pessoal: entende o pedido, escolhe a melhor rota, pede aprovacao quando necessario e entrega o resultado no canal certo.',
+      'Instead of being just a chatbot, it works as a personal command layer: it understands the request, chooses the best route, asks for approval when necessary and delivers the result on the right channel.',
       '',
-      'Como resumir em uma conversa curta:',
-      '- ele pesquisa, organiza e executa',
-      '- ele trata seguranca como parte da experiencia',
-      '- ele entrega texto, arquivos e resultados visuais',
+      'How to summarize in a short conversation:',
+      '- it searches, organizes and executes',
+      '- it treats security as part of the experience',
+      '- it delivers text, files and visual results',
       '',
-      'Destaques para mostrar:',
-      '- pesquisa web clara e sem jargao',
-      '- leitura e envio de arquivos com permissao especifica',
-      '- workflows compostos',
-      '- geracao visual com Stitch',
+      'Highlights to show:',
+      '- clear web search without jargon',
+      '- file reading and sending with specific permission',
+      '- composed workflows',
+      '- visual generation with Stitch',
     ].join('\n');
   }
 
   public formatChecklist(): string {
     return [
-      'Checklist de demo do Zavorth',
+      'Zavorth demo checklist',
       '',
-      'Preparacao:',
+      'Preparation:',
       '- /demo on',
-      '- confirme /status e /tasks',
+      '- confirm /status and /tasks',
       '',
-      'Sequencia:',
+      'Sequence:',
       '- /demo start',
-      '- use /demo next ate concluir as etapas',
+      '- use /demo next until all stages are complete',
       '',
-      'Fechamento:',
+      'Closing:',
       '- /demo pitch',
       '- /status',
     ].join('\n');
@@ -138,62 +138,62 @@ export class DemoFlowService {
     }
 
     return [
-      `Cena de demo: ${scenario.title}`,
+      `Demo scene: ${scenario.title}`,
       '',
-      `Objetivo: ${scenario.objective}`,
+      `Objective: ${scenario.objective}`,
       '',
-      'Prompt sugerido:',
+      'Suggested prompt:',
       scenario.prompt,
       '',
-      'O que mostrar:',
+      'What to show:',
       ...scenario.highlight.map((line) => `- ${line}`),
       '',
-      `Frase de apoio: ${scenario.speakerNote}`,
-      `Sinal de sucesso: ${scenario.successSignal}`,
-      scenario.permissionNote ? `Se aparecer permissao: ${scenario.permissionNote}` : null,
+      `Support note: ${scenario.speakerNote}`,
+      `Success signal: ${scenario.successSignal}`,
+      scenario.permissionNote ? `If permission appears: ${scenario.permissionNote}` : null,
     ].join('\n');
   }
 
   public formatFullRunbook(): string {
-    const lines = ['Demo completa do Zavorth', ''];
+    const lines = ['Complete Zavorth demo', ''];
 
     for (const scenario of this.scenarios) {
-      lines.push(`Passo: ${scenario.title}`);
-      lines.push(`Objetivo: ${scenario.objective}`);
+      lines.push(`Stage: ${scenario.title}`);
+      lines.push(`Objective: ${scenario.objective}`);
       lines.push(`Prompt: ${scenario.prompt}`);
-      lines.push(`Frase de apoio: ${scenario.speakerNote}`);
-      lines.push(`Sinal de sucesso: ${scenario.successSignal}`);
+      lines.push(`Support note: ${scenario.speakerNote}`);
+      lines.push(`Success signal: ${scenario.successSignal}`);
       if (scenario.permissionNote) {
-        lines.push(`Se aparecer permissao: ${scenario.permissionNote}`);
+        lines.push(`If permission appears: ${scenario.permissionNote}`);
       }
-      lines.push('O que mostrar:');
+      lines.push('What to show:');
       lines.push(...scenario.highlight.map((line) => `- ${line}`));
       lines.push('');
     }
 
-    lines.push('Fechamento sugerido:');
-    lines.push('- Mostre /tasks para reforcar a central de tarefas.');
-    lines.push('- Mostre /status para provar que o runtime esta supervisionado.');
+    lines.push('Suggested closing:');
+    lines.push('- Show /tasks to reinforce the task hub.');
+    lines.push('- Show /status to prove the runtime is supervised.');
 
     return lines.join('\n').trim();
   }
 
   public formatShortPresentation(): string {
     return [
-      'Apresentacao curta do Zavorth',
+      'Short Zavorth presentation',
       '',
-      'Abertura sugerida:',
-      'Apresente o Zavorth como um assistente operacional que pesquisa, executa e entrega com seguranca.',
+      'Suggested opening:',
+      'Present Zavorth as an operational assistant that searches, executes and delivers securely.',
       '',
-      'Sequencia curta para mostrar ao vivo:',
+      'Short sequence to show live:',
       `1. ${this.scenarios[0].prompt}`,
       `2. ${this.scenarios[1].prompt}`,
       '',
-      'Frase de apoio:',
-      'Comece com uma pergunta cotidiana e depois mostre um pedido com arquivo para provar utilidade e controle.',
+      'Support note:',
+      'Start with an everyday question and then show a file request to prove utility and control.',
       '',
-      'Fechamento sugerido:',
-      'Mostre /tasks ou /status para reforcar que ele orquestra e acompanha tarefas reais.',
+      'Suggested closing:',
+      'Show /tasks or /status to reinforce that it orchestrates and tracks real tasks.',
     ].join('\n');
   }
 
@@ -208,47 +208,47 @@ export class DemoFlowService {
     }
 
     return [
-      `Passo ${index + 1}/${this.scenarios.length}: ${scenario.title}`,
+      `Step ${index + 1}/${this.scenarios.length}: ${scenario.title}`,
       '',
-      `Objetivo: ${scenario.objective}`,
+      `Objective: ${scenario.objective}`,
       '',
-      'Prompt para usar agora:',
+      'Prompt to use now:',
       scenario.prompt,
       '',
-      'O que mostrar na tela:',
+      'What to show on screen:',
       ...scenario.highlight.map((line) => `- ${line}`),
       '',
-      `Frase de apoio: ${scenario.speakerNote}`,
-      `Sinal de sucesso: ${scenario.successSignal}`,
-      scenario.permissionNote ? `Se aparecer permissao: ${scenario.permissionNote}` : null,
+      `Support note: ${scenario.speakerNote}`,
+      `Success signal: ${scenario.successSignal}`,
+      scenario.permissionNote ? `If permission appears: ${scenario.permissionNote}` : null,
       '',
       index < this.scenarios.length - 1
-        ? 'Quando terminar esta etapa, use /demo next.'
-        : 'Esta e a ultima etapa. Para reiniciar a sequencia, use /demo reset.',
+        ? 'When this stage is complete, use /demo next.'
+        : 'This is the last stage. To restart the sequence, use /demo reset.',
     ].join('\n');
   }
 
   public formatGuidedStart(): string {
     return [
-      'Sequencia guiada iniciada.',
+      'Guided sequence started.',
       '',
-      'Como abrir a apresentacao:',
-      'Comece dizendo que o Zavorth nao e so um chat: ele pesquisa, executa, pede aprovacao quando necessario e entrega o resultado no mesmo fluxo.',
+      'How to open the presentation:',
+      'Start by saying that Zavorth is not just a chat: it searches, executes, asks for approval when necessary and delivers the result in the same flow.',
       '',
-      'Agora vamos para a primeira cena.',
+      'Now let us move to the first scene.',
     ].join('\n');
   }
 
   public formatGuidedCompletion(): string {
     return [
-      'Sequencia guiada concluida.',
+      'Guided sequence completed.',
       '',
-      'Fechamento sugerido:',
-      '- use /demo pitch para encerrar com a visao do produto',
-      '- use /tasks para reforcar o acompanhamento das tarefas',
-      '- use /status para mostrar que o runtime esta supervisionado',
+      'Suggested closing:',
+      '- use /demo pitch to close with the product vision',
+      '- use /tasks to reinforce task tracking',
+      '- use /status to show the runtime is supervised',
       '',
-      'Se quiser rodar tudo de novo, use /demo reset e depois /demo start.',
+      'If you want to run everything again, use /demo reset and then /demo start.',
     ].join('\n');
   }
 }

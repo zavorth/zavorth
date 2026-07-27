@@ -126,8 +126,8 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
   }
 
   /**
-   * Verifica se o runtime gVisor (runsc) esta realmente ativo no Docker daemon.
-   * Retorna true se o Docker responde com runtime=runsc, false se nao.
+   * Verifica se o runtime gVisor (runsc) is realmente active no Docker daemon.
+   * Returns true if Docker responds with runtime=runsc, false otherwise.
    */
   public isGvisorActive(): boolean {
     if (!config.dockerSandboxRuntime || config.dockerSandboxRuntime !== 'runsc') {
@@ -135,7 +135,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
     }
 
     try {
-      // Probe real: tenta rodar um container minimo com --runtime=runsc
+      // Probe real: tenta run um container minimo com --runtime=runsc
       const result = this.runDockerSync(
         ['run', '--rm', '--runtime', 'runsc', 'busybox:latest', 'true'],
         config.dockerSandboxProbeTimeoutMs,
@@ -150,18 +150,18 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
 
   /**
    * Constroi os argumentos de hardening do Docker container.
-   * Centralizado para evitar duplicacao e garantir que todos os caminhos
-   * de execucao apliquem as mesmas restricoes.
+   * Centralizado para evitar duplicaction e garantir que todos os caminhos
+   * execution paths apply the same restrictions.
    */
   private buildHardenedArgs(): string[] {
     const args: string[] = [];
 
-    // Runtime alternativo (gVisor/runsc)
+    // Runtime alternactive (gVisor/runsc)
     if (config.dockerSandboxRuntime) {
       args.push('--runtime', config.dockerSandboxRuntime);
     }
 
-    // Rede desabilitada — nenhum acesso externo
+    // Network disabled; no external access
     args.push('--network', 'none');
 
     // Resource limits
@@ -201,7 +201,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         autoPullEnabled: config.dockerSandboxAutoPull,
         sandboxRuntime: config.dockerSandboxRuntime || 'runc',
         canRun: false,
-        detail: 'docker sandbox desabilitado por configuracao.',
+        detail: 'docker sandbox disabled by configuration.',
       };
     }
 
@@ -218,7 +218,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         autoPullEnabled: config.dockerSandboxAutoPull,
         sandboxRuntime: config.dockerSandboxRuntime || 'runc',
         canRun: false,
-        detail: `nao foi possivel iniciar o CLI Docker em "${config.dockerCliPath}": ${versionResult.error.message}`,
+        detail: `could not start Docker CLI at "${config.dockerCliPath}": ${versionResult.error.message}`,
       };
     }
 
@@ -233,7 +233,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         autoPullEnabled: config.dockerSandboxAutoPull,
         sandboxRuntime: config.dockerSandboxRuntime || 'runc',
         canRun: false,
-        detail: `daemon Docker indisponivel ou sem resposta valida: ${this.formatDockerError(versionResult)}`,
+        detail: `daemon Docker unavailable ou without valid responsea: ${this.formatDockerError(versionResult)}`,
       };
     }
 
@@ -248,7 +248,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         autoPullEnabled: config.dockerSandboxAutoPull,
         sandboxRuntime: config.dockerSandboxRuntime || 'runc',
         canRun: true,
-        detail: `daemon Docker acessivel e imagem ${image} pronta para ${language}. Runtime: ${config.dockerSandboxRuntime || 'runc (padrao)'}.`,
+        detail: `Docker daemon accessible and image ${image} ready for ${language}. Runtime: ${config.dockerSandboxRuntime || 'runc (default)'}.`,
       };
     }
 
@@ -270,7 +270,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         autoPullEnabled: config.dockerSandboxAutoPull,
         sandboxRuntime: config.dockerSandboxRuntime || 'runc',
         canRun: true,
-        detail: `daemon Docker acessivel e imagem ${image} pronta para ${language}. Runtime: ${config.dockerSandboxRuntime || 'runc (padrao)'}.`,
+        detail: `Docker daemon accessible and image ${image} ready for ${language}. Runtime: ${config.dockerSandboxRuntime || 'runc (default)'}.`,
       };
     }
 
@@ -284,9 +284,8 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
       autoPullEnabled: config.dockerSandboxAutoPull,
       sandboxRuntime: config.dockerSandboxRuntime || 'runc',
       canRun: false,
-      detail: config.dockerSandboxAutoPull
-        ? `imagem ${image} ausente; auto-pull habilitado para a primeira execucao.`
-        : `imagem ${image} ausente; rode "docker pull ${image}" ou habilite ZAVORTH_DOCKER_SANDBOX_AUTO_PULL.`,
+      detail: config.dockerSandboxAutoPull ? `image ${image} missing; auto-pull enabled for the first execution.`
+        : `image ${image} missing; run "docker pull ${image}" ou enable ZAVORTH_DOCKER_SANDBOX_AUTO_PULL.`,
     };
   }
 
@@ -461,7 +460,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
 
     if (pullResult.status !== 0) {
       throw new Error(
-        `nao foi possivel baixar a imagem ${status.image}: ${this.formatDockerError(pullResult)}`,
+        `could not pull image ${status.image}: ${this.formatDockerError(pullResult)}`,
       );
     }
 
@@ -497,7 +496,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
   }
 
   private formatDockerError(result: DockerSyncResult): string {
-    return String(result.stderr || result.stdout || 'sem detalhes').trim();
+    return String(result.stderr || result.stdout || 'without detalhes').trim();
   }
 
   private runDockerSync(
@@ -618,7 +617,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
 
         resolve({
           stdout,
-          stderr: `${stderr}\n[DockerSandbox] Timeout apos ${timeoutMs}ms.`,
+          stderr: `${stderr}\n[DockerSandbox] Timeout after ${timeoutMs}ms.`,
           exitCode: null,
         });
       }, timeoutMs);
@@ -632,7 +631,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         clearTimeout(timeout);
         resolve({
           stdout,
-          stderr: `${stderr}\n[DockerSandbox] Falha ao iniciar processo Docker: ${error.message}`,
+          stderr: `${stderr}\n[DockerSandbox] Failure ao iniciar process Docker: ${error.message}`,
           exitCode: -1,
         });
       });

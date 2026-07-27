@@ -6,7 +6,7 @@
     "loading": "Laden...",
     "error": "Es ist ein Fehler aufgetreten",
     "success": "Erfolg",
-    "confirm": "Bist du sicher?",
+    "confirm": "Bist du sicher...",
     "refresh": "Aktualisieren",
     "close": "Schließen",
     "add": "Hinzufügen",
@@ -164,8 +164,8 @@
     "auditLog": "Audit-Protokoll",
     "shutdown": "Herunterfahren",
     "restart": "Neustart",
-    "shutdownConfirm": "ZavorthGateway herunterfahren?",
-    "restartConfirm": "ZavorthGateway neu starten?",
+    "shutdownConfirm": "ZavorthGateway herunterfahren...",
+    "restartConfirm": "ZavorthGateway neu starten...",
     "version": "v{version}",
     "debug": "Debuggen",
     "system": "System",
@@ -288,7 +288,7 @@
     "createKey": "API-Schlüssel erstellen",
     "key": "Schlüssel",
     "revokeKey": "Schlüssel widerrufen",
-    "revokeConfirm": "Sind Sie sicher, dass Sie diesen API-Schlüssel widerrufen möchten?",
+    "revokeConfirm": "Sind Sie sicher, dass Sie diesen API-Schlüssel widerrufen möchten...",
     "noKeys": "Noch keine API-Schlüssel",
     "noKeysDesc": "Erstellen Sie Ihren ersten API-Schlüssel, um Anfragen an Ihren Endpunkt zu authentifizieren",
     "keyLabel": "Schlüsseletikett",
@@ -320,7 +320,7 @@
     "actions": "Aktionen",
     "reqs": "Anforderungen",
     "neverUsed": "Nie benutzt",
-    "deleteConfirm": "Diesen API-Schlüssel löschen?",
+    "deleteConfirm": "Diesen API-Schlüssel löschen...",
     "usageTips": "Nutzungstipps",
     "tipAuth": "Verwenden Sie API-Schlüssel im Authorization-Header als Bearer YOUR_KEY",
     "tipSecure": "Schlüssel werden bei der Erstellung nur einmal angezeigt – bewahren Sie sie sicher auf",
@@ -803,7 +803,7 @@
     "leastLatency": "Geringste Latenz",
     "comboName": "Kombinationsname",
     "comboNamePlaceholder": "meine-combo",
-    "deleteConfirm": "Diese Combo löschen?",
+    "deleteConfirm": "Diese Combo löschen...",
     "noCombosYet": "Noch keine Combos",
     "comboCreated": "Combo erfolgreich erstellt",
     "comboUpdated": "Combo wurde erfolgreich aktualisiert",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-Robin ist bei mindestens zwei Modellen am nützlichsten.",
     "warningCostOptimizedPartialPricing": "Nur {priced} der {total} Modelle haben Preise. Die Routenplanung kann teilweise kostenbewusst erfolgen.",
     "warningCostOptimizedNoPricing": "Für diese Kombination wurden keine Preisdaten gefunden. Eine kostenoptimierte Route kann unerwartet erfolgen.",
-    "readinessTitle": "Bereit zum Speichern?",
+    "readinessTitle": "Bereit zum Speichern...",
     "readinessDescription": "Prüfe die Checkliste, bevor du dieses Combo erstellst oder aktualisierst.",
     "readinessCheckName": "Der Combo-Name ist gültig",
     "readinessCheckModels": "Mindestens ein Modell ist ausgewählt",
@@ -1013,7 +1013,7 @@
     "title": "API-Endpunkt",
     "available": "Verfügbare Endpunkte",
     "cloudProxy": "Cloud-Proxy",
-    "disableConfirm": "Sind Sie sicher, dass Sie den Cloud-Proxy deaktivieren möchten?",
+    "disableConfirm": "Sind Sie sicher, dass Sie den Cloud-Proxy deaktivieren möchten...",
     "baseUrl": "Basis-URL",
     "apiKeyLabel": "API-Schlüssel",
     "registeredKeys": "Registrierte Schlüssel",
@@ -1154,13 +1154,13 @@
     "loading": "MCP-ZavorthControl wird geladen...",
     "activate": "aktivieren",
     "deactivate": "deaktivieren",
-    "confirmSwitchCombo": "Bestätigen Sie die {action}-Kombination „{combo}“?",
+    "confirmSwitchCombo": "Bestätigen Sie die {action}-Kombination „{combo}“...",
     "switchComboFailed": "Der Kombinationsstatus konnte nicht gewechselt werden.",
     "switchComboSuccess": "Combo „{combo}“ aktualisiert.",
-    "confirmApplyProfile": "Resilienzprofil „{profile}“ anwenden?",
+    "confirmApplyProfile": "Resilienzprofil „{profile}“ anwenden...",
     "applyProfileFailed": "Das Resilienzprofil konnte nicht angewendet werden.",
     "applyProfileSuccess": "Profil „{profile}“ angewendet.",
-    "confirmResetBreakers": "Alle Schutzschalter zurücksetzen?",
+    "confirmResetBreakers": "Alle Schutzschalter zurücksetzen...",
     "resetBreakersFailed": "Leistungsschalter konnten nicht zurückgesetzt werden.",
     "resetBreakersSuccess": "Leistungsschalter zurückgesetzt.",
     "processStatus": "Prozessstatus",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Aufgabe {taskId} abgebrochen.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} läuft",
     "ok": "Okay",
     "activeLockouts": "Aktive Sperren",
-    "resetConfirm": "Alle Leistungsschalter in den fehlerfreien Zustand zurücksetzen? Dadurch werden alle Fehlerzählungen gelöscht und alle Anbieter werden wieder in den Betriebszustand versetzt.",
+    "resetConfirm": "Alle Leistungsschalter in den fehlerfreien Zustand zurücksetzen... Dadurch werden alle Fehlerzählungen gelöscht und alle Anbieter werden wieder in den Betriebszustand versetzt.",
     "resetAllTitle": "Setzen Sie alle Leistungsschalter in den fehlerfreien Zustand zurück",
     "resetting": "Zurücksetzen...",
     "resetAll": "Alles zurücksetzen",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Modellverfügbarkeit",
     "accounts": "Konten",
     "newAccount": "Neues Konto",
-    "deleteConfirm": "Sind Sie sicher, dass Sie diesen Anbieter löschen möchten?",
+    "deleteConfirm": "Sind Sie sicher, dass Sie diesen Anbieter löschen möchten...",
     "testing": "Testen...",
     "testConnection": "Testverbindung",
     "testSuccess": "Verbindung erfolgreich",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "API-Schlüssel testen",
     "testKeyPlaceholder": "sk-... (nur zur Validierung)",
     "providerNotFound": "Anbieter nicht gefunden",
-    "deleteConnectionConfirm": "Diese Verbindung löschen?",
+    "deleteConnectionConfirm": "Diese Verbindung löschen...",
     "failedSetAlias": "Alias konnte nicht festgelegt werden",
     "failedSaveConnection": "Die Verbindung konnte nicht gespeichert werden",
     "failedSaveConnectionRetry": "Die Verbindung konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
     "failedRetestConnection": "Die Verbindung konnte nicht erneut getestet werden",
-    "deleteCompatibleNodeConfirm": "Diesen {type} kompatiblen Knoten löschen?",
+    "deleteCompatibleNodeConfirm": "Diesen {type} kompatiblen Knoten löschen...",
     "anthropicCompatibleDetails": "Anthropic-kompatible Details",
     "openaiCompatibleDetails": "Details zur OpenAI-Kompatibilität",
     "messagesApi": "Nachrichten-API",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Auto-Sync deaktiviert",
     "autoSyncToggleFailed": "Auto-Sync umschalten fehlgeschlagen",
     "clearAllModels": "Alle Modelle löschen",
-    "clearAllModelsConfirm": "Möchten Sie wirklich alle Modelle für diesen Anbieter löschen?",
+    "clearAllModelsConfirm": "Möchten Sie wirklich alle Modelle für diesen Anbieter löschen...",
     "clearAllModelsSuccess": "Alle Modelle gelöscht",
     "clearAllModelsFailed": "Modelle löschen fehlgeschlagen",
     "addConnectionToImport": "Fügen Sie eine Verbindung hinzu, um den Import zu ermöglichen.",
@@ -1814,7 +1814,7 @@
     "exportData": "Daten exportieren",
     "importData": "Daten importieren",
     "clearData": "Alle Daten löschen",
-    "clearDataConfirm": "Dadurch werden alle Daten dauerhaft gelöscht. Bist du sicher?",
+    "clearDataConfirm": "Dadurch werden alle Daten dauerhaft gelöscht. Bist du sicher...",
     "enableRequestLogs": "Aktivieren Sie Anforderungsprotokolle",
     "logRetention": "Protokollaufbewahrung",
     "ipWhitelist": "IP-Whitelist",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Anrufe pro Konto vor dem Wechsel",
     "modelAliases": "Modell-Aliase",
     "modelAliasesTitle": "Modell-Aliase",
-    "modelAliasesDesc": "Platzhaltermuster zum Neuzuordnen von Modellnamen • Verwenden Sie * und ?",
+    "modelAliasesDesc": "Platzhaltermuster zum Neuzuordnen von Modellnamen • Verwenden Sie * und ...",
     "addCustomAlias": "Benutzerdefinierten Alias hinzufügen",
     "deprecatedModelId": "Veraltete Modell-ID",
     "newModelId": "Neue Modell-ID",
@@ -1974,7 +1974,7 @@
     "browser": "Browser",
     "clearLocalData": "Lokale Daten löschen",
     "logout": "Abmelden",
-    "clearLocalDataConfirm": "Alle lokalen Daten löschen? Dadurch werden Ihre Einstellungen zurückgesetzt.",
+    "clearLocalDataConfirm": "Alle lokalen Daten löschen... Dadurch werden Ihre Einstellungen zurückgesetzt.",
     "unknown": "Unbekannt",
     "systemActor": "System",
     "ipAccessControl": "IP-Zugriffskontrolle",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Keine Fallback-Ketten",
     "noFallbackChainsDesc": "Erstellen Sie eine Kette, um die Anbieter-Fallback-Reihenfolge für ein Modell zu definieren.",
     "loadingFallbackChains": "Fallback-Ketten werden geladen...",
-    "deleteChainConfirm": "Fallback-Kette für „{model}“ löschen?",
+    "deleteChainConfirm": "Fallback-Kette für „{model}“ löschen...",
     "chainCreated": "Kette für {model} erstellt",
     "chainDeleted": "Kette für {model} gelöscht",
     "failedCreateChain": "Kette konnte nicht erstellt werden",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Noch keine Backups verfügbar. Bei Datenänderungen werden automatisch Backups erstellt.",
     "backupsAvailable": "{count} Backup(s) verfügbar",
     "refresh": "Aktualisieren",
-    "confirm": "Bestätigen?",
+    "confirm": "Bestätigen...",
     "yes": "Ja",
     "no": "Nein",
     "restore": "Wiederherstellen",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Richtlinien und Leistungsschalter",
     "activeIssuesDetected": "Aktive Probleme erkannt",
     "off": "Aus",
-    "resetPricingConfirm": "Alle Preise für {provider} auf die Standardwerte zurücksetzen?",
+    "resetPricingConfirm": "Alle Preise für {provider} auf die Standardwerte zurücksetzen...",
     "pricingDescInput": "Eingabe: An das Modell gesendete Token",
     "pricingDescOutput": "Ausgabe: Token generiert",
     "pricingDescCached": "Zwischengespeichert: Wiederverwendete Eingabe (~50 % der Eingaberate)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Sie sind ein hilfreicher Assistent.",
-        "userGreeting": "Hallo! Wie geht es dir heute?"
+        "userGreeting": "Hallo! Wie geht es dir heute..."
       },
       "toolCalling": {
-        "userWeather": "Wie ist das Wetter in São Paulo?",
+        "userWeather": "Wie ist das Wetter in São Paulo...",
         "toolDescription": "Erhalten Sie das aktuelle Wetter für einen Standort",
         "cityNameDescription": "Stadtname"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Sortieren Sie nun in absteigender Reihenfolge."
       },
       "thinking": {
-        "question": "Wie groß ist die Summe der ersten 100 Primzahlen?"
+        "question": "Wie groß ist die Summe der ersten 100 Primzahlen..."
       },
       "systemPrompt": {
         "systemInstruction": "Sie sind ein leitender Softwareentwickler mit Spezialisierung auf verteilte Systeme. Beantworten Sie Fragen präzise und nutzen Sie die Best Practices der Branche. Geben Sie bei Bedarf immer Codebeispiele an. Formatieren Sie Ihre Antworten mit Markdown.",
-        "question": "Wie setze ich ein Schutzschaltermuster um?"
+        "question": "Wie setze ich ein Schutzschaltermuster um..."
       },
       "streaming": {
         "prompt": "Erzählen Sie mir eine kurze Geschichte über einen Roboter, der malen lernt."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "oder entfernen Sie das Feld „passwordHash“.",
     "restartServerWithNewPassword": "Starten Sie den Server neu – er verwendet das neue Passwort",
     "backToLogin": "Zurück zum Anmelden",
-    "forgotPassword": "Passwort vergessen?",
+    "forgotPassword": "Passwort vergessen...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Autorisierung",
     "Content-Disposition": "Inhaltliche Disposition",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Zwillinge",
     "flowProviderGithubCopilot": "GitHub-Copilot",
     "interactiveDiagram": "Interaktives Diagramm auf dem Desktop sichtbar",
-    "ctaTitle": "Sind Sie bereit, Ihre KI-Infrastruktur zu vereinfachen?",
+    "ctaTitle": "Sind Sie bereit, Ihre KI-Infrastruktur zu vereinfachen...",
     "ctaDescription": "Schließen Sie sich Entwicklern an, die ihre KI-Integrationen mit Zavorth optimieren. Open Source und kostenlos zu starten.",
     "startFree": "Kostenlos starten",
     "readDocumentation": "Dokumentation lesen"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Letzte Aktualisierung: {date}",
     "policyLastUpdatedDate": "13. Februar 2026",
     "listSeparator": "-",
-    "questionsVisit": "Fragen? Besuchen Sie unsere",
+    "questionsVisit": "Fragen... Besuchen Sie unsere",
     "githubRepository": "GitHub-Repository",
     "privacySection1Title": "1. Local-First-Architektur",
     "privacySection1Text": "Zavorth ist als Local-First-Anwendung konzipiert. Die gesamte Datenverarbeitung und -speicherung erfolgt vollständig auf Ihrem Rechner. Es gibt keinen zentralen Server, der Ihre Daten sammelt.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Sie sind ein hilfreicher KI-Assistent.",
-      "userGreeting": "Hallo! Wie kann ich Ihnen heute helfen?"
+      "userGreeting": "Hallo! Wie kann ich Ihnen heute helfen..."
     },
     "streaming": {
       "prompt": "Schreiben Sie eine Geschichte darüber"
     },
     "systemPrompt": {
-      "question": "Was ist der Sinn des Lebens?",
+      "question": "Was ist der Sinn des Lebens...",
       "systemInstruction": "Geben Sie eine nachdenkliche, philosophische Antwort."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "Der Name der Stadt, für die das Wetter ermittelt werden soll",
       "toolDescription": "Erhalten Sie das aktuelle Wetter für einen Standort",
-      "userWeather": "Wie ist das Wetter in Tokio?"
+      "userWeather": "Wie ist das Wetter in Tokio..."
     },
     "multiTurn": {
       "system": "Sie sind ein hilfreicher Assistent.",
       "assistantExample": "Gerne helfe ich Ihnen dabei.",
       "userInitial": "Ich brauche Hilfe dabei",
-      "userFollowUp": "Können Sie das näher erläutern?"
+      "userFollowUp": "Können Sie das näher erläutern..."
     }
   },
   "cache": {

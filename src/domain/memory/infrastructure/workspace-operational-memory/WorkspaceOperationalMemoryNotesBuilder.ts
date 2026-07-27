@@ -55,14 +55,14 @@ export class WorkspaceOperationalMemoryNotesBuilder {
       ? memory.direct_response_style_recommendations
       : [];
     const notes = [
-      memory.summary ? `Memoria operacional: ${memory.summary}` : null,
+      memory.summary ? `Operational memory: ${memory.summary}` : null,
     ];
 
     if (successfulExecutors[0]) {
-      notes.push(`Executor com melhor historico recente: ${successfulExecutors[0].executor} (${successfulExecutors[0].count} sucesso(s)).`);
+      notes.push(`Executor with the best recent history: ${successfulExecutors[0].executor} (${successfulExecutors[0].count} success(es)).`);
     }
     if (repeatedFailures[0]) {
-      notes.push(`Falha recorrente recente: ${repeatedFailures[0].executor} -> ${repeatedFailures[0].summary}`);
+      notes.push(`Failure recorrente recente: ${repeatedFailures[0].executor} -> ${repeatedFailures[0].summary}`);
     }
     if (taskKindRecommendations.length > 0) {
       const taskKindSummary = taskKindRecommendations
@@ -71,12 +71,12 @@ export class WorkspaceOperationalMemoryNotesBuilder {
           const kind = String(entry.kind || 'unknown').trim();
           const executor = String(entry.preferred_executor || '').trim();
           const count = Number(entry.success_count || 0);
-          return executor ? `${kind} -> ${executor} (${count} sucesso(s))` : null;
+          return executor ? `${kind} -> ${executor} (${count} success(s))` : null;
         })
         .filter((entry): entry is string => Boolean(entry))
         .join(' | ');
       if (taskKindSummary) {
-        notes.push(`Preferencias recentes por tipo: ${taskKindSummary}`);
+        notes.push(`Recent preferences by type: ${taskKindSummary}`);
       }
     }
     if (taskSubtypeRecommendations.length > 0) {
@@ -86,12 +86,12 @@ export class WorkspaceOperationalMemoryNotesBuilder {
           const subtype = String(entry.subtype || 'unknown').trim();
           const executor = String(entry.preferred_executor || '').trim();
           const count = Number(entry.success_count || 0);
-          return executor ? `${subtype} -> ${executor} (${count} sucesso(s))` : null;
+          return executor ? `${subtype} -> ${executor} (${count} success(s))` : null;
         })
         .filter((entry): entry is string => Boolean(entry))
         .join(' | ');
       if (taskSubtypeSummary) {
-        notes.push(`Preferencias recentes por subtipo: ${taskSubtypeSummary}`);
+        notes.push(`Recent preferences by subtype: ${taskSubtypeSummary}`);
       }
     }
     if (taskSubtypeLlmRecommendations.length > 0) {
@@ -106,7 +106,7 @@ export class WorkspaceOperationalMemoryNotesBuilder {
         .filter((entry): entry is string => Boolean(entry))
         .join(' | ');
       if (taskSubtypeLlmSummary) {
-        notes.push(`Preferencias recentes de LLM por subtipo: ${taskSubtypeLlmSummary}`);
+        notes.push(`Recent LLM preferences by subtype: ${taskSubtypeLlmSummary}`);
       }
     } else if (taskKindLlmRecommendations.length > 0) {
       const taskKindLlmSummary = taskKindLlmRecommendations
@@ -120,20 +120,20 @@ export class WorkspaceOperationalMemoryNotesBuilder {
         .filter((entry): entry is string => Boolean(entry))
         .join(' | ');
       if (taskKindLlmSummary) {
-        notes.push(`Preferencias recentes de LLM por tipo: ${taskKindLlmSummary}`);
+        notes.push(`Recent LLM preferences by type: ${taskKindLlmSummary}`);
       }
     }
     if (approvedPaths.length > 0) {
-      notes.push(`Caminhos ja aprovados recentemente: ${approvedPaths.slice(0, 3).map((item) => item.path).join(', ')}`);
+      notes.push(`Recently approved paths recentemente: ${approvedPaths.slice(0, 3).map((item) => item.path).join(', ')}`);
     }
     if (approvedPolicies.length > 0) {
       notes.push(
-        `Politicas aprovadas recentes: ${approvedPolicies.slice(0, 3).map((item: ApprovedPolicyAggregate) => `${item.executor}/${item.kind}`).join(', ')}.`,
+        `Approved policies recentes: ${approvedPolicies.slice(0, 3).map((item: ApprovedPolicyAggregate) => `${item.executor}/${item.kind}`).join(', ')}.`,
       );
     }
     if (activeFocuses[0]) {
       notes.push(
-        `Foco ativo do workspace: ${activeFocuses[0].summary} (${activeFocuses[0].status}${activeFocuses[0].approval_status === 'pending' ? ' | aguardando aprovacao' : ''}).`,
+        `Active workspace focus: ${activeFocuses[0].summary} (${activeFocuses[0].status}${activeFocuses[0].approval_status === 'pending' ? ' | waiting approval' : ''}).`,
       );
     }
     if (recentArtifacts.length > 0) {
@@ -143,17 +143,17 @@ export class WorkspaceOperationalMemoryNotesBuilder {
     }
     if (recentWorkflowRuns[0]) {
       notes.push(
-        `Workflow recente do workspace: ${recentWorkflowRuns[0].workflow_name} (${recentWorkflowRuns[0].status}, ${recentWorkflowRuns[0].completed_stages}/${recentWorkflowRuns[0].total_stages} etapas).`,
+        `Workflow recente do workspace: ${recentWorkflowRuns[0].workflow_name} (${recentWorkflowRuns[0].status}, ${recentWorkflowRuns[0].completed_stages}/${recentWorkflowRuns[0].total_stages} stages).`,
       );
     }
     if (workflowExecutorRecommendations[0]) {
       notes.push(
-        `Executor mais confiavel por workflow: ${workflowExecutorRecommendations[0].workflow} -> ${workflowExecutorRecommendations[0].executor} (${workflowExecutorRecommendations[0].success_count} etapa(s) concluida(s)).`,
+        `Most trusted executor by workflow: ${workflowExecutorRecommendations[0].workflow} -> ${workflowExecutorRecommendations[0].executor} (${workflowExecutorRecommendations[0].success_count} stage(s) completed(s)).`,
       );
     }
     if (workflowStageExecutorRecommendations[0]) {
       notes.push(
-        `Executor mais confiavel por etapa: ${workflowStageExecutorRecommendations[0].workflow}/${workflowStageExecutorRecommendations[0].role} -> ${workflowStageExecutorRecommendations[0].executor} (${workflowStageExecutorRecommendations[0].success_count} etapa(s) concluida(s)).`,
+        `Most trusted executor by stage: ${workflowStageExecutorRecommendations[0].workflow}/${workflowStageExecutorRecommendations[0].role} -> ${workflowStageExecutorRecommendations[0].executor} (${workflowStageExecutorRecommendations[0].success_count} stage(s) completed(s)).`,
       );
     }
     if (workflowRecommendations[0]) {
@@ -170,7 +170,7 @@ export class WorkspaceOperationalMemoryNotesBuilder {
     if (approvalFrictionRecommendations[0]) {
       const topFriction = approvalFrictionRecommendations[0];
       notes.push(
-        `Friccao operacional recente: ${topFriction.executor} em ${topFriction.kind}${topFriction.subtype !== 'general' ? `/${topFriction.subtype}` : ''} (${topFriction.rationale}).`,
+        `Friccao operational recente: ${topFriction.executor} em ${topFriction.kind}${topFriction.subtype !== 'general' ? `/${topFriction.subtype}` : ''} (${topFriction.rationale}).`,
       );
     }
     if (routeOutcomes[0]) {
@@ -180,11 +180,11 @@ export class WorkspaceOperationalMemoryNotesBuilder {
       );
     }
     if (continuityRecommendations[0]) {
-      notes.push(`Proximo passo sugerido: ${continuityRecommendations[0].label} (${continuityRecommendations[0].reason}).`);
+      notes.push(`next passo sugerido: ${continuityRecommendations[0].label} (${continuityRecommendations[0].reason}).`);
     }
     if (autonomousOutcomes[0]) {
       notes.push(
-        `Ultimo ciclo autonomo: ${autonomousOutcomes[0].status} em ${autonomousOutcomes[0].iterations} iteracao(oes)${autonomousOutcomes[0].preferred_executor ? ` | preferencia ${autonomousOutcomes[0].preferred_executor}` : ''}.`,
+        `Latest autonomous cycle: ${autonomousOutcomes[0].status} em ${autonomousOutcomes[0].iterations} iteration(oes)${autonomousOutcomes[0].preferred_executor ? ` | preference ${autonomousOutcomes[0].preferred_executor}` : ''}.`,
       );
     }
     if (autonomousModeRecommendations[0]) {
@@ -196,7 +196,7 @@ export class WorkspaceOperationalMemoryNotesBuilder {
     if (directResponseStyleRecommendations[0]) {
       const topRecommendation = directResponseStyleRecommendations[0];
       notes.push(
-        `Formato direto sugerido para ${topRecommendation.subtype !== 'general' ? topRecommendation.subtype : topRecommendation.kind}: ${topRecommendation.preferred_style} (${topRecommendation.rationale}).`,
+        `Formato direct sugerido para ${topRecommendation.subtype !== 'general' ? topRecommendation.subtype : topRecommendation.kind}: ${topRecommendation.preferred_style} (${topRecommendation.rationale}).`,
       );
     }
 

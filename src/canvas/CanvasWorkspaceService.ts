@@ -316,10 +316,10 @@ export class CanvasWorkspaceService {
       diagrams,
       sourceHealth,
       narrative: {
-        headline: 'Workspace canvas: Workspace Canvas Infinito',
+        headline: 'Workspace canvas: infinite workspace canvas',
         operatorSummary: `${entities.length} projected entity/entities, ${summary.pendingApprovals} pending approval(s), ${summary.locks} active lock(s), ${summary.attachments} attachment(s), without starting Watch Mode, nodes, or automations.`,
         nextAction: pendingApprovals > 0
-          ? 'Abrir entidade approval no canvas e aprovar pelo Mutation Plane quando fizer sentido.'
+          ? 'Open the approval entity in the canvas and approve through the Mutation Plane when appropriate.'
           : 'Use the canvas as a spatial map; any mutable change must become a MutationPlan.',
       },
     };
@@ -353,7 +353,7 @@ export class CanvasWorkspaceService {
       entity,
       actionId: input.actionId,
       title: input.title || `Canvas: ${input.actionId}`,
-      summary: input.summary || `Acao mutavel ${input.actionId} sobre ${entity.title}.`,
+      summary: input.summary || `Action mutable ${input.actionId} sobre ${entity.title}.`,
       payload: input.payload || {},
       requestedBy: input.requestedBy || null,
       sourceSurface: input.sourceSurface || 'workspace-canvas',
@@ -364,14 +364,14 @@ export class CanvasWorkspaceService {
       actor: input.requestedBy || null,
       entityId: entity.id,
       event: `canvas.${this.normalizeActionId(input.actionId)}`,
-      summary: `MutationPlan ${plan.id} criado para ${entity.title}.`,
+      summary: `MutationPlan ${plan.id} created for ${entity.title}.`,
       mutationPlanId: plan.id,
     });
     return {
       generatedAt: this.now().toISOString(),
       status: 'planned',
       ok: true,
-      summary: `MutationPlan criado para ${entity.title}.`,
+      summary: `MutationPlan created for ${entity.title}.`,
       mutationPlan: plan,
       entity,
       snapshot: await this.buildSnapshot(),
@@ -406,7 +406,7 @@ export class CanvasWorkspaceService {
       entity,
       actionId: 'save-layout',
       title: `Mover ${entity.title} no canvas`,
-      summary: 'Persistir layout compacto do canvas sem alterar a fonte canonica.',
+      summary: 'Persistir layout compacto do canvas without alterar a canonical source.',
       payload: {
         entityId,
         position: document.layout.entityOverrides[entityId],
@@ -420,7 +420,7 @@ export class CanvasWorkspaceService {
       actor: input.requestedBy || null,
       entityId,
       event: 'canvas.save-layout',
-      summary: `Layout atualizado para ${entity.title}.`,
+      summary: `Layout updated for ${entity.title}.`,
       mutationPlanId: plan.id,
     });
     this.writeDocument(document);
@@ -428,7 +428,7 @@ export class CanvasWorkspaceService {
       generatedAt: this.now().toISOString(),
       status: 'planned',
       ok: true,
-      summary: 'Layout persistido em estado compacto recuperavel.',
+      summary: 'Layout persisted in compact recoverable state.',
       mutationPlan: plan,
       entity,
       snapshot: await this.buildSnapshot(),
@@ -461,8 +461,8 @@ export class CanvasWorkspaceService {
     const plan = this.createCanvasPlan({
       entity,
       actionId: 'acquire-lock',
-      title: `Lock leve em ${entity.title}`,
-      summary: 'Lock colaborativo leve para edicao espacial no canvas.',
+      title: `Light lock on ${entity.title}`,
+      summary: 'Light collaborative lock for spatial editing in canvas.',
       payload: { entityId, owner },
       requestedBy: owner,
       sourceSurface: 'workspace-canvas',
@@ -522,8 +522,8 @@ export class CanvasWorkspaceService {
     const plan = this.createCanvasPlan({
       entity,
       actionId: 'release-lock',
-      title: `Liberar lock em ${entity.title}`,
-      summary: 'Liberar lock colaborativo leve.',
+      title: `enable lock on ${entity.title}`,
+      summary: 'enable lock colaboractive leve.',
       payload: { entityId, owner },
       requestedBy: owner,
       sourceSurface: 'workspace-canvas',
@@ -643,7 +643,7 @@ export class CanvasWorkspaceService {
         actor: input.approvedBy || null,
         entityId: null,
         event: 'canvas.plan-approved',
-        summary: `Plan ${plan.id} aprovado pelo canvas.`,
+        summary: `Plan ${plan.id} approved by canvas.`,
         mutationPlanId: plan.id,
       });
       this.writeDocument(document);
@@ -693,8 +693,8 @@ export class CanvasWorkspaceService {
       this.entity({
         id: 'canvas-chat',
         kind: 'chat',
-        title: 'Sessao e chat',
-        summary: 'Entrada conversacional preservada como fallback total do canvas.',
+        title: 'Session and chat',
+        summary: 'Conversational input preserved as the full canvas fallback.',
         status: 'idle',
         sourceRef: this.sourceRef('gateway', 'chat', 'session', 'npm run chat:fast'),
         position: this.positionFor(0, 0, document),
@@ -705,8 +705,8 @@ export class CanvasWorkspaceService {
       this.entity({
         id: 'canvas-files',
         kind: 'file',
-        title: 'Arquivos do workspace',
-        summary: 'Arquivos continuam sendo fonte canonica no filesystem; canvas guarda apenas referencia e layout.',
+        title: 'Workspace files',
+        summary: 'Files remain the canonical source in the filesystem; canvas stores only references and layout.',
         status: 'idle',
         sourceRef: this.sourceRef('workspace', this.workspaceRoot, 'filesystem', 'npm run ops:repo:doctor'),
         position: this.positionFor(1, 0, document),
@@ -717,8 +717,8 @@ export class CanvasWorkspaceService {
       this.entity({
         id: 'canvas-diffs',
         kind: 'diff',
-        title: 'Diffs e patches',
-        summary: 'Diffs apontam para o Git/workspace real; nada e duplicado no canvas.',
+        title: 'Diffs and patches',
+        summary: 'Diffs point to the real Git/workspace; nothing is duplicated in canvas.',
         status: 'idle',
         sourceRef: this.sourceRef('git', 'working-tree', 'diff', 'git diff --stat'),
         position: this.positionFor(2, 0, document),
@@ -781,7 +781,7 @@ export class CanvasWorkspaceService {
         id: 'canvas-federated-mesh',
         kind: 'node',
         title: 'Federated Mesh',
-        summary: `${Number(summary.onlineNodes || 0)}/${Number(summary.remoteNodes || 0)} node(s) remoto(s) online; infra ${summary.infrastructureState || 'unknown'}.`,
+        summary: `${Number(summary.onlineNodes || 0)}/${Number(summary.remoteNodes || 0)} node(s) remote(s) online; infra ${summary.infrastructureState || 'unknown'}.`,
         status: this.statusFromPosture(summary.posture),
         sourceRef: this.sourceRef('federated-mesh', null, 'control-plane', 'npm run ops:federated-mesh'),
         position: this.positionFor(0, 2, document),
@@ -881,7 +881,7 @@ export class CanvasWorkspaceService {
       id: `canvas-approval-${this.normalizeEntityId(plan.id)}`,
       kind: 'approval',
       title: plan.title || plan.actionId,
-      summary: `${plan.domain}/${plan.actionId} | ${plan.status} | risco ${plan.riskLevel}`,
+      summary: `${plan.domain}/${plan.actionId} | ${plan.status} | risk ${plan.riskLevel}`,
       status: plan.status === 'waiting_approval' ? 'waiting_approval' : this.statusFromText(plan.status),
       sourceRef: this.sourceRef('mutation-plane', plan.id, 'mutation-plan', 'npm run ops:trust-plane'),
       position: this.positionFor(index, 4, document),
@@ -908,8 +908,7 @@ export class CanvasWorkspaceService {
       id: 'canvas-evals',
       kind: 'eval',
       title: 'Eval e observability',
-      summary: gate
-        ? `Gate ${gate.status}; ${Number(summary.regressions || 0)} regressao(oes), ${Number(summary.scorecards || 0)} scorecard(s).`
+      summary: gate ? `Gate ${gate.status}; ${Number(summary.regressions || 0)} regression(s), ${Number(summary.scorecards || 0)} scorecard(s).`
         : 'Eval plane not loaded in this snapshot; CLI fallback remains available.',
       status: this.statusFromPosture(summary.posture || gate?.status),
       sourceRef: this.sourceRef('eval', null, 'control-plane', 'npm run ops:evals'),
@@ -1005,7 +1004,7 @@ export class CanvasWorkspaceService {
       this.health('automation', asCanvasRecord(sources.automation?.summary)?.posture, 'Automations control plane', 'npm run ops:automations'),
       this.health('watch-mode', asCanvasRecord(sources.watch?.summary)?.posture, 'Watch Mode projection; does not start capture.', 'npm run ops:watch-mode'),
       this.health('federated-mesh', asCanvasRecord(sources.federatedMesh?.summary)?.posture, 'Federated Mesh projection.', 'npm run ops:federated-mesh'),
-      this.health('eval', asCanvasRecord(sources.evals?.summary)?.posture, sources.evals ? 'Eval control plane carregado.' : 'Eval control plane indisponivel neste snapshot.', 'npm run ops:evals'),
+      this.health('eval', asCanvasRecord(sources.evals?.summary)?.posture, sources.evals ? 'Eval control plane loaded.' : 'Eval control plane unavailable neste snapshot.', 'npm run ops:evals'),
       this.health('rollout', asCanvasRecord(sources.rollout?.summary)?.posture, 'Rollout readiness projection.', 'npm run ops:rollout-readiness'),
       this.health('skill-evolution', asCanvasRecord(sources.skillEvolution?.summary)?.posture, 'Auto-Skill Evolution projection.', 'npm run ops:skill-evolution'),
     ];
@@ -1069,7 +1068,7 @@ export class CanvasWorkspaceService {
     const actions: CanvasEntity['actions'] = [
       {
         id: 'inspect-source',
-        label: 'Inspecionar fonte',
+        label: 'Inspecionar source',
         command: null,
         mutationRequired: false,
       },
@@ -1083,7 +1082,7 @@ export class CanvasWorkspaceService {
     if (kind === 'approval') {
       actions.push({
         id: 'approve',
-        label: 'Aprovar plano',
+        label: 'Approve plan',
         command: `npm run ops:canvas -- --approve <planId>`,
         mutationRequired: true,
       });
@@ -1119,9 +1118,8 @@ export class CanvasWorkspaceService {
       sourceSurface: input.sourceSurface,
       riskLevel: input.riskLevel,
       approvalRequired: input.approvalRequired,
-      approvalReason: input.approvalRequired
-        ? 'Acao mutavel no Workspace Canvas exige approval/audit antes de alterar fontes sensiveis.'
-        : 'Mutacao local de projection state registrada para audit.',
+      approvalReason: input.approvalRequired ? 'Mutable Workspace Canvas actions require approval and audit before changing sensitive sources.'
+        : 'local projection state mutation recorded for audit.',
       resourceImpact: {
         ramMb: 0,
         diskMb: 1,
@@ -1129,7 +1127,7 @@ export class CanvasWorkspaceService {
         externalExposure: 'none',
         recurring: false,
         notes: [
-          'Canvas e projection-only.',
+          'Canvas state is projection-only.',
           `entity=${input.entity.id}`,
           `kind=${input.entity.kind}`,
         ],
@@ -1147,18 +1145,18 @@ export class CanvasWorkspaceService {
         },
       ],
       validationPlan: [
-        'Confirmar sourceRef real antes de aplicar mutacao.',
-        'Manter fallback por CLI/chat quando canvas estiver indisponivel.',
+        'Confirm real sourceRef before applying mutation.',
+        'Manter fallback por CLI/chat when canvas estiver unavailable.',
       ],
       rollbackPlan: [
-        'Reverter apenas projection state quando a mutacao tocar layout/lock/anexo.',
+        'Reverter only projection state when a mutation tocar layout/lock/anexo.',
         'Para fontes canonicas, seguir rollback do MutationPlan original.',
       ],
       retentionPolicy: {
         ttlMs: 24 * 60 * 60 * 1000,
         cleanupOnSuccess: true,
         cleanupOnBoot: true,
-        notes: ['Canvas actions sao compactas e auditaveis.'],
+        notes: ['Canvas actions are compact and auditable.'],
       },
       payload: {
         entityId: input.entity.id,

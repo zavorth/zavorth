@@ -257,7 +257,7 @@ export class SupervisedDockerExecAdapter implements SystemOverlordRuntimeAdapter
 
   private parseContainers(stdout: string): string[] {
     return String(stdout || '')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((entry) => entry.trim())
       .filter(Boolean)
       .slice(0, 20);

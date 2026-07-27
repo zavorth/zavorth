@@ -65,7 +65,7 @@ export class ZavorthCliFinalProductPolishService {
     const noControlSurfaceByDefault = !files.inkIndex.includes('/control')
       && !files.helpers.includes('/control')
       && !files.registry.includes('zavorth control');
-    const englishDefaultCriticalPath = !/(Comando vazio|Fechando|Voce|Dica rapida|Seguranca|Painel)/u.test([
+    const englishDefaultCriticalPath = !/(Empty command|Closing|You|Quick tip|Security|Panel)/u.test([
       files.inkIndex,
       files.registry.slice(0, 16000),
       files.helpers.slice(850, 1150),
@@ -108,7 +108,7 @@ export class ZavorthCliFinalProductPolishService {
         inspect: 'npm run zavorth:cli-final-product-polish',
         inspectJson: 'npm run zavorth:cli-final-product-polish:json',
         check: 'npm run zavorth:cli-final-product-polish:check --silent',
-        nextStage: 'Intent model3 - Live Certification Matrix',
+        nextAction: 'Live Certification Matrix',
       },
     };
   }
@@ -131,7 +131,7 @@ export class ZavorthCliFinalProductPolishService {
       for (const blocker of entry.blockers) lines.push(`  blocker: ${blocker}`);
     }
     lines.push('', 'Safety: CLI projections are read-only; mutable execution remains owned by the governed runtime.');
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -209,7 +209,7 @@ export class ZavorthCliFinalProductPolishService {
         id: 'cli.english-critical-path',
         label: 'English default on critical CLI path',
         kind: 'language',
-        passed: !/(Comando vazio|Fechando|Voce|Dica rapida|Seguranca|Painel)/u.test([
+        passed: !/(Empty command|Closing|You|Quick tip|Security|Panel)/u.test([
           files.inkIndex,
           files.registry.slice(0, 16000),
           files.helpers.slice(850, 1150),

@@ -76,7 +76,7 @@ export class DiagnosticsExporterService {
     if (fs.existsSync(envPath)) {
       try {
         const content = fs.readFileSync(envPath, 'utf8');
-        const lines = content.split(/\r?\n/);
+        const lines = content.split(/\r...\n/);
         for (const line of lines) {
           const trimmed = line.trim();
           if (!trimmed || trimmed.startsWith('#')) {

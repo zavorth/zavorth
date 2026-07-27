@@ -62,7 +62,7 @@ export class ZavorthSandboxCapabilityProvisioner {
   private static safeDirectoryName(name: string): string {
     return String(name || '')
       .trim()
-      .replace(/[<>:"/\\|?*\x00-\x1f]/g, '-')
+      .replace(/[<>:"/\\|...*\x00-\x1f]/g, '-')
       .replace(/\.+/g, '.')
       .replace(/^[.-]+/g, '')
       .replace(/^\.+$/g, '')

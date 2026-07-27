@@ -3,7 +3,7 @@ import process from 'node:process';
 
 /**
  * ZavorthPathCompactor
- * 
+ *
  * Normalizes absolute paths to use Unix-style slashes ('/') and replaces
  * the system user's home directory with '~/'. Also provides expansion support.
  */
@@ -11,7 +11,7 @@ export class ZavorthPathCompactor {
   /**
    * Normalizes absolute paths with Unix-style slashes ('/') and replaces
    * the system user's home directory (obtained via Node's os.homedir()) with '~/'.
-   * 
+   *
    * @param absolutePath The absolute filesystem path to normalize and compact.
    * @returns The normalized and compacted path.
    */
@@ -64,7 +64,7 @@ export class ZavorthPathCompactor {
 
   /**
    * Expands a compacted path (starting with '~' or '~/') back into an absolute path.
-   * 
+   *
    * @param compactedPath The compacted path (e.g. '~/foo/bar')
    * @returns The expanded path with Unix-style slashes.
    */

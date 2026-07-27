@@ -41,41 +41,41 @@ export class LegacySurfaceContainmentService {
       frozenSurfaces: [],
       retiredSurfaces: ['/app', '/classic'],
       generatedAt,
-      summary: 'Use /zavorthControl como a unica entrada web do Zavorth. /app e /classic foram removidas e nao recebem mais fallback, manutencao ou produto novo.',
+      summary: 'Use /zavorthControl as the only Zavorth web entry. /app and /classic were removed and no longer receive fallback, maintenance, or new product work.',
       consolidation: {
-        phase: 'P3-003',
+        phase: 'legacy-contained',
         canonicalDocs: [
           'docs/web-zavorthControl.md',
           'docs/product-direction.md',
         ],
-        rule: 'Produto novo, manutencao, seguranca e observabilidade web entram em /zavorthControl, Runtime API, Gateway Contract ou control plane; /app e /classic nao sao mais surfaces publicas.',
+        rule: 'New product, maintenance, security, and web observability go through /zavorthControl, Runtime API, Gateway Contract, or control plane; /app and /classic are no longer public surfaces.',
       },
       surfaces: [
         this.surface('zavorthControl', 'canonical', '/zavorthControl', 'ZavorthControl', 'primary',
-          'Face principal para chat natural, approvals, receipts, providers, channels e status essencial do gateway.',
+          'Main surface for natural chat, approvals, receipts, providers, channels, and gateway status.',
           [
-            'produto novo',
-            'fluxos de usuario comum',
-            'controle de sessao via Runtime API/Gateway',
+            'new product work',
+            'everyday user flows',
+            'session control through Runtime API or Gateway',
           ],
           []),
         this.surface('app', 'retired', '/app', 'Removed operational shell', 'removed',
-          'Surface removida. Nao deve ser servida, linkada, usada como fallback ou receber manutencao.',
+          'Removed surface. It must not be served, linked, used as fallback, or receive maintenance.',
           [],
           [
             'qualquer trafego web',
-            'fallback operacional',
-            'manutencao',
-            'novas features',
+            'fallback operational',
+            'maintenance',
+            'new features',
           ]),
         this.surface('classic', 'retired', '/classic', 'Removed classic zavorthControl', 'removed',
-          'Surface removida. Observabilidade e manutencao agora devem ir para /zavorthControl ou APIs oficiais.',
+          'Removed surface. Observability and maintenance now go to /zavorthControl or official APIs.',
           [],
           [
-            'qualquer trafego web',
-            'observabilidade local',
-            'fallback de manutencao',
-            'compatibilidade historica',
+            'any web traffic',
+            'local observability',
+            'maintenance fallback',
+            'historical compatibility',
           ]),
       ],
       policy: {
@@ -122,25 +122,25 @@ export class LegacySurfaceContainmentService {
       && BLOCKED_RETIRED_ROUTE_FEATURE_KINDS.has(featureKind);
     if (retiredBlocked) {
       return {
-        phase: 'P3-003',
+        phase: 'legacy-contained',
         featureKind,
         requestedPath,
         surface,
         allowed: false,
-        reason: `${surface.path} foi removida; use /zavorthControl, Runtime API, Gateway Contract ou control plane.`,
+        reason: `${surface.path} was removed; use /zavorthControl, Runtime API, Gateway Contract, or control plane.`,
         requiredDestination: snapshot.policy.productFeaturesMustLandIn,
       };
     }
 
     return {
-      phase: 'P3-003',
+      phase: 'legacy-contained',
       featureKind,
       requestedPath,
       surface,
       allowed: true,
       reason: surface.status === 'primary'
-        ? '/zavorthControl e a unica surface web oficial.'
-        : `${surface.path} foi removida; use /zavorthControl.`,
+        ? '/zavorthControl is the only official web surface.'
+        : `${surface.path} was removed; use /zavorthControl.`,
       requiredDestination: snapshot.policy.productFeaturesMustLandIn,
     };
   }

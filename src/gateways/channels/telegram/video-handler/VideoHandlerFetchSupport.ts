@@ -68,7 +68,7 @@ export class VideoHandlerFetchSupport {
   ): Promise<DownloadedFile> {
     const fileInfo = await ctx.api.getFile(fileId);
     if (!fileInfo.file_path) {
-      throw new Error("O Telegram nao retornou um caminho para o video.");
+      throw new Error("Telegram did not return a path for the video.");
     }
 
     const inferredName = fileName || path.basename(fileInfo.file_path);
@@ -122,7 +122,7 @@ export class VideoHandlerFetchSupport {
       !SUPPORTED_VIDEO_EXTENSIONS.has(extension.toLowerCase())
     ) {
       throw new Error(
-        "A URL enviada nao parece apontar para um arquivo de video suportado.",
+        "The provided URL does not appear to point to a supported video file.",
       );
     }
 
@@ -134,7 +134,7 @@ export class VideoHandlerFetchSupport {
         contentLength > MAX_REMOTE_DOWNLOAD_BYTES
       ) {
         throw new Error(
-          `O video remoto excede o limite de ${VideoHandlerFormatSupport.formatMegabytes(MAX_REMOTE_DOWNLOAD_BYTES)} MB para download automatico.`,
+          `Remote video exceeds the limit of ${VideoHandlerFormatSupport.formatMegabytes(MAX_REMOTE_DOWNLOAD_BYTES)} MB for automatic download.`,
         );
       }
     }
@@ -142,7 +142,7 @@ export class VideoHandlerFetchSupport {
     const buffer = Buffer.from(await response.arrayBuffer());
     if (buffer.length > MAX_REMOTE_DOWNLOAD_BYTES) {
       throw new Error(
-        `O video remoto excede o limite de ${VideoHandlerFormatSupport.formatMegabytes(MAX_REMOTE_DOWNLOAD_BYTES)} MB para processamento automatico.`,
+        `Remote video exceeds the limit of ${VideoHandlerFormatSupport.formatMegabytes(MAX_REMOTE_DOWNLOAD_BYTES)} MB for automatic processing.`,
       );
     }
 
@@ -174,7 +174,7 @@ export class VideoHandlerFetchSupport {
   public static async fetchText(url: string): Promise<string> {
     const response = await this.fetchWithTimeout(url);
     if (!response.ok) {
-      throw new Error(`Failed to buscar texto (${response.status}).`);
+      throw new Error(`Failed to fetch text (${response.status}).`);
     }
     return response.text();
   }

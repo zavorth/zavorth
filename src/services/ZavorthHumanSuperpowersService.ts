@@ -3,7 +3,7 @@ import path from 'node:path';
 import { ZavorthLearningRuntimeHubService } from './ZavorthLearningRuntimeHubService.js';
 import { resolveLearningRuntimePolicy } from './ZavorthLearningRuntimePolicy.js';
 
-export type SuperpowerTrust = 'sempre-disponivel' | 'aprendido' | 'precisa-configurar' | 'experimental';
+export type SuperpowerTrust = 'always-available' | 'learned' | 'needs-setup' | 'experimental';
 
 export type HumanSuperpower = {
   id: string;
@@ -13,7 +13,7 @@ export type HumanSuperpower = {
   examples: string[];
   trust: SuperpowerTrust;
   trustLabel: string;
-  category: 'conversa' | 'memoria' | 'arquivos' | 'web' | 'automacao' | 'canais' | 'aprendido';
+  category: 'conversation' | 'memory' | 'files' | 'web' | 'automation' | 'channels' | 'learned';
   ready: boolean;
   nextStep: string | null;
 };
@@ -39,9 +39,9 @@ type ServiceDeps = {
 };
 
 const TRUST_LABELS: Record<SuperpowerTrust, string> = {
-  'sempre-disponivel': 'Pode usar agora',
-  aprendido: 'Aprendido com voce (da para desfazer)',
-  'precisa-configurar': 'Falta uma configuracao simples',
+  'always-available': 'Available now',
+  learned: 'Learned from the operator with undo available',
+  'needs-setup': 'Needs simple setup',
   experimental: 'Experimental — use com cuidado',
 };
 
@@ -61,13 +61,13 @@ export class ZavorthHumanSuperpowersService {
   public buildSnapshot(): HumanSuperpowersSnapshot {
     const powers = this.listPowers();
     const readyCount = powers.filter((p) => p.ready).length;
-    const needsSetupCount = powers.filter((p) => !p.ready && p.trust === 'precisa-configurar').length;
-    const learnedCount = powers.filter((p) => p.trust === 'aprendido').length;
+    const needsSetupCount = powers.filter((p) => !p.ready && p.trust === 'needs-setup').length;
+    const learnedCount = powers.filter((p) => p.trust === 'learned').length;
     return {
       contractVersion: 'zavorth-human-superpowers/1',
       generatedAt: this.now().toISOString(),
-      headline: 'O que eu sei fazer por voce',
-      summary: `${readyCount} prontos · ${learnedCount} aprendidos · ${needsSetupCount} pedem setup.`,
+      headline: 'What I can do for you',
+      summary: `${readyCount} ready · ${learnedCount} learneds · ${needsSetupCount} need setup.`,
       powers,
       readyCount,
       needsSetupCount,
@@ -97,95 +97,95 @@ export class ZavorthHumanSuperpowersService {
     const core: HumanSuperpower[] = [
       {
         id: 'chat-help',
-        title: 'Conversar e pedir ajuda',
-        summary: 'Pergunte em linguagem normal. Eu respondo e ajudo no que der.',
-        howToAsk: 'Fale como falaria com uma pessoa.',
-        examples: ['Me explica isso em 5 linhas', 'Me ajuda a decidir X'],
-        trust: 'sempre-disponivel',
-        trustLabel: TRUST_LABELS['sempre-disponivel'],
-        category: 'conversa',
+        title: 'Chat and get help',
+        summary: 'Ask in natural language. I answer and help where I can.',
+        howToAsk: 'Speak as you would with a person.',
+        examples: ['Explain this in 5 lines', 'Help me decide X'],
+        trust: 'always-available',
+        trustLabel: TRUST_LABELS['always-available'],
+        category: 'conversation',
         ready: true,
         nextStep: null,
       },
       {
         id: 'remember-prefs',
-        title: 'Lembrar do seu jeito',
+        title: 'Remember your preferences',
         summary: learning.mode === 'autonomous'
-          ? 'Aprendizado ligado: gravo preferencias uteis com opcao de desfazer.'
-          : 'Aprendizado em modo revisado: nao gravo sozinho ate voce permitir.',
-        howToAsk: 'Diga preferencias: "prefiro respostas curtas em topicos".',
-        examples: ['Prefiro respostas curtas', 'Sempre use listas'],
-        trust: learning.mode === 'autonomous' ? 'sempre-disponivel' : 'precisa-configurar',
+          ? 'Learning is on: useful preferences can be saved with undo.'
+          : 'Learning is reviewed: nothing is saved without permission.',
+        howToAsk: 'State preferences in natural language.',
+        examples: ['I prefer short answers', 'Always use lists'],
+        trust: learning.mode === 'autonomous' ? 'always-available' : 'needs-setup',
         trustLabel: learning.mode === 'autonomous'
-          ? TRUST_LABELS['sempre-disponivel']
-          : TRUST_LABELS['precisa-configurar'],
-        category: 'memoria',
+          ? TRUST_LABELS['always-available']
+          : TRUST_LABELS['needs-setup'],
+        category: 'memory',
         ready: learning.mode === 'autonomous',
-        nextStep: learning.mode === 'autonomous' ? null : 'Diga "sim" no setup ou ative aprendizado pessoal.',
+        nextStep: learning.mode === 'autonomous' ? null : 'Enable personal learning in setup.',
       },
       {
         id: 'files-safe',
-        title: 'Arquivos com cuidado',
-        summary: 'Leio e organizo arquivos. Mudancas sensiveis pedem confirmacao.',
-        howToAsk: 'Peca para ler, resumir ou organizar um arquivo/pasta.',
-        examples: ['Resuma este arquivo', 'Liste o que tem nesta pasta'],
-        trust: 'sempre-disponivel',
-        trustLabel: TRUST_LABELS['sempre-disponivel'],
-        category: 'arquivos',
+        title: 'Files with care',
+        summary: 'Reads and organizes files. Sensitive changes require confirmation.',
+        howToAsk: 'Ask to read, summarize, or organize a file or folder.',
+        examples: ['Summarize this file', 'List what is in this folder'],
+        trust: 'always-available',
+        trustLabel: TRUST_LABELS['always-available'],
+        category: 'files',
         ready: true,
         nextStep: null,
       },
       {
         id: 'web-lookup',
-        title: 'Buscar na web',
+        title: 'Search the web',
         summary: providerReady
-          ? 'Pesquisa e resume informacoes atuais quando fizer sentido.'
-          : 'Precisa de um provedor de modelo configurado para pesquisar bem.',
-        howToAsk: 'Peca uma pesquisa objetiva.',
-        examples: ['Pesquise X e me diga o essencial', 'O que mudou sobre Y?'],
-        trust: providerReady ? 'sempre-disponivel' : 'precisa-configurar',
-        trustLabel: providerReady ? TRUST_LABELS['sempre-disponivel'] : TRUST_LABELS['precisa-configurar'],
+          ? 'Searches and summarizes current information when useful.'
+          : 'Needs a configured model provider for high-quality search.',
+        howToAsk: 'Ask for a focused search.',
+        examples: ['Search X and give me the essentials', 'What changed about Y?'],
+        trust: providerReady ? 'always-available' : 'needs-setup',
+        trustLabel: providerReady ? TRUST_LABELS['always-available'] : TRUST_LABELS['needs-setup'],
         category: 'web',
         ready: providerReady,
-        nextStep: providerReady ? null : 'Configure uma chave de modelo (OpenAI, Gemini, etc.).',
+        nextStep: providerReady ? null : 'Configure a model provider key.',
       },
       {
         id: 'routines',
-        title: 'Rotinas repetidas',
-        summary: 'Fluxos que voce repete viram rascunhos de habilidade para a proxima vez.',
-        howToAsk: 'Peca a mesma rotina algumas vezes; eu anoto o padrao.',
-        examples: ['Todo dia me lembre de X', 'Sempre que eu pedir release notes, faca assim'],
-        trust: 'sempre-disponivel',
-        trustLabel: TRUST_LABELS['sempre-disponivel'],
-        category: 'automacao',
+        title: 'Repeated routines',
+        summary: 'Repeated flows can become skill drafts for next time.',
+        howToAsk: 'Ask for the same routine a few times; I record the pattern.',
+        examples: ['Remind me about X every day', 'When I ask for release notes, use this style'],
+        trust: 'always-available',
+        trustLabel: TRUST_LABELS['always-available'],
+        category: 'automation',
         ready: true,
         nextStep: null,
       },
       {
         id: 'telegram',
-        title: 'Falar no Telegram',
+        title: 'Use Telegram',
         summary: telegramReady
           ? 'Telegram configurado — bom caminho para o dia a dia no celular.'
-          : 'Telegram e o canal estavel recomendado no celular.',
-        howToAsk: 'Mande mensagem no bot depois de configurar o token.',
-        examples: ['Me manda um resumo no Telegram', 'Lembra disso quando eu falar no Telegram'],
-        trust: telegramReady ? 'sempre-disponivel' : 'precisa-configurar',
-        trustLabel: telegramReady ? TRUST_LABELS['sempre-disponivel'] : TRUST_LABELS['precisa-configurar'],
-        category: 'canais',
+          : 'Telegram is the recommended stable mobile channel.',
+        howToAsk: 'Message the bot after configuring the token.',
+        examples: ['Send me a summary on Telegram', 'Remember this when I message on Telegram'],
+        trust: telegramReady ? 'always-available' : 'needs-setup',
+        trustLabel: telegramReady ? TRUST_LABELS['always-available'] : TRUST_LABELS['needs-setup'],
+        category: 'channels',
         ready: telegramReady,
-        nextStep: telegramReady ? null : 'Defina TELEGRAM_BOT_TOKEN.',
+        nextStep: telegramReady ? null : 'Set TELEGRAM_BOT_TOKEN.',
       },
       {
         id: 'whatsapp-cloud',
-        title: 'WhatsApp oficial',
+        title: 'Official WhatsApp',
         summary: waCloudReady
-          ? 'WhatsApp Cloud API configurada (caminho estavel).'
-          : 'WhatsApp oficial via Cloud API — caminho de producao. Baileys e experimental.',
-        howToAsk: 'Use the numero do WhatsApp Business configurado.',
-        examples: ['Responda no WhatsApp', 'Me avise no WhatsApp'],
-        trust: waCloudReady ? 'sempre-disponivel' : 'precisa-configurar',
-        trustLabel: waCloudReady ? TRUST_LABELS['sempre-disponivel'] : TRUST_LABELS['precisa-configurar'],
-        category: 'canais',
+          ? 'WhatsApp Cloud API configured as the stable path.'
+          : 'Official WhatsApp via Cloud API — caminho de producao. Baileys e experimental.',
+        howToAsk: 'Use the configured WhatsApp Business number.',
+        examples: ['Reply on WhatsApp', 'Notify me on WhatsApp'],
+        trust: waCloudReady ? 'always-available' : 'needs-setup',
+        trustLabel: waCloudReady ? TRUST_LABELS['always-available'] : TRUST_LABELS['needs-setup'],
+        category: 'channels',
         ready: waCloudReady,
         nextStep: waCloudReady ? null : 'WHATSAPP_ACCESS_TOKEN + WHATSAPP_PHONE_NUMBER_ID (opcional).',
       },
@@ -237,7 +237,7 @@ export class ZavorthHumanSuperpowersService {
     const source = powers || this.listPowers({ includeLearned });
     const list = source
       .filter((p) => p.ready)
-      .filter((p) => includeLearned || p.category !== 'aprendido')
+      .filter((p) => includeLearned || p.category !== 'learned')
       .slice(0, 10);
     if (!list.length) return '';
     return [
@@ -256,17 +256,17 @@ export class ZavorthHumanSuperpowersService {
         .slice(0, 8)
         .map((item) => ({
           id: `learned:${item.id}`,
-          title: item.kind === 'preference' ? `Seu jeito: ${shortTitle(item.summary)}` : item.title,
+          title: item.kind === 'preference' ? `Your preference: ${shortTitle(item.summary)}` : item.title,
           summary: item.summary,
           howToAsk: item.kind === 'preference'
-            ? 'Continue conversando; eu ja levo isso em conta.'
+            ? 'Continue conversationndo; eu ja levo isso em conta.'
             : 'Peca a rotina parecida; o rascunho guia a proxima vez.',
           examples: [item.summary.slice(0, 80)],
-          trust: 'aprendido' as const,
-          trustLabel: TRUST_LABELS.aprendido,
-          category: 'aprendido' as const,
+          trust: 'learned' as const,
+          trustLabel: TRUST_LABELS.learned,
+          category: 'learned' as const,
           ready: true,
-          nextStep: `To undo: say "undo learning ${item.id}" (or "desfazer aprendizado ${item.id}")`,
+          nextStep: `To undo: say "undo learning ${item.id}"`,
         }));
     } catch {
       return [];
@@ -304,9 +304,9 @@ export class ZavorthHumanSuperpowersService {
             summary,
             howToAsk: `Peca algo relacionado a "${humanize(title)}".`,
             examples: [`Use a habilidade ${humanize(title)}`],
-            trust: 'sempre-disponivel',
-            trustLabel: TRUST_LABELS['sempre-disponivel'],
-            category: 'automacao',
+            trust: 'always-available',
+            trustLabel: TRUST_LABELS['always-available'],
+            category: 'automation',
             ready: true,
             nextStep: null,
           });
@@ -330,14 +330,31 @@ function humanize(value: string): string {
     .trim()
     .replace(/\b\w/g, (ch) => ch.toUpperCase());
 }
+function tokenizeSearchText(value: string): string[] {
+  const tokens: string[] = [];
+  let current = '';
+  for (const char of String(value || '')) {
+    if (/[\p{L}\p{N}]/u.test(char)) {
+      current += char;
+      continue;
+    }
+    if (current) {
+      tokens.push(current);
+      current = '';
+    }
+  }
+  if (current) tokens.push(current);
+  return tokens;
+}
+
 
 function scorePower(power: HumanSuperpower, query: string): number {
   const hay = `${power.id} ${power.title} ${power.summary} ${power.howToAsk} ${power.examples.join(' ')} ${power.category}`.toLowerCase();
   let score = 0;
-  for (const token of query.split(/[^a-z0-9à-ü]+/i).filter(Boolean)) {
+  for (const token of tokenizeSearchText(query)) {
     if (hay.includes(token.toLowerCase())) score += 2;
   }
   if (power.ready) score += 1;
-  if (power.category === 'aprendido') score += 1;
+  if (power.category === 'learned') score += 1;
   return score;
 }

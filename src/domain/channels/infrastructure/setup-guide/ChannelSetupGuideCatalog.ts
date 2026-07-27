@@ -29,7 +29,7 @@ export function buildChannelSetupCatalog({
       'signal',
       'Signal',
       'signal-cli',
-      'Signal entra via bridge local signal-cli/JSON-RPC com conta dedicada e allowlist.',
+      'Signal connects via local signal-cli/JSON-RPC bridge with a dedicated account and allowlist.',
       ['SIGNAL_ENABLED', 'SIGNAL_CLI_PATH', 'SIGNAL_ACCOUNT_NUMBER', 'SIGNAL_ALLOWED_RECIPIENTS'],
       ['SIGNAL_JSONRPC_URL', 'SIGNAL_OUTBOX_DIR', 'SIGNAL_STATUS_FILE'],
     ),
@@ -38,7 +38,7 @@ export function buildChannelSetupCatalog({
       'imessage',
       'iMessage',
       'mac-bridge',
-      'iMessage entra como Mac bridge experimental via Node Mesh, iniciando em read-only.',
+      'iMessage connects as an experimental Mac bridge via Node Mesh, starting in read-only mode.',
       ['IMESSAGE_ENABLED', 'IMESSAGE_NODE_ID', 'IMESSAGE_ALLOWED_RECIPIENTS'],
       ['IMESSAGE_BRIDGE_SCRIPT', 'IMESSAGE_READ_ONLY', 'IMESSAGE_OUTBOX_DIR', 'IMESSAGE_STATUS_FILE'],
     ),
@@ -47,7 +47,7 @@ export function buildChannelSetupCatalog({
       'teams',
       'Microsoft Teams',
       'graph-bot',
-      'Teams fica preparado para Microsoft Graph/Bot Framework com tenant e conversas permitidas.',
+      'Teams is prepared for Microsoft Graph/Bot Framework with tenant and allowed conversations.',
       ['TEAMS_ENABLED', 'TEAMS_APP_ID', 'TEAMS_TENANT_ID', 'TEAMS_ALLOWED_CONVERSATION_IDS'],
       ['TEAMS_APP_PASSWORD', 'TEAMS_CLIENT_SECRET', 'TEAMS_STATUS_FILE'],
     ),
@@ -56,7 +56,7 @@ export function buildChannelSetupCatalog({
       'email',
       'Email',
       'local-outbox',
-      'Email vira fallback universal para notificacoes e approvals com local-outbox supervisionado e SMTP/IMAP opcional depois.',
+      'Email serves as a universal fallback for notifications and approvals with supervised local-outbox and optional SMTP/IMAP later.',
       ['EMAIL_ENABLED', 'EMAIL_ALLOWED_RECIPIENTS'],
       ['EMAIL_SMTP_PORT', 'EMAIL_SMTP_USER', 'EMAIL_SMTP_PASS', 'EMAIL_IMAP_HOST', 'EMAIL_OUTBOX_DIR', 'EMAIL_STATUS_FILE'],
     ),
@@ -69,10 +69,10 @@ export function buildChannelSetupCatalog({
     command: 'npm run setup:channels',
     summary:
       readyCount > 0
-        ? `Canais prontos agora: ${readyCount}. Canais preparados mas ainda incompletos: ${preparedCount}.`
+        ? `Channels ready now: ${readyCount}. Channels prepared but still incomplete: ${preparedCount}.`
         : preparedCount > 0
-          ? `Nenhum canal esta pronto ainda, mas ${preparedCount} canal(is) ja ficaram preparados para configuracao final.`
-          : 'Nenhum canal opcional foi preparado ainda; use o setup ou o setup:channels para ligar Telegram, Discord, Slack, WhatsApp, Instagram, Signal, iMessage, Teams ou Email.',
+          ? `No channel is ready yet, but ${preparedCount} channel(s) have been prepared for final configuration.`
+          : 'No optional channels have been prepared yet; use the setup or setup:channels command to enable Telegram, Discord, Slack, WhatsApp, Instagram, Signal, iMessage, Teams, or Email.',
     entries,
   };
 }
@@ -87,10 +87,9 @@ function buildTelegramEntry(capability: PlatformCapability): ChannelSetupCatalog
     recommendedMode: 'native',
     summary:
       capability.readiness === 'ready'
-        ? 'Telegram ja pode operar como entrada leve de bolso.'
-        : capability.configured
-          ? 'Telegram ja tem parte da configuracao, mas ainda falta fechar o token ou a allowlist.'
-          : 'Telegram continua sendo a melhor entrada leve para retomar, aprovar e disparar fluxos quando voce quiser ligar um canal externo.',
+        ? 'Telegram is ready to operate as a lightweight entry point.'
+        : capability.configured ? 'Telegram has part of the configuration, but the token or allowlist still needs to be finalized.'
+          : 'Telegram remains the best lightweight entry point for resuming, approving, and triggering flows whenever you want to enable an external channel.',
     setupCommand: 'npm run setup:channels',
     doctorCommand: 'npm run ops:ready',
     docsPath: 'docs/telegram.md',
@@ -112,10 +111,9 @@ function buildDiscordEntry(capability: PlatformCapability): ChannelSetupCatalogE
     recommendedMode: 'native',
     summary:
       capability.readiness === 'ready'
-        ? 'Discord ja esta pronto para operar no contrato oficial do Channel Mesh.'
-        : capability.configured
-          ? 'Discord ja esta parcialmente preparado; feche token, policy ou saude do runtime antes do rollout.'
-          : 'Discord pode ser preparado agora em modo native ou bridge-first, deixando o runtime pronto para configuracao final depois.',
+        ? 'Discord is ready to operate under the official Channel Mesh contract.'
+        : capability.configured ? 'Discord is partially prepared; finalize token, policy, or runtime health before rollout.'
+          : 'Discord can be prepared now in native or bridge-first mode, leaving the runtime ready for final configuration later.',
     setupCommand: 'npm run setup:channels',
     doctorCommand: 'npm run test:channels:smoke',
     docsPath: 'docs/channel-mesh.md',
@@ -134,13 +132,12 @@ function buildSlackEntry(capability: PlatformCapability): ChannelSetupCatalogEnt
     status: resolveStatus(capability),
     configured: capability.configured,
     currentMode: resolveCurrentMode(capability),
-    recommendedMode: config.slackBotToken ? 'native' : 'stub',
+    recommendedMode: config.slackBotToken ? 'native' : 'local',
     summary:
       capability.readiness === 'ready'
-        ? 'Slack ja esta pronto no runtime atual.'
-        : capability.configured
-          ? 'Slack ja foi preparado; faltam allowlist, credenciais finais ou rollout.'
-          : 'Slack pode subir hoje em modo stub local ou ja ficar pronto para promover a Web API nativa depois.',
+        ? 'Slack is ready in the current runtime.'
+        : capability.configured ? 'Slack has been prepared; allowlists, final credentials, or rollout still needed.'
+          : 'Slack can be started today in local local mode or prepared to promote to native Web API later.',
     setupCommand: 'npm run setup:channels',
     doctorCommand: 'npm run test:channels:smoke',
     docsPath: 'docs/channel-mesh.md',
@@ -159,13 +156,12 @@ function buildWhatsAppEntry(capability: PlatformCapability): ChannelSetupCatalog
     status: resolveStatus(capability),
     configured: capability.configured,
     currentMode: resolveCurrentMode(capability),
-    recommendedMode: config.whatsappProvider === 'cloud-api' ? 'cloud-api' : 'stub',
+    recommendedMode: config.whatsappProvider === 'cloud-api' ? 'cloud-api' : 'local',
     summary:
       capability.readiness === 'ready'
-        ? 'WhatsApp ja esta pronto no runtime atual.'
-        : capability.configured
-          ? 'WhatsApp ja foi preparado; faltam chats permitidos, provider final ou rollout.'
-          : 'WhatsApp pode subir hoje em modo stub local ou ja ficar pronto para Cloud API ou Baileys.',
+        ? 'WhatsApp is ready in the current runtime.'
+        : capability.configured ? 'WhatsApp has been prepared; allowed chats, final provider, or rollout still needed.'
+          : 'WhatsApp can be started today in local local mode or prepared for Cloud API or Baileys.',
     setupCommand: 'npm run setup:channels',
     doctorCommand: 'npm run test:channels:smoke',
     docsPath: 'docs/channel-mesh.md',
@@ -184,13 +180,12 @@ function buildInstagramEntry(capability: PlatformCapability): ChannelSetupCatalo
     status: resolveStatus(capability),
     configured: capability.configured,
     currentMode: resolveCurrentMode(capability),
-    recommendedMode: config.instagramProvider === 'meta-messaging' ? 'meta-messaging' : 'stub',
+    recommendedMode: config.instagramProvider === 'meta-messaging' ? 'meta-messaging' : 'local',
     summary:
       capability.readiness === 'ready'
-        ? 'Instagram ja esta pronto no runtime atual via Channel Mesh.'
-        : capability.configured
-          ? 'Instagram ja foi preparado; faltam recipients, webhook ou credenciais finais da Meta antes do rollout.'
-          : 'Instagram pode subir hoje como outbox local governado ou ser promovido para Meta Instagram Messaging API.',
+        ? 'Instagram is ready in the current runtime via Channel Mesh.'
+        : capability.configured ? 'Instagram has been prepared; recipients, webhook, or final Meta credentials still needed before rollout.'
+          : 'Instagram can be started today as a governed local outbox or promoted to Meta Instagram Messaging API.',
     setupCommand: 'npm run setup:channels',
     doctorCommand: 'npm run test:channels:smoke',
     docsPath: 'docs/channel-mesh.md',
@@ -227,9 +222,8 @@ function buildGenericEntry(
     recommendedMode,
     summary:
       capability.readiness === 'ready'
-        ? `${label} ja esta pronto no runtime atual.`
-        : capability.configured
-          ? `${label} ja foi preparado; falta fechar allowlist, host ou provider antes do rollout.`
+        ? `${label} is ready in the current runtime.`
+        : capability.configured ? `${label} has been prepared; finalize allowlist, host, or provider before rollout.`
           : fallbackSummary,
     setupCommand: 'npm run setup:channels',
     doctorCommand: 'npm run test:channels:smoke',

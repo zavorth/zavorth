@@ -118,15 +118,15 @@ function formatLayeredMemoryMetrics(
   metrics: Awaited<ReturnType<ZavorthLayeredMemoryService['readMetrics']>>,
 ): string {
   return renderCliScreen({
-    eyebrow: 'Memoria',
+    eyebrow: 'Memory',
     eyebrowTone: metrics.summary.pressure === 'critical' ? 'danger' : metrics.summary.pressure === 'elevated' ? 'warning' : 'info',
-    title: 'Metricas da memoria',
-    summary: 'Panorama de pressao e distribuicao da layered memory.',
+    title: 'Memory Metrics',
+    summary: 'Overview of pressure and distribution for layered memory.',
     mode: 'compact',
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
           `- entries: ${formatCount(metrics.summary.totalEntries, 'entry', 'entries')} | episodic ${metrics.summary.episodic} | semantic ${metrics.summary.semantic} | procedural ${metrics.summary.procedural}`,
           `- average budget use: ${metrics.summary.averageBudgetUsage} | pressure: ${metrics.summary.pressure}`,
@@ -135,7 +135,7 @@ function formatLayeredMemoryMetrics(
         tone: metrics.summary.pressure === 'critical' ? 'danger' : metrics.summary.pressure === 'elevated' ? 'warning' : 'info',
       },
       {
-        title: 'Faca agora',
+        title: 'Do Now',
         lines: ['- zavorth memory status', '- zavorth memory procedures'],
         tone: 'brand',
       },
@@ -218,14 +218,14 @@ function buildCliProviderModelSnapshot(report: RuntimeAccessReadinessReport): Cl
     return null;
   }
 
-  const ready = providers.readyProviders?.includes(providers.activeProviderName) === true;
+  const ready = providers.readyProviders?.some((provider) => provider === providers.activeProviderName) === true;
   return {
-    providerLabel: providers.activeProviderName || 'provider atual',
+    providerLabel: providers.activeProviderName || 'provider current',
     modelLabel: providers.activeModelName || 'current model',
     readiness: ready ? 'ready' : 'needs_config',
     ready,
     source: 'provider-snapshot',
-    explanation: [`Provider readiness selecionou ${providers.activeProviderName}/${providers.activeModelName}.`],
+    explanation: [`Provider readiness selected ${providers.activeProviderName}/${providers.activeModelName}.`],
   };
 }
 
@@ -334,12 +334,12 @@ function formatNodeMeshDoctorSnapshot(snapshot: CliNodeMeshDoctorSnapshot): stri
     eyebrow: 'Nodes',
     eyebrowTone: snapshot.status === 'passed' ? 'success' : 'warning',
     title: 'Node Mesh doctor',
-    summary: formatCliValue(snapshot.summary, 'Sem relatorio persistido ainda.'),
+    summary: formatCliValue(snapshot.summary, 'No persisted report yet.'),
     mode: 'compact',
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
           `- status: ${snapshot.status}`,
           `- node: ${formatCliValue(snapshot.nodeId)}`,
@@ -351,7 +351,7 @@ function formatNodeMeshDoctorSnapshot(snapshot: CliNodeMeshDoctorSnapshot): stri
         tone: snapshot.status === 'passed' ? 'success' : 'warning',
       },
       {
-        title: 'Faca agora',
+        title: 'Do Now',
         lines: [
           snapshot.nextStep ? `- ${sanitizeHumanCliText(snapshot.nextStep.title)}` : null,
           snapshot.error ? `- error: ${snapshot.error}` : null,
@@ -383,19 +383,13 @@ function appendUniqueDoctorLines(lines: string[], candidates: Array<string | nul
 }
 
 function compactRuntimeLine(value: string | null | undefined, maxLength = 150): string {
-  const sanitized = sanitizeHumanCliText(value || '')
-    .replace(/^Zavorth needs the operator's attention now\.?$/i, 'Zavorth needs your attention now.')
-    .replace(/^Postura de security needs attention\.?$/i, 'Basic security needs attention.')
-    .replace(/\bruntime\b/gi, 'Zavorth')
-    .replace(/\bsidecars?\b/gi, 'local components')
-    .replace(/\s+/g, ' ')
-    .trim();
+  const cleaned = normalizeCliWhitespace(sanitizeHumanCliText(value || ''));
+  const sanitized = normalizeKnownRuntimeLine(cleaned);
   if (!sanitized || sanitized.length <= maxLength) {
     return sanitized;
   }
 
-  const sentenceMatch = sanitized.match(/^(.+?[.!?])\s+/);
-  const firstSentence = sentenceMatch?.[1]?.trim();
+  const firstSentence = firstCompleteSentence(sanitized);
   if (firstSentence && firstSentence.length >= 32 && firstSentence.length <= maxLength) {
     return firstSentence;
   }
@@ -404,18 +398,23 @@ function compactRuntimeLine(value: string | null | undefined, maxLength = 150): 
 }
 
 function formatRuntimeDisplayCommand(command: string | null | undefined): string {
-  const sanitized = sanitizeHumanCliText(command || '').trim();
+  const sanitized = normalizeCliWhitespace(sanitizeHumanCliText(command || ''));
   if (!sanitized) {
     return 'zavorth status';
   }
 
-  if (/^zavorth ops run recover-sidecars$/i.test(sanitized)) {
+  const tokens = splitCliTokens(sanitized).map((token) => token.toLowerCase());
+  if (isExactCommand(tokens, ['zavorth', 'ops', 'run', 'recover-sidecars'])) {
     return 'zavorth go';
   }
-  if (/^zavorth ops run validate-(node-mesh-smoke|channel-providers|remote-transports)$/i.test(sanitized)) {
+  if (tokens[0] === 'zavorth' && tokens[1] === 'ops' && tokens[2] === 'run' && new Set([
+    'validate-node-mesh-smoke',
+    'validate-channel-providers',
+    'validate-remote-transports',
+  ]).has(tokens[3] || '')) {
     return 'zavorth doctor';
   }
-  if (/^zavorth ops run security-preflight$/i.test(sanitized)) {
+  if (isExactCommand(tokens, ['zavorth', 'ops', 'run', 'security-preflight'])) {
     return 'zavorth doctor';
   }
 
@@ -425,10 +424,10 @@ function formatRuntimeDisplayCommand(command: string | null | undefined): string
 function formatRuntimeStatusLabel(status: string | null | undefined): string {
   const normalized = String(status || '').trim().toLowerCase();
   if (normalized === 'healthy' || normalized === 'ready') {
-    return 'pronto';
+    return 'ready';
   }
   if (normalized === 'attention' || normalized === 'watch') {
-    return 'pedindo atencao';
+    return 'needing attention';
   }
   if (normalized === 'degraded') {
     return 'degraded';
@@ -436,15 +435,12 @@ function formatRuntimeStatusLabel(status: string | null | undefined): string {
   if (normalized === 'critical' || normalized === 'blocked') {
     return 'critical';
   }
-  return normalized || 'nao informado';
+  return normalized || 'not informed';
 }
 
 function formatRuntimeMemoryLabel(memoryLabel: string | null | undefined): string {
-  const normalized = sanitizeHumanCliText(memoryLabel || '')
-    .replace(/\s*RSS\b/i, ' em uso')
-    .replace(/\s+/g, ' ')
-    .trim();
-  return normalized || 'nao informada';
+  const normalized = normalizeCliWhitespace(sanitizeHumanCliText(memoryLabel || '').replace('RSS', ' in use'));
+  return normalized || 'not informed';
 }
 
 function formatDoctorFreshness(stale: boolean): string {
@@ -454,14 +450,14 @@ function formatDoctorFreshness(stale: boolean): string {
 function normalizeDoctorSummary(summary: string): string {
   const sanitized = sanitizeHumanCliText(summary).trim();
   if (!sanitized) {
-    return 'O Zavorth encontrou pontos que ainda pedem sua atencao.';
+    return 'Zavorth found points that still need your attention.';
   }
 
-  if (sanitized.includes(':')) {
-    const [headline] = sanitized.split(':');
-    const trimmedHeadline = headline.trim();
+  const separatorIndex = sanitized.indexOf(':');
+  if (separatorIndex >= 0) {
+    const trimmedHeadline = sanitized.slice(0, separatorIndex).trim();
     if (trimmedHeadline) {
-      return /[.!?]$/.test(trimmedHeadline) ? trimmedHeadline : `${trimmedHeadline}.`;
+      return hasTerminalPunctuation(trimmedHeadline) ? trimmedHeadline : `${trimmedHeadline}.`;
     }
   }
 
@@ -473,34 +469,73 @@ function normalizeDoctorIssue(issue: string): string {
   if (!normalized) {
     return normalized;
   }
-
-  if (/host supervisor nao esta ativo/i.test(normalized)) {
-    return 'O servico principal do Zavorth ainda nao subiu.';
-  }
-
-  if (/worker principal do Zavorth nao esta ativo/i.test(normalized)) {
-    return 'O processo de trabalho do Zavorth ainda nao subiu.';
-  }
-
-  if (/host atual ainda nao foi autorizado|host nao foi autorizado|host atual nao foi autorizado/i.test(normalized)) {
-    return 'Este computador ainda nao foi liberado para o Zavorth fazer mudancas locais.';
-  }
-
-  if (/nenhum provider conversacional esta pronto/i.test(normalized)) {
-    return 'Nenhuma integracao de conversa esta pronta agora.';
-  }
-
   return normalized;
 }
 
 function hasDoctorTrustGap(snapshot: CliOperationsDoctorSnapshot): boolean {
-  const issueText = [...snapshot.local.issues, ...snapshot.remote.issues]
-    .map((issue) => String(issue || ''))
-    .join(' | ')
-    .toLowerCase();
+  return snapshot.nextSteps.some((step) => String(step.id || '').trim().toLowerCase() === 'trust-host');
+}
 
-  return issueText.includes('autoriz') || issueText.includes('trust')
-    || snapshot.nextSteps.some((step) => String(step.id || '').trim().toLowerCase() === 'trust-host');
+function normalizeKnownRuntimeLine(value: string): string {
+  const exact = new Map<string, string>([
+    ["zavorth needs the operator's attention now....", 'Zavorth needs your attention now.'],
+    ['postura de security needs attention....', 'Basic security needs attention.'],
+  ]);
+  const direct = exact.get(value.toLowerCase());
+  if (direct) {
+    return direct;
+  }
+  return splitCliTokens(value).map((token) => {
+    const lower = token.toLowerCase();
+    if (lower === 'runtime') return 'Zavorth';
+    if (lower === 'sidecars' || lower === 'sidecars...') return 'local components';
+    return token;
+  }).join(' ');
+}
+
+function containsText(value: string, needle: string): boolean {
+  return value.indexOf(needle) >= 0;
+}
+
+function firstCompleteSentence(value: string): string | null {
+  for (let index = 0; index < value.length; index += 1) {
+    const char = value.charAt(index);
+    if ((char === '.' || char === '!' || char === '?') && index + 1 < value.length && value.charAt(index + 1) === ' ') {
+      return value.slice(0, index + 1).trim();
+    }
+  }
+  return null;
+}
+
+function hasTerminalPunctuation(value: string): boolean {
+  const last = value.trim().slice(-1);
+  return last === '.' || last === '!' || last === '?';
+}
+
+function normalizeCliWhitespace(value: string): string {
+  return splitCliTokens(value).join(' ');
+}
+
+function splitCliTokens(value: string): string[] {
+  const tokens: string[] = [];
+  let current = '';
+  for (const char of String(value || '')) {
+    if (char === ' ' || char === '\t' || char === '\n' || char === '\r') {
+      if (current) {
+        tokens.push(current);
+        current = '';
+      }
+      continue;
+    }
+    current += char;
+  }
+  if (current) tokens.push(current);
+  return tokens;
+}
+
+function isExactCommand(tokens: string[], expected: string[]): boolean {
+  if (tokens.length !== expected.length) return false;
+  return expected.every((token, index) => tokens[index] === token);
 }
 
 function buildDoctorCurrentStateLines(snapshot: CliOperationsDoctorSnapshot): string[] {
@@ -514,21 +549,20 @@ function buildDoctorCurrentStateLines(snapshot: CliOperationsDoctorSnapshot): st
 }
 
 function formatDoctorLocalStateLine(snapshot: CliOperationsDoctorSnapshot): string {
-  return snapshot.local.ready
-    ? '- A entrada local ja esta pronta.'
-    : '- A entrada local ainda nao esta pronta.';
+  return snapshot.local.ready ? '- local entry is already ready.'
+    : '- local entry is not ready yet.';
 }
 
 function formatDoctorRemoteStateLine(snapshot: CliOperationsDoctorSnapshot): string {
   if (snapshot.remote.ready) {
-    return '- O acesso remoto ja esta pronto.';
+    return '- Remote access is already ready.';
   }
 
   if (snapshot.remote.appUrl || snapshot.remoteTransports.total > 0) {
     return '- Remote access is partially prepared.';
   }
 
-  return '- O acesso remoto ainda nao esta pronto.';
+  return '- Remote access is not ready yet.';
 }
 
 function formatDoctorModelStateLine(snapshot: CliOperationsDoctorSnapshot): string | null {
@@ -540,7 +574,7 @@ function formatDoctorModelStateLine(snapshot: CliOperationsDoctorSnapshot): stri
   const model = sanitizeHumanCliText(snapshot.providers.modelLabel);
   const label = `${provider}/${model}`;
   if (snapshot.providers.ready) {
-    return `- Modelo atual: ${label} pronto.`;
+    return `- Current model: ${label} ready.`;
   }
   return `- Current model: ${label} needs ${snapshot.providers.readiness}.`;
 }
@@ -548,7 +582,7 @@ function formatDoctorModelStateLine(snapshot: CliOperationsDoctorSnapshot): stri
 function formatDoctorConversationStateLine(snapshot: CliOperationsDoctorSnapshot): string {
   const freshness = formatDoctorFreshness(snapshot.channelProviders.stale);
   if (snapshot.channelProviders.total <= 0) {
-    return `- Nenhum canal de conversa foi preparado ainda${freshness}.`;
+    return `- No canal de conversation foi prepared ainda${freshness}.`;
   }
 
   if (snapshot.channelProviders.validated === snapshot.channelProviders.total) {
@@ -556,16 +590,16 @@ function formatDoctorConversationStateLine(snapshot: CliOperationsDoctorSnapshot
   }
 
   if (snapshot.channelProviders.validated > 0) {
-    return `- Parte dos canais de conversa ja esta pronta${freshness}.`;
+    return `- Some conversation channels are already ready${freshness}.`;
   }
 
-  return `- Os canais de conversa ainda nao estao prontos${freshness}.`;
+  return `- Conversation channels are not ready yet${freshness}.`;
 }
 
 function formatDoctorRemoteTransportStateLine(snapshot: CliOperationsDoctorSnapshot): string {
   const freshness = formatDoctorFreshness(snapshot.remoteTransports.stale);
   if (snapshot.remoteTransports.total <= 0) {
-    return `- Nenhuma conexao remota foi preparada ainda${freshness}.`;
+    return `- No remote connection has been prepared yet${freshness}.`;
   }
 
   if (snapshot.remoteTransports.healthy === snapshot.remoteTransports.total) {
@@ -573,10 +607,10 @@ function formatDoctorRemoteTransportStateLine(snapshot: CliOperationsDoctorSnaps
   }
 
   if (snapshot.remoteTransports.healthy > 0) {
-    return `- Parte das conexoes remotas ja esta pronta${freshness}.`;
+    return `- Some remote connections are already ready${freshness}.`;
   }
 
-  return `- As conexoes remotas ainda nao estao prontas${freshness}.`;
+  return `- Remote connections are not ready yet${freshness}.`;
 }
 
 function buildDoctorBlockerLines(snapshot: CliOperationsDoctorSnapshot): string[] {
@@ -590,7 +624,7 @@ function buildDoctorBlockerLines(snapshot: CliOperationsDoctorSnapshot): string[
       .map((step) => `- ${sanitizeHumanCliText(step.title)}`),
     4,
   );
-  return blockers.length > 0 ? blockers.slice(0, 3) : ['* Sem bloqueios imediatos.'];
+  return blockers.length > 0 ? blockers.slice(0, 3) : ['* without bloqueios imediatos.'];
 }
 
 function mapDoctorStepToCanonicalCommand(stepId: string | null | undefined): string | null {
@@ -616,15 +650,8 @@ function mapDoctorStepToCanonicalCommand(stepId: string | null | undefined): str
 }
 
 function inferDoctorActionFromIssues(snapshot: CliOperationsDoctorSnapshot): Array<string | null> {
-  const issueText = [...snapshot.local.issues, ...snapshot.remote.issues].join(' | ').toLowerCase();
-  const commands: Array<string | null> = [];
-  if (/host supervisor|worker principal|supervisionado|prontidao web|surface|superficie web/.test(issueText)) {
-    commands.push('zavorth go');
-  }
-  if (/token|provider|configur|onboarding|https/.test(issueText)) {
-    commands.push('zavorth setup');
-  }
-  return commands;
+  void snapshot;
+  return [];
 }
 
 function buildDoctorActionLines(snapshot: CliOperationsDoctorSnapshot): string[] {
@@ -652,7 +679,7 @@ function buildDoctorActionLines(snapshot: CliOperationsDoctorSnapshot): string[]
       'configure-public-base-url',
       'secure-public-url',
       'configure-web-token',
-    ].includes(String(step.id || '').trim().toLowerCase()))
+    ].some((id) => id === String(step.id || '').trim().toLowerCase()))
   ) {
     addAction('zavorth setup');
   }
@@ -679,16 +706,16 @@ function buildDoctorActionLines(snapshot: CliOperationsDoctorSnapshot): string[]
 
 function formatCliOperationsDoctorSnapshot(snapshot: CliOperationsDoctorSnapshot): string {
   return renderCliScreen({
-    eyebrow: 'Diagnostico',
+    eyebrow: 'diagnostic',
     eyebrowTone: 'warning',
-    title: 'Diagnostico do Zavorth',
+    title: 'diagnostic do Zavorth',
     summary: normalizeDoctorSummary(snapshot.summary),
     mode: 'compact',
     showWordmark: false,
     panels: [
-      { title: 'Agora', lines: buildDoctorCurrentStateLines(snapshot), tone: 'neutral' },
-      { title: 'Bloqueando agora', lines: buildDoctorBlockerLines(snapshot), tone: 'danger' },
-      { title: 'Faca agora', lines: buildDoctorActionLines(snapshot), tone: 'brand' },
+      { title: 'Now', lines: buildDoctorCurrentStateLines(snapshot), tone: 'neutral' },
+      { title: 'Blocking Now', lines: buildDoctorBlockerLines(snapshot), tone: 'danger' },
+      { title: 'Do Now', lines: buildDoctorActionLines(snapshot), tone: 'brand' },
     ],
   });
 }
@@ -727,30 +754,29 @@ function formatCliOpsQualitySnapshot(snapshot: OpsQualityDTO): string {
     eyebrow: 'Ops quality',
     eyebrowTone: snapshot.healthy ? 'success' : 'warning',
     title: 'Zavorth ops quality',
-    summary: snapshot.healthy
-      ? `Gate ${snapshot.gate.state} com score ${snapshot.score}.`
-      : `Gate ${snapshot.gate.state} com score ${snapshot.score} ainda pedindo atencao.`,
+    summary: snapshot.healthy ? `Gate ${snapshot.gate.state} with score ${snapshot.score}.`
+      : `Gate ${snapshot.gate.state} with score ${snapshot.score} still needs attention.`,
     mode: 'compact',
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
-          `- promove: ${snapshot.gate.allowsPromotion ? 'sim' : 'nao'} | publica: ${snapshot.gate.allowsPublishing ? 'sim' : 'nao'}`,
-          `- recovery ${snapshot.summary.recoveryState} | learning pendente ${snapshot.summary.learningPending} | quarentena ${snapshot.summary.quarantinedItems} | memoria ${snapshot.summary.memoryPressure}`,
+          `- promotes: ${snapshot.gate.allowsPromotion ? 'yes' : 'no'} | publishes: ${snapshot.gate.allowsPublishing ? 'yes' : 'no'}`,
+          `- recovery ${snapshot.summary.recoveryState} | pending learning ${snapshot.summary.learningPending} | quarantine ${snapshot.summary.quarantinedItems} | memory ${snapshot.summary.memoryPressure}`,
           `- operations: uptime ${snapshot.operations.uptime}s | db ${snapshot.operations.components.database} | eventBus ${snapshot.operations.components.eventBus}`,
-          `- learning: candidatos ${snapshot.learning.totalCandidates} | score medio ${snapshot.learning.averageScore} | promovidos ${snapshot.learning.promotedRate}`,
+          `- learning: candidates ${snapshot.learning.totalCandidates} | average score ${snapshot.learning.averageScore} | promoted ${snapshot.learning.promotedRate}`,
           `- memory: entries ${snapshot.memory.totalEntries} | average use ${snapshot.memory.averageBudgetUsage} | pressure ${snapshot.memory.pressure}`,
           `- platform: trusted ${snapshot.platform.trusted} | review ${snapshot.platform.reviewPending} | learned local ${snapshot.platform.learnedLocal} | quarantined ${snapshot.platform.quarantined}`,
         ],
         tone: snapshot.healthy ? 'success' : 'warning',
       },
       {
-        title: 'Pontos em foco',
+        title: 'Focus Points',
         lines: [
-          snapshot.gate.blockers[0] ? `- blocker principal: ${snapshot.gate.blockers[0]}` : null,
-          snapshot.gate.warnings[0] ? `- warning principal: ${snapshot.gate.warnings[0]}` : null,
-          snapshot.gate.nextStep ? `- proximo passo: ${snapshot.gate.nextStep}` : null,
+          snapshot.gate.blockers[0] ? `- main blocker: ${snapshot.gate.blockers[0]}` : null,
+          snapshot.gate.warnings[0] ? `- main warning: ${snapshot.gate.warnings[0]}` : null,
+          snapshot.gate.nextStep ? `- next step: ${snapshot.gate.nextStep}` : null,
         ].filter(Boolean) as string[],
         tone: snapshot.gate.blockers[0] ? 'danger' : 'muted',
       },
@@ -799,9 +825,9 @@ function formatRuntimeAccessReadinessReport(report: RuntimeAccessReadinessReport
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
-          `- local: ${report.local.ready ? 'pronto' : 'pendente'} | remoto: ${report.remote.ready ? 'pronto' : 'pendente'}`,
+          `- local: ${report.local.ready ? 'ready' : 'pending'} | remote: ${report.remote.ready ? 'ready' : 'pending'}`,
           `- local base: ${report.local.baseUrl}`,
           selectedModel ? `- model: ${selectedModel.providerLabel}/${selectedModel.modelLabel} (${selectedModel.readiness})` : null,
           report.recommendations[0] ? `- recommendation: ${report.recommendations[0]}` : '- recommendation: none',
@@ -814,8 +840,7 @@ function formatRuntimeAccessReadinessReport(report: RuntimeAccessReadinessReport
 
 function formatRuntimeBootstrapReport(report: RuntimeBootstrapReport): string {
   const selectedModel = report.env.selectedModel;
-  const providerLine = selectedModel
-    ? `${selectedModel.providerLabel}/${selectedModel.modelLabel} (${selectedModel.readiness})`
+  const providerLine = selectedModel ? `${selectedModel.providerLabel}/${selectedModel.modelLabel} (${selectedModel.readiness})`
     : report.env.llmProvider;
   return renderCliScreen({
     eyebrow: 'Bootstrap',
@@ -826,17 +851,17 @@ function formatRuntimeBootstrapReport(report: RuntimeBootstrapReport): string {
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
           `- project: ${report.projectRoot}`,
-          `- .env: ${report.env.envFilePresent ? 'presente' : 'ausente'} | provider: ${providerLine}`,
-          `- install: ${report.dependencies.installRequired ? 'pendente' : 'ok'} | build: ${report.dependencies.buildRequired ? 'pendente' : 'ok'}`,
+          `- .env: ${report.env.envFilePresent ? 'present' : 'absent'} | provider: ${providerLine}`,
+          `- install: ${report.dependencies.installRequired ? 'pending' : 'ok'} | build: ${report.dependencies.buildRequired ? 'pending' : 'ok'}`,
         ],
         tone: report.dependencies.installRequired || report.dependencies.buildRequired ? 'warning' : 'success',
       },
       {
-        title: 'Faca agora',
-        lines: [report.actions[0] ? `- ${report.actions[0].title} (${report.actions[0].command})` : '- nenhuma acao imediata sugerida'],
+        title: 'Do Now',
+        lines: [report.actions[0] ? `- ${report.actions[0].title} (${report.actions[0].command})` : '- no immediate action suggested'],
         tone: 'brand',
       },
     ],
@@ -856,10 +881,10 @@ function formatRuntimeBootstrapRepairReport(report: RuntimeBootstrapRepairReport
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
           `- dry-run: ${report.dryRun ? 'yes' : 'no'}`,
-          `- etapas: ${report.steps.length} | executadas: ${executed} | falhas: ${failed} | puladas: ${skipped}`,
+          `- steps: ${report.steps.length} | executed: ${executed} | failed: ${failed} | skipped: ${skipped}`,
         ],
         tone: failed > 0 ? 'warning' : 'info',
       },
@@ -877,7 +902,7 @@ function formatSupervisedReloadResult(result: SupervisedReloadRequestResult): st
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
           `- status: ${result.accepted ? 'accepted' : 'rejected'}`,
           `- request: ${result.requestId}`,
@@ -898,10 +923,10 @@ function formatAutoRepairRunResult(result: AutoRepairRunResult): string {
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
           `- status: ${result.status}`,
-          `- sucesso: ${result.success ? 'sim' : 'nao'}`,
+          `- success: ${result.success ? 'yes' : 'no'}`,
         ],
         tone: result.success ? 'success' : 'warning',
       },
@@ -917,33 +942,32 @@ function formatOperationsCockpitSnapshot(snapshot: OperationsCockpitSnapshot): s
   const enabledSidecars = Number(snapshot.summary.enabledSidecars || 0);
   const localHealthLine = enabledSidecars > 0
     ? `> local components: ${readySidecars} of ${enabledSidecars} ready; recent errors: ${snapshot.summary.recentErrorCount}`
-    : `> componentes locais: nenhum ativo; erros recentes: ${snapshot.summary.recentErrorCount}`;
+    : `> local components: none active; recent errors: ${snapshot.summary.recentErrorCount}`;
   return renderCliScreen({
     eyebrow: 'Ops',
     eyebrowTone: cockpitTone,
-    title: 'Operacao do Zavorth',
+    title: 'Zavorth Operations',
     summary: compactRuntimeLine(snapshot.headline),
     mode: 'compact',
     showWordmark: false,
     panels: [
       {
-        title: 'Agora',
+        title: 'Now',
         lines: [
           `${snapshot.status === 'healthy' ? '*' : '!'} status: ${formatRuntimeStatusLabel(snapshot.status)}`,
           `> environment: ${snapshot.runtime.platformLabel} | up ${snapshot.runtime.uptimeLabel}`,
-          `> memoria: ${formatRuntimeMemoryLabel(snapshot.runtime.memoryLabel)}`,
+          `> memory: ${formatRuntimeMemoryLabel(snapshot.runtime.memoryLabel)}`,
           localHealthLine,
         ],
         tone: cockpitTone,
       },
       {
-        title: 'Em foco',
+        title: 'In Focus',
         lines: [
-          `* ${compactRuntimeLine(snapshot.highlights[0] || 'Nenhum destaque operacional agora.')}`,
-          topAlert ? `! alerta: ${compactRuntimeLine(topAlert.title)}` : '* sem alerta principal',
-          topAction
-            ? `> proximo passo: ${compactRuntimeLine(topAction.label, 80)} (${formatRuntimeDisplayCommand(topAction.command)})`
-            : '> proximo passo: nenhum agora',
+          `* ${compactRuntimeLine(snapshot.highlights[0] || 'No operational highlights right now.')}`,
+          topAlert ? `! alert: ${compactRuntimeLine(topAlert.title)}` : '* no main alert',
+          topAction ? `> next step: ${compactRuntimeLine(topAction.label, 80)} (${formatRuntimeDisplayCommand(topAction.command)})`
+            : '> next step: none right now',
         ],
         tone: topAlert ? 'warning' : 'muted',
       },
@@ -967,12 +991,12 @@ function formatOperatorBriefSnapshot(snapshot: OperatorBriefSnapshot): string {
     showWordmark: false,
     panels: [
       {
-        title: 'Agora',
+        title: 'Now',
         lines: snapshot.highlights.slice(0, 2).map((highlight) => `${postureTone === 'success' ? '*' : '!'} ${compactRuntimeLine(highlight)}`),
         tone: postureTone,
       },
       {
-        title: 'Faca agora',
+        title: 'Do Now',
         lines: [
           `> ${compactRuntimeLine(snapshot.nextAction.label, 90)}`,
           `> ${formatRuntimeDisplayCommand(snapshot.nextAction.command)}`,
@@ -985,7 +1009,7 @@ function formatOperatorBriefSnapshot(snapshot: OperatorBriefSnapshot): string {
         lines: [
           snapshot.channelProviderDoctor ? `> conversation: ${compactRuntimeLine(snapshot.channelProviderDoctor.summary)}` : null,
           snapshot.remoteTransportDoctor ? `> remote: ${compactRuntimeLine(snapshot.remoteTransportDoctor.summary)}` : null,
-          snapshot.maintenanceAutomation ? `> automacao: ${compactRuntimeLine(snapshot.maintenanceAutomation.summary)}` : null,
+          snapshot.maintenanceAutomation ? `> automation: ${compactRuntimeLine(snapshot.maintenanceAutomation.summary)}` : null,
         ].filter(Boolean).slice(0, 2) as string[],
         tone: 'muted',
       },
@@ -999,12 +1023,12 @@ function formatOperationsActionDefinitions(
   return renderCliScreen({
     eyebrow: 'Ops',
     eyebrowTone: 'info',
-    title: 'Acoes operacionais do Zavorth',
+    title: 'Actions operacionais do Zavorth',
     mode: 'compact',
     showWordmark: false,
     panels: [
       {
-        title: 'Catalogo',
+        title: 'catalog',
         lines: definitions.map((definition) =>
           `- ${definition.id}: ${definition.label} [${definition.priority}] -> ${definition.command} ${definition.args.join(' ')}`),
         tone: 'info',
@@ -1017,13 +1041,13 @@ function formatOperationsActionExecution(execution: OperationsActionExecution): 
   return renderCliScreen({
     eyebrow: 'Ops',
     eyebrowTone: execution.status === 'started' ? 'success' : 'danger',
-    title: 'Acao operacional do Zavorth',
+    title: 'Zavorth Operational Action',
     summary: execution.label,
     mode: 'compact',
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
           `- status: ${execution.status}`,
           `- command: ${execution.command}`,

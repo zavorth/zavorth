@@ -94,7 +94,7 @@ function ensureSchema(): void {
     const db = getDbInstance() as unknown as DbLike;
     db.exec(PROMPT_SCHEMA);
     _initialized = true;
-  } catch (error: unknown) {// Schema creation is best-effort during build phase
+  } catch (error: unknown) {// Schema creation is best-effort during build
       logger.warn('[prompts] process execution failed', error);
     }
 }
@@ -133,7 +133,7 @@ export function savePrompt(
 
   // Check if identical content already exists for this slug
   const existing = db
-    .prepare<PromptRow>("SELECT * FROM prompt_templates WHERE slug = ? AND content_hash = ?")
+    .prepare<PromptRow>("SELECT * FROM prompt_templates WHERE slug = ? AND content_hash = ...")
     .get(slug, hash);
 
   if (existing) {
@@ -141,7 +141,7 @@ export function savePrompt(
   }
 
   // Deactivate previous active version
-  db.prepare("UPDATE prompt_templates SET is_active = 0 WHERE slug = ? AND is_active = 1").run(
+  db.prepare("UPDATE prompt_templates SET is_active = 0 WHERE slug = - AND is_active = 1").run(
     slug
   );
 
@@ -149,7 +149,7 @@ export function savePrompt(
   const maxVersion = db
     .prepare<{
       max_v: unknown;
-    }>("SELECT MAX(version) as max_v FROM prompt_templates WHERE slug = ?")
+    }>("SELECT MAX(version) as max_v FROM prompt_templates WHERE slug = ...")
     .get(slug);
   const nextVersion = toNumber(maxVersion?.max_v, 0) + 1;
 
@@ -157,7 +157,7 @@ export function savePrompt(
   const result = db
     .prepare(
       `INSERT INTO prompt_templates (slug, version, content, content_hash, variables, description, is_active)
-       VALUES (?, ?, ?, ?, ?, ?, 1)`
+       VALUES (..., ..., ..., ..., ..., ..., 1)`
     )
     .run(
       slug,
@@ -200,7 +200,7 @@ export function getPromptVersion(slug: string, version: number): PromptTemplate 
   ensureSchema();
   const db = getDbInstance() as unknown as DbLike;
   const row = db
-    .prepare<PromptRow>("SELECT * FROM prompt_templates WHERE slug = ? AND version = ?")
+    .prepare<PromptRow>("SELECT * FROM prompt_templates WHERE slug = ? AND version = ...")
     .get(slug, version);
   return row ? rowToPrompt(row) : null;
 }
@@ -253,14 +253,14 @@ export function rollbackPrompt(slug: string, version: number): PromptTemplate | 
   const db = getDbInstance() as unknown as DbLike;
 
   const target = db
-    .prepare<PromptRow>("SELECT * FROM prompt_templates WHERE slug = ? AND version = ?")
+    .prepare<PromptRow>("SELECT * FROM prompt_templates WHERE slug = ? AND version = ...")
     .get(slug, version);
 
   if (!target) return null;
 
   const rollback = db.transaction(() => {
-    db.prepare("UPDATE prompt_templates SET is_active = 0 WHERE slug = ?").run(slug);
-    db.prepare("UPDATE prompt_templates SET is_active = 1 WHERE slug = ? AND version = ?").run(
+    db.prepare("UPDATE prompt_templates SET is_active = 0 WHERE slug = ...").run(slug);
+    db.prepare("UPDATE prompt_templates SET is_active = 1 WHERE slug = - AND version = ...").run(
       slug,
       version
     );

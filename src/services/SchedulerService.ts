@@ -8,6 +8,7 @@ import { RuntimeProfileService } from './RuntimeProfileService.js';
 import {
   nextRunFromNaturalSchedule,
   parseNaturalSchedule,
+  parseNaturalScheduleAsync,
 } from './scheduling/NaturalScheduleParser.js';
 
 export type SchedulerDispatchResult = {
@@ -95,18 +96,16 @@ export type CommandDispatcher = (
 ) => Promise<SchedulerDispatchResult | void>;
 
 export type ScheduleParserResult = {
-  kind: 'interval' | 'daily' | 'weekly' | 'cron';
+  kind: 'interval' | 'calendar_day' | 'calendar_week' | 'cron';
   normalized: string;
   label: string;
   cron?: string;
 };
 
 /**
- * SchedulerService — recurring task runner.
- * Schedules (canonical + natural PT/EN via NaturalScheduleParser):
- * - every 30m | every 2h | a cada 30 minutos
- * - daily 09:00 | todo dia as 9h
- * - every monday at 10:00 | toda sexta as 18h
+ * SchedulerService recurring task runner.
+ * Natural-language schedule understanding belongs to the LLM resolver.
+ * Persisted schedules use the canonical JSON schedule contract.
  */
 export class SchedulerService {
   private timer: NodeJS.Timeout | null = null;
@@ -152,7 +151,7 @@ export class SchedulerService {
   public start(dispatcher: CommandDispatcher): void {
     if (!this.runtimeProfile.supportsRecurringAutomation()) {
       this.dispatcher = dispatcher;
-      logger.info('SchedulerService em modo preview: perfil core nao inicia loop recorrente.');
+      logger.info('SchedulerService in preview mode: core profile does not start recurring loop.');
       return;
     }
     this.dispatcher = dispatcher;
@@ -190,12 +189,49 @@ export class SchedulerService {
   ): ScheduledTask {
     const parsed = this.parseSchedule(schedule);
     if (!parsed) {
-      throw new Error('Formato de agendamento invalido. Use "every Xm", "every Xh" ou "daily HH:MM".');
+      throw new Error('Invalid schedule payload. Provide a canonical JSON schedule produced by the schedule resolver.');
     }
 
+    return this.createTaskFromParsedSchedule(command, parsed, userId, options);
+  }
+
+  public async scheduleTaskAsync(
+    command: string,
+    schedule: string,
+    userId: string,
+    options: {
+      intentText?: string | null;
+      delivery?: ScheduledTask['delivery'];
+      deliveryTarget?: string | null;
+      budget?: Partial<SchedulerTaskBudget> | null;
+      guardrails?: Partial<SchedulerTaskGuardrails> | null;
+      governedScheduledTask?: SchedulerGovernedScheduledTaskMetadata | null;
+    } = {},
+  ): Promise<ScheduledTask> {
+    const parsed = await this.parseScheduleAsync(schedule);
+    if (!parsed) {
+      throw new Error('Invalid schedule payload. Provide a canonical JSON schedule or connect a schedule resolver for natural language.');
+    }
+
+    return this.createTaskFromParsedSchedule(command, parsed, userId, options);
+  }
+
+  private createTaskFromParsedSchedule(
+    command: string,
+    parsed: ScheduleParserResult,
+    userId: string,
+    options: {
+      intentText?: string | null;
+      delivery?: ScheduledTask['delivery'];
+      deliveryTarget?: string | null;
+      budget?: Partial<SchedulerTaskBudget> | null;
+      guardrails?: Partial<SchedulerTaskGuardrails> | null;
+      governedScheduledTask?: SchedulerGovernedScheduledTaskMetadata | null;
+    },
+  ): ScheduledTask {
     const nextRun = this.calculateNextRun(parsed.normalized, new Date());
     if (!nextRun) {
-      throw new Error('Nao foi possivel calcular a proxima execucao do agendamento.');
+      throw new Error('Could not calculate the next schedule execution.');
     }
 
     const task: ScheduledTask = {
@@ -290,7 +326,7 @@ export class SchedulerService {
     if (!normalizedPrefix) {
       return null;
     }
-    return this.listTasks(true).find((entry) => entry.id.toLowerCase().startsWith(normalizedPrefix)) || null;
+    return this.listTasks(true).find((entry) => hasPrefix(entry.id.toLowerCase(), normalizedPrefix)) || null;
   }
 
   public pauseTask(id: string, reason?: string | null): ScheduledTask | null {
@@ -322,37 +358,50 @@ export class SchedulerService {
 
   public parseSchedule(schedule: string): ScheduleParserResult | null {
     const parsed = parseNaturalSchedule(schedule);
+    return this.toScheduleParserResult(parsed);
+  }
+
+  public async parseScheduleAsync(schedule: string): Promise<ScheduleParserResult | null> {
+    const parsed = await parseNaturalScheduleAsync(schedule);
+    return this.toScheduleParserResult(parsed);
+  }
+
+  private toScheduleParserResult(
+    parsed: ReturnType<typeof parseNaturalSchedule>,
+  ): ScheduleParserResult | null {
     if (!parsed) return null;
-    // Map weekly/cron kinds for scheduler result type
     if (parsed.kind === 'interval') {
       return {
         kind: 'interval',
         normalized: parsed.normalized,
         label: parsed.label,
-        cron: parsed.cron,
+        cron: parsed.cron || undefined,
       };
     }
-    if (parsed.kind === 'daily') {
+    if (parsed.kind === 'calendar_day') {
       return {
-        kind: 'daily',
+        kind: 'calendar_day',
         normalized: parsed.normalized,
         label: parsed.label,
-        cron: parsed.cron,
+        cron: parsed.cron || undefined,
       };
     }
-    if (parsed.kind === 'weekly') {
+    if (parsed.kind === 'calendar_week') {
       return {
-        kind: 'weekly',
+        kind: 'calendar_week',
         normalized: parsed.normalized,
         label: parsed.label,
-        cron: parsed.cron,
+        cron: parsed.cron || undefined,
       };
+    }
+    if (parsed.kind === 'one_shot') {
+      return null;
     }
     return {
       kind: 'cron',
       normalized: parsed.normalized,
       label: parsed.label,
-      cron: parsed.cron,
+      cron: parsed.cron || undefined,
     };
   }
 
@@ -639,4 +688,16 @@ export class SchedulerService {
         });
     });
   }
+}
+
+function hasPrefix(value: string, prefix: string): boolean {
+  if (prefix.length > value.length) {
+    return false;
+  }
+  for (let index = 0; index < prefix.length; index += 1) {
+    if (value.charAt(index) !== prefix.charAt(index)) {
+      return false;
+    }
+  }
+  return true;
 }

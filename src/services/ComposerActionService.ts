@@ -1,4 +1,4 @@
-
+﻿
 import { ArtifactPipelineService } from '../runtime/artifacts/ArtifactPipelineService.js';
 import type { PermissionRequest } from '../contracts/PermissionRequest.js';
 import type { Task } from '../contracts/TaskContract.js';
@@ -142,7 +142,7 @@ export class ComposerActionService {
       logger.warn('[Composer Action] path resolution failed', error);
     return this.finishWithError(
         sessionId,
-        error instanceof Error ? err.message : 'Falha ao aprovar a permissao selecionada.',
+        error instanceof Error ? err.message : 'Failed to approve the selected permission.',
         null,
         actionMention,
       );
@@ -167,7 +167,7 @@ export class ComposerActionService {
     if (!task) {
       return this.finishWithError(
         sessionId,
-        'Nao encontrei a tarefa selecionada para retomar nesta sessao.',
+        'Could not find the selected task to resume in this session.',
         taskId,
         actionMention,
       );
@@ -208,7 +208,7 @@ export class ComposerActionService {
     if (!this.workflowController) {
       return this.finishWithError(
         sessionId,
-        'A retomada de workflow ainda nao esta disponivel nesta superficie.',
+        'Workflow resume is not available on this surface yet.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
@@ -228,7 +228,7 @@ export class ComposerActionService {
       logger.warn('[Composer Action] load operation failed', error);
     return this.finishWithError(
         sessionId,
-        error instanceof Error ? err.message : 'Falha ao retomar o workflow selecionado.',
+        error instanceof Error ? err.message : 'Failure ao resume o workflow selecionado.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
@@ -254,7 +254,7 @@ export class ComposerActionService {
     if (!this.workflowController) {
       return this.finishWithError(
         sessionId,
-        'O reinicio de etapa ainda nao esta disponivel nesta superficie.',
+        'Step restart is not available on this surface yet.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
@@ -273,7 +273,7 @@ export class ComposerActionService {
       logger.warn('[Composer Action] lifecycle operation failed', error);
     return this.finishWithError(
         sessionId,
-        error instanceof Error ? err.message : 'Falha ao reiniciar a etapa do workflow selecionado.',
+        error instanceof Error ? err.message : 'Failure ao reiniciar a stage do workflow selecionado.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
@@ -298,7 +298,7 @@ export class ComposerActionService {
     if (!this.workflowController) {
       return this.finishWithError(
         sessionId,
-        'O encerramento de workflow ainda nao esta disponivel nesta superficie.',
+        'Workflow closure is not available on this surface yet.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
@@ -317,7 +317,7 @@ export class ComposerActionService {
       logger.warn('[Composer Action] resource cleanup failed', error);
     return this.finishWithError(
         sessionId,
-        error instanceof Error ? err.message : 'Falha ao encerrar o workflow selecionado.',
+        error instanceof Error ? err.message : 'Failure ao encerrar o workflow selecionado.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
@@ -330,17 +330,17 @@ export class ComposerActionService {
   ): Promise<ComposerActionResult> {
     const taskId = String(actionMention.payload?.taskId || '').trim() || null;
     const lines = [
-      'Artefato referenciado nesta sessao.',
+      'Artifact referenced in this session.',
       this.buildLabeledLine('Nome', actionMention.payload?.name || actionMention.payload?.key),
       this.buildLabeledLine(
         'Tipo',
         [actionMention.payload?.kind, actionMention.payload?.type].filter(Boolean).join(' / '),
       ),
       this.buildLabeledLine('Resumo', actionMention.payload?.summary || actionMention.payload?.description),
-      this.buildLabeledLine('Caminho', actionMention.payload?.path),
+      this.buildLabeledLine('path', actionMention.payload?.path),
       this.buildLabeledLine('URL', actionMention.payload?.url),
       this.buildLabeledLine('Entrega', actionMention.payload?.deliveryChannel),
-      taskId ? `Tarefa: ${taskId.substring(0, 8)}` : null,
+      taskId ? `task: ${taskId.substring(0, 8)}` : null,
     ].filter(Boolean);
 
     this.realtime.recordAssistantMessage(
@@ -365,12 +365,12 @@ export class ComposerActionService {
   ): Promise<ComposerActionResult> {
     const taskId = String(actionMention.payload?.taskId || '').trim() || null;
     const lines = [
-      'Arquivo referenciado nesta sessao.',
+      'File referenced in this session.',
       this.buildLabeledLine('Nome', actionMention.payload?.fileName),
-      this.buildLabeledLine('Caminho', actionMention.payload?.path),
+      this.buildLabeledLine('path', actionMention.payload?.path),
       this.buildLabeledLine('Workspace', actionMention.payload?.workspace),
-      this.buildLabeledLine('Status da tarefa', actionMention.payload?.status),
-      taskId ? `Tarefa: ${taskId.substring(0, 8)}` : null,
+      this.buildLabeledLine('Status da task', actionMention.payload?.status),
+      taskId ? `task: ${taskId.substring(0, 8)}` : null,
     ].filter(Boolean);
 
     this.realtime.recordAssistantMessage(
@@ -410,10 +410,10 @@ export class ComposerActionService {
     );
     const referenceLine = this.resolveArtifactReferenceLine(actionMention);
     const lines = [
-      'Reentrega pronta para este artefato.',
+      'Redelivery ready for this artifact.',
       caption,
       referenceLine,
-      this.buildLabeledLine('Canal original', actionMention.payload?.deliveryChannel),
+      this.buildLabeledLine('Channel original', actionMention.payload?.deliveryChannel),
     ].filter(Boolean);
 
     this.realtime.recordAssistantMessage(
@@ -440,7 +440,7 @@ export class ComposerActionService {
   ): Promise<ComposerActionResult> {
     this.realtime.recordAssistantMessage(
       sessionId,
-      String(message || 'Falha ao executar a acao selecionada.'),
+      String(message || 'Failure ao run a action selecionada.'),
       taskId,
       'composer-action-error',
       [actionMention],
@@ -475,7 +475,7 @@ export class ComposerActionService {
   private resolveArtifactReferenceLine(actionMention: WebComposerMention): string | null {
     const path = String(actionMention.payload?.path || '').trim();
     if (path) {
-      return `Caminho local: ${path}`;
+      return `path local: ${path}`;
     }
 
     const url = String(actionMention.payload?.url || '').trim();
@@ -485,7 +485,7 @@ export class ComposerActionService {
 
     const key = String(actionMention.payload?.key || actionMention.payload?.artifactId || '').trim();
     if (key) {
-      return `Referencia: ${key}`;
+      return `Reference: ${key}`;
     }
 
     return null;

@@ -32,7 +32,7 @@ export class DndService {
     }
 
     if (this.manualDnd) return true;
-    
+
     // Cache the DND result for 5 seconds to avoid freezing the Node Event Loop with exec calls
     if (Date.now() - this.lastCheckTime < 5000) {
        return this.cachedDndState;
@@ -105,10 +105,10 @@ export class DndService {
         }
 
         for (const [chatId, messages] of Object.entries(groupedByChat)) {
-          const combined = "🔇 **Resumo do Modo Não Perturbe** (Janela Cheia Detectada)\n\n" + messages.map((m, i) => `🔹 [Notificação ${i+1}]\n${m}`).join("\n\n---\n");
+          const combined = "🔇 **Do Not Disturb Summary** (Full Window Detected)\n\n" + messages.map((m, i) => `🔹 [Notification ${i+1}]\n${m}`).join("\n\n---\n");
           try {
             await this.botApiAccessor.sendMessage(chatId, combined.substring(0, 3900));
-          } catch (error: unknown) { const err = asErrorLike(error); logger.warn("Falha ao flushar DND buffer: ", err);
+          } catch (error: unknown) { const err = asErrorLike(error); logger.warn("Failed to flush DND buffer: ", err);
           }
         }
       }, 15000);

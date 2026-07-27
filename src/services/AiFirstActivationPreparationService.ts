@@ -88,8 +88,7 @@ export class AiFirstActivationPreparationService {
       ownerApprovalId,
       snapshot,
       commands: this.commands(snapshotPath, ownerApprovalId),
-      message: written
-        ? `Intent model0 snapshot saved to ${snapshotPath}.`
+      message: written ? `Intent model0 snapshot saved to ${snapshotPath}.`
         : `Intent model0 snapshot prepared for ${snapshotPath}; write disabled.`,
     };
   }
@@ -132,9 +131,9 @@ export class AiFirstActivationPreparationService {
         maxHighShadowDivergenceRate: 0,
       },
       samples: [
-        conversationSample('conversation-1', 'Oi, me explique essa ideia.'),
+        conversationSample('conversation-1', 'Hi, explain this idea to me.'),
         conversationSample('conversation-2', 'Me ajude a pensar num nome melhor.'),
-        conversationSample('conversation-3', 'Resuma minha ideia em uma frase simples.'),
+        conversationSample('conversation-3', 'Summarize my idea in one simple sentence.'),
       ],
     });
     const registrySnapshot = registryService.buildRegistry({
@@ -182,7 +181,7 @@ export class AiFirstActivationPreparationService {
         adapterName: 'activation-preparation-adapter',
         requestId: 'activation-preparation-web-conversation-request',
         surface: 'web',
-        userMessage: 'Oi, me explique essa ideia.',
+        userMessage: 'Hi, explain this idea to me.',
         currentDecision: currentConversationDecision('web'),
         switchboardSnapshot,
       }),
@@ -190,7 +189,7 @@ export class AiFirstActivationPreparationService {
         adapterName: 'activation-preparation-adapter',
         requestId: 'activation-preparation-cli-conversation-request',
         surface: 'cli',
-        userMessage: 'Oi, me explique essa ideia.',
+        userMessage: 'Hi, explain this idea to me.',
         currentDecision: currentConversationDecision('cli'),
         switchboardSnapshot,
       }),
@@ -269,7 +268,7 @@ function conversationSample(sampleId: string, text: string): AiFirstShadowBatchR
       proposedActions: [
         {
           kind: 'answer',
-          summary: 'Responder em conversa sem ferramentas.',
+          summary: 'Answer conversationally without tools.',
         },
       ],
     },

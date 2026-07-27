@@ -105,30 +105,13 @@ function isLiveWorkflowJobStatus(status: unknown): boolean {
 }
 
 function inferRequestedTimeZone(text: string): string {
-  const normalized = text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-  if (/\b(brasilia|sao\s+paulo|brazil|brasil)\b/.test(normalized)) return 'America/Sao_Paulo';
-  if (/\b(utc|gmt)\b/.test(normalized)) return 'UTC';
-  if (/\b(new\s+york|nyc|eastern)\b/.test(normalized)) return 'America/New_York';
-  if (/\b(london|londres)\b/.test(normalized)) return 'Europe/London';
-  if (/\b(tokyo|toquio)\b/.test(normalized)) return 'Asia/Tokyo';
+  void text;
   return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 }
 
 function isSimpleDateTimeQuestion(text: string): boolean {
-  const normalized = text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-  const asksTime = /\b(que\s+horas|hora\s+atual|horas\s+sao|what\s+time|current\s+time|tell\s+me\s+the\s+time)\b/.test(
-    normalized,
-  );
-  const asksDate = /\b(que\s+dia|data\s+atual|dia\s+de\s+hoje|what\s+date|today'?s\s+date|current\s+date)\b/.test(
-    normalized,
-  );
-  return asksTime || asksDate;
+  void text;
+  return false;
 }
 
 function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
@@ -295,12 +278,10 @@ export class ExperienceProjectionSupport {
               : 'Procedure learning signal',
         origin: 'llm-brain',
         observedPattern: signal.summary,
-        recommendation: quarantined
-          ? 'Keep quarantined. Learning cannot alter security policy, approvals, sandbox, effect boundary or allowlists.'
+        recommendation: quarantined ? 'Keep quarantined. Learning cannot alter security policy, approvals, sandbox, effect boundary or allowlists.'
           : 'Review this run as a possible reusable skill, Mnemos procedure or nudge before promoting behavior.',
         confidence: quarantined ? 0.2 : 0.82,
-        impact: quarantined
-          ? 'Does not alter behavior.'
+        impact: quarantined ? 'Does not alter behavior.'
           : 'Can improve future routing, procedures or skill suggestions only after approval.',
         dataUsed: [
           llmBrain.summary,
@@ -378,8 +359,8 @@ export class ExperienceProjectionSupport {
         handled: true,
         plan: {
           kind: 'status',
-          title: 'Onde me encontrar',
-          summary: snapshot.reach?.summary || 'Caminhos de alcance',
+          title: 'Where to find me',
+          summary: snapshot.reach?.summary || 'Reach paths',
           nextSafeAction: matched.kind === 'list' ? 'Ask for a telegram guide if you want to set up the phone.' : null,
         } as any,
         snapshot,
@@ -470,7 +451,7 @@ export class ExperienceProjectionSupport {
               ),
             'You can ask directly, without a technical command.',
           ]
-        : ['I could not match a clear superpower. Ask "what can you do?" (or "o que you sabe fazer?") for the list.'];
+        : ['I could not match a clear superpower. Ask "what can you do..." (or "o que you sabe fazer...") for the list.'];
       return {
         ok: true,
         handled: true,

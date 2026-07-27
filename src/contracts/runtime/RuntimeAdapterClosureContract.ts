@@ -2,7 +2,7 @@ import type { ChannelMeshConsistencySnapshot } from '../ChannelMeshConsistencyCo
 import type { ReleaseCertificationSnapshot } from '../ReleaseCertificationContract.js';
 import type { ProviderMeshReadinessSnapshot } from '../ProviderMeshReadinessContract.js';
 
-export const ZAVORTH_RUNTIME_ADAPTER_CLOSURE_CONTRACT_VERSION = '2026-05-04.checkpoint-11';
+export const ZAVORTH_RUNTIME_ADAPTER_CLOSURE_CONTRACT_VERSION = '2026-05-04.gate-11';
 
 export type RuntimeAdapterClosureStatus = 'closed' | 'attention';
 
@@ -62,7 +62,7 @@ export type RuntimeAdapterClosureSnapshot = {
     providerConsistency: string;
     channelConsistency: string;
     certify: string;
-    nextStage: 'Native Capability Closure';
+    nextAction: 'Native Capability Closure';
   };
   policy: {
     closureIsRuntimeClassificationOnly: true;

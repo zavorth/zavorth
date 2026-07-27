@@ -302,7 +302,7 @@ export class AutoRepairService {
       startedAt,
       finishedAt: startedAt,
       requestedBy: String(input.requestedBy || '').trim() || 'unknown',
-      reason: String(input.reason || '').trim() || 'Autoreparo solicitado sem motivo declarado.',
+      reason: String(input.reason || '').trim() || 'Self-repair requested without a declared reason.',
       goal,
       dryRun,
       force,
@@ -327,8 +327,7 @@ export class AutoRepairService {
       bootstrapStepCount: number;
     },
   ): AutoRepairRunResult {
-    report.status = input.dryRun
-      ? 'dry_run'
+    report.status = input.dryRun ? 'dry_run'
       : input.failedBootstrapSteps > 0
         ? 'failed'
         : input.executedBootstrapSteps > 0
@@ -338,9 +337,8 @@ export class AutoRepairService {
     report.summary =
       input.bootstrapStepCount > 0
         ? this.buildRunSummary(report, input.needsReload)
-        : input.dryRun
-          ? 'O runtime parece saudavel. O dry-run nao encontrou reparos ou reload obrigatorios agora.'
-          : 'O runtime parece saudavel. Nenhuma correcao ou recycle adicional foi necessario agora.';
+        : input.dryRun ? 'The runtime looks healthy. The dry-run did not find any repairs or required reloads.'
+          : 'The runtime looks healthy. No additional fix or recycle was needed.';
     this.persistFinalReport(report);
     return {
       success: report.status !== 'failed',
@@ -409,9 +407,8 @@ export class AutoRepairService {
     input: AutoRepairRunInput;
   }): Promise<SupervisedReloadRequestResult> {
     return this.supervisedRuntimeService.requestReload({
-      reason: input.codeRepairSucceeded
-        ? 'Autoreparo validado; recycle supervisionado solicitado.'
-        : 'Reparo ambiental concluido; recycle supervisionado solicitado.',
+      reason: input.codeRepairSucceeded ? 'self-repair validated; supervised recycle requested.'
+        : 'Environmental repair completed; supervised recycle requested.',
       requestedBy: input.report.requestedBy,
       notifyChatId: String(input.input.notifyChatId || '').trim() || null,
       forceRestart:
@@ -494,7 +491,7 @@ export class AutoRepairService {
     this.persistReport(report);
     try {
       this.incidentMemoryService.recordRun(report, this.collectIncidentDomains(report));
-    } catch (error: unknown) {// A memoria operacional nao deve impedir o fluxo principal do autorepair.
+    } catch (error: unknown) {// Operational memory must not block the main autorepair flow.
       logger.warn('[Auto Repair] filesystem operation failed', error);
     }
   }
@@ -515,7 +512,7 @@ export class AutoRepairService {
   public extractStructuredFailure(stdout: string): { testName: string; file: string; line: number; error: string } | null {
     if (!stdout) return null;
 
-    const lines = stdout.split(/\r?\n/);
+    const lines = stdout.split(/\r...\n/);
     let testName = '';
     let file = '';
     let line = 0;
@@ -532,7 +529,7 @@ export class AutoRepairService {
       }
 
       if (insideTestFailure) {
-        const stackMatch = l.match(/at\s+(?:.+?\s+\()?([a-zA-Z0-9_\-\/\\\.]+?\.(?:ts|js)):(\d+):(\d+)\)?/);
+        const stackMatch = l.match(/at\s+(?:.+...\s+\()...([a-zA-Z0-9_\-\/\\\.]+...\.(?:ts|js)):(\d+):(\d+)\).../);
         if (stackMatch) {
           if (!file) {
             file = stackMatch[1].replace(/\\/g, '/');
@@ -551,7 +548,7 @@ export class AutoRepairService {
 
     if (!file) {
       for (const l of lines) {
-        const stackMatch = l.match(/at\s+(?:.+?\s+\()?([a-zA-Z0-9_\-\/\\\.]+?\.(?:ts|js)):(\d+):(\d+)\)?/);
+        const stackMatch = l.match(/at\s+(?:.+...\s+\()...([a-zA-Z0-9_\-\/\\\.]+...\.(?:ts|js)):(\d+):(\d+)\).../);
         if (stackMatch) {
           file = stackMatch[1].replace(/\\/g, '/');
           line = safeParseInt(stackMatch[2], 0);

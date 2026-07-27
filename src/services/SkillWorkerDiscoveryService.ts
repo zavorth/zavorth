@@ -255,7 +255,7 @@ export class SkillWorkerDiscoveryService {
     return result;
   }
 
-  /** Local-only sync helper for CLI/tests (offline). */
+  /** local-only sync helper for CLI/tests (offline). */
   public searchSkillsLocal(query: string, limit = 15): SkillDiscoveryHit[] {
     const q = String(query || '')
       .trim()
@@ -282,12 +282,9 @@ export class SkillWorkerDiscoveryService {
         tags: [...doc.tags, ...doc.tools].slice(0, 20),
         score: doc.score + (doc.installed ? 0.1 : 0),
         trustBand: doc.installed ? 'allow' : 'review',
-        installHint: doc.installed
-          ? `already installed: ${doc.id}`
-          : doc.sourcePath
-            ? `zavorth skill preview ${doc.sourcePath}`
-            : doc.sourceUrl
-              ? `zavorth skill preview ${doc.sourceUrl}`
+        installHint: doc.installed ? `already installed: ${doc.id}`
+          : doc.sourcePath ? `zavorth skill preview ${doc.sourcePath}`
+            : doc.sourceUrl ? `zavorth skill preview ${doc.sourceUrl}`
               : `zavorth skill info ${doc.id}`,
       });
     }
@@ -327,10 +324,8 @@ export class SkillWorkerDiscoveryService {
         tags: Array.isArray(entry.tags) ? entry.tags.map(String) : [],
         score,
         trustBand: entry.trustLevel || null,
-        installHint: installed
-          ? `already installed: ${id}`
-          : entry.sourceUrl
-            ? `zavorth skill preview ${entry.sourceUrl}`
+        installHint: installed ? `already installed: ${id}`
+          : entry.sourceUrl ? `zavorth skill preview ${entry.sourceUrl}`
             : `zavorth skill info ${id}`,
       });
     }
@@ -390,8 +385,7 @@ export class SkillWorkerDiscoveryService {
             evidence: [`MCP config ${path.basename(mcpFile)} server=${name}`],
             score: 0.7 + (q ? textScore(q, name) : 0.1),
             alreadyRegistered: registered.has(id),
-            registerPreview: cfg.url
-              ? `agent_manager register target=${cfg.url} id=${id} (preview — dry until approval)`
+            registerPreview: cfg.url ? `agent_manager register target=${cfg.url} id=${id} (preview — dry until approval)`
               : `agent_manager register target=${cfg.command || name} id=${id} adapter=mcp (preview)`,
           });
         }
@@ -608,10 +602,8 @@ function hashId(s: string): string {
 function formatDiscoveryText(r: SkillWorkerDiscoveryResult): string {
   const lines = [
     `Discovery for "${r.query || '(all)'}"${r.offline ? ' [offline/local]' : ' [remote+local]'}`,
-    r.usedLlmRank
-      ? `LLM rank: on (${r.llmRankReason || 'closed candidate list'})`
-      : r.llmRankReason
-        ? `LLM rank: off (${r.llmRankReason})`
+    r.usedLlmRank ? `LLM rank: on (${r.llmRankReason || 'closed candidate list'})`
+      : r.llmRankReason ? `LLM rank: off (${r.llmRankReason})`
         : 'LLM rank: off (deterministic order)',
     '',
     `Skills (${r.skills.length}):`,
@@ -620,7 +612,7 @@ function formatDiscoveryText(r: SkillWorkerDiscoveryResult): string {
     lines.push('  (none)');
   } else {
     for (const s of r.skills.slice(0, 12)) {
-      lines.push(`  - [${s.source}] ${s.name} score=${s.score.toFixed(2)}${s.installed ? ' [installed]' : ''}`);
+      lines.push(`  ? [${s.source}] ${s.name} score=${s.score.toFixed(2)}${s.installed ? ' [installed]' : ''}`);
       if (s.description) lines.push(`      ${s.description.slice(0, 120)}`);
       lines.push(`      ${s.installHint}`);
     }
@@ -636,7 +628,7 @@ function formatDiscoveryText(r: SkillWorkerDiscoveryResult): string {
     lines.push('  (none in workspace scan)');
   } else {
     for (const w of r.workers.slice(0, 10)) {
-      lines.push(`  - ${w.id} [${w.adapter}] ${w.label}${w.alreadyRegistered ? ' [registered]' : ''}`);
+      lines.push(`  ? ${w.id} [${w.adapter}] ${w.label}${w.alreadyRegistered ? ' [registered]' : ''}`);
       lines.push(`      ${w.registerPreview}`);
       lines.push(`      evidence: ${w.evidence.join('; ')}`);
     }

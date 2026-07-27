@@ -190,10 +190,8 @@ export class EngineeringCoreService {
       scopeKey: input.scope ? this.scopeToKey(input.scope) : null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      status: requirementGaps.some((gap) => gap.blocking)
-        ? 'waiting_user'
-        : session
-          ? 'session_ready'
+      status: requirementGaps.some((gap) => gap.blocking) ? 'waiting_user'
+        : session ? 'session_ready'
           : 'ready',
       request,
       intent,
@@ -231,7 +229,7 @@ export class EngineeringCoreService {
         ...snapshot,
         status: 'dispatched',
         linkedTaskId: ((dispatchResult.task as Record<string, unknown>)?.id || (dispatchResult.task as Record<string, unknown>)?.task_id || null) as string | null,
-        replySummary: `${replySummary}\n\nAbri a tarefa canonica ${dispatchResult.task?.task_id || 'n/d'} para seguir com esse run.`,
+        replySummary: `${replySummary}\n\nOpened canonical task ${dispatchResult.task?.task_id || 'n/d'} to continue this run.`,
       };
     }
 
@@ -256,7 +254,7 @@ export class EngineeringCoreService {
       return this.ledgerService.saveRun({
         ...run,
         status: 'ready',
-        replySummary: `${run.replySummary}\n\nO run esta pronto, mas esta surface nao expoe dispatcher suficiente para seguir daqui.`,
+        replySummary: `${run.replySummary}\n\nThe run is ready, but this surface does not expose enough dispatcher support to continue from here.`,
       });
     }
 
@@ -275,7 +273,7 @@ export class EngineeringCoreService {
       ...run,
       status: 'dispatched',
       linkedTaskId: ((dispatchResult.task as Record<string, unknown>)?.id || (dispatchResult.task as Record<string, unknown>)?.task_id || null) as string | null,
-      replySummary: `${run.replySummary}\n\nSegui com o fluxo canonico e abri a tarefa ${dispatchResult.task?.task_id || 'n/d'}.`,
+      replySummary: `${run.replySummary}\n\nI followed the canonical flow and opened the task ${dispatchResult.task?.task_id || 'n/d'}.`,
     });
   }
 
@@ -310,7 +308,7 @@ export class EngineeringCoreService {
     requestedBy?: string | null;
   }): Promise<EngineeringRunSnapshot> {
     if (!this.selfModificationCommandService) {
-      throw new Error('Selfmod canonico indisponivel para propor patch no Engineering Core.');
+      throw new Error('Selfmod canonical unavailable para propor patch no Engineering Core.');
     }
     const run = this.requireRun(input.runId);
     const preview = await this.selfModificationCommandService.createPreview(
@@ -346,21 +344,21 @@ export class EngineeringCoreService {
         ...run.plan,
         patchProposal: this.previewToPatchProposal(preview, input.filePath),
       },
-      replySummary: `${run.replySummary}\n\nPatch preview criado (${preview.previewId}) para ${preview.relativePath || input.filePath}.`,
+      replySummary: `${run.replySummary}\n\nPatch preview created (${preview.previewId}) para ${preview.relativePath || input.filePath}.`,
     });
   }
 
   public async applyPatch(runId: string): Promise<EngineeringRunSnapshot> {
     const run = this.requireRun(runId);
     if (!run.plan.patchProposal) {
-      throw new Error('Nenhum patch proposto neste run.');
+      throw new Error('No patch proposto neste run.');
     }
     if (!this.selfModificationCommandService) {
-      throw new Error('Selfmod canonico indisponivel para aplicar patch no Engineering Core.');
+      throw new Error('Canonical self-modification is unavailable for applying the Engineering Core patch.');
     }
     const previewId = String(run.plan.patchProposal.previewId || '').trim();
     if (!previewId) {
-      throw new Error('Patch proposto sem previewId aplicavel.');
+      throw new Error('Patch proposto without previewId applicable.');
     }
     const apply = await this.selfModificationCommandService.applyPreview(
       previewId,
@@ -374,21 +372,21 @@ export class EngineeringCoreService {
         patchProposal,
       },
       status: apply.success ? 'ready' : 'failed',
-      replySummary: `${run.replySummary}\n\n${apply.success ? 'Patch aplicado com selfmod canonico.' : 'Patch nao foi aplicado.'} ${apply.summary}`,
+      replySummary: `${run.replySummary}\n\n${apply.success ? 'Patch applied with canonical selfmod.' : 'Patch was not applied.'} ${apply.summary}`,
     });
   }
 
   public async rollbackRun(runId: string): Promise<EngineeringRunSnapshot> {
     const run = this.requireRun(runId);
     if (!run.plan.patchProposal) {
-      throw new Error('Nenhum patch proposto neste run para rollback.');
+      throw new Error('No patch proposto neste run para rollback.');
     }
     if (!this.selfModificationCommandService) {
-      throw new Error('Selfmod canonico indisponivel para rollback no Engineering Core.');
+      throw new Error('Selfmod canonical unavailable para rollback no Engineering Core.');
     }
     const changeId = String(run.plan.patchProposal.changeId || '').trim();
     if (!changeId) {
-      throw new Error('Patch ainda nao tem changeId aplicado para rollback.');
+      throw new Error('Patch does not yet have applied changeId for rollback.');
     }
     const rollback = await this.selfModificationCommandService.rollbackChangeSet(
       changeId,
@@ -405,7 +403,7 @@ export class EngineeringCoreService {
         },
       },
       status: rollback.success ? 'ready' : 'failed',
-      replySummary: `${run.replySummary}\n\n${rollback.success ? 'Rollback aplicado com selfmod canonico.' : 'Rollback nao foi aplicado.'} ${rollback.summary}`,
+      replySummary: `${run.replySummary}\n\n${rollback.success ? 'Rollback applied with canonical selfmod.' : 'Rollback was not applied.'} ${rollback.summary}`,
     });
   }
 
@@ -419,12 +417,12 @@ export class EngineeringCoreService {
     metadata?: Record<string, unknown> | null;
   }): Promise<EngineeringRunSnapshot> {
     if (!this.executionGatewayService) {
-      throw new Error('Execution Gateway supervisionado indisponivel para este Engineering Core.');
+      throw new Error('Execution Gateway supervised unavailable para este Engineering Core.');
     }
     const run = this.requireRun(input.runId);
     const command = String(input.command || '').trim();
     if (!command) {
-      throw new Error('command obrigatorio para run-command.');
+      throw new Error('command required para run-command.');
     }
     const action = await this.executionGatewayService.execute({
       runId: run.runId,
@@ -463,7 +461,7 @@ export class EngineeringCoreService {
     maxAttempts?: number | null;
   }): Promise<EngineeringRunSnapshot> {
     if (!this.runLoopService) {
-      throw new Error('Loop supervisionado de engenharia indisponivel para este Engineering Core.');
+      throw new Error('Loop supervised de engenharia unavailable para este Engineering Core.');
     }
     const run = this.requireRun(input.runId);
     const result = await this.runLoopService.execute({
@@ -500,7 +498,7 @@ export class EngineeringCoreService {
   private requireRun(runId: string): EngineeringRunSnapshot {
     const run = this.ledgerService.getRun(runId);
     if (!run) {
-      throw new Error('Run de engenharia nao encontrado.');
+      throw new Error('Engineering run not found.');
     }
     return run;
   }
@@ -508,7 +506,7 @@ export class EngineeringCoreService {
   private requireIntent(request: EngineeringIntentRequest): EngineeringIntent {
     const parsed = this.intentService.parse(request);
     if (!parsed) {
-      throw new Error('Pedido nao reconhecido como fluxo de engenharia.');
+      throw new Error('Request not recognized as engineering flow.');
     }
     return parsed;
   }
@@ -516,19 +514,19 @@ export class EngineeringCoreService {
   private buildPlan(intent: EngineeringIntent, requirementGaps: RequirementGap[]): EngineeringPlan {
     const actions: EngineeringAction[] = [];
     if (intent.kind !== 'system_overlord_operation') {
-      actions.push({ kind: 'inspect_fs', label: 'Montar contexto automatico do workspace' });
+      actions.push({ kind: 'inspect_fs', label: 'Assemble automatic workspace context' });
     }
 
     if (intent.kind === 'diagnose_build' || intent.kind === 'install_and_retry' || intent.kind === 'system_overlord_operation') {
-      actions.push({ kind: 'run_command', label: 'Executar ou preparar a etapa de build/test' });
+      actions.push({ kind: 'run_command', label: 'run ou preparar a stage de build/test' });
     }
     if (intent.kind === 'create_project') {
       actions.push({ kind: 'run_command', label: 'Preparar bootstrap do projeto' });
     }
     if (requirementGaps.length > 0) {
-      actions.push({ kind: 'ask_user', label: 'Negociar pendencias de ambiente ou aprovacao' });
+      actions.push({ kind: 'ask_user', label: 'Negotiate environment or approval pending items' });
     }
-    actions.push({ kind: 'finalize_run', label: 'Registrar ledger e proximo passo' });
+    actions.push({ kind: 'finalize_run', label: 'Registrar ledger e next passo' });
 
     const repairProposal = intent.kind === 'diagnose_build'
       ? this.repairPlannerService.planFromFailure({
@@ -539,8 +537,8 @@ export class EngineeringCoreService {
 
     return {
       summary: intent.kind === 'system_overlord_operation'
-        ? `Engineering Core preparou uma acao supervisionada de ${intent.preferredCapability || 'runtime control'}.`
-        : `Engineering Core preparado para ${intent.kind}.`,
+        ? `Engineering Core preparou uma action supervised de ${intent.preferredCapability || 'runtime control'}.`
+        : `Engineering Core prepared para ${intent.kind}.`,
       profile: intent.preferredProfile,
       actions,
       repairProposal,
@@ -613,15 +611,15 @@ export class EngineeringCoreService {
 
   private summarizeHostAction(action: SystemOverlordActionRecord): string {
     if (action.status === 'completed') {
-      return `Execution Gateway concluiu ${action.decision.capability} em ${action.decision.runtimeTarget}.`;
+      return `Execution Gateway completed ${action.decision.capability} em ${action.decision.runtimeTarget}.`;
     }
     if (action.status === 'dry_run') {
-      return `Execution Gateway validou em dry-run: ${action.decision.reason}`;
+      return `Execution Gateway validated in dry-run: ${action.decision.reason}`;
     }
     if (action.status === 'pending_approval') {
-      return `Execution Gateway aguardando aprovacao: ${action.decision.reason}`;
+      return `Execution Gateway waiting for approval: ${action.decision.reason}`;
     }
-    return `Execution Gateway bloqueou/falhou: ${action.errorMessage || action.decision.reason}`;
+    return `Execution Gateway bloqueou/failed: ${action.errorMessage || action.decision.reason}`;
   }
 
   private shouldUseSupervisedLoop(run: EngineeringRunSnapshot): boolean {
@@ -633,25 +631,12 @@ export class EngineeringCoreService {
   }
 
   private textApproves(rawText: string): boolean {
-    return /^(sim|pode|can continue|sim can continue|sim pode instalar|aplique|execute|rode|continua|continue)$/i.test(
-      String(rawText || '').trim(),
-    );
+    void rawText;
+    return false;
   }
 
   private parseFollowup(rawText: string): 'continue' | 'status' | 'next_step' | null {
-    const normalized = String(rawText || '').trim().toLowerCase();
-    if (!normalized) {
-      return null;
-    }
-    if (/^(continue|continua|segue|can continue|prossiga|sim pode instalar|sim can continue)$/i.test(normalized)) {
-      return 'continue';
-    }
-    if (/^(status do run|status disso|e agora\?|deu certo\?)$/i.test(normalized)) {
-      return 'status';
-    }
-    if (/(o que falta( para continuar)?|qual o proximo passo)/i.test(normalized)) {
-      return 'next_step';
-    }
+    void rawText;
     return null;
   }
 

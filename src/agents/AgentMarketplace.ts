@@ -198,8 +198,8 @@ export class AgentMarketplace {
     }
 
     for (const agent of agents) {
-      const verified = agent.verified ? '✓' : ' ';
-      const rating = agent.rating > 0 ? `${'★'.repeat(Math.round(agent.rating))}${'☆'.repeat(5 - Math.round(agent.rating))}` : 'No ratings';
+      const verified = agent.verified ? 'OK' : ' ';
+      const rating = agent.rating > 0 ? `${'*'.repeat(Math.round(agent.rating))}${'.'.repeat(5 - Math.round(agent.rating))}` : 'No ratings';
       lines.push(`  ${verified} ${agent.name} v${agent.version} (${agent.author})`);
       lines.push(`    ${agent.description}`);
       lines.push(`    ${rating} | ${agent.downloads} downloads | ${agent.adapter}`);

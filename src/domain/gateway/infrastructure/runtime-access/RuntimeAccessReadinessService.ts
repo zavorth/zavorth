@@ -313,7 +313,7 @@ export class RuntimeAccessReadinessService {
             ok: false,
             targetUrl,
             statusCode: null,
-            error: String(error?.message || 'falha de rede'),
+            error: String(error?.message || 'failure de rede'),
           });
         });
         request.end();

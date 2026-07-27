@@ -255,20 +255,20 @@ export function normalizeAction(value: unknown): ZavorthSubagentRuntimeAction {
 }
 
 export function resolveExecutionMode(
-  input: Partial<Pick<ZavorthSubagentRuntimeCommandInput, 'executionMode' | 'live' | 'mockLive'>>,
+  input: Partial<Pick<ZavorthSubagentRuntimeCommandInput, 'executionMode' | 'live' | 'dryLive'>>,
   fallback?: ZavorthSubagentRuntimeExecutionMode | string | null,
 ): ZavorthSubagentRuntimeExecutionMode {
   const explicit = String(input.executionMode || '')
     .trim()
     .toLowerCase();
-  if (explicit === 'mock-live' || input.mockLive === true) return 'mock-live';
+  if (explicit === 'dry-live' || input.dryLive === true) return 'dry-live';
   if (explicit === 'live-llm' || explicit === 'live' || input.live === true) return 'live-llm';
   if (explicit === 'governed-in-process' || explicit === 'in-process' || explicit === 'plan')
     return 'governed-in-process';
   const inherited = String(fallback || '')
     .trim()
     .toLowerCase();
-  if (inherited === 'mock-live') return 'mock-live';
+  if (inherited === 'dry-live') return 'dry-live';
   if (inherited === 'live-llm') return 'live-llm';
   return 'governed-in-process';
 }

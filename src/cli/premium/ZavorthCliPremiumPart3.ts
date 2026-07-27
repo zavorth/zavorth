@@ -88,7 +88,7 @@ export async function runAcp(rawArgs: string[] = []): Promise<number> {
     const receipt = await service.run({
       prompt: readFlexibleStringFlag(nextArgs, 'prompt') || nextArgs.find((arg) => !arg.startsWith('--')) || 'ping',
       serverId: readFlexibleStringFlag(nextArgs, 'server') || 'local-acp',
-      transport: nextArgs.includes('--stdio') || nextArgs.includes('--acp-sdk-stdio') ? 'acp-sdk-stdio' : 'mock-jsonrpc',
+      transport: nextArgs.includes('--stdio') || nextArgs.includes('--acp-sdk-stdio') ? 'acp-sdk-stdio' : 'local-jsonrpc',
       stdioCommand: readFlexibleStringFlag(nextArgs, 'stdio-command') || undefined,
       stdioArgs: readFlexibleStringFlag(nextArgs, 'stdio-args')?.split(/\s+/).filter(Boolean),
       timeoutMs: Number(readFlexibleStringFlag(nextArgs, 'timeout-ms') || 0) || undefined,
@@ -246,8 +246,7 @@ export async function runRuntimeReadinessFixProvider(rawArgs: string[] = []): Pr
       `runtime=${readiness.status}`,
       `proof_store=${liveProofStore.filePath}`,
       '',
-      passed
-        ? 'Provider validated with persisted live proof. Run zavorth readiness to inspect the daily state.'
+      passed ? 'Provider validated with persisted live proof. Run zavorth readiness to inspect the daily state.'
         : selected?.probe.summary || 'Live probe could not validate the provider.',
     ], passed ? 'success' : 'warning');
   }

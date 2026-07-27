@@ -1,7 +1,7 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 import type { MediaGenerationModality } from './MediaGenerationContract.js';
 
-export const ZAVORTH_MEDIA_GENERATION_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-checkpoint-6' as const;
+export const ZAVORTH_MEDIA_GENERATION_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-gate-6' as const;
 
 export type MediaGenerationLiveTargetId =
   | 'image-generation-core'
@@ -18,7 +18,7 @@ export type MediaGenerationLiveStatus =
   | 'video-live'
   | 'image-video-live'
   | 'local-image-video-live'
-  | 'routed-to-checkpoint-7'
+  | 'routed-to-gate-7'
   | 'blocked';
 
 export type MediaGenerationLiveAdapterFamily =
@@ -36,7 +36,7 @@ export type MediaGenerationLiveGateKind =
   | 'provider-evidence'
   | 'safety-policy'
   | 'configured-doctor'
-  | 'mock-smoke'
+  | 'dry-smoke'
   | 'staging-live-smoke'
   | 'redacted-receipt';
 
@@ -132,6 +132,6 @@ export type MediaGenerationLivePlaneSnapshot = {
     stagingLiveSmoke: 'npm run media-generation-live-plane -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Surface controls - Speech, TTS And Voice Live Plane';
+    nextAction: 'Surface controls - Speech, TTS And Voice Live Plane';
   };
 };

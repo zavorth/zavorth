@@ -23,8 +23,7 @@ export class SwarmExecutor implements IExecutor {
     const defaultIsolation = process.env.ZAVORTH_SWARM_DEFAULT_ISOLATION;
     const isIsolated = defaultIsolation === 'docker' || (defaultIsolation === 'wsl' && process.platform === 'win32');
 
-    const zavorthCliPath = isIsolated
-      ? './dist/zavorth-cli.js'
+    const zavorthCliPath = isIsolated ? './dist/zavorth-cli.js'
       : (process.env.ZAVORTH_CLI_PATH || path.resolve(process.cwd(), 'dist/zavorth-cli.js'));
 
     const baseCommand = isIsolated ? 'node' : process.execPath;
@@ -112,7 +111,7 @@ export class SwarmExecutor implements IExecutor {
       success,
       started_at: startedAt,
       finished_at: new Date().toISOString(),
-      actions_executed: [`Swarm Multi-Agent Workflow com ${roles.length} roles`] ,
+      actions_executed: [`Swarm Multi-Agent Workflow with ${roles.length} roles`] ,
       files_read: request.allowed_paths || [],
       files_written: request.allowed_paths || [],
       files_deleted: [],

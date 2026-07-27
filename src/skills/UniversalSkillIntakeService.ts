@@ -142,25 +142,25 @@ const UNSAFE_TEXT_PATTERNS: Array<{
   },
   {
     code: 'script-auto-executable',
-    regex: /(?:^|\n)\s*(?:(?:run|execute|exec|delete|remove)\b[^\n]{0,80})?\brm\s+-rf\s+\/(?:\s|$)/i,
+    regex: /(?:^|\n)\s*(?:(?:run|execute|exec|delete|remove)\b[^\n]{0,80})...\brm\s+-rf\s+\/(?:\s|$)/i,
     message: 'Destructive full-removal command detected.',
     severity: 'error',
   },
   {
     code: 'script-auto-executable',
-    regex: /(?:^|\n)\s*(?:(?:run|execute|exec|delete|remove)\b[^\n]{0,80})?\bRemove-Item\s+-Recurse\s+-Force\s+(?:[A-Za-z]:\\|\/)/i,
+    regex: /(?:^|\n)\s*(?:(?:run|execute|exec|delete|remove)\b[^\n]{0,80})...\bRemove-Item\s+-Recurse\s+-Force\s+(?:[A-Za-z]:\\|\/)/i,
     message: 'Destructive PowerShell command detected.',
     severity: 'error',
   },
   {
     code: 'script-auto-executable',
-    regex: /(?:^|\n)\s*(?:(?:please|now|then)\s+)?(?:(?:you\s+(?:must|should|will)\s+)?)?(?:(?:ignore|bypass)[^\n]{0,80}\band\s+)?(?:steal|harvest|dump)\b[^\n]{0,100}\b(?:credential|token|cookie|password|secret|api[_ -]?key)s?\b/i,
+    regex: /(?:^|\n)\s*(?:(?:please|now|then)\s+)...(?:(?:you\s+(?:must|should|will)\s+)...)...(?:(?:ignore|bypass)[^\n]{0,80}\band\s+)...(?:steal|harvest|dump)\b[^\n]{0,100}\b(?:credential|token|cookie|password|secret|api[_ -]...key)s...\b/i,
     message: 'Explicit credential exfiltration or theft pattern detected.',
     severity: 'error',
   },
   {
     code: 'script-auto-executable',
-    regex: /(?:^|\n)\s*(?:(?:please|now|then)\s+)?(?:(?:you\s+(?:must|should|will)\s+)?)?(?:(?:ignore|bypass)[^\n]{0,80}\band\s+)?exfiltrat(?:e|ed|ing)\b[^\n]{0,100}\b(?:credential|token|cookie|password|secret|api[_ -]?key)s?\b/i,
+    regex: /(?:^|\n)\s*(?:(?:please|now|then)\s+)...(?:(?:you\s+(?:must|should|will)\s+)...)...(?:(?:ignore|bypass)[^\n]{0,80}\band\s+)...exfiltrat(?:e|ed|ing)\b[^\n]{0,100}\b(?:credential|token|cookie|password|secret|api[_ -]...key)s...\b/i,
     message: 'Explicit instruction to exfiltrate credentials detected.',
     severity: 'error',
   },
@@ -260,7 +260,7 @@ export class UniversalSkillIntakeService {
         inspect: 'npm run zavorth:universal-skill-intake -- --source <path>',
         inspectJson: 'npm run zavorth:universal-skill-intake:json -- --source <path>',
         check: 'npm run zavorth:universal-skill-intake:check --silent',
-        nextStage: 'Preview engine - Trust-Governed Import Pipeline',
+        nextAction: 'Preview engine - Trust-Governed Import Pipeline',
       },
     };
   }
@@ -304,7 +304,7 @@ export class UniversalSkillIntakeService {
       }
     }
 
-    lines.push('', `Next: ${preview.commands.nextStage}`);
+    lines.push('', `Next: ${preview.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -471,7 +471,7 @@ export class UniversalSkillIntakeService {
       const importable = this.isImportableTextPath(relativePath);
       if (script) {
         files.push(skippedVirtualFile(relativePath, null));
-        issues.push(issue('error', 'script-auto-executable', 'Script executavel ignorado no preview universal.', relativePath, sourcePath));
+        issues.push(issue('error', 'script-auto-executable', 'Executable script ignored in universal preview.', relativePath, sourcePath));
         continue;
       }
       if (!importable) {
@@ -532,7 +532,7 @@ export class UniversalSkillIntakeService {
     const importable = this.isImportableTextPath(input.relativePath);
 
     if (script) {
-      input.issues.push(issue('error', 'script-auto-executable', 'Script executavel ignorado no preview universal.', input.relativePath, input.absolutePath));
+      input.issues.push(issue('error', 'script-auto-executable', 'Executable script ignored in universal preview.', input.relativePath, input.absolutePath));
       return skippedVirtualFile(input.relativePath, input.size, input.absolutePath);
     }
     if (!importable) {
@@ -871,22 +871,8 @@ export class UniversalSkillIntakeService {
       return 'blocked';
     }
 
-    const normalized = `${text} ${declaredTools.join(' ')}`.toLowerCase();
-    if (/\b(oauth|token|api[_ -]?key|secret|credential|webhook)\b/.test(normalized)) {
-      return 'connector-live-secretref';
-    }
-    if (/\b(shell|exec|execute|command|docker|mcp|tool|spawn|process)\b/.test(normalized)) {
-      return 'tool-execution-approval';
-    }
-    if (/\b(write|edit|delete|remove|commit|deploy|publish|upload|mutate|patch)\b/.test(normalized)) {
-      return 'workspace-write-approval';
-    }
-    if (/\b(fetch|http|https|web|network|search|crawl|scrape|browser)\b/.test(normalized)) {
-      return 'network-read-approval';
-    }
-    if (/\b(read|files?|workspace|documents?|docs?|repo|repository)\b/.test(normalized)) {
-      return 'workspace-read';
-    }
+    void text;
+    if (declaredTools.length > 0) return 'tool-execution-approval';
     return 'local-readonly';
   }
 
@@ -894,19 +880,10 @@ export class UniversalSkillIntakeService {
     text: string,
     profileId: ZavorthUniversalSkillSourceProfileId,
   ): ZavorthUniversalSkillCapabilityTag[] {
-    const normalized = text.toLowerCase();
+    void text;
     const tags = new Set<ZavorthUniversalSkillCapabilityTag>();
     if (profileId === 'mcp-tool-pack') tags.add('mcp');
     if (profileId === 'plugin-manifest' || profileId === 'agent-extension') tags.add('plugin');
-    if (/\b(browser|chrome|page|dom|screenshot)\b/.test(normalized)) tags.add('browser');
-    if (/\b(code|repo|typescript|javascript|python|debug|test)\b/.test(normalized)) tags.add('code');
-    if (/\b(data|csv|json|database|sql)\b/.test(normalized)) tags.add('data');
-    if (/\b(doc|document|pdf|markdown|report)\b/.test(normalized)) tags.add('document');
-    if (/\b(research|search|investigate|evidence)\b/.test(normalized)) tags.add('research');
-    if (/\b(security|threat|risk|audit|vulnerability)\b/.test(normalized)) tags.add('security');
-    if (/\b(slack|telegram|discord|gmail|calendar|connector|oauth)\b/.test(normalized)) tags.add('app-connector');
-    if (/\b(automation|workflow|runbook|process)\b/.test(normalized)) tags.add('workflow');
-    if (/\b(shell|exec|command|tool)\b/.test(normalized)) tags.add('automation');
     if (tags.size === 0) tags.add('workflow');
     return Array.from(tags.values()).sort((left, right) => left.localeCompare(right, 'en-US'));
   }
@@ -924,7 +901,7 @@ export class UniversalSkillIntakeService {
       const duplicateIssue = issue(
         'error',
         'duplicate-skill',
-        `Skill duplicada conflita com ${existing.manifest.relativeSkillPath}.`,
+        `Duplicate skill conflicts with ${existing.manifest.relativeSkillPath}.`,
         candidate.manifest.relativeSkillPath,
       );
       candidate.issues.push(duplicateIssue);
@@ -1105,7 +1082,7 @@ function objectValueArray(value: unknown, key: string): unknown[] | null {
 }
 
 function parseFrontmatter(text: string): Record<string, unknown> {
-  const match = text.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
+  const match = text.match(/^---\s*\r...\n([\s\S]*...)\r...\n---/);
   if (!match) {
     return {};
   }
@@ -1124,15 +1101,15 @@ function extractMarkdownTitle(text: string): string | null {
   if (frontmatterName) {
     return frontmatterName;
   }
-  const withoutFrontmatter = text.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*/, '');
+  const withoutFrontmatter = text.replace(/^---\s*\r...\n[\s\S]*...\r...\n---\s*/, '');
   const match = withoutFrontmatter.match(/^\s*#\s+(.+)$/m);
   return match ? match[1].trim() : null;
 }
 
 function firstParagraph(text: string): string | null {
-  const withoutFrontmatter = text.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*/, '');
+  const withoutFrontmatter = text.replace(/^---\s*\r...\n[\s\S]*...\r...\n---\s*/, '');
   const paragraphs = withoutFrontmatter
-    .split(/\r?\n\r?\n/g)
+    .split(/\r...\n\r...\n/g)
     .map((entry) => entry.replace(/^#+\s+/gm, '').trim())
     .filter(Boolean);
   return paragraphs.find((entry) => !entry.startsWith('```')) || null;
@@ -1143,7 +1120,7 @@ function firstSentence(text: string): string | null {
   if (!paragraph) {
     return null;
   }
-  const sentence = paragraph.split(/(?<=[.!?])\s+/)[0]?.trim();
+  const sentence = paragraph.split(/(...<=[.!...])\s+/)[0]?.trim();
   return sentence || paragraph.slice(0, 180);
 }
 

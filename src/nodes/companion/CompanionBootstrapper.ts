@@ -5,7 +5,8 @@ import { resolveZavorthLocalStateFile } from '../../config/localStatePaths.js';
 import { safeFetch } from '../../security/SafeFetchService.js';
 import { NodeHostCapabilityService } from '../../services/NodeHostCapabilityService.js';
 import { NodeCredentials, NodePairingManager } from '../pairing/NodePairingManager.js';
-import { CapabilityId, DeviceCapabilityPolicy } from '../policy/DeviceCapabilityPolicy.js';type CompanionFetchResponse = {
+import { CapabilityId, DeviceCapabilityPolicy } from '../policy/DeviceCapabilityPolicy.js';
+type CompanionFetchResponse = {
   ok: boolean;
   status: number;
   json: () => Promise<any>;
@@ -266,7 +267,7 @@ export class CompanionBootstrapper {
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok || payload?.ok === false) {
-      throw new Error(payload?.error || `Falha HTTP ${response.status} ao falar com o Node Mesh.`);
+      throw new Error(payload?.error || `HTTP ${response.status} failure while contacting Node Mesh.`);
     }
     return payload;
   }
@@ -319,7 +320,7 @@ export class CompanionBootstrapper {
     return {
       invocationId,
       ok: false,
-      resultSummary: `Capability ${capabilityId} bloqueada pela allowlist local do companion.`,
+      resultSummary: `Capability ${capabilityId} blocked by the local companion allowlist.`,
       stdout: null,
       stderr: `capability blocked locally: ${capabilityId}`,
       exitCode: null,

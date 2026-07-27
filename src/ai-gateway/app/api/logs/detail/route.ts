@@ -42,8 +42,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     success: true,
     enabled,
-    message: enabled
-      ? "Pipeline capture enabled. New request artifacts will include per-stage payloads."
+    message: enabled ? "Pipeline capture enabled. New request artifacts will include per-stage payloads."
       : "Pipeline capture disabled.",
   });
 }

@@ -30,7 +30,7 @@ export type CapabilityAutopilotCanaryPromotionOptions = {
   rollbackTriggered?: boolean;
   rollbackRecommended?: boolean;
   supportLoadOk?: boolean;
-  negativeFeedbackPercent?: number;
+  denytiveFeedbackPercent?: number;
   maxNegativeFeedbackPercent?: number;
   canaryCohortStable?: boolean;
   promotionApproved?: boolean;
@@ -102,7 +102,7 @@ export type CapabilityAutopilotCanaryPromotionSnapshot = {
   };
   feedback: {
     supportLoadOk: boolean;
-    negativeFeedbackPercent: number;
+    denytiveFeedbackPercent: number;
     maxNegativeFeedbackPercent: number;
     feedbackSummaryId: string | null;
   };
@@ -166,7 +166,7 @@ type ResolvedOptions = {
   rollbackTriggered: boolean;
   rollbackRecommended: boolean;
   supportLoadOk: boolean;
-  negativeFeedbackPercent: number;
+  denytiveFeedbackPercent: number;
   maxNegativeFeedbackPercent: number;
   canaryCohortStable: boolean;
   promotionApproved: boolean;
@@ -251,7 +251,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       },
       feedback: {
         supportLoadOk: resolved.supportLoadOk,
-        negativeFeedbackPercent: resolved.negativeFeedbackPercent,
+        denytiveFeedbackPercent: resolved.denytiveFeedbackPercent,
         maxNegativeFeedbackPercent: resolved.maxNegativeFeedbackPercent,
         feedbackSummaryId: options.feedbackSummaryId || null,
       },
@@ -287,7 +287,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
         gate: 'consolidation',
         title: 'Capability Autopilot Release Readiness Consolidation',
         reason:
-          'Nao ha nova etapa automatica recomendada; o proximo passo e integrar o release readiness consolidado ao produto real e medir uso antes de criar novos gates.',
+          'There is no new automatic step recommended; the next step is integrating consolidated release readiness into the real product and measuring usage before creating new gates.',
       },
       metadata: {
         gate: 'capability-autopilot-canary-monitoring-promotion',
@@ -325,7 +325,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       }
     }
     lines.push('');
-    lines.push(`proxima etapa recommended: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next stage recommended: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -354,7 +354,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       rollbackTriggered: options.rollbackTriggered === true,
       rollbackRecommended: options.rollbackRecommended === true,
       supportLoadOk: options.supportLoadOk === true,
-      negativeFeedbackPercent: this.resolveNumber(options.negativeFeedbackPercent, 0),
+      denytiveFeedbackPercent: this.resolveNumber(options.denytiveFeedbackPercent, 0),
       maxNegativeFeedbackPercent: this.resolveNumber(options.maxNegativeFeedbackPercent, 0),
       canaryCohortStable: options.canaryCohortStable === true,
       promotionApproved: options.promotionApproved === true,
@@ -424,8 +424,8 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
     if (!options.supportLoadOk) {
       blockers.push('support_load_not_ok');
     }
-    if (options.negativeFeedbackPercent > options.maxNegativeFeedbackPercent) {
-      blockers.push('negative_feedback_budget_exceeded');
+    if (options.denytiveFeedbackPercent > options.maxNegativeFeedbackPercent) {
+      blockers.push('denytive_feedback_budget_exceeded');
     }
     if (!options.canaryCohortStable) {
       blockers.push('canary_cohort_not_stable');
@@ -469,7 +469,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
         'capability-autopilot-canary-promotion:source-ready',
         'release execution source ready',
         source.status === 'release_execution_ready' && source.recommendation === 'execute_manual_v1_1_release' && source.summary.ok ? 'pass' : 'fail',
-        'Canary promotion so pode partir de release execution pronta.',
+        'Canary promotion can only start from ready release execution.',
         [
           `sourceStatus=${source.status}`,
           `sourceRecommendation=${source.recommendation}`,
@@ -478,14 +478,13 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       ),
       this.check(
         'capability-autopilot-canary-promotion:observation',
-        'janela de observacao completa',
+        'window de observation completa',
         options.canaryObservationComplete &&
           options.observationWindowMinutes >= options.minObservationWindowMinutes &&
           options.telemetryFresh &&
-          options.metricsWindowComplete
-          ? 'pass'
+          options.metricsWindowComplete ? 'pass'
           : 'fail',
-        'Promocao exige janela completa, telemetria fresca e metrics window fechada.',
+        'Promotion requires a complete window, fresh telemetry, and a closed metrics window.',
         [
           `canaryObservationComplete=${options.canaryObservationComplete}`,
           `observationWindowMinutes=${options.observationWindowMinutes}`,
@@ -496,14 +495,13 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       ),
       this.check(
         'capability-autopilot-canary-promotion:health',
-        'sinais de health dentro do budget',
+        'health signals inside budget',
         options.errorRatePercent <= options.maxErrorRatePercent &&
           options.p95LatencyMs <= options.maxP95LatencyMs &&
           options.successRatePercent >= options.minSuccessRatePercent &&
-          options.crashFreePercent >= options.minCrashFreePercent
-          ? 'pass'
+          options.crashFreePercent >= options.minCrashFreePercent ? 'pass'
           : 'fail',
-        'Canary so avanca com erro, latencia, success rate e crash-free dentro do budget.',
+        'Canary only advances with error, latency, success rate, and crash-free metrics within budget.',
         [
           `errorRatePercent=${options.errorRatePercent}`,
           `maxErrorRatePercent=${options.maxErrorRatePercent}`,
@@ -523,10 +521,9 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
           !options.rollbackTriggered &&
           !options.rollbackRecommended &&
           options.supportLoadOk &&
-          options.negativeFeedbackPercent <= options.maxNegativeFeedbackPercent
-          ? 'pass'
+          options.denytiveFeedbackPercent <= options.maxNegativeFeedbackPercent ? 'pass'
           : 'fail',
-        'Canary nao avanca com incidentes graves, rollback recomendado, suporte sobrecarregado ou feedback negativo acima do budget.',
+        'Canary does not advance with severe incidents, recommended rollback, overloaded support, or denytive feedback above budget.',
         [
           `p0IncidentCount=${options.p0IncidentCount}`,
           `p1IncidentCount=${options.p1IncidentCount}`,
@@ -534,20 +531,19 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
           `rollbackTriggered=${options.rollbackTriggered}`,
           `rollbackRecommended=${options.rollbackRecommended}`,
           `supportLoadOk=${options.supportLoadOk}`,
-          `negativeFeedbackPercent=${options.negativeFeedbackPercent}`,
+          `denytiveFeedbackPercent=${options.denytiveFeedbackPercent}`,
           `maxNegativeFeedbackPercent=${options.maxNegativeFeedbackPercent}`,
         ],
       ),
       this.check(
         'capability-autopilot-canary-promotion:promotion-controls',
-        'promocao para proxima coorte controlada',
+        'promotion para next coorte controlada',
         options.canaryCohortStable &&
           options.promotionApproved &&
           options.nextCohortPercent > 0 &&
-          options.nextCohortPercent <= options.maxNextCohortPercent
-          ? 'pass'
+          options.nextCohortPercent <= options.maxNextCohortPercent ? 'pass'
           : 'fail',
-        'Promocao exige coorte estavel, aprovacao explicita e proxima coorte dentro do teto.',
+        'Promotion requires a stable cohort, explicit approval, and next cohort within the cap.',
         [
           `canaryCohortStable=${options.canaryCohortStable}`,
           `promotionApproved=${options.promotionApproved}`,
@@ -557,16 +553,15 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       ),
       this.check(
         'capability-autopilot-canary-promotion:safeguards',
-        'salvaguardas de canary ativas',
+        'salvaguardas de canary actives',
         options.rollbackRunbookReady &&
           options.observabilityReviewReady &&
           options.auditPersisted &&
           !options.autoPromoteEnabled &&
           !options.globalRolloutEnabled &&
-          !options.skipApprovalEnabled
-          ? 'pass'
+          !options.skipApprovalEnabled ? 'pass'
           : 'fail',
-        'Este gate permite promocao controlada, mas bloqueia auto-promote, rollout global e skip-approval.',
+        'Este gate permite promotion controlada, mas blocks auto-promote, rollout global e skip-approval.',
         [
           `rollbackRunbookReady=${options.rollbackRunbookReady}`,
           `observabilityReviewReady=${options.observabilityReviewReady}`,
@@ -578,16 +573,16 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       ),
       this.check(
         'capability-autopilot-canary-promotion:no-blockers',
-        'sem blockers de canary',
+        'without blockers de canary',
         blockers.length === 0 ? 'pass' : 'fail',
-        'Nao pode haver blocker agregado para promover canary.',
+        'There can be no aggregate blocker to promote canary.',
         blockers.length > 0 ? blockers : ['blockers=0'],
       ),
       this.check(
         'capability-autopilot-canary-promotion:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Snapshot publico de canary promotion nao pode reintroduzir intent cru.',
+        'Public canary promotion snapshot cannot reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],

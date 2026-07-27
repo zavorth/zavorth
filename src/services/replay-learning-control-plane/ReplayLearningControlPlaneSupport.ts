@@ -58,11 +58,11 @@ export function buildReplayLearningOperatorSummary(
   summary: ZavorthReplayLearningControlPlaneSnapshot['summary'],
 ): string {
   return [
-    `Replay ${summary.resumeReady ? 'retomavel' : 'sem alvo forte'} com ${summary.timelineEvents} evento(s).`,
+    `Replay ${summary.resumeReady ? 'retomavel' : 'without alvo forte'} com ${summary.timelineEvents} evento(s).`,
     `${summary.reusableArtifacts}/${summary.recentArtifacts} artifact(s) reutilizavel(is).`,
-    `Lifecycle canonico com ${summary.lifecycleEvents} evento(s), ${summary.lifecycleRuns} run(s) e ${summary.lifecycleAttention} alerta(s).`,
-    `${summary.learningCandidates} candidato(s) de learning, ${summary.pendingLearning} pendente(s) e ${summary.promotedLearning} promovido(s).`,
-    `Memoria com ${summary.memoryEntries} entrada(s), ${summary.proceduralEntries} procedimento(s) e pressao ${summary.memoryPressure}.`,
+    `Lifecycle canonical com ${summary.lifecycleEvents} evento(s), ${summary.lifecycleRuns} run(s) e ${summary.lifecycleAttention} alerta(s).`,
+    `${summary.learningCandidates} candidate(s) de learning, ${summary.pendingLearning} pending(s) e ${summary.promotedLearning} promovido(s).`,
+    `Memory with ${summary.memoryEntries} entry(s), ${summary.proceduralEntries} procedure(s) e pressure ${summary.memoryPressure}.`,
   ].join(' ');
 }
 

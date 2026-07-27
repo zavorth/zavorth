@@ -43,7 +43,7 @@ export class CapabilityImpactEstimatorService {
       processCount: Number(manifest.estimatedFootprint.processCount || 0),
       externalExposure: this.resolveExposure(manifest.id, manifest.activationMode),
       companionDependencies,
-      fallback: String(manifest.fallbackBehavior || '').trim() || 'Executa apenas o core leve.',
+      fallback: String(manifest.fallbackBehavior || '').trim() || 'Executa only o core leve.',
       notes: [
         manifest.estimatedFootprint.notes,
         manifest.provisioningRecipe?.notes,

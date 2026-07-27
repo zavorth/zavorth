@@ -104,7 +104,7 @@ export async function getProxyConfig() {
 
   if (migrated) {
     const insert = db.prepare(
-      "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('proxyConfig', ?, ?)"
+      "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('proxyConfig', ..., ...)"
     );
     if (raw.global !== undefined) insert.run("global", JSON.stringify(raw.global));
     if (raw.providers) insert.run("providers", JSON.stringify(raw.providers));
@@ -127,7 +127,7 @@ export async function setProxyForLevel(level: string, id: string | null, proxy: 
   if (level === "global") {
     config.global = proxy || null;
     db.prepare(
-      "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('proxyConfig', 'global', ?)"
+      "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('proxyConfig', 'global', ...)"
     ).run(JSON.stringify(config.global));
   } else {
     const mapKey = level + "s";
@@ -139,7 +139,7 @@ export async function setProxyForLevel(level: string, id: string | null, proxy: 
     }
     config[mapKey] = map;
     db.prepare(
-      "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('proxyConfig', ?, ?)"
+      "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('proxyConfig', ..., ...)"
     ).run(mapKey, JSON.stringify(map));
   }
 
@@ -165,7 +165,7 @@ export async function resolveProxyForConnection(connectionId: string) {
 
   const db = getDbInstance();
   const connection = db
-    .prepare("SELECT provider FROM provider_connections WHERE id = ?")
+    .prepare("SELECT provider FROM provider_connections WHERE id = ...")
     .get(connectionId);
 
   if (connection) {
@@ -223,7 +223,7 @@ export async function setProxyConfig(config: Record<string, unknown>) {
   const db = getDbInstance();
   const current = await getProxyConfig();
   const insert = db.prepare(
-    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('proxyConfig', ?, ?)"
+    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('proxyConfig', ..., ...)"
   );
 
   const tx = db.transaction(() => {

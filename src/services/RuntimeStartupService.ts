@@ -65,9 +65,9 @@ export class RuntimeStartupService {
     const startedAt = this.now();
     const bootState = new SupervisorBootStateMachine(this.now);
 
-    bootState.startPhase('prepare', 'Preparando o runtime supervisionado.');
+    bootState.startPhase('prepare', 'Preparing the supervised runtime.');
     await this.prepareRuntime();
-    bootState.startPhase('launch', `Abrindo o runtime supervisionado com trilha segura para paths com espaco via ${this.pathSafeLauncher.buildPlan({
+    bootState.startPhase('launch', `Opening the supervised runtime with a safe path launcher via ${this.pathSafeLauncher.buildPlan({
       executable: process.platform === 'win32' ? 'npm.cmd' : 'npm',
       args: ['run', 'ops:start'],
     }).displayCommand}.`);
@@ -92,7 +92,7 @@ export class RuntimeStartupService {
           durationMs: this.now() - startedAt,
           readiness,
           manifest,
-          summary: `Timeout aguardando o Zavorth ficar pronto. ${recovery.summary}`,
+          summary: `Timed out while waiting for Zavorth to become ready. ${recovery.summary}`,
           bootState: bootState.getSnapshot(),
           healthRenewal: recovery.healthRenewal,
         };
@@ -125,4 +125,3 @@ export class RuntimeStartupService {
     };
   }
 }
-

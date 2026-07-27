@@ -134,7 +134,7 @@ export class ExternalHarnessRegistryService {
         adapters: [
           {
             id: 'local-cli-delegate',
-            label: 'Local CLI delegate',
+            label: 'local CLI delegate',
             kind: 'cli-process',
             status: 'registered',
             commandOrEndpoint: null,

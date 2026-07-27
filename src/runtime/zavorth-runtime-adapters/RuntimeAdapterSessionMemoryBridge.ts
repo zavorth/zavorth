@@ -349,8 +349,7 @@ export class RuntimeAdapterSessionMemoryBridge {
         },
       },
       warm: {
-        workspacePrompt: input.session.workspace
-          ? `Workspace context is ${input.session.workspace}.`
+        workspacePrompt: input.session.workspace ? `Workspace context is ${input.session.workspace}.`
           : null,
         metadata: {
           source: 'RuntimeAdapterSessionMemoryBridge',

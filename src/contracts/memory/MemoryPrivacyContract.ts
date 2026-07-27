@@ -2,7 +2,7 @@
  * Memory Privacy OS contract (Mnemos product narrative).
  *
  * Product UX layer over existing Mnemos / dream / forget surfaces.
- * Answers: What does it remember? Why? Forget it.
+ * Answers: What does it remember... Why... Forget it.
  * Does not replace MnemosDreamCycleService or memory storage engines.
  */
 

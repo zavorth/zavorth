@@ -83,7 +83,7 @@ export const formatProviderCredentials = (provider: string, credentials: any) =>
 
 export const getAllAccessTokens = (userInfo: any) => _getAllAccessTokens(userInfo, log);
 
-// Local-specific: Update credentials in localDb
+// local-specific: Update credentials in localDb
 export async function updateProviderCredentials(connectionId: string, newCredentials: any) {
   try {
     const updates: Record<string, any> = {};
@@ -116,7 +116,7 @@ export async function updateProviderCredentials(connectionId: string, newCredent
   }
 }
 
-// Local-specific: Check and refresh token proactively
+// local-specific: Check and refresh token proactively
 export async function checkAndRefreshToken(provider: string, credentials: any) {
   let updatedCredentials = { ...credentials };
 
@@ -182,7 +182,7 @@ export async function checkAndRefreshToken(provider: string, credentials: any) {
   return updatedCredentials;
 }
 
-// Local-specific: Refresh GitHub and Copilot tokens together
+// local-specific: Refresh GitHub and Copilot tokens together
 export async function refreshGitHubAndCopilotTokens(credentials: any) {
   const newGitHubCredentials = await refreshGitHubToken(credentials.refreshToken);
   if (newGitHubCredentials?.accessToken) {

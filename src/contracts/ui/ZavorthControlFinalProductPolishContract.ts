@@ -1,5 +1,5 @@
 export const ZAVORTH_CONTROL_FINAL_PRODUCT_POLISH_CONTRACT_VERSION =
-  '2026-05-14.checkpoint-11-zavorthControl-final-product-polish' as const;
+  '2026-05-14.gate-11-zavorthControl-final-product-polish' as const;
 
 export type ZavorthControlFinalProductPolishStatus = 'passed' | 'attention' | 'blocked';
 
@@ -68,6 +68,6 @@ export type ZavorthControlFinalProductPolishSnapshot = {
     inspect: 'npm run zavorth:zavorthControl-final-product-polish';
     inspectJson: 'npm run zavorth:zavorthControl-final-product-polish:json';
     check: 'npm run zavorth:zavorthControl-final-product-polish:check --silent';
-    nextStage: 'Zavorth Control live visual QA and route alias verification';
+    nextAction: 'Zavorth Control live visual QA and route alias verification';
   };
 };

@@ -109,13 +109,11 @@ export function normalizeQuotaResponse(
       : {};
 
   const providerFilter =
-    filters.provider ??
-    (typeof sourceFilters.provider === "string" && sourceFilters.provider.trim()
+    filters.provider ??     (typeof sourceFilters.provider === "string" && sourceFilters.provider.trim()
       ? sourceFilters.provider
       : null);
   const connectionFilter =
-    filters.connectionId ??
-    (typeof sourceFilters.connectionId === "string" && sourceFilters.connectionId.trim()
+    filters.connectionId ??     (typeof sourceFilters.connectionId === "string" && sourceFilters.connectionId.trim()
       ? sourceFilters.connectionId
       : null);
 

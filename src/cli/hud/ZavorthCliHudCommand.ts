@@ -33,8 +33,7 @@ export function runZavorthCliHud(input: RunZavorthCliHudInput): RunZavorthCliHud
   const mutationPlane = input.mutationPlane || new ZavorthMutationPlaneService();
   const runtimeMode = shouldRenderRuntimeTui(args, input.inputKeys || []);
   if (runtimeMode) {
-    const runtimeRenderMode = args.includes('--technical') || args.includes('--full') || args.includes('--diagnostics')
-      ? 'technical'
+    const runtimeRenderMode = args.includes('--technical') || args.includes('--full') || args.includes('--diagnostics') ? 'technical'
       : 'daily';
     const snapshot = buildZavorthCliRuntimeTuiSnapshot({
       projectRoot: input.projectRoot,
@@ -43,8 +42,7 @@ export function runZavorthCliHud(input: RunZavorthCliHudInput): RunZavorthCliHud
       mutationPlane,
       homeRoot: readFlag(args, 'home'),
     });
-    const output = input.json || args.includes('--json')
-      ? `${JSON.stringify(snapshot, null, 2)}\n`
+    const output = input.json || args.includes('--json') ? `${JSON.stringify(snapshot, null, 2)}\n`
       : `${renderZavorthCliRuntimeTui(snapshot, { mode: runtimeRenderMode })}\n`;
     const hudSnapshot = buildZavorthCliHudSnapshot({
       projectRoot: input.projectRoot,
@@ -88,8 +86,7 @@ export function runZavorthCliHud(input: RunZavorthCliHudInput): RunZavorthCliHud
     decision,
   });
   const guided = guideMode ? buildZavorthCliGuidedReviewSnapshot(snapshot) : null;
-  const output = input.json || args.includes('--json')
-    ? `${JSON.stringify(guided || snapshot, null, 2)}\n`
+  const output = input.json || args.includes('--json') ? `${JSON.stringify(guided || snapshot, null, 2)}\n`
     : guided
       ? renderZavorthCliGuidedReview(guided)
       : `${renderZavorthCliHud(snapshot)}\n`;
@@ -250,7 +247,7 @@ function executeHudAction(input: {
     }
     return {
       attempted: true,
-      key: String(input.selectedIndex || '?'),
+      key: String(input.selectedIndex || '...'),
       status: 'selected',
       command: `zavorth hud --plan ${planId}`,
       message: `Selected plan ${planId}.`,

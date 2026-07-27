@@ -51,7 +51,7 @@ export class ZavorthControlRuntimeStateService {
       }
 
       fs.rmSync(filePath, { force: true });
-    } catch (error: unknown) {// Ignora limpeza falha de estado; o readiness vai filtrar snapshots mortos.
+    } catch (error: unknown) {// Ignora limpeza failure de estado; o readiness vai filtrar snapshots mortos.
       logger.warn('[Zavorth Control Runtime State] JSON parse failed', error);
     }
   }

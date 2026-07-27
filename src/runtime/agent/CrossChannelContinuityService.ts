@@ -186,7 +186,7 @@ function normalizeStatus(value: unknown): UniversalReplyPortStatus {
 
 function redactText(value: unknown, fallback = '', maxLength = 180): string {
   const text = normalizeText(value, fallback)
-    .replace(/((?:api[_-]?key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/((?:api[_-]...key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
     .replace(/\s+/g, ' ')
     .trim();
   return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;
@@ -283,10 +283,10 @@ export class CrossChannelContinuityService {
         secretsSerialized: false,
       },
       surface: {
-        cliCommand: `zavorth continuity "${redactText(run.input, 'pedido', 80)}"`,
-        zavorthControlPath: '/zavorthControl?sector=channels',
-        resumeHint: 'Retomar em outro canal usa o mesmo sessionId e gateway universal.',
-        approvalHint: 'Enviar notificacao ou mudar canal primario exige approval explicito.',
+        cliCommand: `zavorth continuity "${redactText(run.input, 'request', 80)}"`,
+        zavorthControlPath: '/zavorthControl...sector=channels',
+        resumeHint: 'Resume in another channel uses the same sessionId and universal gateway.',
+        approvalHint: 'Sending notifications or changing the primary channel requires explicit approval.',
       },
       nextSafeAction: this.resolveNextSafeAction(status, channels, handoffs),
     };
@@ -309,7 +309,7 @@ export class CrossChannelContinuityService {
       canNotify: false,
       continuityKey,
       lastRunId: run.id,
-      description: redactText(port.description, 'Porta de resposta do gateway universal.'),
+      description: redactText(port.description, 'Universal gateway response port.'),
     }));
     const metadataChannels = [
       ...listRecords(bridge?.channels),
@@ -328,7 +328,7 @@ export class CrossChannelContinuityService {
         canNotify: entry.canNotify === true,
         continuityKey,
         lastRunId: normalizeText(entry.lastRunId) || run.id,
-        description: redactText(entry.description ?? entry.detail, 'Canal declarado em metadata.'),
+        description: redactText(entry.description ?? entry.detail, 'Channel declared in metadata.'),
       };
     });
     const bridgeChannel = bridge
@@ -343,7 +343,7 @@ export class CrossChannelContinuityService {
         canNotify: false,
         continuityKey,
         lastRunId: run.id,
-        description: redactText(bridge.source, 'Bridge recebido pelo Channel Mesh.'),
+        description: redactText(bridge.source, 'Bridge received by Channel Mesh.'),
       }]
       : [];
     const nodeMeshChannel = nodeMesh
@@ -358,7 +358,7 @@ export class CrossChannelContinuityService {
         canNotify: false,
         continuityKey,
         lastRunId: run.id,
-        description: redactText(nodeMesh.summary ?? nodeMesh.detail, 'Node Mesh anexado ao mesmo gateway.'),
+        description: redactText(nodeMesh.summary ?? nodeMesh.detail, 'Node Mesh attached to the same gateway.'),
       }]
       : [];
     const fallback = replyPortChannels.length === 0
@@ -373,7 +373,7 @@ export class CrossChannelContinuityService {
         canNotify: false,
         continuityKey,
         lastRunId: run.id,
-        description: 'Canal de origem preservado pelo runtime.',
+        description: 'Origin channel preserved by runtime.',
       }]
       : [];
     const channels = uniqueChannels([
@@ -405,14 +405,13 @@ export class CrossChannelContinuityService {
       const fromChannel = normalizeChannel(entry.fromChannel ?? entry.from) || origin;
       const status: CrossChannelContinuityHandoff['status'] = normalizeText(entry.status).toLowerCase() === 'blocked'
         ? 'blocked'
-        : entry.requiresApproval === false
-          ? 'available'
+        : entry.requiresApproval === false ? 'available'
           : 'needs-approval';
       return {
         id: normalizeText(entry.id, `handoff:${index + 1}`),
         fromChannel,
         toChannel,
-        reason: redactText(entry.reason ?? entry.detail, 'Handoff declarado para continuidade.'),
+        reason: redactText(entry.reason ?? entry.detail, 'Handoff declared for continuity.'),
         status,
         requiresApproval: entry.requiresApproval !== false,
         previewRequired: entry.previewRequired !== false,
@@ -427,7 +426,7 @@ export class CrossChannelContinuityService {
         id: `handoff:${origin}:to:${channel.kind}`,
         fromChannel: origin,
         toChannel: channel.kind,
-        reason: `Retomar a sessao ${run.sessionId} em ${channel.label}.`,
+        reason: `Resume session ${run.sessionId} in ${channel.label}.`,
         status: channel.status === 'blocked' ? 'blocked' as const : 'needs-approval' as const,
         requiresApproval: true,
         previewRequired: true,
@@ -451,57 +450,57 @@ export class CrossChannelContinuityService {
         kind: 'run-observatory',
         source: 'RunObservatory',
         detail: input.observatoryReceiptCount > 0
-          ? `${input.observatoryReceiptCount} receipt(s) da sessao encontrados.`
-          : 'Sem receipts adicionais da sessao no observatory local.',
+          ? `${input.observatoryReceiptCount} session receipt(s) found.`
+          : 'without additional session receipts in the local observatory.',
         status: input.observatoryReceiptCount > 0 ? 'ready' : 'missing',
       },
       {
         id: `continuity-receipt:${input.run.id}:reply-ports`,
         kind: 'reply-port',
         source: 'UniversalReplyPort',
-        detail: `${input.run.replyPorts.length} reply port(s) preservados no run.`,
+        detail: `${input.run.replyPorts.length} reply port(s) preserved in the run.`,
         status: input.run.replyPorts.length > 0 ? 'ready' : 'missing',
       },
       {
         id: `continuity-receipt:${input.run.id}:channel-mesh`,
         kind: 'channel-mesh',
         source: 'ZavorthAgentGateway',
-        detail: input.bridge ? 'Channel Mesh anexado ao gateway universal.' : 'Sem bridge Channel Mesh neste run.',
+        detail: input.bridge ? 'Channel Mesh attached to the universal gateway.' : 'without Channel Mesh bridge in this run.',
         status: input.bridge ? 'ready' : 'missing',
       },
       {
         id: `continuity-receipt:${input.run.id}:node-mesh`,
         kind: 'node-mesh',
         source: 'NodeMesh',
-        detail: input.nodeMesh ? 'Node Mesh aparece como superficie conectada.' : 'Node Mesh nao informado.',
+        detail: input.nodeMesh ? 'Node Mesh appears as a connected surface.' : 'Node Mesh not provided.',
         status: input.nodeMesh ? 'ready' : 'missing',
       },
       {
         id: `continuity-receipt:${input.run.id}:session`,
         kind: 'session',
         source: 'AgentRunService',
-        detail: `Session ${input.run.sessionId} permanece como chave de continuidade.`,
+        detail: `Session ${input.run.sessionId} remains the continuity key.`,
         status: 'ready',
       },
       {
         id: `continuity-receipt:${input.run.id}:handoff`,
         kind: 'handoff',
         source: 'CrossChannelContinuityService',
-        detail: `${input.handoffs.length} handoff(s) preparados sem enviar mensagem.`,
+        detail: `${input.handoffs.length} handoff(s) prepared without sending messages.`,
         status: input.handoffs.length > 0 ? 'needs-approval' : 'missing',
       },
       {
         id: `continuity-receipt:${input.run.id}:policy`,
         kind: 'policy',
         source: 'CrossChannelContinuityService',
-        detail: 'Snapshot e read-only: nenhuma mensagem cross-channel foi enviada.',
+        detail: 'Snapshot is read-only: no cross-channel message was sent.',
         status: 'ready',
       },
       {
         id: `continuity-receipt:${input.run.id}:surface`,
         kind: 'surface',
         source: 'CLI/ZavorthControl',
-        detail: 'Continuidade exposta por CLI read-only e ZavorthControl.',
+        detail: 'Continuity exposed through read-only CLI and ZavorthControl.',
         status: 'ready',
       },
     ];
@@ -531,17 +530,17 @@ export class CrossChannelContinuityService {
     handoffs: CrossChannelContinuityHandoff[],
   ): string {
     if (status === 'blocked') {
-      return 'Revisar reply ports e bridge antes de retomar em outro canal.';
+      return 'Review reply ports and bridge before resuming in another channel.';
     }
     if (status === 'handoff-ready') {
-      return 'Revisar preview e approval antes de enviar qualquer handoff cross-channel.';
+      return 'review preview and approval before sending any cross-channel handoff.';
     }
     if (status === 'bridged') {
-      return 'Manter o mesmo sessionId e usar o gateway universal para continuidade entre superficies.';
+      return 'Keep the same sessionId and use the universal gateway for continuity across surfaces.';
     }
     return channels.length > 0
-      ? 'Continuar no canal primario atual; nenhum handoff e necessario.'
-      : 'Criar reply port antes de responder.';
+      ? 'Continue in the current primary channel; no handoff is necessary.'
+      : 'Create a reply port before responding.';
   }
 
   private resolveContinuityKey(run: UniversalAgentRun): string {
@@ -593,7 +592,6 @@ export class CrossChannelContinuityService {
     if (channel === 'api') {
       return 'API / channel fabric';
     }
-    return 'Canal de origem';
+    return 'Channel de origem';
   }
 }
-

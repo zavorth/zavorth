@@ -81,7 +81,7 @@ export class LegacyUnifiedGatewayAdapter {
    * Legacy universal entry point. Any surface not migrated yet calls
    * this method while ZavorthAgentGateway owns the canonical path.
    *
-   * Fluxo:
+   * Flow:
    * 1. Records the event in ContextEngine.
    * 2. Calls the legacy conversational agent.
    * 3. Records the response in ContextEngine.

@@ -124,7 +124,7 @@ export class ZavorthProductHardeningService {
       'quality-gates',
       'Quality Gates',
       gates,
-      'Checks essenciais estao registrados em package.json e podem ser repetidos sem procurar scripts soltos.',
+      'Essential checks are registered in package.json and can be repeated without searching for loose scripts.',
     );
   }
 
@@ -137,33 +137,30 @@ export class ZavorthProductHardeningService {
     const staticShell = this.exists('src/ai-gateway/app/(zavorthControl)/control/ControlPageAssets.tsx');
     const docs = legacy.consolidation.canonicalDocs.every((doc) => this.exists(doc));
     const gates = [
-      this.gate('legacy-routes-retired', 'Legacy routes retired', retired ? 'ready' : 'blocked', retired
-        ? 'Superficies antigas foram removidas por policy.'
-        : 'Superficies antigas ainda nao estao marcadas como removidas.', {
+      this.gate('legacy-routes-retired', 'Legacy routes retired', retired ? 'ready' : 'blocked', retired ? 'Legacy surfaces were removed by policy.'
+        : 'Legacy surfaces are not yet marked as removed.', {
         evidence: [`retired=${legacy.retiredSurfaces.join(',')}`, `canonical=${legacy.canonicalEntry}`],
-        nextActions: retired ? [] : ['remover /app e /classic da surface publica'],
+        nextActions: retired ? [] : ['remover /app e /classic da surface public'],
       }),
-      this.gate('canonical-shell', 'Canonical shell', viteSource && staticShell ? 'ready' : 'blocked', viteSource && staticShell
-        ? 'ZavorthControl tem fonte Vite e host controlado.'
-        : 'Fonte ou host do ZavorthControl ausente.', {
+      this.gate('canonical-shell', 'Canonical shell', viteSource && staticShell ? 'ready' : 'blocked', viteSource && staticShell ? 'ZavorthControl tem source Vite e host controlado.'
+        : 'source ou host do ZavorthControl missing.', {
         evidence: [
           `vite source: ${viteSource ? 'ok' : 'missing'}`,
           `control assets: ${staticShell ? 'ok' : 'missing'}`,
         ],
         nextActions: viteSource && staticShell ? [] : ['reconectar shell principal do zavorthControl'],
       }),
-      this.gate('surface-docs', 'Surface docs', docs ? 'ready' : 'attention', docs
-        ? 'Documentos de direcao das superficies existem.'
-        : 'Algum documento de surface esta ausente.', {
+      this.gate('surface-docs', 'Surface docs', docs ? 'ready' : 'attention', docs ? 'Documentos de direcao das surfaces existem.'
+        : 'Algum documento de surface is missing.', {
         evidence: legacy.consolidation.canonicalDocs,
-        nextActions: docs ? [] : ['atualizar docs de surface/caminho canonico'],
+        nextActions: docs ? [] : ['atualizar docs de surface/path canonical'],
       }),
     ];
     return this.area(
       'surface-consolidation',
       'Surface Consolidation',
       gates,
-      'Superficies antigas ficam contidas e o zavorthControl principal permanece como produto ativo.',
+      'Legacy surfaces remain contained and the main zavorthControl remains the active product.',
     );
   }
 
@@ -178,27 +175,23 @@ export class ZavorthProductHardeningService {
       && this.exists('src/services/VoiceWakeDetectorSetupService.ts')
       && this.hasMarker('src/zavorth-cli.ts', 'runZavorthEchoWakeCommand');
     const gates = [
-      this.gate('setup-entrypoint', 'Setup entrypoint', setupScript ? 'ready' : 'blocked', setupScript
-        ? 'Setup principal esta exposto por npm run setup.'
-        : 'Setup principal nao esta exposto.', {
+      this.gate('setup-entrypoint', 'Setup entrypoint', setupScript ? 'ready' : 'blocked', setupScript ? 'Setup principal is exposto por npm run setup.'
+        : 'Setup principal no is exposto.', {
         evidence: ['scripts/setup-v3.ts', 'package script: setup'],
         nextActions: setupScript ? [] : ['reconectar setup principal'],
       }),
-      this.gate('setup-choices', 'Setup choices', setupStudio ? 'ready' : 'attention', setupStudio
-        ? 'Setup Studio cobre governanca de skills e wake detector.'
-        : 'Setup Studio nao evidencia todas as escolhas de primeira execucao.', {
+      this.gate('setup-choices', 'Setup choices', setupStudio ? 'ready' : 'attention', setupStudio ? 'Setup Studio cobre governanca de skills e wake detector.'
+        : 'Setup Studio does not evidence all first-run choices.', {
         evidence: ['skills governance', 'wake detector choice'],
         nextActions: setupStudio ? [] : ['adicionar prompts claros no setup inicial'],
       }),
-      this.gate('home-isolation', 'Home isolation', homeCommands ? 'ready' : 'blocked', homeCommands
-        ? 'ZAVORTH_HOME tem comandos e servico de path.'
-        : 'Isolamento por home nao esta conectado.', {
+      this.gate('home-isolation', 'Home isolation', homeCommands ? 'ready' : 'blocked', homeCommands ? 'ZAVORTH_HOME tem comandos e service de path.'
+        : 'Isolamento por home no is conectado.', {
         evidence: ['ZavorthHomePathService', 'home migrate'],
         nextActions: homeCommands ? [] : ['restaurar comandos home status/doctor/migrate'],
       }),
-      this.gate('wake-setup', 'Wake setup', wakeCommands ? 'ready' : 'blocked', wakeCommands
-        ? 'Echo wake tem runtime e setup explicito.'
-        : 'Echo wake nao tem setup completo.', {
+      this.gate('wake-setup', 'Wake setup', wakeCommands ? 'ready' : 'blocked', wakeCommands ? 'Echo wake tem runtime e setup explicit.'
+        : 'Echo wake no tem setup completo.', {
         evidence: ['VoiceWakeRuntimeService', 'echo wake setup'],
         nextActions: wakeCommands ? [] : ['restaurar setup de detector wake'],
       }),
@@ -207,7 +200,7 @@ export class ZavorthProductHardeningService {
       'install-ux',
       'Install UX',
       gates,
-      'Instalacao guia escolhas criticas: home, governanca, provider/channel e voice wake.',
+      'Instalaction guia escolhas criticas: home, governanca, provider/channel e voice wake.',
     );
   }
 
@@ -225,17 +218,15 @@ export class ZavorthProductHardeningService {
       && this.hasMarker('apps/zavorth-control-vite-shell/index.html', 'id="trust-rail"');
     const scripts = this.packageScripts();
     const gates = [
-      this.gate('zavorthControl-files', 'ZavorthControl files', allFiles ? 'ready' : 'blocked', allFiles
-        ? 'Arquivos principais do zavorthControl existem.'
-        : 'Algum arquivo principal do zavorthControl esta ausente.', {
+      this.gate('zavorthControl-files', 'ZavorthControl files', allFiles ? 'ready' : 'blocked', allFiles ? 'Main zavorthControl files exist.'
+        : 'Algum file principal do zavorthControl is missing.', {
         evidence: files,
-        nextActions: allFiles ? [] : ['restaurar arquivos principais do ZavorthControl'],
+        nextActions: allFiles ? [] : ['restaurar files principais do ZavorthControl'],
       }),
-      this.gate('chat-surface-polish', 'Chat surface polish', chatHome ? 'ready' : 'attention', chatHome
-        ? 'Entrada de chat segue a surface simples atual.'
-        : 'Chat principal pode ter perdido a experiencia minimalista.', {
+      this.gate('chat-surface-polish', 'Chat surface polish', chatHome ? 'ready' : 'attention', chatHome ? 'Entrada de chat segue a surface simple current.'
+        : 'Main chat may have lost the minimalist experience.', {
         evidence: ['chat composer style', 'home prompt text'],
-        nextActions: chatHome ? [] : ['revisar tela inicial do chat'],
+        nextActions: chatHome ? [] : ['review the chat home screen'],
       }),
       this.scriptGate('zavorthControl-build-script', 'ZavorthControl check script', 'zavorth-control-vite:check', scripts),
     ];
@@ -243,7 +234,7 @@ export class ZavorthProductHardeningService {
       'zavorthControl-ux',
       'ZavorthControl UX',
       gates,
-      'ZavorthControl tem fonte unica, build repetivel e tela de chat mantida simples.',
+      'ZavorthControl has a single source, repeatable build, and a simple maintained chat screen.',
     );
   }
 
@@ -257,8 +248,7 @@ export class ZavorthProductHardeningService {
       && this.exists('tests/services/ZavorthOperationalRefinementService.test.ts');
     const gates = [
       this.gate('native-convergence', 'Native convergence', convergenceReady ? 'ready' : 'blocked',
-        convergenceReady
-          ? 'Native convergence certification is wired as a repeatable check.'
+        convergenceReady ? 'Native convergence certification is wired as a repeatable check.'
           : 'Native convergence certification is not fully wired.', {
           evidence: [
             'src/services/ZavorthNativeConvergenceService.ts',
@@ -268,8 +258,7 @@ export class ZavorthProductHardeningService {
           nextActions: convergenceReady ? [] : ['wire native convergence service, tests and package script'],
         }),
       this.gate('operational-refinement', 'Operational refinement', refinementReady ? 'ready' : 'attention',
-        refinementReady
-          ? 'Operational refinement certification is wired as a repeatable check.'
+        refinementReady ? 'Operational refinement certification is wired as a repeatable check.'
           : 'Operational refinement certification is partially wired.', {
           evidence: [
             'src/services/ZavorthOperationalRefinementService.ts',
@@ -283,7 +272,7 @@ export class ZavorthProductHardeningService {
       'certification',
       'Certification',
       gates,
-      'Certificacoes recentes entram em um resumo unico de produto.',
+      'Certificactions recentes entram em um summary single de produto.',
     );
   }
 
@@ -302,21 +291,18 @@ export class ZavorthProductHardeningService {
     const packageScripts = this.packageScripts();
     const qaScript = Boolean(packageScripts['qa:zavorth-product-hardening']);
     const gates = [
-      this.gate('hardening-files', 'Hardening files', filesExist ? 'ready' : 'blocked', filesExist
-        ? 'Arquivos de hardening estao versionaveis e separados.'
-        : 'Arquivos de hardening estao incompletos.', {
+      this.gate('hardening-files', 'Hardening files', filesExist ? 'ready' : 'blocked', filesExist ? 'Hardening files are versionable and separated.'
+        : 'Hardening files are incomplete.', {
         evidence: newHardeningFiles,
-        nextActions: filesExist ? [] : ['restaurar contrato/servico/script/teste de hardening'],
+        nextActions: filesExist ? [] : ['restaurar contrato/service/script/teste de hardening'],
       }),
-      this.gate('secret-hygiene', 'Secret hygiene', noSecretMarkers ? 'ready' : 'blocked', noSecretMarkers
-        ? 'Snapshot e arquivos novos nao contem tokens brutos conhecidos.'
-        : 'Possivel segredo bruto detectado.', {
+      this.gate('secret-hygiene', 'Secret hygiene', noSecretMarkers ? 'ready' : 'blocked', noSecretMarkers ? 'Snapshot and new files do not contain known raw tokens.'
+        : 'Possible raw secret detected.', {
         evidence: ['known token patterns redacted'],
-        nextActions: noSecretMarkers ? [] : ['redigir segredo antes de seguir'],
+        nextActions: noSecretMarkers ? [] : ['redigir secret before seguir'],
       }),
-      this.gate('qa-script', 'QA script', qaScript ? 'ready' : 'blocked', qaScript
-        ? 'QA de hardening esta registrado no package.json.'
-        : 'QA de hardening nao esta registrado.', {
+      this.gate('qa-script', 'QA script', qaScript ? 'ready' : 'blocked', qaScript ? 'QA de hardening is registrado no package.json.'
+        : 'QA de hardening no is registrado.', {
         evidence: ['qa:zavorth-product-hardening'],
         nextActions: qaScript ? [] : ['registrar script qa:zavorth-product-hardening'],
       }),
@@ -325,7 +311,7 @@ export class ZavorthProductHardeningService {
       'repo-hygiene',
       'Repository Hygiene',
       gates,
-      'Worktree suja nao bloqueia desenvolvimento, mas hardening novo tem check proprio e sem segredo bruto.',
+      'Worktree suja no blocks desenvolvimento, mas hardening novo tem check own e without secret bruto.',
     );
   }
 
@@ -348,9 +334,8 @@ export class ZavorthProductHardeningService {
     scripts: Record<string, string>,
   ): ZavorthProductHardeningGate {
     const present = Boolean(scripts[scriptName]);
-    return this.gate(id, label, present ? 'ready' : 'blocked', present
-      ? `Script ${scriptName} registrado.`
-      : `Script ${scriptName} ausente.`, {
+    return this.gate(id, label, present ? 'ready' : 'blocked', present ? `Script ${scriptName} registrado.`
+      : `Script ${scriptName} missing.`, {
       command: present ? `npm run ${scriptName} --silent` : undefined,
       evidence: present ? [scripts[scriptName] || ''] : [],
       nextActions: present ? [] : [`registrar script ${scriptName}`],

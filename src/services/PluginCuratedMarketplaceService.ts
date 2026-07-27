@@ -157,7 +157,7 @@ export class PluginCuratedMarketplaceService {
           count: remote.entries.length,
         });
         for (const entry of remote.entries) {
-          // Local wins on id conflict.
+          // local wins on id conflict.
           if (!byId.has(entry.id)) {
             byId.set(entry.id, { ...entry, curated: true, source: entry.source || 'remote' });
           }
@@ -188,7 +188,7 @@ export class PluginCuratedMarketplaceService {
           relative ? `path: ${relative}` : 'path: (remote/cache only)',
           ...sources.map((source) => `  source ${source.kind}: ${source.path} (${source.count})`),
           ...entries.slice(0, 40).map(
-            (entry) => `  - ${entry.id} | ${entry.name} | tier=${entry.tier || 'curated'} | ${entry.summary || ''}`,
+            (entry) => ` ? ${entry.id} | ${entry.name} | tier=${entry.tier || 'curated'} | ${entry.summary || ''}`,
           ),
         ];
         return lines.join('\n');
@@ -390,7 +390,7 @@ export class PluginCuratedMarketplaceService {
             `status=${verify.status} ok=${ok}`,
             `package: ${path.relative(root, packageDir).replace(/\\/gu, '/')}`,
             `checksum: ${checksum}`,
-            ...verify.findings.map((line) => `  - ${line}`),
+            ...verify.findings.map((line) => ` ? ${line}`),
           ].join('\n');
         },
       };
@@ -440,7 +440,7 @@ function assertSafeRemoteCatalogUrl(raw: string): { ok: boolean; reason?: string
 }
 
 /**
- * Wave 8: optional default remote URL from config/plugin-os-marketplace.json
+ * Optional default remote URL from config/plugin-os-marketplace.json
  * (env ZAVORTH_PLUGIN_MARKETPLACE_URL still wins when set).
  */
 function resolveDefaultMarketplaceUrl(projectRoot: string): string | null {

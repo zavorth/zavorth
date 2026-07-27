@@ -9,8 +9,7 @@ export function buildRuntimeShellHtml(pathname: string = '/zavorthControl'): str
   const externalWebClientUrl = escapeHtml(config.zavorthExternalWebClientUrl || '');
   const externalDocsUrl = escapeHtml(config.zavorthExternalDocsUrl || '');
   const legacyBanner = renderLegacySurfaceBanner(pathname);
-  const legacyBannerBlock = legacyBanner
-    ? `<section id="legacy-surface-banner" class="legacy-containment-banner" role="status">
+  const legacyBannerBlock = legacyBanner ? `<section id="legacy-surface-banner" class="legacy-containment-banner" role="status">
         <strong>Legacy surface</strong>
         <span>${escapeHtml(legacyBanner)}</span>
         <a href="/zavorthControl">Open zavorthControl</a>

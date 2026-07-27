@@ -204,7 +204,7 @@ export class CodexRemoteSessionStoreService {
           id: randomUUID(),
           at: now,
           type: 'created',
-          message: `Sessao criada para o perfil ${String(input.profileId || 'default').trim() || 'default'}.`,
+          message: `Session created for profile ${String(input.profileId || 'default').trim() || 'default'}.`,
         },
       ],
     };
@@ -225,7 +225,7 @@ export class CodexRemoteSessionStoreService {
     const state = this.readState();
     const index = state.sessions.findIndex((entry) => entry.sessionId === String(sessionId || '').trim());
     if (index < 0) {
-      throw new Error(`Sessao Codex Remote nao encontrada: ${sessionId}.`);
+      throw new Error(`Codex Remote session not found: ${sessionId}.`);
     }
 
     const current = state.sessions[index];
@@ -263,7 +263,7 @@ export class CodexRemoteSessionStoreService {
           id: randomUUID(),
           at: String(input.at || '').trim() || this.now().toISOString(),
           type: input.type,
-          message: String(input.message || '').trim() || 'Sem observacao adicional.',
+          message: String(input.message || '').trim() || 'Sem observation adicional.',
         },
       ].slice(-40),
     }));

@@ -3,7 +3,7 @@ import type { ZavorthCapabilityCandidate } from './ZavorthCapabilityCandidateReg
 
 export const ZAVORTH_CAPABILITY_PROTOTYPE_SANDBOX_CONTRACT_VERSION = '2026-06-02.capability-prototype-sandbox.v1' as const;
 
-export type ZavorthCapabilityPrototypeStatus = 'simulated' | 'skipped' | 'blocked';
+export type ZavorthCapabilityPrototypeStatus = 'dryRun' | 'skipped' | 'blocked';
 
 export type ZavorthCapabilityPrototypeArtifact = {
   kind: 'manifest' | 'notes' | 'sandbox-receipt';
@@ -49,7 +49,7 @@ export type ZavorthCapabilityPrototypeSandboxSnapshot = {
   prototypeRoot: string;
   summary: {
     prototypes: number;
-    simulated: number;
+    dryRun: number;
     skipped: number;
     blocked: number;
     receipts: number;
@@ -70,7 +70,7 @@ export type ZavorthCapabilityPrototypeSandboxSnapshot = {
     list: string;
     prototypeAllReady: string;
     prototypeSelected: string;
-    nextStage: string;
+    nextAction: string;
   };
 };
 

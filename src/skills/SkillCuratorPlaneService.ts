@@ -491,7 +491,7 @@ export class SkillCuratorPlaneService {
       if (!existing && !dryRun) {
         db.run(
           `INSERT OR IGNORE INTO zavorth_skills_telemetry (skill_id, use_count, last_executed_at, status, pinned)
-           VALUES (?, 0, ?, 'active', 0)`,
+           VALUES (..., 0, ..., 'active', 0)`,
           [entry.name, now.toISOString()],
         );
       }
@@ -515,8 +515,7 @@ export class SkillCuratorPlaneService {
           skillId: entry.name,
           from: currentState,
           to: 'archived',
-          reason: archiveAllowed
-            ? `inactive-for-${Math.floor(ageDays)}-days`
+          reason: archiveAllowed ? `inactive-for-${Math.floor(ageDays)}-days`
             : `inactive-for-${Math.floor(ageDays)}-days; destructive-archive-requires-approval`,
           dryRun: archiveDryRun,
         });
@@ -973,15 +972,13 @@ export class SkillCuratorPlaneService {
     const lowRiskArchiveAllowed = this.lowRiskArchiveAllowed();
     const scheduledRunMode = this.improvementPolicy.mode === 'manual'
       ? 'manual-dry-run'
-      : input.dryRun
-        ? 'silent-dry-run'
+      : input.dryRun ? 'silent-dry-run'
         : 'silent-apply-reversible';
     const backgroundOnly = !['operator', 'manual', 'test'].includes(input.triggeredBy);
     const actor = backgroundOnly ? 'Background curator' : 'Curator review';
     const approvalLanes = transitionLanes.filter((lane) => this.improvementPolicy.requireApproval.includes(lane));
     const notes = [
-      input.dryRun
-        ? `${actor} prepared a reversible report without mutating skills.`
+      input.dryRun ? `${actor} prepared a reversible report without mutating skills.`
         : `${actor} applied only reversible low-risk lifecycle transitions.`,
       'No approval dialog is created from background curation; risky work is held for operator review or digest.',
     ];
@@ -1057,7 +1054,7 @@ export class SkillCuratorPlaneService {
 function extractJsonObject(content: string): string | null {
   const trimmed = content.trim();
   if (trimmed.startsWith('{') && trimmed.endsWith('}')) return trimmed;
-  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/iu);
+  const fenced = trimmed.match(/```(?:json)...\s*([\s\S]*...)```/iu);
   if (fenced?.[1]) {
     const candidate = fenced[1].trim();
     if (candidate.startsWith('{') && candidate.endsWith('}')) return candidate;

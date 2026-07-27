@@ -46,19 +46,19 @@ export class GeminiManagedAgentExecutor implements IExecutor {
 
     if (!config.geminiManagedAgentsEnabled && process.env.ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED !== 'true') {
       result.error_code = 'GEMINI_MANAGED_AGENT_DISABLED';
-      result.error_message = 'Gemini Managed Agents esta desabilitado. Defina ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED=true e aprove o uso antes de executar.';
+      result.error_message = 'Gemini Managed Agents is disabled. Set ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED=true and approve usage before running.';
       return this.finish(result);
     }
 
     if (!this.apiKey) {
       result.error_code = 'GEMINI_MANAGED_AGENT_AUTH_MISSING';
-      result.error_message = 'Falta GEMINI_INTERACTIONS_API_KEY ou GEMINI_API_KEY para usar Gemini Managed Agents.';
+      result.error_message = 'Missing GEMINI_INTERACTIONS_API_KEY or GEMINI_API_KEY for Gemini Managed Agents.';
       return this.finish(result);
     }
 
     if (!request.metadata?.approval_id && !request.metadata?.approved) {
       result.error_code = 'GEMINI_MANAGED_AGENT_APPROVAL_REQUIRED';
-      result.error_message = 'Managed Agents executam em sandbox remota e exigem approval explicito do Zavorth.';
+      result.error_message = 'Managed Agents run in a remote sandbox and require explicit Zavorth approval.';
       result.metadata = {
         suggested_scope: 'once',
         suggested_backend: this.name,
@@ -74,8 +74,8 @@ export class GeminiManagedAgentExecutor implements IExecutor {
       result.success = true;
       result.stdout = body?.output_text
         || receipt.steps.filter((step) => step.kind === 'model_output' && step.text).map((step) => step.text).join('\n')
-        || 'Gemini Managed Agent concluiu a interaction.';
-      result.actions_executed.push(`[Gemini Managed Agent] Interaction ${body?.id || body?.name || 'sem-id'} concluida.`);
+        || 'Gemini Managed Agent completed a interaction.';
+      result.actions_executed.push(`[Gemini Managed Agent] Interaction ${body?.id || body?.name || 'without-id'} completed.`);
       result.metadata = {
         gemini_managed_agent: {
           provider: 'gemini',

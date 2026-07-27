@@ -1,4 +1,4 @@
-import { Context } from 'grammy';
+﻿import { Context } from 'grammy';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 
 export class TelegramResearchController {
@@ -17,8 +17,8 @@ export class TelegramResearchController {
     if (!query) {
       await ctx.reply(
         commandType === '/deepresearch'
-          ? 'Uso: /deepresearch <tema>'
-          : 'Uso: /research <termo>\nExemplo: /research ultimas noticias de inteligencia artificial',
+          ? 'Usage: /deepresearch <topic>'
+          : 'Usage: /research <term>\nExample: /research latest artificial intelligence news',
       );
       return;
     }
@@ -48,8 +48,8 @@ export class TelegramResearchController {
     await ctx.reply(
       [
         `${commandType === '/deepresearch' ? 'Deep Research' : 'Pesquisa'} aceita e enfileirada.`,
-        `Referencia curta: ${task.task_id.substring(0, 8)}`,
-        'Eu aviso aqui quando terminar.',
+        `Short reference: ${task.task_id.substring(0, 8)}`,
+        'I will notify you here when it is done.',
       ].join('\n'),
     );
   }

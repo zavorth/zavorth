@@ -12,11 +12,11 @@ import { renderCliScreen } from './ZavorthCliVisualSystem.js';
 
 function compactPlatformLine(value: string | null | undefined, maxLength = 150): string {
   const sanitized = sanitizeHumanCliText(value || '')
-    .replace(/^Zavorth exp?e (\d+) familias de tools no plano atual\.?$/i, 'Zavorth exposes $1 available tool families.')
-    .replace(/^Zavorth exposes (\d+) familias de ferramentas no plano atual\.?$/i, 'Zavorth exposes $1 available tool families.')
+    .replace(/^Zavorth exposes (\d+) tool families in the current plan\....$/i, 'Zavorth exposes $1 available tool families.')
+    .replace(/^Zavorth exposes (\d+) tool families in the current plan\....$/i, 'Zavorth exposes $1 available tool families.')
     .replace(/\btask,\s*workflow\b/gi, 'tasks and workflows')
-    .replace(/\bexp?e\b/gi, 'exposes')
-    .replace(/\bexp?em\b/gi, 'expose')
+    .replace(/\bexposes\b/gi, 'exposes')
+    .replace(/\bexposesm\b/gi, 'expose')
     .replace(/familias de tools/gi, 'tool families')
     .replace(/\s+/g, ' ')
     .trim();
@@ -24,7 +24,7 @@ function compactPlatformLine(value: string | null | undefined, maxLength = 150):
     return sanitized;
   }
 
-  const sentenceMatch = sanitized.match(/^(.+?[.!?])\s+/);
+  const sentenceMatch = sanitized.match(/^(.+...[.!...])\s+/);
   const firstSentence = sentenceMatch?.[1]?.trim();
   if (firstSentence && firstSentence.length >= 32 && firstSentence.length <= maxLength) {
     return firstSentence;
@@ -40,13 +40,13 @@ function formatToolFamilyLabel(label: string | null | undefined): string {
   const normalized = String(label || '').trim();
   const lower = normalized.toLowerCase();
   if (lower === 'session tools') {
-    return 'Sessoes';
+    return 'Sessions';
   }
   if (lower === 'tasks e workflows') {
     return 'Tarefas e workflows';
   }
-  if (lower === 'teams e subagentes') {
-    return 'Times e subagentes';
+  if (lower === 'teams and delegation') {
+    return 'Teams and delegation';
   }
   return normalized || 'Familia';
 }
@@ -70,7 +70,7 @@ function formatPlatformActionExecution(result: ZavorthPlatformActionExecution): 
   return renderCliScreen({
     eyebrow: 'Plugins',
     eyebrowTone: executionTone,
-    title: 'Acao de platform aplicada',
+    title: 'Platform Action Applied',
     summary: sanitizeHumanCliText(result.summary),
     mode: 'compact',
     showWordmark: false,
@@ -79,7 +79,7 @@ function formatPlatformActionExecution(result: ZavorthPlatformActionExecution): 
         title: 'Summary',
         lines: [
           `- target: ${selectedLabel}`,
-          `- acao: ${result.actionId}`,
+          `- action: ${result.actionId}`,
           `- status: ${result.status}`,
         ],
         tone: executionTone,
@@ -90,7 +90,7 @@ function formatPlatformActionExecution(result: ZavorthPlatformActionExecution): 
         tone: 'neutral',
       },
       {
-        title: 'Faca agora',
+        title: 'Do Now',
         lines: [`- zavorth plugins list ${result.entryId}`],
         tone: 'brand',
       },
@@ -109,7 +109,7 @@ function formatPlatformPublishResult(result: ZavorthPlatformPublishResult): stri
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
           `- release: ${result.releaseId}`,
           `- status: ${result.uploadStatus}`,
@@ -124,7 +124,7 @@ function formatPlatformPublishResult(result: ZavorthPlatformPublishResult): stri
         tone: 'neutral',
       },
       {
-        title: 'Faca agora',
+        title: 'Do Now',
         lines: ['- zavorth plugins list'],
         tone: 'brand',
       },
@@ -145,12 +145,12 @@ function formatAIGatewayGatewayStatus(
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
           `- state: ${normalizeAIGatewayStatusLabel(status)}`,
           `- local route: ${status.baseUrl}`,
           `- upstream: ${status.upstreamBaseUrl}`,
-          `- processo: ${status.running ? `ativo (pid ${formatCliValue(status.pid ? String(status.pid) : null)})` : 'inativo'}`,
+          `- process: ${status.running ? `active (pid ${formatCliValue(status.pid ? String(status.pid) : null)})` : 'inactive'}`,
         ],
         tone: status.ready ? 'success' : status.enabled ? 'warning' : 'muted',
       },
@@ -158,13 +158,13 @@ function formatAIGatewayGatewayStatus(
         title: 'Mesh',
         lines: [
           `- host: ${status.host}:${status.port}`,
-          `- exposicao: ${status.localOnly ? 'local apenas' : 'acessivel externamente'}`,
+          `- exposure: ${status.localOnly ? 'local only' : 'externally accessible'}`,
           `- overlay: ${formatCliValue(status.overlayFile)}`,
         ],
         tone: 'neutral',
       },
       {
-        title: 'Faca agora',
+        title: 'Do Now',
         lines: ['- zavorth AIGateway doctor', '- zavorth AIGateway sync'],
         tone: 'brand',
       },
@@ -182,7 +182,7 @@ function formatAIGatewayDoctorReport(report: AIGatewayCompatibilityDoctorReport)
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
           `- status: ${report.status}`,
           `- target: ${report.checkedTarget}`,
@@ -192,7 +192,7 @@ function formatAIGatewayDoctorReport(report: AIGatewayCompatibilityDoctorReport)
         tone: report.status === 'passed' ? 'success' : 'warning',
       },
       {
-        title: 'Diagnostico tecnico',
+        title: 'Technical Diagnostics',
         lines: [
           `- http: ${report.httpStatus ?? 'not provided'}`,
           `- overlay: ${formatCliValue(report.overlayFile)}`,
@@ -201,7 +201,7 @@ function formatAIGatewayDoctorReport(report: AIGatewayCompatibilityDoctorReport)
         tone: report.error ? 'danger' : 'neutral',
       },
       {
-        title: 'Faca agora',
+        title: 'Do Now',
         lines: [
           report.status === 'passed' ? '- zavorth AIGateway promote' : '- zavorth AIGateway route',
           '- zavorth AIGateway sync',
@@ -223,9 +223,9 @@ function formatAIGatewaySyncReport(report: AIGatewayUpstreamSyncReport): string 
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
-          `- acao: ${report.action}`,
+          `- action: ${report.action}`,
           `- status: ${report.status}`,
           `- automatic rollback: ${report.rollbackApplied ? 'yes' : 'no'}`,
           report.error ? `- error: ${report.error}` : null,
@@ -247,7 +247,7 @@ function formatAIGatewaySyncReport(report: AIGatewayUpstreamSyncReport): string 
         tone: 'muted',
       },
       {
-        title: 'Faca agora',
+        title: 'Do Now',
         lines: ['- zavorth AIGateway doctor', '- zavorth AIGateway route'],
         tone: 'brand',
       },
@@ -265,17 +265,17 @@ function formatSessionSendResult(result: GatewaySessionSendResult): string {
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
-          `- status: ${result.ok ? 'enviado' : 'falhou'}`,
-          `- destino: ${result.platform}:${result.sessionId || result.chatId}`,
+          `- status: ${result.ok ? 'sent' : 'failed'}`,
+          `- destination: ${result.platform}:${result.sessionId || result.chatId}`,
           `- task: ${formatCliValue(result.taskId)}`,
         ],
         tone: result.ok ? 'success' : 'danger',
       },
       {
-        title: 'Faca agora',
-        lines: [`- acompanhe em history ${result.sessionId || '<sessionId>'}`],
+        title: 'Do Now',
+        lines: [`- follow in history ${result.sessionId || '<sessionId>'}`],
         tone: 'brand',
       },
     ],
@@ -284,15 +284,15 @@ function formatSessionSendResult(result: GatewaySessionSendResult): string {
 
 function formatSessionSpawnResult(result: GatewaySessionSpawnSnapshot): string {
   return renderCliScreen({
-    eyebrow: 'Sessoes',
+    eyebrow: 'Sessions',
     eyebrowTone: result.ok ? 'success' : 'warning',
-    title: 'New Session Ready',
+    title: 'Sessions',
     summary: result.ok ? 'The derived session can now be used.' : 'The session was partially opened and may need review.',
     mode: 'compact',
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
           `- status: ${result.ok ? 'open' : 'partial'}`,
           `- platform: ${result.platform}`,
@@ -302,7 +302,7 @@ function formatSessionSpawnResult(result: GatewaySessionSpawnSnapshot): string {
         tone: result.ok ? 'success' : 'warning',
       },
       {
-        title: 'Faca agora',
+        title: 'Do Now',
         lines: [
           `- abrir agora: ${result.handoffCommand}`,
           '- open the new session or use the handoff above',
@@ -328,26 +328,26 @@ function formatToolSurfaceSnapshot(snapshot: ZavorthToolSurfaceSnapshot): string
         title: 'Agora',
         lines: [
           `- families: ${formatCount(snapshot.summary.families, 'total', 'total')} | ${formatCount(snapshot.summary.ready, 'ready', 'ready')} | ${formatCount(snapshot.summary.partial, 'partial', 'partial')}`,
-          `- resumo: ${compactPlatformLine(snapshot.narrative.operatorSummary)}`,
+          `- summary: ${compactPlatformLine(snapshot.narrative.operatorSummary)}`,
         ],
         tone: snapshot.summary.ready > 0 ? 'info' : 'muted',
       },
       {
-        title: selected ? 'Item em foco' : 'Familias em foco',
+        title: selected ? 'Focused item' : 'Focused families',
         lines: selected
           ? [
             `- ${selected.label}`,
             `- family: ${formatToolFamilyLabel(selected.familyLabel)}`,
             `- state: ${selected.readiness}`,
-            `- resumo: ${compactPlatformLine(selected.summary)}`,
+            `- summary: ${compactPlatformLine(selected.summary)}`,
             selected.command ? `- command: ${selected.command}` : null,
           ].filter(Boolean) as string[]
           : highlighted.map((family) => `- ${formatToolFamilyLabel(family.label)}: ${compactPlatformLine(family.summary, 96)}`),
         tone: 'neutral',
       },
       {
-        title: 'Faca agora',
-        lines: [selected?.id ? `- zavorth tools ${selected.id}` : '- use zavorth tools <filtro> para procurar uma ferramenta especifica'],
+        title: 'Do Now',
+        lines: [selected?.id ? `- zavorth tools ${selected.id}` : '- use zavorth tools <filter> to find a specific tool'],
         tone: 'brand',
       },
     ],
@@ -365,11 +365,11 @@ function formatHookPlaneSnapshot(snapshot: ZavorthHookPlaneSnapshot): string {
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
           `- events: ${snapshot.summary.supportedEvents} total | ${snapshot.summary.coveredEvents} covered`,
           `- registered hooks: ${snapshot.summary.registeredHooks} | workspaces: ${snapshot.summary.workspaces}`,
-          `- resumo: ${sanitizeHumanCliText(snapshot.narrative.operatorSummary)}`,
+          `- summary: ${sanitizeHumanCliText(snapshot.narrative.operatorSummary)}`,
         ],
         tone: snapshot.summary.registeredHooks > 0 ? 'info' : 'muted',
       },
@@ -381,7 +381,7 @@ function formatHookPlaneSnapshot(snapshot: ZavorthHookPlaneSnapshot): string {
         tone: 'neutral',
       },
       {
-        title: 'Faca agora',
+        title: 'Do Now',
         lines: ['- zavorth hooks'],
         tone: 'brand',
       },

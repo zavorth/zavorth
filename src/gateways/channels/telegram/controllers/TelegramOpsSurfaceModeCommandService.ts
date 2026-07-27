@@ -5,8 +5,8 @@ import { OperatorModeService } from '@zavorth/services/OperatorModeService.js';
 type ModeAction = 'activate' | 'deactivate' | 'status';
 
 const MODE_ALIASES: Record<string, ModeAction> = {
-  on: 'activate', ativar: 'activate', ligar: 'activate', enable: 'activate', activate: 'activate',
-  off: 'deactivate', desativar: 'deactivate', desligar: 'deactivate', disable: 'deactivate', deactivate: 'deactivate',
+  on: 'activate',
+  off: 'deactivate',
   status: 'status',
 };
 

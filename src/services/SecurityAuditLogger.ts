@@ -57,7 +57,7 @@ export class SecurityAuditLogger {
   private validateKeys(obj: ValidationRecord, allowedKeys: string[]): void {
     const keys = Object.keys(obj);
     const forbiddenKeys = ['messageBody', 'prompt', 'env', 'envValue', 'toolArgs', 'schema', 'parameters'];
-    
+
     for (const key of keys) {
       if (forbiddenKeys.includes(key)) {
         throw new Error(`Forbidden key "${key}" detected in audit event metadata.`);

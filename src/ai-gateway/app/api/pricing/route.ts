@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 /**
  * PATCH /api/pricing
  * Update pricing configuration
- * Body: { provider: { model: { input: number, output: number, cached: number, ... } } }
+ * Body: { provider: { model: { input: number, output: number, cached: number, ? } } }
  */
 export async function PATCH(request) {
   const authError = await requireManagementAuth(request);
@@ -60,7 +60,7 @@ export async function PATCH(request) {
 /**
  * DELETE /api/pricing
  * Reset pricing to defaults
- * Query params: ?provider=xxx&model=yyy (optional)
+ * Query params: ...provider=xxx&model=yyy (optional)
  */
 export async function DELETE(request) {
   const authError = await requireManagementAuth(request);

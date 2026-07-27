@@ -48,16 +48,14 @@ export class IntegrationHealthService {
   public buildDoctorSnapshot(integrationId: string): IntegrationDoctorSnapshot {
     const manifest = this.registryService.getManifestById(integrationId);
     if (!manifest) {
-      throw new Error(`Integraction desconhecida: ${integrationId}`);
+      throw new Error(`Unknown integration: ${integrationId}`);
     }
 
     const installed = this.installerService.getInstalled(manifest.id);
     const probe = this.probeService.getLatestProbe(manifest.id);
     const findings = this.buildFindings(manifest, installed, probe);
-    const status = findings.some((entry) => entry.level === 'error')
-      ? 'error'
-      : findings.some((entry) => entry.level === 'warn')
-        ? 'warn'
+    const status = findings.some((entry) => entry.level === 'error') ? 'error'
+      : findings.some((entry) => entry.level === 'warn') ? 'warn'
         : 'ok';
     const runtimeReady = this.isRuntimeReady(manifest);
     const configured = Boolean(installed) || runtimeReady;
@@ -71,8 +69,7 @@ export class IntegrationHealthService {
       status,
       binding: {
         ...manifest.binding,
-        status: runtimeReady
-          ? 'ready'
+        status: runtimeReady ? 'ready'
           : manifest.binding.status === 'ready'
             ? 'partial'
             : manifest.binding.status,
@@ -114,68 +111,68 @@ export class IntegrationHealthService {
     if (manifest.supportLevel === 'experimental') {
       findings.push({
         level: 'warn',
-        title: 'Integração experimental',
-        detail: 'A receita existe, mas ainda nÃ£o tem maturidade de produÃ§Ã£o no Zavorth.',
+        title: 'Experimental integration',
+        detail: 'The recipe exists but does not yet have production maturity in Zavorth.',
       });
     }
 
     if (manifest.supportLevel === 'template') {
       findings.push({
         level: 'warn',
-        title: 'Template, não integração pronta',
-        detail: 'Este item serve para guiar um novo conector e ainda depende de implementaÃ§Ã£o especÃ­fica.',
+        title: 'Template, not a ready integration',
+        detail: 'This item is meant to guide a new connector and still depends on specific implementation.',
       });
     }
 
     if (!installed && !runtimeReady) {
       findings.push({
         level: 'warn',
-        title: 'Ainda nÃ£o foi preparada',
-        detail: 'Nenhum draft de onboarding foi salvo e o runtime tambÃ©m nÃ£o detectou configuraÃ§Ã£o pronta.',
+        title: 'Not prepared yet',
+        detail: 'No onboarding draft was saved and the runtime also did not detect a ready configuration.',
       });
     }
 
     if (!runtimeReady && unansweredQuestions.length > 0) {
       findings.push({
         level: 'warn',
-        title: 'Onboarding incompleto',
-        detail: `Ainda faltam ${unansweredQuestions.length} respostas bÃ¡sicas para fechar o plano da integraÃ§Ã£o.`,
+        title: 'Incomplete onboarding',
+        detail: `${unansweredQuestions.length} basic answer(s) still missing to close the integration plan.`,
       });
     }
 
     if (!runtimeReady && missingRequirements.length > 0) {
       findings.push({
         level: 'warn',
-        title: 'Requisitos pendentes',
-        detail: `Ainda faltam ${missingRequirements.map((entry) => entry.label).join(', ')}.`,
+        title: 'Pending requirements',
+        detail: `Still missing ${missingRequirements.map((entry) => entry.label).join(', ')}.`,
       });
     }
 
     if (installed && repairableRuntimeBindings.length > 0 && !runtimeReady && this.dependsOnRuntimeCredential(manifest)) {
       findings.push({
         level: 'warn',
-        title: 'Configuracao guardada, mas nao aplicada no runtime',
+        title: 'Configuration saved but not applied in runtime',
         detail:
-          'O hub ja recebeu a configuracao necessaria, mas o binding atual do Zavorth ainda depende de aplicar esses valores no runtime local para ficar realmente saudavel.',
+          'The hub already received the necessary configuration, but the current Zavorth binding still depends on applying these values in the local runtime to become truly healthy.',
       });
     }
 
     if (runtimeReady) {
       findings.push({
         level: 'info',
-        title: 'Runtime detectado',
-        detail: 'O Zavorth jÃ¡ enxerga sinais de que essa integraÃ§Ã£o estÃ¡ pronta para uso real.',
+        title: 'Runtime detected',
+        detail: 'Zavorth already sees signs that this integration is ready for real use.',
       });
     } else if (manifest.binding.status === 'ready') {
       findings.push({
         level: 'warn',
-        title: 'Binding existe, mas nÃ£o estÃ¡ pronto',
-        detail: 'O runtime sabe falar com essa integraÃ§Ã£o, mas faltam credenciais, sidecar ou binÃ¡rio.',
+        title: 'Binding exists but is not ready',
+        detail: 'The runtime knows how to talk to this integration, but credentials, sidecar, or binary are missing.',
       });
     } else {
       findings.push({
         level: 'info',
-        title: 'Receita disponível',
+        title: 'Recipe available',
         detail: manifest.binding.summary,
       });
     }
@@ -184,25 +181,25 @@ export class IntegrationHealthService {
       if (probe.status === 'ok') {
         findings.push({
           level: 'info',
-          title: 'Probe real aprovado',
+          title: 'Live probe passed',
           detail: `${probe.summary}. ${probe.detail}`,
         });
       } else if (probe.status === 'failed') {
         findings.push({
           level: 'error',
-          title: 'Probe real falhou',
+          title: 'Live probe failed',
           detail: `${probe.summary}. ${probe.detail}`,
         });
       } else if (probe.status === 'not_configured') {
         findings.push({
           level: 'warn',
-          title: 'Probe real nao conseguiu autenticar',
+          title: 'Live probe could not authenticate',
           detail: probe.detail,
         });
       } else if (probe.status === 'unsupported') {
         findings.push({
           level: 'info',
-          title: 'Probe real ainda nao disponivel',
+          title: 'Live probe not available yet',
           detail: probe.detail,
         });
       }
@@ -211,8 +208,8 @@ export class IntegrationHealthService {
     if (findings.length === 0) {
       findings.push({
         level: 'info',
-        title: 'Sem alertas',
-        detail: 'A integraÃ§Ã£o parece coerente com o estado atual do hub.',
+        title: 'No alerts',
+        detail: 'The integration seems consistent with the current hub state.',
       });
     }
 
@@ -231,74 +228,73 @@ export class IntegrationHealthService {
 
     if (probe?.status === 'failed') {
       return {
-        label: 'Revalidar integração',
-        command: 'usar fluxo assistido do Integration Hub',
-        reason: highest?.detail || 'O binding parece configurado, mas o probe real ainda falhou.',
+        label: 'Revalidate integration',
+        command: 'use the Integration Hub assisted flow',
+        reason: highest?.detail || 'The binding seems configured, but the live probe still failed.',
       };
     }
 
     if (manifest.id === 'AIGateway' && !runtimeReady && config.AIGatewaySidecarEnabled) {
       return {
-        label: 'Subir sidecar AIGateway',
-        command: 'usar fluxo assistido do Integration Hub',
-        reason: highest?.detail || 'O gateway local ainda nao respondeu; o proximo passo seguro e subir o sidecar pelo hub.',
+        label: 'Start AIGateway sidecar',
+        command: 'use the Integration Hub assisted flow',
+        reason: highest?.detail || 'The local gateway has not responded yet; the safe next step is to start the sidecar from the hub.',
       };
     }
 
     if (manifest.id === 'zavorth-terminal' && !runtimeReady && config.ZavorthTerminalSidecarEnabled) {
       return {
-        label: 'Subir sidecar ZavorthBridge Remote',
-        command: 'usar fluxo assistido do Integration Hub',
-        reason: highest?.detail || 'O remoto do ZavorthBridge ainda nao respondeu; o proximo passo seguro e subir o sidecar pelo hub.',
+        label: 'Start ZavorthBridge Remote sidecar',
+        command: 'use the Integration Hub assisted flow',
+        reason: highest?.detail || 'The ZavorthBridge remote has not responded yet; the safe next step is to start the sidecar from the hub.',
       };
     }
 
     if (manifest.id === 'oracle-cloudflare-gemma' && !runtimeReady) {
       return {
-        label: 'Fechar rollout Oracle + Cloudflare',
+        label: 'Complete Oracle + Cloudflare rollout',
         command: 'npm run ops:oracle-cloudflare',
-        reason: highest?.detail || 'Ainda faltam sinais basicos da arquitetura remota recomendada.',
+        reason: highest?.detail || 'Basic signals from the recommended remote architecture are still missing.',
       };
     }
 
     if (!installed) {
       return {
-        label: runtimeReady ? 'Registrar no hub' : 'Abrir onboarding',
+        label: runtimeReady ? 'Register in hub' : 'Open onboarding',
         command: runtimeReady ? `/connect ${manifest.id}` : `npm run integrations:show -- --id ${manifest.id}`,
-        reason: highest?.detail || (runtimeReady
-          ? 'O runtime jÃ¡ parece pronto; agora falta registrar preferÃªncias e escopo no hub.'
-          : 'Ainda nÃ£o existe um draft salvo para essa integraÃ§Ã£o.'),
+        reason: highest?.detail || (runtimeReady ? 'The runtime already looks ready; now preferences and scope need to be registered in the hub.'
+          : 'No saved draft exists for this integration yet.'),
       };
     }
 
     if (manifest.id === 'ollama' && !this.resolveOllamaHost()) {
       return {
-        label: 'Preparar host local do Ollama',
-        command: 'usar fluxo assistido do Integration Hub',
-        reason: highest?.detail || 'Antes de validar o Ollama, o Zavorth precisa saber qual host local deve testar.',
+        label: 'Prepare local Ollama host',
+        command: 'use the Integration Hub assisted flow',
+        reason: highest?.detail || 'Before validating Ollama, Zavorth needs to know which local host to test.',
       };
     }
 
     if (!runtimeReady && repairableRuntimeBindings.length > 0) {
       return {
-        label: 'Reparar binding do runtime',
-        command: 'usar fluxo assistido do Integration Hub',
-        reason: highest?.detail || 'O hub ja guarda configuracao suficiente para tentar reparar o binding automaticamente.',
+        label: 'Repair runtime binding',
+        command: 'use the Integration Hub assisted flow',
+        reason: highest?.detail || 'The hub already has enough configuration to attempt automatic binding repair.',
       };
     }
 
     if (!runtimeReady) {
       return {
-        label: 'Revalidar integração',
+        label: 'Revalidate integration',
         command: `npm run integrations:doctor -- --id ${manifest.id}`,
-        reason: highest?.detail || 'Ainda faltam sinais de saÃºde no runtime.',
+        reason: highest?.detail || 'Health signals are still missing in the runtime.',
       };
     }
 
     return {
-      label: 'Usar no Zavorth',
+      label: 'Use in Zavorth',
       command: `/connect ${manifest.id}`,
-      reason: 'A integraÃ§Ã£o jÃ¡ parece pronta para entrar no fluxo normal do Zavorth.',
+      reason: 'The integration already seems ready to join the normal Zavorth flow.',
     };
   }
 
@@ -318,8 +314,8 @@ export class IntegrationHealthService {
       id: 'onboarding',
       label: unansweredQuestions.length > 0 ? 'Fechar onboarding' : 'Onboarding coberto',
       detail: unansweredQuestions.length > 0
-        ? `Ainda faltam ${unansweredQuestions.length} resposta(s): ${unansweredQuestions.map((entry) => entry.label).join(', ')}.`
-        : 'As perguntas basicas desta integracao ja foram respondidas no hub.',
+        ? `Still missing ${unansweredQuestions.length} response(s): ${unansweredQuestions.map((entry) => entry.label).join(', ')}.`
+        : 'As perguntas basic desta integration already foram answered no hub.',
       kind: 'guided',
       status: unansweredQuestions.length > 0 ? 'next' : 'done',
       command: `/connect ${manifest.id}`,
@@ -328,18 +324,18 @@ export class IntegrationHealthService {
     if (repairableRuntimeBindings.length > 0) {
       steps.push({
         id: 'repair-runtime',
-        label: 'Aplicar configuracao guardada ao runtime',
-        detail: `O hub ja recebeu ${repairableRuntimeBindings.map((entry) => entry.label).join(', ')} e pode tentar ativar esse binding sem repetir o onboarding.`,
+        label: 'Apply saved configuration to runtime',
+        detail: `O hub already recebeu ${repairableRuntimeBindings.map((entry) => entry.label).join(', ')} e pode try ativar esse binding without repetir o onboarding.`,
         kind: 'automatic',
         status: runtimeReady ? 'done' : 'next',
         actionId: 'repair-runtime',
-        command: 'usar fluxo assistido do Integration Hub',
+        command: 'usar Assisted flow do Integration Hub',
       });
     } else if (missingRequirements.length > 0) {
       steps.push({
         id: 'requirements',
-        label: 'Completar requisitos pendentes',
-        detail: `Ainda faltam ${missingRequirements.map((entry) => entry.label).join(', ')} para o runtime ficar realmente pronto.`,
+        label: 'Completar requisitos pending',
+        detail: `Still missing ${missingRequirements.map((entry) => entry.label).join(', ')} for the runtime to become truly ready.`,
         kind: 'manual',
         status: runtimeReady ? 'optional' : (unansweredQuestions.length > 0 ? 'pending' : 'next'),
         command: `npm run integrations:show -- --id ${manifest.id}`,
@@ -350,11 +346,11 @@ export class IntegrationHealthService {
       steps.push({
         id: 'AIGateway-sidecar',
         label: 'Subir sidecar AIGateway',
-        detail: 'O gateway local ainda nao respondeu. O proximo passo seguro e subir o sidecar pelo proprio hub.',
+        detail: 'The local gateway has not responded yet. The next safe step is starting the sidecar through the hub itself.',
         kind: 'automatic',
         status: 'next',
         actionId: 'recipe:AIGateway:start-sidecar',
-        command: 'usar fluxo assistido do Integration Hub',
+        command: 'usar Assisted flow do Integration Hub',
       });
     }
 
@@ -362,11 +358,11 @@ export class IntegrationHealthService {
       steps.push({
         id: 'zavorth-bridge-remote-sidecar',
         label: 'Subir sidecar ZavorthBridge Remote',
-        detail: 'O remoto do ZavorthBridge ainda nao respondeu. O proximo passo seguro e subir o sidecar remoto pelo proprio hub.',
+        detail: 'The ZavorthBridge remote has not responded yet. The next safe step is starting the remote sidecar through the hub itself.',
         kind: 'automatic',
         status: 'next',
         actionId: 'recipe:zavorth-bridge-remote:start-sidecar',
-        command: 'usar fluxo assistido do Integration Hub',
+        command: 'usar Assisted flow do Integration Hub',
       });
     }
 
@@ -374,33 +370,33 @@ export class IntegrationHealthService {
       steps.push({
         id: 'ollama-host',
         label: 'Preparar host local do Ollama',
-        detail: 'O draft existe, mas o runtime ainda nao sabe qual endpoint local usar para falar com o Ollama.',
+        detail: 'The draft exists, but the runtime does not know which local endpoint to use to talk to Ollama yet.',
         kind: 'automatic',
         status: 'next',
         actionId: 'recipe:ollama:prepare-host',
-        command: 'usar fluxo assistido do Integration Hub',
+        command: 'usar Assisted flow do Integration Hub',
       });
     }
 
     steps.push({
       id: 'validate',
-      label: probe?.status === 'ok' ? 'Validacao final concluida' : 'Rodar validacao final',
+      label: probe?.status === 'ok' ? 'Validation final completed' : 'run validation final',
       detail: probe?.status === 'ok'
-        ? `O ultimo probe real respondeu bem: ${probe.summary}.`
+        ? `O latest probe real respondeu bem: ${probe.summary}.`
         : (probe?.status === 'failed'
-          ? `O ultimo probe real ainda falhou: ${probe.summary}. Corrija o binding e valide de novo.`
-          : 'Use "Validar agora" para confirmar se a integracao realmente responde, e nao apenas parece configurada.'),
+          ? `O latest probe real ainda failed: ${probe.summary}. Corrija o binding e valide de novo.`
+          : 'Use "Validate now" to confirm the integration really responds and does not merely look configured.'),
       kind: 'verification',
       status: probe?.status === 'ok' ? 'done' : ((unansweredQuestions.length > 0 || missingRequirements.length > 0) ? 'pending' : 'next'),
       actionId: 'validate-now',
-      command: 'usar fluxo assistido do Integration Hub',
+      command: 'usar Assisted flow do Integration Hub',
     });
 
     if (status === 'ok') {
       steps.push({
         id: 'use-runtime',
         label: 'Usar no Zavorth',
-        detail: 'A integracao ja esta pronta para entrar no roteamento e ser usada nas conversas e automacoes.',
+        detail: 'The integration is already ready to enter routing and be used in conversations and automations.',
         kind: 'guided',
         status: 'done',
         command: `/connect ${manifest.id}`,
@@ -408,15 +404,15 @@ export class IntegrationHealthService {
     }
 
     const headline = status === 'ok'
-      ? 'Integracao pronta para uso'
+      ? 'Integration ready for use'
       : status === 'error'
-        ? 'Existe um bloqueio real para corrigir'
-        : 'Faltam alguns passos para fechar a integracao';
+        ? 'There is a real block to fix'
+        : 'missing alguns passos para fechar a integration';
     const summary = status === 'ok'
-      ? 'O hub enxerga binding e validacao coerentes para esta integracao.'
+      ? 'O hub enxerga binding e validation coerentes para is integration.'
       : status === 'error'
-        ? 'Siga o passo marcado como "next" primeiro; os demais servem como apoio para estabilizar a integracao.'
-        : 'Comece pelo passo marcado como "next". Quando ele estiver resolvido, o restante do roteiro fica mais simples.';
+        ? 'Follow the step marked as "next" first; the others support integration stabilization.'
+        : 'Start with the step marked as "next". When it is resolved, the rest of the path becomes simpler.';
 
     return {
       headline,
@@ -467,7 +463,7 @@ export class IntegrationHealthService {
         if (!config.slackEnabled) {
           return false;
         }
-        if (config.slackTransport === 'stub') {
+        if (config.slackTransport === 'local') {
           return true;
         }
         return Boolean(
@@ -480,7 +476,7 @@ export class IntegrationHealthService {
         if (!config.whatsappEnabled) {
           return false;
         }
-        if (config.whatsappProvider === 'stub') {
+        if (config.whatsappProvider === 'local') {
           return true;
         }
         if (config.whatsappProvider === 'baileys') {

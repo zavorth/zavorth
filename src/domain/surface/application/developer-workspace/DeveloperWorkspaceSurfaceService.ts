@@ -218,7 +218,7 @@ export class DeveloperWorkspaceSurfaceService {
         input,
         errors,
         snapshot,
-        message: 'Developer Workspace recusou a acao antes de tocar processos.',
+        message: 'Developer Workspace rejected the action before touching processes.',
       });
     }
 
@@ -233,7 +233,7 @@ export class DeveloperWorkspaceSurfaceService {
         input,
         errors: [],
         snapshot,
-        message: 'A acao do Developer Workspace requer approval antes de executar.',
+        message: 'The Developer Workspace action requires approval before running.',
       });
     }
 
@@ -283,7 +283,7 @@ export class DeveloperWorkspaceSurfaceService {
         input,
         errors: [errorMessage(error)],
         snapshot,
-        message: 'Developer Workspace nao conseguiu executar a acao solicitada.',
+        message: 'Developer Workspace could not execute the requested action.',
       });
     }
   }

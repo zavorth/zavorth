@@ -23,11 +23,11 @@ export type DiscordBridgeRuntimeStatus = {
 };
 
 export type WhatsAppRuntimeStatus = {
-  mode: 'stub' | 'cloud-api' | 'baileys' | 'unknown';
+  mode: 'local' | 'cloud-api' | 'baileys' | 'unknown';
   enabled: boolean;
   started: boolean;
   recipientsConfigured: number;
-  provider: 'stub' | 'cloud-api' | 'baileys' | 'unknown';
+  provider: 'local' | 'cloud-api' | 'baileys' | 'unknown';
   providerConfigured: boolean;
   providerDecision: string | null;
   webhookConfigured: boolean;
@@ -36,11 +36,11 @@ export type WhatsAppRuntimeStatus = {
 };
 
 export type SlackRuntimeStatus = {
-  mode: 'stub' | 'native' | 'unknown';
+  mode: 'local' | 'native' | 'unknown';
   enabled: boolean;
   started: boolean;
   recipientsConfigured: number;
-  transport: 'native' | 'local' | 'stub' | 'unknown';
+  transport: 'native' | 'local' | 'unknown';
   nativeConfigured: boolean;
   apiBaseUrl: string | null;
   workspaceConfigured: boolean;

@@ -167,8 +167,7 @@ export class GatewaySpineService {
       },
       {
         id: 'telegram-not-special',
-        status: CANONICAL_COMMANDS.every((command) => command.surfaceConsistency.includes('telegram') && command.surfaceConsistency.includes('cli'))
-          ? 'passed' as const
+        status: CANONICAL_COMMANDS.every((command) => command.surfaceConsistency.includes('telegram') && command.surfaceConsistency.includes('cli')) ? 'passed' as const
           : 'attention' as const,
         detail: 'Telegram is a first-class renderer, not a privileged command plane.',
       },

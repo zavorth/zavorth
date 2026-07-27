@@ -26,7 +26,7 @@ export function buildProductizationEvidenceCliSnapshot(input: {
     userId: input.userId,
     channel: 'cli',
     sessionId: input.sessionId,
-    text: input.text || 'audite readiness de produto sem publicar release',
+    text: input.text || 'audit product readiness without publishing a release',
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
     requestedTools: ['workspace.read'],
     metadata: {
@@ -54,7 +54,7 @@ export function buildProductizationEvidenceCliSnapshot(input: {
             id: 'productization-evidence:memory-receipt',
             kind: 'memory',
             source: 'MemoryWithReceiptsService',
-            detail: 'Fixture CLI cita o contract C9 e mantem release em preview.',
+            detail: 'CLI fixture cites contract C9 and keeps release in preview.',
             status: 'ready',
           },
         ],
@@ -108,7 +108,7 @@ export function formatProductizationEvidenceSnapshot(
     );
   }
 
-  lines.push('', 'Superficies');
+  lines.push('', 'surfaces');
   for (const surface of snapshot.surfaces) {
     lines.push(`- ${surface.status}: ${surface.label} (${surface.path})`);
   }
@@ -128,7 +128,7 @@ export function formatProductizationEvidenceSnapshot(
   lines.push(`- UNI/trust: ${String(snapshot.runtimeEvidence.universalIntentTrustEnforcement)}`);
   lines.push(`- ZavorthControl: ${String(snapshot.runtimeEvidence.zavorthControlProjection)}`);
 
-  lines.push('', 'Superficies de consumo');
+  lines.push('', 'surfaces de consumption');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Release: ${snapshot.surface.releaseHint}`);

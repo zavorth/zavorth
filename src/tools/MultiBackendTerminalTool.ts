@@ -30,18 +30,18 @@ export class MultiBackendTerminalTool extends BaseTool {
   public readonly name = 'terminal_backend';
 
   public readonly description =
-    'Executa comandos em diferentes backends de terminal (bash, zsh, powershell, cmd, fish, nushell).';
+    'Runs commands across different terminal backends (bash, zsh, powershell, cmd, fish, nushell).';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       command: {
         type: 'string',
-        description: 'Comando a ser executado.',
+        description: 'Command to execute.',
       },
       backend: {
         type: 'string',
-        description: "Backend de terminal: 'bash', 'zsh', 'powershell', 'cmd', 'fish', 'nushell'. Default: auto-detectado.",
+        description: "Terminal backend: 'bash', 'zsh', 'powershell', 'cmd', 'fish', 'nushell'. Default: auto-detected.",
       },
       working_directory: {
         type: 'string',
@@ -49,7 +49,7 @@ export class MultiBackendTerminalTool extends BaseTool {
       },
       timeout_ms: {
         type: 'number',
-        description: 'Timeout em milissegundos (1000-120000). Default: 30000.',
+        description: 'Timeout in milliseconds (1000-120000). Default: 30000.',
       },
     },
     required: ['command'],

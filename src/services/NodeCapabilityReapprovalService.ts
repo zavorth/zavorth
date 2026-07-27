@@ -82,8 +82,7 @@ export class NodeCapabilityReapprovalService {
         allowed: true,
         node: current,
         delta,
-        reason: delta.removed.length
-          ? 'Node removed capabilities; no extra approval is required.'
+        reason: delta.removed.length ? 'Node removed capabilities; no extra approval is required.'
           : 'Node capabilities match the approved live profile.',
       };
     }
@@ -115,8 +114,7 @@ export class NodeCapabilityReapprovalService {
         ...current.notes,
         `Capability upgrade blocked pending approval: ${unapprovedAdded.join(', ')}`,
       ],
-      operatorSummary: riskyAdded.length
-        ? `Node requested sensitive capability upgrade (${riskyAdded.join(', ')}). Reapproval is required before new work is delivered.`
+      operatorSummary: riskyAdded.length ? `Node requested sensitive capability upgrade (${riskyAdded.join(', ')}). Reapproval is required before new work is delivered.`
         : `Node requested capability upgrade (${unapprovedAdded.join(', ')}). Reapproval is required before new work is delivered.`,
     }) || current;
 

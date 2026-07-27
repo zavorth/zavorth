@@ -32,8 +32,7 @@ async function checkToolConfigStatus(toolId: string): Promise<string> {
       case "claude":
         return config?.env?.ANTHROPIC_BASE_URL ? "configured" : "not_configured";
       case "codex":
-        return config?.providers?.ZavorthGateway || config?.providers?.["openai-compatible"]
-          ? "configured"
+        return config?.providers?.ZavorthGateway || config?.providers?.["openai-compatible"] ? "configured"
           : "not_configured";
       case "droid":
       case "external-executor":
@@ -44,8 +43,7 @@ async function checkToolConfigStatus(toolId: string): Promise<string> {
         return configStr.includes("ZavorthGateway") ||
           configStr.includes("sk_ZavorthGateway") ||
           configStr.includes(`localhost:${apiPort}`) ||
-          configStr.includes(`127.0.0.1:${apiPort}`)
-          ? "configured"
+          configStr.includes(`127.0.0.1:${apiPort}`) ? "configured"
           : "not_configured";
       default:
         return "unknown";

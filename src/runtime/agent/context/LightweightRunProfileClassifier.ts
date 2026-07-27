@@ -8,14 +8,8 @@ export type LightweightRunProfileClassifierInput = {
   hasSkillOrMcpSnapshot?: boolean;
 };
 
-function textIncludesAny(text: string, needles: string[]): boolean {
-  const normalized = text.toLowerCase();
-  return needles.some((needle) => normalized.includes(needle));
-}
-
 export class LightweightRunProfileClassifier {
   public classify(input: LightweightRunProfileClassifierInput): RunContextProfile {
-    const text = String(input.request.text || '');
     const requestedTools = Array.isArray(input.request.requestedTools) ? input.request.requestedTools : [];
     const metadata = input.request.metadata || {};
     const explicitDepth = typeof metadata.contextDepth === 'string' ? metadata.contextDepth : null;
@@ -24,7 +18,7 @@ export class LightweightRunProfileClassifier {
       return resolveRunContextProfile({
         depth: explicitDepth,
         id: `${explicitDepth}-context`,
-        reason: 'Profundidade de contexto sugerida por metadata da requisicao.',
+        reason: 'Context depth suggested by request metadata.',
         suggestedBy: 'request-metadata',
       });
     }
@@ -32,13 +26,15 @@ export class LightweightRunProfileClassifier {
     if (
       input.hasMemoryContext
       || input.hasSkillOrMcpSnapshot
-      || requestedTools.some((toolId) => /memory|mnemos|mcp|skill/i.test(toolId))
-      || textIncludesAny(text, ['memoria', 'memória', 'mnemos', 'skill', 'mcp'])
+      || requestedTools.some((toolId) => {
+        const normalizedToolId = String(toolId || '').toLowerCase();
+        return ['memory', 'mnemos', 'mcp', 'skill'].some((needle) => normalizedToolId.includes(needle));
+      })
     ) {
       return resolveRunContextProfile({
         depth: 'cold',
         id: 'cold-context',
-        reason: 'Pedido menciona memoria, skills, MCP ou traz snapshots frios disponiveis.',
+        reason: 'Request metadata includes memory, skills, MCP, or available cold snapshots.',
         suggestedBy: 'lightweight-classifier',
       });
     }
@@ -47,12 +43,11 @@ export class LightweightRunProfileClassifier {
       Boolean(input.request.workspace)
       || input.hasWorkspaceProfile
       || requestedTools.length > 0
-      || textIncludesAny(text, ['workspace', 'repositorio', 'repositório', 'arquivo', 'codigo', 'código'])
     ) {
       return resolveRunContextProfile({
         depth: 'warm',
         id: 'warm-context',
-        reason: 'Pedido precisa de contexto de workspace ou tools sem exigir memoria fria.',
+        reason: 'Request metadata needs workspace or tool context without cold memory.',
         suggestedBy: 'lightweight-classifier',
       });
     }
@@ -60,7 +55,7 @@ export class LightweightRunProfileClassifier {
     return resolveRunContextProfile({
       depth: 'hot',
       id: 'hot-context',
-      reason: 'Pedido conversacional simples usa contexto minimo de sessao.',
+      reason: 'Simple conversational request uses minimal session context.',
       suggestedBy: 'lightweight-classifier',
     });
   }

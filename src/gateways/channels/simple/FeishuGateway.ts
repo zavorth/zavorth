@@ -33,9 +33,8 @@ export class FeishuGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/feishu',
       doctorCommand: '/channels doctor feishu',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Feishu/Lark webhook configurado. Pronto para enviar mensagens.'
-        : 'Defina FEISHU_WEBHOOK_URL ou LARK_WEBHOOK_URL para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'Feishu/Lark webhook configured. Ready to send messages.'
+        : 'Set FEISHU_WEBHOOK_URL or LARK_WEBHOOK_URL to enable.',
     };
   }
 

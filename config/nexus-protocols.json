@@ -1,7 +1,7 @@
 [
   {
     "name": "coding_focus",
-    "description": "Abre uma bancada local de programação com editor e dashboard.",
+    "description": "Opens a local programming workspace with editor and dashboard.",
     "risk": "medium",
     "actions": [
       {
@@ -16,7 +16,7 @@
   },
   {
     "name": "night_briefing",
-    "description": "Abre o dashboard local para briefing noturno sem buscar APIs externas.",
+    "description": "Opens the local dashboard for night briefing without fetching external APIs.",
     "risk": "medium",
     "actions": [
       {
@@ -27,7 +27,7 @@
   },
   {
     "name": "research_mode",
-    "description": "Abre uma busca inicial de pesquisa no GitHub.",
+    "description": "Opens an initial research search on GitHub.",
     "risk": "medium",
     "actions": [
       {

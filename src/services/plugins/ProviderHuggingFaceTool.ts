@@ -16,7 +16,7 @@ export class ProviderHuggingFaceTool extends BaseTool {
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'text_generation', 'image_generation', 'audio_transcription', 'list_models', 'check_status'.",
+        description: "Action: 'text_generation', 'image_generation', 'audio_transcription', 'list_models', 'check_status'.",
       },
       model: {
         type: 'string',
@@ -24,11 +24,11 @@ export class ProviderHuggingFaceTool extends BaseTool {
       },
       prompt: {
         type: 'string',
-        description: 'Prompt para geracao de texto.',
+        description: 'Prompt for text generation.',
       },
       image_path: {
         type: 'string',
-        description: 'Image path para analise.',
+        description: 'Image path para analysis.',
       },
       audio_path: {
         type: 'string',
@@ -103,7 +103,7 @@ export class ProviderHuggingFaceTool extends BaseTool {
 
       const parsed = JSON.parse(result);
       if (parsed.error) return `HuggingFace: Erro ${parsed.error}`;
-      return `HuggingFace: Connected. Usuario: ${parsed.name || 'unknown'}, Plano: ${parsed.plan || 'free'}`;
+      return `HuggingFace: Connected. User: ${parsed.name || 'unknown'}, Plan: ${parsed.plan || 'free'}`;
     } catch (error: unknown) {logger.warn('[Hugging Face] JSON parse failed', error); return ''; }
   }
 

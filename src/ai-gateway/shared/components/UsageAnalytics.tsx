@@ -33,7 +33,7 @@ export default function UsageAnalytics() {
   const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/usage/analytics?range=${range}`);
+      const res = await fetch(`/api/usage/analytics...range=${range}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setAnalytics(data);
@@ -124,8 +124,7 @@ export default function UsageAnalytics() {
               key={r.value}
               onClick={() => setRange(r.value)}
               className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
-                range === r.value
-                  ? "bg-primary text-white shadow-sm"
+                range === r.value ? "bg-primary text-white shadow-sm"
                   : "text-text-muted hover:text-text-main hover:bg-black/5 dark:hover:bg-white/5"
               }`}
             >

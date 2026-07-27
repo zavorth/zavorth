@@ -80,8 +80,7 @@ export class ContextDisciplineService {
     return {
       selected,
       deferred,
-      reason: deferred.length
-        ? `${deferred.length} tool(s) deferred for progressive disclosure.`
+      reason: deferred.length ? `${deferred.length} tool(s) deferred for progressive disclosure.`
         : 'All tools fit the visible budget.',
     };
   }

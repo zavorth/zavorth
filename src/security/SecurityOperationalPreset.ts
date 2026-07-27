@@ -95,27 +95,27 @@ const LOCAL_SKILL_RULES = [
   {
     sourceId: 'workspace-agents',
     mode: 'all' as const,
-    reason: 'Fonte principal de autoria local.',
+    reason: 'Primary local authoring source.',
   },
   {
     sourceId: 'workspace-library',
     mode: 'all' as const,
-    reason: 'Biblioteca local curada e mantida no proprio workspace.',
+    reason: 'Curated local library maintained within the workspace.',
   },
   {
     sourceId: 'workspace-imported-library',
     mode: 'review' as const,
-    reason: 'Imports permanecem em revisao ate promocao explicita para uma fonte nativa ou curada.',
+    reason: 'Imports remain under review until explicitly promoted to a native or curated source.',
   },
 ];
 
 const PRESETS: Record<SecurityOperationalPresetId, SecurityOperationalPresetDefinition> = {
   personal: {
     id: 'personal',
-    aliases: ['home', 'casa', 'pessoal', 'dona-maria', 'dona_maria', 'comum'],
-    label: 'Casa / uso pessoal',
-    audience: 'Usuario comum em computador proprio',
-    summary: 'Baixa friccao para tarefas do dia a dia, com bloqueio de MCP perigoso e confirmacao para acoes sensiveis.',
+    aliases: ['home', 'personal', 'common'],
+    label: 'Home / personal use',
+    audience: 'Standard user on personal computer',
+    summary: 'Low friction for daily tasks, with dangerous MCP blocking and confirmation for sensitive actions.',
     securityProfile: 'personal',
     mcpPolicy: {
       profile: 'safe',
@@ -131,16 +131,16 @@ const PRESETS: Record<SecurityOperationalPresetId, SecurityOperationalPresetDefi
       requireBaseline: false,
     },
     operatorNotes: [
-      'Ideal para uso cotidiano sem configurar variaveis de ambiente.',
-      'MCP fica em safe; escrita e shell continuam exigindo caminhos supervisionados.',
+      'Ideal for daily use without configuring environment variables.',
+      'MCP stays in safe mode; write and shell still require supervised paths.',
     ],
   },
   professional: {
     id: 'professional',
-    aliases: ['work', 'trabalho', 'dev', 'profissional', 'developer'],
-    label: 'Profissional individual',
-    audience: 'Desenvolvedor, operador ou power user em maquina propria/de trabalho',
-    summary: 'Equilibra produtividade e seguranca: perfil profissional, MCP safe com create_file liberado explicitamente, skills locais e curadas.',
+    aliases: ['work', 'work', 'dev', 'professional', 'developer'],
+    label: 'Individual professional',
+    audience: 'Developer, operator, or power user on personal/work machine',
+    summary: 'Balances productivity and security: professional profile, MCP safe with create_file explicitly allowed, local and curated skills.',
     securityProfile: 'professional',
     mcpPolicy: {
       profile: 'safe',
@@ -156,16 +156,16 @@ const PRESETS: Record<SecurityOperationalPresetId, SecurityOperationalPresetDefi
       requireBaseline: true,
     },
     operatorNotes: [
-      'Preset recomendado para desenvolvimento diario.',
-      'MCP create_file e liberado por allowlist, mas ferramentas perigosas seguem bloqueadas.',
+      'Recommended preset for daily development.',
+      'MCP create_file is allowed via allowlist, but dangerous tools remain blocked.',
     ],
   },
   enterprise: {
     id: 'enterprise',
-    aliases: ['corporate', 'corporativo', 'bigtech', 'managed', 'empresa'],
-    label: 'Corporativo gerenciado',
-    audience: 'Ambiente corporativo, maquina gerenciada ou uso com dados sensiveis',
-    summary: 'Mais restritivo: perfil enterprise, MCP safe sem allowlist extra, skills por trust explicito e baseline obrigatoria.',
+    aliases: ['corporate', 'corporate', 'bigtech', 'managed', 'enterprise'],
+    label: 'Managed corporate',
+    audience: 'Corporate environment, managed machine, or use with sensitive data',
+    summary: 'Most restrictive: enterprise profile, MCP safe without extra allowlist, skills by explicit trust, and mandatory baseline.',
     securityProfile: 'enterprise',
     mcpPolicy: {
       profile: 'safe',
@@ -181,8 +181,8 @@ const PRESETS: Record<SecurityOperationalPresetId, SecurityOperationalPresetDefi
       requireBaseline: true,
     },
     operatorNotes: [
-      'Indicado para ambientes com compliance ou dados sensiveis.',
-      'Mudancas nos controles centrais devem passar por baseline e CI.',
+      'Suitable for environments with compliance requirements or sensitive data.',
+      'Changes to central controls must go through baseline and CI.',
     ],
   },
 };
@@ -267,10 +267,10 @@ export function inspectSecurityOperationalPreset(
       state: null,
       preset: null,
       presetPath,
-      summary: 'Nenhum preset operacional persistente foi aplicado.',
+      summary: 'No persistent operational preset has been applied.',
       evidence: [presetPath],
       recommendations: [
-        'Rode zavorth security preset professional --apply para o padrao diario recomendado.',
+        'Run zavorth security preset professional --apply for the recommended daily default.',
       ],
     };
   }
@@ -282,10 +282,10 @@ export function inspectSecurityOperationalPreset(
       state,
       preset: clonePreset(preset),
       presetPath,
-      summary: `Preset ativo ${preset.label}, mas os arquivos de politica nao batem com o preset.`,
+      summary: `Active preset ${preset.label}, but policy files do not match the preset.`,
       evidence: drift,
       recommendations: [
-        `Rode zavorth security preset ${preset.id} --apply para restaurar as politicas do preset.`,
+        `Run zavorth security preset ${preset.id} --apply to restore the preset policies.`,
       ],
     };
   }
@@ -294,7 +294,7 @@ export function inspectSecurityOperationalPreset(
     state,
     preset: clonePreset(preset),
     presetPath,
-    summary: `Preset ativo: ${preset.label}.`,
+      summary: `Active preset: ${preset.label}.`,
     evidence: [
       `preset=${state.activePreset}`,
       `profile=${state.securityProfile}`,
@@ -316,7 +316,7 @@ export function applySecurityOperationalPreset(input: {
 }): ApplySecurityOperationalPresetResult {
   const preset = getSecurityOperationalPreset(input.preset);
   if (!preset) {
-    throw new Error(`Preset de seguranca desconhecido: ${String(input.preset || 'n/d')}.`);
+    throw new Error(`Unknown security preset: ${String(input.preset || 'n/d')}.`);
   }
   const projectRoot = resolveProjectRoot(input.projectRoot);
   const now = input.now || (() => new Date());
@@ -339,7 +339,7 @@ export function applySecurityOperationalPreset(input: {
     continuousSecurity: { ...preset.continuousSecurity },
     receipt: {
       id: buildPresetReceiptId(preset.id, appliedAt),
-      summary: `Preset ${preset.id} aplicado com perfil ${preset.securityProfile}, MCP ${preset.mcpPolicy.profile} e skills ${preset.skillPolicy.defaultPolicy}.`,
+      summary: `Preset ${preset.id} applied with profile ${preset.securityProfile}, MCP ${preset.mcpPolicy.profile}, and skills ${preset.skillPolicy.defaultPolicy}.`,
     },
   };
 
@@ -373,7 +373,7 @@ export function applySecurityOperationalPreset(input: {
       mcpPolicyPath,
       skillPolicyPath,
     },
-    summary: `Preset operacional "${preset.label}" aplicado.`,
+    summary: `Operational preset "${preset.label}" applied.`,
   };
 }
 
@@ -382,17 +382,17 @@ export function formatSecurityOperationalPresetInspection(
 ): string {
   const lines = [
     '[zavorth-security] operational presets',
-    `[zavorth-security] status: ${inspection.status === 'ready' ? 'pronto' : 'atencao'}`,
+    `[zavorth-security] status: ${inspection.status === 'ready' ? 'ready' : 'attention'}`,
     `[zavorth-security] ${inspection.summary}`,
   ];
   if (inspection.preset) {
     lines.push(
-      `[zavorth-security] perfil: ${inspection.preset.securityProfile} | MCP: ${inspection.preset.mcpPolicy.profile} | skills: ${inspection.preset.skillPolicy.defaultPolicy}`,
-      `[zavorth-security] baseline: ${inspection.preset.continuousSecurity.requireBaseline ? 'obrigatoria' : 'recomendada'}`,
+      `[zavorth-security] profile: ${inspection.preset.securityProfile} | MCP: ${inspection.preset.mcpPolicy.profile} | skills: ${inspection.preset.skillPolicy.defaultPolicy}`,
+      `[zavorth-security] baseline: ${inspection.preset.continuousSecurity.requireBaseline ? 'required' : 'recommended'}`,
     );
   }
   if (inspection.recommendations.length > 0) {
-    lines.push('', 'Proximos passos');
+    lines.push('', 'Next steps');
     for (const recommendation of inspection.recommendations) {
       lines.push(`- ${recommendation}`);
     }
@@ -402,12 +402,12 @@ export function formatSecurityOperationalPresetInspection(
 
 export function formatSecurityOperationalPresetList(): string {
   const lines = [
-    '[zavorth-security] presets operacionais',
+    '[zavorth-security] operational presets',
     ...listSecurityOperationalPresets().map((preset) =>
-      `- ${preset.id}: ${preset.label} | perfil ${preset.securityProfile} | MCP ${preset.mcpPolicy.profile} | ${preset.summary}`,
+      `- ${preset.id}: ${preset.label} | profile ${preset.securityProfile} | MCP ${preset.mcpPolicy.profile} | ${preset.summary}`,
     ),
     '',
-    'Aplicar: zavorth security preset professional --apply',
+    'Apply: zavorth security preset professional --apply',
   ];
   return `${lines.join('\n')}\n`;
 }
@@ -416,11 +416,11 @@ export function formatApplySecurityOperationalPresetResult(
   result: ApplySecurityOperationalPresetResult,
 ): string {
   return [
-    '[zavorth-security] preset aplicado',
+    '[zavorth-security] preset applied',
     `[zavorth-security] ${result.summary}`,
     `[zavorth-security] receipt: ${result.state.receipt.id}`,
-    `[zavorth-security] perfil: ${result.state.securityProfile} | MCP: ${result.state.mcpProfile} | skills: ${result.state.skillDefaultPolicy}`,
-    `[zavorth-security] arquivos: ${result.files.presetPath}; ${result.files.mcpPolicyPath}; ${result.files.skillPolicyPath}`,
+    `[zavorth-security] profile: ${result.state.securityProfile} | MCP: ${result.state.mcpProfile} | skills: ${result.state.skillDefaultPolicy}`,
+    `[zavorth-security] files: ${result.files.presetPath}; ${result.files.mcpPolicyPath}; ${result.files.skillPolicyPath}`,
   ].join('\n') + '\n';
 }
 

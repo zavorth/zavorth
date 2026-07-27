@@ -102,7 +102,7 @@ export class WebAppService {
 
   private initializeConversationInfrastructure(): void {
     if (!this.runtime || !this.realtime) {
-      throw new Error('Runtime web ainda nao conectada ao gateway principal.');
+      throw new Error('Web runtime not connected to the main gateway yet.');
     }
 
     this.conversation = new WebAppConversationService({
@@ -319,7 +319,7 @@ export class WebAppService {
                 'zavorth zavorthControl generate-token',
                 'zavorth zavorthControl token',
               ],
-              hint: 'Abra uma nova aba com `zavorth zavorthControl`. Se continuar falhando, rode `zavorth zavorthControl repair`.',
+              hint: 'Open a new tab with `zavorth zavorthControl`. If it keeps failing, run `zavorth zavorthControl repair`.',
             },
           },
           401,
@@ -420,7 +420,7 @@ export class WebAppService {
       ) {
         return true;
       }
-    } catch (error: unknown) {const message = errorMessage(error, 'Falha interna ao processar a rota web.');
+    } catch (error: unknown) {const message = errorMessage(error, 'Failure interna ao processar a rota web.');
       if (!res.headersSent) {
         this.composition.runtimeContextBridge.writeJson(res, { ok: false, error: message }, 500);
         return true;
@@ -464,7 +464,7 @@ export class WebAppService {
         res,
         {
           ok: false,
-          error: 'Web app ainda nao conectada ao gateway principal.',
+          error: 'Web app not connected to the main gateway yet.',
         },
         503,
       );
@@ -503,7 +503,7 @@ export class WebAppService {
             retry: false,
           },
           notes: [
-            'Autenticacao necessaria para ler runs reais do Zavorth Agent Gateway.',
+            'Authentication required to read real Zavorth Agent Gateway runs.',
           ],
         },
       },
@@ -512,7 +512,7 @@ export class WebAppService {
 
   private getConversationService(): WebAppConversationService {
     if (!this.conversation) {
-      throw new Error('Fluxo de conversa web indisponivel.');
+      throw new Error('Web conversation flow unavailable.');
     }
     return this.conversation;
   }
@@ -521,4 +521,3 @@ export class WebAppService {
     return this.composition.webSecurity.applyCorsHeaders(req, res);
   }
 }
-

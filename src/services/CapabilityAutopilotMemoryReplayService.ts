@@ -241,8 +241,7 @@ export class CapabilityAutopilotMemoryReplayService {
       signals.push(this.signal(
         'fallback',
         'fallback',
-        receipt.selectedFallback
-          ? `Fallback selected: ${receipt.selectedFallback.label}`
+        receipt.selectedFallback ? `Fallback selected: ${receipt.selectedFallback.label}`
           : `${receipt.repairPlan?.fallbackOptions.length || 0} fallback option(s) available.`,
         receipt.selectedFallback ? 2 : 3,
         {

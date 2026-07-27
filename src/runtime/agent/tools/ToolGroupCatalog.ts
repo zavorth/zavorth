@@ -51,7 +51,7 @@ const TOOL_GROUP_ENTRIES: ToolGroupCatalogEntry[] = [
     group: 'memory',
     risk: 'safe',
     requiresApproval: false,
-    description: 'Local session continuum search across prior turns (browse, discover, scroll) without provider calls.',
+    description: 'local session continuum search across prior turns (browse, discover, scroll) without provider calls.',
     policyTags: [
       'capability:session-continuum',
       'group:memory',
@@ -110,7 +110,7 @@ const TOOL_GROUP_ENTRIES: ToolGroupCatalogEntry[] = [
     group: 'general',
     risk: 'safe',
     requiresApproval: false,
-    description: 'Action Harness roteia lookup, preview, apply e receipts de acoes Zavorth; mutacoes continuam bloqueadas no gateway ate approval.',
+    description: 'Action Harness routes lookup, preview, apply, and receipts for Zavorth actions; mutations remain blocked at the gateway until approval.',
     policyTags: [
       'capability:action-harness',
       'group:general',
@@ -137,7 +137,7 @@ const TOOL_GROUP_ENTRIES: ToolGroupCatalogEntry[] = [
     group: 'local_control',
     risk: 'danger',
     requiresApproval: true,
-    description: 'Watch Mode/Computer Use controla UI visual e exige policy allowlisted, escopo e approval.',
+    description: 'Watch Mode/Computer Use controls visual UI and requires allowlisted policy, scope, and approval.',
     policyTags: [
       'capability:watch-mode',
       'capability:computer-use',
@@ -153,7 +153,7 @@ const TOOL_GROUP_ENTRIES: ToolGroupCatalogEntry[] = [
     group: 'selfmod',
     risk: 'attention',
     requiresApproval: false,
-    description: 'Selfmod preview gera proposta auditavel sem aplicar mudancas.',
+    description: 'Selfmod preview gera proposta auditavel without aplicar changes.',
     policyTags: [
       'capability:selfmod',
       'group:selfmod',
@@ -166,7 +166,7 @@ const TOOL_GROUP_ENTRIES: ToolGroupCatalogEntry[] = [
     group: 'selfmod',
     risk: 'danger',
     requiresApproval: true,
-    description: 'Selfmod apply aplica preview existente e exige approval/trust.',
+    description: 'Selfmod apply applies an existing preview and requires approval/trust.',
     policyTags: [
       'capability:selfmod',
       'group:selfmod',
@@ -180,7 +180,7 @@ const TOOL_GROUP_ENTRIES: ToolGroupCatalogEntry[] = [
     group: 'selfmod',
     risk: 'danger',
     requiresApproval: true,
-    description: 'Selfmod rollback reverte changeset existente e exige approval/trust.',
+    description: 'Selfmod rollback reverts an existing changeset and requires approval/trust.',
     policyTags: [
       'capability:selfmod',
       'group:selfmod',

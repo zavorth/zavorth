@@ -77,8 +77,8 @@ const CATEGORIES: CategoryDefinition[] = [
   },
   {
     id: 'local_private',
-    label: 'Local and private',
-    summary: 'Local or user-controlled endpoints for privacy-first work and offline-friendly setups.',
+    label: 'local and private',
+    summary: 'local or user-controlled endpoints for privacy-first work and offline-friendly setups.',
     routeIds: ['ollama', 'lmstudio', 'AIGateway', 'custom-openai-compatible', 'vllm'],
     emptyHint: 'Start Ollama, LM Studio or an OpenAI-compatible local endpoint.',
   },
@@ -128,8 +128,7 @@ export class ModelProviderExperienceService {
     return {
       schemaVersion: 1,
       generatedAt,
-      status: presentEssential < ESSENTIAL_TARGETS.length
-        ? 'incomplete'
+      status: presentEssential < ESSENTIAL_TARGETS.length ? 'incomplete'
         : readyEssential > 0
           ? 'ready'
           : 'needs_config',
@@ -261,12 +260,10 @@ export class ModelProviderExperienceService {
     const capabilities = route.capabilities.length > 0
       ? `Capabilities: ${route.capabilities.join(', ')}.`
       : 'No capabilities declared.';
-    const readiness = route.ready
-      ? 'Route is configured and ready.'
+    const readiness = route.ready ? 'Route is configured and ready.'
       : `Route is ${route.readiness}: ${this.setupHint(route)}`;
-    const governance = this.requiresExternalGovernance(route.capabilities)
-      ? 'External use remains policy-gated and receipt-backed.'
-      : 'Local route still follows provider mesh and receipt rules.';
+    const governance = this.requiresExternalGovernance(route.capabilities) ? 'External use remains policy-gated and receipt-backed.'
+      : 'local route still follows provider mesh and receipt rules.';
     return [capabilities, readiness, governance];
   }
 

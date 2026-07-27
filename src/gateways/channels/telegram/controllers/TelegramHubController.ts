@@ -1,4 +1,4 @@
-import { Context, InlineKeyboard } from 'grammy';
+﻿import { Context, InlineKeyboard } from 'grammy';
 import { ZavorthBridgePreferenceStore } from '../../../../agents/ZavorthBridgePreferenceStore.js';
 import { PermissionService } from '../../../../services/PermissionService.js';
 import { PermissionRequest, PermissionStatus } from '../../../../contracts/PermissionRequest.js';
@@ -123,7 +123,7 @@ export class TelegramHubController {
       const done = service.complete({
         language: service.buildSnapshot().state.language || 'en',
         surface: 'telegram',
-        allowLearning: service.buildSnapshot().state.allowLearning ?? true,
+        allowLearning: service.buildSnapshot().state.allowLearning || true,
       });
       await ctx.reply(done.summary);
       return true;
@@ -140,7 +140,7 @@ export class TelegramHubController {
         const done = service.complete({
           language: structured.language || service.buildSnapshot().state.language || 'en',
           surface: (structured.surface as any) || 'telegram',
-          allowLearning: structured.allowLearning ?? true,
+          allowLearning: structured.allowLearning || true,
         });
         await ctx.reply(done.summary);
         return true;
@@ -168,7 +168,7 @@ export class TelegramHubController {
       const done = service.complete({
         language: service.buildSnapshot().state.language || 'en',
         surface: 'telegram',
-        allowLearning: service.buildSnapshot().state.allowLearning ?? true,
+        allowLearning: service.buildSnapshot().state.allowLearning || true,
       });
       await ctx.answerCallbackQuery({ text: 'Setup skipped' });
       await ctx.reply(done.summary);
@@ -259,8 +259,8 @@ export class TelegramHubController {
     }
     if (step <= 1) {
       kb.text('English', 'hub:firstrun:lang:en')
-        .text('Português', 'hub:firstrun:lang:pt')
-        .text('Español', 'hub:firstrun:lang:es')
+        .text('Portuguese', 'hub:firstrun:lang:pt')
+        .text('Spanish', 'hub:firstrun:lang:es')
         .row();
     }
     if (step === 2) {
@@ -293,16 +293,16 @@ export class TelegramHubController {
       allowLearning?: boolean;
       complete?: boolean;
     } = {};
-    for (const token of args.split(/\s+/)) {
+    for (const token of splitOptionTokens(args)) {
       const [k, v] = token.split('=');
       if (!k || v == null) continue;
       if (k === 'lang' || k === 'language') out.language = v;
       if (k === 'surface') out.surface = v;
       if (k === 'learn' || k === 'learning') {
-        out.allowLearning = /^(1|true|yes|on|sim)$/i.test(v);
+        out.allowLearning = parseBooleanOption(v);
       }
       if (k === 'done' || k === 'complete') {
-        out.complete = /^(1|true|yes)$/i.test(v);
+        out.complete = parseBooleanOption(v);
       }
     }
     if (!out.language && !out.surface && out.allowLearning === undefined && !out.complete) {
@@ -374,4 +374,13 @@ export class TelegramHubController {
         return 'overview';
     }
   }
+}
+
+function splitOptionTokens(value: string): string[] {
+  return value.split(' ').map((token) => token.trim()).filter(Boolean);
+}
+
+function parseBooleanOption(value: string): boolean {
+  const normalized = String(value || '').trim().toLowerCase();
+  return normalized === '1' || normalized === 'true' || normalized === 'on' || normalized === 'enabled';
 }

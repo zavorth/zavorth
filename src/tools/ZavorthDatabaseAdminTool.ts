@@ -166,8 +166,7 @@ export class ZavorthDatabaseAdminTool extends BaseTool {
 
     switch (dbType) {
       case 'postgres': {
-        const query = table
-          ? `SELECT column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_name = '${table}' ORDER BY ordinal_position;`
+        const query = table ? `SELECT column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_name = '${table}' ORDER BY ordinal_position;`
           : `SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' ORDER BY table_name, ordinal_position;`;
         const dbArgs = this.getDbArgs(args);
         dbArgs.push('-c', query, '-t', '-A');
@@ -279,8 +278,7 @@ export class ZavorthDatabaseAdminTool extends BaseTool {
 
     switch (dbType) {
       case 'postgres': {
-        const query = table
-          ? `SELECT indexname, indexdef FROM pg_indexes WHERE tablename = '${table}';`
+        const query = table ? `SELECT indexname, indexdef FROM pg_indexes WHERE tablename = '${table}';`
           : `SELECT tablename, indexname FROM pg_indexes WHERE schemaname = 'public' ORDER BY tablename;`;
         const dbArgs = this.getDbArgs(args);
         dbArgs.push('-c', query, '-t', '-A');

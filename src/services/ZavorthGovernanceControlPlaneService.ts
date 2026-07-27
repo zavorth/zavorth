@@ -217,7 +217,7 @@ export class ZavorthGovernanceControlPlaneService {
       narrative: {
         headline: 'Governance: Tenancy, governance e policy',
         operatorSummary: this.buildOperatorSummary({ tenants, trust, channels, nodes, plugins, transports, teams, posture }),
-        nextAction: actions[0]?.label || 'Revisar periodicamente tenants, trust decisions e allowlists por superficie.',
+        nextAction: actions[0]?.label || 'review periodicamente tenants, trust decisions e allowlists por surface.',
       },
     };
   }
@@ -229,11 +229,11 @@ export class ZavorthGovernanceControlPlaneService {
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
-      `Tenants: ${snapshot.summary.tenants} | compartilhados: ${snapshot.summary.sharedTenants} | onboarding pendente: ${snapshot.summary.pendingOnboarding} | restritos: ${snapshot.summary.restrictedShared}.`,
-      `Trust: ${snapshot.summary.pendingApprovals} approval(s), ${snapshot.summary.highRiskCapabilities} capability(s) sensiveis e MCP ${snapshot.summary.mcpProfile}.`,
-      `Surfaces: ${snapshot.summary.readyChannels}/${snapshot.summary.totalChannels} canal(is) prontos, ${snapshot.summary.pairedNodes} node(s) pareado(s), ${snapshot.summary.remoteAttention} transporte(s) pedindo atencao real.`,
+      `Tenants: ${snapshot.summary.tenants} | compartilhados: ${snapshot.summary.sharedTenants} | onboarding pending: ${snapshot.summary.pendingOnboarding} | restritos: ${snapshot.summary.restrictedShared}.`,
+      `Trust: ${snapshot.summary.pendingApprovals} approval(s), ${snapshot.summary.highRiskCapabilities} capability(s) sensitive e MCP ${snapshot.summary.mcpProfile}.`,
+      `Surfaces: ${snapshot.summary.readyChannels}/${snapshot.summary.totalChannels} channel(s) ready, ${snapshot.summary.pairedNodes} node(s) paired(s), ${snapshot.summary.remoteAttention} transport(s) needing attention real.`,
       '',
-      'Superficies de policy:',
+      'surfaces de policy:',
       ...snapshot.surfaces.map((entry) =>
         `- ${entry.label}: ${entry.posture} | ${entry.boundary} | ${entry.allowlistState} | ${entry.nextAction}${entry.command ? ` | ${entry.command}` : ''}`),
     ];
@@ -248,7 +248,7 @@ export class ZavorthGovernanceControlPlaneService {
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Actions sugeridas:',
         ...snapshot.actions.map((entry) =>
           `- ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
@@ -290,7 +290,7 @@ export class ZavorthGovernanceControlPlaneService {
         boundary: `${Number(input.tenants?.summary?.shared || 0)} shared / ${Number(input.tenants?.summary?.personal || 0)} personal`,
         allowlistState: `${Number(input.tenants?.summary?.publicServers || 0)} public server(s), ${Number(input.tenants?.summary?.restrictedShared || 0)} restrito(s)`,
         auditState: `${Number(input.tenants?.featuredRecipes?.length || 0)} recipe(s) de governanca`,
-        nextAction: this.text(input.tenants?.narrative?.nextAction, 'Observar novos tenants antes de liberar automacoes.'),
+        nextAction: this.text(input.tenants?.narrative?.nextAction, 'Observar novos tenants before enable automations.'),
         command: '/tenants',
       },
       {
@@ -299,8 +299,8 @@ export class ZavorthGovernanceControlPlaneService {
         posture: surfacePosture('trust'),
         boundary: this.text(input.trust?.surfaces?.runtime?.trustBoundary, 'runtime-default'),
         allowlistState: `MCP ${this.text(input.trust?.summary?.mcpProfile, 'safe')} | skills ${this.text(input.trust?.summary?.skillDefaultPolicy, 'deny')}`,
-        auditState: `${Number(input.trust?.summary?.pendingApprovals || 0)} approval(s) pendente(s)`,
-        nextAction: 'Revisar approvals, perfil MCP e capabilities sensiveis.',
+        auditState: `${Number(input.trust?.summary?.pendingApprovals || 0)} approval(s) pending(s)`,
+        nextAction: 'review approvals, profile MCP e capabilities sensitive.',
         command: '/runtime',
       },
       {
@@ -308,19 +308,19 @@ export class ZavorthGovernanceControlPlaneService {
         label: 'Channel policies',
         posture: surfacePosture('channels'),
         boundary: `${Number(input.channels?.summary?.ready || 0)}/${Number(input.channels?.summary?.total || 0)} ready`,
-        allowlistState: `${channelGroupPolicyScoped}/${channelConfigured} configurado(s) com group policy`,
+        allowlistState: `${channelGroupPolicyScoped}/${channelConfigured} configured(s) com group policy`,
         auditState: `${Number(input.channels?.summary?.sessionSendReady || 0)} com sessions_send`,
-        nextAction: 'Revisar policy por canal antes de promover grupos/workspaces novos.',
+        nextAction: 'review policy by channel before promoting new groups/workspaces.',
         command: '/channels',
       },
       {
         id: 'nodes',
         label: 'Node allowlists',
         posture: surfacePosture('nodes'),
-        boundary: `${Number(input.nodes?.summary?.paired || 0)} pareado(s) / ${Number(input.nodes?.summary?.online || 0)} online`,
-        allowlistState: `${nodeRestricted} node(s) com allowlist restrita`,
-        auditState: `${Number(input.nodes?.summary?.staleQueued || 0)} fila(s) stale`,
-        nextAction: nodeRestricted > 0 ? 'Revisar capabilities aprovadas por node.' : 'Manter heartbeat e allowlist por node sob revisao.',
+        boundary: `${Number(input.nodes?.summary?.paired || 0)} paired(s) / ${Number(input.nodes?.summary?.online || 0)} online`,
+        allowlistState: `${nodeRestricted} node(s) with restricted allowlists`,
+        auditState: `${Number(input.nodes?.summary?.staleQueued || 0)} queue(s) stale`,
+        nextAction: nodeRestricted > 0 ? 'review approved capabilities por node.' : 'Manter heartbeat e allowlist por node sob review.',
         command: '/nodes',
       },
       {
@@ -330,17 +330,17 @@ export class ZavorthGovernanceControlPlaneService {
         boundary: `${installedPlugins} instalado(s)`,
         allowlistState: `${trustedPlugins}/${installedPlugins} trusted`,
         auditState: `${Number(input.plugins?.summary?.catalogBacked || 0)} catalog-backed`,
-        nextAction: trustedPlugins < installedPlugins ? 'Revisar plugins instalados ainda sem trusted.' : 'Manter provenance e trust por plugin.',
+        nextAction: trustedPlugins < installedPlugins ? 'review plugins instalados ainda without trusted.' : 'Manter provenance e trust por plugin.',
         command: '/plugins',
       },
       {
         id: 'platform',
         label: 'Platform registry',
         posture: surfacePosture('platform'),
-        boundary: `${Number(input.platform?.summary?.total || 0)} entrada(s)`,
+        boundary: `${Number(input.platform?.summary?.total || 0)} entry(s)`,
         allowlistState: `${Number(input.platform?.summary?.trusted || 0)} trusted | ${platformReviewPending} review`,
         auditState: this.text(input.platform?.catalogSync?.status, 'local'),
-        nextAction: platformReviewPending > 0 ? 'Revisar entradas do registry em review.' : 'Manter sync opcional e policy de origem.',
+        nextAction: platformReviewPending > 0 ? 'review entradas do registry at review.' : 'Manter sync optional e policy de origem.',
         command: '/platform',
       },
       {
@@ -348,9 +348,9 @@ export class ZavorthGovernanceControlPlaneService {
         label: 'Remote transports',
         posture: surfacePosture('transports'),
         boundary: `${Number(input.transports?.summary?.ready || 0)}/${Number(input.transports?.summary?.total || 0)} ready`,
-        allowlistState: `${remoteAttention} com erro ou fila pendente`,
-        auditState: `${Number(input.transports?.summary?.pendingWork || 0)} item(ns) pendente(s)`,
-        nextAction: remoteAttention > 0 ? 'Rodar doctor/recover nos transportes com erro ou fila.' : 'Manter transportes opcionais como backlog, nao incidente.',
+        allowlistState: `${remoteAttention} com error ou queue pending`,
+        auditState: `${Number(input.transports?.summary?.pendingWork || 0)} item(s) pending(s)`,
+        nextAction: remoteAttention > 0 ? 'Run doctor/recover on transports with error or queue.' : 'Keep optional transports as backlog, not incident.',
         command: '/transports',
       },
       {
@@ -358,9 +358,9 @@ export class ZavorthGovernanceControlPlaneService {
         label: 'Team surfaces',
         posture: surfacePosture('teams'),
         boundary: `${Number(input.teams?.summary?.total || 0)} team(s)`,
-        allowlistState: `${Number(input.teams?.summary?.active || 0)} ativo(s), ${Number(input.teams?.summary?.resumable || 0)} retomavel(is)`,
-        auditState: this.text(input.teams?.narrative?.headline, 'Team catalog disponivel.'),
-        nextAction: 'Revisar surfaces permitidas antes de acionar workflows compostos em tenants compartilhados.',
+        allowlistState: `${Number(input.teams?.summary?.active || 0)} active(s), ${Number(input.teams?.summary?.resumable || 0)} retomavel(is)`,
+        auditState: this.text(input.teams?.narrative?.headline, 'Team catalog available.'),
+        nextAction: 'review allowed surfaces before triggering composite workflows in shared tenants.',
         command: '/teams',
       },
       {
@@ -368,9 +368,9 @@ export class ZavorthGovernanceControlPlaneService {
         label: 'Workspace boundary',
         posture: 'healthy',
         boundary: this.workspaceRoot,
-        allowlistState: 'workspace oficial do runtime atual',
+        allowlistState: 'workspace oficial do runtime current',
         auditState: 'escopo usado por /app, CLI e governance control plane',
-        nextAction: 'Manter comandos mutaveis sob Execution Gateway e approvals.',
+        nextAction: 'Keep mutable commands behind Execution Gateway and approvals.',
         command: null,
       },
     ];
@@ -400,7 +400,7 @@ export class ZavorthGovernanceControlPlaneService {
         label: 'Tenant compartilhado fail-closed',
         severity: 'critical',
         decision: 'deny',
-        rationale: `${input.tenants.summary.restrictedShared} tenant(s) publico(s) ainda nao tem allowlist de canal suficiente.`,
+        rationale: `${input.tenants.summary.restrictedShared} tenant(s) public tenant(s) still lack enough channel allowlist.`,
         command: '/tenants',
       });
     }
@@ -408,10 +408,10 @@ export class ZavorthGovernanceControlPlaneService {
       push({
         id: 'tenant-onboarding',
         surface: 'tenants',
-        label: 'Onboarding de tenant pendente',
+        label: 'Onboarding de tenant pending',
         severity: 'warn',
         decision: 'ask',
-        rationale: `${input.tenants.summary.pendingOnboarding} tenant(s) precisam fechar owner scope, policy profile ou allowlist antes de automacao ampla.`,
+        rationale: `${input.tenants.summary.pendingOnboarding} tenant(s) need owner scope, policy profile, or allowlist before broad automation.`,
         command: '/tenants',
       });
     }
@@ -420,10 +420,10 @@ export class ZavorthGovernanceControlPlaneService {
       push({
         id: 'kill-switch-active',
         surface: 'trust',
-        label: 'Kill switch ativo',
+        label: 'Kill switch active',
         severity: 'critical',
         decision: 'deny',
-        rationale: 'O supervised host esta bloqueando novas acoes ate revisao manual.',
+        rationale: 'O supervised host is bloqueando new actions ate review manual.',
         command: '/runtime',
       });
     }
@@ -431,10 +431,10 @@ export class ZavorthGovernanceControlPlaneService {
       push({
         id: 'pending-approvals',
         surface: 'trust',
-        label: 'Approvals pendentes',
+        label: 'Approvals pending',
         severity: 'warn',
         decision: 'ask',
-        rationale: `${input.trust.summary.pendingApprovals} approval(s) aguardam decisao humana.`,
+        rationale: `${input.trust.summary.pendingApprovals} approval(s) aguardam decision humana.`,
         command: '/perm pending',
       });
     }
@@ -445,7 +445,7 @@ export class ZavorthGovernanceControlPlaneService {
         label: 'MCP acima de safe',
         severity: this.text(input.trust?.summary?.mcpProfile, 'safe') === 'dangerous' ? 'critical' : 'warn',
         decision: 'audit',
-        rationale: `Perfil MCP atual: ${this.text(input.trust?.summary?.mcpProfile, 'safe')}.`,
+        rationale: `Perfil MCP current: ${this.text(input.trust?.summary?.mcpProfile, 'safe')}.`,
         command: 'npm run mcp:browser:doctor',
       });
     }
@@ -456,7 +456,7 @@ export class ZavorthGovernanceControlPlaneService {
         label: 'Skills liberadas por default',
         severity: 'critical',
         decision: 'audit',
-        rationale: 'A policy de skills em allow amplia a superficie de trust para fontes novas.',
+        rationale: 'A policy de skills at allow amplia a surface de trust para fontes new.',
         command: 'config/skill-allowlist.json',
       });
     }
@@ -467,10 +467,10 @@ export class ZavorthGovernanceControlPlaneService {
       push({
         id: 'plugins-untrusted-installed',
         surface: 'plugins',
-        label: 'Plugins instalados sem trusted',
+        label: 'Plugins instalados without trusted',
         severity: 'warn',
         decision: 'audit',
-        rationale: `${installedPlugins - trustedPlugins} plugin(s) instalado(s) ainda nao estao trusted.`,
+        rationale: `${installedPlugins - trustedPlugins} plugin(s) instalado(s) are not trusted yet.`,
         command: '/plugins review',
       });
     }
@@ -480,10 +480,10 @@ export class ZavorthGovernanceControlPlaneService {
       push({
         id: 'platform-review-pending',
         surface: 'platform',
-        label: 'Registry com review pendente',
+        label: 'Registry com review pending',
         severity: 'warn',
         decision: 'defer',
-        rationale: `${platformReviewPending} entrada(s) de platform ainda pedem review.`,
+        rationale: `${platformReviewPending} entry(s) de platform ainda pedunder review.`,
         command: '/platform',
       });
     }
@@ -493,10 +493,10 @@ export class ZavorthGovernanceControlPlaneService {
       push({
         id: 'channels-group-policy-review',
         surface: 'channels',
-        label: 'Canais configurados sem group policy',
+        label: 'Canais configurados without group policy',
         severity: 'info',
         decision: 'audit',
-        rationale: `${configuredChannelsWithoutGroupPolicy} canal(is) configurado(s) ainda merecem revisao de escopo por grupo/thread/workspace.`,
+        rationale: `${configuredChannelsWithoutGroupPolicy} channel(s) configured(s) ainda merecunder review de escopo por grupo/thread/workspace.`,
         command: '/channels',
       });
     }
@@ -506,10 +506,10 @@ export class ZavorthGovernanceControlPlaneService {
       push({
         id: 'node-allowlist-restricted',
         surface: 'nodes',
-        label: 'Nodes com allowlist restrita',
+        label: 'Nodes with restricted allowlists',
         severity: 'info',
         decision: 'defer',
-        rationale: `${restrictedNodes} node(s) estao pareados com parte das capabilities aprovadas.`,
+        rationale: `${restrictedNodes} node(s) are pareados com parte das approved capabilities.`,
         command: '/nodes',
       });
     }
@@ -519,10 +519,10 @@ export class ZavorthGovernanceControlPlaneService {
       push({
         id: 'remote-transport-attention',
         surface: 'transports',
-        label: 'Transportes com erro ou fila',
+        label: 'Transportes com error ou queue',
         severity: 'warn',
         decision: 'audit',
-        rationale: `${remoteAttention} transporte(s) remoto(s) tem erro recente ou trabalho pendente.`,
+        rationale: `${remoteAttention} transport(s) remote(s) tem error recente ou trabalho pending.`,
         command: '/transports',
       });
     }
@@ -531,10 +531,10 @@ export class ZavorthGovernanceControlPlaneService {
       push({
         id: 'team-surface-audit',
         surface: 'teams',
-        label: 'Workflows compostos em tenants compartilhados',
+        label: 'Workflows compostos at tenants compartilhados',
         severity: 'info',
         decision: 'audit',
-        rationale: 'Teams ativos devem manter surface availability alinhada aos tenants observados.',
+        rationale: 'Active teams must keep surface availability aligned with observed tenants.',
         command: '/teams',
       });
     }
@@ -563,7 +563,7 @@ export class ZavorthGovernanceControlPlaneService {
       .slice(0, 3)
       .map((entry) => ({
         id: `surface:${entry.id}`,
-        label: `Revisar ${entry.label}`,
+        label: `review ${entry.label}`,
         severity: 'info' as const,
         command: entry.command,
         reason: entry.nextAction,
@@ -582,10 +582,10 @@ export class ZavorthGovernanceControlPlaneService {
   }): string {
     return [
       `Governance ${input.posture}.`,
-      `${Number(input.tenants?.summary?.shared || 0)} tenant(s) compartilhado(s), ${Number(input.tenants?.summary?.pendingOnboarding || 0)} onboarding pendente e ${Number(input.tenants?.summary?.restrictedShared || 0)} restrito(s).`,
-      `Trust plane com MCP ${this.text(input.trust?.summary?.mcpProfile, 'safe')}, ${Number(input.trust?.summary?.pendingApprovals || 0)} approval(s) e ${Number(input.trust?.summary?.highRiskCapabilities || 0)} capability(s) sensiveis.`,
-      `${Number(input.channels?.summary?.ready || 0)}/${Number(input.channels?.summary?.total || 0)} canal(is) ready, ${Number(input.nodes?.summary?.paired || 0)} node(s) pareado(s), ${Number(input.plugins?.summary?.trusted || 0)}/${Number(input.plugins?.summary?.installed || 0)} plugin(s) trusted.`,
-      `${this.countRemoteAttention(input.transports)} transporte(s) remoto(s) com erro/fila e ${Number(input.teams?.summary?.total || 0)} team(s) catalogado(s).`,
+      `${Number(input.tenants?.summary?.shared || 0)} tenant(s) compartilhado(s), ${Number(input.tenants?.summary?.pendingOnboarding || 0)} onboarding pending e ${Number(input.tenants?.summary?.restrictedShared || 0)} restrito(s).`,
+      `Trust plane com MCP ${this.text(input.trust?.summary?.mcpProfile, 'safe')}, ${Number(input.trust?.summary?.pendingApprovals || 0)} approval(s) e ${Number(input.trust?.summary?.highRiskCapabilities || 0)} capability(s) sensitive.`,
+      `${Number(input.channels?.summary?.ready || 0)}/${Number(input.channels?.summary?.total || 0)} channel(s) ready, ${Number(input.nodes?.summary?.paired || 0)} node(s) paired(s), ${Number(input.plugins?.summary?.trusted || 0)}/${Number(input.plugins?.summary?.installed || 0)} plugin(s) trusted.`,
+      `${this.countRemoteAttention(input.transports)} transport(s) remote(s) com error/queue e ${Number(input.teams?.summary?.total || 0)} team(s) catalogado(s).`,
     ].join(' ');
   }
 

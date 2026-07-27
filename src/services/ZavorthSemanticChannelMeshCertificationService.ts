@@ -82,8 +82,7 @@ export class ZavorthSemanticChannelMeshCertificationService {
       && secretScenarios.every((scenario) => scenario.status === 'passed')
       && channelMesh.summary.liveIoPerformed === false
       && channelMesh.summary.enabledByDefault === false
-      && channelMesh.summary.secretValuesSerialized === false
-        ? 'passed'
+      && channelMesh.summary.secretValuesSerialized === false ? 'passed'
         : 'failed';
 
     return {
@@ -142,7 +141,7 @@ export class ZavorthSemanticChannelMeshCertificationService {
         inspectJson: 'npm run semantic-channel-mesh-certification:json --silent',
         check: 'npm run semantic-channel-mesh-certification:check --silent',
         qa: 'npm run qa:semantic-channel-mesh-certification --silent',
-        nextStage: 'S5 - Memory, Document, Search And Terminal Semantics',
+        nextAction: 'Memory, document, search, and terminal semantics',
       },
     };
   }
@@ -170,7 +169,7 @@ export class ZavorthSemanticChannelMeshCertificationService {
       ...snapshot.claims.map((claim) =>
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`,
       ),
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -246,8 +245,7 @@ export class ZavorthSemanticChannelMeshCertificationService {
     const secret = pack.secretPolicy;
     return this.claim({
       kind: 'secret-policy',
-      status: secret.rawSecretValuesAccepted === false && secret.secretValuesSerialized === false
-        ? 'covered'
+      status: secret.rawSecretValuesAccepted === false && secret.secretValuesSerialized === false ? 'covered'
         : 'gap',
       priority: 'P0',
       channelId: pack.channelId,
@@ -298,8 +296,7 @@ export class ZavorthSemanticChannelMeshCertificationService {
       const receipts = receiptsByAction.get(action) || [];
       return this.claim({
         kind: 'simulator-action',
-        status: receipts.length > 0 && receipts.every((receipt) => !receipt.liveIoPerformed && !receipt.secretValuesSerialized)
-          ? 'covered'
+        status: receipts.length > 0 && receipts.every((receipt) => !receipt.liveIoPerformed && !receipt.secretValuesSerialized) ? 'covered'
           : 'gap',
         priority: action === 'send' || action === 'receive' || action === 'thread' ? 'P0' : 'P1',
         channelId: channelMesh.simulator.channelId,
@@ -385,8 +382,7 @@ export class ZavorthSemanticChannelMeshCertificationService {
     return [
       this.claim({
         kind: 'live-io-policy',
-        status: channelMesh.summary.liveIoPerformed === false && channelMesh.summary.enabledByDefault === false
-          ? 'covered'
+        status: channelMesh.summary.liveIoPerformed === false && channelMesh.summary.enabledByDefault === false ? 'covered'
           : 'gap',
         priority: 'P0',
         expectedBehavior: 'S4 certification does not perform live channel I/O and never enables channels by default.',
@@ -403,8 +399,7 @@ export class ZavorthSemanticChannelMeshCertificationService {
         kind: 'receipt-policy',
         status: channelMesh.policy.artifactFirstReceipts
           && channelMesh.simulator.summary.receipts >= channelMesh.simulator.actionsCovered.length
-          && channelMesh.summary.secretValuesSerialized === false
-            ? 'covered'
+          && channelMesh.summary.secretValuesSerialized === false ? 'covered'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'Channel Mesh certification is artifact-first and receipt-backed.',

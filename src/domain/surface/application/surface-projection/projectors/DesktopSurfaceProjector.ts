@@ -99,13 +99,15 @@ function extractChoiceFromAction(
   callbackData?: string | null,
   command?: string | null,
 ): string | null {
-  const blob = `${id} ${callbackData || ''} ${command || ''}`.toLowerCase();
+  const candidates = [id, callbackData, command]
+    .map((value) => String(value || '').trim().toLowerCase())
+    .filter(Boolean);
   for (const choice of ['once', 'session', 'always', 'deny'] as const) {
-    if (blob.includes(choice) || blob.includes(`perm-${choice}`)) {
+    if (candidates.some((value) => value === choice || value === `perm-${choice}`)) {
       return choice;
     }
   }
-  if (blob.includes('reject')) return 'deny';
-  if (blob.includes('approve')) return 'once';
+  if (candidates.some((value) => value === 'reject')) return 'deny';
+  if (candidates.some((value) => value === 'approve')) return 'once';
   return null;
 }

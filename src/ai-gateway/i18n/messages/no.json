@@ -6,7 +6,7 @@
     "loading": "Laster inn...",
     "error": "Det oppsto en feil",
     "success": "Suksess",
-    "confirm": "Er du sikker?",
+    "confirm": "Er du sikker...",
     "refresh": "Oppdater",
     "close": "Lukk",
     "add": "Legg til",
@@ -164,8 +164,8 @@
     "auditLog": "Revisjonslogg",
     "shutdown": "Avslutning",
     "restart": "Start på nytt",
-    "shutdownConfirm": "Slå av ZavorthGateway?",
-    "restartConfirm": "Starte ZavorthGateway på nytt?",
+    "shutdownConfirm": "Slå av ZavorthGateway...",
+    "restartConfirm": "Starte ZavorthGateway på nytt...",
     "version": "v{version}",
     "debug": "Feilsøk",
     "system": "System",
@@ -288,7 +288,7 @@
     "createKey": "Opprett API-nøkkel",
     "key": "Nøkkel",
     "revokeKey": "Tilbakekall nøkkel",
-    "revokeConfirm": "Er du sikker på at du vil tilbakekalle denne API-nøkkelen?",
+    "revokeConfirm": "Er du sikker på at du vil tilbakekalle denne API-nøkkelen...",
     "noKeys": "Ingen API-nøkler ennå",
     "noKeysDesc": "Lag din første API-nøkkel for å autentisere forespørsler til endepunktet ditt",
     "keyLabel": "Nøkkeletikett",
@@ -320,7 +320,7 @@
     "actions": "Handlinger",
     "reqs": "krav",
     "neverUsed": "Aldri brukt",
-    "deleteConfirm": "Vil du slette denne API-nøkkelen?",
+    "deleteConfirm": "Vil du slette denne API-nøkkelen...",
     "usageTips": "Brukstips",
     "tipAuth": "Bruk API-nøkler i autorisasjonsoverskriften som bærer DIN_KEY",
     "tipSecure": "Nøkler vises bare én gang under opprettelsen – oppbevar dem sikkert",
@@ -803,7 +803,7 @@
     "leastLatency": "Minste ventetid",
     "comboName": "Kombinasjonsnavn",
     "comboNamePlaceholder": "min-kombo",
-    "deleteConfirm": "Vil du slette denne kombinasjonen?",
+    "deleteConfirm": "Vil du slette denne kombinasjonen...",
     "noCombosYet": "Ingen kombinasjoner ennå",
     "comboCreated": "Kombinasjonen ble opprettet",
     "comboUpdated": "Kombinasjonen ble oppdatert",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "Klar til å spare?",
+    "readinessTitle": "Klar til å spare...",
     "readinessDescription": "Se gjennom sjekklisten før du oppretter eller oppdaterer denne kombinasjonen.",
     "readinessCheckName": "Kombinasjonsnavnet er gyldig",
     "readinessCheckModels": "Minst én modell er valgt",
@@ -1013,7 +1013,7 @@
     "title": "API-endepunkt",
     "available": "Tilgjengelige endepunkter",
     "cloudProxy": "Cloud Proxy",
-    "disableConfirm": "Er du sikker på at du vil deaktivere skyproxy?",
+    "disableConfirm": "Er du sikker på at du vil deaktivere skyproxy...",
     "baseUrl": "Base URL",
     "apiKeyLabel": "API-nøkkel",
     "registeredKeys": "Registrerte nøkler",
@@ -1154,13 +1154,13 @@
     "loading": "Laster inn MCP-dashbordet ...",
     "activate": "aktivere",
     "deactivate": "deaktivere",
-    "confirmSwitchCombo": "Bekreft {action} kombinasjonen \"{combo}\"?",
+    "confirmSwitchCombo": "Bekreft {action} kombinasjonen \"{combo}\"...",
     "switchComboFailed": "Kunne ikke bytte kombinasjonstilstand.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Circuit breakers reset.",
     "processStatus": "Process status",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} kjører",
     "ok": "OK",
     "activeLockouts": "Aktive lockouter",
-    "resetConfirm": "Tilbakestille alle effektbrytere til sunn tilstand? Dette vil slette alle feiltellinger og gjenopprette alle leverandører til driftsstatus.",
+    "resetConfirm": "Tilbakestille alle effektbrytere til sunn tilstand... Dette vil slette alle feiltellinger og gjenopprette alle leverandører til driftsstatus.",
     "resetAllTitle": "Tilbakestill alle effektbrytere til sunn tilstand",
     "resetting": "Tilbakestiller...",
     "resetAll": "Tilbakestill alle",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Modelltilgjengelighet",
     "accounts": "Kontoer",
     "newAccount": "Ny konto",
-    "deleteConfirm": "Er du sikker på at du vil slette denne leverandøren?",
+    "deleteConfirm": "Er du sikker på at du vil slette denne leverandøren...",
     "testing": "Tester...",
     "testConnection": "Test tilkobling",
     "testSuccess": "Tilkoblingen var vellykket",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "Test API-nøkkel",
     "testKeyPlaceholder": "sk-... (kun for validering)",
     "providerNotFound": "Finner ikke leverandør",
-    "deleteConnectionConfirm": "Vil du slette denne tilkoblingen?",
+    "deleteConnectionConfirm": "Vil du slette denne tilkoblingen...",
     "failedSetAlias": "Kunne ikke angi alias",
     "failedSaveConnection": "Kunne ikke lagre tilkoblingen",
     "failedSaveConnectionRetry": "Kunne ikke lagre tilkoblingen. Vennligst prøv igjen.",
     "failedRetestConnection": "Kunne ikke teste tilkoblingen på nytt",
-    "deleteCompatibleNodeConfirm": "Vil du slette denne {type}-kompatible noden?",
+    "deleteCompatibleNodeConfirm": "Vil du slette denne {type}-kompatible noden...",
     "anthropicCompatibleDetails": "Antropisk kompatible detaljer",
     "openaiCompatibleDetails": "OpenAI-kompatible detaljer",
     "messagesApi": "Messages API",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Automatisk synkronisering er deaktivert",
     "autoSyncToggleFailed": "Kunne ikke slå på automatisk synkronisering",
     "clearAllModels": "Fjern alle modeller",
-    "clearAllModelsConfirm": "Er du sikker på at du vil fjerne alle modellene for denne leverandøren? Dette kan ikke angres.",
+    "clearAllModelsConfirm": "Er du sikker på at du vil fjerne alle modellene for denne leverandøren... Dette kan ikke angres.",
     "clearAllModelsSuccess": "Alle modeller ryddet",
     "clearAllModelsFailed": "Kunne ikke slette modeller",
     "addConnectionToImport": "Legg til en tilkobling for å aktivere import.",
@@ -1814,7 +1814,7 @@
     "exportData": "Eksporter data",
     "importData": "Importer data",
     "clearData": "Fjern alle data",
-    "clearDataConfirm": "Dette vil slette alle data permanent. Er du sikker?",
+    "clearDataConfirm": "Dette vil slette alle data permanent. Er du sikker...",
     "enableRequestLogs": "Aktiver forespørselslogger",
     "logRetention": "Loggoppbevaring",
     "ipWhitelist": "IP-hviteliste",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Anrop per konto før bytte",
     "modelAliases": "Modellaliaser",
     "modelAliasesTitle": "Modellaliaser",
-    "modelAliasesDesc": "Jokertegnmønstre for å tilordne modellnavn på nytt • Bruk * og ?",
+    "modelAliasesDesc": "Jokertegnmønstre for å tilordne modellnavn på nytt • Bruk * og ...",
     "addCustomAlias": "Legg til Tilpasset Alias",
     "deprecatedModelId": "Utdatert modell-ID",
     "newModelId": "Ny modell-ID",
@@ -1974,7 +1974,7 @@
     "browser": "Nettleser",
     "clearLocalData": "Fjern lokale data",
     "logout": "Logg ut",
-    "clearLocalDataConfirm": "Vil du slette alle lokale data? Dette vil tilbakestille innstillingene dine.",
+    "clearLocalDataConfirm": "Vil du slette alle lokale data... Dette vil tilbakestille innstillingene dine.",
     "unknown": "Ukjent",
     "systemActor": "systemet",
     "ipAccessControl": "IP-tilgangskontroll",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Ingen reservekjeder",
     "noFallbackChainsDesc": "Opprett en kjede for å definere leverandørens reserveordre for en modell.",
     "loadingFallbackChains": "Laster inn reservekjeder...",
-    "deleteChainConfirm": "Vil du slette reservekjeden for «{model}»?",
+    "deleteChainConfirm": "Vil du slette reservekjeden for «{model}»...",
     "chainCreated": "Kjede opprettet for {model}",
     "chainDeleted": "Kjede slettet for {model}",
     "failedCreateChain": "Kunne ikke opprette kjede",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Ingen sikkerhetskopier tilgjengelig ennå. Sikkerhetskopier opprettes automatisk når data endres.",
     "backupsAvailable": "{count} sikkerhetskopi(er) tilgjengelig",
     "refresh": "Oppdater",
-    "confirm": "Bekrefte?",
+    "confirm": "Bekrefte...",
     "yes": "Ja",
     "no": "Nei",
     "restore": "Gjenopprett",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Retningslinjer og effektbrytere",
     "activeIssuesDetected": "Aktive problemer oppdaget",
     "off": "Av",
-    "resetPricingConfirm": "Vil du tilbakestille all prissetting for {provider} til standardverdiene?",
+    "resetPricingConfirm": "Vil du tilbakestille all prissetting for {provider} til standardverdiene...",
     "pricingDescInput": "Inndata: tokens sendt til modellen",
     "pricingDescOutput": "Utgang: tokens generert",
     "pricingDescCached": "Bufret: gjenbrukt inndata (~50 % av inndatahastigheten)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Du er en hjelpsom assistent.",
-        "userGreeting": "Hei! Hvordan har du det i dag?"
+        "userGreeting": "Hei! Hvordan har du det i dag..."
       },
       "toolCalling": {
-        "userWeather": "Hvordan er været i São Paulo?",
+        "userWeather": "Hvordan er været i São Paulo...",
         "toolDescription": "Få gjeldende vær for et sted",
         "cityNameDescription": "Bynavn"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Gjør det nå sortert i synkende rekkefølge."
       },
       "thinking": {
-        "question": "Hva er summen av de første 100 primtallene?"
+        "question": "Hva er summen av de første 100 primtallene..."
       },
       "systemPrompt": {
         "systemInstruction": "Du er en senior programvareingeniør med spesialisering i distribuerte systemer. Svar konsist på spørsmål ved å bruke bransjens beste praksis. Gi alltid kodeeksempler når det er relevant. Formater svarene dine med markdown.",
-        "question": "Hvordan implementerer jeg et strømbrytermønster?"
+        "question": "Hvordan implementerer jeg et strømbrytermønster..."
       },
       "streaming": {
         "prompt": "Fortell meg en kort historie om en robot som lærer å male."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "eller fjern passordHash-feltet",
     "restartServerWithNewPassword": "Start serveren på nytt - den vil bruke det nye passordet",
     "backToLogin": "Tilbake til pålogging",
-    "forgotPassword": "Glemt passord?",
+    "forgotPassword": "Glemt passord...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Autorisasjon",
     "Content-Disposition": "Innhold-Disposisjon",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Tvillingene",
     "flowProviderGithubCopilot": "GitHub Copilot",
     "interactiveDiagram": "Interaktivt diagram synlig på skrivebordet",
-    "ctaTitle": "Klar til å forenkle AI-infrastrukturen din?",
+    "ctaTitle": "Klar til å forenkle AI-infrastrukturen din...",
     "ctaDescription": "Bli med utviklere som strømlinjeformer AI-integrasjonene sine med Zavorth. Åpen kildekode og gratis å starte.",
     "startFree": "Start gratis",
     "readDocumentation": "Les dokumentasjon"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Sist oppdatert: {date}",
     "policyLastUpdatedDate": "13. februar 2026",
     "listSeparator": "-",
-    "questionsVisit": "Spørsmål? Besøk vår",
+    "questionsVisit": "Spørsmål... Besøk vår",
     "githubRepository": "GitHub-depot",
     "privacySection1Title": "1. Lokal-først arkitektur",
     "privacySection1Text": "Zavorth er designet som en lokal først-applikasjon. All databehandling og lagring skjer utelukkende på maskinen din. Det er ingen sentralisert server som samler inn informasjonen din.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Du er en hjelpsom AI-assistent.",
-      "userGreeting": "Hei! Hvordan kan jeg hjelpe deg i dag?"
+      "userGreeting": "Hei! Hvordan kan jeg hjelpe deg i dag..."
     },
     "streaming": {
       "prompt": "Skriv en historie om"
     },
     "systemPrompt": {
-      "question": "Hva er meningen med livet?",
+      "question": "Hva er meningen med livet...",
       "systemInstruction": "Gi et gjennomtenkt, filosofisk svar."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "Navnet på byen å få vær for",
       "toolDescription": "Få gjeldende vær for et sted",
-      "userWeather": "Hvordan er været i Tokyo?"
+      "userWeather": "Hvordan er været i Tokyo..."
     },
     "multiTurn": {
       "system": "Du er en hjelpsom assistent.",
       "assistantExample": "Jeg hjelper deg gjerne med det.",
       "userInitial": "Jeg trenger hjelp med",
-      "userFollowUp": "Kan du utdype det?"
+      "userFollowUp": "Kan du utdype det..."
     }
   },
   "cache": {

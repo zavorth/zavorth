@@ -100,8 +100,7 @@ export class ZavorthProviderSelectionUxService {
       `intent=${snapshot.request.intent}`,
       `target=${snapshot.request.target || 'auto'}`,
       `active=${snapshot.active.provider}/${snapshot.active.model}`,
-      selected
-        ? `selected=${selected.providerId} status=${selected.status} live=${selected.liveStatus} model=${selected.model || 'none'}`
+      selected ? `selected=${selected.providerId} status=${selected.status} live=${selected.liveStatus} model=${selected.model || 'none'}`
         : 'selected=none',
       '',
       '[explanation]',
@@ -156,7 +155,7 @@ function toCandidate(entry: ZavorthProviderReadinessEntry, score: number): Zavor
     reasons: [
       entry.status === 'ready' ? 'Provider appears configured.' : entry.userAction,
       livePassed ? 'Live evidence exists.' : 'Catalog readiness is not live proof.',
-      entry.routeClass === 'local' ? 'Local/private route.' : `${entry.routeClass || entry.routeKind} route.`,
+      entry.routeClass === 'local' ? 'local/private route.' : `${entry.routeClass || entry.routeKind} route.`,
     ],
     canUseNow,
     canTestNow,
@@ -219,8 +218,7 @@ function buildExplanation(
   }
   lines.push(`Selected ${selected.label} because score=${selected.score} and status=${selected.status}.`);
   if (decision === 'test_first') {
-    lines.push(requireLiveEvidence
-      ? 'Live evidence was required, so the next safe action is an explicit live test.'
+    lines.push(requireLiveEvidence ? 'Live evidence was required, so the next safe action is an explicit live test.'
       : 'Provider can be used, but testing first is recommended before making it default.');
   }
   if (decision === 'configure_first') lines.push(selected.userAction);

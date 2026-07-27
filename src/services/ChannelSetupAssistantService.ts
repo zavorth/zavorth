@@ -141,7 +141,7 @@ export class ChannelSetupAssistantService {
   }): Promise<ChannelSetupAssistantApplyResult> {
     const channelId = this.resolveChannelId(input.channelId);
     if (!channelId) {
-      throw new Error('channelId obrigatorio.');
+      throw new Error('channelId required.');
     }
 
     const plan = this.installService.buildPlanForChannel(channelId, this.normalizeMode(input.mode));
@@ -171,7 +171,7 @@ export class ChannelSetupAssistantService {
     localOnly?: boolean;
   } = {}): Promise<ChannelSetupAssistantDoctorResult> {
     if (!this.providerDoctorService) {
-      throw new Error('Doctor dos canais indisponivel neste runtime.');
+      throw new Error('Doctor dos channels unavailable in this runtime.');
     }
 
     const selectedId = this.resolveChannelId(input.selectedId || null);
@@ -227,12 +227,12 @@ export class ChannelSetupAssistantService {
 
   private resolveOperatorNextStep(plan: ChannelInstallPlan): string {
     if (!plan.currentMode) {
-      return `Aplicar scaffold seguro: ${plan.commands.apply}.`;
+      return `Apply safe scaffold: ${plan.commands.apply}.`;
     }
     if (plan.missingEnvKeys.length > 0) {
-      return `Preencher ${plan.missingEnvKeys.join(', ')} e validar novamente.`;
+      return `Preencher ${plan.missingEnvKeys.join(', ')} e validate again.`;
     }
-    return `Validar com doctor: ${plan.commands.doctor}.`;
+    return `validate com doctor: ${plan.commands.doctor}.`;
   }
 
   private extractSetupMode(plan: ChannelInstallPlan): ChannelInstallMode | null {
@@ -245,22 +245,22 @@ export class ChannelSetupAssistantService {
     selected: ChannelSetupAssistantOption | null,
   ): string {
     if (!selected) {
-      return 'Me diga qual canal voce quer conectar: Telegram, Discord, Slack, WhatsApp, Signal, iMessage, Teams ou Email.';
+      return 'Me tell qual canal you quer conectar: Telegram, Discord, Slack, WhatsApp, Signal, iMessage, Teams ou Email.';
     }
 
     if (status === 'needs_scaffold') {
-      return `Posso preparar ${selected.label} em modo ${selected.setupMode}. Isso cria o scaffold seguro do .env sem preencher segredos por voce.`;
+      return `Posso preparar ${selected.label} em modo ${selected.setupMode}. Isso cria o scaffold seguro do .env without preencher secrets por you.`;
     }
 
     if (status === 'needs_config') {
-      return `${selected.label} ja tem scaffold/modo definido. Ainda faltam: ${selected.missingEnvKeys.join(', ')}.`;
+      return `${selected.label} already has scaffold/mode defined. Still missing: ${selected.missingEnvKeys.join(', ')}.`;
     }
 
     if (status === 'ready_to_validate') {
-      return `${selected.label} parece configurado para o modo ${selected.setupMode}; o proximo passo e rodar o doctor para confirmar o runtime.`;
+      return `${selected.label} appears configured for mode ${selected.setupMode}; the next step is to run doctor and confirm the runtime.`;
     }
 
-    return `${selected.label} esta pronto no Channel Mesh. Posso rodar doctor ou teste de envio quando voce quiser.`;
+    return `${selected.label} is ready in Channel Mesh. You can run doctor or a send test when needed.`;
   }
 
   private buildNextQuestions(
@@ -268,15 +268,15 @@ export class ChannelSetupAssistantService {
     selected: ChannelSetupAssistantOption | null,
   ): string[] {
     if (!selected) {
-      return ['Qual canal voce quer conectar primeiro?'];
+      return ['Which channel do you want to connect first?'];
     }
     if (status === 'needs_scaffold') {
-      return [`Quer que eu aplique o scaffold seguro do ${selected.label} agora?`];
+      return [`Do you want me to apply the safe scaffold for ${selected.label} now?`];
     }
     if (status === 'needs_config') {
-      return [`Voce quer preencher as variaveis faltantes agora ou apenas deixar o scaffold pronto?`];
+      return ['Do you want to fill the missing variables now or only keep the scaffold ready?'];
     }
-    return [`Quer que eu rode o doctor do ${selected.label} agora?`];
+    return [`Run doctor for ${selected.label} now...`];
   }
 
   private buildNextActions(
@@ -294,7 +294,7 @@ export class ChannelSetupAssistantService {
     if (status === 'needs_scaffold') {
       return [{
         id: 'apply-scaffold',
-        label: `Aplicar scaffold do ${selected.label}`,
+        label: `Apply scaffold for ${selected.label}`,
         command: selected.commands.apply,
       }];
     }
@@ -302,14 +302,14 @@ export class ChannelSetupAssistantService {
     if (status === 'needs_config') {
       return [{
         id: 'fill-env',
-        label: `Preencher variaveis do ${selected.label}`,
+        label: `Fill variables for ${selected.label}`,
         command: selected.missingEnvKeys.join(', '),
       }];
     }
 
     return [{
       id: 'doctor',
-      label: `Rodar doctor do ${selected.label}`,
+      label: `run doctor do ${selected.label}`,
       command: selected.commands.doctor,
     }];
   }
@@ -341,11 +341,11 @@ export class ChannelSetupAssistantService {
   }
 
   private normalizeMode(value: string | null | undefined): ChannelInstallMode | null {
-    const normalized = String(value || '').trim().toLowerCase();
+    const normalized = normalizeLegacyChannelMode(String(value || '').trim().toLowerCase());
     const modes: ChannelInstallMode[] = [
       'native',
       'bridge',
-      'stub',
+      'local',
       'cloud-api',
       'baileys',
       'meta-messaging',
@@ -357,4 +357,8 @@ export class ChannelSetupAssistantService {
     ];
     return modes.find((mode) => mode === normalized) || null;
   }
+}
+
+function normalizeLegacyChannelMode(value: string): string {
+  return value === 'local' ? 'local' : value;
 }

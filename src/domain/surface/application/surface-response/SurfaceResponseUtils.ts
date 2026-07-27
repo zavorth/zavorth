@@ -52,7 +52,7 @@ export function formatSurfaceCell(value: SurfaceTableCell): string {
 
 export function renderSurfaceTable(table: SurfaceTable): string[] {
   if (table.rows.length === 0) {
-    return [compactSurfaceLine(table.emptyText || 'Nenhum registro.')];
+    return [compactSurfaceLine(table.emptyText || 'No registro.')];
   }
 
   const columns = table.columns.filter((column) => compactSurfaceLine(column.key));
@@ -94,7 +94,7 @@ export function renderSurfaceProgress(progress: SurfaceProgress): string {
   const hasRatio =
     Number.isFinite(progress.current || null) && Number.isFinite(progress.total || null) && Number(progress.total) > 0;
   const ratio = hasRatio ? `${progress.current}/${progress.total}` : null;
-  return [`${label}: ${progress.status}${ratio ? ` (${ratio})` : ''}`, detail || null].filter(Boolean).join(' - ');
+  return [`${label}: ${progress.status}${ratio ? ` (${ratio})` : ''}`, detail || null].filter(Boolean).join(' ? ');
 }
 
 export function renderSurfaceReceipt(receipt: SurfaceReceipt): string[] {

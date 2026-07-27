@@ -27,7 +27,7 @@ export type ZavorthRuntimeReadinessUxCard = {
   id: ZavorthRuntimeReadinessCheckId;
   title: string;
   status: ZavorthRuntimeReadinessStatus;
-  statusLabel: 'Pronto' | 'Atencao' | 'Bloqueado';
+  statusLabel: 'ready' | 'Atencao' | 'Bloqueado';
   tone: ZavorthRuntimeReadinessUxTone;
   required: boolean;
   summary: string;
@@ -52,9 +52,9 @@ export type ZavorthRuntimeReadinessUxSnapshot = {
   surface: 'runtime-readiness-operator-ux';
   generatedAt: string;
   status: ZavorthRuntimeReadinessStatus;
-  statusLabel: 'Pronto' | 'Atencao' | 'Bloqueado';
+  statusLabel: 'ready' | 'Atencao' | 'Bloqueado';
   dailyUseReady: boolean;
-  dailyUseLabel: 'pronto' | 'com atencao' | 'bloqueado';
+  dailyUseLabel: 'ready' | 'com attention' | 'blocked';
   headline: string;
   subhead: string;
   primaryAction: ZavorthRuntimeReadinessUxAction;
@@ -98,9 +98,9 @@ export class ZavorthRuntimeReadinessUxService {
     const statusLabel = statusLabelFor(readiness.status);
     const dailyUseLabel = readiness.dailyUseReady
       ? readiness.status === 'attention'
-        ? 'com atencao'
-        : 'pronto'
-      : 'bloqueado';
+        ? 'com attention'
+        : 'ready'
+      : 'blocked';
     const headline = headlineFor(readiness.status, readiness.dailyUseReady);
     const subhead = subheadFor(readiness.status, readiness.dailyUseReady, cards);
     const base: Omit<ZavorthRuntimeReadinessUxSnapshot, 'telegramProjection'> = {
@@ -163,7 +163,7 @@ export class ZavorthRuntimeReadinessUxService {
     const primary = formatAction(snapshot.primaryAction);
     const lines = [
       snapshot.headline,
-      `Uso diario: ${snapshot.dailyUseLabel}`,
+      `daily use: ${snapshot.dailyUseLabel}`,
       snapshot.subhead,
       '',
       'Estado',
@@ -171,13 +171,13 @@ export class ZavorthRuntimeReadinessUxService {
         `- ${card.title}: ${card.statusLabel}. ${card.summary}`,
       ),
       '',
-      `Proximo passo: ${snapshot.primaryAction.label}${primary ? ` (${primary})` : ''}`,
+      `next passo: ${snapshot.primaryAction.label}${primary ? ` (${primary})` : ''}`,
     ];
 
     if (snapshot.secondaryActions.length > 0) {
       lines.push(
         '',
-        'Atalhos',
+        'shortcuts',
         ...snapshot.secondaryActions.slice(0, 3).map((action) =>
           `- ${action.label}${formatAction(action) ? ` (${formatAction(action)})` : ''}`,
         ),
@@ -197,12 +197,12 @@ export class ZavorthRuntimeReadinessUxService {
     const cards = prioritizeCardsForTelegram(snapshot.cards);
     return [
       snapshot.headline,
-      `Uso diario: ${snapshot.dailyUseLabel}`,
+      `daily use: ${snapshot.dailyUseLabel}`,
       snapshot.subhead,
       '',
       ...cards.map((card) => `${card.title}: ${card.statusLabel}. ${card.summary}`),
       '',
-      `Proximo: ${snapshot.primaryAction.label}.`,
+      `next: ${snapshot.primaryAction.label}.`,
     ].join('\n');
   }
 
@@ -292,28 +292,28 @@ function titleForCheck(id: ZavorthRuntimeReadinessCheckId): string {
     approvals: 'Approvals',
     'transaction-plane': 'Transaction plane',
     'skill-imports': 'Skills',
-    'memory-continuity': 'Memoria',
+    'memory-continuity': 'Memory',
   };
   return titles[id];
 }
 
 function statusLabelFor(status: ZavorthRuntimeReadinessStatus): ZavorthRuntimeReadinessUxCard['statusLabel'] {
-  if (status === 'ready') return 'Pronto';
+  if (status === 'ready') return 'ready';
   if (status === 'attention') return 'Atencao';
   return 'Bloqueado';
 }
 
 function headlineFor(status: ZavorthRuntimeReadinessStatus, dailyUseReady: boolean): string {
   if (status === 'ready') {
-    return 'Zavorth pronto para uso diario.';
+    return 'Zavorth is ready for daily use.';
   }
   if (status === 'attention' && dailyUseReady) {
-    return 'Zavorth usavel, com atencao.';
+    return 'Zavorth usavel, com attention.';
   }
   if (status === 'attention') {
-    return 'Zavorth precisa de atencao antes de uso sem supervisao.';
+    return 'Zavorth needs attention before unsupervised use.';
   }
-  return 'Zavorth bloqueado para uso sem supervisao.';
+  return 'Zavorth blocked para usage without supervision.';
 }
 
 function subheadFor(
@@ -324,12 +324,12 @@ function subheadFor(
   const attention = cards.filter((card) => card.status === 'attention').length;
   const blocked = cards.filter((card) => card.status === 'blocked').length;
   if (status === 'ready') {
-    return 'CLI, zavorthControl, approvals, memoria, skills e transaction plane estao coerentes.';
+    return 'CLI, zavorthControl, approvals, memory, skills e transaction plane iso coerentes.';
   }
   if (dailyUseReady) {
-    return `${formatItemCount(attention)} ${attention === 1 ? 'pede' : 'pedem'} setup, mas os contratos obrigatorios estao seguros.`;
+    return `${formatItemCount(attention)} ${attention === 1 ? 'pede' : 'pedem'} setup, mas os contratos requireds iso seguros.`;
   }
-  return `${formatItemCount(blocked)} ${blocked === 1 ? 'bloqueia' : 'bloqueiam'} a operacao segura ate revisao.`;
+  return `${formatItemCount(blocked)} ${blocked === 1 ? 'blocks' : 'block'} safe operation until review.`;
 }
 
 function summaryForCheck(check: ZavorthRuntimeReadinessCheck): string {
@@ -337,60 +337,60 @@ function summaryForCheck(check: ZavorthRuntimeReadinessCheck): string {
     return blockedSummaryForCheck(check);
   }
   if (check.id === 'natural-first-runtime') {
-    return 'Texto livre entra no gateway; risco vira preview e approval.';
+    return 'Free text enters the gateway; risk becomes preview and approval.';
   }
   if (check.id === 'provider-mesh') {
     return check.status === 'ready'
-      ? 'Provider padrao pode responder quando voce pedir LLM ao vivo.'
-      : 'Provider ainda precisa de configuracao para respostas LLM ao vivo.';
+      ? 'Default provider can respond when you request live LLM output.'
+      : 'Provider still needs configuration for live LLM responses.';
   }
   if (check.id === 'zavorthControl') {
-    return 'Home diario esta disponivel e nao executa acao alvo.';
+    return 'Daily home is available and does not execute target action.';
   }
   if (check.id === 'telegram') {
     return check.status === 'ready'
-      ? 'Canal remoto esta pronto para status e approvals.'
-      : 'Canal remoto ainda e opcional neste ambiente.';
+      ? 'Remote channel is ready for status and approvals.'
+      : 'Channel remote ainda e optional in this environment.';
   }
   if (check.id === 'approvals') {
     return check.status === 'attention'
-      ? 'Ha decisoes pendentes; resolver continua passando pelo gateway.'
-      : 'Aprovacoes estao prontas e sem execucao direta na UI.';
+      ? 'Ha decisoes pending; resolver continua passando pelo gateway.'
+      : 'Isolated approvals are ready with no direct execution in the UI.';
   }
   if (check.id === 'transaction-plane') {
-    return 'Transacoes reais seguem travadas; preview e simulaction continuam seguros.';
+    return 'Transactions reais seguem travadas; preview e simulaction continuam seguros.';
   }
   if (check.id === 'skill-imports') {
-    return 'Skills externas continuam explicitas, revisadas e travadas por padrao.';
+    return 'Skills externas continuam explicits, revisadas e travadas por default.';
   }
-  return 'Memoria consegue projetar continuidade sem escrita escondida.';
+  return 'Memory consegue projetar continuidade without write escondida.';
 }
 
 function blockedSummaryForCheck(check: ZavorthRuntimeReadinessCheck): string {
   if (check.id === 'zavorthControl') {
-    return 'ZavorthControl diario ou contrato projection-only precisa ser restaurado.';
+    return 'Daily ZavorthControl or projection-only contract needs review.';
   }
   if (check.id === 'approvals') {
-    return 'Approval UX nao provou mediacao pelo gateway.';
+    return 'Approval UX did not prove gateway mediation.';
   }
   if (check.id === 'transaction-plane') {
-    return 'Gate transacional nao provou bloqueio de execucao live.';
+    return 'Transaction gate did not prove live execution blocking.';
   }
   if (check.id === 'skill-imports') {
-    return 'Ha fonte externa de skill habilitada sem pin/revisao suficiente.';
+    return 'Ha source external de skill habilitada without pin/review suficiente.';
   }
   if (check.id === 'memory-continuity') {
-    return 'Memoria de continuidade nao esta disponivel para retomada segura.';
+    return 'Continuity memory is not available for safe resume.';
   }
   if (check.id === 'natural-first-runtime') {
-    return 'Entrada natural nao esta preservando gateway e approval.';
+    return 'Natural input is not preserving gateway and approval.';
   }
-  return 'Item precisa de revisao antes de uso normal.';
+  return 'Item needs review before normal use.';
 }
 
 function nextActionForCheck(check: ZavorthRuntimeReadinessCheck): string {
   if (check.status === 'ready') {
-    return 'Nenhuma acao obrigatoria agora.';
+    return 'No required action now.';
   }
   return check.nextAction;
 }
@@ -441,12 +441,12 @@ function actionLabelForCheck(check: ZavorthRuntimeReadinessCheck): string {
     if (check.id === 'provider-mesh') return 'Ver providers';
     return `Ver ${titleForCheck(check.id)}`;
   }
-  if (check.id === 'provider-mesh') return 'Configurar provider';
-  if (check.id === 'telegram') return 'Configurar Telegram';
+  if (check.id === 'provider-mesh') return 'Configure provider';
+  if (check.id === 'telegram') return 'Configure Telegram';
   if (check.id === 'approvals') return 'Resolver approvals';
   if (check.id === 'zavorthControl') return 'Abrir zavorthControl';
-  if (check.id === 'skill-imports') return 'Revisar skills';
-  return `Revisar ${titleForCheck(check.id)}`;
+  if (check.id === 'skill-imports') return 'Review skills';
+  return `Review ${titleForCheck(check.id)}`;
 }
 
 function callbackForCheck(id: ZavorthRuntimeReadinessCheckId): string | undefined {

@@ -3,11 +3,11 @@ import type { ConversationalAgencyMessage } from '../contracts/PracticalAgencyCo
 
 const TERM_MAP = [
   { internal: 'Risk 3', human: 'change preview' },
-  { internal: 'approval required', human: 'preciso da sua confirmacao' },
+  { internal: 'approval required', human: 'preciso da sua confirmation' },
   { internal: 'Capability Hub ticket', human: 'I will prepare that connection' },
-  { internal: 'Fabric degraded', human: 'modo inteligente em observacao' },
+  { internal: 'Fabric degraded', human: 'modo inteligente em observation' },
   { internal: 'Mutation Plane', human: 'reversible draft' },
-  { internal: 'Risk Gate', human: 'confirmacao de impacto' },
+  { internal: 'Risk Gate', human: 'impact confirmationo' },
 ];
 
 export class ConversationalAgencyPresenter {
@@ -21,48 +21,48 @@ export class ConversationalAgencyPresenter {
 
     if (capability.status === 'draft_ready') {
       return this.message(
-        'Posso preparar isso para voce.',
-        'Ainda nao ativei nada. Vou montar uma proposta com manifesto, testes e uma simulacao segura para a capacidade pedida.',
-        'Depois voce revisa a proposta e confirma se quer ativar.',
+        'I can prepare that for you.',
+        'I have not activated anything yet. I will prepare a proposal with manifest, tests, and safe dry-run for the requested capability.',
+        'after you review the proposal and confirm whether to activate it.',
       );
     }
 
     if (capability.status === 'existing_capability') {
       return this.message(
         'Encontrei essa capacidade no Zavorth.',
-        'Posso guiar a configuracao e verificar o que falta sem expor segredo nem ativar nada sozinho.',
-        'Quando estiver tudo pronto, eu peco sua confirmacao para ativar.',
+        'I can guide configuration and verify what is missing without exposing secrets or activating anything by myself.',
+        'when it is tudo ready, eu request sua confirmation para ativar.',
       );
     }
 
     if (risk <= 1) {
       return this.message(
         'Got it. I will take the direct path.',
-        'Posso responder, analisar ou inspecionar contexto permitido sem pedir confirmacao desnecessaria.',
-        'Se aparecer alguma acao com impacto real, eu aviso antes.',
+        'I can answer, analyze, or inspect permitted context without asking for unnecessary confirmation.',
+        'Se aparecer alguma action com impacto real, eu aviso before.',
       );
     }
 
     if (risk === 2) {
       return this.message(
         'I will prepare a preview.',
-        'Posso planejar, simular e montar rascunhos sem aplicar mudancas reais.',
-        'Para aplicar qualquer impacto, eu volto com uma confirmacao clara.',
+        'I can plan, simulate, and draft without applying real changes.',
+        'Before applying any impact, I will return with a clear confirmation.',
       );
     }
 
     if (risk === 3) {
       return this.message(
         'I will leave a change preview ready.',
-        'A mudanca fica reversivel e visivel antes de ser aplicada.',
-        'Voce aprova pelo chat ou pelo ZavorthControl quando quiser aplicar.',
+        'The change remains reversible and visible before it is applied.',
+        'You approve through chat or ZavorthControl when applying.',
       );
     }
 
     return this.message(
       'This may cause real impact.',
-      'Antes de shell, instalacao, rede, segredo, envio externo, deploy ou apagamento, eu preciso de confirmacao ou sandbox.',
-      'Posso preparar o plano seguro agora e aguardar sua decisao.',
+      'before shell, installation, rede, secret, envio external, deploy ou apagamento, eu preciso de confirmation ou sandbox.',
+      'I can prepare the safe plan now and wait for your decision.',
     );
   }
 
@@ -86,5 +86,5 @@ export class ConversationalAgencyPresenter {
 }
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }

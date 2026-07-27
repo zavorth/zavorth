@@ -106,15 +106,15 @@ export class ZavorthCapabilitySetupExecutorService {
   public renderReport(limit = 20): string {
     const snapshot = this.listRequests(limit);
     const lines = [
-      'Executor governado da fila de setup',
-      `Pedidos: ${snapshot.summary.totalRequests}`,
+      'Executor governado da queue de setup',
+      `requests: ${snapshot.summary.totalRequests}`,
       '',
     ];
     if (snapshot.requests.length === 0) {
-      lines.push('Nenhum pedido de ativacao controlada foi criado ainda.');
+      lines.push('No request de activation controlada foi created ainda.');
     }
     for (const request of snapshot.requests) {
-      lines.push(`- ${request.id}: ${request.targetItemId || 'sem alvo'} | ticket=${request.ticketId}`);
+      lines.push(`- ${request.id}: ${request.targetItemId || 'without alvo'} | ticket=${request.ticketId}`);
       lines.push(`  comando: ${request.command}`);
     }
     return lines.join('\n');
@@ -222,37 +222,37 @@ export class ZavorthCapabilitySetupExecutorService {
   ): CapabilitySetupExecutorResult['narrative'] {
     if (status === 'activation_request_created') {
       return {
-        headline: 'Pedido de ativaction controlada criado.',
-        nextAction: 'Revise o ledger de pedidos e execute o handoff live somente no plano de runtime apropriado.',
+        headline: 'request de activation controlada created.',
+        nextAction: 'Review the request ledger and execute live handoff only in the appropriate runtime plan.',
       };
     }
     if (status === 'dry_run_ready') {
       return {
-        headline: 'Pedido pronto em dry-run.',
-        nextAction: `Para criar o pedido, rode com --execute --owner-approval-id ${activationRequest?.ownerApprovalId || '<approval-id>'}.`,
+        headline: 'request ready em dry-run.',
+        nextAction: `Para criar o request, run com --execute --owner-approval-id ${activationRequest?.ownerApprovalId || '<approval-id>'}.`,
       };
     }
     if (status === 'waiting_owner_approval') {
       return {
-        headline: 'Ainda falta aprovacao do dono.',
-        nextAction: 'Anexe um approval id e confirme explicitamente antes de consumir o ticket.',
+        headline: 'Owner approval is still missing.',
+        nextAction: 'Anexe um approval id e confirme explicitmente before consumir o ticket.',
       };
     }
     if (status === 'blocked_not_ready') {
       return {
-        headline: `${ticket?.id || 'Ticket'} ainda nao esta pronto.`,
-        nextAction: 'Volte para capability-setup-queue ou capability-setup-guide e resolva os passos pendentes.',
+        headline: `${ticket?.id || 'Ticket'} is not ready yet.`,
+        nextAction: 'Volte para capability-setup-queue ou capability-setup-guide e resolva os passos pending.',
       };
     }
     if (status === 'already_processed') {
       return {
-        headline: 'Ticket ja foi processado.',
-        nextAction: 'Use o ledger de pedidos para replay/auditoria em vez de consumir o mesmo ticket de novo.',
+        headline: 'Ticket already foi processado.',
+        nextAction: 'Use the request ledger for replay/audit instead of consuming the same ticket again.',
       };
     }
     return {
-      headline: 'Ticket nao encontrado.',
-      nextAction: 'Liste a fila e escolha um ticket existente.',
+      headline: 'Ticket not found.',
+      nextAction: 'Liste a queue e escolha um ticket existente.',
     };
   }
 
@@ -281,7 +281,7 @@ export class ZavorthCapabilitySetupExecutorService {
       return [];
     }
     return fs.readFileSync(this.requestLedgerPath, 'utf8')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .filter((line) => line.trim().length > 0)
       .map((line) => JSON.parse(line) as CapabilitySetupActivationRequest);
   }
@@ -303,4 +303,3 @@ export class ZavorthCapabilitySetupExecutorService {
     return crypto.createHash('sha256').update(value).digest('hex');
   }
 }
-

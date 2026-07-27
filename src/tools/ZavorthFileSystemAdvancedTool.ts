@@ -377,7 +377,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
       const { execFileSync } = await import('child_process');
 
       if (process.platform === 'win32') {
-        const result = execFileSync('powershell', ['-Command', `Get-ChildItem -Path '${sourcePath}' -Recurse -File | Where-Object { $_.Length -gt ${this.parseSize(minSize)} } | Sort-Object Length -Descending | Select-Object -First ${Number(args.max_results || 20)} | ForEach-Object { "$([math]::Round($_.Length/1MB, 2)) MB - $($_.FullName)" }`], { timeout: 60000 }).toString();
+        const result = execFileSync('powershell', ['-Command', `Get-ChildItem -Path '${sourcePath}' -Recurse -File | Where-Object { $_.Length -gt ${this.parseSize(minSize)} } | Sort-Object Length -Descending | Select-Object -First ${Number(args.max_results || 20)} | ForEach-Object { "$([math]::Round($_.Length/1MB, 2)) MB ? $($_.FullName)" }`], { timeout: 60000 }).toString();
         return `Large files (>${minSize}):\n${result.trim()}`;
       } else {
         const result = execFileSync('find', [sourcePath, '-type', 'f', '-size', `+${minSize}`, '-exec', 'ls', '-lh', '{}', ';'], { timeout: 30000 }).toString();

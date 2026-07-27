@@ -281,7 +281,7 @@ function listStrings(value: unknown): string[] {
 
 function redactText(value: unknown, fallback = '', maxLength = 260): string {
   const text = normalizeText(value, fallback)
-    .replace(/((?:api[_-]?key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/((?:api[_-]...key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
     .replace(/\s+/g, ' ')
     .trim();
   return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;
@@ -293,25 +293,26 @@ function unique(values: string[]): string[] {
 
 function roleKindFromId(roleId: string): AgentTeamCompilerRoleKind {
   const normalized = normalizeKey(roleId);
-  if (/research|explor|investig|analis/.test(normalized)) {
+  const hasAny = (tokens: string[]) => tokens.some((token) => normalized.includes(token));
+  if (hasAny(['research', 'explor', 'investig', 'analis'])) {
     return 'researcher';
   }
-  if (/implement|worker|patch|dev|builder|coder/.test(normalized)) {
+  if (hasAny(['implement', 'worker', 'patch', 'dev', 'builder', 'coder'])) {
     return 'implementer';
   }
-  if (/verify|test|qa|review|valid/.test(normalized)) {
+  if (hasAny(['verify', 'test', 'qa', 'review', 'valid'])) {
     return 'verifier';
   }
-  if (/provider|model|arena|route/.test(normalized)) {
+  if (hasAny(['provider', 'model', 'arena', 'route'])) {
     return 'provider-specialist';
   }
-  if (/safety|risk|policy|approval/.test(normalized)) {
+  if (hasAny(['safety', 'risk', 'policy', 'approval'])) {
     return 'safety-reviewer';
   }
-  if (/memory|artifact|receipt|recall/.test(normalized)) {
+  if (hasAny(['memory', 'artifact', 'receipt', 'recall'])) {
     return 'memory-curator';
   }
-  if (/operator|handoff|ops/.test(normalized)) {
+  if (hasAny(['operator', 'handoff', 'ops'])) {
     return 'operator-liaison';
   }
   return 'planner';
@@ -454,8 +455,7 @@ export class AgentTeamCompilerService {
       approval: {
         required: requestedSwarm && roles.length > 0,
         approvalId,
-        reason: requestedSwarm
-          ? 'Launching an Agent Team requires explicit approval plus reviewed budget and scope.'
+        reason: requestedSwarm ? 'Launching an Agent Team requires explicit approval plus reviewed budget and scope.'
           : 'No Agent Team launch needed for this run.',
         expiresAt: addMinutesIso(generatedAt, 30),
       },
@@ -483,7 +483,7 @@ export class AgentTeamCompilerService {
       },
       surface: {
         cliCommand,
-        zavorthControlPath: '/zavorthControl?sector=agents',
+        zavorthControlPath: '/zavorthControl...sector=agents',
         previewHint: 'Use the compiled plan to review roles, scopes, provider, and receipts before approving.',
         approvalHint: 'Launching subagents requires explicit approval from Swarm/AgentRunService.',
       },
@@ -967,8 +967,7 @@ export class AgentTeamCompilerService {
         id: `agent-team-receipt:${run.id}:provider-arena`,
         kind: 'provider-arena',
         source: 'ProviderArenaService',
-        detail: providerArenaLinked
-          ? 'Provider Arena reported; provider/model selection remains advisory.'
+        detail: providerArenaLinked ? 'Provider Arena reported; provider/model selection remains advisory.'
           : 'No Provider Arena; current modelProfile used as advisory fallback.',
         status: providerArenaLinked ? 'ready' : 'missing',
       },
@@ -976,8 +975,7 @@ export class AgentTeamCompilerService {
         id: `agent-team-receipt:${run.id}:capability-negotiation`,
         kind: 'capability-negotiation',
         source: 'CapabilityNegotiationService',
-        detail: capabilityNegotiationLinked
-          ? 'Capability scope available to review roles.'
+        detail: capabilityNegotiationLinked ? 'Capability scope available to review roles.'
           : 'Capability negotiation missing; roles stay blocked.',
         status: capabilityNegotiationLinked ? 'ready' : 'missing',
       },
@@ -985,8 +983,7 @@ export class AgentTeamCompilerService {
         id: `agent-team-receipt:${run.id}:swarm`,
         kind: 'swarm-escalation',
         source: 'AgentRunService',
-        detail: requestedSwarm
-          ? 'Structured team/subagent signals present; compiler prepared the plan without launch.'
+        detail: requestedSwarm ? 'Structured team/subagent signals present; compiler prepared the plan without launch.'
           : 'No structured team intent detected (free text is not keyword-scanned).',
         status: requestedSwarm ? 'needs-approval' : 'missing',
       },

@@ -27,9 +27,9 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
       ['Low risk', securityMesh.policies?.lowRiskToLocalJail ? 'local-jail' : 'n/a'],
       ['Medium risk', securityMesh.policies?.mediumRiskToContainer ? 'container' : 'n/a'],
       ['High risk', securityMesh.policies?.highRiskToMicrovm ? 'microvm' : 'n/a'],
-      ['Never-downgrade', securityMesh.policies?.neverDowngrade ? 'ativo' : 'inativo'],
-      ['gVisor', securityMesh.policies?.gvisorActive ? 'ativo' : 'inativo'],
-      ['MicroVM', securityMesh.policies?.firecrackerReady ? 'pronta' : 'em preparo'],
+      ['Never-downgrade', securityMesh.policies?.neverDowngrade ? 'active' : 'inactive'],
+      ['gVisor', securityMesh.policies?.gvisorActive ? 'active' : 'inactive'],
+      ['MicroVM', securityMesh.policies?.firecrackerReady ? 'ready' : 'em preparo'],
     ]
       .map((entry) => '<li><strong>' + escapeHtml(entry[0]) + '</strong>: ' + escapeHtml(entry[1]) + '</li>')
       .join('');
@@ -57,7 +57,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
               '</div>',
           )
           .join('')
-      : '<div class="muted">No acao adicional sugerida agora.</div>';
+      : '<div class="muted">No action adicional sugerida agora.</div>';
     const coreItems = coreModes.length
       ? coreModes
           .map(
@@ -113,11 +113,11 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
       escapeHtml(String(summary.extensionsReady || 0)) +
       '</div><small>node-host e sidecar</small></div>' +
       '<div class="cockpit-mini-card"><strong>gVisor</strong><div>' +
-      escapeHtml(summary.gvisorActive ? 'ativo' : 'inativo') +
+      escapeHtml(summary.gvisorActive ? 'active' : 'inactive') +
       '</div><small>container forte</small></div>' +
       '<div class="cockpit-mini-card"><strong>Never-downgrade</strong><div>' +
-      escapeHtml(summary.neverDowngrade ? 'ativo' : 'inativo') +
-      '</div><small>alto risco no rebaixa</small></div>' +
+      escapeHtml(summary.neverDowngrade ? 'active' : 'inactive') +
+      '</div><small>alto risk no rebaixa</small></div>' +
       '</div>' +
       '<div class="cockpit-grid">' +
       '<div class="cockpit-stack">' +
@@ -135,7 +135,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
       '<div class="sidecar-card"><strong>Extensoes</strong><ul class="cockpit-list">' +
       extensionItems +
       '</ul></div>' +
-      '<div class="sidecar-card"><strong>Acoes sugeridas</strong><div class="cockpit-action-list">' +
+      '<div class="sidecar-card"><strong>Actions sugeridas</strong><div class="cockpit-action-list">' +
       actionItems +
       '</div></div>' +
       '</div>' +

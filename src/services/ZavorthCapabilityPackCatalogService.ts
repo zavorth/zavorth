@@ -54,8 +54,8 @@ const OFFICIAL_CAPABILITY_PACKS: CapabilityPackDefinition[] = [
       items: [
         provider('gemini', 'Gemini', 'Use Gemini through a governed remote route.', 'gemini.apiKey', 'GEMINI_API_KEY', 'external-policy'),
         provider('openai-compatible', 'OpenAI Compatible', 'Use OpenAI-compatible endpoints through Provider Mesh policy.', 'openai.apiKey', 'OPENAI_API_KEY', 'external-policy'),
-        provider('ollama-local', 'Ollama Local', 'Use a local model route without external network by default.', null, null, 'local'),
-        provider('lm-studio-local', 'LM Studio Local', 'Use LM Studio local OpenAI-compatible server.', null, null, 'local'),
+        provider('ollama-local', 'Ollama local', 'Use a local model route without external network by default.', null, null, 'local'),
+        provider('lm-studio-local', 'LM Studio local', 'Use LM Studio local OpenAI-compatible server.', null, null, 'local'),
       ],
     },
   },
@@ -91,7 +91,7 @@ const OFFICIAL_CAPABILITY_PACKS: CapabilityPackDefinition[] = [
         tool('shell-sidecar', 'Shell Sidecar', 'Route command execution through governed sidecar isolation.', 'runtime-capability', ['sidecar-health', 'command-policy']),
         tool(
           'local-voice-dictation',
-          'Local Voice Dictation',
+          'local Voice Dictation',
           'Transcribe local audio through provisioned whisper.cpp assets.',
           'runtime-capability',
           ['voice-dictation-doctor', 'local-audio-policy'],
@@ -174,8 +174,8 @@ export class ZavorthCapabilityPackCatalogService {
       manifests,
       narrative: {
         headline: `Capability Pack Catalog tem ${visible.length}/${this.packs.length} pack(s) oficial(is).`,
-        operatorSummary: `${visible.reduce((total, pack) => total + pack.manifest.items.length, 0)} item(s) declarativo(s), live por padrao: nao, secrets serializados: nao.`,
-        nextAction: 'Escolha um pack e rode o Capability Activation Flow para preparar readiness, approvals e receipts.',
+        operatorSummary: `${visible.reduce((total, pack) => total + pack.manifest.items.length, 0)} item(s) declaractive(s), live by default: no, serialized secrets: no.`,
+        nextAction: 'Escolha um pack e run o Capability Activation Flow para preparar readiness, approvals e receipts.',
       },
     };
   }

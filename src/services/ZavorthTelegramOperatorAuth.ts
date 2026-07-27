@@ -29,17 +29,7 @@ export function isTelegramHostMutationCommand(text: string): boolean {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
   if (!normalized) return false;
-  if (/^(pular|skip|depois|mais tarde|pular setup|skip setup|pular onboarding)$/i.test(normalized)) {
-    return true;
-  }
-  if (/^(refazer setup|recomecar|recomeçar|reset onboarding)$/i.test(normalized)) {
-    return true;
-  }
-  if (/^(desfazer aprendizado|esqueca|esqueça|forget learning)\b/i.test(normalized)) {
-    return true;
-  }
-  if (/^desfazer\b/.test(normalized) && /aprend|prefer|rotina|skill/.test(normalized)) {
-    return true;
-  }
-  return false;
+  return normalized === '/setup skip'
+    || normalized === '/setup reset'
+    || normalized === '/learning forget';
 }

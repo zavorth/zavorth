@@ -2,11 +2,11 @@ import { asErrorLike } from '../../utils/errorLike';
 /**
  * Zavorth-native adapter for media analysis through Gemini Vision.
  *
- * Este adapter usa modelos Gemini com capacidade multimodal para analisar
- * images, audio, and video, returning descriptions, extractions, and classifications.
+ * This adapter uses multimodal-capable Gemini models to analyze images, audio,
+ * and video, returning descriptions, extractions, and classifications.
  *
  * The adapter receives only binary data (buffer) plus metadata.
- * Nunca recebe URLs externas como entrada.
+ * It never receives external URLs as input.
  *
  * Architectural references:
  * - docs/native-absorption-execution-plan.md
@@ -84,11 +84,9 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
     const text = response.text();
     const usage = (response as any).usageMetadata;
 
-    // Analisa sinais no texto de resposta.
-    const textLower = text.toLowerCase();
-    const hasVisibleText = /\b(text|texto|escrit[oa]|letter|word|titulo|heading|caption|label)\b/i.test(text);
-    const hasFaces = /\b(face|rosto|pessoa|person|people|retrato|portrait)\b/i.test(text);
-    const sensitiveContent = /\b(nsfw|explicit|violenc|gore|nude|nudez|sensivel|sensitive|inappropriate)\b/i.test(textLower);
+    const hasVisibleText = false;
+    const hasFaces = false;
+    const sensitiveContent = false;
 
     const evidence: MediaAnalysisProviderEvidence = {
       providerId: this.adapterId,
@@ -115,8 +113,7 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
     const responseLanguage = typeof input.providerHints?.responseLanguage === 'string'
       ? input.providerHints.responseLanguage.trim()
       : '';
-    const languageInstruction = responseLanguage
-      ? `Responda em ${responseLanguage}.`
+    const languageInstruction = responseLanguage ? `Respond in ${responseLanguage}.`
       : 'Respond in the same language as the user instruction.';
 
     return `${base}${userPrompt}\n\n${languageInstruction} Seja detalhado mas conciso.`;

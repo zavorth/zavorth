@@ -135,15 +135,15 @@ export function buildToolEffectBoundaryMetadata(mapping: ToolEffectMapping): Rec
 export function buildDeferredToolEffectMessage(toolName: string, mapping: ToolEffectMapping): string {
   const action = mapping.decision.action;
   if (action === 'sandbox_only') {
-    return `Tool ${toolName} was not executada diretamente. A effect boundary classificou a chamada como side effect governado e exige ensaio in sandbox before commit. Summary: ${mapping.analysis.summary}`;
+    return `Tool ${toolName} was not executed directly. The effect boundary classified the call as a governed side effect and requires sandbox rehearsal before commit. Summary: ${mapping.analysis.summary}`;
   }
   if (action === 'require_user_confirmation') {
-    return `Tool ${toolName} was not executada diretamente. A effect boundary exige confirmation do usuario antes desse efeito. Summary: ${mapping.analysis.summary}`;
+    return `Tool ${toolName} was not executed directly. The effect boundary requires user confirmation before this effect. Summary: ${mapping.analysis.summary}`;
   }
   if (action === 'require_admin_policy') {
-    return `Tool ${toolName} was not executada diretamente. A effect boundary exige policy administrativa antes desse efeito. Summary: ${mapping.analysis.summary}`;
+    return `Tool ${toolName} was not executed directly. The effect boundary requires administrative policy before this effect. Summary: ${mapping.analysis.summary}`;
   }
-  return `Tool ${toolName} was not executada diretamente. A effect boundary permite execution direta only to observacoes seguras reconhecidas. Decisao: ${action}. Summary: ${mapping.analysis.summary}`;
+  return `Tool ${toolName} was not executed directly. The effect boundary allows direct execution only for recognized safe observations. Decision: ${action}. Summary: ${mapping.analysis.summary}`;
 }
 
 export function resolveMutationDomain(mapping: ToolEffectMapping): CreateZavorthMutationPlanInput['domain'] {

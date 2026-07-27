@@ -111,32 +111,32 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
         manifest: input.manifest,
       },
       narrative: {
-        headline: 'Distributed runtime: Runtime distribuido e superficies avancadas',
+        headline: 'Distributed runtime: distributed runtime and advanced surfaces',
         operatorSummary: this.buildOperatorSummary(summary, focus),
-        nextAction: actions[0]?.label || 'Revisar channels, fleet, transports e surfaces do runtime distribuido.',
+        nextAction: actions[0]?.label || 'review runtime channels, fleet, transports, and surfaces.',
       },
     };
   }
 
   public renderReport(snapshot: ZavorthDistributedRuntimeSnapshot): string {
     const lines = [
-      'Distributed runtime: Runtime distribuido e superficies avancadas',
+      'Distributed runtime: distributed runtime and advanced surfaces',
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
-      `Channels: ${snapshot.summary.readyChannels}/${snapshot.summary.totalChannels} pronto(s) | avancados ${snapshot.summary.readyAdvancedChannels}/${snapshot.summary.advancedChannels} | attachments ${snapshot.summary.channelsWithAttachments} | threads ${snapshot.summary.channelsWithThreads}.`,
-      `Fleet: ${snapshot.summary.onlineNodes}/${snapshot.summary.totalNodes} online | paired ${snapshot.summary.pairedNodes} | fila ${snapshot.summary.queuedInvocations} | stale ${snapshot.summary.staleQueued} | advanced capability coverage ${snapshot.summary.advancedCapabilityCoverage}/${ADVANCED_CAPABILITY_IDS.length}.`,
-      `Transports: ${snapshot.summary.readyTransports}/${snapshot.summary.totalTransports} pronto(s) | live ${snapshot.summary.liveTransports} | attention ${snapshot.summary.transportAttention}.`,
-      `Surfaces: ${snapshot.summary.readySurfaces}/${snapshot.summary.totalSurfaces} pronta(s) | primaria ${snapshot.summary.primarySurfaceReady ? 'ok' : 'pendente'} | remoto ${snapshot.summary.remoteReady ? 'ok' : 'pendente'}.`,
+      `Channels: ${snapshot.summary.readyChannels}/${snapshot.summary.totalChannels} ready | avancados ${snapshot.summary.readyAdvancedChannels}/${snapshot.summary.advancedChannels} | attachments ${snapshot.summary.channelsWithAttachments} | threads ${snapshot.summary.channelsWithThreads}.`,
+      `Fleet: ${snapshot.summary.onlineNodes}/${snapshot.summary.totalNodes} online | paired ${snapshot.summary.pairedNodes} | queue ${snapshot.summary.queuedInvocations} | stale ${snapshot.summary.staleQueued} | advanced capability coverage ${snapshot.summary.advancedCapabilityCoverage}/${ADVANCED_CAPABILITY_IDS.length}.`,
+      `Transports: ${snapshot.summary.readyTransports}/${snapshot.summary.totalTransports} ready | live ${snapshot.summary.liveTransports} | attention ${snapshot.summary.transportAttention}.`,
+      `Surfaces: ${snapshot.summary.readySurfaces}/${snapshot.summary.totalSurfaces} ready | primaria ${snapshot.summary.primarySurfaceReady ? 'ok' : 'pending'} | remote ${snapshot.summary.remoteReady ? 'ok' : 'pending'}.`,
       `Implementation distribuida: ${snapshot.summary.implementationReady ? 'ready' : 'pending'} | infra ${snapshot.summary.infrastructureState}${snapshot.summary.infrastructureOfflineReason ? ` | ${snapshot.summary.infrastructureOfflineReason}` : ''}.`,
     ];
 
     if (snapshot.focus.kind && snapshot.focus.label) {
       lines.push(
         '',
-        `Foco atual: ${snapshot.focus.label} [${snapshot.focus.kind}]`,
-        snapshot.focus.summary || 'Sem resumo adicional.',
-        snapshot.focus.nextAction ? `Proximo passo: ${snapshot.focus.nextAction}` : 'Sem proximo passo especifico.',
+        `Foco current: ${snapshot.focus.label} [${snapshot.focus.kind}]`,
+        snapshot.focus.summary || 'without additional summary.',
+        snapshot.focus.nextAction ? `next passo: ${snapshot.focus.nextAction}` : 'without next passo especifico.',
       );
     }
 
@@ -150,7 +150,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Actions sugeridas:',
         ...snapshot.actions.map((entry) =>
           `- ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
@@ -161,7 +161,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
         '',
         'Channels avancados:',
         ...snapshot.advancedChannels.slice(0, 6).map(entry =>
-          `- ${this.text(entry?.label, entry?.id || 'channel')}: ${this.text(entry?.readiness, 'unknown')} | ${this.text(entry?.summary, 'Sem resumo.')}`),
+          `- ${this.text(entry?.label, entry?.id || 'channel')}: ${this.text(entry?.readiness, 'unknown')} | ${this.text(entry?.summary, 'without summary.')}`),
       );
     }
 
@@ -170,7 +170,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
         '',
         'Capabilities da fleet:',
         ...snapshot.fleetCapabilities.map((entry) =>
-          `- ${entry.label}: ${entry.supportedNodes} node(s) | ${entry.category}${entry.risky ? ' | sensivel' : ''}`),
+          `- ${entry.label}: ${entry.supportedNodes} node(s) | ${entry.category}${entry.risky ? ' | sensitive' : ''}`),
       );
     }
 
@@ -260,7 +260,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
         generatedAt: this.deps.now().toISOString(),
         summary: 'Legacy containment active with canonical /zavorthControl entry.',
         consolidation: {
-          phase: 'P3-003',
+          phase: 'legacy-contained',
           canonicalDocs: [],
           rule: 'All legacy features redirected to gateway contract, control plane, or zavorthControl.',
         },
@@ -309,8 +309,8 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
         label: 'Channel Mesh avancado',
         posture: channelPosture,
         summary:
-          `${readyAdvancedChannels}/${input.advancedChannels.length} channel(s) avancado(s) pronto(s), `
-          + `${Number(input.channels?.summary?.ready || 0) || 0}/${Number(input.channels?.summary?.total || 0) || 0} pronto(s) no contrato geral.`,
+          `${readyAdvancedChannels}/${input.advancedChannels.length} channel(s) avancado(s) ready, `
+          + `${Number(input.channels?.summary?.ready || 0) || 0}/${Number(input.channels?.summary?.total || 0) || 0} ready in the general contract.`,
         nextAction: this.pickChannelNextAction(input.advancedChannels),
         command: '/channels',
       },
@@ -320,8 +320,8 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
         posture: nodePosture,
         summary:
           `${Number(input.nodes?.summary?.online || 0) || 0}/${Number(input.nodes?.summary?.total || 0) || 0} node(s) online, `
-          + `fila ${Number(input.nodes?.summary?.queued || 0) || 0}, stale ${Number(input.nodes?.summary?.staleQueued || 0) || 0}, `
-          + `capabilities avancadas ${advancedCoverage}/${ADVANCED_CAPABILITY_IDS.length}.`,
+          + `queue ${Number(input.nodes?.summary?.queued || 0) || 0}, stale ${Number(input.nodes?.summary?.staleQueued || 0) || 0}, `
+          + `advanced capabilities ${advancedCoverage}/${ADVANCED_CAPABILITY_IDS.length}.`,
         nextAction: this.pickFleetNextAction(input.nodes, input.fleetCapabilities),
         command: '/nodes',
       },
@@ -330,20 +330,20 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
         label: 'Remote transports',
         posture: transportPosture,
         summary:
-          `${Number(input.transports?.summary?.ready || 0) || 0}/${Number(input.transports?.summary?.total || 0) || 0} pronto(s), `
+          `${Number(input.transports?.summary?.ready || 0) || 0}/${Number(input.transports?.summary?.total || 0) || 0} ready, `
           + `${Number(input.transports?.summary?.live || 0) || 0} live, `
-          + `${Number(input.transports?.summary?.attentionRequired || 0) || 0} pedindo atencao.`,
+          + `${Number(input.transports?.summary?.attentionRequired || 0) || 0} needing attention.`,
         nextAction: this.pickTransportNextAction(input.transports),
         command: '/transports',
       },
       {
         id: 'surfaces',
-        label: 'Superficies oficiais',
+        label: 'surfaces oficiais',
         posture: surfacePosture,
         summary:
-          `${this.countReadySurfaces(input.manifest)}/${this.countTotalSurfaces(input.manifest)} pronta(s), `
-          + `primaria ${this.resolvePrimarySurfaceReady(input.manifest) ? 'ok' : 'pendente'}, `
-          + `remoto ${input.manifest?.remote?.ready ? 'ok' : 'pendente'}.`,
+          `${this.countReadySurfaces(input.manifest)}/${this.countTotalSurfaces(input.manifest)} ready, `
+          + `primaria ${this.resolvePrimarySurfaceReady(input.manifest) ? 'ok' : 'pending'}, `
+          + `remote ${input.manifest?.remote?.ready ? 'ok' : 'pending'}.`,
         nextAction: this.pickSurfaceNextAction(input.manifest),
         command: '/access',
       },
@@ -383,7 +383,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
         command: this.firstActionCommand(pendingAdvancedChannel, 'prepare') || `/channels prepare ${pendingAdvancedChannel.id}`,
         reason: this.text(
           pendingAdvancedChannel?.operatorNextStep,
-          pendingAdvancedChannel?.actionHint || 'Existe um channel avancado conhecido pelo mesh ainda sem prontidao real.',
+          pendingAdvancedChannel?.actionHint || 'An advanced mesh-known channel still lacks real readiness.',
         ),
       });
     }
@@ -394,16 +394,16 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
         label: 'Parear o primeiro node host',
         severity: 'warn',
         command: '/nodepair',
-        reason: 'A malha distribuida ainda nao tem nenhum node visivel para capabilities remotas.',
+        reason: 'The distributed mesh has no visible node for remote capabilities yet.',
       });
     } else if ((Number(input.nodes?.summary?.staleQueued || 0) || 0) > 0) {
       actions.push({
         id: 'repair-node-queue',
-        label: 'Revisar fila antiga do Node Mesh',
+        label: 'review queue antiga do Node Mesh',
         severity: 'warn',
         command: '/nodes',
         reason:
-          `${Number(input.nodes?.summary?.staleQueued || 0) || 0} item(ns) antigo(s) ainda pedem maintenance ou release manual na fleet.`,
+          `${Number(input.nodes?.summary?.staleQueued || 0) || 0} item(s) old ainda pedem maintenance ou release manual na fleet.`,
       });
     } else if (input.fleetCapabilities.filter((entry) => entry.supportedNodes > 0).length < 3) {
       actions.push({
@@ -411,7 +411,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
         label: 'Ampliar capabilities da fleet',
         severity: 'info',
         command: '/nodes',
-        reason: 'A fleet ainda cobre poucas capabilities avancadas para browser, screen, files watch e notificacoes.',
+        reason: 'The fleet still covers too few advanced capabilities for browser, screen, file watch, and notifications.',
       });
     }
 
@@ -419,12 +419,12 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     if ((Number(input.transports?.summary?.attentionRequired || 0) || 0) > 0) {
       actions.push({
         id: 'transport-attention',
-        label: this.text(transportAction?.label, 'Revisar transports remotos'),
+        label: this.text(transportAction?.label, 'review remote transports'),
         severity: 'warn',
         command: this.nullableText(transportAction?.command) || '/transports',
         reason: this.text(
           transportAction?.reason,
-          'Existe pelo menos um bridge, sidecar ou node-host remoto pedindo atencao antes de ampliar o rollout.',
+          'At least one bridge, sidecar, or remote node-host needs attention before expanding rollout.',
         ),
       });
     }
@@ -432,10 +432,10 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     if (!Boolean(input.manifest?.remote?.ready)) {
       actions.push({
         id: 'remote-rollout',
-        label: 'Fechar rollout remoto oficial',
+        label: 'Fechar rollout remote oficial',
         severity: 'info',
         command: this.text(input.manifest?.commands?.remoteGo, 'npm run ops:remote:go'),
-        reason: 'As superficies oficiais ainda nao estao com acesso remoto oficial completamente validado.',
+        reason: 'Official surfaces do not have fully validated official remote access yet.',
       });
     }
 
@@ -484,7 +484,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
       surface: this.text(entry?.surface, 'unknown'),
       entry: this.text(entry?.entry, 'n/d'),
       remoteEntry: this.nullableText(entry?.remoteEntry),
-      description: this.text(entry?.description, 'Sem descricao.'),
+      description: this.text(entry?.description, 'without descricao.'),
     }));
   }
 
@@ -568,15 +568,14 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     summary: ZavorthDistributedRuntimeSnapshot['summary'],
     focus: ZavorthDistributedRuntimeFocus,
   ): string {
-    const focusPart = focus.kind && focus.label
-      ? ` Foco atual em ${focus.label} (${focus.kind}).`
+    const focusPart = focus.kind && focus.label ? ` Foco current em ${focus.label} (${focus.kind}).`
       : '';
-    return `${summary.readyChannels}/${summary.totalChannels} channel(s) prontos, `
+    return `${summary.readyChannels}/${summary.totalChannels} channel(s) ready, `
       + `${summary.onlineNodes}/${summary.totalNodes} node(s) online, `
-      + `${summary.readyTransports}/${summary.totalTransports} transport(es) prontos e `
-      + `${summary.readySurfaces}/${summary.totalSurfaces} superficie(s) oficial(is) pronta(s).`
-      + ` Cobertura de capability avancada ${summary.advancedCapabilityCoverage}/${ADVANCED_CAPABILITY_IDS.length}.`
-      + ` Remoto ${summary.remoteReady ? 'pronto' : 'pendente'}.${focusPart}`;
+      + `${summary.readyTransports}/${summary.totalTransports} transport(es) ready e `
+      + `${summary.readySurfaces}/${summary.totalSurfaces} surface(s) oficial(is) ready.`
+      + ` Advanced capability coverage ${summary.advancedCapabilityCoverage}/${ADVANCED_CAPABILITY_IDS.length}.`
+      + ` remote ${summary.remoteReady ? 'ready' : 'pending'}.${focusPart}`;
   }
 
   private resolveChannelPosture(channels: ChannelMeshSnapshot, advancedChannels: ChannelMeshSnapshot['entries']): ZavorthDistributedRuntimePosture {
@@ -670,9 +669,9 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
       return null;
     }
     if (state === 'offline') {
-      return 'Implementacao pronta, mas nodes/transports pareados nao estao com heartbeat/live agora.';
+      return 'Implementation ready, but paired nodes/transports do not have heartbeat/live right now.';
     }
-    return 'Implementacao pronta, mas nenhum node/transport remoto foi ligado neste ambiente.';
+    return 'implementation ready, mas nenhum node/transport remote foi ligado in this environment.';
   }
 
   private pickChannelNextAction(advancedChannels: ChannelMeshSnapshot['entries']): string {
@@ -680,7 +679,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     const next = prioritized.find(entry => this.isActionableAdvancedChannel(entry)) || prioritized[0];
     return this.text(
       next?.operatorNextStep,
-      next?.actionHint || 'Revisar channels avancados sob o mesmo contrato canonico.',
+      next?.actionHint || 'review channels avancados sob o mesmo contrato canonical.',
     );
   }
 
@@ -708,28 +707,28 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
 
   private pickFleetNextAction(nodes: NodeMeshSnapshot, fleetCapabilities: ZavorthDistributedRuntimeCapabilityCoverage[]): string {
     if ((Number(nodes?.summary?.total || 0) || 0) === 0) {
-      return 'Pareie um node host para habilitar browser, screen, files watch e notificacoes na malha.';
+      return 'Pair a node host to enable browser, screen, file watch, and notifications in the mesh.';
     }
     if ((Number(nodes?.summary?.staleQueued || 0) || 0) > 0) {
-      return 'Execute maintenance ou release da fila antiga antes de ampliar a fleet.';
+      return 'Execute maintenance ou release da queue antiga before ampliar a fleet.';
     }
     const missing = fleetCapabilities.filter((entry) => entry.supportedNodes === 0).map((entry) => entry.label);
     if (missing.length > 0) {
-      return `Feche a cobertura das capabilities restantes: ${missing.slice(0, 3).join(', ')}.`;
+      return `Close coverage for remaining capabilities: ${missing.slice(0, 3).join(', ')}.`;
     }
-    return 'A fleet atual ja cobre o conjunto avancado principal do runtime distribuido.';
+    return 'The current fleet already covers the main advanced runtime set.';
   }
 
   private pickTransportNextAction(transports: ZavorthRemoteTransportSnapshot): string {
     const next = Array.isArray(transports?.suggestedActions) ? transports.suggestedActions[0] : null;
-    return this.text(next?.reason, 'Revisar bridges, sidecars e node-hosts remotos no mesmo plano operacional.');
+    return this.text(next?.reason, 'review remote bridges, sidecars, and node-hosts in the same operational plane.');
   }
 
   private pickSurfaceNextAction(manifest: RuntimeAccessManifest): string {
     if (!Boolean(manifest?.remote?.ready)) {
-      return 'Fechar o rollout remoto oficial para abrir o mesmo cockpit fora do host local.';
+      return 'Fechar o rollout remote oficial para abrir o mesmo cockpit outside do host local.';
     }
-    return 'As superficies oficiais ja contam a mesma historia do runtime distribuido.';
+    return 'The official surfaces already tell the same distributed-runtime story.';
   }
 
   private countMaintenanceNodes(nodes: NodeMeshSnapshot): number {
@@ -770,7 +769,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
       label: capabilityId,
       category: 'misc',
       risky: /write|camera|clipboard|location/i.test(capabilityId),
-      actionHint: 'Capability ainda nao catalogada no core; revise a declaracao do node.',
+      actionHint: 'Capability not cataloged in core yet; review the node declaration.',
     };
   }
 

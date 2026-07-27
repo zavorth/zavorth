@@ -51,7 +51,6 @@ import type {
   BootstrapSurfaceRuntime,
 } from './bootstrapTypes.js';
 import type { SharedSurfaceCommandServiceDeps } from '../domain/surface/presentation/shared-surface/factory/SharedSurfaceCommandServiceFactory.js';
-import type { WebhookGatewayOptions } from '../gateways/WebhookGateway.js';
 
 export function composeSurfaceRuntime(
   foundation: BootstrapFoundation,
@@ -168,8 +167,8 @@ export function composeSurfaceRuntime(
       agentGateway: foundation.agentGateway,
       logRepo: foundation.logRepo,
     });
-  const whatsAppGateway = new WhatsAppGateway(coreOrchestrator as unknown as WebhookGatewayOptions);
-  const instagramGateway = new InstagramGateway(coreOrchestrator as unknown as WebhookGatewayOptions);
+  const whatsAppGateway = new WhatsAppGateway(coreOrchestrator);
+  const instagramGateway = new InstagramGateway(coreOrchestrator);
   const slackGateway = new SlackGateway(coreOrchestrator);
   const signalGateway = new SignalGateway(coreOrchestrator);
   const imessageGateway = new IMessageGateway(coreOrchestrator);
@@ -220,7 +219,7 @@ export function composeSurfaceRuntime(
   foundation.logRepo.log(
     'info',
     'Bootstrap',
-    `CoreOrchestrator pronto com gateways registrados: ${coreOrchestrator.getRegisteredPlatforms().join(', ')}`,
+    `CoreOrchestrator ready with registered gateways: ${coreOrchestrator.getRegisteredPlatforms().join(', ')}`,
   );
 
   return {

@@ -195,9 +195,9 @@ export class ZavorthHubControlPlaneService {
       narrative: {
         headline: 'Zavorth Hub + MCP product plane',
         operatorSummary:
-          `${surfaces.length} surface(s) consolidadas, ${actions.length} acao(oes) sugerida(s) e `
-          + `${featured.length} item(ns) em destaque entre integrations, skills, plugins e MCP.`,
-        nextAction: actions[0]?.label || 'Abrir o hub consolidado para revisar o proximo passo.',
+          `${surfaces.length} surface(s) consolidadas, ${actions.length} action(oes) sugerida(s) e `
+          + `${featured.length} item(s) featured entre integrations, skills, plugins e MCP.`,
+        nextAction: actions[0]?.label || 'Abrir o hub consolidado para review o next passo.',
       },
     };
   }
@@ -209,17 +209,17 @@ export class ZavorthHubControlPlaneService {
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
-      `Proximo passo sugerido: ${snapshot.narrative.nextAction}`,
+      `next passo sugerido: ${snapshot.narrative.nextAction}`,
       '',
       `Postura: ${snapshot.summary.posture}.`,
-      `Integrations: ${snapshot.summary.integrations} | providers prontos: ${snapshot.summary.providersReady} | pedindo configuracao: ${snapshot.summary.providersNeedConfiguration}.`,
+      `Integrations: ${snapshot.summary.integrations} | providers ready: ${snapshot.summary.providersReady} | needs configuration: ${snapshot.summary.providersNeedConfiguration}.`,
       `Plugins: ${snapshot.summary.plugins} | trusted: ${snapshot.summary.pluginsTrusted}.`,
       `Platform: ${snapshot.summary.platformEntries} entradas | colecoes: ${snapshot.summary.collections} | recipes: ${snapshot.summary.platformRecipes}.`,
-      `Skills: ${snapshot.summary.skillsVisible} visiveis | recipes prontas: ${snapshot.summary.skillRecipesReady}.`,
-      `MCP: ${snapshot.summary.mcpConnected}/${snapshot.summary.mcpEnabled} habilitado(s) | total manifesto: ${snapshot.summary.mcpServers} | failurendo: ${snapshot.summary.mcpFailed} | tools: ${snapshot.summary.mcpTools} | resources: ${snapshot.summary.mcpResources}.`,
-      `Registry remoto: ${snapshot.sync.status} | ${snapshot.sync.summary}`,
+      `Skills: ${snapshot.summary.skillsVisible} visible | recipes ready: ${snapshot.summary.skillRecipesReady}.`,
+      `MCP: ${snapshot.summary.mcpConnected}/${snapshot.summary.mcpEnabled} habilitado(s) | total manifest: ${snapshot.summary.mcpServers} | failurendo: ${snapshot.summary.mcpFailed} | tools: ${snapshot.summary.mcpTools} | resources: ${snapshot.summary.mcpResources}.`,
+      `Registry remote: ${snapshot.sync.status} | ${snapshot.sync.summary}`,
       '',
-      'Superficies:',
+      'surfaces:',
       ...snapshot.surfaces.map((surface) =>
         `- ${surface.label}: ${surface.primary} | ${surface.secondary} | next: ${surface.nextAction}${surface.command ? ` | ${surface.command}` : ''}`),
     ];
@@ -227,11 +227,11 @@ export class ZavorthHubControlPlaneService {
       lines.push('', 'Highlights:', ...snapshot.highlights.map((entry) => `- ${entry}`));
     }
     if (snapshot.actions.length > 0) {
-      lines.push('', 'Acoes sugeridas:', ...snapshot.actions.map((entry) =>
+      lines.push('', 'Actions sugeridas:', ...snapshot.actions.map((entry) =>
         `- ${entry.label}: ${entry.rationale}${entry.command ? ` | ${entry.command}` : ''}`));
     }
     if (snapshot.featured.length > 0) {
-      lines.push('', 'Itens em destaque:', ...snapshot.featured.map((entry) =>
+      lines.push('', 'Itens featured:', ...snapshot.featured.map((entry) =>
         `- ${entry.label} [${entry.surface}]: ${entry.summary}${entry.command ? ` | ${entry.command}` : ''}`));
     }
     return lines.join('\n');
@@ -269,45 +269,45 @@ export class ZavorthHubControlPlaneService {
         id: 'integrations',
         label: 'Integration Hub',
         posture: integrationsAttention ? 'attention' : 'healthy',
-        primary: `${Array.isArray(input.integrationHub?.entries) ? input.integrationHub.entries.length : 0} conector(es) | ${Array.isArray(input.integrationHub?.providers?.ready) ? input.integrationHub.providers.ready.length : 0} provider(s) pronto(s)`,
+        primary: `${Array.isArray(input.integrationHub?.entries) ? input.integrationHub.entries.length : 0} conector(es) | ${Array.isArray(input.integrationHub?.providers?.ready) ? input.integrationHub.providers.ready.length : 0} provider(s) ready`,
         secondary: this.firstNonEmptyText(input.integrationHub?.providers?.recommendations?.[0], input.integrationHub?.selected?.manifest?.summary) || 'Receitas guiadas e providers do hub.',
-        nextAction: providerPending > 0 ? 'Fechar a configuracao do conector em destaque ou deixar a receita opcional para depois.' : 'Abrir um conector pronto ou revisar templates.',
+        nextAction: providerPending > 0 ? 'Complete configuration for the highlighted connector or leave the optional recipe for later.' : 'Open a ready connector or review templates.',
         command: this.buildIntegrationCommand(input.integrationHub) || '/integrations',
       },
       {
         id: 'plugins',
         label: 'Plugin plane',
         posture: pluginsAttention ? 'attention' : 'healthy',
-        primary: `${Number(input.plugins?.summary?.total || 0) || 0} item(ns) | ${Number(input.plugins?.summary?.installed || 0) || 0} registrado(s)`,
-        secondary: this.firstNonEmptyText(input.plugins?.narrative?.operatorSummary, input.plugins?.selected?.summary) || 'Plugins e extensoes workspace consolidadas.',
-        nextAction: pluginConfigurable > 0 ? 'Promover um plugin configuravel quando ele deixar de ser backlog opcional.' : 'Revisar trusted/review do plugin plane.',
+        primary: `${Number(input.plugins?.summary?.total || 0) || 0} item(s) | ${Number(input.plugins?.summary?.installed || 0) || 0} registered`,
+        secondary: this.firstNonEmptyText(input.plugins?.narrative?.operatorSummary, input.plugins?.selected?.summary) || 'Plugins e extensions workspace consolidadas.',
+        nextAction: pluginConfigurable > 0 ? 'Promote a configurable plugin when it leaves optional backlog.' : 'review trusted/review in the plugin plane.',
         command: input.plugins?.selected?.id ? `/plugins ${input.plugins.selected.id}` : '/plugins',
       },
       {
         id: 'platform',
         label: 'Platform plane',
         posture: platformStatus === 'failed' ? 'critical' : (platformAttention ? 'attention' : 'healthy'),
-        primary: `${Number(input.platform?.summary?.total || 0) || 0} entrada(s) | ${Number(input.platform?.summary?.collections || 0) || 0} colecao(oes) | ${Number(input.platform?.summary?.recipes || 0) || 0} recipe(s)`,
+        primary: `${Number(input.platform?.summary?.total || 0) || 0} entry(s) | ${Number(input.platform?.summary?.collections || 0) || 0} collection(oes) | ${Number(input.platform?.summary?.recipes || 0) || 0} recipe(s)`,
         secondary: this.firstNonEmptyText(input.sync.summary, input.platform?.narrative?.operatorSummary) || 'Registry, colecoes e recipes do ecossistema.',
-        nextAction: platformStatus === 'ready' ? 'Revisar colecoes e recipes promovidas.' : 'Sincronizar o registry remoto e revisar pendencias.',
+        nextAction: platformStatus === 'ready' ? 'review colecoes e recipes promovidas.' : 'Sincronizar o registry remote e review pending items.',
         command: '/platform',
       },
       {
         id: 'skills',
         label: 'Skill plane',
         posture: skillBlocked > 0 ? 'critical' : (skillAttention ? 'attention' : 'healthy'),
-        primary: `${Number(input.skillLibrary?.catalog?.summary?.visible || 0) || 0} skill(s) | ${Number(input.skillLibrary?.catalog?.summary?.readyRecipes || 0) || 0}/${Number(input.skillLibrary?.catalog?.summary?.recipes || 0) || 0} recipe(s) pronta(s)`,
+        primary: `${Number(input.skillLibrary?.catalog?.summary?.visible || 0) || 0} skill(s) | ${Number(input.skillLibrary?.catalog?.summary?.readyRecipes || 0) || 0}/${Number(input.skillLibrary?.catalog?.summary?.recipes || 0) || 0} recipe(s) ready`,
         secondary: this.firstNonEmptyText(input.skillLibrary?.narrative?.nextAction, input.skillLibrary?.narrative?.operatorSummary) || 'Skills, recipes e bundles consolidados.',
-        nextAction: this.firstNonEmptyText(input.skillLibrary?.narrative?.nextAction, input.skillInstallPlan?.narrative?.headline) || 'Abrir a biblioteca ou plano de skills.',
+        nextAction: this.firstNonEmptyText(input.skillLibrary?.narrative?.nextAction, input.skillInstallPlan?.narrative?.headline) || 'Open the library or skill plan.',
         command: input.skillLibrary?.catalog?.selected?.id ? `/skills ${input.skillLibrary.catalog.selected.id}` : '/skills library',
       },
       {
         id: 'mcp',
         label: 'MCP product plane',
         posture: mcpFailed > 0 ? 'critical' : (mcpAttention ? 'attention' : 'healthy'),
-        primary: `${mcpConnected}/${mcpEnabled} servidor(es) conectado(s) | ${Number(input.mcp?.summary?.toolCount || 0) || 0} tool(s)`,
-        secondary: this.firstNonEmptyText(input.mcp?.narrative?.operatorSummary, input.mcp?.recommendations?.[0]) || 'Manifesto, runtime e sidecars MCP consolidados.',
-        nextAction: mcpFailed > 0 || mcpAttention ? 'Rodar o doctor MCP e revisar manifesto, binario e credenciais.' : 'Revisar capabilities e sidecars vivos sem tratar entries desligadas por policy como incidente.',
+        primary: `${mcpConnected}/${mcpEnabled} server(es) conectado(s) | ${Number(input.mcp?.summary?.toolCount || 0) || 0} tool(s)`,
+        secondary: this.firstNonEmptyText(input.mcp?.narrative?.operatorSummary, input.mcp?.recommendations?.[0]) || 'manifest, runtime e sidecars MCP consolidados.',
+        nextAction: mcpFailed > 0 || mcpAttention ? 'run the MCP doctor and review manifest, binary, and credentials.' : 'review live capabilities and sidecars without treating policy-disabled entries as incidents.',
         command: 'npm run mcp:browser:doctor',
       },
     ];
@@ -329,7 +329,7 @@ export class ZavorthHubControlPlaneService {
     if (['failed', 'stale', 'never-synced'].includes(String(input.sync.status || '').trim().toLowerCase())) {
       push({
         id: 'platform-sync',
-        label: 'Sincronizar registry remoto',
+        label: 'Sincronizar registry remote',
         surface: 'platform',
         kind: 'sync',
         rationale: input.sync.summary,
@@ -339,10 +339,10 @@ export class ZavorthHubControlPlaneService {
     if (Number(input.mcp?.summary?.failed || 0) > 0 || (Number(input.mcp?.summary?.enabled || 0) > 0 && Number(input.mcp?.summary?.connected || 0) < Number(input.mcp?.summary?.enabled || 0))) {
       push({
         id: 'mcp-browser-doctor',
-        label: 'Rodar doctor MCP',
+        label: 'run doctor MCP',
         surface: 'mcp',
         kind: 'doctor',
-        rationale: this.firstNonEmptyText(input.mcp?.recommendations?.[0], 'Existe capability MCP falhando ou pendente no runtime.') || 'Revise a saude do runtime MCP.',
+        rationale: this.firstNonEmptyText(input.mcp?.recommendations?.[0], 'An MCP capability is failing or pending in runtime.') || 'Review MCP runtime health.',
         command: '/hub run mcp-browser-doctor',
       });
     }
@@ -356,7 +356,7 @@ export class ZavorthHubControlPlaneService {
         label: `Fechar ${pendingProvider.id}`,
         surface: 'integrations',
         kind: 'open',
-        rationale: this.firstNonEmptyText(input.integrationHub?.providers?.recommendations?.[0], 'Existe provider pedindo configuracao antes de ficar realmente pronto.') || 'Feche a configuracao do provider em destaque.',
+        rationale: this.firstNonEmptyText(input.integrationHub?.providers?.recommendations?.[0], 'Existe provider needs configuration before ficar realmente ready.') || 'Complete configuration for the highlighted provider.',
         command: `/hub run integration:${pendingProvider.id}`,
       });
     }
@@ -367,10 +367,10 @@ export class ZavorthHubControlPlaneService {
     if (reviewPlugin?.id && pluginTrusted === 0) {
       push({
         id: `plugin:${reviewPlugin.id}`,
-        label: `Revisar plugin ${reviewPlugin.label || reviewPlugin.id}`,
+        label: `review plugin ${reviewPlugin.label || reviewPlugin.id}`,
         surface: 'plugins',
         kind: 'trust',
-        rationale: this.firstNonEmptyText(reviewPlugin.summary, 'Existe plugin pronto para trust review.') || 'Revise trust/origem do plugin antes de promover.',
+        rationale: this.firstNonEmptyText(reviewPlugin.summary, 'Plugin ready for trust review exists.') || 'Review plugin trust/source before promoting.',
         command: `/hub run plugin:${reviewPlugin.id}`,
       });
     }
@@ -381,7 +381,7 @@ export class ZavorthHubControlPlaneService {
         label: skillAction.label,
         surface: 'skills',
         kind: 'inspect',
-        rationale: this.firstNonEmptyText(skillAction.rationale, input.skillLibrary?.narrative?.nextAction) || 'Existe proximo passo claro no skill plane.',
+        rationale: this.firstNonEmptyText(skillAction.rationale, input.skillLibrary?.narrative?.nextAction) || 'Existe next passo claro no skill plane.',
         command: `/hub run skills:${skillAction.id || 'next'}`,
       });
     }
@@ -439,7 +439,7 @@ export class ZavorthHubControlPlaneService {
         id: mcpEntry.id,
         label: mcpEntry.id,
         surface: 'mcp',
-        summary: this.firstNonEmptyText(mcpEntry.summary, mcpEntry.issue) || 'Servidor MCP destacado do plane.',
+        summary: this.firstNonEmptyText(mcpEntry.summary, mcpEntry.issue) || 'server MCP destacado do plane.',
         command: 'npm run mcp:browser:doctor',
       });
     }
@@ -458,7 +458,7 @@ export class ZavorthHubControlPlaneService {
   private buildSyncSnapshot(sync: any): ZavorthHubControlPlaneSnapshot['sync'] {
     return {
       status: this.firstNonEmptyText(sync?.status, 'disabled') || 'disabled',
-      summary: this.firstNonEmptyText(sync?.summary, 'Registry remoto ainda nao consolidado.') || 'Registry remoto ainda nao consolidado.',
+      summary: this.firstNonEmptyText(sync?.summary, 'Remote registry is not consolidated yet.') || 'Remote registry is not consolidated yet.',
       command: this.firstNonEmptyText(sync?.command, '/platform sync') || '/platform sync',
       sourceTrusted: sync?.sourceTrusted !== false,
       stale: Boolean(sync?.stale),

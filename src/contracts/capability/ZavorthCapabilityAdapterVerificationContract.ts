@@ -85,7 +85,7 @@ export type ZavorthCapabilityAdapterVerificationSnapshot = {
     list: string;
     verifyAll: string;
     verifySelected: string;
-    nextStage: string;
+    nextAction: string;
   };
 };
 

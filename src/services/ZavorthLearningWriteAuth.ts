@@ -14,7 +14,7 @@ export type LearningWriteAuthInput = {
  * (or surface-specific allowlist for telegram/whatsapp). Do not default-write on userId alone.
  */
 const PUBLIC_MULTI_TENANT_SURFACE_RE =
-  /telegram|discord|whatsapp|slack|signal|matrix|teams|irc|line|feishu|mattermost|google.?chat|imessage|sms|twitch|wecom|weixin|nostr|qq|yuanbao|zalo|synology|nextcloud|home.?assistant|voice.?call|instagram/i;
+  /telegram|discord|whatsapp|slack|signal|matrix|teams|irc|line|feishu|mattermost|google?.chat|imessage|sms|twitch|wecom|weixin|nostr|qq|yuanbao|zalo|synology|nextcloud|home?.assistant|voice?.call|instagram/i;
 
 /** True when surface looks like a multi-tenant public channel (not cli/desktop/control). */
 export function isPublicMultiTenantLearningSurface(surface?: string | null): boolean {
@@ -29,7 +29,7 @@ export function isLearningWriteAllowed(input: LearningWriteAuthInput): boolean {
   return canActorWriteLearning(input);
 }
 
-/** Local Control/Desktop UI identities allowed without authenticated session (loopback only). */
+/** local Control/Desktop UI identities allowed without authenticated session (loopback only). */
 const LOCAL_UI_USER_IDS = new Set(['control', 'desktop', 'local-user']);
 
 /**
@@ -50,7 +50,7 @@ export function isLoopbackRemoteAddress(remoteAddress?: string | null): boolean 
 
 /**
  * Resolve userId for GET /api/learning-loop (and similar Control UI APIs).
- * Prefer session identity. Local UI shortcut (control/desktop/local-user) only when
+ * Prefer session identity. local UI shortcut (control/desktop/local-user) only when
  * allowLocalUiWithoutAuth is true (route must set from socket loopback — fail closed by default).
  */
 export function resolveLearningLoopApiUserId(input: {
@@ -110,7 +110,7 @@ export function canActorWriteLearning(input: LearningWriteAuthInput): boolean {
     return false;
   }
 
-  // Local/single-tenant surfaces write into the caller's per-user store when a userId is present.
+  // local/single-tenant surfaces write into the caller's per-user store when a userId is present.
   return Boolean(String(input.userId || '').trim());
 }
 

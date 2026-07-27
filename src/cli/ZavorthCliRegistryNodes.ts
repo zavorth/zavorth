@@ -100,7 +100,7 @@ export async function handleZavorthCliRegistryNodesCommand(params: RegistryComma
   if (commandName === 'nodeinvoke' && runtime.nodeInvokeService) {
     const parsed = parseCliNodeInvokeArgs(args);
     if (!parsed) {
-      const error = 'Uso: nodeinvoke <nodeId> <capabilityId> [action] [payload-json|key=value]';
+      const error = 'Usage: nodeinvoke <nodeId> <capabilityId> [action] [payload-json|key=value]';
       writer.error(error);
       return { ok: false, handled: true, output: [], error };
     }

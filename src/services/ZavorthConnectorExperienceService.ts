@@ -1,4 +1,4 @@
-import { ChannelProviderDoctorService, type ChannelProviderDoctorReport } from './ChannelProviderDoctorService.js';
+﻿import { ChannelProviderDoctorService, type ChannelProviderDoctorReport } from './ChannelProviderDoctorService.js';
 import {
   ChannelSetupAssistantService,
   type ChannelSetupAssistantApplyResult,
@@ -84,7 +84,7 @@ export class ZavorthConnectorExperienceService {
         channelId,
         apply: false,
         status: 'not_applicable',
-        summary: 'GitHub setup usa gh auth login; Zavorth nao grava credenciais GitHub por voce.',
+        summary: 'GitHub setup uses gh auth login; Zavorth does not store GitHub credentials for you.',
         assistant: null,
         applyResult: null,
         connector,
@@ -119,7 +119,7 @@ export class ZavorthConnectorExperienceService {
       };
     }
 
-    throw new Error('Use applySetup para aplicar setup assíncrono de conectores.');
+    throw new Error('Use applySetup to apply asynchronous connector setup.');
   }
 
   public async applySetup(input: ZavorthConnectorSetupInput): Promise<ZavorthConnectorSetupResult> {

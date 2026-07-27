@@ -196,7 +196,7 @@ export class DiagnosticsPrometheusService {
   }
 
   public startHttpServer(): string {
-    if (this.server) return `Servidor Prometheus ja running na porta ${this.port}.`;
+    if (this.server) return `Servidor Prometheus already running na porta ${this.port}.`;
 
     this.server = http.createServer((req, res) => {
       if (req.url === '/metrics') {
@@ -222,7 +222,7 @@ export class DiagnosticsPrometheusService {
   }
 
   public stopHttpServer(): string {
-    if (!this.server) return 'Servidor nao esta running.';
+    if (!this.server) return 'Server is not running.';
     this.server.close();
     this.server = null;
     return 'Servidor Prometheus parado.';
@@ -258,7 +258,7 @@ export class DiagnosticsPrometheusService {
     this.histograms.clear();
     this.labelStore.clear();
     this.initDefaultMetrics();
-    return 'Metricas resetadas.';
+    return 'Metrics reset.';
   }
 
   private labelKey(name: string, labels: Record<string, string>): string {

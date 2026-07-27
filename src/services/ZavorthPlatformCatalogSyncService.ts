@@ -159,12 +159,9 @@ export class ZavorthPlatformCatalogSyncService {
       });
     }
 
-    const normalizedStatus: ZavorthPlatformCatalogSyncStatusKind = parsed.error
-      ? 'failed'
-      : this.isStale(parsed.syncedAt)
-        ? 'stale'
-        : parsed.syncedAt
-          ? 'ready'
+    const normalizedStatus: ZavorthPlatformCatalogSyncStatusKind = parsed.error ? 'failed'
+      : this.isStale(parsed.syncedAt) ? 'stale'
+        : parsed.syncedAt ? 'ready'
           : 'never-synced';
 
     return this.buildStatus({
@@ -191,7 +188,7 @@ export class ZavorthPlatformCatalogSyncService {
     }
 
     if (!this.isSourceTrusted()) {
-      const failed = this.persistFailure('Registry remoto bloqueado pela policy de origem/HTTPS.', {
+      const failed = this.persistFailure('Remote registry blocked by source and HTTPS policy.', {
         sourceTrusted: false,
       });
       return {
@@ -201,7 +198,7 @@ export class ZavorthPlatformCatalogSyncService {
     }
 
     if (!this.fetchImpl) {
-      const failed = this.persistFailure('Fetch indisponivel neste runtime.');
+      const failed = this.persistFailure('Fetch unavailable in this runtime.');
       return {
         ok: false,
         ...failed,
@@ -225,13 +222,13 @@ export class ZavorthPlatformCatalogSyncService {
         signal: controller.signal,
       });
       if (!response.ok) {
-        throw new Error(`Registry remoto respondeu com status ${response.status}.`);
+        throw new Error(`Registry remote respondeu com status ${response.status}.`);
       }
 
       const rawBody = await response.text();
       const contentSha256 = sha256Hex(rawBody);
       if (this.expectedSha256 && contentSha256 !== this.expectedSha256) {
-        throw new Error(`Registry remoto falhou na integridade SHA-256 esperada (${this.expectedSha256}).`);
+        throw new Error(`Registry remote failed na integridade SHA-256 esperada (${this.expectedSha256}).`);
       }
 
       const payload = JSON.parse(rawBody) as PlatformCatalogLike;
@@ -258,7 +255,7 @@ export class ZavorthPlatformCatalogSyncService {
         ok: true,
         ...this.readStatus(),
       };
-    } catch (error: unknown) {const failed = this.persistFailure(errorMessage(error, 'Falha ao sincronizar o registry remoto.'));
+    } catch (error: unknown) {const failed = this.persistFailure(errorMessage(error, 'Failure ao sincronizar o registry remote.'));
       return {
         ok: false,
         ...failed,
@@ -287,7 +284,7 @@ export class ZavorthPlatformCatalogSyncService {
       entryCount: Number(previous?.entryCount || 0) || 0,
       collectionCount: Number(previous?.collectionCount || 0) || 0,
       recipeCount: Number(previous?.recipeCount || 0) || 0,
-      error: String(message || '').trim() || 'Falha ao sincronizar o registry remoto.',
+      error: String(message || '').trim() || 'Failure ao sincronizar o registry remote.',
     };
     this.writeJsonFile(this.statusFile, nextState);
     return this.readStatus();
@@ -358,21 +355,20 @@ export class ZavorthPlatformCatalogSyncService {
     contentSha256: string | null,
   ): string {
     if (!sourceTrusted) {
-      return 'Registry remoto bloqueado por policy de origem ou transporte inseguro.';
+      return 'Registry remote blocked por policy de origem ou transporte inseguro.';
     }
     switch (status) {
       case 'disabled':
-        return 'Registry remoto desabilitado; o platform plane segue apenas com o catalogo local.';
+        return 'Registry remote disabled; o platform plane segue only com o catalog local.';
       case 'never-synced':
-        return 'Registry remoto configurado, mas ainda sem sincronizacao local.';
+        return 'Registry remote configured, mas ainda without sincronizaction local.';
       case 'failed':
-        return error
-          ? `Registry remoto falhou no ultimo sync: ${error}`
-          : 'Registry remoto falhou no ultimo sync.';
+        return error ? `Registry remote failed no latest sync: ${error}`
+          : 'Registry remote failed no latest sync.';
       case 'stale':
-        return `Registry remoto sincronizado, mas cache venceu. ${entryCount} item(ns), ${collectionCount} colecao(oes) e ${recipeCount} recipe(s) no ultimo snapshot.`;
+        return `Remote registry synced, but cache expired. ${entryCount} item(s), ${collectionCount} collection(oes) e ${recipeCount} recipe(s) in the latest snapshot.`;
       default:
-        return `Registry remoto pronto com ${entryCount} item(ns), ${collectionCount} colecao(oes) e ${recipeCount} recipe(s)${contentSha256 ? `, sha256 ${contentSha256.slice(0, 12)}...` : ''}.`;
+        return `Remote registry ready with ${entryCount} item(s), ${collectionCount} collection(oes) e ${recipeCount} recipe(s)${contentSha256 ? `, sha256 ${contentSha256.slice(0, 12)}...` : ''}.`;
     }
   }
 

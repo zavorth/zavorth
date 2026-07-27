@@ -102,8 +102,7 @@ export async function invokePluginOsMcp(
         serverId: input.serverId,
         tools: entry?.toolNames || [],
         status: entry?.status || null,
-        message: entry
-          ? `MCP server ${input.serverId} status=${entry.status || 'unknown'}`
+        message: entry ? `MCP server ${input.serverId} status=${entry.status || 'unknown'}`
           : `MCP server ${input.serverId} not present in runtime snapshot`,
       };
     }

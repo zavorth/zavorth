@@ -75,7 +75,7 @@ export class MemoryRuntimeService {
     return tService('memory_runtime.local_saved');
   }
 
-  /** Phase 6 — structured write via local (and optional mem0 sync in auto). */
+  /** Memory runtime: — structured write via local (and optional mem0 sync in auto). */
   public async addMemoryRecord(
     userId: string,
     content: string,
@@ -139,7 +139,7 @@ export class MemoryRuntimeService {
     }
   }
 
-  /** Phase 6 — structured search with filters. */
+  /** Memory runtime: — structured search with filters. */
   public async searchMemoryRecords(
     userId: string,
     query: string,

@@ -7,7 +7,7 @@ import type { ZavorthSandboxReadinessContract } from '../ZavorthSandboxReadiness
 import type { ZavorthConversationalSetupLanguage } from './ZavorthConversationalSetupContract.js';
 import type { ZavorthExperienceProfileId } from './ZavorthExperienceProfileContract.js';
 
-export const ZAVORTH_UNIFIED_ONBOARDING_CONTRACT_VERSION = '2026-05-13.checkpoint-2' as const;
+export const ZAVORTH_UNIFIED_ONBOARDING_CONTRACT_VERSION = '2026-05-13.gate-2' as const;
 
 export type ZavorthUnifiedOnboardingStatus = 'ready' | 'needs_setup' | 'attention';
 

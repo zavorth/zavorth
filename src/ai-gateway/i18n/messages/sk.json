@@ -6,7 +6,7 @@
     "loading": "Načítava sa...",
     "error": "Vyskytla sa chyba",
     "success": "Úspech",
-    "confirm": "si si istý?",
+    "confirm": "si si istý...",
     "refresh": "Obnoviť",
     "close": "Zavrieť",
     "add": "Pridať",
@@ -164,8 +164,8 @@
     "auditLog": "Audit Log",
     "shutdown": "Vypnutie",
     "restart": "Reštartujte",
-    "shutdownConfirm": "Vypnúť ZavorthGateway?",
-    "restartConfirm": "Reštartovať ZavorthGateway?",
+    "shutdownConfirm": "Vypnúť ZavorthGateway...",
+    "restartConfirm": "Reštartovať ZavorthGateway...",
     "version": "v{version}",
     "debug": "Debug",
     "system": "Systém",
@@ -288,7 +288,7 @@
     "createKey": "Vytvorte kľúč API",
     "key": "kľúč",
     "revokeKey": "Odvolať kľúč",
-    "revokeConfirm": "Naozaj chcete odvolať tento kľúč API?",
+    "revokeConfirm": "Naozaj chcete odvolať tento kľúč API...",
     "noKeys": "Zatiaľ žiadne kľúče API",
     "noKeysDesc": "Vytvorte svoj prvý kľúč API na overenie požiadaviek na váš koncový bod",
     "keyLabel": "Označenie kľúča",
@@ -320,7 +320,7 @@
     "actions": "Akcie",
     "reqs": "reqs",
     "neverUsed": "Nikdy nepoužité",
-    "deleteConfirm": "Odstrániť tento kľúč API?",
+    "deleteConfirm": "Odstrániť tento kľúč API...",
     "usageTips": "Tipy na použitie",
     "tipAuth": "Použite kľúče API v hlavičke Autorizácie ako nosič YOUR_KEY",
     "tipSecure": "Kľúče sa pri vytváraní zobrazujú iba raz – bezpečne ich uložte",
@@ -803,7 +803,7 @@
     "leastLatency": "Najnižšia latencia",
     "comboName": "Kombinovaný názov",
     "comboNamePlaceholder": "moje-kombo",
-    "deleteConfirm": "Odstrániť túto kombináciu?",
+    "deleteConfirm": "Odstrániť túto kombináciu...",
     "noCombosYet": "Zatiaľ žiadne kombá",
     "comboCreated": "Kombinácia bola úspešne vytvorená",
     "comboUpdated": "Kombinácia bola úspešne aktualizovaná",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "Ste pripravení uložiť?",
+    "readinessTitle": "Ste pripravení uložiť...",
     "readinessDescription": "Pred vytvorením alebo aktualizáciou tejto kombinácie skontrolujte kontrolný zoznam.",
     "readinessCheckName": "Názov kombinácie je platný",
     "readinessCheckModels": "Vyberie sa aspoň jeden model",
@@ -1013,7 +1013,7 @@
     "title": "Koncový bod API",
     "available": "Dostupné koncové body",
     "cloudProxy": "Cloud proxy",
-    "disableConfirm": "Naozaj chcete zakázať cloud proxy?",
+    "disableConfirm": "Naozaj chcete zakázať cloud proxy...",
     "baseUrl": "Základná adresa URL",
     "apiKeyLabel": "API kľúč",
     "registeredKeys": "Registrované kľúče",
@@ -1154,13 +1154,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"?",
+    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"...",
     "switchComboFailed": "Failed to switch combo state.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Circuit breakers reset.",
     "processStatus": "Process status",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} beží",
     "ok": "OK",
     "activeLockouts": "Aktívne blokovania",
-    "resetConfirm": "Obnoviť všetky ističe do zdravého stavu? Tým sa vymažú všetky počty porúch a obnovia sa prevádzkový stav všetkých poskytovateľov.",
+    "resetConfirm": "Obnoviť všetky ističe do zdravého stavu... Tým sa vymažú všetky počty porúch a obnovia sa prevádzkový stav všetkých poskytovateľov.",
     "resetAllTitle": "Resetujte všetky ističe do zdravého stavu",
     "resetting": "Resetovanie...",
     "resetAll": "Obnoviť všetko",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Dostupnosť modelu",
     "accounts": "účty",
     "newAccount": "Nový účet",
-    "deleteConfirm": "Naozaj chcete odstrániť tohto poskytovateľa?",
+    "deleteConfirm": "Naozaj chcete odstrániť tohto poskytovateľa...",
     "testing": "Testuje sa...",
     "testConnection": "Test pripojenia",
     "testSuccess": "Pripojenie úspešné",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "Testovací kľúč API",
     "testKeyPlaceholder": "sk-... (len na overenie)",
     "providerNotFound": "Poskytovateľ sa nenašiel",
-    "deleteConnectionConfirm": "Odstrániť toto pripojenie?",
+    "deleteConnectionConfirm": "Odstrániť toto pripojenie...",
     "failedSetAlias": "Nepodarilo sa nastaviť alias",
     "failedSaveConnection": "Pripojenie sa nepodarilo uložiť",
     "failedSaveConnectionRetry": "Pripojenie sa nepodarilo uložiť. Skúste to znova.",
     "failedRetestConnection": "Nepodarilo sa znova otestovať pripojenie",
-    "deleteCompatibleNodeConfirm": "Odstrániť tento {type} kompatibilný uzol?",
+    "deleteCompatibleNodeConfirm": "Odstrániť tento {type} kompatibilný uzol...",
     "anthropicCompatibleDetails": "Podrobnosti o antropickej kompatibilite",
     "openaiCompatibleDetails": "Podrobnosti kompatibilné s OpenAI",
     "messagesApi": "Správy API",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Automatická synchronizácia je zakázaná",
     "autoSyncToggleFailed": "Nepodarilo sa prepnúť automatickú synchronizáciu",
     "clearAllModels": "Vymazať všetky modely",
-    "clearAllModelsConfirm": "Naozaj chcete odstrániť všetky modely tohto poskytovateľa? Toto sa nedá vrátiť späť.",
+    "clearAllModelsConfirm": "Naozaj chcete odstrániť všetky modely tohto poskytovateľa... Toto sa nedá vrátiť späť.",
     "clearAllModelsSuccess": "Všetky modely sú vymazané",
     "clearAllModelsFailed": "Nepodarilo sa vyčistiť modely",
     "addConnectionToImport": "Ak chcete povoliť import, pridajte pripojenie.",
@@ -1814,7 +1814,7 @@
     "exportData": "Exportovať údaje",
     "importData": "Importovať údaje",
     "clearData": "Vymazať všetky údaje",
-    "clearDataConfirm": "Týmto natrvalo odstránite všetky údaje. si si istý?",
+    "clearDataConfirm": "Týmto natrvalo odstránite všetky údaje. si si istý...",
     "enableRequestLogs": "Povoliť denníky žiadostí",
     "logRetention": "Uchovanie denníka",
     "ipWhitelist": "Zoznam povolených IP adries",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Hovory na účet pred prepnutím",
     "modelAliases": "Aliasy modelov",
     "modelAliasesTitle": "Aliasy modelov",
-    "modelAliasesDesc": "Vzory zástupných znakov na premapovanie názvov modelov • Použite * a ?",
+    "modelAliasesDesc": "Vzory zástupných znakov na premapovanie názvov modelov • Použite * a ...",
     "addCustomAlias": "Pridať vlastný alias",
     "deprecatedModelId": "Zastaraný ID modelu",
     "newModelId": "Nový ID modelu",
@@ -1974,7 +1974,7 @@
     "browser": "Prehliadač",
     "clearLocalData": "Vymazať miestne údaje",
     "logout": "Odhlásiť sa",
-    "clearLocalDataConfirm": "Vymazať všetky miestne údaje? Týmto obnovíte svoje predvoľby.",
+    "clearLocalDataConfirm": "Vymazať všetky miestne údaje... Týmto obnovíte svoje predvoľby.",
     "unknown": "Neznámy",
     "systemActor": "systému",
     "ipAccessControl": "Kontrola prístupu IP",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "No Fallback Chains",
     "noFallbackChainsDesc": "Vytvorte reťazec na definovanie záložného poradia poskytovateľa pre model.",
     "loadingFallbackChains": "Načítavajú sa záložné reťazce...",
-    "deleteChainConfirm": "Chcete odstrániť záložný reťazec pre „{model}“?",
+    "deleteChainConfirm": "Chcete odstrániť záložný reťazec pre „{model}“...",
     "chainCreated": "Reťazec vytvorený pre {model}",
     "chainDeleted": "Reťazec odstránený pre {model}",
     "failedCreateChain": "Nepodarilo sa vytvoriť reťazec",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Zatiaľ nie sú k dispozícii žiadne zálohy. Pri zmene údajov sa automaticky vytvoria zálohy.",
     "backupsAvailable": "K dispozícii sú {count} zálohy",
     "refresh": "Obnoviť",
-    "confirm": "potvrdiť?",
+    "confirm": "potvrdiť...",
     "yes": "áno",
     "no": "Nie",
     "restore": "Obnoviť",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Zásady a ističe",
     "activeIssuesDetected": "Boli zistené aktívne problémy",
     "off": "Vypnuté",
-    "resetPricingConfirm": "Chcete resetovať všetky ceny pre {provider} na predvolené hodnoty?",
+    "resetPricingConfirm": "Chcete resetovať všetky ceny pre {provider} na predvolené hodnoty...",
     "pricingDescInput": "Vstup: tokeny odoslané do modelu",
     "pricingDescOutput": "Výstup: vygenerované tokeny",
     "pricingDescCached": "Vo vyrovnávacej pamäti: opätovne použitý vstup (~50 % vstupnej rýchlosti)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Ste užitočný pomocník.",
-        "userGreeting": "Dobrý deň! ako sa dnes máš?"
+        "userGreeting": "Dobrý deň! ako sa dnes máš..."
       },
       "toolCalling": {
-        "userWeather": "Aké je počasie v São Paule?",
+        "userWeather": "Aké je počasie v São Paule...",
         "toolDescription": "Získajte aktuálne počasie pre miesto",
         "cityNameDescription": "Názov mesta"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Teraz ho zoraďte v zostupnom poradí."
       },
       "thinking": {
-        "question": "Aký je súčet prvých 100 prvočísel?"
+        "question": "Aký je súčet prvých 100 prvočísel..."
       },
       "systemPrompt": {
         "systemInstruction": "Ste senior softvérový inžinier so špecializáciou na distribuované systémy. Odpovedzte na otázky stručne pomocou osvedčených postupov v odvetví. Vždy poskytnite príklady kódu, keď je to relevantné. Svoje odpovede naformátujte pomocou markdown.",
-        "question": "Ako implementujem vzor ističa?"
+        "question": "Ako implementujem vzor ističa..."
       },
       "streaming": {
         "prompt": "Povedz mi krátky príbeh o robotovi, ktorý sa učí maľovať."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "alebo odstráňte pole passwordHash",
     "restartServerWithNewPassword": "Reštartujte server - použije nové heslo",
     "backToLogin": "Späť na Prihlásenie",
-    "forgotPassword": "Zabudli ste heslo?",
+    "forgotPassword": "Zabudli ste heslo...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Autorizácia",
     "Content-Disposition": "Obsah-Dispozícia",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Blíženci",
     "flowProviderGithubCopilot": "GitHub Copilot",
     "interactiveDiagram": "Interaktívny diagram viditeľný na pracovnej ploche",
-    "ctaTitle": "Ste pripravení zjednodušiť svoju infraštruktúru AI?",
+    "ctaTitle": "Ste pripravení zjednodušiť svoju infraštruktúru AI...",
     "ctaDescription": "Pridajte sa k vývojárom, ktorí zefektívňujú svoje integrácie AI s Zavorth. Open source a zadarmo začať.",
     "startFree": "Začnite zadarmo",
     "readDocumentation": "Prečítajte si dokumentáciu"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Posledná aktualizácia: {date}",
     "policyLastUpdatedDate": "13. februára 2026",
     "listSeparator": "-",
-    "questionsVisit": "Otázky? Navštívte našu",
+    "questionsVisit": "Otázky... Navštívte našu",
     "githubRepository": "úložisko GitHub",
     "privacySection1Title": "1. Local-First Architecture",
     "privacySection1Text": "Zavorth je navrhnutý ako lokálna aplikácia. Všetko spracovanie a ukladanie údajov prebieha výlučne na vašom počítači. Neexistuje žiadny centralizovaný server, ktorý by zbieral vaše informácie.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Ste užitočný asistent AI.",
-      "userGreeting": "Dobrý deň! Ako ti dnes môžem pomôcť?"
+      "userGreeting": "Dobrý deň! Ako ti dnes môžem pomôcť..."
     },
     "streaming": {
       "prompt": "Napíšte príbeh o"
     },
     "systemPrompt": {
-      "question": "Aký je zmysel života?",
+      "question": "Aký je zmysel života...",
       "systemInstruction": "Poskytnite premyslenú, filozofickú odpoveď."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "Názov mesta, pre ktoré sa má zistiť počasie",
       "toolDescription": "Získajte aktuálne počasie pre miesto",
-      "userWeather": "Aké je počasie v Tokiu?"
+      "userWeather": "Aké je počasie v Tokiu..."
     },
     "multiTurn": {
       "system": "Ste užitočný pomocník.",
       "assistantExample": "Rád vám s tým pomôžem.",
       "userInitial": "Potrebujem pomoc s",
-      "userFollowUp": "Môžete to upresniť?"
+      "userFollowUp": "Môžete to upresniť..."
     }
   },
   "cache": {

@@ -45,9 +45,9 @@ type CommandContext = {
 const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   {
     id: 'new',
-    aliases: ['new', 'nova', 'nova-conversa', 'new-conversation'],
-    label: 'Nova conversa',
-    summary: 'Inicia uma conversa limpa no canal atual sem tocar arquivos ou providers.',
+    aliases: ['new', 'new-conversation'],
+    label: 'New conversation',
+    summary: 'Starts a clean conversation in the current channel without touching files or providers.',
     risk: 'none',
     executionMode: 'session-local',
     canonicalSlash: '/new',
@@ -56,9 +56,9 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'reset',
-    aliases: ['reset', 'reiniciar', 'limpar-conversa'],
-    label: 'Reiniciar conversa',
-    summary: 'Reinicia o contexto ativo do canal atual; histórico auditável continua preservado.',
+    aliases: ['reset'],
+    label: 'Restart conversation',
+    summary: 'Restarts the active context of the current channel; auditable history remains preserved.',
     risk: 'low',
     executionMode: 'session-local',
     canonicalSlash: '/reset',
@@ -67,9 +67,9 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'model',
-    aliases: ['model', 'modelo', 'models', 'provider', 'providers'],
-    label: 'Modelo e provider',
-    summary: 'Mostra ou prepara a troca de provider/modelo sem gravar segredo bruto.',
+    aliases: ['model', 'models', 'provider', 'providers'],
+    label: 'Model and provider',
+    summary: 'Shows or prepares provider/model switching without storing raw secrets.',
     risk: 'low',
     executionMode: 'state-preview',
     canonicalSlash: '/model [provider:model]',
@@ -78,9 +78,9 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'personality',
-    aliases: ['personality', 'persona', 'tom', 'perfil'],
-    label: 'Personalidade',
-    summary: 'Mostra ou prepara a troca de persona/SOUL ativa com approval quando houver escrita.',
+    aliases: ['personality', 'persona', 'profile'],
+    label: 'Personality',
+    summary: 'Shows or prepares active persona/SOUL switching with approval when writes are involved.',
     risk: 'medium',
     executionMode: 'approval-gated',
     canonicalSlash: '/personality [name]',
@@ -89,9 +89,9 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'retry',
-    aliases: ['retry', 'tentar-novamente', 'refazer'],
-    label: 'Tentar novamente',
-    summary: 'Prepara repeticao governada do ultimo run sem burlar approval anterior.',
+    aliases: ['retry', 'try-again'],
+    label: 'try again',
+    summary: 'Prepares a governed repeat of the latest run without bypassing previous approval.',
     risk: 'medium',
     executionMode: 'approval-gated',
     canonicalSlash: '/retry',
@@ -100,9 +100,9 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'undo',
-    aliases: ['undo', 'desfazer', 'rollback'],
-    label: 'Desfazer',
-    summary: 'Mostra plano de rollback quando ha receipt reversivel; nao desfaz sem approval.',
+    aliases: ['undo', 'rollback'],
+    label: 'Undo',
+    summary: 'Shows rollback plan when there is reversible receipt; does not undo without approval.',
     risk: 'high',
     executionMode: 'approval-gated',
     canonicalSlash: '/undo',
@@ -111,9 +111,9 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'compress',
-    aliases: ['compress', 'compactar', 'context-compress'],
-    label: 'Compactar contexto',
-    summary: 'Prepara compactacao do contexto da sessao com preservacao de memoria/receipts.',
+    aliases: ['compress', 'context-compress'],
+    label: 'Compact context',
+    summary: 'Prepares session context compaction with memory/receipt preservation.',
     risk: 'low',
     executionMode: 'state-preview',
     canonicalSlash: '/compress',
@@ -122,9 +122,9 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'usage',
-    aliases: ['usage', 'uso', 'custos', 'tokens'],
-    label: 'Uso',
-    summary: 'Mostra uso operacional, tokens/custo quando disponivel e proximos limites.',
+    aliases: ['usage', 'tokens'],
+    label: 'usage',
+    summary: 'Shows operational usage, tokens/cost when available, and next limits.',
     risk: 'none',
     executionMode: 'read-only',
     canonicalSlash: '/usage',
@@ -133,9 +133,9 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'insights',
-    aliases: ['insights', 'metricas', 'aprendizados'],
+    aliases: ['insights', 'metrics', 'learnings'],
     label: 'Insights',
-    summary: 'Resume aprendizado, memoria procedural e sinais dos ultimos dias.',
+    summary: 'Summarizes learning, procedural memory, and signals from recent days.',
     risk: 'none',
     executionMode: 'read-only',
     canonicalSlash: '/insights [days]',
@@ -144,9 +144,9 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'skills',
-    aliases: ['skills', 'skill', 'habilidades'],
+    aliases: ['skills', 'skill'],
     label: 'Skills',
-    summary: 'Lista, busca ou preto uso/criaction de skills pelo mesh governado.',
+    summary: 'Lists, searches, or prepares governed skill usage/creation through the mesh.',
     risk: 'low',
     executionMode: 'state-preview',
     canonicalSlash: '/skills [query]',
@@ -155,9 +155,9 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'stop',
-    aliases: ['stop', 'parar', 'cancel', 'cancelar'],
-    label: 'Parar trabalho atual',
-    summary: 'Sinaliza interrupcao/cancelamento governado para a missao atual.',
+    aliases: ['stop', 'cancel'],
+    label: 'Stop current work',
+    summary: 'Signals governed interruption/cancellation for the current mission.',
     risk: 'medium',
     executionMode: 'approval-gated',
     canonicalSlash: '/stop',
@@ -166,9 +166,9 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'platforms',
-    aliases: ['platforms', 'plataformas', 'channels', 'canais'],
-    label: 'Plataformas',
-    summary: 'Mostra canais e superficies conectaveis sem fazer probe de rede.',
+    aliases: ['platforms', 'channels'],
+    label: 'Platforms',
+    summary: 'Shows connectable channels and surfaces without making network probes.',
     risk: 'none',
     executionMode: 'read-only',
     canonicalSlash: '/platforms',
@@ -179,7 +179,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     id: 'status',
     aliases: ['status', 'ready'],
     label: 'Status',
-    summary: 'Mostra prontidao operacional e proximo passo claro.',
+    summary: 'Shows operational readiness and a clear next step.',
     risk: 'none',
     executionMode: 'read-only',
     canonicalSlash: '/status',
@@ -188,9 +188,9 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'sethome',
-    aliases: ['sethome', 'home', 'workspace-home', 'definir-home'],
-    label: 'Definir home',
-    summary: 'Preto troca do workspace/home padrao; escrita exige approval.',
+    aliases: ['sethome', 'home', 'workspace-home'],
+    label: 'Set home',
+    summary: 'Proposes changing the default workspace/home; writing requires approval.',
     risk: 'medium',
     executionMode: 'approval-gated',
     canonicalSlash: '/sethome <path>',
@@ -199,13 +199,13 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'loop',
-    aliases: ['loop', 'interacao', 'eng-loop', 'loop-engineering'],
-    label: 'Loop de engenharia',
-    summary: 'Executa um loop interativo ou automatico de refinamento e sandbox para tarefas de engenharia.',
+    aliases: ['loop', 'interaction', 'eng-loop', 'loop-engineering'],
+    label: 'Engineering loop',
+    summary: 'Runs an interactive or automatic refinement and sandbox loop for engineering tasks.',
     risk: 'high',
     executionMode: 'approval-gated',
-    canonicalSlash: '/loop <tarefa>',
-    cliCommand: 'loop <tarefa>',
+    canonicalSlash: '/loop <task>',
+    cliCommand: 'loop <task>',
     supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
 ];
@@ -266,9 +266,9 @@ export class ZavorthSmartCommandSurfaceService {
     const reply = command
       ? replyFor(command, ctx)
       : {
-          title: 'Comando nao reconhecido',
-          body: 'Esse texto deve seguir pelo runtime natural-first como conversa normal.',
-          hints: ['Use /status ou /skills para comandos diretos.'],
+          title: 'Command not recognized',
+          body: 'This text should flow through the natural-first runtime as a normal conversation.',
+          hints: ['Use /status or /skills for direct commands.'],
         };
 
     return {
@@ -327,8 +327,8 @@ export class ZavorthSmartCommandSurfaceService {
       '',
       `Comando: ${snapshot.command.canonicalSlash || snapshot.command.raw}`,
       `Status: ${snapshot.status}`,
-      `Canal: ${snapshot.channel}`,
-      snapshot.action.nextCommand ? `Proximo: ${snapshot.action.nextCommand}` : null,
+      `Channel: ${snapshot.channel}`,
+      snapshot.action.nextCommand ? `next: ${snapshot.action.nextCommand}` : null,
     ].filter(Boolean) as string[];
     if (snapshot.reply.hints.length > 0) {
       lines.push('', 'Dicas');
@@ -368,69 +368,67 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
   const args = ctx.args.trim();
   if (command.id === 'new' || command.id === 'reset') {
     return {
-      title: command.id === 'new' ? 'Nova conversa pronta' : 'Conversa reiniciada',
-      body: 'O canal atual recebeu um novo contexto de conversa. Memoria e receipts historicos continuam auditaveis.',
+      title: command.id === 'new' ? 'New conversation ready' : 'Conversation restarted',
+      body: 'The current channel received a new conversation context. Memory and receipt histories remain auditable.',
       hints: [
-        'Escreva seu proximo pedido em texto livre.',
-        'Use /history para revisar conversas anteriores quando disponivel.',
+        'Write your next request in free-form text.',
+        'Use /history para review conversas anteriores when available.',
       ],
     };
   }
   if (command.id === 'model') {
-    const current = ctx.providers ? `${ctx.providers.activeProvider}/${ctx.providers.activeModel}` : 'provider atual';
+    const current = ctx.providers ? `${ctx.providers.activeProvider}/${ctx.providers.activeModel}` : 'provider current';
     return {
-      title: args ? 'Troca de modelo preparada' : 'Modelo atual',
-      body: args
-        ? `Vou preparar ${args} como rota de modelo. A troca real precisa passar por provider readiness e SecretRef valido.`
-        : `Rota atual: ${current}. Providers catalogados: ${ctx.providers?.summary?.providerRoutes || 0}.`,
+      title: args ? 'Model switch prepared' : 'Current model',
+      body: args ? `I will prepare ${args} as a model route. The real switch must pass provider readiness and valid SecretRef.`
+        : `Current route: ${current}. Cataloged providers: ${ctx.providers?.summary?.providerRoutes || 0}.`,
       hints: ['zavorth provider-model-catalog', 'zavorth provider-selection'],
     };
   }
   if (command.id === 'personality') {
     return {
       title: args ? 'Persona prepared' : 'Zavorth personas',
-      body: args
-        ? `Persona "${args}" ficou em preview. Aplicar persona altera comportamento persistente e exige approval.`
+      body: args ? `Persona "${args}" stayed in preview. Applying persona changes persistent behavior and requires approval.`
         : 'Use /personality <nome> para propor uma persona ou tom de trabalho.',
-      hints: ['Nada foi gravado sem approval.', 'Use SOUL.md apenas como fonte governada do perfil.'],
+      hints: ['Nothing was saved without approval.', 'Use SOUL.md only as a governed profile source.'],
     };
   }
   if (command.id === 'retry') {
     return {
-      title: 'Retry governado',
-      body: 'Vou repetir somente o ultimo run reversivel/seguro. Se a acao anterior exigiu approval, o retry tambem exige.',
-      hints: ['Use /retry <run-id> para ser especifico.', 'Nada sera executado sem approval quando houver risco.'],
+      title: 'Governed retry',
+      body: 'I will repeat only the latest reversible/safe run. If the previous action required approval, retry also requires it.',
+      hints: ['Use /retry <run-id> to be specific.', 'Nothing will execute without approval when risk is present.'],
     };
   }
   if (command.id === 'undo') {
     return {
-      title: 'Rollback preparado',
-      body: 'Vou procurar receipt reversivel e gerar preview de rollback. Desfazer escrita ou acao externa exige approval.',
+      title: 'Rollback ready',
+      body: 'I will look for a reversible receipt and generate a rollback preview. Undoing a write or external action requires approval.',
       hints: [
-        'Use /undo <receipt-id> quando souber o recibo.',
-        'Rollback inexistente vira explicacao, nao tentativa cega.',
+        'Use /undo <receipt-id> when you know the receipt.',
+        'Non-existent rollback becomes explanation, not blind attempt.',
       ],
     };
   }
   if (command.id === 'compress') {
     return {
-      title: 'Compactaction de contexto preparada',
-      body: 'Vou compactar contexto conversacional preservando objetivo, decisoes, approvals, memoria procedural e receipts.',
-      hints: ['Preview primeiro; aplicar compactacao persistente exige confirmacao quando alterar memoria.'],
+      title: 'Context compaction ready',
+      body: 'I will compact conversational context preserving objective, decisions, approvals, procedural memory and receipts.',
+      hints: ['Preview first; applying persistent compaction requires confirmation when changing memory.'],
     };
   }
   if (command.id === 'usage') {
     return {
       title: 'Zavorth usage',
-      body: `Comandos inteligentes: ${SMART_COMMANDS.length}. Skills conhecidas: ${ctx.skills.length}. Providers catalogados: ${ctx.providers?.summary?.providerRoutes || 0}.`,
-      hints: ['Use /insights para leitura dos ultimos dias.', 'Use /model para rota de provider/modelo.'],
+      body: `Smart commands: ${SMART_COMMANDS.length}. Known skills: ${ctx.skills.length}. Cataloged providers: ${ctx.providers?.summary?.providerRoutes || 0}.`,
+      hints: ['Use /insights for reading recent days.', 'Use /model for provider/model route.'],
     };
   }
   if (command.id === 'insights') {
     return {
-      title: 'Insights operacionais',
-      body: `Janela solicitada: ${args || '7 dias'}. Vou resumir memoria, runs, falhas e aprendizados sem expor secrets.`,
-      hints: ['Use /usage para tokens/custo.', 'Use /skills para capacidades reutilizaveis.'],
+      title: 'Operational insights',
+      body: `Requested window: ${args || '7 days'}. I will summarize memory, runs, failures and learnings without exposing secrets.`,
+      hints: ['Use /usage for tokens/cost.', 'Use /skills for reusable capabilities.'],
     };
   }
   if (command.id === 'skills') {
@@ -446,38 +444,37 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
       body:
         matches.length > 0
           ? matches.map((skill) => `${skill.name}: ${skill.description}`).join('\n')
-          : 'Nenhuma skill exata apareceu. O Capability Mesh pode criar draft ou buscar capacidade em agente conectado com approval.',
-      hints: ['zavorth capability-mesh --request "<pedido>"', 'zavorth skill-curator'],
+          : 'No exact skill found. The Capability Mesh can create a draft or fetch capability from a connected agent with approval.',
+      hints: ['zavorth capability-mesh --request "<request>"', 'zavorth skill-curator'],
     };
   }
   if (command.id === 'stop') {
     return {
-      title: 'Parada solicitada',
-      body: 'Vou sinalizar cancelamento do trabalho atual no canal, preservando receipt do motivo e sem matar processos fora do escopo.',
-      hints: ['Use /status para confirmar estado.', 'Cancelamentos destrutivos exigem approval quando aplicavel.'],
+      title: 'Stop requested',
+      body: 'I will signal cancellation of the current channel work, preserving the reason receipt without killing processes outside scope.',
+      hints: ['Use /status to confirm state.', 'Destructive cancellations require approval when applicable.'],
     };
   }
   if (command.id === 'platforms') {
     return {
       title: 'Zavorth platforms',
-      body: 'Superficies suportadas: CLI, zavorthControl, Telegram, Discord, WhatsApp/API e canais externos governados.',
-      hints: ['zavorth connectors doctor', 'zavorth capability-mesh --request "<pedido>"'],
+      body: 'Supported surfaces: CLI, zavorthControl, Telegram, Discord, WhatsApp/API, and governed external channels.',
+      hints: ['zavorth connectors doctor', 'zavorth capability-mesh --request "<request>"'],
     };
   }
   if (command.id === 'sethome') {
     return {
-      title: args ? 'Home preparado' : 'Home do workspace',
-      body: args
-        ? `Novo home proposto: ${args}. Gravaction persistente exige approval e path seguro.`
-        : 'Informe um caminho: /sethome <path>. O Zavorth vai validar antes de gravar.',
-      hints: ['There is no varredura automatica do computador.', 'Use caminhos explicitos.'],
+      title: args ? 'Home prepared' : 'Workspace home',
+      body: args ? `Proposed new home: ${args}. Persistent writes require approval and a safe path.`
+        : 'Informe um path: /sethome <path>. O Zavorth vai validate before gravar.',
+      hints: ['There is no automatic computer scan.', 'Use explicit paths.'],
     };
   }
   if (command.id === 'loop') {
     return {
-      title: 'Loop de engenharia preparado',
-      body: 'Iniciando o LoopEngineeringService para refinar e executar a tarefa de forma segura.',
-      hints: ['Use --auto para modo automatico.', 'Use --grill para modo guiado de perguntas.'],
+      title: 'Engineering loop prepared',
+      body: 'Starting LoopEngineeringService to refine and run the task safely.',
+      hints: ['Use --auto for automatic mode.', 'Use --grill for guided question mode.'],
     };
   }
   return {
@@ -489,10 +486,10 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
 
 function approvalReasonFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): string | null {
   if (command.executionMode === 'approval-gated') {
-    return `${command.label} pode alterar estado, cancelar trabalho ou executar rollback.`;
+    return `${command.label} pode alterar estado, cancelar trabalho ou run rollback.`;
   }
   if (ctx.apply) {
-    return `${command.label} foi chamado com apply e precisa de approval.`;
+    return `${command.label} foi chamado com apply e needs approval.`;
   }
   return null;
 }
@@ -538,17 +535,17 @@ function stripSmartCommandRuntimeFlags(value: string): string {
     .replace(/\s+--apply\b/gi, '')
     .replace(/\s+--approval-id(?:=|\s+)\S+/gi, '')
     .replace(/\s+--channel(?:=|\s+)\S+/gi, '')
-    .replace(/\s+--session(?:-id)?(?:=|\s+)\S+/gi, '')
+    .replace(/\s+--session(?:-id)...(?:=|\s+)\S+/gi, '')
     .trim();
 }
 
 function hasSmartCommandFlag(rawText: string, name: string): boolean {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped = name.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
   return new RegExp(`(?:^|\\s)--${escaped}(?:\\s|$)`, 'i').test(String(rawText || ''));
 }
 
 function extractSmartCommandInlineValue(rawText: string, name: string): string | null {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped = name.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
   const match = String(rawText || '').match(new RegExp(`(?:^|\\s)--${escaped}(?:=|\\s+)(\\S+)`, 'i'));
   return match?.[1]?.trim() || null;
 }

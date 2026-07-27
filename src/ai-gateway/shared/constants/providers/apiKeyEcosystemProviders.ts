@@ -47,7 +47,7 @@ export const APIKEY_ECOSYSTEM_PROVIDERS = {
     color: "#20808D",
     textIcon: "PS",
     website: "https://docs.perplexity.ai/guides/search-quickstart",
-    authHint: "Same API key as Perplexity (pplx-...)",
+    authHint: "Same API key as Perplexity (pplx?...)",
   },
   "serper-search": {
     id: "serper-search",
@@ -87,7 +87,7 @@ export const APIKEY_ECOSYSTEM_PROVIDERS = {
     color: "#5B4FDB",
     textIcon: "TV",
     website: "https://tavily.com",
-    authHint: "API key from app.tavily.com (format: tvly-...)",
+    authHint: "API key from app.tavily.com (format: tvly?...)",
   },
   "opencode-zen": {
     id: "opencode-zen",
@@ -125,7 +125,7 @@ export const APIKEY_ECOSYSTEM_PROVIDERS = {
     website: "https://longcat.chat",
     hasFree: true,
     freeNote:
-      "50M tokens/day (Flash-Lite) + 500K/day (Chat/Thinking) - 100% free while public beta",
+      "50M tokens/day (Flash-Lite) + 500K/day (Chat/Thinking) ? 100% free while public beta",
   },
   pollinations: {
     id: "pollinations",
@@ -149,7 +149,7 @@ export const APIKEY_ECOSYSTEM_PROVIDERS = {
     website: "https://puter.com",
     hasFree: true,
     freeNote:
-      "500+ models (GPT-5, Claude Opus 4, Gemini 3 Pro, Grok 4, DeepSeek V3...) - Users pay via free Puter account",
+      "500+ models (GPT-5, Claude Opus 4, Gemini 3 Pro, Grok 4, DeepSeek V3?) - Users pay via free Puter account",
     passthroughModels: true,
     authHint: "Get token at puter.com/zavorthControl -> Copy Auth Token",
   },
@@ -187,7 +187,7 @@ export const APIKEY_ECOSYSTEM_PROVIDERS = {
     website: "https://aimlapi.com",
     hasFree: true,
     freeNote:
-      "$0.025/day free credits - 200+ models (GPT-4o, Claude, Gemini, Llama) via single endpoint",
+      "$0.025/day free credits ? 200+ models (GPT-4o, Claude, Gemini, Llama) via single endpoint",
     passthroughModels: true,
   },
   novita: {

@@ -24,8 +24,7 @@ export class AcpLiveBridgeService {
     const approvalRef = readApprovalRef(this.env);
     const checks = this.buildChecks({ enabled, approvalRef });
     const failed = checks.filter((check) => check.status === 'failed');
-    const status: AcpLiveBridgeStatus = !enabled
-      ? 'disabled'
+    const status: AcpLiveBridgeStatus = !enabled ? 'disabled'
       : failed.length > 0
         ? 'blocked'
         : 'ready';
@@ -111,8 +110,7 @@ export class AcpLiveBridgeService {
         'explicit-enable',
         'Explicit enable',
         input.enabled,
-        input.enabled
-          ? 'ACP bridge was explicitly enabled by env.'
+        input.enabled ? 'ACP bridge was explicitly enabled by env.'
           : 'Set ZAVORTH_ACPX_BRIDGE_ENABLED=true to arm ACP.',
         ['ZAVORTH_ACPX_BRIDGE_ENABLED'],
       ),
@@ -120,8 +118,7 @@ export class AcpLiveBridgeService {
         'owner-approval',
         'Owner approval',
         Boolean(input.approvalRef),
-        input.approvalRef
-          ? 'Owner approval reference is present.'
+        input.approvalRef ? 'Owner approval reference is present.'
           : 'ACP live bridge requires an approval id or explicit owner-approved flag.',
         ['ZAVORTH_ACPX_BRIDGE_APPROVAL_ID', 'ZAVORTH_ACPX_BRIDGE_OWNER_APPROVED'],
       ),

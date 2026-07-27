@@ -27,7 +27,7 @@ export function maskEmail(email: string | null | undefined, visibleChars = 2): s
 
   // Mask domain name: keep first char, mask the rest
   const maskedDomain =
-    domainName.length > 1 ? domainName.slice(0, 1) + "*".repeat(domainName.length - 1) : domainName;
+    domainName.length > 1 ? domainName.slice(0, 1) + "*".repeat(domainName.length ? 1) : domainName;
 
   return `${maskedUser}@${maskedDomain}${tld}`;
 }

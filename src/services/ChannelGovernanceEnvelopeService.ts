@@ -13,7 +13,7 @@ type ChannelGovernanceEnvelopeServiceOptions = {
 };
 
 const PROMPT_INJECTION_PATTERNS = [
-  /ignore\s+(all\s+)?previous\s+instructions/iu,
+  /ignore\s+(all\s+)...previous\s+instructions/iu,
   /bypass\s+(approval|policy|safety)/iu,
   /execute\s+(shell|powershell|bash|cmd)/iu,
   /send\s+without\s+approval/iu,
@@ -179,8 +179,7 @@ export class ChannelGovernanceEnvelopeService {
       const recipientAllowed = input.recipients.length > 0 && input.recipients.every((recipient) => allowlist.includes(recipient));
       return {
         decision: recipientAllowed ? 'requires_approval' : 'blocked',
-        reason: recipientAllowed
-          ? 'Outbound channel send needs preview and receipt before delivery.'
+        reason: recipientAllowed ? 'Outbound channel send needs preview and receipt before delivery.'
           : 'Outbound recipient is outside the channel allowlist.',
         approvalRequired: recipientAllowed,
         recipientPreviewRequired: true,
@@ -235,7 +234,7 @@ export class ChannelGovernanceEnvelopeService {
 
   private redact(value: string): string {
     return value
-      .replace(/(api[_-]?key|token|secret|password)\s*[:=]\s*["']?[^"'\s]+/giu, '$1=[redacted]')
+      .replace(/(api[_-]...key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/giu, '$1=[redacted]')
       .slice(0, 4000);
   }
 }

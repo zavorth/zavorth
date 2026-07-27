@@ -158,7 +158,7 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
       lines.push(`  ${outcomeIcon} [${t.id}] ${t.task_description.slice(0, 60)} | ${t.total_turns} turns | ${t.total_tool_calls} tools | ${t.outcome}`);
     }
     if (filtered.length > 30) {
-      lines.push(`  ... and ${filtered.length - 30} more trajectories.`);
+      lines.push(`  ? and ${filtered.length - 30} more trajectories.`);
     }
     return lines.join('\n');
   }

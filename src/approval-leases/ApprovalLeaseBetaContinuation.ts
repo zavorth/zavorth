@@ -6,6 +6,12 @@
 
 import { FeedbackTriageRecord } from './ApprovalLeaseFeedbackTriage.js';
 import { FeedbackFixSelectionRecord } from './ApprovalLeaseFeedbackFixSelection.js';
+import {
+  AUTH_BEARER_REDACT_REGEX,
+  SECRET_KEY_REDACT_REGEX,
+  RAW_PROMPT_REDACT_REGEX,
+  PROVIDER_RESPONSE_REDACT_REGEX,
+} from './shared/redactionPatterns.js';
 
 export interface BetaContinuationRecord {
   continuationId: string;
@@ -28,8 +34,7 @@ export class ApprovalLeaseBetaContinuation {
 
     const hasP0P1Pending = triageRecords.some(r => r.severity === 'P0' || r.severity === 'P1');
 
-    const verdict = (hasBlockingFeedback || hasBlockingFixes || hasP0P1Pending)
-      ? 'NO_GO_EXTENSION_LEASE_BETA_CONTINUATION_BLOCKED'
+    const verdict = (hasBlockingFeedback || hasBlockingFixes || hasP0P1Pending) ? 'NO_GO_EXTENSION_LEASE_BETA_CONTINUATION_BLOCKED'
       : 'READY_FOR_EXTENSION_LEASE_BETA_STABILITY_RC';
 
     const triageSummary = this.sanitizeText(`Continuation checked: ${triageRecords.length} triage records.`);
@@ -69,7 +74,7 @@ export class ApprovalLeaseBetaContinuation {
     sanitized = sanitized.replace(/choices\s*:\s*\[|response\s*:\s*\{/gi, '[REDACTED_PROVIDER_RESPONSE]');
 
     // Redact handler source / functions
-    sanitized = sanitized.replace(/function\s*\([\s\S]*?\)|=>|handlerSource/gi, '[REDACTED_SECRET]');
+    sanitized = sanitized.replace(/function\s*\([\s\S]*...\)|=>|handlerSource/gi, '[REDACTED_SECRET]');
 
     // Redact env / process.env
     sanitized = sanitized.replace(/process\.env\S*/gi, '[REDACTED_SECRET]');

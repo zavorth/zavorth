@@ -12,7 +12,7 @@ export class MultiAgentWorkflowStageBuilder {
     workspaceContext?: WorkflowWorkspaceContext | null,
   ): WorkflowStage[] {
     if (workflow === 'sdd') {
-      throw new Error('Use runSddLoop para iniciar workflows SDD.');
+      throw new Error('Use runSddLoop to start SDD workflows.');
     }
 
     if (workflow === 'ship') {
@@ -50,16 +50,16 @@ export class MultiAgentWorkflowStageBuilder {
     return [
       this.buildMakerStage(
         makerStage.executor,
-        'Passo 1/2: {executor} Maker assumindo a implementacao.',
+        'Step 1/2: {executor} Maker taking implementation ownership.',
         makerStage.strategyNote,
         workflow,
       ),
       this.buildReviewerStage(
         reviewerStage.executor,
-        'Passo 2/2: {executor} Reviewer auditando o resultado.',
+        'Step 2/2: {executor} Reviewer auditing the result.',
         reviewerStage.strategyNote,
         workflow,
-        'Procure bugs, regressao, risco tecnico e aderencia ao projeto. Ajuste se necessario.',
+        'Look for bugs, regressions, technical risk, and project fit. Adjust when necessary.',
       ),
     ];
   }
@@ -84,9 +84,9 @@ export class MultiAgentWorkflowStageBuilder {
         executor: 'aistudio',
         role: 'researcher',
         label: `${this.support.getExecutorDisplayName('aistudio')} Researcher`,
-        intro: `Passo 1/2: ${this.support.getExecutorDisplayName('aistudio')} pesquisando e reunindo contexto.`,
+        intro: `Step 1/2: ${this.support.getExecutorDisplayName('aistudio')} researching and gathering context.`,
         buildObjective: ({ originalObjective, workspaceContext: stageContext }) => this.support.joinObjectiveParts([
-          'Pesquise e responda de forma estruturada ao seguinte objetivo:',
+          'Research and answer the following objective in a structured way:',
           originalObjective,
           this.support.buildStageWorkspaceGuidance('researcher', workflow, stageContext),
         ]),
@@ -96,15 +96,15 @@ export class MultiAgentWorkflowStageBuilder {
         executor: synthesizerStage.executor,
         role: 'synthesizer',
         label: `${this.support.getExecutorDisplayName(synthesizerStage.executor)} Synthesizer`,
-        intro: `Passo 2/2: ${this.support.getExecutorDisplayName(synthesizerStage.executor)} condensando a pesquisa em um briefing final.`,
+        intro: `Step 2/2: ${this.support.getExecutorDisplayName(synthesizerStage.executor)} condensing the research into a final brief.`,
         strategy_note: synthesizerStage.strategyNote,
         buildObjective: ({ originalObjective, previousResults, workspaceContext: stageContext }) => {
           const researchOut = this.support.summarizeResult(previousResults[0]);
           return this.support.joinObjectiveParts([
-            'Use a pesquisa abaixo para escrever um briefing final curto, claro e acionavel.',
-            `Objetivo original: ${originalObjective}`,
-            `Pesquisa bruta: ${researchOut}`,
-            'Entregue um resumo objetivo em portugues, com pontos principais e proximo passo recomendado.',
+            'Use the research below to write a short, clear, actionable final brief.',
+            `Original objective: ${originalObjective}`,
+            `Raw research: ${researchOut}`,
+            'Deliver an objective summary with key points and a recommended next step.',
             this.support.buildStageWorkspaceGuidance('synthesizer', workflow, stageContext),
           ]);
         },
@@ -138,16 +138,16 @@ export class MultiAgentWorkflowStageBuilder {
     return [
       this.buildMakerStage(
         makerStage.executor,
-        'Passo 1/2: {executor} Maker assumindo a execucao.',
+        '{executor} maker takes execution ownership.',
         makerStage.strategyNote,
         workflow,
       ),
       this.buildReviewerStage(
         reviewerStage.executor,
-        'Passo 2/2: {executor} Reviewer auditando o resultado.',
+        'Step 2/2: {executor} Reviewer auditing the result.',
         reviewerStage.strategyNote,
         workflow,
-        'Verifique bugs, padroes de projeto e seguranca. Faca alteracoes se necessario.',
+        'Check bugs, project patterns, and safety. Make changes only when necessary.',
       ),
     ];
   }
@@ -191,9 +191,9 @@ export class MultiAgentWorkflowStageBuilder {
       buildObjective: ({ originalObjective, previousResults, workspaceContext: stageContext }) => {
         const makerOut = this.support.summarizeResult(previousResults[0]);
         return this.support.joinObjectiveParts([
-          'Revise as mudancas recentes no workspace feitas para atingir o objetivo anterior.',
+          'Revise as changes recentes no workspace feitas para atingir o objetivo anterior.',
           `Objetivo original: ${originalObjective}`,
-          `Output da etapa anterior: ${makerOut}`,
+          `Output da stage anterior: ${makerOut}`,
           reviewInstruction,
           this.support.buildStageWorkspaceGuidance('reviewer', workflow, stageContext),
         ]);

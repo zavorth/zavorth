@@ -213,10 +213,8 @@ export function verifyZavorthMission(input: {
       reason,
     };
   });
-  const status: ZavorthMissionVerificationStatus = criteria.some((criterion) => criterion.status === 'failed')
-    ? 'failed'
-    : criteria.every((criterion) => criterion.status === 'verified')
-      ? 'verified'
+  const status: ZavorthMissionVerificationStatus = criteria.some((criterion) => criterion.status === 'failed') ? 'failed'
+    : criteria.every((criterion) => criterion.status === 'verified') ? 'verified'
       : 'inconclusive';
   return {
     schemaVersion: 1,

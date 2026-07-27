@@ -185,8 +185,7 @@ export function decideSecurityPolicyForEffect(
 }
 
 export function formatSecurityPolicyReceipt(receipt: SecurityPolicyBrokerReceipt): string {
-  const redaction = receipt.redaction.applied
-    ? `redaction applied (${receipt.redaction.findingCount} finding(s))`
+  const redaction = receipt.redaction.applied ? `redaction applied (${receipt.redaction.findingCount} finding(s))`
     : 'no redaction';
   const blocked = receipt.riskBlocked ? 'risk blocked' : 'no risk block';
   return [

@@ -45,15 +45,15 @@ const pt: PluginLoadTipsCatalog = {
   'tip.export_register':
     'Exporte `register` ou `createZavorthModule` em index.js (CommonJS: module.exports = { register }).',
   'tip.bind_capability':
-    'Chame ctx.bindCapability(...) para cada capability declarada em manifest.json.',
+    'Call ctx.bindCapability(...) for each capability declared in manifest.json.',
   'tip.declare_capability':
     'Adicione a capability {{cap}} em manifest.json ou declare via definePlugin tools: {}.',
   'tip.enable_plugin':
-    'Execute: zavorth plugins enable {{pluginId}} --yes ou aprove / confie no plugin.',
+    'Run: zavorth plugins enable {{pluginId}} --yes or approve/trust the plugin.',
   'tip.install_enable':
-    'Instale e habilite: zavorth plugins install <path> --yes && zavorth plugins enable {{pluginId}} --yes',
+    'Instale e enable: zavorth plugins install <path> --yes && zavorth plugins enable {{pluginId}} --yes',
   'tip.entrypoint_module':
-    'Garanta que manifest.entrypoint.module aponte para um arquivo existente (geralmente ./index.js).',
+    'Ensure manifest.entrypoint.module points to an existing file, usually ./index.js.',
   'tip.declare_capabilities':
     'Declare ao menos uma capability em manifest.capabilities (ex.: main.run).',
   'tip.bind_all_capabilities':
@@ -61,11 +61,11 @@ const pt: PluginLoadTipsCatalog = {
   'tip.add_manifest':
     'Adicione um manifest.json do Plugin OS (schemaVersion zavorth.plugin-os.v1) no pacote.',
   'tip.export_function':
-    'O export resolvido deve ser uma função register(ctx) ou um módulo com handler.',
+    'The resolved export must be a register(ctx) function or a module with a handler.',
   'tip.fast_register':
-    'Mantenha register() rápido e sem I/O de rede bloqueante no carregamento.',
+    'Keep register() fast and avoid blocking network I/O during load.',
   'tip.clear_block':
-    'Plugin bloqueado. Libere com: zavorth plugins trust {{pluginId}} review --yes',
+    'Plugin blocked. Libere com: zavorth plugins trust {{pluginId}} review --yes',
 };
 
 const es: PluginLoadTipsCatalog = {
@@ -78,7 +78,7 @@ const es: PluginLoadTipsCatalog = {
   'tip.enable_plugin':
     'Ejecute: zavorth plugins enable {{pluginId}} --yes o apruebe / confíe el plugin.',
   'tip.install_enable':
-    'Instale y habilite: zavorth plugins install <path> --yes && zavorth plugins enable {{pluginId}} --yes',
+    'Instale y enable: zavorth plugins install <path> --yes && zavorth plugins enable {{pluginId}} --yes',
   'tip.entrypoint_module':
     'Asegúrese de que manifest.entrypoint.module apunte a un archivo existente (normalmente ./index.js).',
   'tip.declare_capabilities':
@@ -92,7 +92,7 @@ const es: PluginLoadTipsCatalog = {
   'tip.fast_register':
     'Mantenga register() rápido y sin I/O de red bloqueante al cargar.',
   'tip.clear_block':
-    'Plugin bloqueado. Libere con: zavorth plugins trust {{pluginId}} review --yes',
+    'Plugin blocked. Libere con: zavorth plugins trust {{pluginId}} review --yes',
 };
 
 const fr: PluginLoadTipsCatalog = {
@@ -176,7 +176,7 @@ const it: PluginLoadTipsCatalog = {
     'Plugin bloccato. Sblocca con: zavorth plugins trust {{pluginId}} review --yes',
 };
 
-const ja: PluginLoadTipsCatalog = {
+const already: PluginLoadTipsCatalog = {
   'tip.export_register':
     'index.js から `register` または `createZavorthModule` をエクスポートしてください（CommonJS: module.exports = { register }）。',
   'tip.bind_capability':
@@ -402,14 +402,14 @@ export const PLUGIN_LOAD_TIPS_CATALOGS: Record<string, PluginLoadTipsCatalog> = 
   pt,
   'pt-BR': localeVariant(pt, {
     'tip.enable_plugin':
-      'Rode: zavorth plugins enable {{pluginId}} --yes ou aprove / confie no plugin.',
+      'run: zavorth plugins enable {{pluginId}} --yes or approve/trust the plugin.',
   }),
   'pt-PT': pt,
   es,
   fr,
   de,
   it,
-  ja,
+  already,
   zh,
   'zh-CN': zh,
   'zh-Hans': zh,

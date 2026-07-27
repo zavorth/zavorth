@@ -36,9 +36,8 @@ export class NostrGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/nostr',
       doctorCommand: '/channels doctor nostr',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Nostr bridge configurado. Pronto para enviar notas.'
-        : 'Defina NOSTR_BRIDGE_URL ou NOSTR_OUTBOX_DIR para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'Nostr bridge configured. Ready to send notes.'
+        : 'Set NOSTR_BRIDGE_URL or NOSTR_OUTBOX_DIR to enable.',
     };
   }
 

@@ -81,7 +81,7 @@ export class ExecutionIntentClassifierService {
 
     if (taskKind && taskSubtype) {
       confidence = 'high';
-      rationale.push(`Classificaction explicita recebida: ${taskKind}/${taskSubtype}.`);
+      rationale.push(`Classification explicit recebida: ${taskKind}/${taskSubtype}.`);
     } else {
       const classified = classifyWorkspaceTaskProfile({
         text: normalizedText,
@@ -93,16 +93,16 @@ export class ExecutionIntentClassifierService {
       taskSubtype = taskSubtype || classified.subtype;
 
       if (normalizedCommandType) {
-        rationale.push(`O comando ${normalizedCommandType} ajudou a orientar a classificacao.`);
+        rationale.push(`Command ${normalizedCommandType} helped guide classification.`);
       }
       if (normalizedIntent) {
-        rationale.push(`A intencao declarada (${normalizedIntent}) foi usada como sinal complementar.`);
+        rationale.push(`The declared intent (${normalizedIntent}) was used as a complementary signal.`);
       }
       if (normalizedExecutor) {
-        rationale.push(`A preferencia de executor (${normalizedExecutor}) influenciou a rota sugerida.`);
+        rationale.push(`A preference de executor (${normalizedExecutor}) influenced the suggested route.`);
       }
       if (normalizedText) {
-        rationale.push('O texto principal da tarefa foi analisado para inferir tipo e subtipo.');
+        rationale.push('The main task text was analyzed to infer type and subtype.');
       }
 
       if (taskKind !== 'unknown') {
@@ -114,7 +114,7 @@ export class ExecutionIntentClassifierService {
     const safeTaskSubtype = taskSubtype || (safeTaskKind === 'unknown' ? 'unknown' : 'general');
 
     if (rationale.length === 0) {
-      rationale.push('Nao houve sinal forte; a classificacao ficou no fallback padrao.');
+      rationale.push('There was no strong signal; classification stayed on the default fallback.');
     }
 
     return {

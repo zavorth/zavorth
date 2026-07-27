@@ -31,7 +31,7 @@ export const ProvidersMapSchema = z.record(z.string(), ProviderSchema);
 
 /**
  * Validate a providers map, throwing a descriptive error on failure.
- * @param {Record<string, object>} map - The providers map to validate
+ * @param {Record<string, object>} map ? The providers map to validate
  * @param {string} name - Name of the map for error messages
  */
 export function validateProviders(map: Record<string, unknown>, name: string): void {

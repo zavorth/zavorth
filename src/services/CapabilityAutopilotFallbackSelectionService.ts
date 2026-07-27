@@ -112,7 +112,7 @@ export class CapabilityAutopilotFallbackSelectionService {
         candidates,
         receipt: input.receipt || null,
         nextIntent: null,
-        summary: 'Nao ha fallback disponivel para este plano.',
+        summary: 'No fallback is available for this plan.',
         technicalSummary: 'fallback_selection=no_options',
         requestedBy: input.requestedBy || null,
       });
@@ -129,7 +129,7 @@ export class CapabilityAutopilotFallbackSelectionService {
         candidates,
         receipt: input.receipt || null,
         nextIntent: null,
-        summary: `Fallback '${input.fallbackId}' nao existe neste plano.`,
+        summary: `Fallback '${input.fallbackId}' does not exist in this plan.`,
         technicalSummary: `fallback_selection=not_found; requested=${input.fallbackId}`,
         requestedBy: input.requestedBy || null,
       });
@@ -147,14 +147,13 @@ export class CapabilityAutopilotFallbackSelectionService {
         candidates,
         receipt: this.buildSelectionReceipt(input.receipt || null, repairPlan, null, generatedAt, 'blocked'),
         nextIntent: null,
-        summary: candidate.blockedReason || `Fallback '${candidate.label}' esta bloqueado pela policy.`,
+        summary: candidate.blockedReason || `Fallback '${candidate.label}' is blocked by policy.`,
         technicalSummary: `fallback_selection=policy_blocked; id=${candidate.id}; policyAllowed=${candidate.policyAllowed}`,
         requestedBy: input.requestedBy || null,
       });
     }
 
-    const status: CapabilityFallbackSelectionStatus = selectedFallback.requiresPermission
-      ? 'requires_permission'
+    const status: CapabilityFallbackSelectionStatus = selectedFallback.requiresPermission ? 'requires_permission'
       : 'selected';
     const nextIntent = this.buildFallbackIntent(repairPlan, selectedFallback, input.receipt || null, generatedAt);
 
@@ -197,8 +196,7 @@ export class CapabilityAutopilotFallbackSelectionService {
         policyAllowed: fallback.policyAllowed,
         selectable: !policyBlocked,
         explicitUserActionRequired: true,
-        blockedReason: policyBlocked
-          ? `Fallback '${fallback.label}' bloqueado pela policy atual.`
+        blockedReason: policyBlocked ? `Fallback '${fallback.label}' blocked by current policy.`
           : null,
       };
     });
@@ -259,11 +257,9 @@ export class CapabilityAutopilotFallbackSelectionService {
           at: generatedAt,
           stage: 'fallback',
           status: timelineStatus,
-          summary: selectedFallback
-            ? `Fallback escolhido: ${selectedFallback.label}.`
-            : 'Fallback nao selecionado.',
-          detail: selectedFallback
-            ? `requiresPermission=${selectedFallback.requiresPermission}; policyAllowed=${selectedFallback.policyAllowed}`
+          summary: selectedFallback ? `Fallback selected: ${selectedFallback.label}.`
+            : 'Fallback not selected.',
+          detail: selectedFallback ? `requiresPermission=${selectedFallback.requiresPermission}; policyAllowed=${selectedFallback.policyAllowed}`
             : `status=${status}`,
         },
       ],
@@ -281,13 +277,13 @@ export class CapabilityAutopilotFallbackSelectionService {
     audience: CapabilityAutopilotAudience,
   ): string {
     if (candidates.length === 0) {
-      return 'Nao encontrei uma alternativa segura para esta capability ainda.';
+      return 'No safe alternative found for this capability yet.';
     }
     const selectable = candidates.filter((entry) => entry.selectable).length;
     if (audience === 'technical_operator') {
       return `${selectable}/${candidates.length} fallback(s) selectable; explicit selection required.`;
     }
-    return `Tenho ${selectable} alternativa(s) possivel(is), mas so uso uma delas se voce escolher.`;
+    return `${selectable} alternative(s) available, but I will only use one if you choose.`;
   }
 
   private buildSelectionSummary(
@@ -295,9 +291,9 @@ export class CapabilityAutopilotFallbackSelectionService {
     status: CapabilityFallbackSelectionStatus,
   ): string {
     if (status === 'requires_permission') {
-      return `Fallback '${selectedFallback.label}' foi escolhido, mas ainda precisa de permissao antes de executar.`;
+      return `Fallback '${selectedFallback.label}' was chosen, but still needs permission before executing.`;
     }
-    return `Fallback '${selectedFallback.label}' foi escolhido e pode seguir para validacao/execucao governada.`;
+    return `Fallback '${selectedFallback.label}' was selected and can proceed to validation/governed execution.`;
   }
 
   private result(input: {

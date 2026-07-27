@@ -15,10 +15,10 @@ async function run() {
     const domains = await fetchJsonWithTimeout<Record<string, any>>(`${boot.url}/api/v1/gateway/domains`);
 
     if (status.status !== 200 || String(status.payload?.status || '') !== 'ready') {
-      throw new Error('Gateway status nao retornou payload valido.');
+    throw new Error('Gateway status did not return a valid payload.');
     }
     if (domains.status !== 200 || !domains.payload?.summary) {
-      throw new Error('Gateway domains nao retornou summary valido.');
+    throw new Error('Gateway domains did not return a valid summary.');
     }
 
     console.log('[qa] gateway smoke PASS');

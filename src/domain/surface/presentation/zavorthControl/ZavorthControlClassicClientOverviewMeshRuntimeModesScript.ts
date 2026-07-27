@@ -70,7 +70,7 @@ function zavorthControlClassicClientOverviewMeshRuntimeModes() {
       '<div class="cockpit-headline">' +
       escapeHtml(
         runtimeModes.narrative?.operatorSummary ||
-          'Runtime local, container, microVM e conectores remotos em uma leitura.',
+          'Runtime local, container, microVM e conectores remotos em uma read.',
       ) +
       '</div>' +
       '</div>' +
@@ -79,7 +79,7 @@ function zavorthControlClassicClientOverviewMeshRuntimeModes() {
       '<div class="cockpit-mini-grid">' +
       '<div class="cockpit-mini-card"><strong>Prontos</strong><div>' +
       escapeHtml(String(summary.ready || 0)) +
-      '</div><small>Ja podem operar agora</small></div>' +
+      '</div><small>can already operate now</small></div>' +
       '<div class="cockpit-mini-card"><strong>Parciais</strong><div>' +
       escapeHtml(String(summary.partial || 0)) +
       '</div><small>Dependem de algum ajuste</small></div>' +
@@ -88,9 +88,9 @@ function zavorthControlClassicClientOverviewMeshRuntimeModes() {
       '</div><small>Pedem setup adicional</small></div>' +
       '<div class="cockpit-mini-card"><strong>Desligados</strong><div>' +
       escapeHtml(String(summary.disabled || 0)) +
-      '</div><small>Fora do runtime atual</small></div>' +
+      '</div><small>outside do runtime current</small></div>' +
       '</div>' +
-      '<div class="sidecar-card"><strong>Panorama operacional</strong><div class="cockpit-action-list">' +
+      '<div class="sidecar-card"><strong>Panorama operational</strong><div class="cockpit-action-list">' +
       entryItems +
       '</div></div>';
   }

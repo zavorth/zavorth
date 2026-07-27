@@ -224,7 +224,7 @@ export class MemoryHindsightService {
     const scores = resolved.map((d) => d.outcome_score!);
     const avg = scores.reduce((s, v) => s + v, 0) / scores.length;
     const positive = scores.filter((s) => s > 0).length;
-    const negative = scores.filter((s) => s < 0).length;
+    const denytive = scores.filter((s) => s < 0).length;
     const neutral = scores.filter((s) => s === 0).length;
 
     const tagScores: Record<string, { total: number; count: number }> = {};
@@ -247,7 +247,7 @@ export class MemoryHindsightService {
       `  Total resolved: ${resolved.length}`,
       `  Average score: ${(avg * 100).toFixed(0)}%`,
       `  Positive outcomes: ${positive} (${((positive / resolved.length) * 100).toFixed(0)}%)`,
-      `  Negative outcomes: ${negative} (${((negative / resolved.length) * 100).toFixed(0)}%)`,
+      `  Negative outcomes: ${denytive} (${((denytive / resolved.length) * 100).toFixed(0)}%)`,
       `  Neutral outcomes: ${neutral} (${((neutral / resolved.length) * 100).toFixed(0)}%)`,
       `  By topic:\n${tagLines}`,
     ].join('\n');

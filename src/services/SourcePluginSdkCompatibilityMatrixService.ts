@@ -148,16 +148,17 @@ function countExportFamilies(subpaths: string[]): Record<SourcePluginPackageExpo
 function classifyExportFamily(subpath: string): SourcePluginPackageExportFamily {
   const text = subpath.toLowerCase();
   if (text === '.') return 'package-root';
-  if (/provider|model/.test(text)) return 'provider';
-  if (/channel|delivery|transport/.test(text)) return 'channel';
-  if (/config|env|browser/.test(text)) return 'config';
-  if (/security|ssrf/.test(text)) return 'security';
-  if (/secret|auth/.test(text)) return 'secret';
-  if (/memory|engine|query|multimodal/.test(text)) return 'memory';
-  if (/runtime|lock|dedupe|queue|heartbeat|number|random|time|system/.test(text)) return 'runtime-utility';
-  if (/test|doctor/.test(text)) return 'testing';
-  if (/media|video|tts|speech|text/.test(text)) return 'media';
-  if (/plugin|entry|core|cli|file/.test(text)) return 'plugin-runtime';
+  const hasAny = (tokens: string[]) => tokens.some((token) => text.includes(token));
+  if (hasAny(['provider', 'model'])) return 'provider';
+  if (hasAny(['channel', 'delivery', 'transport'])) return 'channel';
+  if (hasAny(['config', 'env', 'browser'])) return 'config';
+  if (hasAny(['security', 'ssrf'])) return 'security';
+  if (hasAny(['secret', 'auth'])) return 'secret';
+  if (hasAny(['memory', 'engine', 'query', 'multimodal'])) return 'memory';
+  if (hasAny(['runtime', 'lock', 'dedupe', 'queue', 'heartbeat', 'number', 'random', 'time', 'system'])) return 'runtime-utility';
+  if (hasAny(['test', 'doctor'])) return 'testing';
+  if (hasAny(['media', 'video', 'tts', 'speech', 'text'])) return 'media';
+  if (hasAny(['plugin', 'entry', 'core', 'cli', 'file'])) return 'plugin-runtime';
   return 'other';
 }
 

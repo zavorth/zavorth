@@ -166,10 +166,7 @@ function profileFromRaw(raw: string): ToolExposureProfileName | null {
 function metadataProfile(metadata?: Record<string, unknown> | null): string {
   if (!metadata || typeof metadata !== 'object') return '';
   return readProfileCandidate(
-    metadata.toolExposureProfile ??
-      metadata.exposureProfile ??
-      metadata.tool_exposure_profile ??
-      metadata.exposure_profile,
+    metadata.toolExposureProfile ??       metadata.exposureProfile ??       metadata.tool_exposure_profile ??       metadata.exposure_profile,
   );
 }
 
@@ -207,9 +204,7 @@ export function resolveExposureProfile(input: {
     requestMetadata: input.request?.metadata ?? null,
     runMetadata: input.run?.metadata ?? null,
     envValue:
-      input.envValue ??
-      (typeof process !== 'undefined' ? process.env.ZAVORTH_TOOL_EXPOSURE_PROFILE : undefined) ??
-      null,
+      input.envValue ??       (typeof process !== 'undefined' ? process.env.ZAVORTH_TOOL_EXPOSURE_PROFILE : undefined) ??       null,
   });
 }
 
@@ -268,8 +263,8 @@ export function isDestructiveExposureTool(toolName: string): boolean {
   if (DESTRUCTIVE_EXACT.has(name)) return true;
   if (name.includes('forge.apply') || name.endsWith('.forge.apply')) return true;
   if (/(^|[._-])(rm|unlink)($|[._-])/.test(name)) return true;
-  if (/(send[_-]?mail|send[_-]?email|mail\.send)/.test(name)) return true;
-  if (/(bash_unsafe|shell\.exec|remote_shell|unrestricted[_-]?shell)/.test(name)) return true;
+  if (/(send[_-]...mail|send[_-]...email|mail\.send)/.test(name)) return true;
+  if (/(bash_unsafe|shell\.exec|remote_shell|unrestricted[_-]...shell)/.test(name)) return true;
   if (name.includes('pr_ship_create') || name.endsWith('pr.ship.create')) return true;
   return false;
 }

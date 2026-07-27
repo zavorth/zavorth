@@ -72,8 +72,7 @@ export class ModelSelectionService {
       existing: contract.selected.modelName,
     });
     const fallbackRoutes = this.resolveFallbackRoutes(input, route);
-    const source = input.selectedTarget || input.selectedFamilyId || input.selectedRouteId || input.selectedModelId
-      ? 'target-selection'
+    const source = input.selectedTarget || input.selectedFamilyId || input.selectedRouteId || input.selectedModelId ? 'target-selection'
       : contract.selected.source;
     const primary = this.toSelectedModelProfile({
       contract,
@@ -108,7 +107,7 @@ export class ModelSelectionService {
         fallbackOrder: input.fallbackOrder,
         fallbackRouteIds: fallbackRoute.fallbackRouteIds,
         explanation: [
-          `Fallback canonico: ${fallbackFamily?.label || fallbackRoute.id}.`,
+          `Fallback canonical: ${fallbackFamily?.label || fallbackRoute.id}.`,
           `Rota fallback: ${fallbackRoute.label}.`,
         ],
       });
@@ -133,10 +132,10 @@ export class ModelSelectionService {
         ...primary.explanation,
         secondary.length > 0
           ? `Modelos secundarios: ${secondary.map((entry) => entry.modelLabel).join(', ')}.`
-          : 'Nenhum modelo secundario declarado para a rota.',
+          : 'No model secundario declarado para a route.',
         fallbacks.length > 0
           ? `Fallbacks canonicals: ${fallbacks.map((entry) => `${entry.routeId}/${entry.modelLabel}`).join(', ')}.`
-          : 'Nenhum fallback canonico declarado para a selecao.',
+          : 'No canonical fallback declared for the selection.',
       ],
     };
   }
@@ -160,7 +159,7 @@ export class ModelSelectionService {
       },
       explanation: [
         ...selected.explanation,
-        'ModelSelectionService preservou a selecao existente porque nenhuma rota canonica foi resolvida.',
+        'ModelSelectionService preserved the existing selection because no canonical route was resolved.',
       ],
     };
   }
@@ -329,10 +328,9 @@ export class ModelSelectionService {
     return [
       `Familia selecionada: ${input.family?.label || input.route.familyIds[0] || input.route.id}.`,
       `Rota selecionada: ${input.route.label} (${input.route.routeKind}).`,
-      `Modelo principal: ${input.modelName || input.route.currentModelName || 'nao informado'}.`,
-      input.input.requestedCapability
-        ? `Capability solicitada: ${input.input.requestedCapability}.`
-        : 'Selecao feita sem capability obrigatoria.',
+      `Primary model: ${input.modelName || input.route.currentModelName || 'not provided'}.`,
+      input.input.requestedCapability ? `Capability solicitada: ${input.input.requestedCapability}.`
+        : 'Selecao feita without capability obrigatoria.',
     ];
   }
 

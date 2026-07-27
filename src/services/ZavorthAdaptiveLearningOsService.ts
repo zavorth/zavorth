@@ -58,24 +58,15 @@ const SENSITIVE_USER_MODEL_PATTERNS: RegExp[] = [
   /\b(depressed|depression|trauma|traumatized|psychological|psychiatric|fragile|vulnerable)\b/i,
   /\b(anxiety|anxious|bipolar|adhd|autism|ptsd|suicid|mental\s+health)\b/i,
   /\b(diagnos(?:is|e)|personality\s+disorder|clinical)\b/i,
-  /\b(deprimido|depressao|depressivo|ansiedade|ansioso|traumatizado|psicologico|psiquiatrico|fragil|vulneravel|suicida|health\s+mental)\b/i,
-  /\b(deprimido|depresion|depresivo|ansiedad|ansioso|traumatizado|psicologico|psiquiatrico|fragil|vulnerable|suicida|salud\s+mental)\b/i,
   /\b(depression|anxiete|anxieux|traumatise|psychologique|psychiatrique|fragile|vulnerable|suicidaire|sante\s+mentale)\b/i,
   /\b(depressiv|depression|angst|traumatisiert|psychologisch|psychiatrisch|suizid|psychische\s+gesundheit)\b/i,
   /\b(depresso|depressione|ansia|ansioso|traumatizzato|psicologico|psichiatrico|suicida|salute\s+mentale)\b/i,
 ];
 
-const SECURITY_POLICY_PATTERNS: RegExp[] = [
-  /\b(disable|bypass|skip|ignore)\s+(approval|policy|sandbox|security)\b/i,
-  /\b(always\s+allow|allowlist|denylist|secretref|permission\s+policy)\b/i,
-  /\b(desativar|desative|desabilitar|burlar|ignorar|pular|permitir\s+sempre|sempre\s+permitir)\b.*\b(aprovacao|politica|seguranca|sandbox|shell|comando|permissao)\b/i,
-  /\b(desactivar|desactiva|deshabilitar|omitir|saltar|ignorar|permitir\s+siempre|siempre\s+permitir)\b.*\b(aprobacion|politica|seguridad|sandbox|shell|comando|permiso)\b/i,
-  /\b(desactiver|ignorer|contourner|autoriser\s+toujours)\b.*\b(approbation|politique|securite|sandbox|shell|commande|permission)\b/i,
-  /\b(deaktivieren|umgehen|ignorieren|immer\s+erlauben)\b.*\b(genehmigung|richtlinie|sicherheit|sandbox|shell|befehl|berechtigung)\b/i,
-];
+const SECURITY_POLICY_PATTERNS: RegExp[] = [];
 
 const SKILL_SIGNAL_PATTERNS: RegExp[] = [
-  /\b(after successful runs|repeat(?:ed|able)? workflow|workflow|github|pull request|\bpr\b|changed files|test gaps|summari[sz]e)\b/i,
+  /\b(after successful runs|repeat(?:ed|able)... workflow|workflow|github|pull request|\bpr\b|changed files|test gaps|summari[sz]e)\b/i,
   /\b(create a skill|turn this into a skill|procedure|playbook|checklist)\b/i,
 ];
 
@@ -524,7 +515,7 @@ export class ZavorthAdaptiveLearningOsService {
     }
     const uses = new Set<ZavorthUserModelUse>(['memory_recall']);
     const normalized = this.normalizeForPolicy(observation);
-    if (/\b(direct|direto|direta|concise|conciso|portuguese|portugues|respostas?|answers?|evidence|evidencia|tradeoffs?)\b/i.test(normalized)) {
+    if (/\b(direct|concise|evidence|tradeoffs...|answers?)\b/i.test(normalized)) {
       uses.add('response_style');
       uses.add('planning_depth');
     }
@@ -544,16 +535,15 @@ export class ZavorthAdaptiveLearningOsService {
       return this.redact(semanticClassification.claim, 260);
     }
     if (sensitivity === 'blocked') {
-      return this.containsSecret(observation)
-        ? 'Blocked raw secret from adaptive learning.'
+      return this.containsSecret(observation) ? 'Blocked raw secret from adaptive learning.'
         : 'Blocked attempt to teach security-policy behavior.';
     }
     if (sensitivity === 'sensitive') {
       return 'Sensitive user-state inference detected; keep as review-only safety context, not a durable profile belief.';
     }
     const normalized = this.normalizeForPolicy(observation);
-    if (/\b(portuguese|portugues|evidence|evidencia|direct|direto|direta|concise|conciso|tradeoffs?)\b/i.test(normalized)) {
-      return 'The user prefers direct Portuguese answers with evidence and concise tradeoffs.';
+    if (/\b(evidence|direct|concise|tradeoffs?)\b/i.test(normalized)) {
+      return 'The user prefers direct answers with evidence and concise tradeoffs.';
     }
     if (this.looksLikeSkillOrProcedure(observation)) {
       return 'The user benefits from reusable workflow drafts when a successful task pattern repeats.';

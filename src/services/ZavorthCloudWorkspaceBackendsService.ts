@@ -100,8 +100,7 @@ export class ZavorthCloudWorkspaceBackendsService {
       contractVersion: ZAVORTH_CLOUD_WORKSPACE_BACKENDS_CONTRACT_VERSION,
       generatedAt: this.now().toISOString(),
       source: 'ZavorthCloudWorkspaceBackendsService',
-      status: summary.ready === backends.length
-        ? 'ready'
+      status: summary.ready === backends.length ? 'ready'
         : summary.ready > 0 || summary.liveDisabled > 0
           ? 'partial'
           : 'missing-config',

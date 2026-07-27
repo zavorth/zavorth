@@ -25,8 +25,7 @@ export class ZavorthLedgerDecisionUpdaterService {
         canUpdate: receiptBacked && item.status !== 'fail',
         receiptBacked,
         receiptIds: item.receiptIds.slice(),
-        reason: receiptBacked
-          ? `Decision ${item.decision} is backed by ${item.receiptIds.length} receipt(s).`
+        reason: receiptBacked ? `Decision ${item.decision} is backed by ${item.receiptIds.length} receipt(s).`
           : 'Decision cannot be updated because no receipt exists.',
       };
     });

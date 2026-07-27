@@ -217,7 +217,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
     try {
       const { execFileSync } = await import('child_process');
       try {
-        const result = execFileSync('curl', ['-s', '-o', '/dev/null', '-w', '%{speed_download}', '--max-time', '10', 'https://speed.cloudflare.com/__down?bytes=10000000'], { timeout: 15000 }).toString();
+        const result = execFileSync('curl', ['-s', '-o', '/dev/null', '-w', '%{speed_download}', '--max-time', '10', 'https://speed.cloudflare.com/__down...bytes=10000000'], { timeout: 15000 }).toString();
         const speedMbps = (parseFloat(result.trim()) * 8 / 1000000).toFixed(2);
         return `Download speed: ${speedMbps} Mbps (Cloudflare test)`;
       } catch (error: unknown) {logger.warn('[Zavorth Network Diagnostics] network request failed', error);

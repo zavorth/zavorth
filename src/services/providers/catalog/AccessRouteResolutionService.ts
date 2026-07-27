@@ -181,7 +181,9 @@ function isBaseUrlRef(ref: string): boolean {
   return normalized.includes('base_url')
     || normalized.endsWith('_url')
     || normalized.includes('endpoint')
-    || normalized.includes('host');
+    || normalized === 'host'
+    || normalized.endsWith('_host')
+    || normalized.endsWith('host');
 }
 
 function readinessFromCode(code: AccessRouteReadinessCode): ModelPickerReadiness {
@@ -476,17 +478,17 @@ export class AccessRouteResolutionService {
   }): string | null {
     switch (input.readinessCode) {
       case 'missing_base_url':
-        return `Falta configurar base URL: ${input.baseUrlRefs[0] || `${input.route.routeId}_BASE_URL`}.`;
+        return `missing setup base URL: ${input.baseUrlRefs[0] || `${input.route.routeId}_BASE_URL`}.`;
       case 'missing_auth':
         return input.secretRefs.length > 0
-          ? `Falta configurar credencial: ${input.secretRefs.join(' ou ')}.`
-          : `Rota ${input.route.label} exige credencial ${input.route.authKind}, mas nao declara credentialRef.`;
+          ? `missing setup credential: ${input.secretRefs.join(' or ')}.`
+          : `Route ${input.route.label} requires credential ${input.route.authKind}, but does not declare credentialRef.`;
       case 'needs_probe':
-        return input.health?.message || `Rota ${input.route.label} precisa de probe antes de ser marcada como pronta.`;
+        return input.health?.message || `Route ${input.route.label} needs a probe before being marked ready.`;
       case 'unhealthy':
-        return input.health?.message || `Health check falhou para ${input.route.label}.`;
+        return input.health?.message || `Health check failed para ${input.route.label}.`;
       case 'unsupported':
-        return `Rota ${input.route.label} ainda nao e suportada pelo runtime atual.`;
+        return `Route ${input.route.label} is not supported by the current runtime yet.`;
       case 'ready':
       default:
         return null;
@@ -505,18 +507,17 @@ export class AccessRouteResolutionService {
     health: RouteHealthSnapshot | null;
   }): string[] {
     const authText = input.authRequired
-      ? (input.authConfigured ? 'credencial configurada' : 'credencial ausente')
-      : 'sem credencial externa';
+      ? (input.authConfigured ? 'credential configurada' : 'credential missing')
+      : 'without credential external';
     const baseText = input.baseUrlRequired
-      ? (input.baseUrlConfigured ? 'base URL configurada' : 'base URL ausente')
+      ? (input.baseUrlConfigured ? 'base URL configurada' : 'base URL missing')
       : 'base URL gerenciada pelo provider';
-    const healthText = input.health
-      ? `health ${input.health.status}`
-      : 'health nao informado';
+    const healthText = input.health ? `health ${input.health.status}`
+      : 'health not provided';
     return [
       `${input.route.label} usa rota ${input.routeClass}.`,
       `${authText}; ${baseText}; ${healthText}.`,
-      input.issue || `Rota pronta para selecao (${input.readinessCode}).`,
+      input.issue || `Route ready for selection (${input.readinessCode}).`,
     ];
   }
 
@@ -537,10 +538,10 @@ export class AccessRouteResolutionService {
         readyRouteIds,
         blockedRouteIds,
         explanation: readyRouteIds.length > 0
-          ? [`${family?.label || familyId} tem rota pronta: ${readyRouteIds.join(', ')}.`]
+          ? [`${family?.label || familyId} tem rota ready: ${readyRouteIds.join(', ')}.`]
           : blockedRouteIds.map((routeId) => {
             const route = familyRoutes.find((entry) => entry.id === routeId);
-            return `${route?.label || routeId}: ${route?.issue || route?.readinessCode || 'indisponivel'}.`;
+            return `${route?.label || routeId}: ${route?.issue || route?.readinessCode || 'unavailable'}.`;
           }),
       };
     });
@@ -730,7 +731,7 @@ export class AccessRouteResolutionService {
   ): string[] {
     return unique([
       ...(route.limitations || []),
-      ...(readinessCode === 'needs_probe' ? ['Exige probe de runtime antes de selecao automatica.'] : []),
+      ...(readinessCode === 'needs_probe' ? ['Requires runtime probe before automatic selection.'] : []),
       ...(issue && readinessCode !== 'ready' ? [issue] : []),
     ]);
   }

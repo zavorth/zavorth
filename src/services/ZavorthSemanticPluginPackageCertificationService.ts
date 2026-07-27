@@ -103,7 +103,7 @@ export class ZavorthSemanticPluginPackageCertificationService {
         inspectJson: 'npm run semantic-plugin-package-certification:json --silent',
         check: 'npm run semantic-plugin-package-certification:check --silent',
         qa: 'npm run qa:semantic-plugin-package-certification --silent',
-        nextStage: 'S2 - Agent Runtime Semantics',
+        nextAction: 'Agent runtime semantics',
       },
     };
   }
@@ -124,7 +124,7 @@ export class ZavorthSemanticPluginPackageCertificationService {
       ...snapshot.claims.map((claim) => (
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`
       )),
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }

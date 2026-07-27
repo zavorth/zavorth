@@ -10,8 +10,7 @@
  *   if (limiter.isBlocked('gateway', clientIp)) {
  *     return res.status(429).json({ error: 'Too many attempts' });
  *   }
- *   // ... validate credentials ...
- *   limiter.recordFailure('gateway', clientIp);
+ *   // ? validate credentials ?  *   limiter.recordFailure('gateway', clientIp);
  *   // or on success:
  *   limiter.recordSuccess('gateway', clientIp);
  */

@@ -61,8 +61,7 @@ export class SkillQuarantinePipelineService {
       receipt(
         'skill-quarantine',
         sandboxSnapshot.summary.untrustedExecutionReady ? 'ready' : 'partial',
-        sandboxSnapshot.summary.untrustedExecutionReady
-          ? 'A strong sandbox profile is available before promotion.'
+        sandboxSnapshot.summary.untrustedExecutionReady ? 'A strong sandbox profile is available before promotion.'
           : 'Sandbox preview exists; strong runtime is not installed, so promotion remains approval-gated.',
         generatedAt,
       ),
@@ -229,7 +228,7 @@ function skillIdToTitle(skillId: string): string {
 
 function sanitizeLine(value: unknown): string {
   return String(value || '')
-    .replace(/\b(api[_-]?key|token|secret|password)\s*[:=]\s*["']?[^"'\s,;]+/gi, '$1=[REDACTED_SECRET]')
+    .replace(/\b(api[_-]...key|token|secret|password)\s*[:=]\s*["']...[^"'\s,;]+/gi, '$1=[REDACTED_SECRET]')
     .replace(/[\r\n]+/g, ' ')
     .trim();
 }

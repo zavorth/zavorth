@@ -77,7 +77,7 @@ export class IntegrationActionExecutionSupport {
   ): Promise<IntegrationActionExecution> {
     const action = plan.actions.find((entry) => entry.id === actionId);
     if (!action) {
-      throw new Error(`Acao guiada desconhecida: ${actionId}`);
+      throw new Error(`Unknown guided action: ${actionId}`);
     }
 
     const integrationId = plan.integrationId;
@@ -125,8 +125,8 @@ export class IntegrationActionExecutionSupport {
       logFile: '',
       status: doctor.status === 'ok' ? 'completed' : 'partial',
       note: doctor.status === 'ok'
-        ? `Doctor atualizado e integracao considerada saudavel. ${probe.summary}.`
-        : `${doctor.nextAction.reason || 'Doctor atualizado com pendencias restantes.'} ${probe.summary}.`,
+        ? `Doctor updated and integration considered healthy. ${probe.summary}.`
+        : `${doctor.nextAction.reason || 'Doctor atualizado com pending items restantes.'} ${probe.summary}.`,
       doctor,
       probe,
       appliedEnvKeys: [],
@@ -143,7 +143,7 @@ export class IntegrationActionExecutionSupport {
   ): Promise<IntegrationActionExecution> {
     const manifest = resolveManifest(integrationId);
     if (!manifest) {
-      throw new Error(`Integracao desconhecida: ${integrationId}`);
+      throw new Error(`Unknown integration: ${integrationId}`);
     }
 
     const startedAt = this.now().toISOString();
@@ -168,10 +168,10 @@ export class IntegrationActionExecutionSupport {
         ? 'manual_only'
         : (doctor.status === 'ok' ? 'completed' : 'partial'),
       note: appliedEnvKeys.length === 0
-        ? 'Nao encontrei configuracao guardada que pudesse ser aplicada automaticamente ao runtime.'
+        ? 'I could not find saved configuration that could be applied automatically to the runtime.'
         : (doctor.status === 'ok'
-          ? `Binding revalidado com sucesso apos aplicar ${appliedEnvKeys.join(', ')}. ${probe?.summary || ''}`.trim()
-          : `Configuracao aplicada ao runtime (${appliedEnvKeys.join(', ')}), mas ainda restam pendencias. ${probe?.summary || ''}`.trim()),
+          ? `Binding revalidated successfully after applying ${appliedEnvKeys.join(', ')}. ${probe?.summary || ''}`.trim()
+          : `Configuration applied to runtime (${appliedEnvKeys.join(', ')}), but pending items remain. ${probe?.summary || ''}`.trim()),
       doctor,
       probe,
       appliedEnvKeys,
@@ -187,12 +187,12 @@ export class IntegrationActionExecutionSupport {
     context: IntegrationActionExecutionContext,
   ): IntegrationActionExecution {
     if (!action.executable || !action.command) {
-      throw new Error(`A acao "${action.label}" exige um passo manual.`);
+      throw new Error(`Action "${action.label}" requires a manual step.`);
     }
 
     const resolved = this.recipeService.resolveCommand(action.command, integrationId);
     if (!resolved) {
-      throw new Error(`A acao "${action.label}" nao esta liberada para execucao automatica.`);
+      throw new Error(`The action "${action.label}" is not enabled for automatic execution.`);
     }
 
     this.mkdirSyncImpl(this.actionLogDir, { recursive: true });
@@ -228,7 +228,7 @@ export class IntegrationActionExecutionSupport {
         pid: child.pid ?? null,
         logFile,
         status: 'started',
-        note: 'Acao iniciada em background.',
+        note: 'Action started em background.',
       };
       this.ledgerService.persistRecord(record);
       this.monitorSupport.trackBackgroundAction(record, child, context);
@@ -237,7 +237,7 @@ export class IntegrationActionExecutionSupport {
       const err = asErrorLike(error);
       this.writeFileSyncImpl(
         logFd,
-        `[${this.now().toISOString()}] Falha ao iniciar acao: ${errorMessage(error)}${lineBreak}`,
+        `[${this.now().toISOString()}] Failure ao iniciar action: ${errorMessage(error)}${lineBreak}`,
         'utf8',
       );
       this.closeSyncImpl(logFd);

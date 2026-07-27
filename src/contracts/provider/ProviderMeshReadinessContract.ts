@@ -15,7 +15,7 @@ import type {
   ProviderIntegrationRouteManifest,
 } from '../../services/providers/catalog/ProviderIntegrationManifest.js';
 
-export const ZAVORTH_PROVIDER_MESH_READINESS_CONTRACT_VERSION = '2026-05-04.checkpoint-4';
+export const ZAVORTH_PROVIDER_MESH_READINESS_CONTRACT_VERSION = '2026-05-04.gate-4';
 
 export type ProviderMeshReadinessStatus =
   | 'first-class'

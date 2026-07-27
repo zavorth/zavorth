@@ -41,7 +41,7 @@ export class WebAppRuntimeDecisionRouteService {
       const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: (error instanceof Error ? err.message : String(error)) || (decision === 'approve' ? 'Failed to approve permission.' : 'Failed to reject permissao.') },
+        { ok: false, error: (error instanceof Error ? err.message : String(error)) || (decision === 'approve' ? 'Failed to approve permission.' : 'Failed to reject permission.') },
         409,
       );
     }
@@ -58,7 +58,7 @@ export class WebAppRuntimeDecisionRouteService {
       const body = await deps.readJsonBody(req);
       const taskId = String(body.taskId || '').trim();
       if (!taskId) {
-        deps.writeJson(res, { ok: false, error: 'taskId obrigatorio.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'taskId required.' }, 400);
         return true;
       }
       const task = deps.runtime.taskManager.getTask(taskId);
@@ -72,8 +72,7 @@ export class WebAppRuntimeDecisionRouteService {
       if (decision === 'approve') {
         const approvalCode = String(body.approvalCode || body.pin || '').trim();
         const taskIdForDecision = String(task.task_id || task.id || taskId).trim();
-        const approvalArgs = approvalCode
-          ? `${taskIdForDecision} pin=${approvalCode}`
+        const approvalArgs = approvalCode ? `${taskIdForDecision} pin=${approvalCode}`
           : taskIdForDecision;
         await deps.runtime.permissionController.handleApproval(
           webCtx,
@@ -125,7 +124,7 @@ export class WebAppRuntimeDecisionRouteService {
         || '',
       ).trim();
       if (!approvalRef) {
-        deps.writeJson(res, { ok: false, error: 'approvalId ou runId obrigatorio.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'approvalId ou runId required.' }, 400);
         return true;
       }
 
@@ -181,7 +180,7 @@ export class WebAppRuntimeDecisionRouteService {
       const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: (error instanceof Error ? err.message : String(error)) || (decision === 'approve' ? 'Failed to aprovar run universal.' : 'Failed to rejeitar run universal.') },
+        { ok: false, error: (error instanceof Error ? err.message : String(error)) || (decision === 'approve' ? 'Failed to approve run universal.' : 'Failed to reject run universal.') },
         409,
       );
     }
@@ -206,11 +205,11 @@ export class WebAppRuntimeDecisionRouteService {
       const body = await deps.readJsonBody(req);
       const planId = String(body.planId || '').trim();
       if (!planId) {
-        deps.writeJson(res, { ok: false, error: 'planId obrigatorio.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'planId required.' }, 400);
         return true;
       }
       if (body.confirmOwnerControlledApply !== true) {
-        deps.writeJson(res, { ok: false, error: 'confirmOwnerControlledApply=true obrigatorio para aplicar rascunho.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'confirmOwnerControlledApply=true required para aplicar rascunho.' }, 400);
         return true;
       }
 
@@ -300,7 +299,7 @@ export class WebAppRuntimeDecisionRouteService {
 
       const body = await deps.readJsonBody(req);
       if (body.confirmOwnerControlledDemote !== true) {
-        deps.writeJson(res, { ok: false, error: 'confirmOwnerControlledDemote=true obrigatorio para demote controlado.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'confirmOwnerControlledDemote=true required para demote controlado.' }, 400);
         return true;
       }
 

@@ -241,7 +241,7 @@ export class BridgeProtocolAdapter {
   }
 
   /** Parse any inbox file (V1 or V2) into a normalized V2 envelope */
-  public parseUniversal(content: string): 
+  public parseUniversal(content: string):
     | { accepted: true; envelope: BridgeRequestEnvelope; originalVersion: 'V1' | 'V2' }
     | { accepted: false; reason: string } {
     const version = this.detectVersion(content);

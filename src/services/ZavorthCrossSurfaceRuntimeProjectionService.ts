@@ -88,7 +88,7 @@ export class ZavorthCrossSurfaceRuntimeProjectionService {
         report: 'npx tsx scripts/zavorth-cross-surface-runtime-projection.ts --text "<request>"',
         json: 'npx tsx scripts/zavorth-cross-surface-runtime-projection.ts --json --text "<request>"',
         check: 'node scripts/zavorth-cross-surface-runtime-projection-check.mjs',
-        nextStage: 'Runtime gateway - Operational Rollout And Continuous Eval Assimilation',
+        nextAction: 'Runtime gateway - Operational Rollout And Continuous Eval Assimilation',
       },
       narrative: buildNarrative(toolOrchestration.status, surfaceCards, zavorthControlProjection),
     };
@@ -111,7 +111,7 @@ export class ZavorthCrossSurfaceRuntimeProjectionService {
       'Fallbacks:',
       ...snapshot.surfaceCards.filter((card) => TEXT_FALLBACK_SURFACES.has(card.surface)).map((card) => `- ${card.surface}: ${card.fallbackText}`),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -151,7 +151,7 @@ function buildSurfaceCard(
   ];
 
   return {
-    id: `checkpoint-5-card-${surface}`,
+    id: `gate-5-card-${surface}`,
     surface,
     title: titleForSurface(surface),
     status: runtime.status,
@@ -217,7 +217,7 @@ function action(
   reason: string,
 ): ZavorthCrossSurfaceActionProjection {
   return {
-    id: `checkpoint-5-action-${surface}-${kind}`,
+    id: `gate-5-action-${surface}-${kind}`,
     surface,
     kind,
     label,
@@ -281,7 +281,7 @@ function buildApiProjection(runtime: ZavorthToolOrchestrationVerificationSnapsho
 
 function buildZavorthControlProjection(runtime: ZavorthToolOrchestrationVerificationSnapshot): ZavorthControlRuntimeProjection {
   return {
-    projectionId: 'checkpoint-5-zavorthControl-runtime-projection',
+    projectionId: 'gate-5-zavorthControl-runtime-projection',
     title: 'Runtime projection',
     statusPill: runtime.status,
     visualMutationApplied: false,
@@ -299,32 +299,31 @@ function buildReceipts(
 ): ZavorthCrossSurfaceProjectionReceipt[] {
   const receipts: ZavorthCrossSurfaceProjectionReceipt[] = [
     {
-      id: 'checkpoint-5-projection-receipt',
-      kind: 'checkpoint-5-cross-surface-projection',
+      id: 'gate-5-projection-receipt',
+      kind: 'gate-5-cross-surface-projection',
       surface: 'all',
       status: receiptStatus(status),
       summary: `${cards.length} surfaces received the same decision without executing a live action.`,
     },
     {
-      id: 'checkpoint-5-api-projection-receipt',
+      id: 'gate-5-api-projection-receipt',
       kind: 'api-projection',
       surface: 'api',
       status: receiptStatus(status),
       summary: `${apiProjection.endpoints.length} endpoints projetados como contrato JSON.`,
     },
     {
-      id: 'checkpoint-5-zavorthControl-boundary-receipt',
+      id: 'gate-5-zavorthControl-boundary-receipt',
       kind: 'visual-change-boundary',
       surface: 'command_center',
       status: 'recorded',
-      summary: zavorthControl.visualMutationApplied
-        ? 'Visual mutation applied.'
+      summary: zavorthControl.visualMutationApplied ? 'Visual mutation applied.'
         : 'ZavorthControl received only a view model; visual change requires separate approval.',
     },
   ];
   for (const card of cards) {
     receipts.push({
-      id: `checkpoint-5-card-receipt-${card.surface}`,
+      id: `gate-5-card-receipt-${card.surface}`,
       kind: TEXT_FALLBACK_SURFACES.has(card.surface) ? 'channel-fallback' : 'surface-card',
       surface: card.surface,
       status: receiptStatus(card.status),
@@ -367,7 +366,7 @@ function summaryForSurface(
   runtime: ZavorthToolOrchestrationVerificationSnapshot,
 ): string {
   if (surface === 'cli') return `Operational table ready with ${runtime.summary.routes} routes and ${runtime.summary.verificationItems} verifications.`;
-  if (surface === 'api') return `Payload JSON pronto para status ${runtime.status}.`;
+  if (surface === 'api') return `JSON payload ready for status ${runtime.status}.`;
   if (surface === 'command_center') return 'Safe view model for ZavorthControl, with no automatic visual change.';
   if (BUTTON_SURFACES.has(surface)) return `Menus and buttons projected for status ${runtime.status}.`;
   return `Fallback textual equivalente projetado para status ${runtime.status}.`;
@@ -450,7 +449,7 @@ function buildNarrative(
     return {
       headline: 'Route blocked by policy.',
       operatorSummary: 'All surfaces preserve the block and offer a safe alternative.',
-      nextAction: 'Explicar o bloqueio e sugerir uma rota permitida.',
+      nextAction: 'Explicar o block e sugerir uma rota permitida.',
     };
   }
   return {

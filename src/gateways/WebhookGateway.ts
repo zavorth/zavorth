@@ -83,7 +83,7 @@ function isOutboundPayload(value: unknown): value is OutboundPayload {
 }
 
 function isValidPlatformTransport(mode: string): mode is PlatformTransport {
-  return ['native', 'webhook', 'local', 'stub', 'bridge', 'virtual', 'planned'].includes(mode);
+  return ['native', 'webhook', 'local', 'local', 'bridge', 'virtual', 'planned'].includes(mode);
 }
 
 export abstract class WebhookGateway implements GatewayChannelAdapter {
@@ -545,7 +545,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
       id: this.id,
       label: this.name,
       readiness: configured ? 'ready' : enabled ? 'partial' : 'planned',
-      implementationState: configured ? 'full' : 'stub',
+      implementationState: configured ? 'full' : 'local',
       configured,
       transport: isValidPlatformTransport(this.mode) ? this.mode : 'planned',
       notes: configured
@@ -627,8 +627,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
       },
       secretsRedacted: true,
       doctorCommand: `/channels doctor ${this.id}`,
-      installHint: this.resolveConfigured()
-        ? `${this.name} is configured. Run smoke inbound/outbound when ready.`
+      installHint: this.resolveConfigured() ? `${this.name} is configured. Run smoke inbound/outbound when ready.`
         : `Configure credentials for ${this.name}, then re-run doctor.`,
       completeness: this.completenessReport(),
     };
@@ -703,10 +702,10 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     reason?: string;
   }> {
     const body = {
-      text: 'zavorth mock inbound',
-      userId: 'mock-user',
-      chatId: `${this.id}-mock`,
-      messageId: `mock-${Date.now()}`,
+      text: 'zavorth local inbound',
+      userId: 'local-user',
+      chatId: `${this.id}-local`,
+      messageId: `local-${Date.now()}`,
       ...payload,
     };
     try {
@@ -718,7 +717,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
         channelId: this.id,
         sessionKey: extracted
           ? this.continuitySessionKey(extracted.userId, extracted.messageId || null)
-          : this.continuitySessionKey('mock-user'),
+          : this.continuitySessionKey('local-user'),
         ...(accepted ? {} : { reason: 'payload not accepted or allowlist blocked' }),
       };
     } catch (error: unknown) {
@@ -734,12 +733,12 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
   }
 
   public async mockOutbound(
-    text = 'zavorth mock outbound',
+    text = 'zavorth local outbound',
     chatId?: string | null,
   ): Promise<ChannelGatewayDeliveryResult> {
-    const target = String(chatId || `${this.id}-mock`).trim();
+    const target = String(chatId || `${this.id}-local`).trim();
     return this.sendMessage({
-      text: this.redactSecrets(text) || 'zavorth mock outbound',
+      text: this.redactSecrets(text) || 'zavorth local outbound',
       chatId: target,
       recipients: [target],
     });
@@ -748,7 +747,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
   public redactSecrets(value: string | null | undefined): string | null {
     if (value == null) return null;
     return String(value)
-      .replace(/(token|secret|password|api[_-]?key|authorization|bearer)\s*[:=]\s*([^\s,;]+)/gi, '$1=***')
+      .replace(/(token|secret|password|api[_-]...key|authorization|bearer)\s*[:=]\s*([^\s,;]+)/gi, '$1=***')
       .replace(/\b[A-Za-z0-9_-]{24}\b/g, (match) => (match.length > 32 ? `${match.slice(0, 4)}…***` : match));
   }
 }

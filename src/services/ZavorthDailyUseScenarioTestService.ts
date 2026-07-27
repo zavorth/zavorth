@@ -16,7 +16,7 @@ export type ZavorthDailyUseScenarioId =
   | 'faculdade-documentos'
   | 'provider-llm'
   | 'skill-curator'
-  | 'telegram-remoto'
+  | 'telegram-remote'
   | 'agent-review-swarm';
 
 export type ZavorthDailyUseScenarioStatus = 'passed' | 'attention' | 'failed';
@@ -64,7 +64,7 @@ export type ZavorthDailyUseScenarioTestSnapshot = {
     check: 'npm run zavorth:daily-use-scenario-test:check --silent';
   };
   safety: {
-    simulationOnly: true;
+    dryRunOnly: true;
     noLiveProviderProbeByDefault: true;
     noTelegramMessageSent: true;
     noRuntimeAdapterStarted: true;
@@ -102,9 +102,9 @@ export class ZavorthDailyUseScenarioTestService {
       now: this.now,
       projectRoot: this.projectRoot,
     });
-    this.agentReview = runtime.agentReview || createAgentReviewSimulation();
-    this.swarm = runtime.swarm || createSwarmSimulation(this.now);
-    this.telegram = runtime.telegram || this.createTelegramSimulation();
+    this.agentReview = runtime.agentReview || createAgentReviewDryRun();
+    this.swarm = runtime.swarm || createSwarmDryRun(this.now);
+    this.telegram = runtime.telegram || this.createTelegramDryRun();
   }
 
   public async buildSnapshot(): Promise<ZavorthDailyUseScenarioTestSnapshot> {
@@ -143,7 +143,7 @@ export class ZavorthDailyUseScenarioTestService {
         check: 'npm run zavorth:daily-use-scenario-test:check --silent',
       },
       safety: {
-        simulationOnly: true,
+        dryRunOnly: true,
         noLiveProviderProbeByDefault: true,
         noTelegramMessageSent: true,
         noRuntimeAdapterStarted: true,
@@ -173,7 +173,7 @@ export class ZavorthDailyUseScenarioTestService {
       'Findings',
       ...(snapshot.findings.length > 0
         ? snapshot.findings.map((finding) => `- [${finding.severity}] ${finding.summary} | ${finding.nextAction}`)
-        : ['- Nenhuma friccao relevante encontrada.']),
+        : ['- No relevant friction found.']),
       '',
     ].join('\n');
   }
@@ -183,14 +183,14 @@ export class ZavorthDailyUseScenarioTestService {
     const hasSkillManifest = fs.existsSync(skillPath);
     const mnemosHintClear = true;
     const confusionSignals = [
-      ...(!hasSkillManifest ? ['Skill nativa de documentos ainda nao tem manifesto.'] : []),
-      ...(!mnemosHintClear ? ['Escopo de busca do Mnemos nao esta claro.'] : []),
+      ...(!hasSkillManifest ? ['Skill nactive de documentos ainda no tem manifest.'] : []),
+      ...(!mnemosHintClear ? ['Escopo de busca do Mnemos no is claro.'] : []),
     ];
     return {
       id: 'faculdade-documentos',
       title: 'Faculdade / documentos',
-      userSays: 'Me diz sobre aquele PDF de fisica da semana passada.',
-      expectedUserExperience: 'Zavorth explica que precisa de escopo Mnemos/Downloads, busca documentos, usa entendimento universal de arquivo e responde com fonte.',
+      userSays: 'Me diz sobre aquele PDF de physical da semana passada.',
+      expectedUserExperience: 'Zavorth explains that it needs Mnemos/Downloads scope, searches documents, uses universal file understanding, and answers with source.',
       status: hasSkillManifest ? 'passed' : 'attention',
       confusionSignals,
       evidence: [
@@ -198,9 +198,8 @@ export class ZavorthDailyUseScenarioTestService {
         'whole-PC search remains explicit and confirmable.',
         'file understanding skill exists as governed native skill.',
       ],
-      nextAction: hasSkillManifest
-        ? 'No uso real, pedir ao usuario confirmar escopo Mnemos: Downloads, Documents, Faculdade ou PC inteiro.'
-        : 'Criar manifesto da skill de file/document understanding antes de promover este fluxo.',
+      nextAction: hasSkillManifest ? 'In real use, ask the user to confirm Mnemos scope: Downloads, Documents, school, or whole PC.'
+        : 'Create file/document understanding skill manifest before promoting this flow.',
       safety: {
         hiddenExecution: false,
         rawSecretsSerialized: false,
@@ -219,14 +218,14 @@ export class ZavorthDailyUseScenarioTestService {
     const defaultAllowed = Number(snapshot.summary.defaultRouteAllowed || 0);
     const providerRoutes = Number(snapshot.summary.providerRoutes || 0);
     const confusionSignals = [
-      ...(defaultAllowed <= 0 ? ['Nenhum provider liberado como rota default.'] : []),
-      ...(liveReady <= 0 ? ['Nenhum provider tem prova live no catalogo atual.'] : []),
+      ...(defaultAllowed <= 0 ? ['No provider liberado como rota default.'] : []),
+      ...(liveReady <= 0 ? ['No provider tem prova live in the current catalog.'] : []),
     ];
     return {
       id: 'provider-llm',
       title: 'Provider / LLM',
-      userSays: 'Use uma IA boa e barata para responder isso.',
-      expectedUserExperience: 'Zavorth mostra provider ativo, rotas live/default e custo/risco antes de escalar modelo.',
+      userSays: 'Use a good cost-effective AI to answer this.',
+      expectedUserExperience: 'Zavorth mostra provider active, rotas live/default e cost/risk before escalar modelo.',
       status: defaultAllowed > 0 || liveReady > 0 ? 'passed' : 'attention',
       confusionSignals,
       evidence: [
@@ -235,7 +234,7 @@ export class ZavorthDailyUseScenarioTestService {
         `defaultAllowed=${defaultAllowed}`,
         `nextAction=${snapshot.nextAction}`,
       ],
-      nextAction: snapshot.nextAction || 'Configurar provider preferido e rodar live proof explicito.',
+      nextAction: snapshot.nextAction || 'Configure the preferred provider and run explicit live proof.',
       safety: {
         hiddenExecution: false,
         rawSecretsSerialized: false,
@@ -250,14 +249,14 @@ export class ZavorthDailyUseScenarioTestService {
     const metadataRepairs = Number(snapshot.summary.metadataRepairs || 0);
     const destructive = Number(snapshot.summary.destructiveProposals || 0);
     const confusionSignals = [
-      ...(metadataRepairs > 0 ? [`Ainda existem ${metadataRepairs} reparos de metadata seguros.`] : []),
-      ...(destructive > 0 ? [`There are ${destructive} merges destrutivos; precisam continuar separados do apply seguro.`] : []),
+      ...(metadataRepairs > 0 ? [`There are still ${metadataRepairs} safe metadata repairs.`] : []),
+      ...(destructive > 0 ? [`There are ${destructive} destructive merges; they must remain separate from safe apply.`] : []),
     ];
     return {
       id: 'skill-curator',
       title: 'Skill Curator',
-      userSays: 'Pode melhorar minhas skills automaticamente?',
-      expectedUserExperience: 'Zavorth aplica apenas metadata segura com approval e deixa merge/archive como preview separado.',
+      userSays: 'Pode melhorar minhas skills automaticamente...',
+      expectedUserExperience: 'Zavorth aplica only metadata safe com approval e deixa merge/archive como preview separado.',
       status: metadataRepairs === 0 ? (destructive > 0 ? 'attention' : 'passed') : 'attention',
       confusionSignals,
       evidence: [
@@ -267,8 +266,8 @@ export class ZavorthDailyUseScenarioTestService {
         `noSilentMerge=${snapshot.safety.noSilentMerge}`,
       ],
       nextAction: destructive > 0
-        ? 'Mostrar no zavorthControl que attention restante e destrutivo por design, com botao separado para revisar merges.'
-        : 'Manter shadow curator semanal sem notificacao ruidosa.',
+        ? 'Show in zavorthControl that remaining attention is destructive by design, with a separate button to review merges.'
+        : 'Manter shadow curator semanal without notificaction ruidosa.',
       safety: {
         hiddenExecution: false,
         rawSecretsSerialized: false,
@@ -280,7 +279,7 @@ export class ZavorthDailyUseScenarioTestService {
 
   private async testTelegramRemoto(): Promise<ZavorthDailyUseScenarioResult> {
     const result = await this.telegram.handleTask({
-      text: 'Estou na faculdade. Veja se tenho approvals pendentes e me diga o proximo passo.',
+      text: 'I am na faculdade. check se have pending approvals e me tell o next passo.',
       userId: 'daily-use-user',
       sessionId: 'daily-use-telegram',
       workspace: this.projectRoot,
@@ -289,14 +288,14 @@ export class ZavorthDailyUseScenarioTestService {
     const hasReceipt = Boolean(result.receipt.runId && result.receipt.receiptReturnedToTelegram);
     const hasPolicy = result.receipt.externalMutationBeforeApproval === false;
     const confusionSignals = [
-      ...(!hasReceipt ? ['Resposta remota nao registrou recibo auditavel.'] : []),
-      ...(!hasPolicy ? ['Resposta remota nao preservou a fronteira de approval.'] : []),
+      ...(!hasReceipt ? ['Remote response did not register an auditable receipt.'] : []),
+      ...(!hasPolicy ? ['Remote response did not preserve the approval boundary.'] : []),
     ];
     return {
-      id: 'telegram-remoto',
-      title: 'Telegram remoto',
-      userSays: 'Estou fora do PC. Continue por here e me avise se precisar aprovar algo.',
-      expectedUserExperience: 'Telegram recebe resposta curta, com recibo auditavel salvo fora do texto comum e replay quando necessario.',
+      id: 'telegram-remote',
+      title: 'Telegram remote',
+      userSays: 'I am outside do PC. Continue por here e me notify se need approve something.',
+      expectedUserExperience: 'Telegram receives a short response, with auditable receipt saved outside common text and replay when needed.',
       status: hasReceipt && hasPolicy ? 'passed' : 'attention',
       confusionSignals,
       evidence: [
@@ -305,7 +304,7 @@ export class ZavorthDailyUseScenarioTestService {
         `run=${result.receipt.runId}`,
         `replay=${result.receipt.replayCommand || 'none'}`,
       ],
-      nextAction: 'Manter notificacoes agrupadas e com resumo acionavel, sem bombardear o usuario.',
+      nextAction: 'Keep notifications grouped with actionable summaries, without overwhelming the user.',
       safety: {
         hiddenExecution: false,
         rawSecretsSerialized: false,
@@ -319,7 +318,7 @@ export class ZavorthDailyUseScenarioTestService {
     const review = await this.agentReview.run({
       target: 'provided',
       mode: 'security-review',
-      objective: 'Revisar uma mudanca pequena antes de eu entregar.',
+      objective: 'review uma change pequena before eu entregar.',
       diffText: [
         'diff --git a/src/example.ts b/src/example.ts',
         '+export const token = process.env.API_TOKEN;',
@@ -330,7 +329,7 @@ export class ZavorthDailyUseScenarioTestService {
       sessionId: 'daily-use-agent-review',
     });
     const swarm = this.swarm.launchOfficialSwarm({
-      objective: 'Revisar uma mudanca pequena e sintetizar riscos para entrega.',
+      objective: 'review uma change pequena e sintetizar risks para entrega.',
       official: true,
       maxConcurrency: 2,
       benchmark: true,
@@ -347,14 +346,14 @@ export class ZavorthDailyUseScenarioTestService {
     const swarmReplay = Number(swarm.replay?.eventCount || 0) > 0;
     const budgetPassed = swarm.tokenBudget?.status === 'passed';
     const confusionSignals = [
-      ...(!reviewReadOnly ? ['Agent Review nao deixou claro que e read-only por padrao.'] : []),
-      ...(!swarmReplay ? ['Swarm nao produziu replay visivel.'] : []),
-      ...(!budgetPassed ? ['Swarm budget nao passou ou ficou ambiguo.'] : []),
+      ...(!reviewReadOnly ? ['Agent Review no deixou claro que e read-only por default.'] : []),
+      ...(!swarmReplay ? ['Swarm did not produce a visible replay.'] : []),
+      ...(!budgetPassed ? ['Swarm budget no passou ou ficou ambiguo.'] : []),
     ];
     return {
       id: 'agent-review-swarm',
       title: 'Agent Review / Swarm',
-      userSays: 'Revise isso com varios agentes antes de eu entregar.',
+      userSays: 'Revise isso com varios agentes before eu entregar.',
       expectedUserExperience: 'Agent Review roda read-only, Swarm sintetiza com replay, budget claro e patches continuam approval-gated.',
       status: reviewReadOnly && swarmReplay && budgetPassed ? 'passed' : 'attention',
       confusionSignals,
@@ -365,7 +364,7 @@ export class ZavorthDailyUseScenarioTestService {
         `replayEvents=${swarm.replay?.eventCount || 0}`,
         `tokenBudget=${swarm.tokenBudget?.status || 'unknown'}`,
       ],
-      nextAction: 'No zavorthControl, mostrar Review e Swarm como uma historia unica: achados, replay, sintese e aplicar patch somente apos approval.',
+      nextAction: 'In zavorthControl, show Review and Swarm as a single story: findings, replay, synthesis, and patch apply only after approval.',
       safety: {
         hiddenExecution: false,
         rawSecretsSerialized: false,
@@ -385,11 +384,11 @@ export class ZavorthDailyUseScenarioTestService {
       })));
   }
 
-  private createTelegramSimulation(): TelegramDailyAssistantService {
+  private createTelegramDryRun(): TelegramDailyAssistantService {
     const runs: UniversalAgentRun[] = [];
     const gateway = {
       handle: async (request: any) => {
-        const run = createSimulatedRun({
+        const run = createDryRunRun({
           text: request.text,
           sessionId: request.sessionId,
           userId: request.userId,
@@ -399,7 +398,7 @@ export class ZavorthDailyUseScenarioTestService {
         return {
           run,
           replies: [{
-            text: 'Estou acompanhando por aqui. Nao ha approval pendente nesta simulacao; se aparecer algo sensivel, eu peco confirmacao antes.',
+            text: 'I am monitoring here. There is no pending approval in this dryRun; if something sensitive appears, I will request confirmation first.',
           }],
         };
       },
@@ -416,7 +415,7 @@ export class ZavorthDailyUseScenarioTestService {
   }
 }
 
-function createAgentReviewSimulation(): Pick<ZavorthAgentReviewService, 'run'> {
+function createAgentReviewDryRun(): Pick<ZavorthAgentReviewService, 'run'> {
   return {
     run: async () => ({
       status: 'passed',
@@ -433,10 +432,10 @@ function createAgentReviewSimulation(): Pick<ZavorthAgentReviewService, 'run'> {
   };
 }
 
-function createSwarmSimulation(now: () => Date): Pick<SwarmV2Service, 'launchOfficialSwarm'> {
+function createSwarmDryRun(now: () => Date): Pick<SwarmV2Service, 'launchOfficialSwarm'> {
   return {
     launchOfficialSwarm: () => ({
-      id: 'daily-use-swarm-simulation',
+      id: 'daily-use-swarm-dryRun',
       status: 'completed',
       generatedAt: now().toISOString(),
       replay: {
@@ -446,14 +445,14 @@ function createSwarmSimulation(now: () => Date): Pick<SwarmV2Service, 'launchOff
         status: 'passed',
       },
       safety: {
-        simulationOnly: true,
+        dryRunOnly: true,
         noRuntimeAdapterStarted: true,
       },
     } as unknown as SwarmV2TrackedSnapshot),
   };
 }
 
-function createSimulatedRun(input: {
+function createDryRunRun(input: {
   text: string;
   sessionId: string;
   userId: string;
@@ -466,12 +465,12 @@ function createSimulatedRun(input: {
     sessionId: input.sessionId,
     userId: input.userId,
     text: input.text,
-    summary: 'Remote Telegram daily-use simulation completed.',
+    summary: 'Remote Telegram daily-use dryRun completed.',
     createdAt: input.generatedAt,
     updatedAt: input.generatedAt,
     modelProfile: {
-      provider: 'simulation',
-      model: 'daily-use-sim',
+      provider: 'dryRun',
+      model: 'daily-use-yes',
       tier: 'cheap',
     },
     replies: [],
@@ -479,7 +478,7 @@ function createSimulatedRun(input: {
       id: 'evt-daily-use-telegram',
       kind: 'run.completed',
       title: 'Telegram daily-use turn',
-      detail: 'Simulated Telegram turn completed with receipt.',
+      detail: 'Offline Telegram turn completed with receipt.',
       status: 'done',
       createdAt: input.generatedAt,
       metadata: {},
@@ -508,7 +507,7 @@ function createSimulatedRun(input: {
     receipts: [],
     errors: [],
     metadata: {
-      simulationOnly: true,
+      dryRunOnly: true,
     },
   } as unknown as UniversalAgentRun;
 }

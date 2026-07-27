@@ -7,7 +7,8 @@ import type {
 NodeHostCapabilityRuntime,
   NodeHostMaintenanceDoctorReport,
   NodeHostMaintenanceRepairReport,
-} from './NodeHostCapabilityTypes.js';type NodeHostMaintenanceState = {
+} from './NodeHostCapabilityTypes.js';
+type NodeHostMaintenanceState = {
   pendingResults: Array<Record<string, unknown>>;
   invalidCount: number;
 };
@@ -59,16 +60,16 @@ export class NodeHostCapabilityMaintenanceService {
     if (state.invalidCount > 0) {
       issues.push({
         kind: 'invalid-state',
-        summary: `O estado local do node host contem ${state.invalidCount} resultado(s) pendente(s) invalido(s).`,
-        actionHint: 'Execute repair para higienizar o state file antes do proximo heartbeat.',
+        summary: `The local node host state contains ${state.invalidCount} pending invalid result(s).`,
+        actionHint: 'Run repair to clean the state file before the next heartbeat.',
       });
     }
 
     if (unsupportedCapabilities.length > 0) {
       issues.push({
         kind: 'unsupported-capability',
-        summary: `O node host nao implementa ${unsupportedCapabilities.join(', ')}.`,
-        actionHint: 'Ajuste o catalogo anunciado ou implemente a capability antes de invocar a malha.',
+        summary: `The node host does not implement ${unsupportedCapabilities.join(', ')}.`,
+        actionHint: 'Ajuste o catalog anunciado ou implemente a capability before invocar a malha.',
       });
     }
 
@@ -77,7 +78,7 @@ export class NodeHostCapabilityMaintenanceService {
       status: issues.length > 0 ? 'attention' : 'healthy',
       summary: issues.length > 0
         ? `Node host com ${issues.length} pendencia(s) local(is).`
-        : 'Node host sem pendencias locais relevantes.',
+        : 'Node host without pending items locais relevantes.',
       host: buildNodeHostIdentitySnapshot({
         platform: this.platform,
         workspaceRoot: this.workspaceRoot,

@@ -59,8 +59,7 @@ export class EvidenceIntentPlanner {
     // High-stakes structured domains default to verified (domain policy, not free-text).
     const mode: EvidenceSearchMode = hasStructuredMode
       ? (requestedMode as EvidenceSearchMode)
-      : hasStructuredDomain && HIGH_STAKES_DOMAINS.has(domain)
-        ? 'verified'
+      : hasStructuredDomain && HIGH_STAKES_DOMAINS.has(domain) ? 'verified'
         : 'hybrid';
 
     const risk: EvidenceRiskLevel = hasStructuredRisk ? (riskInput as EvidenceRiskLevel) : this.riskFromDomain(domain);
@@ -85,8 +84,7 @@ export class EvidenceIntentPlanner {
         domain,
         risk,
         confidence: 0.85,
-        reason: HIGH_STAKES_DOMAINS.has(domain)
-          ? `structured ${domain} domain uses verified-first evidence routing`
+        reason: HIGH_STAKES_DOMAINS.has(domain) ? `structured ${domain} domain uses verified-first evidence routing`
           : `structured ${domain} domain with neutral hybrid evidence routing`,
         signalHints,
       });
@@ -108,27 +106,8 @@ export class EvidenceIntentPlanner {
    * Must not drive mode/domain/risk product activation.
    */
   private annotateSignalHints(query: string): string[] {
-    const normalized = String(query || '')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-    if (!normalized) {
-      return [];
-    }
-
-    const hints: string[] = [];
-    if (/\b(reddit|forum|community|stackoverflow|github\s+issues?)\b/.test(normalized)) {
-      hints.push('community-mention');
-    }
-    if (/\b(bug|erro|error|crash|workaround|fix)\b/.test(normalized)) {
-      hints.push('troubleshooting-mention');
-    }
-    if (/\b(official|docs?|guideline|regulation|pubmed|fda|anvisa)\b/.test(normalized)) {
-      hints.push('formal-evidence-mention');
-    }
-    return hints;
+    void query;
+    return [];
   }
 
   private riskFromDomain(domain: EvidenceSearchDomain): EvidenceRiskLevel {

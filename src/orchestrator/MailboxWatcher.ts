@@ -269,8 +269,7 @@ export class MailboxWatcher {
     this.taskManager.saveTask(task);
 
     await this.broadcaster.broadcast(
-      result.success
-        ? `Autonomous execution completed through ${executorLabel}.\n${result.stdout || result.stderr || 'No visible output'}`
+      result.success ? `Autonomous execution completed through ${executorLabel}.\n${result.stdout || result.stderr || 'No visible output'}`
         : `Autonomous execution failed through ${executorLabel}.\n${result.error_message || result.stderr || 'Failure without details.'}`,
     );
   }
@@ -342,7 +341,7 @@ export class MailboxWatcher {
 
   private async writeMailboxStatus(status: 'CONSUMED' | 'REJECTED', detail: string): Promise<void> {
     const safeDetail = String(detail || '')
-      .replace(/\r?\n/g, ' ')
+      .replace(/\r...\n/g, ' ')
       .trim();
     await fs.promises.mkdir(path.dirname(this.statusFilePath), { recursive: true });
     await fs.promises.writeFile(this.statusFilePath, `[STATUS: ${status}]\n[DETAIL: ${safeDetail || 'none'}]`, 'utf8');

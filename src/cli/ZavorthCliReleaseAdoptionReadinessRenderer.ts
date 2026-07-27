@@ -77,7 +77,7 @@ export function formatReleaseAdoptionReadinessSnapshot(
     );
   }
 
-  lines.push('', 'Superficies');
+  lines.push('', 'surfaces');
   for (const surface of snapshot.surfaces) {
     lines.push(`- ${surface.status}: ${surface.label} (${surface.routeOrCommand}) - ${surface.detail}`);
   }
@@ -93,13 +93,13 @@ export function formatReleaseAdoptionReadinessSnapshot(
   lines.push('', 'Politica');
   lines.push('- deploy was not executed');
   lines.push('- canary was not started');
-  lines.push('- telemetry implicita continua desligada');
+  lines.push('- implicit telemetry remains disabled');
   lines.push('- external feedback was not sent');
   lines.push('- metrics are aggregated');
-  lines.push('- stable claim exige evidencia');
+  lines.push('- stable claim requires evidence');
   lines.push('- rollback preview is required');
 
-  lines.push('', 'Rotas e comandos');
+  lines.push('', 'Routes and commands');
   lines.push(`- Release: ${snapshot.surface.releaseRoute}`);
   lines.push(`- Feedback: ${snapshot.surface.feedbackRoute}`);
   lines.push(`- Docs: ${snapshot.surface.docsRoute}`);
@@ -107,7 +107,7 @@ export function formatReleaseAdoptionReadinessSnapshot(
   lines.push(`- Public adoption: ${snapshot.surface.publicAdoptionCommand}`);
   lines.push(`- Pilot loop: ${snapshot.surface.pilotLoopCommand}`);
   lines.push(`- Feedback preview: ${snapshot.surface.feedbackPreviewCommand}`);
-  lines.push(`- Phase gate: ${snapshot.surface.gateCommand}`);
+  lines.push(`- Release gate: ${snapshot.surface.gateCommand}`);
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
@@ -231,8 +231,8 @@ function buildReleaseTrainSnapshot() {
     checks: [],
     nextRecommendedAction: {
       id: 'cycle-closed',
-      title: 'Ciclo 53-59 fechado',
-      reason: 'operar v1.0.x ou planejar v1.1.0',
+      title: 'Ciclo 53-59 closed',
+      reason: 'operate v1.0.x or plan v1.1.0',
     },
   };
 }

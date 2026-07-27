@@ -8,17 +8,17 @@ export class ArchitectureDecisionRecorder {
     alternatives?: string[] | null;
     consequences?: string[] | null;
   }): AgentOsArchitectureDecisionDraft {
-    const title = truncateAgentOsText(input.title || 'Decisao arquitetural Zavorth', 120);
+    const title = truncateAgentOsText(input.title || 'Zavorth architecture decision', 120);
     return {
       source: 'ArchitectureDecisionRecorder',
       id: `adr-${safeAgentOsId(title, 'agent-os-decision')}`,
       title,
       status: 'draft',
-      decision: truncateAgentOsText(input.decision || 'Registrar decisao antes de aplicar impacto relevante.', 400),
+      decision: truncateAgentOsText(input.decision || 'Record decision before applying significant impact.', 400),
       alternativesConsidered: (input.alternatives || ['keep current flow', 'apply minimal change', 'use governed transaction'])
         .slice(0, 5)
         .map((entry) => truncateAgentOsText(entry, 180)),
-      consequences: (input.consequences || ['mais rastreabilidade', 'rollback mais claro', 'menor chance de regressao silenciosa'])
+      consequences: (input.consequences || ['more traceability', 'clearer rollback', 'lower chance of silent regression'])
         .slice(0, 5)
         .map((entry) => truncateAgentOsText(entry, 180)),
       filesWritten: false,

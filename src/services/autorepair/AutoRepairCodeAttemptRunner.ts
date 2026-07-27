@@ -34,7 +34,7 @@ export class AutoRepairCodeAttemptRunner {
 
     if (!plan.needsCodeChange || !plan.targetFile) {
       attempt.status = 'failed';
-      attempt.error = 'O planejador nao indicou um arquivo seguro para editar.';
+      attempt.error = 'The planner did not indicate a safe file to edit.';
       return attempt;
     }
 
@@ -47,7 +47,7 @@ export class AutoRepairCodeAttemptRunner {
 
     if (plan.confidence < config.autoRepairPlannerConfidenceThreshold) {
       attempt.status = 'failed';
-      attempt.error = `O plano ficou abaixo da confianca minima (${plan.confidence.toFixed(2)} < ${config.autoRepairPlannerConfidenceThreshold.toFixed(2)}).`;
+      attempt.error = `The plan fell below the minimum trust (${plan.confidence.toFixed(2)} < ${config.autoRepairPlannerConfidenceThreshold.toFixed(2)}).`;
       return attempt;
     }
 
@@ -58,7 +58,7 @@ export class AutoRepairCodeAttemptRunner {
         instruction: plan.instruction,
       });
     } catch (error: unknown) {attempt.status = 'failed';
-      attempt.error = `Falha ao gerar preview de autoreparo: ${normalizeAutoRepairError(error)}`;
+      attempt.error = `Failure ao gerar preview de self-repair: ${normalizeAutoRepairError(error)}`;
       return attempt;
     }
 
@@ -73,7 +73,7 @@ export class AutoRepairCodeAttemptRunner {
 
     if (preview.currentContent === preview.proposedContent) {
       attempt.status = 'failed';
-      attempt.error = 'O preview retornou o mesmo conteudo atual; nao houve correcao real para aplicar.';
+      attempt.error = 'The preview returned the same current content; there was no real correction to apply.';
       return attempt;
     }
 
@@ -83,7 +83,7 @@ export class AutoRepairCodeAttemptRunner {
     );
     if (!candidateValidation.passes) {
       attempt.status = 'failed';
-      attempt.error = `A proposta de autoreparo falhou na validacao sintatica inicial.\n${trimAutoRepairOutput(candidateValidation.output)}`;
+      attempt.error = `A proposta de self-repair failed na validation sintatica inicial.\n${trimAutoRepairOutput(candidateValidation.output)}`;
       return attempt;
     }
 
@@ -112,7 +112,7 @@ export class AutoRepairCodeAttemptRunner {
       attempt.rollbackStatus = rollback.status;
       attempt.rollbackReason = rollback.reason;
       attempt.status = rollback.status === 'failed' ? 'failed' : 'rolled_back';
-      attempt.error = `A validacao falhou em ${failedValidation.label}. ${failedValidation.output || ''}`.trim();
+      attempt.error = `A validation failed em ${failedValidation.label}. ${failedValidation.output || ''}`.trim();
       return attempt;
     }
 
@@ -132,12 +132,12 @@ export class AutoRepairCodeAttemptRunner {
         }
         return {
           status: 'deleted-new-file',
-          reason: 'Arquivo novo removido durante o rollback.',
+          reason: 'New file removed during rollback.',
         };
       } catch (error: unknown) {logger.warn('[Auto Repair Code Attempt Runner] file cleanup failed', error);
     return {
           status: 'failed',
-          reason: `Falha ao remover o arquivo novo durante o rollback: ${normalizeAutoRepairError(error)}`,
+          reason: `Failure removing the new file during rollback: ${normalizeAutoRepairError(error)}`,
         };
   }
     }

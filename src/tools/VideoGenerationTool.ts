@@ -114,7 +114,7 @@ export class VideoGenerationTool extends BaseTool {
         `  - Resolution: ${resolution}`,
         `  - FPS: ${fps}`,
         `  - Style: ${style}`,
-        outputUrl ? `  - URL: ${outputUrl}` : '  - URL: unavailable in backend response',
+        outputUrl ? `  ? URL: ${outputUrl}` : '  - URL: unavailable in backend response',
       ].join('\n');
     } catch (error: unknown) {
       const err = asErrorLike(error);

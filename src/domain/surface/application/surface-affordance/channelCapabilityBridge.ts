@@ -22,7 +22,7 @@ export function surfaceProfileToLegacySupport(
   return {
     buttons,
     menus,
-    pagination: true,
+    pagetion: true,
     tables: true,
     lists: true,
     safeMarkdown:

@@ -92,7 +92,7 @@ export type ZavorthCapabilityUsageSignalsSnapshot = {
     list: string;
     record: string;
     json: string;
-    nextStage: string;
+    nextAction: string;
   };
 };
 

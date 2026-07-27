@@ -9,14 +9,14 @@ export class SearchSearXNGTool extends BaseTool {
   public readonly name = 'zavorth_searxng';
 
   public readonly description =
-    'SearXNG — self-hosted private meta-search engine. Agrega results de multiplos mecanismos de busca sem rastreamento.';
+    'SearXNG — self-hosted private meta-search engine. Agrega results de multiplos mecanismos de busca without rastreamento.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'search', 'list_instances', 'configure'.",
+        description: "Action: 'search', 'list_instances', 'configure'.",
       },
       query: {
         type: 'string',
@@ -36,7 +36,7 @@ export class SearchSearXNGTool extends BaseTool {
       },
       language: {
         type: 'string',
-        description: "Idioma: 'pt-BR', 'en-US', etc. Default: 'auto'.",
+        description: "Language: 'pt-BR', 'en-US', etc. Default: 'auto'.",
       },
       max_results: {
         type: 'number',
@@ -93,7 +93,7 @@ export class SearchSearXNGTool extends BaseTool {
       if (engines) params.set('engines', engines);
       if (timeRange) params.set('time_range', timeRange);
 
-      const url = `${instanceUrl}/search?${params.toString()}`;
+      const url = `${instanceUrl}/search...${params.toString()}`;
 
       const result = execFileSync('curl', [
         '-s', '--max-time', '15',
@@ -115,12 +115,12 @@ export class SearchSearXNGTool extends BaseTool {
         lines.push(`[${(r.score || 0).toFixed(2)}] ${r.title}`);
         lines.push(`  ${r.url}`);
         if (r.content) lines.push(`  ${r.content.slice(0, 200)}`);
-        if (r.engine) lines.push(`  Fonte: ${r.engine}`);
+        if (r.engine) lines.push(`  source: ${r.engine}`);
         lines.push('');
       }
 
       if (parsed.number_of_results) {
-        lines.push(`Total disponivel: ${parsed.number_of_results}`);
+        lines.push(`Total available: ${parsed.number_of_results}`);
       }
 
       return lines.join('\n');
@@ -148,13 +148,13 @@ export class SearchSearXNGTool extends BaseTool {
     if (!instanceUrl) return 'Error: "instance_url" is required. for configure.';
 
     return [
-      `SearXNG configurado para: ${instanceUrl}`,
+      `SearXNG configured para: ${instanceUrl}`,
       '',
       'Para tornar permanente, adicione ao .env:',
       `  SEARXNG_URL=${instanceUrl}`,
       '',
       'Check if the instance responds:',
-      `  curl ${instanceUrl}/search?q=test&format=json`,
+      `  curl ${instanceUrl}/search...q=test&format=json`,
     ].join('\n');
   }
 }

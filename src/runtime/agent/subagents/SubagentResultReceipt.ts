@@ -51,8 +51,7 @@ export function createSubagentResultReceipt(
     status,
     summary:
       normalizeText(input.summary) ||
-      (budgetDecision.ok
-        ? 'Subagent result is represented as an auditable receipt.'
+      (budgetDecision.ok ? 'Subagent result is represented as an auditable receipt.'
         : `Subagent stopped before execution because budget exceeded ${budgetDecision.exceeded}.`),
     scope: input.scope,
     budget: input.budget,

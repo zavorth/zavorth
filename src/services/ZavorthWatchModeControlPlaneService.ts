@@ -162,11 +162,11 @@ export class ZavorthWatchModeControlPlaneService {
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
-      `Runs: ${snapshot.summary.totalRuns} total | status ativo ${snapshot.summary.activeStatus} | approvals ${snapshot.summary.pendingApprovals}.`,
+      `Runs: ${snapshot.summary.totalRuns} total | status active ${snapshot.summary.activeStatus} | approvals ${snapshot.summary.pendingApprovals}.`,
       `Buffers: artifacts ${snapshot.summary.artifactEntries} | throttled screenshots ${snapshot.summary.throttledScreenshots} | dropped timeline ${snapshot.summary.droppedTimelineEntries} | handles ${snapshot.summary.activeVisualHandles}.`,
-      `Custo operacional: ${snapshot.cost.level} (${snapshot.cost.score}/100) | ${snapshot.cost.summary}`,
+      `Custo operational: ${snapshot.cost.level} (${snapshot.cost.score}/100) | ${snapshot.cost.summary}`,
       `Policy: strict default ${snapshot.summary.strictApprovalDefault ? 'on' : 'off'} | apps ${snapshot.summary.allowedApps} | sites ${snapshot.summary.allowedSites} | redaction ${snapshot.summary.screenshotRedactionMode}/${snapshot.summary.sensitiveScreenPolicy}.`,
-      `Budget default: iteracoes ${snapshot.summary.maxIterations} | duraction ${snapshot.summary.maxDurationMs}ms | screenshots ${snapshot.summary.maxScreenshots} | TTL ${snapshot.summary.screenshotTtlMs}ms.`,
+      `Budget default: iterations ${snapshot.summary.maxIterations} | duraction ${snapshot.summary.maxDurationMs}ms | screenshots ${snapshot.summary.maxScreenshots} | TTL ${snapshot.summary.screenshotTtlMs}ms.`,
       '',
       'Cards operacionais:',
       ...snapshot.cards.map((entry) =>
@@ -246,14 +246,13 @@ export class ZavorthWatchModeControlPlaneService {
     return [
       {
         id: 'status',
-        label: 'Status supervisionado',
+        label: 'Status supervised',
         posture: summary.activeStatus === 'failed'
           ? 'critical'
           : (summary.activeStatus === 'running' || summary.activeStatus === 'paused' || summary.activeStatus === 'waiting_approval'
             ? 'attention'
             : 'healthy'),
-        summary: activeRun
-          ? `${this.text(activeRun.targetWindow, 'window')} | ${this.text(activeRun.objective, 'objective not provided')}.`
+        summary: activeRun ? `${this.text(activeRun.targetWindow, 'window')} | ${this.text(activeRun.objective, 'objective not provided')}.`
           : 'No visual run is active or recent enough for the short summary.',
         nextAction: activeRun?.nextOperatorStep || 'Start a visual run only when there is a clear objective.',
         command: 'npm run ops:watch-mode',
@@ -285,15 +284,14 @@ export class ZavorthWatchModeControlPlaneService {
       {
         id: 'replay',
         label: 'Replay visual',
-        posture: timelineCount > 0 || this.text(activeRun?.latestScreenshotPath)
-          ? 'healthy'
+        posture: timelineCount > 0 || this.text(activeRun?.latestScreenshotPath) ? 'healthy'
           : (summary.activeStatus === 'running' ? 'attention' : 'healthy'),
         summary: timelineCount > 0
           ? `${timelineCount} evento(s) recentes | artifacts ${Number(activeRun?.buffers?.artifactEntries || activeRun?.artifacts?.length || 0)} | throttled ${Number(activeRun?.buffers?.throttledScreenshots || 0)}.`
-          : 'Sem timeline visual suficiente no resumo atual.',
+          : 'without timeline visual suficiente no current summary.',
         nextAction: timelineCount > 0
-          ? 'Use o replay curto para auditar o que aconteceu antes de repetir a acao.'
-          : 'Assim que o run capturar tela, a auditoria visual aparece aqui.',
+          ? 'Use the short replay to audit what happened before repeating the action.'
+          : 'As soon as the run captures the screen, the visual audit appears here.',
         command: 'GET /api/web/watch-mode',
       },
     ];
@@ -345,9 +343,9 @@ export class ZavorthWatchModeControlPlaneService {
     if (actions.length === 0) {
       actions.push({
         id: 'review-status',
-        label: 'Revisar a postura do Watch Mode',
+        label: 'review a postura do Watch Mode',
         severity: 'info',
-        reason: 'O Watch Mode esta sem pendencias urgentes; mantenha a policy e a auditoria prontas para o proximo run.',
+        reason: 'Watch Mode has no urgent pending items; keep policy and audit ready for the next run.',
         command: 'npm run ops:watch-mode',
       });
     }
@@ -408,10 +406,10 @@ export class ZavorthWatchModeControlPlaneService {
         : 'low';
     const drivers: string[] = [];
     if (summary.pendingApprovals > 0) {
-      drivers.push(`${summary.pendingApprovals} approval(s) pendente(s)`);
+      drivers.push(`${summary.pendingApprovals} approval(s) pending(s)`);
     }
     if (summary.averageApprovalLatencyMs > 0) {
-      drivers.push(`latencia media ${summary.averageApprovalLatencyMs}ms`);
+      drivers.push(`average latency ${summary.averageApprovalLatencyMs}ms`);
     }
     if (summary.throttledScreenshots > 0) {
       drivers.push(`${summary.throttledScreenshots} screenshot(s) compactados`);
@@ -420,7 +418,7 @@ export class ZavorthWatchModeControlPlaneService {
       drivers.push(`${summary.droppedTimelineEntries} evento(s) descartado(s)`);
     }
     if (summary.activeVisualHandles > 0) {
-      drivers.push(`${summary.activeVisualHandles} handle(s) visual(is) ativo(s)`);
+      drivers.push(`${summary.activeVisualHandles} handle(s) visual(is) active(s)`);
     }
     if (drivers.length === 0) {
       drivers.push('buffers e approvals sob controle');

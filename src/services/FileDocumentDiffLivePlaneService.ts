@@ -101,7 +101,7 @@ export class FileDocumentDiffLivePlaneService {
         stagingLiveSmoke: 'npm run file-document-diff-live-plane -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/FileDocumentDiffLivePlaneService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Intent model0 - Diagnostics, QA And Migration Live Plane',
+        nextAction: 'Diagnostics, QA And Migration Live Plane',
       },
     };
   }
@@ -175,7 +175,7 @@ export class FileDocumentDiffLivePlaneService {
       gates.push(this.gate('lobster-workflow-decision', 'passed', 'lobster is closed as a governed document workflow route instead of a copied specialty runtime.', null));
     }
     gates.push(this.gate('configured-doctor', 'passed', descriptor.configSchema.requiredEnv.join(', ') || 'no credential required', `npm run file-document-diff-live-plane -- --profile configured --target ${descriptor.targetId}`));
-    gates.push(this.gate('mock-smoke', 'passed', 'deterministic file/document/diff tests run without external IO', 'npx jest tests/services/FileDocumentDiffLivePlaneService.test.ts --runInBand'));
+    gates.push(this.gate('dry-smoke', 'passed', 'deterministic file/document/diff tests run without external IO', 'npx jest tests/services/FileDocumentDiffLivePlaneService.test.ts --runInBand'));
     gates.push(this.gate('staging-live-smoke', 'passed', 'staging-live file/document/diff operations require explicit operator confirmation.', stagingLiveSmokeCommand));
     gates.push(this.gate('redacted-receipt', 'passed', 'receipts omit full document bodies, secrets and private absolute paths where possible.', null));
     return gates;

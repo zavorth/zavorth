@@ -12,7 +12,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 ): Promise<boolean> {
   if (pathname === '/api/web/skills' && req.method === 'GET') {
     if (!deps.skillCatalogApi) {
-      deps.writeJson(res, { ok: false, error: 'Skill catalog indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Skill catalog unavailable.' }, 503);
       return true;
     }
 
@@ -34,7 +34,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname === '/api/web/skills/library' && req.method === 'GET') {
     if (!deps.skillLibraryPresentation) {
-      deps.writeJson(res, { ok: false, error: 'Skill library indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Skill library unavailable.' }, 503);
       return true;
     }
 
@@ -56,7 +56,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname === '/api/web/skills/install-plan' && req.method === 'GET') {
     if (!deps.skillInstallPlanPresentation) {
-      deps.writeJson(res, { ok: false, error: 'Skill install plan indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Skill install plan unavailable.' }, 503);
       return true;
     }
 
@@ -99,7 +99,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname === '/api/web/skills/mcp' && req.method === 'GET') {
     if (!deps.skillMcpSidecar) {
-      deps.writeJson(res, { ok: false, error: 'Skill MCP sidecar indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Skill MCP sidecar unavailable.' }, 503);
       return true;
     }
 
@@ -115,7 +115,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname === '/api/web/skills/bridge' && req.method === 'GET') {
     if (!deps.skillBridgeActivation) {
-      deps.writeJson(res, { ok: false, error: 'Skill bridge activation indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Skill bridge activation unavailable.' }, 503);
       return true;
     }
 
@@ -144,7 +144,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname === '/api/web/mcp/runtime' && req.method === 'GET') {
     if (!deps.mcpCapabilityControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'MCP control plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'MCP control plane unavailable.' }, 503);
       return true;
     }
 
@@ -156,7 +156,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname === '/api/web/mcp/browser/doctor' && req.method === 'GET') {
     if (!deps.mcpBrowserDoctor) {
-      deps.writeJson(res, { ok: false, error: 'Doctor do browser MCP indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Doctor do browser MCP unavailable.' }, 503);
       return true;
     }
 
@@ -167,13 +167,13 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname.startsWith('/api/web/mcp/runtime/servers/') && req.method === 'GET') {
     if (!deps.mcpCapabilityControlPlane) {
-      deps.writeJson(res, { ok: false, error: 'MCP control plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'MCP control plane unavailable.' }, 503);
       return true;
     }
 
     const serverId = readDecodedPathSuffix(pathname, '/api/web/mcp/runtime/servers/');
     if (!serverId) {
-      deps.writeJson(res, { ok: false, error: 'Servidor MCP invalido.' }, 404);
+      deps.writeJson(res, { ok: false, error: 'Servidor MCP invalid.' }, 404);
       return true;
     }
 
@@ -182,7 +182,7 @@ export async function handleWebAppSurfaceSkillRoutes(
       ? snapshot.entries.find((item: { id?: string; [key: string]: unknown }) => String(item?.id || '').trim().toLowerCase() === serverId.toLowerCase())
       : null;
     if (!entry) {
-      deps.writeJson(res, { ok: false, error: `Servidor MCP nao encontrado: ${serverId}.` }, 404);
+      deps.writeJson(res, { ok: false, error: `MCP server not found: ${serverId}.` }, 404);
       return true;
     }
 
@@ -196,7 +196,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname === '/api/web/mcp/runtime/actions' && req.method === 'POST') {
     if (!deps.mcpRuntime) {
-      deps.writeJson(res, { ok: false, error: 'Runtime MCP indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Runtime MCP unavailable.' }, 503);
       return true;
     }
 
@@ -204,16 +204,16 @@ export async function handleWebAppSurfaceSkillRoutes(
     const actionId = String(body.actionId || '').trim().toLowerCase();
     const serverId = String(body.serverId || '').trim();
     if (!actionId) {
-      deps.writeJson(res, { ok: false, error: 'actionId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'actionId required.' }, 400);
       return true;
     }
     if (!serverId) {
-      deps.writeJson(res, { ok: false, error: 'serverId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'serverId required.' }, 400);
       return true;
     }
 
     if (actionId !== 'reload-server' && actionId !== 'stop-server') {
-      deps.writeJson(res, { ok: false, error: 'actionId invalido para MCP runtime.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'actionId invalid para MCP runtime.' }, 400);
       return true;
     }
 
@@ -223,7 +223,7 @@ export async function handleWebAppSurfaceSkillRoutes(
     } else {
       const stopped = await deps.mcpRuntime.stopServer(serverId);
       if (!stopped) {
-        deps.writeJson(res, { ok: false, error: `Servidor MCP nao encontrado no runtime: ${serverId}.` }, 404);
+        deps.writeJson(res, { ok: false, error: `MCP server not found in runtime: ${serverId}.` }, 404);
         return true;
       }
       result = { ok: true, stopped: true, serverId };
@@ -250,19 +250,19 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname.startsWith('/api/web/skills/') && req.method === 'GET') {
     if (!deps.skillCatalogApi) {
-      deps.writeJson(res, { ok: false, error: 'Skill catalog indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Skill catalog unavailable.' }, 503);
       return true;
     }
 
     const selectedId = readDecodedPathSuffix(pathname, '/api/web/skills/');
     if (!selectedId || isReservedSkillRouteSegment(selectedId)) {
-      deps.writeJson(res, { ok: false, error: 'Skill invalida.' }, 404);
+      deps.writeJson(res, { ok: false, error: 'Skill invalid.' }, 404);
       return true;
     }
 
     const snapshot = deps.skillCatalogApi.buildSnapshot({ selectedId });
     if (!snapshot.selected) {
-      deps.writeJson(res, { ok: false, error: `Skill nao encontrada: ${selectedId}.` }, 404);
+      deps.writeJson(res, { ok: false, error: `Skill not found: ${selectedId}.` }, 404);
       return true;
     }
 
@@ -279,7 +279,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname === '/api/web/operations/brief' && req.method === 'GET') {
     if (!deps.operatorBrief) {
-      deps.writeJson(res, { ok: false, error: 'Operator brief indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Operator brief unavailable.' }, 503);
       return true;
     }
 
@@ -289,7 +289,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname === '/api/web/codex-remote' && req.method === 'GET') {
     if (!deps.codexRemote) {
-      deps.writeJson(res, { ok: false, error: 'Codex Remote indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Codex Remote unavailable.' }, 503);
       return true;
     }
 
@@ -302,7 +302,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname === '/api/web/codex-remote/sessions' && req.method === 'GET') {
     if (!deps.codexRemote) {
-      deps.writeJson(res, { ok: false, error: 'Codex Remote indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Codex Remote unavailable.' }, 503);
       return true;
     }
 
@@ -315,7 +315,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname.startsWith('/api/web/codex-remote/sessions/') && req.method === 'GET') {
     if (!deps.codexRemote) {
-      deps.writeJson(res, { ok: false, error: 'Codex Remote indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Codex Remote unavailable.' }, 503);
       return true;
     }
 
@@ -325,7 +325,7 @@ export async function handleWebAppSurfaceSkillRoutes(
       selectedSessionId: sessionId || undefined,
     });
     if (!snapshot.sessionBroker.selected) {
-      deps.writeJson(res, { ok: false, error: `Sessao Codex Remote nao encontrada: ${sessionId}.` }, 404);
+      deps.writeJson(res, { ok: false, error: `Codex Remote session not found: ${sessionId}.` }, 404);
       return true;
     }
     deps.writeJson(res, { ok: true, session: snapshot.sessionBroker.selected, codexRemote: snapshot }, 200);
@@ -334,7 +334,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
   if (pathname === '/api/web/codex-remote/actions' && req.method === 'POST') {
     if (!deps.codexRemoteActions) {
-      deps.writeJson(res, { ok: false, error: 'Acoes do Codex Remote indisponiveis.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Actions do Codex Remote indisponiveis.' }, 503);
       return true;
     }
 

@@ -25,7 +25,7 @@ export function buildRunningSmokeReport(input: {
     status: 'running',
     ok: false,
     command: buildSmokeCommand(input.platform),
-    summary: 'Smoke do System Overlord em andamento.',
+    summary: 'Smoke do System Overlord running.',
     probeUrl: null,
     items: input.items,
     error: null,
@@ -48,7 +48,7 @@ export function buildUnexpectedFailureSmokeReport(input: {
     status: 'failed',
     ok: false,
     command: buildSmokeCommand(input.platform),
-    summary: 'Smoke do System Overlord falhou de forma inesperada.',
+    summary: 'Smoke do System Overlord failed de forma inesperada.',
     probeUrl: input.probeUrl,
     items: input.items,
     error: input.error instanceof Error ? input.error.message : String(input.error),
@@ -75,10 +75,10 @@ export function buildFinalSmokeReport(input: {
         : 'skipped';
   const summary =
     failed > 0
-      ? `Smoke do System Overlord encontrou ${failed} falha(s), com ${passed} item(ns) validado(s) e ${skipped} pulado(s).`
+      ? `System smoke found ${failed} failure(s), com ${passed} validated item(s) and ${skipped} skipped item(s).`
       : passed > 0
-        ? `Smoke do System Overlord validou ${passed} superficie(s) e pulou ${skipped} item(ns) opcionais nao configurados.`
-        : 'Smoke do System Overlord nao encontrou superfÃ­cies prontas para validar e terminou apenas com skips honestos.';
+        ? `System Overlord smoke validated ${passed} surface(s) and skipped ${skipped} optional item(s) not configured.`
+        : 'System Overlord smoke did not find any ready surfaces to validate and ended with only honest skips.';
 
   return {
     startedAt: input.startedAt,

@@ -81,7 +81,7 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
       .trim()
       .toLowerCase();
 
-    if (normalized === 'status' || normalized === 'summary' || normalized === 'changes' || normalized === 'resumo') {
+    if (normalized === 'status' || normalized === 'summary' || normalized === 'changes' || normalized === 'summary') {
       await this.handleChanges(ctx);
       return;
     }
@@ -93,9 +93,8 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
 
     const force = ['force', 'forcar', 'forcado', 'reload'].includes(normalized);
     const result = await this.deps.supervisedRuntimeService.requestReload({
-      reason: force
-        ? `Reload supervisionado forcado via ${ctx.platform}.`
-        : `Reload supervisionado solicitado via ${ctx.platform}.`,
+      reason: force ? `Reload supervised forcado via ${ctx.platform}.`
+        : `Supervised reload requested via ${ctx.platform}.`,
       requestedBy: String(ctx.userId || 'unknown').trim() || 'unknown',
       notifyChatId: ctx.platform === 'telegram' ? String(ctx.chatId || '').trim() || null : null,
       forceRestart: force,
@@ -103,7 +102,7 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
 
     await this.replyRuntimeSurface(ctx, {
       id: `shared-runtime-reload-${result.requestId || 'request'}`,
-      title: result.accepted ? 'Reload supervisionado aceito' : 'Reload supervisionado nao aplicado',
+      title: result.accepted ? 'Supervised reload accepted' : 'Supervised reload not applied',
       summary: result.summary,
       text: result.summary,
       status: result.accepted ? 'done' : 'blocked',
@@ -121,7 +120,7 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
       .trim()
       .toLowerCase();
 
-    if (normalized === 'status' || normalized === 'summary' || normalized === 'resumo' || normalized === 'last') {
+    if (normalized === 'status' || normalized === 'summary' || normalized === 'summary' || normalized === 'last') {
       const summary = this.deps.autoRepairService.summarizeLastRun();
       await this.replyRuntimeSurface(ctx, {
         id: 'shared-autorepair-status',
@@ -141,23 +140,19 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
       return;
     }
 
-    const dryRun = ['dryrun', 'dry-run', 'plan', 'plano', 'simular', 'simule'].includes(normalized);
-    const improve = ['improve', 'improvar', 'melhorar', 'melhore', 'otimizar', 'otimize'].includes(normalized);
-    const force = ['force', 'forcar', 'forcado', 'now', 'agora', 'repair', 'reparar'].includes(normalized) || improve;
+    const dryRun = ['dryrun', 'dry-run', 'plan'].includes(normalized);
+    const improve = ['improve', 'optimize'].includes(normalized);
+    const force = ['force', 'now', 'repair'].includes(normalized) || improve;
 
     await ctx.reply(
-      dryRun
-        ? 'Building a safe autorepair plan right now.'
-        : improve
-          ? 'Starting autorepair focused on safe, validated improvement.'
+      dryRun ? 'Building a safe autorepair plan right now.'
+        : improve ? 'Starting autorepair focused on safe, validated improvement.'
           : 'Starting full Zavorth autorepair right now.',
     );
 
     const result = await this.deps.autoRepairService.run({
-      reason: improve
-        ? `Safe Zavorth improvement requested via ${ctx.platform}.`
-        : dryRun
-          ? `Autorepair planning requested via ${ctx.platform}.`
+      reason: improve ? `Safe Zavorth improvement requested via ${ctx.platform}.`
+        : dryRun ? `Autorepair planning requested via ${ctx.platform}.`
           : `Autorepair requested via ${ctx.platform}.`,
       requestedBy: String(ctx.userId || 'unknown').trim() || 'unknown',
       notifyChatId: ctx.platform === 'telegram' ? String(ctx.chatId || '').trim() || null : null,
@@ -208,7 +203,7 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
 function firstSurfaceLine(value: string): string {
   return (
     String(value || '')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((line) => line.trim())
       .find(Boolean) || ''
   );

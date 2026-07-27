@@ -14,7 +14,7 @@ export type LiveReadinessCertificationPublicAuditDisallowedStatus = {
 };
 
 export const LIVE_READINESS_CERTIFICATION_PUBLIC_MARKERS = {
-  contractVersion: '2026-05-05.live-checkpoint-13',
+  contractVersion: '2026-05-05.live-gate-13',
   gate: 'live-consistency-certification',
   profiles: ['staging-live', 'production-live'],
   inventory: {

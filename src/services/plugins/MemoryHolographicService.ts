@@ -296,7 +296,7 @@ export class MemoryHolographicService {
       'security': ['auth', 'token', 'encrypt', 'vulnerability', 'security', 'permission', 'access'],
       'data': ['database', 'query', 'model', 'schema', 'migration', 'table', 'index'],
       'ui': ['interface', 'component', 'style', 'layout', 'design', 'responsive', 'css'],
-      'testing': ['test', 'spec', 'assert', 'mock', 'coverage', 'unit', 'integration'],
+      'testing': ['test', 'spec', 'assert', 'local', 'coverage', 'unit', 'integration'],
       'planning': ['plan', 'roadmap', 'milestone', 'goal', 'strategy', 'priority', 'backlog'],
     };
 
@@ -319,7 +319,7 @@ export class MemoryHolographicService {
     const lower = content.toLowerCase();
     const emotionKeywords: Record<string, string[]> = {
       'positive': ['great', 'awesome', 'excellent', 'happy', 'love', 'perfect', 'amazing', 'wonderful', 'fantastic'],
-      'negative': ['bad', 'terrible', 'awful', 'hate', 'horrible', 'worst', 'poor', 'disappointing'],
+      'denytive': ['bad', 'terrible', 'awful', 'hate', 'horrible', 'worst', 'poor', 'disappointing'],
       'frustrated': ['frustrated', 'annoying', 'stuck', 'struggling', 'difficult', 'hard', 'complex'],
       'curious': ['wonder', 'curious', 'interesting', 'explore', 'investigate', 'research', 'learn'],
       'confident': ['confident', 'sure', 'certain', 'definitely', 'absolutely', 'clearly'],

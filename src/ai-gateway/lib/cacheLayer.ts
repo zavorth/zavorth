@@ -1,5 +1,5 @@
 /**
- * LRU Cache Layer — FASE-08 LLM Proxy Advanced
+ * LRU Cache Layer — LLM Proxy Advanced
  *
  * In-memory LRU cache for LLM prompt/response pairs.
  * Uses content hashing for cache keys to handle semantic deduplication.

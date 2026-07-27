@@ -298,7 +298,7 @@ function formatWorkflowLabel(workflow: string | null): string | null {
     return null;
   }
   if (normalized === 'ship') return 'Workflow de entrega';
-  if (normalized === 'review') return 'Workflow de revisao';
+  if (normalized === 'review') return 'Workflow de review';
   if (normalized === 'research') return 'Workflow de pesquisa';
   return `Workflow ${normalized}`;
 }
@@ -319,7 +319,6 @@ function humanizeArtifactLabel(value: unknown): string | null {
 
 function cleanTitleCandidate(value: string | null): string | null {
   const cleaned = String(value || '')
-    .replace(/^(retomar|retome|continuar|continue|seguir com|siga com)\s+/i, '')
     .replace(/\bworkflow\b/gi, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -352,9 +351,9 @@ function buildBaseNextActions(input: {
   if (String(input.task.status || '').trim() === 'waiting_approval' && normalizedTaskId) {
     actions.push({
       kind: 'approve_task',
-      label: 'Aprovar e retomar',
+      label: 'Approve and resume',
       command: `/approve ${normalizedTaskId}`,
-      reason: 'A tarefa ainda depende da sua confirmacao para continuar.',
+      reason: 'The task still depends on your confirmation to continue.',
       taskId: normalizedTaskId,
     });
   }
@@ -362,13 +361,11 @@ function buildBaseNextActions(input: {
   if (input.recentArtifactTaskId) {
     actions.push({
       kind: 'open_latest_delivery',
-      label: input.recentArtifactName
-        ? `Abrir ${input.recentArtifactName}`
+      label: input.recentArtifactName ? `Abrir ${input.recentArtifactName}`
         : 'Abrir ultima entrega',
       command: `/files ${shortId(input.recentArtifactTaskId)}`,
-      reason: input.recentArtifactName
-        ? `Inspecionar a entrega recente ${input.recentArtifactName}.`
-        : 'Inspecionar a ultima entrega antes de continuar.',
+      reason: input.recentArtifactName ? `Inspecionar a entrega recente ${input.recentArtifactName}.`
+        : 'Inspect the last delivery before continuing.',
       taskId: input.recentArtifactTaskId,
     });
   }
@@ -378,8 +375,7 @@ function buildBaseNextActions(input: {
       runId: input.workflowRunId,
       stageId: input.stageId,
       stageLabel: input.stageLabel,
-      reason: input.workflowLabel
-        ? `${input.workflowLabel} ainda pode ser retomado do ponto atual.`
+      reason: input.workflowLabel ? `${input.workflowLabel} ainda pode ser retomado do ponto current.`
         : null,
     }),
   );
@@ -398,15 +394,13 @@ function buildWorkflowRunActions(input: {
     return [];
   }
 
-  const command = input.stageId
-    ? `/workflow resume ${input.runId} ${input.stageId}`
+  const command = input.stageId ? `/workflow resume ${input.runId} ${input.stageId}`
     : `/workflow resume ${input.runId}`;
 
   return [
     {
       kind: 'resume_workflow',
-      label: input.stageLabel
-        ? `Retomar workflow em ${input.stageLabel}`
+      label: input.stageLabel ? `resume workflow in ${input.stageLabel}`
         : 'Resume workflow',
       command,
       reason: input.reason,
@@ -426,19 +420,17 @@ function buildClosedWorkflowFollowupPrompt(input: {
   const parts: string[] = [];
 
   parts.push(
-    titleHint
-      ? `Continue a conversa sobre ${titleHint}.`
-      : 'Continue a conversa atual.',
+    titleHint ? `Continue a conversation sobre ${titleHint}.`
+      : 'Continue a conversation current.',
   );
   parts.push(
-    input.closeReason
-      ? `O workflow anterior foi encerrado by the operator: ${input.closeReason}.`
+    input.closeReason ? `O workflow anterior foi encerrado by the operator: ${input.closeReason}.`
       : 'O workflow anterior foi encerrado by the operator.',
   );
   if (input.recentArtifactName) {
-    parts.push(`Use ${input.recentArtifactName} como base para decidir o proximo passo util.`);
+    parts.push(`Use ${input.recentArtifactName} como base for decidir o next passo util.`);
   } else {
-    parts.push('Siga a partir do contexto atual, sem retomar o workflow anterior automaticamente.');
+    parts.push('Continue from the current context without automatically resuming the previous workflow.');
   }
 
   const prompt = parts.join(' ').replace(/\s+/g, ' ').trim();
@@ -477,7 +469,7 @@ function buildOperationalInsight(operationalMemory: Record<string, any>): string
     const phase = asText(workflowFriction.last_resume_stage_label);
     const rationale = asText(workflowFriction.rationale);
     return normalizeInsightText(
-      `Atencao operacional: ${workflow}${phase ? ` costuma travar em ${phase}` : ' exige cuidado na retomada'}${rationale ? ` (${rationale})` : ''}.`,
+      `Operational attention: ${workflow}${phase ? ` often stalls in ${phase}` : ' requires care during resumption'}${rationale ? ` (${rationale})` : ''}.`,
     );
   }
 
@@ -486,11 +478,11 @@ function buildOperationalInsight(operationalMemory: Record<string, any>): string
     : null;
   if (approvalFriction) {
     const executor = asText(approvalFriction.executor) || 'executor';
-    const kind = asText(approvalFriction.kind) || 'acao';
+    const kind = asText(approvalFriction.kind) || 'action';
     const subtype = asText(approvalFriction.subtype);
     const rationale = asText(approvalFriction.rationale);
     return normalizeInsightText(
-      `Atrito recente: ${executor} costuma pedir confirmacao em ${kind}${subtype && subtype !== 'general' ? `/${subtype}` : ''}${rationale ? ` (${rationale})` : ''}.`,
+      `Recent friction: ${executor} usually asks for confirmation in ${kind}${subtype && subtype !== 'general' ? `/${subtype}` : ''}${rationale ? ` (${rationale})` : ''}.`,
     );
   }
 
@@ -499,7 +491,7 @@ function buildOperationalInsight(operationalMemory: Record<string, any>): string
     : null;
   if (routeOutcome) {
     const executor = asText(routeOutcome.executor) || 'executor';
-    const kind = asText(routeOutcome.task_kind) || 'tarefa';
+    const kind = asText(routeOutcome.task_kind) || 'task';
     const subtype = asText(routeOutcome.task_subtype);
     const rationale = asText(routeOutcome.rationale);
     return normalizeInsightText(
@@ -515,7 +507,7 @@ function buildOperationalInsight(operationalMemory: Record<string, any>): string
     const executor = asText(workflowExecutor.executor) || 'executor';
     const successCount = Math.max(0, Number(workflowExecutor.success_count || 0));
     return normalizeInsightText(
-      `Executor mais confiavel por workflow: ${workflow} -> ${executor}${successCount ? ` (${successCount} etapa(s) concluida(s))` : ''}.`,
+      `Most trusted executor by workflow: ${workflow} -> ${executor}${successCount ? ` (${successCount} stage(s) completed(s))` : ''}.`,
     );
   }
 
@@ -524,8 +516,8 @@ function buildOperationalInsight(operationalMemory: Record<string, any>): string
     : null;
   if (approvedPolicy) {
     const executor = asText(approvedPolicy.executor) || 'executor';
-    const kind = asText(approvedPolicy.kind) || 'politica';
-    return normalizeInsightText(`Politica ja reaproveitada neste workspace: ${executor}/${kind}.`);
+    const kind = asText(approvedPolicy.kind) || 'policy';
+    return normalizeInsightText(`Politica already reaproveitada in this workspace: ${executor}/${kind}.`);
   }
 
   const successfulExecutor = Array.isArray(operationalMemory.successful_executors)
@@ -535,7 +527,7 @@ function buildOperationalInsight(operationalMemory: Record<string, any>): string
     const executor = asText(successfulExecutor.executor) || 'executor';
     const count = Math.max(0, Number(successfulExecutor.count || 0));
     return normalizeInsightText(
-      `Executor mais confiavel agora: ${executor}${count ? ` (${count} sucesso(s))` : ''}.`,
+      `Most trusted executor now: ${executor}${count ? ` (${count} success(s))` : ''}.`,
     );
   }
 
@@ -566,12 +558,11 @@ function buildFollowupPrompt(input: {
   const titleHint = cleanTitleCandidate(input.titleHint);
   if (input.source === 'telegram') {
     parts.push(
-      titleHint
-        ? `Retome a conversa que veio do Telegram sobre ${titleHint}.`
-        : 'Retome a conversa que veio do Telegram.',
+      titleHint ? `Resume the conversation that came from Telegram about ${titleHint}.`
+        : 'Resume the conversation that came from Telegram.',
     );
   } else {
-    parts.push(titleHint ? `Continue a conversa sobre ${titleHint}.` : 'Continue a conversa atual.');
+    parts.push(titleHint ? `Continue a conversation sobre ${titleHint}.` : 'Continue a conversation current.');
   }
 
   if (input.continuityReason) {
@@ -579,11 +570,11 @@ function buildFollowupPrompt(input: {
   } else if (input.continuityLabel) {
     parts.push(`${cleanTitleCandidate(input.continuityLabel)}.`);
   } else if (input.operationalSummary) {
-    parts.push(`Leve em conta este contexto: ${input.operationalSummary}.`);
+    parts.push(`Leve in conta este contexto: ${input.operationalSummary}.`);
   }
 
   if (input.workflowLabel) {
-    parts.push(`Siga pelo ${input.workflowLabel.toLowerCase()} sugerido para chegar ao proximo passo util.`);
+    parts.push(`Follow the ${input.workflowLabel.toLowerCase()} suggested path to reach the next useful step.`);
   }
 
   if (input.recentArtifactName) {

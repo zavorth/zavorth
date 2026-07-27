@@ -133,8 +133,7 @@ export class PluginTestHarnessService {
         results.push({
           name: 'module-loads-register',
           ok: hasRegister,
-          detail: hasRegister
-            ? 'Module exports register/createZavorthModule'
+          detail: hasRegister ? 'Module exports register/createZavorthModule'
             : 'Module loaded but register/createZavorthModule export missing',
         });
       }
@@ -172,8 +171,7 @@ export class PluginTestHarnessService {
       results.push({
         name: 'load-eligible',
         ok: Boolean(hit?.loadEligible),
-        detail: hit
-          ? `loadEligible=${hit.loadEligible} selected=${hit.selected} valid=${hit.validation.ok}`
+        detail: hit ? `loadEligible=${hit.loadEligible} selected=${hit.selected} valid=${hit.validation.ok}`
           : 'Plugin not discovered after bridge enable',
       });
     } catch (error) {
@@ -225,8 +223,7 @@ export class PluginTestHarnessService {
       results.push({
         name: 'load-one',
         ok: loadHit?.status === 'loaded',
-        detail: loadHit
-          ? `status=${loadHit.status} capabilities=${loadHit.capabilities.length} findings=${loadHit.findings.slice(0, 3).join('; ') || 'none'}`
+        detail: loadHit ? `status=${loadHit.status} capabilities=${loadHit.capabilities.length} findings=${loadHit.findings.slice(0, 3).join('; ') || 'none'}`
           : 'Plugin missing from load results',
       });
 

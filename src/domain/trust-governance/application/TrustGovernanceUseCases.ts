@@ -25,9 +25,9 @@ export class TrustGovernanceUseCases {
         trustReady: false,
         governanceReady: false,
         policiesTracked: 0,
-        headline: 'Trust governance domain aguardando adapter canonico.',
-        operatorSummary: 'Nenhum adapter de trust governance foi injetado neste dominio.',
-        details: ['Nenhum trust plane ou governance plane foi injetado neste contexto.'],
+        headline: 'Trust governance domain is waiting for the canonical adapter.',
+        operatorSummary: 'No trust governance adapter was injected into this domain.',
+        details: ['No trust plane or governance plane was injected into this context.'],
         source: 'seed',
       };
     }

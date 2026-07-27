@@ -1,7 +1,7 @@
 /**
- * Memory Privacy OS — product narrative over Mnemos / dream / forget.
+ * Memory Privacy OS - product narrative over Mnemos / dream / forget.
  *
- * Answers: What does it remember? Why? Forget it.
+ * Answers: What does it remember... Why... Forget it.
  * Does not replace MnemosDreamCycleService or product memory stores.
  * Forget records a proof event and can mark demo-store items; live wipe
  * only happens when a storage wire is provided by the host.
@@ -100,7 +100,7 @@ const WHY_BY_ORIGIN: Record<MemoryPrivacyOrigin, string> = {
 
 /** Patterns that suggest secret-like content without echoing values. */
 const SECRET_PATTERNS: RegExp[] = [
-  /\b(api[_-]?key|secret|password|passwd|token|bearer|private[_-]?key|credential)\b/i,
+  /\b(api[_-]...key|secret|password|passwd|token|bearer|private[_-]...key|credential)\b/i,
   /\bsk-[a-zA-Z0-9]{10,}\b/,
   /\bAIza[0-9A-Za-z_-]{20,}\b/,
   /-----BEGIN[ A-Z]+PRIVATE KEY-----/,
@@ -227,7 +227,7 @@ export class MemoryPrivacyService {
 
   /**
    * Build append input for ProofLedgerService (kind=memory, title "Memory forgotten").
-   * Does not append by itself — caller decides whether to persist.
+   * Does not append by itself; caller decides whether to persist.
    */
   public buildForgetProofEvent(
     item: MemoryPrivacyItemView | LooseMemoryItem,
@@ -235,8 +235,7 @@ export class MemoryPrivacyService {
   ): ProofEventAppendInput {
     const view = isPrivacyView(item) ? item : this.mapLooseItem(item as LooseMemoryItem, 0);
     const who = String(decidedBy || 'owner').trim() || 'owner';
-    const secretNote = view.secretLike
-      ? ' Item was flagged secret-like; raw secret values are not recorded in this receipt.'
+    const secretNote = view.secretLike ? ' Item was flagged secret-like; raw secret values are not recorded in this receipt.'
       : '';
     return {
       runId: null,
@@ -289,7 +288,7 @@ export class MemoryPrivacyService {
           item.secretLike ? 'secret-like' : null,
           item.consentState,
         ].filter(Boolean).join(', ');
-        lines.push(`- **${item.title}** · \`${item.id}\` · ${item.originLabel} · ${flags}`);
+        lines.push(`- **${item.title}** - \`${item.id}\` - ${item.originLabel} - ${flags}`);
         lines.push(`  - why: ${item.whyIKnowThis}`);
         if (item.summary) {
           lines.push(`  - summary: ${item.summary}`);
@@ -302,9 +301,9 @@ export class MemoryPrivacyService {
       lines.push('- none');
     } else {
       for (const c of snapshot.dreamCandidates) {
-        const lane = c.lane ? ` · lane=${c.lane}` : '';
-        const review = c.needsReview ? ' · needs review' : '';
-        lines.push(`- **${c.title}** · \`${c.id}\`${lane}${review}`);
+        const lane = c.lane ? ` ? lane=${c.lane}` : '';
+        const review = c.needsReview ? ' ? needs review' : '';
+        lines.push(`- **${c.title}** - \`${c.id}\`${lane}${review}`);
       }
     }
     lines.push('');
@@ -315,7 +314,7 @@ export class MemoryPrivacyService {
     return JSON.stringify(snapshot, null, 2);
   }
 
-  // ── Demo store (list/explain/forget without live Mnemos) ─────────────────
+  // Demo store (list/explain/forget without live memory backend)
 
   public loadDemoStore(): MemoryPrivacyDemoStore | null {
     if (!this.demoStorePath || !this.existsSync(this.demoStorePath)) {
@@ -472,7 +471,7 @@ export class MemoryPrivacyService {
     return { item: view, proof };
   }
 
-  // ── Mapping helpers ──────────────────────────────────────────────────────
+  // Mapping helpers
 
   private mapLooseItem(raw: LooseMemoryItem, index: number): MemoryPrivacyItemView {
     const id = String(raw.id || raw.key || `memory-${index + 1}`).trim() || `memory-${index + 1}`;
@@ -516,7 +515,7 @@ export class MemoryPrivacyService {
     };
     // Strip accidental secret-bearing keys/values from metadata projection.
     for (const key of Object.keys(metadata)) {
-      if (/secret|password|token|api[_-]?key|credential/i.test(key)) {
+      if (hasAnyMemoryToken(splitMemoryTokens(key), ['secret', 'password', 'token', 'api', 'key', 'credential'])) {
         metadata[key] = '[redacted]';
         continue;
       }
@@ -555,41 +554,38 @@ function isPrivacyView(item: MemoryPrivacyItemView | LooseMemoryItem): item is M
 }
 
 export function inferOrigin(raw: LooseMemoryItem): MemoryPrivacyOrigin {
-  const hay = [
+  const tokens = splitMemoryTokens([
     raw.origin,
     raw.source,
     raw.kind,
     raw.type,
     raw.title,
-  ].map((v) => String(v || '').toLowerCase()).join(' ');
+  ].map((v) => String(v || '')).join(' '));
 
-  if (/\b(user-stated|user_stated|explicit|remember this|you asked)\b/.test(hay)) {
+  if (hasAnyMemoryToken(tokens, ['user-stated', 'user_stated', 'explicit'])) {
     return 'user-stated';
   }
-  if (/\b(dream|dream-cycle|dream_cycle|consolidation|mnemos-dream)\b/.test(hay)) {
+  if (hasAnyMemoryToken(tokens, ['dream', 'dream-cycle', 'dream_cycle', 'consolidation', 'mnemos-dream'])) {
     return 'dream-cycle';
   }
-  if (/\b(skill|skill-memory|skill_memory)\b/.test(hay)) {
+  if (hasAnyMemoryToken(tokens, ['skill', 'skill-memory', 'skill_memory'])) {
     return 'skill';
   }
-  if (/\b(import|migrat|wiki-import|external-pack)\b/.test(hay)) {
+  if (hasAnyMemoryToken(tokens, ['import', 'migration', 'migrated', 'wiki-import', 'external-pack'])) {
     return 'import';
   }
-  if (/\b(system|bootstrap|identity-core|runtime-identity)\b/.test(hay)) {
+  if (hasAnyMemoryToken(tokens, ['system', 'bootstrap', 'identity-core', 'runtime-identity'])) {
     return 'system';
   }
-  if (/\b(conversation|chat|session|dialogue|thread)\b/.test(hay)) {
+  if (hasAnyMemoryToken(tokens, ['conversation', 'chat', 'session', 'dialogue', 'thread'])) {
     return 'conversation';
   }
-  if (/\b(preferences?|project-facts?|procedures?|user-model)\b/.test(hay)) {
-    // Common Mnemos kinds without explicit source → conversation default for facts,
-    // user-stated when preference-like with high confidence signals.
-    if (/\bpreferences?\b/.test(hay)) return 'user-stated';
+  if (hasAnyMemoryToken(tokens, ['preference', 'preferences', 'project-fact', 'project-facts', 'procedure', 'procedures', 'user-model'])) {
+    if (hasAnyMemoryToken(tokens, ['preference', 'preferences'])) return 'user-stated';
     return 'conversation';
   }
   return 'unknown';
 }
-
 function buildWhyIKnowThis(raw: LooseMemoryItem, origin: MemoryPrivacyOrigin): string {
   const custom = raw.metadata && typeof raw.metadata === 'object'
     ? (raw.metadata as Record<string, unknown>).whyIKnowThis
@@ -604,7 +600,7 @@ function buildWhyIKnowThis(raw: LooseMemoryItem, origin: MemoryPrivacyOrigin): s
     if (consent === 'granted' || consent === 'implied') {
       return 'Accepted from the Mnemos dream cycle after review.';
     }
-    // Default / review / unknown → pending review narrative
+    // Default / review / unknown -> pending review narrative
     return 'Learning candidate pending review from the Mnemos dream cycle.';
   }
   return WHY_BY_ORIGIN[origin];
@@ -639,7 +635,7 @@ function isSystemCritical(raw: LooseMemoryItem): boolean {
 export function detectSecretLike(raw: LooseMemoryItem): boolean {
   if (raw.secretLike === true) return true;
   const kind = String(raw.kind || raw.type || '').toLowerCase();
-  if (/\b(secret|credential|password|token|api[_-]?key)\b/.test(kind)) return true;
+  if (hasAnyMemoryToken(splitMemoryTokens(kind), ['secret', 'credential', 'password', 'token', 'api', 'key'])) return true;
   const blobs = [
     raw.title,
     raw.summary,
@@ -661,9 +657,9 @@ export function redactSecretLikeText(text: string): string {
   let out = String(text || '');
   out = out.replace(/sk-[a-zA-Z0-9]{10,}/g, '[redacted token]');
   out = out.replace(/AIza[0-9A-Za-z_-]{20,}/g, '[redacted api key]');
-  out = out.replace(/-----BEGIN[ A-Z]+PRIVATE KEY-----[\s\S]*?-----END[ A-Z]+PRIVATE KEY-----/g, '[redacted private key]');
+  out = out.replace(/-----BEGIN[ A-Z]+PRIVATE KEY-----[\s\S]*...-----END[ A-Z]+PRIVATE KEY-----/g, '[redacted private key]');
   out = out.replace(/\b[a-fA-F0-9]{40,}\b/g, '[redacted hex]');
-  out = out.replace(/(api[_-]?key|secret|password|token)\s*[:=]\s*\S+/gi, '$1=[redacted]');
+  out = out.replace(/(api[_-]...key|secret|password|token)\s*[:=]\s*\S+/gi, '$1=[redacted]');
   out = out.replace(/\bxox[baprs]-[0-9A-Za-z-]{10,}/gi, '[redacted slack token]');
   out = out.replace(/\bghp_[0-9A-Za-z]{20,}/g, '[redacted github token]');
   return sanitizeDisplay(out);
@@ -676,6 +672,30 @@ function sanitizeDisplay(text: string): string {
     cleaned = `${cleaned.slice(0, 237)}...`;
   }
   return cleaned;
+}
+
+function splitMemoryTokens(value: string): Set<string> {
+  const tokens = new Set<string>();
+  let current = '';
+  for (const char of String(value || '').toLowerCase()) {
+    const keep = (char >= 'a' && char <= 'z') || (char >= '0' && char <= '9') || char === '-' || char === '_';
+    if (keep) {
+      current += char;
+      continue;
+    }
+    if (current) {
+      tokens.add(current);
+      current = '';
+    }
+  }
+  if (current) {
+    tokens.add(current);
+  }
+  return tokens;
+}
+
+function hasAnyMemoryToken(tokens: Set<string>, candidates: string[]): boolean {
+  return candidates.some((candidate) => tokens.has(candidate));
 }
 
 /** Demo fixtures for unit tests (no disk). */

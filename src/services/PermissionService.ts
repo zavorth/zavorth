@@ -256,7 +256,7 @@ export class PermissionService {
       reason: input.reason,
       requested_by: input.requested_by || null,
       decided_by: input.requested_by || null,
-      decision_note: 'Politica approved diretamente by the operator.',
+      decision_note: 'Policy approved diretamente by the operator.',
       metadata: this.normalizePermissionMetadata(
         input.executor,
         input.kind,
@@ -343,7 +343,7 @@ export class PermissionService {
   private getExistingPermission(permissionId: string): PermissionRequest {
     const existing = this.repo.getById(permissionId);
     if (!existing) {
-      throw new Error(`Pedido de permissao ${permissionId} nao encontrado.`);
+      throw new Error(`Permission request ${permissionId} not found.`);
     }
 
     return existing;

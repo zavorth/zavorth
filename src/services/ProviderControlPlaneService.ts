@@ -119,31 +119,31 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
   {
     id: 'balanced',
     label: 'Balanced',
-    summary: 'Prioriza estabilidade geral e custo moderado para conversa cotidiana.',
+    summary: 'Prioritizes general stability and moderate cost for everyday conversation.',
     preferredOrder: ['gemini', 'openai', 'openrouter', 'deepseek'],
   },
   {
     id: 'coding',
     label: 'Coding',
-    summary: 'Prioriza raciocinio de codigo, revisao e testes com fallback progressivo.',
+    summary: 'Prioritizes code reasoning, review, and tests with progressive fallback.',
     preferredOrder: ['AIGateway', 'openai', 'openrouter', 'gemini'],
   },
   {
     id: 'research',
     label: 'Research',
-    summary: 'Prioriza comparacao, busca e sintese com boa cobertura de web e contexto longo.',
+    summary: 'Prioritizes comparison, search, and synthesis with strong web coverage and long context.',
     preferredOrder: ['openrouter', 'openai', 'gemini', 'AIGateway'],
   },
   {
     id: 'budget',
     label: 'Budget',
-    summary: 'Prioriza custo baixo e disponibilidade ampla para volume alto.',
+    summary: 'Prioritizes low cost and broad availability for high volume.',
     preferredOrder: ['gemini', 'gemma', 'qwen', 'deepseek'],
   },
   {
     id: 'local-first',
-    label: 'Local-first',
-    summary: 'Prioriza rotas locais ou hibridas antes de provedores cloud.',
+    label: 'local-first',
+    summary: 'Prioriza routes locais or hibridas before provedores cloud.',
     preferredOrder: ['AIGateway', 'gemini', 'openai'],
   },
 ];
@@ -381,7 +381,7 @@ export class ProviderControlPlaneService {
   public applyProfileSelection(profileId: string): ProviderProfileSelection {
     const profile = this.getProfile(profileId);
     if (!profile) {
-      throw new Error(`Nao reconheci esse perfil de provider: ${profileId}`);
+      throw new Error(`Provider profile not recognized: ${profileId}`);
     }
 
     const resolved = this.resolveProfileSelection(profile.id);
@@ -403,8 +403,8 @@ export class ProviderControlPlaneService {
 
       throw new Error(
         blockers.length > 0
-          ? `Nenhum provider pronto atende o perfil ${profile.label}. ${blockers.join(' | ')}`
-          : `Nenhum provider pronto atende o perfil ${profile.label} agora.`,
+          ? `No provider ready atende o profile ${profile.label}. ${blockers.join(' | ')}`
+          : `No provider ready atende o profile ${profile.label} agora.`,
       );
     }
 
@@ -529,7 +529,7 @@ export class ProviderControlPlaneService {
       },
       providers: input.providers,
       fallbackOrder: input.profiles[0]?.preferredOrder || [],
-      explanation: [`Configuraction atual seleciona ${providerName}${modelName ? `/${modelName}` : ''}.`],
+      explanation: [`Configuraction current seleciona ${providerName}${modelName ? `/${modelName}` : ''}.`],
     });
   }
 
@@ -598,7 +598,7 @@ export class ProviderControlPlaneService {
 
   private buildProviderEntries(): ProviderCatalogEntry[] {
     const geminiReady = config.geminiApiKeys.length > 0;
-    const geminiIssue = geminiReady ? null : 'Falta configurar GEMINI_API_KEY.';
+    const geminiIssue = geminiReady ? null : 'missing GEMINI_API_KEY configuration.';
     const AIGatewayBaseUrl = String(config.AIGatewayBaseUrl || '').trim();
     const AIGatewayGatewayStatus = this.readAIGatewayGatewayStatus();
     const AIGatewayUsesDefault = AIGatewayBaseUrl === DEFAULT_AIGateway_GATEWAY_BASE_URL;
@@ -610,16 +610,15 @@ export class ProviderControlPlaneService {
           : false
       ),
     );
-    const AIGatewayIssue = !AIGatewayBaseUrl
-      ? 'Falta definir AIGateway_BASE_URL.'
+    const AIGatewayIssue = !AIGatewayBaseUrl ? 'missing definir AIGateway_BASE_URL.'
       : AIGatewayReady
         ? null
         : config.zavorthAIGatewayGatewayEnabled
           ? (
             String(AIGatewayGatewayStatus?.message || '').trim()
-            || `Gateway proprio do AIGateway ainda nao esta pronto (${AIGatewayUsesDefault ? 'rota local padrao do Zavorth' : AIGatewayBaseUrl}).`
+            || `AIGateway own gateway is not ready yet (${AIGatewayUsesDefault ? 'Zavorth default local route' : AIGatewayBaseUrl}).`
           )
-          : `Precisa de probe no runtime (${AIGatewayUsesDefault ? 'endpoint local padrao' : AIGatewayBaseUrl}).`;
+          : `Runtime probe required (${AIGatewayUsesDefault ? 'endpoint local default' : AIGatewayBaseUrl}).`;
 
     const entries: ProviderCatalogEntry[] = [
       {
@@ -630,7 +629,7 @@ export class ProviderControlPlaneService {
         aliases: [],
         visibility: 'public',
         mode: 'cloud',
-        summary: 'Provider cloud padrao do Zavorth para conversa, resumo e multimodal.',
+        summary: 'Provider cloud default do Zavorth para conversation, summary e multimodal.',
         currentModel: String(config.geminiModel || config.geminiDefaultModel || '').trim() || null,
         requirements: ['GEMINI_API_KEY'],
         readiness: geminiReady ? 'ready' : 'needs_config',
@@ -645,7 +644,7 @@ export class ProviderControlPlaneService {
         aliases: [],
         visibility: 'public',
         mode: 'alias',
-        summary: 'Atalho para rodar Gemma hospedado pelo provider Gemini.',
+        summary: 'shortcut to run hosted Gemma through the Gemini provider.',
         currentModel: String(config.gemmaModel || 'gemma-2-27b-it').trim() || null,
         requirements: ['GEMINI_API_KEY'],
         readiness: geminiReady ? 'ready' : 'needs_config',
@@ -660,12 +659,12 @@ export class ProviderControlPlaneService {
         aliases: [],
         visibility: 'public',
         mode: 'cloud',
-        summary: 'Provider OpenAI-compatible orientado a custo e coding geral.',
+        summary: 'OpenAI-compatible provider oriented toward cost and general coding.',
         currentModel: String(config.deepseekModel || '').trim() || null,
         requirements: ['DEEPSEEK_API_KEY'],
         readiness: config.deepseekApiKey ? 'ready' : 'needs_config',
         ready: Boolean(config.deepseekApiKey),
-        issue: config.deepseekApiKey ? null : 'Falta configurar DEEPSEEK_API_KEY.',
+        issue: config.deepseekApiKey ? null : 'missing DEEPSEEK_API_KEY configuration.',
       },
       {
         id: 'openai',
@@ -675,12 +674,12 @@ export class ProviderControlPlaneService {
         aliases: [],
         visibility: 'public',
         mode: 'cloud',
-        summary: 'Provider de uso geral para coding, revisao e automacao mais sensivel.',
+        summary: 'General-purpose provider for coding, review, and more sensitive automation.',
         currentModel: String(config.openaiModel || '').trim() || null,
         requirements: ['OPENAI_API_KEY'],
         readiness: (config.openaiApiKey || config.openaiApiKeys?.length > 0) ? 'ready' : 'needs_config',
         ready: Boolean(config.openaiApiKey || config.openaiApiKeys?.length > 0),
-        issue: (config.openaiApiKey || config.openaiApiKeys?.length > 0) ? null : 'Falta configurar OPENAI_API_KEY.',
+        issue: (config.openaiApiKey || config.openaiApiKeys?.length > 0) ? null : 'missing OPENAI_API_KEY configuration.',
       },
       {
         id: 'minimax',
@@ -690,12 +689,12 @@ export class ProviderControlPlaneService {
         aliases: [],
         visibility: 'public',
         mode: 'cloud',
-        summary: 'Provider direto OpenAI-compatible do MiniMax para coding e tarefas agentic.',
+        summary: 'Direct OpenAI-compatible MiniMax provider for coding and agentic tasks.',
         currentModel: String(config.minimaxModel || '').trim() || null,
         requirements: ['MINIMAX_API_KEY'],
         readiness: config.minimaxApiKey ? 'ready' : 'needs_config',
         ready: Boolean(config.minimaxApiKey),
-        issue: config.minimaxApiKey ? null : 'Falta configurar MINIMAX_API_KEY.',
+        issue: config.minimaxApiKey ? null : 'missing MINIMAX_API_KEY configuration.',
       },
       {
         id: 'AIGateway',
@@ -720,12 +719,12 @@ export class ProviderControlPlaneService {
         aliases: ['puter'],
         visibility: 'public',
         mode: 'cloud',
-        summary: 'Usa a camada OpenAI-compatible da Puter para modelos Qwen.',
+        summary: 'Usa a camada OpenAI-compatible da Puter para models Qwen.',
         currentModel: String(config.qwenModel || '').trim() || null,
         requirements: ['PUTER_AUTH_TOKEN'],
         readiness: config.puterAuthToken ? 'ready' : 'needs_config',
         ready: Boolean(config.puterAuthToken),
-        issue: config.puterAuthToken ? null : 'Falta configurar PUTER_AUTH_TOKEN.',
+        issue: config.puterAuthToken ? null : 'missing PUTER_AUTH_TOKEN configuration.',
       },
       {
         id: 'openrouter',
@@ -735,12 +734,12 @@ export class ProviderControlPlaneService {
         aliases: [],
         visibility: 'public',
         mode: 'cloud',
-        summary: 'Agrega varios modelos cloud com fallback amplo e uso forte em research.',
+        summary: 'Agrega varios models cloud com fallback amplo e usage forte em research.',
         currentModel: String(config.openRouterModel || '').trim() || null,
         requirements: ['OPENROUTER_API_KEY'],
         readiness: config.openRouterApiKey ? 'ready' : 'needs_config',
         ready: Boolean(config.openRouterApiKey),
-        issue: config.openRouterApiKey ? null : 'Falta configurar OPENROUTER_API_KEY.',
+        issue: config.openRouterApiKey ? null : 'missing OPENROUTER_API_KEY configuration.',
       },
       {
         id: 'opencode',
@@ -755,7 +754,7 @@ export class ProviderControlPlaneService {
         requirements: ['OPENCODE_API_KEY'],
         readiness: config.openCodeApiKey ? 'ready' : 'needs_config',
         ready: Boolean(config.openCodeApiKey),
-        issue: config.openCodeApiKey ? null : 'Falta configurar OPENCODE_API_KEY.',
+        issue: config.openCodeApiKey ? null : 'missing OPENCODE_API_KEY configuration.',
       },
     ];
     return this.enrichProviderEntries(entries);
@@ -863,8 +862,8 @@ export class ProviderControlPlaneService {
     const AIGatewayGatewayStatus = this.readAIGatewayGatewayStatus();
     const AIGatewayUsesDefault = AIGatewayBaseUrl === DEFAULT_AIGateway_GATEWAY_BASE_URL;
     const messageFallback = config.zavorthAIGatewayGatewayEnabled
-      ? `Gateway proprio do AIGateway ainda nao esta pronto (${AIGatewayUsesDefault ? 'rota local padrao do Zavorth' : AIGatewayBaseUrl}).`
-      : `Precisa de probe no runtime (${AIGatewayUsesDefault ? 'endpoint local padrao' : AIGatewayBaseUrl}).`;
+      ? `AIGateway own gateway is not ready yet (${AIGatewayUsesDefault ? 'Zavorth default local route' : AIGatewayBaseUrl}).`
+      : `Runtime probe required (${AIGatewayUsesDefault ? 'endpoint local default' : AIGatewayBaseUrl}).`;
     const health: AccessRouteHealthInput = AIGatewayGatewayStatus?.ready === true
       ? {
         ready: true,

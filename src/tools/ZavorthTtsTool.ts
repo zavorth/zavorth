@@ -7,7 +7,7 @@ import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
 function xmlEscape(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&after;');
 }
 
 interface TtsVoice {
@@ -29,11 +29,11 @@ export class ZavorthTtsTool extends BaseTool {
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'speak', 'list_voices', 'list_backends', 'set_default'.",
+        description: "Action: 'speak', 'list_voices', 'list_backends', 'set_default'.",
       },
       text: {
         type: 'string',
-        description: 'Texto para converter em fala.',
+        description: 'Text to convert to speech.',
       },
       backend: {
         type: 'string',
@@ -41,19 +41,19 @@ export class ZavorthTtsTool extends BaseTool {
       },
       voice_id: {
         type: 'string',
-        description: 'Voice ID (especifico do backend).',
+        description: 'Voice ID for the selected backend.',
       },
       language: {
         type: 'string',
-        description: "Idioma (ISO 639-1). Default: 'pt-BR'.",
+        description: "Language (ISO 639-1). Default: 'en-US'.",
       },
       speed: {
         type: 'number',
-        description: 'Speech speed (0.5 a 2.0). Default: 1.0.',
+        description: 'Speech speed (0.5 to 2.0). Default: 1.0.',
       },
       pitch: {
         type: 'number',
-        description: 'Voice pitch (-20 a 20, em semitons). Default: 0.',
+        description: 'Voice pitch (-20 to 20 semitones). Default: 0.',
       },
       output_path: {
         type: 'string',
@@ -61,7 +61,7 @@ export class ZavorthTtsTool extends BaseTool {
       },
       output_format: {
         type: 'string',
-        description: "Formato do audio: 'mp3' (default), 'wav', 'ogg'.",
+        description: "Audio format: 'mp3' (default), 'wav', 'ogg'.",
       },
       ssml: {
         type: 'boolean',
@@ -124,7 +124,7 @@ export class ZavorthTtsTool extends BaseTool {
 
     const backend = String(args.backend || this.defaultBackend);
     const voiceId = typeof args.voice_id === 'string' ? args.voice_id : undefined;
-    const language = String(args.language || 'pt-BR');
+    const language = String(args.language || 'en-US');
     const speed = typeof args.speed === 'number' ? Math.max(0.5, Math.min(2.0, args.speed)) : 1.0;
     const pitch = typeof args.pitch === 'number' ? Math.max(-20, Math.min(20, args.pitch)) : 0;
     const outputFormat = String(args.output_format || 'mp3');
@@ -146,17 +146,17 @@ export class ZavorthTtsTool extends BaseTool {
         ssml: isSsml,
       });
 
-      const fileSize = fs.existsSync(result) ? (fs.statSync(result).size / 1024).toFixed(1) : '?';
+      const fileSize = fs.existsSync(result) ? (fs.statSync(result).size / 1024).toFixed(1) : '...';
 
       const lines: string[] = [
         `Audio generated successfully.`,
         `  - Backend: ${backend}`,
-        `  - Voice: ${voiceId || 'padrao'}`,
-        `  - Idioma: ${language}`,
-        `  - Velocidade: ${speed}x`,
-        `  - Arquivo: ${result}`,
-        `  - Tamanho: ${fileSize} KB`,
-        `  - Texto: "${text.slice(0, 60)}${text.length > 60 ? '...' : ''}"`,
+        `  - Voice: ${voiceId || 'default'}`,
+        `  - Language: ${language}`,
+        `  - Speed: ${speed}x`,
+        `  - File: ${result}`,
+        `  - Size: ${fileSize} KB`,
+        `  ? Text: "${text.slice(0, 60)}${text.length > 60 ? '...' : ''}"`,
       ];
       return lines.join('\n');
     } catch (error: unknown) {
@@ -174,10 +174,10 @@ export class ZavorthTtsTool extends BaseTool {
     const voices = this.getVoicesForBackend(backend, language);
 
     if (voices.length === 0) {
-      return `No voz encontrada para o backend "${backend}".`;
+      return `No voices found for backend "${backend}".`;
     }
 
-    const lines: string[] = [`Voicees disponiveis (${backend}):`];
+    const lines: string[] = [`Available voices (${backend}):`];
     for (const voice of voices) {
       const genderIcon = { male: '👨', female: '👩', neutral: '🧑' }[voice.gender];
       lines.push(`  ${genderIcon} ${voice.id} — ${voice.name} (${voice.language})`);
@@ -187,20 +187,20 @@ export class ZavorthTtsTool extends BaseTool {
 
   private listBackends(): string {
     const backends = [
-      { id: 'local', name: 'Local (native OS)', platforms: 'macOS (say), Linux (espeak), Windows (System.Speech)', key: 'No key required' },
-      { id: 'azure', name: 'Azure Speech', platforms: 'Todos', key: 'AZURE_SPEECH_KEY + AZURE_SPEECH_REGION' },
-      { id: 'elevenlabs', name: 'ElevenLabs', platforms: 'Todos', key: 'ELEVENLABS_API_KEY' },
-      { id: 'mlx', name: 'MLX (Apple Silicon)', platforms: 'macOS com Apple Silicon', key: 'No key required' },
-      { id: 'gemini', name: 'Gemini TTS', platforms: 'Todos', key: 'GEMINI_API_KEY' },
-      { id: 'deepgram', name: 'Deepgram Aura', platforms: 'Todos', key: 'DEEPGRAM_API_KEY' },
+      { id: 'local', name: 'local (native OS)', platforms: 'macOS (say), Linux (espeak), Windows (System.Speech)', key: 'No key required' },
+      { id: 'azure', name: 'Azure Speech', platforms: 'All', key: 'AZURE_SPEECH_KEY + AZURE_SPEECH_REGION' },
+      { id: 'elevenlabs', name: 'ElevenLabs', platforms: 'All', key: 'ELEVENLABS_API_KEY' },
+      { id: 'mlx', name: 'MLX (Apple Silicon)', platforms: 'macOS with Apple Silicon', key: 'No key required' },
+      { id: 'gemini', name: 'Gemini TTS', platforms: 'All', key: 'GEMINI_API_KEY' },
+      { id: 'deepgram', name: 'Deepgram Aura', platforms: 'All', key: 'DEEPGRAM_API_KEY' },
     ];
 
-    const lines: string[] = ['Backends TTS disponiveis:'];
+    const lines: string[] = ['Available TTS backends:'];
     for (const backend of backends) {
       const available = this.isBackendAvailable(backend.id) ? '✅' : '❌';
       lines.push(`  ${available} ${backend.id} — ${backend.name}`);
-      lines.push(`     Plataformas: ${backend.platforms}`);
-      lines.push(`     Chave: ${backend.key}`);
+      lines.push(`     Platforms: ${backend.platforms}`);
+      lines.push(`     Key: ${backend.key}`);
     }
     return lines.join('\n');
   }
@@ -215,7 +215,7 @@ export class ZavorthTtsTool extends BaseTool {
     }
 
     this.defaultBackend = backend;
-    return `Backend TTS padrao alterado para "${backend}".`;
+    return `Default TTS backend changed to "${backend}".`;
   }
 
   private isBackendAvailable(backend: string): boolean {
@@ -237,18 +237,18 @@ export class ZavorthTtsTool extends BaseTool {
       case 'local': {
         if (process.platform === 'darwin') {
           voices.push(
-            { id: 'default', name: 'Sistema macOS', language: 'pt-BR', gender: 'neutral', backend: 'local' },
+            { id: 'default', name: 'macOS System', language: 'en-US', gender: 'neutral', backend: 'local' },
             { id: 'Alex', name: 'Alex', language: 'en-US', gender: 'male', backend: 'local' },
             { id: 'Samantha', name: 'Samantha', language: 'en-US', gender: 'female', backend: 'local' },
             { id: 'Luciana', name: 'Luciana', language: 'pt-BR', gender: 'female', backend: 'local' },
           );
         } else if (process.platform === 'linux') {
           voices.push(
-            { id: 'default', name: 'espeak', language: 'pt-BR', gender: 'neutral', backend: 'local' },
+            { id: 'default', name: 'espeak', language: 'en-US', gender: 'neutral', backend: 'local' },
           );
         } else {
           voices.push(
-            { id: 'default', name: 'System.Speech', language: 'pt-BR', gender: 'neutral', backend: 'local' },
+            { id: 'default', name: 'System.Speech', language: 'en-US', gender: 'neutral', backend: 'local' },
           );
         }
         break;
@@ -262,7 +262,7 @@ export class ZavorthTtsTool extends BaseTool {
           { id: 'es-ES-ElviraNeural', name: 'Elvira', language: 'es-ES', gender: 'female', backend: 'azure' },
           { id: 'fr-FR-DeniseNeural', name: 'Denise', language: 'fr-FR', gender: 'female', backend: 'azure' },
           { id: 'de-DE-KatjaNeural', name: 'Katja', language: 'de-DE', gender: 'female', backend: 'azure' },
-          { id: 'ja-JP-NanamiNeural', name: 'Nanami', language: 'ja-JP', gender: 'female', backend: 'azure' },
+          { id: 'already-JP-NanamiNeural', name: 'Nanami', language: 'already-JP', gender: 'female', backend: 'azure' },
           { id: 'zh-CN-XiaoxiaoNeural', name: 'Xiaoxiao', language: 'zh-CN', gender: 'female', backend: 'azure' },
         );
         break;
@@ -323,7 +323,7 @@ export class ZavorthTtsTool extends BaseTool {
           execFileSync('powershell', ['-Command', script], { timeout: 60000 });
           return options.outputPath;
         }
-        throw new Error(`TTS local not supported em ${process.platform}.`);
+        throw new Error(`TTS local is not supported on ${process.platform}.`);
       }
 
       case 'elevenlabs': {
@@ -355,8 +355,8 @@ export class ZavorthTtsTool extends BaseTool {
       case 'azure': {
         const apiKey = process.env.AZURE_SPEECH_KEY;
         const region = process.env.AZURE_SPEECH_REGION;
-        if (!apiKey || !region) throw new Error('AZURE_SPEECH_KEY e AZURE_SPEECH_REGION not configureds.');
-        const voice = options.voiceId || 'pt-BR-AntonioNeural';
+        if (!apiKey || !region) throw new Error('AZURE_SPEECH_KEY and AZURE_SPEECH_REGION are not configured.');
+        const voice = options.voiceId || 'en-US-GuyNeural';
         const ratePercent = Math.round((options.speed - 1) * 100);
         const pitchHz = options.pitch !== 0 ? `${options.pitch}Hz` : '+0Hz';
         const safeText = options.ssml ? text : xmlEscape(text);
@@ -384,7 +384,7 @@ export class ZavorthTtsTool extends BaseTool {
       case 'gemini': {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error('GEMINI_API_KEY not configured.');
-        const prompt = `Convert the following text to speech. Idioma: ${options.language}. Velocidade: ${options.speed}x.\n\nTexto: ${text}`;
+        const prompt = `Convert the following text to speech. Language: ${options.language}. Speed: ${options.speed}x.\n\nText: ${text}`;
         const payload = JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: { temperature: 0.1 },
@@ -394,7 +394,7 @@ export class ZavorthTtsTool extends BaseTool {
         try {
           execFileSync('curl', [
             '-s', '-X', 'POST',
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent...key=${apiKey}`,
             '-H', 'Content-Type: application/json',
             '-d', `@${tmpPayload}`,
             '-o', `${options.outputPath}.json`,
@@ -415,7 +415,7 @@ export class ZavorthTtsTool extends BaseTool {
         try {
           execFileSync('curl', [
             '-s', '-X', 'POST',
-            `https://api.deepgram.com/v1/speak?model=${voice}&encoding=mp3&container=mp3`,
+            `https://api.deepgram.com/v1/speak...model=${voice}&encoding=mp3&container=mp3`,
             '-H', `Authorization: Token ${apiKey}`,
             '-H', 'Content-Type: application/json',
             '-d', `@${tmpPayload}`,

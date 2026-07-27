@@ -138,7 +138,7 @@ export class IntegrationProbeService {
         return this.createSnapshot(manifest, {
         status: 'unsupported',
         transport: manifest.category === 'remote' ? 'runtime' : 'unsupported',
-        summary: 'Probe real ainda nao disponivel',
+        summary: 'Real probe not available yet',
         detail: `This integration still depends only on the hub heuristic doctor. Review the canonical entry ${this.controlUiEntryPath}.`,
         checkedTarget: null,
         httpStatus: null,
@@ -153,7 +153,7 @@ export class IntegrationProbeService {
       return this.createSnapshot(manifest, {
         status: 'not_configured',
         transport: 'api',
-        summary: 'Falta ativar a chave do runtime',
+        summary: 'Falta activer a chave do runtime',
         detail: 'No active OPENROUTER_API_KEY was found in the runtime for real connectivity testing.',
         checkedTarget: 'https://openrouter.ai/api/v1/models',
         httpStatus: null,
@@ -179,7 +179,7 @@ export class IntegrationProbeService {
       return this.createSnapshot(manifest, {
         status: 'not_configured',
         transport: 'api',
-        summary: 'Falta ativar a chave do runtime',
+        summary: 'Falta activer a chave do runtime',
         detail: 'No active OPENAI_API_KEY was found in the runtime for real connectivity testing.',
         checkedTarget: 'https://api.openai.com/v1/models',
         httpStatus: null,
@@ -205,7 +205,7 @@ export class IntegrationProbeService {
       return this.createSnapshot(manifest, {
         status: 'not_configured',
         transport: 'api',
-        summary: 'Falta ativar a chave do runtime',
+        summary: 'Falta activer a chave do runtime',
         detail: 'No active MINIMAX_API_KEY was found in the runtime for real connectivity testing.',
         checkedTarget: 'https://api.minimax.io/v1/models',
         httpStatus: null,
@@ -233,7 +233,7 @@ export class IntegrationProbeService {
       return this.createSnapshot(manifest, {
         status: 'not_configured',
         transport: 'api',
-        summary: 'Falta ativar a chave do runtime',
+        summary: 'Falta activer a chave do runtime',
         detail: 'No active GEMINI_API_KEY/AISTUDIO_API_KEY was found in the runtime for real connectivity testing.',
         checkedTarget: 'https://generativelanguage.googleapis.com/v1beta/models',
         httpStatus: null,
@@ -266,17 +266,16 @@ export class IntegrationProbeService {
       return this.createSnapshot(manifest, {
         status: 'not_configured',
         transport: 'runtime',
-        summary: 'Stack Oracle + Cloudflare ainda nao fechou',
+        summary: 'Oracle + Cloudflare stack is not closed yet',
         detail:
-          'Faltam sinais basicos do rollout: hostname do tunnel, AI Gateway da Cloudflare ou credencial Gemini.',
+          'Missing basic rollout signals: tunnel hostname, Cloudflare AI Gateway, or provider credential.',
         checkedTarget: tunnelHostname || config.cloudflareAiGatewayBaseUrl || null,
         httpStatus: null,
         latencyMs: null,
       });
     }
 
-    const checkedTarget = tunnelHostname.startsWith('http')
-      ? `${tunnelHostname.replace(/\/+$/, '')}/app`
+    const checkedTarget = tunnelHostname.startsWith('http') ? `${tunnelHostname.replace(/\/+$/, '')}/app`
       : `https://${tunnelHostname.replace(/\/+$/, '')}/app`;
 
     return this.runHttpProbe({
@@ -296,7 +295,7 @@ export class IntegrationProbeService {
       return this.createSnapshot(manifest, {
         status: 'not_configured',
         transport: 'runtime',
-        summary: 'AIGateway desativado no runtime',
+        summary: 'AIGateway desactivedo no runtime',
         detail: 'Enable the AIGateway sidecar before trying to validate this integration.',
         checkedTarget: sidecar.baseUrl ? `${sidecar.baseUrl}/models` : null,
         httpStatus: null,
@@ -308,8 +307,8 @@ export class IntegrationProbeService {
       return this.createSnapshot(manifest, {
         status: 'not_configured',
         transport: 'runtime',
-        summary: 'Sidecar AIGateway ainda nao esta pronto',
-        detail: sidecar.message || 'O Zavorth ainda nao conseguiu confirmar o gateway local do AIGateway.',
+        summary: 'AIGateway sidecar is not ready yet',
+        detail: sidecar.message || 'Zavorth could not confirm the local AIGateway gateway yet.',
         checkedTarget: sidecar.baseUrl ? `${sidecar.baseUrl}/models` : null,
         httpStatus: null,
         latencyMs: null,
@@ -333,7 +332,7 @@ export class IntegrationProbeService {
       return this.createSnapshot(manifest, {
         status: 'not_configured',
         transport: 'runtime',
-        summary: 'ZavorthBridge Remote desativado no runtime',
+        summary: 'ZavorthBridge Remote desactivedo no runtime',
         detail: 'Enable the ZavorthBridge remote sidecar before trying to validate this integration.',
         checkedTarget: sidecar.baseUrl ? this.joinUrl(sidecar.baseUrl, 'health') : null,
         httpStatus: null,
@@ -345,8 +344,8 @@ export class IntegrationProbeService {
       return this.createSnapshot(manifest, {
         status: 'not_configured',
         transport: 'runtime',
-        summary: 'Sidecar remoto do ZavorthBridge ainda nao esta pronto',
-        detail: sidecar.message || 'O Zavorth ainda nao conseguiu confirmar a saude do remoto do ZavorthBridge.',
+        summary: 'Remote ZavorthBridge sidecar is not ready yet',
+        detail: sidecar.message || 'Zavorth could not confirm the health of the remote ZavorthBridge yet.',
         checkedTarget: sidecar.baseUrl ? this.joinUrl(sidecar.baseUrl, 'health') : null,
         httpStatus: null,
         latencyMs: null,
@@ -372,12 +371,10 @@ export class IntegrationProbeService {
       return this.createSnapshot(manifest, {
         status: available ? 'ok' : 'failed',
         transport: 'cli',
-        summary: available
-          ? 'ExternalExecutor CLI respondeu ao probe real'
-          : 'ExternalExecutor CLI nao respondeu ao probe real',
-        detail: available
-          ? 'O external runner local/WSL aceitou a check de disponibilidade.'
-          : 'O Zavorth nao conseguiu confirmar a disponibilidade real da CLI do external runner.',
+        summary: available ? 'ExternalExecutor CLI respondeu ao probe real'
+          : 'ExternalExecutor CLI did not respond to the real probe',
+        detail: available ? 'O external runner local/WSL aceitou a check de disponibilidade.'
+          : 'Zavorth could not confirm real availability of the external runner CLI.',
         checkedTarget: this.resolveExternalExecutorTarget(),
         httpStatus: null,
         latencyMs,
@@ -388,8 +385,8 @@ export class IntegrationProbeService {
     return this.createSnapshot(manifest, {
         status: 'failed',
         transport: 'cli',
-        summary: 'Probe real do external runner falhou',
-        detail: `Falha ao verificar a CLI do external runner: ${errorMessage(error)}`,
+        summary: 'Probe real do external runner failed',
+        detail: `Failure ao verificar a CLI do external runner: ${errorMessage(error)}`,
         checkedTarget: this.resolveExternalExecutorTarget(),
         httpStatus: null,
         latencyMs: Math.max(1, Date.now() - startedAt),
@@ -515,7 +512,7 @@ export class IntegrationProbeService {
           label: input.label,
           status: 'ok',
           transport: input.transport,
-          summary: 'Probe real respondeu com sucesso',
+          summary: 'Real probe responded successfully',
           detail: `The integration responded to the light test in ${latencyMs} ms.`,
           checkedTarget: input.checkedTarget,
           httpStatus: response.status,
@@ -531,8 +528,7 @@ export class IntegrationProbeService {
         status: 'failed',
         transport: input.transport,
         summary: this.describeFailure(response.status),
-        detail: preview
-          ? `O endpoint respondeu ${response.status}. Detalhe: ${preview}`
+        detail: preview ? `O endpoint respondeu ${response.status}. Detalhe: ${preview}`
           : `O endpoint respondeu ${response.status} durante o probe real.`,
         checkedTarget: input.checkedTarget,
         httpStatus: response.status,
@@ -547,10 +543,9 @@ export class IntegrationProbeService {
         label: input.label,
         status: 'failed',
         transport: input.transport,
-        summary: aborted ? 'Probe real expirou' : 'Probe real falhou',
-        detail: aborted
-          ? `O endpoint nao respondeu dentro de ${this.timeoutMs} ms.`
-          : `Falha ao contactar o endpoint: ${errorMessage(error)}`,
+        summary: aborted ? 'Real probe timed out' : 'Probe real failed',
+        detail: aborted ? `The endpoint did not respond within ${this.timeoutMs} ms.`
+          : `Failure ao contactar o endpoint: ${errorMessage(error)}`,
         checkedTarget: input.checkedTarget,
         httpStatus: null,
         latencyMs: Math.max(1, Date.now() - startedAt),
@@ -572,12 +567,12 @@ export class IntegrationProbeService {
 
   private describeFailure(status: number): string {
     if (status === 401 || status === 403) {
-      return 'Probe real falhou por autenticacao';
+      return 'Probe real failed por authentication';
     }
     if (status >= 500) {
-      return 'Probe real encontrou erro remoto';
+      return 'Probe real encontrou error remote';
     }
-    return 'Probe real falhou';
+    return 'Probe real failed';
   }
 
   private createSnapshot(
@@ -636,7 +631,7 @@ export class IntegrationProbeService {
     if (mode === 'native' || mode === 'cloud-api') {
       return 'api';
     }
-    if (mode === 'stub' || mode === 'baileys' || mode === 'bridge') {
+    if (mode === 'local' || mode === 'baileys' || mode === 'bridge') {
       return 'runtime';
     }
     return 'unsupported';
@@ -649,12 +644,10 @@ export class IntegrationProbeService {
   ): string | null {
     switch (integrationId) {
       case 'telegram':
-        return String(config.telegramBotToken || '').trim()
-          ? 'https://api.telegram.org/bot<token>/getMe'
+        return String(config.telegramBotToken || '').trim() ? 'https://api.telegram.org/bot<token>/getMe'
           : report.command;
       case 'discord':
-        return String(config.discordBotToken || '').trim()
-          ? 'https://discord.com/api/v10/users/@me'
+        return String(config.discordBotToken || '').trim() ? 'https://discord.com/api/v10/users/@me'
           : report.command;
       case 'slack':
         return mode === 'native'

@@ -20,7 +20,7 @@ export type ZavorthSubagentAutoInvocationInput = {
 export class ZavorthSubagentAutoInvocationPolicyService {
   public decide(input: ZavorthSubagentAutoInvocationInput): ZavorthSubagentAutoInvocationDecision {
     const text = normalize(input.text);
-    const plain = stripAccents(text.toLowerCase());
+    const plain = text.toLowerCase();
     const mode = normalize(input.mode, 'default').toLowerCase();
     const explicit = collectExplicitSubagentTriggers(plain);
     const implicit = collectImplicitComplexityTriggers(plain, input);
@@ -42,10 +42,8 @@ export class ZavorthSubagentAutoInvocationPolicyService {
     const shouldInvoke = !directModeBlocked
       && (explicitSubagentRequest || (allowImplicit && implicitComplexityMatch && confidence >= 0.75))
       && (!risks.length || explicitSubagentRequest);
-    const action = requiresApproval
-      ? 'require_approval'
-      : shouldInvoke
-        ? 'invoke_live_subagents'
+    const action = requiresApproval ? 'require_approval'
+      : shouldInvoke ? 'invoke_live_subagents'
         : 'skip';
     const selectedMode = inferMode(plain, roleIds);
     const reason = buildReason({
@@ -117,10 +115,8 @@ function buildTelemetry(input: {
 }): ZavorthSubagentAutoInvocationTelemetry {
   const selectedBy = resolveSelectionSource(input);
   const roleTelemetry = input.roleIds.map((roleId) => buildRoleTelemetry(roleId, input.triggers));
-  const status = input.requiresApproval
-    ? 'approval-required'
-    : input.shouldInvoke
-      ? 'auto-selected'
+  const status = input.requiresApproval ? 'approval-required'
+    : input.shouldInvoke ? 'auto-selected'
       : 'skipped';
   const publicRationale = buildPublicRationale({
     selectedBy,
@@ -135,11 +131,9 @@ function buildTelemetry(input: {
     `confidence:${input.confidence}`,
     ...input.roleIds.slice(0, 4).map((roleId) => `role:${roleId}`),
   ];
-  const nextSafeAction = input.requiresApproval
-    ? 'Pedir aprovacao antes de acionar subagentes com escrita, comando, rede sensivel ou efeito externo.'
-    : input.shouldInvoke
-      ? 'Acompanhar workers, receipts e sintese final antes de responder.'
-      : 'Responder diretamente; subagentes nao foram selecionados para este turno.';
+  const nextSafeAction = input.requiresApproval ? 'Request approval before triggering subagents with write, command, sensitive network, or external effect.'
+    : input.shouldInvoke ? 'Monitor workers, receipts, and final synthesis before answering.'
+      : 'Answer directly; subagents were not selected for this turn.';
 
   return {
     decisionId: `subagent-auto:${stableId([
@@ -166,19 +160,17 @@ function buildTelemetry(input: {
     triggers: uniqueStrings(input.triggers),
     riskSignals: uniqueStrings(input.riskSignals),
     publicRationale,
-    operatorSummary: `${status}: ${input.roleIds.join(', ') || 'sem roles'}; ${publicRationale}`,
+    operatorSummary: `${status}: ${input.roleIds.join(', ') || 'without roles'}; ${publicRationale}`,
     zavorthControl: {
-      title: input.shouldInvoke ? 'Subagentes escolhidos automaticamente' : 'Subagentes nao escolhidos',
+      title: input.shouldInvoke ? 'Subagents selected automatically' : 'Subagents not selected',
       status,
       badges: uniqueStrings(badges),
       nextSafeAction,
     },
     cli: {
-      headline: input.shouldInvoke
-        ? 'Auto subagents: selecionados'
-        : input.requiresApproval
-          ? 'Auto subagents: aguardando aprovacao'
-          : 'Auto subagents: ignorados',
+      headline: input.shouldInvoke ? 'Auto subagents: selected'
+        : input.requiresApproval ? 'Auto subagents: waiting for approval'
+          : 'Auto subagents: skipped',
       lines: [
         `selectedBy=${selectedBy}`,
         `confidence=${input.confidence}`,
@@ -224,16 +216,16 @@ function buildRoleTelemetry(
     coder: 'Coder',
   };
   const reasons: Record<string, string> = {
-    planner: 'coordena a decomposicao e a sintese final',
-    researcher: 'coleta contexto e evidencia antes da sintese',
-    auditor: 'procura riscos, falhas e inconsistencias',
-    qa: 'valida achados e confere criterios de pronto',
-    coder: 'prepara leitura tecnica de codigo sem mutar workspace automaticamente',
+    planner: 'coordinates decomposition and final synthesis',
+    researcher: 'collects context and evidence before synthesis',
+    auditor: 'looks for risks, failures, and inconsistencies',
+    qa: 'validates findings and checks readiness criteria',
+    coder: 'prepares a technical code read without mutating the workspace automatically',
   };
   return {
     roleId: normalized,
     label: labels[normalized] || normalized,
-    whySelected: `${reasons[normalized] || 'papel selecionado pela politica de subagentes'}; sinais=${triggers.join(', ') || 'n/d'}`,
+    whySelected: `${reasons[normalized] || 'role selected by subagent policy'}; signals=${triggers.join(', ') || 'n/d'}`,
   };
 }
 
@@ -245,15 +237,15 @@ function buildPublicRationale(input: {
   roleTelemetry: ZavorthSubagentAutoInvocationRoleTelemetry[];
 }): string {
   const source = input.selectedBy === 'explicit-user-request'
-    ? 'pedido explicito do usuario'
+    ? 'explicit user request'
     : input.selectedBy === 'implicit-complexity'
-      ? 'complexidade alta e leitura segura'
-      : 'sem roteamento automatico';
-  const roles = input.roleTelemetry.map((role) => role.roleId).join(', ') || 'nenhum role';
+      ? 'high complexity and safe read'
+      : 'without automatic routing';
+  const roles = input.roleTelemetry.map((role) => role.roleId).join(', ') || 'no role';
   const risks = input.riskSignals.length > 0
-    ? ` riscos detectados: ${input.riskSignals.join(', ')}`
-    : ' sem sinais de escrita, comando ou efeito externo';
-  return `${input.reason} Fonte: ${source}. Roles: ${roles}. Gatilhos: ${input.triggers.join(', ') || 'n/d'};${risks}.`;
+    ? ` detected risks: ${input.riskSignals.join(', ')}`
+    : ' without write, command, or external-effect signals';
+  return `${input.reason} source: ${source}. Roles: ${roles}. Triggers: ${input.triggers.join(', ') || 'n/d'};${risks}.`;
 }
 
 /** Free-text keywords never auto-start subagents. LLM + tools own multi-agent choice. */
@@ -326,10 +318,6 @@ function buildReason(input: {
   return 'No explicit subagent intent or high-confidence complex read-only trigger was detected.';
 }
 
-function collect(plain: string, rules: Array<[string, RegExp]>): string[] {
-  return rules.filter(([, pattern]) => pattern.test(plain)).map(([id]) => id);
-}
-
 function uniqueStrings(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
 }
@@ -346,8 +334,4 @@ function stableId(value: string): string {
 function normalize(value: unknown, fallback = ''): string {
   const text = String(value || '').trim();
   return text || fallback;
-}
-
-function stripAccents(value: string): string {
-  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }

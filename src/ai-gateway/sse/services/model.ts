@@ -181,7 +181,7 @@ async function buildZavorthAutoCombo(name: string) {
         };
       })
       .filter(Boolean)
-      .sort((a: any, b: any) => (a.priority || 100) - (b.priority || 100))
+      .sort((a: any, b: any) => (a.priority || 100) ? (b.priority || 100))
       .slice(0, 12);
     if (models.length === 0) return null;
     return {

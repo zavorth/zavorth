@@ -160,8 +160,8 @@ const CATEGORY_LABELS: Record<CapabilityType, string> = {
   executor: 'Executores',
   workflow: 'Workflows',
   research: 'Pesquisa',
-  automation: 'Automacao',
-  integration: 'Integracoes',
+  automation: 'Automation',
+  integration: 'Integrations',
 };
 
 export class ZavorthCapabilityCatalogService {
@@ -286,7 +286,7 @@ export class ZavorthCapabilityCatalogService {
         id: capability.id,
         label: capability.label,
         description: capability.description,
-        routingReason: capability.routing_reason || capability.intent || 'Rota automatica sem resumo adicional.',
+        routingReason: capability.routing_reason || capability.intent || 'Rota automatica without additional summary.',
         executorPreference: capability.executor_preference ?? null,
         confidence: Number.isFinite(Number(capability.routing_confidence))
           ? Number(capability.routing_confidence)
@@ -426,15 +426,15 @@ export class ZavorthCapabilityCatalogService {
     agentOsSummary: ZavorthCapabilityCatalogSnapshot['agentOs'],
   ): ZavorthCapabilityCatalogSnapshot['narrative'] {
     const headline = summary.plugin > 0
-      ? `Zavorth expoe ${summary.total} capacidades entre core e plugins.`
-      : `Zavorth expoe ${summary.total} capacidades carregadas no core.`;
+      ? `Zavorth exposes ${summary.total} capabilities across core and plugins.`
+      : `Zavorth exposes ${summary.total} capabilities loaded in core.`;
     const operatorSummary = [
       `${summary.commands} comandos diretos e ${summary.implicitRoutes} rotas automaticas.`,
-      `${platformSummary.ready} plataforma(s) pronta(s) e ${platformSummary.partial} em preparo.`,
-      `${integrationSummary.ready} integracao(oes) pronta(s) no hub, ${integrationSummary.needsConfiguration} aguardando configuracao.`,
-      `${providerSummary.ready} provider(s) pronto(s); ativo ${providerSummary.activeProviderName}/${providerSummary.activeModelName}.`,
+      `${platformSummary.ready} plataforma(s) ready e ${platformSummary.partial} em preparo.`,
+      `${integrationSummary.ready} ready integration(s) in the hub, ${integrationSummary.needsConfiguration} waiting for configuration.`,
+      `${providerSummary.ready} provider(s) ready; active ${providerSummary.activeProviderName}/${providerSummary.activeModelName}.`,
       `${mcpSummary.connected}/${mcpSummary.enabled} capability(ies) MCP conectada(s) com ${mcpSummary.tools} tool(s) registradas.`,
-      `${agentOsSummary.activeLoops} loop(s) ativos e ${agentOsSummary.resumableLoops} resumiveis no agent OS limitado.`,
+      `${agentOsSummary.activeLoops} loop(s) active and ${agentOsSummary.resumableLoops} resumiveis no agent OS limitado.`,
     ].join(' ');
 
     return {
@@ -455,4 +455,3 @@ export class ZavorthCapabilityCatalogService {
       });
   }
 }
-

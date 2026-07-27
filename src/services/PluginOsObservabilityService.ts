@@ -200,8 +200,7 @@ export class PluginOsObservabilityService {
     const health: PluginOsObservabilitySnapshot['health'] =
       discovered === 0 && installed === 0
         ? 'empty'
-        : failedValidation > 0 || (selected > 0 && loadEligible === 0)
-          ? 'degraded'
+        : failedValidation > 0 || (selected > 0 && loadEligible === 0) ? 'degraded'
           : 'healthy';
 
     const deepLinks = [
@@ -362,8 +361,7 @@ export class PluginOsObservabilityService {
           .sort();
         forgeReceiptFiles = files.length;
         latestForgeReceipt = files.length
-          ? path.relative(root, path.join(forgeDir, files[files.length - 1])).replace(/\\/gu, '/')
-          : null;
+          ? path.relative(root, path.join(forgeDir, files[files.length - 1])).replace(/\\/gu, '/') : null;
       } catch {
         /* soft */
       }
@@ -413,8 +411,7 @@ function formatObservability(view: Omit<PluginOsObservabilitySnapshot, 'formatTe
     '',
     'Marketplace:',
     `  curated=${view.marketplace.curatedTotal} firstParty=${view.marketplace.firstPartyEnabled}/${view.marketplace.firstPartyTotal} examples=${view.marketplace.exampleTotal}`,
-    view.marketplace.firstPartyMissing.length
-      ? `  missing first-party: ${view.marketplace.firstPartyMissing.slice(0, 12).join(', ')}`
+    view.marketplace.firstPartyMissing.length ? `  missing first-party: ${view.marketplace.firstPartyMissing.slice(0, 12).join(', ')}`
       : '  missing first-party: (none)',
     '',
     'Bootstrap:',
@@ -427,8 +424,7 @@ function formatObservability(view: Omit<PluginOsObservabilitySnapshot, 'formatTe
     '',
     'MCP:',
     `  configured=${view.mcp.serversConfigured} enabled=${view.mcp.serversEnabled}`,
-    view.mcp.materializable.length
-      ? `  servers: ${view.mcp.materializable.join(', ')}`
+    view.mcp.materializable.length ? `  servers: ${view.mcp.materializable.join(', ')}`
       : '  servers: (none)',
   ].filter((line) => line !== null) as string[];
 
@@ -439,6 +435,6 @@ function formatObservability(view: Omit<PluginOsObservabilitySnapshot, 'formatTe
     }
   }
 
-  lines.push('', 'Deep links:', ...view.deepLinks.map((link) => `  - ${link}`));
+  lines.push('', 'Deep links:', ...view.deepLinks.map((link) => ` ? ${link}`));
   return lines.join('\n');
 }

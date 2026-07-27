@@ -14,9 +14,9 @@ export type CleanupResult = {
 };
 
 /**
- * Processos que NUNCA devem ser encerrados.
- * Inclui o próprio Zavorth (node), processos do sistema Windows,
- * e processos essenciais para a sessão.
+ * Processes that must NEVER be terminated.
+ * Includes Zavorth itself (node), Windows system processes,
+ * and processes essential to the session.
  */
 const PROTECTED_PROCESSES = new Set([
   // Sistema Windows
@@ -28,7 +28,7 @@ const PROTECTED_PROCESSES = new Set([
   'conhost.exe', 'wudfhost.exe', 'audiodg.exe',
   // Zavorth / Node
   'node.exe', 'powershell.exe', 'cmd.exe',
-  // Segurança
+  // Security
   'msmpeng.exe', 'nissrv.exe', 'securityhealthservice.exe',
   'mpcmdrun.exe', 'smartscreen.exe',
   // WSL
@@ -43,7 +43,7 @@ export class SystemCleanupService {
   }
 
   /**
-   * Mata todos os processos não-essenciais e opcionalmente desliga o WSL.
+   * Kills all non-essential processes and optionally shuts down WSL.
    */
   public async cleanup(options: { shutdownWsl?: boolean } = {}): Promise<CleanupResult> {
     const warnings: string[] = [];
@@ -80,7 +80,7 @@ export class SystemCleanupService {
         }
       }
 
-      // 4. Limpar arquivos temporários sujos (.part, .ytdl)
+      // 4. Clean temporary dirty files (.part, .ytdl)
       let artifactsCleaned = 0;
       try {
         artifactsCleaned = await this.cleanTempArtifacts();
@@ -88,8 +88,8 @@ export class SystemCleanupService {
       }
 
       const message = killed.length > 0 || artifactsCleaned > 0
-        ? `Limpeza concluida. ${killed.length} processo(s) encerrado(s). ${artifactsCleaned} artefato(s) removido(s).${wslShutdown ? ' WSL desligado.' : ''}`
-        : `Nenhum processo nao-essencial ou artefato encontrado.${wslShutdown ? ' WSL desligado.' : ''}`;
+        ? `Cleanup completed. ${killed.length} process(es) closed. ${artifactsCleaned} artifact(s) removido(s).${wslShutdown ? ' WSL shut down.' : ''}`
+        : `No non-essential process or artifact found.${wslShutdown ? ' WSL shut down.' : ''}`;
 
       return { ok: true, killed, skipped, wslShutdown, message, warnings };
     } catch (error: unknown) {

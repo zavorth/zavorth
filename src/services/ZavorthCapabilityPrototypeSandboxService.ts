@@ -98,7 +98,7 @@ export class ZavorthCapabilityPrototypeSandboxService {
       `status=${snapshot.status}`,
       `store=${snapshot.storeFile}`,
       `root=${snapshot.prototypeRoot}`,
-      `prototypes=${snapshot.summary.prototypes} simulated=${snapshot.summary.simulated} skipped=${snapshot.summary.skipped} blocked=${snapshot.summary.blocked}`,
+      `prototypes=${snapshot.summary.prototypes} dryRun=${snapshot.summary.dryRun} skipped=${snapshot.summary.skipped} blocked=${snapshot.summary.blocked}`,
       '',
       'Prototypes:',
     ];
@@ -159,7 +159,7 @@ export class ZavorthCapabilityPrototypeSandboxService {
         hostWorkspaceWrites: false,
         liveActivation: false,
       },
-      nextStage: 'Run eval, canary and security checks before any Action Harness exposure.',
+      nextAction: 'Run eval, canary and security checks before any Action Harness exposure.',
     };
     const notes = [
       `# ${candidate.title}`,
@@ -186,7 +186,7 @@ export class ZavorthCapabilityPrototypeSandboxService {
       id: prototypeId,
       candidateId: candidate.id,
       title: redact(candidate.title),
-      status: 'simulated',
+      status: 'dryRun',
       workspaceDir,
       createdAt: timestamp,
       updatedAt: timestamp,
@@ -267,7 +267,7 @@ export class ZavorthCapabilityPrototypeSandboxService {
       prototypeRoot: this.prototypeRoot,
       summary: {
         prototypes: prototypes.length,
-        simulated: prototypes.filter((entry) => entry.status === 'simulated').length,
+        dryRun: prototypes.filter((entry) => entry.status === 'dryRun').length,
         skipped: receipts.filter((entry) => entry.status === 'skipped').length,
         blocked: receipts.filter((entry) => entry.status === 'blocked').length,
         receipts: receipts.length,
@@ -288,7 +288,7 @@ export class ZavorthCapabilityPrototypeSandboxService {
         list: 'npm run zavorth:capability-prototypes --silent -- --list',
         prototypeAllReady: 'npm run zavorth:capability-prototypes --silent -- --prototype --all-ready',
         prototypeSelected: 'npm run zavorth:capability-prototypes --silent -- --prototype --candidate <candidate-id>',
-        nextStage: 'Run eval, canary and security checks for sandbox prototypes.',
+        nextAction: 'Run eval, canary and security checks for sandbox prototypes.',
       },
     };
   }
@@ -397,7 +397,7 @@ function isReceipt(value: ZavorthCapabilityPrototypeReceipt | null): value is Za
 }
 
 function isPrototypeStatus(value: unknown): value is ZavorthCapabilityPrototypeStatus {
-  return ['simulated', 'skipped', 'blocked'].includes(String(value || ''));
+  return ['dryRun', 'skipped', 'blocked'].includes(String(value || ''));
 }
 
 function assertInside(root: string, target: string): void {
@@ -422,7 +422,7 @@ function redact(value: unknown): string {
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{6,}\b/g, '[REDACTED]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{6,}\b/g, '[REDACTED]')
     .replace(/\bAIza[0-9A-Za-z_-]{8,}\b/g, '[REDACTED]')
-    .replace(/\b(token|secret|password|api[_ -]?key)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
+    .replace(/\b(token|secret|password|api[_ -]...key)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
     .trim()
     .slice(0, 2_000);
 }

@@ -52,14 +52,12 @@ export class LearningOSService {
         title: candidate.title,
         origin: candidate.source.sourceSurface || candidate.source.workflow || 'runtime',
         observedPattern: candidate.summary,
-        recommendation: securityBlocked
-          ? 'Blocked: Learning OS cannot change policy, sandbox, firewall, allowlists, or fundamental approvals.'
+        recommendation: securityBlocked ? 'Blocked: Learning OS cannot change policy, sandbox, firewall, allowlists, or fundamental approvals.'
           : candidate.steps[0] || candidate.summary,
         confidence: candidate.score,
         impact: this.impactFor(state),
         dataUsed: candidate.details.slice(0, 6),
-        suggestedAction: securityBlocked
-          ? 'Reject or keep quarantined. Security adjustments require reviewed code changes.'
+        suggestedAction: securityBlocked ? 'Reject or keep quarantined. Security adjustments require reviewed code changes.'
           : this.suggestedActionFor(state, candidate.score),
         state,
         createdAt: candidate.createdAt,
@@ -265,14 +263,14 @@ export class LearningOSService {
       'blocklist',
       'approval',
       'permissions',
-      'seguranca',
+      'security',
       'security',
       'bypass',
       'disable safety',
-      'desativar seguranca',
-      'sempre permitir shell',
+      'desativar security',
+      'always allow shell',
       'never ask approval',
-      'sem approval',
+      'without approval',
     ];
     return protectedSignals.some((signal) => haystack.includes(signal));
   }

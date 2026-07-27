@@ -6,14 +6,14 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
     id: 'AIGateway',
     label: 'AIGateway',
     aliases: ['ai-gateway-local'],
-    summary: 'Local-first gateway already integrated with Zavorth.',
+    summary: 'local-first gateway already integrated with Zavorth.',
     description: 'Runs as a local sidecar and talks directly to the Zavorth runtime.',
     supportLevel: 'native',
     category: 'local',
     tags: ['provider', 'sidecar', 'local-first'],
     modes: [
-      mode('cli', 'Local worktree', 'Uses the sidecar already vendored with Zavorth.', true),
-      mode('docker', 'Local container', 'Future option for stronger isolation.', false),
+      mode('cli', 'local worktree', 'Uses the sidecar already vendored with Zavorth.', true),
+      mode('docker', 'local container', 'Future option for stronger isolation.', false),
     ],
     defaultMode: 'cli',
     capabilities: ['chat', 'code', 'agents', 'automation'],
@@ -35,11 +35,11 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'How do you want to run AIGateway?', 'single_choice', 'The local worktree is the default Zavorth flow.', {
+      question('install_mode', 'How do you want to run AIGateway...', 'single_choice', 'The local worktree is the default Zavorth flow.', {
         required: false,
         choices: [
-          choice('cli', 'Local worktree', 'Recommended: use the current sidecar.'),
-          choice('docker', 'Local container', 'Planned for stronger isolation.'),
+          choice('cli', 'local worktree', 'Recommended: use the current sidecar.'),
+          choice('docker', 'local container', 'Planned for stronger isolation.'),
         ],
       }),
       commonCapabilityQuestion,
@@ -49,8 +49,8 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
       step('bootstrap', 'Check sidecar status', 'Validate dependencies and sidecar state.', 'verification', 'npm run sidecars:status'),
       step('doctor', 'Run doctor', 'Confirm the gateway is routable.', 'verification', 'npm run integrations:doctor -- --id AIGateway'),
     ],
-    safetyNotes: ['Local-first execution improves sovereignty and latency.'],
-    goodFor: ['Primary gateway', 'Low latency', 'Local sovereignty'],
+    safetyNotes: ['local-first execution improves sovereignty and latency.'],
+    goodFor: ['Primary gateway', 'Low latency', 'local sovereignty'],
   },
   {
     id: 'zavorth-terminal',
@@ -62,7 +62,7 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
     category: 'local',
     tags: ['zavorthBridge', 'remote-ui', 'sidecar', 'mobile'],
     modes: [
-      mode('cli', 'Local worktree', 'Uses the vendored worktree and official remote sidecar.', true),
+      mode('cli', 'local worktree', 'Uses the vendored worktree and official remote sidecar.', true),
       mode('browser', 'Remote UI', 'Uses the protected ZavorthBridge remote interface.', false),
     ],
     defaultMode: 'cli',
@@ -85,10 +85,10 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'How do you want to operate ZavorthBridge Remote?', 'single_choice', 'The local worktree is the recommended default flow.', {
+      question('install_mode', 'How do you want to operate ZavorthBridge Remote...', 'single_choice', 'The local worktree is the recommended default flow.', {
         required: false,
         choices: [
-          choice('cli', 'Local worktree', 'Recommended: use the vendor controlled by Zavorth.'),
+          choice('cli', 'local worktree', 'Recommended: use the vendor controlled by Zavorth.'),
           choice('browser', 'Remote UI', 'Open the protected ZavorthBridge remote interface.'),
         ],
       }),
@@ -110,14 +110,14 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
     id: 'external-executor',
     label: 'External Executor',
     aliases: ['external_executor', 'external-runner', 'local-agent-bridge', 'agent-bridge'],
-    summary: 'Local or WSL executor already supported by Zavorth for code and agents.',
+    summary: 'local or WSL executor already supported by Zavorth for code and agents.',
     description: 'The hub treats it as a local connector focused on review, execution, and orchestration.',
     supportLevel: 'native',
     category: 'local',
     tags: ['executor', 'wsl', 'code'],
     modes: [
-      mode('cli', 'Local or WSL CLI', 'Uses the executor already embedded in Zavorth.', true),
-      mode('docker', 'Local container', 'Planned for additional isolation.', false),
+      mode('cli', 'local or WSL CLI', 'Uses the executor already embedded in Zavorth.', true),
+      mode('docker', 'local container', 'Planned for additional isolation.', false),
     ],
     defaultMode: 'cli',
     capabilities: ['code', 'agents', 'automation'],
@@ -125,7 +125,7 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
       kind: 'executor',
       key: 'external_executor',
       status: 'ready',
-      summary: 'Local executor is already present in the gateway.',
+      summary: 'local executor is already present in the gateway.',
     },
     requirements: [
       req('external_executor_cli', 'External executor CLI available', 'Zavorth must be able to call the CLI.', {
@@ -136,14 +136,14 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'How do you want to run the external executor?', 'single_choice', 'Zavorth already works well with the local or WSL CLI.', {
+      question('install_mode', 'How do you want to run the external executor...', 'single_choice', 'Zavorth already works well with the local or WSL CLI.', {
         required: false,
         choices: [
-          choice('cli', 'Local or WSL CLI', 'Recommended.'),
-          choice('docker', 'Local container', 'Planned for later.'),
+          choice('cli', 'local or WSL CLI', 'Recommended.'),
+          choice('docker', 'local container', 'Planned for later.'),
         ],
       }),
-      question('capabilities', 'Which capabilities should be prioritized?', 'multi_choice', 'This bridge is most useful for code and automation.', {
+      question('capabilities', 'Which capabilities should be prioritized...', 'multi_choice', 'This bridge is most useful for code and automation.', {
         required: false,
         choices: capabilityChoices.filter((entry) => ['code', 'agents', 'automation'].includes(entry.value)),
       }),
@@ -153,19 +153,19 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
       step('doctor', 'Run doctor', 'Validate CLI access, binding, and workspace state.', 'verification', 'npm run integrations:doctor -- --id external-executor'),
     ],
     safetyNotes: ['As a local executor, it must follow Zavorth permission policies.'],
-    goodFor: ['Code review', 'Local execution', 'Autonomous flows'],
+    goodFor: ['Code review', 'local execution', 'Autonomous flows'],
   },
   {
     id: 'ollama',
     label: 'Ollama',
     aliases: ['local-llm'],
-    summary: 'Local recipe for running models on the host with a focus on sovereignty.',
+    summary: 'local recipe for running models on the host with a focus on sovereignty.',
     description: 'Zavorth does not have a native Ollama provider yet, but it can guide installation and health checks.',
     supportLevel: 'recipe',
     category: 'local',
     tags: ['local', 'privacy', 'recipe'],
     modes: [
-      mode('docker', 'Local Docker', 'Recommended for a more isolated start.'),
+      mode('docker', 'local Docker', 'Recommended for a more isolated start.'),
       mode('cli', 'Native install', 'Best when you want full host control.'),
     ],
     defaultMode: 'docker',
@@ -177,7 +177,7 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
       summary: 'The recipe is supported, but automatic binding is still planned.',
     },
     requirements: [
-      req('host_resources', 'Host resources', 'Local models can consume significant RAM, CPU, and disk.', {
+      req('host_resources', 'Host resources', 'local models can consume significant RAM, CPU, and disk.', {
         type: 'manual',
       }),
       req('docker_optional', 'Working Docker install', 'Required only when you choose container mode.', {
@@ -186,14 +186,14 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'How do you want to install Ollama?', 'single_choice', 'Docker is usually more predictable for the first setup.', {
+      question('install_mode', 'How do you want to install Ollama...', 'single_choice', 'Docker is usually more predictable for the first setup.', {
         required: false,
         choices: [
-          choice('docker', 'Local Docker', 'Recommended for stronger isolation.'),
+          choice('docker', 'local Docker', 'Recommended for stronger isolation.'),
           choice('cli', 'Native install', 'Choose this when you want full host control.'),
         ],
       }),
-      question('model_family', 'Which local model profile should come first?', 'single_choice', 'This helps estimate host requirements.', {
+      question('model_family', 'Which local model profile should come first...', 'single_choice', 'This helps estimate host requirements.', {
         required: false,
         choices: [
           choice('small', 'Lightweight', 'Simpler for modest hosts.'),
@@ -208,7 +208,7 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
       step('install', 'Install Ollama', 'Run the selected native or Docker recipe.', 'manual'),
       step('doctor', 'Run doctor', 'Validate that the installation actually came online.', 'verification', 'npm run integrations:doctor -- --id ollama'),
     ],
-    safetyNotes: ['Local models can compete with Zavorth for host resources.'],
-    goodFor: ['Maximum privacy', 'Local sovereignty', 'Offline use'],
+    safetyNotes: ['local models can compete with Zavorth for host resources.'],
+    goodFor: ['Maximum privacy', 'local sovereignty', 'Offline use'],
   },
 ];

@@ -306,8 +306,8 @@ export class ZavorthReleasePresenceControlPlaneService {
         enabled: remotePresence.ready > 0,
         authorizedSurfaces: ['cli', 'control-ui', 'telegram-approved-session'],
         reason: remotePresence.ready > 0
-          ? 'Fluxos longos podem ser espelhados somente para superficies autorizadas.'
-          : 'Sem transporte remoto pronto; espelhamento fica dormente e degradado.',
+          ? 'Long flows can be mirrored only to authorized surfaces.'
+          : 'without transporte remote ready; espelhamento fica dormant e degradado.',
       },
       costPanel,
       contracts,
@@ -390,7 +390,7 @@ export class ZavorthReleasePresenceControlPlaneService {
     if (publish?.available || publish?.publishedAt || publish?.commit) {
       return {
         id: publish.sourceArchiveId || history[0]?.id || 'current',
-        label: publish.sourceArchiveId || `current (${String(publish.commit || '').slice(0, 8) || 'sem-commit'})`,
+        label: publish.sourceArchiveId || `current (${String(publish.commit || '').slice(0, 8) || 'without-commit'})`,
         publishedAt: publish.publishedAt || null,
         branch: publish.branch || null,
         commit: publish.commit || null,
@@ -417,7 +417,7 @@ export class ZavorthReleasePresenceControlPlaneService {
         report: null,
         summary: descriptors.length < 2
           ? 'Historico insuficiente para comparar publishes reais.'
-          : 'Nao foi possivel resolver os snapshots solicitados.',
+          : 'Could not resolve the requested snapshots.',
       };
     }
 
@@ -479,17 +479,17 @@ export class ZavorthReleasePresenceControlPlaneService {
       {
         id: 'target-resolved',
         status: target ? 'pass' : 'block',
-        summary: target ? `Target ${target.label} resolvido.` : 'Nenhum publish anterior utilizavel foi encontrado.',
+        summary: target ? `Target ${target.label} resolvido.` : 'No publish anterior utilizavel foi encontrado.',
       },
       {
         id: 'archive-docs',
         status: docsPath && this.existsSync(docsPath) ? 'pass' : target ? 'warn' : 'block',
-        summary: docsPath ? `Docs archive: ${docsPath}` : 'Snapshot de docs indisponivel.',
+        summary: docsPath ? `Docs archive: ${docsPath}` : 'Snapshot de docs unavailable.',
       },
       {
         id: 'archive-remote-console',
         status: consolePath && this.existsSync(consolePath) ? 'pass' : target ? 'warn' : 'block',
-        summary: consolePath ? `Remote console archive: ${consolePath}` : 'Snapshot de remote console indisponivel.',
+        summary: consolePath ? `Remote console archive: ${consolePath}` : 'Snapshot de remote console unavailable.',
       },
       {
         id: 'diff-evidence',
@@ -503,8 +503,7 @@ export class ZavorthReleasePresenceControlPlaneService {
     return {
       targetId: target?.id || null,
       targetLabel: target?.label || null,
-      command: target?.id
-        ? `node scripts/remote-rollback.mjs --dry-run --id=${target.id}`
+      command: target?.id ? `node scripts/remote-rollback.mjs --dry-run --id=${target.id}`
         : 'node scripts/remote-rollback.mjs --dry-run',
       previewOnly: true,
       confirmationRequired: true,
@@ -521,8 +520,8 @@ export class ZavorthReleasePresenceControlPlaneService {
       ].filter(Boolean) as string[],
       reversalPlan: [
         'Selecionar snapshot arquivado.',
-        'Comparar target com current-prepared antes de trocar arquivos.',
-        'Restaurar docs e remote-console em remote-dist somente apos confirmacao.',
+        'Compare target with current-prepared before changing files.',
+        'Restore docs and remote-console at remote-dist only after confirmation.',
         'Republicar com smoke e registrar novo publish history.',
       ],
     };
@@ -573,11 +572,11 @@ export class ZavorthReleasePresenceControlPlaneService {
       pendingWork,
       stateSummary: remoteTransport?.narrative.operatorSummary
         || healthRemote?.summary
-        || 'Presenca remota dormente; nenhum transporte precisa ficar sempre online.',
+        || 'Dormant remote presence; no transport needs to stay always online.',
       credentials: {
         mode: 'redacted-or-none',
         looseCredentialRequired: false,
-        reason: 'Primeira camada reporta readiness e endpoints, nunca tokens ou credenciais soltas.',
+        reason: 'The first layer reports readiness and endpoints, never loose tokens or credentials.',
       },
       entries,
     };
@@ -593,34 +592,33 @@ export class ZavorthReleasePresenceControlPlaneService {
     const publish = health?.publish;
     const reasons: string[] = [];
     if (publish && String(publish.smokeTest || '').toLowerCase() === 'failed') {
-      reasons.push('ultimo publish tem smoke falho');
+      reasons.push('latest publish tem smoke falho');
     }
     if (publish && String(publish.gitPush || '').toLowerCase() === 'failed') {
-      reasons.push('git push do publish falhou');
+      reasons.push('git push do publish failed');
     }
     if (rollback.preflight.status === 'block') {
-      reasons.push('rollback sem target/preflight completo');
+      reasons.push('rollback without target/preflight completo');
     }
     if (!diff.available) {
-      reasons.push('comparacao entre snapshots indisponivel ou historico curto');
+      reasons.push('comparison between snapshots unavailable or history is short');
     }
     if (remotePresence.status === 'degraded' || remotePresence.status === 'offline') {
-      reasons.push('presenca remota degradada');
+      reasons.push('degraded remote presence');
     }
     if (history.length === 0) {
       reasons.push('nenhum publish registrado no history');
     }
 
     const level: ZavorthReleaseRiskLevel = reasons.some((reason) =>
-      /smoke falho|git push|sem target|offline/i.test(reason))
-      ? 'high'
+      /smoke falho|git push|without target|offline/i.test(reason)) ? 'high'
       : reasons.length > 0
         ? 'medium'
         : 'low';
 
     return {
       level,
-      reasons: reasons.length > 0 ? reasons : ['release com historico, rollback e presenca em postura aceitavel'],
+      reasons: reasons.length > 0 ? reasons : ['release with history, rollback, and presence at acceptable posture'],
     };
   }
 
@@ -640,14 +638,14 @@ export class ZavorthReleasePresenceControlPlaneService {
         available: false,
         digest: null,
         subject: null,
-        reason: 'Sem publish ou commit suficiente para assinar/verificar snapshot.',
+        reason: 'without publish ou commit suficiente para assinar/verificar snapshot.',
       };
     }
     return {
       available: true,
       digest: `sha256:${crypto.createHash('sha256').update(subject).digest('hex')}`,
       subject,
-      reason: 'Digest local do release calculado para verificacao quando assinatura externa nao existir.',
+      reason: 'local release digest calculated for verification when external signature does not exist.',
     };
   }
 
@@ -674,7 +672,7 @@ export class ZavorthReleasePresenceControlPlaneService {
         label: 'Stable',
         status: latest ? 'current' : 'dormant',
         version: packageInfo.version,
-        source: latest?.id || 'sem publish atual',
+        source: latest?.id || 'without publish current',
         publishCommand: 'npm run remote:publish',
       },
     ];
@@ -707,7 +705,7 @@ export class ZavorthReleasePresenceControlPlaneService {
         tokenAccounting: {
           available: false,
           totalTokens: 0,
-          reason: 'Telemetry ledger indisponivel neste runtime.',
+          reason: 'Telemetry ledger unavailable in this runtime.',
         },
         taskCosts: [],
       };
@@ -723,7 +721,7 @@ export class ZavorthReleasePresenceControlPlaneService {
       tokenAccounting: {
         available: false,
         totalTokens: 0,
-        reason: 'Eventos atuais nao expoem tokens brutos; painel preserva custo/tentativas sem payload sensivel.',
+        reason: 'Current events do not expose raw tokens; the panel preserves cost/attempts without sensitive payload.',
       },
       taskCosts: telemetry.traces.slice(0, 6).map((trace) => ({
         taskRef: trace.traceId,
@@ -741,14 +739,14 @@ export class ZavorthReleasePresenceControlPlaneService {
     diff: ZavorthReleasePresenceSnapshot['diff'],
   ): ZavorthReleasePresenceSnapshot['changelog'] {
     const entries = [
-      history[0] ? `Ultimo publish: ${history[0].label} em ${history[0].publishedAt || 'data desconhecida'}.` : null,
+      history[0] ? `Latest publish: ${history[0].label} at ${history[0].publishedAt || 'unknown date'}.` : null,
       diff.available ? `Diff: ${diff.summary}.` : `Diff: ${diff.summary}`,
-      telemetry?.available ? `Telemetria: ${telemetry.totalEvents} evento(s), ${telemetry.failureEvents} falha(s), ${telemetry.blockedEvents} bloqueio(s).` : 'Telemetria local ainda sem baseline de release.',
+      telemetry?.available ? `Telemetria: ${telemetry.totalEvents} event(s), ${telemetry.failureEvents} failure(s), ${telemetry.blockedEvents} block(s).` : 'Telemetria local ainda without baseline de release.',
       ...history.slice(1, 4).map((entry) => `Historico: ${entry.label}${entry.diffToPrevious ? ` | ${entry.diffToPrevious}` : ''}.`),
     ].filter(Boolean) as string[];
     return {
       generatedFrom: 'publish-history+telemetry-ledger',
-      entries: entries.length > 0 ? entries : ['Sem publishes anteriores; changelog fica pronto para o primeiro release.'],
+      entries: entries.length > 0 ? entries : ['No previous publishes; changelog is ready for the first release.'],
     };
   }
 
@@ -816,16 +814,16 @@ export class ZavorthReleasePresenceControlPlaneService {
   ): ZavorthReleasePresenceSnapshot['narrative'] {
     if (mode === 'diff') {
       return {
-        headline: diff.available ? 'Comparacao de snapshots pronta.' : 'Comparacao de snapshots degradada.',
+        headline: diff.available ? 'Comparison de snapshots ready.' : 'Comparison de snapshots degradada.',
         operatorSummary: diff.summary,
       };
     }
     if (mode === 'rollback-preview') {
       return {
         headline: rollback.preflight.status === 'block'
-          ? 'Rollback preview bloqueado por falta de target.'
-          : 'Rollback preview pronto sem executar nada.',
-        operatorSummary: `${rollback.preflight.status}: ${rollback.evidence.join(' | ') || 'sem evidencia suficiente'}`,
+          ? 'Rollback preview blocked por missing de target.'
+          : 'Rollback preview ready without run nada.',
+        operatorSummary: `${rollback.preflight.status}: ${rollback.evidence.join(' | ') || 'without evidence suficiente'}`,
       };
     }
     if (mode === 'presence') {
@@ -836,8 +834,8 @@ export class ZavorthReleasePresenceControlPlaneService {
     }
     return {
       headline: status === 'ready'
-        ? `Release ${release.channel} pronto para operacao.`
-        : `Release ${release.channel} em postura ${status}.`,
+        ? `Release ${release.channel} ready for operation.`
+        : `Release ${release.channel} at postura ${status}.`,
       operatorSummary: `${release.risk.level}: ${release.risk.reasons.join(' | ')}`,
     };
   }

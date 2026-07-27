@@ -22,9 +22,8 @@ export class ClickClackGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/clickclack',
       doctorCommand: '/channels doctor clickclack',
-      operatorNextStep: this.resolveConfigured()
-        ? 'ClickClack webhook configurado. Pronto para enviar mensagens.'
-        : 'Defina CLICKCLACK_WEBHOOK_URL para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'ClickClack webhook configured. Ready to send messages.'
+        : 'Set CLICKCLACK_WEBHOOK_URL to enable.',
     };
   }
 

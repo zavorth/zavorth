@@ -198,7 +198,7 @@ export async function handleControlProviderHostRoutes(
       await ProviderConfigService.getInstance().deleteProvider(providerId);
 
       const db = await Database.getInstance();
-      await db.run('DELETE FROM provider_secret_refs WHERE provider_id = ?', [providerId]);
+      await db.run('DELETE FROM provider_secret_refs WHERE provider_id = ...', [providerId]);
 
       deps.writeJson(res, { ok: true });
     } catch (error: unknown) {
@@ -218,7 +218,7 @@ export async function handleControlProviderHostRoutes(
       const providerId = deleteSecretMatch[1];
       await ProviderConfigService.getInstance().setSecretRef(providerId, null);
       const db = await Database.getInstance();
-      await db.run('DELETE FROM provider_secret_refs WHERE provider_id = ?', [providerId]);
+      await db.run('DELETE FROM provider_secret_refs WHERE provider_id = ...', [providerId]);
       deps.writeJson(res, { ok: true });
     } catch (error: unknown) {
       const err = asErrorLike(error);

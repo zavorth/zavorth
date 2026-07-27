@@ -164,8 +164,8 @@
     "auditLog": "Denetim Günlüğü",
     "shutdown": "Kapat",
     "restart": "Yeniden başlat",
-    "shutdownConfirm": "ZavorthGateway kapatılsın mı?",
-    "restartConfirm": "ZavorthGateway yeniden başlatılsın mı?",
+    "shutdownConfirm": "ZavorthGateway kapatılsın mı...",
+    "restartConfirm": "ZavorthGateway yeniden başlatılsın mı...",
     "version": "v{version}",
     "debug": "Hata ayıklama",
     "system": "Sistem",
@@ -288,7 +288,7 @@
     "createKey": "API Anahtarı Oluştur",
     "key": "Anahtar",
     "revokeKey": "Anahtarı İptal Et",
-    "revokeConfirm": "Bu API anahtarını iptal etmek istediğinizden emin misiniz?",
+    "revokeConfirm": "Bu API anahtarını iptal etmek istediğinizden emin misiniz...",
     "noKeys": "Henüz API anahtarı yok",
     "noKeysDesc": "Uç noktanıza gelen isteklerin kimliğini doğrulamak için ilk API anahtarınızı oluşturun",
     "keyLabel": "Anahtar Etiketi",
@@ -320,7 +320,7 @@
     "actions": "Eylemler",
     "reqs": "istek",
     "neverUsed": "Hiç kullanılmadı",
-    "deleteConfirm": "Bu API anahtarı silinsin mi?",
+    "deleteConfirm": "Bu API anahtarı silinsin mi...",
     "usageTips": "Kullanım İpuçları",
     "tipAuth": "API anahtarlarını Authorization başlığında Bearer YOUR_KEY biçiminde kullanın",
     "tipSecure": "Anahtarlar oluşturma sırasında yalnızca bir kez gösterilir; bunları güvenli bir şekilde saklayın",
@@ -803,7 +803,7 @@
     "leastLatency": "En Düşük Gecikme",
     "comboName": "Kombo Adı",
     "comboNamePlaceholder": "ornek-kombo",
-    "deleteConfirm": "Bu kombo silinsin mi?",
+    "deleteConfirm": "Bu kombo silinsin mi...",
     "noCombosYet": "Henüz kombo yok",
     "comboCreated": "Kombo başarıyla oluşturuldu",
     "comboUpdated": "Kombo başarıyla güncellendi",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin en az 2 modelle en iyi sonucu verir.",
     "warningCostOptimizedPartialPricing": "{total} modelin yalnızca {priced} tanesinde fiyat bilgisi var. Yönlendirme kısmen maliyet odaklı olabilir.",
     "warningCostOptimizedNoPricing": "Bu kombo için fiyatlandırma verisi bulunamadı. Maliyet odaklı yönlendirme beklenmedik davranabilir.",
-    "readinessTitle": "Kaydetmeye hazır mısınız?",
+    "readinessTitle": "Kaydetmeye hazır mısınız...",
     "readinessDescription": "Bu komboyu oluşturmadan veya güncellemeden önce kontrol listesini gözden geçirin.",
     "readinessCheckName": "Kombo adı geçerli",
     "readinessCheckModels": "En az bir model seçildi",
@@ -1013,7 +1013,7 @@
     "title": "API Uç Noktası",
     "available": "Kullanılabilir Uç Noktalar",
     "cloudProxy": "Cloud Proxy",
-    "disableConfirm": "Bulut proxy'sini devre dışı bırakmak istediğinizden emin misiniz?",
+    "disableConfirm": "Bulut proxy'sini devre dışı bırakmak istediğinizden emin misiniz...",
     "baseUrl": "Temel URL",
     "apiKeyLabel": "API Anahtarı",
     "registeredKeys": "Kayıtlı Anahtarlar",
@@ -1154,13 +1154,13 @@
     "loading": "MCP kontrol paneli yükleniyor...",
     "activate": "etkinleştir",
     "deactivate": "devre dışı bırak",
-    "confirmSwitchCombo": "\"{combo}\" kombosu için {action} işlemi onaylansın mı?",
+    "confirmSwitchCombo": "\"{combo}\" kombosu için {action} işlemi onaylansın mı...",
     "switchComboFailed": "Kombo durumu değiştirilemedi.",
     "switchComboSuccess": "\"{combo}\" kombosu güncellendi.",
-    "confirmApplyProfile": "\"{profile}\" dayanıklılık profili uygulansın mı?",
+    "confirmApplyProfile": "\"{profile}\" dayanıklılık profili uygulansın mı...",
     "applyProfileFailed": "Dayanıklılık profili uygulanamadı.",
     "applyProfileSuccess": "\"{profile}\" profili uygulandı.",
-    "confirmResetBreakers": "Tüm devre kesiciler sıfırlansın mı?",
+    "confirmResetBreakers": "Tüm devre kesiciler sıfırlansın mı...",
     "resetBreakersFailed": "Devre kesiciler sıfırlanamadı.",
     "resetBreakersSuccess": "Devre kesiciler sıfırlandı.",
     "processStatus": "İşlem durumu",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "A2A kontrol paneli yükleniyor...",
-    "confirmCancelTask": "{taskId} görevi iptal edilsin mi?",
+    "confirmCancelTask": "{taskId} görevi iptal edilsin mi...",
     "cancelTaskFailed": "Görev iptal edilemedi.",
     "cancelTaskSuccess": "{taskId} görevi iptal edildi.",
     "smokeSendFailed": "message/send smoke testi başarısız oldu.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} çalışıyor",
     "ok": "OK",
     "activeLockouts": "Aktif kilitlenmeler",
-    "resetConfirm": "Tüm devre kesiciler sağlıklı duruma sıfırlansın mı? Bu, tüm arıza sayılarını temizleyecek ve tüm sağlayıcıları operasyonel duruma geri döndürecektir.",
+    "resetConfirm": "Tüm devre kesiciler sağlıklı duruma sıfırlansın mı... Bu, tüm arıza sayılarını temizleyecek ve tüm sağlayıcıları operasyonel duruma geri döndürecektir.",
     "resetAllTitle": "Tüm devre kesicileri sağlıklı duruma sıfırla",
     "resetting": "Sıfırlanıyor...",
     "resetAll": "Tümünü Sıfırla",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Model Kullanılabilirliği",
     "accounts": "Hesaplar",
     "newAccount": "Yeni Hesap",
-    "deleteConfirm": "Bu sağlayıcıyı silmek istediğinizden emin misiniz?",
+    "deleteConfirm": "Bu sağlayıcıyı silmek istediğinizden emin misiniz...",
     "testing": "Test ediliyor...",
     "testConnection": "Bağlantıyı Test Et",
     "testSuccess": "Bağlantı başarılı",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "API Anahtarını Test Et",
     "testKeyPlaceholder": "sk-... (yalnızca doğrulama için)",
     "providerNotFound": "Sağlayıcı bulunamadı",
-    "deleteConnectionConfirm": "Bu bağlantı silinsin mi?",
+    "deleteConnectionConfirm": "Bu bağlantı silinsin mi...",
     "failedSetAlias": "Takma ad ayarlanamadı",
     "failedSaveConnection": "Bağlantı kaydedilemedi",
     "failedSaveConnectionRetry": "Bağlantı kaydedilemedi. Lütfen tekrar deneyin.",
     "failedRetestConnection": "Bağlantı yeniden test edilemedi",
-    "deleteCompatibleNodeConfirm": "Bu {type} Uyumlu düğüm silinsin mi?",
+    "deleteCompatibleNodeConfirm": "Bu {type} Uyumlu düğüm silinsin mi...",
     "anthropicCompatibleDetails": "Anthropic Uyumlu Ayrıntılar",
     "openaiCompatibleDetails": "OpenAI Uyumlu Ayrıntılar",
     "messagesApi": "Mesajlar API'si",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Otomatik senkronizasyon devre dışı bırakıldı",
     "autoSyncToggleFailed": "Otomatik senkronizasyon durumu değiştirilemedi",
     "clearAllModels": "Tüm Modelleri Temizle",
-    "clearAllModelsConfirm": "Bu sağlayıcının tüm modellerini kaldırmak istediğinizden emin misiniz? Bu geri alınamaz.",
+    "clearAllModelsConfirm": "Bu sağlayıcının tüm modellerini kaldırmak istediğinizden emin misiniz... Bu geri alınamaz.",
     "clearAllModelsSuccess": "Tüm modeller temizlendi",
     "clearAllModelsFailed": "Modeller temizlenemedi",
     "addConnectionToImport": "İçe aktarmayı etkinleştirmek için bir bağlantı ekleyin.",
@@ -1814,7 +1814,7 @@
     "exportData": "Verileri Dışa Aktar",
     "importData": "Verileri İçe Aktar",
     "clearData": "Tüm Verileri Temizle",
-    "clearDataConfirm": "Bu işlem tüm verileri kalıcı olarak silecek. Emin misiniz?",
+    "clearDataConfirm": "Bu işlem tüm verileri kalıcı olarak silecek. Emin misiniz...",
     "enableRequestLogs": "İstek Günlüklerini Etkinleştir",
     "logRetention": "Günlük Saklama",
     "ipWhitelist": "IP Beyaz Listesi",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Geçişten önce hesap başına çağrı sayısı",
     "modelAliases": "Model Takma Adları",
     "modelAliasesTitle": "Model Takma Adları",
-    "modelAliasesDesc": "Model adlarını yeniden eşlemek için joker karakter desenleri • * ve ?",
+    "modelAliasesDesc": "Model adlarını yeniden eşlemek için joker karakter desenleri • * ve ...",
     "addCustomAlias": "Özel Takma Ad Ekle",
     "deprecatedModelId": "Kullanımdan kaldırılan model kimliği",
     "newModelId": "Yeni model kimliği",
@@ -1974,7 +1974,7 @@
     "browser": "Tarayıcı",
     "clearLocalData": "Yerel Verileri Temizle",
     "logout": "Oturumu kapat",
-    "clearLocalDataConfirm": "Tüm yerel veriler temizlensin mi? Bu, tercihlerinizi sıfırlayacaktır.",
+    "clearLocalDataConfirm": "Tüm yerel veriler temizlensin mi... Bu, tercihlerinizi sıfırlayacaktır.",
     "unknown": "Bilinmiyor",
     "systemActor": "sistem",
     "ipAccessControl": "IP Erişim Kontrolü",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Yedek Zincir Bulunmuyor",
     "noFallbackChainsDesc": "Bir model için sağlayıcı yedek sırasını tanımlamak üzere bir zincir oluşturun.",
     "loadingFallbackChains": "Yedek zincirler yükleniyor...",
-    "deleteChainConfirm": "\"{model}\" için geri dönüş zinciri silinsin mi?",
+    "deleteChainConfirm": "\"{model}\" için geri dönüş zinciri silinsin mi...",
     "chainCreated": "{model} için zincir oluşturuldu",
     "chainDeleted": "{model} için zincir silindi",
     "failedCreateChain": "Zincir oluşturulamadı",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Henüz yedek yok. Veriler değiştiğinde yedekler otomatik olarak oluşturulur.",
     "backupsAvailable": "{count} yedek mevcut",
     "refresh": "Yenile",
-    "confirm": "Onayla?",
+    "confirm": "Onayla...",
     "yes": "Evet",
     "no": "Hayır",
     "restore": "Geri yükle",
@@ -2144,7 +2144,7 @@
     "searchProvidersModels": "Sağlayıcı veya model ara...",
     "showAll": "Tümünü Göster",
     "noProvidersMatch": "Aramanızla eşleşen sağlayıcı yok.",
-    "howPricingWorks": "Fiyatlandırma Nasıl Çalışır?",
+    "howPricingWorks": "Fiyatlandırma Nasıl Çalışır...",
     "cacheWrite": "Önbellek Yazımı",
     "unsaved": "kaydedilmemiş",
     "resetDefaults": "Varsayılanları Sıfırla",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Politikalar ve Devre Kesiciler",
     "activeIssuesDetected": "Aktif sorunlar tespit edildi",
     "off": "Kapalı",
-    "resetPricingConfirm": "{provider} için tüm fiyatlandırma varsayılanlara sıfırlansın mı?",
+    "resetPricingConfirm": "{provider} için tüm fiyatlandırma varsayılanlara sıfırlansın mı...",
     "pricingDescInput": "Girdi: modele gönderilen jetonlar",
     "pricingDescOutput": "Çıktı: üretilen jetonlar",
     "pricingDescCached": "Önbellekli: yeniden kullanılan girdi (~girdi oranının %50'si)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Sen yardımsever bir asistansın.",
-        "userGreeting": "Merhaba! Bugün nasılsın?"
+        "userGreeting": "Merhaba! Bugün nasılsın..."
       },
       "toolCalling": {
-        "userWeather": "São Paulo'da hava nasıl?",
+        "userWeather": "São Paulo'da hava nasıl...",
         "toolDescription": "Bir konum için güncel hava durumunu getir",
         "cityNameDescription": "Şehir adı"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Şimdi bunu azalan sırada sıralayacak hale getir."
       },
       "thinking": {
-        "question": "İlk 100 asal sayının toplamı kaçtır?"
+        "question": "İlk 100 asal sayının toplamı kaçtır..."
       },
       "systemPrompt": {
         "systemInstruction": "Dağıtık sistemler konusunda uzmanlaşmış kıdemli bir yazılım mühendisisiniz. Sektördeki en iyi uygulamaları kullanarak soruları net bir şekilde yanıtlayın. İlgili olduğunda her zaman kod örnekleri sağlayın. Yanıtlarınızı Markdown kullanarak biçimlendirin.",
-        "question": "Devre kesici modelini nasıl uygularım?"
+        "question": "Devre kesici modelini nasıl uygularım..."
       },
       "streaming": {
         "prompt": "Bana resim yapmayı öğrenen bir robot hakkında kısa bir hikaye anlat."
@@ -2427,7 +2427,7 @@
     "lockoutsAutoRefreshHint": "Model başına hız sınırı kilitleri • 10 saniyede bir otomatik yenileme",
     "lockedCount": "{count, plural, one {# kilitli} other {# kilitli}}",
     "timeLeft": "{time} kaldı",
-    "howItWorks": "Nasıl Çalışır?",
+    "howItWorks": "Nasıl Çalışır...",
     "howItWorksSubtitle": "Değerlendirmelerin LLM yanıtlarınızı nasıl doğruladığını öğrenin",
     "define": "Tanımla",
     "defineStepDescription": "İçerme, normal ifade veya tam eşleşme gibi stratejileri kullanarak giriş istemleri ve beklenen çıktı kriterleriyle test senaryoları oluşturun.",
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "veya passwordHash alanını kaldırın",
     "restartServerWithNewPassword": "Sunucuyu yeniden başlatın; yeni şifre kullanılacaktır",
     "backToLogin": "Girişe Geri Dön",
-    "forgotPassword": "Şifrenizi mi unuttunuz?",
+    "forgotPassword": "Şifrenizi mi unuttunuz...",
     "defaultPasswordHint": "Varsayılan şifre: 123456 (INITIAL_PASSWORD ayarlanmadığı sürece)",
     "Authorization": "Authorization",
     "Content-Disposition": "Content-Disposition",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Gemini",
     "flowProviderGithubCopilot": "GitHub Copilot",
     "interactiveDiagram": "Etkileşimli diyagram masaüstünde görüntülenir",
-    "ctaTitle": "AI Altyapınızı Sadeleştirmeye Hazır mısınız?",
+    "ctaTitle": "AI Altyapınızı Sadeleştirmeye Hazır mısınız...",
     "ctaDescription": "Zavorth ile AI entegrasyonlarını sadeleştiren geliştiricilere katılın. Açık kaynaklıdır ve başlamak ücretsizdir.",
     "startFree": "Ücretsiz Başla",
     "readDocumentation": "Dokümantasyonu Oku"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Son güncelleme: {date}",
     "policyLastUpdatedDate": "13 Şubat 2026",
     "listSeparator": "-",
-    "questionsVisit": "Sorularınız mı var? Şu adresi ziyaret edin:",
+    "questionsVisit": "Sorularınız mı var... Şu adresi ziyaret edin:",
     "githubRepository": "GitHub deposu",
     "privacySection1Title": "1. Yerel-Öncelikli Mimari",
     "privacySection1Text": "Zavorth yerel öncelikli bir uygulama olarak tasarlanmıştır. Tüm veri işleme ve depolama tamamen makinenizde gerçekleşir. Bilgilerinizi toplayan merkezi bir sunucu yoktur.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Yardımsever bir yapay zeka asistanısın.",
-      "userGreeting": "Merhaba! Bugün bana nasıl yardımcı olabilirsin?"
+      "userGreeting": "Merhaba! Bugün bana nasıl yardımcı olabilirsin..."
     },
     "streaming": {
       "prompt": "Şunun hakkında bir hikaye yaz:"
     },
     "systemPrompt": {
-      "question": "Hayatın anlamı nedir?",
+      "question": "Hayatın anlamı nedir...",
       "systemInstruction": "Düşünceli, felsefi bir cevap verin."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "Hava durumunun alınacağı şehrin adı",
       "toolDescription": "Bir konum için güncel hava durumunu getirir",
-      "userWeather": "Tokyo'da hava nasıl?"
+      "userWeather": "Tokyo'da hava nasıl..."
     },
     "multiTurn": {
       "system": "Yardımsever bir asistansın.",
       "assistantExample": "Bu konuda size yardımcı olmaktan memnuniyet duyarım.",
       "userInitial": "Bir konuda yardıma ihtiyacım var.",
-      "userFollowUp": "Bunu detaylandırabilir misiniz?"
+      "userFollowUp": "Bunu detaylandırabilir misiniz..."
     }
   },
   "cache": {

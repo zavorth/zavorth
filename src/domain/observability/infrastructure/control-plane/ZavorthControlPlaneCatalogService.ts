@@ -183,7 +183,7 @@ export class ZavorthControlPlaneCatalogService {
         + `${summary.attentionFamilies} attention, ${summary.criticalFamilies} critical; `
         + `operational=${summary.operationalPosture}, trust=${summary.trustPosture}, product=${summary.productPosture}.`,
       actions,
-      fallbackNextAction: 'Usar os overviews Operational, Trust e Product como fronteira canonica dos control planes.',
+      fallbackNextAction: 'Usar os overviews Operational, Trust e Product como boundary canonica dos control planes.',
     });
     const snapshot = buildControlPlaneSnapshot({
       generatedAt: this.now().toISOString(),
@@ -247,7 +247,7 @@ export class ZavorthControlPlaneCatalogService {
       summaryLines: [
         `Families: healthy ${snapshot.summary.healthyFamilies} | attention ${snapshot.summary.attentionFamilies} | critical ${snapshot.summary.criticalFamilies}.`,
         `Overviews: operational ${snapshot.summary.operationalPosture} | trust ${snapshot.summary.trustPosture} | product ${snapshot.summary.productPosture}.`,
-        `Acoes recomendadas: ${snapshot.summary.recommendedActions}.`,
+        `Actions recomendadas: ${snapshot.summary.recommendedActions}.`,
       ],
       actions: snapshot.actions,
     });

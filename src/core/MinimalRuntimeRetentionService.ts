@@ -239,8 +239,7 @@ export class MinimalRuntimeRetentionService {
         keepItems: maxLines,
         wouldMutate: false,
         backupFile: null,
-        message: oversized
-          ? 'JSONL runtime file is above the lightweight retention policy and should get a domain-specific compactor.'
+        message: oversized ? 'JSONL runtime file is above the lightweight retention policy and should get a domain-specific compactor.'
           : 'JSONL runtime file is within retention policy.',
         reason: oversized ? 'generic-jsonl-over-policy' : 'within-policy',
       }, artifactRule);
@@ -329,8 +328,7 @@ export class MinimalRuntimeRetentionService {
       keepItems: null,
       wouldMutate: false,
       backupFile: null,
-      message: oversized
-        ? 'Registered runtime artifact is above its retention budget and should be trimmed by its owner.'
+      message: oversized ? 'Registered runtime artifact is above its retention budget and should be trimmed by its owner.'
         : 'Registered runtime artifact is within retention policy.',
       reason: oversized ? 'registered-artifact-over-policy' : 'within-policy',
     }, artifactRule);
@@ -360,10 +358,8 @@ export class MinimalRuntimeRetentionService {
       keepItems: shouldCompact ? maxItems : jsonl.objects.length,
       wouldMutate: shouldCompact,
       backupFile: shouldCompact ? this.backupPath(filePath) : null,
-      message: invalid
-        ? 'Activation ledger has invalid JSONL lines; inspect before compaction.'
-        : shouldCompact
-          ? 'Activation ledger can be compacted by keeping the most recent receipts.'
+      message: invalid ? 'Activation ledger has invalid JSONL lines; inspect before compaction.'
+        : shouldCompact ? 'Activation ledger can be compacted by keeping the most recent receipts.'
           : 'Activation ledger is within retention policy.',
       reason: invalid ? 'activation-ledger-invalid' : shouldCompact ? 'activation-ledger-over-policy' : 'within-policy',
     };
@@ -428,10 +424,8 @@ export class MinimalRuntimeRetentionService {
       keepItems: shouldCompact ? keepItems : jsonl.objects.length,
       wouldMutate: shouldCompact,
       backupFile: shouldCompact ? this.backupPath(filePath) : null,
-      message: invalid
-        ? 'JSONL history has invalid lines; inspect before compaction.'
-        : shouldCompact
-          ? 'JSONL history can be compacted by keeping the newest valid entries.'
+      message: invalid ? 'JSONL history has invalid lines; inspect before compaction.'
+        : shouldCompact ? 'JSONL history can be compacted by keeping the newest valid entries.'
           : 'JSONL history is within its owner retention policy.',
       reason: invalid ? 'jsonl-tail-invalid' : shouldCompact ? 'jsonl-tail-over-policy' : 'within-policy',
     };
@@ -519,8 +513,7 @@ export class MinimalRuntimeRetentionService {
         estimatedSizeBytes: options.currentSizeBytes,
         wouldMutate: false,
         payload: '',
-        message: options.currentSizeBytes > options.maxBytes
-          ? `${options.label} is over budget, but no ${options.arrayKey} array was found for safe compaction.`
+        message: options.currentSizeBytes > options.maxBytes ? `${options.label} is over budget, but no ${options.arrayKey} array was found for safe compaction.`
           : `${options.label} is within retention policy.`,
         reason: options.currentSizeBytes > options.maxBytes ? 'json-state-missing-array' : 'within-policy',
       };
@@ -560,15 +553,11 @@ export class MinimalRuntimeRetentionService {
       estimatedSizeBytes,
       wouldMutate,
       payload,
-      message: wouldMutate
-        ? `${options.label} can shrink from ${options.currentSizeBytes} bytes to about ${estimatedSizeBytes} bytes while preserving active and recent records.`
-        : overPolicy
-          ? `${options.label} is over budget, but no safe compaction would reduce it.`
+      message: wouldMutate ? `${options.label} can shrink from ${options.currentSizeBytes} bytes to about ${estimatedSizeBytes} bytes while preserving active and recent records.`
+        : overPolicy ? `${options.label} is over budget, but no safe compaction would reduce it.`
           : `${options.label} is within retention policy.`,
-      reason: wouldMutate
-        ? 'json-state-history-over-policy'
-        : overPolicy
-          ? 'json-state-history-over-policy-no-safe-shrink'
+      reason: wouldMutate ? 'json-state-history-over-policy'
+        : overPolicy ? 'json-state-history-over-policy-no-safe-shrink'
           : 'within-policy',
     };
   }
@@ -834,7 +823,7 @@ export class MinimalRuntimeRetentionService {
     }
     const objects: unknown[] = [];
     const errors: JsonlReadResult['errors'] = [];
-    const lines = fs.readFileSync(filePath, 'utf8').split(/\r?\n/);
+    const lines = fs.readFileSync(filePath, 'utf8').split(/\r...\n/);
     lines.forEach((line, index) => {
       if (!line.trim()) {
         return;
@@ -861,7 +850,7 @@ export class MinimalRuntimeRetentionService {
       return 0;
     }
     return fs.readFileSync(filePath, 'utf8')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .filter((line) => line.trim())
       .length;
   }

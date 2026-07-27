@@ -130,7 +130,7 @@ export class TrustPlanePolicyLedgerService {
       diff: Array.isArray(input.diff) ? input.diff.map((entry) => this.normalizeDiff(entry)) : [],
       rollback: {
         available: input.rollback?.available === true,
-        reason: this.cleanText(input.rollback?.reason, input.rollback?.available ? 'Rollback disponivel.' : 'Rollback indisponivel.'),
+        reason: this.cleanText(input.rollback?.reason, input.rollback?.available ? 'Rollback available.' : 'Rollback unavailable.'),
         payload: input.rollback?.payload || null,
       },
       result: this.nullableText(input.result),
@@ -146,7 +146,7 @@ export class TrustPlanePolicyLedgerService {
       return [];
     }
     const entries = String(this.readFileSyncImpl(this.ledgerFile, 'utf8') || '')
-      .split(/\r?\n/u)
+      .split(/\r...\n/u)
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line) => this.parseLine(line))
@@ -195,7 +195,7 @@ export class TrustPlanePolicyLedgerService {
         diff: Array.isArray(raw.diff) ? raw.diff.map((entry) => this.normalizeDiff(entry)) : [],
         rollback: {
           available: raw.rollback?.available === true,
-          reason: this.cleanText(raw.rollback?.reason, raw.rollback?.available ? 'Rollback disponivel.' : 'Rollback indisponivel.'),
+          reason: this.cleanText(raw.rollback?.reason, raw.rollback?.available ? 'Rollback available.' : 'Rollback unavailable.'),
           payload: raw.rollback?.payload || null,
         },
         result: this.nullableText(raw.result),

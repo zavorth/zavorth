@@ -69,7 +69,7 @@ function zavorthControlClassicClientDataSnippets() {
     const contentEl = document.getElementById('snippet-content') as HTMLInputElement | null;
     const name = nameEl?.value || '';
     const content = contentEl?.value || '';
-    if (!name || !content) return showToast('Preencha nome e conteudo.', true);
+    if (!name || !content) return showToast('Fill in name and content.', true);
     try {
       const res = await fetch('/api/snippets/save', {
         method: 'POST',
@@ -89,7 +89,7 @@ function zavorthControlClassicClientDataSnippets() {
     const nameEl = document.getElementById('snippet-name') as HTMLInputElement | null;
     const name = nameEl?.value || '';
     if (!name) return;
-    if (!confirm('Deletar snippet ' + name + '?')) return;
+    if (!confirm('Deletar snippet ' + name + '...')) return;
     try {
       const res = await fetch('/api/snippets/delete', {
         method: 'POST',

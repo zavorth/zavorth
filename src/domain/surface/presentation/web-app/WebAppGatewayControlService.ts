@@ -48,7 +48,7 @@ export class WebAppGatewayControlService {
       });
     } catch (error: unknown) {logger.warn('[Web App way Control] search failed', error);
     return buildWebAppRuntimeEmptyMemoryRecall(sessionId, query, [
-        `Hybrid Memory unavailable no momento: ${errorMessage(error, 'erro desconhecido')}.`,
+        `Hybrid Memory unavailable right now: ${errorMessage(error, 'unknown error')}.`,
       ]);
   }
   }
@@ -84,7 +84,7 @@ export class WebAppGatewayControlService {
         generatedAt: new Date().toISOString(),
         sessionId,
         sources: [],
-        warnings: [`Hybrid Memory unavailable no momento: ${errorMessage(error, 'erro desconhecido')}.`],
+        warnings: [`Hybrid Memory unavailable right now: ${errorMessage(error, 'unknown error')}.`],
       };
   }
   }
@@ -144,7 +144,7 @@ export class WebAppGatewayControlService {
     const approvalId = String(input.approvalId || '').trim();
     const decision = String(input.decision || '').trim().toLowerCase();
     if (!approvalId || (decision !== 'approve' && decision !== 'reject')) {
-      throw new Error('approvalId e decision approve|reject sao obrigatorios.');
+      throw new Error('approvalId e decision approve|reject sao requireds.');
     }
 
     const requestedBy = String(input.requestedBy || deps.runtime.webUserId || 'web-operator').trim();
@@ -160,13 +160,13 @@ export class WebAppGatewayControlService {
             requestedBy,
             {
               scope: scope === 'host' ? 'persistent' : scope,
-              decision_note: 'Approval resolvido pelo Zavorth Gateway.',
+              decision_note: 'Approval resolved by Zavorth Gateway.',
             },
           )
           : await deps.permissionAuditService.rejectRequest(
             permission.permission_id,
             requestedBy,
-            'Approval rejeitado pelo Zavorth Gateway.',
+            'Approval rejected by Zavorth Gateway.',
           );
         const planId = resolveMutationPlanIdFromPermission(updatedPermission);
         const mutationPlan = planId && deps.mutationPlane
@@ -176,7 +176,7 @@ export class WebAppGatewayControlService {
               approvedBy: requestedBy,
               scope,
             })
-            : deps.mutationPlane.markBlocked(planId, 'Approval rejeitado pelo operador no Gateway.'))
+            : deps.mutationPlane.markBlocked(planId, 'Approval rejected by the operator in Gateway.'))
           : null;
         sessionId =
           sessionId
@@ -216,7 +216,7 @@ export class WebAppGatewayControlService {
       };
     } catch (error: unknown) {const task = deps.runtime.taskManager.getTask(approvalId);
       if (!task) {
-        throw new Error('Approval nao encontrado como permissao nem task gate.');
+        throw new Error('Approval not found as permission or task gate.');
       }
       sessionId = sessionId || deps.resolveSessionIdFromTask(task, sessionId || '');
       const webCtx = toSurfaceControllerContext(deps.createWebContext(sessionId));
@@ -281,13 +281,13 @@ export class WebAppGatewayControlService {
     const sessionId = String(input.sessionId || '').trim();
     const toolRunId = String(input.toolRunId || '').trim();
     if (!sessionId || !toolRunId) {
-      throw new Error('sessionId e toolRunId sao obrigatorios para artifact.diff.');
+      throw new Error('sessionId and toolRunId are required for artifact.diff.');
     }
     const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
     const toolRuns = Array.isArray((snapshot as LooseRecord).toolRuns) ? (snapshot as LooseRecord).toolRuns : [];
     const toolRun = toolRuns.find((entry: LooseRecord) => String(entry?.runId || '').trim() === toolRunId) || null;
     if (!toolRun) {
-      throw new Error('Tool run nao encontrado para esta sessao.');
+      throw new Error('Tool run not found for this session.');
     }
     const targetPath = String(input.path || '').trim();
     const patches = Array.isArray(toolRun?.diff?.patches)
@@ -380,7 +380,7 @@ export class WebAppGatewayControlService {
   ): Promise<LooseRecord> {
     const sessionId = String(input.sessionId || '').trim();
     if (!sessionId) {
-      throw new Error('sessionId obrigatorio para chat.abort.');
+      throw new Error('sessionId required for chat.abort.');
     }
     const chatId = deps.realtime.getChatId(sessionId);
     const activeStatuses = new Set([
@@ -402,7 +402,7 @@ export class WebAppGatewayControlService {
         sessionId,
         status: 'idle',
         supported: false,
-        message: 'Nenhuma task ativa encontrada para abort nesta sessao.',
+        message: 'No active task found to abort in this session.',
       };
     }
 
@@ -426,7 +426,7 @@ export class WebAppGatewayControlService {
       taskId: String(activeTask?.task_id || '').trim() || null,
       status: 'abort_requested',
       supported: false,
-      message: 'O Gateway marcou abort_requested. O executor atual ainda nao expoe cancelamento forte neste runtime.',
+      message: 'Gateway marked abort_requested. The current executor does not yet expose strong cancellation in this runtime.',
     };
   }
 
@@ -446,4 +446,3 @@ function toSurfaceControllerContext(value: unknown): SurfaceControllerContext {
     ? value as SurfaceControllerContext
     : {};
 }
-

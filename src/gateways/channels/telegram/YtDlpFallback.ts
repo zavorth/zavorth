@@ -2,7 +2,8 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { CapabilityUnavailableError, buildCapabilityProvisionHint } from '../../../services/OptionalCapabilityGuard.js';
-import { logger } from '../../../logger.js';const YTDLP_TMP_DIR = path.join(os.tmpdir(), 'zavorth-ytdlp');
+import { logger } from '../../../logger.js';
+const YTDLP_TMP_DIR = path.join(os.tmpdir(), 'zavorth-ytdlp');
 const LOCAL_FFMPEG_PATH = path.join(YTDLP_TMP_DIR, 'ffmpeg.exe');
 
 export interface DownloadedAudioResult {
@@ -46,10 +47,10 @@ export class YtDlpFallback {
 
   public getAvailabilityWarning(): string | null {
     if (!this.ytDlpExec) {
-      return `O fallback opcional de yt-dlp nao esta provisionado neste host. ${buildCapabilityProvisionHint('media')}`;
+      return `The optional yt-dlp fallback is not provisioned on this host. ${buildCapabilityProvisionHint('media')}`;
     }
     if (!this.ffmpegPath) {
-      return `O yt-dlp esta presente, mas o ffmpeg opcional nao foi provisionado. O Zavorth vai tentar um caminho mais leve quando possivel. ${buildCapabilityProvisionHint('media')}`;
+      return `yt-dlp is present, but the optional ffmpeg was not provisioned. Zavorth will try a lighter path when possible. ${buildCapabilityProvisionHint('media')}`;
     }
     return null;
   }
@@ -59,7 +60,7 @@ export class YtDlpFallback {
       throw new CapabilityUnavailableError({
         capabilityId: 'media',
         dependencyName: 'youtube-dl-exec',
-        reason: 'yt-dlp nao esta disponivel para extrair audio deste video.',
+        reason: 'yt-dlp is not available to extract audio from this video.',
       });
     }
 
@@ -93,12 +94,12 @@ export class YtDlpFallback {
       .map((entry) => path.join(YTDLP_TMP_DIR, entry))[0];
 
     if (!outputFile || !fs.existsSync(outputFile)) {
-      throw new Error('yt-dlp nao gerou um arquivo de audio utilizavel.');
+      throw new Error('yt-dlp did not produce a usable audio file.');
     }
 
     return {
       audioPath: outputFile,
-      source: this.ffmpegPath ? 'yt-dlp + ffmpeg' : 'yt-dlp (sem ffmpeg)',
+      source: this.ffmpegPath ? 'yt-dlp + ffmpeg' : 'yt-dlp (without ffmpeg)',
     };
   }
 
@@ -107,7 +108,7 @@ export class YtDlpFallback {
       throw new CapabilityUnavailableError({
         capabilityId: 'media',
         dependencyName: 'youtube-dl-exec',
-        reason: 'yt-dlp nao esta disponivel para buscar legendas externas deste video.',
+        reason: 'yt-dlp is not available to fetch external captions for this video.',
       });
     }
 
@@ -156,7 +157,7 @@ export class YtDlpFallback {
           if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
           }
-        } catch (error: unknown) {// Ignora falhas na limpeza de caption temporaria.
+        } catch (error: unknown) {// Ignore caption temporary-file cleanup failures.
       logger.warn('[Yt Dlp Fallback] file cleanup failed', error);
     }
       }
@@ -227,11 +228,11 @@ export class YtDlpFallback {
   }
 
   private parseVttTranscript(content: string): string {
-    const blocks = content.split(/\r?\n\r?\n/);
+    const blocks = content.split(/\r...\n\r...\n/);
     const lines: string[] = [];
 
     for (const block of blocks) {
-      const rows = block.split(/\r?\n/).map((row) => row.trim()).filter(Boolean);
+      const rows = block.split(/\r...\n/).map((row) => row.trim()).filter(Boolean);
       const timeRow = rows.find((row) => row.includes('-->'));
       if (!timeRow) {
         continue;
@@ -256,11 +257,11 @@ export class YtDlpFallback {
   }
 
   private parseSrtTranscript(content: string): string {
-    const blocks = content.split(/\r?\n\r?\n/);
+    const blocks = content.split(/\r...\n\r...\n/);
     const lines: string[] = [];
 
     for (const block of blocks) {
-      const rows = block.split(/\r?\n/).map((row) => row.trim()).filter(Boolean);
+      const rows = block.split(/\r...\n/).map((row) => row.trim()).filter(Boolean);
       const timeRow = rows.find((row) => row.includes('-->'));
       if (!timeRow) {
         continue;

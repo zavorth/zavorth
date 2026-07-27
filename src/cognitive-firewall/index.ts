@@ -9,7 +9,7 @@
  * Optional LLM classification (disabled by default) only distinguishes
  * conversation vs full_toolset — never word→tool categories.
  *
- * USO:
+ * usage:
  *   const firewall = new CognitiveFirewall();
  *   const decision = firewall.evaluate(userMessage, allToolDefinitions);
  *   // decision.useFastModel → always false on free-text path
@@ -27,7 +27,7 @@ export interface FirewallDecision {
   tools: ToolDefinition[];
   /** Hint profile consumable by runtime policy/telemetry; not the final gate. */
   toolHintProfile: ToolGatekeeperHintProfile;
-  /** Nomes recomendados para exposicao, sem substituir a policy final. */
+  /** names recomendados para exposure, without replace a policy final. */
   recommendedToolNames: string[];
   /** True when Cognitive Firewall blocked exposure of an untrusted plugin/capability. */
   toolExposureGatedByCognitiveFirewall: boolean;

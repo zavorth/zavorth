@@ -117,7 +117,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Falha ao executar a acao do plano remoto.') },
+          { ok: false, error: errorMessage(error, 'Failure ao run a action do remote plan.') },
           400,
         );
       }
@@ -168,7 +168,7 @@ export class ZavorthControlOperationsPlaneRouteService {
           );
         } catch (error: unknown) {deps.writeJson(
             res,
-            { ok: false, error: errorMessage(error, 'Falha ao rodar o doctor remoto.') },
+            { ok: false, error: errorMessage(error, 'Failure while running o doctor remote.') },
             400,
           );
         }
@@ -196,7 +196,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Falha ao recuperar o transporte remoto.') },
+          { ok: false, error: errorMessage(error, 'Failure ao recuperar o transporte remote.') },
           400,
         );
       }
@@ -236,7 +236,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Falha ao executar a acao do plugin plane.') },
+          { ok: false, error: errorMessage(error, 'Failure ao run a action do plugin plane.') },
           400,
         );
       }
@@ -279,7 +279,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Falha ao executar a acao do platform plane.') },
+          { ok: false, error: errorMessage(error, 'Failure ao run a action do platform plane.') },
           400,
         );
       }
@@ -300,7 +300,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Falha ao sincronizar o platform plane.') },
+          { ok: false, error: errorMessage(error, 'Failure ao sincronizar o platform plane.') },
           400,
         );
       }
@@ -314,7 +314,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         const authToken = String(body?.authToken || process.env.ZAVORTH_PLATFORM_PUBLISH_TOKEN || '').trim();
         const signLocal = body?.signLocal !== false;
         if (!packagePath) {
-          deps.writeJson(res, { ok: false, error: 'packagePath obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'packagePath required.' }, 400);
           return true;
         }
 
@@ -334,7 +334,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Falha ao publicar no platform plane.') },
+          { ok: false, error: errorMessage(error, 'Failed to publish to platform plane.') },
           400,
         );
       }
@@ -360,7 +360,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         const workspace = String(body?.workspace || '').trim() || deps.workspaceRoot;
         const dryRun = body?.dryRun !== false;
         if (!event) {
-          deps.writeJson(res, { ok: false, error: 'event obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'event required.' }, 400);
           return true;
         }
 
@@ -385,7 +385,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Falha ao executar o hook plane.') },
+          { ok: false, error: errorMessage(error, 'Failure ao run o hook plane.') },
           400,
         );
       }
@@ -424,7 +424,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Falha ao executar a acao do Channel Mesh.') },
+          { ok: false, error: errorMessage(error, 'Failure ao run a action do Channel Mesh.') },
           400,
         );
       }

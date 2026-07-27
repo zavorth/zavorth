@@ -1,6 +1,6 @@
 import { asErrorLike } from '../../utils/errorLike';
 /**
- * Local Provider Health Check
+ * local Provider Health Check
  *
  * Background polling of local provider_nodes (localhost) to detect
  * when they are up or down. Uses GET /models with a 5s timeout.

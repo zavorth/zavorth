@@ -1,5 +1,7 @@
 import type { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';
-import { logger } from '../../../../logger';export type IntentType =
+import { logger } from '../../../../logger.js';
+
+export type IntentType =
   | 'remote_mode'
   | 'runtime_maintenance'
   | 'zavorth_bridge_prompt'
@@ -15,47 +17,33 @@ export type ClassifiedIntent =
 
 const INTENT_CLASSIFICATION_PROMPT = `You are an intent classifier for a Telegram bot called Zavorth.
 
-Given the user's message, classify it into one of these intents and extract parameters.
+Classify the user's message by meaning, not by keywords, examples, or language-specific phrases.
 
-Intents:
-1. remote_mode - User wants to activate, deactivate, or check status of remote mode
+Supported intents:
+1. remote_mode
    - action: "activate" | "restore" | "status"
 
-2. runtime_maintenance - User wants to see changes, reload, or autorepair
+2. runtime_maintenance
    - action: "changes" | "reload" | "autorepair"
-   - force: boolean (optional, default false)
-   - dryRun: boolean (optional, default false)
-   - improve: boolean (optional, default false)
+   - force: boolean, optional
+   - dryRun: boolean, optional
+   - improve: boolean, optional
 
-3. zavorth_bridge_prompt - User wants to send a prompt to ZavorthBridge
-   - model: string (the model name)
-   - prompt: string (the prompt text)
+3. zavorth_bridge_prompt
+   - model: string
+   - prompt: string
 
-4. zavorth_bridge_control - User wants to control ZavorthBridge
+4. zavorth_bridge_control
    - action: "open" | "status" | "restart" | "set-model"
-   - model: string (optional, for set-model)
+   - model: string, optional
 
-5. unknown - User intent doesn't match any of the above
+5. unknown
 
-Respond with ONLY a JSON object, no other text:
-{
-  "type": "<intent_type>",
-  ...intent-specific fields
-}
-
-Examples:
-User: "ativa o modo remoto" → {"type": "remote_mode", "action": "activate"}
-User: "show me the recent changes" → {"type": "runtime_maintenance", "action": "changes"}
-User: "se autorepare" → {"type": "runtime_maintenance", "action": "autorepair"}
-User: "open zavorthbridge" → {"type": "zavorth_bridge_control", "action": "open"}
-User: "hello" → {"type": "unknown"}`;
+Return only one JSON object with the intent type and the matching fields.`;
 
 export class TelegramIntentClassifier {
   constructor(private readonly llmRuntime: LlmRuntimeService | null) {}
 
-  /**
-   * Classify user intent using LLM. Falls back to null if LLM is unavailable.
-   */
   async classify(userMessage: string): Promise<ClassifiedIntent> {
     if (!this.llmRuntime) {
       return { type: 'unknown' };
@@ -67,32 +55,33 @@ export class TelegramIntentClassifier {
         { role: 'user', content: userMessage },
       ]);
 
-      const content = response.content || '';
-      const parsed = this.parseJsonResponse(content);
-      
-      if (parsed && this.isValidIntent(parsed)) {
-        return parsed;
-      }
-
+      const parsed = this.parseJsonResponse(response.content || '');
+      return parsed && this.isValidIntent(parsed) ? parsed : { type: 'unknown' };
+    } catch (error: unknown) {
+      logger.warn('[TelegramIntentClassifier] classification failed', error);
       return { type: 'unknown' };
-    } catch (error: unknown) {logger.warn('[Telegram  Classifier] parsing failed', error);
-    return { type: 'unknown' };
-  }
+    }
   }
 
   private parseJsonResponse(text: string): ClassifiedIntent | null {
     try {
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) return null;
-      return JSON.parse(jsonMatch[0]);
-    } catch (error: unknown) {logger.warn('[Telegram  Classifier] JSON parse failed', error); return null; }
+      const jsonText = extractJsonObjectText(text);
+      return jsonText ? JSON.parse(jsonText) : null;
+    } catch (error: unknown) {
+      logger.warn('[TelegramIntentClassifier] JSON parse failed', error);
+      return null;
+    }
   }
 
   private isValidIntent(intent: unknown): intent is ClassifiedIntent {
-    if (!intent || typeof (intent as ClassifiedIntent).type !== 'string') return false;
+    if (!intent || typeof (intent as ClassifiedIntent).type !== 'string') {
+      return false;
+    }
 
     const validTypes = ['remote_mode', 'runtime_maintenance', 'zavorth_bridge_prompt', 'zavorth_bridge_control', 'unknown'];
-    if (!validTypes.includes((intent as ClassifiedIntent).type)) return false;
+    if (!validTypes.includes((intent as ClassifiedIntent).type)) {
+      return false;
+    }
 
     const typed = intent as ClassifiedIntent;
     switch (typed.type) {
@@ -110,4 +99,47 @@ export class TelegramIntentClassifier {
         return false;
     }
   }
+}
+
+function extractJsonObjectText(text: string): string | null {
+  const source = String(text || '');
+  const start = source.indexOf('{');
+  if (start < 0) {
+    return null;
+  }
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let index = start; index < source.length; index += 1) {
+    const char = source[index] || '';
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (char === '\\') {
+      escaped = inString;
+      continue;
+    }
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) {
+      continue;
+    }
+    if (char === '{') {
+      depth += 1;
+      continue;
+    }
+    if (char === '}') {
+      depth -= 1;
+      if (depth === 0) {
+        return source.slice(start, index + 1);
+      }
+    }
+  }
+
+  return null;
 }

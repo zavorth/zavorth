@@ -86,8 +86,7 @@ export function buildExecutionHostConfig(
     // Firecracker MicroVM (highest security tier)
     firecrackerEnabled: firecrackerEnabled.toLowerCase() === 'true',
     firecrackerTransport:
-      process.platform === 'win32'
-        ? ((process.env.ZAVORTH_FIRECRACKER_TRANSPORT || 'wsl').toLowerCase() === 'wsl' ? 'wsl' : 'direct')
+      process.platform === 'win32' ? ((process.env.ZAVORTH_FIRECRACKER_TRANSPORT || 'wsl').toLowerCase() === 'wsl' ? 'wsl' : 'direct')
         : 'direct',
     firecrackerWslDistro: process.env.ZAVORTH_FIRECRACKER_WSL_DISTRO || 'Ubuntu-24.04',
     firecrackerWslUser: process.env.ZAVORTH_FIRECRACKER_WSL_USER || 'root',

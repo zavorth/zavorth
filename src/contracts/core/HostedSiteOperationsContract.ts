@@ -103,7 +103,7 @@ export const HOSTED_SITE_REQUIRED_ROUTES: HostedSiteRouteSpec[] = [
       'components/CTASection.tsx',
     ],
     outputCandidates: ['index.html'],
-    requiredPhrases: ['Zavorth', 'Agent Runtime', 'Local-first', '/demo', '/start'],
+    requiredPhrases: ['Zavorth', 'Agent Runtime', 'local-first', '/demo', '/start'],
   },
   {
     route: '/demo',
@@ -160,7 +160,7 @@ export const HOSTED_SITE_SCREENSHOTS: HostedSiteScreenshotSpec[] = [
 export const HOSTED_SITE_DEPLOY_TARGETS: HostedSiteDeployTarget[] = [
   {
     id: 'local-static',
-    label: 'Local static export',
+    label: 'local static export',
     command: 'npm run website:build',
     guardrail: 'Runs with ZAVORTH_NEXT_DIST_DIR=.next-zavorth-qa and clean out/ before smoke.',
   },

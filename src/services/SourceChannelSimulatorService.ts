@@ -207,7 +207,7 @@ export class SourceChannelSimulatorService {
       id: this.id('receipt'),
       channelId,
       action,
-      status: 'simulated',
+      status: 'dryRun',
       messageId: message.id,
       threadId: message.threadId,
       liveIoPerformed: false,

@@ -96,7 +96,7 @@ export const codex = {
     const queryString = Object.entries(params)
       .map(([key, value]) => `${key}=${encodeURIComponent(value as string)}`)
       .join("&");
-    return `${config.authorizeUrl}?${queryString}`;
+    return `${config.authorizeUrl}...${queryString}`;
   },
 
   exchangeToken: async (config, code, redirectUri, codeVerifier) => {

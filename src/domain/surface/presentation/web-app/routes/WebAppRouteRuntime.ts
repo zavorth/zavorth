@@ -74,7 +74,7 @@ export async function handleRuntimeRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/active-mission' && req.method === 'GET') {
         const sensitiveActionFlowUx = service.buildSensitiveActionFlowUxProjection(url);
         const visualReceipts = service.buildVisualReceiptsProjection(url);
@@ -100,7 +100,7 @@ export async function handleRuntimeRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/sensitive-action-flow' && req.method === 'GET') {
         const sensitiveActionFlowUx = service.buildSensitiveActionFlowUxProjection(url);
         deps.writeJson(
@@ -119,7 +119,7 @@ export async function handleRuntimeRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/runtime/readiness' && req.method === 'GET') {
         const userId = String(url.searchParams.get('userId') || 'zavorthControl-operator');
         const sessionId = String(url.searchParams.get('sessionId') || 'zavorthControl-runtime-readiness');
@@ -143,7 +143,7 @@ export async function handleRuntimeRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/runtime/readiness/fixes' && req.method === 'GET') {
         const userId = String(url.searchParams.get('userId') || 'zavorthControl-operator');
         const sessionId = String(url.searchParams.get('sessionId') || 'zavorthControl-runtime-guided-fixes');
@@ -166,7 +166,7 @@ export async function handleRuntimeRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/runtime/ready-to-go' && req.method === 'GET') {
         const refreshProviders = url.searchParams.get('refreshProviders') === 'true';
         const readyToGo = await new ZavorthReadyToGoService().buildSnapshot({
@@ -189,7 +189,7 @@ export async function handleRuntimeRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/runtime/stay-online' && req.method === 'GET') {
         const refreshProviders = url.searchParams.get('refreshProviders') === 'true';
         const stayOnline = await new ZavorthStayOnlineService().buildSnapshot({
@@ -213,7 +213,7 @@ export async function handleRuntimeRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/runtime/external-agent-onboarding' && req.method === 'GET') {
         const onboarding = new ZavorthExternalAgentOnboardingService().buildSnapshot({
           consent: url.searchParams.get('consent') === 'true',
@@ -238,7 +238,7 @@ export async function handleRuntimeRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/runtime/external-agent-onboarding' && req.method === 'POST') {
         const body = await deps.readJsonBody(req);
         const onboarding = new ZavorthExternalAgentOnboardingService().buildSnapshot({
@@ -264,7 +264,7 @@ export async function handleRuntimeRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/runtime/external-agents' && req.method === 'GET') {
         const gateway = new ZavorthExternalAgentGatewayService();
         const registry = gateway.buildRegistrySnapshot();
@@ -281,7 +281,7 @@ export async function handleRuntimeRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/runtime/external-agents' && req.method === 'POST') {
         const body = await deps.readJsonBody(req);
         const gateway = new ZavorthExternalAgentGatewayService();
@@ -353,7 +353,7 @@ export async function handleRuntimeRoutes(
         deps.writeJson(res, { ok: false, error: 'unknown_external_agent_gateway_action' }, 400);
         return true;
       }
-  
+
       if (pathname === '/api/runtime/capability-mesh' && req.method === 'GET') {
         const mesh = new ZavorthCapabilityMeshService();
         const snapshot = mesh.buildSnapshot({
@@ -369,7 +369,7 @@ export async function handleRuntimeRoutes(
         deps.writeJson(res, { ok: true, live: false, generatedAt: snapshot.generatedAt, capabilityMesh: snapshot, safety: snapshot.safety }, 200);
         return true;
       }
-  
+
       if (pathname === '/api/runtime/capability-mesh' && req.method === 'POST') {
         const body = await deps.readJsonBody(req);
         const mesh = new ZavorthCapabilityMeshService();
@@ -386,7 +386,7 @@ export async function handleRuntimeRoutes(
         deps.writeJson(res, { ok: true, live: false, generatedAt: snapshot.generatedAt, capabilityMesh: snapshot, safety: snapshot.safety }, 200);
         return true;
       }
-  
+
       if (pathname === '/api/providers/readiness' && req.method === 'GET') {
         if (service.isProviderLiveProbeRequested(url)) {
           deps.writeJson(
@@ -414,7 +414,7 @@ export async function handleRuntimeRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/providers/model-catalog' && req.method === 'GET') {
         if (service.isProviderLiveProbeRequested(url)) {
           deps.writeJson(
@@ -422,7 +422,7 @@ export async function handleRuntimeRoutes(
             {
               ok: false,
               error: 'provider_model_catalog_live_probe_requires_explicit_operator_cli_or_approved_api',
-              detail: 'O zavorthControl renderiza o catalogo de providers/modelos sem chamada live oculta. Prova live precisa ser acionada explicitamente pelo operador.',
+              detail: 'zavorthControl renders the provider/model catalog without hidden live calls. Live proof must be triggered explicitly by the operator.',
             },
             403,
           );
@@ -442,7 +442,7 @@ export async function handleRuntimeRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/providers/activation' && req.method === 'GET') {
         if (service.isProviderLiveProbeRequested(url)) {
           deps.writeJson(
@@ -450,7 +450,7 @@ export async function handleRuntimeRoutes(
             {
               ok: false,
               error: 'provider_activation_live_probe_requires_explicit_operator_cli_or_approved_api',
-              detail: 'O zavorthControl renderiza ativacao de providers sem chamada live oculta. Prova live deve ser acionada explicitamente pelo operador.',
+              detail: 'zavorthControl renders provider activation without hidden live calls. Live proof must be explicitly triggered by the operator.',
             },
             403,
           );
@@ -470,6 +470,6 @@ export async function handleRuntimeRoutes(
         );
         return true;
       }
-  
+
   return false;
 }

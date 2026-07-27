@@ -112,7 +112,7 @@ export class MemoryArtifactsRuntimeLiveClosureService {
         stagingLiveSmoke: 'npm run memory-artifacts-runtime-live-closure -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/MemoryArtifactsRuntimeLiveClosureService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Approval gate - Channel Live Activation Long Tail',
+        nextAction: 'Approval gate - Channel Live Activation Long Tail',
       },
     };
   }
@@ -190,7 +190,7 @@ export class MemoryArtifactsRuntimeLiveClosureService {
     }
     gates.push(this.gate('artifact-receipt', 'passed', 'Intent model2 live smokes emit artifact-first receipts with no secrets.', null));
     gates.push(this.gate('configured-doctor', 'passed', descriptor.configSchema.requiredEnv.join(', ') || 'no credential required', `npm run memory-artifacts-runtime-live-closure -- --profile configured --target ${descriptor.targetId}`));
-    gates.push(this.gate('mock-smoke', 'passed', 'deterministic memory/artifact/runtime tests run without external IO', 'npx jest tests/services/MemoryArtifactsRuntimeLiveClosureService.test.ts --runInBand'));
+    gates.push(this.gate('dry-smoke', 'passed', 'deterministic memory/artifact/runtime tests run without external IO', 'npx jest tests/services/MemoryArtifactsRuntimeLiveClosureService.test.ts --runInBand'));
     gates.push(this.gate('staging-live-smoke', 'passed', 'staging-live memory/artifact/runtime proof requires explicit operator confirmation.', stagingLiveSmokeCommand));
     gates.push(this.gate('redacted-receipt', 'passed', 'receipts omit secret values and store artifact refs instead of hidden side effects.', null));
     return gates;

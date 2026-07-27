@@ -259,8 +259,8 @@ export class ZavorthTaskOperatingSystemService {
     artifactTotal: number,
   ): ZavorthTaskOsSnapshot['narrative'] {
     return {
-      headline: `${taskLedger.summary.total} tasks no ledger; ${taskLedger.summary.active} ativas e ${artifactTotal} artefatos rastreados.`,
-      operatorSummary: `${taskLedger.summary.awaitingPermission} aguardando permissao, ${taskLedger.summary.awaitingArtifact} aguardando artefato e ${permissionLedger.summary.revokable} permissoes revogaveis.`,
+      headline: `${taskLedger.summary.total} tasks in the ledger; ${taskLedger.summary.active} active and ${artifactTotal} tracked artifacts.`,
+      operatorSummary: `${taskLedger.summary.awaitingPermission} waiting for permission, ${taskLedger.summary.awaitingArtifact} waiting for artifact e ${permissionLedger.summary.revokable} revokable permissions.`,
     };
   }
 
@@ -274,7 +274,7 @@ export class ZavorthTaskOperatingSystemService {
     if (action === 'resume') {
       return 'Resume preserves conversation, workspace, executor, and known artifacts.';
     }
-    return 'Retry cria uma repeticao padronizada a partir da task terminal e preserva os artefatos anteriores para comparacao.';
+    return 'Retry cria uma repeticao padronizada a partir da task terminal e preserva os artifacts anteriores para comparison.';
   }
 
   private emptyPreservation(): ZavorthTaskContinuationPlan['preserves'] {

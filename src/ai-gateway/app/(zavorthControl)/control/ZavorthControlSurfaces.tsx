@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 
 type MetricProps = {
   label: string;
@@ -115,9 +115,7 @@ function RuntimeTable({
   );
 }
 
-/**
- * Phase 8 — Work overview (React). Dual data-* hooks keep Vite bridge + Next control in sync.
- */
+/** Work overview surface. */
 export function WorkSurface() {
   return (
     <Surface
@@ -148,7 +146,7 @@ export function WorkSurface() {
           </div>
           <div className="work-now-strip" aria-label="Current runtime facts">
             <span><strong data-live-runtime-state="">Runtime</strong><small data-live-runtime-detail="">Checking access</small></span>
-            <span><strong data-live-gateway-state="">Gateway</strong><small data-live-gateway-detail="">Local route</small></span>
+            <span><strong data-live-gateway-state="">Gateway</strong><small data-live-gateway-detail="">local route</small></span>
             <span><strong data-live-sync-state="">Last sync</strong><small data-live-sync-detail="">Starting now</small></span>
           </div>
           <div className="goal-loop-strip" aria-label="Goal Loop daemon status">
@@ -193,7 +191,7 @@ export function WorkSurface() {
   );
 }
 
-/** Phase 8 — Review / approvals (React). */
+/** Review and approvals surface. */
 export function ReviewSurface() {
   return (
     <Surface
@@ -239,7 +237,7 @@ export function ReviewSurface() {
   );
 }
 
-/** Phase 8 — Proof / receipts (React). */
+/** Proof and receipts surface. */
 export function ProofSurface() {
   return (
     <Surface
@@ -278,7 +276,7 @@ export function ProofSurface() {
                 <td className="mono">none yet</td>
                 <td>Web</td>
                 <td>0</td>
-                <td>—</td>
+                <td>-</td>
                 <td>-</td>
                 <td>
                   <span className="badge badge--info">
@@ -295,10 +293,10 @@ export function ProofSurface() {
   );
 }
 
-/** Phase 8 — Channels (React). */
+/** Channels surface. */
 export function ChannelsSurface() {
   const channels = [
-    { name: "Dashboard", need: "Local", status: "Ready", tone: "ok" as const },
+    { name: "Dashboard", need: "local", status: "Ready", tone: "ok" as const },
     { name: "Telegram", need: "Bot token", status: "Set up", tone: "warn" as const },
     { name: "Discord", need: "Bot / app", status: "Set up", tone: "warn" as const },
     { name: "Slack", need: "Workspace", status: "Set up", tone: "warn" as const },
@@ -310,7 +308,7 @@ export function ChannelsSurface() {
       id="sector-channels"
       eyebrow="Channels"
       title="Routes into Zavorth"
-      subtitle="Local dashboard is ready. External channels only ask for credentials you own."
+      subtitle="local dashboard is ready. External channels only ask for credentials you own."
       actions={
         <button
           className="operator-primary-action"
@@ -323,16 +321,16 @@ export function ChannelsSurface() {
       }
     >
       <div className="premium-metrics">
-        <Metric label="Connected" value="Local" sub="Web / terminal" tone="ok" />
+        <Metric label="Connected" value="local" sub="Web / terminal" tone="ok" />
         <Metric label="Remote" value="Optional" sub="Token / webhook" />
-        <Metric label="Last message" value="None" sub="—" />
+        <Metric label="Last message" value="None" sub="-" />
       </div>
       <div className="platform-action-list">
         {channels.map((channel) => (
           <Action
             key={channel.name}
             title={channel.name}
-            detail={`${channel.need} · ${channel.status}`}
+            detail={`${channel.need} - ${channel.status}`}
             prompt={`Connect ${channel.name}. Show only missing credentials.`}
             className={`platform-action platform-action--${channel.tone}`}
           />
@@ -342,7 +340,7 @@ export function ChannelsSurface() {
   );
 }
 
-/** Phase 8 — Sessions (React). */
+/** Sessions surface. */
 export function SessionsSurface() {
   return (
     <Surface
@@ -388,7 +386,7 @@ export function SessionsSurface() {
   );
 }
 
-/** Phase 8 — Cron (React). */
+/** Cron surface. */
 export function CronSurface() {
   return (
     <Surface
@@ -409,7 +407,7 @@ export function CronSurface() {
     >
       <div className="premium-metrics">
         <Metric label="Jobs" value="0" sub="none registered" />
-        <Metric label="Next run" value="—" sub="waiting" />
+        <Metric label="Next run" value="-" sub="waiting" />
         <Metric label="Kill switch" value="off" sub="honored when set" tone="ok" />
       </div>
       <RuntimeTable headers={["Job", "Type", "Attempts", "Next", "Updated", "Status"]} emptyLabel="none" />
@@ -417,7 +415,7 @@ export function CronSurface() {
   );
 }
 
-/** Phase 8 — Agents / runtime adapters (React). */
+/** Runtime adapters surface. */
 export function AgentsSurface() {
   return (
     <Surface
@@ -445,7 +443,7 @@ export function AgentsSurface() {
   );
 }
 
-/** Phase 8 — Docs (React). */
+/** Docs surface. */
 export function DocsSurface() {
   return (
     <Surface
@@ -465,8 +463,8 @@ export function DocsSurface() {
       }
     >
       <div className="platform-action-list">
-        <Action title="Getting started" detail="Local runtime, first chat, and approvals." prompt="Explain how to get started with Zavorth Control safely." />
-        <Action title="Models" detail="User-owned routes only — no invented vendors." prompt="Explain how to configure my model stack without inventing providers." />
+        <Action title="Getting started" detail="local runtime, first chat, and approvals." prompt="Explain how to get started with Zavorth Control safely." />
+        <Action title="Models" detail="User-owned routes only - no invented vendors." prompt="Explain how to configure my model stack without inventing providers." />
         <Action title="Memory" detail="What is remembered, why, and how to forget." prompt="Explain Zavorth memory privacy and how to forget facts." />
         <Action title="Safety" detail="Preview, approve, receipt." prompt="Explain the approval and receipt loop." />
       </div>
@@ -563,7 +561,7 @@ export function SkillsSurface() {
         <div className="platform-main">
           <span className="platform-section-title">Library</span>
           <div className="tool-empty-action">
-            <strong>Not sure what to use?</strong>
+            <strong>Not sure what to use...</strong>
             <span>Ask Zavorth to choose the lightest safe tool for the current request.</span>
             <button type="button" data-zavorthControl-prompt="Choose the lightest safe tool for my current request. Explain the risk before using anything.">Choose for me</button>
           </div>

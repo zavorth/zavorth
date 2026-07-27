@@ -14,7 +14,7 @@ const CLI_CHAT_HELP_ENTRIES = [
 
 export function isCliChatHelpCommand(raw: string): boolean {
   const normalized = String(raw || '').trim().toLowerCase();
-  return normalized === '?' || normalized === 'help' || normalized === '/help';
+  return normalized === '...' || normalized === 'help' || normalized === '/help';
 }
 
 export function formatCliChatHelp(): string {

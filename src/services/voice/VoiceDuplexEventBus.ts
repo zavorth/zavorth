@@ -101,8 +101,7 @@ export function publishToSession(
         : 'phase');
 
   const msg =
-    message ??
-    (snapshot.lastError && (inferred === 'error' || snapshot.phase === 'error')
+    message ??     (snapshot.lastError && (inferred === 'error' || snapshot.phase === 'error')
       ? snapshot.lastError
       : undefined);
 

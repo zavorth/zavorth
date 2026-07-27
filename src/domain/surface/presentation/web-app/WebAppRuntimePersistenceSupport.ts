@@ -1,4 +1,4 @@
-import * as http from 'http';
+﻿import * as http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { timingSafeEqual } from 'node:crypto';
@@ -37,7 +37,7 @@ function asRecord(value: unknown): RuntimeRecord | null {
 }
 
 function text(value: unknown): string {
-  return String(value ?? '').trim();
+  return String(value || '').trim();
 }
 type WebSessionContext = RuntimeRecord & {
   userId: string;
@@ -123,7 +123,7 @@ export class WebAppRuntimePersistenceSupport {
     const sessionEntries = Array.isArray(sessions?.entries) ? sessions.entries : [];
 
     const sessionTargets = Number(
-      sessionsSummary?.total ?? gatewaySessionsSummary?.total ?? sessions?.total ?? (sessionEntries.length > 0 ? sessionEntries.length : Array.isArray(canonicalState.sessions) ? canonicalState.sessions.length : 0),
+      sessionsSummary?.total || gatewaySessionsSummary?.total || sessions?.total || (sessionEntries.length > 0 ? sessionEntries.length : Array.isArray(canonicalState.sessions) ? canonicalState.sessions.length : 0),
     );
     const snapshot = asRecord(canonicalState.snapshot);
 
@@ -133,8 +133,8 @@ export class WebAppRuntimePersistenceSupport {
         sessionTargets,
       },
       narrative: {
-        headline: sessionTargets > 0 ? 'Gateway resumido para session tools.' : 'Gateway resumido sem sessoes vinculadas.',
-        operatorSummary: `${sessionTargets} alvo(s) de sessao disponivel(is) para continuidade rapida.`,
+        headline: sessionTargets > 0 ? 'Gateway summarized for session tools.' : 'Gateway summarized without linked sessions.',
+        operatorSummary: `${sessionTargets} alvo(s) de session available(is) para continuidade rapida.`,
       },
     };
   }
@@ -149,12 +149,12 @@ export class WebAppRuntimePersistenceSupport {
 
     return {
       providerLabel: String(profile?.providerLabel || profile?.provider || this.owner.formatProviderLabel(configuredProvider)).trim(),
-      modelLabel: String(profile?.modelLabel || profile?.model || configuredModel || 'modelo atual not provided').trim(),
+      modelLabel: String(profile?.modelLabel || profile?.model || configuredModel || 'model current not provided').trim(),
       routingPolicy: String(profile?.routingPolicy || (configuredProvider === 'aigateway' ? 'gateway' : 'direct')).trim(),
       fallbackModelLabel: String(profile?.fallbackModelLabel || '').trim() || undefined,
-      supportsTools: profile?.supportsTools ?? true,
+      supportsTools: profile?.supportsTools || true,
       supportsVision: profile?.supportsVision,
-      supportsStreaming: profile?.supportsStreaming ?? true,
+      supportsStreaming: profile?.supportsStreaming || true,
     };
   }
 
@@ -162,7 +162,7 @@ export class WebAppRuntimePersistenceSupport {
     const modelLabel = String(profile?.modelLabel || profile?.model || '')
       .trim()
       .toLowerCase();
-    return Boolean(modelLabel && !['modelo atual', 'modelo not provided', 'modelo atual not provided'].includes(modelLabel));
+    return Boolean(modelLabel && !['model current', 'model not provided', 'model current not provided'].includes(modelLabel));
   }
 
   public normalizeProviderName(provider: string): string {

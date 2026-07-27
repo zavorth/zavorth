@@ -54,21 +54,18 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
   public constructor(deps: LiveCandidateDeps = {}) {
     this.now = deps.now ?? (() => new Date());
     const credentialRefs =
-      deps.credentialRefs ??
-      new ZavorthTransactionCredentialRefService({
+      deps.credentialRefs ??       new ZavorthTransactionCredentialRefService({
         storeFile: deps.credentialStoreFile,
         now: this.now,
       });
     this.zavorthControl =
-      deps.zavorthControl ??
-      createZavorthControl({
+      deps.zavorthControl ??       createZavorthControl({
         now: this.now,
         credentialRefs,
         ledgerFile: deps.ledgerFile,
       });
     this.certification =
-      deps.certification ??
-      new ZavorthTransactionCertificationService({
+      deps.certification ??       new ZavorthTransactionCertificationService({
         now: this.now,
         ledgerFile: certificationLedgerFile(deps.ledgerFile),
         credentialStoreFile: certificationCredentialStoreFile(deps.credentialStoreFile),
@@ -147,8 +144,7 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
 }
 
 function certificationLedgerFile(ledgerFile: string | undefined): string {
-  return ledgerFile
-    ? `${ledgerFile}.certification-matrix-certification.jsonl`
+  return ledgerFile ? `${ledgerFile}.certification-matrix-certification.jsonl`
     : path.join(
         process.cwd(),
         'data',
@@ -158,8 +154,7 @@ function certificationLedgerFile(ledgerFile: string | undefined): string {
 }
 
 function certificationCredentialStoreFile(storeFile: string | undefined): string {
-  return storeFile
-    ? `${storeFile}.certification-matrix-certification.jsonl`
+  return storeFile ? `${storeFile}.certification-matrix-certification.jsonl`
     : path.join(
         process.cwd(),
         'data',
@@ -282,9 +277,9 @@ function buildGates(input: {
       [`certification=${input.certificationStatus}`],
     ),
     gate(
-      'zavorthControl-simulated',
-      projection.status === 'simulated',
-      'ZavorthControl projection must represent a completed paper/sandbox simulation.',
+      'zavorthControl-dryRun',
+      projection.status === 'dryRun',
+      'ZavorthControl projection must represent a completed paper/sandbox dryRun.',
       [`status=${projection.status}`, `tone=${projection.tone}`],
     ),
     gate(
@@ -303,9 +298,9 @@ function buildGates(input: {
       ],
     ),
     gate(
-      'typed-connector-simulated',
-      connectorStatus === 'simulated' && runtime.connectorRun?.externalSideEffects === false,
-      'Typed connector must have produced a simulated payload with no external side effects.',
+      'typed-connector-dryRun',
+      connectorStatus === 'dryRun' && runtime.connectorRun?.externalSideEffects === false,
+      'Typed connector must have produced a dryRun payload with no external side effects.',
       [`connector=${connectorStatus}`, `payload=${runtime.connectorRun?.payload?.method ?? 'none'}`],
     ),
     gate(
@@ -354,10 +349,10 @@ function resolveStatus(gates: ZavorthTransactionLiveCandidateGate[]): ZavorthTra
     return 'certification-required';
   }
   const runtimeGates = [
-    'zavorthControl-simulated',
+    'zavorthControl-dryRun',
     'approval-ledger-approved',
     'credential-ref-ready',
-    'typed-connector-simulated',
+    'typed-connector-dryRun',
     'raw-secret-redaction',
     'live-switch-disabled',
   ];
@@ -448,7 +443,7 @@ function includesRawSecret(text: string): boolean {
 }
 
 function rawSecretValue(text: string): string {
-  const assignment = /\b(?:api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/i.exec(
+  const assignment = /\b(?:api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]\s*([^\s,;]+)/i.exec(
     text,
   )?.[1];
   if (assignment) {

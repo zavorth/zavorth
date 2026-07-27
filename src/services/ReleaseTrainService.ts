@@ -121,16 +121,16 @@ export class ReleaseTrainService {
       checks,
       nextRecommendedAction: {
         id: 'cycle-closed',
-        title: 'Ciclo 53-59 fechado; operar v1.0.x ou planejar v1.1.0',
+        title: 'Cycle 53-59 closed; operate v1.0.x or plan v1.1.0',
         reason:
-          'Com release train v1.x definido, novas mudancas devem entrar como hotfix v1.0.x ou como ciclo aprovado para v1.1.0.',
+          'With release train v1.x defined, new changes must enter as v1.0.x hotfixes or as an approved v1.1.0 cycle.',
       },
     };
   }
 
   public renderReport(snapshot: ReleaseTrainSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[release-train] Readiness checkpoint 9 - v1.x Release Train And LTS Policy');
+    lines.push('[release-train] Readiness gate - v1.x Release Train And LTS Policy');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`baseline: ${snapshot.baseline.version} (${snapshot.baseline.channel}) | package=${snapshot.baseline.packageVersion}`);
@@ -145,7 +145,7 @@ export class ReleaseTrainService {
       }
     }
     lines.push('');
-    lines.push(`proxima acao recomendada: ${snapshot.nextRecommendedAction.title}`);
+    lines.push(`next action recomendada: ${snapshot.nextRecommendedAction.title}`);
     lines.push(snapshot.nextRecommendedAction.reason);
     return lines.join('\n');
   }
@@ -154,11 +154,10 @@ export class ReleaseTrainService {
     const exists = this.existsSync(this.websiteRoot);
     return this.check(
       'release-train:website-root',
-      'base publica zavorth-website',
+      'base public zavorth-website',
       exists ? 'pass' : 'fail',
-      exists
-        ? 'repositorio zavorth-website encontrado para validar release train publico.'
-        : 'repositorio zavorth-website nao foi encontrado. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
+      exists ? 'zavorth-website repository found to validate the public release train.'
+        : 'zavorth-website repository was not found. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
       this.websiteRoot,
     );
   }
@@ -168,11 +167,11 @@ export class ReleaseTrainService {
       .filter((filePath) => !this.existsSync(path.join(this.websiteRoot, filePath)));
     return this.check(
       'release-train:website-files',
-      'release, changelog e docs publicas',
+      'release, changelog e public docs',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? '/release, /changelog, /docs e fixture de release existem.'
-        : 'site publico precisa expor release train em release, changelog e docs.',
+        : 'public site must expose release train em release, changelog e docs.',
       undefined,
       missing,
     );
@@ -183,13 +182,12 @@ export class ReleaseTrainService {
       const command = String(scripts[scriptName] || '').trim();
       return this.check(
         `release-train:script:${scriptName}`,
-        `script canonico ${scriptName}`,
+        `script canonical ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `repo principal expoe "${scriptName}" para release train v1.x.`
-          : `repo principal precisa expor "${scriptName}" no package.json.`,
+        command ? `main repo exposes "${scriptName}" para release train v1.x.`
+          : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -198,7 +196,7 @@ export class ReleaseTrainService {
     const issues: string[] = [];
     const packageVersion = String(corePackage.version || '').trim();
     if (!isV1ReleaseTrainVersion(packageVersion)) {
-      issues.push(`package version esperada no release train v1.x, atual ${packageVersion || '<ausente>'}`);
+      issues.push(`package version esperada no release train v1.x, current ${packageVersion || '<missing>'}`);
     }
     const source = [
       this.readCoreText('docs/product-direction.md') || '',
@@ -207,7 +205,7 @@ export class ReleaseTrainService {
     ].join('\n');
     for (const term of ['v1.0.0', 'baseline', 'stable']) {
       if (!source.toLowerCase().includes(term.toLowerCase())) {
-        issues.push(`baseline sem termo: ${term}`);
+        issues.push(`baseline without termo: ${term}`);
       }
     }
     return this.check(
@@ -215,8 +213,8 @@ export class ReleaseTrainService {
       'baseline v1.0.0 documentado',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'v1.0.0 esta documentado como baseline estavel e o package esta no release train v1.x.'
-        : 'baseline v1.0.0 precisa estar documentado e o package precisa estar no release train v1.x.',
+        ? 'v1.0.0 is documentado como baseline stable e o package is no release train v1.x.'
+        : 'baseline v1.0.0 must be documented and the package must be in release train v1.x.',
       'package.json',
       issues,
     );
@@ -227,31 +225,31 @@ export class ReleaseTrainService {
     const byLane = new Map(RELEASE_TRAIN_VERSION_POLICIES.map((policy) => [policy.lane, policy]));
     for (const lane of ['baseline', 'patch', 'minor', 'breaking'] as const) {
       if (!byLane.has(lane)) {
-        issues.push(`lane ausente: ${lane}`);
+        issues.push(`lane missing: ${lane}`);
       }
     }
     const patch = byLane.get('patch');
     if (!patch?.requiresRollback) {
-      issues.push('patch v1.0.x precisa rollback');
+      issues.push('patch v1.0.x needs rollback');
     }
     if ((patch?.allowedScope || []).some((scope) => scope.toLowerCase().includes('feature'))) {
-      issues.push('patch v1.0.x nao pode incluir feature ampla');
+      issues.push('patch v1.0.x must not include broad features');
     }
     const minor = byLane.get('minor');
     if (!minor?.requiresApprovedPlanning) {
-      issues.push('minor v1.1.0 precisa planejamento aprovado');
+      issues.push('minor v1.1.0 needs approved planning');
     }
     const breaking = byLane.get('breaking');
     if (!breaking?.requiresApprovedPlanning || !breaking.allowedScope.some((scope) => scope.toLowerCase().includes('migration'))) {
-      issues.push('breaking change precisa ciclo explicito e migration guide');
+      issues.push('breaking change needs an explicit cycle and migration guide');
     }
     return this.check(
       'release-train:version-policies',
-      'politica patch/minor/breaking',
+      'patch/minor/breaking policy',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
         ? 'v1.0.x, v1.1.0 e breaking changes tem escopo, planejamento e rollback definidos.'
-        : 'politica de versao v1.x esta incompleta.',
+        : 'version policy v1.x is incomplete.',
       'src/contracts/ReleaseTrainContract.ts',
       issues,
     );
@@ -263,10 +261,10 @@ export class ReleaseTrainService {
       issues.push(`calendario leve insuficiente: ${RELEASE_TRAIN_CALENDAR.length}/4`);
     }
     const alwaysOn = RELEASE_TRAIN_CALENDAR.filter((item) => item.alwaysOn).map((item) => item.id);
-    issues.push(...alwaysOn.map((id) => `${id}: release train nao deve ser processo sempre ligado`));
+    issues.push(...alwaysOn.map((id) => `${id}: release train must not be an always-on process`));
     for (const required of ['rc-window', 'patch-hotfix', 'minor-planning', 'lts-review']) {
       if (!RELEASE_TRAIN_CALENDAR.some((item) => item.id === required)) {
-        issues.push(`item de calendario ausente: ${required}`);
+        issues.push(`item de calendario missing: ${required}`);
       }
     }
     return this.check(
@@ -274,8 +272,8 @@ export class ReleaseTrainService {
       'calendario leve v1.x',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'calendario e sob demanda/per-release, sem watcher ou processo pesado sempre ligado.'
-        : 'calendario de release train esta incompleto ou pesado demais.',
+        ? 'calendario e sob demanda/per-release, without watcher ou process pesado sempre ligado.'
+        : 'calendario de release train is incompleto ou pesado demais.',
       'src/contracts/ReleaseTrainContract.ts',
       issues,
     );
@@ -286,15 +284,15 @@ export class ReleaseTrainService {
     const requiredCommands = ['release:status:fast', 'qa:release-bundle', 'qa:distribution-hardening', 'qa:integration-showcase', 'release:rollback-preview', 'release:changelog'];
     for (const command of requiredCommands) {
       if (!RELEASE_CANDIDATE_CHECKLIST.some((item) => item.command === `npm run ${command}`)) {
-        issues.push(`checklist sem comando: ${command}`);
+        issues.push(`checklist without command: ${command}`);
       }
       if (!String(scripts[command] || '').trim()) {
-        issues.push(`script ausente: ${command}`);
+        issues.push(`script missing: ${command}`);
       }
     }
     const optional = RELEASE_CANDIDATE_CHECKLIST.filter((item) => !item.required).map((item) => item.id);
     if (optional.length > 0) {
-      issues.push(`checklist de RC nao deve ter item opcional: ${optional.join(', ')}`);
+      issues.push(`RC checklist must not have optional items: ${optional.join(', ')}`);
     }
     return this.check(
       'release-train:rc-checklist',
@@ -302,7 +300,7 @@ export class ReleaseTrainService {
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
         ? 'release candidate cobre status, bundle, distribution, integration smoke, rollback e changelog.'
-        : 'checklist de release candidate esta incompleto.',
+        : 'checklist de release candidate is incompleto.',
       'src/contracts/ReleaseTrainContract.ts',
       issues,
     );
@@ -312,15 +310,15 @@ export class ReleaseTrainService {
     const issues: string[] = [];
     for (const required of ['classify', 'branch', 'validate', 'publish']) {
       if (!HOTFIX_PLAYBOOK.some((step) => step.id === required)) {
-        issues.push(`passo ausente: ${required}`);
+        issues.push(`passo missing: ${required}`);
       }
     }
     for (const step of HOTFIX_PLAYBOOK) {
       if (!step.rollback.trim()) {
-        issues.push(`${step.id}: sem rollback`);
+        issues.push(`${step.id}: without rollback`);
       }
       if (!step.evidence.trim()) {
-        issues.push(`${step.id}: sem evidencia`);
+        issues.push(`${step.id}: without evidence`);
       }
     }
     return this.check(
@@ -328,8 +326,8 @@ export class ReleaseTrainService {
       'rollback e hotfix playbook',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'hotfix v1.0.x tem classificacao, branch, validacao, publish e rollback claro.'
-        : 'hotfix playbook esta incompleto.',
+        ? 'hotfix v1.0.x tem classification, branch, validation, publish e rollback claro.'
+        : 'hotfix playbook is incompleto.',
       'src/contracts/ReleaseTrainContract.ts',
       issues,
     );
@@ -341,11 +339,11 @@ export class ReleaseTrainService {
       .filter((scriptName) => !String(scripts[scriptName] || '').trim());
     return this.check(
       'release-train:previous-gates',
-      'gates anteriores preservados',
+      'previous gates preserved',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'release train parte de gates anteriores fechados e ainda executaveis.'
-        : 'algum gate anterior do ciclo de release esta ausente.',
+        ? 'release train parte de gates anteriores closeds e ainda executaveis.'
+        : 'algum gate anterior do ciclo de release is missing.',
       'package.json',
       missing,
     );
@@ -356,11 +354,11 @@ export class ReleaseTrainService {
     const missing = RELEASE_TRAIN_REQUIRED_WEBSITE_TERMS.filter((term) => !source.includes(term));
     return this.check(
       'release-train:website-coverage',
-      'release train no site publico',
+      'release train on public site',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'site publico cobre v1.0.0, v1.0.x, v1.1.0, LTS, hotfix, RC, rollback, tags e GitHub Releases.'
-        : 'site publico precisa documentar release train v1.x.',
+        ? 'public site covers v1.0.0, v1.0.x, v1.1.0, LTS, hotfix, RC, rollback, tags, and GitHub Releases.'
+        : 'public site must document release train v1.x.',
       'app/release/page.tsx',
       missing.map((term) => `faltando: ${term}`),
     );
@@ -378,11 +376,11 @@ export class ReleaseTrainService {
     const evidence = [...forbiddenMatches, ...tokenMatches];
     return this.check(
       'release-train:forbidden-claims',
-      'claims proibidos de release',
+      'prohibited release claims',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'release train nao promete publish sem rollback, breaking silencioso ou processo sempre ligado.'
-        : 'release train contem claim proibido.',
+        ? 'release train not promete publish without rollback, breaking silencioso ou process sempre ligado.'
+        : 'release train contains claim proibido.',
       undefined,
       evidence,
     );
@@ -395,9 +393,8 @@ export class ReleaseTrainService {
         'release-train:plan-artifact',
         'artifact do release train',
         this.requireArtifacts ? 'fail' : 'warn',
-        this.requireArtifacts
-          ? 'release-train-plan.json precisa existir para qa:release-train.'
-          : 'plano nao exigido neste snapshot; qa:release-train gera e valida o artifact.',
+        this.requireArtifacts ? 'release-train-plan.json must exist for qa:release-train.'
+          : 'plan not required in this snapshot; qa:release-train generates and validates the artifact.',
         this.planPath,
       );
     }
@@ -409,7 +406,7 @@ export class ReleaseTrainService {
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
         ? 'release-train-plan.json cobre baseline, patch, minor e breaking.'
-        : 'release-train-plan.json esta incompleto.',
+        : 'release-train-plan.json is incompleto.',
       this.planPath,
       issues,
     );
@@ -422,9 +419,8 @@ export class ReleaseTrainService {
         'release-train:checklist-artifact',
         'artifact de release candidate',
         this.requireArtifacts ? 'fail' : 'warn',
-        this.requireArtifacts
-          ? 'release-candidate-checklist.json precisa existir para qa:release-train.'
-          : 'checklist nao exigido neste snapshot; qa:release-train gera e valida o artifact.',
+        this.requireArtifacts ? 'release-candidate-checklist.json must exist for qa:release-train.'
+          : 'checklist not exigido neste snapshot; qa:release-train gera e valida o artifact.',
         this.checklistPath,
       );
     }
@@ -436,7 +432,7 @@ export class ReleaseTrainService {
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
         ? 'release-candidate-checklist.json cobre todos os checks de RC.'
-        : 'release-candidate-checklist.json esta incompleto.',
+        : 'release-candidate-checklist.json is incompleto.',
       this.checklistPath,
       issues,
     );
@@ -449,9 +445,8 @@ export class ReleaseTrainService {
         'release-train:hotfix-artifact',
         'artifact do hotfix playbook',
         this.requireArtifacts ? 'fail' : 'warn',
-        this.requireArtifacts
-          ? 'hotfix-playbook.json precisa existir para qa:release-train.'
-          : 'hotfix playbook nao exigido neste snapshot; qa:release-train gera e valida o artifact.',
+        this.requireArtifacts ? 'hotfix-playbook.json must exist for qa:release-train.'
+          : 'hotfix playbook not exigido neste snapshot; qa:release-train gera e valida o artifact.',
         this.hotfixPath,
       );
     }
@@ -462,8 +457,8 @@ export class ReleaseTrainService {
       'artifact do hotfix playbook',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'hotfix-playbook.json cobre classificar, branch, validar e publicar com rollback.'
-        : 'hotfix-playbook.json esta incompleto.',
+        ? 'hotfix-playbook.json cobre classify, branch, validate, and publish com rollback.'
+        : 'hotfix-playbook.json is incompleto.',
       this.hotfixPath,
       issues,
     );
@@ -489,11 +484,11 @@ export class ReleaseTrainService {
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
       'release-train:docs-runbook',
-      'documentacao e runbook da Readiness checkpoint 9',
+      'readiness gate documentation and runbook',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'docs explicam release train, LTS, patch, minor, RC, hotfix, rollback e gates da Readiness checkpoint 9.'
-        : 'docs precisam explicar como fechar e operar o release train v1.x.',
+        ? 'docs explain release train, LTS, patch, minor, RC, hotfix, rollback, and readiness gates.'
+        : 'docs must explain how to close and operate release train v1.x.',
       'docs/product-direction.md',
       missing.map((term) => `faltando: ${term}`),
     );
@@ -504,15 +499,15 @@ export class ReleaseTrainService {
       this.readCoreText('docs/product-direction.md') || '',
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
-    const required = ['release train', 'fechado', 'nao objetivos', 'v1.1.0'];
+    const required = ['release train', 'closed', 'not objetivos', 'v1.1.0'];
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
       'release-train:cycle-closure',
-      'ciclo de release pronto para operacao guiada',
+      'release cycle ready for guided operation',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'documentacao marca o ciclo de release como fechado e direciona novas mudancas para v1.0.x/v1.1.0.'
-        : 'ciclo de release ainda nao esta claramente fechado na documentacao.',
+        ? 'documentaction marca o ciclo de release como closed e direciona new changes para v1.0.x/v1.1.0.'
+        : 'ciclo de release ainda not is claramente closed na documentaction.',
       'docs/product-direction.md',
       missing,
     );
@@ -525,16 +520,16 @@ export class ReleaseTrainService {
   ): string[] {
     const issues: string[] = [];
     if (artifact.ok !== true) {
-      issues.push('ok precisa ser true');
+      issues.push('ok must be true');
     }
     for (const id of expectedIds) {
       const result = results.find((item) => item.id === id);
       if (!result) {
-        issues.push(`resultado ausente: ${id}`);
+        issues.push(`missing result: ${id}`);
         continue;
       }
       if (result.status !== 'pass') {
-        issues.push(`resultado falhou: ${id}`);
+        issues.push(`result failed: ${id}`);
       }
     }
     return issues;
@@ -626,5 +621,5 @@ function resolveDefaultWebsiteRoot(projectRoot: string): string {
 }
 
 function isV1ReleaseTrainVersion(version: string): boolean {
-  return /^1\.(?:0|[1-9]\d*)\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version);
+  return /^1\.(?:0|[1-9]\d*)\.\d+(?:-[0-9A-Za-z.-]+)...$/.test(version);
 }

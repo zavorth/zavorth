@@ -77,7 +77,7 @@ export const capabilityChoices = [
 
 export const commonCapabilityQuestion = question(
   'capabilities',
-  'Which capabilities should be enabled first?',
+  'Which capabilities should be enabled first...',
   'multi_choice',
   'You can start small and expand later.',
   {

@@ -12,10 +12,8 @@ export function readGatewayStatus(input: {
   const operationsHealth = input.runtime.getOperationsHealth()?.readSnapshotFast() || null;
   const maintenanceRunning = input.support.isMaintenanceRunning(operationsHealth);
   const status: GatewayStatusDTO['status'] =
-    maintenanceRunning
-      ? 'maintenance'
-      : runtime
-        ? 'ready'
+    maintenanceRunning ? 'maintenance'
+      : runtime ? 'ready'
         : (input.support.hasBlockingOperationalError(operationsHealth?.errors?.lastError) ? 'error' : 'starting');
 
   return {

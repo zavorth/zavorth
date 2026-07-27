@@ -165,13 +165,13 @@ export class PluginStateService {
   }
 
   /**
-   * Verifica se um plugin foi explicitamente aprovado pelo operador para execução.
-   * Um plugin é considerado aprovado apenas se estiver marcado como 'trusted'
-   * E se sua fonte for considerada confiável (sourceTrusted === true).
-   * Plugins com trust 'review' são sempre bloqueados pelo Cognitive Firewall.
+   * Checks whether a plugin was explicitly approved by the operator for execution.
+   * A plugin is considered approved only when marked as 'trusted'
+   * and its source is trusted (sourceTrusted === true).
+   * Plugins with trust 'review' are always blocked by the Cognitive Firewall.
    *
    * @param pluginId - Identificador do plugin a ser verificado
-   * @returns true se o plugin estiver aprovado para execução, false caso contrário
+   * @returns true when the plugin is approved for execution, false otherwise
    */
   public getApprovalSnapshot(): PluginApprovalSnapshot {
     const state = this.readState();

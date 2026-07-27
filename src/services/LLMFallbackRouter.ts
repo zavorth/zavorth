@@ -47,7 +47,7 @@ export class LLMFallbackRouter {
   constructor(llmRouter: LLMRouterService, options: FallbackRouterOptions = {}) {
     this.llmRouter = llmRouter;
     this.fallbackChain = new ModelFallbackChain({
-      primary: { provider: '', model: '' }, // será definido dinamicamente
+      primary: { provider: '', model: '' }, // resolved dynamically
       fallbacks: [],
       cooldownMs: options.cooldownMs ?? 300_000,
       probeIntervalMs: options.probeIntervalMs ?? 60_000,
@@ -55,7 +55,7 @@ export class LLMFallbackRouter {
   }
 
   /**
-   * Executa com fallback automático.
+   * Executes with automatic fallback.
    */
   async executeWithFallback(
     request: ExecuteRequest,
@@ -96,11 +96,11 @@ export class LLMFallbackRouter {
       probeIntervalMs: this.fallbackChain['probeIntervalMs'],
     });
 
-    // Tentar candidatos
+    // Try candidates
     while (true) {
       const candidate = chain.selectCandidate();
       if (!candidate) {
-        throw new Error('Todos os providers estão em cooldown. Tente novamente mais tarde.');
+        throw new Error('All providers are in cooldown. Please try again later.');
       }
 
       attempts++;
@@ -128,7 +128,7 @@ export class LLMFallbackRouter {
           continue;
         }
 
-        // Para outros erros, tentar o próximo se disponível
+        // For other errors, try the next available candidate.
         const nextCandidate = chain.selectCandidate();
         if (nextCandidate) {
           fallbackUsed = true;
@@ -141,7 +141,7 @@ export class LLMFallbackRouter {
   }
 
   private getProfileById(id: string): { provider: string; model: string } | null {
-    // Buscar perfil pelo ID no LLMRouterService
+    // Find profile by ID in LLMRouterService
     const models = this.llmRouter.listModels();
     const match = models.match(new RegExp(`${id}: ([^/]+)/([^\s]+)`));
     if (match) {

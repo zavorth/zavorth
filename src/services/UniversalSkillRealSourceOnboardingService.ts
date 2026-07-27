@@ -179,7 +179,7 @@ export class UniversalSkillRealSourceOnboardingService {
         run: 'npm run zavorth:universal-skill-real-source-onboarding -- --discover',
         runJson: 'npm run zavorth:universal-skill-real-source-onboarding:json -- --discover',
         check: 'npm run zavorth:universal-skill-real-source-onboarding:check --silent',
-        nextStage: 'Certification matrix - Real Library Scale Hardening and ZavorthControl Review',
+        nextAction: 'Certification matrix - Real Library Scale Hardening and ZavorthControl Review',
       },
     };
   }
@@ -192,7 +192,7 @@ export class UniversalSkillRealSourceOnboardingService {
       `Modo: ${snapshot.mode} | Canal: ${snapshot.channel}`,
       `Fontes: ${snapshot.sources.summary.includedInQa}/${snapshot.sources.summary.candidates} em QA | missing=${snapshot.sources.summary.missingSelected}`,
       `QA: ${snapshot.qa.status} | candidates=${snapshot.qa.expansion.summary.candidates} | imported=${snapshot.qa.expansion.summary.materialized} | bridge=${snapshot.qa.expansion.summary.bridgeReady}`,
-      `History: ${snapshot.history.persisted ? snapshot.history.path : 'nao persistido'} | baseline=${snapshot.regression.baselineAvailable}`,
+      `History: ${snapshot.history.persisted ? snapshot.history.path : 'not persisted'} | baseline=${snapshot.regression.baselineAvailable}`,
       '',
       'Fontes avaliadas:',
     ];
@@ -205,21 +205,21 @@ export class UniversalSkillRealSourceOnboardingService {
       );
     }
 
-    lines.push('', 'Regressao:');
+    lines.push('', 'Regression:');
     if (snapshot.regression.findings.length === 0) {
-      lines.push('- Nenhuma regressao detectada.');
+      lines.push('- No regression detected.');
     } else {
       for (const finding of snapshot.regression.findings) {
         lines.push(`- ${finding.severity} ${finding.metric}: ${finding.summary}`);
       }
     }
 
-    lines.push('', 'Proximas acoes:');
+    lines.push('', 'Proximas actions:');
     for (const action of snapshot.rollout.nextActions) {
       lines.push(`- ${action}`);
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextStage}`);
+    lines.push('', `Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -235,7 +235,7 @@ export class UniversalSkillRealSourceOnboardingService {
         origin: 'explicit',
         source,
         selected: true,
-        reason: 'Fonte informada explicitamente by the operator.',
+        reason: 'source informada explicitmente by the operator.',
       }));
     }
 
@@ -244,7 +244,7 @@ export class UniversalSkillRealSourceOnboardingService {
         origin: 'environment',
         source,
         selected: true,
-        reason: 'Fonte declarada em ZAVORTH_SKILL_SOURCE_PATHS.',
+        reason: 'source declarada em ZAVORTH_SKILL_SOURCE_PATHS.',
       }));
     }
 
@@ -254,7 +254,7 @@ export class UniversalSkillRealSourceOnboardingService {
           origin: 'workspace-discovery',
           source,
           selected: true,
-          reason: 'Fonte descoberta em raiz local conhecida do workspace.',
+          reason: 'source descoberta em raiz local conhecida do workspace.',
         }));
       }
     }
@@ -264,10 +264,9 @@ export class UniversalSkillRealSourceOnboardingService {
         ? candidate.exists
         : candidate.selected;
       const includedInQa = selected && candidate.exists;
-      const reason = selected && !candidate.exists
-        ? `${candidate.reason} Caminho ausente; nao incluido no QA.`
+      const reason = selected && !candidate.exists ? `${candidate.reason} Missing path; not included in QA.`
         : !selected && !candidate.exists && candidate.origin === 'workspace-discovery'
-          ? `${candidate.reason} Caminho ausente; mantido como candidato, nao selecionado.`
+          ? `${candidate.reason} Missing path; kept as candidate, not selected.`
           : candidate.reason;
 
       return {
@@ -322,7 +321,7 @@ export class UniversalSkillRealSourceOnboardingService {
         'source-exists',
         true,
         false,
-        `${missing.length} fonte(s) selecionada(s) nao existem no host.`,
+        `${missing.length} selected source(s) do not exist on the host.`,
       ));
     }
 
@@ -333,7 +332,7 @@ export class UniversalSkillRealSourceOnboardingService {
         'included-source-count',
         null,
         0,
-        'Nenhuma fonte real entrou no QA; onboarding fica em modo de espera.',
+        'No real source entered QA; onboarding remains in waiting mode.',
       ));
     }
 
@@ -344,7 +343,7 @@ export class UniversalSkillRealSourceOnboardingService {
         'qa-status',
         null,
         input.qa.status,
-        'QA da expansao bloqueou o rollout desta execucao.',
+        'Expansion QA blocked rollout for this execution.',
       ));
     }
 
@@ -377,7 +376,7 @@ export class UniversalSkillRealSourceOnboardingService {
         'candidates',
         input.previousEntry.candidates,
         current.candidates,
-        'Quantidade de candidatos caiu em relacao ao ultimo baseline.',
+        'Candidate count dropped relative to the latest baseline.',
       ));
     }
     if (current.materialized < input.previousEntry.materialized) {
@@ -387,7 +386,7 @@ export class UniversalSkillRealSourceOnboardingService {
         'materialized',
         input.previousEntry.materialized,
         current.materialized,
-        'Quantidade de skills materializadas caiu em relacao ao ultimo baseline.',
+        'Quantidade de skills materializadas caiu em relaction ao latest baseline.',
       ));
     }
     if (current.bridgeReady < input.previousEntry.bridgeReady) {
@@ -397,7 +396,7 @@ export class UniversalSkillRealSourceOnboardingService {
         'bridgeReady',
         input.previousEntry.bridgeReady,
         current.bridgeReady,
-        'Quantidade pronta para bridge caiu em relacao ao ultimo baseline.',
+        'Bridge-ready quantity decreased compared with the latest baseline.',
       ));
     }
     if (current.blockedCandidates > input.previousEntry.blockedCandidates) {
@@ -407,7 +406,7 @@ export class UniversalSkillRealSourceOnboardingService {
         'blockedCandidates',
         input.previousEntry.blockedCandidates,
         current.blockedCandidates,
-        'Candidatos bloqueados aumentaram desde o ultimo baseline.',
+        'Blocked candidates increased since the latest baseline.',
       ));
     }
     if (current.denied > input.previousEntry.denied) {
@@ -417,7 +416,7 @@ export class UniversalSkillRealSourceOnboardingService {
         'denied',
         input.previousEntry.denied,
         current.denied,
-        'Decisoes denied aumentaram desde o ultimo baseline.',
+        'Decisoes denied aumentaram desde o latest baseline.',
       ));
     }
 
@@ -472,8 +471,8 @@ export class UniversalSkillRealSourceOnboardingService {
         readyForContinuousUse: false,
         recommendedCadence: 'hold',
         nextActions: [
-          'Corrigir fontes ausentes, gates bloqueados ou regressao critica antes de novo apply.',
-          'Rodar novamente em preview ate o status sair de blocked.',
+          'Fix missing sources, blocked gates, or critical regression before a new apply.',
+          'run again em preview ate o status sair de blocked.',
         ],
       };
     }
@@ -481,16 +480,16 @@ export class UniversalSkillRealSourceOnboardingService {
     const included = input.sourceCandidates.filter((candidate) => candidate.includedInQa).length;
     const nextActions = input.qa.expansion.apply
       ? [
-          'Manter a regressao continua ativa depois de cada importacao real.',
-          'Executar dry-run das skills novas antes de liberar live.',
+          'Keep continuous regression active after each real import.',
+          'run dry-run das skills new before enable live.',
         ]
       : [
-          'Revisar o preview das fontes reais descobertas.',
-          'Aplicar apenas fontes e skills aprovadas com --apply --allow-source --skills <nome>.',
+          'review o preview das fontes reais descobertas.',
+          'Apply only approved sources and skills with --apply --allow-source --skills <name>.',
         ];
 
     if (input.findings.length > 0) {
-      nextActions.unshift('Revisar findings de regressao antes de expandir o rollout.');
+      nextActions.unshift('review regression findings before expanding rollout.');
     }
 
     return {

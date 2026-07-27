@@ -104,7 +104,7 @@ export class GatewaySessionStoreService {
       chatId: null,
       sourceUserId: null,
       runtimeUserId,
-      handoffCommand: `/task continuar sessao ${syntheticSessionId} em ${platform}`,
+      handoffCommand: `/task continue session ${syntheticSessionId} on ${platform}`,
     };
   }
 

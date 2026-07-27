@@ -88,8 +88,8 @@ function extractShortDescription(fullDescription: string): string {
   const trimmed = fullDescription.trim();
   if (!trimmed) return '';
 
-  // Try to extract first sentence (ends with . ! ?)
-  const sentenceMatch = trimmed.match(/^[^.!?]*[.!?]/);
+  // Try to extract first sentence (ends with . ! ...)
+  const sentenceMatch = trimmed.match(/^[^.!...]*[.!...]/);
   let short = sentenceMatch ? sentenceMatch[0].trim() : trimmed;
 
   // Cap at max length

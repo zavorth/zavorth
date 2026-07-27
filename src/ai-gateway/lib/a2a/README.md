@@ -74,7 +74,7 @@ curl http://localhost:20128/.well-known/agent.json
       "description": "Natural-language queries about provider quotas",
       "tags": ["quota", "analytics", "cost"],
       "examples": [
-        "Which provider has the most quota remaining?",
+        "Which provider has the most quota remaining...",
         "Suggest a free combo for coding"
       ]
     }
@@ -293,7 +293,7 @@ quota_resp = requests.post(f"{BASE_URL}/a2a", headers=HEADERS, json={
     "method": "message/send",
     "params": {
         "skill": "quota-management",
-        "messages": [{"role": "user", "content": "Which provider has the most quota remaining?"}],
+        "messages": [{"role": "user", "content": "Which provider has the most quota remaining..."}],
     }
 })
 quota_result = quota_resp.json()["result"]
@@ -314,8 +314,8 @@ const API_KEY = "your-api-key";
 interface JsonRpcResponse<T = any> {
   jsonrpc: "2.0";
   id: string | number;
-  result?: T;
-  error?: { code: number; message: string };
+  result...: T;
+  error...: { code: number; message: string };
 }
 
 async function a2aCall<T>(method: string, params: Record<string, any>): Promise<T> {
@@ -568,7 +568,7 @@ Multiple agents share quota through ZavorthGateway, using the quota skill to coo
 async def quota_aware_agent(agent_name: str, task: str):
     # Check quota before starting
     quota = a2a_send("quota-management", [
-        {"role": "user", "content": "Which provider has the most quota remaining?"}
+        {"role": "user", "content": "Which provider has the most quota remaining..."}
     ])
     print(f"[{agent_name}] {quota['artifacts'][0]['content']}")
 

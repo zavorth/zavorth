@@ -197,18 +197,18 @@ export class ZavorthReplayLearningService {
         heavyRuntimesStarted: false,
       },
       narrative: {
-        headline: 'Replay learning: Replay Learning e Gemeo Digital local',
-        operatorSummary: `${records.length} aprendizado(s) redigido(s), ${approved} aprovado(s), ${pending} aguardando approval.`,
+        headline: 'Replay learning: Replay Learning and local Digital Twin',
+        operatorSummary: `${records.length} learning(s) drafted, ${approved} approved, ${pending} awaiting approval.`,
         nextAction: pending > 0
-          ? 'Aprovar ou revogar aprendizados pendentes antes de usar no perfil.'
-          : 'Importar replay com ops:replay-learning -- --text ou --replay.',
+          ? 'Approve or revoke pending learnings before using them in the profile.'
+          : 'Import replay with ops:replay-learning -- --text or --replay.',
       },
       profile,
       records,
       actions: [
-        { id: 'import-replay', label: 'Importar replay redigido', command: 'npm run ops:replay-learning -- --text "<trecho>"' },
-        { id: 'suggest', label: 'Usar gemeo em suggest-only', command: 'npm run ops:replay-learning -- --suggest "<objetivo>"' },
-        { id: 'export-profile', label: 'Exportar perfil local', command: 'npm run ops:replay-learning -- --export-profile' },
+        { id: 'import-replay', label: 'Import drafted replay', command: 'npm run ops:replay-learning -- --text "<excerpt>"' },
+        { id: 'suggest', label: 'Use twin in suggest-only', command: 'npm run ops:replay-learning -- --suggest "<objective>"' },
+        { id: 'export-profile', label: 'Export local profile', command: 'npm run ops:replay-learning -- --export-profile' },
       ],
       policy: {
         suggestOnlyDefault: true,
@@ -223,7 +223,7 @@ export class ZavorthReplayLearningService {
   public async preview(input: ReplayLearningPreviewInput): Promise<ReplayLearningPreview> {
     const rawReplay = this.resolveReplayText(input);
     if (!rawReplay) {
-      throw new Error('Replay vazio. Use --text ou --replay <arquivo.cast>.');
+      throw new Error('Empty replay. Use --text or --replay <file.cast>.');
     }
     const redacted = this.redactReplay(rawReplay);
     const replayRef = `replay:${this.hash(rawReplay).slice(0, 16)}`;
@@ -233,7 +233,7 @@ export class ZavorthReplayLearningService {
         generatedAt: this.now().toISOString(),
         status: 'blocked',
         ok: false,
-        summary: 'Nenhum aprendizado seguro foi extraido do replay.',
+        summary: 'No safe learning was extracted from the replay.',
         details: redacted.notes,
         replayRef,
         records: [],
@@ -258,9 +258,9 @@ export class ZavorthReplayLearningService {
         generatedAt: this.now().toISOString(),
         status: 'suggest_only',
         ok: true,
-        summary: `${records.length} aprendizado(s) ficaram como sugestao, sem aplicar ao gemeo digital.`,
+        summary: `${records.length} learning(s) kept as suggestions, not applied to the digital twin.`,
         details: [
-          'Modo suggest-only nao cria MutationPlan.',
+          'Suggest-only mode does not create a MutationPlan.',
           ...redacted.notes,
         ],
         replayRef,
@@ -274,13 +274,13 @@ export class ZavorthReplayLearningService {
     const plan = this.mutationPlane.createPlan({
       domain: 'replay-learning',
       actionId: 'approve-learning',
-      title: `Aprovar ${records.length} aprendizado(s) para o gemeo digital`,
-      summary: 'Aprendizados de replay so entram no DigitalTwinProfile apos approval.',
+      title: `Approve ${records.length} learning(s) for the digital twin`,
+      summary: 'Replay learnings only enter the DigitalTwinProfile after approval.',
       requestedBy: input.requestedBy || null,
       sourceSurface: input.sourceSurface || 'replay-learning',
       riskLevel: 'medium',
       approvalRequired: true,
-      approvalReason: 'Memoria persistente altera comportamento futuro e exige approval.',
+      approvalReason: 'Persistent memory changes future behavior and requires approval.',
       resourceImpact: this.resourceImpact(records),
       readinessGates: [this.redactionGate(redacted.notes, records)],
       retentionPolicy: {
@@ -288,19 +288,19 @@ export class ZavorthReplayLearningService {
         maxBytes: 25 * 1024 * 1024,
         cleanupOnSuccess: false,
         cleanupOnBoot: false,
-        notes: ['Somente replay redigido, hashes e resumos sao persistidos.'],
+        notes: ['Only drafted replay, hashes and summaries are persisted.'],
       },
       validationPlan: [
         'Confirmar que rawReplayPersisted=false.',
         'Confirmar que secretsPersisted=false e redaction notes foram geradas.',
-        'Aplicar somente em DigitalTwinProfile local suggest-only.',
-        'Manter revogaction por record id.',
-        'Nao criar skill automaticamente; skill-candidate deve passar pelo skill evolution gate.',
+        'Apply only in local suggest-only DigitalTwinProfile.',
+        'Manter revocation por record id.',
+        'Do not create skill automatically; skill-candidate must pass through the skill evolution gate.',
       ],
       rollbackPlan: [
-        'Revogar record ids aprovados.',
+        'Revogar record ids approved.',
         'Remover referencias do DigitalTwinProfile.',
-        'Manter trilha de revogacao para explicar onde a memoria era usada.',
+        'Keep revocation trail to explain where memory was used.',
       ],
       payload: {
         replayRef,
@@ -319,7 +319,7 @@ export class ZavorthReplayLearningService {
       riskLevel: 'medium',
       approvalRequired: true,
       capabilityId: 'replay-learning',
-      reason: 'Persistir aprendizado no gemeo digital exige approval.',
+      reason: 'Persisting learning in the digital twin requires approval.',
       payload: plan.payload,
       resourceImpact: plan.resourceImpact,
     });
@@ -340,9 +340,9 @@ export class ZavorthReplayLearningService {
       generatedAt: this.now().toISOString(),
       status: 'waiting_approval',
       ok: false,
-      summary: `${updated.length} aprendizado(s) aguardam approval no plan ${withApproval.id}.`,
+      summary: `${updated.length} learning item(s) await approval in plan ${withApproval.id}.`,
       details: [
-        decision.permission ? `Permission: ${decision.permission.permission_id}.` : 'Permission pendente nao criada.',
+        decision.permission ? `Permission: ${decision.permission.permission_id}.` : 'Pending permission was not created.',
         ...redacted.notes,
       ],
       replayRef,
@@ -356,7 +356,7 @@ export class ZavorthReplayLearningService {
   public async apply(input: { planId: string; requestedBy?: string | null }): Promise<ReplayLearningApplyResult> {
     let plan = this.mutationPlane.readPlan(input.planId);
     if (!plan || plan.domain !== 'replay-learning') {
-      throw new Error(`Plano de Replay Learning nao encontrado: ${input.planId || 'n/d'}.`);
+      throw new Error(`Replay Learning plan not found: ${input.planId || 'n/d'}.`);
     }
     if (plan.approval.required && plan.status !== 'approved' && plan.approval.status !== 'approved') {
       const permission = plan.approval.permissionId
@@ -371,7 +371,7 @@ export class ZavorthReplayLearningService {
       }
     }
     if (plan.approval.required && plan.status !== 'approved' && plan.approval.status !== 'approved') {
-      throw new Error(`Plano ${plan.id} ainda aguarda approval.`);
+      throw new Error(`Plan ${plan.id} is still waiting for approval.`);
     }
 
     const recordIds = Array.isArray(plan.payload.recordIds)
@@ -381,12 +381,12 @@ export class ZavorthReplayLearningService {
       .map((id) => this.registry.getRecord(id))
       .filter((entry): entry is ReplayLearningRecord => Boolean(entry));
     if (records.length === 0) {
-      const blocked = this.mutationPlane.markBlocked(plan.id, 'Nenhum record de replay-learning encontrado para aplicar.');
+      const blocked = this.mutationPlane.markBlocked(plan.id, 'No record de replay-learning encontrado para aplicar.');
       return {
         generatedAt: this.now().toISOString(),
         status: 'blocked',
         ok: false,
-        summary: 'Nenhum aprendizado encontrado para aprovar.',
+        summary: 'No learning item found to approve.',
         details: [],
         records: [],
         mutationPlan: blocked,
@@ -404,13 +404,13 @@ export class ZavorthReplayLearningService {
       },
     })));
     const profile = this.registry.saveProfile(this.mergeIntoProfile(this.registry.readProfile(), approved));
-    const applied = this.mutationPlane.markApplied(plan.id, `${approved.length} aprendizado(s) aprovados no DigitalTwinProfile.`, ['digital-twin.profile-update']);
+    const applied = this.mutationPlane.markApplied(plan.id, `${approved.length} learning item(s) approved in DigitalTwinProfile.`, ['digital-twin.profile-update']);
     return {
       generatedAt: this.now().toISOString(),
       status: 'approved',
       ok: true,
-      summary: `${approved.length} aprendizado(s) aprovados em modo suggest-only.`,
-      details: ['O gemeo digital sugere, mas nao aplica mudancas automaticamente.'],
+      summary: `${approved.length} learning item(s) approved in suggest-only mode.`,
+      details: ['The digital twin suggests, but does not apply changes automatically.'],
       records: approved,
       mutationPlan: applied,
       profile,
@@ -424,7 +424,7 @@ export class ZavorthReplayLearningService {
       generatedAt: this.now().toISOString(),
       status: 'revoked',
       ok: true,
-      summary: `Aprendizado ${record.id} revogado.`,
+      summary: `Learning item ${record.id} revoked.`,
       details: [
         `Tipo: ${record.kind}.`,
         `Usos afetados: ${record.uses.join(', ') || 'nenhum'}.`,
@@ -446,7 +446,7 @@ export class ZavorthReplayLearningService {
     ].slice(0, 8);
     const suggestions = entries.length > 0
       ? entries.map((entry) => `Considere: ${entry.summary}`)
-      : ['Sem memorias aprovadas ainda; use replay-learning em modo preview antes de personalizar o comportamento.'];
+      : ['without memorys approved ainda; use replay-learning em modo preview before personalizar o comportamento.'];
     return {
       generatedAt: this.now().toISOString(),
       mode: 'suggest-only',
@@ -516,7 +516,7 @@ export class ZavorthReplayLearningService {
         maxBytes: 25 * 1024 * 1024,
         cleanupOnSuccess: false,
         cleanupOnBoot: false,
-        notes: ['Replay bruto nao e persistido; somente resumo redigido, hashes e evidencias compactas.'],
+        notes: ['Raw replay is not persisted; only redacted summary, hashes, and compact evidence.'],
       },
       redaction: {
         rawTranscriptPersisted: false,
@@ -554,45 +554,23 @@ export class ZavorthReplayLearningService {
 
   private classifyReplay(redactedText: string, limit: number): ReplayProposal[] {
     const lines = this.extractReplayLines(redactedText);
-    const proposals: ReplayProposal[] = [];
-    const joined = lines.join('\n');
-    const push = (kind: ReplayLearningKind, summary: string, evidencePattern: RegExp, uses: string[], confidence = 0.78) => {
-      const evidence = lines.find((line) => evidencePattern.test(line)) || lines.find(Boolean) || summary;
-      if (!proposals.some((entry) => entry.kind === kind && entry.summary === summary)) {
-        proposals.push({
-          kind,
-          summary,
-          redactedEvidence: evidence.slice(0, 500),
-          confidence,
-          uses,
-        });
-      }
+    const evidence = lines.find(Boolean);
+    if (!evidence) {
+      return [];
+    }
+    const proposal: ReplayProposal = {
+      kind: 'procedure',
+      summary: 'Replay is available for semantic review by the learning layer.',
+      redactedEvidence: evidence.slice(0, 500),
+      confidence: 0.55,
+      uses: ['suggestion'],
     };
-
-    if (/(prefiro|prefer|sempre|avoid|evite|gosto|use\s+)/i.test(joined)) {
-      push('preference', 'Preferencia operacional inferida do replay.', /(prefiro|prefer|sempre|avoid|evite|gosto|use\s+)/i, ['suggestion', 'planning']);
-    }
-    if (/(passo|depois|primeiro|checklist|procedimento|workflow|runbook)/i.test(joined)) {
-      push('procedure', 'Procedimento recorrente identificado no replay.', /(passo|depois|primeiro|checklist|procedimento|workflow|runbook)/i, ['planning', 'automation-candidate']);
-    }
-    if (/(debug|erro|falha|stack|trace|log|reproduz|bisect|test)/i.test(joined)) {
-      push('debug-pattern', 'Padrao de debug observado no replay.', /(debug|erro|falha|stack|trace|log|reproduz|bisect|test)/i, ['debugging', 'eval']);
-    }
-    if (/(eslint|prettier|naming|camelcase|snake_case|typescript|tests?|commits?|estrutura|folders?)/i.test(joined)) {
-      push('coding-style', 'Preferencia de estilo de codigo observada.', /(eslint|prettier|naming|camelcase|snake_case|typescript|tests?|commits?|estrutura|folders?)/i, ['code-review', 'implementation']);
-    }
-    if (/(automatiz|skill|script|repetir|sempre que|toda vez|transformar em)/i.test(joined)) {
-      push('skill-candidate', 'Procedimento pode virar skill draft pelo skill evolution gate.', /(automatiz|skill|script|repetir|sempre que|toda vez|transformar em)/i, ['skill-evolution'], 0.72);
-    }
-    if (proposals.length === 0 && lines.length > 0) {
-      push('procedure', 'Replay contem procedimento potencial, mantido como sugestao.', /.+/, ['suggestion'], 0.55);
-    }
-    return proposals.slice(0, Math.max(1, Math.min(limit, 12)));
+    return [proposal].slice(0, Math.max(1, Math.min(limit, 12)));
   }
 
   private extractReplayLines(text: string): string[] {
     return String(text || '')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((line) => this.parseCastLine(line))
       .map((line) => line.replace(/\x1b\[[0-9;]*m/g, '').trim())
       .filter((line) => line.length > 0)
@@ -627,12 +605,12 @@ export class ZavorthReplayLearningService {
         notes.push(note);
       }
     };
-    replace(/(token|secret|password|api[_ -]?key|credential)\s*[:=]\s*["']?[^"'\s]+["']?/gi, '$1=[REDACTED]', 'Secrets/tokens foram redigidos.');
+    replace(/(token|secret|password|api[_ -]...key|cnetworkntial)\s*[:=]\s*["']...[^"'\s]+["'].../gi, '$1=[REDACTED]', 'Secrets/tokens foram redigidos.');
     replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[REDACTED_EMAIL]', 'Emails foram redigidos.');
-    replace(/\b(?:\d[ -]*?){13,19}\b/g, '[REDACTED_NUMBER]', 'Sequencias numericas sensiveis foram redigidas.');
-    replace(/-----BEGIN [^-]+ PRIVATE KEY-----[\s\S]*?-----END [^-]+ PRIVATE KEY-----/g, '[REDACTED_PRIVATE_KEY]', 'Chaves privadas foram redigidas.');
+    replace(/\b(?:\d[ -]*...){13,19}\b/g, '[REDACTED_NUMBER]', 'Sequencias numericas sensitive foram redigidas.');
+    replace(/-----BEGIN [^-]+ PRIVATE KEY-----[\s\S]*...-----END [^-]+ PRIVATE KEY-----/g, '[REDACTED_PRIVATE_KEY]', 'Chaves privadas foram redigidas.');
     if (notes.length === 0) {
-      notes.push('Nenhum segredo obvio detectado; replay bruto ainda nao foi persistido.');
+      notes.push('No obvious secret detected; raw replay still was not persisted.');
     }
     return { redactedText, notes };
   }
@@ -648,7 +626,7 @@ export class ZavorthReplayLearningService {
     }
     const resolved = path.resolve(replayPath);
     if (!this.existsSyncImpl(resolved)) {
-      throw new Error(`Replay nao encontrado: ${replayPath}`);
+      throw new Error(`Replay not found: ${replayPath}`);
     }
     return this.readFileSyncImpl(resolved, 'utf8');
   }
@@ -659,7 +637,7 @@ export class ZavorthReplayLearningService {
       status: 'passed',
       canProceed: true,
       scope: 'digital-twin-profile',
-      reasons: ['Replay bruto nao persistido; aprendizado redigido e revogavel.'],
+      reasons: ['Raw replay not persisted; drafted learning is revocable.'],
       warnings: notes,
       blockers: [],
       checkedAt: this.now().toISOString(),
@@ -669,7 +647,7 @@ export class ZavorthReplayLearningService {
         status: record.status,
         summary: record.summary,
       })),
-      nextActions: ['Aprovar, manter como sugestao ou revogar record ids.'],
+      nextActions: ['Approve, keep as suggestion or revoke record IDs.'],
     };
   }
 
@@ -694,7 +672,7 @@ export class ZavorthReplayLearningService {
         mode: 'references-only',
         payloadsIncluded: false,
         secretsIncluded: false,
-        notes: ['Manifest aponta para hash/resumo redigido, nao para transcript bruto.'],
+        notes: ['Manifest points to hash/redacted summary, not raw transcript.'],
       },
     };
   }
@@ -725,7 +703,7 @@ export class ZavorthReplayLearningService {
     next.updatedAt = this.now().toISOString();
     next.notes = Array.from(new Set([
       ...next.notes,
-      'DigitalTwinProfile opera em modo suggest-only; nao aplica mudancas automaticamente.',
+      'DigitalTwinProfile operates in suggest-only mode; it does not apply changes automatically.',
     ]));
     return next;
   }
@@ -760,7 +738,7 @@ export class ZavorthReplayLearningService {
       recurring: false,
       notes: [
         `records=${records.length}`,
-        'Atualiza somente DigitalTwinProfile local em modo suggest-only.',
+        'Updates only local DigitalTwinProfile in suggest-only mode.',
       ],
     };
   }

@@ -118,12 +118,10 @@ export class WorkspaceExtensionRegistryService {
       entries,
       selected,
       narrative: {
-        headline: entries.length
-          ? `Workspace plane com ${entries.length} workspace(s) perfilado(s).`
-          : 'Nenhuma extensao de workspace registrada ainda.',
-        operatorSummary: entries.length
-          ? `${summary.commands} comando(s), ${summary.hooks} hook(s) e ${summary.withInstructions} workspace(s) com instrucoes visiveis.`
-          : 'Adicione ZAVORTH.md ou gere perfis de workspace para expor comandos e hooks locais.',
+        headline: entries.length ? `Workspace plane com ${entries.length} workspace(s) profileado(s).`
+          : 'No workspace extension registered yet.',
+        operatorSummary: entries.length ? `${summary.commands} command(s), ${summary.hooks} hook(s), and ${summary.withInstructions} workspace(s) with visible instructions.`
+          : 'Add ZAVORTH.md or generate workspace profiles to expose local commands and hooks.',
       },
     };
   }

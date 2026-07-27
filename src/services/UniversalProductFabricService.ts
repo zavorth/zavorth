@@ -59,7 +59,7 @@ const PUBLIC_COMMANDS: ProductPublicCommand[] = [
   { command: 'zavorth absorb <source>', group: 'capability', summary: 'Absorb capabilities or import agent workspaces', mutation: true },
   { command: 'zavorth migrate <path>', group: 'capability', summary: 'Universal workspace import alias', mutation: true },
   { command: 'zavorth reach', group: 'reach', summary: 'Channel tiers + node inventory', mutation: false },
-  { command: 'zavorth reach doctor <id>', group: 'reach', summary: 'Channel doctor (no fake live)', mutation: false },
+  { command: 'zavorth reach doctor <id>', group: 'reach', summary: 'Channel doctor (no synthetic live)', mutation: false },
   { command: 'zavorth reach synthesize <id>', group: 'reach', summary: 'Generate Tier C channel pack', mutation: true },
   { command: 'zavorth reach pair', group: 'reach', summary: 'Node pairing draft', mutation: true },
   { command: 'zavorth power', group: 'power', summary: 'Elastic backends + trusted + learning', mutation: false },
@@ -200,14 +200,14 @@ export class UniversalProductFabricService {
         label: 'CLI entry available',
         status: hasBin || hasPackage ? 'done' : 'current',
         command: 'npm install -g zavorth@latest',
-        summary: hasBin ? 'Local bin present.' : hasPackage ? 'Package present; use npx zavorth.' : 'Install the CLI.',
+        summary: hasBin ? 'local bin present.' : hasPackage ? 'Package present; use npx zavorth.' : 'Install the CLI.',
       },
       {
         id: 'setup-providers',
         label: 'Run guided setup',
         status: hasEnv || hasZavorthDir ? 'done' : 'current',
         command: 'zavorth setup',
-        summary: hasEnv || hasZavorthDir ? 'Local config/state detected.' : 'Run setup for providers and safety.',
+        summary: hasEnv || hasZavorthDir ? 'local config/state detected.' : 'Run setup for providers and safety.',
       },
       {
         id: 'start-runtime',
@@ -312,8 +312,7 @@ export class UniversalProductFabricService {
         'Workspace structural import',
         'capability',
         detected && detected.confidence > 0 ? 'ready' : 'blocked',
-        detected
-          ? `profile=${detected.profileId}; confidence=${Math.round(detected.confidence * 100)}%`
+        detected ? `profile=${detected.profileId}; confidence=${Math.round(detected.confidence * 100)}%`
           : 'detection failed',
         detected ? [detected.profileId] : [],
       ));

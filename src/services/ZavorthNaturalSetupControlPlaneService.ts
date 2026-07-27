@@ -212,7 +212,7 @@ export class ZavorthNaturalSetupControlPlaneService {
         'Quero conectar ao Discord',
         'Configure Slack e valide o canal',
         'Aplique o scaffold do WhatsApp Cloud API',
-        'Tenho o token do Telegram; quero validar depois',
+        'have o token do Telegram; quero validate after',
       ],
       assistant: this.redactSurface(assistant),
       turn: this.redactSurface(turn),
@@ -227,8 +227,8 @@ export class ZavorthNaturalSetupControlPlaneService {
       narrative: {
         headline: 'Natural setup: Natural Setup Agent',
         operatorSummary: this.redactSensitiveText(turn?.naturalReply || assistant.naturalReply)
-          || 'Natural Setup pronto para receber um pedido em linguagem natural.',
-        nextAction: actions[0]?.label || 'Dizer em linguagem natural qual canal voce quer conectar.',
+          || 'Natural Setup ready to receive a natural-language request.',
+        nextAction: actions[0]?.label || 'Dizer em linguagem natural qual canal you quer conectar.',
       },
     };
   }
@@ -251,18 +251,18 @@ export class ZavorthNaturalSetupControlPlaneService {
       `Postura: ${snapshot.summary.posture}.`,
       `Status: ${snapshot.summary.status}.`,
       `Missing env keys: ${snapshot.summary.missingEnvKeys}.`,
-      `Promotion ready: ${snapshot.summary.promotionReady ? 'sim' : 'nao'}.`,
-      `Modo operacional: ${snapshot.summary.operationMode} (previewOnly=${snapshot.summary.previewOnly ? 'sim' : 'nao'}).`,
+      `Promotion ready: ${snapshot.summary.promotionReady ? 'yes' : 'no'}.`,
+      `Operational mode: ${snapshot.summary.operationMode} (previewOnly=${snapshot.summary.previewOnly ? 'yes' : 'no'}).`,
       `Capability: ${snapshot.summary.capabilityId || 'n/d'}.`,
-      `Mutation plan: ${snapshot.planPreview.kind} | gate ${snapshot.planPreview.readinessGate.status} | approval=${snapshot.planPreview.approvalRequired ? 'sim' : 'nao'}.`,
+      `Mutation plan: ${snapshot.planPreview.kind} | gate ${snapshot.planPreview.readinessGate.status} | approval=${snapshot.planPreview.approvalRequired ? 'yes' : 'no'}.`,
       '',
-      'Exemplos de pedidos:',
+      'Exemplos de requests:',
       ...snapshot.examples.map((entry) => `- ${entry}`),
     ];
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Actions sugeridas:',
         ...snapshot.actions.map((entry) =>
           `- ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
@@ -283,7 +283,7 @@ export class ZavorthNaturalSetupControlPlaneService {
         id: 'choose-channel',
         label: 'Escolher o canal alvo',
         severity: 'info',
-        reason: 'O fluxo natural-first ainda precisa de um canal explicito para preparar onboarding.',
+        reason: 'The natural-first flow still needs an explicit channel to prepare onboarding.',
         command: 'Quero conectar ao Discord',
       });
       return actions;
@@ -293,34 +293,34 @@ export class ZavorthNaturalSetupControlPlaneService {
         id: 'fill-missing-env',
         label: 'Preencher what is missing',
         severity: 'warn',
-        reason: `Ainda faltam ${input.missingEnvKeys} chave(s) obrigatoria(s) para ${this.text(input.selected?.label, 'o canal')}.`,
+        reason: `Still missing ${input.missingEnvKeys} required key(s) for ${this.text(input.selected?.label, 'o canal')}.`,
         command: this.text(input.selected?.operatorNextStep, `npm run channels:assistant -- --channel ${this.text(input.selected?.channelId, '')}`),
       });
     }
     if (input.turn?.doctorResult?.selectedItem?.status === 'failed') {
       actions.push({
         id: 'doctor-again',
-        label: 'Revisar o doctor do canal',
+        label: 'review o doctor do canal',
         severity: 'critical',
-        reason: this.text(input.turn?.doctorResult?.selectedItem?.summary, 'O doctor do canal encontrou falhas.'),
+        reason: this.text(input.turn?.doctorResult?.selectedItem?.summary, 'O doctor do canal encontrou failures.'),
         command: `npm run channels:assistant -- --channel ${this.text(input.selected?.channelId, '')} --doctor`,
       });
     }
     if (input.promotionReady) {
       actions.push({
         id: 'promote-channel',
-        label: 'Promover o canal no mesh',
+        label: 'Promote the channel in the mesh',
         severity: 'info',
-        reason: `${this.text(input.selected?.label, 'Canal')} ja pode seguir para doctor final ou teste de envio.`,
+        reason: `${this.text(input.selected?.label, 'Channel')} can continue to the final doctor or send test.`,
         command: `/channels send-test ${this.text(input.selected?.channelId, '')}`,
       });
     }
     if (actions.length === 0) {
       actions.push({
         id: 'review-channel',
-        label: 'Revisar o proximo passo do canal',
+        label: 'review o next passo do canal',
         severity: 'info',
-        reason: this.text(input.selected?.operatorNextStep, 'O canal ainda pede revisao operacional.'),
+        reason: this.text(input.selected?.operatorNextStep, 'O canal ainda pede review operational.'),
         command: `npm run channels:assistant -- --channel ${this.text(input.selected?.channelId, '')}`,
       });
     }
@@ -339,8 +339,7 @@ export class ZavorthNaturalSetupControlPlaneService {
     turn: NaturalChannelSetupTurnResult | null;
   }): NaturalSetupPlanPreview {
     const setupMode = this.text(input.turn?.mode || input.selected?.setupMode || input.selected?.recommendedMode) || null;
-    const riskLevel = input.requestedActions.includes('test')
-      ? 'high'
+    const riskLevel = input.requestedActions.includes('test') ? 'high'
       : input.requestedActions.length > 0 ? 'medium' : 'low';
     return {
       id: `natural-setup:${input.selectedChannelId || 'unresolved'}:${input.operationMode}`,
@@ -384,22 +383,22 @@ export class ZavorthNaturalSetupControlPlaneService {
     const warnings: string[] = [];
     const blockers: string[] = [];
     const reasons = [
-      'Natural Setup opera em preview-first: entender e planejar nao muta o host.',
-      'Apply real exige mutation plan aprovado pelo Trust Plane.',
+      'Natural Setup operates preview-first: understanding and planning do not mutate the host.',
+      'Real apply requires a mutation plan approved by Trust Plane.',
     ];
     if (!input.selectedChannelId) {
-      blockers.push('Canal alvo ainda nao foi resolvido.');
+      blockers.push('Target channel has not been resolved yet.');
     }
     if (input.requestedActions.length > 0) {
-      warnings.push(`Acoes mutaveis detectadas: ${input.requestedActions.join(', ')}.`);
+      warnings.push(`Mutable actions detected: ${input.requestedActions.join(', ')}.`);
     }
     if ((input.requestedActions.includes('doctor') || input.requestedActions.includes('test')) && input.missingEnvKeys > 0) {
-      blockers.push('Doctor/teste nao deve rodar enquanto existem env vars obrigatorias ausentes.');
+      blockers.push('Doctor/test must not run while required env vars are missing.');
     }
     if (input.capabilityId && !input.capability) {
-      warnings.push(`Capability ${input.capabilityId} nao foi encontrada no lifecycle; fallback manual recomendado.`);
+      warnings.push(`Capability ${input.capabilityId} was not found in lifecycle; manual fallback recommended.`);
     } else if (input.capability && !['ready', 'active'].includes(input.capability.state)) {
-      warnings.push(`Capability ${input.capability.capabilityId} esta ${input.capability.state} e precisa de approval/demand antes de ativar.`);
+      warnings.push(`Capability ${input.capability.capabilityId} is ${input.capability.state} and needs approval/demand before activation.`);
     }
 
     return {
@@ -449,21 +448,21 @@ export class ZavorthNaturalSetupControlPlaneService {
       externalExposure: requestedActions.includes('test') ? 'network' : 'none',
       recurring: false,
       notes: [
-        'Preview nao cria processo nem escreve arquivo.',
-        capability?.fallbackBehavior || 'Fallback manual permanece disponivel.',
+        'Preview does not create a process or write a file.',
+        capability?.fallbackBehavior || 'Manual fallback remains available.',
       ],
     };
   }
 
   private buildManualFallback(selected: ChannelSetupAssistantOption | null, missingEnvKeys: number): string[] {
     if (!selected) {
-      return ['Escolha explicitamente o canal: Discord, Slack, WhatsApp, Instagram, Signal, iMessage, Teams, Email ou Telegram.'];
+      return ['Escolha explicitmente o canal: Discord, Slack, WhatsApp, Instagram, Signal, iMessage, Teams, Email ou Telegram.'];
     }
-    const steps = [this.text(selected.operatorNextStep, `Revisar setup de ${this.text(selected.label, 'canal')}.`)];
+    const steps = [this.text(selected.operatorNextStep, `review setup for ${this.text(selected.label, 'channel')}.`)];
     if (missingEnvKeys > 0 && Array.isArray(selected.missingEnvKeys)) {
-      steps.push(`Preencher manualmente: ${selected.missingEnvKeys.join(', ')}.`);
+      steps.push(`Fill manually: ${selected.missingEnvKeys.join(', ')}.`);
     }
-    steps.push('Rodar preview novamente antes de qualquer apply.');
+    steps.push('run preview again before any apply.');
     return steps;
   }
 
@@ -514,7 +513,7 @@ export class ZavorthNaturalSetupControlPlaneService {
           Object.entries(entry as Record<string, unknown>).map(([childKey, childValue]) => [childKey, visit(childValue, childKey)]),
         );
       }
-      if (/(token|secret|password|pass|api[_-]?key|credential)/i.test(key) && entry !== null && entry !== undefined) {
+      if (/(token|secret|password|pass|api[_-]...key|cnetworkntial)/i.test(key) && entry !== null && entry !== undefined) {
         return '***';
       }
       if (typeof entry === 'string') {
@@ -532,6 +531,6 @@ export class ZavorthNaturalSetupControlPlaneService {
     }
     return raw
       .replace(/\b([A-Z0-9_]*(?:TOKEN|SECRET|PASSWORD|PASS|API_KEY|CREDENTIAL)[A-Z0-9_]*)\s*=\s*("[^"]+"|'[^']+'|[^\s,;]+)/gi, '$1=***')
-      .replace(/\b((?:[a-z0-9_-]+\s+){0,4}(?:token|secret|password|senha|api key|credential)(?:\s+[a-z0-9_-]+){0,4})\s*(?:=|:|e|eh|is|\u00e9)\s*("[^"]+"|'[^']+'|[^\s,;]+)/gi, '$1=***');
+      .replace(/\b((?:[a-z0-9_-]+\s+){0,4}(?:token|secret|password|senha|api key|cnetworkntial)(?:\s+[a-z0-9_-]+){0,4})\s*(?:=|:|e|eh|is|\u00e9)\s*("[^"]+"|'[^']+'|[^\s,;]+)/gi, '$1=***');
   }
 }

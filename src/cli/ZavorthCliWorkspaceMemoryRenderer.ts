@@ -48,12 +48,12 @@ export function formatWorkspaceMemoryReview(snapshot: ZavorthWorkspaceMemoryOsSn
       ],
     },
     {
-      title: 'Preferencias',
+      title: 'Preferences',
       tone: snapshot.preferenceLedger.total > 0 ? 'info' : 'neutral',
       lines: [
         `- total: ${snapshot.preferenceLedger.total}`,
         `- apagar: ${snapshot.preferenceLedger.commands.forget}`,
-        `- corrigir: ${snapshot.preferenceLedger.commands.correct}`,
+        `- correct: ${snapshot.preferenceLedger.commands.correct}`,
       ],
     },
     {
@@ -72,12 +72,12 @@ export function formatWorkspaceMemoryReview(snapshot: ZavorthWorkspaceMemoryOsSn
       ],
     },
     {
-      title: 'Faca agora',
+      title: 'Do Now',
       tone: 'brand',
       lines: [
-        '- zavorth memory resolve "continua"',
+        '- zavorth memory resolve "continue this thread"',
         '- zavorth memory forget <key>',
-        '- zavorth memory correct <key> <novo valor>',
+        '- zavorth memory correct <key> <new value>',
       ],
     },
   ];
@@ -85,8 +85,8 @@ export function formatWorkspaceMemoryReview(snapshot: ZavorthWorkspaceMemoryOsSn
   return renderCliScreen({
     eyebrow: 'Memory',
     eyebrowTone: snapshot.contracts.secretsRedactedByDefault ? 'success' : 'warning',
-    title: 'Memoria operacional do workspace',
-    summary: formatCliValue(snapshot.narrative.headline, 'Memoria operacional revisavel.'),
+    title: 'Workspace Operational Memory',
+    summary: formatCliValue(snapshot.narrative.headline, 'Reviewable operational memory.'),
     mode: 'compact',
     showWordmark: false,
     panels,
@@ -96,17 +96,17 @@ export function formatWorkspaceMemoryReview(snapshot: ZavorthWorkspaceMemoryOsSn
 export function formatWorkspaceMemoryResolution(resolution: ZavorthFollowUpResolution): string {
   const panels: CliVisualPanel[] = [
     {
-      title: 'Resolucao',
+      title: 'Resolution',
       tone: resolution.resolved ? 'success' : 'warning',
       lines: [
         `- entrada: ${compact(resolution.input, 88)}`,
         `- intent: ${resolution.intent}`,
         `- resolved: ${resolution.resolved ? 'yes' : 'partial'}`,
-        `- motivo: ${compact(resolution.reason, 100)}`,
+        `- reason: ${compact(resolution.reason, 100)}`,
       ],
     },
     {
-      title: 'Alvo',
+      title: 'Target',
       tone: 'info',
       lines: [
         `- task: ${resolution.target.taskId || 'not provided'}`,
@@ -116,7 +116,7 @@ export function formatWorkspaceMemoryResolution(resolution: ZavorthFollowUpResol
       ],
     },
     {
-      title: 'Evidencia',
+      title: 'Evidence',
       tone: 'neutral',
       lines: resolution.evidence.length > 0 ? resolution.evidence.map((entry) => `- ${entry}`) : ['- no strong evidence'],
     },
@@ -125,7 +125,7 @@ export function formatWorkspaceMemoryResolution(resolution: ZavorthFollowUpResol
   return renderCliScreen({
     eyebrow: 'Resolve',
     eyebrowTone: resolution.resolved ? 'success' : 'warning',
-    title: 'Follow-up resolvido',
+    title: 'Follow-up Resolved',
     summary: compact(resolution.reason, 120),
     mode: 'compact',
     showWordmark: false,
@@ -136,13 +136,13 @@ export function formatWorkspaceMemoryResolution(resolution: ZavorthFollowUpResol
 export function formatWorkspaceMemoryAction(result: ZavorthMemoryReviewActionResult): string {
   const panels: CliVisualPanel[] = [
     {
-      title: 'Acao',
+      title: 'Action',
       tone: result.ok ? 'success' : result.status === 'noop' ? 'neutral' : 'warning',
       lines: [
-        `- acao: ${result.action}`,
-        `- chave: ${result.key}`,
+        `- action: ${result.action}`,
+        `- key: ${result.key}`,
         `- status: ${result.status}`,
-        `- resumo: ${compact(result.summary, 100)}`,
+        `- summary: ${compact(result.summary, 100)}`,
       ],
     },
     {
@@ -150,7 +150,7 @@ export function formatWorkspaceMemoryAction(result: ZavorthMemoryReviewActionRes
       tone: 'info',
       lines: [
         `- memorys: ${result.review.review.total}`,
-        `- preferencias: ${result.review.preferenceLedger.total}`,
+        `- preferences: ${result.review.preferenceLedger.total}`,
         `- workspace: ${result.review.workspaceProfile.slug}`,
       ],
     },
@@ -159,7 +159,7 @@ export function formatWorkspaceMemoryAction(result: ZavorthMemoryReviewActionRes
   return renderCliScreen({
     eyebrow: 'Memory',
     eyebrowTone: result.ok ? 'success' : 'warning',
-    title: 'Memoria revisada',
+    title: 'Reviewed memory',
     summary: compact(result.summary, 120),
     mode: 'compact',
     showWordmark: false,

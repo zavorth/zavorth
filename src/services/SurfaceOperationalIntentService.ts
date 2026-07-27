@@ -442,10 +442,8 @@ export class SurfaceOperationalIntentService {
     return createZavorthResponseArtifactPolicy({
       shouldCreateArtifact,
       shouldShowArtifactInChat,
-      reason: shouldShowArtifactInChat
-        ? 'deliverable-artifact-requested'
-        : shouldCreateArtifact
-          ? 'working-artifact-kept-out-of-chat'
+      reason: shouldShowArtifactInChat ? 'deliverable-artifact-requested'
+        : shouldCreateArtifact ? 'working-artifact-kept-out-of-chat'
           : 'operation-without-user-facing-artifact',
     });
   }
@@ -495,11 +493,10 @@ export class SurfaceOperationalIntentService {
     return requestedTools.some((tool) => accepted.has(tool));
   }
 
-  /** Path kind hints for response targets only when tools are already structured — never free-text feature activation. */
+  /** Path kind hints for response targets only when tools are already structured; never free-text feature activation. */
   private looksLikeFolderTarget(text: string): boolean {
-    return /\b(pasta|folder|downloads?|desktop|documentos?|workspace|diretorio|directory)\b/i.test(
-      this.normalizeText(text),
-    );
+    const normalized = this.normalizeText(text);
+    return ['folder', 'downloads', 'desktop', 'workspace', 'directory'].some((term) => normalized.includes(term));
   }
 
   private normalizeText(text: string): string {
@@ -514,10 +511,7 @@ export class SurfaceOperationalIntentService {
     if (!/https?:\/\/|www\./i.test(raw)) {
       return false;
     }
-    const normalized = this.normalizeText(raw);
-    return !/\b(pesquise|pesquisar|buscar|busque|procure|acesse|acessar|abra|abrir|navegue|fetch|baixe|download|leia|ler|resuma|resumir|analise|analisar|explique|explicar|extraia|extrair|verifique|verificar)\b/i.test(
-      normalized,
-    );
+    return true;
   }
 
   private shouldAskSemanticClassifier(
@@ -583,23 +577,23 @@ export class SurfaceOperationalIntentService {
       {
         role: 'system',
         content: [
-          'Voce e o classificador de intencao operacional do Zavorth (um "System Overlord").',
-          'Sua funcao e decidir se a mensagem do usuario exige execucao de operacoes complexas (tools/run) ou apenas uma resposta textual direta (conversation).',
+          'You are the Zavorth operational intent classifier.',
+          'Your function is to decide whether the user message requires complex operation execution (tools/run) or only a direct textual response (conversation).',
           '',
-          'CRITERIOS PARA EXECUCAO OPERACIONAL (shouldExecute: true):',
-          '- O usuario pede explicitamente para ler/editar arquivos, criar algo no disco, rodar scripts, buscar na web, gerar midias/artefatos ou manipular o sistema.',
+          'OPERATIONAL EXECUTION CRITERIA (shouldExecute: true):',
+          '- The user explicitly asks to read/edit files, create something on disk, run scripts, search the web, generate media/artifacts, or manipulate the system.',
           '- The request names a concrete system target, such as a folder, file, command, web resource, or component to create.',
           '',
           'DIRECT CONVERSATION (shouldExecute: false):',
           '- Casual greetings.',
-          '- Perguntas conceituais, teoricas ou pedidos de explicacao ("o que e um transformer?", "como funciona o react?").',
-          '- Frases que usam verbos de acao, mas SEM objeto de sistema ("analise minha ideia", "pense numa solucao", "compare duas coisas que vou te falar").',
-          '- Link solto, ou "olha isso: https://...", e conversa direta; so vira execucao se o usuario pedir para abrir, buscar, ler, resumir ou verificar o link.',
-          '- Pedidos de brainstorm, ajuda mental ou feedback textual sem tocar em disco.',
+          '- Questions conceituais, teoricas ou requests de explanation ("o que e um transformer...", "como funciona o react...").',
+          '- Frases que usam verbos de action, mas without objeto de sistema ("analysis minha ideia", "pense numa solucao", "compare duas coisas que vou te falar").',
+          '- Loose link, or "look at this: https://...", is direct conversation; it becomes execution only if the user asks to open, search, read, summarize, or verify the link.',
+          '- requests de brainstorm, ajuda mental ou feedback textual without tocar em disco.',
           '',
-          'IMPORTANTE: A presenca de palavras como "analise", "pense", "ajude" NAO significa execucao pesada. So execute se houver um objeto tangivel (arquivo, pasta, comando shell, web).',
+          'IMPORTANT: Words like "analyze", "think", and "help" do NOT mean heavy execution. Execute only if there is a tangible object such as a file, folder, shell command, or web target.',
           '',
-          'Responda SOMENTE JSON valido no formato:',
+          'Reply ONLY with valid JSON in this format:',
           '{"shouldExecute":boolean,"requestedTools":string[],"confidence":"low|medium|high"}',
         ].join('\n'),
       },

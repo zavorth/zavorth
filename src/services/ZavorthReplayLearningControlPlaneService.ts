@@ -308,7 +308,7 @@ export class ZavorthReplayLearningControlPlaneService {
       narrative: {
         headline: 'Replay learning: Replay, artifacts e learning loop',
         operatorSummary: buildReplayLearningOperatorSummary(summary),
-        nextAction: actions[0]?.label || 'Revisar replay, artifacts e learning periodicamente.',
+        nextAction: actions[0]?.label || 'review replay, artifacts e learning periodicamente.',
       },
     };
   }
@@ -327,11 +327,11 @@ export class ZavorthReplayLearningControlPlaneService {
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
-      `Replay: ${snapshot.summary.timelineEvents} evento(s), compare ${snapshot.summary.compareReady ? 'pronto' : 'nao pronto'}, resume ${snapshot.summary.resumeReady ? 'pronto' : 'sem alvo'}.`,
+      `Replay: ${snapshot.summary.timelineEvents} evento(s), compare ${snapshot.summary.compareReady ? 'ready' : 'not ready'}, resume ${snapshot.summary.resumeReady ? 'ready' : 'no target'}.`,
       `Artifacts: ${snapshot.summary.recentArtifacts} recente(s), ${snapshot.summary.reusableArtifacts} reutilizavel(is).`,
-      `Lifecycle: ${snapshot.summary.lifecycleEvents} evento(s), ${snapshot.summary.lifecycleRuns} run(s), ${snapshot.summary.lifecycleAttention} sinal(is) de atencao.`,
-      `Learning: ${snapshot.summary.learningCandidates} candidato(s), ${snapshot.summary.pendingLearning} pendente(s), ${snapshot.summary.promotedLearning} promovido(s).`,
-      `Memory: ${snapshot.summary.memoryEntries} entrada(s), ${snapshot.summary.proceduralEntries} procedimento(s), pressao ${snapshot.summary.memoryPressure}.`,
+      `Lifecycle: ${snapshot.summary.lifecycleEvents} evento(s), ${snapshot.summary.lifecycleRuns} run(s), ${snapshot.summary.lifecycleAttention} sinal(is) de attention.`,
+      `Learning: ${snapshot.summary.learningCandidates} candidate(s), ${snapshot.summary.pendingLearning} pending(s), ${snapshot.summary.promotedLearning} promovido(s).`,
+      `Memory: ${snapshot.summary.memoryEntries} entry(s), ${snapshot.summary.proceduralEntries} procedure(s), pressure ${snapshot.summary.memoryPressure}.`,
       '',
       'Cards operacionais:',
       ...snapshot.cards.map((entry) =>
@@ -340,7 +340,7 @@ export class ZavorthReplayLearningControlPlaneService {
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Actions sugeridas:',
         ...snapshot.actions.slice(0, 8).map((entry) =>
           `- ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );

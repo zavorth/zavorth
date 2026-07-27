@@ -27,9 +27,9 @@ export class ProvidersFacade extends DomainFacadeBase<ProvidersDomainSnapshot> {
   public buildSnapshot(): ProvidersDomainSnapshot {
     if (!this.providerControlPlane) {
       return this.composeSnapshot({
-        summary: 'Providers facade registrada, aguardando injecao do provider control plane.',
+        summary: 'Providers facade registered, waiting for provider control plane injection.',
         details: [
-          'Sem provider control plane injetado, o dominio nao resolve perfis/modelos por padrao.',
+          'Without injected provider control plane, the domain does not resolve profiles/models by default.',
         ],
         metrics: {
           total: 0,
@@ -47,7 +47,7 @@ export class ProvidersFacade extends DomainFacadeBase<ProvidersDomainSnapshot> {
     const currentModel = this.providerControlPlane.getCurrentConversationalModel() || null;
 
     return this.composeSnapshot({
-      summary: `${providers.filter((entry) => entry.ready).length} provider(s) pronto(s) entre ${providers.length} opcao(oes) catalogada(s).`,
+      summary: `${providers.filter((entry) => entry.ready).length} ready provider(s) among ${providers.length} cataloged option(s).`,
       details: [
         `Current provider: ${currentProvider || 'n/d'}.`,
         `Current model: ${currentModel || 'n/d'}.`,

@@ -142,7 +142,7 @@ export class ReviewActionExecutor {
         roleIds: mapReviewRolesToSubagentProfiles(review),
         approvalId,
         live: mode === 'live-llm',
-        mockLive: mode === 'mock-live',
+        dryLive: mode === 'dry-live',
         maxLiveWorkers: positiveInteger(actions.maxLiveWorkers, Math.min(4, review.agentPlan.length)),
         maxToolCalls: positiveInteger(actions.maxToolCalls, 4),
         persistState: actions.persistSubagentState === true,
@@ -378,10 +378,10 @@ function collectRequestedActions(actions: GovernedReviewRequestedActions | null 
 }
 
 function normalizeLiveAgentMode(value: unknown): GovernedReviewLiveAgentMode {
-  if (value === 'live-llm' || value === 'governed-in-process' || value === 'mock-live') {
+  if (value === 'live-llm' || value === 'governed-in-process' || value === 'dry-live') {
     return value;
   }
-  return 'mock-live';
+  return 'dry-live';
 }
 
 function mapReviewRolesToSubagentProfiles(review: GovernedReviewResult): string[] {
@@ -405,7 +405,7 @@ function mapReviewRolesToSubagentProfiles(review: GovernedReviewResult): string[
 function buildLiveAgentTask(review: GovernedReviewResult): string {
   const files = review.context.files.map((file) => file.path).slice(0, 12).join(', ') || 'no explicit files';
   return [
-    `Use subagentes governados em paralelo para revisar: ${review.objective}`,
+    `Use governed delegated review in parallel for: ${review.objective}`,
     `Mode: ${review.mode}`,
     `Files: ${files}`,
     'Boundary: read-only analysis, no workspace mutation, no PR comment, no shell commands.',

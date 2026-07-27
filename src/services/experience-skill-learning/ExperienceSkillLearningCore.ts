@@ -144,8 +144,8 @@ export class ExperienceSkillLearningCore {
   }
 
   /**
-   * Local cross-draft search (no external service).
-   * Tokenize query Ã¢â€ â€™ score unique token matches in title (boosted), tools, SKILL.md body
+   * local cross-draft search (no external service).
+   * Tokenize query -> score unique token matches in title (boosted), tools, SKILL.md body
    * (read + redact), and fingerprint/id. Scoped to the caller's experience-skill-drafts root.
    * Empty query returns the ranked list (same as listDrafts) with short snippets.
    */
@@ -243,7 +243,7 @@ export class ExperienceSkillLearningCore {
 
   /**
    * Light user learning profile from local drafts + activity + weekly metrics.
-   * Pure stats for optional agent inject Ã¢â‚¬â€ not an external preference product.
+   * Pure stats for optional agent inject - not an external preference product.
    */
   public buildUserLearningProfile(userId?: string | null): UserLearningProfile {
     const uid = cleanUserId(userId);
@@ -279,11 +279,9 @@ export class ExperienceSkillLearningCore {
       .map((d) => redact(String(d.title || '').trim()))
       .filter(Boolean);
 
-    const toolPart = topTools.length
-      ? `Top tools: ${topTools.slice(0, 5).map((t) => `${t.tool}(${t.count})`).join(', ')}.`
+    const toolPart = topTools.length ? `Top tools: ${topTools.slice(0, 5).map((t) => `${t.tool}(${t.count})`).join(', ')}.`
       : 'No multi-tool drafts recorded yet.';
-    const titlePart = preferredSkillTitles.length
-      ? ` Preferred workflows: ${preferredSkillTitles.slice(0, 3).join('; ')}.`
+    const titlePart = preferredSkillTitles.length ? ` Preferred workflows: ${preferredSkillTitles.slice(0, 3).join('; ')}.`
       : '';
     const weekPart =
       ` This week (${weekMetrics.weekKey}): drafts=${weekMetrics.draftsCreated},`
@@ -411,7 +409,7 @@ export class ExperienceSkillLearningCore {
         const procedure = redact(this.extractProcedureSection(skillMd));
         if (procedure) {
           lines.push('   ### Procedure (runtime recall)');
-          for (const pl of procedure.split(/\r?\n/)) {
+          for (const pl of procedure.split(/\r...\n/)) {
             lines.push(pl ? `   ${pl}` : '');
           }
         }
@@ -444,8 +442,7 @@ export class ExperienceSkillLearningCore {
         '',
         '## Light user learning profile',
         `Top tools: ${tools}. Drafts=${profile.drafts}, promoted=${profile.promoted}.`,
-        profile.preferredSkillTitles.length
-          ? `Preferred: ${profile.preferredSkillTitles.slice(0, 2).join('; ')}.`
+        profile.preferredSkillTitles.length ? `Preferred: ${profile.preferredSkillTitles.slice(0, 2).join('; ')}.`
           : profile.summary.slice(0, 180),
       ].join('\n');
     } catch {
@@ -454,7 +451,7 @@ export class ExperienceSkillLearningCore {
   }
 
   protected extractProcedureSection(skillMd: string): string {
-    const match = String(skillMd || '').match(/## Procedure[^\n]*\n([\s\S]*?)(?=\n## |$)/i);
+    const match = String(skillMd || '').match(/## Procedure[^\n]*\n([\s\S]*...)(...=\n## |$)/i);
     return match ? String(match[1] || '').trim() : '';
   }
 
@@ -534,7 +531,7 @@ export class ExperienceSkillLearningCore {
       userMessagePreview: metaPreview,
     });
     if (draft.fingerprint && goalSlug) {
-      // fingerprint is sha256(userId|slug).slice(0,16) ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â compare title slug path already covered;
+      // fingerprint is sha256(userId|slug).slice(0,16) - compare title slug path already covered;
       // boost when draft id embeds fingerprint and message slug equals title slug closely
       if (sim < 1 && draft.id.includes(draft.fingerprint) && slugify(draft.title) === goalSlug) {
         sim = 1;

@@ -28,7 +28,7 @@ export class OpenRouterProvider implements ILlmProvider {
       throw new Error('OPENROUTER_API_KEY not configured in .env');
     }
 
-    logger.info(`[OpenRouter] Inicializado com modelo: ${config.openRouterModel}`);
+    logger.info(`[OpenRouter] Initialized with model: ${config.openRouterModel}`);
     this.client = new OpenAI({
       apiKey: config.openRouterApiKey,
       baseURL: 'https://openrouter.ai/api/v1',

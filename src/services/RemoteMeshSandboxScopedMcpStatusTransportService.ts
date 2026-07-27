@@ -328,7 +328,7 @@ export class RemoteMeshSandboxScopedMcpStatusTransportService {
         check: 'npm run remote-mesh:sandbox:scoped-mcp-transport --silent',
         focusedTests: 'npx jest tests/services/RemoteMeshSandboxScopedMcpStatusTransportService.test.ts --runInBand',
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Remote Mesh Cycle 1 Complete',
+        nextAction: 'Remote Mesh Cycle 1 Complete',
       },
     };
   }
@@ -420,13 +420,10 @@ function buildGuards(
     ),
     guard(
       'endpoint-http-or-https',
-      !config.endpointConfigured
-        ? 'waiting'
-        : protocolAllowed
-          ? 'passed'
+      !config.endpointConfigured ? 'waiting'
+        : protocolAllowed ? 'passed'
           : 'blocked',
-      parsed.url
-        ? `Endpoint protocol is ${parsed.url.protocol}.`
+      parsed.url ? `Endpoint protocol is ${parsed.url.protocol}.`
         : 'No endpoint protocol can be verified.',
       'Use HTTPS, loopback HTTP, or explicitly allow tailnet HTTP with --allow-tailnet-http.',
     ),
@@ -441,16 +438,14 @@ function buildGuards(
     guard(
       'endpoint-no-userinfo',
       parsed.url && (parsed.url.username || parsed.url.password) ? 'blocked' : 'passed',
-      parsed.url && (parsed.url.username || parsed.url.password)
-        ? 'Endpoint URL contains username or password.'
+      parsed.url && (parsed.url.username || parsed.url.password) ? 'Endpoint URL contains username or password.'
         : 'Endpoint URL contains no username/password.',
       'Remove userinfo from the URL and use a scoped auth header.',
     ),
     guard(
       'auth-token-configured',
       config.authTokenConfigured ? 'passed' : 'waiting',
-      config.authTokenConfigured
-        ? `Auth token is configured from ${config.tokenSource}.`
+      config.authTokenConfigured ? `Auth token is configured from ${config.tokenSource}.`
         : 'No scoped MCP auth token is configured.',
       'Set ZAVORTH_REMOTE_MESH_MCP_TOKEN; do not pass tokens in URLs.',
     ),

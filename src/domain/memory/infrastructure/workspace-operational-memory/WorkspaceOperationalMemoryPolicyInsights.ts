@@ -70,7 +70,7 @@ export function collectApprovedPoliciesFromRequests(
       match_type: String(metadata.match_type || '').trim() || null,
       last_seen_at: String(policy.updated_at || policy.created_at || new Date().toISOString()),
       confidence: String(policy.scope || '').trim() === 'persistent' ? 'high' : 'medium',
-      rationale: String(policy.reason || 'Politica aprovada no workspace.').trim(),
+      rationale: String(policy.reason || 'Policy approved no workspace.').trim(),
     };
 
     const key = [

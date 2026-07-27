@@ -19,7 +19,7 @@ export function runInitialRuntimeMaintenance(
   }
 
   logger.info(
-    `[runtime-maintenance] Limpei ${visualSmokeCleanup.deletedEntries} perfil(is) de visual-smoke e recuperei ${(visualSmokeCleanup.freedBytes / 1024 / 1024).toFixed(1)} MB.`,
+    `[runtime-maintenance] Cleaned ${visualSmokeCleanup.deletedEntries} visual-smoke profile(s) and recovered ${(visualSmokeCleanup.freedBytes / 1024 / 1024).toFixed(1)} MB.`,
   );
 }
 

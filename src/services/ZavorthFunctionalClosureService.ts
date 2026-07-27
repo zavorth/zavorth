@@ -254,7 +254,7 @@ export class ZavorthFunctionalClosureService {
       )),
       'Release gate:',
       `- P0 closed: ${snapshot.releaseGate.p0.closed}/${snapshot.releaseGate.p0.total}`,
-      `- P1 closed: ${snapshot.releaseGate.p1.closed}/${snapshot.releaseGate.p1.total}`,
+      `- closed: ${snapshot.releaseGate.p1.closed}/${snapshot.releaseGate.p1.total}`,
       `- P2 closed: ${snapshot.releaseGate.p2.closed}/${snapshot.releaseGate.p2.total}`,
       `Next: ${snapshot.commands.nextStep}`,
     ];
@@ -279,7 +279,7 @@ export class ZavorthFunctionalClosureService {
   }): ZavorthFunctionalClosureItem[] {
     return [
       this.item({
-        id: 'checkpoint-0-ledger-governance',
+        id: 'gate-0-ledger-governance',
         gate: 0,
         label: 'Executable full-surface ledger governance',
         category: 'ledger-governance',
@@ -293,7 +293,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['The full-surface ledger is executable infrastructure with drift detection.'],
       }),
       this.item({
-        id: 'checkpoint-1-plugin-os-package-sdk',
+        id: 'gate-1-plugin-os-package-sdk',
         gate: 1,
         label: 'Plugin OS and package SDK absorption',
         category: 'plugin-os',
@@ -307,7 +307,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['No external plugin executes without policy profile.'],
       }),
       this.item({
-        id: 'checkpoint-2-agent-runtime-bridge',
+        id: 'gate-2-agent-runtime-bridge',
         gate: 2,
         label: 'Agent runtime bridge pack',
         category: 'agent-runtime',
@@ -321,7 +321,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Tool execution remains governed by cwd, approval and receipt policy.'],
       }),
       this.item({
-        id: 'checkpoint-3-provider-mesh',
+        id: 'gate-3-provider-mesh',
         gate: 3,
         label: 'Provider mesh expansion pack',
         category: 'provider-mesh',
@@ -335,7 +335,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Cloud and direct provider routes stay explicit and credential-routed.'],
       }),
       this.item({
-        id: 'checkpoint-4-channel-mesh',
+        id: 'gate-4-channel-mesh',
         gate: 4,
         label: 'Channel mesh expansion pack',
         category: 'channel-mesh',
@@ -349,7 +349,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Live channel sends require explicit operator command, SecretRef and allowlist.'],
       }),
       this.item({
-        id: 'checkpoint-5-memory-document-terminal',
+        id: 'gate-5-memory-document-terminal',
         gate: 5,
         label: 'Memory, document, search and terminal pack',
         category: 'memory-document-terminal',
@@ -363,7 +363,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Dangerous terminal behavior remains blocked by policy.'],
       }),
       this.item({
-        id: 'checkpoint-6-native-companion-device',
+        id: 'gate-6-native-companion-device',
         gate: 6,
         label: 'Native companion and device capability pack',
         category: 'native-companion-device',
@@ -377,7 +377,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Native wrappers remain owner-gated until product scope is approved.'],
       }),
       this.item({
-        id: 'checkpoint-7-qa-security-release',
+        id: 'gate-7-qa-security-release',
         gate: 7,
         label: 'QA, security and release certification pack',
         category: 'qa-security-release',
@@ -391,7 +391,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Workflow behavior is local semantic checks, not copied workflow files.'],
       }),
       this.item({
-        id: 'checkpoint-8-skill-ecosystem',
+        id: 'gate-8-skill-ecosystem',
         gate: 8,
         label: 'Skill ecosystem pack',
         category: 'skill-ecosystem',
@@ -405,7 +405,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Skill breadth is optional ecosystem capacity, not core bloat.'],
       }),
       this.item({
-        id: 'checkpoint-9-baseline-worker-chain',
+        id: 'gate-9-baseline-worker-chain',
         gate: 9,
         label: 'Baseline worker closure chain',
         category: 'baseline-certification',

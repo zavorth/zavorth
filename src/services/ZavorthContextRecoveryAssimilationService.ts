@@ -25,11 +25,11 @@ type Runtime = {
 };
 
 const SECRET_PATTERNS = [
-  /\b(?:token|secret|senha|password|api[_ -]?key|chave)\s*[:=]\s*[^\s,;]+/gi,
+  /\b(?:token|secret|password|api[_ -]...key)\s*[:=]\s*[^\s,;]+/gi,
   /\bsk-[A-Za-z0-9_-]{10,}\b/g,
   /\bgh[pousr]_[A-Za-z0-9_]{10,}\b/g,
   /\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g,
-  /\b(?:id_rsa|credentials\.json|secrets?\.json|\.env)\b/gi,
+  /\b(?:id_rsa|credentials\.json|secrets...\.json|\.env)\b/gi,
 ];
 
 export class ZavorthContextRecoveryAssimilationService {
@@ -98,7 +98,7 @@ export class ZavorthContextRecoveryAssimilationService {
         report: 'npx tsx scripts/zavorth-context-recovery-assimilation.ts --text "<request>"',
         json: 'npx tsx scripts/zavorth-context-recovery-assimilation.ts --json --text "<request>"',
         check: 'node scripts/zavorth-context-recovery-assimilation-check.mjs',
-        nextStage: 'Connector registry - Tool Orchestration And Verification Assimilation',
+        nextAction: 'Connector registry - Tool Orchestration And Verification Assimilation',
       },
       narrative: buildNarrative(status, failure, recovery),
     };
@@ -124,7 +124,7 @@ export class ZavorthContextRecoveryAssimilationService {
       'Receipts:',
       ...snapshot.receipts.map((receipt) => `- ${receipt.kind}: ${receipt.status} | ${receipt.summary}`),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -262,7 +262,7 @@ function classifyFailure(
       failedToolId: null,
       attempt: 0,
       summary: 'No failure provided; continue with the Preview engine action pattern.',
-      evidence: ['checkpoint-2-action-pattern'],
+      evidence: ['gate-2-action-pattern'],
     };
   }
 
@@ -323,15 +323,15 @@ function inferFailureKind(
   normalized: string,
   actionPattern: ZavorthReasoningActionPatternSnapshot,
 ): ZavorthContextRecoveryFailureKind {
-  if (hasAny(normalized, ['secret', 'token', 'credential', 'senha', 'api key'])) return 'secret_risk';
-  if (actionPattern.status === 'blocked' || hasAny(normalized, ['policy', 'bloqueado', 'denied', 'forbidden'])) return 'policy_block';
-  if (actionPattern.status === 'approval-required' || hasAny(normalized, ['approval', 'aprovacao', 'confirmacao'])) return 'approval_missing';
-  if (actionPattern.status === 'needs-setup' || hasAny(normalized, ['not configured', 'missing', 'nao configurado', 'adb not found', 'binary not found', 'setup'])) return 'missing_setup';
-  if (hasAny(normalized, ['ambiguous', 'ambiguo', 'nao entendi', 'unknown intent'])) return 'ambiguous_request';
-  if (hasAny(normalized, ['assert', 'test failed', 'verification', 'validacao falhou', 'screenshot mismatch'])) return 'verification_failed';
+  if (hasAny(normalized, ['secret', 'token', 'credential', 'api key'])) return 'secret_risk';
+  if (actionPattern.status === 'blocked' || hasAny(normalized, ['policy', 'denied', 'forbidden'])) return 'policy_block';
+  if (actionPattern.status === 'approval-required' || hasAny(normalized, ['approval'])) return 'approval_missing';
+  if (actionPattern.status === 'needs-setup' || hasAny(normalized, ['not configured', 'missing', 'adb not found', 'binary not found', 'setup'])) return 'missing_setup';
+  if (hasAny(normalized, ['ambiguous', 'unknown intent'])) return 'ambiguous_request';
+  if (hasAny(normalized, ['assert', 'test failed', 'verification', 'screenshot mismatch'])) return 'verification_failed';
   if (hasAny(normalized, ['rate limit', 'provider', 'model', 'timeout', 'quota'])) return 'provider_error';
   if (hasAny(normalized, ['ssrf', 'egress', 'enotfound', 'econn', 'network', 'localhost', '169.254.169.254'])) return 'network_blocked';
-  if (hasAny(normalized, ['tool', 'command failed', 'exit code', 'erro de ferramenta'])) return 'tool_error';
+  if (hasAny(normalized, ['tool', 'command failed', 'exit code'])) return 'tool_error';
   return 'unknown';
 }
 
@@ -429,8 +429,8 @@ function buildReceipts(
 ): ZavorthContextRecoveryReceipt[] {
   const receipts: ZavorthContextRecoveryReceipt[] = [
     {
-      id: 'receipt-checkpoint-3-context-pack',
-      kind: 'checkpoint-3-context-pack',
+      id: 'receipt-gate-3-context-pack',
+      kind: 'gate-3-context-pack',
       status: 'recorded',
       summary: `Context pack built with ${contextPack.hot.length} hot, ${contextPack.warm.length} warm and ${contextPack.cold.length} cold entries.`,
     },

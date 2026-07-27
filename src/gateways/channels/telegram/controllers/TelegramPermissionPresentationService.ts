@@ -169,7 +169,7 @@ export class TelegramPermissionPresentationService {
     if (permission.executor === 'external_executor' && permission.kind === 'agent_binding') {
       return [
         this.approveAction('workspace', 'Usar neste projeto', shortId, 'success'),
-        this.approveAction('persistent', 'Salvar para futuros pedidos', shortId, 'primary'),
+        this.approveAction('persistent', 'Save for future requests', shortId, 'primary'),
         this.rejectAction(shortId),
       ];
     }

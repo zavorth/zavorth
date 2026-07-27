@@ -248,19 +248,19 @@ license: Zavorth-Internal
 # ${name}
 
 Use this auto-generated skill when:
-- The task requires a workflow similar to: ${pattern.pattern}
-- The user requests operations matching this pattern
+? The task requires a workflow similar to: ${pattern.pattern}
+? The user requests operations matching this pattern
 
 ## Operating Rules
 
-- Follow the proven workflow: ${pattern.steps.join(' → ')}
-- Use tools: ${pattern.tools_used.join(', ')}
-- Expected success rate: ${(pattern.success_rate * 100).toFixed(0)}%
-- Average duration: ${(pattern.avg_duration_ms / 1000).toFixed(1)}s
+? Follow the proven workflow: ${pattern.steps.join(' → ')}
+? Use tools: ${pattern.tools_used.join(', ')}
+? Expected success rate: ${(pattern.success_rate * 100).toFixed(0)}%
+? Average duration: ${(pattern.avg_duration_ms / 1000).toFixed(1)}s
 
 ## Output
 
-- Result of the automated workflow execution.
+? Result of the automated workflow execution.
 `;
   }
 }

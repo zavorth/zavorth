@@ -95,7 +95,7 @@ export function startLocalServer(
 /**
  * Wait for callback with timeout
  * @param {number} timeoutMs - Timeout in milliseconds
- * @returns {Promise<Object>} - Callback params
+ * @returns {Promise<Object>} ? Callback params
  */
 export function waitForCallback(timeoutMs = 300000) {
   return new Promise((resolve, reject) => {

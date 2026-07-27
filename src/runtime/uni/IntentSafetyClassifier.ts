@@ -51,29 +51,22 @@ export class IntentSafetyClassifier {
     );
 
     const mutation = Boolean(input.riskHints?.mutation)
-      || this.hasAnyTool(requestedTools, ['write_file', 'workspace.write', 'workspace.edit', 'apply_patch', 'selfmod.preview'])
-      || this.matches(intentText, /\b(crie|criar|edite|editar|altere|alterar|corrija|corrigir|salve|aplique|patch|instale|install|organize|organizar|mova|mover|renomeie|renomear)\b/);
+      || this.hasAnyTool(requestedTools, ['write_file', 'workspace.write', 'workspace.edit', 'apply_patch', 'selfmod.preview']);
     const shell = Boolean(input.riskHints?.shell)
-      || this.hasAnyTool(requestedTools, ['shell.exec', 'bash.exec', 'powershell.exec'])
-      || this.asksForShellExecution(intentText);
+      || this.hasAnyTool(requestedTools, ['shell.exec', 'bash.exec', 'powershell.exec']);
     const network = Boolean(input.riskHints?.network)
-      || this.hasAnyTool(requestedTools, ['network_fetch', 'web.search', 'browser.open'])
-      || this.asksForWebOperation(rawText);
+      || this.hasAnyTool(requestedTools, ['network_fetch', 'web.search', 'browser.open', 'web_search', 'deep_search']);
     const externalSideEffect = Boolean(input.riskHints?.externalSideEffect)
-      || this.hasAnyTool(requestedTools, ['email.send', 'report.send', 'slack.send', 'telegram.send', 'publish'])
-      || this.asksForExternalSideEffect(intentText);
+      || this.hasAnyTool(requestedTools, ['email.send', 'report.send', 'slack.send', 'telegram.send', 'publish']);
     const destructive = Boolean(input.riskHints?.destructive)
-      || this.hasAnyTool(requestedTools, ['delete_file', 'workspace.delete', 'git.reset', 'system.delete'])
-      || this.matches(intentText, /\b(delete|deletar|remova|remover|apague|apagar|limpe|limpar|reset --hard|rm -rf|formatar|destrua|destruir)\b/);
+      || this.hasAnyTool(requestedTools, ['delete_file', 'workspace.delete', 'git.reset', 'system.delete']);
     const automation = this.hasAnyTool(requestedTools, ['automation.create', 'watch.create', 'watchmode.control', 'cron.create'])
-      || this.matches(intentText, /\b(automacao|automation|recorrente|agende|agendar|cron|watch mode|monitorar|monitore)\b/);
-    const inspection = this.hasAnyTool(requestedTools, ['read_file', 'workspace.read', 'folder.read'])
-      || this.matches(intentText, /\b(analyze|inspect|list|show|read)\b/);
+      || Boolean(input.riskHints?.externalSideEffect);
+    const inspection = this.hasAnyTool(requestedTools, ['read_file', 'workspace.read', 'folder.read']);
     const operatorRequired = Boolean(input.riskHints?.operatorRequired)
-      || this.hasAnyTool(requestedTools, ['selfmod.preview', 'watchmode.control', 'system.delete'])
-      || this.matches(intentText, /\b(overlord|host inteiro|sistema inteiro|root|admin|administrador|kernel|servico do sistema|shutdown|desligue|formate|formatar|auto[-\s]?modifique|selfmod)\b/);
+      || this.hasAnyTool(requestedTools, ['selfmod.preview', 'watchmode.control', 'system.delete']);
     const sensitiveDomain = Boolean(input.contextHints?.sensitiveDomain);
-    const hostScopeRequested = Boolean(input.contextHints?.hostScopeRequested) || this.matches(intentText, /\b(host inteiro|sistema inteiro|fora do workspace|maquina inteira)\b/);
+    const hostScopeRequested = Boolean(input.contextHints?.hostScopeRequested);
     const ambiguousTarget = this.isAmbiguousTarget(intentText) && !hasKnownTarget;
 
     this.pushSignal(matchedSignals, 'text-empty', textEmpty);
@@ -190,7 +183,12 @@ export class IntentSafetyClassifier {
   private normalizeText(text: string): string {
     return String(text || '')
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
+      .split('')
+      .filter((char) => {
+        const code = char.charCodeAt(0);
+        return code < 0x0300 || code > 0x036f;
+      })
+      .join('')
       .toLowerCase();
   }
 
@@ -206,63 +204,17 @@ export class IntentSafetyClassifier {
     return tools.some((tool) => candidates.includes(tool));
   }
 
-  private matches(text: string, pattern: RegExp): boolean {
-    return pattern.test(text);
-  }
-
-  private asksForShellExecution(text: string): boolean {
-    if (this.matches(text, /\b(shell\.exec|bash\.exec|powershell\.exec)\b/)) {
-      return true;
-    }
-    if (this.matches(text, /\b(shell|powershell|pwsh|terminal|comando(?:\s+de\s+terminal)?|linha\s+de\s+comando)\b/)) {
-      return true;
-    }
-    if (this.matches(text, /\b(npm|pnpm|yarn|npx|node|python|pytest|jest|git|docker|cargo|go|bash|sh|cmd)\s+[\w:./-]+/)) {
-      return true;
-    }
-    const activeExecutionVerb = this.matches(text, /\b(rode|rodar|execute|executar|executa|run|runs?|dispare|inicie)\b/);
-    const concreteCommandTarget = this.matches(text, /\b(npm|pnpm|yarn|npx|node|python|pytest|jest|git|docker|cargo|go|bash|sh|cmd|powershell|pwsh|build|testes?|scripts?)\b/);
-    return activeExecutionVerb && concreteCommandTarget;
-  }
-
-  private asksForExternalSideEffect(text: string): boolean {
-    if (this.matches(text, /\b(email\.send|slack\.send|telegram\.send|report\.send)\b/)) {
-      return true;
-    }
-    const activeSendVerb = this.matches(text, /\b(envie|enviar|mande|mandar|publique|publicar|poste|postar|send|post|publish)\b/);
-    const target = this.matches(text, /\b(slack|email|telegram|canal|dm|mensagem|message|relatorio|report|webhook)\b/);
-    return activeSendVerb && target;
-  }
-
   private isAmbiguousTarget(text: string): boolean {
-    return this.matches(text, /\b(isso|isto|aquilo|esse|essa|dessa|desse|disso|ele|ela|eles|elas|continua|continue|faca)\b/);
+    return false;
   }
 
   private looksLikeConcreteTarget(text: string): boolean {
-    return this.matches(text, /\b(src\/|\.ts\b|\.tsx\b|\.js\b|\.json\b|package\.json|folder|downloads?|workspace|repo|file|directory)\b/);
-  }
-
-  private asksForWebOperation(rawText: string): boolean {
-    const text = this.normalizeText(rawText);
-    if (this.matches(text, /\b(search|find|research|internet|web)\b/)) {
-      return true;
-    }
-    if (this.matches(text, /\b(access|open|browse|navigate|fetch|download)\b/)) {
-      return true;
-    }
-    if (
-      /https?:\/\/|www\./i.test(rawText)
-      && this.matches(text, /\b(read|summarize|analyze|explain|extract|verify|check)\b/)
-    ) {
-      return true;
-    }
-    if (
-      this.matches(text, /\b(link|url|site|page|website)\b/)
-      && this.matches(text, /\b(read|summarize|analyze|open|access|verify|check)\b/)
-    ) {
-      return true;
-    }
-    return false;
+    return text.includes('/')
+      || text.includes('\\')
+      || text.includes('.ts')
+      || text.includes('.tsx')
+      || text.includes('.js')
+      || text.includes('.json');
   }
 
   private stripKnownContextPaths(text: string, input: UniversalIntentInput): string {
@@ -281,7 +233,7 @@ export class IntentSafetyClassifier {
       output = output.split(normalized.replace(/\\/g, '/')).join(' ');
       output = output.split(normalized.replace(/\//g, '\\')).join(' ');
     }
-    return output.replace(/\s+/g, ' ').trim();
+    return output.split(' ').filter(Boolean).join(' ').trim();
   }
   private pushSignal(signals: string[], signal: string, enabled: boolean): void {
     if (enabled) {

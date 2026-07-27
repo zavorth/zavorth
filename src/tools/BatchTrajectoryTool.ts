@@ -34,15 +34,15 @@ export class BatchTrajectoryTool extends BaseTool {
     properties: {
       trajectories: {
         type: 'string',
-        description: 'JSON array of trajectories: [{prompt, provider?, model?}].',
+        description: 'JSON array of trajectories: [{prompt, provider?, model...}].',
       },
       comparison_metric: {
         type: 'string',
-        description: "Metrica de comparacao: 'length', 'coherence', 'relevance'. Default: 'length'.",
+        description: "Comparison metric: 'length', 'coherence', 'relevance'. Default: 'length'.",
       },
       max_concurrent: {
         type: 'number',
-        description: 'Numero maximo de execucoes concorrentes (1-10). Default: 3.',
+        description: 'Maximum number of concurrent executions (1-10). Default: 3.',
       },
     },
     required: ['trajectories'],
@@ -60,7 +60,7 @@ export class BatchTrajectoryTool extends BaseTool {
       } else {
         return 'Error: "trajectories" must be a JSON array or JSON string.';
       }
-    } catch (error: unknown) {logger.warn('[Batch Trajectory] JSON parse failed', error); return 'Error: JSON de trajectories is invalid.'; }
+    } catch (error: unknown) {logger.warn('[Batch Trajectory] JSON parse failed', error); return 'Error: trajectories JSON is invalid.'; }
 
     if (!Array.isArray(trajectories) || trajectories.length === 0) {
       return 'Error: at least one trajectory is required.';
@@ -195,13 +195,13 @@ export class BatchTrajectoryTool extends BaseTool {
       lines.push(`    provider=${result.provider}, model=${result.model}`);
       lines.push(`    prompt: "${result.prompt.substring(0, 80)}${result.prompt.length > 80 ? '...' : ''}"`);
       if (result.error) {
-        lines.push(`    erro: ${result.error}`);
+        lines.push(`    error: ${result.error}`);
       }
     }
 
     if (sorted.length > 0 && sorted[0].status === 'success') {
       lines.push('');
-      lines.push(`Melhor resultado: #${sorted[0].index + 1} (score=${sorted[0].score})`);
+      lines.push(`Best result: #${sorted[0].index + 1} (score=${sorted[0].score})`);
     }
 
     return lines.join('\n');

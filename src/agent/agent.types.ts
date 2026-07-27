@@ -1,10 +1,10 @@
 export interface AgentJobRequest {
   jobId: string;
   sessionId: string;
-  
+
   // Primary natural-language instruction from Core to the Agent.
   objective: string;
-  
+
   // Curated context preloaded by Core to save tokens and research time.
   context: {
     workingDirectory: string;
@@ -36,7 +36,7 @@ export interface AgentProgressEvent {
     message: string;
     toolName?: string;
     toolArgs?: any;
-    
+
     // If the Agent found an action blocked by 'requireApprovalFor', it sends this:
     suspensionPayload?: {
       actionAttempted: string;
@@ -49,10 +49,10 @@ export interface AgentProgressEvent {
 export interface AgentJobResult {
   jobId: string;
   status: 'success' | 'failed' | 'aborted_by_policy' | 'timeout';
-  
+
   // Human-readable TL;DR for quick display in chat UI surfaces.
   executiveSummary: string;
-  
+
   // Raw payload for consumption by other code processes.
   structuredOutput: {
     patchProposed?: string;
@@ -69,7 +69,7 @@ export interface AgentJobResult {
   };
 }
 
-// A Carga devolvida pelo Core quando um Agente pede 'approval_request'
+// Payload returned by Core when an agent requests 'approval_request'
 export interface AgentApprovalResponse {
   jobId: string;
   approved: boolean;

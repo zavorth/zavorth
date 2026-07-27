@@ -429,12 +429,12 @@ export async function handleControlWorkspaceTrustRoutes(
       let rows: CommandApprovalRow[];
       if (workspaceId) {
         rows = db.all<CommandApprovalRow>(
-          'SELECT operation_id, workspace_id, command, created_at, expires_at FROM workspace_command_approvals WHERE approved = 0 AND expires_at > ? AND workspace_id = ?',
+          'SELECT operation_id, workspace_id, command, created_at, expires_at FROM workspace_command_approvals WHERE approved = 0 AND expires_at > - AND workspace_id = ...',
           [now, workspaceId]
         );
       } else {
         rows = db.all<CommandApprovalRow>(
-          'SELECT operation_id, workspace_id, command, created_at, expires_at FROM workspace_command_approvals WHERE approved = 0 AND expires_at > ?',
+          'SELECT operation_id, workspace_id, command, created_at, expires_at FROM workspace_command_approvals WHERE approved = 0 AND expires_at > ...',
           [now]
         );
       }
@@ -469,7 +469,7 @@ export async function handleControlWorkspaceTrustRoutes(
 
       const db = await Database.getInstance();
       const entry = db.get<{ operation_id: string; workspace_id: string; command: string; approved: number; expires_at: string; created_at: string }>(
-        'SELECT operation_id, workspace_id, command, approved, expires_at, created_at FROM workspace_command_approvals WHERE operation_id = ?',
+        'SELECT operation_id, workspace_id, command, approved, expires_at, created_at FROM workspace_command_approvals WHERE operation_id = ...',
         [operationId]
       );
 

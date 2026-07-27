@@ -58,8 +58,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
           )
           .join('')
       : '<li>No plugin or extension visible right now.</li>';
-    const selectedDetails = selected
-      ? '<div class="sidecar-card"><strong>Focused item</strong>' +
+    const selectedDetails = selected ? '<div class="sidecar-card"><strong>Focused item</strong>' +
         '<small>' +
         escapeHtml(selected.summary || 'No additional summary.') +
         '</small>' +
@@ -71,8 +70,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
         '<div class="cockpit-command">' +
         escapeHtml(selected.actionHint || 'No suggested action.') +
         '</div>' +
-        (actionItems
-          ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">' + actionItems + '</div>'
+        (actionItems ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">' + actionItems + '</div>'
           : '') +
         '</div>'
       : '<div class="sidecar-card"><strong>Focused item</strong><small>Use /plugins &lt;id|filter&gt; to drill into a plane item.</small></div>';
@@ -86,10 +84,10 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
       (summary.trusted ? 'badge-info' : 'badge-warning') +
       '">' +
       escapeHtml(String(summary.total || 0)) +
-      ' item(ns)</span>' +
+      ' item(s)</span>' +
       '</div>' +
       '<div class="cockpit-headline">' +
-      escapeHtml(snapshot.narrative?.operatorSummary || 'Plugins, skills e extensions visiveis com acoes guiadas.') +
+      escapeHtml(snapshot.narrative?.operatorSummary || 'Plugins, skills, and extensions visible with guided actions.') +
       '</div>' +
       '</div>' +
       '<a class="sidecar-link" href="/api/operations/plugins" target="_blank">/api/operations/plugins</a>' +
@@ -105,7 +103,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
       '</div><small>Adotados no plane ou locais</small></div>' +
       '<div class="cockpit-mini-card"><strong>Trusted</strong><div>' +
       escapeHtml(String(summary.trusted || 0)) +
-      '</div><small>Itens confiaveis agora</small></div>' +
+      '</div><small>Itens trusted agora</small></div>' +
       '<div class="cockpit-mini-card"><strong>Workspace</strong><div>' +
       escapeHtml(String(summary.workspaceExtensions || 0)) +
       '</div><small>Extensoes do ZAVORTH.md</small></div>' +

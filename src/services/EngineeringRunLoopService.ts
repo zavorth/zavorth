@@ -60,7 +60,7 @@ export class EngineeringRunLoopService {
         status: 'ready',
         hostActions: [],
         repairProposal: null,
-        replySummary: 'Nenhum comando supervisionado foi planejado para este run; preciso de um proximo passo mais especifico.',
+        replySummary: 'No supervised command was planned for this run; a more specific next step is needed.',
         loop: this.buildLoop({
           status: 'no_action',
           attempt: 0,
@@ -68,7 +68,7 @@ export class EngineeringRunLoopService {
           commandsPlanned,
           commandsExecuted: [],
           lastFailureSummary: null,
-          nextStep: 'Pedir ao usuario um comando/objetivo mais especifico ou propor patch.',
+          nextStep: 'Ask the user for a more specific command/objective or propose a patch.',
         }),
       };
     }
@@ -106,7 +106,7 @@ export class EngineeringRunLoopService {
           status: 'waiting_user',
           hostActions,
           repairProposal,
-          replySummary: `Parei para aprovacao antes de executar "${command}": ${action.errorMessage || action.decision.reason}`,
+          replySummary: `Stopped for approval before executing "${command}": ${action.errorMessage || action.decision.reason}`,
           loop: this.buildLoop({
             status: 'waiting_approval',
             attempt: hostActions.length,
@@ -114,7 +114,7 @@ export class EngineeringRunLoopService {
             commandsPlanned,
             commandsExecuted,
             lastFailureSummary: null,
-            nextStep: 'Pedir aprovacao explicita do operador para continuar.',
+            nextStep: 'Ask explicit operator approval to continue.',
           }),
         };
       }
@@ -128,7 +128,7 @@ export class EngineeringRunLoopService {
           status: 'failed',
           hostActions,
           repairProposal,
-          replySummary: `O loop supervisionado parou em "${command}": ${action.errorMessage || action.decision.reason}`,
+          replySummary: `O loop supervised parou em "${command}": ${action.errorMessage || action.decision.reason}`,
           loop: this.buildLoop({
             status: 'failed',
             attempt: hostActions.length,
@@ -150,7 +150,7 @@ export class EngineeringRunLoopService {
       status: 'completed',
       hostActions,
       repairProposal,
-      replySummary: `Loop supervisionado concluido com ${commandsExecuted.length} comando(s): ${commandsExecuted.join(', ') || 'n/d'}.`,
+      replySummary: `Supervised loop completed with ${commandsExecuted.length} command(s): ${commandsExecuted.join(', ') || 'n/a'}.`,
       loop: this.buildLoop({
         status: 'completed',
         attempt: hostActions.length,

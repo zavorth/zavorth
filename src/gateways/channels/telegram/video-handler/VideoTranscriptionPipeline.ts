@@ -41,7 +41,7 @@ export class VideoTranscriptionPipeline {
       return {
         analysisText: '',
         source: 'Gemini unavailable',
-        warnings: [`A analise nativa do Gemini para este link failed: ${errorMessage}`],
+        warnings: [`A analysis nativa do Gemini para este link failed: ${errorMessage}`],
       };
     }
   }
@@ -64,7 +64,7 @@ export class VideoTranscriptionPipeline {
       return {
         analysisText: '',
         source: 'Gemini unavailable',
-        warnings: [`A analise nativa do Gemini para este arquivo failed: ${errorMessage}`],
+        warnings: [`The configured native video analysis provider could not process this file: ${errorMessage}`],
       };
     }
   }
@@ -97,7 +97,7 @@ export class VideoTranscriptionPipeline {
       return {
         transcript: '',
         source: 'chunking not provisionado',
-        warnings: [VideoHandlerUrlSupport.buildMediaCapabilityWarning('A trilha de segmentacao em chunks ainda not foi provisionada neste host.')],
+        warnings: [VideoHandlerUrlSupport.buildMediaCapabilityWarning('A trilha de segmentaction em chunks ainda was not provisionada on this host.')],
       };
     }
 
@@ -115,7 +115,7 @@ export class VideoTranscriptionPipeline {
       return {
         transcript: '',
         source: 'chunking unavailable',
-        warnings: [`Could not segmentar o audio do arquivo em chunks: ${errorMessage}`],
+        warnings: [`Could not split the file audio into chunks: ${errorMessage}`],
       };
     } finally {
       this.deps.audioChunker.cleanupPaths([preparedAudioPath, ...chunkPaths]);
@@ -127,7 +127,7 @@ export class VideoTranscriptionPipeline {
       return {
         transcript: '',
         source: 'chunking not provisionado',
-        warnings: [VideoHandlerUrlSupport.buildMediaCapabilityWarning('A trilha de segmentacao em chunks ainda not foi provisionada neste host.')],
+        warnings: [VideoHandlerUrlSupport.buildMediaCapabilityWarning('A trilha de segmentaction em chunks ainda was not provisionada on this host.')],
       };
     }
 
@@ -145,7 +145,7 @@ export class VideoTranscriptionPipeline {
       return {
         transcript: '',
         source: 'chunking unavailable',
-        warnings: [`Could not processar o audio extraido em chunks: ${errorMessage}`],
+        warnings: [`Could not process extracted audio in chunks: ${errorMessage}`],
       };
     } finally {
       this.deps.audioChunker.cleanupPaths([preparedAudioPath, ...chunkPaths]);
@@ -186,7 +186,7 @@ export class VideoTranscriptionPipeline {
       preparedAudioPath = prepared.normalizedAudioPath;
       chunkPaths = prepared.chunks.map((chunk) => chunk.filePath);
 
-      const warnings: string[] = ['Ativei o fallback final de transcricao pura via Gemini com a chave dedicada.'];
+      const warnings: string[] = ['Ativei o fallback final de plain transcription via Gemini com a chave dedicada.'];
       const chunkResults = await this.mapWithConcurrency(
         prepared.chunks,
         Math.max(1, config.videoChunkConcurrency),
@@ -204,14 +204,14 @@ export class VideoTranscriptionPipeline {
       if (transcripts.length === 0) {
         return {
           transcript: '',
-          source: `transcricao pura via Gemini fallback (${config.geminiTranscriptionModel})`,
+          source: `plain transcription through fallback (${config.geminiTranscriptionModel})`,
           warnings,
         };
       }
 
       return {
         transcript: transcripts.join('\n\n'),
-        source: `transcricao pura via Gemini fallback (${config.geminiTranscriptionModel})`,
+        source: `plain transcription through fallback (${config.geminiTranscriptionModel})`,
         warnings,
       };
     } catch (error: unknown) {
@@ -219,8 +219,8 @@ export class VideoTranscriptionPipeline {
       const errorMessage = error instanceof Error ? err.message : String(error);
       return {
         transcript: '',
-        source: `transcricao pura via Gemini fallback (${config.geminiTranscriptionModel})`,
-        warnings: [`O fallback final de transcricao pura via Gemini failed: ${errorMessage}`],
+        source: `plain transcription through fallback (${config.geminiTranscriptionModel})`,
+        warnings: [`O fallback final de plain transcription via Gemini failed: ${errorMessage}`],
       };
     } finally {
       this.deps.audioChunker.cleanupPaths([preparedAudioPath, ...chunkPaths]);
@@ -265,7 +265,7 @@ export class VideoTranscriptionPipeline {
       return {
         analysisText: '',
         source: 'Gemini transcription fallback unavailable',
-        warnings: [`A transcricao pura via Gemini fallback failed: ${errorMessage}`],
+        warnings: [`A plain transcription through fallback failed: ${errorMessage}`],
       };
     }
   }
@@ -278,13 +278,13 @@ export class VideoTranscriptionPipeline {
     text: string;
     warnings: string[];
   }> {
-    const label = `Trecho ${chunk.index + 1} (${VideoHandlerFormatSupport.formatSecondsAsClock(chunk.startSeconds)}-${VideoHandlerFormatSupport.formatSecondsAsClock(chunk.endSeconds)})`;
+    const label = `snippet ${chunk.index + 1} (${VideoHandlerFormatSupport.formatSecondsAsClock(chunk.startSeconds)}-${VideoHandlerFormatSupport.formatSecondsAsClock(chunk.endSeconds)})`;
     const warnings: string[] = [];
 
     const chunkTranscript = await this.tryDedicatedGeminiPureTranscription(
       chunk.filePath,
       VideoHandlerFormatSupport.guessMimeTypeFromPath(chunk.filePath),
-      `${titleHint || 'media'} - ${label}`,
+      `${titleHint || 'media'} ? ${label}`,
     );
 
     if (chunkTranscript?.analysisText) {
@@ -296,7 +296,7 @@ export class VideoTranscriptionPipeline {
       };
     }
 
-    warnings.push(`${label}: a transcricao pura via Gemini fallback not retornou texto util.`);
+    warnings.push(`${label}: pure Gemini fallback transcription did not return useful text.`);
     return {
       label,
       text: '',
@@ -314,7 +314,7 @@ export class VideoTranscriptionPipeline {
     const preferGeminiFirst = chunks.length > 4;
 
     if (preferGeminiFirst) {
-      warnings.push(`O audio foi dividido em ${chunks.length} trechos longos; priorizei Gemini nesses trechos para ganhar robustez em conteudos extensos.`);
+      warnings.push(`O audio foi dividido em ${chunks.length} trechos longos; priorizei Gemini nesses trechos para ganhar robustez em contents extensos.`);
     }
 
     const chunkResults = await this.mapWithConcurrency(
@@ -339,7 +339,7 @@ export class VideoTranscriptionPipeline {
     if (sectionTexts.length === 0) {
       return {
         transcript: '',
-        source: 'audio segmentado sem conteudo util',
+        source: 'segmented audio without useful content',
         warnings,
       };
     }
@@ -351,8 +351,7 @@ export class VideoTranscriptionPipeline {
       warnings.push(...summary.warnings);
     }
 
-    const transcript = summaryText
-      ? `${summaryText}\n\n## Cobertura detalhada por trechos\n\n${detailedChunkReports.join('\n\n')}`
+    const transcript = summaryText ? `${summaryText}\n\n## Detailed segment coverage\n\n${detailedChunkReports.join('\n\n')}`
       : detailedChunkReports.join('\n\n');
 
     return {
@@ -372,8 +371,8 @@ export class VideoTranscriptionPipeline {
     source: string;
     warnings: string[];
   }> {
-    const label = `Trecho ${chunk.index + 1} (${VideoHandlerFormatSupport.formatSecondsAsClock(chunk.startSeconds)}-${VideoHandlerFormatSupport.formatSecondsAsClock(chunk.endSeconds)})`;
-    const chunkPrompt = `Transcreva o conteudo falado deste trecho com boa pontuacao. Preserve nomes proprios, termos tecnicos, numeros e referencias importantes. Faixa aproximada do trecho: ${VideoHandlerFormatSupport.formatSecondsAsClock(chunk.startSeconds)} a ${VideoHandlerFormatSupport.formatSecondsAsClock(chunk.endSeconds)}.`;
+    const label = `Section ${chunk.index + 1} (${VideoHandlerFormatSupport.formatSecondsAsClock(chunk.startSeconds)}-${VideoHandlerFormatSupport.formatSecondsAsClock(chunk.endSeconds)})`;
+    const chunkPrompt = `Transcribe the spoken content of this section with good punctuation. Preserve proper names, technical terms, numbers, and important references. Approximate section range: ${VideoHandlerFormatSupport.formatSecondsAsClock(chunk.startSeconds)} to ${VideoHandlerFormatSupport.formatSecondsAsClock(chunk.endSeconds)}.`;
     const warnings: string[] = [];
     let chunkText = '';
     let chunkSource = '';
@@ -387,7 +386,7 @@ export class VideoTranscriptionPipeline {
       } catch (error: unknown) {
         const err = asErrorLike(error);
         const errorMessage = error instanceof Error ? err.message : String(error);
-        warnings.push(`${label}: a transcricao OpenAI failed (${errorMessage}).`);
+        warnings.push(`${label}: a transcription OpenAI failed (${errorMessage}).`);
       }
     }
 
@@ -395,7 +394,7 @@ export class VideoTranscriptionPipeline {
       const geminiChunk = await this.tryGeminiLocalAudio(
         chunk.filePath,
         VideoHandlerFormatSupport.guessMimeTypeFromPath(chunk.filePath),
-        `${titleHint || 'audio'} - ${label}`,
+        `${titleHint || 'audio'} ? ${label}`,
       );
 
       if (geminiChunk?.analysisText) {
@@ -414,12 +413,12 @@ export class VideoTranscriptionPipeline {
       } catch (error: unknown) {
         const err = asErrorLike(error);
         const errorMessage = error instanceof Error ? err.message : String(error);
-        warnings.push(`${label}: a transcricao OpenAI de apoio failed (${errorMessage}).`);
+        warnings.push(`${label}: a transcription OpenAI support failed (${errorMessage}).`);
       }
     }
 
     if (!chunkText) {
-      warnings.push(`${label}: not consegui obter conteudo textual utilizavel desse trecho.`);
+      warnings.push(`${label}: could not obtain usable text content from this section.`);
     }
 
     return {
@@ -447,7 +446,7 @@ export class VideoTranscriptionPipeline {
       return {
         analysisText: '',
         source: 'Gemini unavailable',
-        warnings: [`A sintese final dos trechos failed: ${errorMessage}`],
+        warnings: [`A final synthesis dos trechos failed: ${errorMessage}`],
       };
     }
   }

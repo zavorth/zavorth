@@ -67,8 +67,8 @@ export class SkillCatalogReleaseService {
       },
       narrative: {
         headline: 'Release snapshot do skill plane do Zavorth',
-        operatorSummary: `${catalog.summary.imported} skill(s) importadas, ${catalog.summary.readyRecipes}/${catalog.summary.recipes} recipe(s) prontas, `
-          + `${reviewRequiredSkills} skill(s) em revisao e ${mcp.summary.resources} resource(s) MCP publicados.`,
+        operatorSummary: `${catalog.summary.imported} imported skill(s), ${catalog.summary.readyRecipes}/${catalog.summary.recipes} ready recipe(s), `
+          + `${reviewRequiredSkills} skill(s) under review e ${mcp.summary.resources} resource(s) MCP publicados.`,
       },
     };
   }
@@ -86,7 +86,7 @@ export class SkillCatalogReleaseService {
       '## Summary',
       '',
       `- Imported skills: ${snapshot.summary.importedSkills}`,
-      `- Local skills: ${snapshot.summary.localSkills}`,
+      `- local skills: ${snapshot.summary.localSkills}`,
       `- Recipes: ${snapshot.summary.readyRecipes}/${snapshot.summary.recipes} ready`,
       `- Recommendations: ${snapshot.summary.recommendations}`,
       `- Review required skills: ${snapshot.summary.reviewRequiredSkills}`,

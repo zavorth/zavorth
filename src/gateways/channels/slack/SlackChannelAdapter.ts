@@ -27,7 +27,7 @@ export class SlackChannelAdapter implements GatewayChannelAdapter {
   private readonly now: () => Date;
 
   constructor(
-    private eventBus: GatewayEventBus, 
+    private eventBus: GatewayEventBus,
     private policyManager: ChannelPolicyManager,
     private botToken: string,
     runtime: SlackChannelAdapterRuntime = {},

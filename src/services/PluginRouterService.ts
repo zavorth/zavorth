@@ -212,7 +212,7 @@ export class PluginRouterService {
         return [
           `Plugin explain: ${pluginId || '<missing>'}`,
           `found=${Boolean(candidate)}`,
-          ...reasons.map((line) => `  - ${line}`),
+          ...reasons.map((line) => ` ? ${line}`),
         ].join('\n');
       },
     };
@@ -411,7 +411,7 @@ function extractExactPluginIds(intent: string, candidates: PluginRouterCandidate
       continue;
     }
     // Space/comma/semicolon separated id list (structured CLI-style intent)
-    const asToken = new RegExp(`(^|[,;\\s])${escapeRegExp(id)}(?=$|[,;\\s])`, 'i');
+    const asToken = new RegExp(`(^|[,;\\s])${escapeRegExp(id)}(...=$|[,;\\s])`, 'i');
     if (asToken.test(raw)) {
       ids.add(id);
       ids.add(id.toLowerCase());
@@ -421,7 +421,7 @@ function extractExactPluginIds(intent: string, candidates: PluginRouterCandidate
 }
 
 function escapeRegExp(value: string): string {
-  return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(value || '').replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }
 
 function buildLlmPrompt(intent: string, catalog: unknown[]): string {

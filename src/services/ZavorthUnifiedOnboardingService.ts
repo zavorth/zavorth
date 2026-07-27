@@ -389,7 +389,7 @@ function buildQuickSandboxHostReadiness() {
       tiers: [
         {
           id: 'local-jail',
-          label: 'Local jail sandbox',
+          label: 'local jail sandbox',
           status: 'ready',
           canRun: true,
           strongBoundary: false,

@@ -80,7 +80,7 @@ export class DeterministicQaMatrixService {
         gate: 'runtime-idle-budget',
         title: 'Runtime Performance And Idle Budget',
         reason:
-          'Com a matriz de QA travada, a proxima prioridade combinada e medir e reduzir peso de startup/background antes de polir mais superficies.',
+          'Com a matriz de QA travada, a next prioridade combinada e medir e reduzir peso de startup/background before polir mais surfaces.',
       },
     };
   }
@@ -103,7 +103,7 @@ export class DeterministicQaMatrixService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -119,10 +119,9 @@ export class DeterministicQaMatrixService {
           `script:${script}`,
           `script ${script}`,
           value ? 'pass' : 'fail',
-          value
-            ? `package.json expoe o gate requerido para ${gate.label}.`
-            : `package.json precisa expor ${script} para ${gate.label}.`,
-          [`command=${gate.command}`, `script=${value || '<ausente>'}`],
+          value ? `package.json exposes the required gate for ${gate.label}.`
+            : `package.json must expose ${script} para ${gate.label}.`,
+          [`command=${gate.command}`, `script=${value || '<missing>'}`],
         );
       });
   }
@@ -133,8 +132,8 @@ export class DeterministicQaMatrixService {
       `budget ${gate.id}`,
       Number.isFinite(gate.maxDurationMs) && gate.maxDurationMs > 0 ? 'pass' : 'fail',
       Number.isFinite(gate.maxDurationMs) && gate.maxDurationMs > 0
-        ? `${gate.label} tem budget explicito de ${gate.maxDurationMs}ms.`
-        : `${gate.label} precisa de maxDurationMs positivo.`,
+        ? `${gate.label} tem budget explicit de ${gate.maxDurationMs}ms.`
+        : `${gate.label} needs positive maxDurationMs.`,
       [`tier=${gate.tier}`, `layer=${gate.layer}`],
     ));
   }
@@ -154,7 +153,7 @@ export class DeterministicQaMatrixService {
         'ids unicos de gate',
         duplicates.size === 0 ? 'pass' : 'fail',
         duplicates.size === 0
-          ? 'todos os gates tem id unico.'
+          ? 'todos os gates tem id single.'
           : `gates duplicados: ${Array.from(duplicates).join(', ')}`,
       ),
     ];
@@ -166,19 +165,19 @@ export class DeterministicQaMatrixService {
     return [
       this.check(
         'matrix:no-network',
-        'sem rede externa obrigatoria',
+        'without rede external obrigatoria',
         networkGates.length === 0 ? 'pass' : 'fail',
         networkGates.length === 0
-          ? 'matriz default nao exige rede externa.'
-          : `gates exigem rede externa: ${networkGates.map((gate) => gate.id).join(', ')}`,
+          ? 'default matrix does not require external network.'
+          : `gates require external network: ${networkGates.map((gate) => gate.id).join(', ')}`,
       ),
       this.check(
         'matrix:no-persistent-process',
-        'sem processo persistente',
+        'without process persistente',
         persistentGates.length === 0 ? 'pass' : 'fail',
         persistentGates.length === 0
-          ? 'matriz default nao declara processo persistente.'
-          : `gates podem deixar processo persistente: ${persistentGates.map((gate) => gate.id).join(', ')}`,
+          ? 'default matrix does not declare persistent process.'
+          : `gates podem deixar process persistente: ${persistentGates.map((gate) => gate.id).join(', ')}`,
       ),
     ];
   }
@@ -193,11 +192,10 @@ export class DeterministicQaMatrixService {
     const ok = missingFromStandard.length === 0 && missingFromRelease.length === 0;
     return this.check(
       'matrix:tier-containment',
-      'tiers cumulativos',
+      'tiers cumulactives',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'quick esta contido em standard, e standard esta contido em release.'
-        : 'tiers precisam ser cumulativos para o operador entender cobertura.',
+      ok ? 'quick is contido em standard, e standard is contido em release.'
+        : 'tiers must be cumulative so the operator understands coverage.',
       [
         missingFromStandard.length ? `faltando no standard: ${missingFromStandard.join(', ')}` : '',
         missingFromRelease.length ? `faltando no release: ${missingFromRelease.join(', ')}` : '',
@@ -213,8 +211,8 @@ export class DeterministicQaMatrixService {
       'declaraction de JSON',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'todos os comandos com --json declaram producesJson=true.'
-        : `gates com --json sem declaracao: ${missing.map((gate) => gate.id).join(', ')}`,
+        ? 'all commands with --json declare producesJson=true.'
+        : `gates com --json without declaraction: ${missing.map((gate) => gate.id).join(', ')}`,
     );
   }
 

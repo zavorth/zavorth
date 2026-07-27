@@ -148,7 +148,7 @@ export class TelegramEchoApprovalController {
     if (['approve', 'allow'].includes(action)) {
       return { action: 'approve', reference: rest.join(' ') };
     }
-    if (['reject', 'deny', 'negar', 'rejeitar'].includes(action)) {
+    if (['reject', 'deny', 'deny', 'reject'].includes(action)) {
       return { action: 'reject', reference: rest.join(' ') };
     }
     return { action: 'list', reference: '' };

@@ -27,7 +27,7 @@ export type ZavorthOperationalA2UICanvas = {
   routeReady: boolean;
   zavorthControlHandlersReady: boolean;
   actionBridgeReady: boolean;
-  riskSimulationReady: boolean;
+  riskDryRunReady: boolean;
   security: {
     hostAccess: 'blocked';
     tokenAccess: 'blocked';

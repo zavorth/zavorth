@@ -117,7 +117,7 @@ export class ConversationalPermissionService {
   public use(permissionId: string, usage: ConversationalPermissionUsage): ConversationalPermissionUseDecision {
     const grant = this.grants.get(permissionId);
     if (!grant) {
-      return { allowed: false, consumed: false, reason: 'Permissao inexistente.' };
+      return { allowed: false, consumed: false, reason: 'Permission inexistente.' };
     }
     const decision = this.canUse(grant, usage);
     if (decision.allowed && grant.scope === 'once') {
@@ -137,34 +137,34 @@ export class ConversationalPermissionService {
       return {
         allowed: false,
         consumed: grant.consumed,
-        reason: 'Permissao conversacional nao autoriza host inteiro.',
+        reason: 'Conversational permission does not authorize the whole host.',
       };
     }
     if (grant.scope === 'once' && grant.consumed) {
       return {
         allowed: false,
         consumed: true,
-        reason: 'Permissao once ja foi consumida.',
+        reason: 'Permission once already foi consumida.',
       };
     }
     if (grant.scope === 'session' && this.normalizeSession(usage.sessionId) !== this.normalizeSession(grant.sessionId)) {
       return {
         allowed: false,
         consumed: grant.consumed,
-        reason: 'Permissao de sessao nao vale para outra sessao.',
+        reason: 'Session permission does not apply to another session.',
       };
     }
     if (grant.scope === 'workspace' && !this.isWithinWorkspace(usage.targetPath || usage.workspacePath || '', grant.workspaceRoot)) {
       return {
         allowed: false,
         consumed: grant.consumed,
-        reason: 'Permissao de workspace nao cobre caminho fora do workspace.',
+        reason: 'Workspace permission does not cover paths outside the workspace.',
       };
     }
     return {
       allowed: true,
       consumed: grant.consumed,
-      reason: 'Permissao valida para este uso.',
+      reason: 'Permission valida para este usage.',
     };
   }
 
@@ -208,19 +208,19 @@ export class ConversationalPermissionService {
     sideEffect: UniversalIntentSideEffect,
   ): string {
     if (classification.signals.operatorRequired) {
-      return 'A solicitacao exige postura Overlord/operador antes de prosseguir.';
+      return 'The request requires operator posture before continuing.';
     }
     if (sideEffect === 'destructive') {
-      return 'A solicitacao pode apagar ou substituir recursos e exige autorizacao explicita.';
+      return 'The request may delete or replace resources and requires explicit authorization.';
     }
     if (sideEffect === 'external') {
-      return 'A solicitacao pode enviar, publicar ou expor informacao fora do workspace.';
+      return 'The request may send, publish, or expose information outside the workspace.';
     }
     if (sideEffect === 'system') {
-      return 'A solicitacao pode executar comando, automacao ou controle persistente do sistema.';
+      return 'The request may execute a command, automation, or persistent system control.';
     }
     if (sideEffect === 'local_workspace') {
-      return 'A solicitacao pode alterar arquivos ou estado local do workspace.';
+      return 'The request may change workspace files or local state.';
     }
     return 'The request requires a governed tool.';
   }
@@ -230,60 +230,60 @@ export class ConversationalPermissionService {
     sideEffect: UniversalIntentSideEffect,
   ): string {
     if (kind === 'operator_control') {
-      return 'Posso pausar e pedir permissao de operador antes de continuar?';
+      return 'May I pause and ask for operator permission before continuing...';
     }
     if (kind === 'external_side_effect') {
-      return 'Posso preparar um preview antes de enviar ou publicar?';
+      return 'Can I prepare a preview before sending or publishing...';
     }
     if (kind === 'dangerous_operation') {
-      return 'Posso preparar um preview seguro antes de qualquer execucao perigosa?';
+      return 'May I prepare a safe preview before any dangerous execution...';
     }
     if (kind === 'automation') {
-      return 'Posso preparar o plano e pedir approval antes de ativar a automacao?';
+      return 'I can prepare the plan and request approval before enabling the automation.';
     }
     if (sideEffect === 'local_workspace') {
-      return 'Posso preparar um preview das alteracoes antes de aplicar?';
+      return 'I can prepare a preview of the changes before applying...';
     }
-    return 'Posso continuar com esta ferramenta governada?';
+    return 'Can I continue with this governed tool...';
   }
 
   private describeWhere(input: UniversalIntentInput, classification: UniversalIntentSafetyClassification): string {
     if (classification.signals.hostScopeRequested) {
-      return 'Pedido menciona host inteiro; isso nao sera autorizado por permissao conversacional comum.';
+      return 'Request mentions the whole host; that will not be authorized by normal conversational permission.';
     }
     return input.contextHints?.targetPath
       || input.contextHints?.workspaceRoot
       || input.contextHints?.workspacePath
-      || 'Alvo sera confirmado no preview antes da execucao.';
+      || 'Target will be confirmed in preview before execution.';
   }
 
   private describePermission(scope: UniversalIntentPermissionScope, kind: ConversationalPermissionRequest['kind']): string {
     if (kind === 'operator_control') {
-      return 'Exige modo Overlord e approval explicito.';
+      return 'Requires Overlord mode and explicit approval.';
     }
     if (scope === 'session') {
-      return 'Autorizacao vale somente para esta sessao.';
+      return 'Authorization applies only to this session.';
     }
     if (scope === 'workspace') {
-      return 'Autorizacao fica limitada ao workspace declarado.';
+      return 'Authorization fica limitada ao workspace declarado.';
     }
     if (scope === 'persistent') {
-      return 'Autorizacao persistente exige controle separado.';
+      return 'Persistent authorization requires separate control.';
     }
-    return 'Autorizacao once, consumida no primeiro uso.';
+    return 'Authorization once, consumed on first use.';
   }
 
   private describeValidity(scope: UniversalIntentPermissionScope): string {
     if (scope === 'session') {
-      return 'Ate o fim desta sessao, sem vazar para outra sessao.';
+      return 'Until this session ends, without leaking into another session.';
     }
     if (scope === 'workspace') {
-      return 'Somente dentro do workspace declarado.';
+      return 'Only inside the declared workspace.';
     }
     if (scope === 'persistent') {
-      return 'Persistente ate revogacao explicita.';
+      return 'Persistent until explicit revocation.';
     }
-    return 'Uma unica execucao.';
+    return 'A single execution.';
   }
 
   private buildPermissionId(

@@ -100,12 +100,12 @@ export class McpOAuthManager {
     if (stored?.refreshToken) {
       try {
         return await this.refreshWithToken(stored.refreshToken);
-      } catch (error: unknown) {// Se refresh falhou com invalid_client, marcar como dead
+      } catch (error: unknown) {// Se refresh failed com invalid_client, marcar como dead
         if (this.isInvalidClientError(error)) {
           this.deadClients.add(this.clientId);
           throw new Error('Invalid client ID. Re-registration required.');
         }
-        // Se refresh falhou, tentar com client credentials
+        // Se refresh failed, try com client credentials
       }
     }
 
@@ -129,7 +129,7 @@ export class McpOAuthManager {
 
     if (!response.ok) {
       const errorBody = await response.text();
-      throw new Error(`Refresh falhou (${response.status}): ${errorBody}`);
+      throw new Error(`Refresh failed (${response.status}): ${errorBody}`);
     }
 
     const data = await response.json() as Record<string, unknown>;
@@ -157,7 +157,7 @@ export class McpOAuthManager {
 
     if (!response.ok) {
       const errorBody = await response.text();
-      throw new Error(`Client credentials falhou (${response.status}): ${errorBody}`);
+      throw new Error(`Client credentials failed (${response.status}): ${errorBody}`);
     }
 
     const data = await response.json() as Record<string, unknown>;

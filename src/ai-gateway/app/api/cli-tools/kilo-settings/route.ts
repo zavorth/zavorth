@@ -60,8 +60,7 @@ export async function GET(request: Request) {
         reason: runtime.reason,
         settings: null,
         message:
-          runtime.installed && !runtime.runnable
-            ? "Kilo Code CLI is installed but not runnable"
+          runtime.installed && !runtime.runnable ? "Kilo Code CLI is installed but not runnable"
             : "Kilo Code CLI is not installed",
       });
     }

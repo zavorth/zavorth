@@ -119,7 +119,7 @@ export class ZavorthProductOverviewService {
         id: `eval:${entry.id}`,
         label: `Corrigir ${entry.label}`,
         severity: entry?.severity,
-        reason: entry?.recommendedAction || entry?.evidence || 'Regressao precisa de atencao.',
+        reason: entry?.recommendedAction || entry?.evidence || 'Regression needs attention.',
         command: null,
       }))
       : [];
@@ -149,12 +149,12 @@ export class ZavorthProductOverviewService {
     const narrative = buildOverviewNarrative({
       headline: 'Product Overview',
       operatorSummary:
-        `${summary.integrations} integration(s), ${summary.platformEntries} entrada(s) de platform, `
-        + `${summary.sdkFilesReady}/${summary.sdkFilesExpected} arquivo(s)-chave de SDK prontos, `
-        + `${summary.scorecards} scorecard(s), ${summary.regressions} regressao(oes) e `
+        `${summary.integrations} integration(s), ${summary.platformEntries} entry(s) de platform, `
+        + `${summary.sdkFilesReady}/${summary.sdkFilesExpected} key SDK file(s) ready, `
+        + `${summary.scorecards} scorecard(s), ${summary.regressions} regression(s), and `
         + `gate de rollout ${summary.rolloutGateStatus}.`,
       actions,
-      fallbackNextAction: 'Revisar hub, ecosystem, evals e rollout readiness.',
+      fallbackNextAction: 'review hub, ecosystem, evals e rollout readiness.',
     });
 
     return {
@@ -221,7 +221,7 @@ export class ZavorthProductOverviewService {
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Actions sugeridas:',
         ...snapshot.actions.map((entry) =>
           `- [${entry.source}] ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
@@ -242,8 +242,8 @@ export class ZavorthProductOverviewService {
         posture: input.hub?.summary?.posture,
         summary:
           `${Number(input.hub?.summary?.integrations || 0) || 0} integration(s) | `
-          + `${Number(input.hub?.summary?.platformEntries || 0) || 0} entrada(s) | `
-          + `${Number(input.hub?.summary?.recommendedActions || 0) || 0} acao(oes) recomendada(s).`,
+          + `${Number(input.hub?.summary?.platformEntries || 0) || 0} entry(s) | `
+          + `${Number(input.hub?.summary?.recommendedActions || 0) || 0} action(oes) recomendada(s).`,
         nextAction: input.hub?.narrative?.nextAction,
         command: input.hub?.actions?.[0]?.command,
         source: 'hub',
@@ -254,7 +254,7 @@ export class ZavorthProductOverviewService {
         posture: input.ecosystem?.summary?.posture,
         summary:
           `${Number(input.ecosystem?.summary?.registryEntries || 0) || 0} registro(s) | `
-          + `${Number(input.ecosystem?.summary?.sdkFilesReady || 0) || 0}/${Number(input.ecosystem?.summary?.sdkFilesExpected || 0) || 0} arquivo(s)-chave de SDK | `
+          + `${Number(input.ecosystem?.summary?.sdkFilesReady || 0) || 0}/${Number(input.ecosystem?.summary?.sdkFilesExpected || 0) || 0} key SDK file(s) | `
           + `${Number(input.ecosystem?.summary?.publishArtifacts || 0) || 0} artifact(s) de publish.`,
         nextAction: input.ecosystem?.narrative?.nextAction,
         command: input.ecosystem?.actions?.[0]?.command,
@@ -266,9 +266,9 @@ export class ZavorthProductOverviewService {
         posture: input.evals?.summary?.posture,
         summary:
           `${Number(input.evals?.summary?.scorecards || 0) || 0} scorecard(s) | `
-          + `${Number(input.evals?.summary?.regressions || 0) || 0} regressao(oes) | `
+          + `${Number(input.evals?.summary?.regressions || 0) || 0} regression(s) | `
           + `operator cost ${text(input.evals?.summary?.operatorCostState, 'low')}.`,
-        nextAction: input.evals?.regressions?.[0]?.recommendedAction || 'Revisar scorecards e datasets do produto.',
+        nextAction: input.evals?.regressions?.[0]?.recommendedAction || 'review scorecards e datasets do produto.',
         command: null,
         source: 'evals',
       }),
@@ -321,7 +321,7 @@ export class ZavorthProductOverviewService {
         },
         narrative: {
           headline: 'Eval Plane fallback',
-          operatorSummary: 'Eval plane sem deps dedicadas neste contexto; mantendo product overview em modo fail-soft.',
+          operatorSummary: 'Eval plane without deps dedicadas neste contexto; mantendo product overview em modo fail-soft.',
         },
         scorecards: [] as ZavorthEvalControlPlaneSnapshot['scorecards'],
         datasets: [] as ZavorthEvalControlPlaneSnapshot['datasets'],

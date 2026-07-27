@@ -29,18 +29,18 @@ type CapabilityCheckpointDefinition = {
 };
 
 const CHECKPOINTS: CapabilityCheckpointDefinition[] = [
-  checkpoint('checkpoint-0', 'Capability Hub', 'capability-hub', 'ZavorthCapabilityHubService', 'CapabilityHubContract'),
-  checkpoint('checkpoint-1', 'Governance Recipes', 'governance-recipes', 'ZavorthGovernanceRecipeService', 'GovernanceRecipeContract'),
-  checkpoint('checkpoint-2', 'Natural Setup Assistant', 'natural-setup', 'ZavorthNaturalSetupAssistantService', 'NaturalSetupAssistantContract'),
-  checkpoint('checkpoint-3', 'Capability Importer', 'capability-import', 'ZavorthCapabilityImportService', 'CapabilityImportContract'),
-  checkpoint('checkpoint-4', 'Capability Activation Flow', 'capability-activation-flow', 'ZavorthCapabilityActivationFlowService', 'CapabilityActivationFlowContract'),
-  checkpoint('checkpoint-5', 'Capability Pack Catalog', 'capability-packs', 'ZavorthCapabilityPackCatalogService', 'CapabilityPackCatalogContract'),
-  checkpoint('checkpoint-6', 'Capability Pack Readiness', 'capability-pack-readiness', 'ZavorthCapabilityPackReadinessDoctorService', 'CapabilityPackReadinessContract'),
-  checkpoint('checkpoint-7', 'Capability Setup Conversation', 'capability-setup-guide', 'ZavorthCapabilitySetupConversationService', 'CapabilitySetupConversationContract'),
-  checkpoint('checkpoint-8', 'Capability Setup Queue', 'capability-setup-queue', 'ZavorthCapabilitySetupQueueService', 'CapabilitySetupQueueContract'),
-  checkpoint('checkpoint-9', 'Capability Setup Executor', 'capability-setup-executor', 'ZavorthCapabilitySetupExecutorService', 'CapabilitySetupExecutorContract'),
+  checkpoint('gate-0', 'Capability Hub', 'capability-hub', 'ZavorthCapabilityHubService', 'CapabilityHubContract'),
+  checkpoint('gate-1', 'Governance Recipes', 'governance-recipes', 'ZavorthGovernanceRecipeService', 'GovernanceRecipeContract'),
+  checkpoint('gate-2', 'Natural Setup Assistant', 'natural-setup', 'ZavorthNaturalSetupAssistantService', 'NaturalSetupAssistantContract'),
+  checkpoint('gate-3', 'Capability Importer', 'capability-import', 'ZavorthCapabilityImportService', 'CapabilityImportContract'),
+  checkpoint('gate-4', 'Capability Activation Flow', 'capability-activation-flow', 'ZavorthCapabilityActivationFlowService', 'CapabilityActivationFlowContract'),
+  checkpoint('gate-5', 'Capability Pack Catalog', 'capability-packs', 'ZavorthCapabilityPackCatalogService', 'CapabilityPackCatalogContract'),
+  checkpoint('gate-6', 'Capability Pack Readiness', 'capability-pack-readiness', 'ZavorthCapabilityPackReadinessDoctorService', 'CapabilityPackReadinessContract'),
+  checkpoint('gate-7', 'Capability Setup Conversation', 'capability-setup-guide', 'ZavorthCapabilitySetupConversationService', 'CapabilitySetupConversationContract'),
+  checkpoint('gate-8', 'Capability Setup Queue', 'capability-setup-queue', 'ZavorthCapabilitySetupQueueService', 'CapabilitySetupQueueContract'),
+  checkpoint('gate-9', 'Capability Setup Executor', 'capability-setup-executor', 'ZavorthCapabilitySetupExecutorService', 'CapabilitySetupExecutorContract'),
   {
-    id: 'checkpoint-10',
+    id: 'gate-10',
     title: 'Capability Console',
     gate: 'node scripts/capability-console-check.mjs',
     requiredFiles: [
@@ -54,7 +54,7 @@ const CHECKPOINTS: CapabilityCheckpointDefinition[] = [
     ],
   },
   {
-    id: 'checkpoint-11',
+    id: 'gate-11',
     title: 'Capability Natural Operator',
     gate: 'node scripts/capability-natural-operator-check.mjs',
     requiredFiles: [
@@ -84,14 +84,14 @@ export class ZavorthCapabilityHubCompletionService {
   }
 
   public buildSnapshot(): CapabilityHubCompletionSnapshot {
-    const phases = CHECKPOINTS.map((definition) => this.inspectCheckpoint(definition));
+    const stages = CHECKPOINTS.map((definition) => this.inspectCheckpoint(definition));
     const journeys = this.runJourneys();
     const liveViolations = journeys.filter((journey) => journey.assertions.liveActivationApplied).length;
     const secretSerializationViolations = journeys.filter((journey) => journey.assertions.rawSecretsSerialized).length;
-    const phasesPassed = phases.filter((phaseEntry) => phaseEntry.status === 'passed').length;
+    const stagesPassed = stages.filter((stageEntry) => stageEntry.status === 'passed').length;
     const journeysPassed = journeys.filter((journey) => journey.status === 'passed').length;
     const status: CapabilityHubCompletionStatus =
-      phasesPassed === phases.length
+      stagesPassed === stages.length
       && journeysPassed === journeys.length
       && liveViolations === 0
       && secretSerializationViolations === 0
@@ -111,23 +111,23 @@ export class ZavorthCapabilityHubCompletionService {
         ownerApprovalBeforeLive: true,
       },
       summary: {
-        phases: phases.length,
-        phasesPassed,
+        stages: stages.length,
+        stagesPassed,
         journeys: journeys.length,
         journeysPassed,
         liveViolations,
         secretSerializationViolations,
       },
-      phases,
+      stages,
       journeys,
       narrative: {
         headline: status === 'passed'
-          ? 'Capability Hub completo: gates aceitos.'
-          : 'Capability Hub ainda tem falhas de aceitacao.',
-        operatorSummary: `${phasesPassed}/${phases.length} gate(s), ${journeysPassed}/${journeys.length} jornada(s), ${liveViolations} violacao(oes) live.`,
+          ? 'Capability Hub complete: gates accepted.'
+          : 'Capability Hub still has acceptance failures.',
+        operatorSummary: `${stagesPassed}/${stages.length} gate(s), ${journeysPassed}/${journeys.length} journey(s), ${liveViolations} live violation(s) live.`,
         nextAction: status === 'passed'
-          ? 'Promover para uso operacional controlado ou iniciar trabalho de UI/produto.'
-          : 'Corrigir gates ou jornadas marcadas como failed antes de promover.',
+          ? 'Promote for controlled operational use or start UI/product work.'
+          : 'Fix failed gates or journeys before promotion.',
       },
     };
   }
@@ -139,19 +139,19 @@ export class ZavorthCapabilityHubCompletionService {
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       '',
-      'Etapas:',
+      'Steps:',
     ];
-    for (const phaseEntry of snapshot.phases) {
-      lines.push(`- ${phaseEntry.id} ${phaseEntry.status}: ${phaseEntry.title}`);
-      for (const missing of phaseEntry.missingFiles.slice(0, 4)) {
+    for (const stageEntry of snapshot.stages) {
+      lines.push(`- ${stageEntry.id} ${stageEntry.status}: ${stageEntry.title}`);
+      for (const missing of stageEntry.missingFiles.slice(0, 4)) {
         lines.push(`  missing: ${missing}`);
       }
     }
-    lines.push('', 'Jornadas:');
+    lines.push('', 'Journeys:');
     for (const journey of snapshot.journeys) {
       lines.push(`- ${journey.id} ${journey.status}: ${journey.expectedAction} <= "${journey.prompt}"`);
     }
-    lines.push('', `Proximo: ${snapshot.narrative.nextAction}`);
+    lines.push('', `next: ${snapshot.narrative.nextAction}`);
     return lines.join('\n');
   }
 
@@ -182,39 +182,39 @@ export class ZavorthCapabilityHubCompletionService {
       },
       {
         id: 'journey-create-slack-ticket',
-        prompt: 'quero configurar meu Slack',
+        prompt: 'quero setup meu Slack',
         expectedAction: 'create_setup_ticket',
         result: operator.execute({
-          text: 'quero configurar meu Slack com token xoxb-redact-fixture',
+          text: 'quero setup meu Slack com token redacted-slack-token-fixture',
           actorLabel: 'completion-gate',
           ticketId: 'setup-completion-slack',
         }),
       },
       {
         id: 'journey-readiness',
-        prompt: 'verifique release readiness',
+        prompt: 'check release readiness',
         expectedAction: 'run_readiness',
         result: operator.execute({
-          text: 'verifique release readiness',
+          text: 'check release readiness',
           packId: 'official-ops-skills',
           targetItemId: 'skill:release-readiness',
         }),
       },
       {
         id: 'journey-approval-guard',
-        prompt: 'crie pedido controlado sem approval',
+        prompt: 'create controlled request without approval',
         expectedAction: 'prepare_activation_request',
         result: operator.execute({
-          text: 'crie o pedido controlado para setup-completion-ready',
+          text: 'create controlled request for setup-completion-ready',
           ticketId: 'setup-completion-ready',
         }),
       },
       {
         id: 'journey-controlled-request',
-        prompt: 'crie pedido controlado com approval',
+        prompt: 'create controlled request with approval',
         expectedAction: 'prepare_activation_request',
         result: operator.execute({
-          text: 'crie o pedido controlado para setup-completion-ready',
+          text: 'create controlled request for setup-completion-ready',
           ticketId: 'setup-completion-ready',
           ownerApprovalId: 'approval-completion',
           confirmOwnerControlledActivation: true,
@@ -257,7 +257,7 @@ export class ZavorthCapabilityHubCompletionService {
     naturalResult: CapabilityHubCompletionJourney['naturalResult'],
   ): CapabilityHubCompletionJourney {
     const expectedActionMatched = naturalResult.decision.action === expectedAction;
-    const rawSecretsSerialized = this.serialized(naturalResult).includes('xoxb-redact-fixture');
+    const rawSecretsSerialized = this.serialized(naturalResult).includes('redacted-slack-token-fixture');
     const liveActivationApplied = naturalResult.safety.liveActivationApplied;
     const ownerApprovalBeforeLive = naturalResult.safety.ownerApprovalBeforeLive;
     const approvalRequiredWhenExecuting = naturalResult.decision.action !== 'prepare_activation_request'
@@ -268,8 +268,7 @@ export class ZavorthCapabilityHubCompletionService {
       && rawSecretsSerialized === false
       && liveActivationApplied === false
       && ownerApprovalBeforeLive === true
-      && approvalRequiredWhenExecuting
-        ? 'passed'
+      && approvalRequiredWhenExecuting ? 'passed'
         : 'failed';
 
     return {

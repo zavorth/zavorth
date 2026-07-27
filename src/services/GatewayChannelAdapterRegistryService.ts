@@ -222,10 +222,10 @@ export class GatewayChannelAdapterRegistryService {
 
   private setupModeFor(id: string, entry: PlatformCapability): string {
     if (id === 'whatsapp') {
-      return entry.transport === 'webhook' ? 'cloud-api' : entry.transport === 'local' ? 'baileys/stub' : 'stub';
+      return entry.transport === 'webhook' ? 'cloud-api' : entry.transport === 'local' ? 'baileys/local' : 'local';
     }
     if (id === 'instagram') {
-      return entry.transport === 'webhook' ? 'meta-messaging' : 'stub';
+      return entry.transport === 'webhook' ? 'meta-messaging' : 'local';
     }
     if (id === 'signal') {
       return 'signal-cli';
@@ -285,24 +285,24 @@ export class GatewayChannelAdapterRegistryService {
 
   private operatorNextStepFor(id: string, entry: PlatformCapability): string {
     if (entry.readiness === 'ready') {
-      return `Rodar /channels broadcast-test ${id} e monitorar doctor antes de ampliar o rollout.`;
+      return `run /channels broadcast-test ${id} e monitorar doctor before ampliar o rollout.`;
     }
     if (id === 'signal') {
       return 'Preparar signal-cli em daemon/JSON-RPC, conta dedicada e allowlist de recipients.';
     }
     if (id === 'imessage') {
-      return 'Subir um Node Host macOS e iniciar a bridge em modo read-only antes de permitir envio.';
+      return 'Start a macOS Node Host and launch the bridge in read-only mode before allowing send.';
     }
     if (id === 'teams') {
-      return 'Preparar Microsoft Graph/Bot Framework com tenant, app id e conversas permitidas.';
+      return 'Prepare Microsoft Graph/Bot Framework with tenant, app id, and allowed conversations.';
     }
     if (id === 'instagram') {
       return 'Preparar Meta Instagram Messaging API com business account, webhook e recipients permitidos.';
     }
     if (id === 'email') {
-      return 'Configurar SMTP/IMAP e allowlist de destinatarios para aprovacoes por email.';
+      return 'Configure SMTP/IMAP and recipient allowlist for approvals by email.';
     }
-    return `Executar npm run channels:install -- --channel ${id} --apply e validar o doctor.`;
+    return `run npm run channels:install -- --channel ${id} --apply and validate the doctor.`;
   }
 
   private buildRuntimeAdapters(): ChannelAdapterContract[] {
@@ -349,8 +349,7 @@ export class GatewayChannelAdapterRegistryService {
         `Zavorth-native long-tail channel via ${entry.family} adapter.`,
         `Runtime target: ${entry.runtimeTarget}.`,
         'No external gateway or runtime adapter bridge is required for this channel surface.',
-        configured
-          ? 'Configured doctor passed locally; run staging-live proof with explicit confirmation before default routing.'
+        configured ? 'Configured doctor passed locally; run staging-live proof with explicit confirmation before default routing.'
           : `Missing config: ${missing.join(', ') || 'channel credentials/allowlist'}.`,
       ],
       features: {
@@ -405,8 +404,8 @@ export class GatewayChannelAdapterRegistryService {
     const shouldPromoteFromPlaceholder =
       current.readiness === 'planned'
       || current.implementationState === 'planned'
-      || current.implementationState === 'stub'
-      || current.transport === 'stub'
+      || current.implementationState === 'local'
+      || current.transport === 'local'
       || current.transport === 'planned';
     return {
       ...current,

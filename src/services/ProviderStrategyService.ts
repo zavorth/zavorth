@@ -156,17 +156,17 @@ export class ProviderStrategyService {
     selectionSource: ProviderStrategyDecision['selectionSource'];
   }): string[] {
     const rationale: string[] = [
-      `Provider configurado no workspace: ${input.configuredProviderName}.`,
+      `Provider configured no workspace: ${input.configuredProviderName}.`,
     ];
 
     if (input.profile) {
-      rationale.push(`Perfil sugerido para a tarefa: ${input.profile.label}.`);
+      rationale.push(`Perfil sugerido para a task: ${input.profile.label}.`);
     }
 
     if (input.learnedRecommendation?.preferred_provider) {
       const learnedModel = String(input.learnedRecommendation.preferred_model || '').trim();
       rationale.push(
-        `Memoria operacional recomenda ${input.learnedRecommendation.preferred_provider}${learnedModel ? `/${learnedModel}` : ''} para ${input.taskKind}${input.taskSubtype !== 'general' && input.taskSubtype !== 'unknown' ? `/${input.taskSubtype}` : ''}.`,
+        `Operational memory recomenda ${input.learnedRecommendation.preferred_provider}${learnedModel ? `/${learnedModel}` : ''} para ${input.taskKind}${input.taskSubtype !== 'general' && input.taskSubtype !== 'unknown' ? `/${input.taskSubtype}` : ''}.`,
       );
     }
 
@@ -175,7 +175,7 @@ export class ProviderStrategyService {
     );
     if (input.selectedModelProfile) {
       rationale.push(
-        `Selecao canonical: familia ${input.selectedModelProfile.familyId}, rota ${input.selectedModelProfile.routeId}, modelo ${input.selectedModelProfile.modelLabel}.`,
+        `Canonical selection: family ${input.selectedModelProfile.familyId}, route ${input.selectedModelProfile.routeId}, model ${input.selectedModelProfile.modelLabel}.`,
       );
     }
     if (input.modelSelectionExplanation.length > 0) {
@@ -187,7 +187,7 @@ export class ProviderStrategyService {
     if (input.strategy.allowFallback && input.strategy.fallbackOrder.length > 0) {
       rationale.push(`Fallback habilitado: ${input.strategy.fallbackOrder.join(', ')}.`);
     } else {
-      rationale.push('Fallback desabilitado para esta execucao.');
+      rationale.push('Fallback disabled for this execution.');
     }
 
     return rationale;

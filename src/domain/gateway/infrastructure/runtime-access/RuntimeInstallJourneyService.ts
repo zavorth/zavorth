@@ -165,24 +165,21 @@ export class RuntimeInstallJourneyService {
     return [
       {
         id: 'go',
-        title: 'Atalho oficial em um comando',
+        title: 'official shortcut in one command',
         status: manifest.local.ready ? 'ready' : 'action',
-        summary: manifest.local.ready
-          ? `O atalho oficial ja deixaria o shell web do runtime pronto em ${manifest.local.appUrl}.`
-          : 'Use um unico comando para instalar, confiar no host, abrir a melhor superficie e revisar o acesso.',
+        summary: manifest.local.ready ? `O shortcut oficial already deixaria o shell web do runtime ready em ${manifest.local.appUrl}.`
+          : 'Use a single command to install, trust the host, open the best surface, and review access.',
         command: manifest.local.ready ? null : manifest.commands.go,
         details: [
           `Shell web do runtime: ${manifest.local.appUrl}`,
-          manifest.remote.appUrl
-            ? `Shell web remoto: ${manifest.remote.appUrl}`
-            : 'Shell web remoto ainda depende de URL publica HTTPS.',
+          manifest.remote.appUrl ? `Shell web remote: ${manifest.remote.appUrl}`
+            : 'Shell web remote ainda depende de URL public HTTPS.',
         ],
       },
       {
         id: 'bootstrap',
-        title: dryRun ? 'Plano de bootstrap' : 'Bootstrap e correcoes seguras',
-        status: failedRepair
-          ? 'failed'
+        title: dryRun ? 'Bootstrap plan' : 'Bootstrap e correcoes seguras',
+        status: failedRepair ? 'failed'
           : (repair.final.actions.length === 0 ? 'ready' : (dryRun ? 'action' : 'ready')),
         summary: repair.summary,
         command: failedRepair || repair.final.actions.length > 0 ? 'npm run ops:bootstrap -- --repair' : null,
@@ -191,14 +188,11 @@ export class RuntimeInstallJourneyService {
       {
         id: 'startup',
         title: 'Subida do runtime',
-        status: manifest.local.ready
-          ? 'ready'
+        status: manifest.local.ready ? 'ready'
           : (dryRun ? 'action' : (startup?.ok ? 'ready' : 'failed')),
-        summary: manifest.local.ready
-          ? `Runtime local pronto em ${manifest.local.appUrl}.`
-          : (dryRun
-            ? 'Dry-run: use o comando oficial para subir o runtime supervisionado.'
-            : (startup?.summary || 'O runtime ainda nao ficou pronto.')),
+        summary: manifest.local.ready ? `local runtime ready at ${manifest.local.appUrl}.`
+          : (dryRun ? 'Dry-run: use the official command to start the supervised runtime.'
+            : (startup?.summary || 'The runtime is not ready yet.')),
         command: manifest.local.ready ? null : manifest.commands.start,
         details: localIssues.slice(0, 3),
       },
@@ -206,134 +200,127 @@ export class RuntimeInstallJourneyService {
         id: 'gateway-ui',
         title: 'Gateway e ZavorthControl',
         status: manifest.local.ready ? 'ready' : 'action',
-        summary: manifest.local.ready
-          ? 'Gateway local e ZavorthControl session-first prontos no /zavorthControl, com WebSocket como plano principal.'
-          : 'Suba o runtime para destravar o Gateway local, a ZavorthControl e o plano de controle em tempo real.',
+        summary: manifest.local.ready ? 'local Gateway and ZavorthControl session-first ready at /zavorthControl, with WebSocket as the main plane.'
+          : 'Start the runtime to unlock the local Gateway, ZavorthControl and the real-time control plane.',
         command: manifest.local.ready ? null : manifest.commands.go,
         details: [
-          `Gateway local: ${manifest.local.apiBaseUrl || `${manifest.local.baseUrl}/api/web`}`,
+          `local Gateway: ${manifest.local.apiBaseUrl || `${manifest.local.baseUrl}/api/web`}`,
           `ZavorthControl: ${manifest.local.appUrl}`,
-          'O Gateway centraliza sessao, approvals, capabilities, artifacts, diffs e selfmod.',
+          'The Gateway centralizes session, approvals, capabilities, artifacts, diffs and selfmod.',
         ],
       },
       {
         id: 'launcher',
-        title: 'Startup opcional do Windows',
+        title: 'Optional Windows Startup',
         status: this.platform !== 'win32'
           ? 'skipped'
           : (launcherInstalled ? 'ready' : 'skipped'),
         summary: this.platform !== 'win32'
-          ? 'Startup automatico hoje so e suportado pelo instalador oficial do Windows.'
-          : (launcherInstalled
-            ? 'O Startup automatico esta ativo neste host. Use o comando oficial de remocao para desligar isso quando quiser.'
-            : 'O Startup automatico segue desligado neste host. Esse e o comportamento recomendado para uso diario local.'),
+          ? 'Auto-start is currently only supported by the official Windows installer.'
+          : (launcherInstalled ? 'Auto-start is active on this host. Use the official removal command to disable it whenever you want.'
+            : 'Auto-start remains disabled on this host. This is the recommended behavior for daily local use.'),
         command: null,
         details: launcherShortcutPath
           ? launcherInstalled
-            ? [launcherShortcutPath, `Desligar: ${manifest.commands.startupLauncherRemove}`]
-            : [launcherShortcutPath, `Habilitar conscientemente: ${manifest.commands.startupLauncher}`]
+            ? [launcherShortcutPath, `Disable: ${manifest.commands.startupLauncherRemove}`]
+            : [launcherShortcutPath, `Enable consciously: ${manifest.commands.startupLauncher}`]
           : [],
       },
       {
         id: 'local-access',
-        title: 'Acesso local oficial',
+        title: 'Official local access',
         status: manifest.local.ready ? 'ready' : 'action',
-        summary: manifest.local.ready
-          ? `App local pronto em ${manifest.local.appUrl}.`
-          : (localIssues[0] || 'O acesso local ainda nao ficou pronto.'),
+        summary: manifest.local.ready ? `local app ready at ${manifest.local.appUrl}.`
+          : (localIssues[0] || 'local access is not ready yet.'),
         command: manifest.local.ready ? null : manifest.commands.access,
         details: [
-          `Shell web do runtime: ${manifest.local.appUrl}`,
-          `Painel legado: ${manifest.local.zavorthControlUrl}`,
+          `Runtime web shell: ${manifest.local.appUrl}`,
+          `Legacy panel: ${manifest.local.zavorthControlUrl}`,
           ...localIssues.slice(0, 2),
         ],
       },
       {
         id: 'product-mode',
-        title: 'Modo de produto',
+        title: 'Product mode',
         status: 'ready',
-        summary: `Modo atual: ${this.productMode.id}. ${this.productMode.summary}`,
+        summary: `Current mode: ${this.productMode.id}. ${this.productMode.summary}`,
         command: 'npm run mode:status',
         details: [
           `Label: ${this.productMode.label}.`,
-          `Perfil base recomendado para este modo: ${this.productMode.defaultRuntimeProfile}.`,
-          `Perfil ativo agora: ${this.productMode.runtimeProfile}.`,
-          `Trocar modo: npm run mode:use -- <chat|assistant|builder|operator>`,
-          'Os perfis core|ops|full continuam existindo por baixo, mas o onboarding novo conversa em linguagem de produto.',
+          `Recommended base profile for this mode: ${this.productMode.defaultRuntimeProfile}.`,
+          `Currently active profile: ${this.productMode.runtimeProfile}.`,
+          `Switch mode: npm run mode:use -- <chat|assistant|builder|operator>`,
+          'The core|ops|full profiles still exist underneath, but the new onboarding speaks in product language.',
         ],
       },
       {
         id: 'profiles-and-packs',
-        title: 'Perfis e packs opcionais',
+        title: 'Optional profiles and packs',
         status: 'ready',
-        summary: `Perfil atual: ${this.runtimeProfile}. O modo ${this.productMode.id} usa ${this.productMode.defaultRuntimeProfile} como baseline. Use core no dia a dia, ops para manutencao e full so quando quiser toda a stack avancada ligada.`,
+        summary: `Current profile: ${this.runtimeProfile}. The ${this.productMode.id} mode uses ${this.productMode.defaultRuntimeProfile} as baseline. Use core for daily use, ops for maintenance, and full only when you want the entire advanced stack enabled.`,
         command: 'npm run profile:status',
         details: [
-          'Perfis oficiais: core, ops e full.',
-          'Ver modo de produto: npm run mode:status',
-          'Recomendacao diaria: core.',
-          'Use ops para maintenance/daily report e full apenas por escolha explicita.',
-          'Ver perfis: npm run profile:status',
-          'Trocar conscientemente: npm run profile:use -- --profile=ops',
-          'Skills base e catalogo: npm run skills:registry',
-          'Browser stack opcional: npm run mcp:browser:doctor',
+          'Official profiles: core, ops and full.',
+          'View product mode: npm run mode:status',
+          'Daily recommendation: core.',
+          'Use ops for maintenance/daily report and full only by explicit choice.',
+          'View profiles: npm run profile:status',
+          'Switch consciously: npm run profile:use -- --profile=ops',
+          'Base skills and catalog: npm run skills:registry',
+          'Optional browser stack: npm run mcp:browser:doctor',
         ],
       },
       {
         id: 'companions-and-presets',
-        title: 'Companions e presets leves',
+        title: 'Companions and lightweight presets',
         status: 'ready',
-        summary: 'WSL, Docker Desktop e IDEs companheiras agora entram no onboarding oficial com doctor e preset leve supervisionado.',
+        summary: 'WSL, Docker Desktop and companion IDEs now enter the official onboarding with doctor and supervised lightweight preset.',
         command: 'npm run ops:doctor:desktop',
         details: [
-          'Doctor de recursos: npm run ops:doctor:desktop',
+          'Resource doctor: npm run ops:doctor:desktop',
           'Workspace doctor: npm run ops:workspace:doctor',
-          'Preset leve para ZavorthBridge/VS Code: npm run ops:workspace:optimize -- zavorthBridge',
-          'Inspecionar companions: npm run ops:companions',
+          'Lightweight preset for ZavorthBridge/VS Code: npm run ops:workspace:optimize -- zavorthBridge',
+          'Inspect companions: npm run ops:companions',
         ],
       },
       {
         id: 'channels',
-        title: 'Jornadas de canal',
+        title: 'Channel journeys',
         status: partialChannels.length > 0
           ? 'action'
           : channelExperience.recommendedJourney === 'web+telegram'
             ? 'ready'
             : 'action',
         summary: partialChannels.length > 0
-          ? `Jornada recomendada: ${channelExperience.recommendedJourney}. Ainda ha canais parciais: ${partialChannels.map((entry) => entry.label).join(', ')}.`
+          ? `Recommended journey: ${channelExperience.recommendedJourney}. There are still partial channels: ${partialChannels.map((entry) => entry.label).join(', ')}.`
           : channelExperience.recommendedJourney === 'web+telegram'
-            ? 'Jornada recomendada pronta: web+telegram. O /zavorthControl segue como centro e Telegram vira o primeiro canal externo.'
-            : 'Jornada recomendada agora: web-only. Quando quiser um canal externo, comece pelo Telegram.',
+            ? 'Recommended journey ready: web+telegram. /zavorthControl remains the center and Telegram becomes the first external channel.'
+            : 'Current recommended journey: web-only. When you want an external channel, start with Telegram.',
         command: partialChannels.length > 0 || channelExperience.recommendedJourney !== 'web+telegram'
           ? manifest.commands.channels
           : null,
         details: [
-          `Entrada principal do produto: ${manifest.local.appUrl}`,
-          `Jornada recomendada: ${channelExperience.recommendedJourney}.`,
-          telegramPlan
-            ? `Telegram: ${telegramPlan.readiness} em ${telegramPlan.currentMode || telegramPlan.recommendedMode}.`
-            : 'Telegram ainda nao foi preparado neste host.',
-          'Telegram e o primeiro canal externo recomendado para retomar, aprovar e disparar workflows.',
+          `Main product entry: ${manifest.local.appUrl}`,
+          `Recommended journey: ${channelExperience.recommendedJourney}.`,
+          telegramPlan ? `Telegram: ${telegramPlan.readiness} em ${telegramPlan.currentMode || telegramPlan.recommendedMode}.`
+            : 'Telegram has not been set up on this host yet.',
+          'Telegram is the first recommended external channel to resume, approve and trigger workflows.',
           this.productMode.id === 'chat' || this.productMode.id === 'assistant'
-            ? 'Discord, Slack e WhatsApp ficam escondidos por padrao nos modos basicos.'
-            : 'Discord, Slack e WhatsApp seguem opcionais e entram so quando a tarefa realmente pedir.',
+            ? 'Discord, Slack and WhatsApp are hidden by default in basic modes.'
+            : 'Discord, Slack and WhatsApp remain optional and only enter when the task actually requires it.',
         ],
       },
       {
         id: 'remote-access',
-        title: 'Acesso remoto oficial',
+        title: 'Official remote access',
         status: manifest.remote.ready ? 'ready' : 'action',
-        summary: manifest.remote.ready
-          ? `Shell web remoto pronto em ${manifest.remote.appUrl || manifest.remote.baseUrl || 'URL publica atual'}.`
-          : (officialRemote?.summary || remoteIssues[0] || 'O acesso remoto ainda nao ficou pronto.'),
+        summary: manifest.remote.ready ? `Remote web shell ready at ${manifest.remote.appUrl || manifest.remote.baseUrl || 'current public URL'}.`
+          : (officialRemote?.summary || remoteIssues[0] || 'Remote access is not ready yet.'),
         command: manifest.remote.ready ? null : officialRemoteCommand,
         details: [
-          officialRemote?.appUrl
-            ? `Shell web remoto: ${officialRemote.appUrl}`
-            : (manifest.remote.appUrl
-              ? `Shell web remoto previsto: ${manifest.remote.appUrl}`
-              : 'Defina uma URL publica HTTPS para o runtime.'),
+          officialRemote?.appUrl ? `Remote web shell: ${officialRemote.appUrl}`
+            : (manifest.remote.appUrl ? `Expected remote web shell: ${manifest.remote.appUrl}`
+              : 'Set an HTTPS public URL for the runtime.'),
           ...officialRemoteNextSteps.slice(0, 2),
           ...officialRemoteIssues.slice(0, 2),
           ...remoteIssues.slice(0, 1),
@@ -374,7 +361,7 @@ export class RuntimeInstallJourneyService {
     if (blockingAction) {
       return {
         id: 'next-step',
-        title: 'Proximo passo',
+        title: 'next passo',
         status: 'action',
         summary: `${blockingAction.title}: ${blockingAction.reason}`,
         command: blockingAction.command,
@@ -385,18 +372,17 @@ export class RuntimeInstallJourneyService {
     if (manifest.local.ready && !manifest.remote.ready) {
       return {
         id: 'next-step',
-        title: 'Fechar acesso remoto oficial',
+        title: 'Fechar access remote oficial',
         status: 'action',
         summary:
           manifest.officialRemote?.summary
           || recommendedPlan?.remoteRecommendation.summary
           || remoteIssues[0]
-          || 'Feche o acesso remoto oficial para liberar o shell remoto fora da maquina local.',
+          || 'Feche o access remote oficial para enable o shell remote outside da machine local.',
         command: officialRemoteCommand,
         details: [
-          manifest.remote.appUrl
-            ? `Shell web remoto previsto: ${manifest.remote.appUrl}`
-            : 'Ainda falta uma URL publica HTTPS para o runtime.',
+          manifest.remote.appUrl ? `Shell web remote previsto: ${manifest.remote.appUrl}`
+            : 'Still missing a public HTTPS URL for the runtime.',
           ...(recommendedPlan?.remoteRecommendation.nextSteps || officialRemoteNextSteps).slice(0, 2),
           ...officialRemoteIssues.slice(0, 2),
           ...remoteIssues.slice(0, 1),
@@ -426,9 +412,9 @@ export class RuntimeInstallJourneyService {
 
     return {
       id: 'next-step',
-      title: 'Proximo passo',
+      title: 'next passo',
       status: manifest.local.ready ? 'ready' : 'action',
-      summary: manifest.summary || 'Continue o caminho oficial do Zavorth.',
+      summary: manifest.summary || 'Continue o path oficial do Zavorth.',
       command: manifest.local.ready ? null : manifest.commands.go,
       details: manifest.nextSteps.slice(0, 3).map((entry) => `${entry.title}: ${entry.description}`),
     };
@@ -445,11 +431,9 @@ export class RuntimeInstallJourneyService {
   ): string[] {
     if (recommendedPlan.primaryAction === 'remote') {
       return [
-        recommendedPlan.openTarget
-          ? `Shell web remoto: ${recommendedPlan.openTarget}`
-          : (manifest.remote.appUrl
-            ? `Shell web remoto previsto: ${manifest.remote.appUrl}`
-            : 'Ainda falta uma URL publica HTTPS para o runtime.'),
+        recommendedPlan.openTarget ? `Shell web remote: ${recommendedPlan.openTarget}`
+          : (manifest.remote.appUrl ? `Shell web remote previsto: ${manifest.remote.appUrl}`
+            : 'Still missing a public HTTPS URL for the runtime.'),
         ...(recommendedPlan.remoteRecommendation.nextSteps || officialRemoteNextSteps).slice(0, 2),
         ...officialRemoteIssues.slice(0, 2),
         ...remoteIssues.slice(0, 1),
@@ -459,26 +443,25 @@ export class RuntimeInstallJourneyService {
     if (recommendedPlan.primaryAction === 'trust') {
       return [
         `Shell web do runtime: ${manifest.local.appUrl}`,
-        'Depois disso, o host atual volta a poder executar escrita local e entregas persistidas.',
+        'after disso, o host current volta a poder run write local e entregas persistidas.',
         ...localIssues.slice(0, 1),
       ];
     }
 
     if (recommendedPlan.primaryAction === 'go') {
       return [
-        `Comando oficial: ${recommendedPlan.primaryCommand || manifest.commands.go}`,
+        `Official command: ${recommendedPlan.primaryCommand || manifest.commands.go}`,
         `Shell web do runtime: ${manifest.local.appUrl}`,
-        recommendedPlan.remoteRecommendation.appUrl
-          ? `Shell web remoto: ${recommendedPlan.remoteRecommendation.appUrl}`
-          : 'O shell web remoto ainda sera validado pelo mesmo fluxo.',
+        recommendedPlan.remoteRecommendation.appUrl ? `Shell web remote: ${recommendedPlan.remoteRecommendation.appUrl}`
+          : 'The remote web shell will still be validated by the same flow.',
       ];
     }
 
     if (recommendedPlan.primaryAction === 'open-local') {
       return [
         `Shell web do runtime: ${recommendedPlan.openTarget || manifest.local.appUrl}`,
-        `Shell remoto: ${recommendedPlan.remoteRecommendation.ready ? 'pronto' : 'pendente'}${recommendedPlan.remoteRecommendation.appUrl ? ` em ${recommendedPlan.remoteRecommendation.appUrl}` : ''}.`,
-        `Se quiser revisar o rollout remoto, use ${officialRemoteCommand}.`,
+        `Shell remote: ${recommendedPlan.remoteRecommendation.ready ? 'ready' : 'pending'}${recommendedPlan.remoteRecommendation.appUrl ? ` em ${recommendedPlan.remoteRecommendation.appUrl}` : ''}.`,
+        `To review the remote rollout, use ${officialRemoteCommand}.`,
       ];
     }
 
@@ -489,18 +472,18 @@ export class RuntimeInstallJourneyService {
     action: NonNullable<RuntimeAccessManifest['recommendedPlan']>['primaryAction'],
   ): string {
     if (action === 'go') {
-      return 'Seguir caminho oficial';
+      return 'Seguir path oficial';
     }
     if (action === 'trust') {
-      return 'Liberar este host';
+      return 'enable este host';
     }
     if (action === 'remote') {
-      return 'Fechar acesso remoto oficial';
+      return 'Fechar access remote oficial';
     }
     if (action === 'open-local') {
       return 'Abrir shell web do runtime';
     }
-    return 'Proximo passo';
+    return 'next passo';
   }
 
   private buildSummary(
@@ -556,4 +539,3 @@ export class RuntimeInstallJourneyService {
     return this.manifestService || new RuntimeAccessManifestService();
   }
 }
-

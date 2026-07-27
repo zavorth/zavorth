@@ -262,7 +262,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
         gate: 'capability-autopilot-release-execution',
         title: 'Capability Autopilot v1.1 Release Execution Gate',
         reason:
-          'Depois do rollout plan, o proximo passo e executar a release manualmente com tag/publish gated, canary inicial, rollback e observabilidade.',
+          'after do rollout plan, o next passo e run a release manualmente com tag/publish gated, canary inicial, rollback e observabilidade.',
       },
       metadata: {
         gate: 'capability-autopilot-release-rollout-plan',
@@ -299,7 +299,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -435,7 +435,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
         'capability-autopilot-release-rollout:source-ready',
         'release candidate source ready',
         source.status === 'release_candidate_ready' && source.recommendation === 'promote_to_release_candidate' && source.summary.ok ? 'pass' : 'fail',
-        'Rollout plan so pode partir de release candidate pronto.',
+        'Rollout plan can only start from a ready release candidate.',
         [
           `sourceStatus=${source.status}`,
           `sourceRecommendation=${source.recommendation}`,
@@ -448,10 +448,9 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
         options.rolloutPlanApproved &&
           options.stagedCohortsDefined &&
           this.isLimitedCanary(options) &&
-          options.expansionStepCount >= options.minExpansionStepCount
-          ? 'pass'
+          options.expansionStepCount >= options.minExpansionStepCount ? 'pass'
           : 'fail',
-        'Rollout v1.1 exige plano aprovado, cohorts staged, canary limitado e steps graduais.',
+        'Rollout v1.1 requires an approved plan, staged cohorts, limited canary, and gradual steps.',
         [
           `rolloutPlanApproved=${options.rolloutPlanApproved}`,
           `stagedCohortsDefined=${options.stagedCohortsDefined}`,
@@ -463,14 +462,13 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
       ),
       this.check(
         'capability-autopilot-release-rollout:release-assets',
-        'assets de release prontos',
+        'assets de release ready',
         options.changelogReady &&
           options.releaseBundleReady &&
           options.installerSmokePassed &&
-          options.docsPublicationReady
-          ? 'pass'
+          options.docsPublicationReady ? 'pass'
           : 'fail',
-        'Plano de rollout exige changelog, bundle, smoke de installer e docs prontos.',
+        'Rollout plan requires changelog, bundle, installer smoke, and docs ready.',
         [
           `changelogReady=${options.changelogReady}`,
           `releaseBundleReady=${options.releaseBundleReady}`,
@@ -480,7 +478,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
       ),
       this.check(
         'capability-autopilot-release-rollout:operations',
-        'operacao de release pronta',
+        'release operation ready',
         options.rollbackWindowHours >= options.minRollbackWindowHours &&
           options.rollbackRunbookReady &&
           options.supportCommsReady &&
@@ -488,10 +486,9 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
           options.telemetryZavorthControlsReady &&
           options.releaseOwnerAssigned &&
           options.releaseTrainSlotReserved &&
-          options.artifactRetentionReady
-          ? 'pass'
+          options.artifactRetentionReady ? 'pass'
           : 'fail',
-        'Plano de rollout exige janela de rollback, runbook, comms, status page, zavorthControls, owner, train slot e retencao.',
+        'Rollout plan requires rollback window, runbook, comms, status page, zavorthControls, owner, train slot, and retention.',
         [
           `rollbackWindowHours=${options.rollbackWindowHours}`,
           `minRollbackWindowHours=${options.minRollbackWindowHours}`,
@@ -511,10 +508,9 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
           options.rcFlagDefaultOff &&
           !options.publishTagEnabled &&
           !options.globalRolloutEnabled &&
-          !options.autoRolloutEnabled
-          ? 'pass'
+          !options.autoRolloutEnabled ? 'pass'
           : 'fail',
-        'Este gate prepara o rollout, mas nao publica tag, nao libera global e nao executa auto-rollout.',
+        'This gate prepares rollout, but does not publish a tag, release globally, or execute auto-rollout.',
         [
           `manualPromotionRequired=${options.manualPromotionRequired}`,
           `rcFlagDefaultOff=${options.rcFlagDefaultOff}`,
@@ -525,16 +521,16 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
       ),
       this.check(
         'capability-autopilot-release-rollout:no-blockers',
-        'sem blockers de rollout plan',
+        'without blockers de rollout plan',
         blockers.length === 0 ? 'pass' : 'fail',
-        'Nao pode haver blocker agregado para preparar rollout v1.1.',
+        'There can be no aggregate blocker to prepare rollout v1.1.',
         blockers.length > 0 ? blockers : ['blockers=0'],
       ),
       this.check(
         'capability-autopilot-release-rollout:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Snapshot publico de rollout nao pode reintroduzir intent cru.',
+        'Public rollout snapshot cannot reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],

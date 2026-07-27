@@ -83,8 +83,7 @@ export class ZavorthProviderCapabilityCatalogService {
       .reduce((count, catalog) => count + catalog.models.length, 0);
     const modalities = buildModalitySummary();
     const status: ZavorthProviderCapabilityCatalogStatus = registeredCapabilityRoutes >= ZAVORTH_PROVIDER_CAPABILITY_MANIFESTS.length
-      && catalogModelCount >= ZAVORTH_PROVIDER_CAPABILITY_COUNTS.staticCatalogModelCount
-      ? 'ready'
+      && catalogModelCount >= ZAVORTH_PROVIDER_CAPABILITY_COUNTS.staticCatalogModelCount ? 'ready'
       : 'attention';
 
     return {

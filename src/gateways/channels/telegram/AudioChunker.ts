@@ -41,7 +41,7 @@ export class AudioChunker {
       throw new CapabilityUnavailableError({
         capabilityId: 'media',
         dependencyName: 'ffmpeg-static',
-        reason: 'ffmpeg-static nao esta disponivel para preparar chunks de audio.',
+        reason: 'ffmpeg-static is not available to prepare audio chunks.',
       });
     }
 
@@ -104,7 +104,7 @@ export class AudioChunker {
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
         }
-      } catch (error: unknown) {logger.warn(`[AudioChunker] Failed to remove temporario: ${error}`);
+      } catch (error: unknown) {      logger.warn(`[AudioChunker] Failed to remove temporary file: ${error}`);
       }
     }
   }
@@ -121,7 +121,7 @@ export class AudioChunker {
         reject(new CapabilityUnavailableError({
           capabilityId: 'media',
           dependencyName: 'ffmpeg-static',
-          reason: 'ffmpeg-static nao esta disponivel para executar o pipeline multimidia.',
+          reason: 'ffmpeg-static is not available to execute the multimedia pipeline.',
         }));
         return;
       }
@@ -144,7 +144,7 @@ export class AudioChunker {
           return;
         }
 
-        reject(new Error(`ffmpeg saiu com codigo ${code}: ${stderr.trim()}`));
+        reject(new Error(`ffmpeg exited with code ${code}: ${stderr.trim()}`));
       });
     });
   }

@@ -48,26 +48,26 @@ export class PermissionNarrativeService {
 
   private blocked(trustPosture: TrustPostureSnapshot): PermissionNarrative {
     return {
-      summary: 'Nao vou executar isso neste modo.',
-      whatWillHappen: 'A execucao fica parada ate o modo ou escopo ser ajustado.',
-      where: 'Nenhum recurso sera alterado.',
-      permission: 'Permissao nao foi solicitada porque a postura atual bloqueia a acao.',
+      summary: 'I will not execute this in this mode.',
+      whatWillHappen: 'Execution stays paused until mode or scope is adjusted.',
+      where: 'No resource will be changed.',
+      permission: 'Permission was not requested because the current posture blocks the action.',
       risk: trustPosture.blockReason || trustPosture.reason,
-      review: 'Revise o pedido, reduza o escopo ou use um modo de maior confianca quando fizer sentido.',
-      validity: 'Sem autorizacao ativa.',
+      review: 'Review the request, reduce scope, or use a higher-trust mode when appropriate.',
+      validity: 'No active authorization.',
       technicalDetails: [trustPosture.reason],
     };
   }
 
   private clarification(clarification: NaturalClarificationPolicy): PermissionNarrative {
     return {
-      summary: 'Preciso confirmar o alvo antes de agir.',
-      whatWillHappen: clarification.question || 'Vou fazer uma pergunta de esclarecimento.',
-      where: 'Ainda nao ha alvo confirmado.',
-      permission: 'Nenhuma permissao sera consumida antes da resposta.',
-      risk: clarification.reason || 'Evita assumir um alvo errado.',
-      review: 'Responda com o arquivo, pasta, recurso ou comando exato.',
-      validity: 'There is no autorizacao ativa.',
+      summary: 'I need to confirm the target before acting.',
+      whatWillHappen: clarification.question || 'I will ask a clarification question.',
+      where: 'There is no confirmed target yet.',
+      permission: 'No permission will be consumed before the response.',
+      risk: clarification.reason || 'Avoids assuming the wrong target.',
+      review: 'Reply with the exact file, folder, resource, or command.',
+      validity: 'There is no active authorization.',
       technicalDetails: clarification.missing.map((item) => `missing:${item}`),
     };
   }
@@ -78,16 +78,16 @@ export class PermissionNarrativeService {
   ): PermissionNarrative {
     return {
       summary: classification.intent === 'conversation'
-        ? 'Posso responder diretamente.'
-        : 'Posso seguir pelo runtime governado sem permissao extra.',
+        ? 'I can answer directly.'
+        : 'I can proceed through the governed runtime without extra permission.',
       whatWillHappen: classification.intent === 'conversation'
-        ? 'Vou responder em texto.'
-        : 'Vou executar somente leitura ou consulta governada.',
-      where: 'Sem mudanca persistente no workspace.',
-      permission: 'Nenhuma permissao adicional e necessaria.',
-      risk: 'Risco baixo.',
-      review: 'Voce pode pedir detalhes ou interromper antes de qualquer mutacao.',
-      validity: 'Vale apenas para esta resposta.',
+        ? 'I will answer in text.'
+        : 'I will execute only read-only or governed lookup work.',
+      where: 'No persistent workspace change.',
+      permission: 'No additional permission is required.',
+      risk: 'Low risk.',
+      review: 'You can ask for details or stop before any mutation.',
+      validity: 'Only valid for this response.',
       technicalDetails: userProfile.shouldExposeTechnicalDetails
         ? [`intent:${classification.intent}`, `risk:${classification.risk}`]
         : [],
@@ -96,59 +96,59 @@ export class PermissionNarrativeService {
 
   private summaryFor(classification: UniversalIntentSafetyClassification): string {
     if (classification.intent === 'command_execution') {
-      return 'Isso precisa de permissao para rodar comando.';
+      return 'This needs permission to run a command.';
     }
     if (classification.intent === 'external_side_effect') {
-      return 'Isso precisa de permissao antes de enviar ou publicar.';
+      return 'This needs permission before sending or publishing.';
     }
     if (classification.intent === 'automation') {
-      return 'Isso precisa de permissao antes de ativar automacao.';
+      return 'This needs permission before activating automation.';
     }
     if (classification.intent === 'operator_control') {
-      return 'Isso precisa de permissao de operador.';
+      return 'This needs operator permission.';
     }
-    return 'Isso precisa de permissao antes de alterar o workspace.';
+    return 'This needs permission before changing the workspace.';
   }
 
   private whatWillHappen(classification: UniversalIntentSafetyClassification): string {
     if (classification.intent === 'command_execution') {
-      return 'Vou preparar o comando e mostrar o preview antes de executar.';
+      return 'I will prepare the command and show the preview before execution.';
     }
     if (classification.intent === 'external_side_effect') {
-      return 'Vou preparar o conteudo e pedir confirmacao antes de sair do workspace.';
+      return 'I will prepare the content and ask for confirmation before it leaves the workspace.';
     }
     if (classification.intent === 'automation') {
-      return 'Vou preparar o plano e pedir confirmacao antes de ativar.';
+      return 'I will prepare the plan and ask for confirmation before activation.';
     }
     if (classification.intent === 'operator_control') {
-      return 'Vou pausar para autorizacao de operador antes de qualquer acao ampla.';
+      return 'I will pause for operator authorization before any broad action.';
     }
-    return 'Vou preparar um preview das mudancas antes de aplicar.';
+    return 'I will prepare a preview of changes before applying.';
   }
 
   private riskText(classification: UniversalIntentSafetyClassification): string {
     if (classification.sideEffect === 'destructive') {
-      return 'Alto: pode apagar, substituir ou tornar dificil desfazer.';
+      return 'High: may delete, replace, or make rollback difficult.';
     }
     if (classification.sideEffect === 'external') {
-      return 'Alto: pode expor informacao fora do workspace.';
+      return 'High: may expose information outside the workspace.';
     }
     if (classification.sideEffect === 'system') {
-      return 'Alto: pode executar comando ou acao de sistema.';
+      return 'High: may run a command or system action.';
     }
     if (classification.sideEffect === 'local_workspace') {
-      return 'Medio: pode alterar arquivos ou estado local.';
+      return 'Medium: may change files or local state.';
     }
-    return 'Baixo.';
+    return 'Low.';
   }
 
   private reviewText(classification: UniversalIntentSafetyClassification): string {
     if (classification.sideEffect === 'external') {
-      return 'Revise destino, conteudo e anexos antes de aprovar.';
+      return 'Review destination, content, and attachments before approving.';
     }
     if (classification.sideEffect === 'destructive') {
-      return 'Revise backup, diff e plano de reversao antes de aprovar.';
+      return 'Review backup, diff, and rollback plan before approving.';
     }
-    return 'Revise o preview/diff antes de aprovar.';
+    return 'Review the preview/diff before approving.';
   }
 }

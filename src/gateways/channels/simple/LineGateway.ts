@@ -22,9 +22,8 @@ export class LineGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/line',
       doctorCommand: '/channels doctor line',
-      operatorNextStep: this.resolveConfigured()
-        ? 'LINE configurado. Webhook pronto para receber eventos.'
-        : 'Defina LINE_CHANNEL_ACCESS_TOKEN para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'LINE configured. Webhook ready to receive events.'
+        : 'set LINE_CHANNEL_ACCESS_TOKEN para ativar.',
     };
   }
 

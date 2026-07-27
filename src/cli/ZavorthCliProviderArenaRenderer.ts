@@ -150,19 +150,19 @@ export function formatProviderArenaSnapshot(
     `- run: ${snapshot.identifiers.runId}`,
     `- decision: ${snapshot.summary.decisionSource}`,
     `- recomendado: ${snapshot.summary.recommendedProviderLabel}/${snapshot.summary.recommendedModelLabel}`,
-    `- candidatos: ${snapshot.summary.candidateCount}`,
+      `- candidates: ${snapshot.summary.candidateCount}`,
     `- ready: ${snapshot.summary.readyCandidateCount}`,
     `- fallback usado: ${String(snapshot.summary.fallbackUsed)}`,
     `- receipts observatory: ${snapshot.summary.observatoryReceiptCount}`,
     `- next step: ${snapshot.nextSafeAction}`,
   ];
 
-  lines.push('', 'Candidatos');
+    lines.push('', 'Candidates');
   for (const candidate of snapshot.candidates.slice(0, 8)) {
     lines.push(
       `- ${candidate.providerLabel}/${candidate.modelLabel} [${candidate.source}] score=${candidate.overallScore}`,
       `  rota: ${candidate.routeId}; readiness=${candidate.readiness}; health=${candidate.healthStatus}`,
-      `  confiabilidade=${candidate.reliabilityScore}; custo=${candidate.costScore}; latencia=${candidate.latencyScore}`,
+      `  reliability=${candidate.reliabilityScore}; cost=${candidate.costScore}; latency=${candidate.latencyScore}`,
     );
   }
 

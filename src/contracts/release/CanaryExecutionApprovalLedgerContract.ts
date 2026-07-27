@@ -1,7 +1,7 @@
 import type { ReleaseCertificationGateStatus } from './ReleaseCertificationContract.js';
 import type { CanaryPlanDryRunHoldSnapshot } from './CanaryPlanDryRunHoldContract.js';
 
-export const ZAVORTH_CANARY_EXECUTION_APPROVAL_LEDGER_CONTRACT_VERSION = '2026-05-04.checkpoint-20';
+export const ZAVORTH_CANARY_EXECUTION_APPROVAL_LEDGER_CONTRACT_VERSION = '2026-05-04.gate-20';
 
 export type CanaryExecutionApprovalLedgerStatus = 'ledger-ready' | 'attention' | 'blocked';
 
@@ -199,7 +199,7 @@ export type CanaryExecutionApprovalLedgerSnapshot = {
     launchHold: string;
     focusedTests: string[];
     typecheck: string;
-    nextStage: 'Canary launch rehearsal';
+    nextAction: 'Canary launch rehearsal';
   };
   policy: {
     approvalLedgerOnly: true;

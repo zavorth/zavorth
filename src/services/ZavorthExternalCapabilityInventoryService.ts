@@ -477,7 +477,7 @@ export class ZavorthExternalCapabilityInventoryService {
         noImplementationBeyondReadOnlyInventory: true,
         sourceNamesAllowedOnlyInDiagnostics: true,
         importedCapabilitiesAdvisoryOnly: true,
-        nextStageRequiresContractLayer: true,
+        nextActionRequiresContractLayer: true,
       },
       safety: {
         executionPerformed: false,
@@ -492,7 +492,7 @@ export class ZavorthExternalCapabilityInventoryService {
         inspect: 'npm run zavorth:external-capability-inventory',
         inspectJson: 'npm run zavorth:external-capability-inventory:json',
         check: 'npm run zavorth:external-capability-inventory:check --silent',
-        nextStage: '291 Intent model - Zavorth Contract Layer',
+        nextAction: 'Intent model - Zavorth Contract Layer',
       },
     };
   }
@@ -519,7 +519,7 @@ export class ZavorthExternalCapabilityInventoryService {
       lines.push(`  gate: ${entry.acceptanceGate}`);
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextStage}`);
+    lines.push('', `Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 

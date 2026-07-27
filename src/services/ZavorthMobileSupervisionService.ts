@@ -44,13 +44,13 @@ export type ZavorthMobileSupervisionSnapshot = {
 };
 
 const SECRET_PATTERNS = [
-  /api[-_]?key/i,
+  /api[-_]...key/i,
   /secret/i,
   /password/i,
   /token/i,
   /authorization/i,
   /credential/i,
-  /private[-_]?key/i,
+  /private[-_]...key/i,
 ];
 
 function redactSensitiveFields(

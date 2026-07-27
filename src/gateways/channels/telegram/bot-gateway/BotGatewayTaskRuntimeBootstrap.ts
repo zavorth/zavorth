@@ -133,11 +133,11 @@ export function buildTaskNaturalConversationIngress(
     const legacyUnifiedGateway = gateway.legacyUnifiedGateway || null;
 
     if (!normalizedText) {
-      gateway.logRepo.log('warn', 'BotGateway', 'Ingresso natural unificado ignorado por payload vazio.', {
+      gateway.logRepo.log('warn', 'BotGateway', 'Unified natural ingress ignored due to empty payload.', {
         taskId: task.task_id,
         source: task.source || 'telegram',
       });
-      await ctx.reply('Nao consegui encaminhar essa mensagem pela conversa unificada porque ela veio vazia.');
+      await ctx.reply('Could not forward this message through the unified conversation because it was empty.');
       return;
     }
 
@@ -145,13 +145,13 @@ export function buildTaskNaturalConversationIngress(
       gateway.logRepo.log(
         'error',
         'BotGateway',
-        'LegacyUnifiedGatewayAdapter indisponivel durante o ingresso natural de task.',
+        'LegacyUnifiedGatewayAdapter unavailable during natural task ingress.',
         {
           taskId: task.task_id,
           source: task.source || 'telegram',
         },
       );
-      await ctx.reply('A conversa unificada do Zavorth nao esta disponivel agora. Tente novamente em instantes.');
+      await ctx.reply('The Zavorth unified conversation is not available right now. Please try again in a few moments.');
       return;
     }
 

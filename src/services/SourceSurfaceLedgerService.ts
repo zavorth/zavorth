@@ -240,7 +240,7 @@ export class SourceSurfaceLedgerService {
         inspectJson: 'npm run source-surface-ledger:json --silent',
         check: 'npm run source-surface-ledger:check --silent',
         qa: 'npm run qa:source-surface-ledger --silent',
-        nextStage: 'Intent model - Plugin OS And Package SDK Absorption',
+        nextAction: 'Intent model - Plugin OS And Package SDK Absorption',
       },
     };
   }
@@ -285,7 +285,7 @@ export class SourceSurfaceLedgerService {
       }
     }
 
-    lines.push(`Next: ${receipt.commands.nextStage}`);
+    lines.push(`Next: ${receipt.commands.nextAction}`);
     return lines.join('\n');
   }
 }

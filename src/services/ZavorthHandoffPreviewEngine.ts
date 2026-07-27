@@ -88,7 +88,7 @@ export class ZavorthHandoffPreviewEngine {
       }
     }
     if (!architectureDecisions || architectureDecisions.length === 0) {
-      architectureDecisions = ['Nenhuma decisao de arquitetura duravel catalogada nesta sessao.'];
+      architectureDecisions = ['No durable architecture decision cataloged in this session.'];
     }
 
     // 3. Modified Paths
@@ -103,14 +103,14 @@ export class ZavorthHandoffPreviewEngine {
       modifiedPaths = Array.from(touchedFiles);
     }
     if (modifiedPaths.length === 0) {
-      modifiedPaths = ['Nenhum arquivo modificado ou tocado nesta sessao ativa.'];
+      modifiedPaths = ['No file modificado ou tocado nesta session ativa.'];
     }
 
     // 4. Tool Failure Log
     const failedTools = events
       .filter((e) => e.type === 'tool' && e.payload.status === 'failed')
       .map((e) => `Tool: ${e.payload.toolName} (Run ID: ${e.payload.runId})`);
-    
+
     // 5. Security Approvals Granted
     let securityApprovals = input.securityApprovals || null;
     if (!securityApprovals) {
@@ -119,7 +119,7 @@ export class ZavorthHandoffPreviewEngine {
         .map((e) => `Scope: ${e.payload.scope || e.payload.kind} (Permission ID: ${e.payload.permissionId})`);
     }
     if (securityApprovals.length === 0) {
-      securityApprovals = ['Nenhuma permissao de seguranca elevada foi aprovada ou concedida nesta sessao.'];
+      securityApprovals = ['No elevated security permission was approved or granted in this session.'];
     }
 
     // 6. Verbatim User Directives
@@ -148,13 +148,13 @@ export class ZavorthHandoffPreviewEngine {
       }
     }
     if (!remainingTodos || remainingTodos.length === 0) {
-      remainingTodos = ['Todas as tarefas da sessao ativa foram concluidas com sucesso.'];
+      remainingTodos = ['All tasks in the active session were completed successfully.'];
     }
 
-    // 8. Simulated State Preview
-    let simulatedStatePreview = input.simulatedStatePreview || null;
-    if (!simulatedStatePreview) {
-      simulatedStatePreview = [
+    // 8. Dry-Run State Preview
+    let dryRunStatePreview = input.dryRunStatePreview || null;
+    if (!dryRunStatePreview) {
+      dryRunStatePreview = [
         `Captured Events: ${events.length}`,
         `Unique Files Touched: ${events.filter((e) => e.type === 'tool').length}`,
         `Security Permits Handled: ${events.filter((e) => e.type === 'permission').length}`,
@@ -167,9 +167,9 @@ export class ZavorthHandoffPreviewEngine {
     if (!nextPrescribedAction) {
       const pendingTask = events.find((e) => e.type === 'task' && e.payload.status === 'pending');
       if (pendingTask) {
-        nextPrescribedAction = `Retomar tarefa pendente: ${pendingTask.payload.taskId}`;
+        nextPrescribedAction = `resume task pending: ${pendingTask.payload.taskId}`;
       } else {
-        nextPrescribedAction = 'Sessao alinhada e finalizada. Pronto para o proximo briefing.';
+        nextPrescribedAction = 'Session aligned and finished. Ready for the next briefing.';
       }
     }
 
@@ -179,11 +179,11 @@ export class ZavorthHandoffPreviewEngine {
       if (id === 'active-mandate') items = [activeMandate!];
       else if (id === 'current-architecture-decisions') items = architectureDecisions!;
       else if (id === 'modified-paths') items = modifiedPaths!;
-      else if (id === 'tool-failure-log') items = failedTools.length > 0 ? failedTools : ['Nenhuma falha de ferramenta registrada nesta sessao ativa.'];
+      else if (id === 'tool-failure-log') items = failedTools.length > 0 ? failedTools : ['No tool failure recorded in this active session.'];
       else if (id === 'security-approvals-granted') items = securityApprovals!;
-      else if (id === 'verbatim-user-directives') items = verbatimUserDirectives.length > 0 ? verbatimUserDirectives : ['Nenhuma diretiva explicita capturada do operador.'];
+      else if (id === 'verbatim-user-directives') items = verbatimUserDirectives.length > 0 ? verbatimUserDirectives : ['No explicit operator directive captured.'];
       else if (id === 'remaining-todo-checklist') items = remainingTodos!;
-      else if (id === 'simulated-state-preview') items = simulatedStatePreview!;
+      else if (id === 'dry-run-state-preview') items = dryRunStatePreview!;
       else if (id === 'next-prescribed-action') items = [nextPrescribedAction!];
 
       return {
@@ -219,7 +219,7 @@ export class ZavorthHandoffPreviewEngine {
     const root = path.resolve(workspaceRoot || config.projectRoot);
     const filePath = path.join(root, '.zavorth', 'memory', 'handoff-envelope.md');
     this.fsRuntime.mkdirSync(path.dirname(filePath), { recursive: true });
-    
+
     // Always double-ensure redaction before writing to disk
     const cleanMarkdown = redactSecrets(snapshot.markdown);
     this.fsRuntime.writeFileSync(filePath, cleanMarkdown, 'utf8');
@@ -237,7 +237,7 @@ export class ZavorthHandoffPreviewEngine {
       '',
       `> [!NOTE]`,
       `> **Session ID**: \`${sessionId || 'N/A'}\` | **Generated At**: \`${generatedAt}\` | **Operator**: \`${operator}\``,
-      `> Esse envelope de handoff contem a consolidacao governada do ciclo de vida da sessao para portabilidade entre modelos de IA.`,
+      `> Esse envelope de handoff contains a consolidaction governada do ciclo de vida da session para portabilidade entre modelos de IA.`,
       '',
     ];
 
@@ -255,7 +255,7 @@ export class ZavorthHandoffPreviewEngine {
     }
 
     lines.push('---');
-    lines.push('*Mnemos Memory OS · Native & Governed Local Continuity*');
+    lines.push('*Mnemos Memory OS · Native & Governed local Continuity*');
 
     return lines.join('\n');
   }
@@ -263,7 +263,7 @@ export class ZavorthHandoffPreviewEngine {
 
 function redactSecrets(value: string): string {
   return String(value || '')
-    .replace(/\b(token|api[_ -]?key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi, '$1=[redacted-secret]')
+    .replace(/\b(token|api[_ -]...key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi, '$1=[redacted-secret]')
     .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g, '[redacted-secret]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{8,}\b/g, '[redacted-secret]')
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g, '[redacted-secret]')

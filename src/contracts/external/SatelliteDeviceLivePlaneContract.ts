@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from '../LiveReadinessContract.js';
 
-export const ZAVORTH_SATELLITE_DEVICE_LIVE_PLANE_CONTRACT_VERSION = '2026-05-05.live-checkpoint-11' as const;
+export const ZAVORTH_SATELLITE_DEVICE_LIVE_PLANE_CONTRACT_VERSION = '2026-05-05.live-gate-11' as const;
 
 export type SatelliteDeviceLiveTargetId =
   | 'device-pair'
@@ -62,7 +62,7 @@ export type SatelliteDeviceLiveGateKind =
   | 'unsupported-native-explicit'
   | 'artifact-receipt'
   | 'configured-doctor'
-  | 'mock-smoke'
+  | 'dry-smoke'
   | 'staging-live-smoke'
   | 'redacted-receipt';
 
@@ -167,6 +167,6 @@ export type SatelliteDeviceLivePlaneSnapshot = {
     stagingLiveSmoke: 'npm run satellite-device-live-plane -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Intent model2 - Memory, Artifacts And Runtime Executor Live Closure';
+    nextAction: 'Memory, Artifacts And Runtime Executor Live Closure';
   };
 };

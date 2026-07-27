@@ -140,7 +140,7 @@ export async function startChannelGateways(
   });
 
   const runtimeChannelSnapshot = surfaceRuntime.sharedGatewayChannelRegistry.buildSnapshot();
-  logger.info('Mesh operacional de canais no runtime atual:');
+  logger.info('Mesh operational de channels no runtime current:');
   for (const channel of runtimeChannelSnapshot.channels) {
     logger.info(`- ${channel.id}: ${channel.readiness} (${channel.transport})`);
   }

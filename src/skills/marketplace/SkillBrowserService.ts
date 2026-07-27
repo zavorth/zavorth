@@ -157,16 +157,16 @@ async function fetchFromGitRepo(
             const skillMd = path.join(dir, item.name, 'SKILL.md');
             if (fs.existsSync(skillMd)) {
               const content = fs.readFileSync(skillMd, 'utf-8');
-              const frontmatterMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
+              const frontmatterMatch = content.match(/^---\s*\n([\s\S]*...)\n---/);
               let name = item.name;
               let description = '';
               let tags: string[] = [];
 
               if (frontmatterMatch) {
                 const fm = frontmatterMatch[1];
-                const nameMatch = fm.match(/name:\s*["']?(.+?)["']?\s*$/m);
-                const descMatch = fm.match(/description:\s*["']?(.+?)["']?\s*$/m);
-                const tagsMatch = fm.match(/tags:\s*\[(.+?)\]/);
+                const nameMatch = fm.match(/name:\s*["']...(.+...)["']...\s*$/m);
+                const descMatch = fm.match(/description:\s*["']...(.+...)["']...\s*$/m);
+                const tagsMatch = fm.match(/tags:\s*\[(.+...)\]/);
                 if (nameMatch) name = nameMatch[1].trim();
                 if (descMatch) description = descMatch[1].trim();
                 if (tagsMatch) tags = tagsMatch[1].split(',').map(t => t.trim().replace(/['"]/g, ''));
@@ -222,7 +222,7 @@ async function fetchFromNpmRegistry(
   const entries: SkillCatalogEntry[] = [];
 
   try {
-    const searchUrl = `https://registry.npmjs.org/-/v1/search?text=keyword:zavorth-skill&size=250`;
+    const searchUrl = `https://registry.npmjs.org/-/v1/search...text=keyword:zavorth-skill&size=250`;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -269,7 +269,7 @@ async function fetchFromGitHubTopic(
 
   try {
     const topic = (source.config?.topic as string) || 'zavorth-skill';
-    const searchUrl = `https://api.github.com/search/repositories?q=topic:${topic}&sort=stars&per_page=100`;
+    const searchUrl = `https://api.github.com/search/repositories...q=topic:${topic}&sort=stars&per_page=100`;
 
     const headers: Record<string, string> = {
       'Accept': 'application/vnd.github.v3+json',
@@ -635,9 +635,7 @@ The user query may be in any language (English, Portuguese, French, Spanish, etc
 Return ONLY a JSON array of lowercase strings, nothing else.
 
 Examples:
-- "install a skill for data analysis" → ["data", "analysis", "csv", "visualization"]
-- "preciso de uma skill para planilha de excel" → ["spreadsheet", "excel", "csv", "table"]
-- "trouver un outil pour le web scraping" → ["web", "scrape", "crawl", "html", "fetch"]`,
+? "install a skill for data analysis" → ["data", "analysis", "csv", "visualization"] ? "preciso de uma skill para planilha de excel" → ["spreadsheet", "excel", "csv", "table"] ? "trouver un outil pour le web scraping" → ["web", "scrape", "crawl", "html", "fetch"]`,
         },
         {
           role: 'user',
@@ -658,7 +656,7 @@ Examples:
       const content = response.content || '[]';
 
       // Parse JSON array
-      const match = content.match(/\[[\s\S]*?\]/);
+      const match = content.match(/\[[\s\S]*...\]/);
       if (match) {
         const terms = JSON.parse(match[0]);
         if (Array.isArray(terms)) {

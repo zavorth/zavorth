@@ -152,7 +152,7 @@ export class PtySessionService {
     const allowedUnix = ['bash', 'sh', 'zsh'];
     const isWin = platform() === 'win32';
     const allowList = isWin ? allowedWindows : allowedUnix;
-    
+
     if (!allowList.includes(pendingData.shell)) {
       throw new Error(`Shell not allowed: ${pendingData.shell}`);
     }
@@ -258,8 +258,7 @@ export class PtySessionService {
       status: entry.status,
       processAlive: this.activeSessions.has(sessionId),
       output: this.getOutput(sessionId, afterSeq),
-      reason: this.activeSessions.has(sessionId)
-        ? 'Reattached to live PTY session; ring buffer catch-up returned.'
+      reason: this.activeSessions.has(sessionId) ? 'Reattached to live PTY session; ring buffer catch-up returned.'
         : 'Session registry hit; process not alive — buffer available until reaper.',
     };
   }
@@ -402,7 +401,7 @@ export class PtySessionService {
     }
     // Keep ring buffer briefly for reattach catch-up (reaper drops later)
     this.pendingSessionData.delete(sessionId);
-    
+
     const wSet = this.workspaceActiveSessions.get(workspaceId);
     if (wSet) {
       wSet.delete(sessionId);

@@ -66,7 +66,7 @@ export class ZavorthDailyCapabilityFlowService {
       status,
       headline: headlineFor(status),
       selfImprovement: {
-        title: 'Melhorar comportamento',
+        title: 'Improve behavior',
         status: selfImprovementStatus,
         promptStatus: prompt.status,
         bestCandidateId: prompt.bestCandidate?.id || null,
@@ -76,7 +76,7 @@ export class ZavorthDailyCapabilityFlowService {
         stages: buildImprovementStages(prompt.status),
       },
       runtimeSetup: {
-        title: 'Rodar leve',
+        title: 'Light runtime',
         target: runtime.selectedTarget,
         selectedProfile: runtime.selected.recommendedProfile,
         fallbackProfile: runtime.selected.fallbackProfile,
@@ -91,7 +91,7 @@ export class ZavorthDailyCapabilityFlowService {
       },
       mcpCatalog,
       continuousEvals: {
-        title: 'Rodar avaliacoes',
+        title: 'Run evaluations',
         status: evalStatus,
         commands: [
           'npm run zavorth:native-evolution-runtime-mcp:check --silent',
@@ -136,11 +136,11 @@ export class ZavorthDailyCapabilityFlowService {
       snapshot.headline,
       '',
       `${snapshot.selfImprovement.title}: ${snapshot.selfImprovement.status}; candidato=${snapshot.selfImprovement.bestCandidateId || 'none'}`,
-      `${snapshot.runtimeSetup.title}: ${snapshot.runtimeSetup.selectedProfile} para ${snapshot.runtimeSetup.target}`,
-      `${snapshot.mcpCatalog.title}: ${snapshot.mcpCatalog.needsReview} para revisar, ${snapshot.mcpCatalog.blocked} bloqueado(s)`,
+      `${snapshot.runtimeSetup.title}: ${snapshot.runtimeSetup.selectedProfile} for ${snapshot.runtimeSetup.target}`,
+      `${snapshot.mcpCatalog.title}: ${snapshot.mcpCatalog.needsReview} for review, ${snapshot.mcpCatalog.blocked} blocked(s)`,
       `${snapshot.continuousEvals.title}: ${snapshot.continuousEvals.status}; ${snapshot.continuousEvals.summary}`,
       '',
-      'Proximos passos:',
+      'Next steps:',
       ...snapshot.nextBestActions.map((action) => `- ${action}`),
     ].join('\n');
   }
@@ -162,7 +162,7 @@ export class ZavorthDailyCapabilityFlowService {
     const blocked = items.filter((item) => item.displayStatus === 'blocked').length;
     const needsReview = items.filter((item) => item.displayStatus === 'needs-review').length;
     return {
-      title: 'Adicionar ferramenta',
+      title: 'Add tool',
       status: blocked > 0 ? 'blocked' : needsReview > 0 ? 'attention' : 'ready',
       scanned: snapshot.summary.scannedCandidates,
       blocked,
@@ -178,13 +178,13 @@ const DEFAULT_PROMPT = 'Use evidence, previews, receipts and approval for sensit
 function buildImprovementStages(promptStatus: 'ready' | 'blocked' | 'needs-review'): ZavorthDailyCapabilityFlowStage[] {
   const blocked = promptStatus === 'blocked';
   return [
-    stage('observe', 'Observar uso', 'done', 'Read local receipts and aggregate outcomes without prompt text.', null),
-    stage('draft', 'Criar rascunho', blocked ? 'blocked' : 'next', 'Prepare a behavior candidate without changing runtime behavior.', 'npm run zavorth:prompt-evolution-lab -- --profile <profile>'),
-    stage('evaluate', 'Testar rascunho', blocked ? 'blocked' : 'pending', 'Run regression, safety and sandbox smoke before promotion.', 'npm run zavorth:native-evolution-runtime-mcp:check --silent'),
-    stage('approve', 'Revisar e aprovar', blocked ? 'blocked' : 'pending', 'Promotion needs explicit scoped approval.', 'zavorth prompt-evolution promote <candidate> --approval-id <id>'),
-    stage('apply', 'Aplicar mudanca', 'pending', 'Apply only the approved candidate and keep rollback metadata.', null),
-    stage('measure', 'Medir resultado', 'pending', 'Measure aggregate outcome, approval fatigue and user correction rate.', 'npm run zavorth:operational-rollout-eval:check --silent'),
-    stage('rollback', 'Desfazer se precisar', 'pending', 'Return to previous behavior if evals or user feedback regress.', 'zavorth prompt-evolution rollback <receipt-id>'),
+    stage('observe', 'Observar usage', 'done', 'Read local receipts and aggregate outcomes without prompt text.', null),
+    stage('draft', 'Create draft', blocked ? 'blocked' : 'next', 'Prepare a behavior candidate without changing runtime behavior.', 'npm run zavorth:prompt-evolution-lab -- --profile <profile>'),
+    stage('evaluate', 'Test draft', blocked ? 'blocked' : 'pending', 'Run regression, safety and sandbox smoke before promotion.', 'npm run zavorth:native-evolution-runtime-mcp:check --silent'),
+    stage('approve', 'review e approve', blocked ? 'blocked' : 'pending', 'Promotion needs explicit scoped approval.', 'zavorth prompt-evolution promote <candidate> --approval-id <id>'),
+    stage('apply', 'Apply change', 'pending', 'Apply only the approved candidate and keep rollback metadata.', null),
+    stage('measure', 'Measure result', 'pending', 'Measure aggregate outcome, approval fatigue and user correction rate.', 'npm run zavorth:operational-rollout-eval:check --silent'),
+    stage('rollback', 'Desfazer se need', 'pending', 'Return to previous behavior if evals or user feedback regress.', 'zavorth prompt-evolution rollback <receipt-id>'),
   ];
 }
 
@@ -200,7 +200,7 @@ function stage(
 
 function emptyMcpCatalog(): ZavorthDailyCapabilityFlowSnapshot['mcpCatalog'] {
   return {
-    title: 'Adicionar ferramenta',
+    title: 'Add tool',
     status: 'ready',
     scanned: 0,
     blocked: 0,
@@ -223,37 +223,37 @@ function resolveStatus(statuses: ZavorthDailyCapabilityFlowStatus[]): ZavorthDai
 }
 
 function headlineFor(status: ZavorthDailyCapabilityFlowStatus): string {
-  if (status === 'blocked') return 'Zavorth encontrou algo para corrigir antes de continuar.';
-  if (status === 'attention') return 'Zavorth esta pronto para revisar melhorias antes de aplicar.';
-  return 'Zavorth esta pronto para uso diario com setup revisavel.';
+  if (status === 'blocked') return 'Zavorth found something to fix before continuing.';
+  if (status === 'attention') return 'Zavorth is ready for review before applying improvements.';
+  return 'Zavorth is ready for daily usage with a reviewable setup.';
 }
 
 function nextBestActions(status: ZavorthDailyCapabilityFlowStatus, blockedMcp: number): string[] {
   if (blockedMcp > 0) {
     return [
-      'corrigir ou remover a ferramenta bloqueada antes de tentar promover novamente.',
-      'rodar intake em uma fonte limpa e revisar o smoke antes de instalar.',
-      'manter execucao live desligada ate a fonte passar pelos checks.',
+      'fix or remove the blocked tool before trying to promote again.',
+      'run intake on a clean source and review the smoke result before installing.',
+      'keep live execution disabled until the source passes checks.',
     ];
   }
   if (status === 'attention') {
     return [
-      'revisar o rascunho de comportamento antes de promover.',
-      'selecionar um perfil runtime leve se o alvo for always-on.',
-      'rodar os checks continuos antes de mudar comportamento padrao.',
+      'review the behavior draft before promotion.',
+      'select a lightweight runtime profile when the target is always-on.',
+      'run continuous checks before changing default behavior.',
     ];
   }
   return [
-    'abrir o checklist de setup e conectar apenas o que for necessario.',
-    'rodar uma missao por perfil e revisar receipts depois.',
-    'manter ferramentas externas em revisao antes de expor como tool.',
+    'open the setup checklist and connect only what is necessary.',
+    'run one mission per profile and review receipts afterward.',
+    'keep external tools in review before exposing them as tools.',
   ];
 }
 
 function redactText(value: string): string {
   return String(value || '')
     .replace(/\b(sk-[a-z0-9]{12,})\b/gi, '[REDACTED_API_KEY]')
-    .replace(/\b(api[_-]?key|token|password|secret)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
+    .replace(/\b(api[_-]...key|token|password|secret)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
     .replace(/\bbearer\s+[^\s,;]+/gi, 'bearer [REDACTED]');
 }
 
@@ -268,97 +268,97 @@ function zavorthControlCards(input: {
   return [
     card({
       id: 'improve-behavior',
-      title: 'Melhorar comportamento',
+      title: 'Improve behavior',
       area: 'learning',
       status: input.selfImprovementStatus,
-      summary: 'Revisar rascunhos de comportamento com diff, testes, aprovacao, medicao e rollback.',
-      href: '/control/skills?flow=improve-behavior',
+      summary: 'Review behavior drafts with diff, tests, approval, measurement, and rollback.',
+      href: '/control/skills...flow=improve-behavior',
       command: 'npm run zavorth:prompt-evolution-lab -- --profile <profile>',
-      primaryAction: 'Revisar rascunho',
+      primaryAction: 'review draft',
       badges: ['draft', 'approval', 'rollback'],
       requiresApproval: true,
     }),
     card({
       id: 'memory-learning',
-      title: 'Memoria e aprendizado',
+      title: 'Memory and learning',
       area: 'memory',
       status: 'attention',
-      summary: 'Ver o que foi aprendido, por que foi aprendido, editar, esquecer e expirar itens.',
-      href: '/control/memory?flow=learned',
+      summary: 'Review learned items, reasons, edit, forget, and expire records.',
+      href: '/control/memory...flow=learned',
       command: 'npm run zavorth:memory-learning-loop:check --silent',
-      primaryAction: 'Revisar aprendizados',
-      badges: ['origem', 'evidencia', 'esquecer'],
+      primaryAction: 'review learned items',
+      badges: ['source', 'evidence', 'forget'],
       requiresApproval: false,
     }),
     card({
       id: 'mcp-catalog',
-      title: 'Catalogo de ferramentas',
+      title: 'Tool catalog',
       area: 'skills',
       status: input.mcpStatus,
-      summary: 'Trazer MCP ou tools por preview, revisar risco, rodar smoke e promover so com aprovacao.',
-      href: '/control/skills?flow=mcp-catalog',
+      summary: 'Bring MCP or tools through preview, review risk, run smoke, and promote only with approval.',
+      href: '/control/skills...flow=mcp-catalog',
       command: 'npm run zavorth:mcp-ecosystem-intake -- --source <path>',
-      primaryAction: 'Revisar ferramenta',
+      primaryAction: 'review tool',
       badges: ['preview', 'smoke', 'review'],
       requiresApproval: true,
     }),
     card({
       id: 'skill-lifecycle',
-      title: 'Ciclo de skills',
+      title: 'Skill lifecycle',
       area: 'skills',
       status: 'attention',
-      summary: 'Intake, draft, sandbox, aprovacao, install, uso agregado e curadoria sem conteudo sensivel.',
-      href: '/control/skills?flow=lifecycle',
+      summary: 'Intake, draft, sandbox, approval, install, aggregate usage, and curation without sensitive content.',
+      href: '/control/skills...flow=lifecycle',
       command: 'npm run zavorth:universal-skill-intake:check --silent',
-      primaryAction: 'Abrir ciclo',
+      primaryAction: 'Open lifecycle',
       badges: ['draft', 'sandbox', 'curator'],
       requiresApproval: true,
     }),
     card({
       id: 'runtime-wizard',
-      title: 'Wizard de runtime',
+      title: 'Runtime wizard',
       area: 'runtime',
       status: input.runtimeStatus,
-      summary: `Escolher ${input.runtimeProfile} para ${input.runtimeTarget}, rodar budget doctor e manter sidecars pesados sob demanda.`,
-      href: '/control/providers?flow=runtime-profile',
+      summary: `Choose ${input.runtimeProfile} for ${input.runtimeTarget}, run budget doctor and keep heavy sidecars on demand.`,
+      href: '/control/providers...flow=runtime-profile',
       command: `npm run zavorth:runtime-profile-playbook -- --target ${input.runtimeTarget}`,
-      primaryAction: 'Escolher perfil',
+      primaryAction: 'Choose profile',
       badges: ['vps', 'safe-8gb', 'doctor'],
       requiresApproval: false,
     }),
     card({
       id: 'channel-wizard',
-      title: 'Canais conectados',
+      title: 'Connected channels',
       area: 'channels',
       status: 'attention',
-      summary: 'Conectar Telegram, Slack, WhatsApp, Signal, Email ou Discord com passo a passo e prova honesta.',
-      href: '/control/providers?flow=channels',
+      summary: 'Connect Telegram, Slack, WhatsApp, Signal, Email, or Discord with guided steps and honest proof.',
+      href: '/control/providers...flow=channels',
       command: 'npm run zavorth:channel-connection-playbook -- --channel telegram',
-      primaryAction: 'Conectar canal',
+      primaryAction: 'Connect channel',
       badges: ['setup', 'probe', 'live-ready'],
       requiresApproval: true,
     }),
     card({
       id: 'backend-wizard',
-      title: 'Execucao segura',
+      title: 'Safe execution',
       area: 'backends',
       status: 'attention',
-      summary: 'Configurar local-jail, Docker, WSL ou cloud sandbox com dry-run enquanto smoke forte nao passa.',
-      href: '/control/providers?flow=execution-backend',
+      summary: 'Configure local-jail, Docker, WSL, or cloud sandbox with dry-run while strong smoke has not passed.',
+      href: '/control/providers...flow=execution-backend',
       command: 'npm run zavorth:execution-backend-playbook -- --backend docker',
-      primaryAction: 'Configurar executor',
+      primaryAction: 'Configure executor',
       badges: ['dry-run', 'smoke', 'approval'],
       requiresApproval: true,
     }),
     card({
       id: 'continuous-evals',
-      title: 'Rodar avaliacoes',
+      title: 'Run evaluations',
       area: 'quality',
       status: input.evalStatus,
-      summary: 'Testar qualidade, vazamento, excesso de aprovacao, tool-use, aprendizado indevido e recuperacao.',
-      href: '/control/docs?flow=evals',
+      summary: 'Test quality, leakage, approval excess, tool-use, improper learning, and recovery.',
+      href: '/control/docs...flow=evals',
       command: 'npm run zavorth:daily-capability-flow:check --silent',
-      primaryAction: 'Rodar checks',
+      primaryAction: 'run checks',
       badges: ['quality', 'secrets', 'regression'],
       requiresApproval: false,
     }),

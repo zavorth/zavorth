@@ -29,10 +29,10 @@ export function pushAccessActions(
       snapshot: buildActionSnapshot({
         actionId: 'continue-official-access:trust',
         actionType: 'continue-official-access',
-        title: accessPrimaryLabel || 'Liberar este host',
+        title: accessPrimaryLabel || 'enable este host',
         description:
           accessPrimarySummary ||
-          'Autorize este host antes de executar acoes mutaveis, escrita local ou entregas persistidas.',
+          'Authorize this host before running mutable actions, local writes, or persisted deliveries.',
         category: 'access',
         availability: buildActionAvailability({ mode: 'inline' }, { mode: 'command' }, { mode: 'hidden' }, readiness),
         equivalents: {
@@ -43,12 +43,12 @@ export function pushAccessActions(
           },
           telegram: {
             mode: 'command',
-            label: 'Copiar comando do Telegram',
+            label: 'Copy Telegram command',
             value: '/hostauth trust',
           },
           discord: {
             mode: 'hidden',
-            label: 'Ainda nao exposto no Discord',
+            label: 'Not yet exposed on Discord',
             value: null,
           },
         },
@@ -71,10 +71,10 @@ export function pushAccessActions(
       snapshot: buildActionSnapshot({
         actionId: 'continue-official-access:go',
         actionType: 'continue-official-access',
-        title: accessPrimaryLabel || 'Seguir caminho oficial',
+        title: accessPrimaryLabel || 'Seguir path oficial',
         description:
           accessPrimarySummary ||
-          'Use o caminho oficial mais curto para instalar, subir o runtime e abrir a melhor superficie pronta.',
+          'Use the shortest official path to install, start the runtime, and open the best ready surface.',
         category: 'access',
         availability: buildActionAvailability({ mode: 'inline' }, { mode: 'command' }, { mode: 'slash' }, readiness),
         equivalents: {
@@ -85,7 +85,7 @@ export function pushAccessActions(
           },
           telegram: {
             mode: 'command',
-            label: 'Copiar comando do Telegram',
+            label: 'Copy Telegram command',
             value: '/access',
           },
           discord: {
@@ -125,7 +125,7 @@ export function pushAccessActions(
           },
           telegram: {
             mode: 'command',
-            label: 'Copiar comando do Telegram',
+            label: 'Copy Telegram command',
             value: '/access',
           },
           discord: {
@@ -154,7 +154,7 @@ export function pushAccessActions(
         actionId: 'open-official-app:local',
         actionType: 'open-official-app',
         title: accessPrimaryLabel || 'Abrir shell web do runtime',
-        description: accessPrimarySummary || 'Abra o shell web do runtime.',
+        description: accessPrimarySummary || 'Open the runtime web shell.',
         category: 'access',
         availability: buildActionAvailability({ mode: 'inline' }, { mode: 'command' }, { mode: 'slash' }, readiness),
         equivalents: {
@@ -165,7 +165,7 @@ export function pushAccessActions(
           },
           telegram: {
             mode: 'command',
-            label: 'Copiar comando do Telegram',
+            label: 'Copy Telegram command',
             value: '/status',
           },
           discord: {

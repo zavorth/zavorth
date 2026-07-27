@@ -7,7 +7,7 @@ import type {
   ZavorthExperienceProfileId,
 } from './ZavorthExperienceProfileContract.js';
 
-export const ZAVORTH_TRUST_PANEL_CONTRACT_VERSION = '2026-05-15.experience-layer.checkpoint-6' as const;
+export const ZAVORTH_TRUST_PANEL_CONTRACT_VERSION = '2026-05-15.experience-layer.gate-6' as const;
 
 export type ZavorthTrustPanelBucketId =
   | 'can_do_alone'

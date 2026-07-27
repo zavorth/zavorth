@@ -180,8 +180,7 @@ function normalizeSetupStudioConfigHandling(
 ): ZavorthSetupStudioConfigHandling {
   return value === 'keep' || value === 'review' || value === 'reset'
     ? value
-    : hasExistingConfig
-      ? 'keep'
+    : hasExistingConfig ? 'keep'
       : 'review';
 }
 
@@ -259,8 +258,7 @@ function buildChannelGuide(
     .map((manifest): ZavorthSetupStudioChannelGuide => ({
       id: manifest.id,
       label: manifest.label,
-      status: configured.has(manifest.id)
-        ? 'ready'
+      status: configured.has(manifest.id) ? 'ready'
         : manifest.supportLevel === 'native'
           ? 'available'
           : 'missing-config',
@@ -278,8 +276,7 @@ function buildChannelGuide(
     .map((entry): ZavorthSetupStudioChannelGuide => ({
       id: entry.channelId,
       label: labelFromId(entry.channelId),
-      status: configured.has(entry.channelId)
-        ? 'ready'
+      status: configured.has(entry.channelId) ? 'ready'
         : entry.status === 'partial-live' || entry.status === 'configured-only'
           ? 'available'
           : 'missing-config',
@@ -430,8 +427,7 @@ function buildGatewayReadiness(projectRoot: string): ZavorthSetupStudioGatewayRe
     recommendedRuntime: 'node',
     startCommand: 'zavorth start',
     foregroundCommand: 'npm run dev:supervised',
-    detail: installed
-      ? 'local gateway detected; setup does not start persistent processes automatically'
+    detail: installed ? 'local gateway detected; setup does not start persistent processes automatically'
       : 'gateway still needs build/install before continuous use',
   };
 }
@@ -453,7 +449,7 @@ function buildHatchPlan(): ZavorthSetupStudioHatchPlan {
     bootstrapPrompt: 'Wake up, explain your state, validate the provider and tell me the next safe step.',
     commands: [
       'zavorth hatch',
-      'zavorth ask "what is your current state?"',
+      'zavorth ask "what is your current state..."',
       'zavorth open',
     ],
   };
@@ -465,7 +461,7 @@ function readEnv(envPath: string): Record<string, string> {
   }
   const content = fs.readFileSync(envPath, 'utf8');
   const entries: Record<string, string> = {};
-  for (const line of content.split(/\r?\n/)) {
+  for (const line of content.split(/\r...\n/)) {
     const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)=(.*)\s*$/);
     if (match) {
       entries[match[1]] = String(match[2] || '').trim().replace(/^["']|["']$/g, '');

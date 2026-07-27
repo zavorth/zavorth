@@ -9,7 +9,8 @@ import {
   StitchRetryInput,
   StitchSdkModule,
   StitchSuccessSummaryInput,
-} from './stitchExecutorTypes.js';type ExecuteStitchSdkRouteInput = {
+} from './stitchExecutorTypes.js';
+type ExecuteStitchSdkRouteInput = {
   request: ExecutionRequest;
   result: ExecutionResult;
   prompt: string;
@@ -93,7 +94,7 @@ export async function executeStitchSdkRoute(
     const projectTitle = input.buildProjectTitle(input.prompt, input.request.task_id);
     const project = await sdk.createProject(projectTitle);
     const projectId = input.resolveProjectId(project);
-    input.result.actions_executed.push(`[Stitch] Projeto criado: ${projectId}`);
+    input.result.actions_executed.push(`[Stitch] Projeto created: ${projectId}`);
 
     const generationResponse = await input.generateScreenWithRetry(client, {
       projectId,
@@ -111,7 +112,7 @@ export async function executeStitchSdkRoute(
       throw new Error('Stitch did not return a valid screen in generate_screen_from_text.');
     }
 
-    input.result.actions_executed.push(`[Stitch] Tela gerada: ${screenId}`);
+    input.result.actions_executed.push(`[Stitch] Screen generated: ${screenId}`);
 
     const { imageUrl, htmlUrl } = await resolveStitchRemoteArtifacts({
       client,
@@ -196,7 +197,7 @@ export async function probeStitchSdkConnection(
     await sdk.projects();
     return {
       ok: true,
-      message: 'SDK carregado e autenticacao validada com o Stitch.',
+      message: 'SDK loaded and authentication validated with Stitch.',
     };
   } catch (error: unknown) {const classified = input.classifyError(error);
     return {
@@ -234,7 +235,7 @@ export async function generateStitchScreenWithRetry(
     }
 
     input.input.result.actions_executed.push(
-      '[Stitch] Timeout detectado; tentando novamente com um briefing mais curto.',
+      '[Stitch] Timeout detectado; tentando again com um briefing mais curto.',
     );
     return input.client.callTool('generate_screen_from_text', {
       ...primaryPayload,

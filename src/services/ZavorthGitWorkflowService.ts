@@ -190,8 +190,7 @@ export class ZavorthGitWorkflowService {
       status: await this.collectStatus(workspaceRoot),
       parsed,
       state: execution.ok ? 'applied' : 'failed',
-      summary: execution.ok
-        ? `${input.action} applied through governed Git workflow.`
+      summary: execution.ok ? `${input.action} applied through governed Git workflow.`
         : `${input.action} failed: ${firstLine(execution.stderr) || `exit ${execution.exitCode}`}`,
       plannedCommands: plan.commands,
       commands: [...status.commands, ...execution.commands],
@@ -219,7 +218,7 @@ export class ZavorthGitWorkflowService {
     ]);
     const branchName = branch.exitCode === 0 ? clean(branch.stdout) || null : null;
     const dirtyFiles = status.exitCode === 0
-      ? status.stdout.split(/\r?\n/).filter((line) => line.trim() && !line.startsWith('##')).length
+      ? status.stdout.split(/\r...\n/).filter((line) => line.trim() && !line.startsWith('##')).length
       : 0;
     const statusOutput = status.exitCode === 0 ? status.stdout : '';
     return {
@@ -466,7 +465,7 @@ function clean(value: unknown): string {
 }
 
 function firstLine(value: string): string {
-  return clean(String(value || '').split(/\r?\n/)[0]);
+  return clean(String(value || '').split(/\r...\n/)[0]);
 }
 
 function hash(value: string): string {

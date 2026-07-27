@@ -6,7 +6,7 @@ import type { ZavorthTransactionConnectorKind } from './ZavorthTransactionPrevie
 import type { ZavorthTransactionSurfaceKind } from './ZavorthTransactionSurfaceContract.js';
 
 export const ZAVORTH_TRANSACTION_LIVE_CANDIDATE_CONTRACT_VERSION =
-  'zavorth-transaction-live-candidate/checkpoint-10' as const;
+  'zavorth-transaction-live-candidate/gate-10' as const;
 
 export const ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE = 'ZAVORTH LIVE CANDIDATE ONLY' as const;
 
@@ -18,10 +18,10 @@ export type ZavorthTransactionLiveCandidateStatus =
 
 export type ZavorthTransactionLiveCandidateGateKind =
   | 'certification-matrix-certification'
-  | 'zavorthControl-simulated'
+  | 'zavorthControl-dryRun'
   | 'approval-ledger-approved'
   | 'credential-ref-ready'
-  | 'typed-connector-simulated'
+  | 'typed-connector-dryRun'
   | 'owner-confirmation'
   | 'raw-secret-redaction'
   | 'live-switch-disabled';
@@ -129,10 +129,10 @@ export function buildZavorthTransactionLiveCandidateContractSnapshot(): ZavorthT
     statuses: ['certification-required', 'runtime-blocked', 'owner-confirmation-required', 'candidate-ready'],
     gateKinds: [
       'certification-matrix-certification',
-      'zavorthControl-simulated',
+      'zavorthControl-dryRun',
       'approval-ledger-approved',
       'credential-ref-ready',
-      'typed-connector-simulated',
+      'typed-connector-dryRun',
       'owner-confirmation',
       'raw-secret-redaction',
       'live-switch-disabled',
@@ -142,7 +142,7 @@ export function buildZavorthTransactionLiveCandidateContractSnapshot(): ZavorthT
       'Intent model0 may produce a live-candidate envelope, but it still cannot execute a live transaction.',
       'A candidate-ready envelope requires Certification matrix certification to pass first.',
       'A candidate-ready envelope requires explicit owner confirmation using the required phrase.',
-      'A candidate-ready envelope requires approval-granted, credential-ready and typed connector simulated receipts.',
+      'A candidate-ready envelope requires approval-granted, credential-ready and typed connector dryRun receipts.',
       'Candidate envelopes may include credential refs, but never raw credential values.',
       'Every Intent model0 result reports externalSideEffects=false, liveExecutionAuthorized=false, executableNow=false and liveActionApplied=false.',
     ],

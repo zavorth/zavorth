@@ -360,7 +360,7 @@ export class TelegramCommandRoutingService {
         await this.deps.zavorthBridgeController.handleWindowAction(
           ctx,
           'paste-and-submit',
-          parsed.command_args || 'Continue a tarefa atual do Zavorth e conclua a resposta.',
+          parsed.command_args || 'Continue the current Zavorth task and complete the response.',
         );
         return true;
       case '/agbridge':
@@ -381,7 +381,7 @@ export class TelegramCommandRoutingService {
           return true;
         }
         return false;
-      // Certification matrix: Modo Echo — resposta por voz
+      // Certification matrix: Echo Mode — voice response
       case '/echo':
         await this.handleEchoCommand(ctx, parsed.command_args);
         return true;
@@ -411,7 +411,7 @@ export class TelegramCommandRoutingService {
       case '/triage': {
         const args = parsed.command_args || '';
         if (!args.trim()) {
-          await ctx.reply('Uso: /triage <titulo da task>');
+          await ctx.reply('Usage: /triage <task title>');
           return true;
         }
         const { KanbanSQLiteDispatcherService } = await import(
@@ -432,7 +432,7 @@ export class TelegramCommandRoutingService {
         const cardId = args[0];
         const destCol = args[1];
         if (!cardId || !destCol) {
-          await ctx.reply('Uso: /move <card_id> <coluna_destino>\nExemplo: /move card_123 in_progress');
+          await ctx.reply('Usage: /move <card_id> <destination_column>\nExample: /move card_123 in_progress');
           return true;
         }
         const { KanbanSQLiteDispatcherService } = await import(
@@ -657,11 +657,11 @@ export class TelegramCommandRoutingService {
     ]).has(commandType);
   }
 
-  // Certification matrix: Handler do Modo Echo
+  // Certification matrix: Echo Mode handler
   private async handleEchoCommand(ctx: Context, args: string): Promise<void> {
     const store = this.deps.echoPreferenceStore;
     if (!store) {
-      await ctx.reply('Modo Echo nao esta disponivel neste runtime.');
+      await ctx.reply('Echo mode is not available in this runtime.');
       return;
     }
 
@@ -671,32 +671,32 @@ export class TelegramCommandRoutingService {
 
     const operatorUserId = ctx.from?.id?.toString() || null;
 
-    if (subcommand === 'on' || subcommand === 'ligar' || subcommand === 'ativar') {
+    if (subcommand === 'on') {
       await store.setEchoMode(true, operatorUserId);
       await ctx.reply(
-        '🎙️ *Modo Echo ativado.*\n\n' +
-          'A partir de agora, responderei com audio alem do texto.\n' +
-          'Use `/echo off` para desativar.',
+        '🎙️ *Echo mode activated.*\n\n' +
+          'From now on, I will respond with audio in addition to text.\n' +
+          'Use `/echo off` to deactivate.',
         { parse_mode: 'Markdown' },
       );
       return;
     }
 
-    if (subcommand === 'off' || subcommand === 'desligar' || subcommand === 'desativar') {
+    if (subcommand === 'off') {
       await store.setEchoMode(false, operatorUserId);
-      await ctx.reply('🔇 *Modo Echo desativado.*\n\nVoltei ao modo texto padrao.', { parse_mode: 'Markdown' });
+      await ctx.reply('🔇 *Echo mode deactivated.*\n\nBack to default text mode.', { parse_mode: 'Markdown' });
       return;
     }
 
     const isActive = await store.isEchoModeActive(operatorUserId);
     const statusEmoji = isActive ? '🎙️' : '🔇';
-    const statusText = isActive ? 'ATIVADO' : 'DESATIVADO';
+    const statusText = isActive ? 'ACTIVE' : 'INACTIVE';
     await ctx.reply(
-      `${statusEmoji} *Modo Echo: ${statusText}*\n\n` +
-        'Comandos:\n' +
-        '- `/echo on` — ativa resposta por voz\n' +
-        '- `/echo off` — desativa resposta por voz\n' +
-        '- `/echo` — mostra o status atual',
+      `${statusEmoji} *Echo Mode: ${statusText}*\n\n` +
+        'Commands:\n' +
+        '- `/echo on` — enable voice response\n' +
+        '- `/echo off` — disable voice response\n' +
+        '- `/echo` — show current status',
       { parse_mode: 'Markdown' },
     );
   }

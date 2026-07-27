@@ -6,10 +6,10 @@ import { padCliVisualText, paintCliTone } from './ZavorthCliVisualTheme.js';
 
 export const ZAVORTH_ONBOARD_STEPS = [
   { label: 'Model', summary: 'choose the primary AI' },
-  { label: 'Acesso', summary: 'definir porta e uso local' },
-  { label: 'Seguranca', summary: 'ativar capacidades com cuidado' },
-  { label: 'Pessoa', summary: 'calibrar identidade, usuario e tom' },
-  { label: 'Pronto', summary: 'abrir o Zavorth pelo caminho certo' },
+  { label: 'access', summary: 'definir porta e usage local' },
+  { label: 'Safety', summary: 'enable capabilities carefully' },
+  { label: 'Person', summary: 'calibrate identity, user, and tone' },
+  { label: 'Ready', summary: 'open Zavorth from the correct path' },
 ] as const;
 
 const ONBOARD_STEP_LABEL_WIDTH = 10;
@@ -39,14 +39,14 @@ export function formatZavorthOnboardBanner(options: {
 export function formatZavorthOnboardNonInteractiveHint(): string {
   return [
     '',
-    `${paintCliTone('Aviso', 'warning')}: o setup guiado precisa de um terminal interativo.`,
-    `${paintCliTone('Abra', 'info')}: PowerShell, Windows Terminal ou terminal do VS Code.`,
+    `${paintCliTone('Warning', 'warning')}: the guided setup requires an interactive terminal.`,
+    `${paintCliTone('Open', 'info')}: PowerShell, Windows Terminal, or VS Code terminal.`,
     `${paintCliTone('Run', 'info')}: zavorth setup`,
     `${paintCliTone('Preview', 'info')}: zavorth setup --dry-run`,
     `${paintCliTone('Safe JSON', 'info')}: zavorth setup --json --dry-run`,
     `${paintCliTone('Cloned repo', 'info')}: npm run setup`,
-    `${paintCliTone('Depois', 'success')}: zavorth go ou npm run go abre o Home em /zavorthControl`,
-    `${paintCliTone('Diagnostico', 'muted')}: zavorth doctor ou npm run doctor`,
+    `${paintCliTone('After', 'success')}: zavorth go or npm run go opens Home at /zavorthControl`,
+    `${paintCliTone('Diagnostics', 'muted')}: zavorth doctor or npm run doctor`,
   ].join('\n');
 }
 

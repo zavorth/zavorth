@@ -199,9 +199,9 @@ function normalizeTrustMode(value: unknown): UniversalIntentTrustMode | null {
   return null;
 }
 
-function redactText(value: unknown, fallback = 'pedido', maxLength = 90): string {
+function redactText(value: unknown, fallback = 'request', maxLength = 90): string {
   const text = normalizeText(value, fallback)
-    .replace(/((?:api[_-]?key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/((?:api[_-]...key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
     .replace(/\s+/g, ' ')
     .trim();
   return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;
@@ -292,11 +292,11 @@ export class UniversalIntentTrustEnforcementService {
       },
       surface: {
         cliCommand: `zavorth uni "${redactText(intentInput.text)}"`,
-        zavorthControlPath: '/zavorthControl?sector=config',
+        zavorthControlPath: '/zavorthControl...sector=config',
         trustHint: `${decision.trustSlider.level} -> ${decision.trustSlider.decision}`,
         permissionHint: permission.required
-          ? permission.prompt || 'Permissao conversacional obrigatoria.'
-          : 'Nenhuma permissao conversacional obrigatoria.',
+          ? permission.prompt || 'Permission conversacional obrigatoria.'
+          : 'No mandatory conversational permission.',
       },
       nextSafeAction: this.resolveNextSafeAction(status, decision, permission, clarification),
     };
@@ -404,7 +404,7 @@ export class UniversalIntentTrustEnforcementService {
     if (!isConversationRoute) {
       return false;
     }
-    return !/\b(pesquise|pesquisar|buscar|busque|procure|acesse|acessar|abra|abrir|navegue|fetch|baixe|download|leia|ler|resuma|resumir|analise|analisar|explique|explicar|extraia|extrair|verifique|verificar)\b/i.test(normalizeSearchText(text));
+    return normalizeSearchText(text).length > 0;
   }
 
   private stripUrls(text: string): string {
@@ -502,20 +502,19 @@ export class UniversalIntentTrustEnforcementService {
         label: 'Ask Before Assumption',
         status: decision.requiresClarification ? 'requires-action' : 'passed',
         source: 'NaturalClarificationPolicyService',
-        detail: decision.clarification.reason || 'Nenhuma pergunta obrigatoria.',
+        detail: decision.clarification.reason || 'No required question.',
       },
       {
         id: 'universal-intent:permission',
         label: 'Conversational Permission',
         status: decision.requiresPermission ? 'requires-action' : 'passed',
         source: 'ConversationalPermissionService',
-        detail: decision.permissionRequest?.reason || 'Permissao conversacional nao obrigatoria.',
+        detail: decision.permissionRequest?.reason || 'Conversational permission is not mandatory.',
       },
       {
         id: 'universal-intent:trust-slider',
         label: 'Trust Slider',
-        status: decision.trustSlider.blocked
-          ? 'blocked'
+        status: decision.trustSlider.blocked ? 'blocked'
           : decision.trustSlider.decision === 'requires_permission'
             ? 'requires-action'
             : 'passed',
@@ -541,7 +540,7 @@ export class UniversalIntentTrustEnforcementService {
         id: 'uni:receipt:intent',
         kind: 'universal-intent',
         source: 'UniversalIntentService',
-        detail: `Intent ${decision.intent} classificado com risco ${decision.risk}.`,
+        detail: `Intent ${decision.intent} classificado com risk ${decision.risk}.`,
         status: 'ready',
       },
       {
@@ -549,8 +548,7 @@ export class UniversalIntentTrustEnforcementService {
         kind: 'trust-slider',
         source: 'TrustSliderPolicyService',
         detail: `${decision.trustSlider.level} decidiu ${decision.trustSlider.decision}.`,
-        status: decision.trustSlider.blocked
-          ? 'blocked'
+        status: decision.trustSlider.blocked ? 'blocked'
           : decision.trustSlider.decision === 'requires_permission'
             ? 'requires-action'
             : 'ready',
@@ -566,25 +564,23 @@ export class UniversalIntentTrustEnforcementService {
         id: 'uni:receipt:permission',
         kind: 'permission',
         source: 'ConversationalPermissionService',
-        detail: decision.permissionRequest?.prompt || 'Sem permissao conversacional pendente.',
+        detail: decision.permissionRequest?.prompt || 'No conversational permission pending.',
         status: decision.permissionRequest ? 'requires-action' : 'ready',
       },
       {
         id: 'uni:receipt:clarification',
         kind: 'clarification',
         source: 'NaturalClarificationPolicyService',
-        detail: decision.clarification.question || 'Sem esclarecimento obrigatorio.',
+        detail: decision.clarification.question || 'without esclarecimento required.',
         status: decision.requiresClarification ? 'requires-action' : 'ready',
       },
       {
         id: 'uni:receipt:policy',
         kind: 'policy',
         source: 'UniversalIntentTrustEnforcementService',
-        detail: `${gates.filter((gate) => gate.status !== 'passed').length} gate(s) exigem acao antes de execucao livre.`,
-        status: gates.some((gate) => gate.status === 'blocked')
-          ? 'blocked'
-          : gates.some((gate) => gate.status === 'requires-action')
-            ? 'requires-action'
+        detail: `${gates.filter((gate) => gate.status !== 'passed').length} gate(s) require action before free execution.`,
+        status: gates.some((gate) => gate.status === 'blocked') ? 'blocked'
+          : gates.some((gate) => gate.status === 'requires-action') ? 'requires-action'
             : 'ready',
       },
     ];
@@ -597,14 +593,14 @@ export class UniversalIntentTrustEnforcementService {
     clarification: UniversalIntentTrustClarificationSummary,
   ): string {
     if (status === 'blocked') {
-      return decision.trustPosture.blockReason || decision.trustSlider.blockReason || 'Bloquear antes de qualquer executor.';
+      return decision.trustPosture.blockReason || decision.trustSlider.blockReason || 'Block before any executor.';
     }
     if (status === 'requires-clarification') {
-      return clarification.question || 'Perguntar antes de assumir alvo, escopo ou permissao.';
+      return clarification.question || 'Ask before assuming target, scope, or permission.';
     }
     if (status === 'requires-permission') {
-      return permission.prompt || 'Preparar preview e pedir permissao conversacional.';
+      return permission.prompt || 'Prepare preview and request conversational permission.';
     }
-    return 'Pode seguir pelo executor governado com Trust Slider registrado.';
+    return 'Continue through the governed executor with Trust Slider recorded.';
   }
 }

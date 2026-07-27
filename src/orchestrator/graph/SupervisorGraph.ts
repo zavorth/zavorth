@@ -136,7 +136,7 @@ async function runGeneratorStep(
       ? [
           {
             role: 'user' as const,
-            content: `Feedback do critico: ${state.critic_feedback}\nCorrija o trabalho e entregue uma nova resposta completa.`,
+            content: `Critic feedback: ${state.critic_feedback}\nCorrect the work and deliver a new complete answer.`,
           },
         ]
       : []),
@@ -157,7 +157,7 @@ async function runGeneratorStep(
       emittedMessages.push(toAssistantMessage(response));
       return {
         emittedMessages,
-        error: 'Limite de execucao de ferramentas atingido antes da resposta final.',
+        error: 'Tool execution limit reached before the final answer.',
       };
     }
 
@@ -214,13 +214,13 @@ async function runCriticStep(
       {
         role: 'user',
         content: [
-          `Objetivo original: ${state.task_goal}`,
+          `Original objective: ${state.task_goal}`,
           '',
-          'Trabalho entregue:',
+          'Delivered work:',
           String(generatorOutput || ''),
           '',
-          'Responda exatamente com "APROVADO" se estiver correto.',
-          'Se houver problema, responda com o que precisa ser corrigido, de forma objetiva e acionavel.',
+          'Reply exactly with "APPROVED" if it is correct.',
+          'If there is a problem, reply with what must be corrected, objectively and actionably.',
         ].join('\n'),
       },
     ],
@@ -234,32 +234,32 @@ async function runCriticStep(
   if (!criticContent) {
     return {
       isApproved: false,
-      feedback: 'O critico nao retornou feedback utilizavel.',
+      feedback: 'The critic did not return usable feedback.',
       error: null,
     };
   }
 
   return {
-    isApproved: criticContent.toUpperCase() === 'APROVADO',
-    feedback: criticContent.toUpperCase() === 'APROVADO' ? null : criticContent,
+    isApproved: criticContent.toUpperCase() === 'APPROVED',
+    feedback: criticContent.toUpperCase() === 'APPROVED' ? null : criticContent,
     error: null,
   };
 }
 
 /**
- * ZavorthControl controls — Vision In The Loop.
+ * ZavorthControl controls - Vision In The Loop.
  *
- * Extrai referências de imagem do output textual de ferramentas e converte
- * em InlineData para o pipeline VLM do provedor (Gemini, etc.).
+ * Extracts image references from textual tool output and converts them into
+ * InlineData for the provider VLM pipeline.
  *
- * Padrões reconhecidos:
+ * Recognized patterns:
  *   Screenshot: C:\path\file.png (1920x1080px)
  *   Screenshot local: /tmp/capture.jpg
  *
- * Limites de segurança:
- *   - Máximo 10 MB por imagem (proteção contra payload explosion).
- *   - Somente extensões de imagem conhecidas (.png, .jpg, .jpeg, .webp, .bmp).
- *   - Operação silenciosa: falhas de I/O nunca interrompem a tool chain.
+ * Safety limits:
+ *   - Maximum 10 MB per image.
+ *   - Only known image extensions (.png, .jpg, .jpeg, .webp, .bmp).
+ *   - Silent operation: I/O failures never interrupt the tool chain.
  */
 const VISION_MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
@@ -274,11 +274,8 @@ const VISION_MIME_MAP: Record<string, string> = {
 export function extractVisionPayload(
   toolOutput: string,
 ): { mimeType: string; data: string } | null {
-  // Captura: Screenshot: <path>  ou  Screenshot local: <path>
-  const match = toolOutput.match(/Screenshot(?:\s+local)?:\s*([^\n(]+)/i);
-  if (!match || !match[1]) return null;
-
-  const rawPath = match[1].trim();
+  const rawPath = extractScreenshotPath(toolOutput);
+  if (!rawPath) return null;
   const ext = rawPath.slice(rawPath.lastIndexOf('.')).toLowerCase();
   const mimeType = VISION_MIME_MAP[ext];
   if (!mimeType) return null;
@@ -305,7 +302,7 @@ async function executeToolCall(
   if (!dependencies.toolRuntime) {
     return {
       role: 'tool',
-      content: wrapToolOutputForLlm(toolName, 'Tool runtime indisponivel nesta execucao.', {
+      content: wrapToolOutputForLlm(toolName, 'Tool runtime is unavailable for this execution.', {
         source: 'supervisor_graph_tool_result',
         tool_call_id: toolCallId,
       }),
@@ -348,6 +345,26 @@ async function executeToolCall(
       toolName,
     };
   }
+}
+
+function extractScreenshotPath(toolOutput: string): string | null {
+  for (const line of toolOutput.split('\n')) {
+    const trimmed = line.trim();
+    const lower = trimmed.toLowerCase();
+    const prefix = lower.startsWith('screenshot local:') ? 'Screenshot local:'.length
+      : lower.startsWith('screenshot:') ? 'Screenshot:'.length
+        : -1;
+    if (prefix < 0) {
+      continue;
+    }
+    const withoutLabel = trimmed.slice(prefix).trim();
+    const parenIndex = withoutLabel.indexOf('(');
+    const candidate = (parenIndex >= 0 ? withoutLabel.slice(0, parenIndex) : withoutLabel).trim();
+    if (candidate) {
+      return candidate;
+    }
+  }
+  return null;
 }
 
 function toAssistantMessage(response: LlmResponse): ChatMessage {
@@ -420,16 +437,16 @@ function isAllowedVisionPath(candidatePath: string): boolean {
 
 function buildGeneratorPrompt(taskGoal: string, directives: string[] = []): string {
   const lines = [
-    'Voce e o agente gerador do Zavorth.',
-    `Objetivo: "${taskGoal}".`,
-    'Construa a melhor resposta ou solucao possivel para esse objetivo.',
-    'Se receber feedback do critico, corrija completamente a entrega.',
-    'Use ferramentas apenas quando elas realmente ajudarem a concluir a tarefa.',
-    'Se houver mensagens de sistema com heuristicas operacionais do workspace, trate-as como sinal prioritario para escolher estrategia, caminhos, verificacoes e estilo final da entrega.',
+    'You are the Zavorth generator agent.',
+    `Objective: "${taskGoal}".`,
+    'Build the best possible answer or solution for this objective.',
+    'If you receive critic feedback, fully correct the delivery.',
+    'Use tools only when they genuinely help complete the task.',
+    'If system messages include operational workspace heuristics, treat them as priority signals for choosing strategy, paths, checks, and final delivery style.',
   ];
 
   if (directives.length > 0) {
-    lines.push('Siga tambem estas diretivas adicionais do perfil atual:');
+    lines.push('Also follow these additional directives from the current profile:');
     lines.push(...directives.map((directive) => `- ${directive}`));
   }
 
@@ -438,12 +455,12 @@ function buildGeneratorPrompt(taskGoal: string, directives: string[] = []): stri
 
 function buildCriticPrompt(directives: string[] = []): string {
   const lines = [
-    'Voce e o agente critico do Zavorth.',
-    'Avalie se o trabalho atende o objetivo com clareza, logica e sem alucinacoes.',
+    'You are the Zavorth critic agent.',
+    'Evaluate whether the work satisfies the objective with clarity, logic, and no hallucinations.',
   ];
 
   if (directives.length > 0) {
-    lines.push('Use este rigor adicional ao decidir a aprovacao:');
+    lines.push('Use this additional rigor when deciding approval:');
     lines.push(...directives.map((directive) => `- ${directive}`));
   }
 

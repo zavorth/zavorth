@@ -32,7 +32,7 @@ async function runTest() {
     try {
         const response = await provider.chat(messages, osTools);
 
-        console.log(`[LLM RESPONSE]: ${response.content || '(Empty - focused on tool use)'}`);
+        console.log(`[LLM RESPONSE]: ${response.content || '(Empty ? focused on tool use)'}`);
         console.log('[TOOL CALLS DETECTED]:', JSON.stringify(response.toolCalls, null, 2));
 
         if (response.toolCalls && response.toolCalls.length > 0) {

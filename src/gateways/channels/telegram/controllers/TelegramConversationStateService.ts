@@ -129,7 +129,7 @@ export class TelegramConversationStateService {
     const outcomeSummary =
       replyText
       || String(run?.summary || '').trim()
-      || (result?.ok ? 'Execucao registrada pelo runtime universal.' : 'A execucao governada failed.');
+      || (result?.ok ? 'Execution registered by universal runtime.' : 'Governed execution failed.');
     const continuityContext = buildWorkspaceContinuityContext(task, String(task.source || 'telegram').trim());
     const requestedTools = Array.isArray(run?.toolExposure?.tools)
       ? run.toolExposure.tools.map((tool) => String(tool?.id || '').trim()).filter(Boolean)
@@ -360,7 +360,7 @@ export class TelegramConversationStateService {
 
     const base = body.toLowerCase().includes(title.toLowerCase())
       ? body
-      : `Retomando ${title}.\n\n${body}`;
+      : `Resumesndo ${title}.\n\n${body}`;
     const nextActions = Array.isArray(continuityContext?.nextActions)
       ? continuityContext.nextActions.filter((entry) => entry?.command).slice(0, 2)
       : [];
@@ -368,7 +368,7 @@ export class TelegramConversationStateService {
       return base;
     }
 
-    return `${base}\n\nAtalhos agora:\n${nextActions
+    return `${base}\n\nShortcuts now:\n${nextActions
       .map((entry) => `- ${entry.label}: ${entry.command}`)
       .join('\n')}`;
   }

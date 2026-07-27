@@ -128,7 +128,7 @@ export const PUBLIC_DOCS_RECIPES_FORBIDDEN_CLAIMS = [
   'autonomous without approval',
   'without limits',
   'real secret required',
-  'telemetry ligada por padrao',
+  'telemetry ligada por default',
   'cloud required to use',
 ] as const;
 
@@ -158,10 +158,10 @@ export const PUBLIC_DOCS_RECIPES: PublicDocsRecipe[] = [
   {
     id: 'engineering-approval-loop',
     title: 'Autonomous engineering with approval and a small patch',
-    audience: 'Local developer',
+    audience: 'local developer',
     useCase: 'engineering',
     prerequisites: [
-      'Local repo with git',
+      'local repo with git',
       'Permission to review diff before applying',
       'Credential-free task fixture',
     ],
@@ -183,7 +183,7 @@ export const PUBLIC_DOCS_RECIPES: PublicDocsRecipe[] = [
     useCase: 'release',
     prerequisites: [
       'Baseline v1.0.0 present',
-      'Local gates installed',
+      'local gates installed',
       'No publish token required for auditing',
     ],
     commands: [
@@ -204,7 +204,7 @@ export const PUBLIC_DOCS_RECIPES: PublicDocsRecipe[] = [
     audience: 'Technical reviewer',
     useCase: 'replay-artifacts',
     prerequisites: [
-      'Local artifact/replay or fixture',
+      'local artifact/replay or fixture',
       'Sensitive payload redacted',
       'No external sending by default',
     ],
@@ -212,7 +212,7 @@ export const PUBLIC_DOCS_RECIPES: PublicDocsRecipe[] = [
       'npm run artifact:workbench',
       'npm run qa:artifact-workbench',
     ],
-    expectedResult: 'Local evidence, redacted replay, and verifiable result.',
+    expectedResult: 'local evidence, redacted replay, and verifiable result.',
     fixtureMode: true,
     requiresSecrets: false,
     previewFirst: true,
@@ -255,7 +255,7 @@ export const PUBLIC_DOCS_TROUBLESHOOTING: PublicDocsTroubleshootingSymptom[] = [
 export const PUBLIC_DOCS_NO_SECRETS_MATRIX: PublicDocsNoSecretsCapability[] = [
   {
     id: 'first-run',
-    label: 'Local first run',
+    label: 'local first run',
     command: 'npm run go',
     runsWithoutSecrets: true,
     fixtureAvailable: true,

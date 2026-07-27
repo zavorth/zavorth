@@ -6,7 +6,7 @@
     "loading": "Ładowanie...",
     "error": "Wystąpił błąd",
     "success": "Sukces",
-    "confirm": "Czy jesteś pewien?",
+    "confirm": "Czy jesteś pewien...",
     "refresh": "Odśwież",
     "close": "Zamknij",
     "add": "Dodaj",
@@ -164,8 +164,8 @@
     "auditLog": "Dziennik audytu",
     "shutdown": "Wyłączenie",
     "restart": "Uruchom ponownie",
-    "shutdownConfirm": "Wyłączyć ZavorthGateway?",
-    "restartConfirm": "Zrestartować ZavorthGateway?",
+    "shutdownConfirm": "Wyłączyć ZavorthGateway...",
+    "restartConfirm": "Zrestartować ZavorthGateway...",
     "version": "v{version}",
     "debug": "Debuguj",
     "system": "Systemu",
@@ -288,7 +288,7 @@
     "createKey": "Utwórz klucz API",
     "key": "Klucz",
     "revokeKey": "Unieważnij klucz",
-    "revokeConfirm": "Czy na pewno chcesz unieważnić ten klucz API?",
+    "revokeConfirm": "Czy na pewno chcesz unieważnić ten klucz API...",
     "noKeys": "Nie ma jeszcze kluczy API",
     "noKeysDesc": "Utwórz swój pierwszy klucz API, aby uwierzytelniać żądania kierowane do punktu końcowego",
     "keyLabel": "Etykieta klucza",
@@ -320,7 +320,7 @@
     "actions": "Działania",
     "reqs": "wymagania",
     "neverUsed": "Nigdy nie używany",
-    "deleteConfirm": "Usunąć ten klucz API?",
+    "deleteConfirm": "Usunąć ten klucz API...",
     "usageTips": "Wskazówki dotyczące użytkowania",
     "tipAuth": "Użyj kluczy API w nagłówku autoryzacji jako Nośnik YOUR_KEY",
     "tipSecure": "Klucze są wyświetlane tylko raz podczas tworzenia — przechowuj je bezpiecznie",
@@ -630,7 +630,7 @@
     "openToolDocs": "Otwórz dokumentację narzędzi",
     "toolUseCases": {
       "claude": "Użyj, jeśli chcesz mieć silne przepływy pracy związane z planowaniem i długie refaktoryzacje wielu plików za pomocą Claude Code.",
-      "codex": "Użyj, gdy Twój zespół jest ujednolicony w zakresie przepływów CLI OpenAI Codex i uwierzytelniania opartego na profilach.",
+      "codex": "Użyj, gdy Twój zespół jest ujednolicony w zakresie przepływów CLI OpenAI Codex i uwierzytelniania opartego na proqueuech.",
       "droid": "Użyj, gdy potrzebujesz lekkiego agenta terminalowego skupionego na szybkim kodowaniu i pętlach wykonywania poleceń.",
       "cline": "Użyj, gdy konfigurujesz agentów kodujących w edytorach i chcesz przeprowadzić konfigurację z pomocą modeli ZavorthGateway.",
       "kilo": "Użyj, gdy przepływ pracy zależy od poleceń Kilo Code i szybkich edycji iteracyjnych.",
@@ -803,7 +803,7 @@
     "leastLatency": "Najmniejsze opóźnienie",
     "comboName": "Nazwa kombinacji",
     "comboNamePlaceholder": "moja kombinacja",
-    "deleteConfirm": "Usunąć tę kombinację?",
+    "deleteConfirm": "Usunąć tę kombinację...",
     "noCombosYet": "Nie ma jeszcze żadnych kombinacji",
     "comboCreated": "Kombinacja utworzona pomyślnie",
     "comboUpdated": "Kombinacja została pomyślnie zaktualizowana",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "Gotowy do zapisania?",
+    "readinessTitle": "Gotowy do zapisania...",
     "readinessDescription": "Przed utworzeniem lub aktualizacją tej kombinacji przejrzyj listę kontrolną.",
     "readinessCheckName": "Nazwa kombinacji jest prawidłowa",
     "readinessCheckModels": "Wybrano co najmniej jeden model",
@@ -1013,7 +1013,7 @@
     "title": "Punkt końcowy interfejsu API",
     "available": "Dostępne punkty końcowe",
     "cloudProxy": "Serwer proxy w chmurze",
-    "disableConfirm": "Czy na pewno chcesz wyłączyć serwer proxy w chmurze?",
+    "disableConfirm": "Czy na pewno chcesz wyłączyć serwer proxy w chmurze...",
     "baseUrl": "Bazowy adres URL",
     "apiKeyLabel": "Klucz API",
     "registeredKeys": "Zarejestrowane klucze",
@@ -1154,13 +1154,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Potwierdzić kombinację {action} „{combo}”?",
+    "confirmSwitchCombo": "Potwierdzić kombinację {action} „{combo}”...",
     "switchComboFailed": "Nie udało się przełączyć stanu kombinacji.",
     "switchComboSuccess": "Kombinacja „{combo}” została zaktualizowana.",
-    "confirmApplyProfile": "Zastosować profil odporności „{profile}”?",
+    "confirmApplyProfile": "Zastosować profil odporności „{profile}”...",
     "applyProfileFailed": "Nie udało się zastosować profilu odporności.",
     "applyProfileSuccess": "Zastosowano profil „{profile}”.",
-    "confirmResetBreakers": "Zresetować wszystkie wyłączniki automatyczne?",
+    "confirmResetBreakers": "Zresetować wszystkie wyłączniki automatyczne...",
     "resetBreakersFailed": "Nie udało się zresetować wyłączników automatycznych.",
     "resetBreakersSuccess": "Reset wyłączników automatycznych.",
     "processStatus": "Stan procesu",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} działa",
     "ok": "OK",
     "activeLockouts": "Aktywne blokady",
-    "resetConfirm": "Zresetować wszystkie wyłączniki automatyczne do stanu prawidłowego? Spowoduje to wyczyszczenie wszystkich liczników błędów i przywrócenie wszystkich dostawców do stanu operacyjnego.",
+    "resetConfirm": "Zresetować wszystkie wyłączniki automatyczne do stanu prawidłowego... Spowoduje to wyczyszczenie wszystkich liczników błędów i przywrócenie wszystkich dostawców do stanu operacyjnego.",
     "resetAllTitle": "Zresetuj wszystkie wyłączniki automatyczne do stanu prawidłowego",
     "resetting": "Resetuję...",
     "resetAll": "Zresetuj wszystko",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Dostępność modelu",
     "accounts": "Konta",
     "newAccount": "Nowe konto",
-    "deleteConfirm": "Czy na pewno chcesz usunąć tego dostawcę?",
+    "deleteConfirm": "Czy na pewno chcesz usunąć tego dostawcę...",
     "testing": "Testowanie...",
     "testConnection": "Połączenie testowe",
     "testSuccess": "Połączenie pomyślne",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "Testuj klucz API",
     "testKeyPlaceholder": "sk-... (tylko do sprawdzenia)",
     "providerNotFound": "Nie znaleziono dostawcy",
-    "deleteConnectionConfirm": "Usunąć to połączenie?",
+    "deleteConnectionConfirm": "Usunąć to połączenie...",
     "failedSetAlias": "Nie udało się ustawić aliasu",
     "failedSaveConnection": "Nie udało się zapisać połączenia",
     "failedSaveConnectionRetry": "Nie udało się zapisać połączenia. Spróbuj ponownie.",
     "failedRetestConnection": "Nie udało się ponownie przetestować połączenia",
-    "deleteCompatibleNodeConfirm": "Usunąć ten {type} Zgodny węzeł?",
+    "deleteCompatibleNodeConfirm": "Usunąć ten {type} Zgodny węzeł...",
     "anthropicCompatibleDetails": "Szczegóły zgodności antropicznej",
     "openaiCompatibleDetails": "Szczegóły zgodności z OpenAI",
     "messagesApi": "Interfejs API wiadomości",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Automatyczna synchronizacja wyłączona",
     "autoSyncToggleFailed": "Nie udało się przełączyć automatycznej synchronizacji",
     "clearAllModels": "Wyczyść wszystkie modele",
-    "clearAllModelsConfirm": "Czy na pewno chcesz usunąć wszystkie modele dla tego dostawcy?",
+    "clearAllModelsConfirm": "Czy na pewno chcesz usunąć wszystkie modele dla tego dostawcy...",
     "clearAllModelsSuccess": "Wszystkie modele wyczyszczone",
     "clearAllModelsFailed": "Nie udało się wyczyścić modeli",
     "addConnectionToImport": "Dodaj połączenie, aby umożliwić importowanie.",
@@ -1814,7 +1814,7 @@
     "exportData": "Eksportuj dane",
     "importData": "Importuj dane",
     "clearData": "Wyczyść wszystkie dane",
-    "clearDataConfirm": "Spowoduje to trwałe usunięcie wszystkich danych. Czy jesteś pewien?",
+    "clearDataConfirm": "Spowoduje to trwałe usunięcie wszystkich danych. Czy jesteś pewien...",
     "enableRequestLogs": "Włącz dzienniki żądań",
     "logRetention": "Przechowywanie dziennika",
     "ipWhitelist": "Biała lista adresów IP",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Połączenia na konto przed zmianą",
     "modelAliases": "Aliasy modeli",
     "modelAliasesTitle": "Aliasy modeli",
-    "modelAliasesDesc": "Wzorce wieloznaczne do zmiany nazw modeli • Użyj * i ?",
+    "modelAliasesDesc": "Wzorce wieloznaczne do zmiany nazw modeli • Użyj * i ...",
     "addCustomAlias": "Dodaj niestandardowy alias",
     "deprecatedModelId": "Przestarzały ID modelu",
     "newModelId": "Nowy ID modelu",
@@ -1974,7 +1974,7 @@
     "browser": "Przeglądarka",
     "clearLocalData": "Wyczyść dane lokalne",
     "logout": "Wyloguj się",
-    "clearLocalDataConfirm": "Wyczyścić wszystkie dane lokalne? Spowoduje to zresetowanie Twoich preferencji.",
+    "clearLocalDataConfirm": "Wyczyścić wszystkie dane lokalne... Spowoduje to zresetowanie Twoich preferencji.",
     "unknown": "Nieznany",
     "systemActor": "systemu",
     "ipAccessControl": "Kontrola dostępu IP",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Żadnych łańcuchów awaryjnych",
     "noFallbackChainsDesc": "Utwórz łańcuch, aby zdefiniować kolejność zastępczą dostawcy dla modelu.",
     "loadingFallbackChains": "Ładuję łańcuchy zastępcze...",
-    "deleteChainConfirm": "Usunąć łańcuch zastępczy dla „{model}”?",
+    "deleteChainConfirm": "Usunąć łańcuch zastępczy dla „{model}”...",
     "chainCreated": "Łańcuch stworzony dla {model}",
     "chainDeleted": "Łańcuch usunięty dla {model}",
     "failedCreateChain": "Nie udało się utworzyć łańcucha",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Nie są jeszcze dostępne żadne kopie zapasowe. Kopie zapasowe zostaną utworzone automatycznie w przypadku zmiany danych.",
     "backupsAvailable": "Dostępne są {count} kopie zapasowe",
     "refresh": "Odśwież",
-    "confirm": "Potwierdzić?",
+    "confirm": "Potwierdzić...",
     "yes": "Tak",
     "no": "Nie",
     "restore": "Przywróć",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Zasady i wyłączniki automatyczne",
     "activeIssuesDetected": "Wykryto aktywne problemy",
     "off": "Wyłączone",
-    "resetPricingConfirm": "Zresetować wszystkie ceny {provider} do wartości domyślnych?",
+    "resetPricingConfirm": "Zresetować wszystkie ceny {provider} do wartości domyślnych...",
     "pricingDescInput": "Wejście: tokeny wysłane do modelu",
     "pricingDescOutput": "Dane wyjściowe: wygenerowano tokeny",
     "pricingDescCached": "Buforowane: ponownie wykorzystane dane wejściowe (~50% szybkości wprowadzania)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Jesteś pomocnym asystentem.",
-        "userGreeting": "Witam! Jak się dzisiaj masz?"
+        "userGreeting": "Witam! Jak się dzisiaj masz..."
       },
       "toolCalling": {
-        "userWeather": "Jaka jest pogoda w São Paulo?",
+        "userWeather": "Jaka jest pogoda w São Paulo...",
         "toolDescription": "Uzyskaj aktualną pogodę dla danej lokalizacji",
         "cityNameDescription": "Nazwa miasta"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Teraz posortuj w kolejności malejącej."
       },
       "thinking": {
-        "question": "Jaka jest suma pierwszych 100 liczb pierwszych?"
+        "question": "Jaka jest suma pierwszych 100 liczb pierwszych..."
       },
       "systemPrompt": {
         "systemInstruction": "Jesteś starszym inżynierem oprogramowania specjalizującym się w systemach rozproszonych. Odpowiadaj na pytania zwięźle, korzystając z najlepszych praktyk branżowych. W stosownych przypadkach zawsze podawaj przykłady kodu. Sformatuj swoje odpowiedzi, korzystając z przecen.",
-        "question": "Jak zaimplementować wzór wyłącznika?"
+        "question": "Jak zaimplementować wzór wyłącznika..."
       },
       "streaming": {
         "prompt": "Opowiedz mi krótką historię o robocie uczącym się malować."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "lub usuń pole hasłoHash",
     "restartServerWithNewPassword": "Zrestartuj serwer - będzie używał nowego hasła",
     "backToLogin": "Powrót do logowania",
-    "forgotPassword": "Zapomniałeś hasła?",
+    "forgotPassword": "Zapomniałeś hasła...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Autoryzacja",
     "Content-Disposition": "Dyspozycja treści",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Bliźnięta",
     "flowProviderGithubCopilot": "Drugi pilot GitHuba",
     "interactiveDiagram": "Interaktywny diagram widoczny na pulpicie",
-    "ctaTitle": "Chcesz uprościć swoją infrastrukturę AI?",
+    "ctaTitle": "Chcesz uprościć swoją infrastrukturę AI...",
     "ctaDescription": "Dołącz do programistów, którzy usprawniają integrację sztucznej inteligencji za pomocą Zavorth. Oprogramowanie typu open source i na początek bezpłatne.",
     "startFree": "Zacznij za darmo",
     "readDocumentation": "Przeczytaj dokumentację"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Ostatnia aktualizacja: {date}",
     "policyLastUpdatedDate": "13 lutego 2026 r",
     "listSeparator": "-",
-    "questionsVisit": "Pytania? Odwiedź nasze",
+    "questionsVisit": "Pytania... Odwiedź nasze",
     "githubRepository": "Repozytorium GitHuba",
     "privacySection1Title": "1. Architektura lokalna",
     "privacySection1Text": "Zavorth zaprojektowano jako aplikację działającą lokalnie. Całe przetwarzanie i przechowywanie danych odbywa się wyłącznie na Twoim komputerze. Nie ma scentralizowanego serwera gromadzącego Twoje dane.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Jesteś pomocnym asystentem AI.",
-      "userGreeting": "Witam! Jak mogę Ci dzisiaj pomóc?"
+      "userGreeting": "Witam! Jak mogę Ci dzisiaj pomóc..."
     },
     "streaming": {
       "prompt": "Napisz opowiadanie o"
     },
     "systemPrompt": {
-      "question": "Jaki jest sens życia?",
+      "question": "Jaki jest sens życia...",
       "systemInstruction": "Podaj przemyślaną, filozoficzną odpowiedź."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "Nazwa miasta, dla którego chcesz uzyskać pogodę",
       "toolDescription": "Uzyskaj aktualną pogodę dla danej lokalizacji",
-      "userWeather": "Jaka jest pogoda w Tokio?"
+      "userWeather": "Jaka jest pogoda w Tokio..."
     },
     "multiTurn": {
       "system": "Jesteś pomocnym asystentem.",
       "assistantExample": "Chętnie Ci w tym pomogę.",
       "userInitial": "Potrzebuję pomocy",
-      "userFollowUp": "Możesz to rozwinąć?"
+      "userFollowUp": "Możesz to rozwinąć..."
     }
   },
   "cache": {

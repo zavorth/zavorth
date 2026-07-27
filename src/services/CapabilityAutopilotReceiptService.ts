@@ -181,22 +181,22 @@ export class CapabilityAutopilotReceiptService {
 
     switch (stage) {
       case 'completed':
-        return `${capabilityLabel} esta pronto.`;
+        return `${capabilityLabel} is ready.`;
       case 'resume':
-        return `${capabilityLabel} esta pronto; posso retomar o pedido original.`;
+        return `${capabilityLabel} is ready; I can resume the original request.`;
       case 'permission':
-        return `${capabilityLabel} precisa da sua permissao antes de eu mexer nisso.`;
+        return `${capabilityLabel} needs your permission before I change this.`;
       case 'repair':
-        return `${capabilityLabel} tem um plano de reparo para revisar.`;
+        return `${capabilityLabel} has a repair plan for review.`;
       case 'failed':
-        return `${capabilityLabel} ainda nao conseguiu ficar pronto.`;
+        return `${capabilityLabel} is not ready yet.`;
       case 'diagnosis':
         return parts.diagnosis?.narratives.find((entry) => entry.audience === 'everyday_user')?.headline ||
-          `${capabilityLabel} precisa de diagnostico.`;
+          `${capabilityLabel} needs diagnostics.`;
       case 'preflight':
-        return parts.readiness?.summary || `${capabilityLabel} esta em preflight.`;
+        return parts.readiness?.summary || `${capabilityLabel} is in preflight.`;
       default:
-        return `Vou preparar ${capabilityLabel}.`;
+        return `I will prepare ${capabilityLabel}.`;
     }
   }
 
@@ -216,27 +216,25 @@ export class CapabilityAutopilotReceiptService {
     parts: CapabilityReceiptParts,
   ): string {
     if (parts.validation) {
-      return parts.validation.success
-        ? `${capabilityLabel} foi validado com sucesso.`
-        : `${capabilityLabel} falhou na validacao: ${parts.validation.summary}`;
+      return parts.validation.success ? `${capabilityLabel} was validated successfully.`
+        : `${capabilityLabel} failed na validation: ${parts.validation.summary}`;
     }
 
     const everydayNarrative = parts.diagnosis?.narratives.find((entry) => entry.audience === 'everyday_user');
     const permissionCount = parts.repairPlan?.permissionRequirements.length || 0;
     const fallbackCount = parts.repairPlan?.fallbackOptions.length || 0;
-    const resumeHint = parts.resumeIntent || parts.repairPlan?.resumeIntent
-      ? ' After validation, I can resume the original request exactly.'
+    const resumeHint = parts.resumeIntent || parts.repairPlan?.resumeIntent ? ' After validation, I can resume the original request exactly.'
       : '';
 
     if (parts.repairPlan?.status === 'validated') {
-      return `${capabilityLabel} ja esta pronto para continuar.${resumeHint}`;
+      return `${capabilityLabel} is ready to continue.${resumeHint}`;
     }
 
     if (parts.repairPlan?.status === 'approval_required') {
       return [
         everydayNarrative?.explanation || parts.repairPlan.summary,
-        `Antes de qualquer acao, preciso de ${permissionCount} permissao(oes) com escopo claro.`,
-        fallbackCount > 0 ? `Tambem tenho ${fallbackCount} alternativa(s), mas nenhuma sera usada escondida.` : null,
+        `Before any action, I need ${permissionCount} permission(s) with clear scope.`,
+        fallbackCount > 0 ? `There are also ${fallbackCount} alternative(s), and none will be used silently.` : null,
         resumeHint.trim() || null,
       ].filter(Boolean).join(' ');
     }
@@ -244,7 +242,7 @@ export class CapabilityAutopilotReceiptService {
     if (parts.repairPlan) {
       return [
         everydayNarrative?.explanation || parts.repairPlan.summary,
-        'Este e apenas um plano; nada foi executado ainda.',
+        'This is only a plan; nothing has been executed yet.',
         resumeHint.trim() || null,
       ].filter(Boolean).join(' ');
     }
@@ -253,7 +251,7 @@ export class CapabilityAutopilotReceiptService {
       return everydayNarrative.explanation;
     }
 
-    return parts.readiness?.detail || `${capabilityLabel} ainda nao tem detalhe suficiente.`;
+    return parts.readiness?.detail || `${capabilityLabel} does not have enough detail yet.`;
   }
 
   private buildTechnicalSummary(
@@ -281,7 +279,7 @@ export class CapabilityAutopilotReceiptService {
     const entries: CapabilityReceiptTimelineEntry[] = [];
 
     if (parts.resumeIntent) {
-      entries.push(this.timeline(generatedAt, 'intent', 'completed', 'Pedido original preservado.', parts.resumeIntent.rawText));
+      entries.push(this.timeline(generatedAt, 'intent', 'completed', 'request original preservado.', parts.resumeIntent.rawText));
     }
 
     if (parts.readiness) {

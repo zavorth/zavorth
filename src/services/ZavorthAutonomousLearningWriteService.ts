@@ -243,10 +243,10 @@ export class ZavorthAutonomousLearningWriteService {
 
   public removePreference(id: string): { ok: boolean; summary: string; removedId: string | null } {
     const target = String(id || '').trim();
-    if (!target) return { ok: false, summary: 'Id de preferencia ausente.', removedId: null };
+    if (!target) return { ok: false, summary: 'Missing preference id.', removedId: null };
     const store = this.readPreferenceStore();
     const match = store.preferences.find((entry) => entry.id === target || entry.candidateId === target);
-    if (!match) return { ok: false, summary: `Preferencia nao encontrada: ${target}`, removedId: null };
+    if (!match) return { ok: false, summary: `Preference not found: ${target}`, removedId: null };
     const next: PreferenceStore = {
       version: 2,
       userId: this.userId,
@@ -254,16 +254,16 @@ export class ZavorthAutonomousLearningWriteService {
       preferences: store.preferences.filter((entry) => entry.id !== match.id),
     };
     this.atomicWriteJson(this.preferenceStorePath, next);
-    return { ok: true, summary: `Preferencia removida: ${match.summary}`, removedId: match.id };
+    return { ok: true, summary: `Preference removed: ${match.summary}`, removedId: match.id };
   }
 
   public removeSkillDraft(id: string): { ok: boolean; summary: string; removedId: string | null } {
     const target = path.basename(String(id || '').trim());
     if (!target || target === '.' || target === '..') {
-      return { ok: false, summary: 'Id de rascunho ausente ou invalido.', removedId: null };
+      return { ok: false, summary: 'Id de rascunho missing ou invalid.', removedId: null };
     }
     if (!this.existsSync(this.skillDraftRoot)) {
-      return { ok: false, summary: `Rascunho nao encontrado: ${target}`, removedId: null };
+      return { ok: false, summary: `Draft not found: ${target}`, removedId: null };
     }
     const dirs = fs.readdirSync(this.skillDraftRoot, { withFileTypes: true }).filter((entry) => entry.isDirectory());
     for (const dir of dirs) {
@@ -272,7 +272,7 @@ export class ZavorthAutonomousLearningWriteService {
       if (!resolved.startsWith(path.resolve(this.skillDraftRoot) + path.sep)) continue;
       if (dir.name === target) {
         fs.rmSync(resolved, { recursive: true, force: true });
-        return { ok: true, summary: `Rascunho removido: ${dir.name}`, removedId: dir.name };
+        return { ok: true, summary: `Draft removido: ${dir.name}`, removedId: dir.name };
       }
       try {
         const meta = JSON.parse(this.readFileSync(path.join(resolved, 'draft.meta.json'), 'utf8')) as {
@@ -281,12 +281,12 @@ export class ZavorthAutonomousLearningWriteService {
         };
         if (meta.candidateId === target || meta.draftId === target) {
           fs.rmSync(resolved, { recursive: true, force: true });
-          return { ok: true, summary: `Rascunho removido: ${dir.name}`, removedId: meta.candidateId || dir.name };
+          return { ok: true, summary: `Draft removido: ${dir.name}`, removedId: meta.candidateId || dir.name };
         }
       } catch {
       }
     }
-    return { ok: false, summary: `Rascunho nao encontrado: ${target}`, removedId: null };
+    return { ok: false, summary: `Draft not found: ${target}`, removedId: null };
   }
 
   public listSkillDrafts(): Array<{ id: string; title: string; path: string; createdAt: string }> {

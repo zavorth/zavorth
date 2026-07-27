@@ -2,7 +2,7 @@
   "version": 1,
   "updatedAt": "2026-07-15T00:00:00.000Z",
   "notes": [
-    "Local sources are scanned offline for skill search/install.",
+    "local sources are scanned offline for skill search/install.",
     "Optional remote search kinds (user-configured): github-topic, npm-keyword, https-catalog.",
     "Remote kinds use the user query as the search term — no product brand defaults.",
     "Set enabled=true and config fields only when you want network discovery."
@@ -52,7 +52,7 @@
       "createIfMissing": true,
       "ownership": "workspace",
       "registrySource": "zavorth:local-workspace",
-      "notes": ["Local library curated by Zavorth for ready-to-use skills."]
+      "notes": ["local library curated by Zavorth for ready-to-use skills."]
     },
     {
       "id": "nexus-core",
@@ -65,7 +65,7 @@
       "createIfMissing": true,
       "ownership": "workspace",
       "registrySource": "zavorth:nexus-core-skills",
-      "notes": ["Colecao completa de skills da engine do Nexus Mesh.", "Habilitadas e confiaveis por padrao."]
+      "notes": ["collection completa de skills da engine do Nexus Mesh.", "Habilitadas e trusted por default."]
     },
     {
       "id": "optional-github-topic-search",

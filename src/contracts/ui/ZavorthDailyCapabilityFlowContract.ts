@@ -60,7 +60,7 @@ export type ZavorthDailyCapabilityFlowSnapshot = {
   status: ZavorthDailyCapabilityFlowStatus;
   headline: string;
   selfImprovement: {
-    title: 'Melhorar comportamento';
+    title: 'Improve behavior';
     status: ZavorthDailyCapabilityFlowStatus;
     promptStatus: 'ready' | 'blocked' | 'needs-review';
     bestCandidateId: string | null;
@@ -70,7 +70,7 @@ export type ZavorthDailyCapabilityFlowSnapshot = {
     stages: ZavorthDailyCapabilityFlowStage[];
   };
   runtimeSetup: {
-    title: 'Rodar leve';
+    title: 'Light runtime';
     target: RuntimeDeploymentTarget;
     selectedProfile: string;
     fallbackProfile: string;
@@ -78,7 +78,7 @@ export type ZavorthDailyCapabilityFlowSnapshot = {
     wizardSteps: ZavorthDailyCapabilityFlowWizardStep[];
   };
   mcpCatalog: {
-    title: 'Adicionar ferramenta';
+    title: 'Add tool';
     status: ZavorthDailyCapabilityFlowStatus;
     scanned: number;
     blocked: number;
@@ -87,7 +87,7 @@ export type ZavorthDailyCapabilityFlowSnapshot = {
     items: ZavorthDailyCapabilityFlowMcpItem[];
   };
   continuousEvals: {
-    title: 'Rodar avaliacoes';
+    title: 'Run evaluations';
     status: ZavorthDailyCapabilityFlowStatus;
     commands: string[];
     summary: string;

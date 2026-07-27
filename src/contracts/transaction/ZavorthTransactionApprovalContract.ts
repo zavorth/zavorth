@@ -10,7 +10,7 @@ import type {
   ZavorthTransactionRiskLevel,
 } from './ZavorthTransactionPlaneContract.js';
 
-export const ZAVORTH_TRANSACTION_APPROVAL_CONTRACT_VERSION = 'zavorth-transaction-approval/checkpoint-3' as const;
+export const ZAVORTH_TRANSACTION_APPROVAL_CONTRACT_VERSION = 'zavorth-transaction-approval/gate-3' as const;
 
 export type ZavorthTransactionApprovalDecision = 'approved' | 'rejected';
 

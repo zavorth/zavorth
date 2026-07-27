@@ -98,16 +98,14 @@ export function RequestLoggerTable({
                     )}
                     {visibleColumns.requestedModel && (
                       <td className="px-3 py-2 font-mono text-[11px]">
-                        {log.requestedModel ? (
+                        {log.requestedModel - (
                           <span
                             className={
-                              log.requestedModel !== log.model
-                                ? "text-amber-600 dark:text-amber-400"
+                              log.requestedModel !== log.model ? "text-amber-600 dark:text-amber-400"
                                 : "text-text-muted"
                             }
                             title={
-                              log.requestedModel !== log.model
-                                ? `Requested ${log.requestedModel}, routed as ${log.model}`
+                              log.requestedModel !== log.model ? `Requested ${log.requestedModel}, routed as ${log.model}`
                                 : log.requestedModel
                             }
                           >
@@ -153,7 +151,7 @@ export function RequestLoggerTable({
                     )}
                     {visibleColumns.combo && (
                       <td className="px-3 py-2">
-                        {log.comboName ? (
+                        {log.comboName - (
                           <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold bg-violet-500/20 text-violet-800 dark:text-violet-300 border border-violet-500/40">
                             {log.comboName}
                           </span>

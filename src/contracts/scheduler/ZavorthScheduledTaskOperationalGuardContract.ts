@@ -1,7 +1,7 @@
 import type { ZavorthCrossSurfaceProjectionSurface } from '../ZavorthCrossSurfaceRuntimeProjectionContract.js';
 
 export const ZAVORTH_SCHEDULED_TASK_OPERATIONAL_GUARD_CONTRACT_VERSION =
-  '2026-05-12.scheduled-task-operational-guard-checkpoint-5' as const;
+  '2026-05-12.scheduled-task-operational-guard-gate-5' as const;
 
 export type ZavorthScheduledTaskOperationalGuardStatus =
   | 'healthy'
@@ -45,7 +45,7 @@ export type ZavorthScheduledTaskOperationalGuardTask = {
 export type ZavorthScheduledTaskOperationalGuardReceipt = {
   id: string;
   kind:
-    | 'checkpoint-5-scheduled-task-operational-guard'
+    | 'gate-5-scheduled-task-operational-guard'
     | 'approval-expiry-check'
     | 'auto-pause-check'
     | 'auto-pause-applied'

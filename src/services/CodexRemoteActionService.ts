@@ -176,8 +176,8 @@ export class CodexRemoteActionService {
         action: {
           status: 'completed',
           actionId,
-          label: 'Selecionar perfil',
-          note: `Perfil ativo alterado para ${selectedProfile.label}.`,
+          label: 'Selecionar profile',
+          note: `Perfil active alterado para ${selectedProfile.label}.`,
           targetPanel: 'codex-remote',
           selectedProfileId: selectedProfile.id,
         },
@@ -203,7 +203,7 @@ export class CodexRemoteActionService {
         action: {
           status: 'completed',
           actionId,
-          label: actionId === 'create-profile' ? 'Criar perfil' : 'Atualizar perfil',
+          label: actionId === 'create-profile' ? 'Criar profile' : 'Atualizar profile',
           note: `Perfil ${savedProfile.label} (${savedProfile.id}) salvo no Codex Remote.`,
           targetPanel: 'codex-remote',
           selectedProfileId: savedProfile.id,
@@ -228,10 +228,9 @@ export class CodexRemoteActionService {
         action: {
           status: 'completed',
           actionId,
-          label: 'Remover perfil',
-          note: deleted
-            ? `Perfil ${deletedProfile.label} (${deletedProfile.id}) removido do Codex Remote.`
-            : `Perfil ${targetProfileId || 'n/d'} nao estava presente no Codex Remote.`,
+          label: 'Remover profile',
+          note: deleted ? `Perfil ${deletedProfile.label} (${deletedProfile.id}) removido do Codex Remote.`
+            : `Perfil ${targetProfileId || 'n/d'} was not present in Codex Remote.`,
           targetPanel: 'codex-remote',
           selectedProfileId: codexRemote.activeProfile.id,
         },
@@ -258,8 +257,8 @@ export class CodexRemoteActionService {
         action: {
           status: 'completed',
           actionId,
-          label: 'Iniciar sessao',
-          note: `Sessao ${session.record.sessionId} iniciada no Codex Remote.`,
+          label: 'Start session',
+          note: `Session ${session.record.sessionId} started in Codex Remote.`,
           targetPanel: 'codex-remote',
           codexSessionId: session.record.sessionId,
         },
@@ -282,8 +281,8 @@ export class CodexRemoteActionService {
         action: {
           status: 'completed',
           actionId,
-          label: 'Retomar sessao',
-          note: `Sessao ${session.record.sessionId} retomada.`,
+          label: 'resume session',
+          note: `Session ${session.record.sessionId} resumed.`,
           targetPanel: 'codex-remote',
           codexSessionId: session.record.sessionId,
         },
@@ -302,8 +301,8 @@ export class CodexRemoteActionService {
         action: {
           status: 'completed',
           actionId,
-          label: 'Parar sessao',
-          note: `Sessao ${session.record.sessionId} interrompida.`,
+          label: 'Stop session',
+          note: `Session ${session.record.sessionId} interrupted.`,
           targetPanel: 'codex-remote',
           codexSessionId: session.record.sessionId,
         },
@@ -330,8 +329,8 @@ export class CodexRemoteActionService {
         action: {
           status: 'completed',
           actionId,
-          label: 'Anexar sessao web',
-          note: `Handoff web preparado para ${normalizedSessionId}.`,
+          label: 'Attach web session',
+          note: `Handoff web prepared para ${normalizedSessionId}.`,
           targetPanel: 'codex-remote',
           codexSessionId: String(normalizedSessionId || '').trim(),
           openSessionId: spawnedSession.sessionId,
@@ -356,8 +355,8 @@ export class CodexRemoteActionService {
         action: {
           status: 'completed',
           actionId,
-          label: 'Anexar sessao web',
-          note: `Handoff web preparado para ${normalizedSessionId}.`,
+          label: 'Attach web session',
+          note: `Handoff web prepared para ${normalizedSessionId}.`,
           targetPanel: 'codex-remote',
           codexSessionId: String(normalizedSessionId || '').trim(),
           openSessionId: spawnedSession.sessionId,
@@ -374,7 +373,7 @@ export class CodexRemoteActionService {
     const sessionSpawner = input.sessionSpawner || null;
     const canSpawnWeb = sessionSpawner ? true : this.sessionStore.canSpawn('web');
     if (!canSpawnWeb) {
-      throw new Error('O runtime atual nao pode abrir sessoes web do Codex Remote.');
+      throw new Error('The current runtime cannot open Codex Remote web sessions.');
     }
 
     const spawnedSession = sessionSpawner
@@ -391,8 +390,8 @@ export class CodexRemoteActionService {
       action: {
         status: 'completed',
         actionId,
-        label: 'Abrir sessao web',
-        note: 'Sessao web do Codex Remote preparada para handoff.',
+        label: 'Open web session',
+        note: 'Session web do Codex Remote prepared for handoff.',
         targetPanel: 'codex-remote',
         openSessionId: spawnedSession.sessionId,
         handoffCommand: spawnedSession.handoffCommand,
@@ -467,8 +466,8 @@ export class CodexRemoteActionService {
       action: {
         status: 'pending-approval',
         actionId: input.actionId,
-        label: 'Aguardando aprovacao',
-        note: `Acao ${input.actionId} pendente de aprovacao. No Telegram voce pode aprovar pelo teclado; em qualquer surface use /codexremote approve ${permission.permission_id} ou /codexremote reject ${permission.permission_id}.`,
+        label: 'Waiting for approval',
+        note: `Action ${input.actionId} pending approval. On Telegram you can approve through the keyboard; on any surface use /codexremote approve ${permission.permission_id} ou /codexremote reject ${permission.permission_id}.`,
         targetPanel: 'codex-remote',
         permissionId: permission.permission_id,
       },
@@ -489,19 +488,19 @@ export class CodexRemoteActionService {
   ): Promise<CodexRemoteActionExecution> {
     const permissionId = String(input.permissionId || '').trim();
     if (!permissionId) {
-      throw new Error('permissionId obrigatorio.');
+      throw new Error('permissionId required.');
     }
     const permission = await this.permissions.getRequest(permissionId);
     if (!permission || permission.executor !== 'codex_remote') {
-      throw new Error(`Permissao do Codex Remote nao encontrada: ${permissionId}.`);
+      throw new Error(`Codex Remote permission not found: ${permissionId}.`);
     }
     if (permission.status === 'rejected') {
-      throw new Error(`Permissao ${permissionId} ja foi rejeitada e nao pode ser executada.`);
+      throw new Error(`Permission ${permissionId} was already rejected and cannot be executed.`);
     }
     const approved = permission.status === 'approved'
       ? permission
       : await this.permissions.approveRequest(permissionId, runtimeUserId, {
-          decision_note: String(input.decisionNote || '').trim() || 'Aprovado by the operator.',
+          decision_note: String(input.decisionNote || '').trim() || 'Approved by the operator.',
         });
     const metadata = approved.metadata || {};
     const result = await this.execute({
@@ -526,7 +525,7 @@ export class CodexRemoteActionService {
       action: {
         ...result.action,
         permissionId: approved.permission_id,
-        note: `${result.action.note} Pedido ${approved.permission_id} aprovado e executado.`,
+        note: `${result.action.note} request ${approved.permission_id} approved e executado.`,
       },
     };
   }
@@ -540,11 +539,11 @@ export class CodexRemoteActionService {
   ): Promise<CodexRemoteActionExecution> {
     const permissionId = String(input.permissionId || '').trim();
     if (!permissionId) {
-      throw new Error('permissionId obrigatorio.');
+      throw new Error('permissionId required.');
     }
     const permission = await this.permissions.getRequest(permissionId);
     if (!permission || permission.executor !== 'codex_remote') {
-      throw new Error(`Permissao do Codex Remote nao encontrada: ${permissionId}.`);
+      throw new Error(`Codex Remote permission not found: ${permissionId}.`);
     }
     const rejected = await this.permissions.rejectRequest(
       permissionId,
@@ -556,8 +555,8 @@ export class CodexRemoteActionService {
       action: {
         status: 'rejected',
         actionId: 'reject-permission',
-        label: 'Permissao rejeitada',
-        note: `Pedido ${rejected.permission_id} rejeitado.`,
+        label: 'Permission rejected',
+        note: `request ${rejected.permission_id} rejected.`,
         targetPanel: 'codex-remote',
         permissionId: rejected.permission_id,
       },
@@ -606,7 +605,7 @@ export class CodexRemoteActionService {
       return String(input.profileId || '').trim() || null;
     }
     if (input.actionId === 'start-session') {
-      return String(input.title || '').trim() || 'nova-sessao';
+      return String(input.title || '').trim() || 'new-session';
     }
     return String(input.sessionId || '').trim() || null;
   }
@@ -618,24 +617,24 @@ export class CodexRemoteActionService {
   }): string {
     switch (input.actionId) {
       case 'select-profile':
-        return `Trocar o perfil ativo do Codex Remote para ${String(input.profileId || '').trim() || 'n/d'}.`;
+        return `Trocar o profile active do Codex Remote para ${String(input.profileId || '').trim() || 'n/d'}.`;
       case 'create-profile':
-        return `Criar o perfil ${String(input.profileId || '').trim() || 'n/d'} no Codex Remote.`;
+        return `Criar o profile ${String(input.profileId || '').trim() || 'n/d'} no Codex Remote.`;
       case 'update-profile':
-        return `Atualizar o perfil ${String(input.profileId || '').trim() || 'n/d'} no Codex Remote.`;
+        return `Atualizar o profile ${String(input.profileId || '').trim() || 'n/d'} no Codex Remote.`;
       case 'delete-profile':
-        return `Remover o perfil ${String(input.profileId || '').trim() || 'n/d'} do Codex Remote.`;
+        return `Remover o profile ${String(input.profileId || '').trim() || 'n/d'} do Codex Remote.`;
       case 'start-session':
-        return 'Iniciar uma nova sessao do Codex Remote.';
+        return 'Iniciar uma nova session do Codex Remote.';
       case 'resume-session':
-        return `Retomar a sessao ${String(input.sessionId || '').trim() || 'n/d'} do Codex Remote.`;
+        return `resume a session ${String(input.sessionId || '').trim() || 'n/d'} do Codex Remote.`;
       case 'stop-session':
-        return `Parar a sessao ${String(input.sessionId || '').trim() || 'n/d'} do Codex Remote.`;
+        return `Parar a session ${String(input.sessionId || '').trim() || 'n/d'} do Codex Remote.`;
       case 'open-web-session':
       case 'spawn-web-session':
-        return 'Abrir um handoff web para uma sessao do Codex Remote.';
+        return 'Abrir um handoff web para uma session do Codex Remote.';
       default:
-        return 'Executar uma acao do Codex Remote.';
+        return 'run uma action do Codex Remote.';
     }
   }
 
@@ -663,7 +662,7 @@ export class CodexRemoteActionService {
 
     normalized = normalized.replace(/^[\s"'`([{<]+|[\s"'`)\]}>]+$/g, '');
     if (options.stripTerminalPunctuation) {
-      normalized = normalized.replace(/[.,;:!?]+$/g, '');
+      normalized = normalized.replace(/[.,;:!...]+$/g, '');
     }
 
     return normalized || null;

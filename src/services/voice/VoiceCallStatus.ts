@@ -15,6 +15,7 @@ export type VoiceCallStatusModel = {
 
 export function resolveVoiceCallStatus(input: {
   active: boolean;
+  state?: string | null;
   phase?: string | null;
   webrtcState?: string | null;
   mediaMode?: string | null;
@@ -33,11 +34,11 @@ export function resolveVoiceCallStatus(input: {
     };
   }
 
-  const phase = String(input.phase || 'idle').toLowerCase();
+  const state = String(input.state || input.phase || 'idle').toLowerCase();
   const webrtc = String(input.webrtcState || '').toLowerCase();
   const err = String(input.lastError || '').trim();
 
-  if (phase === 'error' || err) {
+  if (state === 'error' || err) {
     return {
       key: 'error',
       label: 'Error',
@@ -48,60 +49,59 @@ export function resolveVoiceCallStatus(input: {
   }
 
   if (
-    phase === 'idle' ||
-    phase === 'connecting' ||
+    state === 'idle' ||
+    state === 'connecting' ||
     webrtc === 'new' ||
     webrtc === 'connecting' ||
     webrtc === 'checking'
   ) {
-    if (phase !== 'listening' && phase !== 'processing' && phase !== 'speaking') {
+    if (state !== 'listening' && state !== 'processing' && state !== 'speaking') {
       return {
         key: 'connecting',
         label: 'Connecting',
         detail:
           input.mediaPlane === 'native_wrtc'
-            ? 'Opening mic + WebRTC media plane…'
-            : 'Opening microphone and session…',
+            ? 'Opening mic and WebRTC media plane...'
+            : 'Opening microphone and session...',
         tone: 'info',
         color: '#3b82f6',
       };
     }
   }
 
-  if (phase === 'processing' || input.busy) {
+  if (state === 'processing' || input.busy) {
     return {
       key: 'thinking',
       label: 'Thinking',
-      detail: 'Transcribing and running the agent…',
+      detail: 'Transcribing and running the agent...',
       tone: 'active',
       color: '#a855f7',
     };
   }
 
-  if (phase === 'speaking') {
+  if (state === 'speaking') {
     return {
       key: 'speaking',
       label: 'Speaking',
-      detail: 'Agent is talking — speak to interrupt (barge-in).',
+      detail: 'Agent is talking; speak to interrupt.',
       tone: 'success',
       color: '#22c55e',
     };
   }
 
-  if (phase === 'listening') {
+  if (state === 'listening') {
     const hearing = (input.rms || 0) > 0.02;
     return {
       key: 'listening',
       label: hearing ? 'Hearing you' : 'Listening',
-      detail: hearing
-        ? 'Speech detected…'
-        : 'Mic open — pause when you finish speaking.',
+      detail: hearing ? 'Speech detected...'
+        : 'Mic open; pause when you finish speaking.',
       tone: 'active',
       color: hearing ? '#f59e0b' : '#06b6d4',
     };
   }
 
-  if (phase === 'ended') {
+  if (state === 'ended') {
     return {
       key: 'ended',
       label: 'Ended',
@@ -112,9 +112,9 @@ export function resolveVoiceCallStatus(input: {
   }
 
   return {
-    key: phase || 'active',
-    label: phase || 'Active',
-    detail: [input.mediaMode, input.mediaPlane].filter(Boolean).join(' · ') || 'Voice call running.',
+    key: state || 'active',
+    label: state || 'Active',
+    detail: [input.mediaMode, input.mediaPlane].filter(Boolean).join(' / ') || 'Voice call running.',
     tone: 'info',
     color: '#3b82f6',
   };

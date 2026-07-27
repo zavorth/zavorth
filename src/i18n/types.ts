@@ -10,7 +10,8 @@ export type LocaleNamespace =
   | 'services'
   | 'onboarding'
   | 'quickstart'
-  | 'trust-loop';
+  | 'trust-loop'
+  | 'execution';
 
 export type InterpolationVars = Record<string, string | number>;
 
@@ -46,5 +47,5 @@ export const KNOWN_LOCALES: readonly string[] = [
 export const NAMESPACE_LIST: readonly LocaleNamespace[] = [
   'common', 'cli', 'errors', 'zavorthControl',
   'desktop', 'telegram', 'services', 'onboarding', 'quickstart',
-  'trust-loop',
+  'trust-loop', 'execution',
 ] as const;

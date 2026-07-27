@@ -319,7 +319,7 @@ export class ProjectManifestLoader {
       if (actionType !== 'agent-run') {
         issues.push({
           path: `${itemPath}.action.type`,
-          message: 'only agent-run is supported in P4-001',
+          message: 'only agent-run is supported in agent-run-only',
         });
       }
 

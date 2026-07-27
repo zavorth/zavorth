@@ -11,18 +11,17 @@ function buildOverviewTextSection(
     return [];
   }
 
-  const actionLine = overview.actions.length
-    ? `- Acoes: ${overview.actions.map((action) =>
+  const actionLine = overview.actions.length ? `- Actions: ${overview.actions.map((action) =>
       `${action.label}${action.command ? ` | ${action.command}` : ''} | ${action.reason}`,
     ).join(' | ')}`
     : null;
 
   return [
     title,
-    `- Postura: ${overview.posture}`,
+    `- Posture: ${overview.posture}`,
     `- Headline: ${overview.headline}`,
-    `- Resumo: ${overview.operatorSummary}`,
-    overview.nextAction ? `- Proxima acao: ${overview.nextAction}` : null,
+    `- Summary: ${overview.operatorSummary}`,
+    overview.nextAction ? `- Next action: ${overview.nextAction}` : null,
     actionLine,
     '',
   ].filter((line): line is string => Boolean(line));
@@ -30,87 +29,82 @@ function buildOverviewTextSection(
 
 export function formatOperationsReportText(snapshot: OperationsReportTextInput): string {
   const lines = [
-    'Relatorio consolidado do Zavorth',
+    'Consolidated Zavorth Report',
     '',
-    `Gerado em: ${snapshot.generatedAt}`,
+    `Generated at: ${snapshot.generatedAt}`,
     '',
-    snapshot.operatorBrief ? 'Briefing do operador:' : null,
-    snapshot.operatorBrief ? `- Postura: ${snapshot.operatorBrief.posture}` : null,
+    snapshot.operatorBrief ? 'Operator briefing:' : null,
+    snapshot.operatorBrief ? `- Posture: ${snapshot.operatorBrief.posture}` : null,
     snapshot.operatorBrief ? `- Headline: ${snapshot.operatorBrief.headline}` : null,
-    snapshot.operatorBrief ? `- Proxima acao: ${snapshot.operatorBrief.nextAction.label} | ${snapshot.operatorBrief.nextAction.command} | ${snapshot.operatorBrief.nextAction.reason}` : null,
+    snapshot.operatorBrief ? `- Next action: ${snapshot.operatorBrief.nextAction.label} | ${snapshot.operatorBrief.nextAction.command} | ${snapshot.operatorBrief.nextAction.reason}` : null,
     snapshot.operatorBrief ? '' : null,
-    snapshot.continuity ? 'Continuidade entre superficies:' : null,
-    snapshot.continuity ? `- Acao sugerida: ${snapshot.continuity.suggestedAction.label} | ${snapshot.continuity.suggestedAction.reason}` : null,
-    snapshot.continuity && snapshot.continuity.focusTask
-      ? `- Foco atual: ${snapshot.continuity.focusTask.shortId} | ${snapshot.continuity.focusTask.source} | ${snapshot.continuity.focusTask.status}`
-      : (snapshot.continuity ? '- Foco atual: sem task dominante.' : null),
-    snapshot.continuity
-      ? `- Superficies recentes: Telegram ${snapshot.continuity.surfaces.telegram} | Web ${snapshot.continuity.surfaces.web} | Outras ${snapshot.continuity.surfaces.other}`
+    snapshot.continuity ? 'Cross-surface continuity:' : null,
+    snapshot.continuity ? `- Suggested action: ${snapshot.continuity.suggestedAction.label} | ${snapshot.continuity.suggestedAction.reason}` : null,
+    snapshot.continuity && snapshot.continuity.focusTask ? `- Current focus: ${snapshot.continuity.focusTask.shortId} | ${snapshot.continuity.focusTask.source} | ${snapshot.continuity.focusTask.status}`
+      : (snapshot.continuity ? '- Current focus: no dominant task.' : null),
+    snapshot.continuity ? `- Recent surfaces: Telegram ${snapshot.continuity.surfaces.telegram} | Web ${snapshot.continuity.surfaces.web} | Other ${snapshot.continuity.surfaces.other}`
       : null,
     snapshot.continuity ? '' : null,
-    ...buildOverviewTextSection('Overview operacional canonico:', snapshot.overviews.operational),
-    ...buildOverviewTextSection('Overview de trust canonico:', snapshot.overviews.trust),
-    ...buildOverviewTextSection('Overview de produto canonico:', snapshot.overviews.product),
-    'Resumo executivo:',
+    ...buildOverviewTextSection('Canonical operational overview:', snapshot.overviews.operational),
+    ...buildOverviewTextSection('Canonical trust overview:', snapshot.overviews.trust),
+    ...buildOverviewTextSection('Canonical product overview:', snapshot.overviews.product),
+    'Executive summary:',
     ...snapshot.executiveSummary.map((line) => `- ${line}`),
     '',
     'Runtime:',
     `- Uptime: ${snapshot.runtime.uptimeLabel}`,
-    `- Memoria: ${snapshot.runtime.memoryLabel}`,
-    `- Plataforma: ${snapshot.runtime.platformLabel}`,
+    `- Memory: ${snapshot.runtime.memoryLabel}`,
+    `- Platform: ${snapshot.runtime.platformLabel}`,
     '',
-    'Operacao:',
+    'Operations:',
     `- Sidecars: ${snapshot.operations.sidecarsLabel}`,
-    `- Canais: ${snapshot.operations.channelsLabel}`,
-    `- Canais nativos: ${snapshot.operations.channelProviderDoctorLabel}`,
-    `- Transportes remotos: ${snapshot.operations.remoteTransportDoctorLabel}`,
+    `- Channels: ${snapshot.operations.channelsLabel}`,
+    `- Native channels: ${snapshot.operations.channelProviderDoctorLabel}`,
+    `- Remote transports: ${snapshot.operations.remoteTransportDoctorLabel}`,
     `- Tenants: ${snapshot.operations.tenantsLabel}`,
     `- Node Mesh: ${snapshot.operations.nodeMeshSmokeLabel}`,
     `- Publish: ${snapshot.operations.publishLabel}`,
-    `- Disco: ${snapshot.operations.storageLabel}`,
-    `- Automacao: ${snapshot.operations.automationLabel}`,
+    `- Storage: ${snapshot.operations.storageLabel}`,
+    `- Automation: ${snapshot.operations.automationLabel}`,
     '',
     'Tenants:',
-    `- Total: ${snapshot.tenants.totalCount} | compartilhados ${snapshot.tenants.sharedCount} | pessoais ${snapshot.tenants.personalCount}`,
-    `- Publicos: ${snapshot.tenants.publicServerCount} | onboarding pendente ${snapshot.tenants.pendingOnboardingCount}`,
-    `- Plataformas: ${Object.entries(snapshot.tenants.byPlatform).map(([platform, count]) => `${platform}:${count}`).join(' | ') || 'sem tenants observados'}`,
+    `- Total: ${snapshot.tenants.totalCount} | shared ${snapshot.tenants.sharedCount} | personal ${snapshot.tenants.personalCount}`,
+    `- Public: ${snapshot.tenants.publicServerCount} | pending onboarding ${snapshot.tenants.pendingOnboardingCount}`,
+    `- Platforms: ${Object.entries(snapshot.tenants.byPlatform).map(([platform, count]) => `${platform}:${count}`).join(' | ') || 'no tenants observed'}`,
     ...(snapshot.tenants.recent.length
-      ? [`- Recentes: ${snapshot.tenants.recent.map((tenant) => `${tenant.platform}/${tenant.onboardingStatus}:${tenant.tenantId}`).join(' | ')}`]
-      : ['- Recentes: nenhum registro observado']),
+      ? [`- Recent: ${snapshot.tenants.recent.map((tenant) => `${tenant.platform}/${tenant.onboardingStatus}:${tenant.tenantId}`).join(' | ')}`]
+      : ['- Recent: no records observed']),
     '',
     'Tasks:',
-    `- Ativas agora: ${snapshot.tasks.activeCount}`,
-    `- Ultimas 24h: ${snapshot.tasks.completedLast24h} concluidas | ${snapshot.tasks.failedLast24h} com falha | ${snapshot.tasks.waitingApprovalLast24h} aguardando aprovacao`,
-    `- Executores mais usados: ${snapshot.tasks.topExecutors.length ? snapshot.tasks.topExecutors.join(' | ') : 'sem volume relevante'}`,
+    `- Active now: ${snapshot.tasks.activeCount}`,
+    `- Last 24h: ${snapshot.tasks.completedLast24h} completed | ${snapshot.tasks.failedLast24h} failed | ${snapshot.tasks.waitingApprovalLast24h} awaiting approval`,
+    `- Most used executors: ${snapshot.tasks.topExecutors.length ? snapshot.tasks.topExecutors.join(' | ') : 'no significant volume'}`,
     '',
-    snapshot.productObservability ? 'Observabilidade de produto:' : null,
-    snapshot.productObservability?.routeHeadline ? `- Rotas: ${snapshot.productObservability.routeHeadline}` : null,
+    snapshot.productObservability ? 'Product observability:' : null,
+    snapshot.productObservability?.routeHeadline ? `- Routes: ${snapshot.productObservability.routeHeadline}` : null,
     snapshot.productObservability?.workflowHeadline ? `- Workflows: ${snapshot.productObservability.workflowHeadline}` : null,
-    snapshot.productObservability?.executorHeadline ? `- Execucao: ${snapshot.productObservability.executorHeadline}` : null,
-    snapshot.productObservability?.approvalsHeadline ? `- Aprovacoes: ${snapshot.productObservability.approvalsHeadline}` : null,
-    snapshot.productObservability?.artifactHeadline ? `- Entregas: ${snapshot.productObservability.artifactHeadline}` : null,
-    snapshot.productObservability?.topRoutes.length
-      ? `- Rotas dominantes: ${snapshot.productObservability.topRoutes.join(' | ')}`
+    snapshot.productObservability?.executorHeadline ? `- Execution: ${snapshot.productObservability.executorHeadline}` : null,
+    snapshot.productObservability?.approvalsHeadline ? `- Approvals: ${snapshot.productObservability.approvalsHeadline}` : null,
+    snapshot.productObservability?.artifactHeadline ? `- Deliveries: ${snapshot.productObservability.artifactHeadline}` : null,
+    snapshot.productObservability?.topRoutes.length ? `- Dominant routes: ${snapshot.productObservability.topRoutes.join(' | ')}`
       : null,
-    snapshot.productObservability?.recentWorkflows.length
-      ? `- Workflows recentes: ${snapshot.productObservability.recentWorkflows.join(' | ')}`
+    snapshot.productObservability?.recentWorkflows.length ? `- Recent workflows: ${snapshot.productObservability.recentWorkflows.join(' | ')}`
       : null,
-    snapshot.productObservability?.topExecutors.length
-      ? `- Executores mais efetivos: ${snapshot.productObservability.topExecutors.join(' | ')}`
+    snapshot.productObservability?.topExecutors.length ? `- Most effective executors: ${snapshot.productObservability.topExecutors.join(' | ')}`
       : null,
     ...(snapshot.productObservability?.insights.length
-      ? ['', 'Insights de produto:', ...snapshot.productObservability.insights.map((line) => `- ${line}`)]
+      ? ['', 'Product insights:', ...snapshot.productObservability.insights.map((line) => `- ${line}`)]
       : []),
     snapshot.productObservability ? '' : null,
-    snapshot.pendingPermissions.length ? 'Permissoes pendentes:' : 'Permissoes pendentes: nenhuma.',
+    snapshot.pendingPermissions.length ? 'Pending permissions:' : 'Pending permissions: none.',
     ...snapshot.pendingPermissions.map((permission) =>
       `- ${permission.executor}/${permission.kind}: ${permission.reason}`,
     ),
     '',
-    snapshot.alerts.length ? 'Alertas recentes:' : 'Alertas recentes: nenhum.',
+    snapshot.alerts.length ? 'Recent alerts:' : 'Recent alerts: none.',
     ...snapshot.alerts.map((alert) => `- ${alert.source}: ${alert.title} | ${alert.detail}`),
     '',
-    snapshot.actions.length ? 'Proximas acoes recomendadas:' : 'Proximas acoes recomendadas: nenhuma.',
+    snapshot.actions.length ? 'Recommended next actions:' : 'Recommended next actions: none.',
     ...snapshot.actions.map((action) => `- ${action.label}: ${action.command} | ${action.reason}`),
   ];
 

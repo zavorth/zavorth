@@ -58,8 +58,7 @@ export class AcpxBridgeRuntimeAdapter {
           'agent-runtime.acp.bridge-receipt',
         ],
       },
-      reason: hasAcpxUsage
-        ? 'Source has ACPX/Claude/Codex ACP bridge packages; Zavorth keeps ACP as an optional bridge behind owner approval.'
+      reason: hasAcpxUsage ? 'Source has ACPX/Claude/Codex ACP bridge packages; Zavorth keeps ACP as an optional bridge behind owner approval.'
         : 'ACPX and ACP bridge packages were not found in the scanned Source checkout.',
     };
   }

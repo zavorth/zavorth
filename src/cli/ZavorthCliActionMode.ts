@@ -156,8 +156,7 @@ function renderActionText(payload: {
   next: string[];
 }): string {
   const decision = payload.engineDecision;
-  const title = decision.express
-    ? 'Express'
+  const title = decision.express ? 'Express'
     : decision.engineId === 'velocity'
       ? 'Velocity'
       : 'Shield';

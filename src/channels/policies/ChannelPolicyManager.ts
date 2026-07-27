@@ -105,7 +105,7 @@ export class ChannelPolicyManager {
         isOpenAccess: false,
         allowedCount: 0,
         blockedCount: 0,
-        summary: 'Canal sem policy carregada; acesso permanece fechado ate configurar allowlist ou open access.',
+        summary: 'Channel without policy loaded; access remains closed until allowlist or supervised open access is configured.',
       };
     }
     return summarizePolicy(policy);
@@ -479,7 +479,7 @@ function summarizePolicy(policy: ChannelAccessPolicy): ChannelPolicySummary {
         allowedCount,
         blockedCount,
         summary: blockedCount > 0
-          ? `Canal aberto com ${blockedCount} bloqueio(s) explicito(s).`
+          ? `Channel aberto com ${blockedCount} block(s) explicit(s).`
           : 'Channel open for identities authorized by the provider.',
       };
     case 'allowlist':
@@ -489,7 +489,7 @@ function summarizePolicy(policy: ChannelAccessPolicy): ChannelPolicySummary {
         isOpenAccess: false,
         allowedCount,
         blockedCount,
-        summary: `Canal restrito por allowlist com ${allowedCount} identidade(s) permitida(s).`,
+        summary: `Channel restrito por allowlist com ${allowedCount} identidade(s) permitida(s).`,
       };
     case 'mixed':
       return {
@@ -498,7 +498,7 @@ function summarizePolicy(policy: ChannelAccessPolicy): ChannelPolicySummary {
         isOpenAccess: false,
         allowedCount,
         blockedCount,
-        summary: `Canal com allowlist (${allowedCount}) e blocklist (${blockedCount}) explicitas.`,
+        summary: `Channel com allowlist (${allowedCount}) e blocklist (${blockedCount}) explicits.`,
       };
     case 'blocked-only':
       return {
@@ -507,7 +507,7 @@ function summarizePolicy(policy: ChannelAccessPolicy): ChannelPolicySummary {
         isOpenAccess: false,
         allowedCount,
         blockedCount,
-        summary: `Canal fechado com ${blockedCount} bloqueio(s) explicito(s) e sem allowlist pronta.`,
+        summary: `Channel closed com ${blockedCount} block(s) explicit(s) e without allowlist ready.`,
       };
     default:
       return {
@@ -516,7 +516,7 @@ function summarizePolicy(policy: ChannelAccessPolicy): ChannelPolicySummary {
         isOpenAccess: false,
         allowedCount,
         blockedCount,
-        summary: 'Canal fechado ate configurar allowlist ou open access supervisionado.',
+        summary: 'Channel closed until allowlist or supervised open access is configured.',
       };
   }
 }

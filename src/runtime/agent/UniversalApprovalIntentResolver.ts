@@ -120,8 +120,7 @@ export class UniversalApprovalIntentResolver {
         sessionId: clean(input.sessionId),
         target: null,
         candidates: [],
-        reason: ref
-          ? `No pending approval found for ${ref}.`
+        reason: ref ? `No pending approval found for ${ref}.`
           : 'No unambiguous pending approval was found in this context.',
       });
     }
@@ -139,7 +138,7 @@ export class UniversalApprovalIntentResolver {
         target: null,
         candidates: listed,
         reason:
-          'Several approvals are waiting. Pick one by number or tap its Approve/Reject button — you should not need a long id.',
+          'Several approvals are waiting. Pick one by number or tap its Approve/Reject button - you should not need a long id.',
         commandHint: listed.length
           ? `${parsed.decision === 'rejected' ? '/reject' : '/approve'} 1  (or 2…${Math.min(listed.length, 9)})`
           : null,
@@ -211,7 +210,7 @@ export function renderUniversalApprovalIntentDecisionResult(result: UniversalApp
       renderApprovalCandidates(result.resolution.candidates, verb),
       '',
       'Best UX: tap the Approve/Reject button on the matching card.',
-      `Or reply ${verb} 1  ·  ${verb} 2  · … (short number, not a long id).`,
+      `Or reply ${verb} 1  -  ${verb} 2  - … (short number, not a long id).`,
     ]
       .filter(Boolean)
       .join('\n');
@@ -252,30 +251,21 @@ function parseApprovalIntent(
     return { decision: null, ref: explicitRef };
   }
 
-  // Explicit slash only (deterministic tokens) — not free-text NLU.
-  const slashApprove = normalized.match(/^\/(approve|aprovar|aprova)(?:\s+(.+))?$/i);
-  if (slashApprove) {
+  // Explicit slash only (deterministic tokens) - not free-text NLU.
+  const slash = parseSlashApprovalCommand(normalized);
+  if (slash) {
     return {
-      decision: 'approved',
-      ref: explicitRef || firstToken(slashApprove[2] || '') || null,
-    };
-  }
-  const slashReject = normalized.match(/^\/(reject|rejeitar|rejeite|negar|nega)(?:\s+(.+))?$/i);
-  if (slashReject) {
-    return {
-      decision: 'rejected',
-      ref: explicitRef || firstToken(slashReject[2] || '') || null,
+      decision: slash.decision,
+      ref: explicitRef || slash.ref || null,
     };
   }
 
   // callback_data / structured control tokens (not chat free text).
-  const callback = normalized.match(
-    /\b(?:approval|agent|run|task):?(approve|reject|aprovar|rejeitar):([a-z0-9._:-]+)/i,
-  );
-  if (callback?.[1] && callback[2]) {
+  const callback = parseStructuredApprovalCallback(normalized);
+  if (callback) {
     return {
-      decision: normalizeDecision(callback[1]),
-      ref: explicitRef || callback[2],
+      decision: callback.decision,
+      ref: explicitRef || callback.ref,
     };
   }
 
@@ -290,7 +280,7 @@ function normalizeDecision(
   if (['approved', 'approve', 'allow'].includes(normalized)) {
     return 'approved';
   }
-  if (['rejected', 'reject', 'rejeitar', 'rejeite', 'negar'].includes(normalized)) {
+  if (['rejected', 'reject'].includes(normalized)) {
     return 'rejected';
   }
   return null;
@@ -301,7 +291,7 @@ function inferSource(text: string | null | undefined): UniversalApprovalIntentSo
   if (normalized.startsWith('/approve') || normalized.startsWith('/reject')) {
     return 'slash-command';
   }
-  if (/\b(?:approval|agent|run|task):?(approve|reject|aprovar|rejeitar):/i.test(String(text || ''))) {
+  if (parseStructuredApprovalCallback(normalized)) {
     return 'callback';
   }
   return 'text';
@@ -351,8 +341,8 @@ function selectCandidates(input: {
   const scoped = sortPendingNewestFirst(scopedPending(input));
 
   if (input.ref) {
-    // Short ordinal: /approve 1, /approve #2 — never force long UUID when listing is available.
-    const ordinal = input.ref.match(/^#?(\d{1,2})$/)?.[1];
+    // Short ordinal: /approve 1, /approve #2 - never force long UUID when listing is available.
+    const ordinal = parseApprovalOrdinal(input.ref);
     if (ordinal) {
       const index = Number(ordinal) - 1;
       if (Number.isFinite(index) && index >= 0 && index < scoped.length) {
@@ -387,7 +377,7 @@ function renderApprovalCandidates(candidates: UniversalApprovalIntentCandidate[]
     .map((candidate, index) => {
       const n = index + 1;
       const title = String(candidate.title || 'Approval').slice(0, 80);
-      return `${n}. ${title}  ·  risk=${candidate.risk}  ·  ${verb} ${n}`;
+      return `${n}. ${title}  -  risk=${candidate.risk}  -  ${verb} ${n}`;
     })
     .join('\n');
 }
@@ -407,31 +397,139 @@ function resolution(
 
 function extractApprovalRef(text: string | null | undefined): string | null {
   const raw = String(text || '').trim();
-  const explicit = raw.match(
-    /\b(?:approval|approvalid|run|runid|task|tarefa|id)\s*[:=]?\s*([a-z0-9][a-z0-9._:-]{2})\b/i,
-  )?.[1];
+  const explicit = extractKeyedApprovalRef(raw);
   if (explicit) {
     return explicit;
   }
-  const uuid = raw.match(/\b([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b/i)?.[1];
-  if (uuid) {
-    return uuid;
+  for (const token of tokenizeApprovalRefText(raw)) {
+    if (isUuidToken(token) || isPrefixedApprovalRef(token)) {
+      return token;
+    }
   }
-  const prefixed = raw.match(/\b((?:approval|agent-run|run|task|ztx|perm)[-_:.][a-z0-9._:-]+)\b/i)?.[1];
-  return prefixed || null;
+  return null;
+}
+
+function parseSlashApprovalCommand(text: string): { decision: UniversalApprovalDecision; ref: string | null } | null {
+  const trimmed = text.trim();
+  const first = firstToken(trimmed);
+  const command = first === '/approve' || first.startsWith('/approve@') ? '/approve'
+    : first === '/reject' || first.startsWith('/reject@') ? '/reject'
+      : null;
+  if (!command) return null;
+  const remainder = trimmed.slice(first.length).trim();
+  return {
+    decision: command === '/reject' ? 'rejected' : 'approved',
+    ref: firstToken(remainder) || null,
+  };
+}
+
+function parseStructuredApprovalCallback(text: string): { decision: UniversalApprovalDecision; ref: string } | null {
+  const trimmed = text.trim();
+  const parts = trimmed.split(':').map((part) => part.trim()).filter(Boolean);
+  if (parts.length < 3) return null;
+  const decisionPart = parts[parts.length - 2];
+  const ref = parts[parts.length - 1];
+  const decision = normalizeDecision(decisionPart);
+  const namespace = parts.slice(0, -2).join(':');
+  if (!decision || !['approval', 'agent', 'run', 'task'].includes(namespace)) return null;
+  return ref ? { decision, ref } : null;
+}
+
+function parseApprovalOrdinal(value: string): string | null {
+  const text = value.startsWith('#') ? value.slice(1) : value;
+  if (text.length < 1 || text.length > 2) return null;
+  for (const char of text) {
+    if (char < '0' || char > '9') return null;
+  }
+  return text;
+}
+
+function extractKeyedApprovalRef(raw: string): string | null {
+  const normalized = raw.trim();
+  for (const separator of [':', '=']) {
+    const index = normalized.indexOf(separator);
+    if (index <= 0) continue;
+    const key = normalized.slice(0, index).trim().toLowerCase();
+    if (!['approval', 'approvalid', 'run', 'runid', 'task', 'id'].includes(key)) continue;
+    const value = firstToken(normalized.slice(index + 1));
+    if (value.length >= 3) return value;
+  }
+  return null;
 }
 
 function firstToken(value: string): string {
-  return value.trim().split(/\s+/).filter(Boolean)[0] || '';
+  return tokenizeApprovalRefText(value)[0] || '';
 }
 
 function normalizeText(value: unknown): string {
-  return String(value || '')
+  return collapseSpaces(
+    String(value || '')
     .trim()
     .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, ' ');
+    .normalize('NFD'),
+  );
+}
+
+function tokenizeApprovalRefText(value: string): string[] {
+  const tokens: string[] = [];
+  let current = '';
+  for (const char of String(value || '').trim()) {
+    if (char === ' ' || char === '\t' || char === '\n' || char === '\r') {
+      if (current) {
+        tokens.push(current);
+        current = '';
+      }
+      continue;
+    }
+    current += char;
+  }
+  if (current) tokens.push(current);
+  return tokens;
+}
+
+function isUuidToken(value: string): boolean {
+  const parts = value.toLowerCase().split('-');
+  const expected = [8, 4, 4, 4, 12];
+  return parts.length === expected.length && parts.every((part, index) =>
+    part.length === expected[index] && Array.from(part).every(isHexChar));
+}
+
+function isPrefixedApprovalRef(value: string): boolean {
+  const lower = value.toLowerCase();
+  for (const prefix of ['approval', 'agent-run', 'run', 'task', 'ztx', 'perm']) {
+    if (lower.startsWith(`${prefix}-`) || lower.startsWith(`${prefix}_`) || lower.startsWith(`${prefix}:`) || lower.startsWith(`${prefix}.`)) {
+      return lower.length > prefix.length + 1 && Array.from(lower).every(isApprovalRefChar);
+    }
+  }
+  return false;
+}
+
+function isApprovalRefChar(char: string): boolean {
+  return isHexChar(char) || (char >= 'g' && char <= 'z') || char === '-' || char === '_' || char === ':' || char === '.';
+}
+
+function isHexChar(char: string): boolean {
+  return (char >= '0' && char <= '9') || (char >= 'a' && char <= 'f');
+}
+
+function collapseSpaces(value: string): string {
+  let output = '';
+  let previousWasSpace = false;
+  for (const char of value) {
+    const isSpace = char === ' ' || char === '\t' || char === '\n' || char === '\r';
+    if (isSpace) {
+      if (!previousWasSpace) output += ' ';
+      previousWasSpace = true;
+      continue;
+    }
+    const code = char.charCodeAt(0);
+    if (code >= 0x0300 && code <= 0x036f) {
+      continue;
+    }
+    output += char;
+    previousWasSpace = false;
+  }
+  return output.trim();
 }
 
 function clean(value: unknown): string | null {

@@ -97,18 +97,16 @@ export class OracleCloudflareRolloutService {
         id: 'oracle-template',
         title: 'Template systemd da Oracle',
         status: this.existsSync(oracleSystemdTemplate) ? 'done' : 'pending',
-        detail: this.existsSync(oracleSystemdTemplate)
-          ? 'Template pronto para subir o Zavorth como servico na VM.'
-          : 'Falta o template systemd para a VM da Oracle.',
+        detail: this.existsSync(oracleSystemdTemplate) ? 'Template ready for subir o Zavorth como service na VM.'
+          : 'missing o template systemd para a VM da Oracle.',
         command: `usar ${oracleSystemdTemplate}`,
       },
       {
         id: 'cloudflared-template',
         title: 'Template do cloudflared',
         status: this.existsSync(cloudflaredTemplate) ? 'done' : 'pending',
-        detail: this.existsSync(cloudflaredTemplate)
-          ? 'Template pronto para publicar o /zavorthControl por tunnel.'
-          : 'Falta o template do cloudflared para publicar o /zavorthControl.',
+        detail: this.existsSync(cloudflaredTemplate) ? 'Template ready to publish /zavorthControl through tunnel.'
+          : 'missing cloudflared template to publish /zavorthControl.',
         command: `usar ${cloudflaredTemplate}`,
       },
       {
@@ -116,42 +114,39 @@ export class OracleCloudflareRolloutService {
         title: 'Provider Gemini/Gemma',
         status: this.llmProvider === 'gemini' ? 'done' : 'pending',
         detail: this.llmProvider === 'gemini'
-          ? 'O Zavorth esta apontando para o provider certo para usar Gemma via Gemini API.'
+          ? 'O Zavorth is apontando para o provider certo para usar Gemma via Gemini API.'
           : 'Troque LLM_PROVIDER para gemini para seguir a arquitetura recomendada.',
         command: 'definir LLM_PROVIDER=gemini',
       },
       {
         id: 'gemini-credential',
-        title: 'Credencial Gemini',
+        title: 'Gemini credential',
         status: this.geminiCredentialReady ? 'done' : 'pending',
-        detail: this.geminiCredentialReady
-          ? 'Ja existe credencial Gemini/AI Studio configurada.'
-          : 'Falta GEMINI_API_KEY ou AISTUDIO_API_KEY para o provider Gemini.',
-        command: 'definir GEMINI_API_KEY ou AISTUDIO_API_KEY',
+        detail: this.geminiCredentialReady ? 'already existe credential Gemini/AI Studio configurada.'
+          : 'missing GEMINI_API_KEY or AISTUDIO_API_KEY para o provider Gemini.',
+        command: 'definir GEMINI_API_KEY or AISTUDIO_API_KEY',
       },
       {
         id: 'cloudflare-ai-gateway',
         title: 'Cloudflare AI Gateway',
         status: this.cloudflareAiGatewayEnabled ? 'done' : 'pending',
-        detail: this.cloudflareAiGatewayEnabled
-          ? `Gateway pronto em ${this.cloudflareAiGatewayAccountId}/${this.cloudflareAiGatewayId}.`
-          : 'Faltam CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID e CLOUDFLARE_AI_GATEWAY_ID.',
+        detail: this.cloudflareAiGatewayEnabled ? `Gateway ready em ${this.cloudflareAiGatewayAccountId}/${this.cloudflareAiGatewayId}.`
+          : 'missing CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID e CLOUDFLARE_AI_GATEWAY_ID.',
         command: 'definir CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID e CLOUDFLARE_AI_GATEWAY_ID',
       },
       {
         id: 'cloudflare-tunnel',
-        title: 'Hostname publico do Cloudflare Tunnel',
+        title: 'Public Cloudflare Tunnel hostname',
         status: this.resolvePublicHostname() ? 'done' : 'pending',
-        detail: this.resolvePublicHostname()
-          ? `URL publica prevista: ${this.publicBaseUrl || `https://${this.cloudflareTunnelPublicHostname}`}.`
-          : 'Falta CLOUDFLARE_TUNNEL_PUBLIC_HOSTNAME ou ZAVORTH_PUBLIC_BASE_URL.',
+        detail: this.resolvePublicHostname() ? `URL public prevista: ${this.publicBaseUrl || `https://${this.cloudflareTunnelPublicHostname}`}.`
+          : 'missing CLOUDFLARE_TUNNEL_PUBLIC_HOSTNAME or ZAVORTH_PUBLIC_BASE_URL.',
         command: 'definir CLOUDFLARE_TUNNEL_PUBLIC_HOSTNAME',
       },
       {
         id: 'validate-runtime',
-        title: 'Validar rollout',
+        title: 'validate rollout',
         status: 'pending',
-        detail: 'Depois de configurar Oracle, Cloudflare e Gemini, valide o runtime supervisionado.',
+        detail: 'after de setup Oracle, Cloudflare e Gemini, valide o runtime supervised.',
         command: 'npm run build && npm run ops:access',
       },
     ];
@@ -163,9 +158,8 @@ export class OracleCloudflareRolloutService {
     return {
       generatedAt: this.now().toISOString(),
       readyForRemoteRollout,
-      summary: readyForRemoteRollout
-        ? 'Arquitetura Oracle + Cloudflare + Gemini/Gemma pronta para rollout.'
-        : `Rollout ainda pendente: ${steps.find((step) => step.status === 'pending' && step.id !== 'validate-runtime')?.detail || 'Ainda existem passos externos para concluir.'}`,
+      summary: readyForRemoteRollout ? 'Arquitetura Oracle + Cloudflare + Gemini/Gemma ready for rollout.'
+        : `Rollout still pending: ${steps.find((step) => step.status === 'pending' && step.id !== 'validate-runtime')?.detail || 'External steps still need completion.'}`,
       target: {
         host: 'oracle-always-free',
         edge: 'cloudflare',
@@ -196,7 +190,7 @@ export class OracleCloudflareRolloutService {
     for (const step of snapshot.steps) {
       lines.push(`- [${step.status}] ${step.title}`);
       lines.push(`  ${step.detail}`);
-      lines.push(`  comando: ${step.command}`);
+      lines.push(`  command: ${step.command}`);
     }
 
     return lines.join('\n');

@@ -97,14 +97,14 @@ export class DistributionPolicyContractService {
         gate: 'public-release-bundle',
         title: 'Release Bundle And Installer Distribution',
         reason:
-          'Com edicoes e politica publica definidas, o proximo passo e empacotar bundle e installer verificaveis.',
+          'Com edicoes e policy public definidas, o next passo e empacotar bundle e installer verificaveis.',
       },
     };
   }
 
   public renderReport(snapshot: DistributionPolicyContractSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[distribution-policy] Readiness checkpoint 0 - Editions, Plans And Distribution Policy');
+    lines.push('[distribution-policy] Readiness item 0 - Editions, Plans And Distribution Policy');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -118,7 +118,7 @@ export class DistributionPolicyContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -127,11 +127,10 @@ export class DistributionPolicyContractService {
     const exists = this.existsSync(this.websiteRoot);
     return this.check(
       'distribution-policy:website-root',
-      'base publica zavorth-website',
+      'base public zavorth-website',
       exists ? 'pass' : 'fail',
-      exists
-        ? 'repositorio zavorth-website encontrado para renderizar /editions.'
-        : 'repositorio zavorth-website nao foi encontrado. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
+      exists ? 'repositorio zavorth-website encontrado para renderizar /editions.'
+        : 'zavorth-website repository was not found. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
       this.websiteRoot,
     );
   }
@@ -144,11 +143,10 @@ export class DistributionPolicyContractService {
         `distribution-policy:website-script:${scriptName}`,
         `script do site ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `site expoe "${scriptName}" para validar policy publica.`
-          : `site precisa expor "${scriptName}" no package.json.`,
+        command ? `site exposes "${scriptName}" to validate public policy.`
+          : `site must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -159,13 +157,12 @@ export class DistributionPolicyContractService {
       const command = String(scripts[scriptName] || '').trim();
       return this.check(
         `distribution-policy:core-script:${scriptName}`,
-        `script canonico ${scriptName}`,
+        `script canonical ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `repo principal expoe "${scriptName}" para a Readiness checkpoint 0.`
-          : `repo principal precisa expor "${scriptName}" no package.json.`,
+        command ? `main repository exposes "${scriptName}" for Readiness item 0.`
+          : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -175,11 +172,11 @@ export class DistributionPolicyContractService {
     const missing = required.filter((filePath) => !this.existsSync(path.join(this.websiteRoot, filePath)));
     return this.check(
       'distribution-policy:required-files',
-      'rota e fixture de distribuicao',
+      'rota e fixture de distribution',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'rota /editions, fixture e gate local existem.'
-        : 'rota /editions, fixture ou gate local estao ausentes.',
+        : 'rota /editions, fixture ou gate local are missings.',
       undefined,
       missing,
     );
@@ -198,11 +195,11 @@ export class DistributionPolicyContractService {
     const missing = required.filter((phrase) => !source.includes(phrase));
     return this.check(
       'distribution-policy:policy-contract',
-      'rota /editions publica',
+      'rota /editions public',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? '/editions cobre edicoes, limites, privacidade, updates, plugins, licenciamento e canais.'
-        : '/editions perdeu copy ou bloco publico obrigatorio.',
+        ? '/editions cobre edicoes, limites, privacidade, updates, plugins, licenciamento e channels.'
+        : '/editions lost required copy or public block.',
       'app/editions/page.tsx',
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -223,8 +220,8 @@ export class DistributionPolicyContractService {
       'links de edicoes e policy',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'site publico conecta edicoes, docs de policy e exemplos.'
-        : 'links publicos de edicoes/policy estao ausentes.',
+        ? 'public site connects editions, policy docs, and examples.'
+        : 'public edit/policy links are absent.',
       undefined,
       missing.map((href) => `faltando: ${href}`),
     );
@@ -241,11 +238,11 @@ export class DistributionPolicyContractService {
     const evidence = [...forbiddenMatches, ...tokenMatches, ...pathMatches];
     return this.check(
       'distribution-policy:forbidden-claims',
-      'claims e vazamentos proibidos',
+      'forbidden claims and leaks',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'policy nao expoe paths pessoais, tokens ou claims proibidos.'
-        : 'policy contem path pessoal, token ou claim proibido.',
+        ? 'policy does not expose personal paths, tokens, or forbidden claims.'
+        : 'policy contains path pessoal, token ou claim proibido.',
       undefined,
       evidence,
     );
@@ -258,9 +255,8 @@ export class DistributionPolicyContractService {
         'distribution-policy:exported-route',
         'rota /editions exportada',
         this.requireExport ? 'fail' : 'pass',
-        this.requireExport
-          ? 'out/ precisa existir depois de website:build.'
-          : 'export estatico nao exigido neste snapshot; qa:distribution-policy valida /editions depois do build.',
+        this.requireExport ? 'out/ must exist after website:build.'
+          : 'static export not required in this snapshot; qa:distribution-policy valida /editions after do build.',
         'out',
       );
     }
@@ -270,7 +266,7 @@ export class DistributionPolicyContractService {
         'distribution-policy:exported-route',
         'rota /editions exportada',
         'fail',
-        'build estatico nao exportou /editions.',
+        'static build did not export /editions.',
         'out',
         ['/editions'],
       );
@@ -282,8 +278,8 @@ export class DistributionPolicyContractService {
       'rota /editions exportada',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? '/editions existe no export estatico com conteudo essencial.'
-        : '/editions exportado perdeu conteudo essencial.',
+        ? '/editions exists in the static export with essential content.'
+        : '/editions export lost essential content.',
       'out',
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -295,7 +291,7 @@ export class DistributionPolicyContractService {
         'distribution-policy:screenshots',
         'screenshots de edicoes',
         'pass',
-        'screenshots nao exigidos neste snapshot; qa:distribution-policy captura desktop e mobile.',
+        'screenshots not required in this snapshot; qa:distribution-policy captura desktop e mobile.',
         this.screenshotDir,
       );
     }
@@ -313,8 +309,8 @@ export class DistributionPolicyContractService {
       'screenshots de edicoes',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'screenshots desktop e mobile de edicoes foram gerados.'
-        : 'screenshots desktop/mobile de edicoes estao ausentes ou invalidos.',
+        ? 'screenshots desktop e mobile de edicoes foram generated.'
+        : 'screenshots desktop/mobile de edicoes are missings ou invalids.',
       this.screenshotDir,
       missing,
     );

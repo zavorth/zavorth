@@ -57,8 +57,8 @@ export type ZavorthPairedDeviceFoundationSnapshot = {
     inspectCapability: 'inspectCapability';
   };
   mockDeviceNode: {
-    path: '/api/node-mesh/mock-device-node';
-    transport: 'mock-device-node';
+    path: '/api/node-mesh/local-device-node';
+    transport: 'local-device-node';
     protocol: 'pairing-claim-heartbeat-invocation-receipts';
     mobileAppsAttachLaterWithoutProtocolChange: true;
   };
@@ -188,8 +188,8 @@ export class ZavorthPairedDeviceFoundationService {
         inspectCapability: 'inspectCapability',
       },
       mockDeviceNode: {
-        path: '/api/node-mesh/mock-device-node',
-        transport: 'mock-device-node',
+        path: '/api/node-mesh/local-device-node',
+        transport: 'local-device-node',
         protocol: 'pairing-claim-heartbeat-invocation-receipts',
         mobileAppsAttachLaterWithoutProtocolChange: true,
       },
@@ -618,7 +618,7 @@ function normalizeCapabilities(input: Array<NodeMeshCapabilityId | null | undefi
 
 function normalizeTransport(input: ZavorthPairedDeviceTransport | null | undefined): ZavorthPairedDeviceTransport {
   const transport = clean(input) as ZavorthPairedDeviceTransport;
-  return transport || 'mock-device-node';
+  return transport || 'local-device-node';
 }
 
 function normalizeTrust(input: Partial<ZavorthPairedDeviceTrustMetadata> | null | undefined): ZavorthPairedDeviceTrustMetadata {

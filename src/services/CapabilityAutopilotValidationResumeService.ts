@@ -259,9 +259,8 @@ export class CapabilityAutopilotValidationResumeService {
       capabilityId,
       generatedAt,
       success: readiness.ready && readiness.safeToRun,
-      summary: readiness.ready && readiness.safeToRun
-        ? 'Capability validada e pronta para retomada.'
-        : 'Capability ainda nao esta pronta; voltar para diagnostico/plano.',
+      summary: readiness.ready && readiness.safeToRun ? 'Capability validated and ready to resume.'
+        : 'Capability is not ready yet; return to diagnosis/plan.',
       results: [
         {
           validationStepId: 'readiness-snapshot',
@@ -274,7 +273,7 @@ export class CapabilityAutopilotValidationResumeService {
           status: readiness.ready && readiness.safeToRun ? 'passed' as const : 'skipped' as const,
           detail: readiness.ready && readiness.safeToRun
             ? validator.successCondition
-            : 'Validator nao executado porque readiness ainda falhou.',
+            : 'Validator not executed because readiness still failed.',
         })),
       ],
       readiness,
@@ -305,13 +304,13 @@ export class CapabilityAutopilotValidationResumeService {
   ): string {
     switch (permissionStatus) {
       case 'missing':
-        return 'Ainda faltam pedidos de permissao para validar retomada.';
+        return 'Permission requests are still missing for resume validation.';
       case 'pending':
-        return 'Aguardando permissao aprovada antes de revalidar a capability.';
+        return 'Waiting for approved permission before revalidating the capability.';
       case 'rejected':
-        return 'Permissao rejeitada; nao devo prosseguir com reparo ou retomada.';
+        return 'Permission rejected; should not proceed with repair or resume.';
       default:
-        return 'Permissao ainda nao permite retomada.';
+        return 'Permission does not allow resume yet.';
     }
   }
 }

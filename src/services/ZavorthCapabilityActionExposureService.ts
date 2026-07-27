@@ -338,7 +338,7 @@ export class ZavorthCapabilityActionExposureService {
         previewAll: 'npm run zavorth:capability-action-exposure --silent -- --preview --all-verified',
         exposeAll: 'npm run zavorth:capability-action-exposure --silent -- --expose --all-verified',
         exposeSelected: 'npm run zavorth:capability-action-exposure --silent -- --expose --verification <verification-id>',
-        nextStage: 'Show exposed capability actions in zavorthControl/TUI/setup with clear status, preview and receipts.',
+        nextAction: 'Show exposed capability actions in zavorthControl/TUI/setup with clear status, preview and receipts.',
       },
     };
   }
@@ -485,7 +485,7 @@ function redact(value: unknown): string {
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{6,}\b/g, '[REDACTED]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{6,}\b/g, '[REDACTED]')
     .replace(/\bAIza[0-9A-Za-z_-]{8,}\b/g, '[REDACTED]')
-    .replace(/\b(token|secret|password|api[_ -]?key)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
+    .replace(/\b(token|secret|password|api[_ -]...key)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
     .trim()
     .slice(0, 2_000);
 }
@@ -496,7 +496,7 @@ function redactSecrets(value: unknown): unknown {
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
         key,
-        /(token|secret|password|pass|api[_-]?key|credential)/iu.test(key) ? '***' : redactSecrets(entry),
+        /(token|secret|password|pass|api[_-]...key|credential)/iu.test(key) ? '***' : redactSecrets(entry),
       ]),
     );
   }

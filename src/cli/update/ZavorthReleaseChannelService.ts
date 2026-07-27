@@ -158,8 +158,7 @@ export class ZavorthReleaseChannelService {
       manifestSource: manifest.source,
       manifestChecksum,
       artifact,
-      message: ok
-        ? `Zavorth updated through the ${channel.id} channel.`
+      message: ok ? `Zavorth updated through the ${channel.id} channel.`
         : `Zavorth update failed through the ${channel.id} channel.`,
       stdout: String(result.stdout || '').slice(0, 4000),
       stderr: String(result.stderr || result.error?.message || '').slice(0, 4000),

@@ -20,14 +20,14 @@ export class ZavorthSttTool extends BaseTool {
   public readonly name = 'zavorth_stt';
 
   public readonly description =
-    'Converts speech to text (Speech-to-Text) usando multiplos backends: Whisper (OpenAI), Deepgram, Gemini, Azure Speech e local (whisper.cpp). Suporta deteccao de idioma, timestamps por palavra, e multiplos formatos de audio.';
+    'Converts speech to text (Speech-to-Text) using multiple backends: Whisper (OpenAI), Deepgram, Gemini, Azure Speech, and local (whisper.cpp). Supports language detection, word timestamps, and multiple audio formats.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'transcribe', 'detect_language', 'list_backends', 'set_default'.",
+        description: "Action: 'transcribe', 'detect_language', 'list_backends', 'set_default'.",
       },
       audio_path: {
         type: 'string',
@@ -39,15 +39,15 @@ export class ZavorthSttTool extends BaseTool {
       },
       language: {
         type: 'string',
-        description: "Idioma do audio (ISO 639-1). Default: auto-detectado.",
+        description: "Audio language (ISO 639-1). Default: auto-detect.",
       },
       model: {
         type: 'string',
-        description: "Modelo especifico (whisper-1, nova-2, etc).",
+        description: "Specific model (whisper-1, nova-2, etc).",
       },
       word_timestamps: {
         type: 'boolean',
-        description: 'Se true, retorna timestamps por palavra. Default: false.',
+        description: 'If true, returns word timestamps. Default: false.',
       },
       output_format: {
         type: 'string',
@@ -55,11 +55,11 @@ export class ZavorthSttTool extends BaseTool {
       },
       output_path: {
         type: 'string',
-        description: 'Path to save a transcricao.',
+        description: 'Path to save the transcription.',
       },
       prompt: {
         type: 'string',
-        description: 'Context prompt to improve a transcricao (nomes proprios, termos tecnicos).',
+        description: 'Context prompt to improve transcription (proper nouns, technical terms).',
       },
       temperature: {
         type: 'number',
@@ -157,14 +157,14 @@ export class ZavorthSttTool extends BaseTool {
 
       if (outputPath) {
         fs.writeFileSync(path.resolve(outputPath), formatted, 'utf-8');
-        return `Transcricao salva em ${outputPath}. Backend: ${backend}. Tamanho: ${formatted.length} chars.`;
+        return `transcription saved at ${outputPath}. Backend: ${backend}. Size: ${formatted.length} chars.`;
       }
 
       const lines: string[] = [
-        `Transcricao (${backend}):`,
+        `transcription (${backend}):`,
         formatted,
       ];
-      if (result.language) lines.push(`Idioma detectado: ${result.language}`);
+      if (result.language) lines.push(`Detected language: ${result.language}`);
       if (result.duration_seconds) lines.push(`Duration: ${result.duration_seconds.toFixed(1)}s`);
       if (result.words && result.words.length > 0) {
         lines.push(`Palavras: ${result.words.length}`);
@@ -203,7 +203,7 @@ export class ZavorthSttTool extends BaseTool {
         return `Detection error: ${result.error}`;
       }
 
-      return `Idioma detectado: ${result.language || 'desconhecido'}. Texto: "${result.text.slice(0, 100)}..."`;
+      return `Detected language: ${result.language || 'unknown'}. Text: "${result.text.slice(0, 100)}..."`;
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Zavorth Stt] process execution failed', error);
@@ -215,13 +215,13 @@ export class ZavorthSttTool extends BaseTool {
   private listBackends(): string {
     const backends = [
       { id: 'whisper', name: 'Whisper (OpenAI)', key: 'OPENAI_API_KEY', note: 'Most accurate, supports 99 idiomas' },
-      { id: 'deepgram', name: 'Deepgram Nova', key: 'DEEPGRAM_API_KEY', note: 'Mais rapido, bom para tempo real' },
-      { id: 'gemini', name: 'Gemini', key: 'GEMINI_API_KEY', note: 'Multimodal, contexto longo' },
+      { id: 'deepgram', name: 'Deepgram Nova', key: 'DEEPGRAM_API_KEY', note: 'Fast, suitable for realtime use' },
+      { id: 'gemini', name: 'Gemini', key: 'GEMINI_API_KEY', note: 'Multimodal, long context' },
       { id: 'azure', name: 'Azure Speech', key: 'AZURE_SPEECH_KEY', note: 'Enterprise, many languages' },
-      { id: 'local', name: 'Local (whisper.cpp)', key: 'No', note: 'Offline, privacidade total' },
+      { id: 'local', name: 'local (whisper.cpp)', key: 'No', note: 'Offline, privacidade total' },
     ];
 
-    const lines: string[] = ['Backends STT disponiveis:'];
+    const lines: string[] = ['Available STT backends:'];
     for (const backend of backends) {
       const available = this.isBackendAvailable(backend.id) ? '✅' : '❌';
       lines.push(`  ${available} ${backend.id} — ${backend.name}`);
@@ -241,7 +241,7 @@ export class ZavorthSttTool extends BaseTool {
     }
 
     this.defaultBackend = backend;
-    return `Backend STT padrao alterado para "${backend}".`;
+    return `Default STT backend changed to "${backend}".`;
   }
 
   private isBackendAvailable(backend: string): boolean {
@@ -328,7 +328,7 @@ export class ZavorthSttTool extends BaseTool {
         if (!apiKey) throw new Error('DEEPGRAM_API_KEY not configured.');
 
         const model = options.model || 'nova-2';
-        let url = `https://api.deepgram.com/v1/listen?model=${model}`;
+        let url = `https://api.deepgram.com/v1/listen...model=${model}`;
         if (options.language) url += `&language=${options.language.split('-')[0]}`;
         url += '&smart_format=true';
         if (options.wordTimestamps) url += '&diarize=true';
@@ -366,7 +366,7 @@ export class ZavorthSttTool extends BaseTool {
         if (!apiKey) throw new Error('GEMINI_API_KEY not configured.');
 
         const audioBase64 = fs.readFileSync(audioPath).toString('base64');
-        const langHint = options.language ? ` Idioma esperado: ${options.language}.` : '';
+        const langHint = options.language ? ` Expected language: ${options.language}.` : '';
         const promptText = `${options.prompt ? options.prompt + ' ' : ''}Transcribe this audio precisely.${langHint}`;
 
         const payload = JSON.stringify({
@@ -384,7 +384,7 @@ export class ZavorthSttTool extends BaseTool {
         try {
           const result = execFileSync('curl', [
             '-s', '-X', 'POST',
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent...key=${apiKey}`,
             '-H', 'Content-Type: application/json',
             '-d', `@${tmpPayload}`,
           ], { timeout: 120000 }).toString();
@@ -408,12 +408,12 @@ export class ZavorthSttTool extends BaseTool {
       case 'azure': {
         const apiKey = process.env.AZURE_SPEECH_KEY;
         const region = process.env.AZURE_SPEECH_REGION;
-        if (!apiKey || !region) throw new Error('AZURE_SPEECH_KEY e AZURE_SPEECH_REGION not configureds.');
+        if (!apiKey || !region) throw new Error('AZURE_SPEECH_KEY and AZURE_SPEECH_REGION are not configured.');
 
         const locale = options.language || 'pt-BR';
         const result = execFileSync('curl', [
           '-s', '-X', 'POST',
-          `https://${region}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=${locale}`,
+          `https://${region}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1...language=${locale}`,
           '-H', `Ocp-Apim-Subscription-Key: ${apiKey}`,
           '-H', 'Content-Type: audio/wav',
           '--data-binary', `@${audioPath}`,

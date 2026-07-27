@@ -27,7 +27,7 @@ const SECRET_PATTERNS: RegExp[] = [
   /\bsk-[A-Za-z0-9_-]{16,}\b/g,
   /\bhf_[A-Za-z0-9]{16,}\b/g,
   /\bAIza[0-9A-Za-z_-]{20,}\b/g,
-  /\b(?:api[_-]?key|token|secret|password)\s*[:=]\s*["']?[^"'\s]+/gi,
+  /\b(?:api[_-]...key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/gi,
 ];
 
 function sanitize(value: unknown): string {
@@ -109,10 +109,9 @@ export class ZavorthHandoffEnvelopeService {
         ...(input.remainingTodos || []),
         ...(anchor?.pendingChecklist || []),
       ]),
-      'simulated-state-preview': uniqueItems([
-        ...(input.simulatedStatePreview || []),
-        compaction.triggered
-          ? `Context is resumable after ${compaction.mode}; ${compaction.reductionTokens} estimated token(s) reduced.`
+      'dry-run-state-preview': uniqueItems([
+        ...(input.dryRunStatePreview || []),
+        compaction.triggered ? `Context is resumable after ${compaction.mode}; ${compaction.reductionTokens} estimated token(s) reduced.`
           : 'Context is fresh enough to resume without compaction.',
       ]),
       'next-prescribed-action': uniqueItems([

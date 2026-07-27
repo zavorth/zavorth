@@ -25,7 +25,7 @@ export type ChannelProviderDoctorItem = {
   mode:
     | 'native'
     | 'cloud-api'
-    | 'stub'
+    | 'local'
     | 'local-outbox'
     | 'baileys'
     | 'bridge'
@@ -130,10 +130,10 @@ export class ChannelProviderDoctorService {
           : 'skipped';
     const summary =
       status === 'failed'
-        ? 'Doctor dos canais nativos encontrou pendencias operacionais.'
+        ? 'Native channel doctor found operational pending items.'
         : status === 'passed'
-          ? 'Doctor dos canais nativos validou os providers configurados.'
-          : 'Nenhum provider nativo/webhook elegivel para doctor neste runtime.';
+          ? 'Native channel doctor validated the configured providers.'
+          : 'No provider nactive/webhook elegivel para doctor in this runtime.';
 
     const report: ChannelProviderDoctorReport = {
       checkedAt: this.now().toISOString(),

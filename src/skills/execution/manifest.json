@@ -14,7 +14,7 @@
         "properties": {
           "command": {
             "type": "string",
-            "description": "Comando ou script a executar."
+            "description": "Comando ou script a run."
           },
           "language": {
             "type": "string",
@@ -32,7 +32,7 @@
         "properties": {
           "command": {
             "type": "string",
-            "description": "Comando shell a executar."
+            "description": "Comando shell a run."
           },
           "nodeId": {
             "type": "string",

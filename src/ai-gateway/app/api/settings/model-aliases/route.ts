@@ -39,7 +39,7 @@ export async function GET(request: Request) {
 /**
  * PUT /api/settings/model-aliases
  * Update the custom aliases map.
- * Body: { aliases: { "old-model": "new-model", ... } }
+ * Body: { aliases: { "old-model": "new-model", ? } }
  */
 export async function PUT(request) {
   const authError = await requireManagementAuth(request);

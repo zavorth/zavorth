@@ -145,11 +145,11 @@ export class ZavorthOperationalOverviewService {
     const narrative = buildOverviewNarrative({
       headline: 'Operational Overview',
       operatorSummary:
-        `${summary.readyChannels} canal(is) pronto(s), ${summary.onlineNodes} node(s) online, `
-        + `${summary.readyTransports} transport(s) prontos, ${summary.lifecycleEvents} evento(s) de lifecycle `
-        + `e ${summary.lifecycleAttention} sinal(is) pedindo atencao no replay/learning.`,
+        `${summary.readyChannels} channel(s) ready, ${summary.onlineNodes} node(s) online, `
+        + `${summary.readyTransports} transport(s) ready, ${summary.lifecycleEvents} evento(s) de lifecycle `
+        + `e ${summary.lifecycleAttention} sinal(is) needing attention no replay/learning.`,
       actions,
-      fallbackNextAction: 'Revisar runtime distribuido, estabilidade e replay operacional.',
+      fallbackNextAction: 'review runtime distribuido, estabilidade e replay operational.',
     });
 
     return {
@@ -209,14 +209,14 @@ export class ZavorthOperationalOverviewService {
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
       `Planes: healthy ${snapshot.summary.healthyPlanes} | attention ${snapshot.summary.attentionPlanes} | critical ${snapshot.summary.criticalPlanes}.`,
-      `Runtime: canais prontos ${snapshot.summary.readyChannels} | nodes online ${snapshot.summary.onlineNodes} | transports prontos ${snapshot.summary.readyTransports}.`,
-      `Stability: keepalive ${snapshot.summary.keepaliveActive ? 'ativo' : 'ausente'} | recoverable issues ${snapshot.summary.recoverableIssues}.`,
+      `Runtime: channels ready ${snapshot.summary.readyChannels} | nodes online ${snapshot.summary.onlineNodes} | transports ready ${snapshot.summary.readyTransports}.`,
+      `Stability: keepalive ${snapshot.summary.keepaliveActive ? 'active' : 'missing'} | recoverable issues ${snapshot.summary.recoverableIssues}.`,
       `Replay/Learning: lifecycle ${snapshot.summary.lifecycleEvents} | attention ${snapshot.summary.lifecycleAttention} | artifacts reutilizaveis ${snapshot.summary.reusableArtifacts} | pending learning ${snapshot.summary.pendingLearning}.`,
     ];
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Actions sugeridas:',
         ...snapshot.actions.map((entry) =>
           `- [${entry.source}] ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
@@ -235,9 +235,9 @@ export class ZavorthOperationalOverviewService {
         label: 'Distributed Runtime',
         posture: input.distributedRuntime?.summary?.posture,
         summary:
-          `${Number(input.distributedRuntime?.summary?.readyChannels || 0) || 0} canal(is) prontos | `
+          `${Number(input.distributedRuntime?.summary?.readyChannels || 0) || 0} channel(s) ready | `
           + `${Number(input.distributedRuntime?.summary?.onlineNodes || 0) || 0} node(s) online | `
-          + `${Number(input.distributedRuntime?.summary?.readyTransports || 0) || 0} transport(s) prontos.`,
+          + `${Number(input.distributedRuntime?.summary?.readyTransports || 0) || 0} transport(s) ready.`,
         nextAction: input.distributedRuntime?.narrative?.nextAction,
         command: input.distributedRuntime?.actions?.[0]?.command,
         source: 'distributed-runtime',
@@ -248,7 +248,7 @@ export class ZavorthOperationalOverviewService {
         posture: input.runtimeStability?.summary?.posture,
         summary:
           `Gate ${text(input.runtimeStability?.gate?.status, 'attention')} | `
-          + `keepalive ${input.runtimeStability?.summary?.keepaliveActive ? 'ativo' : 'ausente'} | `
+          + `keepalive ${input.runtimeStability?.summary?.keepaliveActive ? 'active' : 'missing'} | `
           + `${Number(input.runtimeStability?.summary?.recoverableIssues || 0) || 0} issue(s) recuperavel(is).`,
         nextAction: input.runtimeStability?.narrative?.nextAction,
         command: input.runtimeStability?.actions?.[0]?.command,
@@ -261,7 +261,7 @@ export class ZavorthOperationalOverviewService {
         summary:
           `${Number(input.replayLearning?.summary?.lifecycleEvents || 0) || 0} evento(s) de lifecycle | `
           + `${Number(input.replayLearning?.summary?.reusableArtifacts || 0) || 0} artifact(s) reutilizavel(is) | `
-          + `${Number(input.replayLearning?.summary?.pendingLearning || 0) || 0} learning candidate(s) pendente(s).`,
+          + `${Number(input.replayLearning?.summary?.pendingLearning || 0) || 0} learning candidate(s) pending(s).`,
         nextAction: input.replayLearning?.narrative?.nextAction,
         command: input.replayLearning?.actions?.[0]?.command,
         source: 'replay-learning',

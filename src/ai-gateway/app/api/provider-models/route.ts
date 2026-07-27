@@ -35,7 +35,7 @@ import { logger } from '@/shared/utils/logger';function normalizeRequestedModel
 }
 
 /**
- * GET /api/provider-models?provider=<id>
+ * GET /api/provider-models...provider=<id>
  * List custom models (all providers if no provider param)
  */
 export async function GET(request) {
@@ -65,7 +65,7 @@ export async function GET(request) {
 
 /**
  * POST /api/provider-models
- * Body: { provider, modelId, modelName? }
+ * Body: { provider, modelId, modelName... }
  */
 export async function POST(request) {
   let rawBody;
@@ -112,7 +112,7 @@ export async function POST(request) {
 
 /**
  * PUT /api/provider-models
- * Body: { provider, modelId, modelName?, apiFormat?, supportedEndpoints? }
+ * Body: { provider, modelId, modelName?, apiFormat?, supportedEndpoints... }
  */
 export async function PUT(request) {
   let rawBody;
@@ -241,7 +241,7 @@ export async function PUT(request) {
 }
 
 /**
- * PATCH /api/provider-models?provider=<id>&modelId=<modelId>
+ * PATCH /api/provider-models...provider=<id>&modelId=<modelId>
  * Body: { isHidden: boolean, modelIds?: string[] }
  */
 export async function PATCH(request) {
@@ -319,7 +319,7 @@ export async function PATCH(request) {
 }
 
 /**
- * DELETE /api/provider-models?provider=<id>&model=<modelId>
+ * DELETE /api/provider-models...provider=<id>&model=<modelId>
  */
 export async function DELETE(request) {
   try {
@@ -347,7 +347,7 @@ export async function DELETE(request) {
       );
     }
 
-    // DELETE /api/provider-models?provider=<id>&all=true — clear all models
+    // DELETE /api/provider-models...provider=<id>&all=true — clear all models
     const all = searchParams.get("all");
     if (all === "true") {
       await replaceCustomModels(provider, [], { allowEmpty: true });

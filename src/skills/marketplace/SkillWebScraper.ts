@@ -139,19 +139,19 @@ function validateUrlForFetch(url: string): string | null {
 
 const INSTALL_URL_PATTERNS: Array<{ pattern: RegExp; type: InstallUrl['type']; label: string }> = [
   // GitHub URLs
-  { pattern: /https?:\/\/github\.com\/[^/]+\/[^/]+(?:\/tree\/[^/]+)?(?:\/[^/]*)?/g, type: 'github', label: 'GitHub Repository' },
+  { pattern: /https?:\/\/github\.com\/[^/]+\/[^/]+(?:\/tree\/[^/]+)...(?:\/[^/]*).../g, type: 'github', label: 'GitHub Repository' },
   { pattern: /https?:\/\/github\.com\/[^/]+\/[^/]+\/archive\/[^/]+\.zip/g, type: 'zip', label: 'GitHub ZIP Archive' },
 
   // GitLab URLs
-  { pattern: /https?:\/\/gitlab\.com\/[^/]+\/[^/]+(?:\/-\/tree\/[^/]+)?(?:\/[^/]*)?/g, type: 'gitlab', label: 'GitLab Repository' },
+  { pattern: /https?:\/\/gitlab\.com\/[^/]+\/[^/]+(?:\/-\/tree\/[^/]+)...(?:\/[^/]*).../g, type: 'gitlab', label: 'GitLab Repository' },
 
   // npm URLs
   { pattern: /https?:\/\/www\.npmjs\.com\/package\/[^/]+/g, type: 'npm', label: 'npm Package' },
   { pattern: /npm:([a-zA-Z0-9@/._-]+)/g, type: 'npm', label: 'npm Package' },
 
   // Archive URLs
-  { pattern: /https?:\/\/[^/]+\.zip(?=\s|$|"|')/gi, type: 'zip', label: 'ZIP Archive' },
-  { pattern: /https?:\/\/[^/]+\.(?:tar\.gz|tgz)(?=\s|$|"|')/gi, type: 'tarball', label: 'Tarball Archive' },
+  { pattern: /https?:\/\/[^/]+\.zip(...=\s|$|"|')/gi, type: 'zip', label: 'ZIP Archive' },
+  { pattern: /https?:\/\/[^/]+\.(?:tar\.gz|tgz)(...=\s|$|"|')/gi, type: 'tarball', label: 'Tarball Archive' },
 
   // Generic Git URLs
   { pattern: /https?:\/\/[^/]+\.git(?:\s|$|"|')/g, type: 'git', label: 'Git Repository' },
@@ -418,7 +418,7 @@ export class SkillWebScraper {
         const url = match[0].trim();
 
         // Skip if already seen or looks like an image
-        if (seen.has(url) || url.match(/\.(png|jpg|jpeg|gif|svg|ico)(\?|$)/i)) {
+        if (seen.has(url) || url.match(/\.(png|jpg|jpeg|gif|svg|ico)(\...|$)/i)) {
           continue;
         }
 
@@ -454,12 +454,12 @@ export class SkillWebScraper {
     }
 
     // Try to extract stars/downloads
-    const starsMatch = content.match(/(\d+(?:\.\d+)?)\s*(?:stars?|★)/i);
+    const starsMatch = content.match(/(\d+(?:\.\d+)...)\s*(?:stars...|★)/i);
     if (starsMatch) {
       metadata.stars = starsMatch[1];
     }
 
-    const downloadsMatch = content.match(/(\d+(?:\.\d+)?)\s*(?:downloads?|installs?)/i);
+    const downloadsMatch = content.match(/(\d+(?:\.\d+)...)\s*(?:downloads...|installs?)/i);
     if (downloadsMatch) {
       metadata.downloads = downloadsMatch[1];
     }

@@ -360,7 +360,7 @@ export class ZavorthTerminalBackendsService {
     return [
       descriptor({
         id: 'local',
-        label: 'Local supervised shell',
+        label: 'local supervised shell',
         status: 'ready',
         isolation: 'host-process',
         installed: true,
@@ -372,7 +372,7 @@ export class ZavorthTerminalBackendsService {
         defaultCommand: this.platform === 'win32' ? 'powershell.exe -NoProfile -Command <command>' : 'sh -lc <command>',
         nextCommand: 'zavorth execution-backends --backend local --command "npm test"',
         limitations: ['No OS sandbox; mutation commands still require approval and receipts.'],
-        readinessProof: readinessProof('local-host', true, 'Local supervised shell exists on this host, but it is not counted as strong isolation.', null),
+        readinessProof: readinessProof('local-host', true, 'local supervised shell exists on this host, but it is not counted as strong isolation.', null),
       }),
       descriptor({
         id: 'docker',
@@ -827,7 +827,7 @@ function backendStateFromProof(proof: ZavorthTerminalBackendDescriptor['readines
 
 function firstLine(value: string): string {
   return sanitizeProjectionText(redactSecrets(String(value || '')))
-    .split(/\r?\n/u)
+    .split(/\r...\n/u)
     .map((line) => line.trim())
     .find(Boolean) || '';
 }

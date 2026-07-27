@@ -122,22 +122,22 @@ export class AiFirstLimitedCanarySwitchboardService {
       ],
       gates: [
         {
-          id: 'checkpoint-6-manual-activation-only',
+          id: 'gate-6-manual-activation-only',
           status: 'passed',
           detail: 'Canary routes require explicit manual activation.',
         },
         {
-          id: 'checkpoint-6-fallback-preserved',
+          id: 'gate-6-fallback-preserved',
           status: 'passed',
           detail: 'Every decision keeps fallbackRoute=current-runtime.',
         },
         {
-          id: 'checkpoint-6-guardrails-required',
+          id: 'gate-6-guardrails-required',
           status: 'passed',
           detail: 'Canary selection requires Approval gate guardrail and registry receipt.',
         },
         {
-          id: 'checkpoint-6-current-runtime-preserved',
+          id: 'gate-6-current-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },
@@ -162,7 +162,7 @@ export class AiFirstLimitedCanarySwitchboardService {
     lines.push('');
     lines.push('## Routes');
     for (const route of snapshot.routes) {
-      lines.push(`- ${route.routeKey}: ${route.status} / surfaces=${route.enabledSurfaces.join(', ') || 'none'} - ${route.reason}`);
+      lines.push(`- ${route.routeKey}: ${route.status} / surfaces=${route.enabledSurfaces.join(', ') || 'none'} ? ${route.reason}`);
     }
     lines.push('');
     lines.push('## Decisions');
@@ -170,7 +170,7 @@ export class AiFirstLimitedCanarySwitchboardService {
       lines.push('- none');
     } else {
       for (const decision of snapshot.decisions) {
-        lines.push(`- ${decision.requestId}: ${decision.decision} / fallback=${decision.fallbackReason || 'none'} - ${decision.reason}`);
+        lines.push(`- ${decision.requestId}: ${decision.decision} / fallback=${decision.fallbackReason || 'none'} ? ${decision.reason}`);
       }
     }
     return lines.join('\n');
@@ -250,8 +250,7 @@ export class AiFirstLimitedCanarySwitchboardService {
     const probe = input.probe;
     const route = input.routes.find((entry) => entry.familyId === probe.familyId);
     const fallbackReason = resolveFallbackReason(probe, route);
-    const decision: AiFirstLimitedCanaryDecisionStatus = fallbackReason
-      ? 'fallback-current-runtime'
+    const decision: AiFirstLimitedCanaryDecisionStatus = fallbackReason ? 'fallback-current-runtime'
       : 'select-ai-first-canary';
     return {
       id: this.idFactory('decision'),

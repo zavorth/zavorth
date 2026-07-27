@@ -6,8 +6,8 @@ welcome:
 
 security:
   short: "Zavorth leitet natürliche Sprache an Modelle, Kanäle und lokale Tools weiter. Sensible Aktionen erfordern Ihre Genehmigung."
-  confirm_first_run: "Willkommen! Bereit, Zavorth einzurichten?"
-  confirm_reconfigure: "Vorhandene Zavorth-Installation neu konfigurieren?"
+  confirm_first_run: "Willkommen! Bereit, Zavorth einzurichten..."
+  confirm_reconfigure: "Vorhandene Zavorth-Installation neu konfigurieren..."
 
 existing_config:
   title: "Vorhandene Konfiguration erkannt"
@@ -21,12 +21,12 @@ config_issues:
   no_api_keys: "Keine API-Schlüssel in .env gefunden"
   env_not_found: ".env-Datei nicht gefunden — Anbieter muss konfiguriert werden"
   env_unreadable: ".env existiert, aber kann nicht gelesen werden"
-  run_doctor: "zavorth doctor zur Fehlerbehebung ausführen?"
+  run_doctor: "zavorth doctor zur Fehlerbehebung ausführen..."
   doctor_hint: "Führen Sie \"zavorth doctor\" in einem anderen Terminal aus."
 
 mode:
-  prompt_first_run: "Wie möchten Sie einrichten?"
-  prompt_reconfigure: "Wie möchten Sie neu konfigurieren?"
+  prompt_first_run: "Wie möchten Sie einrichten..."
+  prompt_reconfigure: "Wie möchten Sie neu konfigurieren..."
   complete: "Vollständige Einrichtung"
   complete_hint: "alle Schritte — Anbieter, Kanäle, Skills, Speicher"
   quickstart: "Schnellstart"
@@ -37,27 +37,27 @@ mode:
   blank_hint: "minimal — jede Funktion einzeln aktivieren"
 
 home:
-  prompt: "Wo soll Zavorth diese Instanz speichern?"
+  prompt: "Wo soll Zavorth diese Instanz speichern..."
   keep_current: "Aktuelles ZAVORTH_HOME beibehalten"
   use_isolated: "Isoliertes Home neben dem Projekt"
   choose_custom: "Eigene Home-Pfad wählen"
   path_prompt: "ZAVORTH_HOME-Pfad"
 
 config_handling:
-  prompt: "Wie mit vorhandener Konfiguration umgehen?"
+  prompt: "Wie mit vorhandener Konfiguration umgehen..."
   keep: "Aktuelle Werte beibehalten"
   review: "Überprüfen und aktualisieren"
   reset: "Vor Einrichtung zurücksetzen"
 
 skill_governance:
-  prompt: "Importierte Skills verarbeiten?"
+  prompt: "Importierte Skills verarbeiten..."
   casual: "Locker"
   casual_hint: "für persönliche Nutzung empfohlen; schneller Import"
   governed: "Geregelt"
   governed_hint: "strenge Unternehmensprüfung für Risiko, Lizenz, Audit"
 
 wake_detector:
-  prompt: "Echo Wake-Word einrichten?"
+  prompt: "Echo Wake-Word einrichten..."
   default_local: "Standard-Lokalerkennung"
   custom_command: "Benutzerdefinierter Erkennungsbefehl"
   disabled: "Deaktiviert lassen"
@@ -65,7 +65,7 @@ wake_detector:
   args_prompt: "Erkennungsargumente"
 
 migration:
-  prompt: "Einstellungen von anderem AI-Agent migrieren?"
+  prompt: "Einstellungen von anderem AI-Agent migrieren..."
   path_prompt: "Pfad zum Agent-Arbeitsbereich:"
   complete: "Migration abgeschlossen. Importierte Einstellungen prüfen."
   skipped: "Migration übersprungen oder fehlgeschlagen. Später ausführen: zavorth migrate"
@@ -74,7 +74,7 @@ provider:
   auto_detected: "API-Schlüssel für {provider} gefunden."
   auto_selected: "Verwende {provider} mit Modell {model}."
   none_found: "Kein LLM-Anbieter-API-Schlüssel in Umgebungsvariablen gefunden."
-  select_prompt: "Welchen Anbieter verwenden?"
+  select_prompt: "Welchen Anbieter verwenden..."
   all_providers: "Alle nativen Anbieter-Routes"
   api_key_prompt: "{provider} API-Schlüssel eingeben (leer zum Überspringen):"
   testing: "API-Schlüssel wird getestet..."
@@ -96,7 +96,7 @@ channels:
 
 search:
   title: "Websuche"
-  prompt: "Welchen Suchanbieter?"
+  prompt: "Welchen Suchanbieter..."
   local: "Lokal (kein API-Schlüssel nötig)"
   brave: "Brave Search"
   google: "Google Search"
@@ -104,16 +104,16 @@ search:
 
 hooks:
   title: "Automatisierung"
-  prompt: "Automatisierungsvorlagen vorbereiten?"
+  prompt: "Automatisierungsvorlagen vorbereiten..."
   hint: "deaktiviert bis Überprüfung und Aktivierung"
 
 memory:
   title: "Speicher"
-  prompt: "Speichermodus?"
+  prompt: "Speichermodus..."
   local_metadata: "Lokale Metadaten (Einstellungen, Genehmigungen, Nutzungssignale)"
   local_summary: "Lokale Zusammenfassungen (kurze Projekt/Kontext-Zusammenfassungen)"
   off: "Aus (kein Speicher während Einrichtung)"
-  vault_scope: "Speicher-Scan-Bereich?"
+  vault_scope: "Speicher-Scan-Bereich..."
   skip: "Jetzt überspringen"
   documents: "Dokumente"
   downloads: "Downloads"
@@ -130,7 +130,7 @@ gateway:
 
 hatch:
   title: "Agent starten"
-  prompt: "Wie möchten Sie den Agenten nach der Einrichtung starten?"
+  prompt: "Wie möchten Sie den Agenten nach der Einrichtung starten..."
   terminal: "Im Terminal starten"
   browser: "Im ZavorthControl starten"
   later: "Später starten"

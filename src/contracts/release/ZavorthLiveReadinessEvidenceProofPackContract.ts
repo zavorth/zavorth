@@ -4,7 +4,7 @@ import type { ZavorthTerminalBackendSnapshot } from '../ZavorthTerminalBackendsC
 import type { ZavorthProviderReadinessMatrixSnapshot } from '../ZavorthProviderReadinessMatrixContract.js';
 
 export const ZAVORTH_LIVE_READINESS_EVIDENCE_PROOF_PACK_CONTRACT_VERSION =
-  '2026-05-14.checkpoint-9-live-readiness-evidence-proof-pack' as const;
+  '2026-05-14.gate-9-live-readiness-evidence-proof-pack' as const;
 
 export type ZavorthLiveReadinessEvidenceStatus = 'passed' | 'attention' | 'blocked';
 
@@ -92,6 +92,6 @@ export type ZavorthLiveReadinessEvidenceProofPackSnapshot = {
     smokeProof: 'npm run provider-channel-smoke-proof:check --silent';
     terminalBackends: 'npm run zavorth:terminal-backends:check --silent';
     requireLive: 'npm run zavorth:live-readiness-evidence-proof-pack:json -- --require-live';
-    nextStage: 'Intent model0 - Final Daily Runtime Closure and Release Gate';
+    nextAction: 'Final Daily Runtime Closure and Release Gate';
   };
 };

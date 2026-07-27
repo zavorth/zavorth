@@ -6,23 +6,23 @@ welcome:
 steps:
   language:
     title: "Language"
-    prompt: "Which language should I use?"
+    prompt: "Which language should I use..."
     en: "English"
     pt: "Portuguese (Brazil)"
   identity:
     title: "Identity"
-    agent_name: "What should I call you?"
-    user_name: "What should I call you?"
+    agent_name: "What should I call you..."
+    user_name: "What should I call you..."
   provider:
     title: "Provider"
     prompt: "Select your AI provider:"
     api_key: "Enter your API key:"
   channels:
     title: "Channels"
-    prompt: "Which channels do you want to enable?"
+    prompt: "Which channels do you want to enable..."
   safety:
     title: "Safety"
-    prompt: "How should I handle risky actions?"
+    prompt: "How should I handle risky actions..."
     conservative: "Conservative - always ask first"
     balanced: "Balanced - ask for risky actions"
     autonomous: "Autonomous - act first, report after"
@@ -45,16 +45,16 @@ conversation:
   questions:
     agent_name:
       label: "Agent name"
-      prompt: "What should this agent be called?"
+      prompt: "What should this agent be called..."
     user_name:
       label: "Your name"
-      prompt: "What should Zavorth call you?"
+      prompt: "What should Zavorth call you..."
     preferred_language:
       label: "Preferred conversation language"
-      prompt: "Which language should Zavorth use when speaking with you?"
+      prompt: "Which language should Zavorth use when speaking with you..."
     experience_profile:
       label: "Experience profile"
-      prompt: "Will you use Zavorth for daily life, creation, code, business or advanced operation?"
+      prompt: "Will you use Zavorth for daily life, creation, code, business or advanced operation..."
     detail_level:
       label: "Detail level"
-      prompt: "Do you prefer simple or advanced detail?"
+      prompt: "Do you prefer simple or advanced detail..."

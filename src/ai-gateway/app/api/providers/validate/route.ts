@@ -32,10 +32,8 @@ AccessRouteResolutionService,
     checkedAt: new Date().toISOString(),
   };
   const provider = String(input.provider || "").trim();
-  const customRouteKey = isOpenAICompatibleProvider(provider)
-    ? "custom-openai-compatible"
-    : isAnthropicCompatibleProvider(provider)
-      ? "anthropic"
+  const customRouteKey = isOpenAICompatibleProvider(provider) ? "custom-openai-compatible"
+    : isAnthropicCompatibleProvider(provider) ? "anthropic"
       : provider;
   const resolution = new AccessRouteResolutionService().resolveRoutes({
     includeAdvanced: true,
@@ -89,10 +87,8 @@ export async function POST(request) {
     if (isOpenAICompatibleProvider(provider) || isAnthropicCompatibleProvider(provider)) {
       const node: any = await getProviderNodeById(provider);
       if (!node) {
-        const typeName = isOpenAICompatibleProvider(provider)
-          ? "OpenAI"
-          : isClaudeCodeCompatibleProvider(provider)
-            ? "CC"
+        const typeName = isOpenAICompatibleProvider(provider) ? "OpenAI"
+          : isClaudeCodeCompatibleProvider(provider) ? "CC"
             : "Anthropic";
         return NextResponse.json(
           { error: `${typeName} Compatible node not found` },

@@ -106,7 +106,7 @@ export class TelegramTaskWorkflowRoutingService {
     return {
       executor: workspaceRoutingAdvice.executor,
       reason: workspaceRoutingAdvice.rationale[0]
-        || `Workspace sugere ${workspaceRoutingAdvice.executor} como executor preferencial para ${workspaceRoutingAdvice.task_kind}.`,
+        || `Workspace suggests ${workspaceRoutingAdvice.executor} como executor preferencel para ${workspaceRoutingAdvice.task_kind}.`,
       source: 'workspace_learning',
       strategy: workspaceRoutingAdvice.source,
       dispatchMode: 'execution',

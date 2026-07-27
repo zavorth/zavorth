@@ -77,7 +77,7 @@ export class TelegramSkillCatalogController {
         await this.replySkillReport(
           ctx,
           'skill-install-plan',
-          'Plano de instalacao de skills',
+          'Skill installation plan',
           this.skillInstallPlanPresentationService.renderReport({ recipeId }),
           { recipeId },
         );
@@ -88,7 +88,7 @@ export class TelegramSkillCatalogController {
         await this.replySkillReport(
           ctx,
           'skill-install-recommendation',
-          'Recomendacao de skills',
+          'Recomendaction de skills',
           this.skillInstallPlanPresentationService.renderReport({ recommendFor }),
           { recommendFor },
         );
@@ -98,7 +98,7 @@ export class TelegramSkillCatalogController {
         selectedId: remainder || null,
         query: remainder || null,
       });
-      await this.replySkillReport(ctx, 'skill-install-plan', 'Plano de instalacao de skills', report, {
+      await this.replySkillReport(ctx, 'skill-install-plan', 'Skill installation plan', report, {
         query: remainder || null,
       });
       return;
@@ -121,7 +121,7 @@ export class TelegramSkillCatalogController {
       await this.replySkillReport(
         ctx,
         'skill-install-plan',
-        'Plano de instalacao de skills',
+        'Skill installation plan',
         this.skillInstallPlanPresentationService.renderReport({ recipeId }),
         { recipeId },
       );
@@ -133,7 +133,7 @@ export class TelegramSkillCatalogController {
       await this.replySkillReport(
         ctx,
         'skill-install-recommendation',
-        'Recomendacao de skills',
+        'Recomendaction de skills',
         this.skillInstallPlanPresentationService.renderReport({ recommendFor }),
         { recommendFor },
       );

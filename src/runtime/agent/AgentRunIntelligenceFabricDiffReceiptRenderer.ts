@@ -8,16 +8,16 @@ export function renderIntelligenceFabricDiffReceipt(value: unknown): string | nu
   }
   const verifier = readRecord(receipt.verifier);
   const lines = [
-    'Previa de alteracao',
-    `Resumo: ${text(receipt.summary, `${files.length} arquivo(s) afetado(s).`)}`,
-    `Risco: ${text(receipt.riskLevel, '3')} reversivel; rollback: ${receipt.rollbackAvailable === false ? 'indisponivel' : 'disponivel'}.`,
-    `Verifier: ${text(verifier.status, 'unknown')}${verifier.ambiguous === true ? ' (ambiguo)' : ''}.`,
-    `Apply: ${receipt.applyRequiresRequest === false ? 'pode seguir policy existente' : 'so com pedido explicito'}.`,
-    'Arquivos:',
+    'Change preview',
+    `Summary: ${text(receipt.summary, `${files.length} affected file(s).`)}`,
+    `Risk: ${text(receipt.riskLevel, '3')} reversible; rollback: ${receipt.rollbackAvailable === false ? 'unavailable' : 'available'}.`,
+    `Verifier: ${text(verifier.status, 'unknown')}${verifier.ambiguous === true ? ' (ambiguous)' : ''}.`,
+    `Apply: ${receipt.applyRequiresRequest === false ? 'can continue under existing policy' : 'only with explicit request'}.`,
+    'Files:',
     ...files.slice(0, 6).flatMap((file) => renderFile(file)),
   ];
   if (files.length > 6) {
-    lines.push(`- mais ${files.length - 6} arquivo(s) omitido(s) da previa curta.`);
+    lines.push(`- ${files.length - 6} more file(s) omitted from the short preview.`);
   }
   return lines.join('\n');
 }
@@ -30,16 +30,16 @@ function renderFile(file: Record<string, unknown>): string[] {
     ? file.reasons.map((entry) => String(entry || '').trim()).filter(Boolean)
     : [];
   const lines = [
-    `- ${text(file.path, 'arquivo')}: ${text(file.operation, 'edit')}, ${text(file.hunkCount, String(hunks.length || 1))} hunk(s), ${text(file.status, 'unknown')}`,
+    `- ${text(file.path, 'file')}: ${text(file.operation, 'edit')}, ${text(file.hunkCount, String(hunks.length || 1))} hunk(s), ${text(file.status, 'unknown')}`,
   ];
   for (const hunk of hunks.slice(0, 4)) {
-    lines.push(`  ${text(hunk.index, '?')}. ${renderHunk(hunk)}`);
+    lines.push(`  ${text(hunk.index, '...')}. ${renderHunk(hunk)}`);
   }
   if (hunks.length > 4) {
-    lines.push(`  ... mais ${hunks.length - 4} hunk(s)`);
+    lines.push(`  ? mais ${hunks.length - 4} hunk(s)`);
   }
   for (const reason of reasons.slice(0, 2)) {
-    lines.push(`  bloqueio: ${reason}`);
+    lines.push(`  block: ${reason}`);
   }
   return lines;
 }
@@ -47,9 +47,8 @@ function renderFile(file: Record<string, unknown>): string[] {
 function renderHunk(hunk: Record<string, unknown>): string {
   const search = optionalText(hunk.searchPreview);
   const replace = text(hunk.replacePreview, '');
-  return search
-    ? `"${search}" -> "${replace}"`
-    : `novo conteudo: "${replace}"`;
+  return search ? `"${search}" -> "${replace}"`
+    : `new content: "${replace}"`;
 }
 
 function readRecord(value: unknown): Record<string, unknown> {

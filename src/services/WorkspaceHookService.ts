@@ -131,7 +131,7 @@ export class WorkspaceHookService {
           command,
           status: code === 0 ? 'completed' : 'failed',
           exitCode: typeof code === 'number' ? code : null,
-          error: code === 0 ? null : `Hook saiu com codigo ${String(code)}`,
+          error: code === 0 ? null : `Hook saiu with code ${String(code)}`,
         });
       });
     });

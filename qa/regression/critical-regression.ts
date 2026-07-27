@@ -35,7 +35,7 @@ async function runRegression() {
 
   harness.register({
     id: 'gateway-public-api',
-    description: 'API publica do gateway responde status e domains.',
+      description: 'Gateway public API responds with status and domains.',
     criticalPath: 'gateway',
     execute: async () => {
       const boot = await startGatewayHost({
@@ -67,7 +67,7 @@ async function runRegression() {
 
   harness.register({
     id: 'quality-metrics-api',
-    description: 'Metricas publicas de learning, memory e ops quality respondem com snapshots validos.',
+    description: 'Public learning, memory, and ops quality metrics respond with valid snapshots.',
     criticalPath: 'security',
     execute: async () => {
       const boot = await startGatewayHost({
@@ -106,7 +106,7 @@ async function runRegression() {
 
   harness.register({
     id: 'cli-status-json',
-    description: 'CLI responde status --json sem quebrar o contrato.',
+      description: 'CLI responds to status --json without breaking the contract.',
     criticalPath: 'session',
     execute: async () => {
       return await runCliJson(['status', '--json']);
@@ -127,7 +127,7 @@ async function runRegression() {
 
   harness.register({
     id: 'cli-ops-quality-json',
-    description: 'CLI responde ops quality --json com score, budgets e gates consistentes.',
+      description: 'CLI responds to ops quality --json with consistent score, budgets, and gates.',
     criticalPath: 'security',
     execute: async () => {
       return await runCliJson(['ops', 'quality', '--json']);
@@ -150,7 +150,7 @@ async function runRegression() {
 
   harness.register({
     id: 'node-mesh-doctor',
-    description: 'Node Mesh responde pelo doctor canonico sem quebrar a surface central.',
+    description: 'Node Mesh responds through canonical doctor without breaking the central surface.',
     criticalPath: 'mesh',
     execute: async () => {
       return await runCliJson(['nodes', 'doctor', '--json']);
@@ -173,7 +173,7 @@ async function runRegression() {
 
   harness.register({
     id: 'remote-transport-doctor',
-    description: 'Remote transport doctor responde e persiste relatorio.',
+    description: 'Remote transport doctor responds and persists report.',
     criticalPath: 'transport',
     execute: async () => {
       const report = await new RemoteTransportDoctorService().run();
@@ -236,6 +236,6 @@ async function runRegression() {
 }
 
 runRegression().catch((error) => {
-  console.error('[qa] critical regression falhou:', error);
+  console.error('[qa] critical regression failed:', error);
   process.exit(1);
 });

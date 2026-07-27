@@ -19,7 +19,7 @@ export async function reserveFreePort(): Promise<number> {
           return;
         }
         if (!address || typeof address === 'string') {
-          reject(new Error('Nao foi possivel reservar uma porta livre para o host web temporario.'));
+      reject(new Error('Could not reserve a free port for the temporary web host.'));
           return;
         }
         resolve(address.port);
@@ -57,7 +57,7 @@ export async function waitForWebShell(
 
   throw lastError instanceof Error
     ? lastError
-    : new Error(`Host web temporario nao respondeu em ${timeoutMs}ms.`);
+      : new Error(`Temporary web host did not respond within ${timeoutMs}ms.`);
 }
 
 export type TemporaryZavorthControlHandle = {

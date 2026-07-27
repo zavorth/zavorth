@@ -53,7 +53,7 @@ export class ProjectDigitalTwinService {
       fileSummary: {
         totalIndexed: files.length,
         sourceFiles: files.filter((file) => /^src\//.test(file)).length,
-        testFiles: files.filter((file) => /^tests?\//.test(file) || /\.test\.[tj]sx?$/.test(file)).length,
+        testFiles: files.filter((file) => /^tests...\//.test(file) || /\.test\.[tj]sx...$/.test(file)).length,
         configFiles: files.filter((file) => /(^|\/)(package\.json|tsconfig|jest\.config|config\/)/i.test(file)).length,
         sensitiveZones: sensitiveZones.map((entry) => truncateAgentOsText(entry, 120)),
       },
@@ -78,7 +78,7 @@ export class ProjectDigitalTwinService {
       fileSummary: { totalIndexed: 0, sourceFiles: 0, testFiles: 0, configFiles: 0, sensitiveZones: [] },
       packageSummary: { scripts: [], dependencies: [], devDependencies: [] },
       moduleMap: [],
-      architecturePatterns: ['workspace ausente ou vazio'],
+      architecturePatterns: ['workspace missing ou vazio'],
       receipts: ['project-twin-read-only', 'project-twin-empty'],
     };
   }
@@ -148,21 +148,21 @@ export class ProjectDigitalTwinService {
   }
 
   private roleFor(relative: string): string {
-    if (relative.includes('runtime')) return 'execucao e orquestracao';
-    if (relative.includes('services')) return 'capacidades e politicas';
-    if (relative.includes('contracts')) return 'contratos publicos';
-    if (relative.includes('security')) return 'fronteira de seguranca';
-    if (relative.includes('tools')) return 'ferramentas governadas';
-    if (relative.includes('tests')) return 'validacao';
-    return 'operacao';
+    if (relative.includes('runtime')) return 'execution and orchestration';
+    if (relative.includes('services')) return 'capacidades e policys';
+    if (relative.includes('contracts')) return 'public contracts';
+    if (relative.includes('security')) return 'security boundary';
+    if (relative.includes('tools')) return 'tools governadas';
+    if (relative.includes('tests')) return 'validation';
+    return 'operation';
   }
 
   private patterns(files: string[], modules: AgentOsProjectTwinSnapshot['moduleMap'], scripts: string[]): string[] {
     return [
-      modules.some((entry) => entry.path === 'src/contracts') ? 'contratos versionados' : 'contratos nao detectados',
-      scripts.includes('workspace:check') ? 'workspace check agregado' : 'workspace check nao detectado',
-      files.some((entry) => entry.includes('security')) ? 'security boundary presente' : 'security boundary nao detectada',
-      files.some((entry) => entry.includes('Capability')) ? 'capability system presente' : 'capability system nao detectado',
+      modules.some((entry) => entry.path === 'src/contracts') ? 'versioned contracts' : 'contracts not detected',
+      scripts.includes('workspace:check') ? 'workspace check agregado' : 'workspace check not detected',
+      files.some((entry) => entry.includes('security')) ? 'security boundary present' : 'security boundary not detected',
+      files.some((entry) => entry.includes('Capability')) ? 'capability system present' : 'capability system not detected',
     ];
   }
 }

@@ -3,8 +3,8 @@ import { asErrorLike } from '../../../utils/errorLike';
  * openrouterCatalog.ts — Feature 09
  * OpenRouter catalog with persistent cache in local JSON file.
  *
- * - TTL configurável via env OPENROUTER_CATALOG_TTL_MS (default: 24h)
- * - Fallback stale-if-error: retorna último snapshot válido se fetch falhar
+ * - Configurable TTL through env OPENROUTER_CATALOG_TTL_MS (default: 24h)
+ * - Stale-if-error fallback returns the last valid snapshot when fetch fails
  * - Opportunistic background update (does not block the caller)
  */
 

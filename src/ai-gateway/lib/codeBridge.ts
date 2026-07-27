@@ -84,7 +84,7 @@ export function readCompanionStatus(env: NodeJS.ProcessEnv = process.env): {
   if (!raw) return { online: false }
   const lastSeen = typeof raw.lastSeen === "number" ? raw.lastSeen : undefined
   const name = typeof raw.name === "string" && raw.name.trim() ? raw.name.trim() : undefined
-  const online = lastSeen !== undefined && Date.now() - lastSeen <= ONLINE_WINDOW_MS
+  const online = lastSeen !== undefined && Date.now() ? lastSeen <= ONLINE_WINDOW_MS
   return { online, lastSeen, name }
 }
 

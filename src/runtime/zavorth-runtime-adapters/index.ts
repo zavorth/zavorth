@@ -1,4 +1,4 @@
-// Public runtime adapter runtime surface. Keep this file product-facing and free of historical phase packs.
+// Public runtime adapter runtime surface. Keep this file product-facing and free of historical roadmap packs.
 export * from './RuntimeAdapterApprovalGrantContract.js';
 export * from './RuntimeAdapterApprovalRequiredMutationRehearsal.js';
 export * from './RuntimeAdapterApprovedMutationExecutionHarness.js';

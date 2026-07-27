@@ -92,26 +92,24 @@ export class AiFirstFinalActivationGateService {
       ],
       gates: [
         {
-          id: 'checkpoint-10-receipts-present',
+          id: 'gate-10-receipts-present',
           status: aggregate.allReceiptsPresent ? 'passed' : 'warning',
-          detail: aggregate.allReceiptsPresent
-            ? 'Required gate receipts are present.'
+          detail: aggregate.allReceiptsPresent ? 'Required gate receipts are present.'
             : 'One or more gate snapshots has no receipts.',
         },
         {
-          id: 'checkpoint-10-runtime-invariants-preserved',
+          id: 'gate-10-runtime-invariants-preserved',
           status: aggregate.allRuntimeInvariantsPreserved ? 'passed' : 'blocked',
-          detail: aggregate.allRuntimeInvariantsPreserved
-            ? 'All gate recommendations preserve runtime invariants.'
+          detail: aggregate.allRuntimeInvariantsPreserved ? 'All gate recommendations preserve runtime invariants.'
             : 'One or more gate recommendation violates runtime invariants.',
         },
         {
-          id: 'checkpoint-10-owner-controlled-only',
+          id: 'gate-10-owner-controlled-only',
           status: 'passed',
           detail: 'Automatic activation remains disabled and owner approval remains required.',
         },
         {
-          id: 'checkpoint-10-final-readiness',
+          id: 'gate-10-final-readiness',
           status: recommendation.readiness === 'blocked'
             ? 'blocked'
             : recommendation.readiness === 'hold'
@@ -164,12 +162,11 @@ type AggregateDraft = Omit<AiFirstFinalActivationGateSnapshot['aggregate'], 'fin
 function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFinalActivationPhaseSummary[] {
   return [
     {
-      gate: 'ai-first-activation-checkpoint-4',
+      gate: 'ai-first-activation-gate-4',
       sourceId: safeId(input.batchSnapshot.batchId),
       readiness: input.batchSnapshot.recommendation.readiness,
       action: input.batchSnapshot.recommendation.action,
-      status: input.batchSnapshot.recommendation.readiness === 'candidate' && input.batchSnapshot.score.criteriaPassed
-        ? 'passed'
+      status: input.batchSnapshot.recommendation.readiness === 'candidate' && input.batchSnapshot.score.criteriaPassed ? 'passed'
         : input.batchSnapshot.statusCounts.block > 0
           ? 'blocked'
           : 'warning',
@@ -178,7 +175,7 @@ function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFin
       detail: `${input.batchSnapshot.score.sampleCount} shadow sample(s), passRate=${formatRate(input.batchSnapshot.score.passRate)}.`,
     },
     {
-      gate: 'checkpoint-5',
+      gate: 'gate-5',
       sourceId: safeId(input.registrySnapshot.registryId),
       readiness: input.registrySnapshot.recommendation.readiness,
       action: input.registrySnapshot.recommendation.action,
@@ -192,7 +189,7 @@ function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFin
       detail: `${input.registrySnapshot.summary.eligibleFamilies} eligible family/families and ${input.registrySnapshot.summary.proposedAllowlistEntries} allowlist proposal(s).`,
     },
     {
-      gate: 'checkpoint-6',
+      gate: 'gate-6',
       sourceId: safeId(input.switchboardSnapshot.switchboardId),
       readiness: input.switchboardSnapshot.recommendation.readiness,
       action: input.switchboardSnapshot.recommendation.action,
@@ -204,7 +201,7 @@ function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFin
       detail: `${input.switchboardSnapshot.summary.canaryEnabledRoutes} route(s) enabled and ${input.switchboardSnapshot.summary.aiFirstCanarySelections} canary selection(s).`,
     },
     {
-      gate: 'checkpoint-8',
+      gate: 'gate-8',
       sourceId: safeId(input.ledgerSnapshot.ledgerId),
       readiness: input.ledgerSnapshot.recommendation.readiness,
       action: input.ledgerSnapshot.recommendation.action,
@@ -216,7 +213,7 @@ function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFin
       detail: `${input.ledgerSnapshot.summary.totalEntries} runtime receipt entrie(s) captured.`,
     },
     {
-      gate: 'checkpoint-9',
+      gate: 'gate-9',
       sourceId: safeId(input.historicalGateSnapshot.gateId),
       readiness: input.historicalGateSnapshot.recommendation.status,
       action: input.historicalGateSnapshot.recommendation.action,
@@ -272,7 +269,7 @@ function buildFindings(
     detail: string,
   ) => {
     findings.push({
-      id: `checkpoint-10-${kind}-${findings.length + 1}`,
+      id: `gate-10-${kind}-${findings.length + 1}`,
       kind,
       severity,
       detail,
@@ -325,19 +322,16 @@ function buildRecommendation(
   findings: AiFirstFinalActivationFinding[],
 ): AiFirstFinalActivationGateSnapshot['recommendation'] {
   const hasHigh = findings.some((finding) => finding.severity === 'high');
-  const readiness: AiFirstFinalActivationReadiness = hasHigh
-    ? 'blocked'
+  const readiness: AiFirstFinalActivationReadiness = hasHigh ? 'blocked'
     : findings.length > 0
       ? 'hold'
       : 'ready-for-owner-controlled-default';
   const action: AiFirstFinalActivationAction = readiness === 'ready-for-owner-controlled-default'
     ? 'prepare-owner-controlled-default'
     : readiness === 'hold'
-      ? findings.every((finding) => finding.kind === 'historical-gate-hold')
-        ? 'collect-more-history'
+      ? findings.every((finding) => finding.kind === 'historical-gate-hold') ? 'collect-more-history'
         : 'continue-canary'
-      : findings.some((finding) => finding.kind === 'runtime-invariant-violation' || finding.kind === 'ledger-secret-leak')
-        ? 'reject-activation'
+      : findings.some((finding) => finding.kind === 'runtime-invariant-violation' || finding.kind === 'ledger-secret-leak') ? 'reject-activation'
         : 'investigate-blockers';
 
   return {
@@ -359,7 +353,7 @@ function recommendationReason(
   findings: AiFirstFinalActivationFinding[],
 ): string {
   if (readiness === 'ready-for-owner-controlled-default') {
-    return 'All AI-first promotion phases are clean enough to prepare owner-controlled default routing.';
+    return 'All AI-first promotion gates are clean enough to prepare owner-controlled default routing.';
   }
   if (action === 'collect-more-history') {
     return 'Activation remains on hold while more historical canary receipts are collected.';

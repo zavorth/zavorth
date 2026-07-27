@@ -20,10 +20,10 @@ export function saveQuotaSnapshot(snapshot: Omit<QuotaSnapshotRow, "id" | "creat
   const now = new Date().toISOString();
 
   db.prepare(
-    `INSERT INTO quota_snapshots 
-     (provider, connection_id, window_key, remaining_percentage, is_exhausted, 
-      next_reset_at, window_duration_ms, raw_data, created_at) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO quota_snapshots
+     (provider, connection_id, window_key, remaining_percentage, is_exhausted,
+      next_reset_at, window_duration_ms, raw_data, created_at)
+     VALUES (..., ..., ..., ..., ..., ..., ..., ..., ...)`
   ).run(
     snapshot.provider,
     snapshot.connection_id,
@@ -44,21 +44,21 @@ export function getQuotaSnapshots(opts: {
   until?: string;
 }): QuotaSnapshotRow[] {
   const db = getDbInstance() as unknown as DbLike;
-  const conditions: string[] = ["created_at >= ?"];
+  const conditions: string[] = ["created_at >= ..."];
   const params: unknown[] = [opts.since];
 
   if (opts.provider) {
-    conditions.push("provider = ?");
+    conditions.push("provider = ...");
     params.push(opts.provider);
   }
 
   if (opts.connectionId) {
-    conditions.push("connection_id = ?");
+    conditions.push("connection_id = ...");
     params.push(opts.connectionId);
   }
 
   if (opts.until) {
-    conditions.push("created_at <= ?");
+    conditions.push("created_at <= ...");
     params.push(opts.until);
   }
 
@@ -75,16 +75,16 @@ export function getAggregatedSnapshots(opts: {
   aggregateBy?: "provider" | "connection";
 }): ProviderUtilizationPoint[] {
   const db = getDbInstance() as unknown as DbLike;
-  const conditions: string[] = ["created_at >= ?"];
+  const conditions: string[] = ["created_at >= ..."];
   const params: unknown[] = [opts.since];
 
   if (opts.provider) {
-    conditions.push("provider = ?");
+    conditions.push("provider = ...");
     params.push(opts.provider);
   }
 
   if (opts.until) {
-    conditions.push("created_at <= ?");
+    conditions.push("created_at <= ...");
     params.push(opts.until);
   }
 
@@ -101,13 +101,13 @@ export function getAggregatedSnapshots(opts: {
     opts.aggregateBy === "connection" ? "provider || ':' || connection_id as provider" : "provider";
 
   const sql = `
-    SELECT 
+    SELECT
       datetime((strftime('%s', created_at) / ${bucketSeconds}) * ${bucketSeconds}, 'unixepoch') as bucket,
       ${selectKey},
       AVG(remaining_percentage) as remainingPct,
       MAX(is_exhausted) as isExhausted,
       window_key
-    FROM quota_snapshots 
+    FROM quota_snapshots
     WHERE ${conditions.join(" AND ")}
     GROUP BY ${groupFields}
     ORDER BY bucket ASC
@@ -141,7 +141,7 @@ export function cleanupOldSnapshots(retentionDays = 90): number {
   const db = getDbInstance() as unknown as DbLike;
   const cutoffDate = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000).toISOString();
 
-  const result = db.prepare("DELETE FROM quota_snapshots WHERE created_at < ?").run(cutoffDate);
+  const result = db.prepare("DELETE FROM quota_snapshots WHERE created_at < ...").run(cutoffDate);
   lastCleanupAt = now;
 
   return result.changes;

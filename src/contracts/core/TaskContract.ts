@@ -1,7 +1,7 @@
 import { ArtifactRecord } from './ArtifactContract.js';
 import { TaskSource } from './PlatformContract.js';
 
-export type TaskStatus = 
+export type TaskStatus =
   | 'pending'
   | 'parsed'
   | 'planned'

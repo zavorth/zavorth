@@ -13,7 +13,7 @@ export class Monitor {
   public startHeartbeat(): void {
     if (this.intervalId) return;
     this.logRepo.log('info', 'Monitor', 'Heartbeat and Watchdog enabled.');
-    
+
     this.intervalId = setInterval(() => {
       this.logRepo.log('info', 'Heartbeat', 'Service operational. Monitoring queues...', this.getHealthStats());
     }, Monitor.HEARTBEAT_INTERVAL_MS);

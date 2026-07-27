@@ -126,7 +126,7 @@ export class MaintenanceAutomationService {
   }
 
   public triggerNow(updatedBy: string | null = null, note: string | null = null): MaintenanceAutomationStatus {
-    this.dispatch('manual', updatedBy, note || 'Disparo manual da manutencao recorrente.');
+    this.dispatch('manual', updatedBy, note || 'Disparo manual da maintenance recorrente.');
     return this.getStatus();
   }
 
@@ -154,7 +154,7 @@ export class MaintenanceAutomationService {
       return;
     }
 
-    this.dispatch('automation', null, 'Execucao automatica da manutencao recorrente.');
+    this.dispatch('automation', null, 'Execution automatica da maintenance recorrente.');
   }
 
   private dispatch(
@@ -195,7 +195,7 @@ export class MaintenanceAutomationService {
       this.logRepo.log(
         'info',
         'MaintenanceAutomationService',
-        `${isRecurringMaintenance ? 'Manutencao recorrente disparada' : `${priorityActionLabel} disparada`} (${source}).`,
+        `${isRecurringMaintenance ? 'maintenance recorrente disparada' : `${priorityActionLabel} disparada`} (${source}).`,
         { actionId: action.id, logFile: action.logFile, pid: action.pid },
       );
     } catch (error: unknown) {
@@ -211,7 +211,7 @@ export class MaintenanceAutomationService {
       this.logRepo.log(
         'error',
         'MaintenanceAutomationService',
-        `Falha ao disparar ${isRecurringMaintenance ? 'manutencao recorrente' : priorityActionLabel.toLowerCase()}: ${errorMessage(error)}`,
+        `Failure ao trigger ${isRecurringMaintenance ? 'maintenance recorrente' : priorityActionLabel.toLowerCase()}: ${errorMessage(error)}`,
       );
     }
   }
@@ -240,17 +240,15 @@ export class MaintenanceAutomationService {
           if (nodeMeshSmoke.status === 'failed') {
             return {
               actionId: 'validate-node-mesh-smoke',
-              note: nodeMeshSmoke.error
-                ? `Prioridade operacional: revalidar o Node Mesh apos falha no smoke real (${nodeMeshSmoke.error}).`
-                : 'Prioridade operacional: revalidar o Node Mesh apos falha no smoke real.',
+              note: nodeMeshSmoke.error ? `Prioridade operational: revalidar o Node Mesh after failure no smoke real (${nodeMeshSmoke.error}).`
+                : 'Prioridade operational: revalidar o Node Mesh after failure no smoke real.',
             };
           }
 
           return {
             actionId: 'validate-node-mesh-smoke',
-            note: nodeMeshSmoke.checkedAt
-              ? `Prioridade operacional: renovar o Node Mesh smoke vencido (ultimo relatorio em ${nodeMeshSmoke.checkedAt}).`
-              : 'Prioridade operacional: renovar o Node Mesh smoke vencido.',
+            note: nodeMeshSmoke.checkedAt ? `Prioridade operational: renew o Node Mesh smoke vencido (latest report em ${nodeMeshSmoke.checkedAt}).`
+              : 'Prioridade operational: renew o Node Mesh smoke vencido.',
           };
         }
       }
@@ -268,17 +266,15 @@ export class MaintenanceAutomationService {
           if (channelProviderDoctor.status === 'failed') {
             return {
               actionId: 'validate-channel-providers',
-              note: channelProviderDoctor.summary
-                ? `Prioridade operacional: revalidar Slack native / WhatsApp Cloud API apos falha no doctor (${channelProviderDoctor.summary}).`
-                : 'Prioridade operacional: revalidar Slack native / WhatsApp Cloud API apos falha no doctor.',
+              note: channelProviderDoctor.summary ? `Operational priority: revalidate native Slack / WhatsApp Cloud API after doctor failure (${channelProviderDoctor.summary}).`
+                : 'Operational priority: revalidate native Slack / WhatsApp Cloud API after doctor failure.',
             };
           }
 
           return {
             actionId: 'validate-channel-providers',
-            note: channelProviderDoctor.checkedAt
-              ? `Prioridade operacional: renovar o doctor dos canais nativos vencido (ultimo relatorio em ${channelProviderDoctor.checkedAt}).`
-              : 'Prioridade operacional: renovar o doctor dos canais nativos vencido.',
+            note: channelProviderDoctor.checkedAt ? `Operational priority: renew the stale native channel doctor (latest report at ${channelProviderDoctor.checkedAt}).`
+              : 'Operational priority: renew the stale native channel doctor.',
           };
         }
       }
@@ -296,17 +292,15 @@ export class MaintenanceAutomationService {
           if (remoteTransportDoctor.status === 'failed') {
             return {
               actionId: 'validate-remote-transports',
-              note: remoteTransportDoctor.summary
-                ? `Prioridade operacional: revalidar os transportes remotos apos falha no doctor (${remoteTransportDoctor.summary}).`
-                : 'Prioridade operacional: revalidar os transportes remotos apos falha no doctor.',
+              note: remoteTransportDoctor.summary ? `Operational priority: revalidate remote transports after doctor failure (${remoteTransportDoctor.summary}).`
+                : 'Operational priority: revalidate remote transports after doctor failure.',
             };
           }
 
           return {
             actionId: 'validate-remote-transports',
-            note: remoteTransportDoctor.checkedAt
-              ? `Prioridade operacional: renovar o doctor dos transportes remotos vencido (ultimo relatorio em ${remoteTransportDoctor.checkedAt}).`
-              : 'Prioridade operacional: renovar o doctor dos transportes remotos vencido.',
+            note: remoteTransportDoctor.checkedAt ? `Operational priority: renew the stale remote transport doctor (latest report at ${remoteTransportDoctor.checkedAt}).`
+              : 'Operational priority: renew the stale remote transport doctor.',
           };
         }
       }
@@ -317,14 +311,14 @@ export class MaintenanceAutomationService {
 
   private describePriorityAction(actionId: string): string {
     if (actionId === 'validate-channel-providers') {
-      return 'Revalidaction prioritaria dos canais nativos';
+      return 'Priority revalidation for native channels';
     }
     if (actionId === 'validate-remote-transports') {
-      return 'Revalidaction prioritaria dos transportes remotos';
+      return 'Priority revalidation for remote transports';
     }
     return actionId === 'validate-channel-providers'
-      ? 'Revalidaction prioritaria dos canais nativos'
-      : 'Revalidaction prioritaria do Node Mesh';
+      ? 'Priority revalidation for native channels'
+      : 'Priority revalidation for Node Mesh';
   }
 
   private dateKey(date: Date): string {

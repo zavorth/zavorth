@@ -219,8 +219,8 @@ export class BlueprintCompletionGateService {
     const releaseDecisionReady = Boolean(
       decisionRaw
       && (decisionRaw.decision === 'ship_v1_1_flagged' || decisionRaw.decision === 'ship_v1_1_default_on')
-      && arrayOrEmpty(decisionRaw.missingCheckpoints).length === 0
-      && arrayOrEmpty(decisionRaw.failedCheckpoints).length === 0,
+      && arrayOrEmpty(decisionRaw.missingGates).length === 0
+      && arrayOrEmpty(decisionRaw.failedGates).length === 0,
     );
     const safeguardsReady = Boolean(
       rolloutRaw?.safeguards?.manualPromotionRequired === true
@@ -337,8 +337,8 @@ export class BlueprintCompletionGateService {
         ready: releaseDecisionReady,
         releaseChannel: decisionRaw?.releaseChannel || 'unknown',
         riskPosture: decisionRaw?.riskPosture || 'unknown',
-        missingPhaseCount: arrayOrEmpty(decisionRaw?.missingCheckpoints).length,
-        failedPhaseCount: arrayOrEmpty(decisionRaw?.failedCheckpoints).length,
+        missingPhaseCount: arrayOrEmpty(decisionRaw?.missingGates).length,
+        failedPhaseCount: arrayOrEmpty(decisionRaw?.failedGates).length,
         featureFlagDefaultEnabled: decisionRaw?.featureFlag?.defaultEnabled === true,
       },
       readiness,
@@ -371,7 +371,7 @@ export class BlueprintCompletionGateService {
       },
       surface: {
         cliCommand: `zavorth blueprint-completion run ${run.id} --json`,
-        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(run.id)}&sector=config`,
         preCanaryCommand: 'npm run qa:release-candidate-pre-canary',
         rolloutCommand: 'npm run qa:capability-autopilot-release-rollout',
         executionCommand: 'npm run qa:capability-autopilot-release-execution',
@@ -459,11 +459,11 @@ export class BlueprintCompletionGateService {
     return [
       {
         id: 'pre-canary',
-        label: 'Pre-canary gate fechado',
+        label: 'Pre-canary gate closed',
         status: gateLevel(input.preCanaryReady, input.preCanaryLinked),
         source: 'ReleaseCandidatePreCanaryGateService',
         command: 'npm run qa:release-candidate-pre-canary',
-        detail: 'Pre-Canary Gate precisa estar pre-canary-ready antes do fechamento final.',
+        detail: 'Pre-Canary Gate must be pre-canary-ready before final closure.',
         critical: true,
       },
       {
@@ -472,7 +472,7 @@ export class BlueprintCompletionGateService {
         status: gateLevel(input.rolloutPlanReady, input.rolloutLinked),
         source: 'CapabilityAutopilotReleaseRolloutPlanService',
         command: 'npm run qa:capability-autopilot-release-rollout',
-        detail: 'Rollout precisa cohorts, rollback window e manual promotion.',
+        detail: 'Rollout needs cohorts, rollback window, and manual promotion.',
         critical: true,
       },
       {
@@ -481,7 +481,7 @@ export class BlueprintCompletionGateService {
         status: gateLevel(input.releaseExecutionReady, input.executionLinked),
         source: 'CapabilityAutopilotReleaseExecutionGateService',
         command: 'npm run qa:capability-autopilot-release-execution',
-        detail: 'Execution precisa operator manual, artifacts, canary limitado, rollback e observabilidade.',
+        detail: 'Execution needs operator manual, artifacts, limited canary, rollback, and observability.',
         critical: true,
       },
       {
@@ -490,7 +490,7 @@ export class BlueprintCompletionGateService {
         status: gateLevel(input.canaryPromotionReady, input.canaryLinked),
         source: 'CapabilityAutopilotCanaryMonitoringPromotionGateService',
         command: 'npm run qa:capability-autopilot-canary-promotion',
-        detail: 'Promocao depende de observacao, saude, incidentes, feedback e aprovacao.',
+        detail: 'Promotion depends on observation, health, incidents, feedback, and approval.',
         critical: true,
       },
       {
@@ -499,7 +499,7 @@ export class BlueprintCompletionGateService {
         status: gateLevel(input.releaseDecisionReady, input.decisionLinked),
         source: 'CapabilityAutopilotReleaseDecisionService',
         command: 'npm run qa:capability-autopilot-release-decision',
-        detail: 'Decision precisa ship flagged/default-on sem etapas faltando ou falhando.',
+        detail: 'Decision needs ship flagged/default-on with no missing or failing steps.',
         critical: true,
       },
       {
@@ -508,7 +508,7 @@ export class BlueprintCompletionGateService {
         status: gateLevel(input.safeguardsReady, true, input.blocked),
         source: 'BlueprintCompletionGateService',
         command: 'npm run qa:blueprint-completion',
-        detail: 'Sem auto-execute, global rollout, skip canary, skip approval ou auto-promote.',
+        detail: 'without auto-execute, global rollout, skip canary, skip approval ou auto-promote.',
         critical: true,
       },
     ];
@@ -520,42 +520,42 @@ export class BlueprintCompletionGateService {
         id: 'blueprint:pre-canary',
         kind: 'pre-canary',
         source: 'ReleaseCandidatePreCanaryGateService',
-        detail: readiness.preCanaryReady ? 'Pre-canary ready.' : 'Pre-canary pendente.',
+        detail: readiness.preCanaryReady ? 'Pre-canary ready.' : 'Pre-canary pending.',
         status: readiness.preCanaryReady ? 'ready' : 'needs-action',
       },
       {
         id: 'blueprint:rollout',
         kind: 'rollout',
         source: 'CapabilityAutopilotReleaseRolloutPlanService',
-        detail: readiness.rolloutPlanReady ? 'Rollout governado pronto.' : 'Rollout pendente.',
+        detail: readiness.rolloutPlanReady ? 'Rollout governado ready.' : 'Rollout pending.',
         status: readiness.rolloutPlanReady ? 'ready' : 'needs-action',
       },
       {
         id: 'blueprint:execution',
         kind: 'execution',
         source: 'CapabilityAutopilotReleaseExecutionGateService',
-        detail: readiness.releaseExecutionReady ? 'Execution gate pronto.' : 'Execution gate pendente.',
+        detail: readiness.releaseExecutionReady ? 'Execution gate ready.' : 'Execution gate pending.',
         status: readiness.releaseExecutionReady ? 'ready' : 'needs-action',
       },
       {
         id: 'blueprint:canary',
         kind: 'canary',
         source: 'CapabilityAutopilotCanaryMonitoringPromotionGateService',
-        detail: readiness.canaryPromotionReady ? 'Canary promotion pronto.' : 'Canary promotion pendente.',
+        detail: readiness.canaryPromotionReady ? 'Canary promotion ready.' : 'Canary promotion pending.',
         status: readiness.canaryPromotionReady ? 'ready' : 'needs-action',
       },
       {
         id: 'blueprint:decision',
         kind: 'decision',
         source: 'CapabilityAutopilotReleaseDecisionService',
-        detail: readiness.releaseDecisionReady ? 'Release decision pronto.' : 'Release decision pendente.',
+        detail: readiness.releaseDecisionReady ? 'Release decision ready.' : 'Release decision pending.',
         status: readiness.releaseDecisionReady ? 'ready' : 'needs-action',
       },
       {
         id: 'blueprint:policy',
         kind: 'policy',
         source: 'BlueprintCompletionGateService',
-        detail: readiness.safeguardsReady ? 'Safeguards finais prontos.' : 'Safeguards finais pendentes.',
+        detail: readiness.safeguardsReady ? 'Safeguards finais ready.' : 'Safeguards finais pending.',
         status: readiness.safeguardsReady ? 'ready' : 'needs-action',
       },
     ];
@@ -572,14 +572,14 @@ export class BlueprintCompletionGateService {
       return 'Anexar release_execution_ready com operador manual, artifacts e observabilidade.';
     }
     if (status === 'needs-canary-promotion') {
-      return 'Anexar canary_promotion_ready com metricas, incident review e aprovacao.';
+      return 'Attach canary_promotion_ready with metrics, incident review, and approval.';
     }
     if (status === 'needs-release-decision') {
-      return 'Anexar release decision ship_v1_1_flagged/default_on sem etapas faltando ou falhando.';
+      return 'Anexar release decision ship_v1_1_flagged/default_on without stages faltando ou falhando.';
     }
     if (status === 'blocked') {
-      return 'Remover bloqueios e qualquer auto/global/skip antes de marcar o blueprint como completo.';
+      return 'Remover bloqueios e qualquer auto/global/skip before marcar o blueprint como completo.';
     }
-    return 'Blueprint runtime completo; proximas changes devem ser produto real, usuarios reais ou backlog novo fora deste arquivo.';
+    return 'Blueprint runtime is complete; next changes should be real product work, real users, or a new backlog outside this file.';
   }
 }

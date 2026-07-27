@@ -19,7 +19,7 @@ export class TelegramReplyPortAdapter {
       return {
         packet,
         sent: false,
-        skippedReason: `Porta ${packet.port.kind} nao e Telegram.`,
+        skippedReason: `Port ${packet.port.kind} is not Telegram.`,
       };
     }
 

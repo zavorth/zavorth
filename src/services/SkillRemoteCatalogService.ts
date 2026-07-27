@@ -196,7 +196,7 @@ export class SkillRemoteCatalogService {
         const lines = [
           `Skill catalog (${entries.length})`,
           ...sources.map((s) => `  source ${s.kind}: ${s.path} (${s.count})`),
-          ...entries.slice(0, 40).map((e) => `  - ${e.id} | ${e.name} | ${e.version || '?'} | ${e.summary || ''}`),
+          ...entries.slice(0, 40).map((e) => ` ? ${e.id} | ${e.name} | ${e.version || '...'} | ${e.summary || ''}`),
         ];
         if (!entries.length) {
           lines.push('  (empty — set ZAVORTH_SKILL_CATALOG_URL or config/skill-catalog.json)');

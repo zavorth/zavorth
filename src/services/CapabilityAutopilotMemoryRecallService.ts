@@ -109,7 +109,7 @@ export class CapabilityAutopilotMemoryRecallService {
         generatedAt,
         status: 'insufficient_signal',
         query: normalizedQuery,
-        safeSummary: 'Nao ha sinal suficiente para recall procedural seguro.',
+        safeSummary: 'There is not enough signal for safe procedural recall.',
       });
     }
 
@@ -124,7 +124,7 @@ export class CapabilityAutopilotMemoryRecallService {
         generatedAt,
         status: 'no_match',
         query: normalizedQuery,
-        safeSummary: 'Nenhuma memoria procedural segura encontrada para este contexto.',
+        safeSummary: 'No safe procedural memory found for this context.',
       });
     }
 
@@ -192,13 +192,13 @@ export class CapabilityAutopilotMemoryRecallService {
       reasons.push(this.reason('capability', 40, 'Mesma capability.'));
     }
     if (query.workspaceHash && record.workspaceHash === query.workspaceHash) {
-      reasons.push(this.reason('workspace', 25, 'Mesmo workspace redigido por hash.'));
+      reasons.push(this.reason('workspace', 25, 'Same workspace redacted by hash.'));
     }
     if (query.intentFingerprint && record.intentFingerprint === query.intentFingerprint) {
       reasons.push(this.reason('intent', 25, 'Similar intent by redacted fingerprint.'));
     }
     if (query.failureKind && record.failureKind === query.failureKind) {
-      reasons.push(this.reason('failure', 15, 'Mesmo tipo de falha anterior.'));
+      reasons.push(this.reason('failure', 15, 'Mesmo tipo de failure anterior.'));
     }
     if (query.preferredOutcomes?.includes(record.outcome)) {
       reasons.push(this.reason('outcome', 12, `Outcome anterior util: ${record.outcome}.`));
@@ -207,8 +207,7 @@ export class CapabilityAutopilotMemoryRecallService {
       reasons.push(this.reason('replayable', 8, 'Registro pode virar replay seguro.'));
     }
 
-    const score = reasons.reduce((sum, reason) => sum + reason.score, 0) -
-      (record.outcome === 'failed' ? 30 : 0);
+    const score = reasons.reduce((sum, reason) => sum + reason.score, 0) - (record.outcome === 'failed' ? 30 : 0);
     if (score <= 0 || reasons.length === 0) {
       return null;
     }
@@ -236,10 +235,10 @@ export class CapabilityAutopilotMemoryRecallService {
 
   private buildSafeSummary(bestMatch: CapabilityMemoryRecallMatch): string {
     return [
-      `Memoria procedural encontrada para ${bestMatch.capabilityId}.`,
-      `Acao sugerida: ${bestMatch.recommendedNextAction}.`,
-      `Licao segura: ${bestMatch.lesson}`,
-      'Nada deve ser executado automaticamente por causa desta memoria.',
+      `Procedural memory found for ${bestMatch.capabilityId}.`,
+      `Action sugerida: ${bestMatch.recommendedNextAction}.`,
+      `Licao safe: ${bestMatch.lesson}`,
+      'Nothing should be executed automatically because of this memory.',
     ].join(' ');
   }
 

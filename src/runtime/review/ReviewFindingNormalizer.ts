@@ -28,7 +28,7 @@ export class ReviewFindingNormalizer {
     const title = normalizeText(raw.title, 'Review finding');
     const severity = normalizeSeverity(raw.severity);
     const evidence = uniqueStrings(raw.evidence).slice(0, 8);
-    const sourceAgentId = normalizeText(raw.sourceAgentId, 'checkpoint-4-import');
+    const sourceAgentId = normalizeText(raw.sourceAgentId, 'gate-4-import');
     const file = normalizeOptionalText(raw.file);
     const line = normalizeLine(raw.line);
     const recommendation = normalizeText(

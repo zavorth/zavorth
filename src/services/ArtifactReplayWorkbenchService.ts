@@ -131,7 +131,7 @@ export class ArtifactReplayWorkbenchService {
         gate: 'release-ux-wizard',
         title: 'Release UX',
         reason:
-          'Depois de tornar artifacts e replay navegaveis, o proximo passo da ordem combinada e transformar publish, rollback e changelog em um fluxo guiado.',
+          'After making artifacts and replay navigable, the next step in the combined order is to turn publish, rollback, and changelog into a guided flow.',
       },
     };
   }
@@ -160,7 +160,7 @@ export class ArtifactReplayWorkbenchService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`recommended next step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -200,7 +200,7 @@ export class ArtifactReplayWorkbenchService {
         leftRunId: left.workflow_run_id,
         rightRunId: right.workflow_run_id,
         label: `${left.workflow_name || 'workflow'} vs ${right.workflow_name || 'workflow'}`,
-        reason: 'Comparar objetivo, status, artifacts e ponto de retomada entre workflow runs.',
+        reason: 'Compare goal, status, artifacts and resume point between workflow runs.',
         ready: true,
       });
     }
@@ -210,10 +210,10 @@ export class ArtifactReplayWorkbenchService {
         id: 'timeline-compare:latest',
         leftRunId: timeline[0]?.id || null,
         rightRunId: timeline[1]?.id || null,
-        label: timeline.length >= 2 ? 'Comparar eventos recentes' : 'Comparacao aguardando mais runs',
+        label: timeline.length >= 2 ? 'Compare recent events' : 'Comparison is waiting for more runs',
         reason: timeline.length >= 2
           ? 'Timeline tem eventos suficientes para comparar decisoes recentes.'
-          : 'O workbench ja expoe o plano de comparacao; faltam runs/eventos para uma comparacao real.',
+          : 'The workbench already exposes the comparison plan; runs/events are missing for a real comparison.',
         ready: timeline.length >= 2,
       });
     }
@@ -263,7 +263,7 @@ export class ArtifactReplayWorkbenchService {
         ref: artifact.path || artifact.url || artifact.sourceRunId,
         payloadIncluded: false,
         redactionMode: 'references-only',
-        reason: 'Export inclui referencia ao artifact e resumo, nao o payload bruto.',
+        reason: 'Export includes artifact reference and summary, not the raw payload.',
       });
     }
     for (const lifecycle of (controlPlane.lifecycle?.latest || []).slice(0, 3)) {
@@ -274,7 +274,7 @@ export class ArtifactReplayWorkbenchService {
         ref: lifecycle.runId || lifecycle.traceId || lifecycle.id,
         payloadIncluded: false,
         redactionMode: 'summary-only',
-        reason: 'Lifecycle entra como resumo redigido e identificadores canonicals.',
+        reason: 'Lifecycle entra como written summary e identificadores canonicals.',
       });
     }
     for (const mark of learningMarks.slice(0, 3)) {
@@ -285,7 +285,7 @@ export class ArtifactReplayWorkbenchService {
         ref: mark.evidenceRef,
         payloadIncluded: false,
         redactionMode: 'summary-only',
-        reason: 'Learning mark exporta score, estado e evidencia redigida.',
+        reason: 'Learning mark exporta score, estado e evidence redigida.',
       });
     }
     return entries.slice(0, limit);
@@ -299,11 +299,10 @@ export class ArtifactReplayWorkbenchService {
         `package:${scriptName}`,
         `script ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `package.json expoe ${scriptName} para a bancada de artifacts/replay.`
-          : `package.json precisa expor ${scriptName}.`,
+        command ? `package.json exposes ${scriptName} for the artifacts/replay workbench.`
+          : `package.json must expose ${scriptName}.`,
         'package',
-        [`command=${command || '<ausente>'}`],
+        [`command=${command || '<missing>'}`],
       );
     });
   }
@@ -316,7 +315,7 @@ export class ArtifactReplayWorkbenchService {
       'card da bancada no /zavorthControl',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'ZavorthControl expoe indice, comparacao, redaction, learning e export controlado.'
+        ? 'ZavorthControl exposes index, comparison, redaction, learning, and controlled export.'
         : 'ZavorthControl perdeu marcadores da bancada de artifacts/replay.',
       'web',
       missing.map((marker) => `faltando: ${marker}`),
@@ -331,7 +330,7 @@ export class ArtifactReplayWorkbenchService {
       'cards base do replay learning',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'Replay learning control plane expoe replay, artifacts, lifecycle, learning, memory e workspace.'
+        ? 'Replay learning control plane exposes replay, artifacts, lifecycle, learning, memory, and workspace.'
         : 'Replay learning control plane perdeu cards essenciais para a bancada.',
       'control-plane',
       missing.map((card) => `faltando: ${card}`),
@@ -344,8 +343,8 @@ export class ArtifactReplayWorkbenchService {
       'indice de artifacts por workspace/run',
       'pass',
       index.length > 0
-        ? 'Artifacts recentes foram normalizados com workspace, sourceRunId e prompt de retomada.'
-        : 'Cold start sem artifacts; o indice existe e permanece vazio sem bloquear o operador.',
+        ? 'Artifacts recentes foram normalizados com workspace, sourceRunId e prompt de resumed.'
+        : 'Cold start without artifacts; the index exists and remains empty without blocking the operator.',
       'workbench',
       [`indexed=${index.length}`, `reusable=${index.filter((entry) => entry.reusable).length}`],
     );
@@ -354,11 +353,10 @@ export class ArtifactReplayWorkbenchService {
   private checkCompare(compare: ArtifactReplayWorkbenchCompareEntry[]): ArtifactReplayWorkbenchCheck {
     return this.check(
       'workbench:compare',
-      'comparacao entre runs',
+      'comparison entre runs',
       'pass',
-      compare.some((entry) => entry.ready)
-        ? 'A bancada tem ao menos uma comparacao pronta entre runs/eventos.'
-        : 'Comparacao esta modelada e aguardando mais eventos, sem falso bloqueio em cold start.',
+      compare.some((entry) => entry.ready) ? 'A bancada tem ao menos uma comparison ready entre runs/eventos.'
+        : 'Comparison is modeled and waiting for more events without a cold-start block.',
       'workbench',
       compare.map((entry) => `${entry.id}:ready=${entry.ready}`),
     );
@@ -371,11 +369,10 @@ export class ArtifactReplayWorkbenchService {
       && replayLearning.policy?.approvalRequiredForProfile === true;
     return this.check(
       'policy:redaction',
-      'replay redigido e approval-first',
+      'redacted replay and approval-first',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'Replay learning confirma rawReplayPersisted=false, secretsPersisted=false e approval para profile.'
-        : 'Replay learning precisa manter redaction e approval antes de promover memoria.',
+      ok ? 'Replay learning confirma rawReplayPersisted=false, secretsPersisted=false e approval para profile.'
+        : 'Replay learning must keep redaction and approval before promoting memory.',
       'policy',
       [
         `rawReplayPersisted=${replayLearning.policy?.rawReplayPersisted}`,
@@ -391,11 +388,10 @@ export class ArtifactReplayWorkbenchService {
   ): ArtifactReplayWorkbenchCheck {
     return this.check(
       'workbench:learning-marks',
-      'marcacao de sessoes boas para aprendizado',
+      'marking good sessions for learning',
       'pass',
-      marks.length > 0 || replayLearning.policy?.suggestOnlyDefault === true
-        ? 'Learning marks ficam em review/suggest-only antes de qualquer promocao.'
-        : 'Sem marks ainda, mas o modo suggest-only continua preservado.',
+      marks.length > 0 || replayLearning.policy?.suggestOnlyDefault === true ? 'Learning marks stay in review/suggest-only before any promotion.'
+        : 'No marks yet, but suggest-only mode is still preserved.',
       'workbench',
       [`marks=${marks.length}`, `suggestOnlyDefault=${replayLearning.policy?.suggestOnlyDefault}`],
     );
@@ -405,11 +401,11 @@ export class ArtifactReplayWorkbenchService {
     const unsafe = exports.filter((entry) => entry.payloadIncluded !== false);
     return this.check(
       'workbench:evidence-export',
-      'export controlado de evidencias',
+      'export controlado de evidence',
       unsafe.length === 0 ? 'pass' : 'fail',
       unsafe.length === 0
-        ? 'Evidence export usa referencias/resumos e nao inclui payload bruto.'
-        : 'Evidence export nao pode incluir payload bruto.',
+        ? 'Evidence export uses references/summaries and does not include raw payload.'
+        : 'Evidence export cannot include raw payload.',
       'workbench',
       [`exports=${exports.length}`, ...unsafe.map((entry) => `unsafe=${entry.id}`)],
     );

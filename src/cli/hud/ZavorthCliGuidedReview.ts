@@ -51,8 +51,7 @@ export function buildZavorthCliGuidedReviewSnapshot(
       id: 'select',
       title: 'Select plan',
       status: hasSelection ? 'done' : 'active',
-      summary: hasSelection
-        ? `Selected #${hud.selectedIndex || '?'}: ${selected?.title || hud.selectedPlanId}`
+      summary: hasSelection ? `Selected #${hud.selectedIndex || '...'}: ${selected?.title || hud.selectedPlanId}`
         : 'Choose a pending plan by index before deciding.',
       command: hasSelection ? null : 'zavorth hud guide --select 1',
     },
@@ -60,8 +59,7 @@ export function buildZavorthCliGuidedReviewSnapshot(
       id: 'inspect',
       title: 'Inspect scope',
       status: hasSelection ? 'done' : 'waiting',
-      summary: selected
-        ? `${selected.riskLevel} risk, ${selected.resourceImpact.externalExposure} external exposure, ${selected.readiness.blocked} blocked gates.`
+      summary: selected ? `${selected.riskLevel} risk, ${selected.resourceImpact.externalExposure} external exposure, ${selected.readiness.blocked} blocked gates.`
         : 'Waiting for a selected plan.',
       command: null,
     },
@@ -69,8 +67,7 @@ export function buildZavorthCliGuidedReviewSnapshot(
       id: 'diff',
       title: 'Review diff',
       status: hasSelection && hud.approvals.summary.diffEntries > 0 ? 'done' : hasSelection ? 'active' : 'waiting',
-      summary: hasSelection
-        ? `${hud.approvals.summary.diffEntries} diff preview entries available.`
+      summary: hasSelection ? `${hud.approvals.summary.diffEntries} diff preview entries available.`
         : 'Waiting for a selected plan.',
       command: hasSelection ? diffCommand : null,
     },
@@ -78,8 +75,7 @@ export function buildZavorthCliGuidedReviewSnapshot(
       id: 'validate',
       title: 'Validate safety',
       status: hasSelection ? 'done' : 'waiting',
-      summary: selected
-        ? `Validation: ${selected.validationPlan.slice(0, 2).join('; ') || 'none declared'}`
+      summary: selected ? `Validation: ${selected.validationPlan.slice(0, 2).join('; ') || 'none declared'}`
         : 'Waiting for a selected plan.',
       command: hasSelection ? 'zavorth doctor' : null,
     },
@@ -96,8 +92,7 @@ export function buildZavorthCliGuidedReviewSnapshot(
       id: 'receipt',
       title: 'Evidence',
       status: hasDecision ? 'done' : 'waiting',
-      summary: hud.decision.receiptId
-        ? `Evidence ${hud.decision.receiptId}`
+      summary: hud.decision.receiptId ? `Evidence ${hud.decision.receiptId}`
         : 'Evidence appears after approve/reject/defer.',
       command: hud.decision.receiptId ? 'zavorth receipts' : null,
     },

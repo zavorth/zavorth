@@ -73,7 +73,7 @@ export class ZavorthChannelMessagingBridgeService {
       kind: 'telegram',
       senderRef: 'operator-fixture',
       senderDisplayName: 'Operator fixture',
-      text: 'continue a etapa de canais pelo gateway',
+      text: 'continue a stage de channels pelo gateway',
       threadRef: 'thread-fixture-001',
       receivedAt: this.now().toISOString(),
       attachments: [{ id: 'att-fixture-001', kind: 'text', safeRef: 'attachment://att-fixture-001' }],
@@ -84,14 +84,14 @@ export class ZavorthChannelMessagingBridgeService {
       channelId: normalizedInboundMessage.channelId,
       sessionId: normalizedInboundMessage.sessionId,
       targetRef: normalizedInboundMessage.sender.senderRef,
-      text: 'Resposta pronta para sair somente como ZavorthReplyPacket.',
+      text: 'Response is ready to leave only as ZavorthReplyPacket.',
       risk: 'low',
     });
     const blockedOutboundReplyPacket = this.buildOutboundReplyPacket({
       channelId: normalizedInboundMessage.channelId,
       sessionId: normalizedInboundMessage.sessionId,
       targetRef: normalizedInboundMessage.sender.senderRef,
-      text: 'Enviar acao arriscada sem approval.',
+      text: 'Enviar action arriscada without approval.',
       risk: 'high',
       approvalGranted: false,
     });
@@ -162,7 +162,7 @@ export class ZavorthChannelMessagingBridgeService {
         inspect: 'npm run zavorth:channel-messaging-bridge',
         inspectJson: 'npm run zavorth:channel-messaging-bridge:json',
         check: 'npm run zavorth:channel-messaging-bridge:check --silent',
-        nextStage: '291 Runtime gateway - Sessions, Memory, And Continuation',
+        nextAction: 'Runtime gateway - Sessions, Memory, And Continuation',
       },
     };
   }
@@ -248,8 +248,7 @@ export class ZavorthChannelMessagingBridgeService {
       pairingRequired: trustLevel !== 'owner',
       paired,
       channelTrustRef: `zavorth.trust.${safeId(input.channelId)}.${safeId(trustLevel)}`,
-      reason: paired
-        ? 'Source pairing reference was mapped into the Zavorth trust plane.'
+      reason: paired ? 'Source pairing reference was mapped into the Zavorth trust plane.'
         : 'No pairing reference was provided; channel remains untrusted.',
       safety: {
         sourceIdentityCanonical: false,
@@ -360,8 +359,7 @@ export class ZavorthChannelMessagingBridgeService {
       directChannelSendAllowed: false,
       liveSendPerformed: false,
       sourceRuntimeSendBypassAllowed: false,
-      reason: blocked
-        ? 'Sensitive outbound is held until a Zavorth approval envelope is granted.'
+      reason: blocked ? 'Sensitive outbound is held until a Zavorth approval envelope is granted.'
         : 'Conversational reply can flow through ReplyPipeline; approvals appear only if risk rises.',
       safety: {
         replyPacketOnly: true,
@@ -430,7 +428,7 @@ export class ZavorthChannelMessagingBridgeService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }

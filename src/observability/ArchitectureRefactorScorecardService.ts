@@ -197,13 +197,13 @@ const CRITICAL_FLOWS = [
     id: 'cli-natural-entry',
     label: 'Entrada natural por CLI',
     command: 'npm run cli:fast -- chat',
-    notes: 'A mesma semantica compartilhada precisa continuar disponivel fora da UI web.',
+    notes: 'The same shared semantics must remain available outside the web UI.',
   },
   {
     id: 'web-control-runtime',
     label: 'Surfaces web /zavorthControl e runtime',
     command: 'npm run test:web:smoke',
-    notes: 'Control plane e runtime web continuam sendo fluxos operatoriais criticos.',
+    notes: 'Control plane and web runtime remain critical operator flows.',
   },
   {
     id: 'telegram-commands',
@@ -215,19 +215,19 @@ const CRITICAL_FLOWS = [
     id: 'approvals',
     label: 'Approvals',
     command: 'npm run test:smoke:flows',
-    notes: 'Toda mutacao critica continua passando por approval quando exigido.',
+    notes: 'Every critical mutation still goes through approval when required.',
   },
   {
     id: 'sessions',
     label: 'Sessions, history, send e spawn',
     command: 'npm run test:gateway:smoke',
-    notes: 'Continuity e session plane sao fluxos must-not-break da plataforma.',
+    notes: 'Continuity and session plane are must-not-break platform flows.',
   },
   {
     id: 'control-planes',
     label: 'Control planes principais',
     command: 'npm run ops:stability:json',
-    notes: 'Os snapshots operacionais precisam continuar honestos e acionaveis.',
+    notes: 'Operational snapshots must remain honest and actionable.',
   },
 ] as const;
 
@@ -299,17 +299,17 @@ const CONTROL_PLANE_FAMILIES = [
 const ARCHITECTURE_ONBOARDING_DOCS = [
   {
     id: 'architecture-source-of-truth',
-    label: 'Mapa oficial de dominios e boundaries',
+    label: 'Mapa oficial de domains e boundaries',
     path: 'docs/product-direction.md',
   },
   {
     id: 'contributing-architecture',
-    label: 'Guia de onde colocar codigo novo',
+    label: 'Guia de onde colocar code novo',
     path: 'docs/product-direction.md',
   },
 ] as const;
 
-const COMPATIBILITY_FACADE_FILE = /^(?:(?:\/\/[^\n]*\n)|\s|export\s+(?:type\s+)?(?:\*|\{[\s\S]*?\})\s+from\s+['"][^'"]+['"];?\s*)+$/;
+const COMPATIBILITY_FACADE_FILE = /^(?:(?:\/\/[^\n]*\n)|\s|export\s+(?:type\s+)...(?:\*|\{[\s\S]*...\})\s+from\s+['"][^'"]+['"];...\s*)+$/;
 
 export class ArchitectureRefactorScorecardService {
   private readonly now: () => Date;
@@ -477,25 +477,25 @@ export class ArchitectureRefactorScorecardService {
       actions,
       gate,
       narrative: {
-        headline: 'Scorecard arquitetural da refatoracao incremental',
+        headline: 'Scorecard arquitetural da refatoraction incremental',
         operatorSummary:
           `${summary.hotspotCount} hotspot(s) novo(s)/regredido(s) acima de ${this.lineLimit} linhas, `
           + `${summary.legacyHotspotCount} hotspot(s) legado(s) congelado(s) por baseline, `
-          + `${summary.servicesFiles}/${summary.totalSourceFiles} arquivo(s) ainda concentrados em src/services e `
-          + `${summary.officialDomainOwnershipReady}/${summary.officialDomainOwnershipTotal} dominio(s) oficial(is) com ownership real por camadas; `
-          + `${summary.domainsAdopted}/${summary.domainsTracked} dominio(s) oficial(is) adotado(s) por composition roots; `
-          + `${summary.priorityDomainOwnershipReady}/${summary.priorityDomainOwnershipTotal} dominio(s) prioritario(s) com ownership real por camadas; `
+          + `${summary.servicesFiles}/${summary.totalSourceFiles} file(s) still concentrated in src/services and `
+          + `${summary.officialDomainOwnershipReady}/${summary.officialDomainOwnershipTotal} domain(s) oficial(is) with ownership real por camadas; `
+          + `${summary.domainsAdopted}/${summary.domainsTracked} domain(s) oficial(is) adotado(s) por composition roots; `
+          + `${summary.priorityDomainOwnershipReady}/${summary.priorityDomainOwnershipTotal} domain(s) prioritario(s) with ownership real por camadas; `
           + `${summary.boundaryPortsPresent}/${summary.boundaryPortsTotal} porta(s) canonicas presentes; `
-          + `${summary.canonicalExecutionEnginesReady}/${summary.canonicalExecutionEnginesTotal} motor(es) ligados ao lifecycle canonico; `
-          + `${summary.controlPlaneFamiliesReady}/${summary.controlPlaneFamiliesTotal} familia(s) de control plane no catalogo canonico; `
+          + `${summary.canonicalExecutionEnginesReady}/${summary.canonicalExecutionEnginesTotal} motor(es) ligados ao lifecycle canonical; `
+          + `${summary.controlPlaneFamiliesReady}/${summary.controlPlaneFamiliesTotal} familia(s) de control plane no catalog canonical; `
           + `${summary.presentationSurfacesReady}/${summary.presentationSurfacesTotal} surface(s) visuais no boundary de presentation; `
           + `${summary.architectureDocsReady}/${summary.architectureDocsTotal} guia(s) oficiais de onboarding arquitetural; `
-          + `${summary.compatibilityFacadeFiles} facade(s) pura(s) de compatibilidade ainda restando em src/services; `
-          + `${summary.domainDependencyViolations} violacao(oes) de dependencia cruzada entre dominios.`,
+          + `${summary.compatibilityFacadeFiles} pure compatibility facade(s) still remaining in src/services; `
+          + `${summary.domainDependencyViolations} violation(s) of cross-domain dependencies.`,
         nextAction:
           gate.blockingReasons[0]
           || actions[0]?.label
-          || 'Continuar extraindo o core para dominios oficiais e quebrando os monolitos maiores.',
+          || 'Continue extracting core logic into official domains and splitting the largest monoliths.',
       },
       sourceSnapshots: {
         topFilesByLines: files.slice(0, 10),
@@ -506,19 +506,19 @@ export class ArchitectureRefactorScorecardService {
   public renderReport(): string {
     const snapshot = this.buildSnapshot();
     const lines = [
-      'Arquitetura e baseline de refatoracao',
+      'Arquitetura e baseline de refatoraction',
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
-      `Gate: ${snapshot.gate.status} | pode prosseguir: ${snapshot.gate.canProceed ? 'sim' : 'nao'}.`,
-      `Arquivos fonte: ${snapshot.summary.totalSourceFiles} | src/services: ${snapshot.summary.servicesFiles} | src/domain: ${snapshot.summary.domainFiles}.`,
+      `Gate: ${snapshot.gate.status} | can proceed: ${snapshot.gate.canProceed ? 'yes' : 'no'}.`,
+      `Source files: ${snapshot.summary.totalSourceFiles} | src/services: ${snapshot.summary.servicesFiles} | src/domain: ${snapshot.summary.domainFiles}.`,
       `Ownership oficial: ${snapshot.summary.officialDomainOwnershipReady}/${snapshot.summary.officialDomainOwnershipTotal}.`,
-      `Adocao de dominios: ${snapshot.summary.domainsAdopted}/${snapshot.summary.domainsTracked}.`,
+      `Domain adoption: ${snapshot.summary.domainsAdopted}/${snapshot.summary.domainsTracked}.`,
       `Ownership prioritario: ${snapshot.summary.priorityDomainOwnershipReady}/${snapshot.summary.priorityDomainOwnershipTotal}.`,
       `Boundary ports: ${snapshot.summary.boundaryPortsPresent}/${snapshot.summary.boundaryPortsTotal}.`,
       `Control plane platform: ${snapshot.summary.controlPlaneFamiliesReady}/${snapshot.summary.controlPlaneFamiliesTotal}.`,
-      `Dependencias entre dominios: violacoes ${snapshot.summary.domainDependencyViolations} | modulos ${snapshot.summary.dependencyModulesTracked}.`,
-      `Presentation boundary: ${snapshot.summary.presentationSurfacesReady}/${snapshot.summary.presentationSurfacesTotal} | violacoes: ${snapshot.summary.presentationBoundaryViolations}.`,
+      `dependencies between domains: violations ${snapshot.summary.domainDependencyViolations} | modulos ${snapshot.summary.dependencyModulesTracked}.`,
+      `Presentation boundary: ${snapshot.summary.presentationSurfacesReady}/${snapshot.summary.presentationSurfacesTotal} | violations: ${snapshot.summary.presentationBoundaryViolations}.`,
       `Onboarding arquitetural: ${snapshot.summary.architectureDocsReady}/${snapshot.summary.architectureDocsTotal}.`,
       `Hotspots legados congelados: ${snapshot.summary.legacyHotspotCount} | regressoes: ${snapshot.summary.legacyHotspotRegressionCount}.`,
       `Facades puras de compatibilidade: ${snapshot.summary.compatibilityFacadeFiles}.`,
@@ -536,7 +536,7 @@ export class ArchitectureRefactorScorecardService {
     if (snapshot.dependencyGraph.violations.length > 0) {
       lines.push(
         '',
-        'Violacoes Entre Dominios:',
+        'Violactions Entre Dominios:',
         ...snapshot.dependencyGraph.violations.slice(0, 8).map((entry) =>
           `- ${entry.importerDomain} -> ${entry.targetDomain}: ${entry.importerPath} importa ${entry.targetPath}`),
       );
@@ -546,7 +546,7 @@ export class ArchitectureRefactorScorecardService {
         '',
         'Top Modulos Por Dependencia:',
         ...snapshot.dependencyGraph.moduleHotspots.slice(0, 5).map((entry) =>
-          `- ${entry.id}: fan-out ${entry.fanOut} | fan-in ${entry.fanIn} | arquivos ${entry.fileCount}`),
+          `- ${entry.id}: fan-out ${entry.fanOut} | fan-in ${entry.fanIn} | files ${entry.fileCount}`),
       );
     }
     if (snapshot.dependencyGraph.entrypointHotspots.length > 0) {
@@ -569,7 +569,7 @@ export class ArchitectureRefactorScorecardService {
       lines.push(
         '',
         'Gate:',
-        ...snapshot.gate.blockingReasons.map((entry) => `- bloqueio: ${entry}`),
+        ...snapshot.gate.blockingReasons.map((entry) => `- block: ${entry}`),
         ...snapshot.gate.warnings.map((entry) => `- aviso: ${entry}`),
       );
     }
@@ -606,8 +606,8 @@ export class ArchitectureRefactorScorecardService {
         status: input.hotspots.length === 0 ? 'passed' : 'failed',
         summary:
           input.hotspots.length === 0
-            ? `${input.legacyHotspots.length} hotspot(s) legado(s) congelado(s) por baseline; nenhum novo/regredido.`
-            : `${input.hotspots.length} arquivo(s) novo(s) ou regredido(s) acima do limite precisam ser quebrados.`,
+            ? `${input.legacyHotspots.length} hotspot(s) legado(s) congelado(s) por baseline; none novo/regredido.`
+            : `${input.hotspots.length} new or regressed file(s) above the limit need to be split.`,
         target: `0 hotspot(s) novo(s) ou regredido(s) acima de ${this.lineLimit} linhas`,
         observed: `${input.hotspots.length} acionavel(is), ${input.legacyHotspots.length} legado(s) congelado(s)`,
       },
@@ -616,9 +616,9 @@ export class ArchitectureRefactorScorecardService {
         label: 'Reduzir dominancia de src/services',
         status: servicesShare <= 0.35 ? 'passed' : (servicesShare <= 0.5 ? 'attention' : 'failed'),
         summary:
-          `src/services concentra ${Math.round(servicesShare * 100)}% dos arquivos fonte monitorados `
+          `src/services concentra ${Math.round(servicesShare * 100)}% dos files source monitorados `
           + `(${input.servicesFiles}/${input.files.length}).`,
-        target: 'src/services abaixo de 35% do volume de codigo monitorado',
+        target: 'src/services abaixo de 35% do volume de code monitorado',
         observed: `${Math.round(servicesShare * 100)}%`,
       },
       {
@@ -629,68 +629,65 @@ export class ArchitectureRefactorScorecardService {
             ? 'passed'
             : (input.compatibilityFacadeFiles <= 2 ? 'attention' : 'failed'),
         summary:
-          `${input.compatibilityFacadeFiles} arquivo(s) em src/services ainda sao apenas ponte para caminho canonico.`,
-        target: '0 facades puras de compatibilidade em src/services',
+          `${input.compatibilityFacadeFiles} file(s) in src/services are still only bridges to canonical paths.`,
+        target: '0 pure compatibility facades in src/services',
         observed: `${input.compatibilityFacadeFiles} facade(s)`,
       },
       {
         id: 'official-domains',
-        label: 'Cobertura dos dominios oficiais',
+        label: 'Official domain coverage',
         status: missingDomains === 0 ? 'passed' : 'attention',
         summary:
-          `${input.officialDomains.length - missingDomains}/${input.officialDomains.length} dominio(s) `
-          + 'oficiais ja existem como fronteira explicita.',
-        target: `${input.officialDomains.length}/${input.officialDomains.length} dominios presentes`,
+          `${input.officialDomains.length - missingDomains}/${input.officialDomains.length} domain(s) `
+          + 'oficiais already existem como boundary explicit.',
+        target: `${input.officialDomains.length}/${input.officialDomains.length} domains presentes`,
         observed: `${input.officialDomains.length - missingDomains}/${input.officialDomains.length}`,
       },
       {
         id: 'priority-domain-ownership',
-        label: 'Ownership real dos dominios prioritarios',
+        label: 'Ownership real dos domains prioritarios',
         status:
-          priorityOwnershipReady === priorityDomains.length
-            ? 'passed'
+          priorityOwnershipReady === priorityDomains.length ? 'passed'
             : (priorityOwnershipReady > 0 ? 'attention' : 'failed'),
         summary:
-          `${priorityOwnershipReady}/${priorityDomains.length} dominio(s) prioritario(s) possuem ` +
+          `${priorityOwnershipReady}/${priorityDomains.length} domain(s) prioritario(s) possuem ` +
           'application, domain, infrastructure e presentation/facade explicitos.',
-        target: `${priorityDomains.length}/${priorityDomains.length} dominios prioritarios com use cases reais`,
+        target: `${priorityDomains.length}/${priorityDomains.length} domains prioritarios with use cases reais`,
         observed: `${priorityOwnershipReady}/${priorityDomains.length}`,
       },
       {
         id: 'official-domain-ownership',
-        label: 'Ownership real dos dominios oficiais',
+        label: 'Ownership real dos domains oficiais',
         status:
-          officialOwnershipReady === input.officialDomains.length
-            ? 'passed'
+          officialOwnershipReady === input.officialDomains.length ? 'passed'
             : (officialOwnershipReady > 0 ? 'attention' : 'failed'),
         summary:
-          `${officialOwnershipReady}/${input.officialDomains.length} dominio(s) oficial(is) possuem `
+          `${officialOwnershipReady}/${input.officialDomains.length} domain(s) oficial(is) possuem `
           + 'application, domain, infrastructure e presentation/facade explicitos.',
-        target: `${input.officialDomains.length}/${input.officialDomains.length} dominios oficiais com ownership real`,
+        target: `${input.officialDomains.length}/${input.officialDomains.length} domains oficiais with ownership real`,
         observed: `${officialOwnershipReady}/${input.officialDomains.length}`,
       },
       {
         id: 'architecture-onboarding-docs',
         label: 'Onboarding arquitetural oficial',
         status:
-          architectureDocsReady === input.architectureDocs.length
-            ? 'passed'
+          architectureDocsReady === input.architectureDocs.length ? 'passed'
             : (architectureDocsReady > 0 ? 'attention' : 'failed'),
         summary:
           `${architectureDocsReady}/${input.architectureDocs.length} guia(s) oficiais de onboarding `
-          + 'arquitetural estao publicados no repo.',
+          + 'arquitetural are publicados no repo.',
         target: `${input.architectureDocs.length}/${input.architectureDocs.length} guias oficiais publicados`,
         observed: `${architectureDocsReady}/${input.architectureDocs.length}`,
       },
       {
         id: 'domain-cross-dependencies',
-        label: 'Dependencias cruzadas entre dominios oficiais',
+        label: 'dependencies cruzadas entre domains oficiais',
         status: input.dependencyGraph.summary.crossDomainViolations === 0 ? 'passed' : 'failed',
         summary:
           `${input.dependencyGraph.summary.crossDomainViolations} unauthorized cross-domain dependency(ies) `
-          + `e ${input.dependencyGraph.summary.crossDomainEdges} aresta(s) entre dominios auditadas.`,
+          + `e ${input.dependencyGraph.summary.crossDomainEdges} aresta(s) entre domains auditadas.`,
         target: '0 unauthorized cross-domain dependencies between official domains',
-        observed: `${input.dependencyGraph.summary.crossDomainViolations} violacao(oes)`,
+        observed: `${input.dependencyGraph.summary.crossDomainViolations} violation(s)`,
       },
       {
         id: 'boundary-ports',
@@ -704,19 +701,19 @@ export class ArchitectureRefactorScorecardService {
       },
       {
         id: 'critical-flows',
-        label: 'Inventario dos fluxos criticos',
+        label: 'Critical flow inventory',
         status: CRITICAL_FLOWS.length >= 6 ? 'passed' : 'attention',
-        summary: `${CRITICAL_FLOWS.length} fluxo(s) criticos foram congelados como must-not-break.`,
-        target: 'Inventario explicito dos fluxos publicos criticos',
-        observed: `${CRITICAL_FLOWS.length} fluxo(s)`,
+        summary: `${CRITICAL_FLOWS.length} flow(s) criticals foram congelados como must-not-break.`,
+        target: 'Explicit inventory of critical public flows',
+        observed: `${CRITICAL_FLOWS.length} flow(s)`,
       },
       {
         id: 'canonical-execution-engines',
-        label: 'Motores ligados ao pipeline canonico de execucao',
+        label: 'Engines connected to the canonical execution pipeline',
         status: input.canonicalExecutionEngines.every((entry) => entry.ready) ? 'passed' : 'attention',
         summary:
           `${input.canonicalExecutionEngines.filter((entry) => entry.ready).length}/`
-          + `${input.canonicalExecutionEngines.length} motor(es) prioritario(s) publicam lifecycle/correlacao canonicos.`,
+          + `${input.canonicalExecutionEngines.length} motor(es) prioritario(s) publicam lifecycle/correlation canonicos.`,
         target: `${input.canonicalExecutionEngines.length}/${input.canonicalExecutionEngines.length} motores prioritarios`,
         observed: `${input.canonicalExecutionEngines.filter((entry) => entry.ready).length}/${input.canonicalExecutionEngines.length}`,
       },
@@ -726,26 +723,25 @@ export class ArchitectureRefactorScorecardService {
         status: input.controlPlaneFamilies.every((entry) => entry.ready) ? 'passed' : 'attention',
         summary:
           `${input.controlPlaneFamilies.filter((entry) => entry.ready).length}/`
-          + `${input.controlPlaneFamilies.length} familia(s) e kit/catalogo de control plane presentes.`,
+          + `${input.controlPlaneFamilies.length} familia(s) e kit/catalog de control plane presentes.`,
         target: `${input.controlPlaneFamilies.length}/${input.controlPlaneFamilies.length} familias oficiais`,
         observed: `${input.controlPlaneFamilies.filter((entry) => entry.ready).length}/${input.controlPlaneFamilies.length}`,
       },
       {
         id: 'presentation-boundary',
-        label: 'UI e presentation consomem somente contratos',
+        label: 'UI and presentation consume contracts only',
         status:
           input.presentationBoundary.summary.violations === 0
-          && input.presentationBoundary.summary.surfacesReady === input.presentationBoundary.summary.surfacesTotal
-            ? 'passed'
+          && input.presentationBoundary.summary.surfacesReady === input.presentationBoundary.summary.surfacesTotal ? 'passed'
             : (input.presentationBoundary.summary.violations > 0 ? 'failed' : 'attention'),
         summary:
           `${input.presentationBoundary.summary.surfacesReady}/`
           + `${input.presentationBoundary.summary.surfacesTotal} surface(s) visuais auditadas; `
           + `${input.presentationBoundary.summary.violations} dependencia(s) proibida(s).`,
-        target: 'UI depende de snapshots, actions, events, streams e assets; sem services/domain/runtime diretos',
+        target: 'UI depende de snapshots, actions, events, streams e assets; without services/domain/runtime diretos',
         observed:
           `${input.presentationBoundary.summary.surfacesReady}/${input.presentationBoundary.summary.surfacesTotal} `
-          + `surface(s), ${input.presentationBoundary.summary.violations} violacao(oes)`,
+          + `surface(s), ${input.presentationBoundary.summary.violations} violation(s)`,
       },
     ];
   }
@@ -762,7 +758,7 @@ export class ArchitectureRefactorScorecardService {
     ]);
     if (hotspots.length > 0) {
       warnings.push(
-        `Ainda existem ${hotspots.length} hotspot(s) legados acima do limite de ${this.lineLimit} linhas.`,
+        `There are still ${hotspots.length} legacy hotspot(s) above the limit of ${this.lineLimit} linhas.`,
       );
     }
     for (const rule of rules) {
@@ -799,7 +795,7 @@ export class ArchitectureRefactorScorecardService {
         id: 'break-top-hotspot',
         label: 'Quebrar o maior hotspot primeiro',
         severity: 'critical',
-        reason: `${topHotspot.path} esta acima do budget e concentra risco de manutencao.`,
+        reason: `${topHotspot.path} is acima do budget e concentra risk de maintenance.`,
         command: 'npm run ops:architecture',
       });
     }
@@ -807,9 +803,9 @@ export class ArchitectureRefactorScorecardService {
     if (missingDomains.length > 0) {
       actions.push({
         id: 'seed-missing-domains',
-        label: 'Semear dominios oficiais faltantes',
+        label: 'Semear domains oficiais faltantes',
         severity: 'warn',
-        reason: `Ainda faltam ${missingDomains.length} dominio(s) oficiais como fronteira explicita.`,
+        reason: `Still missing ${missingDomains.length} official domain(s) as explicit boundaries.`,
         command: 'npm run ops:architecture:json',
       });
     }
@@ -818,7 +814,7 @@ export class ArchitectureRefactorScorecardService {
         id: 'stop-growing-services',
         label: 'Parar de crescer src/services',
         severity: 'warn',
-        reason: 'Codigo novo deve nascer em dominio/application em vez de ampliar service sprawl.',
+        reason: 'new code should start in domain/application instead of expanding service sprawl.',
         command: null,
       });
     }
@@ -827,25 +823,25 @@ export class ArchitectureRefactorScorecardService {
         id: 'remove-compatibility-facades',
         label: 'Remover facades puras restantes',
         severity: 'warn',
-        reason: 'Facades de reexport puro em src/services devem sair assim que os consumers internos migrarem para o caminho canonico.',
+        reason: 'Pure re-export facades in src/services should be removed once internal consumers migrate to canonical paths.',
         command: 'npm run qa:architecture:json',
       });
     }
     if (input.rules.some((entry) => entry.id === 'priority-domain-ownership' && entry.status !== 'passed')) {
       actions.push({
         id: 'finish-priority-domain-ownership',
-        label: 'Fechar ownership dos dominios prioritarios',
+        label: 'Fechar ownership dos domains prioritarios',
         severity: 'warn',
-        reason: 'Execution, sessions, channels e nodes devem ter use cases reais e camadas explicitas antes de fechar este gate.',
+        reason: 'Execution, sessions, channels e nodes must have real use cases and explicit layers before closing this gate.',
         command: 'npm run ops:architecture:json',
       });
     }
     if (input.rules.some((entry) => entry.id === 'official-domain-ownership' && entry.status !== 'passed')) {
       actions.push({
         id: 'expand-official-domain-ownership',
-        label: 'Expandir ownership dos dominios oficiais restantes',
+        label: 'Expandir ownership dos domains oficiais restantes',
         severity: 'warn',
-        reason: 'Surface, gateway, memory, transports, trust-governance, platform-ecosystem e observability devem operar com camadas explicitas, not only seed/facade.',
+        reason: 'Surface, gateway, memory, transports, trust-governance, platform-ecosystem e observability must operate with explicit layers, not only seed/facade.',
         command: 'npm run ops:architecture:json',
       });
     }
@@ -854,25 +850,25 @@ export class ArchitectureRefactorScorecardService {
         id: 'publish-architecture-onboarding-docs',
         label: 'Publicar onboarding arquitetural oficial',
         severity: 'warn',
-        reason: 'Novos contribuidores precisam de mapa oficial de dominios, regra de placement e guias de use case/zavorthControl plane/surface action.',
+        reason: 'New contributors need an official domain map, placement rules, and use-case/zavorthControl plane/surface action guides.',
         command: 'npm run ops:architecture:report',
       });
     }
     if (input.rules.some((entry) => entry.id === 'domain-cross-dependencies' && entry.status !== 'passed')) {
       actions.push({
         id: 'fix-domain-cross-dependencies',
-        label: 'Remover dependencia cruzada indevida entre dominios',
+        label: 'Remover dependencia cruzada indevida entre domains',
         severity: 'warn',
-        reason: 'Dominios oficiais devem depender de contracts, adapters e services canonicos, not import another domain directly without an explicit allowlist.',
+        reason: 'Official domains must depend on contracts, adapters, and canonical services, not import another domain directly without an explicit allowlist.',
         command: 'npm run qa:architecture',
       });
     }
     if (input.rules.some((entry) => entry.id === 'canonical-execution-engines' && entry.status !== 'passed')) {
       actions.push({
         id: 'finish-canonical-execution-engines',
-        label: 'Fechar motores no pipeline canonico',
+        label: 'Fechar motores no pipeline canonical',
         severity: 'warn',
-        reason: 'Automations, node invoke, swarm, selfmod, host actions e workflows devem emitir lifecycle/correlacao pelo mesmo modelo.',
+        reason: 'Automations, node invoke, swarm, selfmod, host actions, and workflows should emit lifecycle/correlation through the same model.',
         command: 'npm run ops:architecture:json',
       });
     }
@@ -881,7 +877,7 @@ export class ArchitectureRefactorScorecardService {
         id: 'finish-control-plane-platform-kit',
         label: 'Fechar plataforma comum de control planes',
         severity: 'warn',
-        reason: 'Operational, Trust, Product, kit comum e catalogo devem ficar presentes antes de encerrar a Data readiness.',
+        reason: 'Operational, Trust, Product, kit comum e catalog must be present before closing data readiness.',
         command: 'npm run ops:architecture:json',
       });
     }
@@ -890,7 +886,7 @@ export class ArchitectureRefactorScorecardService {
         id: 'finish-presentation-boundary',
         label: 'Fechar boundary de presentation',
         severity: 'warn',
-        reason: 'Web UI, zavorthControl assets, ai-gateway zavorthControl e voice/companion devem depender de contratos, snapshots, actions, events, streams e assets.',
+        reason: 'Web UI, zavorthControl assets, ai-gateway zavorthControl e voice/companion must depend on contracts, snapshots, actions, events, streams, and assets.',
         command: 'npm run ops:architecture:json',
       });
     }
@@ -899,7 +895,7 @@ export class ArchitectureRefactorScorecardService {
         id: 'preserve-scorecard',
         label: 'Preservar o gate arquitetural',
         severity: 'info',
-        reason: 'A baseline atual esta consistente; o proximo passo e manter o gate no CI.',
+        reason: 'A baseline current is consistente; o next passo e manter o gate no CI.',
         command: 'npm run ops:architecture:json',
       });
     }
@@ -997,7 +993,7 @@ export class ArchitectureRefactorScorecardService {
           absolutePath,
           relativePath,
           bytes: Buffer.byteLength(contents),
-          lines: contents.length === 0 ? 0 : contents.split(/\r?\n/).length,
+          lines: contents.length === 0 ? 0 : contents.split(/\r...\n/).length,
           topLevelDirectory,
         });
       }

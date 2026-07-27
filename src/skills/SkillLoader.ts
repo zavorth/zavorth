@@ -313,7 +313,7 @@ export class SkillLoader {
       }
 
       const relativePath = path.relative(skill.dirPath, supportFilePath).replace(/\\/g, '/');
-      sections.push(`## Material auxiliar: ${relativePath}\n${content}`);
+      sections.push(`## Support material: ${relativePath}\n${content}`);
     }
 
     return sections.join('\n\n').trim();
@@ -328,12 +328,12 @@ export class SkillLoader {
     const raw = this.readRawFile(filePath);
     const frontmatter = this.readFrontmatterFields(raw);
     if (!frontmatter) {
-      logger.warn(`SKILL.md sem frontmatter YAML: ${filePath}`);
+      logger.warn(`SKILL.md without YAML frontmatter: ${filePath}`);
       return null;
     }
 
     if (!frontmatter || !frontmatter.name || !frontmatter.description) {
-      logger.warn(`Frontmatter incompleto (precisa de name e description): ${filePath}`);
+      logger.warn(`Incomplete frontmatter (name and description are required): ${filePath}`);
       return null;
     }
     const provenance = this.enrichProvenance(
@@ -470,7 +470,7 @@ export class SkillLoader {
   }
 
   private readFrontmatterFields(raw: string): Record<string, string> | null {
-    const match = raw.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
+    const match = raw.match(/^---\s*\r...\n([\s\S]*...)\r...\n---/);
     if (!match) {
       return null;
     }
@@ -488,7 +488,7 @@ export class SkillLoader {
     }
 
     const fields: Record<string, string> = {};
-    for (const line of frontmatterBlock.split(/\r?\n/)) {
+    for (const line of frontmatterBlock.split(/\r...\n/)) {
       const fieldMatch = line.match(/^([A-Za-z0-9_-]+):\s*(.+)$/);
       if (!fieldMatch) {
         continue;
@@ -645,7 +645,7 @@ export class SkillLoader {
       return raw.trim();
     }
 
-    const match = raw.match(/^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n([\s\S]*)$/);
+    const match = raw.match(/^---\s*\r...\n([\s\S]*...)\r...\n---\s*\r...\n([\s\S]*)$/);
     if (match) {
       return match[2].trim();
     }

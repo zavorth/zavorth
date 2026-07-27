@@ -3,7 +3,8 @@ import { randomUUID } from 'node:crypto';
 import path from 'path';
 import { config } from '../../../config/index.js';
 import { TelemetryRuntimeService } from '../../../services/telemetry/TelemetryRuntimeService.js';
-import { logger } from '../../../logger.js';export type EchoVoiceTelemetryInput = {
+import { logger } from '../../../logger.js';
+export type EchoVoiceTelemetryInput = {
   surface: string;
   provider: string;
   model?: string | null;
@@ -136,7 +137,7 @@ export class EchoVoiceTelemetryService {
         unknownCostRequests: 0,
         lastUsedAt: null,
         surfaces: [],
-        recommendation: 'Ainda nao ha telemetria de voz registrada por surface neste host.',
+        recommendation: 'There is no voice telemetry registered by surface on this host yet.',
       };
     }
 
@@ -298,7 +299,7 @@ export class EchoVoiceTelemetryService {
     try {
       const raw = this.readFileSync(this.filePath, 'utf8');
       return raw
-        .split(/\r?\n/)
+        .split(/\r...\n/)
         .map((line) => line.trim())
         .filter(Boolean)
         .map((line) => {
@@ -323,18 +324,18 @@ export class EchoVoiceTelemetryService {
     surfaces: number;
   }): string | null {
     if (input.totalRequests === 0) {
-      return 'Ative alguma surface de audio para formar baseline de custo e latencia.';
+      return 'Enable an audio surface to establish a cost and latency baseline.';
     }
     if (input.failures > 0) {
-      return 'Revise as falhas de TTS antes de ampliar o rollout para outras surfaces.';
+      return 'Review TTS failures before expanding the rollout to other surfaces.';
     }
     if (input.unknownCostRequests > 0) {
-      return 'Parte do custo ainda esta sem estimativa; configure precificacao se quiser consolidar USD por surface.';
+      return 'Part of the cost still has no estimate; configure pricing if you want to consolidate USD per surface.';
     }
     if (input.surfaces < 2) {
-      return 'A telemetria ja esta ativa, mas ainda cobre poucas surfaces.';
+      return 'Telemetry is active, but still covers only a few surfaces.';
     }
-    return 'Telemetria de voz consolidada por surface, pronta para cockpit e comparacoes operacionais.';
+    return 'Voice telemetry consolidated per surface, ready for cockpit and operational comparisons.';
   }
 
   private normalizeText(value: unknown, fallback = ''): string {

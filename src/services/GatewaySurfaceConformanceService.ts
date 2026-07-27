@@ -67,13 +67,13 @@ export class GatewaySurfaceConformanceService {
     findings: GatewaySurfaceConformanceFinding[],
   ): void {
     if (descriptor.contractVersion !== GATEWAY_SURFACE_CONTRACT_VERSION) {
-      findings.push(this.fail('contract-version', 'Versao do contrato de gateway surface divergente.'));
+      findings.push(this.fail('contract-version', 'Gateway surface contract version differs.'));
     }
     if (!this.text(descriptor.id) || !this.text(descriptor.label) || !this.text(descriptor.channel)) {
-      findings.push(this.fail('identity-required', 'Gateway precisa declarar id, label e channel.'));
+      findings.push(this.fail('identity-required', 'Gateway must declare id, label e channel.'));
     }
     if (!this.text(descriptor.identity.linkedBy) || !this.text(descriptor.identity.verificationMethod)) {
-      findings.push(this.fail('identity-hints', 'Gateway precisa declarar linkedBy e verificationMethod.'));
+      findings.push(this.fail('identity-hints', 'Gateway must declare linkedBy e verificationMethod.'));
     }
   }
 
@@ -83,12 +83,12 @@ export class GatewaySurfaceConformanceService {
   ): void {
     const roles = descriptor.trust.roles || [];
     if (roles.length === 0) {
-      findings.push(this.fail('roles-required', 'Gateway precisa declarar roles minimas.'));
+      findings.push(this.fail('roles-required', 'Gateway must declare minimum roles.'));
       return;
     }
 
     if (!roles.some((role) => role.grants.includes('read'))) {
-      findings.push(this.fail('roles-read', 'Pelo menos uma role precisa permitir leitura.'));
+      findings.push(this.fail('roles-read', 'At least one role must allow reads.'));
     }
 
     const hasMutableCapability =
@@ -100,7 +100,7 @@ export class GatewaySurfaceConformanceService {
       hasMutableCapability
       && !roles.some((role) => role.grants.some((grant) => ['send', 'approve', 'mutate', 'admin'].includes(grant)))
     ) {
-      findings.push(this.fail('roles-mutation', 'Gateway mutavel precisa declarar role com grant de envio/aprovacao/mutacao.'));
+      findings.push(this.fail('roles-mutation', 'Gateway mutable gateway must declare role com grant de envio/approval/mutation.'));
     }
   }
 
@@ -109,20 +109,20 @@ export class GatewaySurfaceConformanceService {
     findings: GatewaySurfaceConformanceFinding[],
   ): void {
     if (callbacks.length === 0) {
-      findings.push(this.fail('callbacks-required', 'Gateway precisa declarar callbacks ou health endpoint.'));
+      findings.push(this.fail('callbacks-required', 'Gateway must declare callbacks ou health endpoint.'));
       return;
     }
 
     for (const callback of callbacks) {
       const label = `${callback.kind}:${callback.transport}`;
       if (!this.text(callback.payloadShape)) {
-        findings.push(this.fail('callback-payload', `Callback ${label} nao declara payloadShape.`));
+        findings.push(this.fail('callback-payload', `Callback ${label} does not declare payloadShape.`));
       }
       if (this.isMutatingCallback(callback) && callback.permissionBoundary === 'none') {
-        findings.push(this.fail('callback-boundary', `Callback mutavel ${label} nao pode bypassar permission/trust plane.`));
+        findings.push(this.fail('callback-boundary', `Mutable callback ${label} must not bypass permission/trust plane.`));
       }
       if (this.isMutatingCallback(callback) && !this.text(callback.idempotencyKey)) {
-        findings.push(this.warn('callback-idempotency', `Callback mutavel ${label} deveria declarar idempotencyKey.`));
+        findings.push(this.warn('callback-idempotency', `Mutable callback ${label} deveria declarar idempotencyKey.`));
       }
     }
   }
@@ -132,7 +132,7 @@ export class GatewaySurfaceConformanceService {
     findings: GatewaySurfaceConformanceFinding[],
   ): void {
     if (descriptor.trust.failOpen) {
-      findings.push(this.fail('trust-fail-open', 'Gateway nao pode ser fail-open por padrao.'));
+      findings.push(this.fail('trust-fail-open', 'Gateway must not be fail-open by default.'));
     }
 
     const mutatingCapability =
@@ -141,7 +141,7 @@ export class GatewaySurfaceConformanceService {
       || descriptor.capabilities.sessionSend
       || descriptor.capabilities.outbound;
     if (mutatingCapability && descriptor.securityBoundary.mutations.length === 0) {
-      findings.push(this.fail('mutation-policies-required', 'Gateway mutavel precisa declarar politicas de mutacao.'));
+      findings.push(this.fail('mutation-policies-required', 'Gateway mutable gateway must declare mutation policies.'));
     }
 
     for (const mutation of descriptor.securityBoundary.mutations) {
@@ -155,26 +155,26 @@ export class GatewaySurfaceConformanceService {
   ): void {
     const policy = descriptor.naturalFirstIngress;
     if (!policy) {
-      findings.push(this.fail('natural-first-ingress-required', 'Gateway precisa declarar politica Natural First para texto livre.'));
+      findings.push(this.fail('natural-first-ingress-required', 'Gateway must declare Natural First policy for free-form text.'));
       return;
     }
     if (policy.contractVersion !== 'natural-first-agent-runtime/1') {
-      findings.push(this.fail('natural-first-contract-version', 'Politica Natural First usa versao de contrato invalida.'));
+      findings.push(this.fail('natural-first-contract-version', 'Natural First policy uses an invalid contract version.'));
     }
     if (policy.freeTextEntrypoint !== 'zavorth-agent-gateway' || !policy.gatewayRequiredForFreeText) {
-      findings.push(this.fail('natural-first-free-text-gateway', 'Texto livre precisa entrar pelo ZavorthAgentGateway.'));
+      findings.push(this.fail('natural-first-free-text-gateway', 'Free text must enter through ZavorthAgentGateway.'));
     }
     if (policy.slashEntrypoint !== 'command-router-shortcut') {
-      findings.push(this.fail('natural-first-slash-shortcut', 'Slash command deve permanecer atalho do command router.'));
+      findings.push(this.fail('natural-first-slash-shortcut', 'Slash command must remain a command router shortcut.'));
     }
     if (policy.operatorCommandEntrypoint !== 'command-router-shortcut' || !policy.commandShortcutAllowed) {
-      findings.push(this.fail('natural-first-operator-shortcut', 'Comanthe operator explicito deve declarar atalho de command router.'));
+      findings.push(this.fail('natural-first-operator-shortcut', 'Explicit operator command must declare a command router shortcut.'));
     }
     if (policy.llmDirectEntryAllowed !== false) {
-      findings.push(this.fail('natural-first-no-direct-llm', 'Superficie nao pode declarar LLM como entrada direta para texto livre.'));
+      findings.push(this.fail('natural-first-no-direct-llm', 'Surface must not declare the LLM as a direct free-form text entrypoint.'));
     }
     if (!Array.isArray(policy.sourceFiles) || policy.sourceFiles.length === 0) {
-      findings.push(this.warn('natural-first-source-files', 'Politica Natural First deveria apontar arquivos fonte da entrada real.'));
+      findings.push(this.warn('natural-first-source-files', 'Natural First policy should point to source files from the real entry.'));
     }
   }
 
@@ -183,10 +183,10 @@ export class GatewaySurfaceConformanceService {
     findings: GatewaySurfaceConformanceFinding[],
   ): void {
     if (!this.text(mutation.minRole) || !this.text(mutation.auditEvent)) {
-      findings.push(this.fail('mutation-policy-shape', `Mutacao ${mutation.kind} precisa declarar minRole e auditEvent.`));
+      findings.push(this.fail('mutation-policy-shape', `Mutation ${mutation.kind} must declare minRole e auditEvent.`));
     }
     if (mutation.enforcement === 'none') {
-      findings.push(this.fail('mutation-policy-boundary', `Mutacao ${mutation.kind} nao pode usar enforcement none.`));
+      findings.push(this.fail('mutation-policy-boundary', `Mutation ${mutation.kind} must not use enforcement none.`));
     }
   }
 
@@ -198,11 +198,11 @@ export class GatewaySurfaceConformanceService {
       descriptor.securityBoundary.credentialMode !== 'none'
       && !['disabled', 'read-only', 'local-only'].includes(descriptor.securityBoundary.credentialAbsentBehavior)
     ) {
-      findings.push(this.fail('credential-degradation', 'Ausencia de credencial precisa degradar sem fail-open.'));
+      findings.push(this.fail('credential-degradation', 'Missing credentials must degrade without fail-open.'));
     }
 
     if (!descriptor.configured && !descriptor.degradedMode.supported) {
-      findings.push(this.fail('degraded-mode-required', 'Gateway sem credencial ativa precisa declarar degradedMode.'));
+      findings.push(this.fail('degraded-mode-required', 'Gateway without active credentials must declare degradedMode.'));
     }
   }
 
@@ -332,7 +332,7 @@ export function buildTelegramGatewaySurfaceDescriptor(): GatewaySurfaceDescripto
     },
     degradedMode: {
       supported: true,
-      summary: 'Sem bot token, a surface fica desabilitada e mantem contratos/documentacao disponiveis.',
+      summary: 'without a bot token, the surface stays disabled while contracts and documentation remain available.',
     },
     docs: {
       operatorGuide: 'docs/channel-mesh.md',
@@ -442,7 +442,7 @@ export function buildWebGatewaySurfaceDescriptor(): GatewaySurfaceDescriptor {
     },
     degradedMode: {
       supported: true,
-      summary: 'Sem token remoto, a surface permanece local/loopback e nao vira acesso publico.',
+      summary: 'Without a remote token, the surface remains local/loopback and does not become public access.',
     },
     docs: {
       operatorGuide: 'docs/web-zavorthControl.md',
@@ -545,7 +545,7 @@ export function buildCliGatewaySurfaceDescriptor(): GatewaySurfaceDescriptor {
     },
     degradedMode: {
       supported: true,
-      summary: 'CLI permanece local e nao aceita mutacao sem passar pelo command/gateway contract.',
+      summary: 'CLI remains local and does not accept mutation without passing through the command/gateway contract.',
     },
     docs: {
       operatorGuide: 'docs/gateway-cli.md',
@@ -648,7 +648,7 @@ export function buildApiGatewaySurfaceDescriptor(): GatewaySurfaceDescriptor {
     },
     degradedMode: {
       supported: true,
-      summary: 'Sem auth/API key exigida, a API permanece local-only ou rejeita mutations conforme politica.',
+      summary: 'without required auth/API key, the API remains local-only or rejects mutations according to policy.',
     },
     docs: {
       operatorGuide: 'docs/product-direction.md',

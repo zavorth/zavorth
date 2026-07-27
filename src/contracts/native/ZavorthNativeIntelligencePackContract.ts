@@ -4,7 +4,7 @@ import type {
 } from '../ZavorthUniversalSkillIntakeContract.js';
 
 export const ZAVORTH_NATIVE_INTELLIGENCE_PACK_CONTRACT_VERSION =
-  '2026-05-10.native-intelligence-checkpoint-1' as const;
+  '2026-05-10.native-intelligence-gate-1' as const;
 
 export type ZavorthNativeIntelligencePackStatus =
   | 'passed'
@@ -136,6 +136,6 @@ export type ZavorthNativeIntelligencePackSnapshot = {
     listJson: 'npm run zavorth:native-intelligence-pack:json';
     activatePreset: 'npm run zavorth:native-intelligence-pack -- --preset developer --activate';
     check: 'npm run zavorth:native-intelligence-pack:check --silent';
-    nextStage: 'Preview engine - Governed Subagent Model';
+    nextAction: 'Preview engine - Governed Subagent Model';
   };
 };

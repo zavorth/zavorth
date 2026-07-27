@@ -20,11 +20,8 @@ import {
   uniqueCards,
   type LooseRecord,
 } from './SelfingZavorthControlHelpers.js';
-
 export const SELFING_ZAVORTH_CONTROL_CONTRACT_VERSION = '2026-05-03.selfing-zavorthControl' as const;
-
 export type SelfingZavorthControlStatus = 'ready' | 'needs-review' | 'empty' | 'blocked';
-
 export type SelfingZavorthControlSectionId =
   | 'identity'
   | 'tone'
@@ -32,7 +29,6 @@ export type SelfingZavorthControlSectionId =
   | 'environment'
   | 'memory'
   | 'permissions';
-
 export type SelfingZavorthControlCard = {
   id: string;
   section: SelfingZavorthControlSectionId;
@@ -51,7 +47,6 @@ export type SelfingZavorthControlCard = {
     historyCommand: string;
   };
 };
-
 export type SelfingZavorthControlSuggestion = {
   id: string;
   section: SelfingZavorthControlSectionId;
@@ -61,7 +56,6 @@ export type SelfingZavorthControlSuggestion = {
   sensitive: boolean;
   previewCommand: string;
 };
-
 export type SelfingZavorthControlReceipt = {
   id: string;
   kind:
@@ -77,7 +71,6 @@ export type SelfingZavorthControlReceipt = {
   detail: string;
   status: 'ready' | 'needs-review' | 'missing';
 };
-
 export type SelfingZavorthControlSnapshot = {
   contractVersion: typeof SELFING_ZAVORTH_CONTROL_CONTRACT_VERSION;
   source: 'SelfingZavorthControlService';
@@ -134,20 +127,15 @@ export type SelfingZavorthControlSnapshot = {
   };
   nextSafeAction: string;
 };
-
 export type SelfingZavorthControlInput = {
   run: UniversalAgentRun;
   generatedAt?: string | null;
 };
-
-
 export class SelfingZavorthControlService {
   private readonly now: () => Date;
-
   constructor(options: { now?: () => Date } = {}) {
     this.now = options.now || (() => new Date());
   }
-
   public buildSnapshot(input: SelfingZavorthControlInput): SelfingZavorthControlSnapshot {
     const { run } = input;
     const generatedAt = normalizeText(input.generatedAt, this.now().toISOString());
@@ -191,7 +179,6 @@ export class SelfingZavorthControlService {
       metadata,
       run,
     });
-
     return {
       contractVersion: SELFING_ZAVORTH_CONTROL_CONTRACT_VERSION,
       source: 'SelfingZavorthControlService',
@@ -232,14 +219,13 @@ export class SelfingZavorthControlService {
       },
       surface: {
         cliCommand: `zavorth selfing run ${run.id} --json`,
-        zavorthControlPath: '/control?sector=dreams',
-        previewHint: 'Edicoes de identidade, tom, usuario ou memoria devem virar preview antes de gravar.',
-        versioningHint: 'Mudancas passam por ConfigVersioningService ou contrato equivalente antes de substituir fontes vivas.',
+        zavorthControlPath: '/control...sector=dreams',
+        previewHint: 'Identity, tone, user, or memory edits must become previews before writing.',
+        versioningHint: 'changes passam por ConfigVersioningService ou contrato equivalente before replace fontes vivas.',
       },
       nextSafeAction: this.nextSafeAction(status, suggestions, pendingApprovalCount),
     };
   }
-
   private resolveWorkspaceProfile(
     metadata: LooseRecord,
     canonicalContext: LooseRecord | null,
@@ -250,7 +236,6 @@ export class SelfingZavorthControlService {
       || recordOrNull(canonicalContext?.workspaceProfile)
       || {};
   }
-
   private resolveIdentityFiles(
     metadata: LooseRecord,
     warm: LooseRecord | null,
@@ -270,7 +255,6 @@ export class SelfingZavorthControlService {
     }
     return Array.from(byRef.values());
   }
-
   private buildIdentity(
     run: UniversalAgentRun,
     metadata: LooseRecord,
@@ -284,17 +268,16 @@ export class SelfingZavorthControlService {
       userName: normalizeText(workspaceProfile.userDisplayName, normalizeText(metadata.userDisplayName, run.userId)),
       workspaceName: normalizeText(
         workspaceProfile.workspaceName,
-        normalizeText(canonicalContext?.workspace, normalizeText(run.workspace, 'workspace nao informado')),
+        normalizeText(canonicalContext?.workspace, normalizeText(run.workspace, 'workspace not informado')),
       ),
       tonePreference: normalizeText(workspaceProfile.tonePreference, normalizeText(metadata.tonePreference)) || null,
       memoryMode: normalizeText(workspaceProfile.memoryMode, normalizeText(metadata.memoryMode)) || null,
       safetyPosture: normalizeText(workspaceProfile.safetyPosture, normalizeText(metadata.safetyPosture)) || null,
       trustMode: normalizeText(trustPosture?.trustMode, normalizeText(trustSlider?.level, 'protected')),
-      providerLabel: normalizeText(run.modelProfile.providerLabel, 'provider nao informado'),
-      modelLabel: normalizeText(run.modelProfile.modelLabel, 'modelo nao informado'),
+      providerLabel: normalizeText(run.modelProfile.providerLabel, 'provider not informado'),
+      modelLabel: normalizeText(run.modelProfile.modelLabel, 'model not informado'),
     };
   }
-
   private buildIdentityFileCards(identityFiles: LooseRecord[]): SelfingZavorthControlCard[] {
     return identityFiles.map((file, index) => {
       const path = sourceRefFromIdentityFile(file) || `identity-file-${index + 1}`;
@@ -317,7 +300,6 @@ export class SelfingZavorthControlService {
       };
     });
   }
-
   private buildProfileCards(
     identity: SelfingZavorthControlSnapshot['identity'],
     workspaceProfile: LooseRecord,
@@ -325,10 +307,10 @@ export class SelfingZavorthControlService {
     const profilePath = normalizeText(workspaceProfile.firstRunProfilePath) || null;
     const entries: Array<[SelfingZavorthControlSectionId, string, string | null, boolean]> = [
       ['identity', 'Nome do agente', identity.agentName, true],
-      ['user', 'Usuario conhecido', identity.userName, true],
+      ['user', 'Known user', identity.userName, true],
       ['tone', 'Tom preferido', identity.tonePreference, false],
-      ['memory', 'Modo de memoria', identity.memoryMode, true],
-      ['permissions', 'Postura de seguranca', identity.safetyPosture, true],
+      ['memory', 'Memory mode', identity.memoryMode, true],
+      ['permissions', 'Security posture', identity.safetyPosture, true],
     ];
     return entries
       .filter(([, , value]) => Boolean(normalizeText(value)))
@@ -338,7 +320,7 @@ export class SelfingZavorthControlService {
           id: cardId,
           section,
           title,
-          value: redactAndShorten(value, 'nao informado'),
+          value: redactAndShorten(value, 'not informado'),
           source: 'FirstRunWorkspaceBootstrapProfile',
           sourceRef: profilePath,
           confidence: profilePath ? 0.86 : 0.68,
@@ -350,7 +332,6 @@ export class SelfingZavorthControlService {
         };
       });
   }
-
   private buildMemoryCards(
     run: UniversalAgentRun,
     memoryWithReceipts: LooseRecord | null,
@@ -365,8 +346,8 @@ export class SelfingZavorthControlService {
         return {
           id: cardId,
           section: 'memory',
-          title: normalizeText(receipt.title, 'Memoria com receipt'),
-          value: redactAndShorten(receipt.summary, 'Memoria resumida pelo runtime.'),
+          title: normalizeText(receipt.title, 'Memory with receipt'),
+          value: redactAndShorten(receipt.summary, 'Memory summarized by the runtime.'),
           source: normalizeText(receipt.source, 'MemoryWithReceiptsService'),
           sourceRef: normalizeText(receipt.observatoryReceiptId)
             || normalizeText(recordOrNull(receipt.origin)?.ref)
@@ -378,13 +359,12 @@ export class SelfingZavorthControlService {
           versioned: true,
           actions: {
             reviewCommand: normalizeText(actions.askSourceCommand, `zavorth memory source ${memoryId}`),
-            previewCommand: normalizeText(actions.correctCommand, `zavorth memory correct ${memoryId} "<novo valor>"`),
+            previewCommand: normalizeText(actions.correctCommand, `zavorth memory correct ${memoryId} "<new value>"`),
             historyCommand: normalizeText(actions.reviewCommand, `zavorth memory receipts run ${run.id}`),
           },
         };
       });
     }
-
     const prompt = normalizeText(cold?.memoryPrompt)
       || normalizeText(run.metadata.memoryPrompt)
       || normalizeText(recordOrNull(run.metadata.canonicalContext)?.memoryPrompt);
@@ -395,7 +375,7 @@ export class SelfingZavorthControlService {
           id: cardId,
           section: 'memory',
           title: signal.title,
-          value: redactAndShorten(signal.summary, 'Memoria recuperada.'),
+          value: redactAndShorten(signal.summary, 'Recovered memory.'),
           source: 'UniversalMemorySignal',
           sourceRef: signal.id,
           confidence: clampConfidence(signal.confidence, 0.58),
@@ -407,13 +387,12 @@ export class SelfingZavorthControlService {
         };
       });
     }
-
     const cardId = `memory-context:${normalizeKey(run.id)}`;
     return [{
       id: cardId,
       section: 'memory',
-      title: 'Contexto de memoria canonico',
-      value: redactAndShorten(prompt, 'Contexto de memoria disponivel.'),
+      title: 'Canonical memory context',
+      value: redactAndShorten(prompt, 'Memory context available.'),
       source: 'CanonicalSessionContext',
       sourceRef: run.id,
       confidence: 0.64,
@@ -424,7 +403,6 @@ export class SelfingZavorthControlService {
       actions: cardActions('memory', cardId),
     }];
   }
-
   private buildEnvironmentCards(
     run: UniversalAgentRun,
     metadata: LooseRecord,
@@ -438,7 +416,7 @@ export class SelfingZavorthControlService {
     cards.push(this.staticCard({
       section: 'environment',
       title: 'Workspace',
-      value: normalizeText(workspaceProfile.workspaceName, normalizeText(run.workspace, 'workspace nao informado')),
+      value: normalizeText(workspaceProfile.workspaceName, normalizeText(run.workspace, 'workspace not informado')),
       source: 'CanonicalSessionContext',
       sourceRef: normalizeText(run.workspace) || null,
       confidence: run.workspace ? 0.84 : 0.48,
@@ -453,7 +431,7 @@ export class SelfingZavorthControlService {
     }));
     cards.push(this.staticCard({
       section: 'environment',
-      title: 'Provider e modelo',
+      title: 'Provider e model',
       value: `${run.modelProfile.providerLabel}/${run.modelProfile.modelLabel}`,
       source: 'ModelProfile',
       sourceRef: run.modelProfile.routeId || run.modelProfile.familyId || null,
@@ -463,7 +441,7 @@ export class SelfingZavorthControlService {
       cards.push(this.staticCard({
         section: 'environment',
         title: 'Skills/MCP',
-        value: `${Number(quarantineSummary?.total || 0)} import(s); ${Number(quarantineSummary?.quarantined || 0)} em quarentena`,
+        value: `${Number(quarantineSummary?.total || 0)} import(s); ${Number(quarantineSummary?.quarantined || 0)} at quarentena`,
         source: 'SkillMcpQuarantineService',
         sourceRef: normalizeText(skillMcpQuarantine.contractVersion) || null,
         confidence: 0.86,
@@ -471,7 +449,6 @@ export class SelfingZavorthControlService {
     }
     return cards;
   }
-
   private buildPermissionCards(
     run: UniversalAgentRun,
     metadata: LooseRecord,
@@ -493,7 +470,7 @@ export class SelfingZavorthControlService {
       cards.push(this.staticCard({
         section: 'permissions',
         title: 'Capability Negotiation',
-        value: `${normalizeText(capabilityNegotiation.status, 'unknown')} - ${normalizeText(recordOrNull(capabilityNegotiation.scope)?.summary, 'escopo nao informado')}`,
+        value: `${normalizeText(capabilityNegotiation.status, 'unknown')} - ${normalizeText(recordOrNull(capabilityNegotiation.scope)?.summary, 'escopo not informado')}`,
         source: 'CapabilityNegotiationService',
         sourceRef: normalizeText(recordOrNull(capabilityNegotiation.scope)?.id) || null,
         confidence: 0.88,
@@ -524,7 +501,7 @@ export class SelfingZavorthControlService {
       cards.push(this.staticCard({
         section: 'permissions',
         title: 'Approvals',
-        value: `${run.approvals.filter((approval) => approval.status === 'pending').length} pendente(s), ${run.approvals.length} total`,
+        value: `${run.approvals.filter((approval) => approval.status === 'pending').length} pending, ${run.approvals.length} total`,
         source: 'AgentRunService',
         sourceRef: run.id,
         confidence: 0.9,
@@ -532,7 +509,6 @@ export class SelfingZavorthControlService {
     }
     return cards;
   }
-
   private staticCard(input: {
     section: SelfingZavorthControlSectionId;
     title: string;
@@ -546,7 +522,7 @@ export class SelfingZavorthControlService {
       id: cardId,
       section: input.section,
       title: input.title,
-      value: redactAndShorten(input.value, 'nao informado'),
+      value: redactAndShorten(input.value, 'not informado'),
       source: input.source,
       sourceRef: input.sourceRef,
       confidence: clampConfidence(input.confidence, 0.7),
@@ -557,7 +533,6 @@ export class SelfingZavorthControlService {
       actions: cardActions(input.section, cardId),
     };
   }
-
   private buildSuggestions(input: {
     run: UniversalAgentRun;
     identity: SelfingZavorthControlSnapshot['identity'];
@@ -570,9 +545,9 @@ export class SelfingZavorthControlService {
       suggestions.push({
         id: 'selfing:suggestion:identity-files',
         section: 'identity',
-        title: 'Associar arquivos vivos de identidade',
-        detail: 'SOUL.md, IDENTITY.md, USER.md, TOOLS.md ou MEMORY.md ainda nao aparecem no contexto canonico.',
-        reason: 'Selfing ZavorthControl fica mais confiavel quando a identidade vem de fontes editaveis e versionadas.',
+        title: 'Associar files vivos de identidade',
+        detail: 'SOUL.md, IDENTITY.md, USER.md, TOOLS.md ou MEMORY.md ainda not aparecem no contexto canonical.',
+        reason: 'Selfing ZavorthControl fica more reliable when a identidade vem de fontes editaveis e versionadas.',
         sensitive: true,
         previewCommand: 'zavorth selfing preview identity-files',
       });
@@ -581,9 +556,9 @@ export class SelfingZavorthControlService {
       suggestions.push({
         id: 'selfing:suggestion:tone',
         section: 'tone',
-        title: 'Definir tom preferido',
-        detail: 'Nenhuma preferencia de tom foi encontrada no perfil de workspace.',
-        reason: 'O blueprint pede que tom e preferencias sejam revisaveis pelo usuario.',
+        title: 'Set preferred tone',
+        detail: 'No tone preference was found in the workspace profile.',
+        reason: 'The blueprint requires tone and preferences to be reviewable by the user.',
         sensitive: false,
         previewCommand: 'zavorth selfing preview tone "<tom preferido>"',
       });
@@ -592,9 +567,9 @@ export class SelfingZavorthControlService {
       suggestions.push({
         id: 'selfing:suggestion:memory-mode',
         section: 'memory',
-        title: 'Definir modo de memoria',
-        detail: 'O modo de memoria ainda nao esta explicito no perfil.',
-        reason: 'Memoria com receipts precisa dizer como sera lembrada, corrigida ou esquecida.',
+        title: 'Set memory mode',
+        detail: 'Memory mode is not explicit in the profile yet.',
+        reason: 'Memory with receipts must state how it will be remembered, corrected, or forgotten.',
         sensitive: true,
         previewCommand: 'zavorth selfing preview memory-mode',
       });
@@ -604,9 +579,9 @@ export class SelfingZavorthControlService {
       suggestions.push({
         id: 'selfing:suggestion:low-confidence-memory',
         section: 'memory',
-        title: 'Revisar memorys de baixa confianca',
-        detail: `${lowConfidenceCount} memoria(s) precisam de correcao, esquecimento ou confirmacao.`,
-        reason: 'A feature Memory With Receipts exige origem e confianca antes de usar memoria em resposta.',
+        title: 'review memorys de baixa trust',
+        detail: `${lowConfidenceCount} memory item(s) need correction, forgetting, or confirmation.`,
+        reason: 'Memory With Receipts requires origin and confidence before using memory in an answer.',
         sensitive: true,
         previewCommand: 'zavorth memory receipts --low-confidence',
       });
@@ -615,16 +590,15 @@ export class SelfingZavorthControlService {
       suggestions.push({
         id: 'selfing:suggestion:pending-approval',
         section: 'permissions',
-        title: 'Resolver approval pendente',
-        detail: 'Existe approval aguardando operador antes de qualquer mutacao sensivel.',
-        reason: 'Selfing nao deve editar identidade enquanto o runtime ainda aguarda permissao.',
+        title: 'Resolve pending approval',
+        detail: 'An approval is waiting for the operator before any sensitive mutation.',
+        reason: 'Selfing must not edit identity while the runtime still waits for permission.',
         sensitive: true,
         previewCommand: `zavorth approvals run ${input.run.id}`,
       });
     }
     return suggestions;
   }
-
   private buildReceipts(input: {
     run: UniversalAgentRun;
     metadata: LooseRecord;
@@ -641,7 +615,7 @@ export class SelfingZavorthControlService {
           id: `selfing:receipt:identity:${normalizeKey(ref)}`,
           kind: 'identity-file',
           source: 'WorkspaceIdentityContextAssembler',
-          detail: `${titleFromIdentityFile(ref)} visivel para revisao.`,
+          detail: `${titleFromIdentityFile(ref)} visible for review.`,
           status: file.exists === false ? 'needs-review' : 'ready',
         });
       }
@@ -650,7 +624,7 @@ export class SelfingZavorthControlService {
         id: 'selfing:receipt:identity:missing',
         kind: 'identity-file',
         source: 'WorkspaceIdentityContextAssembler',
-        detail: 'Nenhum arquivo vivo de identidade foi encontrado no contexto atual.',
+        detail: 'No live identity file was found in the current context.',
         status: 'missing',
       });
     }
@@ -658,7 +632,7 @@ export class SelfingZavorthControlService {
       id: 'selfing:receipt:workspace-profile',
       kind: 'workspace-profile',
       source: 'FirstRunWorkspaceBootstrapProfile',
-      detail: normalizeText(input.workspaceProfile.workspaceName, normalizeText(input.run.workspace, 'workspace sem perfil nomeado')),
+      detail: normalizeText(input.workspaceProfile.workspaceName, normalizeText(input.run.workspace, 'workspace without profile nomeado')),
       status: Object.keys(input.workspaceProfile).length > 0 ? 'ready' : 'needs-review',
     });
     const memorySummary = recordOrNull(input.memoryWithReceipts?.summary);
@@ -666,7 +640,7 @@ export class SelfingZavorthControlService {
       id: 'selfing:receipt:memory',
       kind: 'memory-receipt',
       source: 'MemoryWithReceiptsService',
-      detail: `${Number(memorySummary?.receiptCount || input.run.memorySignals.length || 0)} receipt(s) de memoria disponiveis.`,
+      detail: `${Number(memorySummary?.receiptCount || input.run.memorySignals.length || 0)} memory receipt(s) available.`,
       status: input.memoryWithReceipts ? 'ready' : input.run.memorySignals.length > 0 ? 'needs-review' : 'missing',
     });
     receipts.push({
@@ -680,7 +654,7 @@ export class SelfingZavorthControlService {
       id: 'selfing:receipt:tool-exposure',
       kind: 'tool-exposure',
       source: 'ToolExposurePolicy',
-      detail: `${input.run.toolExposure.tools.length} tool(s) conhecidas; maior risco ${this.highestRisk(input.run)}.`,
+      detail: `${input.run.toolExposure.tools.length} tool(s) conhecidas; maior risk ${this.highestRisk(input.run)}.`,
       status: input.run.toolExposure.tools.length > 0 ? 'ready' : 'needs-review',
     });
     receipts.push({
@@ -694,24 +668,22 @@ export class SelfingZavorthControlService {
       id: 'selfing:receipt:policy',
       kind: 'policy',
       source: 'SelfingZavorthControlService',
-      detail: 'Snapshot read-only; alteracoes precisam de preview, approval quando sensiveis e versionamento.',
+      detail: 'Read-only snapshot; changes need preview, approval when sensitive, and versioning.',
       status: 'ready',
     });
     receipts.push({
       id: 'selfing:receipt:surface',
       kind: 'surface',
       source: '/control',
-      detail: 'Selfing ZavorthControl projetado em /control?sector=dreams e CLI.',
+      detail: 'Selfing ZavorthControl projetado at /control...sector=dreams e CLI.',
       status: 'ready',
     });
     return receipts;
   }
-
   private memoryReceiptCount(memoryWithReceipts: LooseRecord | null, memorySignals: UniversalMemorySignal[]): number {
     const summary = recordOrNull(memoryWithReceipts?.summary);
     return Number(summary?.receiptCount || listRecords(memoryWithReceipts?.receipts).length || memorySignals.length || 0);
   }
-
   private lowConfidenceMemoryCount(
     memoryWithReceipts: LooseRecord | null,
     memorySignals: UniversalMemorySignal[],
@@ -730,7 +702,6 @@ export class SelfingZavorthControlService {
     }
     return memorySignals.filter((signal) => clampConfidence(signal.confidence, 0.7) < 0.5).length;
   }
-
   private highestRisk(run: UniversalAgentRun): UniversalToolRiskLevel {
     let highest: UniversalToolRiskLevel = 'safe';
     const scores: Record<UniversalToolRiskLevel, number> = {
@@ -747,7 +718,6 @@ export class SelfingZavorthControlService {
     }
     return highest;
   }
-
   private resolveStatus(input: {
     cards: SelfingZavorthControlCard[];
     suggestions: SelfingZavorthControlSuggestion[];
@@ -770,24 +740,23 @@ export class SelfingZavorthControlService {
     }
     return 'ready';
   }
-
   private nextSafeAction(
     status: SelfingZavorthControlStatus,
     suggestions: SelfingZavorthControlSuggestion[],
     pendingApprovalCount: number,
   ): string {
     if (status === 'blocked') {
-      return 'Resolver bloqueio de trust/safety antes de editar identidade ou memoria.';
+      return 'Resolve trust/safety blocker before editing identity or memory.';
     }
     if (pendingApprovalCount > 0) {
-      return 'Resolver approvals pendentes antes de aplicar mudancas sensiveis no selfing.';
+      return 'Resolve pending approvals before applying sensitive selfing changes.';
     }
     if (suggestions.length > 0) {
-      return `Revisar ${suggestions.length} sugestao(oes) e transformar qualquer edicao em preview versionado.`;
+      return `review ${suggestions.length} suggestion(s) and turn any edit into a versioned preview.`;
     }
     if (status === 'empty') {
-      return 'Continuar sem inventar identidade; anexar fontes vivas antes de permitir edicao.';
+      return 'Continue without inventing identity; attach live sources before allowing edits.';
     }
-    return 'Mostrar identidade, memoria e permissao ao usuario; edicoes seguem preview e versionamento.';
+    return 'Show identity, memory, and permission to the user; edits follow preview and versioning.';
   }
 }

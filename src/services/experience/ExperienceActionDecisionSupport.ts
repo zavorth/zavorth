@@ -97,12 +97,28 @@ function recordOrNull(value: unknown): Record<string, unknown> | null {
 }
 
 function normalizeKey(value: unknown): string {
-  return String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+  const normalized = String(value || '').normalize('NFD').toLowerCase();
+  let output = '';
+  let previousWasDash = false;
+  for (const char of normalized) {
+    const code = char.charCodeAt(0);
+    if (code >= 0x0300 && code <= 0x036f) {
+      continue;
+    }
+    const keep = (char >= 'a' && char <= 'z') || (char >= '0' && char <= '9');
+    if (keep) {
+      output += char;
+      previousWasDash = false;
+      continue;
+    }
+    if (!previousWasDash) {
+      output += '-';
+      previousWasDash = true;
+    }
+  }
+  while (output.startsWith('-')) output = output.slice(1);
+  while (output.endsWith('-')) output = output.slice(0, -1);
+  return output;
 }
 
 function isProviderHealingIssue(issue: string): boolean {
@@ -123,30 +139,13 @@ function isLiveWorkflowJobStatus(status: unknown): boolean {
 }
 
 function inferRequestedTimeZone(text: string): string {
-  const normalized = text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-  if (/\b(brasilia|sao\s+paulo|brazil|brasil)\b/.test(normalized)) return 'America/Sao_Paulo';
-  if (/\b(utc|gmt)\b/.test(normalized)) return 'UTC';
-  if (/\b(new\s+york|nyc|eastern)\b/.test(normalized)) return 'America/New_York';
-  if (/\b(london|londres)\b/.test(normalized)) return 'Europe/London';
-  if (/\b(tokyo|toquio)\b/.test(normalized)) return 'Asia/Tokyo';
+  void text;
   return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 }
 
 function isSimpleDateTimeQuestion(text: string): boolean {
-  const normalized = text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-  const asksTime = /\b(que\s+horas|hora\s+atual|horas\s+sao|what\s+time|current\s+time|tell\s+me\s+the\s+time)\b/.test(
-    normalized,
-  );
-  const asksDate = /\b(que\s+dia|data\s+atual|dia\s+de\s+hoje|what\s+date|today'?s\s+date|current\s+date)\b/.test(
-    normalized,
-  );
-  return asksTime || asksDate;
+  void text;
+  return false;
 }
 
 function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
@@ -169,6 +168,56 @@ function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
     logger.warn(`[ExperienceCore] Intl.DateTimeFormat failed for timezone ${timeZone}:`, error);
     return `It is now ${now.toLocaleString('en-US')} in the system local timezone.`;
   }
+}
+
+function parseActionCardId(actionId: string, allowedKinds: string[]): { kind: string; value: string } | null {
+  for (const kind of allowedKinds) {
+    const prefix = `${kind}:`;
+    if (actionId.startsWith(prefix)) {
+      const value = actionId.slice(prefix.length).trim();
+      return value ? { kind, value } : null;
+    }
+  }
+  return null;
+}
+
+function parseFirstRunActionId(actionId: string): { key: 'language' | 'surface' | 'learning'; value: string } | null {
+  const prefix = 'first-run:';
+  if (!actionId.startsWith(prefix)) return null;
+  const rest = actionId.slice(prefix.length);
+  const separator = rest.indexOf(':');
+  if (separator < 0) return null;
+  const key = rest.slice(0, separator);
+  const value = rest.slice(separator + 1).trim();
+  if ((key === 'language' || key === 'surface' || key === 'learning') && value) {
+    return { key, value };
+  }
+  return null;
+}
+
+function parseLearningActionId(actionId: string): { kind: 'approve' | 'reject' | 'forget'; value: string } | null {
+  const prefix = 'learn:';
+  if (!actionId.startsWith(prefix)) return null;
+  const rest = actionId.slice(prefix.length);
+  const separator = rest.indexOf(':');
+  if (separator < 0) return null;
+  const kind = rest.slice(0, separator);
+  const value = rest.slice(separator + 1).trim();
+  if ((kind === 'approve' || kind === 'reject' || kind === 'forget') && value) {
+    return { kind, value };
+  }
+  return null;
+}
+
+function parseSelfHealingActionId(actionId: string): { issue: string; action: string } | null {
+  const prefix = 'self-healing:';
+  if (!actionId.startsWith(prefix)) return null;
+  const rest = actionId.slice(prefix.length);
+  const separator = rest.indexOf(':');
+  if (separator < 0) return null;
+  const issue = rest.slice(0, separator).trim();
+  const action = rest.slice(separator + 1).trim();
+  return issue && action ? { issue, action } : null;
 }
 
 function action(input: {
@@ -201,10 +250,10 @@ export class ExperienceActionDecisionSupport {
     plan: ReturnType<NaturalCommandRouterService['route']>,
   ): Promise<ExperienceCommandResult | null> {
     const actionId = command.actionCardDecision?.actionId || '';
-    const approvalMatch = /^(approve|reject):(.+)$/.exec(actionId);
+    const approvalMatch = parseActionCardId(actionId, ['approve', 'reject']);
     if (approvalMatch) {
-      const decision = approvalMatch[1] as 'approve' | 'reject';
-      const approvalId = approvalMatch[2];
+      const decision = approvalMatch.kind as 'approve' | 'reject';
+      const approvalId = approvalMatch.value;
       const result =
         decision === 'approve'
           ? await this.owner.agentGateway?.approve(approvalId)
@@ -235,18 +284,18 @@ export class ExperienceActionDecisionSupport {
       };
     }
 
-    const firstRunMatch = /^first-run:(language|surface|learning):(.+)$/.exec(actionId);
+    const firstRunMatch = parseFirstRunActionId(actionId);
     if (firstRunMatch) {
-      const key = firstRunMatch[1];
-      const value = firstRunMatch[2];
+      const key = firstRunMatch.key;
+      const value = firstRunMatch.value;
       const service = this.owner.getFirstRunService(command.userId);
       const snapshotBefore = service.buildSnapshot();
       if (key === 'language') service.applyStep({ language: value });
       if (key === 'surface') service.applyStep({ surface: value });
-      if (key === 'learning') service.applyStep({ allowLearning: /^(sim|yes|true|1|on)$/i.test(value) });
+      if (key === 'learning') service.applyStep({ allowLearning: value === 'learning:on' || value === 'true' || value === 'on' });
       const home = this.owner.buildHome(command);
       const summary = service.needsOnboarding()
-        ? service.buildSnapshot().nextPrompt || snapshotBefore.nextPrompt || 'Continue o setup.'
+        ? service.buildSnapshot().nextPrompt || snapshotBefore.nextPrompt || 'Continue setup.'
         : service.buildSnapshot().welcomeLines.join('\n');
       return {
         ok: true,
@@ -259,10 +308,10 @@ export class ExperienceActionDecisionSupport {
       };
     }
 
-    const learningMatch = /^learn:(approve|reject|forget):(.+)$/.exec(actionId);
+    const learningMatch = parseLearningActionId(actionId);
     if (learningMatch) {
-      if (learningMatch[1] === 'forget') {
-        const undo = this.owner.undoLearnedRuntimeItem(learningMatch[2], command.userId);
+      if (learningMatch.kind === 'forget') {
+        const undo = this.owner.undoLearnedRuntimeItem(learningMatch.value, command.userId);
         const snapshot = this.owner.buildHome(command);
         this.owner.attachRuntimeStateSnapshot(snapshot);
         return {
@@ -276,8 +325,8 @@ export class ExperienceActionDecisionSupport {
         };
       }
       const learning = await this.owner.learningOs.decide({
-        candidateId: learningMatch[2],
-        decision: learningMatch[1] === 'approve' ? 'approve' : 'reject',
+        candidateId: learningMatch.value,
+        decision: learningMatch.kind === 'approve' ? 'approve' : 'reject',
         workspace: command.workspace || null,
       });
       const snapshot = this.owner.buildHome(command);
@@ -285,8 +334,8 @@ export class ExperienceActionDecisionSupport {
         {
           ...command,
           learning: {
-            candidateId: learningMatch[2],
-            decision: learningMatch[1] === 'approve' ? 'approve' : 'reject',
+            candidateId: learningMatch.value,
+            decision: learningMatch.kind === 'approve' ? 'approve' : 'reject',
           },
         },
         learning,
@@ -303,9 +352,9 @@ export class ExperienceActionDecisionSupport {
       };
     }
 
-    const selfHealingMatch = /^self-healing:([^:]+):(.+)$/.exec(actionId);
+    const selfHealingMatch = parseSelfHealingActionId(actionId);
     if (selfHealingMatch) {
-      const healingAction = selfHealingMatch[2] || '';
+      const healingAction = selfHealingMatch.action;
       if (healingAction.includes('configure-provider')) {
         return this.owner.finalizeCommandResult(
           command,
@@ -349,9 +398,9 @@ export class ExperienceActionDecisionSupport {
       });
     }
 
-    const healingCancelMatch = /^healing:cancel:(.+)$/.exec(actionId);
+    const healingCancelMatch = parseActionCardId(actionId, ['healing:cancel']);
     if (healingCancelMatch) {
-      const targetRunId = healingCancelMatch[1] || command.actionCardDecision?.cardId || null;
+      const targetRunId = healingCancelMatch.value || command.actionCardDecision?.cardId || null;
       defaultZavorthSpeculativeAutonomyCancellationRegistry.requestCancel(targetRunId, 'experience-action-card');
       const snapshot = this.owner.buildHome(command);
       return {
@@ -432,22 +481,11 @@ export class ExperienceActionDecisionSupport {
     plan: ReturnType<NaturalCommandRouterService['route']>,
   ): 'provider-setup' | 'channel-setup' | null {
     if (plan.kind === 'provider-setup' || plan.kind === 'channel-setup') return plan.kind;
-    const text = normalizeKey(command.text);
-    const explicitSetup =
-      command.intent === 'setup' || /\b(connect|configure|setup|pair|use)\b/.test(command.text.toLowerCase());
-    if (!explicitSetup) return null;
-    if (
-      /\b(openai|gemini|google|anthropic|claude|openrouter|ollama|lmstudio|groq|mistral|deepseek|provider|model|api-key|key)\b/.test(
-        text,
-      )
-    ) {
+    const intent = String(command.intent || '');
+    if (intent === 'setup:provider') {
       return 'provider-setup';
     }
-    if (
-      /\b(telegram|discord|slack|signal|whatsapp|matrix|email|teams|line|irc|twitch|nostr|channel|surface|webhook|pair)\b/.test(
-        text,
-      )
-    ) {
+    if (intent === 'setup:channel') {
       return 'channel-setup';
     }
     return null;
@@ -514,8 +552,7 @@ export class ExperienceActionDecisionSupport {
         status: retryResult.ok ? 'applied' : 'failed',
         applied: true,
         fallbackProvider,
-        summary: retryResult.ok
-          ? `Provider fallback retried through ${fallbackProvider} after ${projection.issue}.`
+        summary: retryResult.ok ? `Provider fallback retried through ${fallbackProvider} after ${projection.issue}.`
           : `Provider fallback through ${fallbackProvider} was attempted but still failed.`,
       });
       return retryResult.ok ? retryResult : firstResult;
@@ -610,10 +647,8 @@ export class ExperienceActionDecisionSupport {
       )
       .slice(0, 3)
       .map((receipt) => {
-        const target = receipt.issue.startsWith('channel_')
-          ? 'channel'
-          : receipt.issue.startsWith('provider_')
-            ? 'provider'
+        const target = receipt.issue.startsWith('channel_') ? 'channel'
+          : receipt.issue.startsWith('provider_') ? 'provider'
             : receipt.issue === 'sandbox_unavailable'
               ? 'sandbox'
               : receipt.issue === 'runtime_unavailable'

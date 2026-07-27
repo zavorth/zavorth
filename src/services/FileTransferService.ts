@@ -138,8 +138,7 @@ export class FileTransferService {
     const write = request.direction !== 'export' || request.destination.kind === 'workspace-path';
     return {
       allowed: true,
-      reason: external
-        ? 'External transfer is planned only and requires operator approval.'
+      reason: external ? 'External transfer is planned only and requires operator approval.'
         : 'Workspace/artifact transfer is governed by artifact-first policy.',
       requiresApproval: external || write || request.overwrite === true,
       redacted: true,

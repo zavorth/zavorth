@@ -19,7 +19,7 @@ export class SecurityEngine {
   public static sanitizeIntent(prompt: string): void {
     for (const regex of DESTRUCTIVE_REGEX) {
       if (regex.test(prompt)) {
-        throw new Error('SanitizationBlock: Intencao bloqueada por conter padroes destrutivos.');
+        throw new Error('SanitizationBlock: intent blocked because it contains destructive patterns.');
       }
     }
   }
@@ -31,7 +31,7 @@ export class SecurityEngine {
         const issues = error.issues
           .map((entry) => `${entry.path.join('.')}: ${entry.message}`)
           .join(', ');
-        throw new Error(`SchemaValidationBlock: parametros invalidos. Detalhes: ${issues}`);
+        throw new Error(`SchemaValidationBlock: invalid parameters. Details: ${issues}`);
       }
       throw new Error('SchemaValidationBlock: unknown validation error.');
     }
@@ -73,7 +73,7 @@ export class SecurityEngine {
 
     const app = String(params.appName || '').toLowerCase().trim();
     if (!app || UNSAFE_OS_ARGUMENT_PATTERN.test(app)) {
-      throw new Error(`SandboxBlock: application '${app}' contem caracteres inseguros.`);
+      throw new Error(`SandboxBlock: application '${app}' contains caracteres inseguros.`);
     }
 
     if (isBlockedSystemExecutable(app)) {
@@ -117,7 +117,7 @@ export class SecurityEngine {
       this.validateFileAccess(target.filePath);
     }
     if (target.scope === 'policy-allowlist' && !target.matchedAllowlist) {
-      throw new Error('SandboxBlock: host Playwright sem allowlist valida.');
+      throw new Error('SandboxBlock: host Playwright without allowlist valida.');
     }
   }
 
@@ -131,7 +131,7 @@ export class SecurityEngine {
     if (!isAllowed) {
       throw new Error(
         `SandboxBlock: entity_id '${entityId}' does not have an allowed prefix. `
-        + `Prefixos validos: ${ALLOWED_HA_ENTITY_PREFIXES.join(', ')}`,
+        + `Valid prefixes: ${ALLOWED_HA_ENTITY_PREFIXES.join(', ')}`,
       );
     }
   }
@@ -145,7 +145,7 @@ export class SecurityEngine {
     try {
       hostname = new URL(broker).hostname;
     } catch (error: unknown) {throw new Error(
-        `SandboxBlock: MQTT broker '${broker}' possui URL invalida.`,
+        `SandboxBlock: MQTT broker '${broker}' has an invalid URL.`,
       );
     }
 
@@ -161,7 +161,7 @@ export class SecurityEngine {
 
     throw new Error(
       `SandboxBlock: MQTT broker '${broker}' is not local. `
-      + 'Apenas localhost e redes privadas sao permitidos.',
+      + 'only localhost e redes privadas sao permitidos.',
     );
   }
 }

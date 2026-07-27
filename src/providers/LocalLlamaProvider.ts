@@ -158,8 +158,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
 
         // Only send the "tools" field when native tool support is known to work.
         // The prompt fallback is safer for small local models.
-        // payload.tools = ...
-
+        // payload.tools = ?
         try {
             const res = await safeFetch(url, {
                 method: 'POST',
@@ -167,7 +166,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                 body: JSON.stringify(payload),
                 signal: options?.signal,
             }, {
-                serviceName: 'Local Llama provider',
+                serviceName: 'local Llama provider',
                 allowLoopback: true,
             });
 
@@ -176,7 +175,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                 throw new Error(`LLM Error: [${res.status}] ${errText}`);
             }
 
-            const data = await readSafeJsonResponse<LocalLlamaResponseData>(res, 'Local Llama provider');
+            const data = await readSafeJsonResponse<LocalLlamaResponseData>(res, 'local Llama provider');
             const choice = data.choices[0];
             const message = choice.message;
 
@@ -192,13 +191,13 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                 }
             } else if (message.content && message.content.includes('tool_calls')) {
                 try {
-                    const cleanedContent = message.content.replace(/```json\n?|```/g, '').trim();
+                    const cleanedContent = message.content.replace(/```json\n...|```/g, '').trim();
                     const parsed = JSON.parse(cleanedContent);
                     if (parsed.tool_calls) {
                         toolCalls = parsed.tool_calls;
                     }
                 } catch (error: unknown) {// Not valid JSON or does not contain tool_calls.
-      logger.warn('[Local Llama] JSON parse failed', error);
+      logger.warn('[local Llama] JSON parse failed', error);
     }
             }
 
@@ -230,7 +229,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                 windowsHide: true,
             });
             child.unref();
-        } catch (error: unknown) {logger.warn('[Local Llama] process execution failed', error);
+        } catch (error: unknown) {logger.warn('[local Llama] process execution failed', error);
     return;
   }
 
@@ -256,7 +255,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                 allowLoopback: true,
             });
             return response.ok;
-        } catch (error: unknown) {logger.warn('[Local Llama] network request failed', error); return false; }
+        } catch (error: unknown) {logger.warn('[local Llama] network request failed', error); return false; }
     }
 
     private isLocalOllamaUrl(): boolean {
@@ -264,7 +263,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
             const url = new URL(this.baseUrl);
             const host = url.hostname.toLowerCase();
             return host === 'localhost' || host === '127.0.0.1' || host === '::1';
-        } catch (error: unknown) {logger.warn('[Local Llama] operation failed', error); return false; }
+        } catch (error: unknown) {logger.warn('[local Llama] operation failed', error); return false; }
     }
 
     private getNativeOllamaBaseUrl(): string {

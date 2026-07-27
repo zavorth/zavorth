@@ -118,7 +118,7 @@ export type ZavorthApprovedMutationExecutionReceipt = {
   actionKind: ZavorthMutableExternalActionKind;
   status: ZavorthApprovedMutationExecutionReceiptStatus;
   auditAuthority: 'zavorth-audit-receipt';
-  simulated: true;
+  dryRun: true;
   redacted: true;
   sideEffectFree: true;
   approvedMutationHarnessCreated: true;
@@ -344,7 +344,7 @@ function buildReceipt(
     actionKind: source.actionKind,
     status,
     auditAuthority: 'zavorth-audit-receipt',
-    simulated: true,
+    dryRun: true,
     redacted: true,
     sideEffectFree: true,
     approvedMutationHarnessCreated: true,

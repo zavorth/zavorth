@@ -162,8 +162,7 @@ export function formatCapabilityOsRouteDecision(decision: ZavorthCapabilityOsRou
     eyebrow: 'Router',
     eyebrowTone: toneForRisk(decision.decision.riskLevel),
     title: 'Capability Decision',
-    summary: selected
-      ? `Selected ${selected.label} because ${compact(decision.decision.reason, 80)}`
+    summary: selected ? `Selected ${selected.label} because ${compact(decision.decision.reason, 80)}`
       : 'Kept supervised conversation because no capability passed the threshold.',
     mode: 'compact',
     showWordmark: false,

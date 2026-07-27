@@ -25,38 +25,38 @@ export function buildWorkspaceStrategyMessage(
   }
 
   if (taskKind !== 'unknown') {
-    lines.push(`- Tipo estimado da tarefa atual: ${taskKind}.`);
+    lines.push(`- Tipo estimado da task current: ${taskKind}.`);
   }
   if (taskSubtype !== 'unknown' && taskSubtype !== 'general') {
-    lines.push(`- Subtipo estimado da tarefa atual: ${taskSubtype}.`);
+    lines.push(`- Subtipo estimado da task current: ${taskSubtype}.`);
   }
-  lines.push(`- Rota operacional desta execucao: ${executionProfile.intentDecision.executionRoute}.`);
+  lines.push(`- Operational route for this execution: ${executionProfile.intentDecision.executionRoute}.`);
   lines.push(
-    `- Provider preferencial desta tarefa: ${executionProfile.providerName}${executionProfile.allowFallback && executionProfile.fallbackOrder.length > 0 ? ` | fallback: ${executionProfile.fallbackOrder.join(', ')}` : ''}.`,
+    `- Provider preferencel desta task: ${executionProfile.providerName}${executionProfile.allowFallback && executionProfile.fallbackOrder.length > 0 ? ` | fallback: ${executionProfile.fallbackOrder.join(', ')}` : ''}.`,
   );
   if (executionProfile.modelName) {
-    lines.push(`- Modelo preferencial desta tarefa: ${executionProfile.modelName}.`);
+    lines.push(`- Modelo preferencel desta task: ${executionProfile.modelName}.`);
   }
   lines.push(
-    `- Perfil de profundidade: ${executionProfile.depthProfile}; intensidade de ferramentas: ${executionProfile.toolingProfile}.`,
+    `- Perfil de profundidade: ${executionProfile.depthProfile}; intensidade de tools: ${executionProfile.toolingProfile}.`,
   );
-  lines.push(`- Curadoria de ferramentas: ${executionProfile.toolSelectionProfile}.`);
-  lines.push(`- Formato de entrega esperado: ${executionProfile.deliveryProfile}.`);
-  lines.push(`- Rigor de verificaction final: ${executionProfile.verificationProfile}.`);
+  lines.push(`- Curadoria de tools: ${executionProfile.toolSelectionProfile}.`);
+  lines.push(`- Expected delivery format: ${executionProfile.deliveryProfile}.`);
+  lines.push(`- Final verification rigor: ${executionProfile.verificationProfile}.`);
   if (executionProfile.preferredToolNames.length > 0) {
-    lines.push(`- Ferramentas priorizadas para esta tarefa: ${executionProfile.preferredToolNames.join(', ')}.`);
+    lines.push(`- Tools priorizadas para this task: ${executionProfile.preferredToolNames.join(', ')}.`);
   }
   if (executionProfile.blockedToolNames.length > 0) {
-    lines.push(`- Evite ou nao tente usar estas tools nesta tarefa: ${executionProfile.blockedToolNames.join(', ')}.`);
+    lines.push(`- Avoid or do not try to use these tools in this task: ${executionProfile.blockedToolNames.join(', ')}.`);
   }
   if (executionProfile.skillDecision.primarySkill) {
     lines.push(
-      `- Skill sugerida para conduzir a tarefa: @${executionProfile.skillDecision.primarySkill.name} -> ${executionProfile.skillDecision.primarySkill.description}.`,
+      `- Skill sugerida para conduzir a task: @${executionProfile.skillDecision.primarySkill.name} -> ${executionProfile.skillDecision.primarySkill.description}.`,
     );
   }
   if (executionProfile.skillDecision.supportingSkills.length > 0) {
     lines.push(
-      `- Skills de apoio desta execucao: ${executionProfile.skillDecision.supportingSkills.map((entry) => `@${entry.name}`).join(', ')}.`,
+      `- Supporting skills for this execution: ${executionProfile.skillDecision.supportingSkills.map((entry) => `@${entry.name}`).join(', ')}.`,
     );
   }
   if (executionProfile.skillDecision.rationale.length > 0) {
@@ -85,12 +85,12 @@ export function buildWorkspaceStrategyMessage(
   const subtypePreferredExecutor = String(subtypeRecommendation.preferred_executor || '').trim();
   if (subtypePreferredExecutor) {
     lines.push(
-      `- Para o subtipo ${taskSubtype}, priorize ${subtypePreferredExecutor} como melhor aposta (${String(subtypeRecommendation.success_count || 0)} sucesso(s) recentes).`,
+      `- Para o subtipo ${taskSubtype}, priorize ${subtypePreferredExecutor} como melhor afterta (${String(subtypeRecommendation.success_count || 0)} recent success(es)).`,
     );
   }
   if (subtypeRecommendation.repeated_failure_executor && subtypeRecommendation.repeated_failure_summary) {
     lines.push(
-      `- Para o subtipo ${taskSubtype}, evite repetir ${String(subtypeRecommendation.repeated_failure_executor)} quando o contexto lembrar a falha: ${String(subtypeRecommendation.repeated_failure_summary)}.`,
+      `- Para o subtipo ${taskSubtype}, evite repetir ${String(subtypeRecommendation.repeated_failure_executor)} when o contexto lembrar a failure: ${String(subtypeRecommendation.repeated_failure_summary)}.`,
     );
   }
   const kindRecommendation = toGraphRecord(
@@ -101,7 +101,7 @@ export function buildWorkspaceStrategyMessage(
   const kindPreferredExecutor = String(kindRecommendation.preferred_executor || '').trim();
   if (kindPreferredExecutor && !subtypePreferredExecutor) {
     lines.push(
-      `- Para tarefas do tipo ${taskKind}, priorize ${kindPreferredExecutor} como ponto de partida (${String(kindRecommendation.success_count || 0)} sucesso(s) recentes).`,
+      `- Para tarefas do tipo ${taskKind}, priorize ${kindPreferredExecutor} como ponto de partida (${String(kindRecommendation.success_count || 0)} recent success(es)).`,
     );
   }
   if (
@@ -110,7 +110,7 @@ export function buildWorkspaceStrategyMessage(
     !subtypeRecommendation.repeated_failure_executor
   ) {
     lines.push(
-      `- Para esse tipo de tarefa, evite repetir ${String(kindRecommendation.repeated_failure_executor)} quando o contexto estiver parecido com a falha: ${String(kindRecommendation.repeated_failure_summary)}.`,
+      `- Para esse tipo de task, evite repetir ${String(kindRecommendation.repeated_failure_executor)} when o contexto estiver parecido com a failure: ${String(kindRecommendation.repeated_failure_summary)}.`,
     );
   }
 
@@ -120,7 +120,7 @@ export function buildWorkspaceStrategyMessage(
   const topExecutor = toGraphRecord(successfulExecutors[0]);
   if (topExecutor.executor && !kindPreferredExecutor) {
     lines.push(
-      `- Se nao houver sinal especifico para esta tarefa, priorize a estrategia associada a ${String(topExecutor.executor)} (${String(topExecutor.count || 0)} sucesso(s) recentes).`,
+      `- If there is no specific signal for this task, prioritize the strategy associated with ${String(topExecutor.executor)} (${String(topExecutor.count || 0)} recent success(es)).`,
     );
   }
 
@@ -130,7 +130,7 @@ export function buildWorkspaceStrategyMessage(
   const topFailure = toGraphRecord(repeatedFailures[0]);
   if (topFailure.executor && topFailure.summary && !kindRecommendation.repeated_failure_executor) {
     lines.push(
-      `- Se nao houver historico especifico desta tarefa, evite repetir a abordagem que falhou recentemente: ${String(topFailure.executor)} -> ${String(topFailure.summary)}.`,
+      `- If there is no specific history for this task, avoid repeating the recently failed approach: ${String(topFailure.executor)} -> ${String(topFailure.summary)}.`,
     );
   }
 
@@ -141,7 +141,7 @@ export function buildWorkspaceStrategyMessage(
         .slice(0, 3)
     : [];
   if (approvedPaths.length > 0) {
-    lines.push(`- Se precisar operar em arquivos, prefira primeiro estes caminhos ja aprovados: ${approvedPaths.join(', ')}.`);
+    lines.push(`- If file operations are needed, prefer these already-approved paths first: ${approvedPaths.join(', ')}.`);
   }
 
   const scripts = toGraphRecord(workspaceProfile.scripts);
@@ -175,7 +175,7 @@ export function buildWorkspaceStrategyMessage(
         .slice(0, 4)
     : [];
   if (instructionFile) {
-    lines.push(`- O workspace possui um ZAVORTH.md ativo em ${instructionFile}.`);
+    lines.push(`- O workspace possui um ZAVORTH.md active em ${instructionFile}.`);
   }
   if (instructionSummary) {
     lines.push(`- Resumo do ZAVORTH.md: ${instructionSummary}.`);
@@ -196,8 +196,8 @@ export function buildWorkspaceStrategyMessage(
         .slice(0, 4)
     : [];
   if (workspaceHooks.length > 0) {
-    lines.push(`- Hooks operacionais declarados no workspace: ${workspaceHooks.join(' | ')}.`);
-    lines.push('- Antes de concluir tarefas estruturais, considere respeitar os hooks before-complete e before-publish quando eles existirem.');
+    lines.push(`- Operational hooks declared in the workspace: ${workspaceHooks.join(' | ')}.`);
+    lines.push('- before de concluir tarefas estruturais, considere respeitar os hooks before-complete e before-publish when eles existirem.');
   }
 
   const workspaceCommands = Array.isArray(workspaceProfile.workspace_commands)
@@ -212,15 +212,15 @@ export function buildWorkspaceStrategyMessage(
         .slice(0, 4)
     : [];
   if (workspaceCommands.length > 0) {
-    lines.push(`- Comandos reutilizaveis do workspace: ${workspaceCommands.join(' | ')}.`);
-    lines.push('- Se um comando reutilizavel do workspace encaixar bem no objetivo, prefira manter a intencao e o formato desse atalho.');
+    lines.push(`- Reusable workspace commands: ${workspaceCommands.join(' | ')}.`);
+    lines.push('- If a reusable workspace command fits the objective well, prefer preserving the intent and format of that shortcut.');
   }
 
   if (lines.length === 1) {
     return null;
   }
 
-  lines.push('- Use essas heuristicas para escolher ferramentas, escopo e verificacoes antes de responder.');
+  lines.push('- Use structured workspace signals to choose tools, scope, and verification before responding.');
   return {
     role: 'system',
     content: lines.join('\n'),

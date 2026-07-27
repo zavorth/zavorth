@@ -115,7 +115,7 @@ function zavorthControlClassicClientOverviewMeshNodes() {
             (entry) =>
               '<li>' +
               escapeHtml((entry.capabilityId || 'capability') + ' (' + (entry.status || 'n/a') + ')') +
-              (entry.resultSummary ? ' - ' + escapeHtml(entry.resultSummary) : '') +
+              (entry.resultSummary ? ' ? ' + escapeHtml(entry.resultSummary) : '') +
               '</li>',
           )
           .join('')
@@ -136,7 +136,7 @@ function zavorthControlClassicClientOverviewMeshNodes() {
       '</div><small>Total visible</small></div>' +
       '<div class="metric-card"><strong>Pareados</strong><div>' +
       escapeHtml(String(summary.paired || 0)) +
-      '</div><small>Confianca pronta</small></div>' +
+      '</div><small>Confianca ready</small></div>' +
       '<div class="metric-card"><strong>Pendentes</strong><div>' +
       escapeHtml(String(summary.pending || 0)) +
       '</div><small>Pairing em aberto</small></div>' +
@@ -145,10 +145,9 @@ function zavorthControlClassicClientOverviewMeshNodes() {
       '</div><small>Heartbeat recente</small></div>' +
       '<div class="metric-card"><strong>Perfis</strong><div>' +
       escapeHtml(String(recommendedProfiles.length || 0)) +
-      '</div><small>Sugestoes ativas</small></div>' +
+      '</div><small>Active suggestions</small></div>' +
       '</div>' +
-      (selected
-        ? '<div class="sidecar-card" style="margin-bottom:16px;"><strong>Node em foco: ' +
+      (selected ? '<div class="sidecar-card" style="margin-bottom:16px;"><strong>Node em foco: ' +
           escapeHtml(selected.label || selected.id) +
           '</strong>' +
           '<small>' +
@@ -161,15 +160,14 @@ function zavorthControlClassicClientOverviewMeshNodes() {
           escapeHtml(
             approvedCapabilityIds.length > 0
               ? String(approvedCapabilityIds.length) + '/' + String(declaredCapabilityIds.length || 0)
-              : 'sem restricao explicita',
+              : 'without restricao explicit',
           ) +
           ' - <a href="/app" target="_blank" rel="noreferrer">Abrir no /app</a></small>' +
-          (selectedMaintenance?.supported
-            ? '<small>Maintenance: ' +
+          (selectedMaintenance?.supported ? '<small>Maintenance: ' +
               escapeHtml(
                 (selectedMaintenance.latestAction || 'doctor') + ' / ' + (selectedMaintenance.latestStatus || 'n/a'),
               ) +
-              (selectedMaintenance.recoverKind ? ' - recover ready' : '') +
+              (selectedMaintenance.recoverKind ? ' ? recover ready' : '') +
               '</small>'
             : '') +
           '<small>Host: ' +
@@ -178,19 +176,17 @@ function zavorthControlClassicClientOverviewMeshNodes() {
           escapeHtml(selected.lastSeenAt || 'not published yet') +
           '</small></div>'
         : '') +
-      (selectedActivity
-        ? '<div class="sidecar-card" style="margin-bottom:16px;"><strong>Fila e historico</strong>' +
+      (selectedActivity ? '<div class="sidecar-card" style="margin-bottom:16px;"><strong>Queue and history</strong>' +
           '<small>' +
           escapeHtml(selectedActivity.narrative?.headline || 'No recent activity.') +
           '</small>' +
           '<small>' +
           escapeHtml(selectedActivity.narrative?.operatorSummary || 'No additional summary.') +
           '</small>' +
-          (selectedMaintenance?.supported
-            ? '<small>Maintenance recente: ' +
+          (selectedMaintenance?.supported ? '<small>Maintenance recente: ' +
               escapeHtml(
                 selectedMaintenance.latestResultSummary ||
-                  (selectedMaintenance.recoverKind ? 'recover operacional available' : 'sem resumo adicional'),
+                  (selectedMaintenance.recoverKind ? 'recover operational available' : 'without additional summary'),
               ) +
               '</small>'
             : '') +
@@ -208,7 +204,7 @@ function zavorthControlClassicClientOverviewMeshNodes() {
       '<div class="sidecar-card" style="margin-bottom:16px;"><strong>Perfis recomendados</strong><ul class="cockpit-list">' +
       recommendedProfileItems +
       '</ul></div>' +
-      '<div class="sidecar-card"><strong>Panorama operacional</strong><div class="cockpit-action-list">' +
+      '<div class="sidecar-card"><strong>Panorama operational</strong><div class="cockpit-action-list">' +
       entryItems +
       '</div></div>';
   }

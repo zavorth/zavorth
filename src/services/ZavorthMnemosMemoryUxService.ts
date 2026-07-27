@@ -153,7 +153,7 @@ export class ZavorthMnemosMemoryUxService {
         primaryCommand: 'npm run mnemos:query -- "<query>"',
         commands: [
           command('cli', 'Query wiki memory', 'zavorth memory mnemos query "<query>"', 'Use top-k trusted wrapper context.', false),
-          command('telegram', 'Query wiki memory', '/mnemos query <texto>', 'Show a compact recall path.', false),
+          command('telegram', 'Query wiki memory', '/mnemos query <text>', 'Show a compact recall path.', false),
         ],
       },
       {

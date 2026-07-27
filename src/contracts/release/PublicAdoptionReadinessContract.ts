@@ -105,13 +105,13 @@ export const PUBLIC_ADOPTION_REQUIRED_DOCS = [
   },
   {
     path: 'docs/product-direction.md',
-    phrase: 'Readiness checkpoint 2',
+    phrase: 'Readiness item 2',
     label: 'public baseline 46-52',
   },
   {
     path: 'docs/product-direction.md',
-    phrase: 'Readiness checkpoint 3 - Public Adoption Readiness',
-    label: 'Readiness checkpoint 3 planning',
+    phrase: 'Readiness item 3 - Public Adoption Readiness',
+    label: 'Readiness item 3 planning',
   },
 ] as const;
 
@@ -171,7 +171,7 @@ export const PUBLIC_ADOPTION_RISKS: PublicAdoptionReadinessRisk[] = [
     id: 'website-not-present',
     title: 'The public site may not exist in a new workspace.',
     severity: 'medium',
-    mitigation: 'Use ZAVORTH_WEBSITE_REPO_ROOT or fixtures until Readiness checkpoint 4 closes deploy/preview.',
+    mitigation: 'Use ZAVORTH_WEBSITE_REPO_ROOT or fixtures until Readiness item 4 closes deploy and preview coverage.',
     evidencePath: 'scripts/website-public.ts',
   },
   {
@@ -192,7 +192,7 @@ export const PUBLIC_ADOPTION_RISKS: PublicAdoptionReadinessRisk[] = [
     id: 'release-drift',
     title: 'Tag/release can point to the wrong commit if the flow is manual.',
     severity: 'high',
-    mitigation: 'Readiness checkpoint 9 requires v1.x policy and tags pointing to the final commit on main.',
+    mitigation: 'Readiness item 9 requires v1.x policy and tags pointing to the final commit on main.',
     evidencePath: 'docs/product-direction.md',
   },
 ];

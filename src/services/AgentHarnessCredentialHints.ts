@@ -63,8 +63,7 @@ export function buildProviderCredentialHints(): CredentialHint[] {
       id: check.id,
       ok: present,
       present,
-      message: present
-        ? `${check.id} credentials present (values not shown).`
+      message: present ? `${check.id} credentials present (values not shown).`
         : `${check.id} credentials missing — LLM/provider plugins will soft-fail until configured.`,
       setup: present ? undefined : check.setup,
     };
@@ -78,8 +77,7 @@ export function buildChannelCredentialHints(): CredentialHint[] {
       id: check.id,
       ok: present,
       present,
-      message: present
-        ? `${check.id} token present (values not shown).`
+      message: present ? `${check.id} token present (values not shown).`
         : `${check.id} not configured — channel send will soft-fail until a token is set.`,
       setup: present ? undefined : check.setup,
     };

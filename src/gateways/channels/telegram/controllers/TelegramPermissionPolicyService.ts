@@ -118,17 +118,17 @@ export class TelegramPermissionPolicyService {
     const clean = String(input || '').trim().toLowerCase();
     if (clean === 'persistent') return 'persistent';
     if (clean === 'workspace') return 'workspace';
-    if (clean === 'session' || clean === 'conversation' || clean === 'conversa') return 'session';
+    if (clean === 'session' || clean === 'conversation') return 'session';
     return 'once';
   }
 
   public normalizePermissionStatus(input: string): PermissionStatus | 'all' {
     const clean = String(input || '').trim().toLowerCase();
-    if (clean === 'todos' || clean === 'all') return 'all';
-    if (clean === 'approved' || clean === 'aprovado' || clean === 'aprovados') return 'approved';
-    if (clean === 'rejected' || clean === 'rejeitado' || clean === 'rejeitados') return 'rejected';
-    if (clean === 'expired' || clean === 'expirado' || clean === 'expirados') return 'expired';
-    if (clean === 'pending' || clean === 'pending' || clean === 'pendentes') return 'pending';
+    if (clean === 'all') return 'all';
+    if (clean === 'approved') return 'approved';
+    if (clean === 'rejected') return 'rejected';
+    if (clean === 'expired') return 'expired';
+    if (clean === 'pending') return 'pending';
     return 'pending';
   }
 

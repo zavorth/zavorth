@@ -35,7 +35,7 @@ export class ReasoningEffortService {
         description: 'General conversation',
         default_effort: 'low',
         config: { effort: 'low', max_tokens: 2048, temperature: 0.7, top_p: 0.9, chain_of_thought: false, self_reflection: false, step_by_step: false, timeout_ms: 30000 },
-        examples: ['Hello', 'How are you?', 'Tell me a joke'],
+        examples: ['Hello', 'How are you...', 'Tell me a joke'],
       },
       {
         task_type: 'code_generation',
@@ -84,14 +84,14 @@ export class ReasoningEffortService {
         description: 'Planning which tools to use',
         default_effort: 'medium',
         config: { effort: 'medium', max_tokens: 2048, temperature: 0.1, top_p: 0.9, chain_of_thought: true, self_reflection: false, step_by_step: true, timeout_ms: 15000 },
-        examples: ['What tools should I use?', 'Plan this workflow', 'How to approach this task'],
+        examples: ['What tools should I use...', 'Plan this workflow', 'How to approach this task'],
       },
       {
         task_type: 'fast_answer',
         description: 'Quick factual answers',
         default_effort: 'low',
         config: { effort: 'low', max_tokens: 512, temperature: 0.3, top_p: 0.9, chain_of_thought: false, self_reflection: false, step_by_step: false, timeout_ms: 10000 },
-        examples: ['What time is it?', 'What is 2+2?', 'Quick question'],
+        examples: ['What time is it...', 'What is 2+2...', 'Quick question'],
       },
       {
         task_type: 'creative_writing',

@@ -207,7 +207,7 @@ export function saveSyncedPricing(data: PricingByProvider): void {
   const db = getDbInstance();
   const del = db.prepare("DELETE FROM key_value WHERE namespace = 'pricing_synced'");
   const insert = db.prepare(
-    "INSERT INTO key_value (namespace, key, value) VALUES ('pricing_synced', ?, ?)"
+    "INSERT INTO key_value (namespace, key, value) VALUES ('pricing_synced', ..., ...)"
   );
   const tx = db.transaction(() => {
     del.run();

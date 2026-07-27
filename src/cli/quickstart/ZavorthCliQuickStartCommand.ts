@@ -42,8 +42,7 @@ async function runStaticQuickStart(input: RunZavorthCliQuickStartInput): Promise
     now: input.now,
     mutationPlane: input.mutationPlane,
   });
-  const output = input.json
-    ? `${JSON.stringify(snapshot, null, 2)}\n`
+  const output = input.json ? `${JSON.stringify(snapshot, null, 2)}\n`
     : `${renderZavorthCliQuickStart(snapshot)}\n`;
 
   return {
@@ -133,7 +132,7 @@ async function promptLocale(
   localeDir: string,
   log: (line: string) => void,
 ): Promise<string> {
-  log(`  ${i18n.t('quickstart.locale.detected', { fallback: `Detected language: ${detected}`, vars: { locale: detected } })}`);
+  log(`  ${i18n.t('quickstart.locale.detected', { fallback: `Detected locale: ${detected}`, vars: { locale: detected } })}`);
   const answer = await rl.question(`  ${i18n.t('quickstart.locale.confirm_prompt', { fallback: 'Press Enter to confirm, or type a different language code:' })} `);
 
   if (!answer.trim()) {
@@ -159,7 +158,7 @@ async function promptProfile(
   rl: readline.Interface,
   log: (line: string) => void,
 ): Promise<string> {
-  log('  Which profile best describes you?');
+  log('  Which profile best describes you...');
   log('    1. Personal     — Daily help, maximum autonomy, simple defaults');
   log('    2. Creator       — Content creation, research, drafts');
   log('    3. Developer     — Code, repos, tests, subagents');
@@ -200,7 +199,7 @@ async function promptProvider(
     log(`  ${i18n.t('quickstart.provider.option_manual', { fallback: `  ${detected.length + 1}. Enter API key manually`, vars: { index: String(detected.length + 1) } })}`);
     log('');
 
-    const choice = await rl.question(`  ${i18n.t('quickstart.provider.select_prompt', { fallback: 'Which provider would you like to use?' })} `);
+    const choice = await rl.question(`  ${i18n.t('quickstart.provider.select_prompt', { fallback: 'Which provider would you like to use...' })} `);
     const idx = parseInt(choice, 10) - 1;
 
     if (idx >= 0 && idx < detected.length) {
@@ -229,7 +228,7 @@ async function promptManualProvider(
   i18n: ZavorthI18nService,
   log: (line: string) => void,
 ): Promise<{ provider: string | null; model: string | null }> {
-  const providerName = await rl.question(`  ${i18n.t('quickstart.provider.select_prompt', { fallback: 'Which provider would you like to use?' })} `);
+  const providerName = await rl.question(`  ${i18n.t('quickstart.provider.select_prompt', { fallback: 'Which provider would you like to use...' })} `);
   if (!providerName.trim()) {
     log('');
     return { provider: null, model: null };
@@ -252,12 +251,12 @@ async function promptIdentity(
   i18n: ZavorthI18nService,
   log: (line: string) => void,
 ): Promise<{ agentName: string; userName: string; tone: string }> {
-  const agentName = await rl.question(`  ${i18n.t('quickstart.identity.agent_name_prompt', { fallback: 'What would you like to call me?' })} `);
+  const agentName = await rl.question(`  ${i18n.t('quickstart.identity.agent_name_prompt', { fallback: 'What would you like to call me...' })} `);
   const resolvedAgentName = agentName.trim() || i18n.t('quickstart.identity.agent_name_default', { fallback: 'Zavorth' });
 
-  const userName = await rl.question(`  ${i18n.t('quickstart.identity.user_name_prompt', { fallback: 'What should I call you?' })} `);
+  const userName = await rl.question(`  ${i18n.t('quickstart.identity.user_name_prompt', { fallback: 'What should I call you...' })} `);
 
-  log(`  ${i18n.t('quickstart.identity.tone_prompt', { fallback: 'How should I sound?' })}`);
+  log(`  ${i18n.t('quickstart.identity.tone_prompt', { fallback: 'How should I sound...' })}`);
   log(`  ${i18n.t('quickstart.identity.tone_options', { fallback: '  1. Casual    2. Professional    3. Friendly    4. Technical' })}`);
   const toneChoice = await rl.question(`  > `);
   const toneMap: Record<string, string> = {

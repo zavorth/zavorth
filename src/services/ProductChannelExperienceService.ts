@@ -90,7 +90,7 @@ export class ProductChannelExperienceService {
         visible: true,
         legacy: false,
         entry: controlEntry,
-        description: 'Superficie principal do produto para conversar, aprovar e acompanhar o Zavorth.',
+        description: 'surface principal do produto para conversar, approve e acompanhar o Zavorth.',
         hiddenReason: null,
       },
       {
@@ -103,9 +103,8 @@ export class ProductChannelExperienceService {
         visible: true,
         legacy: false,
         entry: '/start',
-        description: telegramReady
-          ? 'Primeiro canal externo recomendado para retomar, aprovar e disparar workflows.'
-          : 'Primeiro canal externo recomendado quando voce quiser falar com o Zavorth fora da web.',
+        description: telegramReady ? 'Primeiro canal external recomendado para resume, approve e trigger workflows.'
+          : 'First recommended external channel when operating Zavorth outside the web.',
         hiddenReason: null,
       },
       {
@@ -118,9 +117,8 @@ export class ProductChannelExperienceService {
         visible: !isBasicMode,
         legacy: false,
         entry: '/status',
-        description: 'Canal remoto adicional, indicado so quando o runtime realmente pedir isso.',
-        hiddenReason: isBasicMode
-          ? 'Oculto por padrao nos modos chat e assistant para manter a experiencia simples.'
+        description: 'Channel remote adicional, indicado so when o runtime realmente pedir isso.',
+        hiddenReason: isBasicMode ? 'Hidden by default in chat and assistant modes to keep the experience simple.'
           : null,
       },
       {
@@ -133,7 +131,7 @@ export class ProductChannelExperienceService {
         visible: true,
         legacy: false,
         entry: cliEntry,
-        description: 'Superficie rapida para diagnostico, automacao e fallback local.',
+        description: 'Fast surface for diagnostics, automation, and local fallback.',
         hiddenReason: null,
       },
     ];
@@ -142,38 +140,35 @@ export class ProductChannelExperienceService {
       {
         id: 'web-only',
         label: 'Web only',
-        description: 'Comece pelo /zavorthControl e mantenha os canais extras desligados ate sentir necessidade real.',
+        description: 'Comece pelo /zavorthControl e mantenha os channels extras desligados ate sentir necessidade real.',
         recommended: !telegramReady,
         steps: [
-          'Abra o zavorthControl.',
-          'Converse e aprove tudo por ela.',
-          'Deixe outros canais dormindo por padrao.',
+          'Open zavorthControl.',
+          'Chat and approve everything through it.',
+          'Deixe outros channels dormindo por default.',
         ],
       },
       {
         id: 'web+telegram',
         label: 'Web + Telegram',
-        description: telegramReady
-          ? 'Mantenha o /zavorthControl como centro e use Telegram como primeira extensao de bolso.'
-          : 'Depois de estabilizar o /zavorthControl, conecte Telegram como primeiro canal externo recomendado.',
+        description: telegramReady ? 'Keep /zavorthControl as the center and use Telegram as the first pocket extension.'
+          : 'after de estabilizar o /zavorthControl, conecte Telegram como primeiro canal external recomendado.',
         recommended: telegramReady,
         steps: [
-          'Use o zavorthControl como superficie principal.',
-          'Conecte Telegram para retomar sessoes e approvals.',
-          'Ligue canais secundarios so quando a tarefa pedir.',
+          'Use zavorthControl as the primary surface.',
+          'Connect Telegram to summarize sessions and approvals.',
+          'Ligue channels secundarios so when a task pedir.',
         ],
       },
     ];
 
     const notes = [
-      'A experiencia oficial comeca em /zavorthControl.',
-      telegramReady
-        ? 'Telegram ja esta pronto como primeiro canal externo.'
-        : 'Telegram e o primeiro canal externo recomendado quando voce quiser sair do fluxo web-only.',
-      isBasicMode
-        ? 'Discord, Slack, WhatsApp e outros canais ficam ocultos por padrao nos modos basicos.'
-        : 'Canais secundarios continuam disponiveis, mas Telegram segue sendo o primeiro caminho externo recomendado.',
-      'CLI continua disponivel para operador/power user; /app e /classic foram removidas.',
+      'The official experience starts in /zavorthControl.',
+      telegramReady ? 'Telegram already is ready como primeiro canal external.'
+        : 'Telegram is the first recommended external channel when leaving the web-only flow.',
+      isBasicMode ? 'Discord, Slack, WhatsApp e outros channels ficam ocultos por default in basic modes.'
+        : 'Secondary channels remain available, but Telegram remains the first recommended external path.',
+      'CLI continua available para operador/power user; /app e /classic foram removidas.',
     ];
 
     return {

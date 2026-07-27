@@ -39,7 +39,7 @@ export class ZavorthControlOperationsIntegrationRouteService {
         !deps.ensureAuthorized(
           req,
           res,
-          'Acao do Integration Hub permitida apenas localmente ou com token valido.',
+          'Integration Hub action allowed only locally or with a valid token.',
           403,
         )
       ) {
@@ -51,7 +51,7 @@ export class ZavorthControlOperationsIntegrationRouteService {
         const integrationId = String(body?.integrationId || '').trim();
         const actionId = String(body?.actionId || '').trim();
         if (!integrationId || !actionId) {
-          deps.writeJson(res, { ok: false, error: 'integrationId e actionId sao obrigatorios.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'integrationId e actionId sao requireds.' }, 400);
           return true;
         }
 
@@ -71,7 +71,7 @@ export class ZavorthControlOperationsIntegrationRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Falha ao executar a acao do Integration Hub.') },
+          { ok: false, error: errorMessage(error, 'Failure ao run a action do Integration Hub.') },
           400,
         );
       }

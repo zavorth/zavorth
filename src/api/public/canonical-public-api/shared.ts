@@ -92,10 +92,8 @@ export class CanonicalPublicApiSharedSupport {
   ): SessionDTO {
     const latestStatus = String(entry.latestStatus || '').trim().toLowerCase();
     const status: SessionDTO['status'] =
-      /error|failed|rejected/.test(latestStatus)
-        ? 'error'
-        : /closed|done|completed|archived/.test(latestStatus)
-          ? 'archived'
+      /error|failed|rejected/.test(latestStatus) ? 'error'
+        : /closed|done|completed|archived/.test(latestStatus) ? 'archived'
           : 'active';
 
     return {
@@ -112,8 +110,7 @@ export class CanonicalPublicApiSharedSupport {
     const origin = entry.origin || (
       entry.source === 'learning-plane'
         ? 'learned-local'
-        : entry.registrySource
-          ? 'trusted-third-party'
+        : entry.registrySource ? 'trusted-third-party'
           : 'official'
     );
     return origin === 'quarantined'

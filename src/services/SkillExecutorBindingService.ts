@@ -120,7 +120,7 @@ export const KNOWN_NATIVE_TOOL_NAMES: readonly string[] = [
 
 export type SkillExecutorBindingOptions = {
   registry?: SkillToolRegistryLike | null;
-  /** When true and no registry, use KNOWN_NATIVE_TOOL_NAMES. Default true. */
+  /** When true and in the registry, use KNOWN_NATIVE_TOOL_NAMES. Default true. */
   useKnownCatalog?: boolean;
   aliasMap?: Record<string, string>;
   gatewayFallbacks?: string[];

@@ -344,16 +344,16 @@ export class ExecutionLifecycleReadModelService {
     const blockedSignals = summary.blocked + summary.failed + summary.approvalRequired;
     return {
       headline: summary.recent > 0
-        ? `Lifecycle de execucao com ${summary.recent} evento(s) recente(s).`
-        : 'Lifecycle de execucao aguardando os primeiros eventos correlacionados.',
+        ? `Execution lifecycle with ${summary.recent} recent event(s).`
+        : 'Execution lifecycle waiting for the first correlated events.',
       operatorSummary: [
         `${summary.runs} run(s), ${summary.traces} trace(s).`,
         `${summary.approvals} approval(s), ${summary.artifacts} artifact(s), ${summary.replays} replay(s).`,
-        blockedSignals > 0 ? `${blockedSignals} sinal(is) pedem atencao.` : 'Sem bloqueios recentes no lifecycle.',
+        blockedSignals > 0 ? `${blockedSignals} sinal(is) need attention.` : 'Sem bloqueios recentes no lifecycle.',
       ].join(' '),
       nextAction: blockedSignals > 0
-        ? 'Revisar approvals, falhas e bloqueios correlacionados por runId.'
-        : 'Manter correlaction traceId/runId nas proximas execucoes.',
+        ? 'Revisar approvals, failures e bloqueios correlacionados por runId.'
+        : 'Manter correlation traceId/runId nas next executions.',
     };
   }
 

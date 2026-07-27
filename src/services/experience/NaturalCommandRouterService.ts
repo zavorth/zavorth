@@ -291,8 +291,7 @@ export class NaturalCommandRouterService {
           id: 'code.sandbox-first',
           label: 'Use sandbox-first execution',
           kind: 'natural',
-          command: requestText
-            ? `zavorth ask "${requestText.replace(/"/g, '\\"')}"`
+          command: requestText ? `zavorth ask "${requestText.replace(/"/g, '\\"')}"`
             : 'zavorth ask "review this workspace"',
           reason: 'Lets the LLM plan, use safe tools, rehearse mutations and request approval only when needed.',
         }),

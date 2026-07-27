@@ -13,7 +13,7 @@ export class FileDeliveryArchiveSupport {
     await this.addDirectoryToZip(zip, entry.absolutePath, entry.baseName, shouldSkipAbsolutePath, () => {
       fileCounter += 1;
       if (fileCounter > MAX_ZIP_FILES) {
-        throw new Error(`A pasta ${entry.baseName} tem arquivos demais para compactacao rapida.`);
+        throw new Error(`Folder ${entry.baseName} has too many files for fast compression.`);
       }
     });
 

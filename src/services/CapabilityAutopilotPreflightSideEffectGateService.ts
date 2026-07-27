@@ -182,7 +182,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
         gate: 'capability-autopilot-preflight-apply-adapter',
         title: 'Preflight Dispatch Apply Adapter',
         reason:
-          'Depois do side-effect gate, o proximo passo e criar adapters de apply que recebam uma decisao autorizada e ainda emitam receipt antes de invocar qualquer superficie real.',
+          'After the side-effect gate, the next step is creating apply adapters that receive an approved decision and emit a receipt before invoking any real surface.',
       },
       metadata: {
         gate: 'capability-autopilot-preflight-side-effect-gate',
@@ -213,7 +213,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -274,9 +274,9 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
     return [
       this.check(
         'capability-autopilot-preflight-side-effect:coverage',
-        'decisao por adapter',
+        'decision por adapter',
         decisions.length === source.envelopes.length && blocked.length === 0 ? 'pass' : 'fail',
-        'Cada envelope de adapter precisa passar pelo gate de side effect.',
+        'Each adapter envelope must pass through the side-effect gate.',
         [
           `envelopes=${source.envelopes.length}`,
           `decisions=${decisions.length}`,
@@ -286,7 +286,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
       ),
       this.check(
         'capability-autopilot-preflight-side-effect:no-invocation',
-        'sem side effect invocado',
+        'without side effect invocado',
         decisions.every((decision) =>
           decision.sideEffectInvoked === false &&
           decision.adapterInvoked === false &&
@@ -294,7 +294,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
           decision.shouldRunAutomatically === false &&
           decision.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'O gate autoriza ou bloqueia; ele ainda nao invoca nenhuma superficie real.',
+        'The gate authorizes or blocks; it still does not invoke any real surface.',
         decisions.map((decision) =>
           `${decision.sourceSurface}:${decision.sourceAction?.kind || '<none>'}:authorized=${decision.sideEffectAuthorized}:invoked=${decision.sideEffectInvoked}`,
         ),
@@ -303,7 +303,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
         'capability-autopilot-preflight-side-effect:approval-gate',
         'approval preservado',
         approvalsMissing.length === 0 ? 'pass' : 'fail',
-        'Actions que exigem approval precisam carregar evidencia de approval antes de side effect.',
+        'Actions that require approval must carry approval evidence before side effects.',
         approvalsMissing.length === 0
           ? decisions
             .filter((decision) => decision.requiresApproval)
@@ -314,7 +314,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
         'capability-autopilot-preflight-side-effect:validation-gate',
         'validation preservado',
         validationsMissing.length === 0 ? 'pass' : 'fail',
-        'Actions que exigem validation precisam carregar evidencia de validation antes de side effect.',
+        'Actions that require validation must carry validation evidence before side effects.',
         validationsMissing.length === 0
           ? decisions
             .filter((decision) => decision.requiresValidation)
@@ -323,9 +323,9 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
       ),
       this.check(
         'capability-autopilot-preflight-side-effect:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Gate publico de side effect nao pode reintroduzir intent cru.',
+        'Public side-effect gate cannot reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],
@@ -338,9 +338,9 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
     status: CapabilityPreflightSideEffectGateStatus,
   ): string {
     if (status === 'blocked') {
-      return `Side-effect gate bloqueou ${envelope.sourceAction?.kind || '<sem-action>'}; nada foi invocado.`;
+      return `Side-effect gate bloqueou ${envelope.sourceAction?.kind || '<without-action>'}; nada foi invocado.`;
     }
-    return `Side-effect gate autorizou ${envelope.sourceAction?.kind || '<sem-action>'} para proxima etapa; nada foi invocado.`;
+    return `Side-effect gate approved ${envelope.sourceAction?.kind || '<without-action>'} for the next step; nothing was invoked.`;
   }
 
   private check(

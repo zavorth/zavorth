@@ -377,7 +377,7 @@ function redactSensitiveText(value: unknown, maxChars = MAX_STDIO_CHARS): string
   text = text.replace(/\bAKIA[0-9A-Z]{16}\b/g, '[redacted-secret]');
   text = text.replace(/\bBearer\s+[A-Za-z0-9._~+/=-]{12,}\b/gi, 'Bearer [redacted-secret]');
   text = text.replace(
-    /\b((?:api[_-]?key|token|secret|password|passwd|credential)\s*[:=]\s*["']?)([^"'\s]{6,})/gi,
+    /\b((?:api[_-]...key|token|secret|password|passwd|credential)\s*[:=]\s*["']...)([^"'\s]{6,})/gi,
     '$1[redacted-secret]',
   );
   return text;
@@ -397,7 +397,7 @@ function sha256(value: string): string {
 }
 
 function looksLikeSecret(value: string): boolean {
-  return /\b(?:\.env|id_rsa|credentials\.json|secrets?\.json|token|secret|password|api[_-]?key|sk-[a-z0-9_-]{12,})\b/i.test(value);
+  return /\b(?:\.env|id_rsa|credentials\.json|secrets...\.json|token|secret|password|api[_-]...key|sk-[a-z0-9_-]{12,})\b/i.test(value);
 }
 
 function countOccurrences(value: string, search: string): number {
@@ -494,7 +494,7 @@ export class ZavorthSpeculativeAutonomyService {
         id,
         workspaceRoot,
         round: 0,
-        reason: `Workspace especulativo invalido, ausente ou simbolico: ${workspaceRoot}.`,
+        reason: `Speculative workspace is invalid, missing, or a symbolic link: ${workspaceRoot}.`,
       });
       return this.resultFromAttempts({
         id,
@@ -745,7 +745,7 @@ export class ZavorthSpeculativeAutonomyService {
       status,
       summary: status === 'approved'
         ? `Speculative rehearsal approved with ${uniqueTouchedFiles.length} changed file(s).`
-        : 'Ensaio especulativo precisa de correcao antes de virar plano aprovavel.',
+        : 'Speculative rehearsal needs correction before it can become an approvable plan.',
       touchedFiles: uniqueTouchedFiles,
       diffText,
       diffHash: diffText ? sha256(diffText) : null,
@@ -787,7 +787,7 @@ export class ZavorthSpeculativeAutonomyService {
     const elapsedMs = Math.max(0, this.now().getTime() - input.controlState.startedAt.getTime());
     if (elapsedMs > input.controlState.maxElapsedMs) {
       input.controlState.timedOut = true;
-      return `Auto-healing interrompido: budget de tempo excedido (${elapsedMs}ms de ${input.controlState.maxElapsedMs}ms).`;
+      return `Auto-healing interrupted: time budget exceeded (${elapsedMs}ms of ${input.controlState.maxElapsedMs}ms).`;
     }
 
     const registryCancelled = Boolean(
@@ -842,7 +842,7 @@ export class ZavorthSpeculativeAutonomyService {
         ? redactSensitiveText(failedValidation.stderr || failedValidation.stdout || failedValidation.command, 800)
         : input.finalAttempt?.summary || null,
       proposedCorrection: input.status === 'needs_correction'
-        ? 'Auto-healing esgotou as tentativas disponiveis sem validar o diff final.'
+        ? 'Auto-healing exhausted available attempts without validating the final diff.'
         : null,
       validationCommand: input.validationCommands[0] || input.finalAttempt?.validationResults[0]?.command || null,
       startedAt: input.controlState.startedAt.toISOString(),
@@ -938,8 +938,8 @@ export class ZavorthSpeculativeAutonomyService {
       approvalReason: 'Changes were rehearsed in a temporary sandbox and need approval before touching the real workspace.',
       validationPlan: input.validationCommands,
       rollbackPlan: [
-        'Nenhuma alteracao foi aplicada ao workspace real durante o ensaio.',
-        'Para cancelar, descarte o plano de mutacao e remova o diretorio especulativo registrado no payload.',
+        'No changes were applied to the real workspace during the rehearsal.',
+        'To cancel, discard the mutation plan and remove the speculative directory registered in the payload.',
       ],
       resourceImpact: {
         diskMb: Math.max(1, Math.ceil(Buffer.byteLength(input.finalAttempt.diffText || '', 'utf8') / (1024 * 1024))),
@@ -992,8 +992,7 @@ export class ZavorthSpeculativeAutonomyService {
       return 'Super Zavorth could not prepare a speculative rehearsal.';
     }
     if (status === 'approved') {
-      return mutationPlan
-        ? `Sandbox approved, final diff generated, and plan ${mutationPlan.id} created for approval.`
+      return mutationPlan ? `Sandbox approved, final diff generated, and plan ${mutationPlan.id} created for approval.`
         : 'Sandbox approved and final diff generated without applying to the real workspace.';
     }
     if (status === 'blocked') {
@@ -1029,7 +1028,7 @@ export class ZavorthSpeculativeAutonomyService {
         findings.push({
           id: `validation-failed-${sha256(result.command).slice(0, 8)}`,
           severity: 'high',
-          summary: `Validacao falhou: ${result.command}.`,
+          summary: `Validation failed: ${result.command}.`,
         });
       } else if (result.status === 'skipped') {
         findings.push({
@@ -1050,7 +1049,7 @@ export class ZavorthSpeculativeAutonomyService {
       findings.push({
         id: 'sandbox-copy-skipped',
         severity: 'info',
-        summary: `${input.copyStats.skipped.length} entrada(s) pesadas ou irrelevantes foram ignoradas na copia do sandbox.`,
+        summary: `${input.copyStats.skipped.length} heavy or irrelevant entry/entries were skipped in the sandbox copy.`,
       });
     }
     if (input.sandboxBackend.validationExecution === 'host') {
@@ -1090,7 +1089,7 @@ export class ZavorthSpeculativeAutonomyService {
       canProceed: input.canProceed,
       scope: 'super-zavorth-speculative-autonomy',
       reasons: input.canProceed
-        ? ['Diff final foi gerado em sandbox e o critico aprovou as evidencias.']
+        ? ['Final diff was generated in sandbox and the critical reviewer approved the evidence.']
         : ['Speculative diff is not ready for approval/application yet.'],
       warnings: input.warnings || [],
       blockers: input.blockers || [],
@@ -1107,7 +1106,7 @@ export class ZavorthSpeculativeAutonomyService {
       })),
       nextActions: input.canProceed
         ? ['Request plan approval before applying to the real workspace.']
-        : ['Corrigir o executor/codigo no sandbox e repetir a validacao.'],
+        : ['Fix the executor/code in the sandbox and repeat validation.'],
     };
   }
 

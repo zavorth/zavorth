@@ -78,7 +78,7 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'preview-plan', label: 'Preview plan', mode: 'preview', summary: 'Show moves and rollback evidence.' },
       { id: 'approval', label: 'Approval', mode: 'approval_required', summary: 'Ask before any move or rename.' },
     ],
-    naturalAliases: ['organize files', 'folder', 'files', 'arquivos', 'pasta'],
+    naturalAliases: ['organize files', 'folder', 'files', 'arquivos', 'folder'],
   },
   {
     id: 'review-this-repository',
@@ -99,7 +99,7 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'analyze', label: 'Analyze', mode: 'preview', summary: 'Find risks and next actions.' },
       { id: 'receipt', label: 'Issue receipt', mode: 'receipt', summary: 'Record files read and findings.' },
     ],
-    naturalAliases: ['repo', 'repository', 'code review', 'review project', 'codigo', 'código', 'repositório'],
+    naturalAliases: ['repo', 'repository', 'code review', 'review project', 'code'],
   },
   {
     id: 'fix-a-bug-safely',
@@ -162,7 +162,7 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'report', label: 'Build report', mode: 'preview', summary: 'Summarize status and decisions.' },
       { id: 'receipt', label: 'Issue receipt', mode: 'receipt', summary: 'Record evidence and omissions.' },
     ],
-    naturalAliases: ['status report', 'business report', 'relatório', 'empresa'],
+    naturalAliases: ['status report', 'business report', 'report'],
   },
   {
     id: 'audit-sensitive-change',
@@ -183,7 +183,7 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'risk', label: 'Assess risk', mode: 'preview', summary: 'Classify policy and rollback needs.' },
       { id: 'approval', label: 'Approval', mode: 'approval_required', summary: 'Ask before any mutation.' },
     ],
-    naturalAliases: ['audit', 'security', 'sensitive', 'risk', 'segurança', 'auditoria'],
+    naturalAliases: ['audit', 'security', 'sensitive', 'risk'],
   },
   {
     id: 'connect-a-channel',
@@ -246,7 +246,7 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'diagnose', label: 'Diagnose', mode: 'preview', summary: 'Explain what was seen.' },
       { id: 'receipt', label: 'Issue receipt', mode: 'receipt', summary: 'Record artifacts used.' },
     ],
-    naturalAliases: ['computer', 'pc', 'screen', 'screenshot', 'computador', 'tela'],
+    naturalAliases: ['computer', 'pc', 'screen', 'screenshot', 'computador', 'screen'],
   },
   {
     id: 'look-at-my-phone',
@@ -432,5 +432,5 @@ function buildCategories(catalog: ZavorthGuidedMissionCard[]): ZavorthGuidedMiss
 }
 
 function normalize(value: unknown): string {
-  return String(value ?? '').trim().toLowerCase();
+  return String(value || '').trim().toLowerCase();
 }

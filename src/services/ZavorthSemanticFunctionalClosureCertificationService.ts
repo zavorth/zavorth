@@ -69,8 +69,7 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
       && closure.summary.releaseAllowed
       && closure.summary.machineReadableReceipt
       && closure.summary.liveExternalIoPerformed === false
-      && closure.summary.secretValuesSerialized === false
-        ? 'passed'
+      && closure.summary.secretValuesSerialized === false ? 'passed'
         : 'failed';
 
     return {
@@ -320,8 +319,7 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
       kind: 'zavorthControl-policy',
       status: closure.zavorthControl.status !== 'fail'
         && closure.zavorthControl.categoryRows.length === closure.items.length
-        && closure.zavorthControl.receiptRows.length === closure.items.length
-          ? 'covered'
+        && closure.zavorthControl.receiptRows.length === closure.items.length ? 'covered'
           : 'gap',
       priority: 'P1',
       sourceStatus: closure.zavorthControl.status,
@@ -392,8 +390,7 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
     return this.claim({
       kind: 'machine-readable-policy',
       status: closure.summary.machineReadableReceipt
-        && closure.receipts.every((receipt) => receipt.machineReadable)
-          ? 'covered'
+        && closure.receipts.every((receipt) => receipt.machineReadable) ? 'covered'
           : 'gap',
       priority: 'P0',
       expectedBehavior: 'Functional closure emits machine-readable receipts for every capability family.',
@@ -414,8 +411,7 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
       status: closure.summary.liveExternalIoPerformed === false
         && closure.summary.secretValuesSerialized === false
         && closure.receipts.every((receipt) => receipt.liveExternalIoPerformed === false)
-        && closure.receipts.every((receipt) => receipt.secretValuesSerialized === false)
-          ? 'covered'
+        && closure.receipts.every((receipt) => receipt.secretValuesSerialized === false) ? 'covered'
           : 'gap',
       priority: 'P0',
       expectedBehavior: 'Functional closure command performs no live external I/O and serializes no secret values.',
@@ -436,8 +432,7 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
       kind: 'artifact-receipt-policy',
       status: closure.policy.artifactFirstReceipts
         && closure.receipts.every((receipt) => receipt.artifactFirst)
-        && closure.summary.receiptBackedItems === closure.items.length
-          ? 'covered'
+        && closure.summary.receiptBackedItems === closure.items.length ? 'covered'
           : 'gap',
       priority: 'P0',
       expectedBehavior: 'Every closure item is artifact-first and receipt-backed.',
@@ -518,8 +513,7 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
       this.claim({
         kind: 'unsafe-closure-policy',
         status: closure.summary.liveExternalIoPerformed === false
-          && closure.summary.secretValuesSerialized === false
-            ? 'rejected'
+          && closure.summary.secretValuesSerialized === false ? 'rejected'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'The architecture must reject live external I/O and secret serialization in final semantic closure.',
@@ -558,8 +552,7 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
       {
         id: 'optional-packs-are-explicit',
         status: optionalItems.length > 0
-          && optionalItems.every((item) => item.status === 'pass' && item.receiptCount > 0)
-            ? 'passed'
+          && optionalItems.every((item) => item.status === 'pass' && item.receiptCount > 0) ? 'passed'
             : 'failed',
         evidence: [
           `optionalPacks=${optionalItems.length}`,
@@ -596,8 +589,7 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
         status: closure.releaseGate.releaseAllowed
           && closure.releaseGate.blockers.length === 0
           && closure.summary.liveExternalIoPerformed === false
-          && closure.summary.secretValuesSerialized === false
-            ? 'passed'
+          && closure.summary.secretValuesSerialized === false ? 'passed'
             : 'failed',
         evidence: [
           `releaseAllowed=${closure.releaseGate.releaseAllowed}`,

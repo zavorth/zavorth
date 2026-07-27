@@ -98,8 +98,8 @@ export function formatSkillMcpQuarantineSnapshot(
     `- trusted: ${snapshot.summary.trusted}`,
     `- safe: ${snapshot.summary.safe}`,
     `- quarantined: ${snapshot.summary.quarantined}`,
-    `- tools bloqueadas: ${snapshot.summary.blockedToolCount}`,
-    `- auto-trust externo: ${String(!snapshot.policy.externalImportsNeverTrustedAutomatically)}`,
+    `- tools blocked: ${snapshot.summary.blockedToolCount}`,
+    `- auto-trust external: ${String(!snapshot.policy.externalImportsNeverTrustedAutomatically)}`,
     `- next step: ${snapshot.nextSafeAction}`,
   ];
 
@@ -109,9 +109,9 @@ export function formatSkillMcpQuarantineSnapshot(
       lines.push(
         `- ${entry.kind}:${entry.id} [${entry.trustState}/${entry.riskLevel}]`,
         `  origem: ${entry.origin.source}${entry.origin.ref ? ` (${entry.origin.ref})` : ''}`,
-        `  tools: ${entry.toolNames.length > 0 ? entry.toolNames.join(', ') : 'sem tools declaradas'}`,
+        `  tools: ${entry.toolNames.length > 0 ? entry.toolNames.join(', ') : 'without tools declaradas'}`,
         `  review: ${entry.actions.reviewCommand}`,
-        `  promover: ${entry.actions.promoteCommand}`,
+        `  promote: ${entry.actions.promoteCommand}`,
       );
     }
   } else {
@@ -123,7 +123,7 @@ export function formatSkillMcpQuarantineSnapshot(
   lines.push('- quarantine cannot be removed by natural language');
   lines.push('- promotion requires explicit operator action');
 
-  lines.push('', 'Superficies');
+  lines.push('', 'surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Review: ${snapshot.surface.reviewHint}`);

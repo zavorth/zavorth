@@ -267,7 +267,7 @@ function runShow(args: string[], json: boolean): number {
   if (event.artifacts.length) {
     console.log('  artifacts:');
     for (const art of event.artifacts) {
-      console.log(`    - ${art.type}/${art.id}${art.label ? ` (${art.label})` : ''}`);
+      console.log(`    ? ${art.type}/${art.id}${art.label ? ` (${art.label})` : ''}`);
     }
   }
   return 0;
@@ -276,8 +276,7 @@ function runShow(args: string[], json: boolean): number {
 function runExport(args: string[], jsonFlag: boolean): number {
   const service = createService();
   const formatRaw = (readOption(args, '--format') || (jsonFlag ? 'json' : 'markdown')).toLowerCase();
-  const format = formatRaw === 'json' || formatRaw === 'md' || formatRaw === 'markdown'
-    ? (formatRaw === 'md' ? 'markdown' : formatRaw)
+  const format = formatRaw === 'json' || formatRaw === 'md' || formatRaw === 'markdown' ? (formatRaw === 'md' ? 'markdown' : formatRaw)
     : 'markdown';
   const outPath = readOption(args, '--out') || readOption(args, '-o');
   const kind = readOption(args, '--kind') as ProofEventKind | null;

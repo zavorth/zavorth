@@ -68,7 +68,7 @@ export class SharedSurfaceOperationsCommandPack {
     const normalizedArgs = String(args || '').trim();
     const lower = normalizedArgs.toLowerCase();
 
-    if (!normalizedArgs || lower === 'status' || lower === 'show' || lower === 'open' || lower === 'help' || lower === 'ajuda' || lower === '?') {
+    if (!normalizedArgs || lower === 'status' || lower === 'show' || lower === 'open' || lower === 'help' || lower === 'ajuda' || lower === '...') {
       const report = this.deps.hubControlPlaneService.renderReport({
         selectedId: null,
         query: null,
@@ -138,9 +138,7 @@ export class SharedSurfaceOperationsCommandPack {
         await ctx.reply(this.formatHubActionReply(execution));
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error || '');
-        const looksUnknownAction =
-          /nao encontrada|not found/i.test(message)
-          || /reading ['"]actions['"]/i.test(message);
+        const looksUnknownAction = error instanceof Error && error.name === 'UnknownActionError';
         if (!looksUnknownAction) {
           await ctx.reply(message || tSurface('error_hub_action'));
           return;
@@ -271,7 +269,7 @@ export class SharedSurfaceOperationsCommandPack {
     const normalizedArgs = String(args || '').trim();
     const lower = normalizedArgs.toLowerCase();
 
-    // Empty / status / list / help → home report (NaturalSlashConvention rewrites empty → status).
+    // Empty / status / list / help route to the home report.
     if (!normalizedArgs || lower === 'status' || lower === 'show' || lower === 'open' || lower === 'list' || lower === 'ls') {
       await ctx.reply(this.renderOperationsReport(
         'schedule-status',
@@ -281,19 +279,18 @@ export class SharedSurfaceOperationsCommandPack {
       return;
     }
 
-    if (lower === 'help' || lower === 'ajuda' || lower === '?') {
+    if (lower === 'help' || lower === 'ajuda' || lower === '...') {
       await ctx.reply(this.renderOperationsReport(
         'schedule-help',
         tService('operations.governed_schedules'),
         [
-          'Schedule a recurring action (preview + governed approval).',
+          'Schedule a recurring action through the resolver (preview + governed approval).',
           '',
           '/schedule <request>',
-          '  Ex.: /schedule every 1h /status',
-          '  Ex.: /schedule todo dia as 9h verifique meus canais',
+          '  Describe the cadence and action naturally; the resolver builds the canonical schedule.',
           '',
           '/schedule',
-          '  → status of governed schedules',
+          '  -> status of governed schedules',
         ].join('\n'),
       ));
       return;
@@ -322,29 +319,24 @@ export class SharedSurfaceOperationsCommandPack {
       return;
     }
 
-    if (lower === 'help' || lower === 'ajuda' || lower === '?') {
+    if (lower === 'help' || lower === 'ajuda' || lower === '...') {
       await ctx.reply(this.renderOperationsReport(
         'report-help',
         tService('operations.governed_reports'),
         [
-          'Schedule a recurring report (preview + governed approval).',
+          'Schedule a recurring report through the resolver (preview + governed approval).',
           '',
           '/report <request>',
-          '  Ex.: /report every 6h ultimas noticias de IA',
-          '  Ex.: /report a cada 1h resumo do runtime',
+          '  Describe the cadence and report topic naturally.',
           '',
           '/report',
-          '  → status of governed report schedules',
+          '  -> status of governed report schedules',
         ].join('\n'),
       ));
       return;
     }
 
-    // Structured cadence + topic → deepresearch report intent.
-    const match = normalizedArgs.match(/^(every\s+\d+[mh]|a\s+cada\s+\d+\s*[mh]|todo\s+dia.*?\d{1,2}(?::\d{2})?\s*h?)\s+(.+)$/iu);
-    const intentText = match
-      ? `${match[1]} /deepresearch ${String(match[2] || '').trim()}`
-      : normalizedArgs;
+    const intentText = normalizedArgs;
 
     // Free-text primary path (with or without explicit cadence) still creates via automation plane.
     const execution = await this.deps.automationActionService.execute({
@@ -574,8 +566,7 @@ export class SharedSurfaceOperationsCommandPack {
       lines.push(
         '',
         `${tService('operations.plan_label')}: ${result.mutationPlan.id} (${result.mutationPlan.status || 'waiting_approval'}).`,
-        result.mutationPlan.approval?.permissionId
-          ? `Approval: ${result.mutationPlan.approval.permissionId}.`
+        result.mutationPlan.approval?.permissionId ? `Approval: ${result.mutationPlan.approval.permissionId}.`
           : tSurface('approval_pending'),
         `${tService('operations.apply_after_approval')}: /trust apply ${result.mutationPlan.id}`,
       );

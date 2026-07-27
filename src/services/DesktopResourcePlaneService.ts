@@ -74,7 +74,7 @@ export class DesktopResourcePlaneService {
     const lines = [
       'Desktop Resource Plane',
       '',
-      `Host: memoria ${snapshot.host.usedPhysicalMemoryMb}/${snapshot.host.totalVisibleMemoryMb} MB | carga ${snapshot.host.memoryLoadPercent ?? 'n/d'}% | postura ${snapshot.host.pressure}.`,
+      `Host: memory ${snapshot.host.usedPhysicalMemoryMb}/${snapshot.host.totalVisibleMemoryMb} MB | load ${snapshot.host.memoryLoadPercent ?? 'n/d'}% | posture ${snapshot.host.pressure}.`,
       `Totais: zavorth ${snapshot.totals.zavorthMemoryMb} MB | companions ${snapshot.totals.companionMemoryMb} MB | externos ${snapshot.totals.externalMemoryMb} MB.`,
       '',
       'Grupos em destaque:',
@@ -89,19 +89,19 @@ export class DesktopResourcePlaneService {
           .slice(0, 2)
           .map((action) => `${action.label}${action.requiresApproval ? ' (approval)' : ''}`)
           .join(', ');
-        lines.push(`  Acoes: ${actionPreview}`);
+        lines.push(`  Actions: ${actionPreview}`);
       }
     }
 
     if (snapshot.topConsumers.length > 0) {
-      lines.push('', 'Top processos:');
+      lines.push('', 'Top processs:');
       for (const item of snapshot.topConsumers.slice(0, 6)) {
         lines.push(`- ${item.label}: ${item.metrics.workingSetMb} MB | ${item.summary}`);
       }
     }
 
     if (snapshot.recommendations.length > 0) {
-      lines.push('', 'Recomendacoes:');
+      lines.push('', 'Recomendactions:');
       for (const recommendation of snapshot.recommendations.slice(0, 5)) {
         lines.push(`- ${recommendation}`);
       }
@@ -139,7 +139,7 @@ export class DesktopResourcePlaneService {
       return [];
     }
     const entries: unknown[] = [];
-    for (const line of fs.readFileSync(this.historyFilePath, 'utf8').split(/\r?\n/)) {
+    for (const line of fs.readFileSync(this.historyFilePath, 'utf8').split(/\r...\n/)) {
       const trimmed = line.trim();
       if (!trimmed) {
         continue;

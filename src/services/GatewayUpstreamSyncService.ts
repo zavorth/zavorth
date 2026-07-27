@@ -70,7 +70,7 @@ export class GatewayUpstreamSyncService {
   public async sync(): Promise<AIGatewayUpstreamSyncReport> {
     return this.runVendorAction('sync', ['status', '--target=AIGateway'], {
       status: 'inspected',
-      successSummary: 'Estado do upstream AIGateway sincronizado por inspeção segura.',
+      successSummary: 'AIGateway upstream state synchronized via safe inspection.',
       restartSidecar: false,
       runCompatDoctor: false,
     });
@@ -89,7 +89,7 @@ export class GatewayUpstreamSyncService {
   public async rollback(): Promise<AIGatewayUpstreamSyncReport> {
     return this.runVendorAction('rollback', ['rollback', '--target=AIGateway'], {
       status: 'rolled_back',
-      successSummary: 'AIGateway restaurado para o lock anterior e revalidado.',
+      successSummary: 'AIGateway restaurado para o lock anterior e revalidated.',
       restartSidecar: true,
       runCompatDoctor: true,
       autoRollback: false,
@@ -133,9 +133,8 @@ export class GatewayUpstreamSyncService {
             startedAt,
             finishedAt: new Date().toISOString(),
             command: this.renderCommand(toolkitArgs),
-            summary: compat.ok
-              ? 'Promocao falhou na compatibilidade; rollback automatico aplicado e ambiente revalidado.'
-              : 'Promocao falhou na compatibilidade e o rollback automatico nao restaurou um estado saudavel.',
+            summary: compat.ok ? 'Promotion failed compatibility; automatic rollback applied and environment revalidated.'
+              : 'Promotion failed compatibility and automatic rollback did not restore a healthy state.',
             output: `${output}\n\n[auto-rollback]\n${rollbackOutput}`.trim(),
             compat,
             rollbackApplied,
@@ -177,7 +176,7 @@ export class GatewayUpstreamSyncService {
         startedAt,
         finishedAt: new Date().toISOString(),
         command: this.renderCommand(toolkitArgs),
-        summary: `Falha ao ${action === 'sync' ? 'inspecionar' : action === 'promote' ? 'promover' : 'restaurar'} o upstream AIGateway.`,
+        summary: `Failure while ${action === 'sync' ? 'inspecting' : action === 'promote' ? 'promoting' : 'restoring'} the AIGateway upstream.`,
         output: '',
         compat: null,
         rollbackApplied,
@@ -211,7 +210,7 @@ export class GatewayUpstreamSyncService {
 
     const output = `${Buffer.concat(stdout).toString('utf8')}${Buffer.concat(stderr).toString('utf8')}`.trim();
     if (exitCode !== 0) {
-      throw new Error(output || `vendor-toolkit saiu com codigo ${exitCode}`);
+      throw new Error(output || `vendor-toolkit saiu with code ${exitCode}`);
     }
     return output;
   }
@@ -224,7 +223,7 @@ export class GatewayUpstreamSyncService {
       startedAt: '',
       finishedAt: '',
       command: this.renderCommand(['status', '--target=AIGateway']),
-      summary: 'Ainda nao existe relatorio de sync do AIGateway neste host.',
+      summary: 'There is no AIGateway sync report on this host yet.',
       output: '',
       compat: null,
       rollbackApplied: false,

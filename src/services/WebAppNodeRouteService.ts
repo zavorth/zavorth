@@ -86,7 +86,7 @@ export class WebAppNodeRouteService {
   ): Promise<boolean> {
     if (pathname === '/api/web/nodes' && req.method === 'GET') {
       if (!deps.nodeMesh) {
-        deps.writeJson(res, { ok: false, error: 'Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Node Mesh unavailable.' }, 503);
         return true;
       }
       const selectedNodeId = String(url.searchParams.get('selectedId') || '').trim() || null;
@@ -111,7 +111,7 @@ export class WebAppNodeRouteService {
 
     if (pathname === '/api/web/nodes/onboarding' && req.method === 'GET') {
       if (!deps.nodeMesh) {
-        deps.writeJson(res, { ok: false, error: 'Onboarding do Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Onboarding do Node Mesh unavailable.' }, 503);
         return true;
       }
       const selectedNodeId = String(url.searchParams.get('selectedId') || '').trim() || null;
@@ -152,8 +152,8 @@ export class WebAppNodeRouteService {
           res,
           {
             ok: false,
-            error: errorMessage(error, 'Manifesto do companion indisponivel.'),
-            actionHint: 'Rode npm run build antes de publicar o bundle oficial do companion.',
+            error: errorMessage(error, 'Manifesto do companion unavailable.'),
+            actionHint: 'Run npm run build before publishing the official bundle do companion.',
           },
           503,
         );
@@ -175,8 +175,8 @@ export class WebAppNodeRouteService {
           res,
           {
             ok: false,
-            error: errorMessage(error, 'Download do companion indisponivel.'),
-            actionHint: 'Rode npm run build antes de publicar o launcher oficial do companion.',
+            error: errorMessage(error, 'Download do companion unavailable.'),
+            actionHint: 'Run npm run build before publishing the official launcher do companion.',
           },
           503,
         );
@@ -187,7 +187,7 @@ export class WebAppNodeRouteService {
     if (pathname === '/api/web/nodes/doctor' && req.method === 'GET') {
       const recovery = this.buildRecoveryService(deps);
       if (!recovery) {
-        deps.writeJson(res, { ok: false, error: 'Doctor do Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Doctor do Node Mesh unavailable.' }, 503);
         return true;
       }
 
@@ -205,7 +205,7 @@ export class WebAppNodeRouteService {
     const activityNodeId = this.matchNodeScopedRoute(pathname, '/activity');
     if (activityNodeId && req.method === 'GET') {
       if (!deps.nodeMesh?.getNodeEntry || !deps.nodeMesh?.buildActivitySnapshot) {
-        deps.writeJson(res, { ok: false, error: 'Atividade do Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Atividade do Node Mesh unavailable.' }, 503);
         return true;
       }
 
@@ -256,7 +256,7 @@ export class WebAppNodeRouteService {
     const bootstrapNodeId = this.matchNodeScopedRoute(pathname, '/bootstrap');
     if (bootstrapNodeId && req.method === 'GET') {
       if (!deps.nodePairing?.buildBootstrapForNode || !deps.nodeMesh) {
-        deps.writeJson(res, { ok: false, error: 'Bootstrap do Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Bootstrap do Node Mesh unavailable.' }, 503);
         return true;
       }
 
@@ -287,13 +287,13 @@ export class WebAppNodeRouteService {
     const approvedCapabilitiesNodeId = this.matchNodeScopedRoute(pathname, '/approved-capabilities');
     if (approvedCapabilitiesNodeId && req.method === 'POST') {
       if (!deps.nodePairing?.setApprovedCapabilities || !deps.nodeMesh) {
-        deps.writeJson(res, { ok: false, error: 'Policy do Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Policy do Node Mesh unavailable.' }, 503);
         return true;
       }
 
       const body = await deps.readJsonBody(req);
       if (!Array.isArray(body.approvedCapabilityIds)) {
-        deps.writeJson(res, { ok: false, error: 'approvedCapabilityIds precisa ser um array.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'approvedCapabilityIds must be an array.' }, 400);
         return true;
       }
 
@@ -321,7 +321,7 @@ export class WebAppNodeRouteService {
 
     if (pathname === '/api/web/nodes/invoke' && req.method === 'POST') {
       if (!deps.nodeInvoke || !deps.nodeMesh) {
-        deps.writeJson(res, { ok: false, error: 'Invoke do Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Invoke do Node Mesh unavailable.' }, 503);
         return true;
       }
 
@@ -350,7 +350,7 @@ export class WebAppNodeRouteService {
 
     if (pathname === '/api/web/nodes/pairing-draft' && req.method === 'POST') {
       if (!deps.nodePairing || !deps.nodeMesh) {
-        deps.writeJson(res, { ok: false, error: 'Pairing do Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Pairing do Node Mesh unavailable.' }, 503);
         return true;
       }
 
@@ -388,7 +388,7 @@ export class WebAppNodeRouteService {
     if (pathname === '/api/web/nodes/recover' && req.method === 'POST') {
       const recovery = this.buildRecoveryService(deps);
       if (!recovery) {
-        deps.writeJson(res, { ok: false, error: 'Recover do Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Recover do Node Mesh unavailable.' }, 503);
         return true;
       }
 
@@ -416,7 +416,7 @@ export class WebAppNodeRouteService {
 
     if (pathname === '/api/web/nodes/pairing/approve' && req.method === 'POST') {
       if (!deps.nodePairing || !deps.nodeMesh) {
-        deps.writeJson(res, { ok: false, error: 'Pairing do Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Pairing do Node Mesh unavailable.' }, 503);
         return true;
       }
 
@@ -429,7 +429,7 @@ export class WebAppNodeRouteService {
         operatorSummary: String(body.operatorSummary || '').trim() || null,
       });
       if (!approved) {
-        deps.writeJson(res, { ok: false, error: 'Nao foi possivel validar o pairing informado.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'Could not validate the provided pairing.' }, 400);
         return true;
       }
 
@@ -447,7 +447,7 @@ export class WebAppNodeRouteService {
 
     if (pathname === '/api/web/nodes/pairing/revoke' && req.method === 'POST') {
       if (!deps.nodePairing || !deps.nodeMesh) {
-        deps.writeJson(res, { ok: false, error: 'Pairing do Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Pairing do Node Mesh unavailable.' }, 503);
         return true;
       }
 
@@ -457,7 +457,7 @@ export class WebAppNodeRouteService {
         String(body.reason || '').trim() || null,
       );
       if (!revoked) {
-        deps.writeJson(res, { ok: false, error: 'Nao foi possivel revogar o pairing informado.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'Could not revoke the provided pairing.' }, 400);
         return true;
       }
 
@@ -475,7 +475,7 @@ export class WebAppNodeRouteService {
 
     if (pathname === '/api/web/nodes/pairing/claim' && req.method === 'POST') {
       if (!deps.nodeHeartbeat || !deps.nodeMesh) {
-        deps.writeJson(res, { ok: false, error: 'Claim do Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Claim do Node Mesh unavailable.' }, 503);
         return true;
       }
 
@@ -490,7 +490,7 @@ export class WebAppNodeRouteService {
 
     if (pathname === '/api/web/nodes/heartbeat' && req.method === 'POST') {
       if (!deps.nodeHeartbeat || !deps.nodeMesh) {
-        deps.writeJson(res, { ok: false, error: 'Heartbeat do Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Heartbeat do Node Mesh unavailable.' }, 503);
         return true;
       }
 

@@ -41,7 +41,7 @@ export function collectActiveFocuses(tasks: Task[]): ActiveFocusAggregate[] {
     .map((task) => {
       const profile = classifyWorkspaceMemoryTaskProfile(task);
       const summary = normalizeWorkspaceMemoryOutcomeSummary(
-        String(task.result_summary || task.raw_message || task.normalized_message || task.command_type || 'atividade em andamento'),
+        String(task.result_summary || task.raw_message || task.normalized_message || task.command_type || 'atividade running'),
       );
 
       return {

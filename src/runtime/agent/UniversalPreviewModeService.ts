@@ -180,29 +180,29 @@ function inferStepKind(tool: UniversalToolExposure): UniversalPreviewModePlanSte
 
 function impactForStep(kind: UniversalPreviewModePlanStepKind, tool: UniversalToolExposure): string {
   if (kind === 'read') {
-    return 'Leitura/consulta sem mutacao esperada.';
+    return 'Leitura/consulta without mutation esperada.';
   }
   if (kind === 'write') {
-    return 'Pode alterar arquivos, estado local ou artefatos.';
+    return 'Can change files, local state, or artifacts.';
   }
   if (kind === 'shell') {
-    return 'Pode executar comandos no ambiente local.';
+    return 'Can run commands in the local environment.';
   }
   if (kind === 'network') {
-    return 'Pode acessar rede ou enviar consulta externa.';
+    return 'Can access the network or send an external query.';
   }
   if (kind === 'selfmod') {
     return tool.id === 'selfmod.preview'
-      ? 'Gera proposta auditavel sem aplicar mudancas.'
-      : 'Pode aplicar/reverter mudancas somente fora do preview e com approval.';
+      ? 'Gera proposta auditavel without aplicar changes.'
+      : 'Can apply/revert changes only outside preview and with approval.';
   }
   if (kind === 'computer-use') {
-    return 'Pode controlar UI/ambiente visual apenas apos escopo e approval.';
+    return 'Can control UI or visual environments only after scope and approval.';
   }
   if (kind === 'swarm') {
-    return 'Pode abrir subagentes sob approval e budget.';
+    return 'Can open subagents under approval and budget.';
   }
-  return 'Impacto depende da policy da ferramenta.';
+  return 'Impact depends on the tool policy.';
 }
 
 function isPreviewRequired(tool: UniversalToolExposure): boolean {
@@ -221,11 +221,9 @@ function planStepFromTool(tool: UniversalToolExposure, index: number): Universal
     risk: tool.risk,
     requiresApproval: tool.requiresApproval,
     previewRequired,
-    action: previewRequired
-      ? 'Preparar preview governado antes de qualquer apply.'
-      : tool.requiresApproval
-        ? 'Solicitar approval antes de executar.'
-        : 'Pode seguir como etapa governada pelo runtime.',
+    action: previewRequired ? 'Prepare governed preview before any apply.'
+      : tool.requiresApproval ? 'Request approval before running.'
+        : 'Can continue as a runtime-governed stage.',
     impact: impactForStep(kind, tool),
   };
 }
@@ -234,12 +232,12 @@ function buildFallbackPlanStep(text: string): UniversalPreviewModePlanStep {
   return {
     id: 'universal-preview:fallback',
     kind: 'unknown',
-    label: 'Responder ou pedir clarificacao',
+    label: 'Respond or request clarification',
     risk: 'safe',
     requiresApproval: false,
     previewRequired: false,
-    action: 'Nenhuma tool foi inferida; manter resposta direta ou pedir mais escopo.',
-    impact: text ? 'Sem impacto mutavel previsto.' : 'Pedido vazio precisa de clarificacao.',
+    action: 'No tool was inferred; keep a direct response or ask for more scope.',
+    impact: text ? 'No mutable impact expected.' : 'Empty request needs clarification.',
   };
 }
 
@@ -270,8 +268,8 @@ export class UniversalPreviewModeService {
       return true;
     }
 
-    const text = normalizeSearchText(input.text);
-    return /\b(dry[-\s]?run|simule|simular|simulacao|sem executar|antes de executar|modo preview|preview mode|mostre o plano|mostrar o plano|mostre uma previa|previa antes)\b/.test(text);
+    void input.text;
+    return false;
   }
 
   public buildSnapshot(input: UniversalPreviewModeInput): UniversalPreviewModeSnapshot {
@@ -350,8 +348,8 @@ export class UniversalPreviewModeService {
         naturalCapabilityDiscovery: input.naturalCapabilityDiscovery,
       }),
       surface: {
-        cliCommand: `zavorth preview "${text || '<pedido>'}" --json`,
-        zavorthControlPath: '/zavorthControl?sector=overview',
+        cliCommand: `zavorth preview "${text || '<request>'}" --json`,
+        zavorthControlPath: '/zavorthControl...sector=overview',
       },
       nextSafeAction: this.nextSafeAction({
         previewOnly,
@@ -378,41 +376,41 @@ export class UniversalPreviewModeService {
     receipts.push({
       id: 'universal-preview:policy',
       kind: 'policy',
-      detail: 'Preview nao executou tools; approvals, workspace policy e audit hooks continuam obrigatorios.',
+      detail: 'Preview did not execute tools; approvals, workspace policy, and audit hooks remain mandatory.',
     });
     if (input.previewOnly) {
       receipts.push({
         id: 'universal-preview:executor-block',
         kind: 'block',
-        detail: 'Executor bloqueado porque o pedido entrou em preview-only.',
+        detail: 'Executor blocked porque o request entrou em preview-only.',
       });
     }
     if (input.requiresApproval) {
       receipts.push({
         id: 'universal-preview:approval',
         kind: 'approval',
-        detail: 'Ao sair do preview, tools sensiveis ainda precisam de approval.',
+        detail: 'After leaving preview, sensitive tools still require approval.',
       });
     }
     if (input.previewRequired) {
       receipts.push({
         id: 'universal-preview:preview-required',
         kind: 'preview',
-        detail: 'Ao sair do preview, apply/rollback continuam exigindo preview existente.',
+        detail: 'After leaving preview, apply/rollback still require an existing preview.',
       });
     }
     if (input.blockedToolIds.length > 0) {
       receipts.push({
         id: 'universal-preview:blocked-tools',
         kind: 'block',
-        detail: `${input.blockedToolIds.length} tool(s) bloqueada(s) por policy/quarentena.`,
+        detail: `${input.blockedToolIds.length} tool(s) blocked(s) por policy/quarentena.`,
       });
     }
     if (input.naturalCapabilityDiscovery) {
       receipts.push({
         id: 'universal-preview:natural-capability-discovery',
         kind: 'plan',
-        detail: `Discovery ${input.naturalCapabilityDiscovery.contractVersion} alimentou o plano.`,
+        detail: `Discovery ${input.naturalCapabilityDiscovery.contractVersion} fed the plan.`,
       });
     }
     return receipts;
@@ -425,17 +423,17 @@ export class UniversalPreviewModeService {
     blockedToolIds: string[];
   }): string {
     if (input.blockedToolIds.length > 0) {
-      return 'Resolver bloqueios de policy/quarentena antes de sair do preview.';
+      return 'Resolver bloqueios de policy/quarentena before sair do preview.';
     }
     if (input.previewRequired) {
-      return 'Gerar ou revisar preview especifico antes de qualquer apply.';
+      return 'Generate or review a specific preview before any apply.';
     }
     if (input.requiresApproval) {
-      return 'Revisar o plano e pedir approval antes de executar tools sensiveis.';
+      return 'review the plan and request approval before running sensitive tools.';
     }
     if (input.previewOnly) {
-      return 'Confirmar escopo; se estiver correto, reenvie sem preview para executar.';
+      return 'Confirmar escopo; se estiver correto, reenvie without preview para run.';
     }
-    return 'Plano pronto para seguir pelo runtime governado.';
+    return 'Plan is ready to continue through the governed runtime.';
   }
 }

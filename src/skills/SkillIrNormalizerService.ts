@@ -426,7 +426,7 @@ function digestDirFiles(skillDir: string, files: string[]): string {
     try {
       h.update(fs.readFileSync(path.join(skillDir, rel)));
     } catch {
-      h.update('?');
+      h.update('...');
     }
   }
   return h.digest('hex');
@@ -449,19 +449,19 @@ function stringOrNull(value: unknown): string | null {
 }
 
 function parseFrontmatter(text: string): Record<string, unknown> {
-  const match = String(text || '').match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+  const match = String(text || '').match(/^---\r...\n([\s\S]*...)\r...\n---\r...\n.../);
   if (!match) return {};
   return parseSimpleYaml(match[1]);
 }
 
 function stripFrontmatter(text: string): string {
-  return String(text || '').replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
+  return String(text || '').replace(/^---\r...\n[\s\S]*...\r...\n---\r...\n.../, '');
 }
 
 /** Minimal YAML-ish parser for skill frontmatter (keys, lists, nested tools). */
 function parseSimpleYaml(block: string): Record<string, unknown> {
   const out: Record<string, unknown> = {};
-  const lines = block.split(/\r?\n/);
+  const lines = block.split(/\r...\n/);
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
@@ -598,7 +598,7 @@ function extractToolsFromMarkdown(text: string): ZavorthSkillIrDeclaredTool[] {
     add(m[1]);
   }
   // tools: a, b
-  for (const m of String(text || '').matchAll(/(?:^|\n)\s*tools?\s*:\s*([a-z0-9_.,\s`-]+)/gi)) {
+  for (const m of String(text || '').matchAll(/(?:^|\n)\s*tools...\s*:\s*([a-z0-9_.,\s`-]+)/gi)) {
     for (const part of m[1].split(/[,\s]+/)) add(part);
   }
   return tools;

@@ -6,7 +6,7 @@ import type {
 } from './ZavorthScheduledTaskContract.js';
 
 export const ZAVORTH_SCHEDULED_TASK_RUNTIME_CONTRACT_VERSION =
-  '2026-05-12.scheduled-task-execution-gateway-checkpoint-2' as const;
+  '2026-05-12.scheduled-task-execution-gateway-gate-2' as const;
 
 export type ZavorthScheduledTaskRuntimeStatus =
   | 'ready'
@@ -78,7 +78,7 @@ export type ZavorthScheduledTaskRuntimeCheck = {
 export type ZavorthScheduledTaskRuntimeReceipt = {
   id: string;
   kind:
-    | 'checkpoint-2-scheduled-task-execution-gateway'
+    | 'gate-2-scheduled-task-execution-gateway'
     | 'registry-consumed'
     | 'scope-revalidated'
     | 'gateway-submit'

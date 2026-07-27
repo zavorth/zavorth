@@ -70,7 +70,7 @@ const SECRET_PATTERNS: RegExp[] = [
   /\bsk-[A-Za-z0-9_-]{16,}\b/g,
   /\bhf_[A-Za-z0-9]{16,}\b/g,
   /\bAIza[0-9A-Za-z_-]{20,}\b/g,
-  /\b(?:api[_-]?key|token|secret|password)\s*[:=]\s*["']?[^"'\s]+/gi,
+  /\b(?:api[_-]...key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/gi,
 ];
 
 function normalizeDate(value: string | Date | null | undefined): Date | null {
@@ -113,12 +113,19 @@ function extractPathMentions(text: string): string[] {
   return Array.from(new Set(matches.map((entry) => entry.replace(/[),.;]+$/g, '')))).slice(0, 12);
 }
 
+function hasApprovalSignal(value: string): boolean {
+  const normalized = String(value || '').toLowerCase();
+  const tokens = new Set(normalized.split(/[^a-z0-9]+/u).filter(Boolean));
+  if (tokens.has('approval') || tokens.has('approve') || tokens.has('approved') || tokens.has('permit')) return true;
+  return normalized.split('break glass').length > 1 || normalized.split('persistent permission').length > 1;
+}
+
 function looksPending(text: string): boolean {
-  return /\b(todo|pending|next|proximo|pr[oó]ximo|falt|depois|continue|remaining)\b/i.test(text);
+  return false;
 }
 
 function looksDiscarded(text: string): boolean {
-  return /\b(failed|falhou|erro|revert|descart|nao funcion|n[aã]o funcion|timeout|blocked)\b/i.test(text);
+  return false;
 }
 
 export class ContextCompactionService {
@@ -273,7 +280,7 @@ export class ContextCompactionService {
       .map((message) => truncate(message.content, 180))
       .slice(0, 8);
     const approvals = messages
-      .filter((message) => /\b(approv|approval|autoriz|permit|break glass|persistent permission)\b/i.test(message.content))
+      .filter((message) => hasApprovalSignal(message.content))
       .map((message) => truncate(message.content, 180))
       .slice(0, 8);
 
@@ -363,15 +370,15 @@ export class ContextCompactionService {
           const hasResponse = (tc.id && existingToolResponses.has(tc.id)) ||
                               (tc.name && existingToolResponsesByName.has(tc.name));
           if (!hasResponse) {
-            const stub: ContextCompactionMessage = {
-              id: `stub-tool-${tc.id || tc.name}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            const local: ContextCompactionMessage = {
+              id: `local-tool-${tc.id || tc.name}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
               role: 'tool',
               toolName: tc.name || 'unknown_tool',
               toolCallId: tc.id || null,
               content: '[Context compacted: The return of this tool execution was archived in episodic memory]',
               status: 'ok',
             };
-            result.push(stub);
+            result.push(local);
 
             if (tc.id) existingToolResponses.add(tc.id);
             if (tc.name) existingToolResponsesByName.add(tc.name);

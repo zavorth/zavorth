@@ -193,7 +193,7 @@ const ADAPTERS: AdapterDescriptor[] = [
       requiredEnv: [],
       optionalEnv: ['OLLAMA_BASE_URL', 'LMSTUDIO_BASE_URL', 'VLLM_BASE_URL', 'CUSTOM_OPENAI_COMPATIBLE_BASE_URL'],
       ownerApprovalRequired: false,
-      reason: 'Local models must use Provider Mesh local/OpenAI-compatible routes instead of Anthropic API impersonation.',
+      reason: 'local models must use Provider Mesh local/OpenAI-compatible routes instead of Anthropic API impersonation.',
     },
     packages: ['undici'],
     ownerGated: false,
@@ -280,7 +280,7 @@ export class SourceProviderMeshExpansionService {
         check: 'npm run source-provider-mesh-expansion:check --silent',
         qa: 'npm run qa:source-provider-mesh-expansion --silent',
         liveSmoke: 'npm run source-provider-mesh-expansion -- --provider <provider> --confirm-live-io',
-        nextStage: 'Connector registry - Channel Mesh Expansion Pack',
+        nextAction: 'Connector registry - Channel Mesh Expansion Pack',
       },
     };
   }
@@ -306,8 +306,8 @@ export class SourceProviderMeshExpansionService {
       lines.push(`- ${adapter.providerId}: ${adapter.status}, decision=${adapter.decision}, configured=${adapter.configured}, route=${adapter.credentialRoute.routeKind}`);
     }
 
-    lines.push(`Local models: ${snapshot.localModelPolicy.recommendation}`);
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`local models: ${snapshot.localModelPolicy.recommendation}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 

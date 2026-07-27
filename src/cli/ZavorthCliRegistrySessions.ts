@@ -72,7 +72,7 @@ export async function handleZavorthCliRegistrySessionsCommand(params: RegistryCo
   if (commandName === 'sessionsend' && runtime.sessionPlaneService) {
     const parsed = parseCliSessionSendArgs(args);
     if (!parsed) {
-      const error = 'Uso: sessionsend <sessionId|chatId> -- <mensagem>';
+      const error = 'Usage: sessionsend <sessionId|chatId> -- <message>';
       writer.error(error);
       return { ok: false, handled: true, output: [], error };
     }
@@ -250,7 +250,7 @@ export async function handleZavorthCliRegistrySessionsCommand(params: RegistryCo
     }
     if (runtime.workspaceMemoryOsService && (first === 'review' || first === 'resolve' || first === 'forget' || first === 'correct')) {
       if (first === 'resolve') {
-        const resolution = await runtime.workspaceMemoryOsService.resolveFollowUp(rest || 'continua', {
+        const resolution = await runtime.workspaceMemoryOsService.resolveFollowUp(rest || 'continue this thread', {
           userId: effectiveFlags.userId,
           platform: effectiveFlags.platform,
           chatId: effectiveFlags.chatId,

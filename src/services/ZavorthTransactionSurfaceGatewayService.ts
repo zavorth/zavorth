@@ -198,7 +198,7 @@ function buildCards(runtime: ZavorthTransactionRuntimeRunResult): ZavorthTransac
       title: 'Typed Connector',
       status: runtime.connectorRun?.status ?? 'not-run',
       severity:
-        runtime.connectorRun?.status === 'simulated'
+        runtime.connectorRun?.status === 'dryRun'
           ? 'success'
           : runtime.connectorRun?.status === 'blocked'
             ? 'danger'
@@ -252,7 +252,7 @@ function buildActions(
     command: `${baseCommand} --approve`,
     reason:
       runtime.status === 'approval-required'
-        ? 'Approval is required before simulation can continue.'
+        ? 'Approval is required before dryRun can continue.'
         : 'Approval is not currently the blocking step.',
   });
 
@@ -265,7 +265,7 @@ function buildActions(
     command: `${baseCommand} --reject`,
     reason:
       runtime.status === 'approval-required'
-        ? 'The operator can reject this preview before any simulation continues.'
+        ? 'The operator can reject this preview before any dryRun continues.'
         : 'There is no pending approval preview to reject.',
   });
 
@@ -277,7 +277,7 @@ function buildActions(
     requiresConfirmation: false,
     reason:
       runtime.status === 'credential-required'
-        ? 'A valid transaction credential ref is required before connector simulation.'
+        ? 'A valid transaction credential ref is required before connector dry-run.'
         : 'Credential ref is not currently required.',
   });
 
@@ -288,7 +288,7 @@ function buildActions(
     enabled: runtime.status === 'approval-required' || runtime.status === 'credential-required',
     requiresConfirmation: true,
     command: baseCommand,
-    reason: 'Simulation reruns the governed runtime; it still cannot execute live effects.',
+    reason: 'DryRun reruns the governed runtime; it still cannot execute live effects.',
   });
 
   actions.push({
@@ -319,10 +319,10 @@ function buildReplyText(
 ): string {
   const action = runtime.preview.intent.actionKind;
   const target = runtime.preview.intent.target.label;
-  if (runtime.status === 'simulated') {
+  if (runtime.status === 'dryRun') {
     return surface === 'telegram'
-      ? `Simulated: ${action} on ${target}. Nothing live was executed.`
-      : `Transaction runtime simulated ${action} for ${target}; no live transaction was executed.`;
+      ? `Dry-run: ${action} on ${target}. Nothing live was executed.`
+      : `Transaction runtime dryRun ${action} for ${target}; no live transaction was executed.`;
   }
   if (runtime.status === 'approval-required') {
     return surface === 'telegram'
@@ -338,13 +338,12 @@ function buildReplyText(
     return 'I need a clearer target, amount, limit or condition before preparing this transaction.';
   }
   const enabledAction = actions.find((item) => item.enabled);
-  return enabledAction
-    ? `${runtime.status}: ${enabledAction.reason}`
+  return enabledAction ? `${runtime.status}: ${enabledAction.reason}`
     : `${runtime.status}: transaction surface projection is live-disabled.`;
 }
 
 function severityForStatus(status: ZavorthTransactionRuntimeStatus): ZavorthTransactionSurfaceSeverity {
-  if (status === 'simulated') {
+  if (status === 'dryRun') {
     return 'success';
   }
   if (status === 'blocked') {

@@ -15,6 +15,19 @@ function statusFromRun(run: UniversalAgentRun | null): ExperienceJourneySnapshot
   return 'blocked';
 }
 
+function isExperienceJourneyKind(value: string): value is ExperienceJourneyKind {
+  return [
+    'conversation',
+    'security-audit',
+    'provider-setup',
+    'channel-setup',
+    'release',
+    'learning',
+    'workspace-review',
+    'code-task',
+  ].includes(value);
+}
+
 function defaultSteps(kind: ExperienceJourneyKind): ExperiencePlanStep[] {
   return [
     {
@@ -49,10 +62,8 @@ export class JourneyEngineService {
     const activeRun = input.activeRun || null;
     const kind = plan?.kind || this.kindFromRun(activeRun);
     const status = plan
-      ? plan.requiresApproval
-        ? 'waiting_approval'
-        : plan.shouldExecuteAgent
-          ? 'planning'
+      ? plan.requiresApproval ? 'waiting_approval'
+        : plan.shouldExecuteAgent ? 'planning'
           : 'idle'
       : statusFromRun(activeRun);
 
@@ -67,14 +78,8 @@ export class JourneyEngineService {
   }
 
   private kindFromRun(run: UniversalAgentRun | null): ExperienceJourneyKind {
-    const text = `${run?.title || ''} ${run?.input || ''}`.toLowerCase();
-    if (/security|seguranca|audit/.test(text)) return 'security-audit';
-    if (/provider|model|modelo/.test(text)) return 'provider-setup';
-    if (/telegram|discord|slack|email|channel|canal/.test(text)) return 'channel-setup';
-    if (/release|ship|deploy/.test(text)) return 'release';
-    if (/learn|learning|aprend/.test(text)) return 'learning';
-    if (/review|revis/.test(text)) return 'workspace-review';
-    if (/fix|bug|feature|code|codigo/.test(text)) return 'code-task';
+    const metadataKind = String(run?.metadata?.journeyKind || run?.metadata?.kind || '').trim();
+    if (isExperienceJourneyKind(metadataKind)) return metadataKind;
     return 'conversation';
   }
 

@@ -1,9 +1,9 @@
 /**
  * GET /api/models/openrouter-catalog
- * Feature 09 — Retorna catálogo OpenRouter com cache persistente.
+ * Feature 09 — Returns OpenRouter catalog with persistent cache.
  *
  * Query params:
- *   ?refresh=true  — Force-refresh, ignores TTL
+ *   ...refresh=true  — Force-refresh, ignores TTL
  */
 
 import { NextRequest, NextResponse } from "next/server";

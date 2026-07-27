@@ -22,14 +22,14 @@ function sanitizeAnthropicBaseUrl(baseUrl: string) {
   return (baseUrl || "")
     .trim()
     .replace(/\/$/, "")
-    .replace(/\/messages(?:\?[^#]*)?$/i, "");
+    .replace(/\/messages(?:\...[^#]*)...$/i, "");
 }
 
 function sanitizeClaudeCodeCompatibleBaseUrl(baseUrl: string) {
   return (baseUrl || "")
     .trim()
     .replace(/\/$/, "")
-    .replace(/\/(?:v\d+\/)?messages(?:\?[^#]*)?$/i, "");
+    .replace(/\/(?:v\d+\/)...messages(?:\...[^#]*)...$/i, "");
 }
 
 // PUT /api/provider-nodes/[id] - Update provider node

@@ -188,7 +188,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
     const snapshot = this.deps.hookPlaneService.buildSnapshot();
     const visibleEvents = query
       ? snapshot.events.filter((event) =>
-          [event.id, event.label, event.phase, event.description].some((value) =>
+          [event.id, event.label, event.scope, event.description].some((value) =>
             String(value || '')
               .toLowerCase()
               .includes(query),
@@ -220,7 +220,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
     if (visibleEvents.length > 0) {
       lines.push('', query ? 'Visible events:' : 'Featured events:');
       for (const event of visibleEvents.slice(0, 6)) {
-        lines.push(`- ${event.label} (${event.phase}) | status: ${event.status} | hooks: ${event.registeredHooks}`);
+        lines.push(`- ${event.label} (${event.scope}) | status: ${event.status} | hooks: ${event.registeredHooks}`);
       }
     } else {
       lines.push('', 'No hook event matched this filter.');
@@ -266,7 +266,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
     const text = [
       'Zavorth AIGateway',
       '',
-      `Gateway proprio: ${status.enabled ? 'habilitado' : 'desabilitado'}.`,
+      `Gateway own: ${status.enabled ? 'habilitado' : 'disabled'}.`,
       `Ready: ${status.ready ? 'yes' : 'no'}.`,
       `Rota Zavorth: ${status.baseUrl}`,
       `Upstream: ${status.upstreamBaseUrl}`,
@@ -288,9 +288,9 @@ export class SharedSurfaceGatewayToolingCommandPack {
       report.summary,
       `Status: ${report.status}.`,
       `Rota Zavorth: ${report.baseUrl}`,
-      `Target validado: ${report.checkedTarget}`,
+      `Validated target: ${report.checkedTarget}`,
       report.httpStatus !== null ? `HTTP: ${report.httpStatus}` : null,
-      report.error ? `Erro: ${report.error}` : null,
+      report.error ? `error: ${report.error}` : null,
     ]
       .filter(Boolean)
       .join('\n');
@@ -308,9 +308,9 @@ export class SharedSurfaceGatewayToolingCommandPack {
       '',
       report.summary,
       `Status: ${report.status}.`,
-      `Compatibilidade: ${report.compat ? report.compat.status : 'nao executada'}.`,
-      report.rollbackApplied ? 'Rollback automatico aplicado: sim.' : null,
-      report.error ? `Erro: ${report.error}` : null,
+      `Compatibility: ${report.compat ? report.compat.status : 'not executed'}.`,
+      report.rollbackApplied ? 'Automatic rollback applied: yes.' : null,
+      report.error ? `Error: ${report.error}` : null,
     ]
       .filter(Boolean)
       .join('\n');
@@ -342,8 +342,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
         isDirectMessage: !ctx.isGroup,
       });
     const shortcuts =
-      ctx.platform === 'discord' && !isDiscordOperationalOwner
-        ? 'Useful shortcuts: /help and /task.'
+      ctx.platform === 'discord' && !isDiscordOperationalOwner ? 'Useful shortcuts: /help and /task.'
         : 'Useful shortcuts: /status, /changes, /reload and /autorepair.';
     const targets = this.deps.providerControlPlaneService.getUsageTargets();
     const text = [

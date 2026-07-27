@@ -105,7 +105,7 @@ export class VectorSemanticStore {
       }
 
       const content = fs.readFileSync(filePath, 'utf8');
-      
+
       // Simple paragraph-based chunker
       const paragraphs = content.split(/\n\s*\n/);
       const newChunks: SemanticChunk[] = paragraphs
@@ -133,7 +133,7 @@ export class VectorSemanticStore {
   }
 
   /**
-   * Simulates semantic local vector search using keyword overlap matching.
+   * Runs local semantic lookup using keyword overlap matching.
    * Matches across all channels/locations of Zavorth.
    */
   public query(queryText: string, limit: number = 3): string[] {

@@ -64,8 +64,7 @@ export class SupervisedSecretsReadAdapter implements SystemOverlordRuntimeAdapte
       present,
       maskedPreview,
       length: present ? String(rawValue || '').length : 0,
-      summary: present
-        ? 'Secret is present and masked by the supervised policy.'
+      summary: present ? 'Secret is present and masked by the supervised policy.'
         : 'Secret was not found in the supervised source.',
     };
 

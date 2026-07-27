@@ -62,7 +62,7 @@ export class TelegramZavorthBridgeControlService {
 
   public parsePromptCommand(rawText: string): { model: string; prompt: string } | null {
     const trimmed = rawText.trim();
-    const slashMatch = trimmed.match(/^\/ag_prompt\s+([^|]+?)\s*\|\s*([\s\S]+)$/i);
+    const slashMatch = trimmed.match(/^\/ag_prompt\s+([^|]+...)\s*\|\s*([\s\S]+)$/i);
     if (!slashMatch) {
       if (/^\/ag_prompt\b/i.test(trimmed)) {
         return { model: '', prompt: '' };
@@ -148,8 +148,7 @@ export class TelegramZavorthBridgeControlService {
       }
 
       const failureLines = [
-        result.ok
-          ? 'Started the model switch, but the final confirmation was partial.'
+        result.ok ? 'Started the model switch, but the final confirmation was partial.'
           : 'Could not switch ZavorthBridge model right now.',
       ];
 
@@ -166,14 +165,12 @@ export class TelegramZavorthBridgeControlService {
     }
 
     if (result.action === 'open') {
-      return result.ok
-        ? 'Done. ZavorthBridge has been opened.'
+      return result.ok ? 'Done. ZavorthBridge has been opened.'
         : `Could not open ZavorthBridge right now.${result.errorMessage ? `\nReason: ${result.errorMessage}` : ''}`;
     }
 
     if (result.action === 'restart') {
-      return result.ok
-        ? 'Done. ZavorthBridge has been restarted.'
+      return result.ok ? 'Done. ZavorthBridge has been restarted.'
         : `Could not restart ZavorthBridge right now.${result.errorMessage ? `\nReason: ${result.errorMessage}` : ''}`;
     }
 

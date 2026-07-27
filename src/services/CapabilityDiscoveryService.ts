@@ -95,7 +95,7 @@ const CAPABILITY_INDICATORS: Array<{
     descriptionExtractor: (m) => `Integration with ${m[0]} workflow automation`,
   },
   {
-    pattern: /swarm|multi.?agent|agent.?team/,
+    pattern: /swarm|multi?.agent|agent?.team/,
     category: 'agent',
     nameExtractor: () => 'Multi-Agent Swarm',
     descriptionExtractor: () => 'Coordinate multiple agents working together',

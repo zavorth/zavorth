@@ -136,7 +136,7 @@ export class ZavorthLocalProfilePreferenceService {
 
   public setPreference(input: ZavorthLocalProfilePreferenceWriteInput): ZavorthLocalProfilePreferenceReadResult {
     if (containsSecretLikeMaterial(input.value)) {
-      throw new Error('Local profile preferences cannot store secret-looking values.');
+      throw new Error('local profile preferences cannot store secret-looking values.');
     }
     const scope = this.resolveScope(input);
     const namespace = this.cleanRequired(input.namespace, 'preferences');
@@ -195,7 +195,7 @@ export class ZavorthLocalProfilePreferenceService {
         updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : this.now().toISOString(),
         scopes: this.normalizeScopes(scopes),
       };
-    } catch (error: unknown) {logger.warn('[Zavorth Local Profile Preference] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth local Profile Preference] parsing failed', error);
     return this.emptyState();
   }
   }
@@ -317,6 +317,6 @@ function valueType(value: ZavorthLocalProfilePreferenceValue): ZavorthLocalProfi
 
 function containsSecretLikeMaterial(value: ZavorthLocalProfilePreferenceValue): boolean {
   const text = JSON.stringify(value).toLowerCase();
-  return /\b(secret|password|api[_-]?key|access[_-]?token|refresh[_-]?token|bearer)\b/.test(text)
+  return /\b(secret|password|api[_-]...key|access[_-]...token|refresh[_-]...token|bearer)\b/.test(text)
     || /\b(sk-[a-z0-9_-]{12,}|ghp_[a-z0-9_]{12,}|xox[baprs]-[a-z0-9-]{12,})\b/i.test(text);
 }

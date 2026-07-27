@@ -28,7 +28,7 @@ export class ProviderChannelSmokeProofService {
 
   constructor(runtime: ProviderChannelSmokeProofRuntime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.mode = runtime.mode || 'mock-live-harness';
+    this.mode = runtime.mode || 'dry-live-harness';
     this.providerMesh = runtime.providerMeshReadinessService || new ProviderMeshReadinessService({
       now: this.now,
     });
@@ -100,15 +100,14 @@ export class ProviderChannelSmokeProofService {
     const modelId = entry.route.models?.find((model) => model.primary)?.modelId
       || entry.route.models?.[0]?.modelId
       || null;
-    const status = blocked ? 'blocked' : 'mock-proven';
+    const status = blocked ? 'blocked' : 'local-proven';
     const receipt = this.buildReceipt({
       surface: 'provider.call',
       sourceName: entry.normalizedSourceName,
       status,
       artifactKind: 'provider.smoke.artifact',
       receiptKind: 'provider.smoke.receipt',
-      summary: blocked
-        ? `${entry.normalizedSourceName} provider smoke blocked by runtime classification.`
+      summary: blocked ? `${entry.normalizedSourceName} provider smoke blocked by runtime classification.`
         : `${entry.normalizedSourceName} provider request envelope resolved without external provider call.`,
     });
 
@@ -164,15 +163,14 @@ export class ProviderChannelSmokeProofService {
 
   public buildChannelProof(entry: ChannelMeshConsistencyEntry): ChannelSmokeProof {
     const blocked = entry.status === 'unsupported' || entry.status === 'unmapped' || entry.status === 'template-ready';
-    const status = blocked ? 'blocked' : 'mock-proven';
+    const status = blocked ? 'blocked' : 'local-proven';
     const receipt = this.buildReceipt({
       surface: 'channel.message',
       sourceName: entry.normalizedSourceName,
       status,
       artifactKind: 'channel.smoke.artifact',
       receiptKind: 'channel.smoke.receipt',
-      summary: blocked
-        ? `${entry.normalizedSourceName} channel smoke blocked by connector classification.`
+      summary: blocked ? `${entry.normalizedSourceName} channel smoke blocked by connector classification.`
         : `${entry.normalizedSourceName} inbound/outbound envelopes normalized without live channel send.`,
     });
 
@@ -184,17 +182,17 @@ export class ProviderChannelSmokeProofService {
       transportStrategy: entry.route.transportStrategy,
       credentialRefs: entry.credentialPolicy.credentialRefs,
       inboundEnvelope: {
-        channelId: entry.simulation.inbound.channelId,
-        sessionId: entry.simulation.inbound.sessionId,
-        userId: entry.simulation.inbound.userId,
-        normalized: entry.simulation.inbound.normalized,
+        channelId: entry.dryRun.inbound.channelId,
+        sessionId: entry.dryRun.inbound.sessionId,
+        userId: entry.dryRun.inbound.userId,
+        normalized: entry.dryRun.inbound.normalized,
         dryRun: true,
       },
       outboundEnvelope: {
-        channelId: entry.simulation.outbound.channelId,
-        recipients: entry.simulation.outbound.recipients,
+        channelId: entry.dryRun.outbound.channelId,
+        recipients: entry.dryRun.outbound.recipients,
         dryRun: true,
-        attachmentsSupported: entry.simulation.outbound.attachmentsSupported,
+        attachmentsSupported: entry.dryRun.outbound.attachmentsSupported,
       },
       steps: [
         this.step({
@@ -233,7 +231,7 @@ export class ProviderChannelSmokeProofService {
   private step(input: {
     id: string;
     kind: ProviderChannelSmokeStep['kind'];
-    status: 'mock-proven' | 'blocked';
+    status: 'local-proven' | 'blocked';
     command: string;
     evidence: string;
   }): ProviderChannelSmokeStep {
@@ -252,7 +250,7 @@ export class ProviderChannelSmokeProofService {
   private buildReceipt(input: {
     surface: ProviderChannelSmokeReceipt['surface'];
     sourceName: string;
-    status: 'mock-proven' | 'blocked';
+    status: 'local-proven' | 'blocked';
     summary: string;
     artifactKind: string;
     receiptKind: string;

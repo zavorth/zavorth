@@ -144,7 +144,7 @@ export class ChannelExperienceConsistencyService {
         headline: 'Zavorth per-channel experience parity',
         operatorSummary:
           `${summary.complete} completo(s), ${summary.usable} usavel(is), ${summary.partial} parcial(is), ` +
-          `${summary.missing} ausente(s), ${summary.criticalGaps} gap(s) critico(s).`,
+          `${summary.missing} missing(s), ${summary.criticalGaps} gap(s) critical(s).`,
         nextAction: this.buildNextAction(entries),
       },
       commands: {
@@ -249,77 +249,77 @@ export class ChannelExperienceConsistencyService {
         'Adapter registrado',
         true,
         present,
-        present ? 'canal presente no Channel Mesh' : 'canal ausente do Channel Mesh',
+        present ? 'canal present no Channel Mesh' : 'canal missing do Channel Mesh',
       ),
       check(
         'status-card',
         'Status por canal',
         true,
         statusRowsReady,
-        statusRowsReady ? 'status card/linhas disponiveis' : 'sem status card legivel',
+        statusRowsReady ? 'status card/rows available' : 'without readable status card',
       ),
       check(
         'rich-replies',
-        'Resposta rica compartilhada',
+        'Shared rich reply',
         true,
         richRepliesReady,
-        richRepliesReady ? 'rich replies disponiveis' : 'sem renderer rico neste canal',
+        richRepliesReady ? 'rich replies available' : 'no rich renderer for this channel',
       ),
       check(
         'guided-actions',
-        'Acoes guiadas',
+        'Guided actions',
         true,
         guidedActionsReady,
-        guidedActionsReady ? 'acoes do Channel Mesh disponiveis' : 'sem acoes guiadas',
+        guidedActionsReady ? 'Channel Mesh actions available' : 'no guided actions',
       ),
       check(
         'safe-callbacks',
-        'Callbacks seguros',
+        'Safe callbacks',
         true,
         present && guardedCallbacksReady,
-        guardedCallbacksReady ? 'mutacoes exigem comando explicito' : 'policy de callback ausente',
+        guardedCallbacksReady ? 'mutations require explicit command' : 'callback policy missing',
       ),
       check(
         'connection-status',
-        'Status de conexao/login',
+        'Connection/login status',
         true,
         connectionVisible,
-        connectionVisible ? 'conexao exposta ao operador' : 'sem telemetria de conexao',
+        connectionVisible ? 'connection exposed to the operator' : 'no connection telemetry',
       ),
       check(
         'native-buttons',
-        'Botoes nativos',
+        'Native buttons',
         profile.nativeButtonsRequired,
         nativeButtonsReady,
-        nativeButtonsReady ? 'botoes nativos disponiveis' : 'sem botoes nativos exigidos para este canal',
+        nativeButtonsReady ? 'native buttons available' : 'required native buttons missing for this channel',
       ),
       check(
         'slash-commands',
-        'Slash/comandos nativos',
+        'Native slash commands',
         profile.slashCommandsRequired,
         slashCommandsReady,
-        slashCommandsReady ? 'comandos nativos disponiveis' : 'sem slash commands/comandos nativos',
+        slashCommandsReady ? 'native commands available' : 'native slash commands missing',
       ),
       check(
         'qr-login',
-        'QR/login operacional',
+        'QR/login operational',
         qrLoginRequired,
         qrReady,
-        qrReady ? 'QR/login pronto para operador' : 'QR/login nao esta pronto no provider local',
+        qrReady ? 'QR/login ready for the operator' : 'QR/login is not ready in the local provider',
       ),
       check(
         'webhook-status',
-        'Webhook operacional',
+        'Webhook operational',
         webhookStatusRequired,
         webhookReady,
-        webhookReady ? 'webhook/callback exposto ao operador' : 'webhook obrigatorio nao esta visivel',
+        webhookReady ? 'webhook/callback exposed to the operator' : 'required webhook is not visible',
       ),
       check(
         'local-bridge',
-        'Bridge local governada',
+        'Governed local bridge',
         profile.localBridgeRequired,
         localBridgeReady,
-        localBridgeReady ? 'bridge local rastreada' : 'bridge local nao configurada',
+        localBridgeReady ? 'local bridge tracked' : 'local bridge not configured',
       ),
     ];
   }
@@ -400,16 +400,16 @@ export class ChannelExperienceConsistencyService {
   ): string {
     if (!entry) {
       return profile.id === 'instagram'
-        ? 'Instagram nao esta registrado neste runtime; o gap fica explicito em vez de ser mascarado.'
-        : 'Canal ainda nao esta registrado no Channel Mesh.';
+        ? 'Instagram is not registered in this runtime; the gap remains explicit instead of being masked.'
+        : 'Channel is not registered in the Channel Mesh yet.';
     }
     if (status === 'complete') {
-      return 'Experiencia equivalente pronta: status, resposta rica, comandos/acoes e guardrails estao visiveis.';
+      return 'Equivalent experience ready: status, rich response, commands/actions, and guardrails are visible.';
     }
     if (status === 'usable') {
-      return `Usavel com ${blockers.length} gap(s) conhecido(s), sem bloquear o uso diario.`;
+      return `Usable with ${blockers.length} known gap(s), without blocking daily use.`;
     }
-    return `Parcial: ${blockers.length} requisito(s) ainda precisam fechamento.`;
+    return `Partial: ${blockers.length} requirement(s) still need closure.`;
   }
 
   private buildNextActions(
@@ -419,12 +419,12 @@ export class ChannelExperienceConsistencyService {
   ): string[] {
     if (!entry && profile.id === 'instagram') {
       return [
-        'Criar adapter Instagram DM via Meta Graph/Instagram Messaging API.',
-        'Adicionar webhook, allowlist de recipients e receipts antes de envio real.',
+        'Create Instagram DM adapter through Meta Graph/Instagram Messaging API.',
+        'Add webhook, recipient allowlist, and receipts before real sending.',
       ];
     }
     if (!entry) {
-      return [`Registrar ${profile.label} no Channel Mesh antes de prometer paridade.`];
+      return [`Register ${profile.label} in Channel Mesh before promising parity.`];
     }
     if (blockers.length === 0) {
       return [entry.operatorNextStep || entry.actionHint || `/channels status ${profile.id}`];
@@ -438,12 +438,11 @@ export class ChannelExperienceConsistencyService {
   private buildNextAction(entries: ChannelExperienceConsistencyEntry[]): string {
     const missingInstagram = entries.find((entry) => entry.channelId === 'instagram' && entry.status === 'missing');
     if (missingInstagram) {
-      return 'Fechar o adapter Instagram DM ou manter o gap explicitamente fora do rollout.';
+      return 'Fechar o adapter Instagram DM ou manter o gap explicitmente outside do rollout.';
     }
     const firstGap = entries.find((entry) => entry.blockers.length > 0);
-    return firstGap
-      ? `/channels consistency ${firstGap.channelId} e fechar: ${firstGap.blockers[0]}`
-      : 'Manter os checks de paridade no doctor antes de cada rollout de canal.';
+    return firstGap ? `/channels consistency ${firstGap.channelId} e fechar: ${firstGap.blockers[0]}`
+      : 'Manter os checks de paridade no doctor before cada rollout de canal.';
   }
 
   private hasPassingCheck(entry: ChannelExperienceConsistencyEntry, checkId: string): boolean {

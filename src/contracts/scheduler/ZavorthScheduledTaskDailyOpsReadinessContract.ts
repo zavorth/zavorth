@@ -1,7 +1,7 @@
 import type { ZavorthScheduledTaskLiveTickCertificationSnapshot } from './ZavorthScheduledTaskLiveTickCertificationContract.js';
 
 export const ZAVORTH_SCHEDULED_TASK_DAILY_OPS_READINESS_CONTRACT_VERSION =
-  '2026-05-12.scheduled-task-daily-ops-readiness-checkpoint-7' as const;
+  '2026-05-12.scheduled-task-daily-ops-readiness-gate-7' as const;
 
 export type ZavorthScheduledTaskDailyOpsReadinessStatus =
   | 'ready'
@@ -41,8 +41,8 @@ export type ZavorthScheduledTaskDailyOpsReadinessSurfaceCommand = {
 export type ZavorthScheduledTaskDailyOpsReadinessReceipt = {
   id: string;
   kind:
-    | 'checkpoint-7-scheduled-task-daily-ops-readiness'
-    | 'checkpoint-6-live-tick-consumed'
+    | 'gate-7-scheduled-task-daily-ops-readiness'
+    | 'gate-6-live-tick-consumed'
     | 'surface-commands-certified'
     | 'operator-runbook'
     | 'no-visual-mutation'

@@ -45,12 +45,12 @@ export class WebAppGatewayCapabilitySupport {
     const capabilityId = String(input.capabilityId || '').trim();
     const manifest = deps.capabilityLifecycle.getManifest(capabilityId);
     if (!manifest) {
-      throw new Error(`Capability desconhecida: ${capabilityId || 'n/d'}.`);
+      throw new Error(`Unknown capability: ${capabilityId || 'n/d'}.`);
     }
     const sessionId = String(input.sessionId || '').trim() || null;
     const requestedBy = String(input.requestedBy || deps.runtime.webUserId || 'web-operator').trim();
     const scope = normalizeGatewayApprovalScope(input.scope);
-    const reason = String(input.reason || '').trim() || `Habilitar ${manifest.label} pelo Gateway.`;
+    const reason = String(input.reason || '').trim() || `Enable ${manifest.label} through Gateway.`;
     const taskResourceImpact = await deps.taskResourcePlanner?.planCapabilityEnable(capabilityId, {
       requestedBy,
       intent: reason,
@@ -197,17 +197,17 @@ export class WebAppGatewayCapabilitySupport {
     const capabilityId = String(input.capabilityId || '').trim();
     const manifest = deps.capabilityLifecycle.getManifest(capabilityId);
     if (!manifest) {
-      throw new Error(`Capability desconhecida: ${capabilityId || 'n/d'}.`);
+      throw new Error(`Unknown capability: ${capabilityId || 'n/d'}.`);
     }
     if (capabilityId === 'core-runtime') {
-      throw new Error('core-runtime nao pode ser desativada pelo Gateway.');
+      throw new Error('core-runtime cannot be disabled by the Gateway.');
     }
     const requestedBy = String(input.requestedBy || deps.runtime.webUserId || 'web-operator').trim();
     const plan = deps.mutationPlane?.createPlan({
       domain: 'capability',
       actionId: 'disable',
       title: `Disable capability ${manifest.label}`,
-      summary: `Desabilitar ${manifest.label} pelo Gateway.`,
+      summary: `Disable ${manifest.label} through Gateway.`,
       requestedBy,
       sourceSurface: 'gateway-ws',
       riskLevel: 'low',
@@ -220,7 +220,7 @@ export class WebAppGatewayCapabilitySupport {
     }) || null;
     const capability = deps.capabilityLifecycle.disableCapability(capabilityId, requestedBy);
     const mutationPlan = plan && deps.mutationPlane
-      ? deps.mutationPlane.markApplied(plan.id, `Capability ${manifest.label} desabilitada via Gateway.`, [`capability.disable:${capabilityId}`])
+      ? deps.mutationPlane.markApplied(plan.id, `Capability ${manifest.label} disabled through Gateway.`, [`capability.disable:${capabilityId}`])
       : plan;
     return {
       ok: true,

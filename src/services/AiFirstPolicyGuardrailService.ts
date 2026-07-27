@@ -211,8 +211,7 @@ export class AiFirstPolicyGuardrailService {
         {
           id: this.idFactory('receipt'),
           kind: 'permission',
-          detail: universalIntent.requiresPermission
-            ? 'Permission remains required before any sensitive action.'
+          detail: universalIntent.requiresPermission ? 'Permission remains required before any sensitive action.'
             : 'No permission request was required by deterministic policy.',
         },
         {
@@ -230,22 +229,22 @@ export class AiFirstPolicyGuardrailService {
       ],
       gates: [
         {
-          id: 'checkpoint-3-deterministic-policy-authoritative',
+          id: 'gate-3-deterministic-policy-authoritative',
           status: 'passed',
           detail: 'UniversalIntent policy validates the AI-first proposal before promotion.',
         },
         {
-          id: 'checkpoint-3-preview-no-execution',
+          id: 'gate-3-preview-no-execution',
           status: 'passed',
           detail: 'Preview mode produced a no-execution snapshot.',
         },
         {
-          id: 'checkpoint-3-approval-preserved',
+          id: 'gate-3-approval-preserved',
           status: 'passed',
           detail: 'Approval requirements cannot be removed by the AI-first plan.',
         },
         {
-          id: 'checkpoint-3-current-runtime-preserved',
+          id: 'gate-3-current-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },
@@ -346,8 +345,7 @@ export class AiFirstPolicyGuardrailService {
     return {
       mode: highest === 'danger'
         ? 'restricted'
-        : tools.some((tool) => tool.requiresApproval)
-          ? 'confirm'
+        : tools.some((tool) => tool.requiresApproval) ? 'confirm'
           : 'safe',
       summary: 'AI-first policy guardrail exposure preview.',
       tools,
@@ -560,17 +558,14 @@ function buildDecision(input: {
   ]);
   const hasBlockingMismatch = input.mismatches.some((mismatch) =>
     mismatch.severity === 'high' && blockingKinds.has(mismatch.kind));
-  const status: AiFirstPolicyGuardrailStatus = hasBlockingMismatch
-    ? 'block'
-    : input.universalIntent.requiresClarification
-      ? 'hold'
+  const status: AiFirstPolicyGuardrailStatus = hasBlockingMismatch ? 'block'
+    : input.universalIntent.requiresClarification ? 'hold'
       : input.summary.medium > 0 || input.shadowSnapshot.summary.high > 0
         ? 'hold'
         : 'pass';
   const action = status === 'block'
     ? 'block-promotion'
-    : input.universalIntent.requiresClarification
-      ? 'ask-clarification'
+    : input.universalIntent.requiresClarification ? 'ask-clarification'
       : status === 'hold'
         ? 'hold-for-divergence'
         : 'allow-shadow-sample';

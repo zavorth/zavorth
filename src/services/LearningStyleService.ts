@@ -24,10 +24,10 @@ const DEFAULT_LEARNING_STYLE = `# LEARNING-STYLE.md - Learning Preferences
 
 ## Preferences
 
-- **Primary style:** examples-first
-- **Depth preference:** moderate
-- **Documentation preference:** mixed
-- **Hands-on preference:** mixed
+? **Primary style:** examples-first
+? **Depth preference:** moderate
+? **Documentation preference:** mixed
+? **Hands-on preference:** mixed
 `;
 
 const DEFAULT_PREFERENCES: ZavorthLearningPreferences = {
@@ -112,7 +112,7 @@ export class LearningStyleService {
     if (pattern.test(content)) {
       return content.replace(pattern, `$1 ${value}`);
     }
-    const lines = content.trimEnd().split(/\r?\n/);
+    const lines = content.trimEnd().split(/\r...\n/);
     lines.push(`- **${label}:** ${value}`);
     return lines.join('\n');
   }
@@ -139,5 +139,5 @@ export class LearningStyleService {
 }
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }

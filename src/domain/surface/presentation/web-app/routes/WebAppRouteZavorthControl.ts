@@ -63,12 +63,12 @@ export async function handleZavorthControlRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/web/state' && req.method === 'GET') {
         await service.handleStateRequest(res, url, deps, helpers);
         return true;
       }
-  
+
       if (pathname === '/api/web/zavorthControl' && req.method === 'GET') {
         const activeSessionId = String(url.searchParams.get('sessionId') || '').trim() || null;
         const agentRunQuery = service.buildAgentRunQuery(url);
@@ -134,7 +134,7 @@ export async function handleZavorthControlRoutes(
         );
         return true;
       }
-  
+
       if (pathname === '/api/web/zavorthControl/contracts-v1' && req.method === 'GET') {
         const contractAdapter = await service.buildZavorthControlContractAdapterProjection(url, deps);
         if (!contractAdapter) {
@@ -153,7 +153,7 @@ export async function handleZavorthControlRoutes(
         }, 200);
         return true;
       }
-  
+
       if ((pathname === '/api/web/zavorthControl/events-v1' || pathname === '/api/web/zavorthControl/events-v1') && req.method === 'GET') {
         if (!deps.publicApi) {
           deps.writeJson(res, {
@@ -178,7 +178,7 @@ export async function handleZavorthControlRoutes(
         }, 200);
         return true;
       }
-  
+
       if ((pathname === '/api/web/zavorthControl/gui-certification-v1' || pathname === '/api/web/zavorthControl/gui-certification-v1') && req.method === 'GET') {
         if (!deps.publicApi) {
           deps.writeJson(res, {
@@ -209,27 +209,27 @@ export async function handleZavorthControlRoutes(
         }, 200);
         return true;
       }
-  
+
       if ((pathname === '/api/web/zavorthControl/actions' || pathname === '/api/web/zavorthControl/actions') && req.method === 'POST') {
         await service.handleZavorthControlActionRequest(req, res, deps);
         return true;
       }
-  
+
       if ((pathname === '/api/web/zavorthControl/chat-v1' || pathname === '/api/web/zavorthControl/chat-v1') && req.method === 'POST') {
         await service.handleZavorthControlChatRequest(req, res, deps);
         return true;
       }
-  
+
       if (pathname === '/api/web/chat/side' && req.method === 'POST') {
         await service.handleZavorthControlSideChatRequest(req, res, deps);
         return true;
       }
-  
+
       if (pathname === '/api/web/chat/steer' && req.method === 'POST') {
         await service.handleZavorthControlSteerChatRequest(req, res, deps);
         return true;
       }
-  
+
       if (
         (pathname === '/api/web/zavorthControl/memory' || pathname === '/api/web/zavorthControl/memory')
         && req.method === 'GET'
@@ -237,7 +237,7 @@ export async function handleZavorthControlRoutes(
         deps.writeJson(res, service.readZavorthControlMemoryFacts(url), 200);
         return true;
       }
-  
+
       if (
         (pathname === '/api/web/zavorthControl/memory' || pathname === '/api/web/zavorthControl/memory')
         && req.method === 'POST'
@@ -246,6 +246,6 @@ export async function handleZavorthControlRoutes(
         deps.writeJson(res, service.applyZavorthControlMemoryAction(url, body), 200);
         return true;
       }
-  
+
   return false;
 }

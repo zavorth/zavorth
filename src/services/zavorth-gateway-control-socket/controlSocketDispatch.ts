@@ -47,7 +47,7 @@ export async function handleGatewayControlSocketMessage(input: {
   let request: GatewayControlSocketRequest;
   try {
     request = parseGatewayControlSocketRequest(input.rawMessage);
-  } catch (error: unknown) {input.sendError(null, 'invalid_json', 'A mensagem do gateway precisa ser JSON valido.');
+  } catch (error: unknown) {input.sendError(null, 'invalid_json', 'Gateway message must be valid JSON.');
     return;
   }
 
@@ -166,7 +166,7 @@ export async function handleGatewayControlSocketMessage(input: {
     if (method === 'approval.resolve') {
       const decision = String(params.decision || '').trim().toLowerCase();
       if (decision !== 'approve' && decision !== 'reject') {
-        input.sendError(requestId, 'invalid_params', 'approval.resolve exige decision approve|reject.');
+        input.sendError(requestId, 'invalid_params', 'approval.resolve requires decision approve|reject.');
         return;
       }
       const payload = await input.deps.resolveApproval({
@@ -193,7 +193,7 @@ export async function handleGatewayControlSocketMessage(input: {
     if (method === 'artifact.diff') {
       const toolRunId = String(params.toolRunId || '').trim();
       if (!toolRunId) {
-        input.sendError(requestId, 'invalid_params', 'artifact.diff exige toolRunId.');
+        input.sendError(requestId, 'invalid_params', 'artifact.diff requires toolRunId.');
         return;
       }
       const payload = await input.deps.readArtifactDiff({
@@ -232,7 +232,7 @@ export async function handleGatewayControlSocketMessage(input: {
     if (method === 'runtime.mode.set') {
       const mode = String(params.mode || '').trim();
       if (!mode) {
-        input.sendError(requestId, 'invalid_params', 'runtime.mode.set exige mode.');
+        input.sendError(requestId, 'invalid_params', 'runtime.mode.set requires mode.');
         return;
       }
       const payload = await input.deps.setProductMode({
@@ -258,7 +258,7 @@ export async function handleGatewayControlSocketMessage(input: {
         input.sendError(
           requestId,
           'invalid_params',
-          'runtime.modeEscalation.resolve exige requestId e decision approve/reject.',
+          'runtime.modeEscalation.resolve requires requestId and decision approve/reject.',
         );
         return;
       }
@@ -281,7 +281,7 @@ export async function handleGatewayControlSocketMessage(input: {
     if (method === 'capability.enable') {
       const capabilityId = String(params.capabilityId || '').trim();
       if (!capabilityId) {
-        input.sendError(requestId, 'invalid_params', 'capability.enable exige capabilityId.');
+        input.sendError(requestId, 'invalid_params', 'capability.enable requires capabilityId.');
         return;
       }
       const payload = await input.deps.enableCapability({
@@ -299,7 +299,7 @@ export async function handleGatewayControlSocketMessage(input: {
     if (method === 'capability.disable') {
       const capabilityId = String(params.capabilityId || '').trim();
       if (!capabilityId) {
-        input.sendError(requestId, 'invalid_params', 'capability.disable exige capabilityId.');
+        input.sendError(requestId, 'invalid_params', 'capability.disable requires capabilityId.');
         return;
       }
       const payload = await input.deps.disableCapability({
@@ -326,7 +326,7 @@ export async function handleGatewayControlSocketMessage(input: {
     if (method === 'selfmod.apply') {
       const previewId = String(params.previewId || '').trim();
       if (!previewId) {
-        input.sendError(requestId, 'invalid_params', 'selfmod.apply exige previewId.');
+        input.sendError(requestId, 'invalid_params', 'selfmod.apply requires previewId.');
         return;
       }
       const payload = await input.deps.applySelfmod({
@@ -341,7 +341,7 @@ export async function handleGatewayControlSocketMessage(input: {
     if (method === 'selfmod.rollback') {
       const changeId = String(params.changeId || '').trim();
       if (!changeId) {
-        input.sendError(requestId, 'invalid_params', 'selfmod.rollback exige changeId.');
+        input.sendError(requestId, 'invalid_params', 'selfmod.rollback requires changeId.');
         return;
       }
       const payload = await input.deps.rollbackSelfmod({
@@ -370,11 +370,11 @@ export async function handleGatewayControlSocketMessage(input: {
     input.sendError(
       requestId,
       'unknown_method',
-      `Metodo ${method || '(vazio)'} ainda nao existe neste gateway.`,
+      `Method ${method || '(vazio)'} does not exist in this gateway yet.`,
     );
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    const message = error instanceof Error ? err.message : 'Falha ao executar o metodo do gateway.';
+    const message = error instanceof Error ? err.message : 'Failure ao run o metodo do gateway.';
     input.sendError(
       requestId,
       'request_failed',

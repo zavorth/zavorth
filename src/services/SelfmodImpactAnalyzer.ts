@@ -69,7 +69,7 @@ export class SelfmodImpactAnalyzer {
   ): SelfmodResourceDelta {
     const notes = [
       ...(resourceImpact.notes ? [String(resourceImpact.notes).trim()] : []),
-      ...(changeCount > 1 ? [`Changeset multi-arquivo com ${changeCount} mudancas planejadas.`] : []),
+      ...(changeCount > 1 ? [`Multi-file changeset with ${changeCount} planned changes.`] : []),
       ...runtimeReasons.slice(0, 2),
     ].filter(Boolean);
 
@@ -103,7 +103,7 @@ export class SelfmodImpactAnalyzer {
     ) || /workspace|ide|zavorthBridge|editor|ui|zavorthControl/.test(normalizedGoal);
     if (touchesWorkspace) {
       companionIds.add('zavorthBridge');
-      notes.push('Mudanca toca surface/workspace e pode refletir em watchers ou carga da IDE companheira.');
+      notes.push('Change touches surface or workspace and can affect watchers or companion IDE load.');
       recommendedActions.push('/workspace optimize zavorthBridge');
     }
 
@@ -116,7 +116,7 @@ export class SelfmodImpactAnalyzer {
     if (touchesDockerOrSandbox) {
       companionIds.add('docker-desktop');
       companionIds.add('wsl');
-      notes.push('Mudanca pode acionar Docker Desktop/WSL para sandbox ou runtime remoto.');
+      notes.push('Change can trigger Docker Desktop or WSL for sandbox or remote runtime.');
       recommendedActions.push('/companion inspect docker-desktop');
       recommendedActions.push('/companion inspect wsl');
     }
@@ -126,7 +126,7 @@ export class SelfmodImpactAnalyzer {
     ) || /gateway|remote|codex/.test(normalizedGoal);
     if (touchesRemoteOrGateway) {
       companionIds.add('codex-companion');
-      notes.push('Mudanca toca gateway/remote e merece revisao da surface que conversa com o runtime.');
+      notes.push('Change touches gateway or remote access and deserves a review of the surface that talks to the runtime.');
       recommendedActions.push('/doctor desktop');
     }
 
@@ -135,7 +135,7 @@ export class SelfmodImpactAnalyzer {
       return {
         level: 'none',
         companionIds: [],
-        summary: 'Nenhum companion adicional deve ser afetado por este changeset.',
+        summary: 'No additional companion should be affected by this changeset.',
         notes: [],
         recommendedActions: [],
       };
@@ -150,7 +150,7 @@ export class SelfmodImpactAnalyzer {
     return {
       level,
       companionIds: companionList,
-      summary: `Companions a revisar: ${companionList.join(', ')}.`,
+      summary: `Companions a review: ${companionList.join(', ')}.`,
       notes,
       recommendedActions: Array.from(new Set(recommendedActions)),
     };

@@ -43,10 +43,8 @@ export class ZavorthProviderSetupService {
     const credentialReady = input.credentialPresent === true || Boolean(clean(input.credentialRef));
     const localProvider = providerId === 'ollama' || providerId === 'local';
     const blocked = Boolean(targetHost && localLoopback && !localProvider);
-    const status: ZavorthRuntimeProviderConnection['status'] = blocked
-      ? 'blocked'
-      : credentialReady || localProvider
-        ? 'configured'
+    const status: ZavorthRuntimeProviderConnection['status'] = blocked ? 'blocked'
+      : credentialReady || localProvider ? 'configured'
         : 'needs-setup';
     return {
       providerId,

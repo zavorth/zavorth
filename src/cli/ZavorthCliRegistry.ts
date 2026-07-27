@@ -505,7 +505,7 @@ async function executeZavorthCliCommandInner(params: {
       ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core unavailable.' }, null, 2)
       : snapshot
         ? formatExperienceHome(snapshot)
-        : 'Experience Core unavailable neste runtime.';
+        : 'Experience Core unavailable in this runtime.';
     writer.line(body);
     return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Experience Core unavailable.' };
   }
@@ -536,8 +536,7 @@ async function executeZavorthCliCommandInner(params: {
       args: args.trim() ? args.trim().split(/\s+/) : [],
       json: effectiveFlags.json,
     });
-    const body = effectiveFlags.json
-      ? `${JSON.stringify({ applied: result.applied, exitCode: result.exitCode, writtenKeys: result.writtenKeys }, null, 2)}\n`
+    const body = effectiveFlags.json ? `${JSON.stringify({ applied: result.applied, exitCode: result.exitCode, writtenKeys: result.writtenKeys }, null, 2)}\n`
       : result.output;
     writer.line(body);
     return { ok: result.exitCode === 0, handled: true, output: [body], error: result.exitCode !== 0 ? 'Setup failed.' : null };
@@ -894,10 +893,10 @@ async function executeZavorthCliCommandInner(params: {
   if (outputReplies.length === 0) {
     const body = effectiveFlags.repl
       ? formatCliSuccessEventCard({
-        title: 'Pronto',
-        body: 'Comando tratado sem resposta textual.',
+        title: 'ready',
+        body: 'Command handled without textual response.',
       })
-      : 'Comando tratado sem resposta textual.';
+      : 'Command handled without textual response.';
     writer.line(body);
     return {
       ok: true,

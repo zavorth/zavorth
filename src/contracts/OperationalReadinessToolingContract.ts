@@ -9,7 +9,7 @@ export type OperationalReadinessPublicAuditVocabulary = {
   gap: 'OperationalReadinessGap';
   pluginInventoryItem: 'OperationalReadinessPluginInventoryItem';
   snapshot: 'OperationalReadinessSnapshot';
-  checkpoint: 'checkpoint-8-operational-tooling';
+  checkpoint: 'gate-8-operational-tooling';
   policy: {
     liveExternalCallRequired: false;
     liveChannelSendRequired: false;

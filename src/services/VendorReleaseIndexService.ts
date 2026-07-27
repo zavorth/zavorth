@@ -176,9 +176,9 @@ export class VendorReleaseIndexService {
         reviewRequired: true,
         allowVendorSync: true,
         allowCoreCopy: false,
-        rationale: 'Nao consegui ler o contrato de release desse vendor.',
-        recommendedAction: 'Revisar o manifesto do vendor antes de promover qualquer mudanca.',
-        summary: 'Vendor sem politica conhecida; trate como isolado ate revisar.',
+        rationale: 'Could not read the release contract for this vendor.',
+        recommendedAction: 'review the vendor manifest before promoting any change.',
+        summary: 'Vendor without known policy; trate como isolado ate review.',
       };
       const sidecar = this.resolveSidecarCard(vendorId, sidecars);
       const syncStatusFile = this.resolveSyncStatusFile(vendorId);

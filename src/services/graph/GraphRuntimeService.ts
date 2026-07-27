@@ -186,7 +186,7 @@ export class GraphRuntimeService {
         const allowedToolNames = new Set(advertisedToolDefinitions.map((tool) => tool.name));
 
         if (!allowedToolNames.has(normalizedToolName)) {
-          return `Ferramenta "${normalizedToolName}" indisponivel para este perfil de tarefa. Prefira uma das tools anunciadas nesta execucao.`;
+          return `Tool "${normalizedToolName}" is unavailable for this task profile. Prefer one of the tools announced in this execution.`;
         }
 
         if (!args || typeof args !== 'object' || Array.isArray(args)) {

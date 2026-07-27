@@ -51,7 +51,7 @@ export function buildAskBeforeAssumptionPolicyCliSnapshot(input: {
       },
     },
   });
-  run.summary = 'Ask Before Assumption Policy preparou perguntas sem executar mutacao.';
+  run.summary = 'Ask Before Assumption Policy prepared questions without executing mutation.';
   return buildAskBeforeAssumptionPolicySnapshotFromRun(run);
 }
 

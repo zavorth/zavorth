@@ -11,10 +11,10 @@ export type ReachPathId =
   | 'cli';
 
 export type ReachPathStatus =
-  | 'pronto'
-  | 'precisa-setup'
+  | 'ready'
+  | 'needs-setup'
   | 'experimental'
-  | 'opcional';
+  | 'optional';
 
 export type HumanReachPath = {
   id: ReachPathId;
@@ -53,10 +53,10 @@ type ServiceDeps = {
 };
 
 const STATUS_LABELS: Record<ReachPathStatus, string> = {
-  pronto: 'Pronto para usar',
-  'precisa-setup': 'Falta configurar',
+  ready: 'ready to use',
+  'needs-setup': 'Needs setup',
   experimental: 'Experimental',
-  opcional: 'Opcional',
+  optional: 'optional',
 };
 
 export class ZavorthHumanReachService {
@@ -78,10 +78,10 @@ export class ZavorthHumanReachService {
     return {
       contractVersion: 'zavorth-human-reach/1',
       generatedAt: this.now().toISOString(),
-      headline: 'Onde voce me encontra',
+      headline: 'Onde you me encontra',
       summary: stableReadyCount > 0
-        ? `${stableReadyCount} caminho(s) estavel(is) pronto(s). Prefira Desktop e Telegram.`
-        : 'Nenhum canal estavel configurado ainda. Comece pelo Desktop ou Telegram.',
+        ? `${stableReadyCount} path(s) stable(is) ready. Prefer Desktop e Telegram.`
+        : 'No stable channel is configured yet. Start with Desktop or Telegram.',
       preferredPathId,
       stableReadyCount,
       paths,
@@ -109,18 +109,17 @@ export class ZavorthHumanReachService {
       {
         id: 'desktop',
         title: 'App / Desktop',
-        summary: 'Melhor caminho no computador para qualquer pessoa.',
-        status: 'pronto',
-        statusLabel: STATUS_LABELS.pronto,
+        summary: 'Melhor path no computador para qualquer pessoa.',
+        status: 'ready',
+        statusLabel: STATUS_LABELS.ready,
         recommended: preferred === 'desktop' || !preferred,
         stable: true,
         ready: true,
-        howToStart: desktopHint
-          ? 'Abra o app Zavorth Desktop e comece a conversar.'
+        howToStart: desktopHint ? 'Open the Zavorth Desktop app and start chatting.'
           : 'No projeto: zavorth open (ou abra o Desktop se instalado).',
         setupSteps: [
           'Instale ou abra o Zavorth Desktop / Control.',
-          'Fale em linguagem normal — o first-run guia idioma e aprendizado.',
+          'Use natural language; first-run guides language and learning.',
         ],
         envHints: [],
         nextStep: null,
@@ -129,62 +128,58 @@ export class ZavorthHumanReachService {
       {
         id: 'telegram',
         title: 'Telegram',
-        summary: telegramToken
-          ? 'Bot configurado — caminho estavel no celular (T1).'
-          : 'Canal estavel recomendado no celular.',
-        status: telegramToken ? 'pronto' : 'precisa-setup',
-        statusLabel: telegramToken ? STATUS_LABELS.pronto : STATUS_LABELS['precisa-setup'],
+        summary: telegramToken ? 'Bot configured — path stable no celular (T1).'
+          : 'Stable mobile channel recommended.',
+        status: telegramToken ? 'ready' : 'needs-setup',
+        statusLabel: telegramToken ? STATUS_LABELS.ready : STATUS_LABELS['needs-setup'],
         recommended: preferred === 'telegram' || !telegramToken,
         stable: true,
         ready: Boolean(telegramToken),
-        howToStart: telegramToken
-          ? 'Abra o bot no Telegram e mande qualquer mensagem.'
+        howToStart: telegramToken ? 'Open the Telegram bot and send any message.'
           : 'Crie um bot no @BotFather e cole o token.',
         setupSteps: [
           'No Telegram, fale com @BotFather e crie um bot.',
           'Copie o token.',
-          'Defina TELEGRAM_BOT_TOKEN no ambiente /.env.',
-          'Reinicie o host Zavorth e envie oi no bot.',
+          'set TELEGRAM_BOT_TOKEN no ambiente /.env.',
+          'Restart the Zavorth host and send a message to the bot.',
         ],
         envHints: ['TELEGRAM_BOT_TOKEN'],
-        nextStep: telegramToken ? null : 'Defina TELEGRAM_BOT_TOKEN e reinicie.',
+        nextStep: telegramToken ? null : 'set TELEGRAM_BOT_TOKEN e reinicie.',
         productTier: telegramTier?.tier || 'T1',
       },
       {
         id: 'whatsapp-cloud',
         title: 'WhatsApp oficial (Cloud API)',
-        summary: waToken && waPhone
-          ? 'Cloud API configurada — caminho de producao (T1).'
-          : 'WhatsApp estavel via API oficial da Meta (nao e Baileys).',
-        status: waToken && waPhone ? 'pronto' : 'precisa-setup',
-        statusLabel: waToken && waPhone ? STATUS_LABELS.pronto : STATUS_LABELS['precisa-setup'],
+        summary: waToken && waPhone ? 'Cloud API configured — production path (T1).'
+          : 'Stable WhatsApp via official Meta API (not Baileys).',
+        status: waToken && waPhone ? 'ready' : 'needs-setup',
+        statusLabel: waToken && waPhone ? STATUS_LABELS.ready : STATUS_LABELS['needs-setup'],
         recommended: preferred === 'desktop' ? false : false,
         stable: true,
         ready: Boolean(waToken && waPhone),
-        howToStart: waToken && waPhone
-          ? 'Use the numero Business configurado; mensagens entram pelo webhook.'
-          : 'Configure app Business no Meta Developers.',
+        howToStart: waToken && waPhone ? 'Use the number Business configured; messages enter through the webhook.'
+          : 'Configure the Business app in Meta Developers.',
         setupSteps: [
           'Crie app Business no developers.facebook.com',
-          'Ative o produto WhatsApp e pegue Phone Number ID + token permanente.',
-          'Defina WHATSAPP_ACCESS_TOKEN e WHATSAPP_PHONE_NUMBER_ID.',
-          'Configure webhook publico para /api/webhooks/whatsapp.',
+          'Enable the WhatsApp product and get the Phone Number ID plus a permanent token.',
+          'set WHATSAPP_ACCESS_TOKEN e WHATSAPP_PHONE_NUMBER_ID.',
+          'Configure the public webhook for /api/webhooks/whatsapp.',
         ],
         envHints: ['WHATSAPP_ACCESS_TOKEN', 'WHATSAPP_PHONE_NUMBER_ID', 'WHATSAPP_WEBHOOK_VERIFY_TOKEN'],
-        nextStep: waToken && waPhone ? null : 'Configure Cloud API ou ignore se nao for usar WhatsApp.',
+        nextStep: waToken && waPhone ? null : 'Configure Cloud API or ignore it if you will not use WhatsApp.',
         productTier: waTier?.tier || 'T1',
       },
       {
         id: 'web',
         title: 'Web / Control',
-        summary: 'Painel e chat no navegador (Control / experience).',
-        status: 'opcional',
-        statusLabel: STATUS_LABELS.opcional,
+        summary: 'Panel and chat in the browser experience.',
+        status: 'optional',
+        statusLabel: STATUS_LABELS.optional,
         recommended: preferred === 'web',
         stable: true,
         ready: true,
-        howToStart: 'Abra o Control local (zavorth ui / experience web).',
-        setupSteps: ['Suba o host local e abra a UI web do Zavorth.'],
+        howToStart: 'Open local Control (zavorth ui / experience web).',
+        setupSteps: ['Start the local host and open the Zavorth web UI.'],
         envHints: [],
         nextStep: null,
         productTier: 'T0',
@@ -192,14 +187,14 @@ export class ZavorthHumanReachService {
       {
         id: 'cli',
         title: 'Terminal',
-        summary: 'Para quem ja usa linha de comando.',
-        status: 'opcional',
-        statusLabel: STATUS_LABELS.opcional,
+        summary: 'Para quem already usa linha de comando.',
+        status: 'optional',
+        statusLabel: STATUS_LABELS.optional,
         recommended: preferred === 'cli',
         stable: true,
         ready: true,
         howToStart: 'Use the chat CLI / zavorth open no terminal.',
-        setupSteps: ['Instale o CLI e rode o host local.'],
+        setupSteps: ['Instale o CLI e run o host local.'],
         envHints: [],
         nextStep: null,
         productTier: 'T0',
@@ -207,9 +202,8 @@ export class ZavorthHumanReachService {
       {
         id: 'whatsapp-baileys',
         title: 'WhatsApp experimental (Baileys)',
-        summary: waProvider === 'baileys' || waBridge
-          ? 'Baileys selecionado/bridge apontado — T2 experimental, nao e o caminho padrao.'
-          : 'QR pessoal via processo isolado. So se Cloud API for inviavel.',
+        summary: waProvider === 'baileys' || waBridge ? 'Baileys selected/bridge pointed — experimental T2, not the default path.'
+          : 'QR pessoal via process isolado. So se Cloud API for inviavel.',
         status: 'experimental',
         statusLabel: STATUS_LABELS.experimental,
         recommended: false,
@@ -220,10 +214,10 @@ export class ZavorthHumanReachService {
           'cd scripts/whatsapp-bridge && npm install',
           'npm run whatsapp-bridge:start e escaneie o QR',
           'WHATSAPP_PROVIDER=baileys e WHATSAPP_BRIDGE_URL=http://127.0.0.1:3910',
-          'Opcional: WHATSAPP_BRIDGE_POLL=1 para inbound local',
+          'optional: WHATSAPP_BRIDGE_POLL=1 para inbound local',
         ],
         envHints: ['WHATSAPP_PROVIDER', 'WHATSAPP_BRIDGE_URL'],
-        nextStep: 'Prefira WhatsApp Cloud. Baileys so se necessario.',
+        nextStep: 'Prefer WhatsApp Cloud. Use Baileys only if necessary.',
         productTier: baileysTier?.tier || 'T2',
       },
     ];

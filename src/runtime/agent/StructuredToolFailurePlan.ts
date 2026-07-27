@@ -33,8 +33,7 @@ export function buildStructuredToolFailurePlan(input: {
     shouldRetry,
     nextActions,
     preferredAlternative,
-    userVisibleSummary: shouldRetry
-      ? `${toolName} failed temporarily and will be retried once.`
+    userVisibleSummary: shouldRetry ? `${toolName} failed temporarily and will be retried once.`
       : `${toolName} failed: ${errorMessage || 'unknown error'}.`,
   };
 }

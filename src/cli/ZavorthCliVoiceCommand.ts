@@ -70,7 +70,7 @@ async function voiceStatus(writer: CliWriter): Promise<CliExecutionResult> {
   const lines = [
     formatCliEventCard({ title: '🎙️ Voice Pipeline Status', tone: 'info' }),
     '',
-    `  Phase:        ${pipeline.phase}`,
+    `  State:        ${pipeline.state}`,
     `  Consented:    ${pipeline.consented ? '✅ Yes' : '❌ No'}`,
     `  Device Ready: ${pipeline.hasDevice ? '✅ Yes' : '❌ No'}`,
     `  Recording:    ${pipeline.isRecording ? '🔴 Active' : '⚪ Inactive'}`,
@@ -215,23 +215,20 @@ async function voiceDoctor(writer: CliWriter): Promise<CliExecutionResult> {
       label: 'Whisper Binary',
       ok: whisperBinary ? fs.existsSync(whisperBinary) : false,
       detail: whisperBinary
-        ? fs.existsSync(whisperBinary)
-          ? `Found: ${whisperBinary}`
+        ? fs.existsSync(whisperBinary) ? `Found: ${whisperBinary}`
           : `Not found: ${whisperBinary}`
         : 'Set ZAVORTH_WHISPER_BINARY to your whisper.cpp binary path',
     },
     {
       label: 'Whisper Model',
       ok: fs.existsSync(whisperModel),
-      detail: fs.existsSync(whisperModel)
-        ? `Found: ${whisperModel}`
+      detail: fs.existsSync(whisperModel) ? `Found: ${whisperModel}`
         : `Not found: ${whisperModel} — download from https://huggingface.co/ggerganov/whisper.cpp`,
     },
     {
       label: 'Microphone Command',
       ok: !!micCommand,
-      detail: micCommand
-        ? `Configured: ${micCommand}`
+      detail: micCommand ? `Configured: ${micCommand}`
         : 'Set ZAVORTH_VOICE_MIC_COMMAND for continuous listening',
     },
   ];

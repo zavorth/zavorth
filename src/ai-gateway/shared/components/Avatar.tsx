@@ -13,7 +13,7 @@ export default function Avatar({ src, alt = "Avatar", name, size = "md", classNa
 
   // Get initials from name
   const getInitials = (name) => {
-    if (!name) return "?";
+    if (!name) return "...";
     const parts = name.split(" ");
     if (parts.length >= 2) {
       return `${parts[0][0]}${parts[1][0]}`.toUpperCase();

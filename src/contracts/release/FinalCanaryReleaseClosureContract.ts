@@ -1,7 +1,7 @@
 import type { ReleaseCertificationGateStatus } from './ReleaseCertificationContract.js';
 import type { CanaryPromotionDecisionLedgerSnapshot } from './CanaryPromotionDecisionLedgerContract.js';
 
-export const ZAVORTH_FINAL_CANARY_RELEASE_CLOSURE_CONTRACT_VERSION = '2026-05-04.checkpoint-24';
+export const ZAVORTH_FINAL_CANARY_RELEASE_CLOSURE_CONTRACT_VERSION = '2026-05-04.gate-24';
 
 export type FinalCanaryReleaseClosureStatus =
   | 'closure-ready'
@@ -25,7 +25,7 @@ export type FinalCanaryReleaseClosureItemMode =
 export type FinalCanaryReleaseClosureSurface =
   | 'promotion-ledger'
   | 'release-execution'
-  | 'phase-chain'
+  | 'release-chain'
   | 'evidence'
   | 'release-handoff'
   | 'audit'
@@ -40,10 +40,10 @@ export type FinalCanaryReleaseClosureItem = {
   id:
     | 'promotion-decision-ledger-input'
     | 'held-release-execution-gate'
-    | 'checkpoint-20-approval-ledger-link'
-    | 'checkpoint-21-launch-rehearsal-link'
-    | 'checkpoint-22-monitoring-rollback-link'
-    | 'checkpoint-23-promotion-decision-link'
+    | 'gate-20-approval-ledger-link'
+    | 'gate-21-launch-rehearsal-link'
+    | 'gate-22-monitoring-rollback-link'
+    | 'gate-23-promotion-decision-link'
     | 'side-effect-zeroing-evidence'
     | 'signed-evidence-requirement-record'
     | 'release-handoff-package'
@@ -79,7 +79,7 @@ export type FinalCanaryReleaseClosureGate = {
   id:
     | 'promotion-decision-ledger-ready'
     | 'held-release-execution-gate-linked'
-    | 'phase-chain-complete'
+    | 'release-chain-complete'
     | 'closure-evidence-complete'
     | 'manual-handoffs-ready'
     | 'live-side-effects-blocked'

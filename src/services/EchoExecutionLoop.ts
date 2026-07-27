@@ -89,7 +89,7 @@ export class EchoExecutionLoop {
 
     if (!llmResponse.toolCalls || llmResponse.toolCalls.length === 0) {
       return {
-        response: llmResponse.content || 'O modelo respondeu mas nao usou nenhuma ferramenta.',
+        response: llmResponse.content || 'The model responded but did not use any tool.',
         status: 'success',
         toolCalls: [],
         llmRaw: llmResponse.content,
@@ -128,7 +128,7 @@ export class EchoExecutionLoop {
       const decision = await this.executionBoundary.decide(intent);
 
       if (decision.decision === 'blocked') {
-        const blockedMessage = decision.summary || `A ferramenta "${toolCall.name}" foi bloqueada pela politica ativa.`;
+        const blockedMessage = decision.summary || `Tool "${toolCall.name}" was blocked by the active policy.`;
         blockedTools.push(toolCall.name);
         traces.push({
           toolCall: {
@@ -148,7 +148,7 @@ export class EchoExecutionLoop {
         const permission = await this.permissions.request({
           action: toolCall.name,
           resource: JSON.stringify(toolArgs),
-          reason: decision.summary || `O LLM quer executar ${toolCall.name} em resposta a: "${input.prompt}"`,
+          reason: decision.summary || `The LLM wants to run ${toolCall.name} in response to: "${input.prompt}"`,
           metadata: {
             kind: 'tool',
             prompt: input.prompt,
@@ -192,8 +192,8 @@ export class EchoExecutionLoop {
         permissionsRequested.push(permission.id);
 
         const pendingMessage =
-          `Acao "${toolCall.name}" requer permissao. `
-          + `ID: ${permission.id}. Aprove no painel para executar.`;
+          `Action "${toolCall.name}" requires permission. `
+          + `ID: ${permission.id}. Approve in the panel to run.`;
         traces.push({
           toolCall: {
             toolName: toolCall.name,
@@ -300,7 +300,7 @@ export class EchoExecutionLoop {
       {
         role: 'system',
         content: [
-          'Voce e o Zavorth Echo, um assistente inteligente de automacao. Analise o pedido do usuario e use ferramentas quando uma acao local for necessaria.',
+          'You are Zavorth Echo, an intelligent automation assistant. Analyze the request and use tools when a local action is required.',
           buildUntrustedContentFirewallInstruction(),
         ].join(' '),
       },

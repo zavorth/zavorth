@@ -24,8 +24,7 @@ export class CodexWebSocketTransportAdapter {
   private redactHeaders(headers: Record<string, string>): Record<string, string> {
     const redacted: Record<string, string> = {};
     for (const [key, value] of Object.entries(headers)) {
-      redacted[key] = /authorization|token|cookie|key|secret/i.test(key)
-        ? '[redacted]'
+      redacted[key] = /authorization|token|cookie|key|secret/i.test(key) ? '[redacted]'
         : String(value);
     }
     return redacted;

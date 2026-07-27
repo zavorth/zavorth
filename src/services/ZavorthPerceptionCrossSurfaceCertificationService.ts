@@ -100,9 +100,9 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
 
   public async buildSnapshot(): Promise<ZavorthPerceptionCrossSurfaceCertificationSnapshot> {
     const naturalPlan = this.router.plan({
-      text: 'use subagentes para revisar o que aparece na tela e diga o proximo passo seguro',
+      text: 'use delegated review for the visible screen and report the next safe step',
       channel: 'web',
-      actorId: 'checkpoint-6-certification',
+      actorId: 'gate-6-certification',
       // Structured intent only — free text never activates subagent_perception.
       targetKind: 'visual',
       requestSubagents: true,
@@ -118,7 +118,7 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
     const surfaceProjections = PHASE_6_SURFACES.map((surface) =>
       buildSurfaceProjection(surface, surfaceResponse, zavorthControlProjection),
     );
-    const status = summarizeStatus([...certificationMatrix, ...surfaceProjections, zavorthControlProjection]);
+    const status = resumeStatus([...certificationMatrix, ...surfaceProjections, zavorthControlProjection]);
     const finalProjection = {
       ...zavorthControlProjection,
       status,
@@ -153,10 +153,10 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
         inspectJson: 'npm run qa:perception-surface-certification:json --silent',
         check: 'npm run qa:perception-surface-certification:check --silent',
         inspectTarget: 'npm run qa:perception-surface-certification:target --silent --id=<id>',
-        nextStep: 'Perception cross-surface certification matrix matches checkpoint-6',
+        nextStep: 'Perception cross-surface certification matrix matches gate-6',
       },
       nextSafeAction:
-        'Use /vision, /computer ou /device em modo read-only; live canary exige flag e owner approval explicitos.',
+        'Use /vision, /computer, or /device in read-only mode; live canary requires explicit flag and owner approval.',
     };
   }
 
@@ -189,24 +189,24 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
     const pc = this.vision.buildSnapshot({
       action: 'vision.inspect',
       targetKind: 'desktop',
-      observationText: 'Tela local sem segredo mostrando resultado pronto.',
+      observationText: 'local screen without secrets showing a ready result.',
       artifactPath: 'fixture://pc-screenshot.png',
       retentionTtlMs: 15 * 60 * 1000,
     });
     const browserDom = await this.browser.execute({
       action: 'browser.inspect',
       url: 'https://example.com/app',
-      domText: '<main><h1>ZavorthControl pronto</h1><button>CHECK</button></main>',
+      domText: '<main><h1>ZavorthControl ready</h1><button>CHECK</button></main>',
     });
     const browserScreenshot = await this.browser.execute({
       action: 'browser.inspect',
       url: 'https://example.com/app',
-      screenshotText: 'Screenshot do browser mostra tabela operacional carregada.',
+      screenshotText: 'Screenshot do browser mostra tabela operational loaded.',
     });
     const adbScreenshot = await this.android.execute({
       action: 'device.screenshot',
       live: true,
-      screenText: 'Tela Android de teste sem segredo.',
+      screenText: 'Android test screen without secrets.',
     });
     const adbUiDump = await this.android.execute({
       action: 'device.ui_dump',
@@ -216,23 +216,23 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
     const terminalBlock = await this.computer.execute({
       action: 'computer.plan',
       targetWindow: 'Windows PowerShell',
-      objective: 'digite um comando no terminal',
+      objective: 'type a command in the terminal',
     });
     const secretsBlock = await this.computer.execute({
       action: 'computer.plan',
       targetWindow: 'Bitwarden',
-      objective: 'olhe a senha salva',
+      objective: 'view the saved password',
     });
     const approvalRequired = await this.computer.execute({
       action: 'computer.plan',
       targetWindow: 'Notepad',
-      objective: 'clique no botao salvar e digite pronto',
+      objective: 'click the save button and type done',
     });
     const cancelPause = await this.computer.execute({
       action: 'computer.cancel',
       runId: 'fixture-run',
       targetWindow: 'Notepad',
-      objective: 'cancelar plano pendente',
+      objective: 'cancel pending plan',
     });
     return {
       pc,
@@ -375,7 +375,7 @@ function buildZavorthControlProjection(
       false,
       0,
       null,
-      '/agents spawn use subagentes para revisar a tela',
+      '/agents spawn review the screen',
     ),
   ];
   const pendingPlans = [
@@ -413,7 +413,7 @@ function buildZavorthControlProjection(
     contractVersion: ZAVORTH_PERCEPTION_CROSS_SURFACE_CERTIFICATION_VERSION,
     generatedAt,
     source: 'ZavorthPerceptionCrossSurfaceCertificationService',
-    status: summarizeStatus(matrix),
+    status: resumeStatus(matrix),
     targets,
     activeObservation: {
       route: 'vision/browser/android',
@@ -433,13 +433,13 @@ function buildZavorthControlProjection(
     },
     surface: {
       apiPath: '/api/zavorthControl/perception-control',
-      zavorthControlPath: '/zavorthControl?sector=perception',
+      zavorthControlPath: '/zavorthControl...sector=perception',
       channelCommand: '/vision status',
       cliCommand: 'node scripts/zavorth-perception-certification.ts',
       visualMutationApplied: false,
     },
     receipts: matrix.map((entry) => ({
-      id: `checkpoint-6:${entry.id}`,
+      id: `gate-6:${entry.id}`,
       kind: 'certification',
       status: entry.status,
       reason: entry.evidence,
@@ -470,8 +470,7 @@ function buildSurfaceProjection(
     interactiveActionsAvailable: interactive,
     commandCount: commands.length,
     primaryCommands: commands.slice(0, 8),
-    evidence: interactive
-      ? `${surface} can expose buttons/actions plus the same fallback text.`
+    evidence: interactive ? `${surface} can expose buttons/actions plus the same fallback text.`
       : `${surface} receives the same clean textual fallback and command vocabulary.`,
   };
 }
@@ -567,7 +566,7 @@ function receiptCount(s: PhaseSnapshots): number {
   ].reduce((sum, count) => sum + count, 0);
 }
 
-function summarizeStatus(
+function resumeStatus(
   items: Array<{ status: ZavorthPerceptionCrossSurfaceStatus }>,
 ): ZavorthPerceptionCrossSurfaceStatus {
   if (items.some((item) => item.status === 'blocked')) return 'blocked';

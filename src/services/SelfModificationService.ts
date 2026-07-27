@@ -91,7 +91,7 @@ export class SelfModificationService {
 
     const instruction = String(request.instruction || '').trim();
     if (!instruction) {
-      return this.makeFailureResult(validation.absolutePath, request.filePath, instruction, 'A instrução de modificação não pode ficar vazia.');
+      return this.makeFailureResult(validation.absolutePath, request.filePath, instruction, 'The modification instruction cannot be empty.');
     }
 
     const currentContent = await this.readCurrentContent(validation.absolutePath);
@@ -104,7 +104,7 @@ export class SelfModificationService {
         validation.absolutePath,
         request.filePath,
         instruction,
-        'O modelo não retornou conteúdo suficiente para gerar uma proposta segura.',
+        'The model did not return enough content to generate a safe proposal.',
         currentContent,
         modelResponse,
       );
@@ -126,7 +126,7 @@ export class SelfModificationService {
 
     return {
       success: true,
-      reason: changed ? 'Preview gerado com sucesso.' : 'O modelo retornou o mesmo conteúdo atual.',
+      reason: changed ? 'Preview generated successfully.' : 'The model returned the same current content.',
       filePath: request.filePath,
       absolutePath: validation.absolutePath,
       isNewFile: !fs.existsSync(validation.absolutePath),
@@ -136,7 +136,7 @@ export class SelfModificationService {
       summary,
       diffPatch,
       stats,
-      warnings: Array.from(new Set([...(proposal.warnings || []), ...(changed ? [] : ['O conteúdo proposto é idêntico ao atual.'])])),
+      warnings: Array.from(new Set([...(proposal.warnings || []), ...(changed ? [] : ['The proposed content is identical to the current one.'])])),
       modelResponseRaw: modelResponse,
     };
   }
@@ -158,7 +158,7 @@ export class SelfModificationService {
       return {
         ...effectivePreview,
         applied: false,
-        reason: 'Nenhuma alteração necessária. O arquivo já está sincronizado com a proposta.',
+        reason: 'No changes needed. The file is already synchronized with the proposal.',
       };
     }
 
@@ -183,30 +183,30 @@ export class SelfModificationService {
       {
         role: 'system',
         content: [
-          'Voce e o editor seguro oficial de auto-modificacao do Zavorth.',
-          'Sua tarefa e devolver apenas JSON valido com o novo conteudo completo do arquivo.',
-          'Nao devolva markdown, explicacao fora do JSON ou trechos parciais.',
-          'Se a mudanca nao for segura, retorne um JSON com fullContent vazio e uma justificativa em summary.',
-          'O caminho-alvo e sempre restrito a raiz do projeto.',
+          'You e o editor seguro oficial de auto-modification do Zavorth.',
+          'Your task is to return only valid JSON with the complete new file content.',
+          'Do not return markdown, explanation outside JSON, or partial snippets.',
+          'If the change is not safe, return JSON with empty fullContent and a justification in summary.',
+          'O path-alvo e sempre restrito a raiz do projeto.',
         ].join('\n'),
       },
       {
         role: 'user',
         content: [
-          `Arquivo alvo: ${relativePath}`,
-          `Instrução: ${instruction}`,
+          `Target file: ${relativePath}`,
+          `Instruction: ${instruction}`,
           '',
-          'Conteúdo atual do arquivo:',
+          'Current file content:',
           '---FILE_START---',
-          currentExcerpt || '(arquivo vazio)',
+          currentExcerpt || '(empty file)',
           '---FILE_END---',
           '',
-          'Retorne JSON no formato:',
+          'Return JSON in the format:',
           '{',
-          '  "fullContent": "conteudo completo final do arquivo",',
-          '  "summary": "resumo curto da mudança",',
-          '  "warnings": ["observações ou riscos"],',
-          '  "rationale": "por que a alteração foi feita"',
+          '  "fullContent": "final complete file content",',
+          '  "summary": "short summary of the change",',
+          '  "warnings": ["observations or risks"],',
+          '  "rationale": "why the change was made"',
           '}',
         ].join('\n'),
       },
@@ -242,8 +242,8 @@ export class SelfModificationService {
       fullContent: fallbackText,
       proposedContent: fallbackText,
       content: fallbackText,
-      summary: 'O modelo não retornou JSON; usando o texto bruto como proposta.',
-      warnings: ['Resposta do modelo não estava em JSON válido.'],
+      summary: 'The model did not return JSON; using the raw text as a proposal.',
+      warnings: ['Model response was not valid JSON.'],
       rationale: '',
       notes: [],
     };
@@ -255,14 +255,14 @@ export class SelfModificationService {
       lines.push(proposal.summary.trim());
     }
 
-    lines.push(`Resumo do diff: ${stats.insertions} inserções, ${stats.deletions} remoções, ${stats.changedLines} linhas afetadas.`);
+    lines.push(`Diff summary: ${stats.insertions} insertions, ${stats.deletions} deletions, ${stats.changedLines} lines affected.`);
 
     if (currentContent === proposedContent) {
-      lines.push('Nenhuma diferença real foi detectada entre o conteúdo atual e o proposto.');
+      lines.push('No real difference was detected between the current and proposed content.');
     }
 
     if (proposal.rationale) {
-      lines.push(`Motivo declarado pelo modelo: ${proposal.rationale.trim()}`);
+      lines.push(`Reason declared by the model: ${proposal.rationale.trim()}`);
     }
 
     return lines.join('\n').trim();
@@ -306,7 +306,7 @@ export class SelfModificationService {
     if (!insideProject) {
       return {
         allowed: false,
-        reason: 'O arquivo solicitado fica fora da raiz do projeto e foi bloqueado.',
+        reason: 'The requested file is outside the project root and was blocked.',
         absolutePath,
       };
     }
@@ -357,7 +357,7 @@ export class SelfModificationService {
     return [
       head,
       '',
-      '...[conteudo truncado]...',
+      '...[content truncated]...',
       '',
       tail,
     ].join('\n');
@@ -384,7 +384,7 @@ export class SelfModificationService {
 
   private stripCodeFences(text: string): string {
     return text
-      .replace(/```(?:json|ts|javascript|js|text)?/gi, '')
+      .replace(/```(?:json|ts|javascript|js|text).../gi, '')
       .replace(/```/g, '')
       .trim();
   }

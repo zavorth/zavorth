@@ -45,22 +45,22 @@ const EN: Catalog = {
 };
 
 const PT: Catalog = {
-  title: 'Sistema de Aprendizado Adaptativo Zavorth',
+  title: 'Sistema de Aprendizado Adaptactive Zavorth',
   status: 'status',
   green: 'Faixa Verde',
   yellow: 'Faixa Amarela',
   red: 'Faixa Vermelha',
-  userModel: 'modeloUsuario',
+  userModel: 'modeloUser',
   shadowSkills: 'skillsSombra',
-  policy: 'Politica: aprendizado local, reversivel e inspecionavel.',
-  greenPolicy: 'A Faixa Verde adapta preferencias de baixo risco com recibos.',
-  yellowPolicy: 'A Faixa Amarela prepara procedimentos, rascunhos e melhorias de skill para revisao.',
-  redPolicy: 'A Faixa Vermelha exige aprovacao explicita e bloqueia diagnostico psicologico bruto.',
+  policy: 'Politica: aprendizado local, reversible e inspecionavel.',
+  greenPolicy: 'The green lane adapts low-risk preferences with receipts.',
+  yellowPolicy: 'A Faixa Amarela prepara procedimentos, rascunhos e melhorias de skill para review.',
+  redPolicy: 'The Red Lane requires explicit approval and blocks raw psychological diagnosis.',
   qa: 'QA',
   autoApplied: 'autoaplicado(s)',
-  digestItems: 'item(ns) no digest',
-  approvalItems: 'item(ns) exigindo aprovacao',
-  evidenceRecords: 'registro(s) com evidencia',
+  digestItems: 'item(s) no digest',
+  approvalItems: 'item(s) requiring approval',
+  evidenceRecords: 'registro(s) com evidence',
   drafts: 'rascunho(s)',
 };
 
@@ -88,7 +88,11 @@ export class ZavorthAdaptiveLearningI18nService {
 
   private catalogFor(locale: string | null | undefined): Catalog {
     const normalized = String(locale || 'en').trim().toLowerCase().replace(/_/g, '-');
-    if (normalized.startsWith('pt')) return PT;
+    try {
+      if (new Intl.Locale(normalized).language === 'pt') return PT;
+    } catch {
+      if (normalized === 'pt') return PT;
+    }
     return EN;
   }
 }

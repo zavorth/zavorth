@@ -1,7 +1,7 @@
 import type { ReleaseCertificationGateStatus } from './ReleaseCertificationContract.js';
 import type { CanaryExecutionApprovalLedgerSnapshot } from './CanaryExecutionApprovalLedgerContract.js';
 
-export const ZAVORTH_CANARY_LAUNCH_REHEARSAL_CONTRACT_VERSION = '2026-05-04.checkpoint-21';
+export const ZAVORTH_CANARY_LAUNCH_REHEARSAL_CONTRACT_VERSION = '2026-05-04.gate-21';
 
 export type CanaryLaunchRehearsalStatus = 'rehearsal-ready' | 'attention' | 'blocked';
 
@@ -195,7 +195,7 @@ export type CanaryLaunchRehearsalSnapshot = {
     rollbackDryRun: string;
     focusedTests: string[];
     typecheck: string;
-    nextStage: 'Canary monitoring and rollback gate';
+    nextAction: 'Canary monitoring and rollback gate';
   };
   policy: {
     launchRehearsalOnly: true;

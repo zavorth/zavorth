@@ -286,8 +286,7 @@ export class PluginOsPromptInjectionService {
       return { prompt: systemPrompt, injection };
     }
     const base = String(systemPrompt || '').trimEnd();
-    const prompt = base
-      ? `${base}\n\n${injection.block}`
+    const prompt = base ? `${base}\n\n${injection.block}`
       : injection.block;
     return { prompt, injection };
   }

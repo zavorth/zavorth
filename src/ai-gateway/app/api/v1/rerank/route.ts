@@ -32,7 +32,7 @@ export async function OPTIONS() {
 
 /**
  * Build dynamic rerank provider from a local provider_node.
- * Local OpenAI-compatible backends (oMLX, vLLM, etc.) expose /v1/rerank
+ * local OpenAI-compatible backends (oMLX, vLLM, etc.) expose /v1/rerank
  * under the same base URL as chat.
  */
 function buildDynamicRerankProvider(node: any) {

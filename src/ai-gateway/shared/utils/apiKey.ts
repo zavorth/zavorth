@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { logger } from '@/shared/utils/logger';// FASE-01: No hardcoded fallback — enforced by secretsValidator at startup
+import { logger } from '@/shared/utils/logger';// No hardcoded fallback — enforced by secretsValidator at startup
 if (!process.env.API_KEY_SECRET) {
   console.error("[SECURITY] API_KEY_SECRET is not set. API key CRC validation is disabled.");
 }
@@ -38,7 +38,7 @@ function generateCrc(machineId: string, keyId: string): string {
 /**
  * Generate API key with machineId embedded
  * Format: sk-{machineId}-{keyId}-{crc8}
- * @param {string} machineId - 16-char machine ID
+ * @param {string} machineId ? 16-char machine ID
  * @returns {{ key: string, keyId: string }}
  */
 export function generateApiKeyWithMachine(machineId: string): { key: string; keyId: string } {

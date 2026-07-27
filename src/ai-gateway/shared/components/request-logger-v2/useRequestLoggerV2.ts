@@ -47,7 +47,7 @@ export function useRequestLoggerV2() {
           selectedApiKey,
         });
 
-        const response = await fetch(`/api/usage/call-logs?${query}`);
+        const response = await fetch(`/api/usage/call-logs...${query}`);
         if (response.ok) {
           const data = (await response.json()) as RequestLogEntry[];
           setLogs(data);
@@ -76,7 +76,7 @@ export function useRequestLoggerV2() {
   }, []);
 
   useEffect(() => {
-    void fetch("/api/logs/detail?limit=1")
+    void fetch("/api/logs/detail...limit=1")
       .then(async (response) => {
         if (!response.ok) return null;
         return (await response.json()) as { enabled?: boolean } | null;

@@ -194,7 +194,7 @@ export class SatelliteTransportService {
     let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
-    } catch (error: unknown) {this.sendError(session, 'INVALID_MESSAGE', 'Mensagem JSON invalida.');
+    } catch (error: unknown) {this.sendError(session, 'INVALID_MESSAGE', 'Invalid JSON message.');
       return;
     }
 
@@ -212,7 +212,7 @@ export class SatelliteTransportService {
       && envelope.type !== 'auth.response'
       && envelope.type !== 'heartbeat.ping'
     ) {
-      this.sendError(session, 'NOT_AUTHENTICATED', 'Autenticaction necessaria.', envelope.messageId);
+      this.sendError(session, 'NOT_AUTHENTICATED', 'Authentication required.', envelope.messageId);
       return;
     }
 
@@ -221,7 +221,7 @@ export class SatelliteTransportService {
       this.sendError(
         session,
         'UNKNOWN_MESSAGE_TYPE',
-        `Tipo de mensagem nao reconhecido: ${envelope.type}`,
+        `Unrecognized message type: ${envelope.type}`,
         envelope.messageId,
       );
       return;
@@ -236,7 +236,7 @@ export class SatelliteTransportService {
           error instanceof Error ? err.message : String(error)
         }`,
       );
-      this.sendError(session, 'HANDLER_ERROR', 'Erro interno ao processar mensagem.', envelope.messageId);
+      this.sendError(session, 'HANDLER_ERROR', 'Internal error while processing message.', envelope.messageId);
     }
   }
 
@@ -297,7 +297,7 @@ export class SatelliteTransportService {
           'auth.error',
           {
             code: 'INVALID_NONCE',
-            message: 'Challenge expirado ou invalido.',
+            message: 'Challenge expirado or invalid.',
           } satisfies SatelliteErrorPayload,
           envelope.messageId,
         );
@@ -315,7 +315,7 @@ export class SatelliteTransportService {
           'auth.error',
           {
             code: 'INVALID_TOKEN',
-            message: 'Token invalido.',
+            message: 'Token invalid.',
           } satisfies SatelliteErrorPayload,
           envelope.messageId,
         );
@@ -340,11 +340,11 @@ export class SatelliteTransportService {
       const payload = this.asRecord(envelope.payload) as SatelliteChatSendPayload;
       const text = String(payload.text || '').trim();
       if (!text) {
-        this.sendError(session, 'EMPTY_CHAT_MESSAGE', 'Mensagem vazia.', envelope.messageId);
+        this.sendError(session, 'EMPTY_CHAT_MESSAGE', 'Empty message.', envelope.messageId);
         return;
       }
       if (!this.chatHandler) {
-        this.sendError(session, 'CHAT_HANDLER_UNAVAILABLE', 'Gateway de chat indisponivel.', envelope.messageId);
+        this.sendError(session, 'CHAT_HANDLER_UNAVAILABLE', 'Gateway de chat unavailable.', envelope.messageId);
         return;
       }
 
@@ -363,7 +363,7 @@ export class SatelliteTransportService {
         this.sendCapabilityResult(session, envelope.messageId, {
           ok: false,
           result: null,
-          error: 'capabilityId ausente.',
+          error: 'capabilityId missing.',
         });
         return;
       }
@@ -373,7 +373,7 @@ export class SatelliteTransportService {
         this.sendCapabilityResult(session, envelope.messageId, {
           ok: false,
           result: null,
-          error: `Capability nao registrada: ${capabilityId}`,
+          error: `Capability not registered: ${capabilityId}`,
         });
         return;
       }
@@ -384,7 +384,7 @@ export class SatelliteTransportService {
             capabilityId,
             registered: true,
           },
-          error: 'Dispatcher de capability indisponivel.',
+          error: 'Dispatcher de capability unavailable.',
         });
         return;
       }

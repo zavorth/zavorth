@@ -52,8 +52,7 @@ export class TaskRepository {
         stdout_summary, stderr_summary, diff_summary, result_summary, error_summary,
         rollback_available, metadata
       ) VALUES (
-        ?, datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-      )`,
+        ..., datetime('now'), ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ?       )`,
       [
         persisted.task_id, persisted.source, persisted.chat_id, persisted.user_id, persisted.raw_message, persisted.normalized_message,
         persisted.command_type, persisted.intent, persisted.target, persisted.workspace, persisted.risk_level, persisted.status,
@@ -68,13 +67,13 @@ export class TaskRepository {
   }
 
   public getById(taskId: string): Task | undefined {
-    const raw = this.db.get('SELECT * FROM system_tasks WHERE task_id = ?', [taskId]);
+    const raw = this.db.get('SELECT * FROM system_tasks WHERE task_id = ...', [taskId]);
     return raw ? this.mapRow(raw) : undefined;
   }
 
   public getPendingTasks(): Task[] {
     const activeStatuses = StateMachine.getActiveStatuses();
-    const placeholders = activeStatuses.map(() => '?').join(',');
+    const placeholders = activeStatuses.map(() => '...').join(',');
     const rows = this.db.all(
       `SELECT * FROM system_tasks WHERE status IN (${placeholders})`,
       activeStatuses,
@@ -97,8 +96,8 @@ export class TaskRepository {
     const rawDb = this.db.getRawDb();
     const nowIso = new Date().toISOString();
     const staleBeforeIso = new Date(Date.now() - Math.max(1, staleAfterMs)).toISOString();
-    const commandPlaceholders = safeCommands.map(() => '?').join(', ');
-    const statusPlaceholders = safeStatuses.map(() => '?').join(', ');
+    const commandPlaceholders = safeCommands.map(() => '...').join(', ');
+    const statusPlaceholders = safeStatuses.map(() => '...').join(', ');
 
     const claim = rawDb.transaction(() => {
       const row = rawDb.prepare(
@@ -108,8 +107,7 @@ export class TaskRepository {
            AND (
              json_extract(metadata, '$.queue_lock.worker_id') IS NULL
              OR json_extract(metadata, '$.queue_lock.locked_at') IS NULL
-             OR json_extract(metadata, '$.queue_lock.locked_at') <= ?
-           )
+             OR json_extract(metadata, '$.queue_lock.locked_at') <= ?            )
          ORDER BY updated_at ASC
          LIMIT 1`,
       ).get(...safeCommands, ...safeStatuses, staleBeforeIso) as Record<string, any> | undefined;
@@ -137,10 +135,10 @@ export class TaskRepository {
     const safeLimit = Math.max(1, Math.min(limit, 50));
     const rows = userId
       ? this.db.all(
-          'SELECT * FROM system_tasks WHERE user_id = ? ORDER BY updated_at DESC LIMIT ?',
+          'SELECT * FROM system_tasks WHERE user_id = - ORDER BY updated_at DESC LIMIT ...',
           [userId, safeLimit],
         )
-      : this.db.all('SELECT * FROM system_tasks ORDER BY updated_at DESC LIMIT ?', [safeLimit]);
+      : this.db.all('SELECT * FROM system_tasks ORDER BY updated_at DESC LIMIT ...', [safeLimit]);
     return rows.map((r: Record<string, any>) => this.mapRow(r));
   }
 
@@ -151,14 +149,14 @@ export class TaskRepository {
     }
 
     const safeLimit = Math.max(1, Math.min(limit, 50));
-    const placeholders = normalizedUserIds.map(() => '?').join(', ');
+    const placeholders = normalizedUserIds.map(() => '...').join(', ');
     const rows = this.db.all(
       `SELECT * FROM system_tasks
        WHERE user_id IN (${placeholders})
           OR json_extract(metadata, '$.runtime_user_id') IN (${placeholders})
           OR json_extract(metadata, '$.surface_identity.runtime_user_id') IN (${placeholders})
        ORDER BY updated_at DESC
-       LIMIT ?`,
+       LIMIT ...`,
       [...normalizedUserIds, ...normalizedUserIds, ...normalizedUserIds, safeLimit],
     );
     return rows.map((row: Record<string, any>) => this.mapRow(row));
@@ -172,7 +170,7 @@ export class TaskRepository {
     }
 
     const safeLimit = Math.max(1, Math.min(limit, 50));
-    const placeholders = normalizedUserIds.map(() => '?').join(', ');
+    const placeholders = normalizedUserIds.map(() => '...').join(', ');
     const rows = this.db.all(
       `SELECT * FROM system_tasks
        WHERE (
@@ -181,11 +179,9 @@ export class TaskRepository {
          OR json_extract(metadata, '$.surface_identity.runtime_user_id') IN (${placeholders})
        )
        AND (
-         json_extract(metadata, '$.tenant_id') = ?
-         OR json_extract(metadata, '$.tenant_context.tenant_id') = ?
-       )
+         json_extract(metadata, '$.tenant_id') = ?          OR json_extract(metadata, '$.tenant_context.tenant_id') = ?        )
        ORDER BY updated_at DESC
-       LIMIT ?`,
+       LIMIT ...`,
       [...normalizedUserIds, ...normalizedUserIds, ...normalizedUserIds, normalizedTenantId, normalizedTenantId, safeLimit],
     );
     return rows.map((row: Record<string, any>) => this.mapRow(row));
@@ -199,7 +195,7 @@ export class TaskRepository {
 
     const safeLimit = Math.max(1, Math.min(limit, 100));
     const rows = this.db.all(
-      'SELECT * FROM system_tasks WHERE chat_id = ? ORDER BY updated_at DESC LIMIT ?',
+      'SELECT * FROM system_tasks WHERE chat_id = - ORDER BY updated_at DESC LIMIT ...',
       [safeChatId, safeLimit],
     );
     return rows.map((r: Record<string, any>) => this.mapRow(r));
@@ -213,7 +209,7 @@ export class TaskRepository {
 
     const row = excludeTaskId
       ? this.db.get(
-          'SELECT * FROM system_tasks WHERE user_id = ? AND task_id != ? ORDER BY created_at DESC LIMIT 1',
+          'SELECT * FROM system_tasks WHERE user_id = - AND task_id != - ORDER BY created_at DESC LIMIT 1',
           [safeUserId, excludeTaskId],
         )
       : this.db.get('SELECT * FROM system_tasks WHERE user_id = ? ORDER BY created_at DESC LIMIT 1', [safeUserId]);
@@ -227,8 +223,8 @@ export class TaskRepository {
       return undefined;
     }
 
-    const placeholders = normalizedUserIds.map(() => '?').join(', ');
-    const excludeClause = excludeTaskId ? 'AND task_id != ?' : '';
+    const placeholders = normalizedUserIds.map(() => '...').join(', ');
+    const excludeClause = excludeTaskId ? 'AND task_id != ...' : '';
     const params = excludeTaskId
       ? [...normalizedUserIds, ...normalizedUserIds, ...normalizedUserIds, excludeTaskId]
       : [...normalizedUserIds, ...normalizedUserIds, ...normalizedUserIds];
@@ -254,8 +250,8 @@ export class TaskRepository {
       return undefined;
     }
 
-    const placeholders = normalizedUserIds.map(() => '?').join(', ');
-    const excludeClause = excludeTaskId ? 'AND task_id != ?' : '';
+    const placeholders = normalizedUserIds.map(() => '...').join(', ');
+    const excludeClause = excludeTaskId ? 'AND task_id != ...' : '';
     const params = excludeTaskId
       ? [
           ...normalizedUserIds,
@@ -280,9 +276,7 @@ export class TaskRepository {
          OR json_extract(metadata, '$.surface_identity.runtime_user_id') IN (${placeholders})
        )
        AND (
-         json_extract(metadata, '$.tenant_id') = ?
-         OR json_extract(metadata, '$.tenant_context.tenant_id') = ?
-       )
+         json_extract(metadata, '$.tenant_id') = ?          OR json_extract(metadata, '$.tenant_context.tenant_id') = ?        )
        ${excludeClause}
        ORDER BY created_at DESC
        LIMIT 1`,

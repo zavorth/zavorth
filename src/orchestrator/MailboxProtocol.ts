@@ -59,8 +59,7 @@ export class MailboxProtocol {
   }) {
     this.secret = options?.secret || MailboxProtocol.resolveMailboxSecret();
     this.allowLegacy =
-      options?.allowLegacy ??
-      String(process.env.ZAVORTH_ALLOW_LEGACY_MAILBOX || '').trim().toLowerCase() === 'true';
+      options?.allowLegacy ??       String(process.env.ZAVORTH_ALLOW_LEGACY_MAILBOX || '').trim().toLowerCase() === 'true';
     this.maxAgeMs = options?.maxAgeMs || DEFAULT_MAX_AGE_MS;
   }
 
@@ -145,7 +144,7 @@ export class MailboxProtocol {
 
   public parseAndVerify(content: string): MailboxParseResult {
     if (!content.includes('[END_OF_MESSAGE]')) {
-      return { accepted: false, reason: 'Mensagem rejeitada: marcador de fim ausente.' };
+      return { accepted: false, reason: 'Message rejected: missing end marker.' };
     }
 
     const sender = this.readField(content, 'SENDER');
@@ -156,14 +155,14 @@ export class MailboxProtocol {
     const signature = this.readField(content, 'SIGNATURE');
     if (!signature) {
       if (!this.allowLegacy) {
-        return { accepted: false, reason: 'Mensagem rejeitada: assinatura ausente.' };
+        return { accepted: false, reason: 'Message rejected: missing signature.' };
       }
 
       const prompt =
         this.readField(content, 'PROMPT') ||
         this.decodeBase64Field(this.readField(content, 'PROMPT_B64'));
       if (!prompt) {
-        return { accepted: false, reason: 'Mensagem rejeitada: prompt ausente.' };
+        return { accepted: false, reason: 'Message rejected: missing prompt.' };
       }
 
       const workspace =
@@ -293,9 +292,16 @@ export class MailboxProtocol {
   }
 
   private readField(content: string, fieldName: string): string | null {
-    const escapedField = fieldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const match = content.match(new RegExp(`\\[${escapedField}:\\s*([^\\]]*)\\]`));
-    return match?.[1]?.trim() || null;
+    const prefix = `[${fieldName}:`;
+    for (const line of content.split('\n')) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith(prefix) || !trimmed.endsWith(']')) {
+        continue;
+      }
+      const value = trimmed.slice(prefix.length, -1).trim();
+      return value || null;
+    }
+    return null;
   }
 
   private decodeBase64Field(value: string | null): string | null {

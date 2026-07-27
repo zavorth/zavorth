@@ -228,7 +228,7 @@ export class OperationalSecurityService {
       }
 
       const lines = String(this.readFileSync(filePath, 'utf8') || '')
-        .split(/\r?\n/)
+        .split(/\r...\n/)
         .map((line) => line.trim())
         .filter(Boolean);
 
@@ -258,11 +258,10 @@ export class OperationalSecurityService {
     }
 
     if (source === 'runtime-file') {
-      return tokenFileExists
-        ? 'Protegido por token local persistido em arquivo.'
-        : 'Token local configurado para arquivo, mas o arquivo nao foi encontrado.';
+      return tokenFileExists ? 'Protected by a persisted local token file.'
+        : 'local token configured for file storage, but the file was not found.';
     }
 
-    return 'Sem autenticaction web efetiva detectada.';
+    return 'Sem authentication web efetiva detectada.';
   }
 }

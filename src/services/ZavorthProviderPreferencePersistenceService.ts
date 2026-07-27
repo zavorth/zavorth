@@ -86,10 +86,8 @@ export class ZavorthProviderPreferencePersistenceService {
       previous,
       next: denied ? previous : restored,
       backupPath: null,
-      summary: denied
-        ? 'Rollback blocked until the user explicitly confirms it.'
-        : restored
-          ? `Provider preference rollback restores ${restored.providerId}.`
+      summary: denied ? 'Rollback blocked until the user explicitly confirms it.'
+        : restored ? `Provider preference rollback restores ${restored.providerId}.`
           : 'Provider preference rollback clears the local runtime preference.',
     });
 
@@ -120,8 +118,7 @@ export class ZavorthProviderPreferencePersistenceService {
           reversible: false,
         },
       ],
-      nextAction: denied
-        ? 'Run rollback with --confirm or an approval id.'
+      nextAction: denied ? 'Run rollback with --confirm or an approval id.'
         : 'Provider preference rollback completed.',
     };
   }
@@ -350,7 +347,7 @@ export class ZavorthProviderPreferencePersistenceService {
     }
     const { ledgerPath } = this.resolvePaths();
     try {
-      const lines = (await fs.promises.readFile(ledgerPath, 'utf8')).split(/\r?\n/).filter(Boolean);
+      const lines = (await fs.promises.readFile(ledgerPath, 'utf8')).split(/\r...\n/).filter(Boolean);
       for (let index = lines.length - 1; index >= 0; index -= 1) {
         const parsed = JSON.parse(lines[index] || '{}') as LedgerRecord;
         if (parsed.id === receiptId) {

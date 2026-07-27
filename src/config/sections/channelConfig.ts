@@ -59,7 +59,7 @@ export function buildChannelConfig(projectRoot: string) {
       if (normalized === 'cloud-api' || normalized === 'baileys') {
         return normalized;
       }
-      return 'stub';
+      return 'local';
     })(),
     whatsappCloudApiVersion: getEnv('WHATSAPP_CLOUD_API_VERSION', 'v20.0').trim() || 'v20.0',
     whatsappPhoneNumberId: getEnv('WHATSAPP_PHONE_NUMBER_ID'),
@@ -76,7 +76,7 @@ export function buildChannelConfig(projectRoot: string) {
       if (normalized === 'meta-messaging') {
         return normalized;
       }
-      return 'stub';
+      return 'local';
     })(),
     instagramGraphApiVersion: getEnv('INSTAGRAM_GRAPH_API_VERSION', 'v20.0').trim() || 'v20.0',
     instagramBusinessAccountId: getEnv('INSTAGRAM_BUSINESS_ACCOUNT_ID'),
@@ -92,7 +92,7 @@ export function buildChannelConfig(projectRoot: string) {
     slackSigningSecret: getEnv('SLACK_SIGNING_SECRET'),
     slackTransport: (() => {
       const normalized = getEnv('SLACK_TRANSPORT', 'auto').trim().toLowerCase();
-      if (normalized === 'native' || normalized === 'stub') {
+      if (normalized === 'native' || normalized === 'local') {
         return normalized;
       }
       return 'auto';
@@ -106,7 +106,7 @@ export function buildChannelConfig(projectRoot: string) {
     signalEnabled: getEnvBool('SIGNAL_ENABLED'),
     signalTransport: (() => {
       const normalized = getEnv('SIGNAL_TRANSPORT', 'signal-cli').trim().toLowerCase();
-      if (normalized === 'signal-cli' || normalized === 'bridge' || normalized === 'stub') {
+      if (normalized === 'signal-cli' || normalized === 'bridge' || normalized === 'local') {
         return normalized;
       }
       return 'signal-cli';

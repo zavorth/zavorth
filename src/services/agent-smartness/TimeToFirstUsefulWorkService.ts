@@ -159,8 +159,7 @@ export class TimeToFirstUsefulWorkService {
     checks.push({
       id: 'daily-pe-service',
       pass: fs.existsSync(dailyPe),
-      notes: fs.existsSync(dailyPe)
-        ? 'Daily product experience service present (chatReady / happyPath).'
+      notes: fs.existsSync(dailyPe) ? 'Daily product experience service present (chatReady / happyPath).'
         : 'Missing ZavorthDailyProductExperienceService.',
     });
 
@@ -168,8 +167,7 @@ export class TimeToFirstUsefulWorkService {
     checks.push({
       id: 'desktop-starter-ask',
       pass: fs.existsSync(starterAsk),
-      notes: fs.existsSync(starterAsk)
-        ? 'Desktop first-win / starter ask surface present.'
+      notes: fs.existsSync(starterAsk) ? 'Desktop first-win / starter ask surface present.'
         : 'Missing desktop onboarding starter ask.',
     });
 
@@ -177,8 +175,7 @@ export class TimeToFirstUsefulWorkService {
     checks.push({
       id: 'user-selection-resolver',
       pass: fs.existsSync(selection),
-      notes: fs.existsSync(selection)
-        ? 'User provider selection resolver present (TTFU assumes provider already set).'
+      notes: fs.existsSync(selection) ? 'User provider selection resolver present (TTFU assumes provider already set).'
         : 'Missing UserSelectionResolver.',
     });
 
@@ -186,8 +183,7 @@ export class TimeToFirstUsefulWorkService {
     checks.push({
       id: 'daily-use-trail-doc',
       pass: fs.existsSync(trail),
-      notes: fs.existsSync(trail)
-        ? 'Daily use trail documented.'
+      notes: fs.existsSync(trail) ? 'Daily use trail documented.'
         : 'Missing daily-use-trail.md.',
     });
 
@@ -245,7 +241,7 @@ export class TimeToFirstUsefulWorkService {
       throw new Error(
         'TTFU refuses to record: live multi-step tool-plan did not pass '
         + '(multiStepOk/claimsLiveIntelligence required). '
-        + 'Do not invent fake TTFU measurements from probe-only or failed runs.',
+        + 'Do not invent synthetic TTFU measurements from probe-only or failed runs.',
       );
     }
 
@@ -386,8 +382,7 @@ export class TimeToFirstUsefulWorkService {
       ...report.structural.checks.map((c) => `- [${c.pass ? 'pass' : 'fail'}] ${c.id}: ${c.notes}`),
       '',
       '[measurement]',
-      report.latestMeasurement
-        ? `- latest: ${report.latestMeasurement.durationMs}ms provider=${report.latestMeasurement.providerId} underBudget=${report.latestMeasurement.underBudget}`
+      report.latestMeasurement ? `- latest: ${report.latestMeasurement.durationMs}ms provider=${report.latestMeasurement.providerId} underBudget=${report.latestMeasurement.underBudget}`
         : '- latest: none',
       '',
       ...report.notes.map((note) => `note: ${note}`),

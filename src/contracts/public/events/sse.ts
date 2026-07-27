@@ -50,7 +50,7 @@ export interface ApprovalRequiredData {
 export type SseApprovalRequiredEvent = BaseSseEvent<'approval_required', ApprovalRequiredData>;
 
 // Any event payload down the SSE tube
-export type PublicSseEvent = 
+export type PublicSseEvent =
   | SseConversationChunkEvent
   | SseWorkflowStatusEvent
   | SseApprovalRequiredEvent;

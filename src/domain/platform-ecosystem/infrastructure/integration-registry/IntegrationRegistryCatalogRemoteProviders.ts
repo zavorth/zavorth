@@ -31,7 +31,7 @@ export const INTEGRATION_REMOTE_PROVIDER_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'How do you want to use Gemini?', 'single_choice', 'Remote API is the default path.', {
+      question('install_mode', 'How do you want to use Gemini...', 'single_choice', 'Remote API is the default path.', {
         required: false,
         choices: [choice('api', 'Remote API', 'Recommended: nothing is installed locally.')],
       }),
@@ -77,7 +77,7 @@ export const INTEGRATION_REMOTE_PROVIDER_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'How do you want to use OpenAI?', 'single_choice', 'Remote API is the default path.', {
+      question('install_mode', 'How do you want to use OpenAI...', 'single_choice', 'Remote API is the default path.', {
         required: false,
         choices: [choice('api', 'Remote API', 'Recommended and already supported.')],
       }),
@@ -121,7 +121,7 @@ export const INTEGRATION_REMOTE_PROVIDER_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'How do you want to use MiniMax?', 'single_choice', 'Direct remote API is the supported path today.', {
+      question('install_mode', 'How do you want to use MiniMax...', 'single_choice', 'Direct remote API is the supported path today.', {
         required: false,
         choices: [choice('api', 'Remote API', 'Recommended for direct MiniMax usage.')],
       }),
@@ -165,12 +165,12 @@ export const INTEGRATION_REMOTE_PROVIDER_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'How do you want to use OpenRouter?', 'single_choice', 'Remote API is the default path.', {
+      question('install_mode', 'How do you want to use OpenRouter...', 'single_choice', 'Remote API is the default path.', {
         required: false,
         choices: [choice('api', 'Remote API', 'Recommended and already supported.')],
       }),
       commonCapabilityQuestion,
-      question('routing_goal', 'What is the main use case?', 'single_choice', 'This helps Zavorth suggest a profile.', {
+      question('routing_goal', 'What is the main use case...', 'single_choice', 'This helps Zavorth suggest a profile.', {
         required: false,
         choices: [
           choice('balanced', 'General use', 'Balances chat, code, and research.'),
@@ -213,7 +213,7 @@ export const INTEGRATION_REMOTE_PROVIDER_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'How do you want to use OpenCode?', 'single_choice', 'Remote API is the default path.', {
+      question('install_mode', 'How do you want to use OpenCode...', 'single_choice', 'Remote API is the default path.', {
         required: false,
         choices: [choice('api', 'Remote API', 'Recommended and already supported.')],
       }),
@@ -257,7 +257,7 @@ export const INTEGRATION_REMOTE_PROVIDER_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'Which path should be tried first?', 'single_choice', 'Assisted browser mode is usually the least invasive path.', {
+      question('install_mode', 'Which path should be tried first...', 'single_choice', 'Assisted browser mode is usually the least invasive path.', {
         required: false,
         choices: [
           choice('browser', 'Assisted browser', 'Useful when access exists but no integrated API is available yet.'),

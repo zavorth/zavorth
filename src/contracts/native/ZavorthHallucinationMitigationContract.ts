@@ -24,6 +24,12 @@ export type ZavorthHallucinationMitigationInput = {
   evidenceTexts?: string[];
   toolReceiptCount?: number;
   allowGeneralKnowledge?: boolean;
+  evidenceSensitive?: boolean;
+  highStakes?: boolean;
+  currentOrUnstable?: boolean;
+  sourceRequested?: boolean;
+  executionClaim?: boolean;
+  responseAlreadyUncertain?: boolean;
 };
 
 export type ZavorthHallucinationMitigationReview = {

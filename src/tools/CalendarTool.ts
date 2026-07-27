@@ -30,11 +30,11 @@ export class CalendarTool extends BaseTool {
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'create', 'list', 'update', 'delete'.",
+        description: "Action: 'create', 'list', 'update', 'delete'.",
       },
       title: {
         type: 'string',
-        description: 'Titulo do evento.',
+        description: 'Event title.',
       },
       start_time: {
         type: 'string',
@@ -54,11 +54,11 @@ export class CalendarTool extends BaseTool {
       },
       attendees: {
         type: 'string',
-        description: 'JSON array de emails dos participantes.',
+        description: 'JSON array of participant emails.',
       },
       reminder_minutes: {
         type: 'number',
-        description: 'Minutos antes do evento para lembrete.',
+        description: 'Reminder minutes before the event.',
       },
     },
     required: ['action'],
@@ -171,12 +171,12 @@ export class CalendarTool extends BaseTool {
     const lines: string[] = [];
     lines.push(`Event created successfully.`);
     lines.push(`  - UID: ${event.uid}`);
-    lines.push(`  - Titulo: ${event.title}`);
+        lines.push(`  - Title: ${event.title}`);
     lines.push(`  - Inicio: ${event.start_time}`);
     lines.push(`  - Fim: ${event.end_time}`);
     if (event.location) lines.push(`  - Local: ${event.location}`);
-    if (event.attendees.length > 0) lines.push(`  - Participantes: ${event.attendees.join(', ')}`);
-    if (event.reminder_minutes !== null) lines.push(`  - Lembrete: ${event.reminder_minutes} minutos antes`);
+    if (event.attendees.length > 0) lines.push(` ? Participantes: ${event.attendees.join(', ')}`);
+    if (event.reminder_minutes !== null) lines.push(` ? Lembrete: ${event.reminder_minutes} minutos before`);
     lines.push(`  - iCal: ${icalPath}`);
 
     return lines.join('\n');

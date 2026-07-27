@@ -11,7 +11,7 @@ export const TELEGRAM_OPERATOR_SLASH_COMMANDS = new Set([
   '/selfupdate',
 ]);
 
-const TELEGRAM_THIN_ADAPTER_PHASE = 'P3-001';
+const TELEGRAM_THIN_ADAPTER_CONTRACT = 'telegram-thin-adapter';
 
 export class TelegramLegacySurfacePolicyService {
   public isCriticalOperatorSlashCommand(rawText: string, commandType: string): boolean {
@@ -49,7 +49,7 @@ export class TelegramLegacySurfacePolicyService {
 
   public buildThinAdapterMetadata(): Record<string, unknown> {
     return {
-      phase: TELEGRAM_THIN_ADAPTER_PHASE,
+      phase: TELEGRAM_THIN_ADAPTER_CONTRACT,
       surface: 'telegram',
       telegramRole: 'thin-adapter',
       canonicalEntrypoint: 'ZavorthAgentGateway.handle',

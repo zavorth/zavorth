@@ -118,8 +118,7 @@ export class EvidenceSearchPlanBuilder {
         style: highRisk ? 'official-first' : 'community-first',
         separateFactsFromReports: true,
         requireCaveat: true,
-        guidance: highRisk
-          ? 'Lead with verified sources, then clearly label community reports as lived experience or discussion signals.'
+        guidance: highRisk ? 'Lead with verified sources, then clearly label community reports as lived experience or discussion signals.'
           : 'Use community sources to understand practical failures, workarounds and sentiment; distinguish them from confirmed facts.',
       },
     };

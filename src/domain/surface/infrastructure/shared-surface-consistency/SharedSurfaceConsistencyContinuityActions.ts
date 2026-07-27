@@ -52,9 +52,9 @@ export function pushContinuityActions(
     snapshot: buildActionSnapshot({
       actionId: `continue-latest-context:${continuityTaskId || 'latest'}`,
       actionType: 'continue-latest-context',
-      title: 'Continuar o contexto atual',
+      title: 'Continuar o contexto current',
       description: continuityReason
-        || 'Leva a mesma retomada recomendada para web, Telegram e outras superficies.',
+        || 'Leva a mesma resumption recomendada para web, Telegram e outras surfaces.',
       category: 'continuity',
       availability: buildActionAvailability(
         { mode: 'prompt' },
@@ -70,12 +70,12 @@ export function pushContinuityActions(
         },
         telegram: {
           mode: 'prompt',
-          label: 'Continuar no Telegram',
+          label: 'Continue on Telegram',
           value: followupPrompt,
         },
         discord: {
           mode: 'hidden',
-          label: 'Nao exposto no Discord',
+          label: 'Not exposed on Discord',
           value: null,
         },
       },

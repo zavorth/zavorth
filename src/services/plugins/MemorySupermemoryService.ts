@@ -268,7 +268,7 @@ export class MemorySupermemoryService {
 
   private summarizeContent(content: string): string {
     if (content.length <= this.SUMMARY_MAX_LENGTH) return content;
-    const sentences = content.split(/[.!?]+/).filter((s) => s.trim().length > 0);
+    const sentences = content.split(/[.!...]+/).filter((s) => s.trim().length > 0);
     if (sentences.length <= 2) return content.slice(0, this.SUMMARY_MAX_LENGTH) + '...';
     return sentences.slice(0, 2).join('. ').trim().slice(0, this.SUMMARY_MAX_LENGTH) + '...';
   }

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -36,7 +36,7 @@ const DOMAIN_CATALOG: ZavorthDomainProfile[] = [
     preferredTools: ['shell.execute', 'file.read', 'file.write', 'subagent.delegate'],
     assumptions: ['code quality matters', 'tests are expected', 'version control is used'],
     commonWorkflows: ['feature-branch', 'bug-fix', 'code-review', 'refactor'],
-    naturalAliases: ['dev', 'coding', 'programming', 'engenharia de software', 'programacao', 'desenvolvimento'],
+    naturalAliases: ['dev', 'coding', 'programming'],
   },
   {
     id: 'data-science',
@@ -46,7 +46,7 @@ const DOMAIN_CATALOG: ZavorthDomainProfile[] = [
     preferredTools: ['file.read', 'shell.execute', 'subagent.delegate'],
     assumptions: ['data quality is critical', 'reproducibility matters', 'notebooks are common'],
     commonWorkflows: ['eda', 'model-training', 'data-pipeline', 'reporting'],
-    naturalAliases: ['data', 'ml', 'machine learning', 'ciencia de dados', 'analise de dados'],
+    naturalAliases: ['data', 'ml', 'machine learning'],
   },
   {
     id: 'devops',
@@ -56,7 +56,7 @@ const DOMAIN_CATALOG: ZavorthDomainProfile[] = [
     preferredTools: ['shell.execute', 'file.read', 'file.write', 'network.fetch'],
     assumptions: ['infrastructure as code', 'automation over manual', 'observability is key'],
     commonWorkflows: ['deploy', 'incident-response', 'infra-change', 'monitoring-setup'],
-    naturalAliases: ['infra', 'sre', 'platform', 'operacoes', 'devops'],
+    naturalAliases: ['infra', 'sre', 'platform', 'devops'],
   },
   {
     id: 'creative-writing',
@@ -66,7 +66,7 @@ const DOMAIN_CATALOG: ZavorthDomainProfile[] = [
     preferredTools: ['file.read', 'file.write'],
     assumptions: ['voice matters', 'iteration is normal', 'feedback is valuable'],
     commonWorkflows: ['brainstorm', 'draft', 'edit', 'publish'],
-    naturalAliases: ['writing', 'content', 'escrita', 'redacao', 'conteudo'],
+    naturalAliases: ['writing', 'content', 'writing', 'copywriting', 'content'],
   },
   {
     id: 'business-ops',
@@ -76,7 +76,7 @@ const DOMAIN_CATALOG: ZavorthDomainProfile[] = [
     preferredTools: ['file.read', 'file.write', 'network.fetch'],
     assumptions: ['clarity over perfection', 'decisions need context', 'time is scarce'],
     commonWorkflows: ['planning', 'reporting', 'process-improvement', 'decision-making'],
-    naturalAliases: ['business', 'ops', 'management', 'negocios', 'gestao', 'operacoes'],
+    naturalAliases: ['business', 'ops', 'management'],
   },
   {
     id: 'research',
@@ -86,7 +86,7 @@ const DOMAIN_CATALOG: ZavorthDomainProfile[] = [
     preferredTools: ['network.fetch', 'file.read', 'file.write'],
     assumptions: ['evidence matters', 'sources must be cited', 'reproducibility is key'],
     commonWorkflows: ['literature-review', 'experiment', 'analysis', 'paper-writing'],
-    naturalAliases: ['pesquisa', 'research', 'academia', 'estudo', 'cientifico'],
+    naturalAliases: ['research', 'academic', 'science'],
   },
   {
     id: 'education',
@@ -96,7 +96,7 @@ const DOMAIN_CATALOG: ZavorthDomainProfile[] = [
     preferredTools: ['file.read', 'file.write'],
     assumptions: ['scaffolding helps', 'feedback is formative', 'diverse learners exist'],
     commonWorkflows: ['lesson-planning', 'assessment-creation', 'feedback', 'content-curation'],
-    naturalAliases: ['teaching', 'learning', 'educacao', 'ensino', 'aula', 'treinamento'],
+    naturalAliases: ['teaching', 'learning', 'training'],
   },
   {
     id: 'healthcare',
@@ -106,7 +106,7 @@ const DOMAIN_CATALOG: ZavorthDomainProfile[] = [
     preferredTools: ['file.read', 'file.write'],
     assumptions: ['privacy is paramount', 'accuracy is critical', 'regulations apply'],
     commonWorkflows: ['documentation', 'protocol-review', 'research', 'compliance-check'],
-    naturalAliases: ['health', 'medical', 'clinical', 'health', 'medicina', 'clinica'],
+    naturalAliases: ['health', 'medical', 'clinical'],
   },
   {
     id: 'legal',
@@ -116,7 +116,7 @@ const DOMAIN_CATALOG: ZavorthDomainProfile[] = [
     preferredTools: ['file.read', 'file.write', 'network.fetch'],
     assumptions: ['precision is essential', 'citations matter', 'confidentiality is critical'],
     commonWorkflows: ['contract-review', 'research', 'drafting', 'compliance-audit'],
-    naturalAliases: ['law', 'legal', 'juridico', 'direito', 'contrato'],
+    naturalAliases: ['law', 'legal', 'contract'],
   },
   {
     id: 'finance',
@@ -126,7 +126,7 @@ const DOMAIN_CATALOG: ZavorthDomainProfile[] = [
     preferredTools: ['file.read', 'file.write', 'network.fetch'],
     assumptions: ['numbers must be accurate', 'regulations apply', 'transparency is key'],
     commonWorkflows: ['reporting', 'forecasting', 'audit', 'analysis'],
-    naturalAliases: ['accounting', 'financial', 'financas', 'contabilidade', 'fiscal'],
+    naturalAliases: ['accounting', 'financial', 'fiscal'],
   },
   {
     id: 'general',
@@ -136,7 +136,7 @@ const DOMAIN_CATALOG: ZavorthDomainProfile[] = [
     preferredTools: ['file.read', 'file.write'],
     assumptions: ['be helpful', 'be clear', 'be concise'],
     commonWorkflows: [],
-    naturalAliases: ['general', 'default', 'geral', 'padrao'],
+    naturalAliases: ['general', 'default'],
   },
 ];
 
@@ -166,21 +166,7 @@ export class DomainSpecializationService {
         return { domainId: domain.id, confidence: 'explicit', reason: `Explicit selection: ${domain.id}`, matchedSignals: [] };
       }
     }
-    if (input.intent) {
-      const lower = input.intent.toLowerCase();
-      for (const domain of DOMAIN_CATALOG) {
-        if (domain.id === 'general') continue;
-        const matches = domain.naturalAliases.filter((a) => lower.includes(a.toLowerCase()));
-        if (matches.length > 0) {
-          return { domainId: domain.id, confidence: 'high', reason: `Intent matched aliases: ${matches.join(', ')}`, matchedSignals: matches };
-        }
-        const vocabMatches = domain.vocabulary.filter((v) => lower.includes(v.toLowerCase()));
-        if (vocabMatches.length >= 2) {
-          return { domainId: domain.id, confidence: 'medium', reason: `Vocabulary overlap: ${vocabMatches.join(', ')}`, matchedSignals: vocabMatches };
-        }
-      }
-    }
-    return { domainId: 'general', confidence: 'fallback', reason: 'No matching domain found', matchedSignals: [] };
+    return { domainId: 'general', confidence: 'fallback', reason: 'No explicit domain selected', matchedSignals: [] };
   }
 
   public buildContract(input: DomainResolveInput): ZavorthDomainSpecializationContract {
@@ -235,19 +221,8 @@ export class DomainSpecializationService {
     return lines.join('\n');
   }
 
-  private readText(filePath: string, fallback: string): string {
-    try {
-      if (!this.fs.existsSync(filePath)) return fallback;
-      return String(this.fs.readFileSync(filePath, 'utf8') || '');
-    } catch (error: unknown) {logger.warn('[Domain Specialization] filesystem operation failed', error); return fallback; }
-  }
-
   private writeText(filePath: string, content: string): void {
     this.fs.mkdirSync(path.dirname(filePath), { recursive: true });
     this.fs.writeFileSync(filePath, `${content.trimEnd()}\n`, 'utf8');
   }
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

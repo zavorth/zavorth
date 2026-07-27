@@ -159,8 +159,8 @@ export function buildWorkflowRecommendation(input: {
         confidence: Math.max(selectedConfidence, topWorkflowRecommendation ? 0.9 + recoveredWorkflowBoost : 0.84),
         rationale:
           String(topWorkflowRecommendation?.workflow || '').trim().toLowerCase() === 'research'
-            ? String(topWorkflowRecommendation?.rationale || '').trim() || 'O workspace ja tem historico forte de workflows de pesquisa.'
-            : 'Pesquisa com contexto recente ganha mais valor quando ja nasce como coleta mais sintese final.',
+            ? String(topWorkflowRecommendation?.rationale || '').trim() || 'The workspace already has strong research workflow history.'
+            : 'Pesquisa com contexto recente ganha mais value when already nasce como coleta mais final synthesis.',
       };
     }
     return null;
@@ -181,8 +181,8 @@ export function buildWorkflowRecommendation(input: {
         confidence: Math.max(selectedConfidence, topWorkflowRecommendation ? 0.91 + recoveredWorkflowBoost : 0.86),
         rationale:
           String(topWorkflowRecommendation?.workflow || '').trim().toLowerCase() === 'review'
-            ? String(topWorkflowRecommendation?.rationale || '').trim() || 'O workspace ja tem historico forte de workflows de review.'
-            : 'Review com continuidade do workspace fica melhor quando execucao e auditoria andam em etapas dedicadas.',
+            ? String(topWorkflowRecommendation?.rationale || '').trim() || 'The workspace already has strong review workflow history.'
+            : 'Review with workspace continuity works better when execution and audit run in dedicated steps.',
       };
     }
     return null;
@@ -203,8 +203,8 @@ export function buildWorkflowRecommendation(input: {
       confidence: Math.max(selectedConfidence, topWorkflowRecommendation ? 0.89 + recoveredWorkflowBoost : 0.82),
       rationale:
         String(topWorkflowRecommendation?.workflow || '').trim().toLowerCase() === 'ship'
-          ? String(topWorkflowRecommendation?.rationale || '').trim() || 'O workspace ja tem historico forte de workflows de entrega.'
-          : 'Entrega em varias etapas reduz retrabalho quando o workspace ja tem foco, artefato ou aprovacao recente.',
+          ? String(topWorkflowRecommendation?.rationale || '').trim() || 'The workspace already has strong delivery workflow history.'
+          : 'Multi-step delivery reduces rework when the workspace already has focus, artifacts, or recent approval.',
     };
   }
 

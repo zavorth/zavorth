@@ -24,7 +24,7 @@ export function buildContinuityRecommendations(input: ContinuityRecommendationIn
     recommendations.push({
       kind: 'resolve_approval',
       label: `Resolver ${approvalFocus.short_id}`,
-      reason: 'Existe uma etapa aguardando confirmacao humana neste workspace.',
+      reason: 'Existe uma stage waiting for human confirmation in this workspace.',
       task_id: approvalFocus.task_id,
       artifact_name: null,
       executor: approvalFocus.executor,
@@ -35,8 +35,8 @@ export function buildContinuityRecommendations(input: ContinuityRecommendationIn
   if (activeFocus) {
     recommendations.push({
       kind: 'resume_active',
-      label: `Retomar ${activeFocus.short_id}`,
-      reason: `Ha um foco ativo de ${activeFocus.kind}${activeFocus.subtype !== 'general' ? `/${activeFocus.subtype}` : ''} ainda em andamento.`,
+      label: `resume ${activeFocus.short_id}`,
+      reason: `Ha um foco active de ${activeFocus.kind}${activeFocus.subtype !== 'general' ? `/${activeFocus.subtype}` : ''} ainda running.`,
       task_id: activeFocus.task_id,
       artifact_name: null,
       executor: activeFocus.executor,
@@ -52,12 +52,10 @@ export function buildContinuityRecommendations(input: ContinuityRecommendationIn
   if (resumableWorkflow) {
     recommendations.push({
       kind: 'resume_workflow',
-      label: resumableWorkflow.resume_stage_label
-        ? `Retomar workflow ${resumableWorkflow.workflow_name} em ${resumableWorkflow.resume_stage_label}`
+      label: resumableWorkflow.resume_stage_label ? `resume workflow ${resumableWorkflow.workflow_name} em ${resumableWorkflow.resume_stage_label}`
         : `Resume workflow ${resumableWorkflow.workflow_name}`,
-      reason: resumableWorkflow.resume_stage_label
-        ? `Existe um workflow ${resumableWorkflow.workflow_name} ainda aberto com ${resumableWorkflow.completed_stages}/${resumableWorkflow.total_stages} etapa(s) concluida(s), e a retomada mais util agora e ${resumableWorkflow.resume_stage_label}.`
-        : `Existe um workflow ${resumableWorkflow.workflow_name} ainda aberto com ${resumableWorkflow.completed_stages}/${resumableWorkflow.total_stages} etapa(s) concluida(s).`,
+      reason: resumableWorkflow.resume_stage_label ? `Existe um workflow ${resumableWorkflow.workflow_name} ainda aberto com ${resumableWorkflow.completed_stages}/${resumableWorkflow.total_stages} stage(s) completed(s), e a resumption mais useful now is ${resumableWorkflow.resume_stage_label}.`
+        : `Existe um workflow ${resumableWorkflow.workflow_name} ainda aberto com ${resumableWorkflow.completed_stages}/${resumableWorkflow.total_stages} stage(s) completed(s).`,
       task_id: null,
       artifact_name: resumableWorkflow.primary_artifact_name,
       executor: null,
@@ -70,12 +68,10 @@ export function buildContinuityRecommendations(input: ContinuityRecommendationIn
   if (recoveredWorkflow) {
     recommendations.push({
       kind: 'continue_from_success',
-      label: recoveredWorkflow.last_interrupted_stage_label
-        ? `Continuar apos ${recoveredWorkflow.workflow_name} em ${recoveredWorkflow.last_interrupted_stage_label}`
-        : `Continuar apos workflow ${recoveredWorkflow.workflow_name}`,
-      reason: recoveredWorkflow.primary_artifact_name
-        ? `O workflow ${recoveredWorkflow.workflow_name} acabou de concluir uma retomada com sucesso e entregou ${recoveredWorkflow.primary_artifact_name}.`
-        : `O workflow ${recoveredWorkflow.workflow_name} acabou de concluir uma retomada com sucesso neste workspace.`,
+      label: recoveredWorkflow.last_interrupted_stage_label ? `Continuar after ${recoveredWorkflow.workflow_name} em ${recoveredWorkflow.last_interrupted_stage_label}`
+        : `Continuar after workflow ${recoveredWorkflow.workflow_name}`,
+      reason: recoveredWorkflow.primary_artifact_name ? `Workflow ${recoveredWorkflow.workflow_name} just completed a resumption successfully and delivered ${recoveredWorkflow.primary_artifact_name}.`
+        : `Workflow ${recoveredWorkflow.workflow_name} just completed a resumption successfully in this workspace.`,
       task_id: null,
       artifact_name: recoveredWorkflow.primary_artifact_name,
       executor: null,
@@ -86,7 +82,7 @@ export function buildContinuityRecommendations(input: ContinuityRecommendationIn
   if (repeatedFailure) {
     recommendations.push({
       kind: 'revisit_failure',
-      label: `Revisar falha em ${repeatedFailure.executor}`,
+      label: `review failure em ${repeatedFailure.executor}`,
       reason: repeatedFailure.summary,
       task_id: null,
       artifact_name: null,
@@ -99,7 +95,7 @@ export function buildContinuityRecommendations(input: ContinuityRecommendationIn
     recommendations.push({
       kind: 'reuse_recent_artifact',
       label: `Reusar ${recentArtifact.name}`,
-      reason: 'Ja existe uma entrega recente que pode servir como base para a proxima iteracao.',
+      reason: 'already existe uma entrega recente que pode servir como base para a next iteration.',
       task_id: recentArtifact.task_id,
       artifact_name: recentArtifact.name,
       executor: recentArtifact.executor,
@@ -110,7 +106,7 @@ export function buildContinuityRecommendations(input: ContinuityRecommendationIn
     recommendations.push({
       kind: 'continue_from_success',
       label: `Continuar de ${input.lastSuccessfulTask.task_id.substring(0, 8)}`,
-      reason: input.lastSuccessfulTask.summary || 'Ha uma execucao recente bem-sucedida neste workspace.',
+      reason: input.lastSuccessfulTask.summary || 'There is a recent successful execution in this workspace.',
       task_id: input.lastSuccessfulTask.task_id,
       artifact_name: null,
       executor: input.lastSuccessfulTask.executor,

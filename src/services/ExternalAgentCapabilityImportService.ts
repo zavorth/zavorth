@@ -224,7 +224,7 @@ export class ExternalAgentCapabilityImportService {
         `name: ${skillId}`,
         `description: ${description.replace(/"/g, "'").slice(0, 200)}`,
         'tools:',
-        ...tools.map((t) => `  - name: ${t.name}`),
+        ...tools.map((t) => ` ? name: ${t.name}`),
         '---',
         '',
         `# ${title}`,
@@ -402,7 +402,7 @@ function finishList(partial: {
       const lines = [
         `External agent capabilities: ${partial.profileId}`,
         `adapter=${partial.adapter || '—'} offline=${partial.offline} processExecuted=false count=${capabilities.length}`,
-        ...capabilities.slice(0, 40).map((c) => `  - ${c.id} | ${c.name} | ${c.kind || 'tool'} | ${c.source}`),
+        ...capabilities.slice(0, 40).map((c) => ` ? ${c.id} | ${c.name} | ${c.kind || 'tool'} | ${c.source}`),
         ...partial.findings.map((f) => `  note: ${f}`),
       ];
       if (!capabilities.length) lines.push('  (none — set allowedCapabilities or a capabilities file)');

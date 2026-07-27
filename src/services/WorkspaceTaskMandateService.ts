@@ -73,7 +73,7 @@ export class WorkspaceTaskMandateService {
     const mandateId = `mandate-${crypto.randomUUID()}`;
     const createdAt = new Date().toISOString();
     // Expiry will be calculated when approved/resolved. Setting a placeholder for now.
-    const expiresAt = ''; 
+    const expiresAt = '';
 
     // Target directories must be validated to be inside workspaceRoot
     const workspaceRoot = WorkspaceResolver.resolve(workspaceId);

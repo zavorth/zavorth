@@ -101,8 +101,7 @@ export class UniversalPowerFabricService {
 
     const status: PowerFabricSnapshot['status'] =
       backends.filter((b) => b.id === 'modal' || b.id === 'daytona').every((b) => b.posture === 'needs-configuration')
-        && !summary.trustedOperatorEnabled
-        ? 'attention'
+        && !summary.trustedOperatorEnabled ? 'attention'
         : 'ok';
 
     return {
@@ -133,8 +132,7 @@ export class UniversalPowerFabricService {
       narrative: {
         headline: 'Power Fabric inventory',
         operatorSummary: `${summary.backendsReady}/${summary.backendsTotal} backends usable · elastic ${summary.backendsElastic} · yellow ${summary.yellowCandidates} · trusted=${summary.trustedOperatorEnabled} · harness ready ${summary.harnessesReady}`,
-        nextSafeAction: summary.trustedOperatorEnabled
-          ? 'Green actions stay low-friction; promote Yellow candidates with consent; keep cloud backends gated.'
+        nextSafeAction: summary.trustedOperatorEnabled ? 'Green actions stay low-friction; promote Yellow candidates with consent; keep cloud backends gated.'
           : 'Enable Trusted Operator Mode for single-user green friction reduction, or configure modal/daytona for elastic exec.',
       },
     };

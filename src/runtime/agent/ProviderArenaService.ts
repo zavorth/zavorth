@@ -378,7 +378,7 @@ function selectedCandidateId(selection: LooseRecord | null, run: UniversalAgentR
   );
 }
 
-function routeProviderLabel(value: unknown, fallback = 'provider nao informado'): string {
+function routeProviderLabel(value: unknown, fallback = 'provider not provided'): string {
   const raw = normalizeText(value, fallback);
   if (raw.length <= 3) {
     return raw.toUpperCase();
@@ -455,10 +455,10 @@ function buildCurrentCandidate(input: {
     healthScore: scoreHealth(healthStatus, ready),
     source,
     explanation: [
-      input.selection ? 'Model Picker forneceu a selecao configurada.' : 'Perfil atual do run foi usado como baseline.',
-      input.route ? 'LlmRuntimeService forneceu a rota observada.' : '',
-      input.budget ? 'RunBudgetPolicy forneceu custo estimado.' : '',
-      fallbackUsed ? 'Fallback foi usado ou permitido nesta rota.' : '',
+      input.selection ? 'Model Picker provided the configured selection.' : 'Current run profile was used as baseline.',
+      input.route ? 'LlmRuntimeService forneceu a route observada.' : '',
+      input.budget ? 'RunBudgetPolicy provided estimated cost.' : '',
+      fallbackUsed ? 'Fallback foi usado ou permitido nesta route.' : '',
     ].filter(Boolean),
     fallbackRouteIds: listOrEmpty(input.selection?.fallbackOrder ?? input.run.modelProfile.fallbackOrder),
     receipts: input.observatoryReceiptIds,
@@ -488,7 +488,7 @@ function buildFallbackCandidates(input: {
       routeId: id,
       providerId: id,
       providerLabel: routeProviderLabel(attempt?.providerName, id),
-      modelLabel: normalizeText(attempt?.modelName, normalizeText(input.selection?.modelLabel, 'modelo nao informado')),
+      modelLabel: normalizeText(attempt?.modelName, normalizeText(input.selection?.modelLabel, 'model not provided')),
       familyId: id,
       routeKind: 'fallback',
       readiness: ready ? 'ready' : 'needs_probe',
@@ -507,8 +507,8 @@ function buildFallbackCandidates(input: {
       healthScore: scoreHealth(healthStatus, ready),
       source: 'fallback' as const,
       explanation: [
-        'Rota aparece na ordem de fallback.',
-        attempt ? `Status observado: ${normalizeText(attempt.status, 'unknown')}.` : 'Ainda sem tentativa observada neste run.',
+        'Route appears in fallback order.',
+        attempt ? `Status observado: ${normalizeText(attempt.status, 'unknown')}.` : 'No observed attempt for this run yet.',
       ],
       fallbackRouteIds: [],
       receipts: input.observatoryReceiptIds,
@@ -544,7 +544,7 @@ function buildCatalogCandidate(route: AccessRouteCatalogEntry, budget: LooseReco
     healthScore: scoreHealth(healthStatus, ready),
     source: 'catalog' as const,
     explanation: [
-      'Provider Mesh catalogu esta rota.',
+      'Provider Mesh catalogu is route.',
       route.issue ? `Issue: ${route.issue}` : '',
       route.health?.message ? `Health: ${route.health.message}` : '',
     ].filter(Boolean),
@@ -581,7 +581,7 @@ function buildReceipts(input: {
       id: `provider-arena:${input.run.id}:route`,
       kind: 'route',
       source: normalizeText(input.route.source, 'LlmRuntimeService'),
-      detail: `Rota efetiva: ${normalizeText(input.route.providerName, 'provider nao informado')}/${normalizeText(input.route.modelName, 'modelo nao informado')}.`,
+      detail: `Effective route: ${normalizeText(input.route.providerName, 'provider not provided')}/${normalizeText(input.route.modelName, 'model not provided')}.`,
       status: input.route.fallbackUsed === true ? 'pending' : 'done',
     });
   }
@@ -590,7 +590,7 @@ function buildReceipts(input: {
       id: `provider-arena:${input.run.id}:budget`,
       kind: 'budget',
       source: normalizeText(input.budget.source, 'RunBudgetPolicy'),
-      detail: `Custo estimado: ${normalizeText(input.budget.estimatedCostUnits, '?')}/${normalizeText(input.budget.maxEstimatedCostUnits, '?')} unidades.`,
+      detail: `Custo estimado: ${normalizeText(input.budget.estimatedCostUnits, '...')}/${normalizeText(input.budget.maxEstimatedCostUnits, '...')} unidades.`,
       status: input.budget.degraded === true ? 'failed' : 'done',
     });
   }
@@ -599,7 +599,7 @@ function buildReceipts(input: {
       id: `provider-arena:${input.run.id}:model-picker`,
       kind: 'model-picker',
       source: 'ModelPickerContract',
-      detail: `Selecao ${normalizeText(input.selection.source, 'configured')}: ${normalizeText(input.selection.providerLabel ?? input.selection.providerName, 'provider')}/${normalizeText(input.selection.modelLabel ?? input.selection.modelName, 'modelo')}.`,
+      detail: `Selection ${normalizeText(input.selection.source, 'configured')}: ${normalizeText(input.selection.providerLabel ?? input.selection.providerName, 'provider')}/${normalizeText(input.selection.modelLabel ?? input.selection.modelName, 'model')}.`,
       status: input.selection.ready === false ? 'pending' : 'done',
     });
   }
@@ -607,7 +607,7 @@ function buildReceipts(input: {
     id: `provider-arena:${input.run.id}:policy`,
     kind: 'policy',
     source: 'ProviderArenaService',
-    detail: 'Arena compara providers de forma read-only; nenhuma chamada de provider e nenhum secret sao serializados.',
+    detail: 'Arena compares providers in read-only mode; no provider call or secret is serialized.',
     status: 'done',
   });
   return receipts;
@@ -638,18 +638,18 @@ function buildNextSafeAction(input: {
   budget: LooseRecord | null;
 }): string {
   if (!input.recommended) {
-    return 'Conectar Model Picker ou executar uma rota LLM para gerar evidencias da arena.';
+    return 'Connect Model Picker or run an LLM route to generate arena evidence.';
   }
   if (input.budget?.degraded === true) {
-    return 'Revisar budget antes de promover a rota recomendada.';
+    return 'Review budget before promoting the recommended route.';
   }
   if (input.route?.fallbackUsed === true) {
-    return 'Investigar provider primario e manter fallback visivel antes de fixar a rota.';
+    return 'Investigate the primary provider and keep fallback visible before fixing the route.';
   }
   if (input.recommended.id !== input.selected?.id) {
-    return `Comparar ${input.selected?.providerLabel || 'rota atual'} com ${input.recommended.providerLabel} antes de trocar a selecao.`;
+    return `Compare ${input.selected?.providerLabel || 'current route'} with ${input.recommended.providerLabel} before changing the selection.`;
   }
-  return 'Manter a rota atual e continuar coletando receipts de custo, health e fallback.';
+  return 'Keep the current route and continue collecting cost, health, and fallback receipts.';
 }
 
 export class ProviderArenaService {
@@ -749,8 +749,8 @@ export class ProviderArenaService {
         budgetObserved: Boolean(budget),
         observatoryReceiptCount: observatoryArenaReceipts.length,
         hasProviderEvidence,
-        recommendedProviderLabel: recommended?.providerLabel || 'provider nao informado',
-        recommendedModelLabel: recommended?.modelLabel || 'modelo nao informado',
+        recommendedProviderLabel: recommended?.providerLabel || 'provider not provided',
+        recommendedModelLabel: recommended?.modelLabel || 'model not provided',
         recommendedFamilyId: recommended?.familyId || 'unknown',
         decisionSource,
       },
@@ -770,10 +770,10 @@ export class ProviderArenaService {
         fallbackCandidateIds,
         decisionSource,
         explanation: [
-          `Fonte da decisao: ${decisionSource}.`,
-          route ? 'Rota observada correlacionada com budget.' : 'Sem rota LLM observada neste snapshot.',
-          input.modelPickerContract ? 'Provider Mesh disponivel para comparar rotas catalogadas.' : 'Provider Mesh completo nao foi fornecido a esta chamada.',
-          recommended ? `Recomendacao atual: ${recommended.providerLabel}/${recommended.modelLabel} (${recommended.overallScore}).` : '',
+          `source da decision: ${decisionSource}.`,
+          route ? 'Observed route correlated with budget.' : 'without observed LLM route in this snapshot.',
+          input.modelPickerContract ? 'Provider Mesh available to compare cataloged routes.' : 'Complete Provider Mesh was not provided to this call.',
+          recommended ? `Recomendaction current: ${recommended.providerLabel}/${recommended.modelLabel} (${recommended.overallScore}).` : '',
         ].filter(Boolean),
       },
       receipts,
@@ -787,8 +787,8 @@ export class ProviderArenaService {
       },
       surface: {
         cliCommand: `zavorth arena run ${input.run.id} --json`,
-        zavorthControlPath: '/zavorthControl?sector=config',
-        arenaHint: 'Use a arena para comparar rota configurada, rota observada, fallback, budget e health antes de trocar provider.',
+        zavorthControlPath: '/zavorthControl...sector=config',
+        arenaHint: 'Use a arena para comparar route configurada, route observada, fallback, budget e health before trocar provider.',
       },
       nextSafeAction: buildNextSafeAction({
         recommended,

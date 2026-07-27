@@ -303,8 +303,7 @@ export class MinimalRuntimeModeGovernor {
       dryRun,
       plan: { ...plan, lease: recordedLease },
       lease: recordedLease,
-      message: dryRun
-        ? `Dry-run: ${plan.message}`
+      message: dryRun ? `Dry-run: ${plan.message}`
         : `Runtime mode lease ${recordedLease.id} opened; return profile is ${recordedLease.returnProfile}.`,
     };
   }
@@ -334,8 +333,7 @@ export class MinimalRuntimeModeGovernor {
       dryRun,
       applied: !dryRun,
       reason: String(options.reason || `Release temporary lease ${activeLease.id}`).trim(),
-      message: dryRun
-        ? `Dry-run: lease ${activeLease.id} would return to ${activeLease.returnProfile}.`
+      message: dryRun ? `Dry-run: lease ${activeLease.id} would return to ${activeLease.returnProfile}.`
         : `Lease ${activeLease.id} released; return to ${activeLease.returnProfile}.`,
       releaseOf: activeLease.id,
       reasons: [...activeLease.reasons, 'Release returns runtime mode to the previous profile.'],
@@ -509,7 +507,7 @@ export class MinimalRuntimeModeGovernor {
     }
     const leases: MinimalRuntimeModeLease[] = [];
     const errors: Array<{ line: number; reason: string }> = [];
-    fs.readFileSync(this.ledgerFile, 'utf8').split(/\r?\n/).forEach((line, index) => {
+    fs.readFileSync(this.ledgerFile, 'utf8').split(/\r...\n/).forEach((line, index) => {
       if (!line.trim()) {
         return;
       }

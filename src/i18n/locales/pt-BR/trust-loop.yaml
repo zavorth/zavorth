@@ -22,7 +22,7 @@ riskBudget:
   chipLabel: Orçamento de risco
 
 changePreview:
-  title: Se você aprovar, o que muda?
+  title: Se você aprovar, o que muda...
   limited: Prévia limitada — não é um gêmeo completo do mundo
   unavailable: Nenhuma mudança simulada disponível
 

@@ -187,12 +187,12 @@ export class McpRuntimeService {
     const enabledServers = servers.filter((entry) => entry.enabled !== false);
 
     if (enabledServers.length === 0) {
-      this.logRepo.log('warn', 'MCP', 'Nenhum servidor MCP habilitado no manifesto.');
+      this.logRepo.log('warn', 'MCP', 'No MCP server is enabled in the manifest.');
       this.writeSnapshot();
       return;
     }
 
-    // ── Global Phase 1: Connect all managers with interceptors ─────────────
+    // ── Connect all managers with interceptors ─────────────
     // Collect all discovered tools BEFORE making any drift/policy decisions.
     // This is necessary so collision detection (for legacy allowlist migration)
     // can see tools from ALL servers simultaneously, regardless of connect order.
@@ -223,7 +223,7 @@ export class McpRuntimeService {
       })
     );
 
-    // ── Global Phase 2: Resolve drift/migration with full collision context ─
+    // ── Resolve drift/migration with full collision context ─
     // Build the complete global list of ALL discovered namespaced names.
     const allGlobalNamespacedTools = perServerData.flatMap(
       ({ discovered }) => discovered.map((d) => d.namespacedName),
@@ -250,7 +250,7 @@ export class McpRuntimeService {
         });
         this.logRepo.log(
           'warn', 'MCP',
-          `Falha ao conectar servidor MCP ${server.id}: ${getErrorMessage(error)}`,
+          `Failure ao conectar server MCP ${server.id}: ${getErrorMessage(error)}`,
         );
         this.writeSnapshot();
         continue;
@@ -279,7 +279,7 @@ export class McpRuntimeService {
       });
       this.logRepo.log(
         'info', 'MCP',
-        `Servidor MCP ${server.id} conectado${server.capability ? ` (${server.capability})` : ''}.`,
+        `server MCP ${server.id} conectado${server.capability ? ` (${server.capability})` : ''}.`,
       );
       this.writeSnapshot();
     }
@@ -299,7 +299,7 @@ export class McpRuntimeService {
       } catch (error: unknown) {this.logRepo.log(
           'warn',
           'MCP',
-          `Falha ao desconectar servidor MCP ${manager.name}: ${getErrorMessage(error)}`,
+          `Failure ao desconectar server MCP ${manager.name}: ${getErrorMessage(error)}`,
         );
       }
 
@@ -316,7 +316,7 @@ export class McpRuntimeService {
   }
 
   /**
-   * Para um servidor MCP individual sem afetar os outros.
+   * Para um server MCP individual without afetar os outros.
    */
   public async stopServer(serverId: string): Promise<boolean> {
     const managerIndex = this.managers.findIndex((manager) => manager.name === serverId);
@@ -330,7 +330,7 @@ export class McpRuntimeService {
     } catch (error: unknown) {this.logRepo.log(
         'warn',
         'MCP',
-        `Falha ao desconectar servidor MCP ${manager.name}: ${getErrorMessage(error)}`,
+        `Failure ao desconectar server MCP ${manager.name}: ${getErrorMessage(error)}`,
       );
     }
 
@@ -342,14 +342,14 @@ export class McpRuntimeService {
     }
 
     this.writeSnapshot();
-    this.logRepo.log('info', 'MCP', `Servidor MCP ${serverId} parado individualmente.`);
+    this.logRepo.log('info', 'MCP', `server MCP ${serverId} parado individualmente.`);
     return true;
   }
 
   /**
-   * Recarrega (ou inicia pela primeira vez) um servidor MCP individual.
+   * Reloads, or starts for the first time, one MCP server.
    * If it is already running, stop and restart it. Useful for hot reload after
-   * alteracoes no manifesto via McpManagementService.
+   * changes no manifest via McpManagementService.
    */
   public async reloadServer(serverId: string): Promise<{
     ok: boolean;
@@ -383,7 +383,7 @@ export class McpRuntimeService {
         lastError: null,
       });
       this.writeSnapshot();
-      return { ok: false, toolCount: 0, toolNames: [], error: `Servidor "${serverId}" esta desabilitado no manifesto.` };
+      return { ok: false, toolCount: 0, toolNames: [], error: `server "${serverId}" is disabled no manifest.` };
     }
 
     const manager = this.managerFactory(serverEntry);
@@ -412,7 +412,7 @@ export class McpRuntimeService {
       this.logRepo.log(
         'info',
         'MCP',
-        `Servidor MCP ${serverId} (re)carregado com ${registeredToolNames.length} tool(s).`,
+        `server MCP ${serverId} (re)loaded com ${registeredToolNames.length} tool(s).`,
       );
 
       return { ok: true, toolCount: registeredToolNames.length, toolNames: registeredToolNames, error: null };
@@ -434,7 +434,7 @@ export class McpRuntimeService {
       this.logRepo.log(
         'warn',
         'MCP',
-        `Falha ao (re)carregar servidor MCP ${serverId}: ${getErrorMessage(error)}`,
+        `Failure ao (re)carregar server MCP ${serverId}: ${getErrorMessage(error)}`,
       );
 
       return { ok: false, toolCount: 0, toolNames: [], error: getErrorMessage(error) };
@@ -487,8 +487,7 @@ export class McpRuntimeService {
         serverId,
         tools: entry?.toolNames || [],
         status: entry?.status || null,
-        message: entry
-          ? `MCP server ${serverId} status=${entry.status} tools=${entry.toolCount}`
+        message: entry ? `MCP server ${serverId} status=${entry.status} tools=${entry.toolCount}`
           : `MCP server ${serverId} is not present in the runtime snapshot (start MCP runtime first).`,
         setup: entry
           ? undefined
@@ -599,7 +598,7 @@ export class McpRuntimeService {
     return crypto.createHash('sha256').update(data).digest('hex');
   }
 
-  /** Phase 1: Connect a single manager using a RegistryInterceptor to capture tools without registering them. */
+  /** Connect a single manager using a RegistryInterceptor to capture tools without registering them. */
   private async collectDiscoveredTools(
     manager: McpManagerLike,
     serverId: string,
@@ -624,7 +623,7 @@ export class McpRuntimeService {
   }
 
   /**
-   * Phase 2: Resolve drift/migration for a list of discovered tools.
+   * Resolve drift/migration for a list of discovered tools.
    * `allActiveNamespacedTools` must include ALL tools visible in scope (from all servers)
    * so that legacy-allowlist collision detection is order-independent.
    * Mutates `policyDoc` in memory; the caller is responsible for persisting it once.
@@ -702,7 +701,7 @@ export class McpRuntimeService {
             status = 'approved';
             this.logRepo.log(
               'info', 'MCP',
-              `Auto-migrando ferramenta legada "${namespacedName}" (allowlist simples "${legacyItem}").`,
+              `Auto-migrating legacy tool "${namespacedName}" (simple allowlist "${legacyItem}").`,
             );
             this.policyFileService.autoMigrateLegacyTool(policyDoc, namespacedName, fingerprint, description);
             changed = true;
@@ -710,7 +709,7 @@ export class McpRuntimeService {
             this.logRepo.log(
               'warn', 'MCP',
               `Colisao detectada para allowlist legada "${legacyItem}" — `
-              + `${collisions.length} servidores expondo. "${namespacedName}" fica como pending_approval.`,
+              + `${collisions.length} servers expondo. "${namespacedName}" fica como pending_approval.`,
             );
             this.policyFileService.markToolPending(policyDoc, namespacedName, fingerprint, 'new_tool', description);
             changed = true;
@@ -724,7 +723,7 @@ export class McpRuntimeService {
             });
           }
         } else {
-          this.logRepo.log('warn', 'MCP', `Nova ferramenta detectada: "${namespacedName}". Marcando como pending_approval.`);
+          this.logRepo.log('warn', 'MCP', `New tool detected: "${namespacedName}". Marking as pending_approval.`);
           this.policyFileService.markToolPending(policyDoc, namespacedName, fingerprint, 'new_tool', description);
           changed = true;
           this.auditLogger.logMcpRuntimeEvent({
@@ -745,7 +744,7 @@ export class McpRuntimeService {
       if (!globalDecision.allowed) {
         this.logRepo.log(
           'warn', 'MCP',
-          `Ferramenta "${namespacedName}" aprovada no drift, mas bloqueada pela politica global: ${globalDecision.reason}`,
+          `Tool "${namespacedName}" approved in drift but blocked by global policy: ${globalDecision.reason}`,
         );
         this.auditLogger.logMcpRuntimeEvent({
           event: 'mcp_tool_blocked',
@@ -780,8 +779,8 @@ export class McpRuntimeService {
 
   /**
    * Single-server connection (used by reloadServer).
-   * Phase 1: collect this server's tools.
-   * Phase 2: resolve with `alreadyRegisteredFromOthers` providing cross-server collision context.
+   * Collect this server's tools.
+   * Resolve with `alreadyRegisteredFromOthers` providing cross-server collision context.
    * Saves policy atomically after processing.
    */
   private async connectManager(manager: McpManagerLike, serverId: string): Promise<string[]> {

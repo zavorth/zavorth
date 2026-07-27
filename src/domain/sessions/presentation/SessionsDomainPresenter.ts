@@ -11,7 +11,7 @@ export class SessionsDomainPresenter {
       summary: readModel.operatorSummary,
       details: [
         readModel.headline,
-        `Sessions visiveis: ${readModel.sessions}.`,
+        `Visible sessions: ${readModel.sessions}.`,
         `History items: ${readModel.historyItems}.`,
         `Source: ${readModel.source}.`,
       ],

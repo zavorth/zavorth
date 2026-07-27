@@ -118,6 +118,6 @@ export type ZavorthSemanticChannelMeshCertificationSnapshot = {
     inspectJson: 'npm run semantic-channel-mesh-certification:json --silent';
     check: 'npm run semantic-channel-mesh-certification:check --silent';
     qa: 'npm run qa:semantic-channel-mesh-certification --silent';
-    nextStage: 'S5 - Memory, Document, Search And Terminal Semantics';
+    nextAction: 'Memory, document, search, and terminal semantics';
   };
 };

@@ -1,4 +1,4 @@
-export const AI_FIRST_ROUTE_PLAN_CONTRACT_VERSION = '2026-05-06.checkpoint-1' as const;
+export const AI_FIRST_ROUTE_PLAN_CONTRACT_VERSION = '2026-05-06.gate-1' as const;
 
 export const AI_FIRST_ROUTE_PLAN_INTENTS = [
   'conversation',

@@ -75,8 +75,7 @@ export async function GET(request: Request) {
         reason: runtime.reason,
         settings: null,
         message:
-          runtime.installed && !runtime.runnable
-            ? "Cline CLI is installed but not runnable"
+          runtime.installed && !runtime.runnable ? "Cline CLI is installed but not runnable"
             : "Cline CLI is not installed",
       });
     }

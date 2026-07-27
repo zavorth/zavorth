@@ -156,7 +156,7 @@ export class SddFeatureWorkspaceService {
         currentRole: snapshot.nextRole,
         currentTask: snapshot.currentTask?.text || null,
         lastActor: 'system',
-        note: 'Estado inicial do loop SDD criado automaticamente.',
+        note: 'Estado inicial do loop SDD created automaticamente.',
       });
     }
 
@@ -168,9 +168,9 @@ export class SddFeatureWorkspaceService {
           '',
           `Feature: \`${snapshot.featureId}\``,
           '',
-          '## Ultima passagem',
+          '## Latest pass',
           '',
-          '- Nenhum handoff registrado ainda.',
+          '- No handoff registrado ainda.',
           '',
         ].join('\n'),
         'utf8',
@@ -228,7 +228,7 @@ export class SddFeatureWorkspaceService {
   public resolvePaths(featureId: string): SddFeaturePaths {
     const normalizedFeatureId = this.normalizeFeatureId(featureId);
     if (!normalizedFeatureId) {
-      throw new Error('featureId obrigatorio para o loop SDD.');
+      throw new Error('featureId required para o loop SDD.');
     }
 
     const featureDir = path.join(this.projectRoot, 'specs', 'features', ...normalizedFeatureId.split('/'));
@@ -269,7 +269,7 @@ export class SddFeatureWorkspaceService {
 
   private parseTasks(content: string): SddFeatureTask[] {
     return String(content || '')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((line, index) => {
         const match = line.match(TASK_LINE_PATTERN);
         if (!match) {
@@ -309,7 +309,7 @@ export class SddFeatureWorkspaceService {
     const sources = [specContent, planContent];
     for (const content of sources) {
       const firstHeading = String(content || '')
-        .split(/\r?\n/)
+        .split(/\r...\n/)
         .find((line) => line.trim().startsWith('# '));
       if (!firstHeading) {
         continue;

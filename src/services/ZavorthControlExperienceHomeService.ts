@@ -92,7 +92,7 @@ const MISSIONS: ZavorthControlExperienceHomeMission[] = [
     id: 'check-readiness',
     label: 'Check what is ready',
     description: 'Ask which providers, channels and approvals need attention.',
-    prompt: 'What is ready and what still needs setup?',
+    prompt: 'What is ready and what still needs setup...',
     href: '/control/health',
     risk: 'low',
     approvalExpectation: 'Read-only runtime projections; no live probes by default.',
@@ -103,34 +103,34 @@ const QUESTIONS: ZavorthControlExperienceHomeQuestion[] = [
   {
     id: 'providers-ready',
     label: 'Providers',
-    question: 'Which providers are ready?',
-    command: 'zavorth ask-runtime "which providers are ready?"',
+    question: 'Which providers are ready...',
+    command: 'zavorth ask-runtime "which providers are ready..."',
   },
   {
     id: 'channels-ready',
     label: 'Channels',
-    question: 'Which channels can I use now?',
-    command: 'zavorth ask-runtime "which channels can I use now?"',
+    question: 'Which channels can I use now...',
+    command: 'zavorth ask-runtime "which channels can I use now..."',
   },
   {
     id: 'pending-approvals',
     label: 'Approvals',
-    question: 'Do I have pending approvals?',
-    command: 'zavorth ask-runtime "do I have pending approvals?"',
+    question: 'Do I have pending approvals...',
+    command: 'zavorth ask-runtime "do I have pending approvals..."',
   },
   {
     id: 'safety-boundary',
     label: 'Safety',
-    question: 'What can Zavorth do without asking first?',
-    command: 'zavorth ask-runtime "what can Zavorth do without asking first?"',
+    question: 'What can Zavorth do without asking first...',
+    command: 'zavorth ask-runtime "what can Zavorth do without asking first..."',
   },
 ];
 
 const PERMISSION_PANEL: ZavorthControlPermissionPanelItem[] = [
   {
     id: 'permissions',
-    label: 'Permissoes',
-    summary: 'Veja o que esta pendente, aprovado, rejeitado ou expirado antes de continuar.',
+    label: 'Permissions',
+    summary: 'check what is pending, approved, rejected, or expired before continuing.',
     icon: 'verified_user',
     href: '/control/logs',
     statusLabel: 'Scoped',
@@ -139,8 +139,8 @@ const PERMISSION_PANEL: ZavorthControlPermissionPanelItem[] = [
   },
   {
     id: 'auto-approvals',
-    label: 'Auto-aprovacoes',
-    summary: 'Permissoes persistentes ficam limitadas por escopo, prazo, risco e recibo.',
+    label: 'Auto-approvals',
+    summary: 'Permissions persistentes ficam limitadas por escopo, prazo, risk e recibo.',
     icon: 'rule_settings',
     href: '/control/settings',
     statusLabel: 'Limited',
@@ -150,7 +150,7 @@ const PERMISSION_PANEL: ZavorthControlPermissionPanelItem[] = [
   {
     id: 'extreme-mode',
     label: 'Modo extremo',
-    summary: 'Break-glass exige confirmacao forte; ainda bloqueia catastrofes obvias.',
+    summary: 'Break-glass requires strong confirmation and still blocks obvious catastrophes.',
     icon: 'emergency_home',
     href: '/control/settings',
     statusLabel: 'Guarded',
@@ -160,7 +160,7 @@ const PERMISSION_PANEL: ZavorthControlPermissionPanelItem[] = [
   {
     id: 'revoke',
     label: 'Revogar',
-    summary: 'Corte rapidamente permissoes persistentes, canais, providers ou sessoes sensiveis.',
+    summary: 'Quickly cut persistent permissions, channels, providers, or sensitive sessions.',
     icon: 'lock_reset',
     href: '/control/settings',
     statusLabel: 'Fast off',
@@ -170,7 +170,7 @@ const PERMISSION_PANEL: ZavorthControlPermissionPanelItem[] = [
   {
     id: 'receipts',
     label: 'Receipts',
-    summary: 'Toda decisao sensivel deve deixar prova legivel do escopo e do motivo.',
+    summary: 'every sensitive decision must leave readable proof of scope and reason.',
     icon: 'receipt_long',
     href: '/control/logs',
     statusLabel: 'Audit',
@@ -185,7 +185,7 @@ const GETTING_STARTED: ZavorthControlExperienceHomeFirstStep[] = [
     label: 'Setup checklist',
     summary: 'Connect channels, providers and execution backend with clear proof before live use.',
     command: 'npm run zavorth:zavorthControl-setup-checklist',
-    href: '/control/providers?setup=checklist',
+    href: '/control/providers...setup=checklist',
     optional: false,
   },
   {
@@ -209,7 +209,7 @@ const GETTING_STARTED: ZavorthControlExperienceHomeFirstStep[] = [
     label: 'Try the demo',
     summary: 'Optional guided demo and local browser visual for first-time operators.',
     command: 'zavorth demo browser',
-    href: '/control?demo=guided',
+    href: '/control...demo=guided',
     optional: true,
   },
   {
@@ -243,17 +243,17 @@ export class ZavorthControlExperienceHomeService {
         areas: HOME_AREAS,
       },
       gettingStarted: {
-        title: 'Primeiros passos',
+        title: 'Getting started',
         summary: 'Setup is the onboarding path, go is daily use, and demo is optional.',
         steps: GETTING_STARTED,
       },
       primaryMissions: MISSIONS,
       runtimeQuestions: QUESTIONS,
       permissionPanel: {
-        title: 'Permissoes',
-        summary: 'Controle approvals, auto-aprovacoes, modo extremo, revogacao e receipts sem transformar o zavorthControl em atalho de execucao.',
+        title: 'Permissions',
+        summary: 'Manage approvals, auto-approvals, elevated mode, revocation, and receipts without turning zavorthControl into an execution shortcut.',
         items: PERMISSION_PANEL,
-        defaultPosture: 'Projection-only: botoes abrem revisao, configuracao ou recibos; a acao sensivel continua no Trust Plane.',
+        defaultPosture: 'Projection-only: buttons open review, configuration, or receipts; sensitive action remains in the Trust Plane.',
       },
       quietReadiness: {
         title: 'Quiet readiness',

@@ -19,7 +19,7 @@ function compact(value: string | null | undefined, maxLength = 96): string {
 
 function nodeLine(node: ZavorthSupervisorGraphNode): string {
   const capability = node.capability ? ` | cap ${node.capability}` : '';
-  const approval = node.requiresApproval ? ' | aprova' : '';
+  const approval = node.requiresApproval ? ' | approves' : '';
   return `- ${node.id}: ${node.status}${capability}${approval}`;
 }
 
@@ -63,7 +63,7 @@ export function formatSupervisorGraphSnapshot(snapshot: ZavorthSupervisorGraphSn
       tone: snapshot.reflexion.attemptsUsed > 0 ? 'warning' : 'neutral',
       lines: [
         `- active: ${snapshot.reflexion.enabled ? 'yes' : 'no'}`,
-        `- tentativas usadas: ${snapshot.reflexion.attemptsUsed}`,
+        `- attempts usadas: ${snapshot.reflexion.attemptsUsed}`,
         ...correctionLines,
       ],
     },

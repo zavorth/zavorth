@@ -311,7 +311,7 @@ function buildGates(input: {
     gate(
       'connector-live-still-disabled',
       runtimeConnector?.supportsLive === false,
-      'The Intent model1 source connector must still be a simulated connector, not a live executor.',
+      'The Intent model1 source connector must still be a dryRun connector, not a live executor.',
       [`connector=${runtimeConnector?.id ?? 'none'}`, `supportsLive=${String(runtimeConnector?.supportsLive ?? 'unknown')}`],
     ),
     gate(
@@ -591,7 +591,7 @@ function sanitizeId(value: string): string {
 }
 
 function rawSecretValue(text: string): string {
-  const assignment = /\b(?:api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/i.exec(text)?.[1];
+  const assignment = /\b(?:api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]\s*([^\s,;]+)/i.exec(text)?.[1];
   if (assignment) {
     return assignment;
   }

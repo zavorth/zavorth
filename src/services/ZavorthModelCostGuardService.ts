@@ -37,10 +37,10 @@ const PROVIDER_TIERS: Record<string, Omit<ZavorthModelCostGuardProviderCard, 're
     id: 'ollama',
     label: 'Ollama',
     tier: 'free_or_local',
-    bestFor: ['Local/private drafts', 'low-cost routine work', 'offline experimentation'],
+    bestFor: ['local/private drafts', 'low-cost routine work', 'offline experimentation'],
     privacy: 'local',
     costKnown: true,
-    note: 'Local runtime cost depends on the host machine, not per-token billing.',
+    note: 'local runtime cost depends on the host machine, not per-token billing.',
   },
   'custom-openai-compatible': {
     id: 'custom-openai-compatible',
@@ -252,7 +252,7 @@ export class ZavorthModelCostGuardService {
         'Model Cost Guard never treats a provider catalog entry as permission to spend.',
         'Live hosted provider use requires readiness evidence and a budget boundary.',
         'Unknown provider pricing is treated as approval-required, not free.',
-        'Local models may avoid token billing but still consume host resources.',
+        'local models may avoid token billing but still consume host resources.',
         'Cost limits become enforceable only when provider/tool usage reports are available; otherwise they are conservative routing gates.',
       ],
     };
@@ -341,13 +341,7 @@ function readiness(status: string, liveReady: boolean): ZavorthModelCostGuardPro
 }
 
 function classifyMission(request: string | null): ZavorthModelCostGuardContract['missionKind'] {
-  const text = normalize(request);
-  if (/repo|code|bug|test|patch|github|developer/.test(text)) return 'development';
-  if (/pdf|document|summar/.test(text)) return 'documents';
-  if (/business|report|audit|client|customer|company/.test(text)) return 'business';
-  if (/schedule|cron|routine|every day|remind|automation/.test(text)) return 'automation';
-  if (/phone|adb|screen|browser|computer|device/.test(text)) return 'device';
-  if (/day|message|file|organize|personal|daily/.test(text)) return 'daily';
+  void request;
   return 'unknown';
 }
 
@@ -355,9 +349,8 @@ function classifyComplexity(
   request: string | null,
   missionKind: ZavorthModelCostGuardContract['missionKind'],
 ): ZavorthModelCostGuardContract['estimate']['complexity'] {
-  const text = normalize(request);
-  if (/large|entire|whole|all files|subagents|deep|audit|architecture|refactor/.test(text)) return 'large';
   if (missionKind === 'development' || missionKind === 'business' || missionKind === 'automation' || missionKind === 'device') return 'medium';
+  const text = normalize(request);
   if (text.split(/\s+/).filter(Boolean).length > 30) return 'medium';
   return 'small';
 }
@@ -487,7 +480,7 @@ function shortCopy(
 function approvalPrompt(decision: ZavorthModelCostGuardDecision, maxCents: number): string {
   if (decision === 'allow_preview') return 'No paid model approval needed for preview/local work.';
   if (decision === 'block_until_configured') return 'Configure or unblock the provider before live use.';
-  return `Zavorth wants to use a live model with a visible max budget of ${formatCents(maxCents)}. Allow once?`;
+  return `Zavorth wants to use a live model with a visible max budget of ${formatCents(maxCents)}. Allow once...`;
 }
 
 function formatCents(cents: number): string {

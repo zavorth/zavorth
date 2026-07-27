@@ -844,7 +844,7 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     capabilities: ['filesystem', 'network'],
     defaultRisk: 'safe',
     requiresConfirmation: false,
-    description: 'API builder — OpenAPI spec, endpoints, mock server, tests.',
+    description: 'API builder — OpenAPI spec, endpoints, local server, tests.',
   },
   {
     toolName: 'zavorth_terminal_backends',

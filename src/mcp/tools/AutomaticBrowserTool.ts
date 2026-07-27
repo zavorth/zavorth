@@ -264,8 +264,8 @@ export class AutomaticBrowserTool {
           launchable: false,
           error: 'Playwright module loaded, but chromium.launch is not available.',
           recommendations: [
-            'Revise a versao provisionada de playwright-core/playwright.',
-            'Garanta que a stack de browser expose chromium.launch antes de habilitar o MCP browser.',
+            'Revise a version provisionada de playwright-core/playwright.',
+            'Garanta que a stack de browser expose chromium.launch before habilitar o MCP browser.',
           ],
         };
       }
@@ -283,7 +283,7 @@ export class AutomaticBrowserTool {
           launchable: true,
           error: null,
           recommendations: [
-            'A stack de browser esta pronta para o AutomaticBrowserTool.',
+            'The browser stack is ready for AutomaticBrowserTool.',
           ],
         };
       } catch (error: unknown) { const err = asErrorLike(error); const e = err;
@@ -376,7 +376,7 @@ export class AutomaticBrowserTool {
     const locator = page.locator(selector);
     const count = await locator.count();
     if (count === 0) {
-      throw new Error(`Nenhum elemento encontrado para o seletor "${selector}".`);
+      throw new Error(`No element found for selector "${selector}".`);
     }
 
     const details = await locator.first().evaluate((element) => ({
@@ -494,7 +494,7 @@ export class AutomaticBrowserTool {
     const locator = page.locator(selector);
     const count = await locator.count();
     if (count === 0) {
-      throw new Error(`Nenhum elemento encontrado para click no seletor "${selector}".`);
+      throw new Error(`No element found to click for selector "${selector}".`);
     }
     const target = locator.first();
     if (typeof target.click === 'function') {
@@ -531,7 +531,7 @@ export class AutomaticBrowserTool {
     const locator = page.locator(selector);
     const count = await locator.count();
     if (count === 0) {
-      throw new Error(`Nenhum elemento encontrado para type no seletor "${selector}".`);
+      throw new Error(`No element found to type into for selector "${selector}".`);
     }
     const target = locator.first();
     if (typeof target.fill === 'function') {
@@ -632,7 +632,7 @@ export class AutomaticBrowserTool {
     args: Record<string, unknown>,
   ): Promise<McpToolCallResponse> {
     if (!this.browserSidecar) {
-      throw new Error('Browser sidecar remoto indisponivel.');
+      throw new Error('Remote browser sidecar unavailable.');
     }
 
     const response = await this.browserSidecar.execute({
@@ -653,7 +653,7 @@ export class AutomaticBrowserTool {
 
   private getActivePage(): PlaywrightPageLike {
     if (!this.page) {
-      throw new Error('Nenhuma pagina ativa no browser MCP. Use browser_navigate primeiro.');
+      throw new Error('No active page in the MCP browser. Use browser_navigate first.');
     }
     return this.page;
   }
@@ -714,7 +714,7 @@ export class AutomaticBrowserTool {
       } catch (error: unknown) { const err = asErrorLike(error); const e = err;
         const detail = coreError instanceof Error ? ` (${coreError.message})` : '';
         throw new Error(
-          `AutomaticBrowserTool requer playwright-core ou playwright provisionado para navegacao real${detail}.`,
+          `AutomaticBrowserTool requires playwright-core or provisioned playwright for real navigation${detail}.`,
         );
       }
     }
@@ -724,18 +724,18 @@ export class AutomaticBrowserTool {
     const normalized = String(message || '').toLowerCase();
     if (normalized.includes('playwright-core') || normalized.includes('cannot find module')) {
       return [
-        'Providencie playwright-core ou playwright no host antes de habilitar a automacao de browser.',
-        'Use o doctor para confirmar quando a dependencia opcional estiver instalada.',
+        'Provide playwright-core or playwright on the host before enabling browser automation.',
+        'Use doctor to confirm when the optional dependency is installed.',
       ];
     }
     if (normalized.includes('executable') || normalized.includes('browser') || normalized.includes('chromium')) {
       return [
         'The JavaScript dependency exists, but the browser binary is not ready for launch yet.',
-        'Provisionar o browser stack do Playwright no host deve resolver esse ponto.',
+              'Provisioning the Playwright browser stack on the host should resolve this issue.',
       ];
     }
     return [
-      'Revise o erro retornado pelo doctor antes de expor o AutomaticBrowserTool em producao.',
+      'Review the error returned by doctor before exposing AutomaticBrowserTool in production.',
     ];
   }
 
@@ -779,18 +779,18 @@ export class AutomaticBrowserTool {
     if (verification.ok) {
       return;
     }
-    throw new Error(`${action} exige uma approval envelope assinada e valida (${verification.reason}).`);
+    throw new Error(`${action} requires a signed and valid approval envelope (${verification.reason}).`);
   }
 
   private buildSearchUrl(engine: string, query: string): string {
     const encoded = encodeURIComponent(query);
     switch (engine) {
       case 'google':
-        return `https://www.google.com/search?q=${encoded}`;
+        return `https://www.google.com/search...q=${encoded}`;
       case 'youtube':
-        return `https://www.youtube.com/results?search_query=${encoded}`;
+        return `https://www.youtube.com/results...search_query=${encoded}`;
       case 'github':
-        return `https://github.com/search?q=${encoded}`;
+        return `https://github.com/search...q=${encoded}`;
       default:
         throw new Error(`browser_search does not support engine "${engine}".`);
     }

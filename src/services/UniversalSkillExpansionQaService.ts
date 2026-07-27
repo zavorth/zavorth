@@ -128,7 +128,7 @@ export class UniversalSkillExpansionQaService {
       lines.push(`- ${action}`);
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextStage}`);
+    lines.push('', `Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -177,7 +177,7 @@ export class UniversalSkillExpansionQaService {
         run: 'npm run zavorth:universal-skill-expansion-qa -- --source <path>',
         runJson: 'npm run zavorth:universal-skill-expansion-qa:json -- --source <path>',
         check: 'npm run zavorth:universal-skill-expansion-qa:check --silent',
-        nextStage: 'ZavorthControl controls - Real Source Onboarding and Continuous Regression',
+        nextAction: 'ZavorthControl controls - Real Source Onboarding and Continuous Regression',
       },
     };
   }
@@ -241,18 +241,15 @@ export class UniversalSkillExpansionQaService {
       {
         id: 'import',
         label: 'Governed Import',
-        status: !expansion.apply
-          ? 'waiting'
+        status: !expansion.apply ? 'waiting'
           : expansion.status === 'passed'
             ? 'passed'
             : expansion.status === 'partial'
               ? 'attention'
               : 'blocked',
-        summary: expansion.apply
-          ? `${expansion.summary.materialized} imported, ${expansion.summary.denied} denied.`
+        summary: expansion.apply ? `${expansion.summary.materialized} imported, ${expansion.summary.denied} denied.`
           : 'Waiting for explicit apply.',
-        nextAction: expansion.apply
-          ? 'Review denied entries and generated provenance.'
+        nextAction: expansion.apply ? 'Review denied entries and generated provenance.'
           : 'Run limited apply with an explicit allowlist.',
       },
       {
@@ -260,8 +257,7 @@ export class UniversalSkillExpansionQaService {
         label: 'Bridge dry-run',
         status: expansion.summary.bridgeReady > 0
           ? 'passed'
-          : expansion.apply
-            ? 'blocked'
+          : expansion.apply ? 'blocked'
             : 'waiting',
         summary: `${expansion.summary.bridgeReady} skill(s) ready for dry-run.`,
         nextAction: expansion.summary.bridgeReady > 0
@@ -285,8 +281,7 @@ export class UniversalSkillExpansionQaService {
     ];
     const recommendedMode = input.status === 'blocked'
       ? 'hold'
-      : !expansion.apply
-        ? 'limited-apply'
+      : !expansion.apply ? 'limited-apply'
         : expansion.summary.bridgeReady > 0
           ? 'dry-run-rollout'
           : 'preview-only';

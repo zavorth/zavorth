@@ -95,6 +95,6 @@ export type ZavorthInnovationRadarSnapshot = {
     inspect: string;
     inspectJson: string;
     check: string;
-    nextStage: string;
+    nextAction: string;
   };
 };

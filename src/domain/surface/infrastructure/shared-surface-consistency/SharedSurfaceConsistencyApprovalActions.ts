@@ -28,8 +28,8 @@ export function pushApprovalActions(
     snapshot: buildActionSnapshot({
       actionId: `approve-pending-task:${permissionId}`,
       actionType: 'approve-pending-task',
-      title: 'Aprovar a acao pendente',
-      description: permissionReason || 'Continua a execucao no mesmo contexto.',
+      title: 'Approve pending action',
+      description: permissionReason || 'Continues execution in the same context.',
       category: 'approval',
       availability: buildActionAvailability(
         { mode: 'inline' },
@@ -40,17 +40,17 @@ export function pushApprovalActions(
       equivalents: {
         web: {
           mode: 'inline',
-          label: 'Aprovar no chat',
+          label: 'Approve in chat',
           value: permissionId,
         },
         telegram: {
           mode: 'inline',
-          label: 'Aprovar inline no Telegram',
+          label: 'Approve inline on Telegram',
           value: permissionId,
         },
         discord: {
           mode: 'hidden',
-          label: 'Nao exposto no Discord',
+          label: 'Not exposed on Discord',
           value: null,
         },
       },
@@ -70,8 +70,8 @@ export function pushApprovalActions(
     snapshot: buildActionSnapshot({
       actionId: `reject-pending-task:${permissionId}`,
       actionType: 'reject-pending-task',
-      title: 'Recusar a acao pendente',
-      description: permissionReason || 'Cancela a acao pendente e preserva o restante do contexto.',
+      title: 'Recusar a action pending',
+      description: permissionReason || 'Cancela a action pending e preserva o restante do contexto.',
       category: 'approval',
       availability: buildActionAvailability(
         { mode: 'inline' },
@@ -82,17 +82,17 @@ export function pushApprovalActions(
       equivalents: {
         web: {
           mode: 'inline',
-          label: 'Recusar no chat',
+          label: 'Reject in chat',
           value: permissionId,
         },
         telegram: {
           mode: 'inline',
-          label: 'Recusar inline no Telegram',
+          label: 'Reject inline on Telegram',
           value: permissionId,
         },
         discord: {
           mode: 'hidden',
-          label: 'Nao exposto no Discord',
+          label: 'Not exposed on Discord',
           value: null,
         },
       },

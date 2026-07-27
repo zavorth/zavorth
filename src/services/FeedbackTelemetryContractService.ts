@@ -103,14 +103,14 @@ export class FeedbackTelemetryContractService {
         phase: 'complete',
         title: 'Public Productization Complete',
         reason:
-          'Com feedback e telemetry opt-in fechados, o ciclo publico 46-52 fica pronto para demonstracao, adocao e proximo planejamento arquitetural.',
+          'With feedback and opt-in telemetry closed, the public 46-52 cycle is ready for demonstration, adoption, and next architecture planning.',
       },
     };
   }
 
   public renderReport(snapshot: FeedbackTelemetryContractSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[feedback-loop] Readiness checkpoint 2 - Feedback, Telemetry Opt-In And Product Loop');
+    lines.push('[feedback-loop] Readiness gate - Feedback, Telemetry Opt-In And Product Loop');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -124,7 +124,7 @@ export class FeedbackTelemetryContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.phase} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.phase} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -133,11 +133,10 @@ export class FeedbackTelemetryContractService {
     const exists = this.existsSync(this.websiteRoot);
     return this.check(
       'feedback-loop:website-root',
-      'base publica zavorth-website',
+      'base public zavorth-website',
       exists ? 'pass' : 'fail',
-      exists
-        ? 'repositorio zavorth-website encontrado para renderizar /feedback.'
-        : 'repositorio zavorth-website nao foi encontrado. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
+      exists ? 'repositorio zavorth-website encontrado para renderizar /feedback.'
+        : 'zavorth-website repository was not found. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
       this.websiteRoot,
     );
   }
@@ -150,11 +149,10 @@ export class FeedbackTelemetryContractService {
         `feedback-loop:website-script:${scriptName}`,
         `script do site ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `site expoe "${scriptName}" para validar feedback publico.`
-          : `site precisa expor "${scriptName}" no package.json.`,
+        command ? `site exposes "${scriptName}" to validate public feedback.`
+          : `site must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -165,13 +163,12 @@ export class FeedbackTelemetryContractService {
       const command = String(scripts[scriptName] || '').trim();
       return this.check(
         `feedback-loop:core-script:${scriptName}`,
-        `script canonico ${scriptName}`,
+        `script canonical ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `repo principal expoe "${scriptName}" para a Readiness checkpoint 2.`
-          : `repo principal precisa expor "${scriptName}" no package.json.`,
+        command ? `main repo exposes "${scriptName}" for the readiness gate.`
+          : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -185,7 +182,7 @@ export class FeedbackTelemetryContractService {
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'rota /feedback, fixture e gate local existem.'
-        : 'rota /feedback, fixture ou gate local estao ausentes.',
+        : 'rota /feedback, fixture ou gate local iso missings.',
       undefined,
       missing,
     );
@@ -199,11 +196,11 @@ export class FeedbackTelemetryContractService {
     const missing = FEEDBACK_TELEMETRY_REQUIRED_COPY.filter((phrase) => !source.includes(phrase));
     return this.check(
       'feedback-loop:route-contract',
-      'rota /feedback publica',
+      'rota /feedback public',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? '/feedback cobre opt-in, preview redigido, revoke/delete, ledger e agregaction segura.'
-        : '/feedback perdeu copy ou bloco publico obrigatorio.',
+        ? '/feedback covers opt-in, redacted preview, revoke/delete, ledger, and safe aggregation.'
+        : '/feedback lost required copy or public block.',
       'app/feedback/page.tsx',
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -219,16 +216,16 @@ export class FeedbackTelemetryContractService {
     const missingScripts = FEEDBACK_TELEMETRY_REQUIRED_COMMANDS.filter((scriptName) => !String(scripts[scriptName] || '').trim());
     const missingDocs = FEEDBACK_TELEMETRY_REQUIRED_COMMANDS.filter((scriptName) => !docs.includes(`npm run ${scriptName}`));
     const evidence = [
-      ...missingScripts.map((scriptName) => `script ausente: ${scriptName}`),
-      ...missingDocs.map((scriptName) => `doc sem comando: ${scriptName}`),
+      ...missingScripts.map((scriptName) => `script missing: ${scriptName}`),
+      ...missingDocs.map((scriptName) => `doc without command: ${scriptName}`),
     ];
     return this.check(
       'feedback-loop:public-commands',
-      'comandos de feedback documentados',
+      'documented feedback commands',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'comandos de feedback existem no core e aparecem na rota/docs publicas.'
-        : 'algum comando de feedback documentado nao existe ou nao aparece na docs.',
+        ? 'feedback commands exist in core and appear in the public route/docs.'
+        : 'some documented feedback command does not exist or does not appear in docs.',
       'package.json',
       evidence,
     );
@@ -251,8 +248,8 @@ export class FeedbackTelemetryContractService {
       'links de feedback loop',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'site publico conecta feedback, docs, privacidade e release.'
-        : 'links publicos de feedback loop estao ausentes.',
+        ? 'public site connects feedback, docs, privacy, and release.'
+        : 'public feedback-loop links are absent.',
       undefined,
       missing.map((href) => `faltando: ${href}`),
     );
@@ -269,11 +266,11 @@ export class FeedbackTelemetryContractService {
     const evidence = [...forbiddenMatches, ...tokenMatches, ...pathMatches];
     return this.check(
       'feedback-loop:forbidden-claims',
-      'claims e vazamentos proibidos',
+      'forbidden claims and leaks',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'feedback loop nao expoe paths pessoais, tokens ou claims proibidos.'
-        : 'feedback loop contem path pessoal, token ou claim proibido.',
+        ? 'feedback loop does not expose personal paths, tokens, or forbidden claims.'
+        : 'feedback loop contains path pessoal, token ou claim proibido.',
       undefined,
       evidence,
     );
@@ -286,9 +283,8 @@ export class FeedbackTelemetryContractService {
         'feedback-loop:exported-route',
         'rota /feedback exportada',
         this.requireExport ? 'fail' : 'pass',
-        this.requireExport
-          ? 'out/ precisa existir depois de website:build.'
-          : 'export estatico nao exigido neste snapshot; qa:feedback-loop valida /feedback depois do build.',
+        this.requireExport ? 'out/ must exist after website:build.'
+          : 'static export not required in this snapshot; qa:feedback-loop validates /feedback after build.',
         'out',
       );
     }
@@ -298,24 +294,22 @@ export class FeedbackTelemetryContractService {
         'feedback-loop:exported-route',
         'rota /feedback exportada',
         this.requireExport ? 'fail' : 'warn',
-        this.requireExport
-          ? 'build estatico nao exportou /feedback.'
-          : 'out/ existe, mas ainda nao contem /feedback; qa:feedback-loop valida a rota depois do build.',
+        this.requireExport ? 'static build did not export /feedback.'
+          : 'out/ exists, but does not contain yet /feedback; qa:feedback-loop valida a rota after do build.',
         'out',
         ['/feedback'],
       );
     }
     const html = this.safeReadAbsolute(filePath);
-    const missing = ['Feedback, telemetry opt-in and product loop', 'Telemetry desligada por padrao', 'feedback-preview-redacted.json'].filter((phrase) => !html.includes(phrase));
+    const missing = ['Feedback, telemetry opt-in and product loop', 'Telemetry desligada por default', 'feedback-preview-redacted.json'].filter((phrase) => !html.includes(phrase));
     return this.check(
       'feedback-loop:exported-route',
       'rota /feedback exportada',
       missing.length === 0 ? 'pass' : this.requireExport ? 'fail' : 'warn',
       missing.length === 0
-        ? '/feedback existe no export estatico com conteudo essencial.'
-        : this.requireExport
-          ? '/feedback exportado perdeu conteudo essencial.'
-          : 'out/ parece stale e ainda nao contem o conteudo novo de /feedback.',
+        ? '/feedback exists in the static export with essential content.'
+        : this.requireExport ? 'exported /feedback lost essential content.'
+          : 'out/ looks stale and does not contain the new content yet de /feedback.',
       'out',
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -327,7 +321,7 @@ export class FeedbackTelemetryContractService {
         'feedback-loop:screenshots',
         'screenshots de feedback loop',
         'pass',
-        'screenshots nao exigidos neste snapshot; qa:feedback-loop captura desktop e mobile.',
+        'screenshots not required in this snapshot; qa:feedback-loop captura desktop e mobile.',
         this.screenshotDir,
       );
     }
@@ -345,8 +339,8 @@ export class FeedbackTelemetryContractService {
       'screenshots de feedback loop',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'screenshots desktop e mobile de feedback loop foram gerados.'
-        : 'screenshots desktop/mobile de feedback loop estao ausentes ou invalidos.',
+        ? 'screenshots desktop e mobile de feedback loop foram generated.'
+        : 'screenshots desktop/mobile de feedback loop iso missings ou invalids.',
       this.screenshotDir,
       missing,
     );

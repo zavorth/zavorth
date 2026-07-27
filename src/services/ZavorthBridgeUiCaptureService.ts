@@ -141,7 +141,7 @@ export class ZavorthBridgeUiCaptureService {
         notes: null,
         rawResponse: null,
         errorCode: 'capture_failed',
-        errorMessage: captureResult.error || 'Falha ao capturar a janela do ZavorthBridge.',
+        errorMessage: captureResult.error || 'Failure ao capturar a window do ZavorthBridge.',
         uiVerified: null,
         uiDiagnostics: null,
       };
@@ -156,26 +156,26 @@ export class ZavorthBridgeUiCaptureService {
       {
         role: 'system',
         content:
-          'Voce analisa screenshots do app ZavorthBridge. Responda com JSON puro, sem markdown, sem comentarios e sem texto extra. ' +
-          'Extraia apenas o estado da conversa visivel no screenshot. ' +
-          'Campos obrigatorios: status, hasPermissionPrompt, hasInputBar, visibleModel, responseText, confidence, notes. ' +
-          'Campo opcional: permissionPromptSummary. ' +
-          'status deve ser exatamente um destes: generating, ready, permission_prompt, unknown. ' +
-          'Use permission_prompt se houver dialogo/prompt de permissao com botoes Allow/Deny. ' +
-          'Se houver prompt de permissao, permissionPromptSummary deve resumir o pedido visivel, por exemplo acesso a pasta, diretorio ou comando. ' +
-          'Use generating se o app aparentar estar gerando resposta, por exemplo com texto "Generating", indicador ativo ou botao de parar. ' +
-          'Use ready se a resposta parece finalizada e o campo esta pronto para novo envio. ' +
-          'responseText deve conter somente a ultima resposta visivel do assistente, sem incluir o prompt do usuario, menus, nomes de arquivo, labels de UI ou texto do seletor de modelo. ' +
-          'Se nao houver resposta visivel do assistente, use string vazia em responseText. ' +
-          'visibleModel deve ser o modelo visivel no composer, ou null se nao estiver claro. ' +
-          'confidence deve ser um numero de 0 a 1.',
+          'You analyze screenshots from the ZavorthBridge app. Respond with pure JSON, without markdown, comments, or extra text. ' +
+          'Extract only the conversation state visible in the screenshot. ' +
+          'Required fields: status, hasPermissionPrompt, hasInputBar, visibleModel, responseText, confidence, notes. ' +
+          'Campo optional: permissionPromptSummary. ' +
+          'status must be exactly one of: generating, ready, permission_prompt, unknown. ' +
+          'Use permission_prompt if there is a permission dialog/prompt with Allow/Deny buttons. ' +
+          'If there is a permission prompt, permissionPromptSummary must summarize the visible request, such as folder, directory, or command access. ' +
+          'Use generating if the app appears to be generating a response, for example with "Generating" text, an active indicator, or a stop button. ' +
+          'Use ready when the response appears finished and the field is ready for a new submission. ' +
+          'responseText must contain only the last visible assistant response, without including the user prompt, menus, file names, UI labels, or model selector text. ' +
+          'If there is no visible assistant response, use an empty string in responseText. ' +
+          'visibleModel must be the model visible in the composer, or null if unclear. ' +
+          'confidence must be a number from 0 to 1.',
       },
       {
         role: 'user',
         content: [
-          'Analise a screenshot anexada do ZavorthBridge.',
+          'Analyze the attached ZavorthBridge screenshot.',
           options.expectedModel ? `O modelo esperado neste momento e: ${options.expectedModel}.` : null,
-          'Retorne apenas JSON puro.',
+          'Retorne only JSON puro.',
         ].filter(Boolean).join('\n'),
         inlineData,
       },
@@ -282,11 +282,11 @@ export class ZavorthBridgeUiCaptureService {
           };
         }
 
-        lastError = `O provider ${providerName} respondeu, mas sem JSON interpretavel.`;
+        lastError = `O provider ${providerName} respondeu, mas without JSON interpretavel.`;
       } catch (error: unknown) {
         const err = asErrorLike(error);
         logger.warn('[Zavorth Bridge Ui Capture] parsing failed', error);
-    lastError = `Falha no provider ${providerName}: ${err.message}`;
+    lastError = `Failure no provider ${providerName}: ${err.message}`;
   }
     }
 
@@ -295,7 +295,7 @@ export class ZavorthBridgeUiCaptureService {
       rawResponse: lastRawResponse,
       providerName: null,
       errorCode: 'vision_parse_failed',
-      errorMessage: lastError || 'Nenhum provider multimodal conseguiu interpretar a UI do ZavorthBridge.',
+      errorMessage: lastError || 'No provider multimodal conseguiu interpretar a UI do ZavorthBridge.',
     };
   }
 
@@ -338,7 +338,7 @@ export class ZavorthBridgeUiCaptureService {
           try {
             resolve(JSON.parse(stdout.trim()) as CaptureScriptResult);
           } catch (parseError: unknown) {
-  const parseErrorLike = asErrorLike(parseError);reject(new Error(`Falha ao interpretar a captura do ZavorthBridge: ${parseErrorLike.message}`));
+  const parseErrorLike = asErrorLike(parseError);reject(new Error(`Failure ao interpretar a captura do ZavorthBridge: ${parseErrorLike.message}`));
           }
         },
       );
@@ -395,7 +395,7 @@ export class ZavorthBridgeUiCaptureService {
                 parsed.diagnostics && typeof parsed.diagnostics === 'object' ? parsed.diagnostics : null,
             });
           } catch (parseError: unknown) {
-  const parseErrorLike = asErrorLike(parseError);reject(new Error(`Falha ao interpretar a leitura local da UI do ZavorthBridge: ${parseErrorLike.message}`));
+  const parseErrorLike = asErrorLike(parseError);reject(new Error(`Failure ao interpretar a read local da UI do ZavorthBridge: ${parseErrorLike.message}`));
           }
         },
       );
@@ -413,7 +413,7 @@ export class ZavorthBridgeUiCaptureService {
       return direct;
     }
 
-    const fencedMatch = candidate.match(/```(?:json)?\s*([\s\S]+?)```/i);
+    const fencedMatch = candidate.match(/```(?:json)...\s*([\s\S]+...)```/i);
     if (fencedMatch) {
       const fenced = this.tryParseJson(fencedMatch[1]);
       if (fenced) {

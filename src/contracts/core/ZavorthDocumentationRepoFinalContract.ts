@@ -1,5 +1,5 @@
 export const ZAVORTH_DOCUMENTATION_REPO_FINAL_CONTRACT_VERSION =
-  '2026-05-14.checkpoint-15-documentation-repo-final' as const;
+  '2026-05-14.gate-15-documentation-repo-final' as const;
 
 export type ZavorthDocumentationRepoFinalStatus = 'passed' | 'attention' | 'failed';
 

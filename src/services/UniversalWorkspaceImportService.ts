@@ -63,12 +63,12 @@ export function assertPathUnderProjectRoot(
 }
 
 const SECRET_LIKE = [
-  /api[_-]?key/i,
+  /api[_-]...key/i,
   /secret/i,
   /token/i,
   /password/i,
   /credential/i,
-  /BEGIN (RSA |OPENSSH )?PRIVATE KEY/i,
+  /BEGIN (RSA |OPENSSH )...PRIVATE KEY/i,
   /sk-[a-z0-9]{10,}/i,
 ];
 
@@ -236,8 +236,7 @@ export class UniversalWorkspaceImportService {
       denied,
     };
 
-    const status: UniversalWorkspaceImportSnapshot['status'] = !apply
-      ? 'preview-only'
+    const status: UniversalWorkspaceImportSnapshot['status'] = !apply ? 'preview-only'
       : copied > 0 && denied === 0
         ? 'passed'
         : copied > 0
@@ -269,8 +268,7 @@ export class UniversalWorkspaceImportService {
       narrative: {
         headline: apply ? `Workspace import ${status}` : 'Workspace import preview',
         operatorSummary: `Profile ${profileId} (${Math.round(confidence * 100)}% confidence). ${items.length} item(s): ${summary.skills} skills, ${summary.memory} memory, ${summary.config} config.`,
-        nextSafeAction: apply
-          ? 'Review IMPORT_MAP.json and enable absorbed skills/plugins through governed actions.'
+        nextSafeAction: apply ? 'Review IMPORT_MAP.json and enable absorbed skills/plugins through governed actions.'
           : 'Re-run with --apply --consent after reviewing the preview.',
       },
     };
@@ -522,7 +520,7 @@ export class UniversalWorkspaceImportService {
       try {
         for (const entry of this.readdirSync(sourcePath, { withFileTypes: true }) as fs.Dirent[]) {
           if (!entry.isFile()) continue;
-          if (!/\.(md|json|ya?ml)$/i.test(entry.name)) continue;
+          if (!/\.(md|json|ya...ml)$/i.test(entry.name)) continue;
           addFile('unknown', entry.name, path.join(sourcePath, entry.name), path.join('misc', entry.name), 'low');
         }
       } catch {

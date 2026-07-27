@@ -1,6 +1,6 @@
 export type VoiceWakeMode = 'off' | 'armed' | 'listening' | 'capturing' | 'cooldown';
 
-export type VoiceWakeDetectorKind = 'external-process' | 'embedded-local' | 'mock' | 'disabled';
+export type VoiceWakeDetectorKind = 'external-process' | 'embedded-local' | 'local' | 'disabled';
 
 export type VoiceWakePrivacyPolicy = {
   localOnly: true;

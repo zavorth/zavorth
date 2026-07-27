@@ -155,7 +155,7 @@ export class WebAppRuntimeProjectionSupport {
           backoff: false,
           retry: false,
         },
-        notes: ['O ZavorthControl carregou, mas o Zavorth Agent Gateway ainda nao foi acoplado a este processo.'],
+        notes: ['ZavorthControl loaded, but the Zavorth Agent Gateway has not been attached to this process yet.'],
       },
     };
   }

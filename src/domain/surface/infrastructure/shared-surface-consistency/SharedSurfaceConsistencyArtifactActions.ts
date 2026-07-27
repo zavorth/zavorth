@@ -19,8 +19,7 @@ export function pushArtifactActions(
     return;
   }
 
-  const telegramArtifactCommand = latestArtifact.path
-    ? `/arquivo ${latestArtifact.path}`
+  const telegramArtifactCommand = latestArtifact.path ? `/file ${latestArtifact.path}`
     : null;
   actions.push({
     priority: 70,
@@ -30,7 +29,7 @@ export function pushArtifactActions(
       title: 'Abrir a ultima entrega',
       description: latestArtifact.summary
         || latestArtifact.name
-        || 'Abre a entrega recente no mesmo fluxo do chat.',
+      || 'Opens the recent delivery in the same chat flow.',
       category: 'artifact',
       availability: buildActionAvailability(
         { mode: 'inline' },
@@ -46,12 +45,12 @@ export function pushArtifactActions(
         },
         telegram: {
           mode: telegramArtifactCommand ? 'command' : 'inline',
-          label: telegramArtifactCommand ? 'Copiar comando do Telegram' : 'Ver a entrega no Telegram',
+          label: telegramArtifactCommand ? 'Copy Telegram command' : 'View delivery on Telegram',
           value: telegramArtifactCommand || latestArtifact.name || latestArtifact.path || null,
         },
         discord: {
           mode: 'hidden',
-          label: 'Nao exposto no Discord',
+          label: 'Not exposed on Discord',
           value: null,
         },
       },

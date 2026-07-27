@@ -12,11 +12,11 @@ import type {
   ZavorthTransactionPreview,
 } from './ZavorthTransactionPreviewContract.js';
 
-export const ZAVORTH_TRANSACTION_CONNECTOR_CONTRACT_VERSION = 'zavorth-transaction-connector/checkpoint-4' as const;
+export const ZAVORTH_TRANSACTION_CONNECTOR_CONTRACT_VERSION = 'zavorth-transaction-connector/gate-4' as const;
 
 export type ZavorthTransactionConnectorMode = 'dry-run' | 'sandbox' | 'paper';
 
-export type ZavorthTransactionConnectorRunStatus = 'simulated' | 'blocked';
+export type ZavorthTransactionConnectorRunStatus = 'dryRun' | 'blocked';
 
 export type ZavorthTransactionConnectorCredentialMode =
   | 'none'
@@ -118,7 +118,7 @@ export function buildZavorthTransactionConnectorContractSnapshot(
       'All connector run results report externalSideEffects=false.',
       'Real-money dry-runs require a Approval gate approval-granted ledger entry.',
       'Connector payloads accept vault credential references only, never raw secrets.',
-      'Every simulated connector call carries an idempotency key and receipts.',
+      'Every dryRun connector call carries an idempotency key and receipts.',
       'supportsLive remains false for every Connector registry connector.',
     ],
   };

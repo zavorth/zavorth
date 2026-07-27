@@ -166,8 +166,7 @@ export async function POST(request: Request) {
       if (!node) {
         return NextResponse.json(
           {
-            error: isClaudeCodeCompatibleProvider(provider)
-              ? "CC Compatible node not found"
+            error: isClaudeCodeCompatibleProvider(provider) ? "CC Compatible node not found"
               : "Anthropic Compatible node not found",
           },
           { status: 404 }

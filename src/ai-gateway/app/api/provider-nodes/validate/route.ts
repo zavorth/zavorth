@@ -9,14 +9,14 @@ import { logger } from '@/shared/utils/logger';function sanitizeAnthropicBaseUr
   return (baseUrl || "")
     .trim()
     .replace(/\/$/, "")
-    .replace(/\/messages(?:\?[^#]*)?$/i, "");
+    .replace(/\/messages(?:\...[^#]*)...$/i, "");
 }
 
 function sanitizeClaudeCodeCompatibleBaseUrl(baseUrl: string) {
   return (baseUrl || "")
     .trim()
     .replace(/\/$/, "")
-    .replace(/\/(?:v\d+\/)?messages(?:\?[^#]*)?$/i, "");
+    .replace(/\/(?:v\d+\/)...messages(?:\...[^#]*)...$/i, "");
 }
 
 // POST /api/provider-nodes/validate - Validate API key against base URL

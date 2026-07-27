@@ -10,7 +10,7 @@ import type {
 } from './ZavorthTransactionSandboxAdapterCertificationContract.js';
 
 export const ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_CONTRACT_VERSION =
-  'zavorth-transaction-sandbox-controlled-executor/checkpoint-13' as const;
+  'zavorth-transaction-sandbox-controlled-executor/gate-13' as const;
 
 export const ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE =
   'ZAVORTH CONTROLLED SANDBOX EXECUTION ONLY' as const;
@@ -33,7 +33,7 @@ export type ZavorthTransactionSandboxControlledExecutorGateKind =
   | 'kill-switch-ready'
   | 'rollback-ready'
   | 'sandbox-not-aborted'
-  | 'sandbox-simulation-succeeds'
+  | 'sandbox-dry-run-succeeds'
   | 'execution-receipt-ready'
   | 'live-still-disabled'
   | 'raw-secret-redaction';
@@ -79,7 +79,7 @@ export type ZavorthTransactionSandboxExecutionReceipt = {
   rollbackDrillId: string;
   resultStatus: 'accepted';
   localSandboxLedgerRecorded: true;
-  localSandboxSimulationPerformed: true;
+  localSandboxDryRunPerformed: true;
   sandboxExecutionAuthorized: true;
   sandboxExternalIoPerformed: false;
   liveExecutionAuthorized: false;
@@ -95,7 +95,7 @@ export type ZavorthTransactionSandboxExecutionReceipt = {
 
 export type ZavorthTransactionSandboxControlledExecutorSafety = {
   controlledSandboxOnly: true;
-  localSandboxSimulationOnly: true;
+  localSandboxDryRunOnly: true;
   noExternalNetworkCall: true;
   noLiveExecution: true;
   noHiddenLiveAction: true;
@@ -114,7 +114,7 @@ export type ZavorthTransactionSandboxControlledExecutorInput =
     sandboxExecutionIntent?: string | null;
     sandboxRunId?: string | null;
     forceKillSwitch?: boolean;
-    simulateSandboxFailure?: boolean;
+    dryRunSandboxFailure?: boolean;
   };
 
 export type ZavorthTransactionSandboxControlledExecutorResult = {
@@ -164,16 +164,16 @@ export function buildZavorthTransactionSandboxControlledExecutorContractSnapshot
       'kill-switch-ready',
       'rollback-ready',
       'sandbox-not-aborted',
-      'sandbox-simulation-succeeds',
+      'sandbox-dry-run-succeeds',
       'execution-receipt-ready',
       'live-still-disabled',
       'raw-secret-redaction',
     ],
     invariants: [
       'Intent model3 consumes a Intent model2 sandbox-certification-ready packet before any sandbox execution receipt can be emitted.',
-      'Intent model3 performs only a deterministic local sandbox simulation and never calls external sandbox or live endpoints.',
+      'Intent model3 performs only a deterministic local sandbox dry-run and never calls external sandbox or live endpoints.',
       'Sandbox execution requires a dedicated owner phrase separate from Intent model0 and Intent model1 phrases.',
-      'Sandbox execution receipts may report sandboxExecutionAuthorized=true for the local simulation only.',
+      'Sandbox execution receipts may report sandboxExecutionAuthorized=true for the local dry-run only.',
       'Every Intent model3 result keeps sandboxExternalIoPerformed=false, externalSideEffects=false, liveExecutionAuthorized=false and liveActionApplied=false.',
       'Kill switch and rollback drill receipts from earlier phases must remain linked.',
       'Raw transaction secrets must never be serialized by the execution receipt.',

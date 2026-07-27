@@ -583,7 +583,7 @@ export function TerminalInboxSector() {
               <div className="chat-console-bar__selects">
                 <ConsoleSelect prompt="Show current session status and what is ready." label="Session" value="main" />
                 <ConsoleSelect prompt="Show the active provider, model and fallbacks." label="Provider" value="Auto" />
-                <ConsoleSelect prompt="Show active input routes and which ones need setup." label="Input" value="Local" />
+                <ConsoleSelect prompt="Show active input routes and which ones need setup." label="Input" value="local" />
               </div>
               <div className="chat-console-bar__actions">
                 <button
@@ -696,7 +696,7 @@ export function TerminalInboxSector() {
                     <span>Model</span>
                     <select id="compose-setting-model" data-composer-setting="model" defaultValue="auto">
                       <option value="auto">Auto</option>
-                      <option value="local">Local</option>
+                      <option value="local">local</option>
                       <option value="safe">Safe</option>
                     </select>
                   </label>

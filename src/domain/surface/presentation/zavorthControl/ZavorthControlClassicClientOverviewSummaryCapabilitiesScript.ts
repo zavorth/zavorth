@@ -66,8 +66,7 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
               escapeHtml(entry.section || 'execution') +
               (entry.executorPreference ? ' | Executor: ' + escapeHtml(entry.executorPreference) : '') +
               '</small>' +
-              (entry.usage
-                ? '<div class="cockpit-command">' + escapeHtml(entry.command + ' ' + entry.usage) + '</div>'
+              (entry.usage ? '<div class="cockpit-command">' + escapeHtml(entry.command + ' ' + entry.usage) + '</div>'
                 : '') +
               '</div>',
           )

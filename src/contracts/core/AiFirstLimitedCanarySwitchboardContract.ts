@@ -7,7 +7,7 @@ import type {
   AiFirstPromotionRegistryReadiness,
 } from './AiFirstPromotionCandidateRegistryContract.js';
 
-export const AI_FIRST_LIMITED_CANARY_SWITCHBOARD_CONTRACT_VERSION = '2026-05-06.checkpoint-6' as const;
+export const AI_FIRST_LIMITED_CANARY_SWITCHBOARD_CONTRACT_VERSION = '2026-05-06.gate-6' as const;
 
 export type AiFirstLimitedCanaryRouteStatus =
   | 'canary-enabled'

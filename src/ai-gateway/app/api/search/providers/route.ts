@@ -17,7 +17,7 @@ import { logger } from '@/shared/utils/logger';export async function GET(reques
       try {
         const cred = db
           .prepare(
-            "SELECT id FROM provider_connections WHERE provider = ? AND is_active = 1 LIMIT 1"
+            "SELECT id FROM provider_connections WHERE provider = - AND is_active = 1 LIMIT 1"
           )
           .get(p.id);
         // Use canonical fallback mapping (e.g. perplexity-search → perplexity)
@@ -26,7 +26,7 @@ import { logger } from '@/shared/utils/logger';export async function GET(reques
           !cred && fallbackId
             ? db
                 .prepare(
-                  "SELECT id FROM provider_connections WHERE provider = ? AND is_active = 1 LIMIT 1"
+                  "SELECT id FROM provider_connections WHERE provider = - AND is_active = 1 LIMIT 1"
                 )
                 .get(fallbackId)
             : null;

@@ -24,7 +24,7 @@ export class MemoryUseCases {
         workflowRuns: 0,
         timelineEvents: 0,
         headline: 'Memory domain waiting for the canonical memory plane.',
-        operatorSummary: 'Nenhum adapter de memory foi injetado neste dominio.',
+        operatorSummary: 'No adapter de memory foi injetado neste domain.',
         source: 'empty',
       };
     }

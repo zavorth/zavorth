@@ -24,7 +24,7 @@ export class WorkspacePathGuard {
 
     // Reject dangerous system/filesystem roots
     const normalizedRoot = this.rootPath.replace(/\\/g, '/').toLowerCase();
-    
+
     // Check for Windows system root (e.g. C:/)
     if (/^[a-z]:\/$/i.test(normalizedRoot) || normalizedRoot === '/' || normalizedRoot === 'c:/windows' || normalizedRoot === 'c:/windows/system32') {
       throw new Error(`Workspace root path is a dangerous system directory: ${workspaceRoot}`);

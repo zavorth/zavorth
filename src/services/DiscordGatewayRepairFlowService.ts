@@ -32,7 +32,7 @@ export class DiscordGatewayRepairFlowService {
     if (!snapshot.enabled) {
       return {
         status: 'not_applicable',
-        summary: 'Discord nao esta habilitado neste runtime.',
+        summary: 'Discord is not enabled in this runtime.',
         recommendedActions: [],
         nextStep: null,
       };
@@ -47,11 +47,10 @@ export class DiscordGatewayRepairFlowService {
     ) {
       return {
         status: 'not_applicable',
-        summary: 'Discord nativo is configured, mas dormente no perfil atual.',
+        summary: 'native Discord is configured, mas dormant no profile current.',
         recommendedActions: [],
-        nextStep: lifecycle.notes
-          ? `${lifecycle.notes} Use perfil full ou habilite a capability discord quando quiser preaquecer o gateway.`
-          : 'Use perfil full ou habilite a capability discord quando quiser preaquecer o gateway.',
+        nextStep: lifecycle.notes ? `${lifecycle.notes} Use the full profile or enable the Discord capability when warming the gateway.`
+          : 'Use the full profile or enable the Discord capability when warming the gateway.',
       };
     }
 
@@ -59,8 +58,8 @@ export class DiscordGatewayRepairFlowService {
       return {
         status: 'healthy',
         summary: snapshot.mode === 'native'
-          ? 'O gateway nativo do Discord esta saudavel.'
-          : 'O Discord bridge esta saudavel.',
+          ? 'The native Discord gateway is healthy.'
+          : 'The Discord bridge is healthy.',
         recommendedActions: [],
         nextStep: null,
       };
@@ -70,15 +69,15 @@ export class DiscordGatewayRepairFlowService {
       ? ['/autorepair', '/reload']
       : ['/autorepair', '/reload'];
     const summary = snapshot.lastError
-      ? `${snapshot.mode === 'native' ? 'Discord nativo' : 'Discord bridge'} degradado: ${snapshot.lastError}`
-      : `${snapshot.mode === 'native' ? 'Discord nativo' : 'Discord bridge'} ainda nao entrou em estado pronto.`;
+      ? `${snapshot.mode === 'native' ? 'native Discord' : 'Discord bridge'} degradado: ${snapshot.lastError}`
+      : `${snapshot.mode === 'native' ? 'native Discord' : 'Discord bridge'} has not entered ready state yet.`;
 
     return {
       status: 'attention',
       summary,
       recommendedActions,
       nextStep: snapshot.mode === 'native'
-        ? 'Use /autorepair ou /reload para reconciliar o gateway nativo do Discord.'
+        ? 'Use /autorepair ou /reload para reconciliar o gateway nactive do Discord.'
         : 'Use /autorepair ou /reload para reconciliar o Discord bridge local.',
     };
   }
@@ -111,4 +110,3 @@ export class DiscordGatewayRepairFlowService {
   }
   }
 }
-

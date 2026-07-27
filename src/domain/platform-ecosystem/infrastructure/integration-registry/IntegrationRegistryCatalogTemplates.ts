@@ -29,7 +29,7 @@ export const INTEGRATION_TEMPLATE_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('service_name', 'What is the service name?', 'text', 'Example: ZeroCloud, NanoCloud, MyHubAI.', {
+      question('service_name', 'What is the service name...', 'text', 'Example: ZeroCloud, NanoCloud, MyHubAI.', {
         placeholder: 'Service name',
       }),
       commonCapabilityQuestion,
@@ -50,7 +50,7 @@ export const INTEGRATION_TEMPLATE_MANIFESTS: IntegrationManifest[] = [
     supportLevel: 'template',
     category: 'template',
     tags: ['template', 'cli', 'local'],
-    modes: [mode('cli', 'Local CLI', 'Template for binary and terminal integration.')],
+    modes: [mode('cli', 'local CLI', 'Template for binary and terminal integration.')],
     defaultMode: 'cli',
     capabilities: ['chat', 'code', 'agents', 'automation'],
     binding: {
@@ -68,7 +68,7 @@ export const INTEGRATION_TEMPLATE_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('service_name', 'Which CLI do you want to connect?', 'text', 'Example: ZeroCloud CLI, MyLocalAssistant.', {
+      question('service_name', 'Which CLI do you want to connect...', 'text', 'Example: ZeroCloud CLI, MyLocalAssistant.', {
         placeholder: 'CLI name',
       }),
       commonCapabilityQuestion,
@@ -78,7 +78,7 @@ export const INTEGRATION_TEMPLATE_MANIFESTS: IntegrationManifest[] = [
       step('scaffold', 'Prepare adapter', 'Create the execution and healthcheck skeleton.', 'manual'),
     ],
     safetyNotes: ['Validate the CLI in a sandbox or test workspace before releasing it to production.'],
-    goodFor: ['Local agents', 'Terminal tools'],
+    goodFor: ['local agents', 'Terminal tools'],
   },
   {
     id: 'custom-docker-agent',
@@ -89,7 +89,7 @@ export const INTEGRATION_TEMPLATE_MANIFESTS: IntegrationManifest[] = [
     supportLevel: 'template',
     category: 'template',
     tags: ['template', 'docker', 'agent'],
-    modes: [mode('docker', 'Local Docker', 'Template for services installed in containers.')],
+    modes: [mode('docker', 'local Docker', 'Template for services installed in containers.')],
     defaultMode: 'docker',
     capabilities: ['chat', 'code', 'browser', 'agents', 'automation'],
     binding: {
@@ -105,10 +105,10 @@ export const INTEGRATION_TEMPLATE_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('service_name', 'What is the agent/service name?', 'text', 'Example: ZeroCloud, NanoCloud, MyDockerAgent.', {
+      question('service_name', 'What is the agent/service name...', 'text', 'Example: ZeroCloud, NanoCloud, MyDockerAgent.', {
         placeholder: 'Service name',
       }),
-      question('expose_port', 'Does this service need to expose a local port?', 'boolean', 'If it exposes a local API, Zavorth can monitor it later.', {
+      question('expose_port', 'Does this service need to expose a local port...', 'boolean', 'If it exposes a local API, Zavorth can monitor it later.', {
         required: false,
       }),
       commonCapabilityQuestion,
@@ -118,6 +118,6 @@ export const INTEGRATION_TEMPLATE_MANIFESTS: IntegrationManifest[] = [
       step('scaffold', 'Generate Docker recipe', 'Prepare compose, env, and doctor checks for this agent.', 'manual'),
     ],
     safetyNotes: ['Never expose sensitive containers without authentication and a clear scope.'],
-    goodFor: ['Container agents', 'New sidecars', 'Local proofs of concept'],
+    goodFor: ['Container agents', 'New sidecars', 'local proofs of concept'],
   },
 ];

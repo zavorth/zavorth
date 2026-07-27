@@ -127,8 +127,7 @@ export class ZavorthBrowserVisionBridgeService {
       receipts.push(receipt(
         'plan',
         approvalRequired ? 'approval-required' : 'done',
-        approvalRequired
-          ? 'Mutating browser plan requires owner approval before click, fill or submit.'
+        approvalRequired ? 'Mutating browser plan requires owner approval before click, fill or submit.'
           : 'Browser plan is read-only or already carries an approval reference.',
       ));
     }
@@ -136,8 +135,7 @@ export class ZavorthBrowserVisionBridgeService {
       receipts.push(receipt(
         'apply',
         applyWithoutApproval ? 'approval-required' : 'done',
-        applyWithoutApproval
-          ? 'Apply was not executed because mutating browser actions require approval.'
+        applyWithoutApproval ? 'Apply was not executed because mutating browser actions require approval.'
           : 'Apply is prepared under policy; Preview engine does not perform unapproved mutation.',
       ));
     }
@@ -210,24 +208,24 @@ export class ZavorthBrowserVisionBridgeService {
             title: 'Evidencia',
             columns: [
               { key: 'item', label: 'Item', width: 24 },
-              { key: 'valor', label: 'Valor', width: 48 },
+              { key: 'value', label: 'Value', width: 48 },
             ],
             rows: [
-              { item: 'fonte', valor: snapshot.evidence.preferredSource },
-              { item: 'sidecar', valor: snapshot.sidecar.used ? 'usado' : snapshot.sidecar.configured ? 'disponivel' : 'nao configurado' },
-              { item: 'ssrf', valor: snapshot.safety.ssrfGuarded ? 'guarded' : 'off' },
-              { item: 'pdf', valor: snapshot.evidence.pdfTreatedAsUntrusted ? 'untrusted' : 'n/a' },
-              { item: 'approval', valor: snapshot.plan.approvalRequired ? 'required' : 'not required' },
+              { item: 'source', value: snapshot.evidence.preferredSource },
+              { item: 'sidecar', value: snapshot.sidecar.used ? 'used' : snapshot.sidecar.configured ? 'available' : 'not configured' },
+              { item: 'ssrf', value: snapshot.safety.ssrfGuarded ? 'guarded' : 'off' },
+              { item: 'pdf', value: snapshot.evidence.pdfTreatedAsUntrusted ? 'untrusted' : 'n/a' },
+              { item: 'approval', value: snapshot.plan.approvalRequired ? 'required' : 'not required' },
             ],
           },
         },
         ...buildBrowserSetupBlocks(snapshot),
         {
           kind: 'list',
-          title: 'Plano',
+          title: 'Plan',
           items: snapshot.plan.steps.length > 0
-            ? snapshot.plan.steps.map((step) => `${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'sim' : 'nao'}`)
-            : ['Nenhum plano mutavel foi solicitado.'],
+            ? snapshot.plan.steps.map((step) => `${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'yes' : 'no'}`)
+            : ['No mutable plan was requested.'],
         },
         ...receipts.map((entry) => ({
           kind: 'receipt' as const,
@@ -260,11 +258,11 @@ export class ZavorthBrowserVisionBridgeService {
       `Sidecar: configured=${snapshot.sidecar.configured} used=${snapshot.sidecar.used} isolated=${snapshot.sidecar.isolated}`,
       '',
       'Safety:',
-      '- DOM/ARIA/texto estruturado antes de screenshot',
-      '- screenshot somente quando DOM nao basta',
-      '- SSRF/private network bloqueado por default',
+      '- DOM/ARIA/structured text before screenshot',
+      '- screenshot only when DOM is not enough',
+      '- SSRF/private network blocked por default',
       '- PDF/download sempre untrusted content',
-      '- click/type/submit exigem approval',
+      '- click/type/submit require approval',
       '',
       'Excerpt:',
       firstLine(snapshot.evidence.excerpt, 420),
@@ -442,7 +440,7 @@ export class ZavorthBrowserVisionBridgeService {
       },
       policy: {
         decision,
-        profile: 'browser-vision-checkpoint-2',
+        profile: 'browser-vision-gate-2',
         reason: policyReason,
         publicEgressAllowed: input.publicEgressAllowed,
         mutationAllowed: false,
@@ -472,7 +470,7 @@ export class ZavorthBrowserVisionBridgeService {
         inspect: '/vision browser inspect',
         plan: '/computer browser plan',
         apply: '/computer browser apply <plan>',
-        nextStage: 'Approval gate - Desktop Computer Use Governado',
+        nextAction: 'Approval gate - Desktop Computer Use Governado',
       },
       nextSafeAction: nextSafeAction(redactedStatus, mutationRequested, approvalRequired, input.sidecarConfigured),
     };
@@ -509,11 +507,11 @@ function buildBrowserSetupBlocks(snapshot: ZavorthBrowserVisionBridgeSnapshot): 
       title: 'Ativar browser live',
       tone: 'warning',
       items: [
-        'O pedido natural ja tentou usar o browser live.',
-        'O sidecar de browser ainda nao esta configurado neste host.',
-        'Rode: zavorth doctor sidecars --profile=desktop',
-        'Depois rode: zavorth capability activate browser --profile=desktop --apply',
-        'Quando ficar pronto, o mesmo pedido passa a navegar/inspecionar em modo read-only automaticamente.',
+        'O request natural already tentou usar o browser live.',
+        'The browser sidecar is not configured on this host yet.',
+        'run: zavorth doctor sidecars --profile=desktop',
+        'after run: zavorth capability activate browser --profile=desktop --apply',
+        'when ficar ready, o mesmo request passa a navegar/inspecionar em modo read-only automaticamente.',
       ],
     },
   ];
@@ -557,13 +555,13 @@ function buildPlanSteps(
   } else {
     steps.push(planStep('inspect', 'Inspect DOM/ARIA text before screenshot', input.selector || null, null));
   }
-  if (/\b(click|clicar|aperte|pressione|botao|button)\b/.test(text)) {
+  if (/\b(click|button)\b/.test(text)) {
     steps.push(planStep('click', 'Click approved element', input.selector || null, null));
   }
-  if (/\b(fill|preencher|digite|type|input|campo)\b/.test(text)) {
+  if (/\b(fill|type|input)\b/.test(text)) {
     steps.push(planStep('fill', 'Fill approved field', input.selector || null, safePreview(input.requestText || '', 60)));
   }
-  if (/\b(submit|enviar formulario|formulario|comprar|pagar|send)\b/.test(text)) {
+  if (/\b(submit|send)\b/.test(text)) {
     steps.push(planStep('submit', 'Submit approved form/action', input.selector || null, null));
   }
   return dedupeSteps(steps);
@@ -665,13 +663,13 @@ function nextSafeAction(
 }
 
 function looksLikePdf(url: string | null | undefined, pdfText: unknown): boolean {
-  return Boolean(pdfText) || String(url || '').toLowerCase().split('?')[0]?.endsWith('.pdf') === true;
+  return Boolean(pdfText) || String(url || '').toLowerCase().split('...')[0]?.endsWith('.pdf') === true;
 }
 
 function stripHtml(value: string): string {
   return String(value || '')
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*...<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*...<\/style>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();

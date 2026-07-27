@@ -139,15 +139,15 @@ export class CodexRemoteReadModelService {
         pendingApprovals: approvals.length,
         hiddenApprovals: 0,
         note: selected?.visibility.note
-          || 'Sem aprovacoes ocultas: o Codex Remote deve expor pedidos sensiveis e eventos ao operador.',
+          || 'no hidden approvals: Codex Remote must expose sensitive requests and events to the operator.',
       },
       commands: this.buildCommands(),
       telegramSummary: this.composeTelegramSummary(),
       narrative: {
-        headline: `Codex Remote rastreia ${sessions.length} sessao(oes) no broker local.`,
+        headline: `Codex Remote tracks ${sessions.length} session(s) no broker local.`,
         operatorSummary: sessions.length > 0
-          ? `${sessions.filter((session) => session.status === 'running').length} em execucao, ${approvals.length} aprovacao(oes) pendente(s) e perfil ativo ${profileSnapshot.activeProfileId}.`
-          : `Nenhuma sessao ativa. Perfil atual: ${profileSnapshot.activeProfileId}.`,
+          ? `${sessions.filter((session) => session.status === 'running').length} running, ${approvals.length} pending approval(s) e profile active ${profileSnapshot.activeProfileId}.`
+          : `No active session. Current profile: ${profileSnapshot.activeProfileId}.`,
       },
     };
   }
@@ -190,7 +190,7 @@ export class CodexRemoteReadModelService {
       operatorSummary: session.lastOutput
         || session.lastError
         || session.events.slice(-1)[0]?.message
-        || 'Sem evento recente.',
+        || 'without evento recente.',
       handoffCommand: session.handoffCommand,
       presenceState,
       guardrailState,
@@ -202,26 +202,26 @@ export class CodexRemoteReadModelService {
 
   private buildCommands(): Array<{ command: string; description: string }> {
     return [
-      { command: '/codexremote', description: 'Resumo do control plane, perfis e sessoes.' },
-      { command: '/codexremote profiles', description: 'Lista os perfis disponiveis do Codex Remote.' },
-      { command: '/codexremote profile <id>', description: 'Seleciona o perfil ativo.' },
-      { command: '/codexremote approvals', description: 'Lista aprovacoes pendentes do Codex Remote.' },
-      { command: '/codexremote approve <permissionId>', description: 'Aprova e executa a acao pendente.' },
-      { command: '/codexremote reject <permissionId>', description: 'Rejeita a acao pendente.' },
-      { command: '/codexremote start [titulo] -- <prompt>', description: 'Cria e inicia uma sessao nova.' },
-      { command: '/codexremote sessions', description: 'Lista as sessoes rastreadas pelo broker.' },
-      { command: '/codexremote inspect <sessionId>', description: 'Abre o detalhe de uma sessao.' },
-      { command: '/codexremote tail <sessionId>', description: 'Mostra o tail recente de execucao.' },
-      { command: '/codexremote resume <sessionId> [-- <prompt>]', description: 'Retoma a sessao escolhida.' },
-      { command: '/codexremote stop <sessionId>', description: 'Para uma sessao em execucao.' },
-      { command: '/codexremote web <sessionId>', description: 'Prepara handoff web da sessao.' },
+      { command: '/codexremote', description: 'Control plane, profiles, and sessions summary.' },
+      { command: '/codexremote profiles', description: 'Lists available Codex Remote profiles.' },
+      { command: '/codexremote profile <id>', description: 'Seleciona o profile active.' },
+      { command: '/codexremote approvals', description: 'Lists pending Codex Remote approvals.' },
+      { command: '/codexremote approve <permissionId>', description: 'Approves and executes the pending action.' },
+      { command: '/codexremote reject <permissionId>', description: 'Rejeita a action pending.' },
+      { command: '/codexremote start [title] -- <prompt>', description: 'Creates and starts a new session.' },
+      { command: '/codexremote sessions', description: 'Lists sessions tracked by the broker.' },
+      { command: '/codexremote inspect <sessionId>', description: 'Opens session details.' },
+      { command: '/codexremote tail <sessionId>', description: 'Shows the recent execution tail.' },
+      { command: '/codexremote resume <sessionId> [-- <prompt>]', description: 'Resumes the selected session.' },
+      { command: '/codexremote stop <sessionId>', description: 'Stops a running session.' },
+      { command: '/codexremote web <sessionId>', description: 'Prepares web handoff for the session.' },
     ];
   }
 
   private composeTelegramSummary(): string {
     return [
       'Codex Remote no Telegram',
-      'Visibilidade: total para o operador; sem aprovacoes ocultas.',
+      'Visibility: total for the operator; no hidden approvals.',
       '',
       '/codexremote',
       '/codexremote profiles',
@@ -229,7 +229,7 @@ export class CodexRemoteReadModelService {
       '/codexremote approvals',
       '/codexremote approve <permissionId>',
       '/codexremote reject <permissionId>',
-      '/codexremote start [titulo] -- <prompt>',
+      '/codexremote start [title] -- <prompt>',
       '/codexremote sessions',
       '/codexremote inspect <sessionId>',
       '/codexremote tail <sessionId>',
@@ -321,27 +321,22 @@ export class CodexRemoteReadModelService {
     heartbeatAgeMs: number | null,
   ): string {
     if (state === 'inactive') {
-      return timeoutSeconds
-        ? `Guardrail inactive; limite de ${timeoutSeconds}s.`
-        : 'Guardrail inativo; sem timeout configurado.';
+      return timeoutSeconds ? `Guardrail inactive; limite de ${timeoutSeconds}s.`
+        : 'Guardrail inactive; without timeout configured.';
     }
     if (state === 'stale') {
-      return heartbeatAgeMs !== null
-        ? `Heartbeat stale ha ${Math.round(heartbeatAgeMs / 1000)}s.`
+      return heartbeatAgeMs !== null ? `Heartbeat stale ha ${Math.round(heartbeatAgeMs / 1000)}s.`
         : 'Heartbeat stale.';
     }
     if (state === 'timed-out') {
-      return timeoutSeconds
-        ? `Tempo esgotado apos ${timeoutSeconds}s.`
+      return timeoutSeconds ? `Tempo esgotado after ${timeoutSeconds}s.`
         : 'Tempo esgotado.';
     }
     if (state === 'near-timeout') {
-      return timeoutSeconds !== null && remainingSeconds !== null
-        ? `Guardrail perto do limite; faltam ${remainingSeconds}s de ${timeoutSeconds}s.`
+      return timeoutSeconds !== null && remainingSeconds !== null ? `Guardrail perto do limite; missing ${remainingSeconds}s de ${timeoutSeconds}s.`
         : 'Guardrail perto do limite.';
     }
-    return timeoutSeconds !== null && remainingSeconds !== null
-      ? `Guardrail saudavel; faltam ${remainingSeconds}s de ${timeoutSeconds}s.`
-      : 'Guardrail saudavel; sem timeout configurado.';
+    return timeoutSeconds !== null && remainingSeconds !== null ? `Guardrail healthy; ${remainingSeconds}s remaining out of ${timeoutSeconds}s.`
+      : 'Guardrail healthy; no timeout configured.';
   }
 }

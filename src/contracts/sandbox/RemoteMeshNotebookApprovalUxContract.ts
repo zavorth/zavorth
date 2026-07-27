@@ -113,7 +113,7 @@ export type RemoteMeshNotebookApprovalUxSnapshot = {
     json: 'npm run remote-mesh:notebook:approval-ux:json --silent';
     focusedTests: 'npx jest tests/services/RemoteMeshNotebookApprovalUxService.test.ts --runInBand';
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Real Mobile ZavorthControl Wiring';
+    nextAction: 'Real Mobile ZavorthControl Wiring';
   };
 };
 

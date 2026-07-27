@@ -115,14 +115,14 @@ export class DistributionHardeningService {
         gate: 'public-docs-recipes',
         title: 'Public Docs, Examples And Recipes Expansion',
         reason:
-          'Com distribuicao v1.x verificavel, o proximo passo e expandir docs e recipes publicas que uma pessoa externa consiga seguir sem historico interno.',
+          'Com distribution v1.x verifiable, o next passo e expandir docs e recipes public que uma pessoa external consiga seguir without history interno.',
       },
     };
   }
 
   public renderReport(snapshot: DistributionHardeningSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[distribution-hardening] Readiness checkpoint 5 - Installer And Distribution Hardening');
+    lines.push('[distribution-hardening] Readiness item 5 - Installer And Distribution Hardening');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`release: ${snapshot.release.expectedTag} | package=${snapshot.release.packageName}@${snapshot.release.packageVersion}`);
@@ -137,7 +137,7 @@ export class DistributionHardeningService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -145,10 +145,10 @@ export class DistributionHardeningService {
   private checkPackageBaseline(packageJson: PackageLike): DistributionHardeningCheck {
     const issues: string[] = [];
     if (packageJson.name !== 'zavorth') {
-      issues.push(`name=${String(packageJson.name || '<ausente>')}`);
+      issues.push(`name=${String(packageJson.name || '<missing>')}`);
     }
     if (packageJson.version !== '1.0.0') {
-      issues.push(`version=${String(packageJson.version || '<ausente>')}`);
+      issues.push(`version=${String(packageJson.version || '<missing>')}`);
     }
     return this.check(
       'distribution-hardening:package-baseline',
@@ -156,7 +156,7 @@ export class DistributionHardeningService {
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
         ? 'package.json preserva zavorth@1.0.0 como baseline do ciclo v1.x.'
-        : 'distribuicao hardening precisa partir do baseline publicado v1.0.0.',
+        : 'distribution hardening must start from the published v1.0.0 baseline.',
       'package.json',
       issues,
     );
@@ -167,13 +167,12 @@ export class DistributionHardeningService {
       const command = String(scripts[scriptName] || '').trim();
       return this.check(
         `distribution-hardening:script:${scriptName}`,
-        `script canonico ${scriptName}`,
+        `script canonical ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `repo principal expoe "${scriptName}" para distribuicao v1.x.`
-          : `repo principal precisa expor "${scriptName}" no package.json.`,
+        command ? `main repository exposes "${scriptName}" for distribution v1.x.`
+          : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -188,39 +187,39 @@ export class DistributionHardeningService {
       {
         path: 'scripts/release-bundle.ts',
         phrase: 'PublicReleaseBundleContractService',
-        label: 'gate de release bundle usa service canonico',
+        label: 'gate de release bundle usa service canonical',
       },
       {
         path: 'docs/product-direction.md',
-        phrase: 'Readiness checkpoint 1 - Release Bundle And Installer Distribution',
-        label: 'Readiness checkpoint 1 documentada como bundle/installer',
+        phrase: 'Readiness item 1 - Release Bundle And Installer Distribution',
+        label: 'Readiness item 1 documents bundle and installer coverage',
       },
       {
         path: 'src/services/DistributionPolicyContractService.ts',
         phrase: 'DistributionPolicyContractService',
-        label: 'service de policy de distribuicao existe',
+        label: 'service de policy de distribution existe',
       },
       {
         path: 'scripts/distribution-policy.ts',
         phrase: 'DistributionPolicyContractService',
-        label: 'gate de distribution policy usa service canonico',
+        label: 'gate de distribution policy usa service canonical',
       },
       {
         path: 'docs/product-direction.md',
-        phrase: 'Readiness checkpoint 0 - Editions, Plans And Distribution Policy',
-        label: 'Readiness checkpoint 0 documentada como policy de canais',
+        phrase: 'Readiness item 0 - Editions, Plans And Distribution Policy',
+        label: 'Readiness item 0 documents channel policy',
       },
     ];
     const missing = evidence
       .filter((item) => !(this.readCoreText(item.path) || '').includes(item.phrase))
       .map((item) => `${item.path}: ${item.label}`);
     return this.check(
-      'distribution-hardening:prior-phase-evidence',
-      'evidencias das Etapas 50 e 51',
+      'distribution-hardening:prior-gate-evidence',
+      'evidence from steps 50 and 51',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'distribution policy e release bundle existem como base da distribuicao hardening.'
-        : 'Readiness checkpoint 5 depende de policy e bundle publicos ja fechados.',
+        ? 'distribution policy e release bundle existem como base da distribution hardening.'
+        : 'Readiness item 5 depends on already closed public policy and bundle evidence.',
       undefined,
       missing,
     );
@@ -234,17 +233,17 @@ export class DistributionHardeningService {
     const missingStableGates = stableRequired.filter((gate) => !stablePolicy?.requiredGates.includes(gate));
     const missingScripts = stableRequired.filter((gate) => !String(scripts[gate] || '').trim());
     const issues = [
-      ...missingChannels.map((channel) => `canal ausente: ${channel}`),
-      ...missingStableGates.map((gate) => `stable sem gate: ${gate}`),
-      ...missingScripts.map((gate) => `script ausente para stable: ${gate}`),
+      ...missingChannels.map((channel) => `canal missing: ${channel}`),
+      ...missingStableGates.map((gate) => `stable without gate: ${gate}`),
+      ...missingScripts.map((gate) => `script missing for stable: ${gate}`),
     ];
     return this.check(
       'distribution-hardening:channel-policy',
-      'politica alpha beta stable',
+      'policy alpha beta stable',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'canais alpha, beta e stable possuem regras e stable exige gates minimos verdes.'
-        : 'politica de canais v1.x esta incompleta.',
+        ? 'alpha, beta, and stable channels have rules, and stable requires minimum green gates.'
+        : 'policy de channels v1.x is incompleta.',
       'src/contracts/DistributionHardeningContract.ts',
       issues,
     );
@@ -256,10 +255,10 @@ export class DistributionHardeningService {
         return [];
       }
       if (!item.present) {
-        return [`ausente: ${item.path}`];
+        return [`missing: ${item.path}`];
       }
       if (!/^[a-f0-9]{64}$/.test(item.sha256)) {
-        return [`sha256 invalido: ${item.path}`];
+        return [`sha256 invalid: ${item.path}`];
       }
       return [];
     });
@@ -269,7 +268,7 @@ export class DistributionHardeningService {
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
         ? 'todos os inputs canonicals do manifest existem e possuem sha256 calculavel.'
-        : 'manifest v1.x nao consegue ser reproduzido a partir dos inputs canonicos.',
+        : 'manifest v1.x cannot be reproduced from canonical inputs.',
       undefined,
       issues,
     );
@@ -280,7 +279,7 @@ export class DistributionHardeningService {
     if (!artifact) {
       return this.missingArtifactCheck(
         'distribution-hardening:manifest-artifact',
-        'manifest de distribuicao',
+        'manifest de distribution',
         'distribution-manifest.json',
       );
     }
@@ -289,51 +288,51 @@ export class DistributionHardeningService {
     const channels = Array.isArray(artifact.channels) ? artifact.channels as JsonRecord[] : [];
     const issues: string[] = [];
     if (artifact.ok !== true) {
-      issues.push('ok precisa ser true');
+      issues.push('ok must be true');
     }
     if (artifact.version !== 'v1.0.0') {
-      issues.push(`version=${String(artifact.version || '<ausente>')}`);
+      issues.push(`version=${String(artifact.version || '<missing>')}`);
     }
     if (typeof artifact.generatedAt !== 'string' || !artifact.generatedAt) {
-      issues.push('generatedAt ausente');
+      issues.push('generatedAt missing');
     }
     for (const manifestItem of DISTRIBUTION_HARDENING_MANIFEST_ITEMS) {
       const found = items.find((item) => item.path === manifestItem.path);
       if (!found) {
-        issues.push(`item ausente: ${manifestItem.path}`);
+        issues.push(`item missing: ${manifestItem.path}`);
         continue;
       }
       if (found.present !== true) {
-        issues.push(`item nao presente: ${manifestItem.path}`);
+        issues.push(`item not present: ${manifestItem.path}`);
       }
       if (!/^[a-f0-9]{64}$/.test(String(found.sha256 || ''))) {
-        issues.push(`sha256 invalido: ${manifestItem.path}`);
+        issues.push(`sha256 invalid: ${manifestItem.path}`);
       }
     }
     for (const channel of ['alpha', 'beta', 'stable']) {
       if (!channels.some((item) => item.channel === channel)) {
-        issues.push(`canal ausente no artifact: ${channel}`);
+        issues.push(`canal missing no artifact: ${channel}`);
       }
     }
     const stable = channels.find((item) => item.channel === 'stable');
     const stableGates = Array.isArray(stable?.requiredGates) ? stable?.requiredGates as string[] : [];
     for (const gate of ['qa:distribution-hardening', 'qa:hosted-site', 'qa:release-bundle', 'qa:architecture']) {
       if (!stableGates.includes(gate)) {
-        issues.push(`stable sem ${gate}`);
+        issues.push(`stable without ${gate}`);
       }
     }
     const aggregateSha = String((artifact.integrity as JsonRecord | undefined)?.aggregateSha256 || '');
     if (!/^[a-f0-9]{64}$/.test(aggregateSha)) {
-      issues.push('aggregateSha256 invalido');
+      issues.push('aggregateSha256 invalid');
     }
 
     return this.check(
       'distribution-hardening:manifest-artifact',
-      'manifest de distribuicao',
+      'manifest de distribution',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'manifest v1.x registra itens, digests, canais e digest agregado.'
-        : 'manifest v1.x esta ausente, incompleto ou nao reproduzivel.',
+        ? 'manifest v1.x registra itens, digests, channels e digest agregado.'
+        : 'manifest v1.x is missing, incomplete, or not reproducible.',
       this.manifestPath,
       issues,
     );
@@ -354,31 +353,31 @@ export class DistributionHardeningService {
     const cleanupPlan = artifact.cleanupPlan as JsonRecord | undefined;
     const issues: string[] = [];
     if (artifact.ok !== true) {
-      issues.push('ok precisa ser true');
+      issues.push('ok must be true');
     }
     if (artifact.mutatesHost !== false) {
-      issues.push('mutatesHost precisa ser false');
+      issues.push('mutatesHost must be false');
     }
     if (artifact.requiresConfirmation !== true) {
-      issues.push('requiresConfirmation precisa ser true');
+      issues.push('requiresConfirmation must be true');
     }
     if (!targetRoot || !this.isInside(this.artifactDir, targetRoot)) {
-      issues.push(`targetRoot fora do artifactDir: ${targetRoot || '<ausente>'}`);
+      issues.push(`targetRoot outside do artifactDir: ${targetRoot || '<missing>'}`);
     }
     for (const step of DISTRIBUTION_HARDENING_INSTALLER_PREVIEW_STEPS) {
       if (!steps.some((item) => item.id === step.id)) {
-        issues.push(`step ausente: ${step.id}`);
+        issues.push(`step missing: ${step.id}`);
       }
     }
     const rollbackPlan = Array.isArray(artifact.rollbackPlan) ? artifact.rollbackPlan : [];
     if (rollbackPlan.length === 0) {
-      issues.push('rollbackPlan ausente');
+      issues.push('rollbackPlan missing');
     }
     if (cleanupPlan?.preserveUserData !== true) {
-      issues.push('cleanupPlan precisa preservar user data');
+      issues.push('cleanupPlan must preserve user data');
     }
     if (cleanupPlan?.requiresOptInForUserData !== true) {
-      issues.push('cleanupPlan precisa exigir opt-in para user data');
+      issues.push('cleanupPlan must require opt-in for user data');
     }
 
     return this.check(
@@ -386,8 +385,8 @@ export class DistributionHardeningService {
       'installer preview-first',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'installer preview mostra destino, manifest, rollback e cleanup sem mutar host real.'
-        : 'installer preview nao satisfaz o contrato preview-first e reversivel.',
+        ? 'installer preview mostra destino, manifest, rollback e cleanup without mutar host real.'
+        : 'installer preview does not satisfy the preview-first and reversible contract.',
       this.installerPreviewPath,
       issues,
     );
@@ -407,26 +406,26 @@ export class DistributionHardeningService {
     const targetRoot = String(artifact.targetRoot || '');
     const issues: string[] = [];
     if (artifact.ok !== true) {
-      issues.push('ok precisa ser true');
+      issues.push('ok must be true');
     }
     if (!targetRoot || !this.isInside(this.artifactDir, targetRoot)) {
-      issues.push(`targetRoot fora do artifactDir: ${targetRoot || '<ausente>'}`);
+      issues.push(`targetRoot outside do artifactDir: ${targetRoot || '<missing>'}`);
     }
     for (const expected of DISTRIBUTION_HARDENING_SMOKE_STEPS) {
       const step = steps.find((item) => item.id === expected.id);
       if (!step) {
-        issues.push(`step ausente: ${expected.id}`);
+        issues.push(`step missing: ${expected.id}`);
         continue;
       }
       if (step.status !== 'pass') {
-        issues.push(`step falhou: ${expected.id}`);
+        issues.push(`step failed: ${expected.id}`);
       }
       if (step.mutatesHost === true) {
         issues.push(`step muta host: ${expected.id}`);
       }
     }
     if (artifact.userDataPreserved !== true) {
-      issues.push('userDataPreserved precisa ser true');
+      issues.push('userDataPreserved must be true');
     }
 
     return this.check(
@@ -435,7 +434,7 @@ export class DistributionHardeningService {
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
         ? 'smoke local cobre install preview, health check, uninstall preview e cleanup preservando user data.'
-        : 'smoke local de install/uninstall esta ausente ou failurendo.',
+        : 'smoke local de install/uninstall is missing ou failurendo.',
       this.smokeArtifactPath,
       issues,
     );
@@ -457,11 +456,11 @@ export class DistributionHardeningService {
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
       'distribution-hardening:docs-runbook',
-      'documentacao e runbook da Readiness checkpoint 5',
+      'documentation and runbook for Readiness item 5',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'docs explicam manifest, checksums, installer preview, smoke e gates da Readiness checkpoint 5.'
-        : 'docs precisam explicar como fechar e operar a distribuicao hardening.',
+        ? 'Docs explain manifest, checksums, installer preview, smoke, and gates for Readiness item 5.'
+        : 'docs must explain how to close and operate distribution hardening.',
       'docs/product-direction.md',
       missing.map((term) => `faltando: ${term}`),
     );
@@ -472,15 +471,15 @@ export class DistributionHardeningService {
       this.readCoreText('docs/product-direction.md') || '',
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
-    const missing = ['Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion', 'qa:public-docs-recipes']
+    const missing = ['Readiness item 6 - Public Docs, Examples And Recipes Expansion', 'qa:public-docs-recipes']
       .filter((term) => !source.includes(term));
     return this.check(
-      'distribution-hardening:next-phase',
-      'recomendacao para Readiness checkpoint 6',
+      'distribution-hardening:next-gate',
+      'recommendation for Readiness item 6',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'Readiness checkpoint 5 aponta explicitamente para docs, examples e recipes publicas.'
-        : 'Readiness checkpoint 5 precisa deixar a Readiness checkpoint 6 como proxima acao.',
+        ? 'Readiness item 5 explicitly points to public docs, examples, and recipes.'
+        : 'Readiness item 5 must leave Readiness item 6 as the next action.',
       'docs/product-direction.md',
       missing,
     );
@@ -491,9 +490,8 @@ export class DistributionHardeningService {
       id,
       title,
       this.requireArtifacts ? 'fail' : 'warn',
-      this.requireArtifacts
-        ? `${fileName} precisa existir para o gate qa:distribution-hardening.`
-        : `${fileName} ainda nao foi exigido neste snapshot; qa:distribution-hardening gera e valida o artifact.`,
+      this.requireArtifacts ? `${fileName} must exist for the qa:distribution-hardening gate.`
+        : `${fileName} is not required in this snapshot yet; qa:distribution-hardening generates and validates the artifact.`,
       path.join(this.artifactDir, fileName),
     );
   }

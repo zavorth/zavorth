@@ -132,7 +132,7 @@ export class StitchExecutor implements IExecutor {
     if (!authConfig) {
       return {
         ok: false,
-        message: 'Stitch integrado, mas sem autenticacao configurada.',
+        message: 'Stitch integrado, mas without authentication configured.',
       };
     }
 
@@ -183,10 +183,10 @@ export class StitchExecutor implements IExecutor {
 
   private buildAuthMissingMessage(): string {
     return [
-      'O Stitch esta integrado no Zavorth, mas ainda falta autenticacao para usa-lo neste host.',
-      'Configure STITCH_API_KEY, ou STITCH_ACCESS_TOKEN + GOOGLE_CLOUD_PROJECT.',
+      'Stitch is integrated in Zavorth, but authentication is still missing on this host.',
+      'Configure STITCH_API_KEY, or STITCH_ACCESS_TOKEN + GOOGLE_CLOUD_PROJECT.',
       'You can also install the Stitch MCP server with: /mcp install stitch npx -y @anthropic/stitch-mcp-server',
-      'Assim que isso estiver configurado, o Zavorth podera gerar screenshot, link e HTML pelo /stitch.',
+      'Once configured, Zavorth can generate screenshots, links, and HTML through /stitch.',
     ].join(' ');
   }
 

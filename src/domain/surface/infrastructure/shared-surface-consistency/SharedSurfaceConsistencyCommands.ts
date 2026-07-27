@@ -22,8 +22,7 @@ export function mapCommand(
 ): SurfaceConsistencyCommandSnapshot {
   const discordSlash = discordSlashMap.get(entry.commandType) || null;
   const surfaceCommand = String(entry.surfaceCommand || entry.commandType || '').trim();
-  const discordSlashCommand = discordSlash
-    ? `/${String(discordSlash.discordSlashName || entry.discordSlashName || entry.commandType || '').replace(/^\/+/, '')}`
+  const discordSlashCommand = discordSlash ? `/${String(discordSlash.discordSlashName || entry.discordSlashName || entry.commandType || '').replace(/^\/+/, '')}`
     : null;
   return {
     commandType: entry.commandType,
@@ -101,16 +100,16 @@ export function buildSummary(input: {
   telegramReady: boolean;
   discordSlashReadyCount: number;
 }): string {
-  const parts: string[] = [`${input.totalCommands} acao(oes) compartilhadas no contrato de superficies.`];
+  const parts: string[] = [`${input.totalCommands} action(oes) compartilhadas no contrato de surfaces.`];
   if (input.actionCount > 0) {
-    parts.push(`${input.actionCount} acao(oes) contextuais equivalentes prontas no estado atual.`);
+    parts.push(`${input.actionCount} equivalent contextual action(s) ready in the current state.`);
   }
-  parts.push(input.webReady ? 'Web pronta.' : 'Web pendente.');
-  parts.push(input.telegramReady ? 'Telegram pronto.' : 'Telegram pendente.');
+  parts.push(input.webReady ? 'Web ready.' : 'Web pending.');
+  parts.push(input.telegramReady ? 'Telegram ready.' : 'Telegram pending.');
   if (input.discordSlashReadyCount > 0) {
-    parts.push(`${input.discordSlashReadyCount} tambem exposta(s) como slash no Discord.`);
+    parts.push(`${input.discordSlashReadyCount} also exposta(s) como slash no Discord.`);
   } else {
-    parts.push('Discord ainda em exposicao controlada.');
+    parts.push('Discord ainda em exposure controlada.');
   }
   return parts.join(' ');
 }

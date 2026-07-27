@@ -114,11 +114,11 @@ export class ZavorthTrustOverviewService {
     const narrative = buildOverviewNarrative({
       headline: 'Trust Overview',
       operatorSummary:
-        `${summary.tenants} tenant(s) observados, ${summary.pendingOnboarding} onboarding pendente(s), `
-        + `${summary.pendingApprovals} approval(s), ${summary.highRiskCapabilities} capability(s) de alto risco `
-        + `e ${summary.restrictedNodes} node(s) restrito(s) no boundary atual.`,
+        `${summary.tenants} tenant(s) observados, ${summary.pendingOnboarding} onboarding pending(s), `
+        + `${summary.pendingApprovals} approval(s), ${summary.highRiskCapabilities} capability(s) de alto risk `
+        + `e ${summary.restrictedNodes} node(s) restrito(s) no boundary current.`,
       actions,
-      fallbackNextAction: 'Revisar governance, trust plane e tenancy oficial.',
+      fallbackNextAction: 'review governance, trust plane e tenancy oficial.',
     });
 
     return {
@@ -169,7 +169,7 @@ export class ZavorthTrustOverviewService {
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Actions sugeridas:',
         ...snapshot.actions.map((entry) =>
           `- [${entry.source}] ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
@@ -201,9 +201,9 @@ export class ZavorthTrustOverviewService {
         posture: input.trust?.summary?.posture,
         summary:
           `${Number(input.trust?.summary?.pendingApprovals || 0) || 0} approval(s) | `
-          + `${Number(input.trust?.summary?.highRiskCapabilities || 0) || 0} capability(s) de alto risco | `
+          + `${Number(input.trust?.summary?.highRiskCapabilities || 0) || 0} capability(s) de alto risk | `
           + `MCP ${text(input.trust?.summary?.mcpProfile, 'safe')}.`,
-        nextAction: input.trust?.suggestedActions?.[0]?.label || 'Revisar trust boundary e kill switch.',
+        nextAction: input.trust?.suggestedActions?.[0]?.label || 'review trust boundary e kill switch.',
         command: input.trust?.suggestedActions?.[0]?.command,
         source: 'trust',
       }),
@@ -213,7 +213,7 @@ export class ZavorthTrustOverviewService {
         posture: (Number(input.tenants?.summary?.pendingOnboarding || 0) || 0) > 0 ? 'attention' : 'healthy',
         summary:
           `${Number(input.tenants?.summary?.total || 0) || 0} tenant(s) | `
-          + `${Number(input.tenants?.summary?.pendingOnboarding || 0) || 0} onboarding pendente(s) | `
+          + `${Number(input.tenants?.summary?.pendingOnboarding || 0) || 0} onboarding pending(s) | `
           + `${Number(input.tenants?.summary?.restrictedShared || 0) || 0} compartilhado(s) restrito(s).`,
         nextAction: input.tenants?.narrative?.nextAction,
         command: input.tenants?.pendingOnboarding?.[0]?.actions?.[0]?.command || '/tenants',

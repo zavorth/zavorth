@@ -292,18 +292,12 @@ function parseDueAt(args: string[], phrase: string, now: Date): string {
   if (delay) {
     return new Date(now.getTime() + parseDurationMs(delay, 24 * 60 * 60 * 1000)).toISOString();
   }
-  const lower = phrase.toLowerCase();
-  const wantsTomorrow = /\b(tomorrow|amanh[aã])\b/u.test(lower);
-  const wantsToday = /\b(today|hoje)\b/u.test(lower);
-  const time = lower.match(/\b(\d{1,2})(?::(\d{2}))?\s*(h|am|pm)?\b/u);
+  void phrase;
   const target = new Date(now);
-  if (wantsTomorrow || !wantsToday) {
-    target.setDate(target.getDate() + 1);
-  }
-  const hourRaw = time ? Number(time[1]) : 9;
-  const minute = time?.[2] ? Number(time[2]) : 0;
-  const suffix = time?.[3] || '';
-  const hour = suffix === 'pm' && hourRaw < 12 ? hourRaw + 12 : suffix === 'am' && hourRaw === 12 ? 0 : hourRaw;
+  target.setDate(target.getDate() + 1);
+  const hourRaw = 9;
+  const minute = 0;
+  const hour = hourRaw;
   target.setHours(Math.max(0, Math.min(23, hour)), Math.max(0, Math.min(59, minute)), 0, 0);
   if (target.getTime() <= now.getTime()) {
     target.setDate(target.getDate() + 1);
@@ -312,15 +306,32 @@ function parseDueAt(args: string[], phrase: string, now: Date): string {
 }
 
 function normalizeDateInput(value: string, now: Date): string {
-  if (/^\d{1,2}:\d{2}$/u.test(value) || /^\d{1,2}h$/iu.test(value)) {
-    return parseDueAt([], `today ${value.replace(/h$/iu, ':00')}`, now);
+  const clock = parseClockInput(value);
+  if (clock) {
+    const target = new Date(now);
+    target.setHours(clock.hour, clock.minute, 0, 0);
+    if (target.getTime() <= now.getTime()) target.setDate(target.getDate() + 1);
+    return target.toISOString();
   }
   const parsed = Date.parse(value);
   return Number.isFinite(parsed) ? new Date(parsed).toISOString() : new Date(now.getTime() + parseDurationMs(value, 24 * 60 * 60 * 1000)).toISOString();
 }
 
+function parseClockInput(value: string): { hour: number; minute: number } | null {
+  const raw = String(value || '').trim().toLowerCase();
+  const normalized = raw.endsWith('h') ? `${raw.slice(0, -1)}:00` : raw;
+  const parts = normalized.split(':');
+  if (parts.length !== 2) return null;
+  if (!parts.every((part) => part.length > 0 && [...part].every((char) => char >= '0' && char <= '9'))) return null;
+  const hour = Number(parts[0]);
+  const minute = Number(parts[1]);
+  if (!Number.isInteger(hour) || !Number.isInteger(minute)) return null;
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+  return { hour, minute };
+}
+
 function parseDurationMs(value: string, fallback: number): number {
-  const match = value.trim().match(/^(\d+)(ms|s|m|h|d)?$/iu);
+  const match = value.trim().match(/^(\d+)(ms|s|m|h|d)...$/iu);
   if (!match) {
     return fallback;
   }

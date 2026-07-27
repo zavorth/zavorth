@@ -149,7 +149,7 @@ export class TelegramSecurityController {
       const manifest = await this.runtimeAccessManifestService.buildManifest();
       await ctx.reply(
         [
-          'Host reautorizado.',
+          'Host reauthorized.',
           `Fingerprint: ${payload.fingerprint}`,
           `Hostname: ${payload.hostname}`,
           `Autorizado em: ${payload.authorizedAt}`,
@@ -176,7 +176,7 @@ export class TelegramSecurityController {
       mode === 'trusted' ? 'Host access updated:' : 'Host access status:',
       `Summary: ${manifest.summary}`,
       `Host authorized: ${manifest.auth.authorizedHost === false ? 'no' : 'yes'}`,
-      `Local: ${manifest.local.ready ? 'ready' : 'pending'} | ${manifest.local.appUrl}`,
+      `local: ${manifest.local.ready ? 'ready' : 'pending'} | ${manifest.local.appUrl}`,
       `Remote: ${manifest.remote.ready ? 'ready' : 'pending'} | ${manifest.remote.appUrl || 'not configured'}`,
     ];
 
@@ -200,14 +200,14 @@ export class TelegramSecurityController {
 
     if (manifest.nextSteps.length > 0) {
       lines.push('');
-      lines.push('Proximos passos:');
+      lines.push('Next steps:');
       for (const step of manifest.nextSteps.slice(0, 4)) {
         lines.push(`- ${step.title}: ${step.description}`);
       }
     }
 
     lines.push('');
-    lines.push('Comandos:');
+    lines.push('Commands:');
     lines.push(`- ${manifest.commands.start}`);
     lines.push(`- ${manifest.commands.remote}`);
     lines.push(`- ${manifest.commands.trust}`);

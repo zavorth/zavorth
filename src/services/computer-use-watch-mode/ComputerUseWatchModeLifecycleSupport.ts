@@ -118,21 +118,21 @@ export class ComputerUseWatchModeLifecycleSupport {
   public async startRun(input: StartWatchModeRunInput): Promise<WatchModeRunSnapshot> {
     if (this.deps.isExecutionAllowed && !this.deps.isExecutionAllowed()) {
       throw new Error(
-        'Computer Use visual bloqueado por seguranca. Defina ZAVORTH_COMPUTER_USE_ENABLED=true '
-        + 'ou ZAVORTH_COMPUTER_USE_PROFILE=trusted|dangerous para liberar explicitamente.',
+        'Computer Use visual blocked by security. set ZAVORTH_COMPUTER_USE_ENABLED=true '
+        + 'ou ZAVORTH_COMPUTER_USE_PROFILE=trusted|dangerous for enable explicitmente.',
       );
     }
 
     const active = this.findActiveRun();
     if (active) {
-      throw new Error('Ja existe um Watch Mode ativo. Pause, finalize ou cancele o run atual antes de iniciar outro.');
+      throw new Error('already existe um Watch Mode active. Pause, finalize ou cancele o run current before iniciar outro.');
     }
 
     const targetWindow = String(input.targetWindow || '').trim();
     const objective = String(input.objective || '').trim();
     const siteUrl = this.normalizeOptional(input.siteUrl);
     if (!targetWindow || !objective) {
-      throw new Error('targetWindow e objective sao obrigatorios para iniciar o Watch Mode.');
+      throw new Error('targetWindow e objective sao requireds for iniciar o Watch Mode.');
     }
 
     this.ensureRuntimeStabilityAllowsStart();
@@ -187,7 +187,7 @@ export class ComputerUseWatchModeLifecycleSupport {
     this.rememberRun(run);
     this.pushTimeline(run, {
       type: 'started',
-      summary: `Watch Mode iniciado para ${targetWindow}.`,
+      summary: `Watch Mode iniciado for ${targetWindow}.`,
       iteration: null,
       riskLevel: allowlist.mode === 'allowlisted' ? 'medium' : 'high',
       action: null,
@@ -217,9 +217,8 @@ export class ComputerUseWatchModeLifecycleSupport {
           run.buffers.lastScreenshotTimelineAt = new Date().toISOString();
           this.pushTimeline(run, {
             type: 'screenshot',
-            summary: screenshotPath
-              ? `Screenshot capturado na iteraction ${snapshot.iteration}.`
-              : `Screenshot indisponivel na iteracao ${snapshot.iteration}.`,
+            summary: screenshotPath ? `Screenshot capturado na iteration ${snapshot.iteration}.`
+              : `Screenshot unavailable na iteration ${snapshot.iteration}.`,
             iteration: snapshot.iteration,
             riskLevel: 'low',
             action: snapshot.lastAction || null,
@@ -250,7 +249,7 @@ export class ComputerUseWatchModeLifecycleSupport {
           run.status = 'waiting_approval';
           this.pushTimeline(run, {
             type: 'approval_requested',
-            summary: `Approval pendente para ${action.action}.`,
+            summary: `Approval pending for ${action.action}.`,
             iteration: snapshot.iteration,
             riskLevel: approval.riskLevel,
             action,
@@ -266,8 +265,8 @@ export class ComputerUseWatchModeLifecycleSupport {
           this.pushTimeline(run, {
             type: 'approval_decided',
             summary: decision === 'approve'
-              ? `Approval liberado para ${action.action}.`
-              : `Approval negado para ${action.action}; o agente vai observar de novo antes de agir.`,
+              ? `Approval liberado for ${action.action}.`
+              : `Approval denydo for ${action.action}; o agente vai observar de novo before agir.`,
             iteration: snapshot.iteration,
             riskLevel: approval.riskLevel,
             action,
@@ -281,14 +280,14 @@ export class ComputerUseWatchModeLifecycleSupport {
           return {
             action: 'list-elements',
             windowTitle: action.windowTitle || run.targetWindow,
-            reasoning: 'Approval negado; faca somente observacao adicional antes de qualquer acao mutavel.',
+            reasoning: 'Approval denied; perform only additional observation before any mutable action.',
           };
         },
         onActionExecuted: async ({ snapshot, action, result }) => {
           run.agentSnapshot = snapshot;
           this.pushTimeline(run, {
             type: 'executed',
-            summary: `Acao ${action.action} executada.`,
+            summary: `Action ${action.action} executada.`,
             iteration: snapshot.iteration,
             riskLevel: this.getRiskLevel(action, allowlist),
             action,
@@ -358,10 +357,10 @@ export class ComputerUseWatchModeLifecycleSupport {
         run.status = 'failed';
         run.finishedAt = new Date().toISOString();
         run.updatedAt = run.finishedAt;
-        run.lastError = errorMessage(error, 'Falha ao executar Watch Mode.');
+        run.lastError = errorMessage(error, 'Failure ao run Watch Mode.');
         this.pushTimeline(run, {
           type: 'failed',
-          summary: run.lastError || 'Falha ao executar Watch Mode.',
+          summary: run.lastError || 'Failure ao run Watch Mode.',
           iteration: null,
           riskLevel: 'high',
           action: null,
@@ -434,7 +433,7 @@ export class ComputerUseWatchModeLifecycleSupport {
     this.cleanupRunArtifacts(run);
     this.pushTimeline(run, {
       type: 'stopped',
-      summary: `Stop solicitado${requestedBy ? ` por ${requestedBy}` : ''}.`,
+      summary: `Stop requested${requestedBy ? ` by ${requestedBy}` : ''}.`,
       iteration: run.agentSnapshot?.iteration || null,
       riskLevel: 'high',
       action: run.agentSnapshot?.lastAction || null,
@@ -456,10 +455,10 @@ export class ComputerUseWatchModeLifecycleSupport {
     const run = this.requireRun(input.runId);
     const approval = run.approvals.find((entry) => entry.approvalId === input.approvalId);
     if (!approval) {
-      throw new Error('Approval do Watch Mode nao encontrado.');
+      throw new Error('Watch Mode approval not found.');
     }
     if (approval.status !== 'pending') {
-      throw new Error('Approval do Watch Mode ja foi decidido.');
+      throw new Error('Watch Mode approval has already been decided.');
     }
     approval.status = input.decision === 'approve' ? 'approved' : 'rejected';
     approval.decidedAt = new Date().toISOString();
@@ -474,7 +473,7 @@ export class ComputerUseWatchModeLifecycleSupport {
     run.updatedAt = approval.decidedAt;
     const waiter = run.waiterByApprovalId.get(approval.approvalId);
     if (!waiter) {
-      throw new Error('Approval do Watch Mode nao possui handoff ativo.');
+      throw new Error('Watch Mode approval has no active handoff.');
     }
     run.waiterByApprovalId.delete(approval.approvalId);
     waiter.resolve(input.decision);
@@ -500,7 +499,7 @@ export class ComputerUseWatchModeLifecycleSupport {
   private async ensureStartAllowed(input: StartWatchModeRunInput): Promise<void> {
     const stability = this.deps.runtimeStabilityControlPlaneService.buildSnapshot({ deepDoctor: false });
     if (stability?.gate?.status === 'failed') {
-      throw new Error('Watch Mode bloqueado: Runtime Stability Gate esta failed.');
+      throw new Error('Watch Mode blocked: Runtime Stability Gate is failed.');
     }
     if (!this.deps.capabilityLifecycleService.shouldBootCapability('watch-mode')) {
       const preview = await this.deps.previewMutation({
@@ -512,7 +511,7 @@ export class ComputerUseWatchModeLifecycleSupport {
         requestedBy: input.requestedBy || null,
         sourceSurface: 'watch-mode',
       });
-      throw new Error(`Watch Mode dormente; approval necessario antes do start. Plan: ${preview.mutationPlan.id}.`);
+      throw new Error(`Watch Mode is dormant; approval is required before start. Plan: ${preview.mutationPlan.id}.`);
     }
     const decision = await this.deps.trustDecisionService.evaluate({
       domain: 'watch',
@@ -522,7 +521,7 @@ export class ComputerUseWatchModeLifecycleSupport {
       riskLevel: 'high',
       approvalRequired: true,
       capabilityId: 'watch-mode',
-      reason: 'Start visual supervisionado exige trust decision.',
+      reason: 'Supervised visual start requires a trust decision.',
       payload: {
         targetWindow: input.targetWindow,
         objective: input.objective,
@@ -544,46 +543,46 @@ export class ComputerUseWatchModeLifecycleSupport {
   }
 
   private buildPlannedSummary(action: ComputerUseAction, iteration: number): string {
-    const suffix = action.targetText || action.payload || action.windowTitle || 'sem alvo textual';
+    const suffix = action.targetText || action.payload || action.windowTitle || 'without alvo textual';
     return `Iteraction ${iteration}: agente planejou ${action.action} (${suffix}).`;
   }
 
   private buildFinishSummary(status: WatchModeRunStatus, error: string | null): string {
     if (status === 'completed') {
-      return 'Watch Mode concluiu o objetivo.';
+      return 'Watch Mode completed o objetivo.';
     }
     if (status === 'cancelled') {
-      return 'Watch Mode foi cancelado antes de concluir o objetivo.';
+      return 'Watch Mode foi cancelado before concluir o objetivo.';
     }
     if (status === 'failed') {
-      return error || 'Watch Mode falhou durante a execucao.';
+      return error || 'Watch Mode failed during execution.';
     }
     return `Watch Mode terminou com status ${status}.`;
   }
 
   private buildNextOperatorStep(run: InternalWatchModeRun): string {
     if (run.pendingApprovalId) {
-      return 'Revise o screenshot e decida o approval pendente antes de liberar a proxima acao.';
+      return 'Revise o screenshot e decida o approval pending before enable a next action.';
     }
     if (run.buffers.throttledScreenshots > 0) {
-      return `Replay visual com throttling ativo: ${run.buffers.throttledScreenshots} screenshot(s) agregados para reduzir ruido.`;
+      return `Replay visual com throttling active: ${run.buffers.throttledScreenshots} screenshot(s) agregados for reduzir ruido.`;
     }
     if (run.buffers.droppedTimelineEntries > 0) {
       return `Timeline compactada: ${run.buffers.droppedTimelineEntries} evento(s) antigos sairam do buffer local.`;
     }
     if (run.status === 'paused') {
-      return 'Retome o run quando quiser continuar a supervisao visual.';
+      return 'Resume the run when you want to continue visual supervision.';
     }
     if (run.status === 'failed') {
-      return 'Revise o ultimo erro, ajuste o objetivo ou a allowlist e rode novamente.';
+      return 'Revise o latest error, ajuste o objetivo ou a allowlist e run again.';
     }
     if (run.status === 'completed') {
-      return 'Compare o replay visual, valide o resultado e reutilize o run como baseline.';
+      return 'Compare the visual replay, validate the result, and reuse the run as a baseline.';
     }
     if (run.allowlist.mode !== 'allowlisted') {
-      return 'Considere allowlist do app/site para reduzir friccao nas proximas acoes visuais.';
+      return 'Considere allowlist do app/site for reduzir friction nas next actions visuais.';
     }
-    return 'Acompanhe a timeline e use pause/stop se a proxima acao parecer arriscada.';
+    return 'Acompanhe a timeline e use pause/stop se a next action parecer arriscada.';
   }
 
   private mapFinalStatus(status: ComputerUseSnapshot['status']): WatchModeRunStatus {
@@ -702,7 +701,7 @@ export class ComputerUseWatchModeLifecycleSupport {
   private requireRun(runId: string): InternalWatchModeRun {
     const run = this.deps.state.runs.get(String(runId || '').trim());
     if (!run) {
-      throw new Error('Run do Watch Mode nao encontrado.');
+      throw new Error('Watch Mode run not found.');
     }
     return run;
   }
@@ -788,7 +787,7 @@ export class ComputerUseWatchModeLifecycleSupport {
   private ensureRuntimeStabilityAllowsStart(): void {
     const stability = this.deps.runtimeStabilityControlPlaneService.buildSnapshot({ deepDoctor: false });
     if (stability?.gate?.status === 'failed' || stability?.summary?.posture === 'critical') {
-      throw new Error('Watch Mode bloqueado: Runtime Stability Gate esta failed/critical.');
+      throw new Error('Watch Mode blocked: Runtime Stability Gate is failed/critical.');
     }
   }
 
@@ -848,7 +847,7 @@ export class ComputerUseWatchModeLifecycleSupport {
       }
       fs.unlinkSync(screenshotPath);
       run.buffers.deletedScreenshotBytes += stats.size;
-    } catch (error: unknown) {// Artefatos travados nao podem quebrar stop/finalizacao.
+    } catch (error: unknown) {// Locked artifacts cannot break stop/finalization.
       logger.warn('[Computer Use Watch Mode Lifecycle] file cleanup failed', error);
     }
   }

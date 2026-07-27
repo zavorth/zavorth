@@ -1,4 +1,4 @@
-import {
+﻿import {
   ZavorthSessionToolsService,
   type ZavorthSessionToolsSnapshot,
 } from '../runtime/sessions/ZavorthSessionToolsService.js';
@@ -195,7 +195,7 @@ export class ZavorthSessionPlaneService {
       narrative: {
         headline: currentHistory?.replay?.headline
           || currentSessionTools?.narrative.headline
-          || 'Session plane pronto para listar, revisar, enviar e derivar sessoes.',
+          || 'Session plane is ready to list, review, send, and derive sessions.',
         operatorSummary: currentHistory?.handoff?.operatorSummary
           || currentSessionTools?.narrative.operatorSummary
           || this.buildDefaultOperatorSummary(sessions.entries, sendReady, spawnReady),
@@ -242,7 +242,7 @@ export class ZavorthSessionPlaneService {
       || String(input.sourceUserId || '').trim(),
     );
     let historyItems = 0;
-    let headline = 'Session plane pronto para listar, revisar, enviar e derivar sessoes.';
+    let headline = 'Session plane is ready to list, review, send, and derive sessions.';
     let operatorSummary = this.buildDefaultOperatorSummary(visibleSessions, sendReady, spawnReady);
 
     if (hasExplicitTarget) {
@@ -336,7 +336,7 @@ export class ZavorthSessionPlaneService {
       || String(input.sourceUserId || '').trim(),
     );
     let historyItems = 0;
-    let headline = 'Session plane pronto para listar, revisar, enviar e derivar sessoes.';
+    let headline = 'Session plane is ready to list, review, send, and derive sessions.';
     let operatorSummary = this.buildDefaultOperatorSummary(visibleSessions, sendReady, spawnReady);
 
     if (hasExplicitTarget) {
@@ -399,7 +399,7 @@ export class ZavorthSessionPlaneService {
     composerPayload?: Record<string, any> | null;
   }): Promise<GatewaySessionSendResult> {
     if (!this.gatewaySessionTools) {
-      throw new Error('Session plane ainda nao recebeu session tools do gateway.');
+      throw new Error('Session plane has not received session tools from the gateway yet.');
     }
     return this.gatewaySessionTools.sendToSession(input);
   }
@@ -409,7 +409,7 @@ export class ZavorthSessionPlaneService {
     platform?: string | null;
   }): Promise<GatewaySessionSpawnSnapshot> {
     if (!this.gatewaySessionTools) {
-      throw new Error('Session plane ainda nao recebeu session tools do gateway.');
+      throw new Error('Session plane has not received session tools from the gateway yet.');
     }
     return this.gatewaySessionTools.spawnSession(input);
   }
@@ -429,7 +429,7 @@ export class ZavorthSessionPlaneService {
       snapshot.narrative.operatorSummary,
       '',
       tService('session.visible_sessions', { visible: String(snapshot.sessions.entries.length), total: String(snapshot.sessions.total) }),
-      `${tService('session.history_current')}: ${snapshot.summary.historyItems} item(ns) | ${tService('approval.pending')}: ${snapshot.summary.pendingPermissions}.`,
+      `${tService('session.history_current')}: ${snapshot.summary.historyItems} item(s) | ${tService('approval.pending')}: ${snapshot.summary.pendingPermissions}.`,
       `${tService('session.cross_send')}: ${snapshot.summary.sendReady ? tService('session.ready') : tService('session.partial')} | spawn web: ${snapshot.summary.spawnReady ? tService('session.ready') : tService('session.partial')}.`,
     ];
 
@@ -446,12 +446,12 @@ export class ZavorthSessionPlaneService {
       for (const entry of snapshot.sessions.entries.slice(0, 4)) {
         lines.push(
           `- ${entry.label}: ${entry.latestTaskLabel}`
-          + (entry.updatedAt ? ` | atualizado em ${entry.updatedAt}` : ''),
+          + (entry.updatedAt ? ` | atualizado at ${entry.updatedAt}` : ''),
         );
       }
     }
 
-    lines.push('', 'Comandos:');
+    lines.push('', 'Commands:');
     for (const command of snapshot.commands) {
       lines.push(`- ${command.command} ${command.usage}`.trim() + `: ${command.description}`);
     }
@@ -469,14 +469,14 @@ export class ZavorthSessionPlaneService {
     const snapshot = await this.buildSnapshot(input);
     const history = snapshot.current.history;
     if (!history) {
-      return 'Nao encontrei historico consolidado para essa sessao ainda.';
+      return 'Could not find consolidated history for this session yet.';
     }
 
     const lines = [
-      'Historico oficial da sessao',
+      'Official session history',
       '',
       snapshot.narrative.headline,
-      history.handoff?.operatorSummary || history.replay?.operatorSummary || 'Sem operator summary adicional.',
+      history.handoff?.operatorSummary || history.replay?.operatorSummary || 'without operator summary adicional.',
     ];
 
     if (history.replay?.recommendedEntry) {
@@ -489,7 +489,7 @@ export class ZavorthSessionPlaneService {
 
     const timeline = history.replay?.timeline || [];
     if (timeline.length > 0) {
-      lines.push('', 'Ultimos passos:');
+      lines.push('', 'Latests passos:');
       for (const step of timeline.slice(0, 4)) {
         lines.push(`- ${step.label}: ${step.detail}`);
       }
@@ -501,7 +501,7 @@ export class ZavorthSessionPlaneService {
       for (const task of tasks.slice(0, 4)) {
         lines.push(
           `- ${task.command_type || '/task'} ${task.task_id.substring(0, 8)}: `
-          + `${task.result_summary || task.raw_message || task.status || 'sem resumo'}`,
+          + `${task.result_summary || task.raw_message || task.status || 'without summary'}`,
         );
       }
     }
@@ -531,37 +531,35 @@ export class ZavorthSessionPlaneService {
         id: 'sessions',
         command: '/sessions',
         usage: '[sessionId|chatId]',
-        description: 'Lista sessoes conhecidas e resume o alvo atual.',
+        description: 'Lists known sessions and summarizes the current target.',
         readiness: 'ready',
-        operatorSummary: 'Abre o plano oficial de sessao do operador atual.',
+        operatorSummary: 'Opens the official session plane for the current operator.',
       },
       {
         id: 'sessionhistory',
         command: '/sessionhistory',
         usage: '[sessionId|chatId]',
-        description: 'Mostra o replay, handoff e a timeline consolidada da sessao alvo.',
+        description: 'Shows replay, handoff, and the consolidated timeline for the target session.',
         readiness: 'ready',
-        operatorSummary: 'Le o historico canonicamente resolvido pelo gateway.',
+        operatorSummary: 'Reads the history canonically resolved by the gateway.',
       },
       {
         id: 'sessionsend',
         command: '/sessionsend',
-        usage: '<sessionId|chatId> -- <mensagem>',
-        description: 'Despacha uma mensagem para outra sessao usando o mesmo runtime compartilhado.',
+        usage: '<sessionId|chatId> -- <message>',
+        description: 'Dispatches a message to another session through the shared runtime.',
         readiness: input.sendReady ? 'ready' : 'partial',
-        operatorSummary: input.sendReady
-          ? 'Consegue enviar para sessoes existentes agora.'
-          : 'Visivel como comando oficial, mas depende de dispatcher compartilhado ativo.',
+        operatorSummary: input.sendReady ? 'Can send to existing sessions now.'
+          : 'Visible as an official command, but depends on an active shared dispatcher.',
       },
       {
         id: 'sessionspawn',
         command: '/sessionspawn',
         usage: '[web]',
-        description: 'Abre uma sessao derivada canonicamente rastreavel.',
+        description: 'Opens a canonically traceable derived session.',
         readiness: input.spawnReady ? 'ready' : 'partial',
-        operatorSummary: input.spawnReady
-          ? 'Consegue abrir sessoes web derivadas com handoff pronto.'
-          : 'O comando existe, mas o runtime atual ainda nao consegue spawnar a sessao alvo.',
+        operatorSummary: input.spawnReady ? 'Can open derived web sessions with handoff ready.'
+          : 'The command exists, but the current runtime still cannot spawn the target session.',
       },
     ];
   }
@@ -572,8 +570,8 @@ export class ZavorthSessionPlaneService {
     spawnReady: boolean,
   ): string {
       const count = Array.isArray(entriesOrCount) ? entriesOrCount.length : entriesOrCount;
-      return `${count} sessao(oes) recente(s) no gateway | `
-      + `envio cruzado ${sendReady ? 'pronto' : 'parcial'} | `
-      + `spawn ${spawnReady ? 'pronto' : 'parcial'}.`;
+      return `${count} recent session(s) no gateway | `
+      + `cross-send ${sendReady ? 'ready' : 'parcial'} | `
+      + `spawn ${spawnReady ? 'ready' : 'parcial'}.`;
   }
 }

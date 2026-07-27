@@ -324,7 +324,7 @@ export class TelegramTaskOrchestrationController {
         if (String(executor || '').startsWith('workflow:')) {
           return `workflow ${String(executor).replace(/^workflow:/, '').trim()}`;
         }
-        return executor || 'o executor padrao';
+        return executor || 'the default executor';
     }
   }
 }

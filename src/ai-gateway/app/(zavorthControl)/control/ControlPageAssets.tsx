@@ -37,15 +37,15 @@ export function ControlPageAssets() {
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2...family=Inter:wght@400;500;600;700;800&display=swap"
         rel="stylesheet"
       />
       <link rel="stylesheet" href={`${VITE_SHELL_PUBLIC_PATH}/styles/base.css`} />
-      <link rel="stylesheet" href={`${VITE_SHELL_PUBLIC_PATH}/styles/layout.css?v=20260519-platform`} />
+      <link rel="stylesheet" href={`${VITE_SHELL_PUBLIC_PATH}/styles/layout.css...v=20260519-platform`} />
       <link rel="stylesheet" href={`${VITE_SHELL_PUBLIC_PATH}/styles/components.css`} />
-      <link rel="stylesheet" href={`${VITE_SHELL_PUBLIC_PATH}/styles/chat.css?v=20260528-functional-polish`} />
-      <link rel="stylesheet" href={`${VITE_SHELL_PUBLIC_PATH}/styles/pages.css?v=20260528-functional-polish`} />
-      <link rel="stylesheet" href={`${VITE_SHELL_PUBLIC_PATH}/styles/overlays.css?v=20260528-functional-polish`} />
+      <link rel="stylesheet" href={`${VITE_SHELL_PUBLIC_PATH}/styles/chat.css...v=20260528-functional-polish`} />
+      <link rel="stylesheet" href={`${VITE_SHELL_PUBLIC_PATH}/styles/pages.css...v=20260528-functional-polish`} />
+      <link rel="stylesheet" href={`${VITE_SHELL_PUBLIC_PATH}/styles/overlays.css...v=20260528-functional-polish`} />
       <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"

@@ -6,7 +6,7 @@ export class PlanMnemosScopeTool extends BaseTool {
   readonly name = 'plan_mnemos_scope';
   readonly description = [
     'Use this tool before configuring Mnemos when the user says in natural language where it may search.',
-    'Ela transforma frases como "pode procurar no meu PC inteiro" ou "procure em Documentos" em um escopo explicito, com risco e aviso.',
+    'It transforms phrases like "search my entire PC" or "search in Documents" into an explicit scope with risk and warning.',
     'Do not run enable_mnemos until the user confirms the presented scope.',
   ].join(' ');
 
@@ -39,8 +39,8 @@ export class PlanMnemosScopeTool extends BaseTool {
       ...proposal,
       humanPrompt: this.service.formatProposal(proposal),
       approvalTextExamples: proposal.wholeComputerRequested
-        ? ['Aprovo procurar no PC inteiro', 'Confirmo esse escopo mesmo com risco']
-        : ['Aprovo', 'Continue', 'Pode configurar'],
+        ? ['I approve searching the entire PC', 'I confirm this scope even with risk']
+        : ['Approved', 'Continue', 'Go ahead'],
     }, null, 2);
   }
 }

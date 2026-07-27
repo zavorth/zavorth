@@ -33,7 +33,7 @@ const CATEGORY_LABELS: Record<ZavorthCapabilityStoreCategoryId, string> = {
   automation: 'Automation',
   security: 'Security',
   providers: 'Model providers',
-  'local-runtime': 'Local runtime',
+  'local-runtime': 'local runtime',
 };
 
 export class ZavorthCapabilityStoreService {
@@ -141,24 +141,11 @@ export class ZavorthCapabilityStoreService {
 }
 
 function categorize(item: ZavorthCapabilityStoreSourceItem): ZavorthCapabilityStoreCategoryId {
-  const text = `${item.id} ${item.kind} ${item.label} ${item.summary} ${item.tags.join(' ')}`.toLowerCase();
-  if (item.kind === 'provider' || text.includes('openai') || text.includes('gemini') || text.includes('ollama') || text.includes('model')) {
+  if (item.kind === 'provider') {
     return 'providers';
   }
-  if (item.kind === 'channel' || /telegram|whatsapp|discord|slack|signal|imessage|email|message/.test(text)) {
+  if (item.kind === 'channel') {
     return 'communication';
-  }
-  if (/repo|code|test|patch|developer|github|git|terminal|shell/.test(text)) {
-    return 'development';
-  }
-  if (/security|audit|policy|approval|receipt|secret|sandbox/.test(text)) {
-    return 'security';
-  }
-  if (/schedule|cron|automation|routine|reminder/.test(text)) {
-    return 'automation';
-  }
-  if (/pdf|document|file|summary|docs|spreadsheet|presentation/.test(text)) {
-    return 'productivity';
   }
   if (item.kind === 'runtime-capability' || item.kind === 'mcp') {
     return 'local-runtime';

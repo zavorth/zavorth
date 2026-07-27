@@ -4,17 +4,12 @@ import type { AgentToolSecurityDefinition } from '../security/AgentSecurityPolic
 import { normalizeAgentToolSecurityDefinition } from '../security/AgentSecurityPolicyEngine.js';
 import { resolveDefaultAgentToolSecurityDefinition } from '../security/AgentToolSecurityCatalog.js';
 
-/**
- * ToolRegistry — Registry pattern para ferramentas do agente.
- * Allows dynamic tool registration and lookup by name.
- */
+/** Registry for runtime tools. */
 export class ToolRegistry {
   private tools: Map<string, BaseTool> = new Map();
   private toolSecurityDefinitions: Map<string, AgentToolSecurityDefinition> = new Map();
 
-  /**
-   * Registra uma nova ferramenta no registry.
-   */
+  /** Registers a tool. */
   public register(tool: BaseTool, securityDefinition?: AgentToolSecurityDefinition): void {
     if (this.tools.has(tool.name)) {
       console.warn(`Tool "${tool.name}" is already registered. Replacing it.`);
@@ -26,19 +21,15 @@ export class ToolRegistry {
         securityDefinition || resolveDefaultAgentToolSecurityDefinition(tool.name, tool.description),
       ),
     );
-    console.log(`🔧 Tool registrada: ${tool.name}`);
+    console.log(`Tool registered: ${tool.name}`);
   }
 
-  /**
-   * Busca uma ferramenta pelo nome.
-   */
+  /** Returns a tool by name. */
   public getTool(name: string): BaseTool | undefined {
     return this.tools.get(name);
   }
 
-  /**
-   * Retorna todas as ferramentas registradas.
-   */
+/** Returns all registered tools. */
   public getAllTools(): BaseTool[] {
     return Array.from(this.tools.values());
   }

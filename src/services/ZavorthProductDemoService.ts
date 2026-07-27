@@ -19,7 +19,7 @@ const QUICKSTART_STEPS: ZavorthProductDemoQuickstartStep[] = [
     minute: '0-3',
     command: 'npm install',
     label: 'Install dependencies',
-    outcome: 'Local developer dependencies are available.',
+    outcome: 'local developer dependencies are available.',
     sideEffect: 'dependencies',
   },
   {

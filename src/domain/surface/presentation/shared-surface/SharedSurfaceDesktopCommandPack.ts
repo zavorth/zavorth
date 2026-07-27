@@ -101,8 +101,7 @@ export class SharedSurfaceDesktopCommandPack {
   }
 
   private formatModeEscalationResolution(result: ModeEscalationResolution): string {
-    const grantLine = result.grant
-      ? `Grant: ${result.grant.targetMode} (${result.grant.scope}).`
+    const grantLine = result.grant ? `Grant: ${result.grant.targetMode} (${result.grant.scope}).`
       : tService('desktop.no_active_grant_created');
     return [
       result.summary,
@@ -180,10 +179,10 @@ export class SharedSurfaceDesktopCommandPack {
       } else if (/^(once|session|host)$/i.test(rest[0])) {
         scopeToken = rest[0];
         requestId = '';
-      } else if (/^#?\d{1,2}$/.test(rest[0]) && rest[1] && /^(once|session|host)$/i.test(rest[1])) {
+      } else if (/^#...\d{1,2}$/.test(rest[0]) && rest[1] && /^(once|session|host)$/i.test(rest[1])) {
         requestId = rest[0];
         scopeToken = rest[1];
-      } else if (/^#?\d{1,2}$/.test(rest[0])) {
+      } else if (/^#...\d{1,2}$/.test(rest[0])) {
         requestId = rest[0];
         scopeToken = rest[1] || '';
       } else if (/^(once|session|host)$/i.test(rest[1] || '')) {
@@ -282,7 +281,7 @@ export class SharedSurfaceDesktopCommandPack {
     const requestedBy = String(ctx.userId || '').trim() || 'operator';
 
     try {
-      if (command === 'help' || command === 'ajuda' || command === '?') {
+      if (command === 'help' || command === 'ajuda' || command === '...') {
         await ctx.reply(
           [
             'Workspace optimizer',

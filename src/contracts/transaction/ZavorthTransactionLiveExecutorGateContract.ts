@@ -6,7 +6,7 @@ import type { ZavorthTransactionActionKind } from './ZavorthTransactionPlaneCont
 import type { ZavorthTransactionConnectorKind } from './ZavorthTransactionPreviewContract.js';
 
 export const ZAVORTH_TRANSACTION_LIVE_EXECUTOR_GATE_CONTRACT_VERSION =
-  'zavorth-transaction-live-executor-gate/checkpoint-16' as const;
+  'zavorth-transaction-live-executor-gate/gate-16' as const;
 
 export const ZAVORTH_TRANSACTION_LIVE_EXECUTOR_GATE_OWNER_PHRASE =
   'ZAVORTH LIVE EXECUTOR READY HOLD' as const;

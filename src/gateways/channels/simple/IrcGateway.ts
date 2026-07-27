@@ -23,9 +23,8 @@ export class IrcGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/irc',
       doctorCommand: '/channels doctor irc',
-      operatorNextStep: configured
-        ? 'IRC bridge configurado. Pronto para enviar e receber mensagens.'
-        : 'Defina IRC_BRIDGE_URL ou IRC_WEBHOOK_URL para ativar.',
+      operatorNextStep: configured ? 'IRC bridge configured. Ready to send and receive messages.'
+        : 'Set IRC_BRIDGE_URL or IRC_WEBHOOK_URL to enable.',
     };
   }
 

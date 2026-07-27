@@ -194,7 +194,7 @@ export class ZavorthPluginMarketplaceService {
   public getReviews(pluginId: string): string {
     const pluginReviews = this.reviews.filter((r) => r.plugin_id === pluginId);
     if (pluginReviews.length === 0) return 'No reviews yet.';
-    return ['Reviews:', ...pluginReviews.map((r) => `  ${r.user}: ${r.rating}★ - ${r.comment}`)].join('\n');
+    return ['Reviews:', ...pluginReviews.map((r) => `  ${r.user}: ${r.rating}★ ? ${r.comment}`)].join('\n');
   }
 
   public listCategories(): string {

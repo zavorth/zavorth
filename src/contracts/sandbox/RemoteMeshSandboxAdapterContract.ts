@@ -103,6 +103,6 @@ export type RemoteMeshSandboxAdapterSnapshot = {
     check: 'npm run remote-mesh:sandbox:adapters --silent';
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxAdapterDryRunService.test.ts --runInBand';
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'R4 - Owner-Gated Live Remote Activation';
+    nextAction: 'Owner-gated live remote activation';
   };
 };

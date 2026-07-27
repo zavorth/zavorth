@@ -72,7 +72,7 @@ const PROFILE_CATALOG: ZavorthExperienceProfile[] = [
       'post',
       'script',
       'criador',
-      'conteudo',
+      'content',
       'pesquisa',
       'roteiro',
     ],
@@ -101,8 +101,7 @@ const PROFILE_CATALOG: ZavorthExperienceProfile[] = [
       'programming',
       'programador',
       'desenvolvedor',
-      'codigo',
-      'repositório',
+      // localized natural-language aliases are resolved by the LLM layer.
       'vibe coder',
     ],
   },
@@ -128,9 +127,7 @@ const PROFILE_CATALOG: ZavorthExperienceProfile[] = [
       'audit',
       'compliance',
       'operator',
-      'empresa',
       'equipe',
-      'auditoria',
       'governado',
       'compliance',
     ],
@@ -156,8 +153,8 @@ const PROFILE_CATALOG: ZavorthExperienceProfile[] = [
       'full control',
       'operator mode',
       'runtime',
-      'avancado',
-      'avançado',
+      // localized natural-language aliases are resolved by the LLM layer.
+      // localized natural-language aliases are resolved by the LLM layer.
       'especialista',
       'controle total',
       'operator',
@@ -203,7 +200,7 @@ export class ZavorthExperienceProfileService {
         'make this more business/governed',
         'I am doing vibe coding',
         'quero algo simples para meu dia a dia',
-        'quero modo empresa com auditoria',
+        'use business mode with audit',
       ],
       invariants: [
         'Experience profiles change defaults, language and surfaces, not execution authority.',
@@ -307,7 +304,7 @@ function fallbackResolution(reason: string): ZavorthExperienceProfileResolution 
 }
 
 function normalizeText(value: unknown): string {
-  return String(value ?? '')
+  return String(value || '')
     .trim()
     .toLowerCase()
     .normalize('NFD')

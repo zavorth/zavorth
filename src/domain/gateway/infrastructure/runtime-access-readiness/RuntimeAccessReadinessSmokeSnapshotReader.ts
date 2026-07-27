@@ -244,7 +244,7 @@ RuntimeAccessChannelProviderDoctorSnapshot,
                   mode:
                     normalizedMode === "native" ||
                     normalizedMode === "cloud-api" ||
-                    normalizedMode === "stub" ||
+                    normalizedMode === "local" ||
                     normalizedMode === "local-outbox" ||
                     normalizedMode === "baileys" ||
                     normalizedMode === "bridge" ||
@@ -348,7 +348,7 @@ RuntimeAccessChannelProviderDoctorSnapshot,
                     item.mode === "native" ||
                     item.mode === "remote" ||
                     item.mode === "local" ||
-                    item.mode === "stub"
+                    item.mode === "local"
                       ? item.mode
                       : "unknown",
                   status:

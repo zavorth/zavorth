@@ -35,9 +35,8 @@ export class VoiceCallGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/voice-call',
       doctorCommand: '/channels doctor voice-call',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Voice Call bridge configurado. Pronto para fazer chamadas.'
-        : 'Defina VOICE_CALL_BRIDGE_URL, VOICE_CALL_BRIDGE_SCRIPT ou VOICE_CALL_OUTBOX_DIR para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'Voice Call bridge configured. Ready to place calls.'
+        : 'set VOICE_CALL_BRIDGE_URL, VOICE_CALL_BRIDGE_SCRIPT ou VOICE_CALL_OUTBOX_DIR para ativar.',
     };
   }
 

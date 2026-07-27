@@ -328,8 +328,8 @@ function finish(input: Omit<PluginOsBootstrapApplyResult, 'formatText'>): Plugin
         input.catalogPath ? `catalog: ${input.catalogPath}` : null,
         ...input.enabled.map((id) => `  + ${id}`),
         ...input.skipped.slice(0, 40).map((item) => `  ~ ${item.pluginId}: ${item.reason}`),
-        ...input.missing.map((id) => `  ? missing ${id}`),
-        ...input.findings.map((line) => `  - ${line}`),
+        ...input.missing.map((id) => ` ? missing ${id}`),
+        ...input.findings.map((line) => ` ? ${line}`),
       ].filter(Boolean) as string[];
       return lines.join('\n');
     },

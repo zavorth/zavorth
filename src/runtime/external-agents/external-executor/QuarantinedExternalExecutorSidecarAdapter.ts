@@ -90,7 +90,7 @@ export class QuarantinedExternalExecutorSidecarAdapter implements ExternalAgentA
     adapterKind: 'sidecar',
     runtimeKind: 'external-agent-runtime',
     transport: 'stdio',
-    version: 'checkpoint-3',
+    version: 'gate-3',
     diagnostics: EXTERNAL_EXECUTOR_DIAGNOSTICS,
     namingQuarantine: EXTERNAL_AGENT_NAMING_QUARANTINE,
     boundary: EXTERNAL_AGENT_ADAPTER_BOUNDARY_POLICY,

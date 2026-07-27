@@ -77,11 +77,11 @@ export class AgentRunRiskHooks {
     approvalRequiredToolIds: string[],
   ): string {
     if (blocked) {
-      return `Risk review ${phase}: ${approvalRequiredToolIds.length} ferramenta(s) exigem approval antes do executor.`;
+      return `Risk review ${phase}: ${approvalRequiredToolIds.length} tool(s) require approval before the executor.`;
     }
     if (toolIds.length > 0) {
-      return `Risk review ${phase}: ${toolIds.length} ferramenta(s) sensiveis revisadas com risco ${risk}.`;
+      return `Risk review ${phase}: ${toolIds.length} sensitive tool(s) reviewed with risk ${risk}.`;
     }
-    return `Risk review ${phase}: nenhuma ferramenta sensivel exposta.`;
+    return `Risk review ${phase}: no sensitive tool exposed.`;
   }
 }

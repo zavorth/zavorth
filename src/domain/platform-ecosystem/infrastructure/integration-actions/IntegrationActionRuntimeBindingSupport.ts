@@ -93,8 +93,8 @@ export class IntegrationActionRuntimeBindingSupport {
     const existingText = fs.existsSync(this.envFilePath)
       ? fs.readFileSync(this.envFilePath, 'utf8')
       : '';
-    const lines = existingText ? existingText.split(/\r?\n/) : [];
-    const matcher = new RegExp(`^\\s*${normalizedKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*=`);
+    const lines = existingText ? existingText.split(/\r...\n/) : [];
+    const matcher = new RegExp(`^\\s*${normalizedKey.replace(/[.*+...^${}()|[\]\\]/g, '\\$&')}\\s*=`);
     const index = lines.findIndex((line) => matcher.test(line));
 
     if (index >= 0) {
@@ -118,7 +118,7 @@ export class IntegrationActionRuntimeBindingSupport {
     }
     return `"${normalized
       .replace(/\\/g, '\\\\')
-      .replace(/\r?\n/g, '\\n')
+      .replace(/\r...\n/g, '\\n')
       .replace(/"/g, '\\"')}"`;
   }
 

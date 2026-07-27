@@ -345,8 +345,7 @@ export class PluginForgeService {
       });
       testOk = harnessResult.ok;
       findings.push(
-        harnessResult.ok
-          ? 'PluginTestHarness soft pass (manifest + module load)'
+        harnessResult.ok ? 'PluginTestHarness soft pass (manifest + module load)'
           : `PluginTestHarness soft findings: ${harnessResult.results.map((r) => r.detail).join('; ')}`,
       );
     } catch (error) {
@@ -561,7 +560,7 @@ function finishPlan(input: Omit<PluginForgePlan, 'formatText'>): PluginForgePlan
         `ok=${input.ok}`,
         `preview: ${input.previewDir || 'n/a'}`,
         `files: ${input.files.map((f) => f.path).join(', ') || 'none'}`,
-        ...input.findings.map((line) => `  - ${line}`),
+        ...input.findings.map((line) => ` ? ${line}`),
         ...input.nextCommands.map((cmd) => `  next: ${cmd}`),
       ].join('\n');
     },
@@ -578,7 +577,7 @@ function finishApply(input: Omit<PluginForgeApplyResult, 'formatText'>): PluginF
         `target: ${input.targetDir || 'n/a'}`,
         typeof input.testOk === 'boolean' ? `testOk=${input.testOk}` : '',
         input.receiptPath ? `receipt: ${input.receiptPath}` : '',
-        ...input.findings.map((line) => `  - ${line}`),
+        ...input.findings.map((line) => ` ? ${line}`),
       ].filter(Boolean).join('\n');
     },
   };
@@ -642,7 +641,7 @@ function templateCapabilities(
       label: 'Search Query',
       summary: `Search capability forged for: ${intent}`,
       commandName: `${safeCommand(pluginId)}_search`,
-      usage: '{ query, limit? }',
+      usage: '{ query, limit... }',
     }];
   }
   if (kind === 'memory') {
@@ -681,7 +680,7 @@ function templateCapabilities(
     label: 'Main',
     summary: intent.slice(0, 160),
     commandName: `${safeCommand(pluginId)}_run`,
-    usage: '{ ... }',
+    usage: '{ ? }',
   }];
 }
 
@@ -904,7 +903,7 @@ function renderTemplateIndex(input: {
       '    try {',
       '      let lines = [];',
       '      if (fs.existsSync(ledgerPath)) {',
-      "        lines = fs.readFileSync(ledgerPath, 'utf8').split(/\\r?\\n/u).filter(Boolean);",
+      "        lines = fs.readFileSync(ledgerPath, 'utf8').split(/\\r...\\n/u).filter(Boolean);",
       '      }',
       '      return { output: { ok: true, pluginId: \'' + id + '\', entryCount: lines.length, ledgerPath, intent: \'' + intent + '\' } };',
       '    } catch (error) {',
@@ -974,12 +973,12 @@ function escapeJs(value: string): string {
   return String(value || '')
     .replace(/\\/gu, '\\\\')
     .replace(/'/gu, "\\'")
-    .replace(/\r?\n/gu, ' ');
+    .replace(/\r...\n/gu, ' ');
 }
 
 function stripCodeFence(text: string): string {
   const raw = String(text || '').trim();
-  const fenced = raw.match(/```(?:javascript|js)?\s*([\s\S]*?)```/iu);
+  const fenced = raw.match(/```(?:javascript|js)...\s*([\s\S]*...)```/iu);
   if (fenced) return fenced[1].trim();
   return raw;
 }

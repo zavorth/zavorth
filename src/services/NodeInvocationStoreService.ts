@@ -210,7 +210,7 @@ export class NodeInvocationStoreService {
         claimedAt: null,
         staleAt: null,
         staleReason: null,
-        resultSummary: entry.resultSummary || 'Invocaction recolocada na fila apos recover operacional.',
+        resultSummary: entry.resultSummary || 'Invocation returned to queue after operational recovery.',
         completedAt: null,
       }, {
         status: 'planned',
@@ -249,7 +249,7 @@ export class NodeInvocationStoreService {
       completedAt,
       ok: Boolean(completion.ok),
       resultSummary: String(completion.resultSummary || '').trim()
-        || (completion.ok ? 'Invocacao concluida com sucesso.' : 'Invocacao falhou no node host.'),
+        || (completion.ok ? 'Invocation completed successfully.' : 'Invocation failed on node host.'),
       output: {
         stdout: String(completion.stdout || '').trim() || null,
         stderr: String(completion.stderr || '').trim() || null,
@@ -414,7 +414,7 @@ export class NodeInvocationStoreService {
       status: 'cancelled',
       completedAt: nowIso,
       ok: false,
-      resultSummary: entry.resultSummary || 'Invocaction cancelada automaticamente apos expirar na fila do Node Mesh.',
+      resultSummary: entry.resultSummary || 'Invocation automatically canceled after expiring in the Node Mesh queue.',
       staleAt: entry.staleAt || nowIso,
       staleReason: entry.staleReason || 'pending-expired',
     }, {

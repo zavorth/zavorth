@@ -491,7 +491,7 @@ function isSandboxLikeHost(host: string): boolean {
     || host.includes('sandbox')
     || host.includes('paper')
     || host.includes('testnet')
-    || host.includes('mock');
+    || host.includes('local');
 }
 
 function isLiveEndpoint(host: string): boolean {
@@ -550,7 +550,7 @@ function normalizeEnvironment(value: unknown): ZavorthTransactionSandboxAdapterE
 }
 
 function isCredentialRef(value: string): boolean {
-  return /^vault:\/\/zavorth\/transaction\/[a-z0-9._~:/?#\[\]@!$&'()*+,;=-]+$/i.test(value);
+  return /^vault:\/\/zavorth\/transaction\/[a-z0-9._~:/...#\[\]@!$&'()*+,;=-]+$/i.test(value);
 }
 
 function buildResultId(text: string, now: Date): string {
@@ -619,7 +619,7 @@ function rawSecretValue(text: string): string {
 
 function rawSecretValues(text: string): string[] {
   const values: string[] = [];
-  const assignment = /\b(?:api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/ig;
+  const assignment = /\b(?:api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]\s*([^\s,;]+)/ig;
   for (let match = assignment.exec(text); match; match = assignment.exec(text)) {
     values.push(match[1]);
   }

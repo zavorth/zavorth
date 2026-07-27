@@ -207,14 +207,14 @@ export function normalizeWorkspaceMemoryFailure(value: string): string {
   return String(value || '')
     .trim()
     .replace(/\s+/g, ' ')
-    .slice(0, 180) || 'falha sem resumo';
+    .slice(0, 180) || 'failure without summary';
 }
 
 export function normalizeWorkspaceMemoryOutcomeSummary(value: string): string {
   return String(value || '')
     .trim()
     .replace(/\s+/g, ' ')
-    .slice(0, 220) || 'ciclo autonomo sem resumo';
+    .slice(0, 220) || 'ciclo autonomo without summary';
 }
 
 export function toWorkspaceMemoryRecord(value: unknown): WorkspaceMemoryRecord {

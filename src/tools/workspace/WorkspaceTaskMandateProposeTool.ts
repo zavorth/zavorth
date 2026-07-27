@@ -46,7 +46,7 @@ export class WorkspaceTaskMandateProposeTool extends BaseTool {
       },
       allowNetwork: {
         type: 'boolean',
-        description: 'Se permite comandos que acessam a rede.'
+        description: 'Whether commands that access the network are allowed.'
       },
       taskId: {
         type: 'string',

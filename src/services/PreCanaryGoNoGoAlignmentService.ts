@@ -38,8 +38,7 @@ export class PreCanaryGoNoGoAlignmentService {
     const blockedControls = controls.filter((control) => control.status === 'blocked').length;
     const status: PreCanaryGoNoGoAlignmentStatus = distributionSnapshot.status === 'blocked' || failedGates > 0 || blockedControls > 0
       ? 'blocked'
-      : controls.some((control) => control.status === 'operator-ready')
-        ? 'aligned'
+      : controls.some((control) => control.status === 'operator-ready') ? 'aligned'
         : 'attention';
 
     return {
@@ -126,7 +125,7 @@ export class PreCanaryGoNoGoAlignmentService {
           'npm run pre-canary-go-no-go-alignment --silent -- --require-aligned',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Canary plan dry-run and hold',
+        nextAction: 'Canary plan dry-run and hold',
       },
       policy: {
         alignmentOnly: true,
@@ -176,7 +175,7 @@ export class PreCanaryGoNoGoAlignmentService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ].join('\n');
   }
 

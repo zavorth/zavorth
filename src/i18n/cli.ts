@@ -22,7 +22,11 @@ export function tError(key: string, vars?: InterpolationVars): string {
 
 export function detectCliLanguage(env: Record<string, string | undefined> = process.env): 'en' | 'pt' {
   const detected = i18n.resolveFromSource({ env });
-  return detected.startsWith('pt') ? 'pt' : 'en';
+  try {
+    return new Intl.Locale(detected).language === 'pt' ? 'pt' : 'en';
+  } catch {
+    return detected === 'pt' ? 'pt' : 'en';
+  }
 }
 
 export function initCliLocale(env?: Record<string, string | undefined>): void {

@@ -36,7 +36,7 @@ export class SharedSurfaceIntegrationHubCommandPack {
   private async handleConnect(ctx: IMessageContext, args: string): Promise<void> {
     const rawArgs = String(args || '').trim();
     if (!rawArgs) {
-      await ctx.reply('Use /connect <integracao>. Exemplos: /connect discord, /connect slack, /connect whatsapp, /connect openrouter.');
+      await ctx.reply('Use /connect <integration>. Exemplos: /connect discord, /connect slack, /connect whatsapp, /connect openrouter.');
       return;
     }
 

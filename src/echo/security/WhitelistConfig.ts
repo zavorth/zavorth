@@ -150,7 +150,7 @@ export function resolveBrowserTargetPolicy(
     let parsed: URL;
     try {
         parsed = new URL(candidate);
-    } catch (error: unknown) {throw new Error(`SandboxBlock: URL '${candidate}' invalida para navegacao Playwright.`);
+    } catch (error: unknown) {throw new Error(`SandboxBlock: URL '${candidate}' invalid para navegaction Playwright.`);
     }
 
     const protocol = String(parsed.protocol || '').toLowerCase();

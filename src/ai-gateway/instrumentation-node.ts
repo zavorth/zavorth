@@ -95,9 +95,7 @@ export async function registerNodejs(): Promise<void> {
     console.log("[STARTUP] Running without legacy open-sse proxy patch");
   }
 
-  await ensureSecrets();
-
-  // FASE-01: Validate all environment variables against Zod schema (fail-fast on invalid config)
+  await ensureSecrets();// Validate all environment variables against Zod schema (fail-fast on invalid config)
   const { enforceEnvSchema } = await import("@/lib/envSchema");
   enforceEnvSchema();
 

@@ -76,9 +76,8 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     const approval: UniversalApprovalRequest = {
       id: this.idFactory('approval'),
       runId: run.id,
-      title: scalePlan.enabled ? 'Aprovar Swarm Scale Plane' : 'Aprovar swarm estruturado',
-      reason: scalePlan.enabled
-        ? 'Natural request asked for massive scale; approval is required before opening the Swarm Scale Plane.'
+      title: scalePlan.enabled ? 'Approve Swarm Scale Plane' : 'Approve structured swarm',
+      reason: scalePlan.enabled ? 'Natural request asked for massive scale; approval is required before opening the Swarm Scale Plane.'
         : 'Natural request generated a subagent proposal; approval is required before executing the Swarm.',
       risk: 'attention',
       status: 'pending',
@@ -107,7 +106,7 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
       runId: run.id,
       kind: 'planning',
       title: 'Proposta de swarm estruturada',
-      detail: `Escalacao para swarm planejada com ${decision.subagentReceipts.length} subagente(s).`,
+      detail: `Escalaction para swarm planejada com ${decision.subagentReceipts.length} subagente(s).`,
       status: 'pending',
       createdAt: now,
       metadata: {
@@ -211,8 +210,7 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
       plannerMode: requestedPlannerMode || (hasLlm ? 'llm' : 'heuristic'),
       executionMode:
         requestedExecutionMode || (hasLlm && (wantsLive || desiredAgents <= 8) ? 'llm-live' : 'deterministic'),
-      rationale: explicitScale
-        ? `Scale plane selected from Zavorth workload assessment: ${assessment.reasons.join('; ')}.`
+      rationale: explicitScale ? `Scale plane selected from Zavorth workload assessment: ${assessment.reasons.join('; ')}.`
         : 'Dynamic hierarchy swarm remains sufficient for this request.',
       assessment,
     };
@@ -249,15 +247,15 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     scalePlan: SwarmScalePlan,
   ): string {
     return [
-      'Proposta de Swarm Scale Plane preparada.',
+      'Swarm Scale Plane proposal prepared.',
       '',
       `Objective: ${decision.taskGoal || 'objective not provided'}`,
       `Agentes planejados: ${scalePlan.desiredAgents}.`,
       `Ledger global: ${scalePlan.maxSteps} step(s).`,
       `Concorrencia: ${scalePlan.maxConcurrency}.`,
       `Planner: ${scalePlan.plannerMode}.`,
-      `Execucao: ${scalePlan.executionMode}.`,
-      `Decisao: ${scalePlan.assessment.band} score=${scalePlan.assessment.score}.`,
+      `Execution: ${scalePlan.executionMode}.`,
+      `Decision: ${scalePlan.assessment.band} score=${scalePlan.assessment.score}.`,
       'Waiting for approval before starting the massive mesh.',
       'Approval: waiting — tap Approve/Reject or /approve / /reject',
     ].join('\n');
@@ -280,10 +278,10 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     approvalId: string,
   ): string {
     return [
-      'Proposta de swarm estruturado preparada.',
+      'Structured swarm proposal prepared.',
       '',
       `Objective: ${decision.taskGoal || 'objective not provided'}`,
-      `Subagentes planejados: ${decision.subagentReceipts.length}.`,
+      `Planned subagents: ${decision.subagentReceipts.length}.`,
       'Waiting for approval before running subagents or opening the Swarm.',
       'Approval: waiting — tap Approve/Reject or /approve / /reject',
     ].join('\n');
@@ -323,10 +321,8 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     const snapshot = launchResult.snapshot;
     const completed = snapshot.status === 'completed';
     const failed = snapshot.status === 'failed' || snapshot.status === 'cancelled' || snapshot.status === 'timed_out';
-    const statusText = completed
-      ? 'completed'
-      : failed
-        ? `finalizado com status ${snapshot.status}`
+    const statusText = completed ? 'completed'
+      : failed ? `finished com status ${snapshot.status}`
         : `iniciado com status ${snapshot.status}`;
     const summary = `Swarm approved and ${statusText} by the existing runtime.`;
 
@@ -380,7 +376,7 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     const scalePlan = recordOrNull(proposal.scalePlan) || this.resolveSwarmScalePlan(request, run);
     const service = this.swarmScalePlaneService;
     if (!service?.launch) {
-      throw new Error('Swarm Scale Plane runtime indisponivel.');
+      throw new Error('Swarm Scale Plane runtime unavailable.');
     }
     const launchResult: SwarmScaleSnapshot = await service.launch({
       runId: `agent-run:${run.id}:scale`,
@@ -397,8 +393,7 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     const now = this.now().toISOString();
     const failed = launchResult.status === 'failed' || launchResult.status === 'cancelled';
     const completed = launchResult.status === 'completed';
-    const summary = completed
-      ? `Swarm Scale Plane approved and completed with ${launchResult.metrics.completedAgents}/${launchResult.planner.plannedAgents} agent(s).`
+    const summary = completed ? `Swarm Scale Plane approved and completed with ${launchResult.metrics.completedAgents}/${launchResult.planner.plannedAgents} agent(s).`
       : `Swarm Scale Plane approved and returned status ${launchResult.status}.`;
 
     run.status = failed ? 'failed' : completed ? 'completed' : 'running';
@@ -521,7 +516,7 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
       '',
       `Swarm: ${snapshot.swarmId}`,
       `Status: ${snapshot.status}`,
-      `Subagentes: ${snapshot.subagentReceipts?.length || launchResult.plan.subagentReceipts.length}`,
+      `Subagents: ${snapshot.subagentReceipts?.length || launchResult.plan.subagentReceipts.length}`,
       synthesizedOutput ? ['', synthesizedOutput].join('\n') : '',
     ]
       .filter(Boolean)

@@ -33,7 +33,7 @@ const MODE_DEFINITIONS: Record<ZavorthDepthModeId, ModeDefinition> = {
       checkpointEveryMinutes: 10,
       isolatedWorktreeRequired: false,
     },
-    headline: 'Plano curto com revisao leve.',
+    headline: 'Short plan with light review.',
   },
   deep: {
     label: 'Deep',
@@ -47,7 +47,7 @@ const MODE_DEFINITIONS: Record<ZavorthDepthModeId, ModeDefinition> = {
       checkpointEveryMinutes: 10,
       isolatedWorktreeRequired: false,
     },
-    headline: 'Investigacao profunda com sintese.',
+    headline: 'Deep investigation with synthesis.',
   },
   mission: {
     label: 'Mission',
@@ -61,7 +61,7 @@ const MODE_DEFINITIONS: Record<ZavorthDepthModeId, ModeDefinition> = {
       checkpointEveryMinutes: 12,
       isolatedWorktreeRequired: true,
     },
-    headline: 'Missao longa com checkpoints e retomada.',
+    headline: 'Missao longa com checkpoints e resumed.',
   },
   adversarial: {
     label: 'Adversarial',
@@ -96,8 +96,7 @@ export class ZavorthDepthModeService {
     const mutationApprovalRequired = Array.from(effects).some((effect) => MUTATING_EFFECTS.has(effect));
     const externalIoApprovalRequired = Array.from(effects).some((effect) => EXTERNAL_IO_EFFECTS.has(effect));
     const highCostApprovalRequired = definition.budgets.maxCostUsd > 8 || definition.budgets.maxAgents > 8;
-    const userFacingRisk = mutationApprovalRequired || externalIoApprovalRequired || highCostApprovalRequired
-      ? 'approval'
+    const userFacingRisk = mutationApprovalRequired || externalIoApprovalRequired || highCostApprovalRequired ? 'approval'
       : mode === 'normal'
         ? 'quiet'
         : 'review';

@@ -78,7 +78,7 @@ const SNAPSHOT_TEMPLATES: Record<TrustSliderLevel, TrustSliderSnapshotTemplate> 
     killSwitchRequired: false,
     auditTrailRequired: true,
     selfModificationPreviewRequired: true,
-    summary: 'Protected usa safe/core com sandbox container-first e bloqueia host amplo.',
+    summary: 'Protected usa safe/core com sandbox container-first e blocks host amplo.',
   },
   collaborator: {
     runtimeProfile: 'trusted-workspace',
@@ -90,7 +90,7 @@ const SNAPSHOT_TEMPLATES: Record<TrustSliderLevel, TrustSliderSnapshotTemplate> 
     killSwitchRequired: false,
     auditTrailRequired: true,
     selfModificationPreviewRequired: true,
-    summary: 'Collaborator usa workspace aprovado e exige nova permissao para escapar dele.',
+    summary: 'Collaborator uses an approved workspace and requires new permission to escape it.',
   },
   overlord: {
     runtimeProfile: 'owner-operator',
@@ -102,7 +102,7 @@ const SNAPSHOT_TEMPLATES: Record<TrustSliderLevel, TrustSliderSnapshotTemplate> 
     killSwitchRequired: true,
     auditTrailRequired: true,
     selfModificationPreviewRequired: false,
-    summary: 'Overlord permite host-scoped somente com owner/operator, kill switch e audit trail.',
+    summary: 'Overlord allows host-scoped access only with owner/operator, kill switch, and audit trail.',
   },
 };
 
@@ -278,25 +278,25 @@ export class TrustSliderPolicyService {
       if (input.derived.hostScopeRequested) {
         return {
           decision: 'block',
-          reason: 'Modo protected bloqueia host inteiro; ele opera em safe/core container-first.',
+          reason: 'Modo protected blocks host inteiro; ele opera em safe/core container-first.',
         };
       }
       if (input.derived.destructive && !input.derived.governedOperatorTool) {
         return {
           decision: 'block',
-          reason: 'Modo protected bloqueia operacao destrutiva sem elevacao explicita.',
+          reason: 'Modo protected blocks operation destrutiva without elevaction explicit.',
         };
       }
       if (input.derived.operatorRequired && !input.derived.governedOperatorTool) {
         return {
           decision: 'block',
-          reason: 'Modo protected bloqueia controle de operador sem elevacao explicita.',
+          reason: 'Modo protected blocks controle de operador without elevaction explicit.',
         };
       }
       if (input.permissionNeeded || input.previewRequired || input.derived.shell || input.derived.externalSideEffect) {
         return {
           decision: 'requires_permission',
-          reason: 'Modo protected exige preview/permissao antes de qualquer efeito fora de resposta direta.',
+          reason: 'Protected mode requires preview/permission before any effect outside direct response.',
         };
       }
     }
@@ -305,25 +305,25 @@ export class TrustSliderPolicyService {
       if (input.derived.hostScopeRequested) {
         return {
           decision: 'block',
-          reason: 'Modo collaborator nao autoriza host inteiro; use nova permissao/elevacao.',
+          reason: 'Collaborator mode does not authorize the whole host; use new permission/elevation.',
         };
       }
       if (input.workspaceEscape) {
         return {
           decision: 'block',
-          reason: 'Modo collaborator bloqueia caminho fora do workspace aprovado.',
+          reason: 'Modo collaborator blocks path outside do workspace approved.',
         };
       }
       if (input.derived.operatorRequired && !input.derived.governedOperatorTool) {
         return {
           decision: 'block',
-          reason: 'Modo collaborator bloqueia controle de operador sem Overlord.',
+          reason: 'Modo collaborator blocks controle de operador without Overlord.',
         };
       }
       if (input.permissionNeeded || input.previewRequired) {
         return {
           decision: 'requires_permission',
-          reason: 'Modo collaborator exige permissao dentro do workspace aprovado.',
+          reason: 'Collaborator mode requires permission inside the approved workspace.',
         };
       }
     }
@@ -332,19 +332,19 @@ export class TrustSliderPolicyService {
       if (!input.ownerOrOperator) {
         return {
           decision: 'block',
-          reason: 'Modo Overlord exige owner/operator antes de qualquer execucao.',
+          reason: 'Overlord mode requires owner/operator before any execution.',
         };
       }
       if (!input.killSwitchActive) {
         return {
           decision: 'block',
-          reason: 'Modo Overlord exige kill switch ativo e audit trail.',
+          reason: 'Overlord mode requires an active kill switch and audit trail.',
         };
       }
       if (input.permissionNeeded || input.derived.hostScopeRequested || input.derived.operatorRequired) {
         return {
           decision: 'requires_permission',
-          reason: 'Modo Overlord liberado exige audit trail e aprovacao explicita.',
+          reason: 'Released Overlord mode requires an audit trail and explicit approval.',
         };
       }
     }
@@ -462,8 +462,7 @@ export class TrustSliderPolicyService {
       auditTrailRequired: input.auditTrailRequired,
       killSwitchRequired: input.killSwitchRequired,
       previewRequired: input.previewRequired,
-      rollbackCommand: direction === 'elevation' && input.previousLevel
-        ? `trust-slider set ${input.previousLevel}`
+      rollbackCommand: direction === 'elevation' && input.previousLevel ? `trust-slider set ${input.previousLevel}`
         : null,
     };
   }

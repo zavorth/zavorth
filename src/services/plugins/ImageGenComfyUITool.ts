@@ -9,20 +9,20 @@ export class ImageGenComfyUITool extends BaseTool {
   public readonly name = 'zavorth_comfyui';
 
   public readonly description =
-    'ComfyUI — local and private image generation via API. Node-based workflow engine para Stable Diffusion, FLUX, e modelos customizados. Rode tudo localmente.';
+    'ComfyUI — local and private image generation via API. Node-based workflow engine para Stable Diffusion, FLUX, e models customizados. Run tudo localmente.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'generate', 'list_workflows', 'list_models', 'check_status', 'get_queue'.",
+        description: "Action: 'generate', 'list_workflows', 'list_models', 'check_status', 'get_queue'.",
       },
       prompt: {
         type: 'string',
-        description: 'Prompt para geracao de imagem.',
+        description: 'Prompt for image generation.',
       },
-      negative_prompt: {
+      denytive_prompt: {
         type: 'string',
         description: 'Negative prompt (what to avoid).',
       },
@@ -84,7 +84,7 @@ export class ImageGenComfyUITool extends BaseTool {
 
   private listWorkflows(): string {
     return [
-      'Workflows ComfyUI disponiveis:',
+      'Available ComfyUI workflows:',
       '',
       '  txt2img — Text to Image (prompt -> imagem)',
       '  img2img — Image to Image (imagem + prompt -> nova imagem)',
@@ -112,7 +112,7 @@ export class ImageGenComfyUITool extends BaseTool {
       for (const m of models.slice(0, 20)) {
         lines.push(`  - ${m}`);
       }
-      if (models.length > 20) lines.push(`  ... e mais ${models.length - 20}`);
+      if (models.length > 20) lines.push(`  ? e mais ${models.length - 20}`);
       return lines.join('\n');
     } catch (error: unknown) {logger.warn('[Image Gen Comfy U I] load operation failed', error); return ''; }
   }
@@ -147,7 +147,7 @@ export class ImageGenComfyUITool extends BaseTool {
       const running = parsed.queue_running?.length || 0;
       const pending = parsed.queue_pending?.length || 0;
 
-      return `Fila ComfyUI: ${running} running, ${pending} pendente(s).`;
+      return `Fila ComfyUI: ${running} running, ${pending} pending(s).`;
     } catch (error: unknown) {logger.warn('[Image Gen Comfy U I] JSON parse failed', error); return 'Error querying queue.'; }
   }
 
@@ -155,7 +155,7 @@ export class ImageGenComfyUITool extends BaseTool {
     const prompt = String(args.prompt || '');
     if (!prompt) return 'Error: "prompt" is required.';
 
-    const negativePrompt = String(args.negative_prompt || 'ugly, blurry, low quality');
+    const denytivePrompt = String(args.denytive_prompt || 'ugly, blurry, low quality');
     const width = typeof args.width === 'number' ? args.width : 1024;
     const height = typeof args.height === 'number' ? args.height : 1024;
     const steps = typeof args.steps === 'number' ? args.steps : 20;
@@ -178,7 +178,7 @@ export class ImageGenComfyUITool extends BaseTool {
             denoise: 1,
             model: ['4', 0],
             positive: ['6', 0],
-            negative: ['7', 0],
+            denytive: ['7', 0],
             latent_image: ['5', 0],
           },
         },
@@ -196,7 +196,7 @@ export class ImageGenComfyUITool extends BaseTool {
         },
         '7': {
           class_type: 'CLIPTextEncode',
-          inputs: { text: negativePrompt, clip: ['4', 1] },
+          inputs: { text: denytivePrompt, clip: ['4', 1] },
         },
         '8': {
           class_type: 'VAEDecode',
@@ -228,7 +228,7 @@ export class ImageGenComfyUITool extends BaseTool {
         'Imagem enfileirada no ComfyUI:',
         `  Prompt ID: ${parsed.prompt_id}`,
         `  Prompt: "${prompt.slice(0, 80)}"`,
-        `  Tamanho: ${width}x${height}`,
+        `  Size: ${width}x${height}`,
         `  Steps: ${steps}`,
         `  CFG: ${cfgScale}`,
         `  Seed: ${seed}`,

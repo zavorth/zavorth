@@ -26,7 +26,7 @@ type Runtime = {
 };
 
 const RUNBOOK = {
-  create: '/schedule <pedido> every 1h',
+  create: '/schedule <request>',
   list: '/schedules',
   pause: '/automations pause <id>',
   resume: '/automations resume <id>',
@@ -178,7 +178,7 @@ function buildGates(
   const hostOk = !hostTask || hostTask.status === 'passed';
   return [
     gate(
-      'checkpoint-6-live-tick',
+      'gate-6-live-tick',
       'live-tick-certification',
       liveTick.status === 'passed' ? 'pass' : 'fail',
       `Runtime gateway live tick certification is ${liveTick.status}.`,
@@ -202,8 +202,7 @@ function buildGates(
       'host-task-readiness',
       'host-task-readiness',
       hostRequested ? (hostOk ? 'pass' : 'warn') : 'warn',
-      hostRequested
-        ? `Selected host task certification is ${hostTask?.status || 'missing'}.`
+      hostRequested ? `Selected host task certification is ${hostTask?.status || 'missing'}.`
         : 'No specific host task was requested; fixture readiness is certified.',
       'Run with --task=<id> to certify a real persisted scheduled task on this host.',
     ),
@@ -241,13 +240,9 @@ function gate(
 }
 
 function hasLifecycleCommands(surfaces: ZavorthScheduledTaskDailyOpsReadinessSurfaceCommand[]): boolean {
-  const commands = surfaces.map((surface) => surface.command).join('\n').toLowerCase();
-  return commands.includes('/schedule')
-    && commands.includes('/schedules')
-    && commands.includes('/unschedule')
-    && commands.includes('pause')
-    && commands.includes('resume')
-    && commands.includes('reapprove');
+  const commands = new Set(surfaces.map((surface) => surface.command.toLowerCase()));
+  return ['/schedule', '/schedules', '/unschedule', '/schedule pause', '/schedule resume', '/schedule reapprove']
+    .every((command) => commands.has(command));
 }
 
 function summarize(
@@ -282,42 +277,40 @@ function buildReceipts(
 ): ZavorthScheduledTaskDailyOpsReadinessReceipt[] {
   return [
     {
-      id: 'checkpoint-7-scheduled-task-daily-ops-readiness',
-      kind: 'checkpoint-7-scheduled-task-daily-ops-readiness',
+      id: 'gate-7-scheduled-task-daily-ops-readiness',
+      kind: 'gate-7-scheduled-task-daily-ops-readiness',
       status: status === 'blocked' ? 'blocked' : status === 'attention' ? 'attention' : 'ready',
       summary: `Daily ops readiness status is ${status}.`,
     },
     {
-      id: 'checkpoint-7-live-tick-consumed',
-      kind: 'checkpoint-6-live-tick-consumed',
+      id: 'gate-7-live-tick-consumed',
+      kind: 'gate-6-live-tick-consumed',
       status: liveTick.status === 'passed' ? 'ready' : 'blocked',
       summary: `Consumed Runtime gateway live tick certification with status ${liveTick.status}.`,
     },
     {
-      id: 'checkpoint-7-surface-commands-certified',
+      id: 'gate-7-surface-commands-certified',
       kind: 'surface-commands-certified',
-      status: surfaces.every((surface) => surface.status === 'ready' || surface.status === 'projection_only')
-        ? 'ready'
+      status: surfaces.every((surface) => surface.status === 'ready' || surface.status === 'projection_only') ? 'ready'
         : 'blocked',
       summary: `${surfaces.length} surface command entries were certified for daily operations.`,
     },
     {
-      id: 'checkpoint-7-operator-runbook',
+      id: 'gate-7-operator-runbook',
       kind: 'operator-runbook',
       status: 'recorded',
       summary: 'Daily create/list/pause/resume/reapprove/revoke/certify commands are documented in the snapshot.',
     },
     {
-      id: 'checkpoint-7-no-visual-mutation',
+      id: 'gate-7-no-visual-mutation',
       kind: 'no-visual-mutation',
       status: 'recorded',
       summary: 'No zavorthControl visual section or card was created by Surface controls.',
     },
     {
-      id: 'checkpoint-7-no-direct-dispatch',
+      id: 'gate-7-no-direct-dispatch',
       kind: 'no-direct-dispatch',
-      status: liveTick.safety.noDirectDispatcherBypass && (!hostTask || hostTask.safety.noDirectDispatcherBypass)
-        ? 'recorded'
+      status: liveTick.safety.noDirectDispatcherBypass && (!hostTask || hostTask.safety.noDirectDispatcherBypass) ? 'recorded'
         : 'blocked',
       summary: 'Daily ops readiness preserves the no-direct-dispatch invariant.',
     },

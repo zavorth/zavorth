@@ -137,7 +137,7 @@ export type ZavorthSemanticQaSecurityReleaseCertificationSnapshot = {
     inspectJson: 'npm run semantic-qa-security-release-certification:json --silent';
     check: 'npm run semantic-qa-security-release-certification:check --silent';
     qa: 'npm run qa:semantic-qa-security-release-certification --silent';
-    nextStage: 'S8 - Skill Ecosystem Semantics';
+    nextAction: 'Skill ecosystem semantics';
   };
 };
 

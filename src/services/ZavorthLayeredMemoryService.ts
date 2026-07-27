@@ -141,9 +141,9 @@ export class ZavorthLayeredMemoryService {
         proceduralUsage: Math.min(1, proceduralCount / Math.max(1, perLayer)),
       },
       narrative: {
-        headline: 'Layered memory pronta para episodic, semantic e procedural recall.',
-        operatorSummary: `${episodicCount} episodico(s), ${semanticCount} semantico(s) e `
-          + `${proceduralCount} procedimento(s) no recall atual.`,
+        headline: 'Layered memory ready for episodic, semantic, and procedural recall.',
+        operatorSummary: `${episodicCount} episodic item(s), ${semanticCount} semantic item(s), and `
+          + `${proceduralCount} procedure(s) no recall current.`,
       },
     };
   }

@@ -9,10 +9,17 @@ import { logger } from '../../logger.js';
 import { executionContextScope } from '../../runtime/context/ExecutionContextScope.js';
 import { ZavorthGitLockTool } from '../ZavorthGitLockTool.js';
 import { errorMessage } from '../../utils/errorLike.js';
+
+export type SingleEditChunk = {
+  search: string;
+  replace: string;
+  startLine?: number;
+  endLine?: number;
+  replaceAll?: boolean;
+};
+
 function readString(value: unknown): string {
-
   return String(value ?? '').trim();
-
 }
 
 function buildDiff(filePath: string, before: string, after: string): string {
@@ -27,39 +34,131 @@ function buildDiff(filePath: string, before: string, after: string): string {
   );
 }
 
+function applySingleEdit(
+  content: string,
+  search: string,
+  replace: string,
+  startLine?: number,
+  endLine?: number,
+  replaceAll?: boolean,
+): { success: boolean; newContent: string; error?: string } {
+  if (!search) {
+    return { success: false, newContent: content, error: 'Search snippet cannot be empty.' };
+  }
+
+  const lines = content.split('\n');
+  const totalLines = lines.length;
+
+  const start = Math.max(1, Math.min(startLine || 1, totalLines));
+  const end = Math.max(start, Math.min(endLine || totalLines, totalLines));
+
+  const targetLines = lines.slice(start - 1, end);
+  let targetSegment = targetLines.join('\n');
+
+  let matchIndex = targetSegment.indexOf(search);
+  let effectiveSearch = search;
+
+  if (matchIndex === -1) {
+    const trimmedTarget = targetLines.map((line) => line.trimEnd()).join('\n');
+    const trimmedSearch = search.split('\n').map((line) => line.trimEnd()).join('\n');
+    const trimmedMatch = trimmedTarget.indexOf(trimmedSearch);
+
+    if (trimmedMatch !== -1) {
+      matchIndex = trimmedMatch;
+      effectiveSearch = trimmedSearch;
+      targetSegment = trimmedTarget;
+    } else {
+      return {
+        success: false,
+        newContent: content,
+        error: `Search snippet not found in lines ${start} to ${end}.`,
+      };
+    }
+  }
+
+  let updatedSegment: string;
+  if (replaceAll) {
+    updatedSegment = targetSegment.split(effectiveSearch).join(replace);
+  } else {
+    const firstOccur = targetSegment.indexOf(effectiveSearch);
+    updatedSegment =
+      targetSegment.slice(0, firstOccur) +
+      replace +
+      targetSegment.slice(firstOccur + effectiveSearch.length);
+  }
+
+  const beforeSegment = lines.slice(0, start - 1).join('\n');
+  const afterSegment = lines.slice(end).join('\n');
+
+  const prefix = beforeSegment ? beforeSegment + '\n' : '';
+  const suffix = afterSegment ? '\n' + afterSegment : '';
+
+  return {
+    success: true,
+    newContent: prefix + updatedSegment + suffix,
+  };
+}
+
 export class WorkspaceEditTool extends BaseTool {
   public readonly name = 'workspace.edit';
-  public readonly description = 'Prepares a workspace file edit through exact replacement via Disk Mutation Gate; apply requires approval and receipt.';
+  public readonly description =
+    'Prepares workspace file edits with line anchoring, single or multi-chunk atomic replacements via Disk Mutation Gate; apply requires approval.';
+
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       filepath: {
         type: 'string',
-        description: 'Caminho relativo dentro do escopo de escrita do workspace.',
+        description: 'Relative path within the workspace write scope.',
       },
       search: {
         type: 'string',
-        description: 'Exact snippet that must exist in the file.',
+        description: 'Exact snippet to replace in single edit mode.',
       },
       replace: {
         type: 'string',
-        description: 'Trecho que substituira o valor encontrado.',
+        description: 'Replacement content for the search snippet.',
+      },
+      startLine: {
+        type: 'number',
+        description: 'Optional 1-based start line boundary for range anchoring.',
+      },
+      endLine: {
+        type: 'number',
+        description: 'Optional 1-based end line boundary for range anchoring.',
       },
       replaceAll: {
         type: 'boolean',
-        description: 'Quando true, substitui todas as ocorrencias.',
+        description: 'When true, replaces all matching occurrences in target range.',
+      },
+      edits: {
+        type: 'array',
+        description: 'Optional array of edit chunks for atomic multi-location edits in one pass.',
+        ...( {
+        items: {
+          type: 'object',
+          properties: {
+            search: { type: 'string' },
+            replace: { type: 'string' },
+            startLine: { type: 'number' },
+            endLine: { type: 'number' },
+            replaceAll: { type: 'boolean' },
+          },
+          required: ['search', 'replace'],
+        },
+        } as Record<string, unknown>),
       },
       dryRun: {
         type: 'boolean',
-        description: 'Mantido por compatibilidade; o gate sempre retorna preview sem gravar antes do approval.',
+        description: 'Maintained for compatibility; gate returns preview without writing prior to approval.',
       },
       previewId: {
         type: 'string',
-        description: 'ID de preview gerado pelo Disk Mutation Gate para aplicar apos approval.',
+        description: 'Preview ID generated by Disk Mutation Gate to apply after approval.',
       },
       approvalPhrase: {
         type: 'string',
-        description: 'Frase exata de approval exigida pelo Disk Mutation Gate.',
+        description: 'Exact approval phrase required by Disk Mutation Gate.',
       },
     },
     required: [],
@@ -69,11 +168,13 @@ export class WorkspaceEditTool extends BaseTool {
     const gate = new DiskMutationGateService();
     const previewId = readString(args.previewId);
     const approvalPhrase = String(args.approvalPhrase ?? '');
+
     if (previewId) {
       try {
         const workspaceRoot = process.cwd();
         const currentSubagentId = executionContextScope.current()?.sessionId || null;
         const previewFilePath = path.join(workspaceRoot, '.zavorth', 'previews', 'disk-mutation-gate', `${previewId}.json`);
+
         if (fs.existsSync(previewFilePath)) {
           const previewData = JSON.parse(fs.readFileSync(previewFilePath, 'utf8'));
           const ops = previewData?.preview?.operations || previewData?.operations || [];
@@ -84,12 +185,14 @@ export class WorkspaceEditTool extends BaseTool {
             }
           }
         }
+
         const result = gate.applyPreview({
           workspaceRoot,
           previewId,
           approvalPhrase,
           approvedBy: readString(args.approvedBy) || 'workspace.edit',
         });
+
         return JSON.stringify({
           success: true,
           applied: result.status === 'applied',
@@ -98,42 +201,38 @@ export class WorkspaceEditTool extends BaseTool {
           preview: result.preview,
           receipt: result.receipt,
         });
-      } catch (error: unknown) {logger.warn('[Workspace Edit] serialization failed', error);
-    return JSON.stringify({
+      } catch (error: unknown) {
+        logger.warn('[Workspace Edit] Execution failed', error);
+        return JSON.stringify({
           success: false,
           applied: false,
           approvalRequired: true,
-          error: errorMessage(error, 'Falha ao aplicar preview pelo Disk Mutation Gate.'),
+          error: errorMessage(error, 'Failed to apply preview via Disk Mutation Gate.'),
         });
-  }
+      }
     }
 
     const filepath = readString(args.filepath || args.filePath);
-    const search = String(args.search ?? '');
-    const replacement = String(args.replace ?? args.replacement ?? '');
-    const replaceAll = Boolean(args.replaceAll);
-    const dryRun = Boolean(args.dryRun);
-
-    if (!filepath || !search) {
+    if (!filepath) {
       return JSON.stringify({
         success: false,
         applied: false,
-        error: 'Parameters "filepath" and "search" are required.',
+        error: 'Parameter "filepath" is required.',
       });
     }
 
     let resolved: ReturnType<WorkspaceFsPolicy['resolveEditPath']>;
     try {
       resolved = new WorkspaceFsPolicy().resolveEditPath(filepath);
-    } catch (error: unknown) {logger.warn('[Workspace Edit] search failed', error);
-    return JSON.stringify({
+    } catch (error: unknown) {
+      logger.warn('[Workspace Edit] Path resolution failed', error);
+      return JSON.stringify({
         success: false,
         applied: false,
-        error: 'For security, edits can only modify files inside the workspace output/ scope.',
+        error: 'For security, edits can only modify files inside the workspace output scope.',
       });
-  }
+    }
 
-    // Check if target file is locked by another subagent
     const currentSubagentId = executionContextScope.current()?.sessionId || null;
     await ZavorthGitLockTool.checkLock(resolved.absolutePath, currentSubagentId);
 
@@ -150,33 +249,87 @@ export class WorkspaceEditTool extends BaseTool {
     }
 
     const currentContent = fs.readFileSync(resolved.absolutePath, 'utf8');
-    if (!currentContent.includes(search)) {
-      return JSON.stringify({
-        success: false,
-        applied: false,
-        error: 'Search snippet not found. No file was changed.',
-        policy: {
-          access: resolved.access,
-          scope: resolved.scope,
-        },
-        audit: {
-          changed: false,
-          diffPatch: '',
-          bytesBefore: Buffer.byteLength(currentContent, 'utf8'),
-          bytesAfter: Buffer.byteLength(currentContent, 'utf8'),
-        },
+
+    let chunks: SingleEditChunk[] = [];
+    if (Array.isArray(args.edits) && args.edits.length > 0) {
+      chunks = args.edits.map((item: unknown) => {
+        const obj = (item || {}) as Record<string, unknown>;
+        return {
+          search: String(obj.search ?? ''),
+          replace: String(obj.replace ?? obj.replacement ?? ''),
+          startLine: typeof obj.startLine === 'number' ? obj.startLine : undefined,
+          endLine: typeof obj.endLine === 'number' ? obj.endLine : undefined,
+          replaceAll: Boolean(obj.replaceAll),
+        };
       });
+    } else {
+      const search = String(args.search ?? '');
+      const replace = String(args.replace ?? args.replacement ?? '');
+      if (!search) {
+        return JSON.stringify({
+          success: false,
+          applied: false,
+          error: 'Parameters "search" and "replace" (or "edits" array) are required.',
+        });
+      }
+      chunks = [
+        {
+          search,
+          replace,
+          startLine: typeof args.startLine === 'number' ? args.startLine : undefined,
+          endLine: typeof args.endLine === 'number' ? args.endLine : undefined,
+          replaceAll: Boolean(args.replaceAll),
+        },
+      ];
     }
 
-    const proposedContent = replaceAll
-      ? currentContent.split(search).join(replacement)
-      : currentContent.replace(search, replacement);
+    const orderedChunks = [...chunks].sort((a, b) => {
+      if (typeof a.startLine === 'number' && typeof b.startLine === 'number') {
+        return b.startLine - a.startLine;
+      }
+      return 0;
+    });
+
+    let workingContent = currentContent;
+    for (let index = 0; index < orderedChunks.length; index++) {
+      const chunk = orderedChunks[index];
+      const result = applySingleEdit(
+        workingContent,
+        chunk.search,
+        chunk.replace,
+        chunk.startLine,
+        chunk.endLine,
+        chunk.replaceAll,
+      );
+
+      if (!result.success) {
+        return JSON.stringify({
+          success: false,
+          applied: false,
+          error: `Atomic edit failed at chunk ${index + 1}: ${result.error}`,
+          policy: {
+            access: resolved.access,
+            scope: resolved.scope,
+          },
+          audit: {
+            changed: false,
+            diffPatch: '',
+            bytesBefore: Buffer.byteLength(currentContent, 'utf8'),
+            bytesAfter: Buffer.byteLength(currentContent, 'utf8'),
+          },
+        });
+      }
+      workingContent = result.newContent;
+    }
+
+    const proposedContent = workingContent;
     const audit = {
       changed: currentContent !== proposedContent,
       diffPatch: buildDiff(filepath, currentContent, proposedContent),
       bytesBefore: Buffer.byteLength(currentContent, 'utf8'),
       bytesAfter: Buffer.byteLength(proposedContent, 'utf8'),
     };
+
     const preview = gate.createPreview({
       workspaceRoot: process.cwd(),
       operations: [
@@ -184,7 +337,7 @@ export class WorkspaceEditTool extends BaseTool {
           kind: 'write_file',
           path: resolved.absolutePath,
           content: proposedContent,
-          reason: 'workspace.edit exact replacement',
+          reason: 'workspace.edit line-anchored atomic edit',
         },
       ],
       requestedBy: readString(args.requestedBy) || 'workspace.edit',
@@ -194,7 +347,7 @@ export class WorkspaceEditTool extends BaseTool {
     return JSON.stringify({
       success: preview.status !== 'blocked',
       applied: false,
-      dryRun,
+      dryRun: Boolean(args.dryRun),
       path: resolved.absolutePath,
       approvalRequired: preview.status === 'preview_ready',
       preview,

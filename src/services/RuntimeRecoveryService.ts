@@ -36,12 +36,9 @@ export class RuntimeRecoveryService {
     const readonlyReady =
       readiness.runtime.telegramWorker.alive
       && (readiness.runtime.hostSupervisor.alive || readiness.runtime.zavorthControl?.active === true)
-      && !readiness.local.issues.some((issue) => {
-        const normalized = String(issue || '').trim().toLowerCase();
-        return normalized.startsWith('o host supervisor nao esta ativo')
-          || normalized.startsWith('o worker principal do zavorth nao esta ativo')
-          || normalized.startsWith('a superficie web do zavorth nao respondeu');
-      });
+      && readiness.runtime.hostSupervisor.alive
+      && readiness.runtime.telegramWorker.alive
+      && readiness.runtime.zavorthControl?.active === true;
 
     const readyForUse = readiness.local.ready || (!requireMutableAccess && readonlyReady);
 

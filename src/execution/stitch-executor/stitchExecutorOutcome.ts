@@ -6,6 +6,58 @@ interface StitchErrorLike {
   suggestion?: string;
 }
 
+type StitchErrorTaxonomyEntry = {
+  code: StitchClassifiedError['code'];
+  message: string;
+  stitchCodes?: string[];
+  messageFragments?: string[];
+  retriable?: boolean;
+};
+
+const STITCH_ERROR_TAXONOMY: StitchErrorTaxonomyEntry[] = [
+  {
+    code: 'STITCH_OAUTH_REQUIRED',
+    message:
+      'This host does not have a valid OAuth credential for Stitch yet. Configure STITCH_ACCESS_TOKEN + GOOGLE_CLOUD_PROJECT to use /stitch here.',
+    messageFragments: ['api keys are not supported by this api', 'expected oauth2 access token'],
+  },
+  {
+    code: 'STITCH_AUTH_FAILED',
+    message: 'Stitch rejected authentication. Check STITCH_API_KEY or STITCH_ACCESS_TOKEN/GOOGLE_CLOUD_PROJECT.',
+    stitchCodes: ['AUTH_FAILED'],
+    messageFragments: ['api key', 'auth'],
+  },
+  {
+    code: 'STITCH_RATE_LIMITED',
+    message: 'Stitch rejected the call due to quota or rate limits. Wait before trying again.',
+    stitchCodes: ['RATE_LIMITED'],
+    messageFragments: ['rate', 'quota'],
+  },
+  {
+    code: 'STITCH_NETWORK_ERROR',
+    message: 'I could not reach Stitch over the network right now.',
+    stitchCodes: ['NETWORK_ERROR'],
+    retriable: true,
+  },
+  {
+    code: 'STITCH_TIMEOUT',
+    message: 'Stitch exceeded the configured time limit for this generation.',
+    stitchCodes: ['TIMEOUT'],
+    messageFragments: ['timed out', 'request timed out', 'aborterror', 'operation was aborted', 'timeout'],
+    retriable: true,
+  },
+  {
+    code: 'STITCH_VALIDATION_ERROR',
+    message: 'Stitch rejected the generation parameters.',
+    stitchCodes: ['VALIDATION_ERROR'],
+  },
+  {
+    code: 'STITCH_PERMISSION_DENIED',
+    message: 'Stitch denied access to this resource for the current authentication.',
+    stitchCodes: ['PERMISSION_DENIED'],
+  },
+];
+
 function asStitchError(error: unknown): StitchErrorLike {
   if (typeof error === 'object' && error !== null) {
     return error as StitchErrorLike;
@@ -17,44 +69,37 @@ export function isRetriableStitchGenerationError(error: unknown): boolean {
   const stitchErr = asStitchError(error);
   const code = String(stitchErr.code || '').trim().toUpperCase();
   const message = String(stitchErr.message || error || '').toLowerCase();
-  return (
-    code === 'TIMEOUT' ||
-    code === 'NETWORK_ERROR' ||
-    message.includes('timed out') ||
-    message.includes('request timed out') ||
-    message.includes('aborterror') ||
-    message.includes('operation was aborted')
-  );
+  return Boolean(resolveStitchErrorTaxonomy(code, message)?.retriable);
 }
 
 export function formatStitchSuccessSummary(input: StitchSuccessSummaryInput): string {
   const lines = [
     'Stitch finished app generation successfully.',
-    `Projeto: ${input.projectId}`,
-    `Tela: ${input.screenId}`,
-    `Dispositivo: ${input.deviceType}`,
+    `Project: ${input.projectId}`,
+    `Screen: ${input.screenId}`,
+    `Device: ${input.deviceType}`,
   ];
 
   if (input.modelId) {
     lines.push(`Model: ${input.modelId}`);
   }
 
-  lines.push('', 'Artefatos gerados:');
+  lines.push('', 'Generated artifacts:');
   if (input.downloadedImagePath) {
-    lines.push(`- Screenshot local: ${input.downloadedImagePath}`);
+    lines.push(`- Local screenshot: ${input.downloadedImagePath}`);
   } else if (input.imageUrl) {
-    lines.push(`- Screenshot remoto: ${input.imageUrl}`);
+    lines.push(`- Remote screenshot: ${input.imageUrl}`);
   }
   if (input.downloadedHtmlPath) {
-    lines.push(`- HTML local: ${input.downloadedHtmlPath}`);
+    lines.push(`- Local HTML: ${input.downloadedHtmlPath}`);
   } else if (input.htmlUrl) {
-    lines.push(`- HTML remoto: ${input.htmlUrl}`);
+    lines.push(`- Remote HTML: ${input.htmlUrl}`);
   }
   if (input.imageUrl) {
-    lines.push(`- Link da imagem: ${input.imageUrl}`);
+    lines.push(`- Image link: ${input.imageUrl}`);
   }
   if (input.htmlUrl) {
-    lines.push(`- Link do HTML: ${input.htmlUrl}`);
+    lines.push(`- HTML link: ${input.htmlUrl}`);
   }
 
   return lines.join('\n');
@@ -66,92 +111,41 @@ export function classifyStitchError(error: unknown): StitchClassifiedError {
   const stitchSuggestion = String(stitchErr.suggestion || '').trim() || undefined;
   const message = String(stitchErr.message || error || '').trim();
   const normalized = message.toLowerCase();
+  const taxonomy = resolveStitchErrorTaxonomy(stitchCode, normalized);
 
-  if (
-    normalized.includes('api keys are not supported by this api') ||
-    normalized.includes('expected oauth2 access token')
-  ) {
+  if (taxonomy) {
     return {
-      code: 'STITCH_OAUTH_REQUIRED',
-      message:
-        'This host does not have a valid OAuth credential for Stitch yet. Configure STITCH_ACCESS_TOKEN + GOOGLE_CLOUD_PROJECT to use /stitch here.',
+      code: taxonomy.code,
+      message: taxonomy.message,
       stderr: message || null,
+      suggestion: stitchSuggestion,
     };
   }
 
   if (stitchCode) {
-    switch (stitchCode) {
-      case 'AUTH_FAILED':
-        return {
-          code: 'STITCH_AUTH_FAILED',
-          message:
-            'O Stitch rejeitou a autenticacao. Verifique STITCH_API_KEY ou STITCH_ACCESS_TOKEN/GOOGLE_CLOUD_PROJECT.',
-          stderr: String(stitchErr.message || ''),
-          suggestion: stitchSuggestion,
-        };
-      case 'RATE_LIMITED':
-        return {
-          code: 'STITCH_RATE_LIMITED',
-          message: 'O Stitch recusou a chamada por limite de taxa. Aguarde um pouco antes de tentar novamente.',
-          stderr: String(stitchErr.message || ''),
-          suggestion: stitchSuggestion,
-        };
-      case 'NETWORK_ERROR':
-        return {
-          code: 'STITCH_NETWORK_ERROR',
-          message: 'I could not reach Stitch over the network right now.',
-          stderr: String(stitchErr.message || ''),
-          suggestion: stitchSuggestion,
-        };
-      case 'VALIDATION_ERROR':
-        return {
-          code: 'STITCH_VALIDATION_ERROR',
-          message: String(stitchErr.message || '') || 'O Stitch recusou os parametros da geracao.',
-          stderr: String(stitchErr.message || ''),
-          suggestion: stitchSuggestion,
-        };
-      case 'PERMISSION_DENIED':
-        return {
-          code: 'STITCH_PERMISSION_DENIED',
-          message: 'O Stitch negou acesso a esse recurso para a autenticacao atual.',
-          stderr: String(stitchErr.message || ''),
-          suggestion: stitchSuggestion,
-        };
-      default:
-        return {
-          code: `STITCH_${stitchCode}`,
-          message: String(stitchErr.message || '') || 'O Stitch falhou durante a geracao.',
-          stderr: String(stitchErr.message || ''),
-          suggestion: stitchSuggestion,
-        };
-    }
-  }
-
-  if (normalized.includes('api key') || normalized.includes('auth')) {
     return {
-      code: 'STITCH_AUTH_FAILED',
-      message: 'O Stitch falhou por autenticacao invalida ou ausente.',
+      code: `STITCH_${stitchCode}`,
+      message: message || 'Stitch failed during generation.',
       stderr: message || null,
-    };
-  }
-  if (normalized.includes('timeout')) {
-    return {
-      code: 'STITCH_TIMEOUT',
-      message: 'O Stitch excedeu o tempo limite configurado para esta geracao.',
-      stderr: message || null,
-    };
-  }
-  if (normalized.includes('rate') || normalized.includes('quota')) {
-    return {
-      code: 'STITCH_RATE_LIMITED',
-      message: 'O Stitch recusou a chamada por quota ou limite de taxa.',
-      stderr: message || null,
+      suggestion: stitchSuggestion,
     };
   }
 
   return {
     code: 'STITCH_ERROR',
-    message: message || 'O Stitch falhou durante a geracao do app.',
+    message: message || 'Stitch failed during app generation.',
     stderr: message || null,
   };
+}
+
+function resolveStitchErrorTaxonomy(
+  stitchCode: string,
+  normalizedMessage: string,
+): StitchErrorTaxonomyEntry | undefined {
+  return STITCH_ERROR_TAXONOMY.find((entry) => {
+    if (entry.stitchCodes?.some((code) => code === stitchCode)) {
+      return true;
+    }
+    return entry.messageFragments?.some((fragment) => normalizedMessage.indexOf(fragment) >= 0) || false;
+  });
 }

@@ -149,7 +149,7 @@ export const WEBSITE_PUBLIC_REQUIRED_SECTIONS = [
 
 export const WEBSITE_PUBLIC_FORBIDDEN_CLAIMS = [
   'C:\\TESTES DEV',
-  'Substitua este resumo',
+  'Substitua este summary',
   '100% seguro',
   'without limits',
   'always-on',

@@ -195,14 +195,14 @@ export class RealZavorthBridgeWatcherTickHandlers {
       await this.host.deps.permissionService.rejectRequest(
         permission.permission_id,
         'system',
-        'Pedido de permissao do ZavorthBridge invalidado porque a sessao original ja terminou.',
+        'ZavorthBridge permission request invalidated because the original session already ended.',
       );
 
       this.host.clearPendingPermissionMetadata(task);
       task.requires_approval = false;
       task.approval_status = 'not_required';
       task.error_summary =
-        task.error_summary || 'Pedido de permissao do ZavorthBridge expirou depois que a sessao real terminou.';
+        task.error_summary || 'ZavorthBridge permission request expired after the real session ended.';
       this.host.deps.taskManager.advanceState(task, 'failed');
 
       this.host.logRepo.log(
@@ -238,7 +238,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
       await this.host.deps.permissionService.rejectRequest(
         permission.permission_id,
         'system',
-        'Pedido de permissao do ZavorthBridge expirou porque a task original nao esta mais aguardando aprovacao ativa.',
+        'ZavorthBridge permission request expired because the original task is no longer waiting for active approval.',
       );
 
       if (task && taskPointsToPermission) {
@@ -247,7 +247,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
           task.requires_approval = false;
           task.approval_status = 'not_required';
           task.error_summary =
-            task.error_summary || 'Pedido de permissao do ZavorthBridge expirou porque a task original perdeu o contexto.';
+            task.error_summary || 'ZavorthBridge permission request expired because the original task lost context.';
           this.host.deps.taskManager.advanceState(task, 'failed');
         } else {
           this.host.deps.taskManager.saveTask(task);
@@ -285,9 +285,9 @@ export class RealZavorthBridgeWatcherTickHandlers {
 
           this.host.queueSessionDelivery(
             session,
-            this.host.formatFinalResponseBroadcast(session, content, 'fallback de arquivo'),
+            this.host.formatFinalResponseBroadcast(session, content, 'file fallback'),
             content,
-            'fallback de arquivo',
+            'file fallback',
           );
           queuedDelivery = true;
           await this.host.bridgeManager.saveSession(session);
@@ -297,8 +297,8 @@ export class RealZavorthBridgeWatcherTickHandlers {
 
       await this.host.broadcaster.broadcast(
         [
-          'ZavorthBridge respondeu via fallback de arquivo.',
-          `Arquivo: ${path.basename(processedPath)}`,
+          'ZavorthBridge respondeu via file fallback.',
+          `File: ${path.basename(processedPath)}`,
           '',
           this.host.truncate(content, 2800),
         ].join('\n'),
@@ -453,7 +453,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
         this.host.logRepo.log(
           'warn',
           'RealZavorthBridgeWatcher',
-          `Falha ao reenviar pedido de permissao do ZavorthBridge: ${errorMessage}`,
+          `Failed to resend ZavorthBridge permission request: ${errorMessage}`,
           {
             taskId: session.taskId,
             permissionId,
@@ -591,7 +591,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
       } catch (error: unknown) {
         const err = asErrorLike(error);
         session.deliveryState = 'failed';
-        session.lastDeliveryError = error instanceof Error ? err.message : 'Falha desconhecida ao entregar resposta ao Telegram.';
+        session.lastDeliveryError = error instanceof Error ? err.message : 'Unknown failure while delivering the Telegram response.';
         const task = this.host.getTask(session.taskId);
         if (task && !this.host.isTaskTerminal(task)) {
           task.metadata = {
@@ -607,7 +607,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
         this.host.logRepo.log(
           'warn',
           'RealZavorthBridgeWatcher',
-          `Falha ao entregar resposta final do ZavorthBridge no chat de origem: ${session.lastDeliveryError}`,
+          `Failure delivering final ZavorthBridge response to the origin chat: ${session.lastDeliveryError}`,
           { taskId: session.taskId, chatId: session.chatId },
         );
       }

@@ -128,8 +128,8 @@ export class ProviderCompatibilityClassifier {
         credentialRequired: credentialKind !== 'none',
         runtimeSupported: true,
         explanation: [
-          `${providerName} possui provider first-class no runtime atual.`,
-          'A rota preserva o adapter bespoke antes de cair em compat generico.',
+          `${providerName} possui provider first-class no runtime current.`,
+          'A rota preserva o adapter bespoke before cair em compat generico.',
         ],
       });
     }
@@ -151,7 +151,7 @@ export class ProviderCompatibilityClassifier {
         runtimeSupported: true,
         explanation: [
           `${providerName} usa rota gateway/OpenAI-compatible governada.`,
-          'Runtime bridge deve usar GatewayProvider com base URL declarada.',
+          'Runtime bridge must use GatewayProvider with a declared base URL.',
         ],
       });
     }
@@ -173,7 +173,7 @@ export class ProviderCompatibilityClassifier {
         runtimeSupported: true,
         explanation: [
           `${providerName} foi classificado como local/self-hosted.`,
-          'Runtime bridge deve usar adapter OpenAI-compatible local.',
+          'Runtime bridge must use the local OpenAI-compatible adapter.',
         ],
       });
     }
@@ -195,7 +195,7 @@ export class ProviderCompatibilityClassifier {
         runtimeSupported: true,
         explanation: [
           `${providerName} usa a trilha Anthropic-compatible governada.`,
-          'Runtime bridge deve usar adapter Anthropic-compatible com rota e credenciais declaradas.',
+          'Runtime bridge must use an Anthropic-compatible adapter with declared route and credentials.',
         ],
       });
     }
@@ -217,7 +217,7 @@ export class ProviderCompatibilityClassifier {
         runtimeSupported: true,
         explanation: [
           `${providerName} entra pela trilha OpenAI-compatible generica.`,
-          'Base URL, auth kind e origem do catalogo precisam continuar visiveis.',
+          'Base URL, auth kind, and catalog source must remain visible.',
         ],
       });
     }
@@ -237,8 +237,8 @@ export class ProviderCompatibilityClassifier {
       credentialRequired: credentialKind !== 'none',
       runtimeSupported: isFirstClass,
       explanation: [
-        `${providerName} permaneceu na rota bespoke por seguranca.`,
-        'Nenhuma compatibilidade generica foi inferida sem sinal explicito.',
+        `${providerName} remained on the bespoke route for safety.`,
+        'No generic compatibility was inferred without an explicit signal.',
       ],
     });
   }
