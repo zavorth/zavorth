@@ -2,13 +2,9 @@ import { escapeHtml } from './html-utils';
 import { formatBytes } from './text-utils';
 
 export function shouldHandlePersonalDayFlow(userText: unknown, guidedFlow: string) {
+  void userText;
   if (guidedFlow === 'personal-organize-day') return true;
-  const lower = String(userText || '').toLowerCase();
-  const asksOrganizeDay = /(organize|plan|arrange|structure).{0,28}\b(day|today|routine|schedule)\b/.test(lower)
-    || lower.includes('organize my day')
-    || lower.includes('personal mode');
-  const asksCodeOrBusiness = /\b(workspace|repository|repo|business|audit|provider|channel|sandbox|terminal|command)\b/.test(lower);
-  return asksOrganizeDay && !asksCodeOrBusiness;
+  return false;
 }
 
 export function buildPersonalDayFlowCards({ planId, profile, userText }: any) {
@@ -46,14 +42,9 @@ export function buildPersonalDayFlowCards({ planId, profile, userText }: any) {
 }
 
 export function shouldHandleDeveloperReviewFlow(userText: unknown, guidedFlow: string) {
+  void userText;
   if (guidedFlow === 'developer-review-workspace') return true;
-  const lower = String(userText || '').toLowerCase();
-  const asksReview = /\b(review|audit|analyze|analyse|inspect)\b.{0,42}\b(repository|repo|workspace|project|codebase|folder)\b/.test(lower)
-    || lower.includes('review this workspace')
-    || lower.includes('review this repository')
-    || lower.includes('developer mode');
-  const asksPersonal = /\b(day|routine|reminder|calendar|message)\b/.test(lower);
-  return asksReview && !asksPersonal;
+  return false;
 }
 
 export function buildDeveloperWorkspacePickerCard(userText: unknown) {
@@ -142,13 +133,9 @@ export function buildDeveloperReviewCards({ receiptId, workspace, userText }: an
 }
 
 export function shouldHandleBusinessAuditFlow(userText: unknown, guidedFlow: string) {
+  void userText;
   if (guidedFlow === 'business-audit') return true;
-  const lower = String(userText || '').toLowerCase();
-  const asksBusiness = lower.includes('business mode')
-    || /\b(run|start|prepare|show)\b.{0,34}\b(audit|policy|approvals...|compliance|governance)\b/.test(lower)
-    || /\b(audit|policy|approvals...|compliance|governance)\b.{0,34}\b(business|company|team|enterprise)\b/.test(lower);
-  const asksDeveloperOnly = /\b(repository|repo|workspace|patch|codebase)\b/.test(lower);
-  return asksBusiness && !asksDeveloperOnly;
+  return false;
 }
 
 export function buildBusinessAuditCards({ receiptId, ttlMinutes, userText }: any) {

@@ -10,7 +10,7 @@ export function firstArg(args: string[], fallback: string): string {
 }
 
 export function escapeRegex(value: string): string {
-  return value.replace(/[/\-\\^$*+....()|[\]{}]/g, '\\$&');
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 export function quoteEnv(value: string): string {
@@ -20,7 +20,7 @@ export function quoteEnv(value: string): string {
 }
 
 export function mergeSingleEnvValue(current: string, key: string, value: string): string {
-  const lines = current.split(/\r...\n/u);
+  const lines = current.split(/\r?\n/u);
   let replaced = false;
   const next = lines.map((line) => {
     if (new RegExp(`^${escapeRegex(key)}\\s*=`, 'u').test(line)) {
@@ -203,14 +203,15 @@ export function normalizeRenderLines(lines: string[]): string[] {
 }
 
 export function resolvePanelType(payload: unknown, lines: string[]): 'info' | 'success' | 'warning' | 'error' | 'default' {
+  void lines;
   const record = payload && typeof payload === 'object' ? payload as JsonObject : {};
-  if (record.ok === false || lines.some((line) => /\b(error|failed|invalid|not found)\b/i.test(line))) {
+  if (record.ok === false) {
     return 'error';
   }
-  if (record.dryRun === true || lines.some((line) => /\b(preview|dry-run|add --yes|requires|missing)\b/i.test(line))) {
+  if (record.dryRun === true) {
     return 'warning';
   }
-  if (record.ok === true || lines.some((line) => /\b(created|verified|ready|restored|imported|installed|enabled|started|saved)\b/i.test(line))) {
+  if (record.ok === true) {
     return 'success';
   }
   return 'default';

@@ -244,25 +244,17 @@ const contextDigest =
   ((brainstorm.amends && typeof brainstorm.amends === "string") ? "\nAmends existing feature: " + brainstorm.amends : "")
 
 // ---------------------------------------------------------------------------
-// Type resolution (no separate Classify phase)
+// Type resolution
 // ---------------------------------------------------------------------------
-// First-principles: picking the design skill is a low-risk, reversible routing
-// decision the later Design/Implement phases can self-correct — it does NOT
-// warrant its own LLM phase (the original compose flow has no classifier; it goes
-// brainstorm → compose:plan). So: honor an explicit args.type; otherwise default
-// to "feature" (→ compose:plan) and let a cheap keyword heuristic divert obvious
-// bugfix / PR-feedback tasks. The design agent re-judges with full context anyway.
+// Honor an explicit args.type. Otherwise use the general planning route and let
+// the design agent judge the request from full context instead of keyword lists.
 let type
 if (VALID_TYPES.indexOf(argType) >= 0) {
   type = argType
 } else {
-  const t = TASK.toLowerCase()
-  if (/\b(pr|review)\b.*\b(feedback|comment|address)\b|address .*\bfeedback\b/.test(t)) type = "feedback"
-  else if (/\b(bug|broken|regression|crash|fails...|incorrect|wrong|error)\b/.test(t)) type = "bugfix"
-  else type = "feature"
+  type = "feature"
   log("Task type: " + type)
 }
-
 const SKILL_BY_TYPE = {
   feature: "compose:plan",
   refactor: "compose:plan",
