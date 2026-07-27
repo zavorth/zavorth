@@ -362,8 +362,8 @@ function isEnterpriseSignal(
     return true;
   }
 
-  const workspace = String(input.workspace || metadata.workspace || '').toLowerCase();
-  return /\b(corp|enterprise|managed|bigtech)\b/.test(workspace.replace(/[\\/_.-]+/g, ' '));
+  void input;
+  return false;
 }
 
 function humanizeCapabilities(capabilities: AgentToolCapability[]): string {

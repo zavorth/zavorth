@@ -131,6 +131,7 @@ export function createLocalPreviewResponses({
 
   function generateCoreResponse(userText: string) {
     const lower = userText.toLowerCase();
+    const command = lower.trim().split(/\s+/)[0] || '';
 
     if (shouldHandlePersonalDayFlow(userText, '')) {
       renderPersonalDayFlow(userText);
@@ -140,7 +141,7 @@ export function createLocalPreviewResponses({
       else renderDeveloperWorkspacePicker(userText);
     } else if (shouldHandleBusinessAuditFlow(userText, '')) {
       renderBusinessAuditFlow(userText);
-    } else if (lower.includes('status') || lower.includes('health') || lower.includes('teste')) {
+    } else if (command === '/status' || command === '/health') {
       const traces = buildSystemTrace('Scanning the gateway...') + buildSystemTrace('Checking PID 4821...');
       const cells = buildLogicCell(
         'system_health_check',
@@ -149,7 +150,7 @@ export function createLocalPreviewResponses({
         `Gateway:   Connected\nAgent:     Running\nModel:     ${getCurrentModelLabel()}\nRoute:     ${getCurrentModelRouteLabel()}`,
       );
       appendEcho('core', 'Systems are operational. Full report below:', traces + cells);
-    } else if (lower.includes('/agent') || lower.includes('agent.create')) {
+    } else if (command === '/agent' || command === 'agent.create') {
       const traces = buildSystemTrace('Compiling the new agent manifest...') + buildSystemTrace('Waiting for operator approval.');
       const cells = buildLogicCell(
         'generate_manifest',
@@ -158,7 +159,7 @@ export function createLocalPreviewResponses({
         `{\n  "name": "Data Analyst",\n  "model": ${JSON.stringify(getCurrentModelLabel())},\n  "tools": ["python_exec", "db_read"]\n}`,
       );
       appendEcho('core', 'Manifest created successfully. Do you want me to deploy it to the mesh...', traces + cells + buildInteractiveButtons());
-    } else if (lower.includes('shell.exec') || lower.includes('terminal.run')) {
+    } else if (command === 'shell.exec' || command === 'terminal.run') {
       const traces = buildSystemTrace('Connecting to shell TTY1...');
       const cells = buildLogicCell(
         'run_command',

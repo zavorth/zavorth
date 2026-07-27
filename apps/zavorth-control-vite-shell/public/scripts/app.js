@@ -2861,6 +2861,7 @@ ${current}` : skillPrompt;
 
   function generateCoreResponse(userText) {
     const lower = userText.toLowerCase();
+    const command = lower.trim().split(/\s+/)[0] || '';
 
     if (shouldHandlePersonalDayFlow(userText, '')) {
       renderPersonalDayFlow(userText);
@@ -2872,7 +2873,7 @@ ${current}` : skillPrompt;
     else if (shouldHandleBusinessAuditFlow(userText, '')) {
       renderBusinessAuditFlow(userText);
     }
-    else if (lower.includes('status') || lower.includes('health') || lower.includes('teste')) {
+    else if (command === '/status' || command === '/health') {
       const traces = buildSystemTrace("Scanning the gateway...") + buildSystemTrace("Checking PID 4821...");
       const cells = buildLogicCell(
         'system_health_check',
@@ -2882,7 +2883,7 @@ ${current}` : skillPrompt;
       );
       appendEcho('core', 'Systems are operational. Full report below:', traces + cells);
     }
-    else if (lower.includes('agente') || lower.includes('criar')) {
+    else if (command === '/agent' || command === 'agent.create') {
       const traces = buildSystemTrace("Compiling the new agent manifest...") + buildSystemTrace("Waiting for operator approval.");
       const cells = buildLogicCell(
         'generate_manifest',
@@ -2893,8 +2894,8 @@ ${current}` : skillPrompt;
       const buttons = buildInteractiveButtons();
       appendEcho('core', 'Manifest created successfully. Do you want me to deploy it to the mesh...', traces + cells + buttons);
     }
-    else if (lower.includes('run') || lower.includes('exec') || lower.includes('comando')) {
-      const traces = buildSystemTrace("Conectando ao shell TTY1...");
+    else if (command === 'shell.exec' || command === 'terminal.run') {
+      const traces = buildSystemTrace("Connecting to shell TTY1...");
       const cells = buildLogicCell(
         'run_command',
         'M4 17l6-6-6-6M12 19h8',
@@ -2910,13 +2911,9 @@ ${current}` : skillPrompt;
   }
 
   function shouldHandlePersonalDayFlow(userText, guidedFlow) {
+    void userText;
     if (guidedFlow === 'personal-organize-day') return true;
-    const lower = String(userText || '').toLowerCase();
-    const asksOrganizeDay = /(organize|plan|arrange|structure).{0,28}\b(day|today|routine|schedule)\b/.test(lower)
-      || lower.includes('organize my day')
-      || lower.includes('personal mode');
-    const asksCodeOrBusiness = /\b(workspace|repository|repo|business|audit|provider|channel|sandbox|terminal|command)\b/.test(lower);
-    return asksOrganizeDay && !asksCodeOrBusiness;
+    return false;
   }
 
   function renderPersonalDayFlow(userText) {
@@ -2989,14 +2986,9 @@ ${current}` : skillPrompt;
   }
 
   function shouldHandleDeveloperReviewFlow(userText, guidedFlow) {
+    void userText;
     if (guidedFlow === 'developer-review-workspace') return true;
-    const lower = String(userText || '').toLowerCase();
-    const asksReview = /\b(review|audit|analyze|analyse|inspect)\b.{0,42}\b(repository|repo|workspace|project|codebase|folder)\b/.test(lower)
-      || lower.includes('review this workspace')
-      || lower.includes('review this repository')
-      || lower.includes('developer mode');
-    const asksPersonal = /\b(day|routine|reminder|calendar|message)\b/.test(lower);
-    return asksReview && !asksPersonal;
+    return false;
   }
 
   function renderDeveloperWorkspacePicker(userText) {
@@ -3159,13 +3151,9 @@ ${current}` : skillPrompt;
   }
 
   function shouldHandleBusinessAuditFlow(userText, guidedFlow) {
+    void userText;
     if (guidedFlow === 'business-audit') return true;
-    const lower = String(userText || '').toLowerCase();
-    const asksBusiness = lower.includes('business mode')
-      || /\b(run|start|prepare|show)\b.{0,34}\b(audit|policy|approvals...|compliance|governance)\b/.test(lower)
-      || /\b(audit|policy|approvals...|compliance|governance)\b.{0,34}\b(business|company|team|enterprise)\b/.test(lower);
-    const asksDeveloperOnly = /\b(repository|repo|workspace|patch|codebase)\b/.test(lower);
-    return asksBusiness && !asksDeveloperOnly;
+    return false;
   }
 
   function renderBusinessAuditFlow(userText) {

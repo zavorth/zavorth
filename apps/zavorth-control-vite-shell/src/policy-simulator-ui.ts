@@ -1,34 +1,14 @@
-/** Policy what-if keyword heuristic. */
+﻿/** Policy what-if preview. */
 
 type GatePrediction = {
   gate: string;
   reason: string;
 };
 
-const RULES: Array<{ pattern: RegExp; gate: string; reason: string }> = [
-  { pattern: /\b(delete|remove|rm\b|unlink|drop)\b/i, gate: 'destructive', reason: 'would require approval' },
-  { pattern: /\b(write|edit|patch|overwrite|save to|modify file)\b/i, gate: 'write', reason: 'would require approval' },
-  { pattern: /\b(network|http|fetch|download|upload|webhook|api call)\b/i, gate: 'network', reason: 'would require approval' },
-  { pattern: /\b(shell|terminal|exec|command|powershell|bash|cmd)\b/i, gate: 'shell', reason: 'would require approval' },
-  { pattern: /\b(install|npm i|pip install|deploy|sudo)\b/i, gate: 'install', reason: 'would require approval' },
-  { pattern: /\b(send|email|message|post to|publish)\b/i, gate: 'outbound', reason: 'would require approval' },
-  { pattern: /\b(payment|transfer|transaction|wire)\b/i, gate: 'money', reason: 'would require approval' },
-];
-
 export function simulatePolicyGates(prompt: string): GatePrediction[] {
   const text = String(prompt || '').trim();
   if (!text) return [];
-  const hits: GatePrediction[] = [];
-  const seen = new Set<string>();
-  for (const rule of RULES) {
-    if (!rule.pattern.test(text) || seen.has(rule.gate)) continue;
-    seen.add(rule.gate);
-    hits.push({ gate: rule.gate, reason: rule.reason });
-  }
-  if (hits.length === 0) {
-    hits.push({ gate: 'read', reason: 'likely allowed (no write/delete/network/shell signals)' });
-  }
-  return hits;
+  return [{ gate: 'runtime-policy', reason: 'submit to the runtime policy engine for semantic evaluation' }];
 }
 
 function renderResults(root: ParentNode, predictions: GatePrediction[]) {
@@ -39,7 +19,7 @@ function renderResults(root: ParentNode, predictions: GatePrediction[]) {
     return;
   }
   list.innerHTML = predictions
-    .map((item) => `<li><strong>${escapeLite(item.gate)}</strong> — ${escapeLite(item.reason)}</li>`)
+    .map((item) => `<li><strong>${escapeLite(item.gate)}</strong> - ${escapeLite(item.reason)}</li>`)
     .join('');
 }
 
