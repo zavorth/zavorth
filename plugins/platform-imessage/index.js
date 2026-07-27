@@ -1,6 +1,6 @@
 /**
  * platform-imessage — soft-fail iMessage / mac-bridge channel.
- * Soft status is primary; send is a permission-gated stub.
+ * Soft status is primary; send is a permission-gated template.
  * Never logs or returns bridge token values.
  */
 
@@ -80,11 +80,11 @@ function register(ctx) {
       }
     }
 
-    logger.info('platform-imessage soft send accepted (stub)');
+    logger.info('platform-imessage demo send accepted without external delivery');
     return {
       ok: true,
       delivered: false,
-      stub: true,
+      demoOnly: true,
       platform: 'imessage',
       to,
       message:

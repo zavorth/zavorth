@@ -54,7 +54,7 @@ Additional vars already used by monorepo (`ZavorthGateway_BASE_URL`, `BASE_URL`,
 
 Implemented by `resolveGatewayBaseUrl(env)`:
 
-1. `env.ZAVORTH_GATEWAY_BASE_URL` **or** `env.ZavorthGateway_BASE_URL`  
+1. `env.ZAVORTH_GATEWAY_BASE_URL` **or** `env.ZavorthGateway_BASE_URL`
    (monorepo gateway historically uses `ZavorthGateway_BASE_URL` in `src/ai-gateway/shared/utils/resolveGatewayBaseUrl.ts` — both are accepted)
 2. `env.BASE_URL` / `env.NEXT_PUBLIC_BASE_URL`
 3. Default: `http://localhost:20128` (same as monorepo `DEFAULT_ZavorthGateway_BASE_URL`)
@@ -300,11 +300,11 @@ npx jest tests/cli/ZavorthRuntimeBridge.test.ts --runInBand
 
 Smoke:
 
-1. Resolve contract without write  
-2. Write under temp `ZAVORTH_HOME`  
-3. Assert file fields  
-4. Assert `buildTuiChildEnv` keys  
-5. Optional soft HTTP probe to gateway (`/api/code-bridge` or health) — does not fail suite if gateway is down  
+1. Resolve contract without write
+2. Write under temp `ZAVORTH_HOME`
+3. Assert file fields
+4. Assert `buildTuiChildEnv` keys
+5. Optional soft HTTP probe to gateway (`/api/code-bridge` or health) — does not fail suite if gateway is down
 
 ---
 

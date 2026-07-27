@@ -19,7 +19,7 @@ Visible when `ZAVORTH_TOOL_EXPOSURE_PROFILE=daily-ops` or `full`.
 | `scan` / `suggest` | Workspace candidates (preview only; no auto-register) |
 | `health` | CLI version / HTTP probe / internal ready |
 | `invoke` | **Dry-run by default**; live needs `approval=true` and `dry_run=false` |
-| `route` | W5: classify task as local tools vs worker |
+| `route` | group-5: classify task as local tools vs worker |
 | `receipts` | Recent invoke receipts |
 
 ### Examples (tool args)

@@ -1,17 +1,17 @@
-# Voice priorities 1–3
+# Voice priorities 1-3
 
-## 1. Push de turnos (sem poll cego)
+## 1. Turn push without blind polling
 
-| Canal         | Uso                                                                      |
-| ------------- | ------------------------------------------------------------------------ |
-| **SSE**       | `GET /api/experience/voice/duplex/events?sessionId=…`                    |
-| **Long-poll** | `POST /api/experience/voice/duplex` `action=wait_event` (Desktop bridge) |
+| Channel | Use |
+| --- | --- |
+| **SSE** | `GET /api/experience/voice/duplex/events?sessionId=...` |
+| **Long-poll** | `POST /api/experience/voice/duplex` with `action=wait_event` through the desktop bridge |
 
-Bus: `VoiceDuplexEventBus` — eventos `session` / `phase` / `turn` / `error` / `ended` publicados por `VoiceRealtimeDuplexSession`.
+Bus: `VoiceDuplexEventBus` publishes `session`, `phase`, `turn`, `error`, and `ended` events from `VoiceRealtimeDuplexSession`.
 
-Desktop nativo RTP usa **wait_event** em loop (push-held), não mais GET a cada 900ms.
+Native desktop RTP uses a push-held `wait_event` loop instead of polling GET every 900ms.
 
-## 2. Dogfood live
+## 2. Live dogfood
 
 ```bash
 npx tsx scripts/zavorth-voice-dogfood.ts
@@ -21,13 +21,13 @@ npx tsx scripts/zavorth-voice-dogfood.ts --live --confirm-live-stt
 
 Doc: `docs/voice-dogfood.md`
 
-## 3. Qualidade de áudio (PCM server)
+## 3. Audio quality
 
 `VoiceAudioQuality`:
 
 - downmix mono
-- AGC (RMS target)
-- resample **16 kHz**
-- VAD com ~120ms de fala contínua
+- AGC with RMS target
+- resample to 16 kHz
+- VAD with about 120ms of continuous speech
 
-Integrado em `VoiceNativeRtpBridge` antes do WAV/STT.
+Integrated into `VoiceNativeRtpBridge` before WAV/STT.

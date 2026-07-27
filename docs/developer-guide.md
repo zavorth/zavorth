@@ -145,13 +145,13 @@ Every provider must implement this interface:
 ```typescript
 interface ILlmProvider {
   readonly name: string;
-  
+
   chat(
     messages: ChatMessage[],
     tools?: ToolDefinition[],
     options?: ProviderChatOptions,
   ): Promise<LlmResponse>;
-  
+
   streamChat?(
     messages: ChatMessage[],
     tools?: ToolDefinition[],

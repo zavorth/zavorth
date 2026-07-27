@@ -1,5 +1,5 @@
 /**
- * example-sandbox — Zavorth Plugin OS sandbox stub.
+ * example-sandbox - Zavorth Plugin OS sandbox template.
  * Soft-fails when optional registration helpers are missing.
  */
 function register(ctx) {
@@ -15,7 +15,7 @@ function register(ctx) {
         moduleKind: 'sandbox',
         spawned: false,
         input: input || {},
-        message: 'example sandbox stub (no process spawn)',
+        message: 'example sandbox template (no process spawn)',
       },
     }));
   } else {

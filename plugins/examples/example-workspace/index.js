@@ -1,5 +1,5 @@
 /**
- * example-workspace — Zavorth Plugin OS workspace stub.
+ * example-workspace - Zavorth Plugin OS workspace template.
  * Soft-fails when optional registration helpers are missing.
  */
 function register(ctx) {
@@ -17,7 +17,7 @@ function register(ctx) {
           moduleKind: 'workspace',
           workspacePath,
           input: input || {},
-          message: 'example workspace stub',
+          message: 'example workspace template',
         },
       };
     });

@@ -1,65 +1,65 @@
-# Agente para o dia a dia
+# Everyday Agent Path
 
-Produto local-first com aprendizado reversivel, setup simples e canais estaveis.
+Local-first product path with reversible learning, simple setup, and stable channels.
 
-> Aprende com voce, com seguranca e desfazer. Util no chat, sem jargao.
+> Learns from the operator with safe undo. Useful in chat, without jargon.
 
-## Capacidades
+## Capabilities
 
-| Area | O que o usuario sente | Servico |
+| Area | User experience | Service |
 |------|------------------------|---------|
-| Aprendizado | Preferencias e rotinas com recibo e desfazer | `ZavorthLearningRuntimeHubService` |
-| First-run | Idioma, onde falar, se pode aprender sozinho | `ZavorthFirstRunHumanOnboardingService` |
-| Superpoderes | Capacidades em linguagem humana | `ZavorthHumanSuperpowersService` |
-| Alcance | Desktop, Telegram, WhatsApp Cloud; Baileys experimental | `ZavorthHumanReachService` |
+| Learning | Preferences and routines with receipts and undo | `ZavorthLearningRuntimeHubService` |
+| First-run | Language, preferred surface, and autonomous learning choice | `ZavorthFirstRunHumanOnboardingService` |
+| Capabilities | Human-readable capability map | `ZavorthHumanSuperpowersService` |
+| Reach | Desktop, Telegram, WhatsApp Cloud; experimental Baileys | `ZavorthHumanReachService` |
 
-## Aprendizado
+## Learning
 
-1. Apos turno bem-sucedido, o runtime pode gravar preferencias se `learning.mode=autonomous`
-2. No turno seguinte, preferencias entram no system prompt
-3. Experience: card **Esquecer**
-4. Telegram: "o que voce aprendeu?", "desfazer aprendizado ..."
-5. CLI `anyone digest` / `undo` usa o mesmo hub
+1. After a successful turn, the runtime can store preferences when `learning.mode=autonomous`.
+2. On the next turn, preferences enter the system prompt.
+3. Experience: **Forget** card.
+4. Telegram: "what did you learn?", "undo learning ..."
+5. CLI `anyone digest` / `undo` uses the same hub.
 
 ```text
-turno ok → write → trusted-preferences.json
-next turn → formatContextBlock → prompt
-desfazer / Esquecer → undo
+turn ok -> write -> trusted-preferences.json
+next turn -> formatContextBlock -> prompt
+undo / forget -> undo
 ```
 
 ## First-run
 
-Estado: `data/runtime/first-run-human.json`
+State: `data/runtime/first-run-human.json`
 
-1. Idioma
-2. Onde falar (app / telegram / web / terminal)
-3. Aprendizado sim/nao
+1. Language
+2. Preferred surface (app / Telegram / web / terminal)
+3. Learning yes/no
 
-- Telegram intercepta mensagens ate concluir (ou "pular setup")
-- Experience expoe `snapshot.firstRun` e cards de escolha
-- Frases: `comecar`, `pular setup`, `refazer setup`
+- Telegram intercepts messages until completion or skip.
+- Experience exposes `snapshot.firstRun` and choice cards
+- Natural setup phrases are interpreted by the runtime instead of fixed keyword lists.
 
-## Superpoderes
+## Capabilities
 
-Conversar, lembrar preferencias, arquivos, web, rotinas, Telegram, WhatsApp Cloud, itens aprendidos e skills locais.
+Conversation, preferences, files, web, routines, Telegram, WhatsApp Cloud, learned items, and local skills.
 
 - Experience: `snapshot.superpowers`
-- Telegram: "o que voce sabe fazer?", "me ajude com arquivos"
-- Prompt do agente recebe bloco resumido das capacidades prontas
+- Telegram: "what can you do?", "help me with files"
+- The agent prompt receives a summarized block of ready capabilities.
 
-Confianca: `Pode usar agora` / `Aprendido com voce` / `Falta setup` / `Experimental`.
+Trust: `Available now` / `Learned from the operator` / `Needs setup` / `Experimental`.
 
-## Alcance
+## Reach
 
-Estaveis: Desktop, Telegram, WhatsApp Cloud API.
+Stable: Desktop, Telegram, WhatsApp Cloud API.
 
-Experimental: WhatsApp Baileys (processo isolado).
+Experimental: WhatsApp Baileys in an isolated process.
 
 - Experience: `snapshot.reach`
-- Telegram: "onde te acho?", "como configurar telegram", "guia whatsapp"
-- Preferencia de superficie vem do first-run quando existir
+- Telegram: "where can I find you?", "how to configure Telegram", "WhatsApp guide"
+- Surface preference comes from first-run when available.
 
-## CLI de diagnostico
+## Diagnostic CLI
 
 ```bash
 npm run anyone
@@ -75,4 +75,4 @@ zavorth anyone learn-on
 zavorth anyone learn-off
 ```
 
-O CLI apenas projeta os mesmos servicos do runtime.
+The CLI only projects the same runtime services.

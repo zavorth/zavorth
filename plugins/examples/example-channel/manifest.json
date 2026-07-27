@@ -4,7 +4,7 @@
   "label": "Example Channel",
   "version": "0.1.0",
   "moduleKind": "channel",
-  "summary": "Minimal channel adapter stub for Plugin OS.",
+  "summary": "Minimal channel adapter template for Plugin OS.",
   "description": "Bundled example channel plugin using bindChannel.",
   "tags": ["channel", "example"],
   "source": {
@@ -22,7 +22,7 @@
       "id": "channel.send",
       "intent": "channel.send",
       "label": "Channel Send",
-      "summary": "Stub channel send.",
+      "summary": "Template channel send.",
       "artifactKinds": [],
       "command": {
         "name": "example_channel_send",

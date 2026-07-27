@@ -79,7 +79,7 @@ function register(ctx) {
     return {
       ok: true,
       delivered: false,
-      stub: true,
+      demoOnly: true,
       platform: 'instagram',
       to,
       message: 'Instagram soft send accepted (token present, permission granted). Live Graph delivery is deferred.',

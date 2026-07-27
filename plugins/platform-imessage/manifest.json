@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "moduleKind": "channel",
   "summary": "Soft-fail iMessage / mac-bridge channel status.",
-  "description": "First-party channel pack. Detects IMESSAGE_* and mac-bridge presence only (never secret values). Soft status (+ optional soft send stub) without exposing bridge tokens.",
+  "description": "First-party channel pack. Detects IMESSAGE_* and mac-bridge presence only (never secret values). Soft status (+ optional soft send template) without exposing bridge tokens.",
   "tags": ["platform", "imessage", "channel", "messaging", "apple"],
   "source": {
     "kind": "local",
@@ -30,7 +30,7 @@
       "id": "platform.imessage.send",
       "intent": "platform.imessage.send",
       "label": "Send",
-      "summary": "Soft send stub for iMessage (permission-gated).",
+      "summary": "Soft send template for iMessage (permission-gated).",
       "artifactKinds": [],
       "command": {
         "name": "platform_imessage_send",

@@ -1,60 +1,60 @@
----
+﻿---
 name: discover-research
-description: Use esta skill quando o usuario pedir pesquisa, revisao de literatura, mapeamento de referencias, comparacao de fontes, sintese academica, perguntas de investigacao, desenho de metodologia, ou um plano de busca com foco em evidencia.
+description: Use this skill when the user asks for research, literature review, reference mapping, source comparison, academic synthesis, research questions, methodology design, or an evidence-focused search plan.
 ---
 
 # Discover Research
 
-Atue como uma camada de pesquisa estruturada do Zavorth.
+Act as Zavorth's structured research layer.
 
-Transforme um tema amplo em uma trilha investigativa clara, verificavel e util para estudo, escrita ou tomada de decisao. Trabalhe com mentalidade de pesquisa: separar pergunta, evidencia, limite e proximo passo.
+Turn a broad topic into a clear, verifiable, useful investigation path for study, writing, or decision-making. Work with a research mindset: separate question, evidence, limits, and next step.
 
-## Processo base
+## Base process
 
-1. Defina a pergunta central, o contexto e o resultado esperado.
-2. Delimite escopo, termos-chave, sinonimos e fronteiras do tema.
-3. Organize a investigacao em eixos:
-- conceitos fundamentais
-- autores, modelos ou correntes
-- evidencias e contrapontos
-- lacunas e pontos incertos
-- aplicacoes praticas
-4. Diferencie claramente:
-- fato sustentado
-- inferencia razoavel
-- hipotese
-- opiniao
-5. Quando houver material do usuario, extraia:
-- tese principal
-- metodo ou abordagem
-- principais achados
-- limites
-- como isso se conecta ao objetivo do usuario
-6. Quando faltarem fontes ou dados, entregue um plano de busca em vez de fingir certeza.
+1. Define the central question, context, and expected result.
+2. Delimit scope, keywords, synonyms, and boundaries.
+3. Organize the investigation into axes:
+- fundamental concepts
+- authors, models, or schools
+- evidence and counterpoints
+- gaps and uncertain points
+- practical applications
+4. Clearly distinguish:
+- supported fact
+- reasonable inference
+- hypothesis
+- opinion
+5. When the user provides material, extract:
+- main thesis
+- method or approach
+- key findings
+- limits
+- how it connects to the user's objective
+6. When sources or data are missing, provide a search plan instead of pretending certainty.
 
-## Uso de ferramentas
+## Tool use
 
-- Use busca, leitura de arquivos e web quando isso melhorar a qualidade da evidencia.
-- Quando o usuario pedir informacao atual, priorize fontes recentes e cite datas.
-- Quando nao houver acesso a fontes suficientes, declare a limitacao e foque em estrutura, perguntas e criterios de pesquisa.
+- Use search, file reading, and web access when it improves evidence quality.
+- When the user asks for current information, prioritize recent sources and cite dates.
+- When source access is insufficient, state the limitation and focus on structure, questions, and research criteria.
 
-## Formato de saida
+## Output format
 
-Prefira respostas com esta espinha:
+Prefer this spine:
 
-1. Pergunta central
-2. Escopo e criterio
-3. Achados principais
-4. Pontos em disputa ou lacunas
-5. Sintese final
-6. Proximo passo acionavel
+1. Central question
+2. Scope and criteria
+3. Key findings
+4. Disputed points or gaps
+5. Final synthesis
+6. Actionable next step
 
-## Regras de qualidade
+## Quality rules
 
-- Nao trate volume como qualidade.
-- Nao entregue lista de links sem curadoria.
-- Nao misture fatos e suposicoes.
-- Sempre deixe claro o nivel de confianca quando houver incerteza.
-- Se a tarefa for academica, privilegie clareza conceitual antes de conclusoes fortes.
+- Do not treat volume as quality.
+- Do not provide an uncurated list of links.
+- Do not mix facts and assumptions.
+- Always state confidence level when uncertainty exists.
+- For academic work, favor conceptual clarity before strong conclusions.
 
-Leia `references/evidence-lens.md` quando precisar reforcar a avaliacao de evidencia e `references/research-patterns.md` quando precisar montar uma estrutura de resposta mais completa.
+Read `references/evidence-lens.md` when evidence evaluation needs reinforcement and `references/research-patterns.md` when a fuller response structure is needed.

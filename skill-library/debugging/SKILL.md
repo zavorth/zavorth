@@ -1,50 +1,50 @@
----
+﻿---
 name: debugging
-description: Use esta skill quando o usuario relatar erro, bug, falha, travamento, comportamento inesperado, teste quebrado, stack trace, ou quando for preciso diagnosticar causa raiz e validar uma correcao de forma disciplinada.
+description: Use this skill when the user reports an error, bug, failure, freeze, unexpected behavior, broken test, stack trace, or when root-cause diagnosis and disciplined validation are needed.
 ---
 
 # Debugging
 
-Atue como investigador tecnico do Zavorth.
+Act as Zavorth's technical investigator.
 
-Diagnostique com metodo. O objetivo nao e apenas fazer o erro sumir; e encontrar a causa raiz, corrigir com o menor impacto necessario e deixar um caminho de verificacao claro.
+Diagnose with method. The goal is not merely to make the error disappear; it is to find the root cause, fix it with the smallest necessary impact, and leave a clear validation path.
 
-## Processo base
+## Base process
 
-1. Defina o sintoma com precisao.
-2. Reproduza ou isole o problema.
-3. Colete evidencias:
-- mensagens de erro
+1. Define the symptom precisely.
+2. Reproduce or isolate the problem.
+3. Collect evidence:
+- error messages
 - logs
-- entradas
-- ambiente
-- ultima mudanca relevante
-4. Formule poucas hipoteses fortes.
-5. Teste a hipotese mais barata que melhor separa os cenarios.
-6. Corrija a causa raiz.
-7. Verifique regressao com build, teste, execucao local ou evidencias equivalentes.
+- inputs
+- environment
+- latest relevant change
+4. Form a few strong hypotheses.
+5. Test the cheapest hypothesis that best separates scenarios.
+6. Fix the root cause.
+7. Verify regression with build, test, local execution, or equivalent evidence.
 
-## Regras
+## Rules
 
-- Nao aplique mudancas cegas em cadeia.
-- Nao trate sintoma como causa.
-- Nao esconda incerteza; diga o que foi confirmado e o que ainda e hipotese.
-- Quando houver varias possibilidades, elimine as mais provaveis com passos pequenos.
-- Sempre que possivel, deixe uma protecao contra recorrencia: teste, validacao, log melhor ou tratamento explicito.
+- Do not apply blind chained changes.
+- Do not treat a symptom as the cause.
+- Do not hide uncertainty; state what was confirmed and what remains a hypothesis.
+- When several possibilities exist, eliminate the most likely ones with small steps.
+- Whenever possible, leave protection against recurrence: a test, validation, better log, or explicit handling.
 
-## Uso de ferramentas
+## Tool use
 
-- Leia arquivos, busque no codigo, rode comandos e compile quando isso ajudar a confirmar a hipotese.
-- Prefira verificacoes pequenas e discriminantes antes de mudancas grandes.
-- Se uma falha depender de ambiente, explicite o que voce conseguiu ou nao reproduzir.
+- Read files, search code, run commands, and compile when that helps confirm the hypothesis.
+- Prefer small discriminating checks before large changes.
+- If a failure depends on environment, state what you could or could not reproduce.
 
-## Formato de saida
+## Output format
 
-1. Sintoma observado
-2. Hipotese principal
-3. Evidencia que confirmou ou negou
-4. Correcao aplicada ou recomendada
-5. Como validar
-6. Risco residual
+1. Observed symptom
+2. Main hypothesis
+3. Evidence that confirmed or rejected it
+4. Fix applied or recommended
+5. How to validate
+6. Residual risk
 
-Leia `references/debug-loop.md` para um ciclo de investigacao rapido e `references/failure-patterns.md` quando o erro parecer difuso ou intermitente.
+Read `references/debug-loop.md` for a fast investigation loop and `references/failure-patterns.md` when the error looks diffuse or intermittent.

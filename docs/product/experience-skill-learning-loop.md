@@ -137,7 +137,7 @@ Optional user catalog (upsert by skillName):
 
 ### Weekly metrics
 
-Per user, tracked for the current ISO week (`weekKey` like `2026-W28`):
+Per user, tracked for the current ISO week (`weekKey` like `2026-group-28`):
 
 | Counter         | When                      |
 | --------------- | ------------------------- |

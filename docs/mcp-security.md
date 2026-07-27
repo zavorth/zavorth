@@ -112,7 +112,7 @@ To prevent spam and accidental triggers, the agent only responds in group chats 
 
 ### Effect on `ToolExposurePolicy`
 
-If `channelUserIdAllowed === false`, the runtime applies a **narrowing-only restrictive layer** in `ToolExposurePolicy`. 
+If `channelUserIdAllowed === false`, the runtime applies a **narrowing-only restrictive layer** in `ToolExposurePolicy`.
 *   This layer **never** adds new tools.
 *   It filters out dangerous, attention-level, or unknown tools unless the active group policy explicitly whitelists them in `safe-only` or `allowlist` mode.
 *   Tools with `unknown` risk are blocked by default.

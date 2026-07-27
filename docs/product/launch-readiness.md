@@ -6,7 +6,7 @@ This document is a **readiness map**, not a public launch announcement.
 
 | Bar | What it means |
 |-----|----------------|
-| **Value-ready (local)** | Waves V0–V11: useful intelligence, daily path, honest wow, audiences, memory integrity, day-1 product UX, selection honesty, live multi-step harness, habit closeout. Hermetic gates green. Safe to dogfood locally. **Not** a public launch claim. |
+| **Value-ready (local)** | Groups V0–V11: useful intelligence, daily path, honest wow, audiences, memory integrity, day-1 product UX, selection honesty, live multi-step harness, habit closeout. Hermetic gates green. Safe to dogfood locally. **Not** a public launch claim. |
 | **Launch-ready (ops)** | Calendar R2 + signed installers + live cells recorded + operator checklist green. |
 
 See also [ROADMAP.md](../ROADMAP.md), [agent-tool-routing.md](./agent-tool-routing.md), [certified-live-matrix.md](./certified-live-matrix.md).
@@ -20,8 +20,8 @@ See also [ROADMAP.md](../ROADMAP.md), [agent-tool-routing.md](./agent-tool-routi
 | Installer readiness | `installer-readiness:check`, `installer-release:check` | npm-package mode |
 | Code packaging | `code:packaging:smoke` | Required |
 | Dogfood catalog | `dogfood:missions:check` (110) | Required |
-| Wave 2 docs | `wave2:docs:check` | Required |
-| Wave 3 honesty | `wave3:launch:check` | Required |
+| Group 2 docs | `group-2:docs:check` | Required |
+| Group 3 honesty | `group-3:launch:check` | Required |
 | Retention soft | `retention-log --check --soft` | R1+R3; R2 may still pending |
 | Signing packaging | `npm run ops:signing:check` | Structural scripts OK |
 | Live cells file | `npm run launch:live-cells -- --live` | Credentialed evidence |
@@ -48,7 +48,7 @@ Do **not** close launch readiness by equating hermetic continuity checks with ca
 ## Operator checklist before any public claim
 
 ```bash
-npm run residual:waves:check
+npm run residual:groups:check
 npm run dogfood:hermetic          # or day0 + matrix expand
 npm run security:ci
 npm run launch:live-cells -- --live
@@ -72,7 +72,7 @@ Manual confirmations:
 - Do **not** treat `ops:signing:check` (structural) as signed store release.
 - Do **not** treat `launch:ready:check` exit **2** as launch-ready (exit 2 = product OK, ops residual).
 
-## V12 wave status stance
+## V12 group status stance
 
-Wave **V12** delivers the residual **program** (gates, matrix, signing report, live-cell recorder, announce checklist).  
+Group **V12** delivers the residual **program** (gates, matrix, signing report, live-cell recorder, announce checklist).
 **Launch-ready (ops)** is a separate bar that stays red until calendar R2 + signed assets + full check exit 0.

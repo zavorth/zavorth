@@ -116,5 +116,5 @@ data for `/selfmod rollback <change_id>`.
 - [Security](/docs/security.md)
 - [Operations](/docs/operations.md)
 - [Troubleshooting](/docs/troubleshooting.md)
-- [Ecosystem extension packs](/docs/product/ecosystem-extension-waves.md)
+- [Ecosystem extension packs](/docs/product/ecosystem-extension-packs.md)
 - [Experience skill promote](/docs/product/experience-skill-learning-loop.md)

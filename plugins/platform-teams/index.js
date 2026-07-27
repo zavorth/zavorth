@@ -89,12 +89,12 @@ function register(ctx) {
 
     const webhook = resolveWebhookUrl();
     if (!webhook) {
-      // App-creds path: soft stub only (no Graph client in this plugin).
-      logger.info('platform-teams soft send accepted (app-creds stub)');
+      // App-creds path: soft template only (no Graph client in this plugin).
+      logger.info('platform-teams soft send accepted (app-creds template)');
       return {
         ok: true,
         delivered: false,
-        stub: true,
+        demoOnly: true,
         platform: 'teams',
         message:
           'Teams soft send accepted (app credentials present, permission granted). Live Graph delivery is deferred.',

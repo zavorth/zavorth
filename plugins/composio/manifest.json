@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "composio",
+  "label": "Composio",
+  "version": "1.0.0",
+  "moduleKind": "bridge",
+  "summary": "Governed Composio toolkits connector: status, doctor, preview, and approved execute.",
+  "description": "Plugin OS surface for the native Integration Connector Mesh Composio adapter. Uses COMPOSIO_API_KEY. External tool execution requires approved===true.",
+  "tags": ["composio", "tools", "oauth", "connector", "automation"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://composio",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "composio.status",
+      "intent": "composio.status",
+      "label": "Composio Status",
+      "summary": "Show whether COMPOSIO_API_KEY is configured.",
+      "artifactKinds": [],
+      "command": {
+        "name": "composio_status",
+        "aliases": [],
+        "usage": null
+      }
+    },
+    {
+      "id": "composio.doctor",
+      "intent": "composio.doctor",
+      "label": "Composio Doctor",
+      "summary": "Safe readiness probe without exposing secrets.",
+      "artifactKinds": [],
+      "command": {
+        "name": "composio_doctor",
+        "aliases": [],
+        "usage": null
+      }
+    },
+    {
+      "id": "composio.preview",
+      "intent": "composio.preview",
+      "label": "Composio Preview",
+      "summary": "Preview an external toolkit call (no side effects).",
+      "artifactKinds": [],
+      "command": {
+        "name": "composio_preview",
+        "aliases": [],
+        "usage": "{ toolSlug, payload? }"
+      }
+    },
+    {
+      "id": "composio.execute",
+      "intent": "composio.execute",
+      "label": "Composio Execute",
+      "summary": "Execute a Composio tool. Requires approved===true.",
+      "artifactKinds": [],
+      "command": {
+        "name": "composio_execute",
+        "aliases": [],
+        "usage": "{ toolSlug, payload?, approved? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call Composio API endpoints.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "networked"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

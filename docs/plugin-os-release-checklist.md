@@ -1,4 +1,4 @@
-# Plugin OS — release checklist (post W0–W8)
+# Plugin OS — release checklist (post group-0–group-8)
 
 Last local verification: run `npm run qa:plugin-os` and `packages/plugin-sdk` `npm run publish:check`.
 
@@ -80,11 +80,11 @@ zavorth plugins enable acme-tool --yes
 |--------|---------|
 | **Local ready** | Code + tests + dry-run gates green in this workspace |
 | **Publish pending** | Needs human: npm token, git tag push, hosted catalog URL |
-| **Done in product** | Waves W0–W8 shipped in monorepo |
+| **Done in product** | Groups group-0–group-8 shipped in monorepo |
 
 ## Snapshot (implementation)
 
 - First-party plugins: ~50 (+ 6 examples)
-- Waves W0–W8: shipped (`config/plugin-os-gap-waves.json`)
+- Groups group-0–group-8: shipped (`config/plugin-os-capability-groups.json`)
 - Onboarding profiles: minimal, core, recommended, daily-ops, providers, platforms, memory, media, browser-search, trust, lifestyle, full
-- Ecosystem: atlas, signed-pack doc, create-zavorth-plugin, SDK 0.3.0, wave packs for suggest
+- Ecosystem: atlas, signed-pack doc, create-zavorth-plugin, SDK 0.3.0, capability packs for suggest

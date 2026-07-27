@@ -10,8 +10,8 @@ loaded, and wired into the agent tool registry without taking down core boot.
 > agent-framework branding in plugin ids, package names, or docs.
 >
 > **Roadmap:** brand-agnostic skill + plugin ecosystem growth is tracked in
-> [ecosystem-extension-waves.md](./product/ecosystem-extension-waves.md)
-> (`config/ecosystem-extension-waves.json`).
+> [ecosystem-extension-packs.md](./product/ecosystem-extension-packs.md)
+> (`config/ecosystem-extension-packs.json`).
 
 ## Quick start
 
@@ -235,8 +235,8 @@ Curated list lives in `config/plugin-marketplace-curated.json` (`tier: first-par
 
 **Ecosystem:** Plugin Atlas (`docs/generated/plugin-atlas.md`), signed
 pack format (`docs/plugin-os-signed-pack.md`), `create-zavorth-plugin` CLI,
-`@zavorth/plugin-sdk` 0.3.0 publish ritual, wave packs for suggest
-(`config/plugin-os-wave-packs.json`), profile `daily-ops`.
+`@zavorth/plugin-sdk` 0.3.0 publish ritual, capability packs for suggest
+(`config/plugin-os-capability-packs.json`), profile `daily-ops`.
 
 **Release ops:** [plugin-os-release-checklist.md](./plugin-os-release-checklist.md)
 (`npm run qa:plugin-os`, SDK `publish:check`, atlas regenerate, marketplace host).
@@ -253,8 +253,8 @@ zavorth_action guidance, remote marketplace export).
 (`npm run plugin-os:export-marketplace`).
 
 See [plugin-os-daily-ops-pack.md](./plugin-os-daily-ops-pack.md) and the full
-gap-closure roadmap [plugin-os-gap-closure-waves.md](./plugin-os-gap-closure-waves.md)
-(`config/plugin-os-gap-waves.json`).
+gap-closure roadmap [plugin-os-capability-groups.md](./plugin-os-capability-groups.md)
+(`config/plugin-os-capability-groups.json`).
 
 Examples (`hello-world`, `example-*`) stay **opt-in** (`autoEnableExamples: false`).
 
@@ -415,7 +415,7 @@ These preserve Zavorth trust (declared capabilities, permissions, soft-fail).
 | Contracts                | `src/contracts/PluginManifestContract.ts`, `PluginRuntimeContract.ts`                                                          |
 | Runtime                  | `src/services/PluginRuntimeService.ts`                                                                                         |
 | Specialized register\_\* | `src/services/PluginSpecializedRegistrars.ts`                                                                                  |
-| Gap waves plan           | `docs/plugin-os-gap-closure-waves.md`                                                                                          |
+| Capability groups plan           | `docs/plugin-os-capability-groups.md`                                                                                          |
 | Bootstrap                | `src/bootstrap/bootstrapToolRuntime.ts`                                                                                        |
 | Catalog                  | `src/services/PluginOsBootstrapCatalogService.ts`                                                                              |
 | Router tool              | `src/tools/PluginRecommendTool.ts`                                                                                             |

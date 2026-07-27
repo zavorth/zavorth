@@ -4,7 +4,7 @@
   "label": "Example Media",
   "version": "0.1.0",
   "moduleKind": "media",
-  "summary": "Minimal media capability stub for Plugin OS.",
+  "summary": "Minimal media capability template for Plugin OS.",
   "description": "Bundled example media plugin. Soft-fail register; no network I/O.",
   "tags": ["media", "example"],
   "source": {
@@ -22,7 +22,7 @@
       "id": "media.run",
       "intent": "media.run",
       "label": "Media Run",
-      "summary": "Stub media capability (no external calls).",
+      "summary": "Template media capability (no external calls).",
       "artifactKinds": [],
       "command": {
         "name": "example_media_run",

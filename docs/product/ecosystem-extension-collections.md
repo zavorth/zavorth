@@ -2,7 +2,7 @@
 
 **Status:** SkillIR install/search/catalog/promote/selfmod/external-import/hot-path packs shipped (open-distribution hub cancelled)
 
-**Goal:** Brand-agnostic skill/plugin/external-agent extensibility that can absorb packs from any URI, path, or user-configured catalog — with optional LLM only when the user asks — without hardcoding third-party product names in runtime code.  
+**Goal:** Brand-agnostic skill/plugin/external-agent extensibility that can absorb packs from any URI, path, or user-configured catalog — with optional LLM only when the user asks — without hardcoding third-party product names in runtime code.
 **Non-goals:** npm vanity publish of the SDK as a prerequisite; free-text soft-ranking of product activation; silent remote install without consent.
 
 **Principle (product surface):**
@@ -28,7 +28,7 @@
 | External agents   | `ZavorthExternalAgentGatewayService`, onboarding CLI                              |
 | Learning drafts   | experience skill learning loop (`docs/product/experience-skill-learning-loop.md`) |
 
-Machine index: `config/ecosystem-extension-waves.json`.
+Machine index: `config/ecosystem-extension-collections.json`.
 
 ---
 
@@ -55,7 +55,7 @@ Each pack below: **objective**, **shipped when**, **work items**, **files**, **t
 
 ### Objective
 
-Define a **canonical intermediate representation** for any ingested pack so later waves never branch on brand names.
+Define a **canonical intermediate representation** for any ingested pack so later collections never branch on brand names.
 
 ### Shipped when
 
@@ -81,7 +81,7 @@ Define a **canonical intermediate representation** for any ingested pack so late
 - `src/contracts/skill/ZavorthSkillWorkerMeshContract.ts` (extend)
 - `src/services/SkillInstallPipelineService.ts` (emit IR)
 - `docs/product/skills-universal-install.md` (link SkillIR)
-- `docs/product/ecosystem-extension-waves.md` (this doc)
+- `docs/product/ecosystem-extension-collections.md` (this doc)
 
 ### Tests
 
@@ -96,7 +96,7 @@ Define a **canonical intermediate representation** for any ingested pack so late
 
 ### Risks
 
-- Over-normalizing breaks existing install tests — keep dual-write IR + legacy fields for one wave.
+- Over-normalizing breaks existing install tests — keep dual-write IR + legacy fields for one collection.
 
 ---
 
@@ -176,7 +176,7 @@ Resolve **queries** without brand hubs: local index first; configured sources; L
 ### Tests
 
 - Local search finds fixture skill by tool name without network.
-- LLM rank mock returns reordered ids; disabled path never calls LLM.
+- LLM rank test double returns reordered ids; disabled path never calls LLM.
 - No new source of brand product names in source.
 
 ### Acceptance
@@ -257,7 +257,7 @@ User-configured HTTPS JSON catalogs for skills and Plugin OS packs — generic, 
 
 ### Tests
 
-- Mock HTTP catalog → list/install via `source` field.
+- Test double HTTP catalog → list/install via `source` field.
 - Reject localhost/private IPs.
 
 ### Acceptance
@@ -399,13 +399,13 @@ After consent, import **declared** tools/skills from an external runtime profile
 ### Shipped when
 
 - Adapters: `cli | http | acp | mcp` (extend as needed) expose `listCapabilities()` after registration approval.
-- Import produces SkillIR guidance and/or bridge plugin stubs with permissions.
+- Import produces SkillIR guidance and/or bridge plugin placeholder adapters with permissions.
 - Live invoke still per-call approval (existing gateway rules).
 
 ### Work items
 
 1. Capability descriptor contract (generic).
-2. `external-agent import-capabilities --id <profile> --consent`.
+2. `import skills --id <profile> --consent`.
 3. Map tools → SkillIR declaredTools + unresolved/gateway binds.
 4. Desktop/control surface optional.
 
@@ -417,7 +417,7 @@ After consent, import **declared** tools/skills from an external runtime profile
 
 ### Tests
 
-- Mock adapter lists tools → import creates skill pack under library.
+- Test double adapter lists tools → import creates skill pack under library.
 - No import without consent.
 - No process execution during onboarding (existing invariant).
 
@@ -426,7 +426,7 @@ After consent, import **declared** tools/skills from an external runtime profile
 - [x] Imported capabilities appear in skill search.
 - [x] Invoke path unchanged: approval-gated.
 
-**Shipped:** `ExternalAgentCapabilityImportService`, contract descriptors, CLI `list-capabilities` / `import-capabilities --consent`, SkillIR under `skills/external-*`, offline list (no process).
+**Shipped:** `ExternalAgentCapabilityImportService`, contract descriptors, CLI `open` / `import skills <id> --consent`, SkillIR under `skills/external-*`, offline list (no process).
 
 ---
 
@@ -458,7 +458,7 @@ Make skill/plugin extensibility **cheap at runtime**.
 
 ### Tests
 
-- Second search/install preview of same digest does not re-fetch (mock).
+- Second search/install preview of same digest does not re-fetch (test double).
 - Hot-path tool count reduced under daily-ops profile (assert max or exclusion list).
 
 ### Acceptance
@@ -470,12 +470,12 @@ Make skill/plugin extensibility **cheap at runtime**.
 
 ---
 
-## Cross-cutting rules (all waves)
+## Cross-cutting rules (all collections)
 
 1. **Purity:** free-text does not enable plugins/skills; structured consent / slash / tool args do.
 2. **Brand-agnostic:** parsers by file shape; config by user URLs; no competitor enums.
 3. **Receipts:** every install/import/apply/import-capabilities writes a receipt.
-4. **Tests:** each pack adds unit + at least one integration/pipeline test; update ecosystem pack status in `config/ecosystem-extension-waves.json`.
+4. **Tests:** each pack adds unit + at least one integration/pipeline test; update ecosystem pack status in `config/ecosystem-extension-collections.json`.
 5. **i18n:** new user-facing strings EN primary + existing locale fallback patterns.
 6. **Security:** SSRF guards, secret scan on packs, trust profiles `safe|daily|power`.
 
@@ -490,8 +490,8 @@ pack → pack (after pack binds)
 pack + pack → pack
 ```
 
-**MVP for “open ecosystem consumer”:** pack + pack + pack + pack + pack.  
-**MVP for “community author growth”:** MVP + pack + pack.  
+**MVP for “open ecosystem consumer”:** pack + pack + pack + pack + pack.
+**MVP for “community author growth”:** MVP + pack + pack.
 **MVP for “attach any local agent”:** MVP + pack.
 
 ---
@@ -504,7 +504,7 @@ pack + pack → pack
 - [ ] Draft promote creates searchable skill.
 - [ ] External profile can import capabilities into library after consent.
 - [ ] No new hard-coded third-party agent product names in runtime.
-- [ ] pack status file updated to `shipped` per wave with date.
+- [ ] pack status file updated to `shipped` per collection with date.
 
 ---
 
@@ -512,6 +512,6 @@ pack + pack → pack
 
 | Field                 | Location                                                       |
 | --------------------- | -------------------------------------------------------------- |
-| Pack status JSON      | `config/ecosystem-extension-waves.json`                        |
-| This plan             | `docs/product/ecosystem-extension-waves.md`                    |
-| Prior Plugin OS waves | `config/plugin-os-gap-waves.json` (orthogonal; do not regress) |
+| Pack status JSON      | `config/ecosystem-extension-collections.json`                        |
+| This plan             | `docs/product/ecosystem-extension-collections.md`                    |
+| Prior Plugin OS collections | `config/plugin-os-gap-cohorts.json` (orthogonal; do not regress) |

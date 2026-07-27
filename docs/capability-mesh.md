@@ -1,4 +1,4 @@
-# Zavorth Capability Mesh
+﻿# Zavorth Capability Mesh
 
 Capability Mesh is the native arbitration layer that decides how Zavorth should handle a request with existing skills, skill composition, or governed skill drafting.
 
@@ -17,7 +17,7 @@ It does not install a skill, call a network endpoint, mutate files, or expose to
 Ask naturally:
 
 ```text
-zavorth capability-mesh --request "revise esse codigo Rust com seguranca"
+zavorth capability-mesh --request "review this Rust code safely"
 ```
 
 The mesh returns ranked native options:

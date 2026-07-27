@@ -587,7 +587,7 @@
         "openai",
         "openrouter",
         "llm",
-        "wave1",
+        "group-1",
         "complete"
       ],
       "permissions": [
@@ -615,7 +615,7 @@
         "anthropic",
         "claude",
         "llm",
-        "wave1"
+        "group-1"
       ],
       "permissions": [
         "network.external",
@@ -642,7 +642,7 @@
         "xai",
         "grok",
         "llm",
-        "wave1"
+        "group-1"
       ],
       "permissions": [
         "network.external",
@@ -669,7 +669,7 @@
         "gemini",
         "google",
         "llm",
-        "wave1"
+        "group-1"
       ],
       "permissions": [
         "network.external",
@@ -686,8 +686,8 @@
     {
       "id": "provider-status",
       "name": "Provider Pack Status",
-      "summary": "Aggregate status for Wave 1 provider plugins (key presence only).",
-      "description": "Aggregate status for Wave 1 provider plugins (key presence only).",
+      "summary": "Aggregate status for Capability group 1 provider plugins (key presence only).",
+      "description": "Aggregate status for Capability group 1 provider plugins (key presence only).",
       "moduleKind": "diagnostics",
       "version": "1.0.0",
       "tier": "first-party",
@@ -695,7 +695,7 @@
         "provider",
         "status",
         "doctor",
-        "wave1",
+        "group-1",
         "diagnostics"
       ],
       "permissions": [
@@ -720,7 +720,7 @@
         "platform",
         "telegram",
         "channel",
-        "wave2",
+        "group-2",
         "messaging"
       ],
       "permissions": [
@@ -747,7 +747,7 @@
         "platform",
         "discord",
         "channel",
-        "wave2",
+        "group-2",
         "messaging"
       ],
       "permissions": [
@@ -774,7 +774,7 @@
         "platform",
         "whatsapp",
         "channel",
-        "wave2",
+        "group-2",
         "messaging"
       ],
       "permissions": [
@@ -801,7 +801,7 @@
         "platform",
         "webhook",
         "channel",
-        "wave2",
+        "group-2",
         "messaging"
       ],
       "permissions": [
@@ -829,7 +829,7 @@
         "journal",
         "append",
         "local",
-        "wave3"
+        "group-3"
       ],
       "permissions": [
         "filesystem.read",
@@ -857,7 +857,7 @@
         "vector",
         "local",
         "embeddings",
-        "wave3"
+        "group-3"
       ],
       "permissions": [
         "filesystem.read",
@@ -884,7 +884,7 @@
         "memory",
         "mem0",
         "remote",
-        "wave3",
+        "group-3",
         "soft-fail"
       ],
       "permissions": [
@@ -912,7 +912,7 @@
         "media",
         "image",
         "image-gen",
-        "wave4",
+        "group-4",
         "soft-fail"
       ],
       "permissions": [
@@ -939,7 +939,7 @@
         "vision",
         "image",
         "describe",
-        "wave4"
+        "group-4"
       ],
       "permissions": [
         "network.external",
@@ -964,7 +964,7 @@
         "media",
         "tts",
         "speech",
-        "wave4",
+        "group-4",
         "soft-fail"
       ],
       "permissions": [
@@ -992,7 +992,7 @@
         "transcription",
         "stt",
         "whisper",
-        "wave4"
+        "group-4"
       ],
       "permissions": [
         "network.external",
@@ -1018,7 +1018,7 @@
         "media",
         "video",
         "video-gen",
-        "wave4",
+        "group-4",
         "optional"
       ],
       "permissions": [
@@ -1044,7 +1044,7 @@
         "browser",
         "cdp",
         "chrome",
-        "wave5",
+        "group-5",
         "soft-fail"
       ],
       "permissions": [
@@ -1069,7 +1069,7 @@
       "tags": [
         "search",
         "exa",
-        "wave5",
+        "group-5",
         "soft-fail"
       ],
       "permissions": [
@@ -1096,7 +1096,7 @@
         "firecrawl",
         "crawl",
         "extract",
-        "wave5"
+        "group-5"
       ],
       "permissions": [
         "network.external",
@@ -1121,7 +1121,7 @@
         "secrets",
         "env",
         "trust",
-        "wave6",
+        "group-6",
         "soft-fail"
       ],
       "permissions": [
@@ -1146,7 +1146,7 @@
         "secrets",
         "file",
         "trust",
-        "wave6",
+        "group-6",
         "soft-fail"
       ],
       "permissions": [
@@ -1173,7 +1173,7 @@
         "dashboard",
         "auth",
         "basic",
-        "wave6",
+        "group-6",
         "trust"
       ],
       "permissions": [
@@ -1198,7 +1198,7 @@
         "dashboard",
         "auth",
         "token",
-        "wave6",
+        "group-6",
         "trust"
       ],
       "permissions": [
@@ -1223,7 +1223,7 @@
         "context",
         "engine",
         "bridge",
-        "wave6",
+        "group-6",
         "trust"
       ],
       "permissions": [
@@ -1249,7 +1249,7 @@
         "middleware",
         "rate-limit",
         "hooks",
-        "wave6"
+        "group-6"
       ],
       "permissions": [
         "filesystem.read",
@@ -1274,7 +1274,7 @@
         "spotify",
         "lifestyle",
         "music",
-        "wave7",
+        "group-7",
         "soft-fail",
         "optional"
       ],
@@ -1292,15 +1292,15 @@
     {
       "id": "demo-showcase",
       "name": "Demo Showcase",
-      "summary": "Surface-parity demo exercising Wave 0 specialized register_* APIs.",
-      "description": "Surface-parity demo exercising Wave 0 specialized register_* APIs.",
+      "summary": "Surface-parity demo exercising Capability group 0 specialized register_* APIs.",
+      "description": "Surface-parity demo exercising Capability group 0 specialized register_* APIs.",
       "moduleKind": "diagnostics",
       "version": "1.0.0",
       "tier": "first-party",
       "tags": [
         "demo",
         "showcase",
-        "wave7",
+        "group-7",
         "surface-parity",
         "lifestyle"
       ],

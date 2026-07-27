@@ -4,7 +4,7 @@
   "label": "Example Memory",
   "version": "0.1.0",
   "moduleKind": "memory",
-  "summary": "Minimal memory backend stub for Plugin OS.",
+  "summary": "Minimal memory backend template for Plugin OS.",
   "description": "Bundled example memory plugin using bindMemoryBackend.",
   "tags": ["memory", "example"],
   "source": {
@@ -22,7 +22,7 @@
       "id": "memory.read",
       "intent": "memory.read",
       "label": "Memory Read",
-      "summary": "Stub memory read/write.",
+      "summary": "Template memory read/write.",
       "artifactKinds": [],
       "command": {
         "name": "example_memory_read",

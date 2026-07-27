@@ -2,7 +2,7 @@
 
 How the monorepo ships and develops the **Zavorth terminal CLI** (Code TUI + monorepo capabilities).
 
-**Related:** [cli-capabilities.md](./cli-capabilities.md) · [zavorth-runtime-bridge.md](../protocol/zavorth-runtime-bridge.md)  
+**Related:** [cli-capabilities.md](./cli-capabilities.md) · [zavorth-runtime-bridge.md](../protocol/zavorth-runtime-bridge.md)
 **Historical (archived):** [AUDIT-code-cli.md](../archive/product/AUDIT-code-cli.md) · [code-cli-integration.md](../archive/product/code-cli-integration.md)
 
 ---
@@ -97,10 +97,10 @@ npm run code:gateway:smoke
 
 **Run TUI without Bun at runtime**
 
-1. **`npm run code:ensure`** (recommended) — if no binary, tries download from release assets, else **one-time Bun build**  
-2. **Auto on first `zavorth`:** launch calls ensure when binary is missing (opt-out: `ZAVORTH_CODE_ENSURE=0`)  
-3. **`postinstall`:** best-effort ensure (never fails npm install)  
-4. **Release CI:** multi-OS binaries go into npm pack + GitHub `code-tui-*.tar.gz`  
+1. **`npm run code:ensure`** (recommended) — if no binary, tries download from release assets, else **one-time Bun build**
+2. **Auto on first `zavorth`:** launch calls ensure when binary is missing (opt-out: `ZAVORTH_CODE_ENSURE=0`)
+3. **`postinstall`:** best-effort ensure (never fails npm install)
+4. **Release CI:** multi-OS binaries go into npm pack + GitHub `code-tui-*.tar.gz`
 
 **Launch order:** prebuilt binary → ensure → Bun+sources only as last resort (`ZAVORTH_CODE_PREFER_SOURCES=1` forces sources).
 
@@ -146,7 +146,7 @@ ZAVORTH_LEGACY_CLI=1     → same internal hatch via env
 
 ### Install modes
 
-**A — Published package (ships TUI sources)**  
+**A — Published package (ships TUI sources)**
 `npm install` / pack includes `packages/code`. After install:
 
 ```powershell
@@ -156,10 +156,10 @@ zavorth                # needs Bun on PATH
 
 Optional overrides: `ZAVORTH_CODE_ROOT`, `ZAVORTH_CODE_BIN`.
 
-**B — Separate `@zavorth/cli` (optional later)**  
+**B — Separate `@zavorth/cli` (optional later)**
 Root depends on a published workspace package without a second PATH bin.
 
-**C — Full product clone**  
+**C — Full product clone**
 Git clone + root `npm install` + `code:install` for gateway/Control/desktop development.
 
 Smoke: `npm run code:packaging:smoke` · `npm run code:toolchain:check`
