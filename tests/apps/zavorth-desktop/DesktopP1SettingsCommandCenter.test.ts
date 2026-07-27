@@ -53,7 +53,7 @@ describe('Desktop P1 settings and command center contract', () => {
   it('resolves settings deep links from protocol, hash, query and slash style paths', () => {
     expect(resolveSettingsDeepLink('zavorth://settings/identity')).toBe('identity');
     expect(resolveSettingsDeepLink('#settings/pets')).toBe('pets');
-    expect(resolveSettingsDeepLink('zavorth://desktop?settings=mcp')).toBe('mcp');
+    expect(resolveSettingsDeepLink('zavorth://desktop-settings=mcp')).toBe('mcp');
     expect(resolveSettingsDeepLink('/settings/providers')).toBe('providers');
     expect(resolveSettingsDeepLink('zavorth://settings/unknown')).toBe(null);
   });

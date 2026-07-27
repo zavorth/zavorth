@@ -39,7 +39,7 @@ type HarnessState = {
   runStatus: "idle" | "running" | "completed";
   chatSendCalls: unknown[];
   steerCalls: unknown[];
-  streamEvents: Array<{ phase: string; accumulated?: string; at: number }>;
+  streamEvents: Array<{ streamStatus: string; accumulated?: string; at: number }>;
   clients: SseClient[];
   timers: NodeJS.Timeout[];
   nextClientId: number;
@@ -183,9 +183,9 @@ function activeRun(state: HarnessState) {
     events: state.streamEvents.map((event, index) => ({
       id: `stream-event-${index + 1}`,
       kind: "agent-stream",
-      title: `stream ${event.phase}`,
+      title: `stream ${event.streamStatus}`,
       detail: event.accumulated || "",
-      status: event.phase,
+      status: event.streamStatus,
       createdAt: new Date(event.at).toISOString(),
     })),
     artifacts: [],
@@ -205,8 +205,8 @@ function snapshot(state: HarnessState) {
     artifacts: [],
     messages: [],
     provider: {
-      id: "fake-sse-provider",
-      label: "Fake SSE Provider",
+      id: "synthetic-sse-provider",
+      label: "Synthetic SSE Provider",
       nativeTokenStreaming: true,
     },
   };
@@ -223,9 +223,9 @@ function broadcast(state: HarnessState, eventName: string, payload: unknown): vo
   }
 }
 
-function broadcastAgentStream(state: HarnessState, phase: string, payload: Record<string, unknown>): void {
+function broadcastAgentStream(state: HarnessState, streamStatus: string, payload: Record<string, unknown>): void {
   const event = {
-    id: `stream-e2e-${phase}-${state.streamEvents.length + 1}`,
+    id: `stream-e2e-${streamStatus}-${state.streamEvents.length + 1}`,
     type: "agent-stream",
     createdAt: new Date().toISOString(),
     payload: {
@@ -233,16 +233,16 @@ function broadcastAgentStream(state: HarnessState, phase: string, payload: Recor
       runId: state.runId,
       sessionId: state.sessionId,
       streamId: `${state.runId}:assistant`,
-      providerId: "fake-sse-provider",
-      modelId: "fake-stream-model",
+      providerId: "synthetic-sse-provider",
+      modelId: "synthetic-stream-model",
       providerNativeTokenStreaming: true,
-      phase,
-      done: phase === "done",
+      streamStatus,
+      done: streamStatus === "done",
       ...payload,
     },
   };
   state.streamEvents.push({
-    phase,
+    streamStatus,
     accumulated: String(event.payload.accumulated || event.payload.delta || ""),
     at: Date.now(),
   });
@@ -253,7 +253,7 @@ function schedule(state: HarnessState, delayMs: number, task: () => void): void 
   state.timers.push(setTimeout(task, delayMs));
 }
 
-function startFakeStreaming(state: HarnessState): void {
+function startHarnessStreaming(state: HarnessState): void {
   state.runStatus = "running";
   state.completedAt = null;
   state.steeringAssimilated = false;
@@ -271,11 +271,11 @@ function startFakeStreaming(state: HarnessState): void {
       createdAt: new Date().toISOString(),
       payload: {
         eventType: "agent.stream.lifecycle",
-        phase: "start",
+        streamStatus: "start",
         runId: state.runId,
         sessionId: state.sessionId,
         streamId: `${state.runId}:assistant`,
-        title: "Fake provider stream started",
+        title: "Synthetic provider stream started",
         summary: "The harness is emitting provider-native SSE tokens.",
       },
     });
@@ -383,17 +383,17 @@ async function handleApi(request: http.IncomingMessage, response: http.ServerRes
   if (request.method === "GET" && url.pathname === "/api/providers/model-catalog") {
     json(response, {
       providers: [{
-        id: "fake-sse-provider",
-        label: "Fake SSE Provider",
+        id: "synthetic-sse-provider",
+        label: "Synthetic SSE Provider",
         status: "ready",
-        models: [{ id: "fake-stream-model", label: "Fake Stream Model", capabilities: ["native_token_streaming"] }],
+        models: [{ id: "synthetic-stream-model", label: "Synthetic Stream Model", capabilities: ["native_token_streaming"] }],
       }],
     });
     return;
   }
 
   if (request.method === "GET" && url.pathname === "/api/providers/activation") {
-    json(response, { ok: true, activeProviderId: "fake-sse-provider", activeModelId: "fake-stream-model" });
+    json(response, { ok: true, activeProviderId: "synthetic-sse-provider", activeModelId: "synthetic-stream-model" });
     return;
   }
 
@@ -436,7 +436,7 @@ async function handleApi(request: http.IncomingMessage, response: http.ServerRes
       });
       return;
     }
-    startFakeStreaming(state);
+    startHarnessStreaming(state);
     json(response, {
       ok: true,
       sessionId: state.sessionId,
@@ -478,12 +478,12 @@ function acceptSteering(state: HarnessState, body: unknown): void {
     createdAt: new Date().toISOString(),
     payload: {
       eventType: "agent.stream.lifecycle",
-      phase: "steering-accepted",
+      streamStatus: "steering-accepted",
       runId: state.runId,
       sessionId: state.sessionId,
       streamId: `${state.runId}:assistant`,
       title: "Steering accepted",
-      summary: "The fake provider stream will assimilate the steering update.",
+      summary: "The synthetic provider stream will assimilate the steering update.",
     },
   });
 }
@@ -685,12 +685,12 @@ async function run(): Promise<Report> {
     report.metrics.pageErrors = pageErrors;
 
     addCheck(report, "dashboard-shell-loaded", true, "Built ZavorthControl shell loaded with the real runtime bridge.");
-    addCheck(report, "chat-send-hit-fake-api", state.chatSendCalls.length === 1, `POST /api/web/chat/send calls: ${state.chatSendCalls.length}.`);
+    addCheck(report, "chat-send-hit-synthetic-api", state.chatSendCalls.length === 1, `POST /api/web/chat/send calls: ${state.chatSendCalls.length}.`);
     addCheck(report, "provider-delta-rendered-before-done", Boolean((domMetrics as any).partialBeforeDone), "DOM observed alpha-one before the final done/completed state.");
     addCheck(report, "steer-sent-during-stream", state.steerCalls.length === 1, `POST /api/web/chat/steer calls: ${state.steerCalls.length}.`);
     addCheck(report, "steer-assimilated-before-final", Boolean((domMetrics as any).steerBeforeDone), "DOM observed guide-ack before the completed stream.");
     addCheck(report, "final-stream-text-complete", /alpha-one.*guide-ack.*omega-final/.test(String((domMetrics as any).finalText)), `Final stream text: ${(domMetrics as any).finalText}`);
-    addCheck(report, "server-event-order", state.streamEvents.some((event) => event.phase === "delta") && state.streamEvents.at(-1)?.phase === "done", "Fake SSE provider emitted deltas and then done.");
+    addCheck(report, "server-event-order", state.streamEvents.some((event) => event.streamStatus === "delta") && state.streamEvents.at(-1)?.streamStatus === "done", "Harness SSE provider emitted deltas and then done.");
     addCheck(report, "no-browser-runtime-errors", runtimeConsoleErrors.length === 0 && pageErrors.length === 0, [...runtimeConsoleErrors, ...pageErrors].join(" | ") || "No browser runtime errors observed.");
   } finally {
     await browser.close().catch(() => undefined);

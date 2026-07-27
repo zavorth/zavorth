@@ -23,7 +23,7 @@ function readFlag(argv: string[], names: string[]): string | null {
 
 function readList(argv: string[], names: string[]): string[] {
   const value = readFlag(argv, names);
-  return value ? value.split(/\r?\n|,/u).map((entry) => entry.trim()).filter(Boolean) : [];
+  return value ? value.split(/\r...\n|,/u).map((entry) => entry.trim()).filter(Boolean) : [];
 }
 
 function readNumber(argv: string[], names: string[]): number | undefined {
@@ -88,9 +88,9 @@ async function main() {
     if (asJson) {
       await printJson(result);
     } else {
-      console.log('[partner] missao delegada');
+      console.log('[partner] mission delegated');
       console.log(`[partner] id=${result.mission.id} | status=${result.status} | level=${result.mission.autonomyLevel} | plan=${result.mutationPlan?.id || 'n/d'}`);
-      console.log(`[partner] resumo: ${result.summary}`);
+      console.log(`[partner] summary: ${result.summary}`);
       console.log(`[partner] budget: actions=${result.mission.budget.maxActions}, mutable=${result.mission.budget.maxMutableActions}, durationMs=${result.mission.budget.maxDurationMs}`);
       if (result.readinessGate.blockers.length > 0) {
         console.log('[partner] blockers:');
@@ -115,8 +115,8 @@ async function main() {
     if (asJson) {
       await printJson(result);
     } else {
-      console.log('[partner] missao aprovada');
-      console.log(`[partner] status=${result.status} | resumo=${result.summary}`);
+      console.log('[partner] mission approved');
+      console.log(`[partner] status=${result.status} | summary=${result.summary}`);
     }
     if (!result.ok) {
       process.exitCode = 1;
@@ -152,8 +152,8 @@ async function main() {
       await printJson(result);
     } else {
       console.log('[partner] progresso registrado');
-      console.log(`[partner] status=${result.status} | ok=${result.ok ? 'sim' : 'nao'}`);
-      console.log(`[partner] resumo: ${result.summary}`);
+      console.log(`[partner] status=${result.status} | ok=${result.ok ? 'yes' : 'no'}`);
+      console.log(`[partner] summary: ${result.summary}`);
       for (const blocker of result.blockers) {
         console.log(`- ${blocker}`);
       }
@@ -174,8 +174,8 @@ async function main() {
     if (asJson) {
       await printJson(result);
     } else {
-      console.log('[partner] missao pausada');
-      console.log(`[partner] status=${result.status} | resumo=${result.summary}`);
+      console.log('[partner] mission paused');
+      console.log(`[partner] status=${result.status} | summary=${result.summary}`);
     }
     if (!result.ok) {
       process.exitCode = 1;
@@ -197,9 +197,9 @@ async function main() {
     if (asJson) {
       await printJson(result);
     } else {
-      console.log('[partner] missao concluida');
-      console.log(`[partner] status=${result.status} | ok=${result.ok ? 'sim' : 'nao'}`);
-      console.log(`[partner] resumo: ${result.summary}`);
+      console.log('[partner] mission completed');
+      console.log(`[partner] status=${result.status} | ok=${result.ok ? 'yes' : 'no'}`);
+      console.log(`[partner] summary: ${result.summary}`);
       for (const blocker of result.blockers) {
         console.log(`- ${blocker}`);
       }
@@ -214,12 +214,12 @@ async function main() {
   if (asJson) {
     await printJson(snapshot);
   } else {
-    console.log('[partner] leitura oficial do autonomous partner');
+    console.log('[partner] read oficial do autonomous partner');
     console.log(`[partner] postura=${snapshot.summary.posture} | missoes=${snapshot.summary.missions} | ativas=${snapshot.summary.activeMissions} | pausadas=${snapshot.summary.pausedMissions}`);
-    console.log(`[partner] approvals=${snapshot.summary.pendingMissionApprovals} | coreIdle=${snapshot.summary.coreIdle ? 'sim' : 'nao'} | heavy=${snapshot.summary.heavyRuntimesStarted ? 'sim' : 'nao'}`);
-    console.log(`[partner] resumo: ${snapshot.narrative.operatorSummary}`);
+    console.log(`[partner] approvals=${snapshot.summary.pendingMissionApprovals} | coreIdle=${snapshot.summary.coreIdle ? 'yes' : 'no'} | heavy=${snapshot.summary.heavyRuntimesStarted ? 'yes' : 'no'}`);
+    console.log(`[partner] summary: ${snapshot.narrative.operatorSummary}`);
     if (snapshot.actions.length > 0) {
-      console.log('[partner] acoes sugeridas:');
+      console.log('[partner] actions sugeridas:');
       for (const action of snapshot.actions) {
         console.log(`- ${action.label}: ${action.command}`);
       }
@@ -228,6 +228,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[partner] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[partner] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

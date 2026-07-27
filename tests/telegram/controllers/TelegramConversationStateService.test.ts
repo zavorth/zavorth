@@ -36,7 +36,7 @@ describe('TelegramConversationStateService', () => {
       [],
       { providerName: 'gemini', modelName: 'test-model' },
       null,
-      'Resposta final',
+      'Final response',
       false,
     );
 
@@ -57,7 +57,7 @@ describe('TelegramConversationStateService', () => {
       }),
     );
     expect(task.status).toBe('completed');
-    expect(task.result_summary).toBe('Resposta final');
+    expect(task.result_summary).toBe('Final response');
     expect(task.metadata.workspace_route_outcome.final_status).toBe('completed');
     expect(saveTask).toHaveBeenCalled();
   });

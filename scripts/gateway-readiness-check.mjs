@@ -24,7 +24,7 @@ function runNpm(args) {
       env: process.env,
     });
   if (result.error) {
-    console.error(`[gateway-check] falha ao executar ${npmCommand} ${args.join(' ')}:`, result.error.message);
+    console.error(`[gateway-check] failure ao run ${npmCommand} ${args.join(' ')}:`, result.error.message);
   }
   return result;
 }
@@ -93,7 +93,7 @@ const gates = gate ? [gate] : [1, 2, 3, 4, 5, 6, 7, 8];
 for (const selectedGate of gates) {
   const tests = gateTests[selectedGate];
   if (!tests) {
-    console.error(`[gateway-check] gate invalido: ${selectedGate}`);
+    console.error(`[gateway-check] gate invalid: ${selectedGate}`);
     process.exit(1);
   }
 

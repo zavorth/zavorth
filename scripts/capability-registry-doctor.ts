@@ -41,7 +41,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-core] capability registry doctor falhou.');
+  console.error('[zavorth-core] capability registry doctor failed.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

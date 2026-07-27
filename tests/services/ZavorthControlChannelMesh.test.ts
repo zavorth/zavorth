@@ -46,7 +46,7 @@ describe('ZavorthControl channel mesh', () => {
             id: 'telegram',
             label: 'Telegram',
             readiness: 'ready',
-            operatorSummary: 'sessions_send pronto.',
+            operatorSummary: 'sessions_send ready.',
           },
         ],
         selected: {
@@ -57,8 +57,8 @@ describe('ZavorthControl channel mesh', () => {
         },
         featuredIds: ['slack'],
         narrative: {
-          headline: 'Channel Mesh expoe 5 canal(is).',
-          operatorSummary: '3 prontos, 1 parcial e 1 planejado.',
+          headline: 'Channel Mesh exposes 5 channel(s).',
+          operatorSummary: '3 readys, 1 parcial e 1 planejado.',
         },
       })),
     };
@@ -113,13 +113,13 @@ describe('ZavorthControl channel mesh', () => {
           id: selectedId || 'telegram',
           label: 'Telegram',
           readiness: 'ready',
-          operatorSummary: 'sessions_send pronto.',
+          operatorSummary: 'sessions_send ready.',
           actions: [{ id: 'telegram:broadcast-test', label: 'Testar broadcast', kind: 'broadcast-test', command: '/channels broadcast-test telegram' }],
         },
         featuredIds: ['telegram'],
         narrative: {
-          headline: 'Channel Mesh expoe 5 canal(is).',
-          operatorSummary: '3 prontos, 1 parcial e 1 planejado.',
+          headline: 'Channel Mesh exposes 5 channel(s).',
+          operatorSummary: '3 readys, 1 parcial e 1 planejado.',
         },
       })),
     };
@@ -130,7 +130,7 @@ describe('ZavorthControl channel mesh', () => {
         actionId: 'broadcast-test',
         status: 'applied',
         ok: true,
-        summary: 'Teste de broadcast enviado para Telegram.',
+        summary: 'Teste de broadcast sent para Telegram.',
         details: ['Recipientes previstos: 2.'],
         selected: {
           id: 'telegram',
@@ -175,7 +175,7 @@ describe('ZavorthControl channel mesh', () => {
       expect.objectContaining({
         ok: true,
         result: expect.objectContaining({
-          summary: 'Teste de broadcast enviado para Telegram.',
+          summary: 'Teste de broadcast sent para Telegram.',
         }),
         channels: expect.objectContaining({
           selected: expect.objectContaining({
@@ -211,7 +211,7 @@ describe('ZavorthControl channel mesh', () => {
           label: 'Discord',
           readiness: 'ready',
           transport: 'native',
-          summary: 'Canal pronto.',
+          summary: 'Canal ready.',
           operatorSummary: 'policy por grupo disponivel.',
           actionHint: 'Use slash commands.',
           notes: [],
@@ -231,8 +231,8 @@ describe('ZavorthControl channel mesh', () => {
         },
         featuredIds: ['discord'],
         narrative: {
-          headline: 'Channel Mesh expoe 5 canal(is).',
-          operatorSummary: '4 prontos e 1 planejado.',
+          headline: 'Channel Mesh exposes 5 channel(s).',
+          operatorSummary: '4 readys e 1 planejado.',
         },
       })),
     };
@@ -275,7 +275,7 @@ describe('ZavorthControl channel mesh', () => {
       expect.objectContaining({
         ok: true,
         result: expect.objectContaining({
-          summary: 'Teste de broadcast enviado para Discord.',
+          summary: 'Teste de broadcast sent para Discord.',
         }),
         channels: expect.objectContaining({
           selected: expect.objectContaining({
@@ -311,7 +311,7 @@ describe('ZavorthControl channel mesh', () => {
           label: 'Slack',
           readiness: 'partial',
           transport: 'local',
-          summary: 'Canal parcial, mas com outbox local pronto para teste.',
+          summary: 'Canal parcial, mas com outbox local ready para teste.',
           operatorSummary: 'policy por grupo disponivel.',
           actionHint: 'Prepare onboarding e valide o outbox local.',
           notes: [],
@@ -331,8 +331,8 @@ describe('ZavorthControl channel mesh', () => {
         },
         featuredIds: ['slack'],
         narrative: {
-          headline: 'Channel Mesh expoe 5 canal(is).',
-          operatorSummary: '3 prontos e 2 parciais.',
+          headline: 'Channel Mesh exposes 5 channel(s).',
+          operatorSummary: '3 readys e 2 parciais.',
         },
       })),
     };
@@ -375,7 +375,7 @@ describe('ZavorthControl channel mesh', () => {
       expect.objectContaining({
         ok: true,
         result: expect.objectContaining({
-          summary: 'Teste de broadcast enviado para Slack.',
+          summary: 'Teste de broadcast sent para Slack.',
         }),
         channels: expect.objectContaining({
           selected: expect.objectContaining({
@@ -411,7 +411,7 @@ describe('ZavorthControl channel mesh', () => {
         resolvePermissionReference: jest.fn(),
         shortPermissionId: jest.fn(),
         handlePermissionCallback: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
       } as any,
       webUserId: '1',
     });
@@ -419,7 +419,7 @@ describe('ZavorthControl channel mesh', () => {
     await service.start();
     const { status, payload } = await fetchZavorthControlJson(
       service.getUrl(),
-      '/api/web/channels?selectedId=web',
+      '/api/web/channels-selectedId=web',
       { token: 'web-secret' },
     );
     await service.stopAsync();
@@ -470,7 +470,7 @@ describe('ZavorthControl channel mesh', () => {
     await service.start();
     const { status, payload } = await fetchZavorthControlJson(
       service.getUrl(),
-      '/api/web/channels?selectedId=discord',
+      '/api/web/channels-selectedId=discord',
       { token: 'web-secret' },
     );
     await service.stopAsync();
@@ -492,7 +492,7 @@ describe('ZavorthControl channel mesh', () => {
             }),
             notes: expect.arrayContaining([
               'Gateway do Discord anexado ao mesh operacional do Zavorth.',
-              'Runtime do Discord operando em modo nativo.',
+              'Runtime do Discord operando em modo nactive.',
             ]),
           }),
         }),
@@ -525,7 +525,7 @@ describe('ZavorthControl channel mesh', () => {
         resolvePermissionReference: jest.fn(),
         shortPermissionId: jest.fn(),
         handlePermissionCallback: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
       } as any,
       webUserId: '1',
     });
@@ -545,7 +545,7 @@ describe('ZavorthControl channel mesh', () => {
     await service.start();
     const { status, payload } = await fetchZavorthControlJson(
       service.getUrl(),
-      '/api/web/channels?selectedId=telegram',
+      '/api/web/channels-selectedId=telegram',
       { token: 'web-secret' },
     );
     await service.stopAsync();
@@ -599,7 +599,7 @@ describe('ZavorthControl channel mesh', () => {
         resolvePermissionReference: jest.fn(),
         shortPermissionId: jest.fn(),
         handlePermissionCallback: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
       } as any,
       webUserId: '1',
     });
@@ -628,7 +628,7 @@ describe('ZavorthControl channel mesh', () => {
     await service.start();
     const { status, payload } = await fetchZavorthControlJson(
       service.getUrl(),
-      '/api/web/channels?selectedId=slack',
+      '/api/web/channels-selectedId=slack',
       { token: 'web-secret' },
     );
     await service.stopAsync();
@@ -651,7 +651,7 @@ describe('ZavorthControl channel mesh', () => {
             }),
             notes: expect.arrayContaining([
               'Gateway do Slack anexado ao mesh operacional do Zavorth.',
-              'Runtime do Slack operando em modo nativo pela Web API.',
+              'Runtime do Slack operando em modo nactive pela Web API.',
               'Workspace do Slack configurado em workspace-1.',
             ]),
           }),
@@ -685,7 +685,7 @@ describe('ZavorthControl channel mesh', () => {
         resolvePermissionReference: jest.fn(),
         shortPermissionId: jest.fn(),
         handlePermissionCallback: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
       } as any,
       webUserId: '1',
     });
@@ -706,7 +706,7 @@ describe('ZavorthControl channel mesh', () => {
           started: true,
           recipientsConfigured: 1,
           providerConfigured: true,
-          providerDecision: 'Cloud API conectada; webhook verification, inbound e outbound oficial estao ativos.',
+          providerDecision: 'Cloud API conectada; webhook verification, inbound e outbound oficial estao actives.',
           phoneNumberId: '1234567890',
           webhookConfigured: true,
           lastError: null,
@@ -717,7 +717,7 @@ describe('ZavorthControl channel mesh', () => {
     await service.start();
     const { status, payload } = await fetchZavorthControlJson(
       service.getUrl(),
-      '/api/web/channels?selectedId=whatsapp',
+      '/api/web/channels-selectedId=whatsapp',
       { token: 'web-secret' },
     );
     await service.stopAsync();
@@ -743,7 +743,7 @@ describe('ZavorthControl channel mesh', () => {
             notes: expect.arrayContaining([
               'Gateway do WhatsApp anexado ao mesh operacional do Zavorth.',
               'Runtime do WhatsApp operando pela Cloud API da Meta.',
-              'Cloud API conectada; webhook verification, inbound e outbound oficial estao ativos.',
+              'Cloud API conectada; webhook verification, inbound e outbound oficial estao actives.',
               'Phone number id configurado em 1234567890.',
             ]),
           }),

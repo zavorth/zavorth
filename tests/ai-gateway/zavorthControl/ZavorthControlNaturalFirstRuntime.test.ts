@@ -21,7 +21,7 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
         title: 'publique agora',
         input: 'publique agora',
         channel: 'cli',
-        summary: 'Aprovacao Natural First aguardando decisao do operador.',
+        summary: 'Natural First approval waiting for operator decision.',
         updatedAt: '2026-05-11T15:20:00.000Z',
         metadata: {
           naturalFirstEntrypoint: {
@@ -30,7 +30,7 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
           },
           naturalFirstRoute: {
             route: 'approval-proposal',
-            reason: 'Pedido sugere mutacao sensivel ou ferramenta que exige approval.',
+            reason: 'Request suggests a sensitive mutation or a tool that requires approval.',
             shouldEnterGateway: true,
             effort: 'standard',
             usesLlm: 'optional',
@@ -69,7 +69,7 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
               noApprovalBypass: true,
               existingApprovalHonored: true,
             },
-            nextSafeAction: 'Abrir approval generico de intencao sensivel e nao chamar executor.',
+            nextSafeAction: 'Abrir approval generic de intent sensitive e not call executor.',
           },
         },
       },
@@ -81,7 +81,7 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
       routeLabel: 'Approval',
       status: 'approval-required',
       tone: 'degraded',
-      headline: 'Acao aguardando aprovacao',
+      headline: 'Action waiting for approval',
       shouldEnterGateway: true,
       inputKind: 'free-text',
       channel: 'cli',
@@ -96,12 +96,12 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
         noToolExecutionBeforeApproval: true,
         noApprovalBypass: true,
       }),
-      nextSafeAction: 'Abrir approval generico de intencao sensivel e nao chamar executor.',
+      nextSafeAction: 'Abrir approval generic de intent sensitive e not call executor.',
     }));
     expect(viewModel.naturalFirstRuntime?.stages).toEqual([
       expect.objectContaining({
         id: 'received',
-        label: 'Mensagem recebida',
+        label: 'Received message',
         status: 'done',
       }),
       expect.objectContaining({
@@ -111,7 +111,7 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
       }),
       expect.objectContaining({
         id: 'result',
-        label: 'Aguardando aprovacao',
+        label: 'Waiting for approval',
         status: 'pending',
       }),
     ]);
@@ -123,7 +123,7 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
       idFactory: createIdFactory(),
       executor: jest.fn(() => ({
         status: 'completed',
-        summary: 'Executor nao deveria rodar.',
+        summary: 'Executor should not run.',
         replyText: 'executor-called',
       })),
     });
@@ -146,7 +146,7 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
       contractVersion: 'natural-first-zavorthControl-ux/8',
       route: 'approval-proposal',
       status: 'approval-required',
-      headline: 'Acao aguardando aprovacao',
+      headline: 'Action waiting for approval',
     }));
     expect(viewModel.naturalFirstRuntime).toEqual(expect.objectContaining({
       route: 'approval-proposal',
@@ -157,9 +157,9 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
       }),
     }));
     expect(viewModel.naturalFirstRuntime?.stages.map((stage) => stage.label)).toEqual([
-      'Mensagem recebida',
+      'Received message',
       'Classificada como Approval',
-      'Aguardando aprovacao',
+      'Waiting for approval',
     ]);
   });
 });

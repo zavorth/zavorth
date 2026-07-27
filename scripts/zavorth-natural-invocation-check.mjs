@@ -35,7 +35,7 @@ function ruleFilesExist() {
     'scripts/zavorth-natural-invocation.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('natural-files', 'Natural invocation files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract service CLI present', missing);
+  return rule('natural-files', 'Natural invocation files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract service CLI present', missing);
 }
 
 function ruleMarkers() {
@@ -47,7 +47,7 @@ function ruleMarkers() {
     ['src/services/ZavorthNaturalInvocationRouter.ts', ['ZavorthSandboxLifecycleManager', 'looksLikeSandboxLifecycleRequest', 'looksLikeSandboxLifecycleMutation']],
     ['src/services/ZavorthSubagentAutoInvocationPolicyService.ts', ['invoke_live_subagents', 'workspaceMutationRequiresApproval', 'Direct mode skips implicit subagent auto-routing', 'publicRationale', 'noRawChainOfThought']],
     ['src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['case \'/sandbox\'', 'looksLikeSandboxLifecycleRequest']],
-    ['scripts/zavorth-natural-invocation.ts', ['--mock-live', '--no-auto-live-subagents']],
+    ['scripts/zavorth-natural-invocation.ts', ['--dry-live', '--no-auto-live-subagents']],
     ['package.json', ['zavorth:natural-invocation', 'zavorth:natural-invocation:json', 'zavorth:natural-invocation:check']],
   ];
   const missing = [];
@@ -62,9 +62,9 @@ function ruleMarkers() {
 
 function runSubagentRouteFixture() {
   const result = runTs('scripts/zavorth-natural-invocation.ts', [
-    '--text', 'mande um agente pesquisar e outro revisar localmente',
+    '--text', 'mande um agente pesquisar e outro review localmente',
     '--execute',
-    '--mock-live',
+    '--dry-live',
     '--json',
   ]);
   return jsonRule('natural-subagent-route', 'Natural request spawns team route', result, (snapshot) =>
@@ -76,15 +76,15 @@ function runSubagentRouteFixture() {
 
 function runImplicitAutoSubagentRouteFixture() {
   const result = runTs('scripts/zavorth-natural-invocation.ts', [
-    '--text', 'faca uma auditoria profunda em todo o Zavorth, procure falhas, compare riscos e valide os achados',
+    '--text', 'perform a deep audit across Zavorth, look for failures, compare risks, and validate findings',
     '--execute',
-    '--mock-live',
+    '--dry-live',
     '--json',
   ]);
   return jsonRule('natural-auto-live-subagent-route', 'Complex read-only request auto-selects live subagents', result, (snapshot) =>
     snapshot.primaryAction === 'spawn_team'
     && snapshot.execution.subagentRuntime
-    && snapshot.execution.subagentRuntime.runs.at(-1).executionMode === 'mock-live'
+    && snapshot.execution.subagentRuntime.runs.at(-1).executionMode === 'dry-live'
     && snapshot.execution.subagentRuntime.autoInvocationTelemetry.latest.selectedBy === 'implicit-complexity');
 }
 
@@ -162,5 +162,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

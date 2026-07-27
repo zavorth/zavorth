@@ -77,7 +77,7 @@ describe('HostPowerModeService', () => {
         operation_id, workspace_id, command_hash, command_preview_redacted,
         args_hash, args_preview_redacted, cwd_hash, cwd_suffix,
         shell, risk_level, reason_redacted, approved, expires_at, created_at
-      ) VALUES ('test-id', ?, 'h1', 'p1', 'h2', 'p2', 'h3', 's3', 0, 'LOW', 'r', 0, '2030-01-01', '2020-01-01')`,
+      ) VALUES ('test-id', -, 'h1', 'p1', 'h2', 'p2', 'h3', 's3', 0, 'LOW', 'r', 0, '2030-01-01', '2020-01-01')`,
       [workspaceId]
     );
     HostCommandPayloadCache.getInstance().set('test-id', 'echo', ['hi'], '.');
@@ -91,7 +91,7 @@ describe('HostPowerModeService', () => {
     expect(state.enabled).toBe(false);
 
     // Verify DB cleaned
-    const row = db.get('SELECT * FROM workspace_host_command_proposals WHERE operation_id = ?', ['test-id']);
+    const row = db.get('SELECT * FROM workspace_host_command_proposals WHERE operation_id = -', ['test-id']);
     expect(row).toBeUndefined();
 
     // Verify cache cleared
@@ -109,7 +109,7 @@ describe('HostPowerModeService', () => {
         operation_id, workspace_id, command_hash, command_preview_redacted,
         args_hash, args_preview_redacted, cwd_hash, cwd_suffix,
         shell, risk_level, reason_redacted, approved, expires_at, created_at
-      ) VALUES ('test-id-expire', ?, 'h1', 'p1', 'h2', 'p2', 'h3', 's3', 0, 'LOW', 'r', 0, '2030-01-01', '2020-01-01')`,
+      ) VALUES ('test-id-expire', -, 'h1', 'p1', 'h2', 'p2', 'h3', 's3', 0, 'LOW', 'r', 0, '2030-01-01', '2020-01-01')`,
       [workspaceId]
     );
     HostCommandPayloadCache.getInstance().set('test-id-expire', 'echo', ['hi'], '.');
@@ -129,7 +129,7 @@ describe('HostPowerModeService', () => {
     await Promise.resolve();
 
     // Verify cleanup
-    const row = db.get('SELECT * FROM workspace_host_command_proposals WHERE operation_id = ?', ['test-id-expire']);
+    const row = db.get('SELECT * FROM workspace_host_command_proposals WHERE operation_id = -', ['test-id-expire']);
     expect(row).toBeUndefined();
     expect(HostCommandPayloadCache.getInstance().get('test-id-expire')).toBeUndefined();
 

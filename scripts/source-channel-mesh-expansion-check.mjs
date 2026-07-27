@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'source-channel-mesh-checkpoint-4-files',
+    id: 'source-channel-mesh-gate-4-files',
     label: 'Connector registry files exist',
     target: 'contract, simulator, secret policy, Slack/WhatsApp packs, expansion service, command, tests and package scripts are present',
     files: [
@@ -174,7 +174,7 @@ function runRuntimeRule() {
         `packagesImplementedInZavorth=${receipt.summary?.packagesImplementedInZavorth}`,
         `ownerGatedPacks=${receipt.summary?.ownerGatedPacks}`,
         `liveIoPerformed=${receipt.summary?.liveIoPerformed}`,
-        `next=${receipt.commands?.nextStage}`,
+        `next=${receipt.commands?.nextAction}`,
       ],
     };
   } catch (error) {
@@ -261,7 +261,7 @@ function read(relativePath) {
 
 function compactDetails(...values) {
   return values
-    .flatMap((value) => String(value || '').split(/\r?\n/g))
+    .flatMap((value) => String(value || '').split(/\r...\n/g))
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 12);

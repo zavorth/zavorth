@@ -12,7 +12,7 @@ describe('SimpleCommandRouter', () => {
     });
   });
 
-  it('maps health/status typos to ready (phase 3 health intent)', () => {
+  it('maps health/status typos to ready (health intent health intent)', () => {
     expect(resolveZavorthSimpleCommand(['stats', '--json'])).toEqual({
       kind: 'passthrough',
       args: ['ready', '--json'],
@@ -56,7 +56,7 @@ describe('SimpleCommandRouter', () => {
       kind: 'passthrough',
       args: ['open'],
     });
-    expect(resolveZavorthSimpleCommand(['channles', 'catalog'])).toEqual({
+    expect(resolveZavorthSimpleCommand(['channels', 'catalog'])).toEqual({
       kind: 'passthrough',
       args: ['channels', 'catalog'],
     });

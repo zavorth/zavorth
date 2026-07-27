@@ -80,7 +80,7 @@ describe('ZavorthTrustPlaneActionService', () => {
         generatedAt: '2026-04-12T11:00:00.000Z',
         decision: 'requires_approval',
         ok: false,
-        reason: 'Acao amplia privilegios do Trust Plane e exige approval canonico.',
+        reason: 'Action expands Trust Plane privileges and requires canonical approval.',
         permission: { permission_id: 'perm-trust-1', status: 'pending' },
         profile: 'core',
         capabilityId: null,

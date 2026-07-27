@@ -11,8 +11,8 @@ function createTask(overrides: Partial<Task> = {}): Task {
     source: 'telegram',
     chat_id: '42',
     user_id: '42',
-    raw_message: '/auto gere o plano',
-    normalized_message: '/auto gere o plano',
+    raw_message: '/auto generate the plan',
+    normalized_message: '/auto generate the plan',
     command_type: '/auto',
     intent: 'unknown',
     target: null,
@@ -58,7 +58,7 @@ describe('TelegramTaskWorkflowRoutingService', () => {
             { name: 'release-notes.md', kind: 'document', summary: 'Notas finais' },
           ],
           continuity_recommendations: [
-            { label: 'Continuar review', reason: 'Existe trilha ativa', executor: 'external_executor' },
+            { label: 'Continuar review', reason: 'Existe trilthere is ativa', executor: 'external_executor' },
           ],
           workflow_executor_recommendations: [
             {
@@ -68,7 +68,7 @@ describe('TelegramTaskWorkflowRoutingService', () => {
               pending_count: 1,
               failed_count: 0,
               confidence: 'high',
-              rationale: 'Melhor historico',
+              rationale: 'Best history',
             },
             {
               workflow: 'unknown',
@@ -84,7 +84,7 @@ describe('TelegramTaskWorkflowRoutingService', () => {
               pending_count: 0,
               failed_count: 1,
               confidence: 'medium',
-              rationale: 'Bom custo-beneficio',
+              rationale: 'Good value',
             },
             {
               workflow: 'ship',
@@ -98,9 +98,9 @@ describe('TelegramTaskWorkflowRoutingService', () => {
               approval_pending_count: 2,
               blocked_count: 1,
               failed_count: 0,
-              last_resume_stage_label: ' Esperando validacao ',
+              last_resume_stage_label: ' Esperando validaction ',
               confidence: 'medium',
-              rationale: 'Aprovacoes lentas',
+              rationale: 'Slow approvals',
             },
             {
               workflow: 'invalid',
@@ -116,7 +116,7 @@ describe('TelegramTaskWorkflowRoutingService', () => {
               high_risk_count: 2,
               permission_count: 4,
               confidence: 'high',
-              rationale: 'Precisa de mais aprovacoes',
+              rationale: 'Precisa de mais approvescoes',
             },
             {
               executor: '',
@@ -145,7 +145,7 @@ describe('TelegramTaskWorkflowRoutingService', () => {
       },
       continuity_recommendation: {
         label: 'Continuar review',
-        reason: 'Existe trilha ativa',
+        reason: 'Existe trilthere is ativa',
         executor: 'external_executor',
       },
       workflow_executor_recommendations: [
@@ -156,7 +156,7 @@ describe('TelegramTaskWorkflowRoutingService', () => {
           pending_count: 1,
           failed_count: 0,
           confidence: 'high',
-          rationale: 'Melhor historico',
+          rationale: 'Best history',
         },
       ],
       workflow_stage_executor_recommendations: [
@@ -168,7 +168,7 @@ describe('TelegramTaskWorkflowRoutingService', () => {
           pending_count: 0,
           failed_count: 1,
           confidence: 'medium',
-          rationale: 'Bom custo-beneficio',
+          rationale: 'Good value',
         },
       ],
       workflow_friction_recommendations: [
@@ -177,9 +177,9 @@ describe('TelegramTaskWorkflowRoutingService', () => {
           approval_pending_count: 2,
           blocked_count: 1,
           failed_count: 0,
-          last_resume_stage_label: 'Esperando validacao',
+          last_resume_stage_label: 'Esperando validaction',
           confidence: 'medium',
-          rationale: 'Aprovacoes lentas',
+          rationale: 'Slow approvals',
         },
       ],
       approval_friction_recommendations: [
@@ -192,7 +192,7 @@ describe('TelegramTaskWorkflowRoutingService', () => {
           high_risk_count: 2,
           permission_count: 4,
           confidence: 'high',
-          rationale: 'Precisa de mais aprovacoes',
+          rationale: 'Precisa de mais approvescoes',
         },
       ],
     });
@@ -244,7 +244,7 @@ describe('TelegramTaskWorkflowRoutingService', () => {
       executor: null,
       source: 'subtype_memory',
       confidence: 0.63,
-      rationale: ['Review recente convergiu para workflow.'],
+      rationale: ['Recent review converged to workflow.'],
       task_kind: 'code',
       task_subtype: 'review',
       workflow_recommendation: {

@@ -32,7 +32,7 @@ describe('ChannelSetupAssistantService', () => {
       run: jest.fn(async () => ({
         checkedAt: '2026-04-11T10:01:00.000Z',
         status: 'failed',
-        summary: 'Doctor encontrou pendencias.',
+        summary: 'Doctor encontrou pending items.',
         command: 'npm run test:channels:smoke',
         items: [
           {
@@ -41,10 +41,10 @@ describe('ChannelSetupAssistantService', () => {
             enabled: true,
             configured: false,
             status: 'failed',
-            summary: 'Slack precisa de credenciais.',
-            error: 'Campos ausentes.',
+            summary: 'Slack needs credentials.',
+            error: 'Campos missings.',
             recommendedAction: 'npm run test:channels:smoke',
-            details: ['Preencha SLACK_BOT_TOKEN.'],
+            details: ['Fill SLACK_BOT_TOKEN.'],
           },
         ],
       })),

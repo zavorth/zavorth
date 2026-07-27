@@ -7,8 +7,8 @@ function createRealtimeMock() {
   const messages: Array<{
     role: string;
     content: string;
-    kind?: string | null;
-    mentions?: unknown[];
+    kind-: string | null;
+    mentions-: unknown[];
   }> = [];
 
   return {
@@ -16,15 +16,15 @@ function createRealtimeMock() {
     createSession: jest.fn(() => 'web-session-1'),
     ensureSession: jest.fn(),
     getChatId: jest.fn((sessionId: string) => `web:${sessionId}`),
-    recordUserMessage: jest.fn((_sessionId: string, content: string, _taskId?: string | null, mentions?: unknown[]) => {
+    recordUserMessage: jest.fn((_sessionId: string, content: string, _taskId-: string | null, mentions-: unknown[]) => {
       messages.push({ role: 'user', content, mentions });
       return messages[messages.length - 1];
     }),
     recordAssistantMessage: jest.fn((
       _sessionId: string,
       content: string,
-      _taskId?: string | null,
-      kind?: string | null,
+      _taskId-: string | null,
+      kind-: string | null,
     ) => {
       messages.push({ role: 'assistant', content, kind });
       return messages[messages.length - 1];
@@ -85,10 +85,10 @@ function createIdFactory() {
 let surfaceOperationalIntentService: SurfaceOperationalIntentService;
 
 function createConversationService(input: {
-  runtime?: Record<string, unknown>;
-  realtime?: ReturnType<typeof createRealtimeMock>;
-  sendToSession?: jest.Mock;
-  agentGateway?: ZavorthAgentGateway | null;
+  runtime-: Record<string, unknown>;
+  realtime-: ReturnType<typeof createRealtimeMock>;
+  sendToSession-: jest.Mock;
+  agentGateway-: ZavorthAgentGateway | null;
 }) {
   const realtime = input.realtime || createRealtimeMock();
   const sendToSession = input.sendToSession || jest.fn(async () => ({ taskId: 'task-zavorthControl-qa' }));
@@ -179,7 +179,7 @@ describe('ZavorthControl response cortex QA gate', () => {
 
     const result = await service.processChatSend({
       sessionId: 'qa-downloads-inspection',
-      message: 'analise o que tem dentro da minha pasta downloads',
+      message: 'analyze what is inside my downloads folder',
     });
 
     expect(result.taskId).toBeNull();
@@ -199,10 +199,10 @@ describe('ZavorthControl response cortex QA gate', () => {
 
     const result = await service.processChatSend({
       sessionId: 'qa-rich-composer-payload',
-      message: 'pesquise artigos recentes sobre agentes autonomos usando este resumo',
+      message: 'research recent articles about autonomous agents using this summary',
       attachments: [
         {
-          name: 'resumo.md',
+          name: 'summary.md',
           type: 'text/markdown',
           size: 42,
           text: '# Tema\nAgentes autonomos locais.',
@@ -249,7 +249,7 @@ describe('ZavorthControl response cortex QA gate', () => {
         composerPayload: expect.objectContaining({
           attachments: [
             expect.objectContaining({
-              name: 'resumo.md',
+              name: 'summary.md',
               text: '# Tema\nAgentes autonomos locais.',
             }),
           ],
@@ -330,12 +330,12 @@ describe('ZavorthControl response cortex QA gate', () => {
   it('allows user-facing artifact cards only for explicit deliverable artifact requests', async () => {
     const executor: UniversalAgentExecutor = ({ run }) => ({
       status: 'completed',
-      summary: 'Relatorio PDF pronto.',
-      replyText: 'Relatorio pronto para revisao.',
+      summary: 'Report PDF ready.',
+      replyText: 'Report ready for review.',
       artifacts: [
         {
           id: 'artifact-report-1',
-          title: 'Relatorio em PDF',
+          title: 'PDF report',
           kind: 'report',
           createdAt: run.createdAt,
           sessionId: run.sessionId,
@@ -356,7 +356,7 @@ describe('ZavorthControl response cortex QA gate', () => {
       userId: 'web-user',
       channel: 'web',
       sessionId: 'qa-explicit-artifact',
-      text: 'gere um relatorio em PDF',
+      text: 'generate a PDF report',
       requestedTools: ['pdf.generate'],
       metadata: {
         capabilityNegotiationApproved: true,
@@ -372,7 +372,7 @@ describe('ZavorthControl response cortex QA gate', () => {
     expect(result.run.artifacts).toEqual([
       expect.objectContaining({
         id: 'artifact-report-1',
-        title: 'Relatorio em PDF',
+        title: 'PDF report',
         status: 'ready',
       }),
     ]);

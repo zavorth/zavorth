@@ -34,7 +34,7 @@ function ruleFilesExist() {
     'docs/capability-plugins.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('capability-certification-files', 'Capability certification files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'certification service and check present', missing);
+  return rule('capability-certification-files', 'Capability certification files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'certification service and check present', missing);
 }
 
 function ruleWorkspaceCheckIncludesNewGates() {
@@ -66,9 +66,9 @@ function runCapabilityFixture() {
 
 function runPracticalityCompletionFixture() {
   const result = runTs('scripts/zavorth-agent-practicality-completion.ts', ['--json']);
-  return jsonRule('agent-practicality-checkpoint-6', 'Agent practicality Runtime gateway passes', result, (snapshot) =>
+  return jsonRule('agent-practicality-gate-6', 'Agent practicality Runtime gateway passes', result, (snapshot) =>
     snapshot.status === 'passed'
-    && snapshot.contractVersion === '2026-05-11.agent-practicality-checkpoint-6'
+    && snapshot.contractVersion === '2026-05-11.agent-practicality-gate-6'
     && snapshot.surfaceProjections?.length >= 7
     && snapshot.runtimeSurface?.commands?.includes('/agents status')
     && (snapshot.zavorthControlProjection?.noVisualMutation === true || snapshot.dashboardProjection?.noVisualMutation === true)
@@ -132,5 +132,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

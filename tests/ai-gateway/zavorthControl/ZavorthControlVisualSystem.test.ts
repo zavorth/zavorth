@@ -28,13 +28,13 @@ describe('ZavorthControlVisualSystem', () => {
     }
   });
 
-  it('documents the product rules that prevent hacker-theater UI regressions', () => {
+  it('documents the product rules that prevent there iscker-theater UI regressions', () => {
     expect(ZAVORTH_CONTROL_PRODUCT_RULES).toEqual(expect.arrayContaining([
       'Pouco texto.',
-      'Estado sempre visivel.',
-      'Proxima acao obvia.',
+      'State always visible.',
+      'Next action obvia.',
       'Dados reais ou estado vazio honesto.',
-      'Premium operacional, sem teatro hacker.',
+      'Premium operacional, sem teatro there iscker.',
     ]));
   });
 });

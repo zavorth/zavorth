@@ -27,7 +27,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceRuntimeMai
       run: jest.fn(async () => ({
         success: true,
         status: 'dry_run',
-        summary: 'Plano de autoreparo montado.',
+        summary: 'Plan de autoreparo montado.',
         report: {},
       })),
     } as any,
@@ -105,7 +105,7 @@ describe('SharedSurfaceRuntimeMaintenanceCommandPack', () => {
     const run = jest.fn(async () => ({
       success: true,
       status: 'dry_run',
-      summary: 'Plano de autoreparo montado.',
+      summary: 'Plan de autoreparo montado.',
       report: {},
     }));
     const pack = buildPack({
@@ -127,8 +127,8 @@ describe('SharedSurfaceRuntimeMaintenanceCommandPack', () => {
         requestedBy: 'telegram-user',
       }),
     );
-    expect(ctx.reply).toHaveBeenNthCalledWith(1, 'Montando um plano seguro de autoreparo agora.');
-    expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('Plano de autoreparo montado.'));
+    expect(ctx.reply).toHaveBeenNthCalledWith(1, 'Building a safe autorepair plan now.');
+    expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('Plan de autoreparo montado.'));
     expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('shared-autorepair-dry_run'));
   });
 

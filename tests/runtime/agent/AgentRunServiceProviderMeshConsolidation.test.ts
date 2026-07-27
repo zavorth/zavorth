@@ -24,7 +24,7 @@ describe('AgentRunService Provider Mesh Consolidation Channel mesh3', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-agent-provider-mesh',
-      text: 'qual provider devo usar para reasoning?',
+      text: 'which provider should I use for reasoning-',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

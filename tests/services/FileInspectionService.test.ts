@@ -8,8 +8,8 @@ describe('FileInspectionService', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-inspect-compare-'));
     const left = path.join(tempDir, 'left.txt');
     const right = path.join(tempDir, 'right.txt');
-    fs.writeFileSync(left, 'linha 1\nlinha 2\n', 'utf8');
-    fs.writeFileSync(right, 'linha 1\nlinha 3\n', 'utf8');
+    fs.writeFileSync(left, 'linthere is 1\nlinthere is 2\n', 'utf8');
+    fs.writeFileSync(right, 'linthere is 1\nlinthere is 3\n', 'utf8');
 
     try {
       const service = new FileInspectionService({
@@ -20,9 +20,9 @@ describe('FileInspectionService', () => {
       const plan = await service.prepare(`compare "${left}" e "${right}"`);
 
       expect(plan.kind).toBe('result');
-      expect((plan as any).text).toContain('Comparacao entre left.txt e right.txt');
-      expect((plan as any).text).toContain('-linha 2');
-      expect((plan as any).text).toContain('+linha 3');
+      expect((plan as any).text).toContain('Comparaction entre left.txt e right.txt');
+      expect((plan as any).text).toContain('-linthere is 2');
+      expect((plan as any).text).toContain('+linthere is 3');
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
@@ -43,7 +43,7 @@ describe('FileInspectionService', () => {
       const plan = await service.prepare('o que mudou hoje na workspace');
 
       expect(plan.kind).toBe('result');
-      expect((plan as any).text).toContain('Arquivos alterados de hoje');
+      expect((plan as any).text).toContain('Files alterados de hoje');
       expect((plan as any).text).toContain('recent.html');
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });

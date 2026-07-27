@@ -13,297 +13,297 @@
     "zavorth-control:check": {
       "status": "canonical",
       "command": "node scripts/check-surface-syntax.mjs --target=zavorth-control",
-      "description": "Comando canonico: zavorth-control:check"
+      "description": "Canonical command: zavorth-control:check"
     },
     "architecture:activation": {
       "status": "canonical",
       "command": "npx tsx scripts/capability-activation-doctor.ts --strict",
-      "description": "Comando canonico: architecture:activation"
+      "description": "Canonical command: architecture:activation"
     },
     "architecture:activation-ledger": {
       "status": "canonical",
       "command": "npx tsx scripts/capability-activation-ledger-doctor.ts --strict",
-      "description": "Comando canonico: architecture:activation-ledger"
+      "description": "Canonical command: architecture:activation-ledger"
     },
     "architecture:activation-replay": {
       "status": "canonical",
       "command": "npx tsx scripts/capability-activation-replay-doctor.ts --strict",
-      "description": "Comando canonico: architecture:activation-replay"
+      "description": "Canonical command: architecture:activation-replay"
     },
     "architecture:boundaries": {
       "status": "canonical",
       "command": "npx tsx scripts/architecture-boundary-check.ts",
-      "description": "Comando canonico: architecture:boundaries"
+      "description": "Canonical command: architecture:boundaries"
     },
     "architecture:contracts": {
       "status": "canonical",
       "command": "npx tsx scripts/runtime-contract-doctor.ts --strict",
-      "description": "Comando canonico: architecture:contracts"
+      "description": "Canonical command: architecture:contracts"
     },
     "architecture:event-first": {
       "status": "canonical",
       "command": "npx tsx scripts/event-first-check.ts",
-      "description": "Comando canonico: architecture:event-first"
+      "description": "Canonical command: architecture:event-first"
     },
     "architecture:hardening": {
       "status": "canonical",
       "command": "npx tsx scripts/architecture-hardening-check.ts",
-      "description": "Comando canonico: architecture:hardening"
+      "description": "Canonical command: architecture:hardening"
     },
     "architecture:lazy-loading": {
       "status": "canonical",
       "command": "npx tsx scripts/lazy-loading-check.ts",
-      "description": "Comando canonico: architecture:lazy-loading"
+      "description": "Canonical command: architecture:lazy-loading"
     },
     "architecture:retention": {
       "status": "canonical",
       "command": "npx tsx scripts/runtime-retention-doctor.ts --strict",
-      "description": "Comando canonico: architecture:retention"
+      "description": "Canonical command: architecture:retention"
     },
     "blueprint-completion:check": {
       "status": "canonical",
       "command": "node scripts/blueprint-completion-check.mjs",
-      "description": "Comando canonico: blueprint-completion:check"
+      "description": "Canonical command: blueprint-completion:check"
     },
     "build": {
       "status": "canonical",
       "command": "npm run runtime:build --silent && npm run surfaces:check --silent && npm run product:launchers:build --silent",
-      "description": "Comando canonico: build"
+      "description": "Canonical command: build"
     },
     "command": {
       "status": "canonical",
       "command": "node scripts/zavorth-command.mjs",
-      "description": "Comando canonico: command"
+      "description": "Canonical command: command"
     },
     "zavorthControl:preview": {
       "status": "canonical",
       "command": "npx tsx scripts/zavorthControl-browser-preview.ts",
-      "description": "Comando canonico: zavorthControl:preview"
+      "description": "Canonical command: zavorthControl:preview"
     },
     "command:list": {
       "status": "canonical",
       "command": "node scripts/zavorth-command.mjs --list",
-      "description": "Comando canonico: command:list"
+      "description": "Canonical command: command:list"
     },
     "identity:hygiene": {
       "status": "canonical",
       "command": "node scripts/zavorth-native-hygiene-check.mjs",
-      "description": "Comando canonico: identity:hygiene"
+      "description": "Canonical command: identity:hygiene"
     },
     "dev": {
       "status": "canonical",
       "command": "npx nodemon --watch src --ext ts --exec \"npx tsx src/index.ts\"",
-      "description": "Comando canonico: dev"
+      "description": "Canonical command: dev"
     },
     "dev:supervised": {
       "status": "canonical",
       "command": "npx tsx src/host.ts",
-      "description": "Comando canonico: dev:supervised"
+      "description": "Canonical command: dev:supervised"
     },
     "identity:public": {
       "status": "canonical",
       "command": "node scripts/zavorth-public-identity-scan.mjs",
-      "description": "Comando canonico: identity:public"
+      "description": "Canonical command: identity:public"
     },
     "mcp": {
       "status": "canonical",
       "command": "npx tsx scripts/zavorth-mcp.ts",
-      "description": "Comando canonico: mcp"
+      "description": "Canonical command: mcp"
     },
     "mcp:browser:doctor": {
       "status": "canonical",
       "command": "npx tsx scripts/mcp-browser-doctor.ts",
-      "description": "Comando canonico: mcp:browser:doctor"
+      "description": "Canonical command: mcp:browser:doctor"
     },
     "ops:qa": {
       "status": "canonical",
       "command": "npx tsx scripts/zavorth-qa.ts",
-      "description": "Comando canonico: ops:qa"
+      "description": "Canonical command: ops:qa"
     },
     "product:launchers:build": {
       "status": "canonical",
       "command": "npx tsc --module NodeNext --moduleResolution NodeNext --target ES2022 --outDir dist-ops scripts/setup-v3.ts scripts/ops-go.ts scripts/ops-doctor.ts",
-      "description": "Comando canonico: product:launchers:build"
+      "description": "Canonical command: product:launchers:build"
     },
     "productization:check": {
       "status": "canonical",
       "command": "node scripts/productization-contract-check.mjs",
-      "description": "Comando canonico: productization:check"
+      "description": "Canonical command: productization:check"
     },
     "provider-mesh-readiness:check": {
       "status": "canonical",
       "command": "node scripts/provider-mesh-readiness-check.mjs",
-      "description": "Comando canonico: provider-mesh-readiness:check"
+      "description": "Canonical command: provider-mesh-readiness:check"
     },
     "provider-mesh:check": {
       "status": "canonical",
       "command": "node scripts/provider-mesh-check.mjs",
-      "description": "Comando canonico: provider-mesh:check"
+      "description": "Canonical command: provider-mesh:check"
     },
     "qa:architecture": {
       "status": "canonical",
       "command": "npx tsx scripts/zavorth-architecture-scorecard.ts --require-pass",
-      "description": "Comando canonico: qa:architecture"
+      "description": "Canonical command: qa:architecture"
     },
     "qa:blueprint-completion": {
       "status": "canonical",
       "command": "node scripts/blueprint-completion-check.mjs",
-      "description": "Comando canonico: qa:blueprint-completion"
+      "description": "Canonical command: qa:blueprint-completion"
     },
     "qa:capability-autopilot-canary-promotion": {
       "status": "canonical",
       "command": "npx tsx scripts/capability-autopilot-canary-promotion.ts --require-pass",
-      "description": "Comando canonico: qa:capability-autopilot-canary-promotion"
+      "description": "Canonical command: qa:capability-autopilot-canary-promotion"
     },
     "qa:ci:core": {
       "status": "canonical",
       "command": "npm run build --silent && npm run qa:zavorthControl --silent && npm run qa:architecture && npm run architecture:hardening && npm run ops:qa -- --require-pass",
-      "description": "Comando canonico: qa:ci:core"
+      "description": "Canonical command: qa:ci:core"
     },
     "qa:zavorthControl": {
       "status": "canonical",
       "command": "npm run qa:zavorthControl-cockpit --silent && npm run qa:zavorthControl-browser-preview --silent && npm run qa:zavorthControl-real --silent && npm run qa:zavorthControl-chat-visual --silent && npm run qa:zavorthControl-composer-affordances --silent && npm run qa:zavorthControl-response-cortex --silent && npm run zavorth-control:check --silent",
-      "description": "Comando canonico: qa:zavorthControl"
+      "description": "Canonical command: qa:zavorthControl"
     },
     "qa:zavorthControl-browser-preview": {
       "status": "canonical",
       "command": "npx tsx scripts/zavorthControl-browser-preview.ts --fixture=all --out=.tmp/zavorthControl-browser-preview && npx jest tests/zavorth-control/zavorthControl/ZavorthControlBrowserPreview.test.ts --runInBand",
-      "description": "Comando canonico: qa:zavorthControl-browser-preview"
+      "description": "Canonical command: qa:zavorthControl-browser-preview"
     },
     "qa:zavorthControl-chat-visual": {
       "status": "canonical",
       "command": "npx tsx scripts/zavorthControl-chat-visual-qa.ts --require-pass",
-      "description": "Comando canonico: qa:zavorthControl-chat-visual"
+      "description": "Canonical command: qa:zavorthControl-chat-visual"
     },
     "qa:zavorthControl-cockpit": {
       "status": "canonical",
       "command": "npx jest tests/zavorth-control/zavorthControl/ZavorthControlCockpitQaGate.test.ts tests/zavorth-control/zavorthControl/ZavorthControlRuntimeFixtures.test.ts tests/zavorth-control/zavorthControl/ZavorthControlRuntimeProjection.test.ts tests/zavorth-control/zavorthControl/ZavorthControlFixturePreview.test.ts tests/zavorth-control/zavorthControl/ZavorthControlVisualPolish.test.ts tests/zavorth-control/zavorthControl/ZavorthControlFixtureScreenPolish.test.ts --runInBand",
-      "description": "Comando canonico: qa:zavorthControl-cockpit"
+      "description": "Canonical command: qa:zavorthControl-cockpit"
     },
     "qa:zavorthControl-composer-affordances": {
       "status": "canonical",
       "command": "npm run zavorth-control:check --silent",
-      "description": "Comando canonico: qa:zavorthControl-composer-affordances"
+      "description": "Canonical command: qa:zavorthControl-composer-affordances"
     },
     "qa:zavorthControl-live-chat": {
       "status": "canonical",
       "command": "npx tsx scripts/zavorthControl-live-chat-qa.ts --allow-send --require-live --require-pass",
-      "description": "Comando canonico: qa:zavorthControl-live-chat"
+      "description": "Canonical command: qa:zavorthControl-live-chat"
     },
     "qa:zavorthControl-live-composer": {
       "status": "canonical",
       "command": "npx tsx scripts/dashboard-live-composer-affordances-qa.ts --allow-send --require-live --require-pass",
-      "description": "Comando canonico: qa:zavorthControl-live-composer"
+      "description": "Canonical command: qa:zavorthControl-live-composer"
     },
     "qa:zavorthControl-live-visual": {
       "status": "canonical",
       "command": "npx tsx scripts/zavorthControl-live-visual-qa.ts --require-pass",
-      "description": "Comando canonico: qa:zavorthControl-live-visual"
+      "description": "Canonical command: qa:zavorthControl-live-visual"
     },
     "qa:zavorthControl-real": {
       "status": "canonical",
       "command": "npx tsx scripts/dashboard-real-flow-qa.ts --require-pass && npx jest tests/zavorth-control/zavorthControl/ZavorthControlVisualRealQa.test.ts --runInBand",
-      "description": "Comando canonico: qa:zavorthControl-real"
+      "description": "Canonical command: qa:zavorthControl-real"
     },
     "qa:zavorthControl-response-cortex": {
       "status": "canonical",
       "command": "npx jest tests/zavorth-control/zavorthControl/ZavorthControlResponseCortexQa.test.ts --runInBand",
-      "description": "Comando canonico: qa:zavorthControl-response-cortex"
+      "description": "Canonical command: qa:zavorthControl-response-cortex"
     },
     "qa:productization": {
       "status": "canonical",
       "command": "node scripts/productization-contract-check.mjs",
-      "description": "Comando canonico: qa:productization"
+      "description": "Canonical command: qa:productization"
     },
     "qa:provider-mesh": {
       "status": "canonical",
       "command": "node scripts/provider-mesh-check.mjs",
-      "description": "Comando canonico: qa:provider-mesh"
+      "description": "Canonical command: qa:provider-mesh"
     },
     "qa:provider-mesh-readiness": {
       "status": "canonical",
       "command": "node scripts/provider-mesh-readiness-check.mjs",
-      "description": "Comando canonico: qa:provider-mesh-readiness"
+      "description": "Canonical command: qa:provider-mesh-readiness"
     },
     "qa:run-observatory": {
       "status": "canonical",
       "command": "node scripts/run-observatory-check.mjs",
-      "description": "Comando canonico: qa:run-observatory"
+      "description": "Canonical command: qa:run-observatory"
     },
     "run-observatory:check": {
       "status": "canonical",
       "command": "node scripts/run-observatory-check.mjs",
-      "description": "Comando canonico: run-observatory:check"
+      "description": "Canonical command: run-observatory:check"
     },
     "runtime:build": {
       "status": "canonical",
       "command": "tsc",
-      "description": "Comando canonico: runtime:build"
+      "description": "Canonical command: runtime:build"
     },
     "runtime:check": {
       "status": "canonical",
       "command": "tsc --noEmit",
-      "description": "Comando canonico: runtime:check"
+      "description": "Canonical command: runtime:check"
     },
     "surfaces:check": {
       "status": "canonical",
       "command": "node scripts/check-surface-syntax.mjs",
-      "description": "Comando canonico: surfaces:check"
+      "description": "Canonical command: surfaces:check"
     },
     "test": {
       "status": "canonical",
       "command": "jest --runInBand",
-      "description": "Comando canonico: test"
+      "description": "Canonical command: test"
     },
     "test:cross-surface": {
       "status": "canonical",
       "command": "jest tests/integration/CrossSurfaceContinuity.test.ts --runInBand",
-      "description": "Comando canonico mantido por native-hygiene gate: test:cross-surface"
+      "description": "Canonical command kept by native hygiene gate: test:cross-surface"
     },
     "workspace:check": {
       "status": "canonical",
       "command": "npm run runtime:check && npm run identity:public && npm run identity:hygiene && npm run surfaces:check && npm run architecture:boundaries && npm run architecture:hardening && npm run architecture:lazy-loading && npm run architecture:event-first && npm run architecture:contracts && npm run architecture:activation && npm run architecture:activation-ledger && npm run architecture:activation-replay && npm run architecture:retention",
-      "description": "Comando canonico: workspace:check"
+      "description": "Canonical command: workspace:check"
     },
     "security:doctor": {
       "status": "canonical",
       "command": "npx tsx scripts/security-doctor.ts",
-      "description": "Comando canonico: security:doctor"
+      "description": "Canonical command: security:doctor"
     },
     "security:continuous": {
       "status": "canonical",
       "command": "npx tsx scripts/security-continuous.ts",
-      "description": "Comando canonico: security:continuous"
+      "description": "Canonical command: security:continuous"
     },
     "security:baseline": {
       "status": "canonical",
       "command": "npx tsx scripts/security-continuous.ts --update-baseline",
-      "description": "Comando canonico: security:baseline"
+      "description": "Canonical command: security:baseline"
     },
     "security:ci": {
       "status": "canonical",
       "command": "node scripts/security-ci-check.mjs",
-      "description": "Comando canonico: security:ci"
+      "description": "Canonical command: security:ci"
     },
     "security:secrets": {
       "status": "canonical",
       "command": "node scripts/secret-guard-check.mjs",
-      "description": "Comando canonico: security:secrets"
+      "description": "Canonical command: security:secrets"
     },
     "security:supply-chain": {
       "status": "canonical",
       "command": "node scripts/supply-chain-guard.mjs",
-      "description": "Comando canonico: security:supply-chain"
+      "description": "Canonical command: security:supply-chain"
     },
     "security:presets": {
       "status": "canonical",
       "command": "npx tsx scripts/security-preset.ts list",
-      "description": "Comando canonico: security:presets"
+      "description": "Canonical command: security:presets"
     },
     "security:preset:professional": {
       "status": "canonical",
       "command": "npx tsx scripts/security-preset.ts professional --apply",
-      "description": "Comando canonico: security:preset:professional"
+      "description": "Canonical command: security:preset:professional"
     }
   }
 }

@@ -124,7 +124,7 @@ describe('CanaryPromotionDecisionLedgerService Preview engine3', () => {
         releaseExecutionHeld: 'npm run capability-autopilot:release-execution --silent -- --no-execution-approval --no-tag-approval --no-publish-approval --no-canary-launch-approval',
         promotionDecisionDryRun: 'dry-run:canary-promotion-decision --cohort dry-run-canary-cohort --from 5 --to 10 --no-execute',
         rollbackDecisionDryRun: 'dry-run:canary-rollback-decision --checkpoint required --no-execute',
-        nextStage: 'Final canary release closure',
+        nextAction: 'Final canary release closure',
       }),
     );
     expect(snapshot.policy).toEqual(

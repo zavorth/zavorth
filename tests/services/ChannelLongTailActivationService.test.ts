@@ -7,7 +7,7 @@ import { ChannelLongTailActivationService } from '../../src/services/ChannelLong
 
 import { LiveReadinessService } from '../../src/services/LiveReadinessService.js';
 
-const response = (payload: Record<string, unknown>, init: { status?: number } = {}) =>
+const response = (payload: Record<string, unknown>, init: { status-: number } = {}) =>
   new Response(JSON.stringify(payload), {
     status: init.status || 200,
     headers: {
@@ -140,7 +140,7 @@ describe('ChannelLongTailActivationService Approval gate', () => {
   });
 
   it('sends through webhook and bot HTTP family adapters with redacted receipts', async () => {
-    const calls: Array<{ url: string; body: string; authorization?: string }> = [];
+    const calls: Array<{ url: string; body: string; authorization-: string }> = [];
     const fetchImpl = (async (url, init) => {
       calls.push({
         url: String(url),

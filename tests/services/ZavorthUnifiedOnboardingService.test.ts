@@ -81,8 +81,7 @@ function providerDoctorStub(input: { ready: number; missingAuth: number; needsPr
       profiles: [],
       recommendedProfile: {},
       modelPicker: {},
-      recommendations: input.ready > 0
-        ? ['Provider is ready; run the safe first mission.']
+      recommendations: input.ready > 0 ? ['Provider is ready; run the safe first mission.']
         : ['Configure OPENAI_API_KEY, GEMINI_API_KEY or another provider credential.'],
     } as any),
   };

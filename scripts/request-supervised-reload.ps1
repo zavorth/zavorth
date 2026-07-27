@@ -15,11 +15,11 @@ $launcherScriptPath = Join-Path $projectRoot 'scripts\launch-zavorth-supervised.
 $powershellPath = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
 
 if (-not (Test-Path $launcherScriptPath)) {
-  throw "Nao encontrei o launcher supervisionado em $launcherScriptPath"
+  throw "Could not find the supervised launcher at $launcherScriptPath"
 }
 
 if (-not (Test-Path $powershellPath)) {
-  throw "Nao encontrei o PowerShell em $powershellPath"
+  throw "Could not find PowerShell at $powershellPath"
 }
 
 function Wait-ForProcessExit {

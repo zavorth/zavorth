@@ -62,16 +62,16 @@ function buildFixtureSmokeArtifact() {
   const results: PublicDocsRecipesFixtureResult[] = PUBLIC_DOCS_RECIPES.map((recipe) => {
     const issues: string[] = [];
     if (!recipe.fixtureMode) {
-      issues.push('recipe sem fixtureMode');
+      issues.push('recipe without fixtureMode');
     }
     if (recipe.requiresSecrets) {
-      issues.push('recipe exige secrets');
+      issues.push('recipe requires secrets');
     }
     if (recipe.commands.length === 0) {
-      issues.push('recipe sem comandos');
+      issues.push('recipe without comandos');
     }
     if (recipe.risk !== 'low' && !recipe.previewFirst) {
-      issues.push('recipe de risco sem preview-first');
+      issues.push('recipe de risk without preview-first');
     }
     return {
       id: recipe.id,
@@ -113,11 +113,11 @@ function assertInside(root: string, target: string): void {
   const resolvedTarget = path.resolve(target);
   const relative = path.relative(resolvedRoot, resolvedTarget);
   if (relative.startsWith('..') || path.isAbsolute(relative)) {
-    throw new Error(`recusando tocar caminho fora do artifactDir: ${target}`);
+    throw new Error(`recusando tocar path outside do artifactDir: ${target}`);
   }
 }
 
 main().catch((error) => {
-  console.error('[public-docs-recipes] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[public-docs-recipes] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

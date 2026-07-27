@@ -1,6 +1,6 @@
 #!/usr/bin/env npx tsx
 /**
- * CLI for Zavorth voice preference (Phase 1 sovereignty).
+ * CLI for Zavorth voice preference.
  *
  * Usage:
  *   npx tsx scripts/zavorth-voice-pref.ts get
@@ -78,7 +78,7 @@ async function main(): Promise<number> {
     if (hasFlag(args, '--tts-disabled')) {
       patch.tts = { ...(patch.tts || {}), enabled: false, provider: 'none' };
     }
-    // Phase 3 convenience: conversation implies TTS enable if provider set
+    // Conversation implies TTS enablement if a provider is set
     if (mode === 'conversation' && patch.tts?.enabled === undefined && (ttsProvider || ttsVoice)) {
       patch.tts = { ...(patch.tts || {}), enabled: true };
     }

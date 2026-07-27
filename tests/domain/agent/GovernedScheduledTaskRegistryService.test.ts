@@ -14,7 +14,7 @@ describe('ZavorthGovernedScheduledTaskRegistryService', () => {
     const snapshot = service.buildSnapshot();
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_SCHEDULED_TASK_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('checkpoint-1-governed-scheduled-task-contract');
+    expect(snapshot.gate).toBe('governed-scheduled-task-contract');
     expect(snapshot.status).toBe('needs_reapproval');
     expect(snapshot.summary.registrationReady).toBe(false);
     expect(snapshot.summary.executionPerformed).toBe(false);
@@ -25,14 +25,14 @@ describe('ZavorthGovernedScheduledTaskRegistryService', () => {
       approvalTtlRequired: true,
       budgetBoundariesRequired: true,
       noImplicitExecution: true,
-      noDashboardVisualMutation: true,
+      noZavorthControlVisualMutation: true,
     });
   });
 
   it('creates an active registry handoff when the owner approves the exact scope', () => {
     const snapshot = service.buildSnapshot({
-      intent: 'Enviar resumo operacional do workspace',
-      schedule: 'every 15m',
+      intent: 'Send an operational workspace summary',
+      schedule: '{"kind":"interval","intervalMs":900000}',
       surface: 'telegram',
       allowedTools: ['web_search', 'read_file'],
       approval: {
@@ -43,23 +43,25 @@ describe('ZavorthGovernedScheduledTaskRegistryService', () => {
     });
 
     expect(snapshot.status).toBe('active');
-    expect(snapshot.schedule?.normalized).toBe('every 15m');
+    expect(snapshot.schedule?.normalized).toBe('{"kind":"interval","intervalMs":900000}');
     expect(snapshot.summary.approvalVerified).toBe(true);
     expect(snapshot.summary.registrationReady).toBe(true);
     expect(snapshot.approvalEnvelope?.toolName).toBe(ZAVORTH_SCHEDULED_TASK_APPROVAL_TOOL);
     expect(snapshot.registration).toMatchObject({
       recorded: true,
       schedulerServiceCompatible: true,
-      schedulerSchedule: 'every 15m',
+      schedulerSchedule: '{"kind":"interval","intervalMs":900000}',
       schedulerUserId: 'owner',
       executionPerformed: false,
       persistedToScheduler: false,
     });
   });
 
-  it('blocks compound scheduling attempts', () => {
+  it('blocks structured compound scheduling capabilities', () => {
     const snapshot = service.buildSnapshot({
-      intent: 'Crie outro agendamento toda sexta',
+      intent: 'Create recurring work',
+      schedule: '{"kind":"interval","intervalMs":900000}',
+      allowedTools: ['scheduler.create'],
       approval: {
         ownerConfirmed: true,
         approvalId: 'approval-123',
@@ -130,7 +132,7 @@ describe('ZavorthGovernedScheduledTaskRegistryService', () => {
       now: () => new Date('2026-05-12T12:00:00.000Z'),
       cwd: () => 'C:/workspace/zavorth-core/Zavorth',
     }).buildSnapshot({
-      schedule: 'daily 09:00',
+      schedule: '{"kind":"calendar_day","targetHour":9,"targetMinute":0}',
       approval: {
         ownerConfirmed: true,
         approvalId: 'short-approval',
@@ -142,7 +144,7 @@ describe('ZavorthGovernedScheduledTaskRegistryService', () => {
       now: () => new Date('2026-05-12T12:00:01.000Z'),
       cwd: () => 'C:/workspace/zavorth-core/Zavorth',
     }).buildSnapshot({
-      schedule: 'daily 09:00',
+      schedule: '{"kind":"calendar_day","targetHour":9,"targetMinute":0}',
       approval: {
         envelope: original.approvalEnvelope,
       },

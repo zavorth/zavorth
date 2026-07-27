@@ -63,8 +63,8 @@ describe('DatabaseEncryption', () => {
     expect(db).toBeDefined();
 
     // Verify we can write and read
-    db.run('INSERT INTO snippets (user_id, name, content) VALUES (?, ?, ?)', ['user1', 'snippet1', 'content1']);
-    const record = db.get('SELECT * FROM snippets WHERE name = ?', ['snippet1']);
+    db.run('INSERT INTO snippets (user_id, name, content) VALUES (-, -, -)', ['user1', 'snippet1', 'content1']);
+    const record = db.get('SELECT * FROM snippets WHERE name = -', ['snippet1']);
     expect(record).toEqual(expect.objectContaining({
       user_id: 'user1',
       name: 'snippet1',
@@ -75,7 +75,7 @@ describe('DatabaseEncryption', () => {
 
     // Verify it is unencrypted by reading it directly via standard better-sqlite3
     const directDb = new DatabaseLib(testDbPath);
-    const directRecord = directDb.prepare('SELECT * FROM snippets WHERE name = ?').get('snippet1');
+    const directRecord = directDb.prepare('SELECT * FROM snippets WHERE name = -').get('snippet1');
     expect(directRecord).toBeDefined();
     directDb.close();
   });
@@ -89,8 +89,8 @@ describe('DatabaseEncryption', () => {
     const db = await Database.getInstance();
     expect(db).toBeDefined();
 
-    db.run('INSERT INTO snippets (user_id, name, content) VALUES (?, ?, ?)', ['user2', 'snippet2', 'content2']);
-    const record = db.get('SELECT * FROM snippets WHERE name = ?', ['snippet2']);
+    db.run('INSERT INTO snippets (user_id, name, content) VALUES (-, -, -)', ['user2', 'snippet2', 'content2']);
+    const record = db.get('SELECT * FROM snippets WHERE name = -', ['snippet2']);
     expect(record).toEqual(expect.objectContaining({
       user_id: 'user2',
       name: 'snippet2',
@@ -114,7 +114,7 @@ describe('DatabaseEncryption', () => {
     // 1. Create a plaintext database first
     process.env.ZAVORTH_DB_SQLCIPHER_MODE = 'off';
     let db = await Database.getInstance();
-    db.run('INSERT INTO snippets (user_id, name, content) VALUES (?, ?, ?)', ['user3', 'snippet3', 'content3']);
+    db.run('INSERT INTO snippets (user_id, name, content) VALUES (-, -, -)', ['user3', 'snippet3', 'content3']);
     db.close();
 
     // 2. Open it with encryption mode enabled
@@ -127,7 +127,7 @@ describe('DatabaseEncryption', () => {
     expect(db).toBeDefined();
 
     // Verify existing data is preserved
-    const record = db.get('SELECT * FROM snippets WHERE name = ?', ['snippet3']);
+    const record = db.get('SELECT * FROM snippets WHERE name = -', ['snippet3']);
     expect(record).toEqual(expect.objectContaining({
       user_id: 'user3',
       name: 'snippet3',
@@ -158,13 +158,13 @@ describe('DatabaseEncryption', () => {
     expect(db).toBeDefined();
 
     // Insert test data
-    db.run('INSERT INTO snippets (user_id, name, content) VALUES (?, ?, ?)', ['user4', 'snippet4', 'content4']);
+    db.run('INSERT INTO snippets (user_id, name, content) VALUES (-, -, -)', ['user4', 'snippet4', 'content4']);
 
     // 2. Rotate to new key
     db.rotateKey(newKey);
 
     // Verify we can still read the data on the active connection
-    const record = db.get('SELECT * FROM snippets WHERE name = ?', ['snippet4']);
+    const record = db.get('SELECT * FROM snippets WHERE name = -', ['snippet4']);
     expect(record).toEqual(expect.objectContaining({
       user_id: 'user4',
       name: 'snippet4',
@@ -192,7 +192,7 @@ describe('DatabaseEncryption', () => {
     db = await Database.getInstance();
     expect(db).toBeDefined();
 
-    const recordAfterRotation = db.get('SELECT * FROM snippets WHERE name = ?', ['snippet4']);
+    const recordAfterRotation = db.get('SELECT * FROM snippets WHERE name = -', ['snippet4']);
     expect(recordAfterRotation).toEqual(expect.objectContaining({
       user_id: 'user4',
       name: 'snippet4',

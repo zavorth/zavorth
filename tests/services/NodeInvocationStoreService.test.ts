@@ -35,7 +35,7 @@ describe('NodeInvocationStoreService', () => {
     const completed = service.complete('oracle-node', {
       invocationId: queued.id,
       ok: true,
-      resultSummary: 'Executado.',
+      resultSummary: 'Executed.',
       stdout: 'ok',
       exitCode: 0,
     });
@@ -51,7 +51,7 @@ describe('NodeInvocationStoreService', () => {
         id: queued.id,
         status: 'completed',
         ok: true,
-        resultSummary: 'Executado.',
+        resultSummary: 'Executed.',
         output: expect.objectContaining({
           stdout: 'ok',
           exitCode: 0,

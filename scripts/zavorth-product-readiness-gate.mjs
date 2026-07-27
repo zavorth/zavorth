@@ -208,7 +208,7 @@ function runCheck(entry) {
     command: commandText(entry.command),
     durationMs: Date.now() - started,
     summary: summarizeOutput(output, status),
-    details: status === 'passed' ? [] : output.split(/\r?\n/).slice(-30),
+    details: status === 'passed' ? [] : output.split(/\r...\n/).slice(-30),
   };
 }
 
@@ -236,7 +236,7 @@ function inferLiveStatus(output) {
 
 function summarizeOutput(output, status) {
   if (!output) return status === 'passed' ? 'completed without output' : 'failed without output';
-  const lines = output.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const lines = output.split(/\r...\n/).map((line) => line.trim()).filter(Boolean);
   const interesting = lines.find((line) => /status=|passed|failed|needs|summary|checking/i.test(line));
   return interesting || lines[0] || status;
 }
@@ -272,7 +272,7 @@ function buildNextActions(failed, liveWarnings, missingDocs) {
   if (actions.length === 0) {
     actions.push({
       label: 'Run real daily QA',
-      command: 'zavorth setup && zavorth && zavorth ask "what is your current state?"',
+      command: 'zavorth setup && zavorth && zavorth ask "what is your current state..."',
       detail: 'Use real provider/channel credentials for final human validation.',
     });
   }

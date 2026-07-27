@@ -15,7 +15,7 @@ export const CAPABILITY_PROVISION_SPECS: Record<string, CapabilityProvisionSpec>
     id: 'media',
     dependencies: ['msedge-tts', 'ffmpeg-static', 'pdf-parse', 'youtube-dl-exec'],
     cleanupPaths: [],
-    notes: 'Provisiona TTS, ffmpeg, leitor de PDF e fallback de yt-dlp.',
+    notes: 'Provisions TTS, ffmpeg, PDF reader and yt-dlp fallback.',
   },
   remote: {
     id: 'remote',
@@ -32,13 +32,13 @@ export const CAPABILITY_PROVISION_SPECS: Record<string, CapabilityProvisionSpec>
       config.zavorthPublicTunnelStateFile,
       config.zavorthPublicTunnelLogFile,
     ],
-    notes: 'Provisiona dependencias opcionais da trilha remota.',
+    notes: 'Provisions optional remote trail dependencies.',
   },
   qa: {
     id: 'qa',
     dependencies: [],
     cleanupPaths: [path.resolve(config.projectRoot, 'data', 'runtime', 'visual-smoke')],
-    notes: 'Mantem apenas a trilha de QA visual efemera.',
+    notes: 'Keeps only the ephemeral visual QA trail.',
   },
   sandbox: {
     id: 'sandbox',
@@ -46,7 +46,7 @@ export const CAPABILITY_PROVISION_SPECS: Record<string, CapabilityProvisionSpec>
     cleanupPaths: [
       path.resolve(config.projectRoot, 'data', 'firecracker'),
     ],
-    notes: 'A trilha sandbox depende de bootstrap do host, nao de pacotes npm.',
+    notes: 'The sandbox trail depends on host bootstrap, not npm packages.',
   },
 };
 
@@ -58,7 +58,7 @@ export function resolveCapabilityProvisionSpec(capabilityId: string): Capability
   const normalizedId = String(capabilityId || '').trim().toLowerCase();
   const spec = CAPABILITY_PROVISION_SPECS[normalizedId];
   if (!spec) {
-    throw new Error(`Capability desconhecida. Use uma de: ${Object.keys(CAPABILITY_PROVISION_SPECS).join(', ')}`);
+    throw new Error(`Unknown capability. Use one of: ${Object.keys(CAPABILITY_PROVISION_SPECS).join(', ')}`);
   }
   return spec;
 }
@@ -72,18 +72,18 @@ export function assertSafeProjectPath(targetPath: string): string {
   const absolute = path.resolve(targetPath);
   const relative = path.relative(config.projectRoot, absolute);
   if (relative.startsWith('..') || path.isAbsolute(relative)) {
-    throw new Error(`Path fora da raiz do projeto bloqueado: ${absolute}`);
+    throw new Error(`Path outside project root blocked: ${absolute}`);
   }
   return absolute;
 }
 
 export function installCapabilityDependencies(spec: CapabilityProvisionSpec): void {
   if (spec.dependencies.length === 0) {
-    console.log(`[capability-provision] ${spec.id}: sem dependencias npm opcionais para instalar.`);
+    console.log(`[capability-provision] ${spec.id}: no optional npm dependencies to install.`);
     return;
   }
 
-  console.log(`[capability-provision] Instalando dependencias da capability ${spec.id}: ${spec.dependencies.join(', ')}`);
+  console.log(`[capability-provision] Installing dependencies for capability ${spec.id}: ${spec.dependencies.join(', ')}`);
   const result = spawnSync(
     getNpmCommand(),
     ['install', '--no-save', ...spec.dependencies],
@@ -94,7 +94,7 @@ export function installCapabilityDependencies(spec: CapabilityProvisionSpec): vo
     },
   );
   if (result.status !== 0) {
-    throw new Error(`Falha ao instalar dependencias da capability ${spec.id}.`);
+    throw new Error(`Failed to install dependencies for capability ${spec.id}.`);
   }
 }
 
@@ -108,7 +108,7 @@ export function cleanCapabilityArtifacts(spec: CapabilityProvisionSpec): string[
     fs.rmSync(safePath, { recursive: true, force: true });
     removedPaths.push(path.relative(config.projectRoot, safePath).replace(/\\/g, '/'));
   }
-  console.log(`[capability-provision] Cleanup da capability ${spec.id}: ${removedPaths.length} alvo(s) removido(s).`);
+  console.log(`[capability-provision] Cleanup for capability ${spec.id}: ${removedPaths.length} target(s) removed.`);
   return removedPaths;
 }
 

@@ -14,14 +14,14 @@ async function main() {
   }
 
   console.log('[transports] doctor');
-  console.log(`[transports] resumo: ${report.summary}`);
+  console.log(`[transports] summary: ${report.summary}`);
   console.log(`[transports] status: ${report.status}`);
   for (const item of report.items) {
     console.log(
       `[transports] ${item.transportId}: ${item.status} | readiness=${item.readiness} | kind=${item.kind} | ${item.summary}`,
     );
     if (item.error) {
-      console.log(`[transports] ${item.transportId} erro: ${item.error}`);
+      console.log(`[transports] ${item.transportId} error: ${item.error}`);
     }
     if (item.details.length > 0) {
       for (const detail of item.details) {
@@ -36,6 +36,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(`[transports] doctor falhou: ${error.message || error}`);
+  console.error(`[transports] doctor failed: ${error.message || error}`);
   process.exitCode = 1;
 });

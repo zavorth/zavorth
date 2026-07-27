@@ -143,8 +143,8 @@ function createQaServer(state: QaState): Promise<{ server: http.Server; url: str
     if (pathname === "/api/web/catalog") {
       json(res, {
         skills: [
-          { id: "web.search", title: "Pesquisar na web", summary: "Pesquisa fontes recentes e confiaveis.", status: "pronta" },
-          { id: "file.inspect", title: "Inspecionar arquivo", summary: "Le arquivos textuais anexados ou caminhos locais seguros.", status: "local" },
+          { id: "web.search", title: "Search the web", summary: "Searches recent and trusted sources.", status: "ready" },
+          { id: "file.inspect", title: "Inspecionar file", summary: "Le files textuais anexados ou caminhos locais seguros.", status: "local" },
         ],
       });
       return;
@@ -183,13 +183,12 @@ function createQaServer(state: QaState): Promise<{ server: http.Server; url: str
       state.messages.push({ id: `user-${state.messages.length + 1}`, role: "user", content: message });
 
       const unsupportedAttachments = attachments.filter((attachment) => !String(attachment?.text || "").trim());
-      const reply = attachments.length > 0 && unsupportedAttachments.length === attachments.length
-        ? "Recebi o anexo, mas ele chegou apenas como metadados. Envie texto, cole o conteudo ou aponte um caminho local para analise real."
+      const reply = attachments.length > 0 && unsupportedAttachments.length === attachments.length ? "I received the attachment, but it arrived only as metadata. Send text, paste the content, or point to a local path for real analysis."
         : [
             "Recebi pelo composer real.",
-            attachments.length ? `Anexos: ${attachments.map((item) => item.name).join(", ")}.` : "Sem anexos.",
-            selectedSkills.length ? `Skills: ${selectedSkills.map((item) => item.id).join(", ")}.` : "Sem skill selecionada.",
-            voice ? `Voz: ${voice.transcript}.` : "Sem voz.",
+            attachments.length ? `Anexos: ${attachments.map((item) => item.name).join(", ")}.` : "without anexos.",
+            selectedSkills.length ? `Skills: ${selectedSkills.map((item) => item.id).join(", ")}.` : "without skill selecionada.",
+            voice ? `Voz: ${voice.transcript}.` : "without voz.",
           ].join(" ");
 
       state.messages.push({ id: `assistant-${state.messages.length + 1}`, role: "assistant", content: reply, kind: "composer-affordance" });
@@ -230,7 +229,7 @@ function createQaServer(state: QaState): Promise<{ server: http.Server; url: str
   return new Promise((resolve) => {
     server.listen(0, "127.0.0.1", () => {
       const address = server.address();
-      if (!address || typeof address === "string") throw new Error("Nao foi possivel abrir servidor local de QA do composer.");
+      if (!address || typeof address === "string") throw new Error("Could not open local composer QA server.");
       resolve({ server, url: `http://127.0.0.1:${address.port}/zavorthControl` });
     });
   });
@@ -285,9 +284,9 @@ async function waitForPayloadCount(state: QaState, expected: number, timeoutMs =
   return false;
 }
 
-async function installSpeechRecognitionStub(page: any, transcript: string): Promise<void> {
+async function installSpeechRecognitionHarness(page: any, transcript: string): Promise<void> {
   await page.addInitScript((spokenText: string) => {
-    class FakeSpeechRecognition {
+    class TestSpeechRecognition {
       lang = "en-US";
       interimResults = true;
       maxAlternatives = 1;
@@ -308,8 +307,8 @@ async function installSpeechRecognitionStub(page: any, transcript: string): Prom
         this.onend?.();
       }
     }
-    (window as any).SpeechRecognition = FakeSpeechRecognition;
-    (window as any).webkitSpeechRecognition = FakeSpeechRecognition;
+    (window as any).SpeechRecognition = TestSpeechRecognition;
+    (window as any).webkitSpeechRecognition = TestSpeechRecognition;
   }, transcript);
 }
 
@@ -322,7 +321,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
   try {
     fs.mkdirSync(options.outDir, { recursive: true });
     const page = await browser.newPage({ viewport: { width: 1440, height: 980 }, deviceScaleFactor: 1 });
-    await installSpeechRecognitionStub(page, "analise este pedido por voz");
+    await installSpeechRecognitionHarness(page, "analyze this voice request");
     await page.goto(url, { waitUntil: "networkidle", timeout: 30_000 });
     await page.waitForSelector("#compose-input", { timeout: 15_000 });
     await page.waitForSelector("#boot-gate.hidden", { timeout: 10_000 });
@@ -340,10 +339,10 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     }));
     report.metrics.shellState = shellState;
     pushCheck(report, "composer-buttons-exist", shellState.hasComposer && shellState.hasAttach && shellState.hasSkills && shellState.hasVoice, "Composer preserva botoes de anexo, skills e voz.");
-    pushCheck(report, "runtime-unlocked-for-composer-qa", shellState.authState === "unlocked", "Runtime mockado esta desbloqueado para testar payload real.");
+    pushCheck(report, "runtime-unlocked-for-composer-qa", shellState.authState === "unlocked", "Runtime harness is unlocked for real payload validation.");
 
     const fileInput = page.locator('input[type="file"]:not([webkitdirectory]):not([directory])');
-    await fileInput.setInputFiles({ name: "notas.txt", mimeType: "text/plain", buffer: Buffer.from("linha 1: Zavorth deve ler este anexo textual.\nlinha 2: nao criar artefato falso.", "utf8") });
+    await fileInput.setInputFiles({ name: "notes.txt", mimeType: "text/plain", buffer: Buffer.from("line 1: Zavorth should read this text attachment.\nline 2: do not create a false artifact.", "utf8") });
     await page.waitForSelector(".compose-attachment-chip", { timeout: 10_000 });
     const attachmentChipState = await page.evaluate(() => ({
       chips: document.querySelectorAll(".compose-attachment-chip").length,
@@ -352,15 +351,15 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       placeholder: (document.getElementById("compose-input") as HTMLTextAreaElement | null)?.placeholder || "",
     }));
     report.metrics.attachmentChipState = attachmentChipState;
-    pushCheck(report, "attachment-chip-visible-before-send", attachmentChipState.chips === 1 && /notas\.txt/i.test(attachmentChipState.chipText), "Arquivo anexado aparece como chip antes de enviar.");
-    pushCheck(report, "attachment-activates-send", attachmentChipState.sendActive && /arquivo/i.test(attachmentChipState.placeholder), "Anexo ativa envio e orienta o usuario a dizer o que fazer.");
+    pushCheck(report, "attachment-chip-visible-before-send", attachmentChipState.chips === 1 && /notas\.txt/i.test(attachmentChipState.chipText), "Attached file appears as a chip before sending.");
+    pushCheck(report, "attachment-activates-send", attachmentChipState.sendActive && /file/i.test(attachmentChipState.placeholder), "Attachment enables sending and guides the user to say what to do.");
 
-    await sendComposerMessage(page, "resuma o arquivo em uma frase");
+    await sendComposerMessage(page, "summarize the file in one sentence");
     pushCheck(report, "attachment-send-reaches-runtime", await waitForPayloadCount(state, 1), "Envio com anexo chegou ao endpoint de chat.");
     const attachmentPayload = state.sentPayloads[0] || {};
     report.metrics.attachmentPayload = attachmentPayload;
-    pushCheck(report, "attachment-payload-has-text-preview", Array.isArray(attachmentPayload.attachments) && attachmentPayload.attachments[0]?.name === "notas.txt" && /Zavorth deve ler/i.test(String(attachmentPayload.attachments[0]?.text || "")), "Payload carrega nome, metadados e preview textual do anexo.");
-    pushCheck(report, "attachment-message-does-not-leak-context", String(attachmentPayload.message || "") === "resuma o arquivo em uma frase" && !/Contexto dos arquivos anexados|Arquivo 1:/i.test(String(attachmentPayload.message || "")), "Mensagem visivel continua humana; contexto do arquivo viaja separado no payload.");
+    pushCheck(report, "attachment-payload-has-text-preview", Array.isArray(attachmentPayload.attachments) && attachmentPayload.attachments[0]?.name === "notes.txt" && /Zavorth deve ler/i.test(String(attachmentPayload.attachments[0]?.text || "")), "Payload carrega nome, metadados e preview textual do anexo.");
+    pushCheck(report, "attachment-message-does-not-leak-context", String(attachmentPayload.message || "") === "summarize the file in one sentence" && !/Attached files context|File 1:/i.test(String(attachmentPayload.message || "")), "Visible message stays human; file context travels separately in the payload.");
     await page.waitForSelector(".chat-attachment-card", { timeout: 10_000 });
     const sentAttachmentState = await page.evaluate(() => ({
       cards: document.querySelectorAll(".chat-attachment-card").length,
@@ -370,8 +369,8 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       operatorPreBlocks: document.querySelectorAll(".echo-group.operator pre").length,
     }));
     report.metrics.sentAttachmentState = sentAttachmentState;
-    pushCheck(report, "attachment-card-is-visual-not-raw-html", sentAttachmentState.cards >= 1 && /TXT/i.test(sentAttachmentState.iconText) && /notas/i.test(sentAttachmentState.bodyText), "Anexo enviado aparece como card visual compacto, nao bloco preto com HTML.");
-    pushCheck(report, "attachment-card-does-not-render-code-block", !sentAttachmentState.rawHtmlLeak && sentAttachmentState.operatorPreBlocks === 0, "Anexo enviado nao vaza HTML nem vira code block.");
+    pushCheck(report, "attachment-card-is-visual-not-raw-html", sentAttachmentState.cards >= 1 && /TXT/i.test(sentAttachmentState.iconText) && /notas/i.test(sentAttachmentState.bodyText), "Sent attachment appears as a compact visual card, not a black HTML block.");
+    pushCheck(report, "attachment-card-does-not-render-code-block", !sentAttachmentState.rawHtmlLeak && sentAttachmentState.operatorPreBlocks === 0, "Sent attachment does not leak HTML or become a code block.");
 
     const attachmentScreenshot = path.join(options.outDir, "02-attachment-sent.png");
     await page.screenshot({ path: attachmentScreenshot, fullPage: true });
@@ -390,15 +389,15 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     }, null, { timeout: 10_000 });
     const skillOptions = await page.evaluate(() => Array.from(document.querySelectorAll(".compose-skill-option")).map((node) => ({ id: (node as HTMLElement).dataset.skillId || "", text: node.textContent || "" })));
     report.metrics.skillOptions = skillOptions;
-    pushCheck(report, "skills-popover-uses-runtime-catalog", skillOptions.some((skill: any) => skill.id === "web.search"), "Popover de skills le catalogo real do runtime bridge.");
+    pushCheck(report, "skills-popover-uses-runtime-catalog", skillOptions.some((skill: any) => skill.id === "web.search"), "Popover de skills le catalog real do runtime bridge.");
     await page.locator('.compose-skill-option[data-skill-id="web.search"]').click({ force: true });
     const afterSkillInput = await page.locator("#compose-input").inputValue();
-    pushCheck(report, "skill-selection-prepares-prompt", /Pesquisar na web|Use Pesquisar na web/i.test(afterSkillInput), "Selecionar skill prepara o pedido no composer sem executar sozinho.");
-    await sendComposerMessage(page, "traga duas fontes confiaveis");
+    pushCheck(report, "skill-selection-prepares-prompt", /Search the web|Use Search the web/i.test(afterSkillInput), "Selecting a skill prepara o request no composer without run sozinho.");
+    await sendComposerMessage(page, "bring two trusted sources");
     pushCheck(report, "skill-send-reaches-runtime", await waitForPayloadCount(state, 2), "Envio com skill chegou ao endpoint de chat.");
     const skillPayload = state.sentPayloads[1] || {};
     report.metrics.skillPayload = skillPayload;
-    pushCheck(report, "selected-skill-payload-preserved", Array.isArray(skillPayload.selectedSkills) && skillPayload.selectedSkills.some((skill) => skill.id === "web.search"), "Payload preserva selectedSkills para o roteador sem depender de banco de palavras.");
+    pushCheck(report, "selected-skill-payload-preserved", Array.isArray(skillPayload.selectedSkills) && skillPayload.selectedSkills.some((skill) => skill.id === "web.search"), "Payload preserva selectedSkills para o roteador without depender de banco de palavras.");
 
     const skillScreenshot = path.join(options.outDir, "03-skill-sent.png");
     await page.screenshot({ path: skillScreenshot, fullPage: true });
@@ -407,8 +406,8 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     await page.addScriptTag({
       content: `
         (() => {
-          const spokenText = "analise este pedido por voz";
-          function FakeSpeechRecognition() {
+          const spokenText = "analyze this voice request";
+          function TestSpeechRecognition() {
             this.lang = "en-US";
             this.interimResults = true;
             this.maxAlternatives = 1;
@@ -416,7 +415,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
             this.onresult = null;
             this.onend = null;
           }
-          FakeSpeechRecognition.prototype.start = function() {
+          TestSpeechRecognition.prototype.start = function() {
             const self = this;
             setTimeout(() => self.onstart && self.onstart(), 0);
             setTimeout(() => {
@@ -426,27 +425,27 @@ async function runQa(options: CliOptions): Promise<QaReport> {
             }, 30);
             setTimeout(() => self.onend && self.onend(), 80);
           };
-          FakeSpeechRecognition.prototype.stop = function() {
+          TestSpeechRecognition.prototype.stop = function() {
             if (this.onend) this.onend();
           };
-          window.SpeechRecognition = FakeSpeechRecognition;
-          window.webkitSpeechRecognition = FakeSpeechRecognition;
+          window.SpeechRecognition = TestSpeechRecognition;
+          window.webkitSpeechRecognition = TestSpeechRecognition;
         })();
       `,
     });
     await page.locator('#voice-trigger, .compose-dock__btn[title="Voz"], .compose-dock__btn[title="Voice"]').click();
     await page.waitForFunction(() => {
       const input = document.getElementById("compose-input") as HTMLTextAreaElement | null;
-      return /analise este pedido por voz/i.test(input?.value || "");
+      return /analyze this voice request/i.test(input?.value || "");
     }, null, { timeout: 10_000 });
     const voiceInputState = await page.evaluate(() => ({ value: (document.getElementById("compose-input") as HTMLTextAreaElement | null)?.value || "", overlayHidden: document.getElementById("voice-listening-overlay")?.classList.contains("hidden") || false }));
     report.metrics.voiceInputState = voiceInputState;
-    pushCheck(report, "voice-transcript-enters-composer", /analise este pedido por voz/i.test(voiceInputState.value), "Ditado por voz injeta transcricao no composer.");
+    pushCheck(report, "voice-transcript-enters-composer", /analyze this voice request/i.test(voiceInputState.value), "Ditado por voz injeta transcription no composer.");
     await sendComposerMessage(page);
     pushCheck(report, "voice-send-reaches-runtime", await waitForPayloadCount(state, 3), "Envio com voz chegou ao endpoint de chat.");
     const voicePayload = state.sentPayloads[2] || {};
     report.metrics.voicePayload = voicePayload;
-    pushCheck(report, "voice-payload-preserved", /analise este pedido por voz/i.test(String(voicePayload.voice?.transcript || "")), "Payload preserva transcricao, idioma e origem da voz.");
+    pushCheck(report, "voice-payload-preserved", /analyze this voice request/i.test(String(voicePayload.voice?.transcript || "")), "Payload preserves transcription, language, and voice origin.");
 
     const voiceScreenshot = path.join(options.outDir, "04-voice-sent.png");
     await page.screenshot({ path: voiceScreenshot, fullPage: true });
@@ -460,19 +459,19 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     await binaryPage.evaluate(() => {
       const input = document.getElementById("compose-input") as HTMLTextAreaElement | null;
       if (input) {
-        input.value = "o que tem nesta imagem?";
+        input.value = "o que tem nis imagem...";
         input.dispatchEvent(new Event("input", { bubbles: true }));
       }
     });
     await binaryPage.evaluate(() => document.getElementById("send-btn")?.click());
-    pushCheck(report, "binary-attachment-send-reaches-runtime", await waitForPayloadCount(state, 4), "Anexo binario tambem chega como metadados ao runtime.");
+    pushCheck(report, "binary-attachment-send-reaches-runtime", await waitForPayloadCount(state, 4), "Binary attachment also reaches the runtime as metadata.");
     const binaryPayload = state.sentPayloads[3] || {};
-    await binaryPage.waitForFunction(() => /metadados|cole o conteudo|caminho local/i.test(document.body.innerText), null, { timeout: 10_000 });
+    await binaryPage.waitForFunction(() => /metadata|paste the content|local path/i.test(document.body.innerText), null, { timeout: 10_000 });
     const binaryState = await binaryPage.evaluate(() => ({ artifactCards: document.querySelectorAll(".zavorth-artifact-card").length, approvalCards: document.querySelectorAll(".zavorth-approval-card").length }));
     report.metrics.binaryPayload = binaryPayload;
     report.metrics.binaryState = binaryState;
-    pushCheck(report, "binary-attachment-is-honest-metadata", Array.isArray(binaryPayload.attachments) && binaryPayload.attachments[0]?.name === "foto.png" && !binaryPayload.attachments[0]?.text, "Imagem sem OCR/vision nao finge conteudo; envia metadados honestos.");
-    pushCheck(report, "binary-attachment-does-not-create-fake-artifact", binaryState.artifactCards === 0 && binaryState.approvalCards === 0, "Anexo sem preview nao cria artefato ou approval falso.");
+    pushCheck(report, "binary-attachment-is-honest-metadata", Array.isArray(binaryPayload.attachments) && binaryPayload.attachments[0]?.name === "foto.png" && !binaryPayload.attachments[0]?.text, "Image without OCR/vision does not synthetic content; it sends honest metadata.");
+    pushCheck(report, "binary-attachment-does-not-create-synthetic-artifact", binaryState.artifactCards === 0 && binaryState.approvalCards === 0, "Attachment without preview does not create synthetic artifact or approval.");
 
     const binaryScreenshot = path.join(options.outDir, "05-binary-unsupported.png");
     await binaryPage.screenshot({ path: binaryScreenshot, fullPage: true });
@@ -488,10 +487,10 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       if (feed) feed.innerHTML = "";
     });
     await noVoicePage.locator('#voice-trigger, .compose-dock__btn[title="Voz"], .compose-dock__btn[title="Voice"]').click();
-    await noVoicePage.waitForFunction(() => /Voz ainda|Voice is not available|digite|type or paste|texto transcrito|transcribed text/i.test(document.body.innerText), null, { timeout: 10_000 });
-    const noVoiceState = await noVoicePage.evaluate(() => ({ hasNotice: /Voz ainda|Voice is not available|digite|type or paste|texto transcrito|transcribed text/i.test(document.body.innerText), artifactCards: document.querySelectorAll(".zavorth-artifact-card").length, approvalCards: document.querySelectorAll(".zavorth-approval-card").length }));
+    await noVoicePage.waitForFunction(() => /Voice is not available|type or paste|transcribed text/i.test(document.body.innerText), null, { timeout: 10_000 });
+    const noVoiceState = await noVoicePage.evaluate(() => ({ hasNotice: /Voice is not available|type or paste|transcribed text/i.test(document.body.innerText), artifactCards: document.querySelectorAll(".zavorth-artifact-card").length, approvalCards: document.querySelectorAll(".zavorth-approval-card").length }));
     report.metrics.noVoiceState = noVoiceState;
-    pushCheck(report, "voice-unsupported-shows-honest-notice", noVoiceState.hasNotice && noVoiceState.artifactCards === 0 && noVoiceState.approvalCards === 0, "Sem SpeechRecognition, botao de voz mostra aviso honesto e nao finge funcionamento.");
+    pushCheck(report, "voice-unsupported-shows-honest-notice", noVoiceState.hasNotice && noVoiceState.artifactCards === 0 && noVoiceState.approvalCards === 0, "Without SpeechRecognition, voice button shows an honest notice and does not synthetic operation.");
 
     const noVoiceScreenshot = path.join(options.outDir, "06-voice-unsupported.png");
     await noVoicePage.screenshot({ path: noVoiceScreenshot, fullPage: true });

@@ -34,8 +34,8 @@ const missingReadiness: CapabilityReadinessSnapshot = {
   severity: 'error',
   ready: false,
   safeToRun: false,
-  summary: 'Gemini CLI ainda nao esta pronto.',
-  detail: 'Autenticacao ausente.',
+  summary: 'Gemini CLI ainda not esta ready.',
+  detail: 'Autenticaction missing.',
   checkedTargets: [],
   missingRequirements: [],
   blockingReason: 'missing_auth',
@@ -50,7 +50,7 @@ const readyReadiness: CapabilityReadinessSnapshot = {
   severity: 'info',
   ready: true,
   safeToRun: true,
-  summary: 'Gemini CLI esta pronto.',
+  summary: 'Gemini CLI esta ready.',
   detail: 'Readiness passou.',
   blockingReason: null,
 };
@@ -62,7 +62,7 @@ function createRepairPlan(): CapabilityRepairPlan {
     diagnosisId: 'diagnosis-preflight',
     createdAt: FIXED_NOW.toISOString(),
     status: 'validated',
-    summary: 'Plano anterior validado.',
+    summary: 'Previous plan validated.',
     riskLevel: 5,
     trustLevelRequired: 'collaborator',
     permissionRequirements: [],
@@ -94,8 +94,8 @@ function createReceipt(overrides: Partial<CapabilityReceipt> = {}): CapabilityRe
     audience: 'everyday_user',
     capabilityId: 'executor-gemini-cli',
     capabilityLabel: 'Gemini CLI',
-    headline: 'Gemini CLI esta pronto.',
-    userSummary: 'Readiness validado.',
+    headline: 'Gemini CLI esta ready.',
+    userSummary: 'Readiness validated.',
     technicalSummary: 'ready',
     trustLevel: 'collaborator',
     readiness: validation?.success ? readyReadiness : missingReadiness,
@@ -135,7 +135,7 @@ describe('CapabilityAutopilotPreflightHintService', () => {
         label: 'Use Codex',
         executorName: 'codex',
         capabilityId: 'executor-codex',
-        reason: 'Fallback visivel.',
+        reason: 'Fallback visible.',
         requiresPermission: true,
         policyAllowed: null,
       },
@@ -170,7 +170,7 @@ describe('CapabilityAutopilotPreflightHintService', () => {
         rawWorkspaceStored: false,
       },
     });
-    expect(result.userSummary).toContain('nao vou trocar de executor sem voce escolher');
+    expect(result.userSummary).toContain('will not switch de executor unless you choose');
     expect(serialized).not.toContain(RAW_INTENT);
     expect(serialized).not.toContain(RAW_WORKSPACE);
   });
@@ -201,7 +201,7 @@ describe('CapabilityAutopilotPreflightHintService', () => {
       requiresExplicitUserChoice: false,
       shouldRunAutomatically: false,
     });
-    expect(result.headline).toBe('Ja vi um caso parecido que terminou pronto para retomar.');
+    expect(result.headline).toBe('I have seen a similar case that ended ready to resume.');
   });
 
   it('falls back to normal diagnosis when there is no useful memory', async () => {

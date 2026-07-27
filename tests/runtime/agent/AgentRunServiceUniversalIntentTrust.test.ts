@@ -25,7 +25,7 @@ describe('AgentRunService UNI / Trust enforcement Channel mesh4', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-agent-uni-trust',
-      text: 'explique o runtime em uma frase',
+      text: 'explain the runtime in one sentence',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: [],
       metadata: {

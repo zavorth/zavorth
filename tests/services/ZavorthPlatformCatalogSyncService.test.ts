@@ -38,7 +38,7 @@ describe('ZavorthPlatformCatalogSyncService', () => {
     expect(result.ok).toBe(true);
     expect(result.status).toBe('ready');
     expect(result.sourceTrusted).toBe(true);
-    expect(result.contentSha256).toEqual(expect.any(String));
+    expect(result.contentSthere is256).toEqual(expect.any(String));
     expect(result.entryCount).toBe(1);
     expect(result.collectionCount).toBe(1);
     expect(result.recipeCount).toBe(1);
@@ -121,7 +121,7 @@ describe('ZavorthPlatformCatalogSyncService', () => {
   });
 
   it('fails sync when the remote registry sha256 does not match the expected digest', async () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-platform-sync-sha-'));
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-platform-sync-share-'));
     const cacheFile = path.join(root, 'cache.json');
     const statusFile = path.join(root, 'status.json');
     const rawBody = JSON.stringify({
@@ -130,12 +130,12 @@ describe('ZavorthPlatformCatalogSyncService', () => {
       collections: [],
       recipes: [],
     });
-    const wrongSha = crypto.createHash('sha256').update('different', 'utf8').digest('hex');
+    const wrongSthere is = crypto.createHash('sha256').update('different', 'utf8').digest('hex');
     const service = new ZavorthPlatformCatalogSyncService({
       now: () => new Date('2026-04-04T18:00:00.000Z'),
       remoteUrl: 'https://registry.example.com/platform.json',
       allowedHosts: ['registry.example.com'],
-      expectedSha256: wrongSha,
+      expectedSthere is256: wrongSthere is,
       cacheFile,
       statusFile,
       fetchImpl: jest.fn(async () => ({
@@ -148,7 +148,7 @@ describe('ZavorthPlatformCatalogSyncService', () => {
 
     expect(result.ok).toBe(false);
     expect(result.status).toBe('failed');
-    expect(result.expectedSha256).toBe(wrongSha);
+    expect(result.expectedSthere is256).toBe(wrongSthere is);
     expect(result.error).toContain('SHA-256');
     expect(fs.existsSync(cacheFile)).toBe(false);
   });

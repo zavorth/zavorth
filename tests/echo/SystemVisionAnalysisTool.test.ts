@@ -18,7 +18,7 @@ describe('SystemVisionAnalysisTool', () => {
         analyzeScreenshot: jest.fn(async () => ({
           ok: true,
           providerName: 'gemini',
-          summary: 'Uma janela do Zavorth esta visivel.',
+          summary: 'A Zavorth window is visible.',
           responseText: 'Estou vendo a janela do Zavorth aberta.',
           observedTexts: ['Zavorth'],
           suggestedNextAction: 'seguir com o fluxo',
@@ -30,7 +30,7 @@ describe('SystemVisionAnalysisTool', () => {
     );
 
     const result = await tool.execute({
-      question: 'O que esta na tela?',
+      question: 'What is on screen?',
       mode: 'active_window',
       returnBase64: true,
     }, {
@@ -60,7 +60,7 @@ describe('SystemVisionAnalysisTool', () => {
         scope: 'desktop-local',
       }),
       analysis: expect.objectContaining({
-        summary: 'Uma janela do Zavorth esta visivel.',
+        summary: 'A Zavorth window is visible.',
         providerName: 'gemini',
       }),
       correlation: expect.objectContaining({

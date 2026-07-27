@@ -24,7 +24,7 @@ function createInstallJourneyFixture() {
   const now = new Date().toISOString();
   const readiness = {
     generatedAt: now,
-    summary: 'Zavorth pronto para uso local e remoto',
+    summary: 'Zavorth ready for local and remote use',
     local: {
       ready: true,
       baseUrl: 'http://127.0.0.1:33333',
@@ -81,11 +81,11 @@ function createInstallJourneyFixture() {
       initial: bootstrapReport,
       steps: [],
       final: bootstrapReport,
-      summary: 'Nenhuma correcao segura disponivel.',
+      summary: 'No safe correction available.',
     },
     startup: null,
     manifest: {
-      summary: 'Zavorth pronto para uso local e remoto',
+      summary: 'Zavorth ready for local and remote use',
       local: {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
@@ -114,7 +114,7 @@ function createInstallJourneyFixture() {
       journey: [
         {
           id: 'install',
-          title: 'Instalacao',
+          title: 'Instalaction',
           description: 'Instale o runtime supervisionado.',
         },
       ],
@@ -127,14 +127,14 @@ function createInstallJourneyFixture() {
     phases: [
       {
         id: 'bootstrap',
-        title: 'Plano de bootstrap',
+        title: 'Bootstrap plan',
         status: 'ready',
         summary: 'Bootstrap ok.',
         command: null,
         details: [],
       },
     ],
-    summary: 'Zavorth pronto para uso local e remoto',
+    summary: 'Zavorth ready for local and remote use',
   } as any;
 }
 
@@ -142,10 +142,10 @@ function createOfficialRemoteAccessFixture() {
   const now = new Date().toISOString();
   return {
     generatedAt: now,
-    summary: 'Acesso remoto oficial pronto.',
+    summary: 'Acesso remoto oficial ready.',
     official: {
       generatedAt: now,
-      summary: 'Zavorth pronto para uso local e remoto',
+      summary: 'Zavorth ready for local and remote use',
       tokenSource: 'env',
       journey: {} as any,
       manifest: {} as any,
@@ -171,13 +171,13 @@ function createOfficialRemoteAccessFixture() {
       nextSteps: [],
     },
     recommendedPathId: 'official',
-    recommendedPathReason: 'O caminho oficial ja esta validado.',
+    recommendedPathReason: 'The official path is already validated.',
     paths: [
       {
         id: 'official',
         label: 'Caminho oficial do app remoto',
         status: 'ready',
-        summary: 'App remoto validado.',
+        summary: 'Remote app validated.',
         command: 'npm run ops:remote:official',
         steps: [],
       },
@@ -204,7 +204,7 @@ function createOfficialRemoteAccessFixture() {
       appUrl: 'https://zavorth.example.com/zavorthControl',
       baseUrl: 'https://zavorth.example.com',
       issues: [],
-      summary: 'Acesso remoto oficial validado.',
+      summary: 'Official remote access validated.',
     },
     actions: {
       canApply: true,
@@ -221,16 +221,16 @@ function createRemoteAccessFixture() {
   const now = new Date().toISOString();
   return {
     generatedAt: now,
-    summary: 'Acesso remoto oficial pronto.',
+    summary: 'Acesso remoto oficial ready.',
     official: {} as any,
     recommendedPathId: 'official',
-    recommendedPathReason: 'O caminho oficial ja esta validado.',
+    recommendedPathReason: 'The official path is already validated.',
     paths: [
       {
         id: 'official',
         label: 'Caminho oficial do app remoto',
         status: 'ready',
-        summary: 'App remoto validado.',
+        summary: 'Remote app validated.',
         command: 'npm run ops:remote:official',
         steps: [],
       },
@@ -332,7 +332,7 @@ describe('ZavorthControlService', () => {
                 approvalId: 'approval-zavorthControl-1',
                 artifactId: null,
                 status: 'approval_required',
-                summary: 'Aguardando confirmacao no zavorthControl.',
+                summary: 'Aguardando confirmation no zavorthControl.',
                 source: 'test',
                 surface: 'telegram',
                 parentId: 'telegram-task-1',
@@ -343,11 +343,11 @@ describe('ZavorthControlService', () => {
             ],
             telegram_surface_summary: {
               titleHint: 'Deploy final',
-            summary: 'Retomando deploy final com foco em revisar os ultimos ajustes.',
-            followupPrompt: 'Retome a conversa que veio do Telegram sobre Deploy final. Revise os ultimos ajustes e siga para o proximo passo util.',
+            summary: 'Resuming final deploy with focus on reviewing the latest adjustments.',
+            followupPrompt: 'Resume the conversation from Telegram about final deploy. Review the latest adjustments and continue to the next useful step.',
             workflowLabel: 'Workflow de entrega',
             recentArtifact: 'Deploy final',
-            activeFocus: 'Deploy final em andamento',
+            activeFocus: 'Final deploy in progress',
             isContinuationRequest: true,
           },
         },
@@ -360,7 +360,7 @@ describe('ZavorthControlService', () => {
         workspace: 'core',
         result_summary: 'Task ativa na web.',
         error_summary: null,
-        raw_message: '/task acompanhar runtime',
+        raw_message: '/task track runtime',
         updated_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
       },
@@ -424,7 +424,7 @@ describe('ZavorthControlService', () => {
             {
               id: 'executor-codex',
               label: 'Codex CLI',
-              description: 'Executa tarefas locais.',
+              description: 'Runs local tasks.',
               command: '/codex',
               usage: '<pedido>',
               section: 'execution',
@@ -435,9 +435,9 @@ describe('ZavorthControlService', () => {
           featuredImplicitRoutes: [
             {
               id: 'route-external-executor-auto',
-              label: 'Investigacao ampla',
+              label: 'Broad investigation',
               description: 'Rota automatica.',
-              routingReason: 'Pedido amplo de investigacao.',
+              routingReason: 'Pedido amplo de investigaction.',
               executorPreference: 'external_executor',
               confidence: 0.82,
             },
@@ -460,7 +460,7 @@ describe('ZavorthControlService', () => {
             featured: [],
           },
           narrative: {
-            headline: 'Zavorth expÃµe 12 capacidades carregadas no core.',
+            headline: 'Zavorth exposes 12 capabilities loaded into the core.',
             operatorSummary: '6 comandos diretos e 3 rotas automaticas.',
           },
         })),
@@ -482,8 +482,8 @@ describe('ZavorthControlService', () => {
               family: 'local',
               readiness: 'ready',
               available: true,
-              operatorSummary: 'Reload supervisionado pronto.',
-              recommendedFor: 'Iteracao local.',
+              operatorSummary: 'Reload supervisionado ready.',
+              recommendedFor: 'Iteraction local.',
               actionHint: '/selfupdate',
               details: ['Reload supervisionado e build local.'],
             },
@@ -493,10 +493,10 @@ describe('ZavorthControlService', () => {
               family: 'container',
               readiness: 'ready',
               available: true,
-              operatorSummary: 'Docker forte pronto.',
+              operatorSummary: 'Docker forte ready.',
               recommendedFor: 'Risco moderado.',
               actionHint: 'npm run sandbox:doctor',
-              details: ['gVisor ativo.'],
+              details: ['gVisor active.'],
             },
             {
               id: 'firecracker-microvm',
@@ -504,15 +504,15 @@ describe('ZavorthControlService', () => {
               family: 'microvm',
               readiness: 'partial',
               available: false,
-              operatorSummary: 'MicroVM em preparo.',
-              recommendedFor: 'Alto risco.',
+              operatorSummary: 'MicroVM preparing.',
+              recommendedFor: 'High risk.',
               actionHint: 'npm run sandbox:firecracker:smoke',
-              details: ['Rootfs ainda em preparo.'],
+              details: ['Rootfs still preparing.'],
             },
           ],
           narrative: {
-            headline: 'Zavorth expÃµe 5 modos de runtime.',
-            operatorSummary: '3 modos prontos e 2 em preparo.',
+            headline: 'Zavorth exposes 5 runtime modes.',
+            operatorSummary: '3 modes ready and 2 preparing.',
           },
         })),
       } as any,
@@ -555,7 +555,7 @@ describe('ZavorthControlService', () => {
                 {
                   id: 'system.run',
                   label: 'System Run',
-                  summary: 'Executa comandos controlados.',
+                  summary: 'Runs controlled commands.',
                   category: 'system',
                   risky: true,
                   actionHint: 'Use com zero-trust.',
@@ -592,7 +592,7 @@ describe('ZavorthControlService', () => {
               {
                 id: 'system.run',
                 label: 'System Run',
-                summary: 'Executa comandos controlados.',
+                summary: 'Runs controlled commands.',
                 category: 'system',
                 risky: true,
                 actionHint: 'Use com zero-trust.',
@@ -606,12 +606,12 @@ describe('ZavorthControlService', () => {
           suggestedActions: [
             {
               label: 'Conectar transporte remoto',
-              reason: 'Falta fechar o invoke plane.',
-              actionHint: 'Use esta fundacao para ligar node-host.',
+              reason: 'Falta close o invoke plane.',
+              actionHint: 'Use this foundation to connect node-host.',
             },
           ],
           narrative: {
-            headline: 'Node Mesh expoe 2 nodes registrados.',
+            headline: 'Node Mesh exposes 2 registered nodes.',
             operatorSummary: '1 pareado e 1 pending.',
           },
         })),
@@ -630,8 +630,8 @@ describe('ZavorthControlService', () => {
             {
               id: 'ship',
               label: 'Ship Team',
-              summary: 'Entrega com implementacao e revisao.',
-              whenToUse: 'Use para fechar uma entrega.',
+              summary: 'Entrega com implementaction e review.',
+              whenToUse: 'Use to close a delivery.',
               entryCommand: '/workflow ship <objetivo>',
               status: 'resumable',
               members: [
@@ -656,12 +656,12 @@ describe('ZavorthControlService', () => {
                 resumeStageLabel: 'ExternalExecutor Reviewer',
                 resumeAvailable: true,
               },
-              operatorSummary: 'Existe retomada pronta para Ship Team.',
+              operatorSummary: 'There is a resume point ready for Ship Team.',
             },
           ],
           narrative: {
-            headline: 'Zavorth expÃµe 3 teams compostos.',
-            operatorSummary: '3 teams compostos e 1 retomada pronta.',
+            headline: 'Zavorth exposes 3 composed teams.',
+            headline: 'Zavorth exposes 3 composed teams.',
           },
         })),
       } as any,
@@ -726,7 +726,7 @@ describe('ZavorthControlService', () => {
               available: true,
               generatedAt: new Date().toISOString(),
               ok: true,
-              summary: 'Nenhum problema relevante detectado.',
+              summary: 'No problema relevante detectado.',
               trailAvailable: true,
               trailDir: '/runtime/security-audit-trail',
               eventsFile: '/runtime/security-audit-trail/events.ndjson',
@@ -752,7 +752,7 @@ describe('ZavorthControlService', () => {
               available: true,
               generatedAt: new Date().toISOString(),
               ok: true,
-              summary: 'Nenhum problema relevante detectado.',
+              summary: 'No problema relevante detectado.',
             },
             needsAttention: false,
           },
@@ -766,8 +766,8 @@ describe('ZavorthControlService', () => {
         readSnapshot: jest.fn(() => ({
           generatedAt: new Date().toISOString(),
           posture: 'watch',
-          headline: 'Briefing operacional com atencao leve.',
-          highlights: ['2/2 sidecars prontos.'],
+          headline: 'Briefing operacional com attention leve.',
+          highlights: ['2/2 sidecars readys.'],
           nextAction: {
             label: 'Rodar doctor',
             command: 'npm run zavorthBridge:remote:doctor',
@@ -875,7 +875,7 @@ describe('ZavorthControlService', () => {
               },
             ],
           },
-          insights: ['Workflow com retomada pronta: ship em ExternalExecutor Reviewer.'],
+          insights: ['Workflow with resume point ready: ship in ExternalExecutor Reviewer.'],
         }),
       } as any,
       taskManager: {
@@ -1032,7 +1032,7 @@ describe('ZavorthControlService', () => {
     expect(replay).toEqual(
       expect.objectContaining({
         available: true,
-        headline: expect.stringContaining('Replay pronto'),
+        headline: expect.stringContaining('Replay ready'),
         recommendedEntry: expect.objectContaining({
           kind: 'task',
         }),
@@ -1070,7 +1070,7 @@ describe('ZavorthControlService', () => {
       expect.objectContaining({
         available: true,
         status: 'aligned',
-        headline: expect.stringContaining('Sessao compartilhada'),
+        headline: expect.stringContaining('Session shared'),
         canonicalTarget: expect.objectContaining({
           kind: 'task',
         }),

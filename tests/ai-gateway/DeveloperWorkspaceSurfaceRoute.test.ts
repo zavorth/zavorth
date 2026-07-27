@@ -24,7 +24,7 @@ describe('Developer Workspace surface route', () => {
   });
 
   it('parses cwd and manifestPath for local project inspection', () => {
-    const request = new Request('http://127.0.0.1:3000/api/developer-workspace?cwd=C:/repo&manifestPath=C:/repo/zavorth.yml');
+    const request = new Request('http://127.0.0.1:3000/api/developer-workspace-cwd=C:/repo&manifestPath=C:/repo/zavorth.yml');
 
     expect(parseDeveloperWorkspaceRouteOptions(request)).toEqual({
       cwd: 'C:/repo',

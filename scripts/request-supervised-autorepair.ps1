@@ -15,11 +15,11 @@ $reloadScriptPath = Join-Path $projectRoot 'scripts\request-supervised-reload.ps
 $powershellPath = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
 
 if (-not (Test-Path $reloadScriptPath)) {
-  throw "Nao encontrei o request-supervised-reload em $reloadScriptPath"
+  throw "Could not find request-supervised-reload at $reloadScriptPath"
 }
 
 if (-not (Test-Path $powershellPath)) {
-  throw "Nao encontrei o PowerShell em $powershellPath"
+  throw "Could not find PowerShell at $powershellPath"
 }
 
 $effectiveReason = if ($AutoRepairReason) {
@@ -27,7 +27,7 @@ $effectiveReason = if ($AutoRepairReason) {
 } elseif ($Reason) {
   $Reason
 } else {
-  'Autoreparo supervisionado solicitado.'
+  'Autoreparo supervised solicitado.'
 }
 $arguments = @(
   '-NoLogo',

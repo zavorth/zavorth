@@ -108,7 +108,7 @@ describe('WebSearchTool', () => {
       limit: 3,
     });
 
-    expect(result).toMatch(/Filtro temporal:|Time filter:|Temporal filter:|results (?:were )?published recently/i);
+    expect(result).toMatch(/Filtro temporal:|Time filter:|Temporal filter:|results (-:were )-published recently/i);
     expect(result).toContain('Fresh headline');
     expect(result).not.toContain('Old headline');
   });
@@ -133,7 +133,7 @@ describe('WebSearchTool', () => {
           <item>
             <title>Brasil na Feira de Hannover</title>
             <link>https://example.com/hannover</link>
-            <description>Parceria industrial sem relacao com tecnologia de IA.</description>
+            <description>Parceria industrial sem relaction com tecnologia de IA.</description>
             <pubDate>Sun, 19 Apr 2026 09:00:00 GMT</pubDate>
           </item>
           <item>
@@ -159,7 +159,7 @@ describe('WebSearchTool', () => {
     } as any);
 
     const result = await new WebSearchTool().execute({
-      query: 'ultimas noticias de IA no mundo',
+      query: 'latest AI news worldwide',
       limit: 5,
     });
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -173,7 +173,7 @@ describe('WebSearchTool', () => {
         <item>
           <title>Brasil na Feira de Hannover</title>
           <link>https://example.com/hannover</link>
-          <description>Parceria industrial sem relacao com tecnologia de IA.</description>
+          <description>Parceria industrial sem relaction com tecnologia de IA.</description>
           <pubDate>Sun, 19 Apr 2026 09:00:00 GMT</pubDate>
         </item>
       </channel></rss>
@@ -185,7 +185,7 @@ describe('WebSearchTool', () => {
       .mockResolvedValueOnce({ ok: true, status: 200, text: jest.fn().mockResolvedValue(irrelevantFeed) } as any);
 
     const result = await new WebSearchTool().execute({
-      query: 'ultimas noticias de IA no mundo',
+      query: 'latest AI news worldwide',
       limit: 5,
     });
 
@@ -277,7 +277,7 @@ describe('WebSearchTool', () => {
               <title>UN calls meeting on regional conflict</title>
               <link>https://www.dw.com/en/un-regional-conflict</link>
               <source url="https://www.dw.com">DW</source>
-              <description>Diplomatas discutem sancoes, ajuda humanitaria e negociacoes.</description>
+              <description>Diplomatas discutem sancoes, ajuda humanitaria e negociactions.</description>
               <pubDate>Thu, 16 Apr 2026 09:00:00 GMT</pubDate>
             </item>
             <item>
@@ -367,7 +367,7 @@ describe('WebSearchTool', () => {
     expect(result).toContain('QUALITY_GATE: insufficient_news_results');
     expect(result).toMatch(/Resultados recentes encontrados: 1\/5|Recent results found: 1\/5/i);
     expect(result).toMatch(
-      /Nao produza um briefing amplo de politica global|Do not produce a broad (?:global )?politics briefing|Do not produce a broad briefing/i,
+      /Not produza um briefing amplo de policy global|Do not produce a broad (-:global )-politics briefing|Do not produce a broad briefing/i,
     );
     expect(search).not.toHaveBeenCalled();
   });
@@ -557,8 +557,8 @@ describe('WebSearchTool', () => {
           },
           {
             title: 'STJ acordao sobre dano moral por atraso de voo',
-            url: 'https://www.stj.jus.br/sites/portalp/Paginas/Comunicacao/Noticias/acordao.aspx',
-            description: 'Decisao judicial, acordao e jurisprudencia do tribunal.',
+            url: 'https://www.stj.jus.br/sites/portalp/Paginas/Comunicaction/Noticias/acordao.aspx',
+            description: 'Court ruling, appellate decision, and tribunal jurisprudence.',
           },
         ],
       })
@@ -657,7 +657,7 @@ describe('WebSearchTool', () => {
     expect(search).toHaveBeenCalled();
     const searchCalls = (search as jest.Mock).mock.calls.map((call) => String(call[0] || ''));
     expect(searchCalls.some((q) => /github|playwright|reddit|issue/i.test(q))).toBe(true);
-    expect(result).toMatch(/Playwright issue with workaround|issue-tracker|Search track|Trilha da busca|GitHub|Reddit/i);
+    expect(result).toMatch(/Playwright issue with workaround|issue-tracker|Search track|Trilthere is da busca|GitHub|Reddit/i);
   });
 
   it('deep-ranks consumer/general decisions with host diversity and extracted page dates', async () => {
@@ -703,7 +703,7 @@ describe('WebSearchTool', () => {
     );
 
     const result = await new WebSearchTool().execute({
-      query: 'qual melhor air fryer custo beneficio em 2026',
+      query: 'best value air fryer in 2026',
       domainProfile: 'consumer',
       deep: true,
       extractPages: true,
@@ -769,7 +769,7 @@ describe('WebSearchTool', () => {
     );
 
     const result = await new WebSearchTool().execute({
-      query: 'Verifique qual e o modelo Gemini mais recente disponivel para desenvolvedores e me mande a fonte oficial',
+      query: 'Check the latest Gemini model available for developers and send the official source',
       domainProfile: 'technical',
       deep: true,
       extractPages: true,
@@ -820,7 +820,7 @@ describe('WebSearchTool', () => {
       text: jest.fn().mockResolvedValue(`
         <html><body>
           <li class="b_algo">
-            <h2><a href="https://www.bing.com/ck/a?u=a1aHR0cHM6Ly9nZS5nbG9iby5jb20vZnV0ZWJvbC90aW1lcy9mbGFtZW5nby8">Flamengo vence ultimo jogo por 2 a 1</a></h2>
+            <h2><a href="https://www.bing.com/ck/a-u=a1aHR0cHM6Ly9nZS5nbG9iby5jb20vZnV0ZWJvbC90aW1lcy9mbGFtZW5nby8">Flamengo vence ultimo jogo por 2 a 1</a></h2>
             <p>Resultado do Flamengo no futebol com placar e data.</p>
           </li>
         </body></html>
@@ -828,7 +828,7 @@ describe('WebSearchTool', () => {
     } as any);
 
     const result = await new WebSearchTool().execute({
-      query: 'Qual foi o placar do ultimo jogo do Flamengo?',
+      query: 'Qual foi o placar do ultimo jogo do Flamengo-',
       domainProfile: 'general',
       deep: true,
       extractPages: false,

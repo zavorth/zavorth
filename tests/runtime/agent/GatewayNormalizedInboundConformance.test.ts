@@ -33,7 +33,7 @@ describe('Gateway normalized inbound conformance', () => {
         userId: 'grey',
         channel: 'web',
         sessionId: 'web:session-conformance',
-        text: 'mostre o status no painel',
+        text: 'show status in the panel',
         requestedTools: ['read_file'],
       },
       {

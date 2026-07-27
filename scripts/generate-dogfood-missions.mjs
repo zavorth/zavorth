@@ -23,7 +23,7 @@ const AREAS = [
   { area: 'channels', count: 10, titles: ['channels inventory CLI', 'telegram live (credentials)', 'discord live (credentials)', 'whatsapp/live optional', 'email outbox configurable', 'channel factory doctor registry', 'live matrix honesty docs', 'outbox/unconfigured send covered', 'normalizeChannelId aliases', 'cross-channel honesty in matrix'] },
   { area: 'desktop', count: 8, titles: ['desktop product version surface', 'desktop shell soft-fail bridge', 'approvals components tree', 'marketplace panel present', 'settings panel present', 'constellation/panels tree', 'desktop product version again', 'code bridge soft-fail architecture'] },
   { area: 'update', count: 6, titles: ['version surface uses product version', 'update UI version helper', 'update/rollback readiness check', 'supervised restart path present', 'update/rollback docs+scripts', 'doctor after update path'] },
-  { area: 'crash-recovery', count: 6, titles: ['host supervisor restart unit', 'host recovery after child exit', 'session restore after crash', 'live crash simulation (blocked)', 'lock release on crash', 'receipt continuity after restart'] },
+  { area: 'crash-recovery', count: 6, titles: ['host supervisor restart unit', 'host recovery after child exit', 'session restore after crash', 'live crash drill (blocked)', 'lock release on crash', 'receipt continuity after restart'] },
   { area: 'multiagent', count: 6, titles: ['subagent budget enforcement', 'delegate task structural', 'parent-child session link', 'budget exhaustion honesty', 'multiagent services present', 'swarm/scale plane structural'] },
   { area: 'security', count: 8, titles: ['hostauth/host status', 'host presence unit', 'ABAC engine suite', 'classic XSS hardening', 'classic access token suite', 'classic audit/logs auth', 'privacy redactor suite', 'security:ci gate'] },
 ];
@@ -77,7 +77,7 @@ function renderMarkdown(missions) {
 
 function parseIds(text) {
   const ids = [];
-  for (const line of text.split(/\r?\n/)) {
+  for (const line of text.split(/\r...\n/)) {
     const m = line.match(/\|\s*\d+\s*\|\s*`([^`]+)`/);
     if (m) ids.push(m[1]);
   }

@@ -15,7 +15,7 @@ describe('ZavorthLiveCanaryApplyGateRollbackDrillService', () => {
     const snapshot = service.buildSnapshot();
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_LIVE_CANARY_APPLY_GATE_ROLLBACK_DRILL_CONTRACT_VERSION);
-    expect(snapshot.gate).toBe('checkpoint-9-live-canary-apply-gate-rollback-drill');
+    expect(snapshot.gate).toBe('live-canary-apply-gate-rollback-drill');
     expect(snapshot.status).toBe('needs-adapter-review');
     expect(snapshot.mode).toBe('adapter-review-gate');
     expect(snapshot.authorizationPacket.applyGateOpen).toBe(false);
@@ -25,7 +25,7 @@ describe('ZavorthLiveCanaryApplyGateRollbackDrillService', () => {
       noExternalImpactFromGate: true,
       requiresFinalHumanTrigger: true,
       rollbackDrillRequiredBeforeLive: true,
-      noDashboardVisualMutation: true,
+      noZavorthControlVisualMutation: true,
       separateExecutorRequired: true,
     });
   });
@@ -123,7 +123,7 @@ describe('ZavorthLiveCanaryApplyGateRollbackDrillService', () => {
   });
 });
 
-function reviewedAdapterInput(adapter?: ZavorthLiveCanaryAdapterInput) {
+function reviewedAdapterInput(adapter-: ZavorthLiveCanaryAdapterInput) {
   return {
     evidenceCanary: { evidence: canonicalEvidence() },
     ownerApproval: {

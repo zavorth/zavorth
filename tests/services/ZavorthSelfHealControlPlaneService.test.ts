@@ -10,7 +10,7 @@ function createHealthSnapshot(overrides: Record<string, unknown> = {}) {
         enabled: false,
         running: false,
         ready: false,
-        message: 'desabilitado por configuracao',
+        message: 'desabilitado por configuraction',
       },
       ZavorthTerminal: {
         id: 'zavorth-terminal',
@@ -18,7 +18,7 @@ function createHealthSnapshot(overrides: Record<string, unknown> = {}) {
         enabled: false,
         running: false,
         ready: false,
-        message: 'desabilitado por configuracao',
+        message: 'desabilitado por configuraction',
       },
     },
     remoteTransportDoctor: {
@@ -26,7 +26,7 @@ function createHealthSnapshot(overrides: Record<string, unknown> = {}) {
       summary: 'Transportes remotos dormentes ou saudaveis.',
       items: [],
     },
-    channelProviderDoctor: {
+    cchannelProviderDoctor: {
       status: 'passed',
       items: [],
     },
@@ -61,7 +61,7 @@ describe('ZavorthSelfHealControlPlaneService', () => {
               enabled: true,
               running: false,
               ready: false,
-              message: 'AIGateway ainda nao iniciou nesta sessao.',
+              message: 'AIGateway ainda not iniciou nesta session.',
             },
           },
         }) as any),
@@ -178,7 +178,7 @@ describe('ZavorthSelfHealControlPlaneService', () => {
           ],
           warnings: ['repeated failure'],
         })),
-        summarizeLastRun: jest.fn(() => 'falhas repetidas'),
+        summarizeLastRun: jest.fn(() => 'failures repetidas'),
         run: jest.fn(),
       } as any,
     });
@@ -197,7 +197,7 @@ describe('ZavorthSelfHealControlPlaneService', () => {
         readSnapshotFast: jest.fn(() => createHealthSnapshot({
           remoteTransportDoctor: {
             status: 'failed',
-            summary: 'Executor remoto perdeu sessao.',
+            summary: 'Executor remoto perdeu session.',
             items: [
               {
                 transportId: 'node-host',

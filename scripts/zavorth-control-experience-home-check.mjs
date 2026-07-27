@@ -47,7 +47,7 @@ for (const command of ['zavorth setup --dry-run', 'zavorth go', 'zavorth demo br
     throw new Error(`getting started command missing: ${command}`);
   }
 }
-if (snapshot.permissionPanel?.title !== 'Permissoes') {
+if (snapshot.permissionPanel?.title !== 'Permissions') {
   throw new Error('zavorthControl home must expose permission polish panel');
 }
 for (const item of ['permissions', 'auto-approvals', 'extreme-mode', 'revoke', 'receipts']) {

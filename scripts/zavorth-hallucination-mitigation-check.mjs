@@ -18,8 +18,8 @@ const checks = [
     markers: [
       'ZavorthHallucinationMitigationService',
       'DISCIPLINA ANTI-ALUCINACAO',
-      'Nao invente citacoes',
-      'nao tenho recibo de execucao',
+      'Do not invent citations',
+      'I do not have an execution receipt',
     ],
   },
   {

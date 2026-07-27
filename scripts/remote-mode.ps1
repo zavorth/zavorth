@@ -77,7 +77,7 @@ function Set-PowerSettingExact {
 
   if ($null -eq $AcValue -or $null -eq $DcValue) {
     if (-not $Optional) {
-      $Warnings.Value += "Nao foi possivel restaurar $Setting com precisao porque o snapshot ficou incompleto."
+      $Warnings.Value += "Could not restore $Setting precisely because the snapshot was incomplete."
     }
     return
   }
@@ -86,7 +86,7 @@ function Set-PowerSettingExact {
     & powercfg /SETACVALUEINDEX $SchemeGuid $Subgroup $Setting $AcValue | Out-Null
     & powercfg /SETDCVALUEINDEX $SchemeGuid $Subgroup $Setting $DcValue | Out-Null
   } catch {
-    $Warnings.Value += "Falha ao ajustar ${Setting}: $($_.Exception.Message)"
+    $Warnings.Value += "Failure ao ajustar ${Setting}: $($_.Exception.Message)"
   }
 }
 
@@ -122,7 +122,7 @@ function Restore-RegistrySnapshotValue {
 
     Remove-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name $Name -ErrorAction SilentlyContinue
   } catch {
-    $Warnings.Value += "Falha ao restaurar a chave ${Name}: $($_.Exception.Message)"
+    $Warnings.Value += "Failure ao restaurar a chave ${Name}: $($_.Exception.Message)"
   }
 }
 
@@ -191,15 +191,15 @@ $warnings = @()
 switch ($Mode) {
   'status' {
     $result = if ($state) {
-      Build-Result -Ok $true -Message 'Modo remoto carregado a partir do snapshot salvo.' -Active ([bool]$state.active) -Changed $false -Warnings @($state.warnings) -Snapshot $state.snapshot -AppliedAt $state.appliedAt
+      Build-Result -Ok $true -Message 'Modo remote loaded a partir do snapshot salvo.' -Active ([bool]$state.active) -Changed $false -Warnings @($state.warnings) -Snapshot $state.snapshot -AppliedAt $state.appliedAt
     } else {
-      Build-Result -Ok $true -Message 'Modo remoto desativado. Nenhum snapshot salvo.' -Active $false -Changed $false -Warnings @() -Snapshot $null -AppliedAt $null
+      Build-Result -Ok $true -Message 'Modo remote desativado. Nenhum snapshot salvo.' -Active $false -Changed $false -Warnings @() -Snapshot $null -AppliedAt $null
     }
   }
 
   'activate' {
     if ($state -and $state.active) {
-      $result = Build-Result -Ok $true -Message 'Modo remoto ja estava ativo. Nada foi alterado.' -Active $true -Changed $false -Warnings @($state.warnings) -Snapshot $state.snapshot -AppliedAt $state.appliedAt
+      $result = Build-Result -Ok $true -Message 'Modo remote already estava active. Nada foi alterado.' -Active $true -Changed $false -Warnings @($state.warnings) -Snapshot $state.snapshot -AppliedAt $state.appliedAt
       break
     }
 
@@ -217,13 +217,13 @@ switch ($Mode) {
       New-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name 'ScreenSaveTimeOut' -PropertyType String -Value '0' -Force | Out-Null
       & rundll32.exe user32.dll,UpdatePerUserSystemParameters | Out-Null
     } catch {
-      $warnings += "Falha ao ajustar o protetor de tela: $($_.Exception.Message)"
+      $warnings += "Failed to adjust the screen saver: $($_.Exception.Message)"
     }
 
     try {
       & powercfg /SETACTIVE $schemeGuid | Out-Null
     } catch {
-      $warnings += "Falha ao reativar o plano de energia atual: $($_.Exception.Message)"
+      $warnings += "Failed to reactivate the current power plan: $($_.Exception.Message)"
     }
 
     $appliedAt = (Get-Date).ToString('o')
@@ -234,12 +234,12 @@ switch ($Mode) {
       snapshot = $snapshot
     }
     Save-State -State $newState
-    $result = Build-Result -Ok $true -Message 'Modo remoto ativado: tela, sono, hibernacao e bloqueios foram afrouxados para automacao.' -Active $true -Changed $true -Warnings $warnings -Snapshot $snapshot -AppliedAt $appliedAt
+    $result = Build-Result -Ok $true -Message 'Remote mode enabled: display, sleep, hibernation, and locks were relaxed for automation.' -Active $true -Changed $true -Warnings $warnings -Snapshot $snapshot -AppliedAt $appliedAt
   }
 
   'restore' {
     if (-not $state) {
-      $result = Build-Result -Ok $true -Message 'Nao havia snapshot salvo. Nada para restaurar.' -Active $false -Changed $false -Warnings @() -Snapshot $null -AppliedAt $null
+      $result = Build-Result -Ok $true -Message 'There was no saved snapshot. Nothing to restore.' -Active $false -Changed $false -Warnings @() -Snapshot $null -AppliedAt $null
       break
     }
 
@@ -259,11 +259,11 @@ switch ($Mode) {
       & powercfg /SETACTIVE $schemeGuid | Out-Null
       & rundll32.exe user32.dll,UpdatePerUserSystemParameters | Out-Null
     } catch {
-      $warnings += "Falha ao reativar o plano original durante a restauracao: $($_.Exception.Message)"
+      $warnings += "Failed to reactivate the original power plan during restore: $($_.Exception.Message)"
     }
 
     Remove-Item -Path $StateFile -Force -ErrorAction SilentlyContinue
-    $result = Build-Result -Ok $true -Message 'Modo remoto desativado e configuracoes anteriores restauradas.' -Active $false -Changed $true -Warnings $warnings -Snapshot $snapshot -AppliedAt $null
+    $result = Build-Result -Ok $true -Message 'Modo remote desativado e configurations anteriores restauradas.' -Active $false -Changed $true -Warnings $warnings -Snapshot $snapshot -AppliedAt $null
   }
 }
 

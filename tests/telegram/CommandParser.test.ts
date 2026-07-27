@@ -36,18 +36,18 @@ describe('CommandParser', () => {
   });
 
   it('maps /gaistudio to /aistudio', () => {
-    const parsed = parser.parse('/gaistudio tools=search resuma as noticias de IA');
+    const parsed = parser.parse('/gaistudio tools=search summarize AI news');
 
     expect(parsed.command_type).toBe('/aistudio');
-    expect(parsed.command_args).toBe('tools=search resuma as noticias de IA');
+    expect(parsed.command_args).toBe('tools=search summarize AI news');
     expect(parsed.explicit_executor).toBe('aistudio');
   });
 
   it('maps /stich to /stitch as a compatibility alias', () => {
-    const parsed = parser.parse('/stich gere uma landing page para restaurante');
+    const parsed = parser.parse('/stich generate a landing page for a restaurant');
 
     expect(parsed.command_type).toBe('/stitch');
-    expect(parsed.command_args).toBe('gere uma landing page para restaurante');
+    expect(parsed.command_args).toBe('generate a landing page for a restaurant');
     expect(parsed.explicit_executor).toBe('stitch');
   });
 
@@ -158,10 +158,10 @@ describe('CommandParser', () => {
   });
 
   it('maps /aga to /ag for ZavorthBridge backwards compatibility', () => {
-    const parsed = parser.parse('/aga pesquise as noticias do dia');
+    const parsed = parser.parse('/aga research today news');
 
     expect(parsed.command_type).toBe('/ag');
-    expect(parsed.command_args).toBe('pesquise as noticias do dia');
+    expect(parsed.command_args).toBe('research today news');
     expect(parsed.explicit_executor).toBe('zavorthBridge');
   });
 
@@ -182,10 +182,10 @@ describe('CommandParser', () => {
   });
 
   it('keeps /auto as an explicit hidden autonomous command', () => {
-    const parsed = parser.parse('/auto corrija o arquivo atual');
+    const parsed = parser.parse('/auto corrija o file atual');
 
     expect(parsed.command_type).toBe('/auto');
-    expect(parsed.command_args).toBe('corrija o arquivo atual');
+    expect(parsed.command_args).toBe('corrija o file atual');
     expect(parsed.explicit_executor).toBeNull();
   });
 
@@ -238,17 +238,17 @@ describe('CommandParser', () => {
   });
 
   it('marks short follow-up messages as references to the latest task', () => {
-    const parsed = parser.parse('cadê?');
+    const parsed = parser.parse('cade-');
 
     expect(parsed.command_type).toBe('/task');
     expect(parsed.references_last_task).toBe(true);
   });
 
   it('maps /sendfile to /file', () => {
-    const parsed = parser.parse('/sendfile downloads relatorio.pdf');
+    const parsed = parser.parse('/sendfile downloads report.pdf');
 
     expect(parsed.command_type).toBe('/file');
-    expect(parsed.command_args).toBe('downloads relatorio.pdf');
+    expect(parsed.command_args).toBe('downloads report.pdf');
     expect(parsed.explicit_executor).toBeNull();
   });
 
@@ -266,7 +266,7 @@ describe('CommandParser', () => {
   });
 
   it('marks short operational follow-ups as referencing the last task', () => {
-    const parsed = parser.parse('cade?');
+    const parsed = parser.parse('cade-');
 
     expect(parsed.command_type).toBe('/task');
     expect(parsed.references_last_task).toBe(true);

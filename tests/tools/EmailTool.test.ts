@@ -82,7 +82,7 @@ describe('EmailTool', () => {
       subject: 'Multi',
       body: 'Body',
     });
-    const isValid = result.includes('Email enviado') || result.includes('Erro');
+    const isValid = result.includes('Email sent') || result.includes('Erro');
     expect(isValid).toBe(true);
   });
 

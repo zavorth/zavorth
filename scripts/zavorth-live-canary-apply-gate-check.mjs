@@ -40,13 +40,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('live-canary-apply-gate-files', 'Certification matrix files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('live-canary-apply-gate-files', 'Certification matrix files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthLiveCanaryApplyGateRollbackDrillContract.ts', ['ZAVORTH_LIVE_CANARY_APPLY_GATE_ROLLBACK_DRILL_CONTRACT_VERSION', 'APPLY ZAVORTH LIVE CANARY', 'requiresSeparateLiveInvocation', 'rollbackDrillRequiredBeforeLive']],
-    ['src/services/ZavorthLiveCanaryApplyGateRollbackDrillService.ts', ['checkpoint-9-live-canary-apply-gate-rollback-drill', 'ZavorthLiveCanaryExecutionAdapterReviewService', 'liveActionExecutorBundled: false', 'containsSensitiveTarget']],
+    ['src/services/ZavorthLiveCanaryApplyGateRollbackDrillService.ts', ['gate-9-live-canary-apply-gate-rollback-drill', 'ZavorthLiveCanaryExecutionAdapterReviewService', 'liveActionExecutorBundled: false', 'containsSensitiveTarget']],
     ['scripts/zavorth-live-canary-apply-gate.ts', ['--final-trigger', '--final-phrase', '--rollback-drill', '--default-final-phrase']],
     ['src/sdk/contracts.ts', ['ZavorthLiveCanaryApplyGateRollbackDrillContract']],
     ['src/sdk/index.ts', ['ZavorthLiveCanaryApplyGateRollbackDrillService']],
@@ -64,7 +64,7 @@ function ruleMarkers() {
 function runNeedsAdapterReviewFixture() {
   const result = runTs('scripts/zavorth-live-canary-apply-gate.ts', ['--json']);
   return jsonRule('live-canary-apply-needs-review', 'Apply gate requires adapter review first', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.live-canary-apply-gate-rollback-drill-checkpoint-9'
+    snapshot.contractVersion === '2026-05-11.live-canary-apply-gate-rollback-drill-gate-9'
     && snapshot.status === 'needs-adapter-review'
     && snapshot.mode === 'adapter-review-gate'
     && snapshot.authorizationPacket.applyGateOpen === false
@@ -107,7 +107,7 @@ function runControlledApplyFixture() {
     && snapshot.authorizationPacket.executionPerformed === false
     && snapshot.authorizationPacket.liveActionExecutorBundled === false
     && snapshot.authorizationPacket.requiresSeparateLiveInvocation === true
-    && snapshot.authorizationPacket.authorizationReceiptId === 'checkpoint-9-authorization:checkpoint-8-default-live-canary-adapter:trigger-123');
+    && snapshot.authorizationPacket.authorizationReceiptId === 'gate-9-authorization:gate-8-default-live-canary-adapter:trigger-123');
 }
 
 function runSensitiveTargetFixture() {
@@ -186,5 +186,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

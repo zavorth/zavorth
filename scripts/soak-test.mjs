@@ -71,7 +71,7 @@ function runSmoke() {
         resolve();
         return;
       }
-      reject(new Error(`npm run test:smoke saiu com codigo ${code}`));
+      reject(new Error(`npm run test:smoke saiu with code ${code}`));
     });
   });
 }
@@ -88,7 +88,7 @@ async function waitForHealth(timeoutMs) {
     await sleep(1500);
   }
 
-  throw new Error(`Zavorth nao respondeu em ${healthUrl} dentro de ${timeoutMs}ms.`);
+  throw new Error(`Zavorth did not respond at ${healthUrl} dentro de ${timeoutMs}ms.`);
 }
 
 async function waitForHealthOrChildExit(child, timeoutMs) {
@@ -192,7 +192,7 @@ async function main() {
   console.log('===========================================');
   console.log(`Health URL: ${healthUrl}`);
   console.log(`Sidecars:   ${sidecarsUrl}`);
-  console.log(`Duracao:    ${durationMinutes} minuto(s)`);
+  console.log(`Duraction:    ${durationMinutes} minuto(s)`);
   console.log(`Intervalo:  ${intervalSeconds} segundo(s)`);
 
   try {
@@ -204,11 +204,11 @@ async function main() {
 
     if (shouldBoot) {
       const effectiveMode = bootMode === 'all' ? 'all' : 'full';
-      console.log(`[soak] stack nao estava pronto; subindo via ${effectiveMode}.`);
+      console.log(`[soak] stack was not ready; starting through ${effectiveMode}.`);
       child = spawnStack(effectiveMode, stackLogPath);
       startedByScript = true;
     } else {
-      console.log('[soak] usando stack ja em execucao.');
+      console.log('[soak] using stack already running.');
     }
 
     let probeMode = 'http';
@@ -216,7 +216,7 @@ async function main() {
     probeMode = healthCheck.mode;
 
     if (probeMode === 'smoke-only') {
-      console.log('[soak] healthz indisponivel nesta sessao; alternando para monitoramento por smoke test.');
+      console.log('[soak] healthz unavailable in this session; switching to smoke-test monitoring.');
     }
 
     if (!skipSmoke || probeMode === 'smoke-only') {
@@ -282,7 +282,7 @@ async function main() {
       }
       samples.push(sample);
       console.log(
-        `[soak] ${timestamp} mode=${sample.probeMode} health=${sample.healthOk ? 'ok' : 'falhou'} sidecars=${sample.sidecarsOk ? 'ok' : 'falhou'}`,
+        `[soak] ${timestamp} mode=${sample.probeMode} health=${sample.healthOk ? 'ok' : 'failed'} sidecars=${sample.sidecarsOk ? 'ok' : 'failed'}`,
       );
 
       if (Date.now() + intervalSeconds * 1000 > until) {
@@ -312,19 +312,19 @@ async function main() {
     };
     fs.writeFileSync(logPath, JSON.stringify(summary, null, 2), 'utf8');
 
-    console.log(`[soak] resumo salvo em ${logPath}`);
+    console.log(`[soak] summary saved at ${logPath}`);
     if (summary.failures > 0) {
       process.exitCode = 1;
     }
   } finally {
     if (startedByScript && child) {
-      console.log('[soak] encerrando stack iniciada por este teste');
+      console.log('[soak] encerrando stack started por este teste');
       await stopChild(child);
     }
   }
 }
 
 main().catch((error) => {
-  console.error(`[soak] falhou: ${error.message}`);
+  console.error(`[soak] failed: ${error.message}`);
   process.exit(1);
 });

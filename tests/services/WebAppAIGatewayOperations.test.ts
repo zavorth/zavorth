@@ -41,7 +41,7 @@ describe('WebApp AIGateway operations', () => {
         localOnly: true,
         overlayFile: 'C:/repo/config/AIGateway-overlay.json',
         checkedAt: '2026-04-04T16:00:00.000Z',
-        message: 'Gateway proprio do AIGateway ativo.',
+        message: 'Gateway own do AIGateway active.',
       })),
     };
 
@@ -84,7 +84,7 @@ describe('WebApp AIGateway operations', () => {
         baseUrl: 'http://127.0.0.1:21128/v1',
         upstreamBaseUrl: 'http://127.0.0.1:20128/v1',
         overlayFile: 'C:/repo/config/AIGateway-overlay.json',
-        summary: 'Gateway proprio do AIGateway respondeu pelo contrato OpenAI-compatible.',
+        summary: 'Gateway own do AIGateway respondeu pelo contrato OpenAI-compatible.',
         command: 'AIGateway doctor',
         checkedTarget: 'http://127.0.0.1:21128/v1/models',
         httpStatus: 200,
@@ -128,20 +128,19 @@ describe('WebApp AIGateway operations', () => {
 
     const GatewayUpstreamSyncService = {
       sync: jest.fn(),
-      promote: jest.fn(async ({ autoRollback }: { autoRollback?: boolean } = {}) => ({
+      promote: jest.fn(async ({ autoRollback }: { autoRollback-: boolean } = {}) => ({
         ok: true,
         action: 'promote',
         status: 'promoted',
         startedAt: '2026-04-04T16:20:00.000Z',
         finishedAt: '2026-04-04T16:20:05.000Z',
         command: '"node" "vendor-toolkit.mjs" update --target=AIGateway',
-        summary: autoRollback === false
-          ? 'Upstream AIGateway promovido sem rollback automatico.'
+        summary: autoRollback === false ? 'Upstream AIGateway promoted without automatic rollback.'
           : 'Upstream AIGateway promovido com compatibilidade revalidada.',
         output: 'vendor update ok',
         compat: {
           status: 'passed',
-          summary: 'Gateway proprio do AIGateway respondeu pelo contrato OpenAI-compatible.',
+          summary: 'Gateway own do AIGateway respondeu pelo contrato OpenAI-compatible.',
         },
         rollbackApplied: false,
         statusFile: 'C:/repo/data/runtime/AIGateway-sync.json',
@@ -209,7 +208,7 @@ describe('WebApp AIGateway operations', () => {
         localOnly: true,
         overlayFile: 'C:/repo/config/AIGateway-overlay.json',
         checkedAt: '2026-04-05T12:00:00.000Z',
-        message: 'Gateway proprio do AIGateway ativo.',
+        message: 'Gateway own do AIGateway active.',
       })),
     };
 

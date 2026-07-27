@@ -89,7 +89,7 @@ describe('ZavorthCapabilitySetupConversationService', () => {
     });
 
     expect(reply).toContain('entrada segura');
-    expect(reply).toContain('Eu nao vou guardar valores sensiveis');
+    expect(reply).toContain('Eu not vou guardar valuees sensiveis');
     expect(reply).not.toContain('MCP');
   });
 });

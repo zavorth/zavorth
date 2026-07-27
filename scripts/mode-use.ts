@@ -46,7 +46,7 @@ function parseArgs(argv: string[]): CliOptions {
     throw new Error('Use npm run mode:use -- <chat|assistant|builder|operator> [--env-path <path>] [--state-path <path>].');
   }
   if (!isZavorthProductMode(requestedRawMode)) {
-    throw new Error('Product mode invalido. Use: chat, assistant, builder ou operator.');
+    throw new Error('Product mode invalid. Use: chat, assistant, builder ou operator.');
   }
   const requestedMode = normalizeZavorthProductMode(requestedRawMode, 'core');
 
@@ -105,7 +105,7 @@ async function main(): Promise<void> {
       `[mode-use] Perfil base alinhado: ${persisted.runtimeProfile}.`,
       `[mode-use] .env: ${envWriteReport.filePath}`,
       `[mode-use] lifecycle: ${options.stateFilePath || 'state file default do runtime'}`,
-      '[mode-use] Reinicie o Zavorth para reaplicar boot, warmup e surfaces do novo modo.',
+      '[mode-use] Restart Zavorth to reapply boot, warmup, and surfaces for the new mode.',
     ].join('\n'),
   );
 }

@@ -5,7 +5,7 @@ import path from 'path';
 import { GeminiVoiceService } from '../../src/providers/GeminiVoiceService';
 
 describe('GeminiVoiceService', () => {
-  it('gera um arquivo wav a partir do payload inlineData do Gemini TTS', async () => {
+  it('gera um file wav a partir do payload inlineData do Gemini TTS', async () => {
     const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-gemini-voice-'));
     const pcm = Buffer.from([0x00, 0x00, 0xff, 0x7f]);
     const fetchImpl = jest.fn(async () => new Response(JSON.stringify({

@@ -9,7 +9,7 @@ describe('UserExperienceIntentRouter (no free-text feature keywords)', () => {
       'compile uma equipe de agentes swarm',
       'promote this skill and forget the draft',
       'run the release checklist step by step',
-      'what did we discuss about providers?',
+      'what did we discuss about providers-',
     ];
     for (const text of phrases) {
       const d = router.decide({ text });

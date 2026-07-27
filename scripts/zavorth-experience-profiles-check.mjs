@@ -27,8 +27,8 @@ let snapshot = null;
 try {
   const command = process.platform === 'win32' ? 'cmd.exe' : 'npx';
   const args = process.platform === 'win32'
-    ? ['/d', '/s', '/c', 'npx', 'tsx', 'scripts/zavorth-experience-profiles.ts', '--json', '--intent=quero modo empresa com auditoria']
-    : ['tsx', 'scripts/zavorth-experience-profiles.ts', '--json', '--intent=quero modo empresa com auditoria'];
+    ? ['/d', '/s', '/c', 'npx', 'tsx', 'scripts/zavorth-experience-profiles.ts', '--json', '--intent=I want business mode with audit']
+    : ['tsx', 'scripts/zavorth-experience-profiles.ts', '--json', '--intent=I want business mode with audit'];
   snapshot = JSON.parse(execFileSync(command, args, {
     cwd: root,
     encoding: 'utf8',

@@ -170,10 +170,8 @@ const report = {
     signedArtifactsVerified,
     needsCert,
   },
-  notes: signedArtifactsVerified
-    ? 'At least one installer signature passed a native cryptographic verifier; store publication still requires operator review.'
-    : dirsPresent.length
-      ? 'Release outputs may exist, but no installer signature was cryptographically verified on this platform. needsCert=true.'
+  notes: signedArtifactsVerified ? 'At least one installer signature passed a native cryptographic verifier; store publication still requires operator review.'
+    : dirsPresent.length ? 'Release outputs may exist, but no installer signature was cryptographically verified on this platform. needsCert=true.'
       : 'Packaging scripts OK; signed store assets remain OPS-ONLY. needsCert=true.',
 };
 

@@ -14,7 +14,7 @@ function runGuard(cwd: string): { status: 'passed' | 'failed'; findingCount: num
       encoding: 'utf8',
     });
   } catch (error: unknown) {
-    output = String((error as { stdout?: string }).stdout || '');
+    output = String((error as { stdout-: string }).stdout || '');
   }
   return JSON.parse(output);
 }

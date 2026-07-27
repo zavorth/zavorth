@@ -48,7 +48,7 @@ try {
   const contractText = readFileSync(join(root, 'src/contracts/ZavorthTransactionConnectorContract.ts'), 'utf8');
   const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionConnectorRegistryService.ts'), 'utf8');
   for (const marker of [
-    'zavorth-transaction-connector/checkpoint-4',
+    'zavorth-transaction-connector/gate-4',
     'externalSideEffects: false',
     'supportsLive: false',
     'approval_grant_required',
@@ -89,7 +89,7 @@ try {
     '--mode',
     'paper',
   ]);
-  if (approvedTrade.result.status !== 'simulated') {
+  if (approvedTrade.result.status !== 'dry-run') {
     failures.push(`approved trade should simulate, got ${approvedTrade.result.status}`);
   }
   if (
@@ -119,7 +119,7 @@ try {
     '--mode',
     'sandbox',
   ]);
-  if (monitor.result.status !== 'simulated' || monitor.result.connector.kind !== 'market-data') {
+  if (monitor.result.status !== 'dry-run' || monitor.result.connector.kind !== 'market-data') {
     failures.push(
       `monitor should simulate through market-data, got ${monitor.result.status}/${monitor.result.connector?.kind}`,
     );

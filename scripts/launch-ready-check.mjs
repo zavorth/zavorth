@@ -88,9 +88,9 @@ const signedOk = signedArtifactsVerified || signedFromRun;
 const day1Fake = Boolean(
   retention.criteria?.day1Return
   && (
-    retention.day1Method === 'fake-env'
+    retention.day1Method === 'synthetic-env'
     || (Array.isArray(retention.history) && retention.history.some(
-      (h) => h?.event === 'day1Return' && /FAKE|fake-env|ALLOW_FAKE/i.test(String(h?.note || h?.notes || '')),
+      (h) => h?.event === 'day1Return' && /FAKE|synthetic-env|ALLOW_FAKE/i.test(String(h?.note || h?.notes || '')),
     ))
   ),
 );
@@ -112,18 +112,15 @@ const checks = [
     id: 'retention-r3',
     bar: 'ops',
     ok: Boolean(retention.criteria?.completedMissionWithoutCreator),
-    notes: retention.criteria?.completedMissionWithoutCreator
-      ? 'solo mission recorded'
+    notes: retention.criteria?.completedMissionWithoutCreator ? 'solo mission recorded'
       : 'missing completedMissionWithoutCreator',
   },
   {
     id: 'retention-r2-calendar',
     bar: 'launch',
     ok: Boolean(retention.criteria?.day1Return) && !day1Fake,
-    notes: day1Fake
-      ? 'day1Return present but marked fake/ALLOW_FAKE — not launch evidence'
-      : retention.criteria?.day1Return
-        ? 'day1Return recorded on later calendar day'
+    notes: day1Fake ? 'day1Return present but marked synthetic/ALLOW_FAKE — not launch evidence'
+      : retention.criteria?.day1Return ? 'day1Return recorded on later calendar day'
         : 'day1Return open — wait real next UTC day; never ZAVORTH_ALLOW_FAKE_DAY1 for claims',
   },
   {
@@ -144,8 +141,7 @@ const checks = [
     id: 'signed-store-artifacts',
     bar: 'launch',
     ok: signedOk,
-    notes: signedOk
-      ? 'installer signature cryptographically verified by a platform-native verifier'
+    notes: signedOk ? 'installer signature cryptographically verified by a platform-native verifier'
       : 'no installer signature verified — file or directory presence is not signing evidence',
   },
   {
@@ -156,8 +152,7 @@ const checks = [
     )),
     notes: liveCells?.cells?.some(
       (cell) => cell.id === 'live.multi-step.tool-plan' && cell.status === 'pass' && cell.live === true,
-    )
-      ? 'live multi-step tool-plan cell pass retained'
+    ) ? 'live multi-step tool-plan cell pass retained'
       : 'require live.multi-step.tool-plan pass (probe-only is not enough) — run npm run launch:live-cells -- --live',
   },
   {
@@ -187,14 +182,11 @@ const report = {
         'Only then prepare public channel announce assets',
       ]
     : [
-      !retention.criteria?.day1Return
-        ? 'After a later UTC calendar day of real product use: node scripts/retention-log.mjs --day1-return'
+      !retention.criteria?.day1Return ? 'After a later UTC calendar day of real product use: node scripts/retention-log.mjs --day1-return'
         : null,
-      !signedOk
-        ? 'Produce non-empty signed installers into dist-release or release-assets (not empty dirs)'
+      !signedOk ? 'Produce non-empty signed installers into dist-release or release-assets (not empty dirs)'
         : null,
-      !liveCells?.cells?.some((c) => c.id === 'live.multi-step.tool-plan' && c.status === 'pass')
-        ? 'npm run launch:live-cells -- --live (need multi-step pass)'
+      !liveCells?.cells?.some((c) => c.id === 'live.multi-step.tool-plan' && c.status === 'pass') ? 'npm run launch:live-cells -- --live (need multi-step pass)'
         : null,
     ].filter(Boolean),
 };

@@ -68,7 +68,7 @@ describe('TelegramSelfModificationController', () => {
           success: true,
           previewId: 'preview-1',
           relativePath: 'src/sample.ts',
-          summary: 'Atualiza o valor exportado.',
+          summary: 'Atualiza o value exportado.',
           diffSummary: '@@ -1 +1 @@\n-export const value = 1;\n+export const value = 2;',
         }),
         applyPreview: jest.fn().mockResolvedValue({
@@ -240,7 +240,7 @@ describe('TelegramSelfModificationController', () => {
           success: true,
           mode: 'goal',
           previewId: 'goal-preview-1',
-          summary: 'Changeset pronto.',
+          summary: 'Changeset ready.',
           changeCount: 2,
           validationPlan: ['build', 'launcher dry-run'],
           diffSummary: 'diff',
@@ -250,7 +250,7 @@ describe('TelegramSelfModificationController', () => {
           success: true,
           changeId: 'change-123',
           restoredFiles: 2,
-          summary: 'Rollback concluido.',
+          summary: 'Rollback completed.',
         }),
       },
     });
@@ -274,7 +274,7 @@ describe('TelegramSelfModificationController', () => {
           success: false,
           previewId: 'preview-blocked',
           relativePath: 'src/sample.ts',
-          summary: 'Preview bloqueado pela validacao.',
+          summary: 'Preview bloqueado pela validaction.',
           diffSummary: null,
           validationOutput: 'lint: found 2 issues',
         }),
@@ -286,6 +286,6 @@ describe('TelegramSelfModificationController', () => {
 
     expect(task.status).toBe('failed');
     expect(deps.selfModificationService.createPreview).toHaveBeenCalled();
-    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Saida da validacao|validation|Preview|bloqueado/i);
+    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Saida da validaction|validation|Preview|bloqueado/i);
   });
 });

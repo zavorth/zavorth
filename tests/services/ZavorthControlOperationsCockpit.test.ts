@@ -113,7 +113,7 @@ describe('ZavorthControlService operations cockpit', () => {
     const cockpitSnapshot = {
       generatedAt: new Date().toISOString(),
       status: 'healthy',
-      headline: 'Runtime estavel.',
+      headline: 'Runtime stable.',
       highlights: ['Tudo certo.'],
       runtime: {
         uptimeLabel: '2h 0m',
@@ -134,7 +134,7 @@ describe('ZavorthControlService operations cockpit', () => {
           id: 'maintenance-keepalive',
           label: 'Manter o host saudavel',
           command: 'npm run ops:maintain',
-          reason: 'Fluxo padrao.',
+          reason: 'Fluxo pattern.',
           priority: 'normal',
         },
       ],
@@ -166,7 +166,7 @@ describe('ZavorthControlService operations cockpit', () => {
     expect(cockpit).toEqual(
       expect.objectContaining({
         status: 'healthy',
-        headline: 'Runtime estavel.',
+        headline: 'Runtime stable.',
       }),
     );
   });

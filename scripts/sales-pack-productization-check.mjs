@@ -87,7 +87,7 @@ const overview = read(overviewFile);
 requireIncludes(overviewFile, overview, [
   'Modo Business',
   'Ativar Modo Business',
-  'Atendimento comercial fica oculto por padrao',
+  'Atendimento comercial fica oculto por default',
   'Criar exemplo local',
   'salesPackBusinessMode.effectiveEnabled',
 ]);

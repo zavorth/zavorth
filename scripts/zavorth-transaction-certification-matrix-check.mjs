@@ -50,7 +50,7 @@ try {
   const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionCertificationService.ts'), 'utf8');
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
-    'zavorth-transaction-certification/checkpoint-9',
+    'zavorth-transaction-certification/gate-9',
     'web-trade-approval',
     'secret-redaction',
     'no-live-execution',
@@ -79,7 +79,7 @@ try {
     'natural-first-routing',
     'approval-gate',
     'credential-ref-gate',
-    'typed-connector-simulation',
+    'typed-connector-dry-run',
     'zavorthControl-projection',
     'cross-surface-consistency',
     'secret-redaction',

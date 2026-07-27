@@ -48,7 +48,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'checkpoint-4-files',
+    id: 'gate-4-files',
     label: 'Connector registry capability provider files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
@@ -77,7 +77,7 @@ function ruleContainsMarkers() {
     ]],
     ['docs/README.md', [
       'capability-providers-ready',
-      '291 Credential vault - Channels And Messaging',
+      'Credential vault - Channels And Messaging',
       'Zavorth Capability Provider Registry',
     ]],
     ['docs/README.md', [
@@ -85,7 +85,7 @@ function ruleContainsMarkers() {
       'Zavorth Capability Provider Registry',
       'honest-unavailable',
       'no direct tool exposure',
-      '291 Credential vault - Channels And Messaging',
+      'Credential vault - Channels And Messaging',
     ]],
     ['package.json', [
       'zavorth:capability-provider-registry',
@@ -104,7 +104,7 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'checkpoint-4-markers',
+    id: 'gate-4-markers',
     label: 'Connector registry capability provider markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
@@ -125,7 +125,7 @@ function runCapabilityProviderFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'checkpoint-4-capability-provider-fixture',
+      id: 'gate-4-capability-provider-fixture',
       label: 'Capability provider registry fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -149,7 +149,7 @@ function runCapabilityProviderFixture() {
     && snapshot.safety?.noToolExposurePerformed === true
     && snapshot.safety?.noSkillMutationPerformed === true;
   return {
-    id: 'checkpoint-4-capability-provider-fixture',
+    id: 'gate-4-capability-provider-fixture',
     label: 'Capability provider registry fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, ${snapshot.summary.normalizedCapabilities} capability(ies), ${snapshot.summary.classifiedTools} tool(s)` : 'invalid capability provider snapshot',
@@ -175,7 +175,7 @@ function runCapabilityProviderBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousSidecarAdapterStatus === 'blocked';
   return {
-    id: 'checkpoint-4-blocked-fixture',
+    id: 'gate-4-blocked-fixture',
     label: 'Capability provider registry blocks without Approval gate readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, sidecarAdapter=${snapshot.previousSidecarAdapterStatus}` : `exit ${result.status}`,

@@ -42,7 +42,7 @@ describe('admin action API route hardening', () => {
     ];
 
     for (const route of routes) {
-      expect(route).toMatch(/require(?:Strict)?ManagementAuth/);
+      expect(route).toMatch(/require(-:Strict)-ManagementAuth/);
     }
 
     expect(routes[0].indexOf('requireManagementAuth')).toBeLessThan(routes[0].indexOf('startMitm'));
@@ -63,7 +63,7 @@ describe('admin action API route hardening', () => {
     ];
 
     for (const route of routes) {
-      expect(route).toMatch(/require(?:Strict)?ManagementAuth/);
+      expect(route).toMatch(/require(-:Strict)-ManagementAuth/);
     }
 
     expectHandlerAuthBefore(routes[0], 'GET', 'getCliRuntimeStatus');

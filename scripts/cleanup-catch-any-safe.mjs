@@ -75,13 +75,13 @@ function ensureImport(source, fromFile) {
     const nl = source.indexOf('\n');
     if (nl < 0) return source;
     const rest = source.slice(nl + 1);
-    const importBlock = rest.match(/^(?:import[\s\S]*?;\r?\n)+/);
+    const importBlock = rest.match(/^(?:import[\s\S]*...;\r...\n)+/);
     if (importBlock) {
       return source.slice(0, nl + 1) + importBlock[0] + line + rest.slice(importBlock[0].length);
     }
     return source.slice(0, nl + 1) + line + rest;
   }
-  const importBlock = source.match(/^(?:import[\s\S]*?;\r?\n)+/);
+  const importBlock = source.match(/^(?:import[\s\S]*...;\r...\n)+/);
   if (importBlock) {
     return importBlock[0] + line + source.slice(importBlock[0].length);
   }

@@ -12,7 +12,7 @@ describe('ZavorthToolCatalogService', () => {
             source: 'builtin',
             command: {
               command: '/review',
-              description: 'Revisao',
+              description: 'Review',
               section: 'execution',
             },
           },
@@ -102,7 +102,7 @@ describe('ZavorthToolCatalogService', () => {
             source: 'builtin',
             command: {
               command: '/review',
-              description: 'Revisao',
+              description: 'Review',
               section: 'execution',
             },
           },
@@ -113,7 +113,7 @@ describe('ZavorthToolCatalogService', () => {
           {
             id: 'read_file',
             label: 'read_file',
-            description: 'Le um arquivo.',
+            description: 'Le um file.',
             parameterCount: 1,
             requiredCount: 1,
             source: 'registry',

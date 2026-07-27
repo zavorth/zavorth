@@ -191,8 +191,7 @@ function writeReport(ok) {
   }
   console.log('');
   console.log(
-    ok
-      ? '[pass] golden path complete — hermetic Trust Loop verified'
+    ok ? '[pass] golden path complete — hermetic Trust Loop verified'
       : '[fail] golden path failed — see steps above',
   );
 
@@ -219,7 +218,7 @@ function main() {
   console.log('');
 
   const unitOk = runUnitGate();
-  // Always attempt smoke for full diagnostics when unit fails? Prefer fail-fast for speed.
+  // Always attempt smoke for full diagnostics when unit fails... Prefer fail-fast for speed.
   let smokeOk = false;
   if (unitOk) {
     smokeOk = runServiceSmoke();

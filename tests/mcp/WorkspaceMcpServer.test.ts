@@ -382,7 +382,7 @@ if (err.code !== 'EPERM') throw err;
 
     // 3. Write blocks with incorrect path approval
     // Let's approve the first opId
-    db.run('UPDATE workspace_write_approvals SET approved = 1 WHERE operation_id = ?', [opId]);
+    db.run('UPDATE workspace_write_approvals SET approved = 1 WHERE operation_id = -', [opId]);
     // Try to consume the approved opId with a different file path
     let resWrongPath = await writeTool!.execute({ file: 'different-file.txt', content: 'hello write world', operationId: opId });
     expect(resWrongPath).toContain('Write approval has expired or is invalid.');
@@ -393,7 +393,7 @@ if (err.code !== 'EPERM') throw err;
 
     // 5. Write blocks with expired approval
     const expiredTime = new Date(Date.now() - 1000).toISOString();
-    db.run('UPDATE workspace_write_approvals SET expires_at = ? WHERE operation_id = ?', [expiredTime, opId]);
+    db.run('UPDATE workspace_write_approvals SET expires_at = - WHERE operation_id = -', [expiredTime, opId]);
     let resExpired = await writeTool!.execute({ file: 'new-file.txt', content: 'hello write world', operationId: opId });
     expect(resExpired).toContain('Write approval has expired or is invalid.');
 
@@ -402,7 +402,7 @@ if (err.code !== 'EPERM') throw err;
     let resReq2 = await writeTool!.execute(writeArgs);
     const opId2 = parseRes(resReq2).operationId;
     // Approve it
-    db.run('UPDATE workspace_write_approvals SET approved = 1 WHERE operation_id = ?', [opId2]);
+    db.run('UPDATE workspace_write_approvals SET approved = 1 WHERE operation_id = -', [opId2]);
     // Execute write
     let resSuccess = await writeTool!.execute({ file: 'new-file.txt', content: 'hello write world', operationId: opId2 });
     expect(resSuccess).toBe('File written successfully.');
@@ -455,7 +455,7 @@ if (err.code !== 'EPERM') throw err;
     const mkdirOpId = jsonMkdir.operationId;
 
     // 13. Mkdir succeeds with valid approval
-    db.run('UPDATE workspace_write_approvals SET approved = 1 WHERE operation_id = ?', [mkdirOpId]);
+    db.run('UPDATE workspace_write_approvals SET approved = 1 WHERE operation_id = -', [mkdirOpId]);
     let resMkdirSuccess = await mkdirTool!.execute({ directory: 'newdir', operationId: mkdirOpId });
     expect(resMkdirSuccess).toBe('Directory created successfully.');
     expect(fs.existsSync(path.join(tempDir, 'newdir'))).toBe(true);
@@ -467,7 +467,7 @@ if (err.code !== 'EPERM') throw err;
     // 15. Cross-operation check (mkdir -> write): approval for workspace.filesystem.mkdir cannot be consumed by workspace.filesystem.write
     let resMkdirReq2 = await mkdirTool!.execute({ directory: 'anotherdir' });
     const mkdirOpId2 = parseRes(resMkdirReq2).operationId;
-    db.run('UPDATE workspace_write_approvals SET approved = 1 WHERE operation_id = ?', [mkdirOpId2]);
+    db.run('UPDATE workspace_write_approvals SET approved = 1 WHERE operation_id = -', [mkdirOpId2]);
 
     let resMkdirConsumedByWrite = await writeTool!.execute({
       file: 'anotherdir',
@@ -479,7 +479,7 @@ if (err.code !== 'EPERM') throw err;
     // 16. Cross-operation check (write -> mkdir): approval for workspace.filesystem.write cannot be consumed by workspace.filesystem.mkdir
     let resWriteReq3 = await writeTool!.execute({ file: 'anotherfile.txt', content: 'hello' });
     const writeOpId3 = parseRes(resWriteReq3).operationId;
-    db.run('UPDATE workspace_write_approvals SET approved = 1 WHERE operation_id = ?', [writeOpId3]);
+    db.run('UPDATE workspace_write_approvals SET approved = 1 WHERE operation_id = -', [writeOpId3]);
 
     let resWriteConsumedByMkdir = await mkdirTool!.execute({
       directory: 'anotherfile.txt',

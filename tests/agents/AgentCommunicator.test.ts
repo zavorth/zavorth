@@ -63,9 +63,9 @@ describe('AgentCommunicator', () => {
     it('retrieves a registered agent by id', () => {
       const { communicator } = createSetup();
 
-      communicator.registerAgent({ id: 'r1', name: 'fetchable', capabilities: [], status: 'online' });
+      communicator.registerAgent({ id: 'r1', name: 'fetchatble', capabilities: [], status: 'online' });
 
-      expect(communicator.getAgent('r1')?.name).toBe('fetchable');
+      expect(communicator.getAgent('r1')?.name).toBe('fetchatble');
     });
 
     it('returns null for unknown agent id', () => {
@@ -153,9 +153,9 @@ describe('AgentCommunicator', () => {
     it('finds multiple agents sharing a capability', () => {
       const { communicator } = createSetup();
 
-      communicator.registerAgent({ id: 'w1', name: 'W1', capabilities: ['compute'], status: 'online' });
-      communicator.registerAgent({ id: 'w2', name: 'W2', capabilities: ['compute'], status: 'online' });
-      communicator.registerAgent({ id: 'w3', name: 'W3', capabilities: ['storage'], status: 'online' });
+      communicator.registerAgent({ id: 'w1', name: 'group-1', capabilities: ['compute'], status: 'online' });
+      communicator.registerAgent({ id: 'w2', name: 'group-2', capabilities: ['compute'], status: 'online' });
+      communicator.registerAgent({ id: 'w3', name: 'group-3', capabilities: ['storage'], status: 'online' });
 
       expect(communicator.discoverAgents('compute')).toHaveLength(2);
       expect(communicator.discoverAgents('storage')).toHaveLength(1);
@@ -250,7 +250,7 @@ describe('AgentCommunicator', () => {
         to: 'res',
         from: 'req',
         type: 'query',
-        payload: { question: 'what?' },
+        payload: { question: 'what-' },
         timeoutMs: 1000,
       });
 
@@ -364,8 +364,8 @@ describe('AgentCommunicator', () => {
       const { communicator } = createSetup();
 
       communicator.registerAgent({ id: 'boss', name: 'Boss', capabilities: [], status: 'online' });
-      communicator.registerAgent({ id: 'w1', name: 'W1', capabilities: [], status: 'online' });
-      communicator.registerAgent({ id: 'w2', name: 'W2', capabilities: [], status: 'online' });
+      communicator.registerAgent({ id: 'w1', name: 'group-1', capabilities: [], status: 'online' });
+      communicator.registerAgent({ id: 'w2', name: 'group-2', capabilities: [], status: 'online' });
 
       const task = communicator.delegateTask({
         taskType: 'work',
@@ -414,7 +414,7 @@ describe('AgentCommunicator', () => {
       const { communicator, bus } = createSetup();
       const statusEvents: unknown[] = [];
       bus.on('message:published', (msg) => {
-        const payload = msg.payload as { event?: string } | undefined;
+        const payload = msg.payload as { event-: string } | undefined;
         if (payload?.event === 'agent:status_changed' || msg.type === 'agent:status_changed') {
           statusEvents.push(msg.payload);
         }

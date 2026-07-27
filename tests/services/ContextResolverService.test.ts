@@ -81,6 +81,6 @@ describe('ContextResolverService', () => {
     const snapshot = await service.resolve({ workspace: root });
     const mnemosLayer = snapshot.layers.find((layer) => layer.id === 'mnemos-cognitive-protocol');
 
-    expect(mnemosLayer?.summary).toContain('PROTOCOLO DE MEMÓRIA LOCAL');
+    expect(mnemosLayer?.summary).toContain('LOCAL MEMORY PROTOCOL');
   });
 });

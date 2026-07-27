@@ -55,7 +55,7 @@ function buildLearningSnapshot(overrides: Record<string, any> = {}) {
     ],
     narrative: {
       headline: 'Learning plane com 1 candidato derivado do runtime.',
-      operatorSummary: '1 pendente, 0 aprovado e 0 promovido.',
+      operatorSummary: '1 pendente, 0 approved e 0 promovido.',
     },
     ...overrides,
   };
@@ -71,7 +71,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceLearningCo
         actionId: 'approve',
         status: 'applied',
         ok: true,
-        summary: 'Gateway smoke skill aprovado como draft revisavel.',
+        summary: 'Gateway smoke skill approved como draft revisavel.',
         details: ['O item continua como learned_draft ate uma promocao explicita.'],
         snapshot: buildLearningSnapshot(),
       })),
@@ -138,7 +138,7 @@ describe('SharedSurfaceLearningCommandPack', () => {
       actionId: 'approve',
       status: 'applied',
       ok: true,
-      summary: 'Gateway smoke skill aprovado como draft revisavel.',
+      summary: 'Gateway smoke skill approved como draft revisavel.',
       details: ['O item continua como learned_draft ate uma promocao explicita.'],
       snapshot,
     }));
@@ -158,7 +158,7 @@ describe('SharedSurfaceLearningCommandPack', () => {
       actionId: 'approve',
     });
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Gateway smoke skill aprovado como draft revisavel.'),
+      expect.stringContaining('Gateway smoke skill approved como draft revisavel.'),
     );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Status: applied.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learn = skill drafts · /learning = candidates'));
@@ -173,7 +173,7 @@ describe('SharedSurfaceLearningCommandPack', () => {
       status: 'applied',
       ok: true,
       summary: 'Gateway smoke skill promovido para trusted local.',
-      details: ['O candidato agora pode aparecer como habilidade aprendida.'],
+      details: ['O candidato agora pode aparecer como there isbilidade aprendida.'],
       snapshot,
     }));
     const pack = buildPack({

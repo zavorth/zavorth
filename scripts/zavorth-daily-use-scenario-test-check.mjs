@@ -22,10 +22,10 @@ if (snapshot.surface !== 'daily-use-scenario-test') failures.push('surface misma
 if (!['passed', 'attention', 'failed'].includes(snapshot.status)) failures.push('invalid status');
 if (snapshot.summary?.scenarios !== 5) failures.push('expected exactly five daily-use scenarios');
 if (snapshot.summary?.failed !== 0) failures.push('daily-use scenario has failed cases');
-for (const id of ['faculdade-documentos', 'provider-llm', 'skill-curator', 'telegram-remoto', 'agent-review-swarm']) {
+for (const id of ['faculdade-documentos', 'provider-llm', 'skill-curator', 'telegram-remote', 'agent-review-swarm']) {
   if (!snapshot.scenarios?.some((scenario) => scenario.id === id)) failures.push(`missing scenario ${id}`);
 }
-if (snapshot.safety?.simulationOnly !== true) failures.push('simulation-only safety missing');
+if (snapshot.safety?.dryRunOnly !== true) failures.push('dry-run-only safety missing');
 if (snapshot.safety?.noTelegramMessageSent !== true) failures.push('telegram no-send safety missing');
 if (snapshot.safety?.noLiveProviderProbeByDefault !== true) failures.push('provider no-live-probe safety missing');
 if (snapshot.scenarios?.some((scenario) => scenario.safety?.rawSecretsSerialized !== false)) failures.push('scenario serialized raw secrets');

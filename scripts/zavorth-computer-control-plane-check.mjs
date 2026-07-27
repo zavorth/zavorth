@@ -39,7 +39,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('computer-control-files', 'Computer control plane files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Approval gate files present', missing);
+  return rule('computer-control-files', 'Computer control plane files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all Approval gate files present', missing);
 }
 
 function ruleMarkers() {
@@ -65,7 +65,7 @@ function runObserveFixture() {
     '--json',
     '--action', 'observe',
     '--window', 'Notepad',
-    '--screen', 'Tela normal sem segredo',
+    '--screen', 'Normal screen without secrets',
   ]);
   return jsonRule('computer-observe-fixture', 'Observe is read-only and mutation-free', result, (snapshot) =>
     ['ready', 'watch-mode-ready'].includes(snapshot.status)
@@ -81,7 +81,7 @@ function runPlanApprovalFixture() {
     '--action', 'plan',
     '--window', 'Notepad',
     '--target-text', 'Salvar',
-    'clique no botao salvar',
+    'click the button salvar',
   ]);
   return jsonRule('computer-plan-approval-fixture', 'Click/type/key plans require approval', result, (snapshot) =>
     snapshot.status === 'approval-required'
@@ -175,5 +175,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

@@ -18,7 +18,7 @@ describe('ZavorthLiveCanaryControlledExecutorService', () => {
     const snapshot = await service.buildSnapshot();
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_LIVE_CANARY_CONTROLLED_EXECUTOR_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('checkpoint-10-live-canary-controlled-executor');
+    expect(snapshot.gate).toBe('live-canary-controlled-executor');
     expect(snapshot.status).toBe('needs-apply-gate');
     expect(snapshot.executionResult.status).toBe('not-run');
     expect(snapshot.safety).toMatchObject({
@@ -27,7 +27,7 @@ describe('ZavorthLiveCanaryControlledExecutorService', () => {
       noImplicitExecutionFromChecks: true,
       idempotencyKeyRequiredForExecution: true,
       rollbackReceiptRequiredAfterExecution: true,
-      noDashboardVisualMutation: true,
+      noZavorthControlVisualMutation: true,
     });
   });
 
@@ -137,7 +137,7 @@ describe('ZavorthLiveCanaryControlledExecutorService', () => {
   });
 });
 
-function readyApplyGateInput(adapter?: ReturnType<typeof providerAdapter>) {
+function readyApplyGateInput(adapter-: ReturnType<typeof providerAdapter>) {
   return {
     adapterReview: {
       evidenceCanary: { evidence: canonicalEvidence() },

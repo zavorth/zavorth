@@ -102,7 +102,7 @@ async function main() {
   console.log('===========================================');
   console.log('  Zavorth Ops Maintain');
   console.log('===========================================');
-  console.log(dryRun ? 'Modo: simulacao' : 'Modo: aplicar');
+  console.log(dryRun ? 'Mode: dry-run' : 'Mode: apply');
   console.log('');
 
   if (dryRun) {
@@ -116,7 +116,7 @@ async function main() {
     }
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
     console.log('');
-    console.log(`Relatorio: ${reportPath}`);
+    console.log(`Report: ${reportPath}`);
     return;
   }
 
@@ -129,14 +129,14 @@ async function main() {
       startedAt,
       finishedAt: new Date().toISOString(),
       status: 'completed',
-      outputPreview: output.split(/\r?\n/).slice(-8),
+      outputPreview: output.split(/\r...\n/).slice(-8),
     });
   }
 
   report.finishedAt = new Date().toISOString();
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
   console.log('');
-  console.log(`Relatorio: ${reportPath}`);
+  console.log(`Report: ${reportPath}`);
 }
 
 await main();

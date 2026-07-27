@@ -47,11 +47,11 @@ const requirePass = argv.includes('--require-pass') || argv.includes('--gate');
 const capabilityId = (() => { try { return requireAutopilotCapabilityId(typeof argv !== 'undefined' ? argv : process.argv.slice(2)); } catch (error) { process.stderr.write('[' + 'capability-autopilot-memory' + '] ' + (error instanceof Error ? error.message : String(error)) + '\n'); process.exit(1); return ''; } })();
 const surface = (readArg('--surface=') || 'cli') as CapabilityAutopilotSurface;
 const audience = (asJson ? 'technical_operator' : 'everyday_user') as CapabilityAutopilotAudience;
-const rawIntentProbe = 'STAGE64-RAW-INTENT-MUST-NOT-BE-STORED';
-const rawWorkspaceProbe = 'C:/private/STAGE64-RAW-WORKSPACE-MUST-NOT-BE-STORED';
+const rawIntentProbe = 'GATE64-RAW-INTENT-MUST-NOT-BE-STORED';
+const rawWorkspaceProbe = 'C:/private/GATE64-RAW-WORKSPACE-MUST-NOT-BE-STORED';
 
 main().catch((error) => {
-  process.stderr.write(`[capability-autopilot-memory] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(`[capability-autopilot-memory] failure: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 });
 
@@ -92,15 +92,15 @@ function readArg(prefix: string): string | null {
 
 function buildFixtureIntent(): OriginalIntentEnvelope {
   return {
-    intentId: 'checkpoint-64-fixture-intent',
+    intentId: 'gate-64-fixture-intent',
     createdAt: new Date().toISOString(),
     surface,
     audience,
-    userId: 'checkpoint-64-gate',
-    sessionId: 'checkpoint-64-session',
-    taskId: 'checkpoint-64-task',
+    userId: 'gate-64-gate',
+    sessionId: 'gate-64-session',
+    taskId: 'gate-64-task',
     rawText: rawIntentProbe,
-    normalizedText: 'phase 64 redacted memory probe',
+    normalizedText: 'gate 64 redacted memory probe',
     requestedCapabilityId: capabilityId,
     requestedExecutorName: capabilityId.replace(/^executor-/, ''),
     workspace: rawWorkspaceProbe,
@@ -141,7 +141,7 @@ function buildSnapshot(
       stage: '65',
       title: 'Provider And Integration Expansion',
       reason:
-        'Depois de criar memoria redigida e replay seguro, o proximo passo e ampliar provedores/adapters sem perder degradacao segura.',
+        'After creating redacted memory and safe replay, the next step is to expand providers/adapters without losing safe degradation.',
     },
   };
 }
@@ -156,9 +156,9 @@ function buildChecks(
   return [
     check(
       'capability-autopilot-memory:privacy-contract',
-      'contrato de privacidade',
+      'privacy contract',
       memory.privacy.redacted && !memory.privacy.rawIntentStored && !memory.privacy.rawWorkspaceStored ? 'pass' : 'fail',
-      'Memoria de capability guarda fingerprints e hashes, nao payload cru.',
+      'Capability memory stores fingerprints and hashes, not raw payload.',
       [
         `redacted=${String(memory.privacy.redacted)}`,
         `rawIntentStored=${String(memory.privacy.rawIntentStored)}`,
@@ -167,12 +167,12 @@ function buildChecks(
     ),
     check(
       'capability-autopilot-memory:no-raw-payload',
-      'sem payload cru serializado',
+      'no serialized raw payload',
       !serialized.includes(rawIntentProbe) &&
         !serialized.includes(rawWorkspaceProbe) &&
         !serialized.includes('rawText') &&
         !serialized.includes('normalizedText') ? 'pass' : 'fail',
-      'Snapshot publico do gate nao pode vazar texto original, workspace cru nem chaves raw.',
+      'Public gate snapshot must not leak original text, raw workspace or raw keys.',
       [
         `containsIntentProbe=${String(serialized.includes(rawIntentProbe))}`,
         `containsWorkspaceProbe=${String(serialized.includes(rawWorkspaceProbe))}`,
@@ -181,26 +181,26 @@ function buildChecks(
     ),
     check(
       'capability-autopilot-memory:fingerprints',
-      'hashes e fingerprints',
+      'hashes and fingerprints',
       Boolean(memory.intentFingerprint && memory.workspaceHash) ? 'pass' : 'fail',
-      'Intent e workspace precisam virar fingerprint/hash deterministico para aprendizado futuro.',
+      'Intent and workspace need to become deterministic fingerprint/hash for future learning.',
       [
-        `intentFingerprint=${memory.intentFingerprint ? memory.intentFingerprint.slice(0, 12) : '<ausente>'}`,
-        `workspaceHash=${memory.workspaceHash ? memory.workspaceHash.slice(0, 12) : '<ausente>'}`,
+        `intentFingerprint=${memory.intentFingerprint ? memory.intentFingerprint.slice(0, 12) : '<absent>'}`,
+        `workspaceHash=${memory.workspaceHash ? memory.workspaceHash.slice(0, 12) : '<absent>'}`,
       ],
     ),
     check(
       'capability-autopilot-memory:signals',
-      'sinais operacionais',
+      'operational signals',
       memory.signals.length > 0 ? 'pass' : 'fail',
-      'Replay learning precisa de sinais operacionais suficientes para explicar a recomendacao.',
+      'Replay learning needs sufficient operational signals to explain the recommendation.',
       memory.signals.map((signal) => `${signal.kind}:${signal.weight}`),
     ),
     check(
       'capability-autopilot-memory:replay-frame',
-      'frame de replay coerente',
+      'coherent replay frame',
       replay.sourceMemoryId === memory.memoryId && replay.replayable === memory.replayable ? 'pass' : 'fail',
-      'O replay frame precisa apontar para a memoria fonte e preservar a decisao de replay.',
+      'The replay frame needs to point to the source memory and preserve the replay decision.',
       [
         `sourceMemoryId=${replay.sourceMemoryId}`,
         `memoryId=${memory.memoryId}`,
@@ -209,13 +209,13 @@ function buildChecks(
     ),
     check(
       'capability-autopilot-memory:aggregate',
-      'agregado sem payload sensivel',
+      'aggregate without sensitive payload',
       aggregate.totalRecords === 1 && aggregate.replayableCount === (memory.replayable ? 1 : 0) ? 'pass' : 'fail',
-      'Resumo agregado deve contar outcomes sem depender de payload cru.',
+      'Aggregated summary should count outcomes without depending on raw payload.',
       [
         `totalRecords=${aggregate.totalRecords}`,
         `replayableCount=${aggregate.replayableCount}`,
-        `lastRecommendedAction=${aggregate.lastRecommendedAction || '<ausente>'}`,
+        `lastRecommendedAction=${aggregate.lastRecommendedAction || '<absent>'}`,
       ],
     ),
   ];
@@ -254,7 +254,7 @@ function renderReport(snapshot: CapabilityAutopilotMemorySnapshot): string {
     }
   }
   lines.push('');
-  lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
+  lines.push(`recommended next step: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
   lines.push(snapshot.nextRecommendedStage.reason);
   return lines.join('\n');
 }

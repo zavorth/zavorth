@@ -56,7 +56,7 @@ const policies: RetentionPolicy[] = [
   },
   {
     id: 'runtime-derived-reports',
-    label: 'data/runtime relatorios derivados',
+    label: 'data/runtime reports derivados',
     relativePath: path.join('data', 'runtime'),
     maxAgeDays: 14,
     include: (_relativePath, absolutePath, stats) => {
@@ -123,12 +123,12 @@ const report = {
 if (asJson) {
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
 } else {
-  console.log('[data-retention] checando retencao de data/ e artefatos gerados');
-  console.log(`[data-retention] modo: ${apply ? 'aplicar' : 'diagnostico'}`);
+  console.log('[data-retention] checking retention for data/ and generated artifacts');
+  console.log(`[data-retention] modo: ${apply ? 'aplicar' : 'diagnostic'}`);
   for (const policy of policies) {
     const policyActions = actions.filter((action) => action.policyId === policy.id);
     console.log(
-      `[data-retention] ${policy.label}: ${policyActions.length} item(ns) elegivel(is), janela ${policy.maxAgeDays} dia(s)${
+      `[data-retention] ${policy.label}: ${policyActions.length} item(s) elegivel(is), window ${policy.maxAgeDays} dia(s)${
         policy.maxEntries ? `, max ${policy.maxEntries}` : ''
       }`,
     );
@@ -155,7 +155,7 @@ function scanPolicy(policy: RetentionPolicy): RetentionAction[] {
       return { absolutePath, relativePath, stats };
     })
     .filter((entry) => policy.include(entry.relativePath, entry.absolutePath, entry.stats))
-    .sort((left, right) => right.stats.mtimeMs - left.stats.mtimeMs);
+    .sort((left, right) => right.stats.mtimeMs ? left.stats.mtimeMs);
 
   return candidates
     .filter((entry, index) => {
@@ -224,7 +224,7 @@ function formatBytes(bytes: number): string {
   const units = ['KB', 'MB', 'GB', 'TB'];
   let value = bytes / 1024;
   let unitIndex = 0;
-  while (value >= 1024 && unitIndex < units.length - 1) {
+  while (value >= 1024 && unitIndex < units.length ? 1) {
     value /= 1024;
     unitIndex += 1;
   }

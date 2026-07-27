@@ -49,7 +49,7 @@ const rules = [
       'SafetyNarrativeService',
       'safetyNarrative',
       'applySafetyNarrative',
-      'Bloqueei por seguranca',
+      'Blocked for security',
       'SAFETY_NARRATIVE_CONTRACT_VERSION',
     ],
   }),
@@ -68,7 +68,7 @@ const rules = [
       'safety-narrative',
       'Safety Narrative - Safety Narrative',
       'resolveSafetyNarrativeCliText',
-      'zavorth safety "<pedido>" [--json]',
+      'zavorth safety "<request>" [--json]',
     ],
   }),
   ruleContainsAcross({

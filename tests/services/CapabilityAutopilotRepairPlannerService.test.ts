@@ -14,7 +14,7 @@ const descriptor: CapabilityOperationalDescriptor = {
   label: 'Gemini CLI',
   type: 'executor',
   intent: 'code_execution',
-  summary: 'Executa tarefas via Gemini CLI.',
+  summary: 'Runs tasks through Gemini CLI.',
   source: 'builtin',
   command: '/gemini',
   tags: ['gemini', 'cli'],
@@ -45,7 +45,7 @@ const geminiBinaryRequirement: IntegrationRequirement = {
   id: 'gemini_cli_binary',
   type: 'binary',
   label: 'Gemini CLI binary',
-  description: 'Comando gemini precisa estar instalado e visivel no PATH.',
+  description: 'Gemini command must be installed and visible on PATH.',
   required: true,
 };
 
@@ -68,7 +68,7 @@ function createDiagnosis(overrides: Partial<CapabilityDiagnosis> = {}): Capabili
     generatedAt: FIXED_NOW.toISOString(),
     failureKind: 'missing_binary',
     status: 'missing',
-    rootCause: 'Binario obrigatorio ausente: Gemini CLI binary.',
+    rootCause: 'Binario required missing: Gemini CLI binary.',
     confidence: 0.94,
     repairable: true,
     requiresUserInput: true,
@@ -88,8 +88,8 @@ function createReadiness(overrides: Partial<CapabilityReadinessSnapshot> = {}): 
     severity: 'error',
     ready: false,
     safeToRun: false,
-    summary: 'Gemini CLI ainda nao esta pronto.',
-    detail: 'Faltam requisitos obrigatorios: Gemini CLI binary.',
+    summary: 'Gemini CLI ainda not esta ready.',
+    detail: 'Faltam requisitos requireds: Gemini CLI binary.',
     checkedTargets: [
       {
         kind: 'binary',
@@ -176,7 +176,7 @@ describe('CapabilityAutopilotRepairPlannerService', () => {
     const diagnosis = createDiagnosis({
       failureKind: 'unknown',
       status: 'ready',
-      rootCause: 'Nenhuma falha operacional detectada no readiness atual.',
+      rootCause: 'Noa failure operacional detectada no readiness atual.',
       confidence: 1,
       repairable: false,
       requiresUserInput: false,
@@ -219,7 +219,7 @@ describe('CapabilityAutopilotRepairPlannerService', () => {
     const plan = service.planFromDiagnosis(createDiagnosis({
       failureKind: 'policy_blocked',
       status: 'blocked',
-      rootCause: 'Policy bloqueou a capability antes da execucao.',
+      rootCause: 'Policy blocked the capability before execution.',
       confidence: 0.88,
       repairable: false,
       requiresUserInput: true,

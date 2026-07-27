@@ -52,7 +52,7 @@ describe('SecurityProfile', () => {
 
     expect(resolution.profile.id).toBe('professional');
     expect(resolution.source).toBe('default');
-    expect(resolution.reason).toContain('padrao seguro');
+    expect(resolution.reason).toContain('pattern seguro');
   });
 
   it('honors explicit and environment profile aliases', () => {
@@ -93,8 +93,8 @@ describe('SecurityProfile', () => {
 
     expect(message).toContain('O Zavorth quer executar "create_file"');
     expect(message).toContain('Perfil: Uso profissional');
-    expect(message).toContain('mudancas em arquivos ou workspace');
-    expect(message).toContain('A acao so continua se voce aprovar');
+    expect(message).toContain('mudancas em files ou workspace');
+    expect(message).toContain('A action so continua se you approve');
   });
 
   it('inspects invalid security profile configuration without silently blessing drift', () => {

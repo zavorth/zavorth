@@ -22,7 +22,7 @@ describe('SessionHandoffService', () => {
           status: 'waiting_approval',
           workspace: 'C:/repo',
           updatedAt: '2026-04-02T12:00:00.000Z',
-          summary: 'Aguardando confirmacao para entregar o arquivo final.',
+          summary: 'Aguardando confirmation para entregar o file final.',
         },
         activeTask: null,
         latestTelegramTask: {
@@ -43,7 +43,7 @@ describe('SessionHandoffService', () => {
           status: 'waiting_approval',
           workspace: 'C:/repo',
           updatedAt: '2026-04-02T12:00:00.000Z',
-          summary: 'Aguardando confirmacao para entregar o arquivo final.',
+          summary: 'Aguardando confirmation para entregar o file final.',
         },
         latestDiscordTask: null,
         latestWhatsAppTask: null,
@@ -55,7 +55,7 @@ describe('SessionHandoffService', () => {
           status: 'waiting_approval',
           workspace: 'C:/repo',
           updatedAt: '2026-04-02T12:00:00.000Z',
-          summary: 'Aguardando confirmacao para entregar o arquivo final.',
+          summary: 'Aguardando confirmation para entregar o file final.',
         },
         recentTasks: [
           {
@@ -66,7 +66,7 @@ describe('SessionHandoffService', () => {
             status: 'waiting_approval',
             workspace: 'C:/repo',
             updatedAt: '2026-04-02T12:00:00.000Z',
-            summary: 'Aguardando confirmacao para entregar o arquivo final.',
+            summary: 'Aguardando confirmation para entregar o file final.',
           },
           {
             taskId: 'task-tg-1',
@@ -98,15 +98,15 @@ describe('SessionHandoffService', () => {
         suggestedAction: {
           kind: 'resume-active',
           label: 'Retomar task-web',
-          reason: 'Existe uma entrega aguardando sua confirmacao.',
-          prompt: 'Retome a entrega e prepare o proximo passo com base no que ja foi validado.',
+          reason: 'Existe uma entrega waiting for sua confirmation.',
+          prompt: 'Resume a entrega e prepare o next step com base no que already validated.',
         },
         workspaceContext: null,
       },
       replay: {
         generatedAt: '2026-04-02T12:01:00.000Z',
-        headline: 'Replay pronto para retomar task-web em web.',
-        operatorSummary: '2 tarefa(s) recentes | 1 workflow(s) composto(s) | 1 confirmacao(oes) pendente(s)',
+        headline: 'Replay ready para resume task-web em web.',
+        operatorSummary: '2 tarefa(s) recentes | 1 workflow(s) composto(s) | 1 confirmation(oes) pendente(s)',
         focusTask: {
           taskId: 'task-web-1',
           shortId: 'task-web',
@@ -115,7 +115,7 @@ describe('SessionHandoffService', () => {
           status: 'waiting_approval',
           workspace: 'C:/repo',
           updatedAt: '2026-04-02T12:00:00.000Z',
-          summary: 'Aguardando confirmacao para entregar o arquivo final.',
+          summary: 'Aguardando confirmation para entregar o file final.',
         },
         dominantSurface: 'web',
         stats: {
@@ -138,7 +138,7 @@ describe('SessionHandoffService', () => {
         {
           workflow_run_id: 'wf-1',
           workflow_name: 'ship',
-          objective: 'Fechar entrega final',
+          objective: 'Close entrega final',
           workspace: 'C:/repo',
           workspace_context: null,
           created_at: '2026-04-02T11:50:00.000Z',
@@ -155,10 +155,10 @@ describe('SessionHandoffService', () => {
             task_id: 'task-web-1',
             objective: 'Revisar entrega',
             handoff_summary: 'Entrega consolidada.',
-            result_summary: 'Aguardando confirmacao para concluir.',
-            reason: 'Existe uma aprovacao pendente na etapa final.',
+            result_summary: 'Aguardando confirmation para concluir.',
+            reason: 'There is pending approval in the final stage.',
           },
-          resume_prompt: 'Retome a revisao final.',
+          resume_prompt: 'Resume a review final.',
           artifacts: [],
           artifacts_manifest: {},
         },
@@ -169,15 +169,15 @@ describe('SessionHandoffService', () => {
       expect.objectContaining({
         generatedAt: '2026-04-02T12:05:00.000Z',
         status: 'resume-required',
-        headline: expect.stringContaining('Handoff pronto'),
+        headline: expect.stringContaining('Handoff ready'),
         operatorSummary: expect.stringContaining('resume suggested'),
         canonicalTarget: expect.objectContaining({
           kind: 'task',
           id: 'task-web-1',
           source: 'web',
         }),
-        handoffPrompt: expect.stringContaining('Retome a entrega'),
-        handoffCommand: 'Retome a tarefa task-web-1 e continue do ponto atual.',
+        handoffPrompt: expect.stringContaining('Resume a entrega'),
+        handoffCommand: 'Resume a tarefa task-web-1 e continue do ponto atual.',
         checkpoints: expect.objectContaining({
           tasks: 2,
           workflowRuns: 1,

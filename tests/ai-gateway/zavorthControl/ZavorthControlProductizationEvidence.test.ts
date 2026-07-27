@@ -20,7 +20,7 @@ describe('ZavorthControl productization evidence Channel mesh6', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-productization-evidence',
-      text: 'audite release readiness do produto',
+      text: 'audite release readiness do product',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {
@@ -103,7 +103,7 @@ describe('ZavorthControl productization evidence Channel mesh6', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-productization-evidence-live',
-      text: 'prepare produto para preview release',
+      text: 'prepare product for preview release',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

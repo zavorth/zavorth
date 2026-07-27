@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * Wave 8 — Plugin Atlas generator
+ * Plugin Atlas generator
  *
  * Reads:
  *   config/plugin-marketplace-curated.json
- *   config/plugin-os-gap-waves.json (optional)
+ *   config/plugin-os-capability-groups.json (optional)
  *
  * Writes:
  *   docs/generated/plugin-atlas.json
@@ -19,12 +19,12 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const curatedPath = path.join(root, 'config', 'plugin-marketplace-curated.json');
-const gapWavesPath = path.join(root, 'config', 'plugin-os-gap-waves.json');
+const capabilityGroupsPath = path.join(root, 'config', 'plugin-os-capability-groups.json');
 const outDir = path.join(root, 'docs', 'generated');
 const outJson = path.join(outDir, 'plugin-atlas.json');
 const outMd = path.join(outDir, 'plugin-atlas.md');
 
-const WAVE_TAG_RE = /^wave([0-9]+)$/i;
+const GROUP_TAG_RE = /^group([0-9]+)$/i;
 const PACK_TAG_HINTS = new Set([
   'daily-ops',
   'provider',
@@ -54,50 +54,50 @@ function normalizeTags(tags) {
   return asArray(tags).map((t) => String(t).trim()).filter(Boolean);
 }
 
-function waveFromTag(tags) {
+function groupFromTag(tags) {
   for (const tag of tags) {
-    const m = WAVE_TAG_RE.exec(tag);
+    const m = GROUP_TAG_RE.exec(tag);
     if (m) return `W${m[1]}`;
   }
   return null;
 }
 
 /**
- * Build id → waveId from gap-waves packages lists (W1+; baseline stays null unless tagged).
+ * Build id -> groupId from capability-groups packages lists (group-1+; baseline stays null unless tagged).
  */
-function packageWaveMap(gapWaves) {
+function packageGroupMap(capabilityGroups) {
   const map = new Map();
-  if (!gapWaves || !Array.isArray(gapWaves.waves)) return map;
-  for (const wave of gapWaves.waves) {
-    const waveId = String(wave.id || '').trim();
-    if (!waveId) continue;
-    for (const pkg of asArray(wave.packages)) {
+  if (!capabilityGroups || !Array.isArray(capabilityGroups.groups)) return map;
+  for (const group of capabilityGroups.groups) {
+    const groupId = String(group.id || '').trim();
+    if (!groupId) continue;
+    for (const pkg of asArray(group.packages)) {
       const id = String(pkg || '').trim();
-      if (id && !map.has(id)) map.set(id, waveId);
+      if (id && !map.has(id)) map.set(id, groupId);
     }
   }
   return map;
 }
 
-function inferWave(entry, byPackage) {
+function inferGroup(entry, byPackage) {
   const tags = normalizeTags(entry.tags);
-  const fromTag = waveFromTag(tags);
+  const fromTag = groupFromTag(tags);
   if (fromTag) return fromTag;
-  const fromWaveList = byPackage.get(entry.id);
-  if (fromWaveList && fromWaveList !== 'W0') return fromWaveList;
+  const fromGroupList = byPackage.get(entry.id);
+  if (fromGroupList && fromGroupList !== 'group-0') return fromGroupList;
   return null;
 }
 
 function packKeysFor(entry) {
   const tags = normalizeTags(entry.tags);
   const keys = new Set();
-  // Prefer explicit waveN tags; also fold inferred entry.wave (from gap-waves packages).
-  const waveTag = waveFromTag(tags);
-  const waveKey = waveTag
-    || (entry.wave ? String(entry.wave).toLowerCase().replace(/^w/i, 'wave') : null);
-  if (waveKey) keys.add(waveKey.toLowerCase().replace(/^w(\d+)$/i, 'wave$1'));
+  // Prefer explicit groupN tags; also fold inferred entry.group (from capability-groups packages).
+  const groupTag = groupFromTag(tags);
+  const groupKey = groupTag
+    || (entry.group ? String(entry.group).toLowerCase().replace(/^w/i, 'group') : null);
+  if (groupKey) keys.add(groupKey.toLowerCase().replace(/^w(\d+)$/i, 'group$1'));
   for (const tag of tags) {
-    if (WAVE_TAG_RE.test(tag)) {
+    if (GROUP_TAG_RE.test(tag)) {
       keys.add(tag.toLowerCase());
       continue;
     }
@@ -138,11 +138,11 @@ function loadCurated() {
 
 function buildAtlas() {
   const curated = loadCurated();
-  const gapWaves = readJson(gapWavesPath, null);
-  const byPackage = packageWaveMap(gapWaves);
+  const capabilityGroups = readJson(capabilityGroupsPath, null);
+  const byPackage = packageGroupMap(capabilityGroups);
 
   const plugins = curated.map((entry) => {
-    const wave = inferWave(entry, byPackage);
+    const group = inferGroup(entry, byPackage);
     return {
       id: entry.id,
       name: entry.name,
@@ -151,7 +151,7 @@ function buildAtlas() {
       tier: entry.tier,
       tags: entry.tags,
       signed: entry.signed,
-      ...(wave ? { wave } : {}),
+      ...(group ? { group } : {}),
       ...(entry.version ? { version: entry.version } : {}),
       ...(entry.source ? { source: entry.source } : {}),
     };
@@ -185,8 +185,8 @@ function buildAtlas() {
       .map((k) => [k, packs[k]]),
   );
 
-  const waves = gapWaves && Array.isArray(gapWaves.waves)
-    ? gapWaves.waves.map((w) => ({
+  const groups = capabilityGroups && Array.isArray(capabilityGroups.groups)
+    ? capabilityGroups.groups.map((w) => ({
       id: w.id,
       name: w.name,
       status: w.status,
@@ -201,14 +201,14 @@ function buildAtlas() {
     generatedAt: new Date().toISOString(),
     source: {
       curated: path.relative(root, curatedPath).replace(/\\/g, '/'),
-      gapWaves: fs.existsSync(gapWavesPath)
-        ? path.relative(root, gapWavesPath).replace(/\\/g, '/')
+      capabilityGroups: fs.existsSync(capabilityGroupsPath)
+        ? path.relative(root, capabilityGroupsPath).replace(/\\/g, '/')
         : null,
     },
     firstPartyCount,
     exampleCount,
     total,
-    waves,
+    groups,
     plugins: plugins.sort((a, b) => a.id.localeCompare(b.id)),
     packs: orderedPacks,
   };
@@ -233,17 +233,17 @@ function renderMarkdown(atlas) {
   lines.push(`| First-party | ${atlas.firstPartyCount} |`);
   lines.push(`| Example | ${atlas.exampleCount} |`);
   lines.push(`| Packs | ${Object.keys(atlas.packs).length} |`);
-  lines.push(`| Waves tracked | ${atlas.waves.length} |`);
+  lines.push(`| Capability groups tracked | ${atlas.groups.length} |`);
   lines.push('');
 
-  if (atlas.waves.length > 0) {
-    lines.push('## Gap-closure waves');
+  if (atlas.groups.length > 0) {
+    lines.push('## Capability groups');
     lines.push('');
-    lines.push('| Wave | Name | Status | Packages |');
+    lines.push('| Group | Name | Status | Packages |');
     lines.push('|------|------|--------|---------:|');
-    for (const wave of atlas.waves) {
+    for (const group of atlas.groups) {
       lines.push(
-        `| ${escCell(wave.id)} | ${escCell(wave.name)} | ${escCell(wave.status)} | ${asArray(wave.packages).length} |`,
+        `| ${escCell(group.id)} | ${escCell(group.name)} | ${escCell(group.status)} | ${asArray(group.packages).length} |`,
       );
     }
     lines.push('');
@@ -264,14 +264,14 @@ function renderMarkdown(atlas) {
   }
   lines.push('');
 
-  // Group plugins by wave (null → baseline)
-  const byWave = new Map();
+  // Group plugins by capability group (null -> baseline)
+  const byGroup = new Map();
   for (const p of atlas.plugins) {
-    const key = p.wave || 'baseline';
-    if (!byWave.has(key)) byWave.set(key, []);
-    byWave.get(key).push(p);
+    const key = p.group || 'baseline';
+    if (!byGroup.has(key)) byGroup.set(key, []);
+    byGroup.get(key).push(p);
   }
-  const waveOrder = (a, b) => {
+  const groupOrder = (a, b) => {
     if (a === 'baseline') return 1;
     if (b === 'baseline') return -1;
     const na = Number(String(a).replace(/\D/g, '')) || 0;
@@ -280,16 +280,15 @@ function renderMarkdown(atlas) {
     return a.localeCompare(b);
   };
 
-  lines.push('## Plugins by wave');
+  lines.push('## Plugins by capability group');
   lines.push('');
-  for (const waveKey of [...byWave.keys()].sort(waveOrder)) {
-    const list = byWave.get(waveKey);
-    const waveMeta = atlas.waves.find((w) => w.id === waveKey);
-    const title = waveMeta
-      ? `${waveKey} — ${waveMeta.name}`
-      : waveKey === 'baseline'
+  for (const groupKey of [...byGroup.keys()].sort(groupOrder)) {
+    const list = byGroup.get(groupKey);
+    const groupMeta = atlas.groups.find((w) => w.id === groupKey);
+    const title = groupMeta ? `${groupKey} - ${groupMeta.name}`
+      : groupKey === 'baseline'
         ? 'Baseline / untagged'
-        : waveKey;
+        : groupKey;
     lines.push(`### ${title} (${list.length})`);
     lines.push('');
     lines.push('| Id | Name | Tier | Module | Signed | Summary |');
@@ -309,11 +308,11 @@ function renderMarkdown(atlas) {
     const list = atlas.plugins.filter((p) => (p.tier || 'unknown') === tier);
     lines.push(`### Tier: ${tier} (${list.length})`);
     lines.push('');
-    lines.push('| Id | Name | Wave | Module | Tags |');
+    lines.push('| Id | Name | Group | Module | Tags |');
     lines.push('|----|------|------|--------|------|');
     for (const p of list) {
       lines.push(
-        `| \`${escCell(p.id)}\` | ${escCell(p.name)} | ${escCell(p.wave || '—')} | ${escCell(p.moduleKind)} | ${escCell(p.tags.join(', '))} |`,
+        `| \`${escCell(p.id)}\` | ${escCell(p.name)} | ${escCell(p.group || '—')} | ${escCell(p.moduleKind)} | ${escCell(p.tags.join(', '))} |`,
       );
     }
     lines.push('');
@@ -333,16 +332,15 @@ function renderMarkdown(atlas) {
   lines.push('');
   lines.push(`- Curated catalog: \`${atlas.source.curated}\``);
   lines.push(
-    atlas.source.gapWaves
-      ? `- Gap waves: \`${atlas.source.gapWaves}\``
-      : '- Gap waves: _(not present)_',
+    atlas.source.capabilityGroups ? `- Capability groups: \`${atlas.source.capabilityGroups}\``
+      : '- Capability groups: _(not present)_',
   );
   lines.push('- Machine-readable: `docs/generated/plugin-atlas.json`');
   lines.push('');
   lines.push('## Related');
   lines.push('');
   lines.push('- [Plugin OS](../plugin-os.md)');
-  lines.push('- [Gap closure waves](../plugin-os-gap-closure-waves.md)');
+  lines.push('- [Capability groups](../plugin-os-capability-groups.md)');
   lines.push('- [Signed pack format](../plugin-os-signed-pack.md)');
   lines.push('');
 

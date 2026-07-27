@@ -36,7 +36,7 @@ function pageStatus(pagePath: string) {
     bytes: Buffer.byteLength(body, 'utf8'),
     hasFrontmatter: body.trimStart().startsWith('---'),
     requiredSectionsPresent: requiredSections.every((section) => body.includes(section)),
-    secretMarkers: /\b(sk-|hf_|AIza|api[_-]?key\s*[:=]|token\s*[:=]|password\s*[:=]|secret\s*[:=])/i.test(body),
+    secretMarkers: /\b(sk-|hf_|AIza|api[_-]...key\s*[:=]|token\s*[:=]|password\s*[:=]|secret\s*[:=])/i.test(body),
   };
 }
 
@@ -45,8 +45,7 @@ function main(): void {
   const pages = index.pages.map((page) => pageStatus(page.path));
   const snapshot = {
     generatedAt: new Date().toISOString(),
-    status: pages.every((page) => page.hasFrontmatter && page.requiredSectionsPresent && !page.secretMarkers)
-      ? 'ready'
+    status: pages.every((page) => page.hasFrontmatter && page.requiredSectionsPresent && !page.secretMarkers) ? 'ready'
       : 'attention',
     schema: {
       path: '.zavorth/SCHEMA.md',

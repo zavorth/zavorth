@@ -93,7 +93,7 @@ describe('ComposerPayloadService', () => {
         },
       ],
       voice: {
-        transcript: 'pesquise isso por voz',
+        transcript: 'research this by voice',
         language: 'en-US',
         source: 'speech-recognition',
         confidence: 0.82,
@@ -114,7 +114,7 @@ describe('ComposerPayloadService', () => {
       }),
     ]);
     expect(result.voice).toEqual(expect.objectContaining({
-      transcript: 'pesquise isso por voz',
+      transcript: 'research this by voice',
       language: 'en-US',
       confidence: 0.82,
     }));

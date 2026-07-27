@@ -29,10 +29,10 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
       getDefaultWorkspace,
     );
 
-    await controller.handleWorkflow(ctx, 'ship implemente a tela inicial');
+    await controller.handleWorkflow(ctx, 'ship implement the home screen');
 
     expect(getDefaultWorkspace).toHaveBeenCalledWith('/workflow');
-    expect(runWorkflow).toHaveBeenCalledWith(ctx, 'ship', 'implemente a tela inicial', 'C:/repo');
+    expect(runWorkflow).toHaveBeenCalledWith(ctx, 'ship', 'implement the home screen', 'C:/repo');
   });
 
   it('routes /workflow sdd through the native SDD loop pipeline', async () => {
@@ -173,7 +173,7 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
 
     await controller.handleWorkflow(ctx, 'restart-stage wf-ship-abc123');
 
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Faltou a etapa para reiniciar');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Missing stage to restart');
   });
 
   it('guides the user when /workflow close is missing a run id', async () => {

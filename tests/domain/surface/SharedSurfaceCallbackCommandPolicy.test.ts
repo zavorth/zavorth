@@ -28,7 +28,7 @@ describe('SharedSurfaceCallbackCommandPolicy', () => {
     expect(evaluateSharedSurfaceCommandCallback('/channels logout whatsapp')).toEqual(
       expect.objectContaining({
         allowed: false,
-        reason: 'Acao de canal exige comando explicito.',
+        reason: 'Channel action requires an explicit command.',
       }),
     );
     expect(normalizeSharedSurfaceCommandCallback('/channels repair discord')).toBeNull();

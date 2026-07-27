@@ -38,7 +38,7 @@ describe('Extended tool real execution boundaries', () => {
     });
 
     expect(result).toContain('envio real');
-    expect(result).not.toContain('Email enviado com sucesso');
+    expect(result).not.toContain('Email sent com sucesso');
   });
 
   it('does not fabricate batch trajectory model outputs without live execution enabled', async () => {
@@ -48,7 +48,7 @@ describe('Extended tool real execution boundaries', () => {
       trajectories: JSON.stringify([{ prompt: 'Say hi', provider: 'openai' }]),
     });
 
-    expect(result).toMatch(/live batch|execucao real|real providers/i);
+    expect(result).toMatch(/live batch|real execution|real providers/i);
     expect(result).not.toContain('[Simulated]');
   });
 

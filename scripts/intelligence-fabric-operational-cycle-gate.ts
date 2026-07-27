@@ -103,7 +103,7 @@ async function runZavorthControlDemoteRoute(health: IntelligenceFabricPostDefaul
     workspace: 'C:/repo',
     modelProfile: {
       providerLabel: 'Zavorth',
-      modelLabel: 'modelo atual',
+      modelLabel: 'modelo current',
     },
   };
   const demoteRun = {
@@ -231,7 +231,7 @@ function run(
     requestedTools: [],
     modelProfile: {
       providerLabel: 'Zavorth',
-      modelLabel: 'modelo atual',
+      modelLabel: 'modelo current',
       routingPolicy: 'gateway',
       ready: true,
     },

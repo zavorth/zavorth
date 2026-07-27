@@ -106,7 +106,7 @@ describe('AgentBridgeManager', () => {
         task_id: 'task-456',
         chat_id: 'chat-1',
       },
-      'pesquise as noticias do dia',
+      'research today news',
       'C:/workspace/zavorth',
     );
 

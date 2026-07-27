@@ -81,7 +81,7 @@ describe('SharedSurfaceCommandService', () => {
 
   it('does not keyword-route free-text channel mesh conversation (agent-first purity)', async () => {
     const phrases = [
-      'qual canal fica melhor para trabalho',
+      'which channel is best for work',
       'vai com o recomendado',
       'me mostre as opcoes de canal antes de conectar',
       'na verdade o Slack',
@@ -119,7 +119,7 @@ describe('SharedSurfaceCommandService', () => {
     const phrases = [
       'instale o plugin openrouter',
       'me mostre as opcoes de plugin antes de instalar',
-      'qual plugin fica melhor para llm',
+      'which plugin is best for llm',
       'vai com o recomendado',
       'na verdade o OpenRouter',
       'faz os dois',
@@ -157,7 +157,7 @@ describe('SharedSurfaceCommandService', () => {
     const phrases = [
       'repare o transporte do discord',
       'me mostre as opcoes de transporte antes de subir',
-      'qual transporte fica melhor para remoto',
+      'which transport is best for remote work',
       'vai com o recomendado',
       'na verdade o node host',
       'faz os dois',
@@ -190,7 +190,7 @@ describe('SharedSurfaceCommandService', () => {
     const phrases = [
       'quero parear um node desktop',
       'me mostre as opcoes de node antes de parear',
-      'qual node fica melhor para desktop visual',
+      'which node is best for visual desktop',
       'vai com o recomendado',
       'na verdade o mobile',
       'faz os dois',
@@ -223,9 +223,9 @@ describe('SharedSurfaceCommandService', () => {
 
   it('does not keyword-route free-text session and memory plane requests (agent-first purity)', async () => {
     const phrases = [
-      'mostre minhas sessoes',
-      'quero ver o replay da sessao web:session-9',
-      'mande continue o plano para a sessao web:session-2',
+      'show my sessions',
+      'quero ver o replay da session web:session-9',
+      'continue the plan for web session web:session-2',
       'mostre a memory plane',
     ];
     const sessionPlaneService = {

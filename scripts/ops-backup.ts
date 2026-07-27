@@ -45,14 +45,14 @@ async function main() {
     return;
   }
 
-  console.log('[ops-backup] snapshot criado');
+  console.log('[ops-backup] snapshot created');
   console.log(`[ops-backup] snapshotId: ${snapshot.snapshotId}`);
   console.log(`[ops-backup] snapshotDir: ${snapshot.snapshotDir}`);
   console.log(`[ops-backup] targets: ${snapshot.targets.filter((entry) => entry.exists).length}/${snapshot.targets.length}`);
-  console.log(`[ops-backup] pruned: ${pruned} (janela ${pruneDays} dia(s), max ${pruneCount} snapshot(s))`);
+  console.log(`[ops-backup] pruned: ${pruned} (window ${pruneDays} dia(s), max ${pruneCount} snapshot(s))`);
 }
 
 main().catch((error) => {
-  console.error('[ops-backup] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[ops-backup] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

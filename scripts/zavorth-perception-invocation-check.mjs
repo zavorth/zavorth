@@ -39,13 +39,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('perception-files', 'Perception invocation files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Credential vault files present', missing);
+  return rule('perception-files', 'Perception invocation files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all Credential vault files present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthPerceptionInvocationContract.ts', ['subagent_perception', 'observer', 'ui-navigator', 'safety-reviewer', 'evidence-summarizer', 'factsObserved', 'actionsBlocked', 'normalUserDoesNotNeedManualCommand', 'setupShownOnlyWhenCapabilityMissing']],
-    ['src/services/ZavorthPerceptionInvocationRouter.ts', ['ZavorthPerceptionInvocationRouter', 'buildSurfaceResponse', 'buildSubagentTask', 'read-only perception subagents', 'Fatos observados', 'Acoes bloqueadas', 'buildActivationHints', 'android-adb-setup']],
+    ['src/services/ZavorthPerceptionInvocationRouter.ts', ['ZavorthPerceptionInvocationRouter', 'buildSurfaceResponse', 'buildSubagentTask', 'read-only perception subagents', 'Fatos observados', 'Actions blocked', 'buildActivationHints', 'android-adb-setup']],
     ['src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['ZavorthPerceptionInvocationRouter', 'perceptionInvocationRouter', 'subagent_perception', 'perception-readonly']],
     ['scripts/zavorth-perception-invocation.ts', ['--text', '--approval-id', 'formatPlanText']],
     ['package.json', ['node scripts/zavorth-perception-invocation-check.mjs']],
@@ -63,7 +63,7 @@ function ruleMarkers() {
 function runAndroidFixture() {
   const result = runTs('scripts/zavorth-perception-invocation.ts', [
     '--json',
-    '--text', 'olhe meu celular e diga se passou',
+    '--text', 'olhe meu celular e tell se passou',
   ]);
   return jsonRule('perception-android-fixture', 'Natural Android request routes to /device', result, (plan) =>
     plan.primaryRoute === 'android'
@@ -76,7 +76,7 @@ function runAndroidFixture() {
 function runVisionFixture() {
   const result = runTs('scripts/zavorth-perception-invocation.ts', [
     '--json',
-    '--text', 'confirme visualmente o resultado',
+    '--text', 'visually confirm the result',
   ]);
   return jsonRule('perception-vision-fixture', 'Generic visual request routes to vision', result, (plan) =>
     plan.primaryRoute === 'vision'
@@ -87,7 +87,7 @@ function runVisionFixture() {
 function runSubagentFixture() {
   const result = runTs('scripts/zavorth-perception-invocation.ts', [
     '--json',
-    '--text', 'use subagentes para revisar o que aparece na tela',
+    '--text', 'use delegated review for what appears on screen',
   ]);
   return jsonRule('perception-subagent-fixture', 'Explicit subagent perception routes read-only workers', result, (plan) =>
     plan.primaryRoute === 'subagent_perception'
@@ -100,7 +100,7 @@ function runSubagentFixture() {
 function runApprovalFixture() {
   const result = runTs('scripts/zavorth-perception-invocation.ts', [
     '--json',
-    '--text', 'resolva esse problema no app Notepad mas me peca confirmacao antes de clicar',
+    '--text', 'resolva esse problema no app Notepad mas me peca confirmation before clicar',
   ]);
   return jsonRule('perception-approval-fixture', 'Mutating desktop request requires approval', result, (plan) =>
     plan.status === 'approval-required'
@@ -112,12 +112,12 @@ function runApprovalFixture() {
 function runDenyFixture() {
   const result = runTs('scripts/zavorth-perception-invocation.ts', [
     '--json',
-    '--text', 'olhe a tela do banco e clique para confirmar o pix',
+    '--text', 'inspect the banking screen and click to confirm the payment',
   ]);
   return jsonRule('perception-deny-fixture', 'Sensitive visual control request is denied', result, (plan) =>
     plan.status === 'denied'
     && plan.primaryRoute === 'deny'
-    && plan.explanation.actionsBlocked.some((entry) => entry.includes('Tela sensivel')));
+    && plan.explanation.actionsBlocked.some((entry) => entry.includes('Sensitive screen')));
 }
 
 function runTs(script, args) {
@@ -155,5 +155,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

@@ -3,7 +3,7 @@ import { TeamsGraphBotClient } from '../../src/adapters/channels/TeamsGraphBotCl
 import { ChannelLiveActivationService } from '../../src/services/ChannelLiveActivationService.js';
 import { LiveReadinessService } from '../../src/services/LiveReadinessService.js';
 
-const response = (payload: Record<string, unknown>, init: { status?: number } = {}) =>
+const response = (payload: Record<string, unknown>, init: { status-: number } = {}) =>
   new Response(JSON.stringify(payload), {
     status: init.status || 200,
     headers: {

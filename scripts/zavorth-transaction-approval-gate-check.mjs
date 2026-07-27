@@ -91,7 +91,7 @@ try {
     '--ledger-file',
     ledgerFile,
     '--text',
-    'Compre isso para mim depois.',
+    'Compre isso para mim after.',
     '--decision',
     'approve',
   ]);

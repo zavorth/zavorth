@@ -226,7 +226,7 @@ function classifyDoc(relative, text) {
   if (full.includes('/architecture/')) return 'architecture-internal';
   if (name.includes('stage') || name.includes('legacy-cycle') || name.includes('readiness') || name.includes('canary') || name.includes('gate') || name.includes('pack')) return 'stage-artifact';
   if (name.includes('todo') || name.includes('backlog') || name.includes('investigate')) return 'internal-worklog';
-  if (text.includes('## Objetivo') || text.includes('## Entregas') || text.includes('Critério')) return 'implementation-plan';
+  if (text.includes('## Objective') || text.includes('## Deliverables') || text.includes('Criteria')) return 'implementation-plan';
   return 'uncategorized';
 }
 

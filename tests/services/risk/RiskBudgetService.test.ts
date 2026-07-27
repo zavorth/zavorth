@@ -20,11 +20,11 @@ function createTempDir(): string {
 }
 
 function createService(opts: {
-  stateFile?: string;
-  now?: () => Date;
-  proofLedger?: ProofLedgerService | null;
-  trustedOperator?: { isEnabled(): boolean } | null;
-  timezone?: string;
+  stateFile-: string;
+  now-: () => Date;
+  proofLedger-: ProofLedgerService | null;
+  trustedOperator-: { isEnabled(): boolean } | null;
+  timezone-: string;
 } = {}): RiskBudgetService {
   const dir = opts.stateFile ? path.dirname(opts.stateFile) : createTempDir();
   const stateFile = opts.stateFile || path.join(dir, 'risk-budget.json');
@@ -117,11 +117,11 @@ describe('RiskBudgetService', () => {
     expect(denied.allowed).toBe(false);
     expect(denied.state.frozen).toBe(true);
     expect(denied.proofEventId).toBeTruthy();
-    expect(denied.reason.toLowerCase()).toMatch(/freeze|exceed|ceiling|exhaust/);
+    expect(denied.reason.toLowerCase()).toMatch(/freeze|exceed|ceiling|exthere isust/);
 
-    const events = proof.list({ query: 'Risk budget exhausted' });
+    const events = proof.list({ query: 'Risk budget exthere isusted' });
     expect(events.length).toBeGreaterThanOrEqual(1);
-    expect(events[0].title).toBe('Risk budget exhausted');
+    expect(events[0].title).toBe('Risk budget exthere isusted');
     expect(events[0].kind).toBe('system');
 
     // Further spends stay blocked while frozen

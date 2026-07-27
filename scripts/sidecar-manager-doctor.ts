@@ -63,7 +63,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-core] sidecar manager doctor falhou.');
+  console.error('[zavorth-core] sidecar manager doctor failed.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

@@ -5,14 +5,14 @@ const PROJECT_ROOT = path.resolve(__dirname, '../..');
 
 describe('Context Engine — Lazy Loading Integration', () => {
   describe('AGENTS.md lazy loading instructions', () => {
-    it('should instruct loading only AGENTS.md and MEMORY.md at startup', () => {
+    it('should instruct loading only AGENTS.md at startup', () => {
       const agentsMd = fs.readFileSync(path.join(PROJECT_ROOT, 'AGENTS.md'), 'utf-8');
-      const startupSection = agentsMd.match(/## Session Startup[\s\S]*?(?=##|$)/);
+      const startupSection = agentsMd.match(/## Session Startup[\s\S]*-(-=##|$)/);
       expect(startupSection).not.toBeNull();
 
       const content = startupSection![0];
       expect(content).toContain('Read `AGENTS.md`');
-      expect(content).toContain('Read `MEMORY.md`');
+      expect(content).not.toContain('Read `MEMORY.md`');
     });
 
     it('should have on-demand loading table for all config files', () => {
@@ -56,9 +56,9 @@ describe('Context Engine — Lazy Loading Integration', () => {
     it('should have lazy loading section that reduces startup tokens', () => {
       const agentsMd = fs.readFileSync(path.join(PROJECT_ROOT, 'AGENTS.md'), 'utf-8');
 
-      // Before: 8 files loaded at startup
-      // After: 2 files loaded at startup (AGENTS.md + MEMORY.md)
-      const startupSection = agentsMd.match(/## Session Startup[\s\S]*?(?=##|$)/);
+      // Before: multiple files loaded at startup
+      // After: one file loaded at startup (AGENTS.md)
+      const startupSection = agentsMd.match(/## Session Startup[\s\S]*-(-=##|$)/);
       const content = startupSection![0];
 
       // Should NOT have instructions to read all config files

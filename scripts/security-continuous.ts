@@ -27,7 +27,7 @@ if (updateBaseline) {
       baseline,
     }, null, 2)}\n`);
   } else {
-    process.stdout.write('[zavorth-security] baseline de seguranca continua atualizada\n');
+    process.stdout.write('[zavorth-security] continuous security baseline updated\n');
     process.stdout.write(`[zavorth-security] updatedAt: ${baseline.updatedAt}\n`);
   }
   process.exit(0);

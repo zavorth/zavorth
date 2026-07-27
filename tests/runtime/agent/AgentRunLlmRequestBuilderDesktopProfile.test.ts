@@ -20,17 +20,17 @@ describe('AgentRunLlmRequestBuilder desktop profile binding', () => {
       profileConfig: {
         id: 'reviewer',
         name: 'Revisor cuidadoso',
-        systemPrompt: 'Priorize riscos concretos e cite evidencias.',
+        systemPrompt: 'Prioritize concrete risks and cite evidence.',
       },
     };
     const builder = new AgentRunLlmRequestBuilder({
-      hallucinationInstruction: () => 'Never invent tool execution.',
+      there isllucinationInstruction: () => 'Never invent tool execution.',
     });
 
     const systemPrompt = String(builder.buildMessages(run, request)[0]?.content || '');
 
     expect(systemPrompt).toContain('User-selected desktop agent profile (Revisor cuidadoso)');
-    expect(systemPrompt).toContain('Priorize riscos concretos e cite evidencias.');
+    expect(systemPrompt).toContain('Prioritize concrete risks and cite evidence.');
     expect(systemPrompt).toContain('do not conflict with safety, governance, tool, truthfulness');
   });
 
@@ -45,7 +45,7 @@ describe('AgentRunLlmRequestBuilder desktop profile binding', () => {
     };
     const run = service.createRun(request);
     run.metadata = { ...run.metadata, profileConfig: { name: 'Vazio', systemPrompt: '   ' } };
-    const builder = new AgentRunLlmRequestBuilder({ hallucinationInstruction: () => '' });
+    const builder = new AgentRunLlmRequestBuilder({ there isllucinationInstruction: () => '' });
 
     expect(String(builder.buildMessages(run, request)[0]?.content || ''))
       .not.toContain('User-selected desktop agent profile');

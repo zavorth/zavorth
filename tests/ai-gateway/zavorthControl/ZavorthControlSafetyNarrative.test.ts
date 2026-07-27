@@ -24,12 +24,12 @@ describe('ZavorthControl Safety Narrative Safety Narrative', () => {
             status: 'waiting-approval',
             highRiskBlockPresent: true,
             summary: 'Safety Narrative: approval pendente.',
-            userMessage: 'Bloqueei por seguranca.',
+            userMessage: 'Blocked for security.',
             reasons: [
               {
                 id: 'safety:approval:1',
                 kind: 'approval-required',
-                title: 'Approval obrigatorio antes da execucao',
+                title: 'Approval required before execution',
                 detail: 'Bloqueei porque shell.exec exige approval.',
                 risk: 'danger',
                 source: 'approval-gate',
@@ -61,7 +61,7 @@ describe('ZavorthControl Safety Narrative Safety Narrative', () => {
               previewRemainsRequired: false,
               quarantineRemainsRequired: false,
             },
-            nextSafeAction: 'Revisar o plano e aprovar explicitamente as tools sensiveis.',
+            nextSafeAction: 'Review the plan and explicitly approve sensitive tools.',
           },
         },
       },
@@ -99,7 +99,7 @@ describe('ZavorthControl Safety Narrative Safety Narrative', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-cc-safety',
-      text: 'corrija arquivo e rode testes',
+      text: 'corrija file e rode testes',
       requestedTools: [],
     });
     const projection = buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot(

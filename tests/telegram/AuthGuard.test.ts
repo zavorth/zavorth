@@ -111,7 +111,7 @@ describe('AuthGuard', () => {
     const ctx = {
       chat: { id: 1, type: 'group' },
       from: { id: 42 },
-      message: { text: '/external@ZavorthBot revise o código', message_id: 77 },
+      message: { text: '/external@ZavorthBot review the code', message_id: 77 },
       reply: jest.fn().mockResolvedValue(undefined),
       api: { getChatMember },
     } as any;

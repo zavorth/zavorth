@@ -37,7 +37,7 @@ function ruleFilesExist() {
     'scripts/zavorth-subagents.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('subagent-files', 'Subagent runtime files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all runtime files present', missing);
+  return rule('subagent-files', 'Subagent runtime files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all runtime files present', missing);
 }
 
 function ruleMarkers() {
@@ -46,7 +46,7 @@ function ruleMarkers() {
     ['src/agents/ZavorthSubagentRuntimeService.ts', ['ZavorthGovernedSubagentService', 'ZavorthLiveSubagentExecutionService', 'createSubagentResultReceipt', 'Policy Broker', 'maxSpawnDepth', 'public-readonly-research-precleared', 'Auto subagent decision']],
     ['src/services/ZavorthLiveSubagentExecutionService.ts', ['subagent-readonly-tool-call', 'workspace-readonly-tool-allowed', 'mutating-or-unknown-tool-blocked', 'Tool policy: requested=']],
     ['src/services/ZavorthSubagentInvocationGatewayService.ts', ['invokeFromCron', 'invokeFromSkill', 'invokeFromPlugin', 'sourceSurface']],
-    ['scripts/zavorth-subagents.ts', ['--explicit-subagents', '--mock-live', '--no-persist', 'subagents.spawn']],
+    ['scripts/zavorth-subagents.ts', ['--explicit-subagents', '--dry-live', '--no-persist', 'subagents.spawn']],
     ['src/telegram/commandCatalog.ts', ['/subagent', '/sessions_spawn', 'agents']],
   ];
   const missing = [];
@@ -62,7 +62,7 @@ function ruleMarkers() {
 function runSpawnFixture() {
   const result = runTs('scripts/zavorth-subagents.ts', [
     'spawn',
-    '--task', 'use subagentes e analise localmente',
+    '--task', 'analyze locally with delegated review',
     '--explicit',
     '--no-persist',
     '--json',
@@ -77,10 +77,10 @@ function runSpawnFixture() {
 function runLiveWorkerFixture() {
   const result = runTs('scripts/zavorth-subagents.ts', [
     'spawn',
-    '--task', 'use subagentes e analise localmente',
+    '--task', 'analyze locally with delegated review',
     '--roles', 'planner,qa',
     '--explicit',
-    '--mock-live',
+    '--dry-live',
     '--max-live-workers', '2',
     '--no-persist',
     '--json',
@@ -89,14 +89,14 @@ function runLiveWorkerFixture() {
     snapshot.status === 'completed'
     && snapshot.summary.liveRuns === 1
     && snapshot.summary.workerResults === 2
-    && snapshot.runs?.[0]?.executionMode === 'mock-live'
+    && snapshot.runs?.[0]?.executionMode === 'dry-live'
     && snapshot.runs?.[0]?.workerResults?.length === 2);
 }
 
 function runApprovalFixture() {
   const result = runTs('scripts/zavorth-subagents.ts', [
     'spawn',
-    '--task', 'use subagentes e edite arquivos do workspace',
+    '--task', 'use subagents and edit workspace files',
     '--explicit',
     '--no-persist',
     '--json',
@@ -142,5 +142,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

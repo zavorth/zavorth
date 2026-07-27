@@ -54,7 +54,7 @@ const snapshot = {
   invariants: {
     thinkingDoesNotRequireApproval: true,
     planningDoesNotRequireApproval: true,
-    simulationDoesNotRequireApproval: true,
+    dryRunDoesNotRequireApproval: true,
     risk3DraftDoesNotApplyLive: true,
     risk4RequiresSandboxOrApproval: true,
     risk5RequiresExplicitApproval: true,
@@ -98,8 +98,7 @@ function runGate(input) {
     encoding: 'utf8',
   });
   const parsed = parseJson(result.stdout);
-  const status = result.status === 0 && (parsed?.status === 'passed' || parsed?.status === 'ready')
-    ? 'passed'
+  const status = result.status === 0 && (parsed?.status === 'passed' || parsed?.status === 'ready') ? 'passed'
     : 'failed';
   return {
     id: input.id,
@@ -112,7 +111,7 @@ function runGate(input) {
       result.error ? String(result.error.message || result.error) : '',
       result.stdout,
       result.stderr,
-    ].filter(Boolean).join('\n').split(/\r?\n/).slice(0, 20),
+    ].filter(Boolean).join('\n').split(/\r...\n/).slice(0, 20),
   };
 }
 
@@ -157,7 +156,7 @@ function renderMarkdown(snapshot) {
     '',
     '## Invariants',
     '',
-    '- Risk 0-2: thinking, reading, planning, drafts, and simulation stay approval-free.',
+    '- Risk 0-2: thinking, reading, planning, drafts, and dry-run stays approval-free.',
     '- Risk 3: creates draft/Mutation Plane/preview; apply requires an explicit request and policy.',
     '- Risk 4: shell/install/network require sandbox or approval.',
     '- Risk 5: secrets/deploy/delete/external send require explicit approval.',

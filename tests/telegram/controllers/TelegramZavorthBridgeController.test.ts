@@ -48,20 +48,20 @@ describe('TelegramZavorthBridgeController', () => {
   });
 
   function createController(options: {
-    bridge?: ReturnType<typeof createBridgeMock>;
-    automator?: ReturnType<typeof createAutomatorMock>;
-    zavorthBridgeControlService?: Record<string, unknown>;
-    zavorthBridgePromptService?: Record<string, unknown>;
-    zavorthBridgePreferenceStore?: Record<string, unknown>;
-    permissionService?: Record<string, unknown>;
-    taskManager?: Record<string, unknown>;
-    botApi?: Record<string, unknown>;
-    persistTask?: jest.Mock;
-    createPermissionRequest?: jest.Mock;
-    formatPermissionCreatedMessage?: jest.Mock;
-    buildPermissionKeyboard?: jest.Mock;
-    shortPermissionId?: jest.Mock;
-    runResearchFallback?: jest.Mock;
+    bridge-: ReturnType<typeof createBridgeMock>;
+    automator-: ReturnType<typeof createAutomatorMock>;
+    zavorthBridgeControlService-: Record<string, unknown>;
+    zavorthBridgePromptService-: Record<string, unknown>;
+    zavorthBridgePreferenceStore-: Record<string, unknown>;
+    permissionService-: Record<string, unknown>;
+    taskManager-: Record<string, unknown>;
+    botApi-: Record<string, unknown>;
+    persistTask-: jest.Mock;
+    createPermissionRequest-: jest.Mock;
+    formatPermissionCreatedMessage-: jest.Mock;
+    buildPermissionKeyboard-: jest.Mock;
+    shortPermissionId-: jest.Mock;
+    runResearchFallback-: jest.Mock;
   } = {}) {
     const bridge = options.bridge || createBridgeMock();
     const automator = options.automator || createAutomatorMock();
@@ -137,7 +137,7 @@ describe('TelegramZavorthBridgeController', () => {
         errorCode: 'permission_prompt_visible'})
       .mockResolvedValueOnce({
         ok: true,
-        text: 'Resposta final do ZavorthBridge',
+        text: 'Final ZavorthBridge response',
         stage: 'completed',
         source: 'ui',
         verified: true});
@@ -170,8 +170,8 @@ describe('TelegramZavorthBridgeController', () => {
     expect(
       botApi.sendMessage.mock.calls.some((call: any[]) => {
         const text = String(call[1]);
-        return /Politica persistente aplicada automaticamente para o ZavorthBridge \(perm-auto\)|Persistent policy automatically applied for ZavorthBridge \(perm-auto\)/i.test(text)
-          || /persistente aplicada automaticamente|Persistent policy automatically applied/i.test(text);
+        return /Persistent policy automatically applied for ZavorthBridge \(perm-auto\)|Persistent policy automatically applied for ZavorthBridge \(perm-auto\)/i.test(text)
+          || /persistente aplicada automatically|Persistent policy automatically applied/i.test(text);
       }),
     ).toBe(true);
   });
@@ -182,7 +182,7 @@ describe('TelegramZavorthBridgeController', () => {
     const advanceState = jest.fn();
     const permission = { permission_id: 'perm-manual-1' };
     const createPermissionRequest = jest.fn().mockResolvedValue(permission);
-    const formatPermissionCreatedMessage = jest.fn().mockReturnValue('Permissao criada para o ZavorthBridge');
+    const formatPermissionCreatedMessage = jest.fn().mockReturnValue('Permission created for ZavorthBridge');
     const buildPermissionKeyboard = jest.fn().mockReturnValue({ inline_keyboard: [] });
     const controller = createController({
       botApi,
@@ -219,7 +219,7 @@ describe('TelegramZavorthBridgeController', () => {
     expect(advanceState).toHaveBeenCalledWith(task, 'waiting_approval');
     expect(botApi.sendMessage).toHaveBeenCalledWith(
       '123',
-      'Permissao criada para o ZavorthBridge',
+      'Permission created for ZavorthBridge',
       { reply_markup: { inline_keyboard: [] } },
     );
   });
@@ -282,17 +282,17 @@ describe('TelegramZavorthBridgeController', () => {
           ok: false,
           verified: false,
           mode: 'focus',
-          message: 'Janela nao encontrada'})})});
+          message: 'Janela not encontrada'})})});
     const ctx = createContext();
 
     await controller.handleWindowAction(ctx, 'focus');
 
     const replyText = String(ctx.reply.mock.calls[0]?.[0] ?? '');
     expect(replyText).toMatch(
-      /Nao consegui concluir focar a conversa atual pela janela do ZavorthBridge|I could not complete focus the current conversation through the ZavorthBridge window/,
+      /Not consegui concluir focar a conversa atual pela janela do ZavorthBridge|I could not complete focus the current conversation through the ZavorthBridge window/,
     );
     expect(replyText).toMatch(/Motivo:|Reason:/);
-    expect(replyText).toContain('Janela nao encontrada');
+    expect(replyText).toContain('Janela not encontrada');
   });
 
   it('reports bridge command modes succinctly in /agbridge', async () => {
@@ -492,7 +492,7 @@ describe('TelegramZavorthBridgeController', () => {
   it('surfaces ZavorthBridge task launch failures with a research fallback hint', async () => {
     const executePromptSpy = jest
       .spyOn(ZavorthBridgeCliAdapter.prototype, 'executePrompt')
-      .mockRejectedValue(new Error('O ZavorthBridge nao abriu uma sessao reutilizavel na workspace correta.');
+      .mockRejectedValue(new Error('O ZavorthBridge not abriu uma session reutilizavel na workspace correta.');
     const controller = createController();
     const ctx = createContext();
     const task = {
@@ -500,7 +500,7 @@ describe('TelegramZavorthBridgeController', () => {
       workspace: 'C:/workspace/zavorth'} as any;
 
     try {
-      await controller.handleTaskExecution(ctx, task, 'pesquise noticias do dia');
+      await controller.handleTaskExecution(ctx, task, 'research today news');
     } finally {
       executePromptSpy.mockRestore();
     }
@@ -509,7 +509,7 @@ describe('TelegramZavorthBridgeController', () => {
   });
 
   it('routes pure research prompts straight to the web path before any AG launch attempt', async () => {
-    const error: any = new Error('A superficie direta do chat do ZavorthBridge nao ficou pronta.');
+    const error: any = new Error('A superficie direta do chat do ZavorthBridge not ficou pronta.');
     error.code = 'direct_chat_unavailable';
     const executePromptSpy = jest
       .spyOn(ZavorthBridgeCliAdapter.prototype, 'executePrompt')
@@ -525,10 +525,10 @@ describe('TelegramZavorthBridgeController', () => {
       workspace: 'C:/workspace/zavorth',
       metadata: { responseDecision: { requestedTools: ['web_search'] } }} as any;
 
-    await controller.handleTaskExecution(ctx, task, 'pesquise as ultimas noticias de tecnologia do dia');
+    await controller.handleTaskExecution(ctx, task, 'research the latest technology news of the day');
 
     expect(executePromptSpy).not.toHaveBeenCalled();
-    expect(runResearchFallback).toHaveBeenCalledWith('pesquise as ultimas noticias de tecnologia do dia');
+    expect(runResearchFallback).toHaveBeenCalledWith('research the latest technology news of the day');
     expect(ctx.reply).toHaveBeenCalledWith(
       'This request looks like web research. I will answer through Zavorth structured web route instead of opening ZavorthBridge.',
     );
@@ -545,10 +545,10 @@ describe('TelegramZavorthBridgeController', () => {
       workspace: 'C:/workspace/zavorth',
       metadata: { responseDecision: { requestedTools: ['web_search'] } }} as any;
 
-    await controller.handleTaskExecution(ctx, task, 'pesquise as principais noticias de tecnologia do dia');
+    await controller.handleTaskExecution(ctx, task, 'research the main technology news of the day');
 
     expect(executePromptSpy).not.toHaveBeenCalled();
-    expect(runResearchFallback).toHaveBeenCalledWith('pesquise as principais noticias de tecnologia do dia');
+    expect(runResearchFallback).toHaveBeenCalledWith('research the main technology news of the day');
     expect(ctx.reply).toHaveBeenCalledWith(
       'This request looks like web research. I will answer through Zavorth structured web route instead of opening ZavorthBridge.',
     );
@@ -566,7 +566,7 @@ describe('TelegramZavorthBridgeController', () => {
       chat_id: '123',
       workspace: 'C:/workspace/zavorth'} as any;
 
-    await controller.handleTaskExecution(ctx, task, 'pesquise o que tem dentro da minha pasta TESTE DEV');
+    await controller.handleTaskExecution(ctx, task, 'research what is inside my TESTE DEV folder');
 
     expect(executePromptSpy).toHaveBeenCalled();
     expect(runResearchFallback).not.toHaveBeenCalled();

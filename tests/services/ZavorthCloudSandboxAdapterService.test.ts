@@ -56,7 +56,7 @@ describe('ZavorthCloudSandboxAdapterService', () => {
               fromRegistry: () => ({}),
             };
             public sandboxes = {
-              create: async (_app: unknown, _image: unknown, options: { environment?: Record<string, string> }) => {
+              create: async (_app: unknown, _image: unknown, options: { environment-: Record<string, string> }) => {
                 capturedEnv = options.environment;
                 return {
                   exec: async () => ({

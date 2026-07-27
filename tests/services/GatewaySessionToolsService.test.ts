@@ -34,7 +34,7 @@ describe('GatewaySessionToolsService', () => {
         sessionId: 'session-1',
         text: 'continue',
       }),
-    ).rejects.toThrow('Um hook bloqueou o envio para essa sessao.');
+    ).rejects.toThrow('A hook blocked delivery to that session.');
 
     expect(sendToSession).not.toHaveBeenCalled();
     expect(run).toHaveBeenCalledTimes(1);
@@ -111,7 +111,7 @@ describe('GatewaySessionToolsService', () => {
       chatId: null,
       sourceUserId: null,
       runtimeUserId: 'user-1',
-      handoffCommand: '/task continuar sessao desktop',
+      handoffCommand: '/task continue session desktop',
     };
     const run = jest.fn(async ({ event }: any) => ({
       ok: true,
@@ -257,7 +257,7 @@ describe('GatewaySessionToolsService', () => {
         userId: 'user-1',
         platform: 'web',
       }),
-    ).rejects.toThrow('Um hook bloqueou a abertura da sessao derivada.');
+    ).rejects.toThrow('Um hook bloqueou a abertura da session derivada.');
 
     expect(spawnSession).not.toHaveBeenCalled();
     expect(run).toHaveBeenCalledTimes(1);

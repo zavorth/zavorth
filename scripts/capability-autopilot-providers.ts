@@ -35,7 +35,7 @@ const asJson = argv.includes('--json');
 const requirePass = argv.includes('--require-pass') || argv.includes('--gate');
 
 main().catch((error) => {
-  process.stderr.write(`[capability-autopilot-providers] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(`[capability-autopilot-providers] failure: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 });
 
@@ -71,8 +71,7 @@ function readTargets(): CapabilityProviderExpansionTarget[] | undefined {
     .filter(Boolean)
     .map((id) => ({
       id,
-      kind: id.startsWith('executor-') || id.startsWith('command-') || id.startsWith('route-')
-        ? 'capability' as const
+      kind: id.startsWith('executor-') || id.startsWith('command-') || id.startsWith('route-') ? 'capability' as const
         : 'integration' as const,
       required: true,
     }));
@@ -107,7 +106,7 @@ function buildSnapshot(
       stage: '66',
       title: 'v1.1 Release Decision Gate',
       reason:
-        'Depois da expansao de providers e fallbacks explicitos, o proximo passo e decidir se o Capability Autopilot entra na v1.1, fica atras de flag ou volta ao backlog.',
+        'After provider expansion and explicit fallbacks, the next step is to decide if Capability Autopilot enters v1.1, stays behind a flag or returns to backlog.',
     },
   };
 }
@@ -136,9 +135,9 @@ function buildChecks(
   return [
     check(
       'capability-autopilot-providers:mandatory-targets',
-      'targets obrigatorios',
+      'mandatory targets',
       missingMandatory.length === 0 ? 'pass' : 'fail',
-      'A matriz precisa cobrir executores e providers principais do ciclo v1.1.',
+      'The matrix needs to cover main executors and providers of the v1.1 cycle.',
       [
         `covered=${expansion.entries.length}`,
         ...missingMandatory.map((id) => `missing=${id}`),
@@ -146,10 +145,10 @@ function buildChecks(
     ),
     check(
       'capability-autopilot-providers:required-coverage',
-      'cobertura requerida',
+      'required coverage',
       incompleteRequired.length === 0 &&
         expansion.coverage.coveredRequiredTargets === expansion.coverage.requiredTargets ? 'pass' : 'fail',
-      'Todo target requerido precisa resolver descriptor e, se for integracao, manifest.',
+      'Every required target needs to resolve descriptor and, if integration, manifest.',
       [
         `required=${expansion.coverage.requiredTargets}`,
         `covered=${expansion.coverage.coveredRequiredTargets}`,
@@ -158,12 +157,12 @@ function buildChecks(
     ),
     check(
       'capability-autopilot-providers:surface-variety',
-      'variedade de superficies',
+      'surface variety',
       expansion.coverage.remoteProviders > 0 &&
         expansion.coverage.localRuntimes > 0 &&
         expansion.coverage.channels > 0 &&
         expansion.coverage.capabilityTargets > 0 ? 'pass' : 'fail',
-      'O gate de provider expansion precisa provar providers remotos, runtimes locais, canais e executores no mesmo contrato.',
+      'The provider expansion gate needs to prove remote providers, local runtimes, channels and executors in the same contract.',
       [
         `remoteProviders=${expansion.coverage.remoteProviders}`,
         `localRuntimes=${expansion.coverage.localRuntimes}`,
@@ -173,25 +172,25 @@ function buildChecks(
     ),
     check(
       'capability-autopilot-providers:readiness-degradation',
-      'degradacao segura',
+      'safe degradation',
       expansion.entries.every((entry) => entry.readinessStatus && entry.summary) ? 'pass' : 'fail',
-      'Provider ausente ou nao configurado deve virar readiness/issue, nao falha opaca do gate.',
+      'Missing or unconfigured provider should become readiness/issue, not an opaque gate failure.',
       expansion.entries.map((entry) => `${entry.id}:${entry.readinessStatus}`),
     ),
     check(
       'capability-autopilot-providers:fallback-contract',
-      'fallback explicito',
+      'explicit fallback',
       expansion.entries.every((entry) => entry.explicitFallbackRequired && entry.autoFallbackExecuted === false) ? 'pass' : 'fail',
-      'Fallbacks ficam listados para escolha do usuario; nenhum fallback e executado automaticamente.',
+      'Fallbacks are listed for user choice; no fallback is executed automatically.',
       fallbackEntries.map((entry) => `${entry.id}:fallbacks=${entry.fallbackCount}:selectable=${entry.selectableFallbackCount}`),
     ),
     check(
       'capability-autopilot-providers:adapters',
-      'adapters de provider',
+      'provider adapters',
       expansion.adapters.executionGatewayRunner === 'available' &&
         expansion.adapters.fallbackSelection === 'available' &&
         expansion.adapters.autoFallbackExecuted === false ? 'pass' : 'fail',
-      'A expansao fica ligada ao runner governado e ao menu de fallback explicito.',
+      'The expansion is linked to the governed runner and the explicit fallback menu.',
       [
         `executionGatewayRunner=${expansion.adapters.executionGatewayRunner}`,
         `fallbackSelection=${expansion.adapters.fallbackSelection}`,
@@ -233,7 +232,7 @@ function renderReport(snapshot: CapabilityAutopilotProvidersSnapshot): string {
     }
   }
   lines.push('');
-  lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
+  lines.push(`recommended next step: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
   lines.push(snapshot.nextRecommendedStage.reason);
   return lines.join('\n');
 }

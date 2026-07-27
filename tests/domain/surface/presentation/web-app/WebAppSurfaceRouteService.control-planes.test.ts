@@ -29,8 +29,8 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Canal web pronto.',
-        operatorSummary: 'Sessions prontas.',
+        summary: 'Canal web ready.',
+        operatorSummary: 'Sessions ready.',
         actionHint: 'Use o app.',
         tags: ['primary'],
         actions: [],
@@ -56,8 +56,8 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Canal Telegram pronto.',
-        operatorSummary: 'Gateway ativo.',
+        summary: 'Canal Telegram ready.',
+        operatorSummary: 'Gateway active.',
         actionHint: 'Use o bot.',
         tags: ['chat'],
         actions: [],
@@ -69,7 +69,7 @@ describe('WebAppSurfaceRouteService', () => {
         implementationState: 'partial',
         configured: true,
         transport: 'native',
-        notes: ['Bridge em rollout.'],
+        notes: ['Bridge in rollout.'],
         features: {
           inbound: true,
           outbound: true,
@@ -123,7 +123,7 @@ describe('WebAppSurfaceRouteService', () => {
         implementationState: 'partial',
         configured: true,
         transport: 'webhook',
-        notes: ['Cloud API em rollout.'],
+        notes: ['Cloud API in rollout.'],
         features: {
           inbound: true,
           outbound: true,
@@ -163,7 +163,7 @@ describe('WebAppSurfaceRouteService', () => {
       featuredIds: ['web', 'telegram'],
       narrative: {
         headline: 'Channel Mesh pronta.',
-        operatorSummary: 'Canais operacionais disponiveis.',
+        operatorSummary: 'Operational channels available.',
       },
     };
   };
@@ -252,7 +252,7 @@ describe('WebAppSurfaceRouteService', () => {
     buildMemoryPlaneSnapshot: jest.fn(async () => null),
     resolveSessionId: jest.fn(() => 'session-web-1'),
     channelMesh: {
-      buildSnapshot: jest.fn(({ selectedId }: { selectedId?: string | null } = {}) =>
+      buildSnapshot: jest.fn(({ selectedId }: { selectedId-: string | null } = {}) =>
         makeChannelSnapshot(selectedId || null),
       ),
     },
@@ -274,7 +274,7 @@ describe('WebAppSurfaceRouteService', () => {
             currentMode: 'native',
             modes: ['native'],
             recommendedMode: 'native',
-            summary: 'Telegram pronto para bot token e allowlist.',
+            summary: 'Telegram ready for bot token and allowlist.',
             webhookPath: null,
             localWebhookUrl: null,
             publicWebhookUrl: null,
@@ -298,14 +298,14 @@ describe('WebAppSurfaceRouteService', () => {
             currentMode: 'stub',
             modes: ['stub', 'cloud-api', 'baileys'],
             recommendedMode: 'cloud-api',
-            summary: 'WhatsApp pode ser promovido para Cloud API.',
+            summary: 'WhatsApp can be promoted to Cloud API.',
             webhookPath: '/api/webhooks/whatsapp',
             localWebhookUrl: 'http://127.0.0.1:33333/api/webhooks/whatsapp',
             publicWebhookUrl: null,
             requiredEnvKeys: ['WHATSAPP_ACCESS_TOKEN'],
             missingEnvKeys: ['WHATSAPP_ACCESS_TOKEN'],
             scaffoldEntries: [],
-            notes: ['Promova para cloud-api quando tiver as credenciais.'],
+            notes: ['Promote to cloud-api when credentials are available.'],
             commands: {
               inspect: 'npm run channels:install -- --json',
               apply: 'npm run channels:install -- --channel whatsapp --mode cloud-api --apply',
@@ -416,7 +416,7 @@ describe('WebAppSurfaceRouteService', () => {
       },
       narrative: {
         headline: 'Natural setup: Natural Setup Agent',
-        operatorSummary: 'Faltam duas chaves para concluir o Discord.',
+        operatorSummary: 'Two keys are missing to complete Discord.',
         nextAction: 'Preencher o token e rodar o doctor.',
       },
       actions: [],
@@ -432,7 +432,7 @@ describe('WebAppSurfaceRouteService', () => {
     const handled = await routeService.handleRequest(
       req,
       res,
-      new URL('http://localhost/api/web/operations/natural-setup?channelId=discord&text=Quero%20conectar%20ao%20Discord&apply=true&doctor=true&test=true&localOnly=true'),
+      new URL('http://localhost/api/web/operations/natural-setup-channelId=discord&text=Quero%20conectar%20ao%20Discord&apply=true&doctor=true&test=true&localOnly=true'),
       '/api/web/operations/natural-setup',
       deps,
     );
@@ -471,7 +471,7 @@ describe('WebAppSurfaceRouteService', () => {
     const res = {} as http.ServerResponse;
     const req = { method: 'GET' } as http.IncomingMessage;
     const writeJson = jest.fn();
-    const buildSnapshot = jest.fn(async ({ query, limit }: { query?: string | null; limit?: number } = {}) => ({
+    const buildSnapshot = jest.fn(async ({ query, limit }: { query-: string | null; limit-: number } = {}) => ({
       generatedAt: '2026-04-12T20:44:00.000Z',
       summary: {
         posture: 'attention',
@@ -483,8 +483,8 @@ describe('WebAppSurfaceRouteService', () => {
       },
       narrative: {
         headline: 'Scheduled runs: Automations e scheduled runs',
-        operatorSummary: 'Uma automacao segue ativa e uma pausa precisa de revisao.',
-        nextAction: 'Revisar a rotina diaria antes do proximo envio.',
+        operatorSummary: 'Uma automaction segue ativa e uma pausa needs de review.',
+        nextAction: 'Review the daily routine before the next send.',
       },
       tasks: [],
       deliveries: [],
@@ -502,7 +502,7 @@ describe('WebAppSurfaceRouteService', () => {
     const handled = await routeService.handleRequest(
       req,
       res,
-      new URL('http://localhost/api/web/operations/automations?q=discord&limit=6'),
+      new URL('http://localhost/api/web/operations/automations-q=discord&limit=6'),
       '/api/web/operations/automations',
       deps,
     );
@@ -546,7 +546,7 @@ describe('WebAppSurfaceRouteService', () => {
           totalTasks: 1,
         },
         narrative: {
-          operatorSummary: 'Uma automacao pronta para seguir.',
+          operatorSummary: 'One automation ready to continue.',
           nextAction: 'Wait for the first run.',
         },
       },
@@ -555,7 +555,7 @@ describe('WebAppSurfaceRouteService', () => {
       writeJson,
       readJsonBody: jest.fn(async () => ({
         actionId: 'create',
-        intentText: 'todo dia as 9h verifique meus canais no app',
+        intentText: 'check my channels in the app at the requested cadence',
       })),
       automationControlPlane: {
         buildSnapshot: jest.fn(async () => ({
@@ -578,7 +578,7 @@ describe('WebAppSurfaceRouteService', () => {
     expect(handled).toBe(true);
     expect(execute).toHaveBeenCalledWith({
       actionId: 'create',
-      intentText: 'todo dia as 9h verifique meus canais no app',
+      intentText: 'check my channels in the app at the requested cadence',
       taskId: null,
       requestedBy: 'web-user',
       sourceSurface: 'app',
@@ -606,7 +606,7 @@ describe('WebAppSurfaceRouteService', () => {
     const res = {} as http.ServerResponse;
     const req = { method: 'GET' } as http.IncomingMessage;
     const writeJson = jest.fn();
-    const buildSnapshot = jest.fn(({ limit }: { limit?: number } = {}) => ({
+    const buildSnapshot = jest.fn(({ limit }: { limit-: number } = {}) => ({
       generatedAt: '2026-04-12T20:45:00.000Z',
       summary: {
         posture: 'attention',
@@ -619,7 +619,7 @@ describe('WebAppSurfaceRouteService', () => {
       },
       narrative: {
         headline: 'Watch mode: Watch Mode supervisionado',
-        operatorSummary: 'Chrome aguardando approval.',
+        operatorSummary: 'Chrome waiting for approval.',
         nextAction: 'Decidir o handoff visual.',
       },
       cards: [],
@@ -643,7 +643,7 @@ describe('WebAppSurfaceRouteService', () => {
     const handled = await routeService.handleRequest(
       req,
       res,
-      new URL('http://localhost/api/web/operations/watch-mode?limit=9'),
+      new URL('http://localhost/api/web/operations/watch-mode-limit=9'),
       '/api/web/operations/watch-mode',
       deps,
     );
@@ -697,7 +697,7 @@ describe('WebAppSurfaceRouteService', () => {
         })),
       } as any,
     });
-    const url = new URL('http://localhost/api/web/operations/qa?profile=beta');
+    const url = new URL('http://localhost/api/web/operations/qa-profile=beta');
 
     const handled = await routeService.handleRequest(
       req,
@@ -732,7 +732,7 @@ describe('WebAppSurfaceRouteService', () => {
     const res = {} as http.ServerResponse;
     const req = { method: 'GET' } as http.IncomingMessage;
     const writeJson = jest.fn();
-    const buildSnapshot = jest.fn(({ limit }: { limit?: number | null } = {}) => ({
+    const buildSnapshot = jest.fn(({ limit }: { limit-: number | null } = {}) => ({
       generatedAt: '2026-04-12T17:00:00.000Z',
       summary: {
         posture: 'attention',
@@ -757,7 +757,7 @@ describe('WebAppSurfaceRouteService', () => {
         buildSnapshot,
       } as any,
     });
-    const url = new URL('http://localhost/api/web/operations/governance?limit=12');
+    const url = new URL('http://localhost/api/web/operations/governance-limit=12');
 
     const handled = await routeService.handleRequest(
       req,
@@ -815,7 +815,7 @@ describe('WebAppSurfaceRouteService', () => {
         buildSnapshot,
       } as any,
     });
-    const url = new URL('http://localhost/api/web/operations/replay-learning?limit=12');
+    const url = new URL('http://localhost/api/web/operations/replay-learning-limit=12');
 
     const handled = await routeService.handleRequest(
       req,

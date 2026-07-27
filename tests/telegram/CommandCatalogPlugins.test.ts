@@ -33,7 +33,7 @@ describe('commandCatalog plugin integration', () => {
           command: 'shipfix',
           aliases: ['sf'],
           explicit_executor: 'workflow:ship',
-          description: 'Executa o workflow ship.',
+          description: 'Runs the ship workflow.',
           usage: '<objetivo>',
           section: 'execution',
         },

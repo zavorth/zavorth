@@ -22,7 +22,7 @@ const commands = catalog.commands || {};
 if (list || !commandName) {
   console.log('Zavorth command catalog');
   console.log('');
-  console.log('Uso: npm run command -- <nome> [-- args]');
+  console.log('usage: npm run command -- <nome> [-- args]');
   console.log('');
   for (const [name, entry] of Object.entries(commands)) {
     const status = entry.status || 'legacy';
@@ -33,7 +33,7 @@ if (list || !commandName) {
 
 const entry = commands[commandName];
 if (!entry) {
-  console.error(`[command] comando nao encontrado no catalogo: ${commandName}`);
+  console.error(`[command] command not found in catalog: ${commandName}`);
   console.error('[command] use: npm run command:list');
   process.exit(1);
 }
@@ -49,7 +49,7 @@ const result = spawnSync(command, {
 });
 
 if (result.error) {
-  console.error(`[command] falha ao executar ${commandName}: ${result.error.message}`);
+  console.error(`[command] failure ao run ${commandName}: ${result.error.message}`);
   process.exit(1);
 }
 

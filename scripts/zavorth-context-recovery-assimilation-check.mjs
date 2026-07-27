@@ -39,13 +39,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('context-recovery-files', 'Approval gate files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('context-recovery-files', 'Approval gate files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthContextRecoveryAssimilationContract.ts', ['ZAVORTH_CONTEXT_RECOVERY_ASSIMILATION_CONTRACT_VERSION', 'ledgerBeatsRecall', 'retryOnlyWhenEvidenceChanges', 'rawMemorySerialized']],
-    ['src/services/ZavorthContextRecoveryAssimilationService.ts', ['checkpoint-3-context-memory-error-recovery', 'ZavorthReasoningActionPatternService', 'avoidSameFailingToolUntilEvidenceChanges', 'ledger remains authoritative']],
+    ['src/services/ZavorthContextRecoveryAssimilationService.ts', ['gate-3-context-memory-error-recovery', 'ZavorthReasoningActionPatternService', 'avoidSameFailingToolUntilEvidenceChanges', 'ledger remains authoritative']],
     ['scripts/zavorth-context-recovery-assimilation.ts', ['--failure', '--memory', '--event', '--json']],
     ['src/sdk/contracts.ts', ['ZavorthContextRecoveryAssimilationContract']],
     ['src/sdk/index.ts', ['ZavorthContextRecoveryAssimilationService']],
@@ -63,24 +63,24 @@ function ruleMarkers() {
 function runContextFixture() {
   const result = runTs('scripts/zavorth-context-recovery-assimilation.ts', [
     '--json',
-    '--text=continue auditando com subagentes',
+    '--text=continue auditing with delegated review',
     '--event=User asked for safe read-only audit',
     '--memory=mem-1|Workspace uses governed subagents|fixture|0.9|warm',
   ]);
   return jsonRule('context-recovery-context-fixture', 'Compact context pack builds', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.context-memory-error-recovery-checkpoint-3'
+    snapshot.contractVersion === '2026-05-11.context-memory-error-recovery-gate-3'
     && snapshot.status === 'ready'
     && snapshot.contextPack.rawMemorySerialized === false
     && snapshot.safety.ledgerBeatsRecall === true
     && snapshot.summary.hot >= 1
     && snapshot.summary.warm >= 1
-    && snapshot.receipts.some((item) => item.kind === 'checkpoint-3-context-pack'));
+    && snapshot.receipts.some((item) => item.kind === 'gate-3-context-pack'));
 }
 
 function runRecoveryFixture() {
   const result = runTs('scripts/zavorth-context-recovery-assimilation.ts', [
     '--json',
-    '--text=continue verificando o resultado',
+    '--text=continue verifying the result',
     '--failure=provider timeout while observing page',
     '--failure-tool=browser.observe',
     '--failure-attempt=1',
@@ -96,7 +96,7 @@ function runRecoveryFixture() {
 function runApprovalFixture() {
   const result = runTs('scripts/zavorth-context-recovery-assimilation.ts', [
     '--json',
-    '--text=edite arquivos e rode comando powershell',
+    '--text=edit files and run a PowerShell command',
   ]);
   return jsonRule('context-recovery-approval-fixture', 'Preview engine approval boundary is inherited', result, (snapshot) =>
     snapshot.status === 'approval-required'
@@ -162,5 +162,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

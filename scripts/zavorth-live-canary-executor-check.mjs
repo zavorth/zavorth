@@ -40,13 +40,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('live-canary-executor-files', 'Intent model0 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('live-canary-executor-files', 'Intent model0 files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthLiveCanaryControlledExecutorContract.ts', ['ZAVORTH_LIVE_CANARY_CONTROLLED_EXECUTOR_CONTRACT_VERSION', 'local_ack', 'provider_live_canary', 'idempotencyKeyRequiredForExecution']],
-    ['src/services/ZavorthLiveCanaryControlledExecutorService.ts', ['checkpoint-10-live-canary-controlled-executor', 'ZavorthLiveCanaryApplyGateRollbackDrillService', 'ZavorthProviderLiveCanaryService', 'supportsAdapter']],
+    ['src/services/ZavorthLiveCanaryControlledExecutorService.ts', ['gate-10-live-canary-controlled-executor', 'ZavorthLiveCanaryApplyGateRollbackDrillService', 'ZavorthProviderLiveCanaryService', 'supportsAdapter']],
     ['scripts/zavorth-live-canary-executor.ts', ['--execute-local', '--execute-provider', '--idempotency-key', '--operator-confirmed']],
     ['src/sdk/contracts.ts', ['ZavorthLiveCanaryControlledExecutorContract']],
     ['src/sdk/index.ts', ['ZavorthLiveCanaryControlledExecutorService']],
@@ -64,7 +64,7 @@ function ruleMarkers() {
 function runNeedsApplyGateFixture() {
   const result = runTs('scripts/zavorth-live-canary-executor.ts', ['--json']);
   return jsonRule('live-canary-executor-needs-gate', 'Executor requires Certification matrix apply gate first', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.live-canary-controlled-executor-checkpoint-10'
+    snapshot.contractVersion === '2026-05-11.live-canary-controlled-executor-gate-10'
     && snapshot.status === 'needs-apply-gate'
     && snapshot.executionResult.status === 'not-run'
     && snapshot.safety.noImplicitExecutionFromChecks === true);
@@ -84,13 +84,13 @@ function runLocalExecutionFixture() {
   const args = readyArgs();
   args.push('--execute-local', '--idempotency-key=idem-123');
   const result = runTs('scripts/zavorth-live-canary-executor.ts', args);
-  return jsonRule('live-canary-executor-local', 'Local controlled canary executes without external IO', result, (snapshot) =>
+  return jsonRule('live-canary-executor-local', 'local controlled canary executes without external IO', result, (snapshot) =>
     snapshot.status === 'executed'
     && snapshot.mode === 'controlled-live-execution'
     && snapshot.summary.executionPerformed === true
     && snapshot.summary.externalIoPerformed === false
-    && snapshot.executionResult.executionReceiptId === 'checkpoint-10-execution:checkpoint-8-default-live-canary-adapter:idem-123'
-    && snapshot.executionResult.rollbackReceiptId === 'checkpoint-10-rollback:checkpoint-8-default-live-canary-adapter:idem-123');
+    && snapshot.executionResult.executionReceiptId === 'gate-10-execution:gate-8-default-live-canary-adapter:idem-123'
+    && snapshot.executionResult.rollbackReceiptId === 'gate-10-rollback:gate-8-default-live-canary-adapter:idem-123');
 }
 
 function runMissingIdempotencyFixture() {
@@ -178,5 +178,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

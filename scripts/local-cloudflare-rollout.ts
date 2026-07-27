@@ -17,7 +17,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[local-cloudflare-rollout] falha ao inspecionar o rollout.');
+  console.error('[local-cloudflare-rollout] failure ao inspecionar o rollout.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

@@ -118,7 +118,7 @@ describe('McpCapabilityControlPlaneService', () => {
         }),
       ]),
     );
-    expect(snapshot.recommendations[0]).toContain('falhando');
+    expect(snapshot.recommendations[0]).toContain('failurendo');
     expect(snapshot.narrative.operatorSummary).toContain('1/2 servidor(es) MCP conectado(s)');
   });
 
@@ -183,6 +183,6 @@ describe('McpCapabilityControlPlaneService', () => {
       issue: null,
       toolNames: [],
     }));
-    expect(snapshot.recommendations.join('\n')).not.toContain('falhando');
+    expect(snapshot.recommendations.join('\n')).not.toContain('failurendo');
   });
 });

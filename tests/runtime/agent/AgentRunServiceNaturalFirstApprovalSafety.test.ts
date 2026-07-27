@@ -10,7 +10,7 @@ describe('AgentRunService Natural First Approval Safety Surface controls', () =>
   it('opens a fallback approval for sensitive Natural First intent with no mapped tool', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Executor nao deveria rodar.',
+      summary: 'Executor should not run.',
       replyText: 'executor-called',
     }));
     const service = new AgentRunService({

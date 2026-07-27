@@ -37,7 +37,7 @@ async function main() {
   const watchService = new ComputerUseWatchModeService({
     policyFileService,
     createAgent: () => {
-      throw new Error('CLI Watch Mode nao inicia agente visual direto; use apply de plan aprovado no runtime web.');
+      throw new Error('CLI Watch Mode does not start a direct visual agent; use apply from an approved plan in the web runtime.');
     },
   });
   let actionResult: any = null;
@@ -99,7 +99,7 @@ async function main() {
   if (asJson) {
     process.stdout.write(`${JSON.stringify({ ok: actionResult?.ok !== false, action: actionResult, watchMode: snapshot }, null, 2)}\n`);
   } else {
-    console.log('[watch-mode] leitura oficial da supervisao visual, policy e replay curto');
+    console.log('[watch-mode] official visual supervision, policy, and short replay reading');
     if (actionResult?.mutationPlan) {
       console.log(`${actionResult.summary}\nPlan: ${actionResult.mutationPlan.id}\n`);
     }
@@ -112,6 +112,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[watch-mode] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[watch-mode] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

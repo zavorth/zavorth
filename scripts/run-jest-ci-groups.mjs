@@ -148,16 +148,16 @@ function listGroups() {
   for (const group of GROUPS) {
     const paths = existingPaths(group.paths);
     console.log(`${group.id.padEnd(16, ' ')} ${group.label}`);
-    console.log(`  ${paths.join(' ') || '(sem paths existentes)'}`);
+    console.log(`  ${paths.join(' ') || '(without paths existentes)'}`);
   }
   if (ARCHIVE_GROUPS.length === 0) {
     return;
   }
-  console.log('\nArquivados fora do CI padrao:');
+  console.log('\nArquivados outside do CI default:');
   for (const group of ARCHIVE_GROUPS) {
     const paths = existingPaths(group.paths);
     console.log(`${group.id.padEnd(16, ' ')} ${group.label}`);
-    console.log(`  ${paths.join(' ') || '(sem paths existentes)'}`);
+    console.log(`  ${paths.join(' ') || '(without paths existentes)'}`);
   }
 }
 
@@ -181,7 +181,7 @@ function selectedGroups() {
   const groups = ALL_GROUPS.filter((group) => requested.has(group.id));
   const missing = [...requested].filter((id) => !ALL_GROUPS.some((group) => group.id === id));
   if (missing.length > 0) {
-    throw new Error(`Grupo(s) desconhecido(s): ${missing.join(', ')}`);
+    throw new Error(`Unknown group(s): ${missing.join(', ')}`);
   }
   return groups;
 }
@@ -199,7 +199,7 @@ function collectPassThroughArgs() {
 function runGroup(group, timeoutMs, passThroughArgs) {
   const paths = existingPaths(group.paths);
   if (paths.length === 0) {
-    console.log(`\n[test:ci:${group.id}] PULADO - nenhum path de teste existe.`);
+    console.log(`\n[test:ci:${group.id}] PULADO - none path de teste existe.`);
     return Promise.resolve({ id: group.id, status: 'skipped', code: 0, durationMs: 0 });
   }
 
@@ -261,7 +261,7 @@ function runGroup(group, timeoutMs, passThroughArgs) {
       clearTimeout(timer);
       const durationMs = Date.now() - startedAt;
       if (timedOut) {
-        console.error(`[test:ci:${group.id}] TIMEOUT depois de ${durationMs}ms.`);
+        console.error(`[test:ci:${group.id}] TIMEOUT after de ${durationMs}ms.`);
         resolve({ id: group.id, status: 'timeout', code: 124, durationMs, signal });
         return;
       }
@@ -279,7 +279,7 @@ async function main() {
   }
 
   if (!fs.existsSync(jestBin)) {
-    throw new Error('Jest local nao encontrado. Rode npm install antes dos testes.');
+    throw new Error('local Jest not found. Run npm install before tests.');
   }
 
   const groups = selectedGroups();
@@ -293,13 +293,13 @@ async function main() {
   }
 
   const failed = results.filter((result) => !['passed', 'skipped'].includes(result.status));
-  console.log('\n[test:ci] resumo');
+  console.log('\n[test:ci] summary');
   for (const result of results) {
     console.log(`- ${result.id}: ${result.status} (${result.durationMs}ms)`);
   }
 
   if (failed.length > 0) {
-    console.error(`[test:ci] falhou em: ${failed.map((result) => result.id).join(', ')}`);
+    console.error(`[test:ci] failed em: ${failed.map((result) => result.id).join(', ')}`);
     process.exit(1);
   }
 }

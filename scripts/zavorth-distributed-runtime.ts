@@ -31,12 +31,12 @@ async function main() {
     return;
   }
 
-  console.log('[zavorth-distributed-runtime] leitura consolidada da Distributed runtime');
+  console.log('[zavorth-distributed-runtime] read consolidada da Distributed runtime');
   console.log(`[zavorth-distributed-runtime] postura: ${snapshot.summary.posture}`);
   console.log(
     `[zavorth-distributed-runtime] implementation=${snapshot.summary.implementationReady ? 'ready' : 'pending'} | infra=${snapshot.summary.infrastructureState}${snapshot.summary.infrastructureOfflineReason ? ` | ${snapshot.summary.infrastructureOfflineReason}` : ''}`,
   );
-  console.log(`[zavorth-distributed-runtime] resumo: ${snapshot.narrative.operatorSummary}`);
+  console.log(`[zavorth-distributed-runtime] summary: ${snapshot.narrative.operatorSummary}`);
   console.log(
     `[zavorth-distributed-runtime] channels=${snapshot.summary.readyChannels}/${snapshot.summary.totalChannels} | advanced=${snapshot.summary.readyAdvancedChannels}/${snapshot.summary.advancedChannels}`,
   );
@@ -47,12 +47,12 @@ async function main() {
     `[zavorth-distributed-runtime] transports=${snapshot.summary.readyTransports}/${snapshot.summary.totalTransports} | live=${snapshot.summary.liveTransports} | attention=${snapshot.summary.transportAttention}`,
   );
   console.log(
-    `[zavorth-distributed-runtime] surfaces=${snapshot.summary.readySurfaces}/${snapshot.summary.totalSurfaces} | primary=${snapshot.summary.primarySurfaceReady ? 'ok' : 'pendente'} | remote=${snapshot.summary.remoteReady ? 'ok' : 'pendente'}`,
+    `[zavorth-distributed-runtime] surfaces=${snapshot.summary.readySurfaces}/${snapshot.summary.totalSurfaces} | primary=${snapshot.summary.primarySurfaceReady ? 'ok' : 'pending'} | remote=${snapshot.summary.remoteReady ? 'ok' : 'pending'}`,
   );
-  console.log(`[zavorth-distributed-runtime] proximo passo: ${snapshot.narrative.nextAction}`);
+  console.log(`[zavorth-distributed-runtime] next passo: ${snapshot.narrative.nextAction}`);
 
   if (snapshot.actions.length > 0) {
-    console.log('[zavorth-distributed-runtime] acoes sugeridas:');
+    console.log('[zavorth-distributed-runtime] actions sugeridas:');
     for (const action of snapshot.actions.slice(0, 6)) {
       console.log(`- ${action.label}: ${action.command || action.reason}`);
     }
@@ -64,6 +64,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-distributed-runtime] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[zavorth-distributed-runtime] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

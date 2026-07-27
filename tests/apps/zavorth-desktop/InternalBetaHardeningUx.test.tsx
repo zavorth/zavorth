@@ -11,7 +11,7 @@ describe('InternalBetaHardeningUx Tests', () => {
     global.fetch = jest.fn() as jest.Mock;
   });
 
-  it('first-run sem workspace ou workspace não confiável', async () => {
+  it('first run without a workspace or with an untrusted workspace', async () => {
     (global.fetch as jest.Mock)
       .mockResolvedValueOnce({
         ok: true,
@@ -19,7 +19,7 @@ describe('InternalBetaHardeningUx Tests', () => {
           data: {
             readyForInternalBeta: false,
             checks: [
-              { id: 'workspace_trusted', status: 'fail', message: 'Este Workspace ainda não é confiável.', remediation: 'Selecione "Confiar neste Workspace"' }
+              { id: 'workspace_trusted', status: 'fail', message: 'This workspace is not trusted yet.', remediation: 'Select "Trust this Workspace"' }
             ]
           }
         })
@@ -30,16 +30,16 @@ describe('InternalBetaHardeningUx Tests', () => {
       });
 
     render(<InternalBetaDiagnosticsPanel workspaceId="empty-or-untrusted" />);
-    
+
     // Readiness shows warning/fail
-    const heading = await screen.findByText(/Necessita Ajustes para Beta Interno/i);
+    const heading = await screen.findByText(/Needs Internal Beta Adjustments/i);
     expect(heading).toBeInTheDocument();
 
     // Remediation is visible
-    expect(screen.getByText(/Selecione "Confiar neste Workspace"/i)).toBeInTheDocument();
+    expect(screen.getByText(/Select "Trust this Workspace"/i)).toBeInTheDocument();
   });
 
-  it('provider ausente, missing key ou disabled', async () => {
+  it('provider missing, missing key ou disabled', async () => {
     (global.fetch as jest.Mock)
       .mockResolvedValueOnce({
         ok: true,
@@ -47,7 +47,7 @@ describe('InternalBetaHardeningUx Tests', () => {
           data: {
             readyForInternalBeta: false,
             checks: [
-              { id: 'provider_configured', status: 'fail', message: 'O provedor padrão está configurado mas não possui API Key.', remediation: 'Cadastre a API Key na aba Providers.' }
+              { id: 'provider_configured', status: 'fail', message: 'The default provider is configured but has no API key.', remediation: 'Add the API key in Providers.' }
             ]
           }
         })
@@ -58,12 +58,12 @@ describe('InternalBetaHardeningUx Tests', () => {
       });
 
     render(<InternalBetaDiagnosticsPanel workspaceId="test-ws" />);
-    
-    expect(await screen.findByText(/O provedor padrão está configurado mas não possui API Key/i)).toBeInTheDocument();
+
+    expect(await screen.findByText(/The default provider is configured but has no API key/i)).toBeInTheDocument();
     expect(screen.getByText(/Cadastre a API Key na aba Providers/i)).toBeInTheDocument();
   });
 
-  it('workspace config ausente aplica safe default', async () => {
+  it('workspace config missing aplica safe default', async () => {
     (global.fetch as jest.Mock)
       .mockResolvedValueOnce({
         ok: true,
@@ -71,7 +71,7 @@ describe('InternalBetaHardeningUx Tests', () => {
           data: {
             readyForInternalBeta: false,
             checks: [
-              { id: 'workspace_config_present', status: 'warning', message: 'Configuração do workspace ausente; aplicando perfil seguro padrão (safe defaults).', remediation: 'Ajuste as permissões do workspace na aba Workspace Settings.' }
+              { id: 'workspace_config_present', status: 'warning', message: 'Configuraction do workspace missing; aplicando profile seguro padrao (safe defaults).', remediation: 'Ajuste as permissions do workspace na aba Workspace Settings.' }
             ]
           }
         })
@@ -82,11 +82,11 @@ describe('InternalBetaHardeningUx Tests', () => {
       });
 
     render(<InternalBetaDiagnosticsPanel workspaceId="no-config-ws" />);
-    
-    expect(await screen.findByText(/aplicando perfil seguro padrão \(safe defaults\)/i)).toBeInTheDocument();
+
+    expect(await screen.findByText(/aplicando profile seguro padrao \(safe defaults\)/i)).toBeInTheDocument();
   });
 
-  it('readiness mostra próximos passos e policy preview sanitizado', async () => {
+  it('readiness mostra nexts passos e policy preview sanitizado', async () => {
     (global.fetch as jest.Mock)
       .mockResolvedValueOnce({
         ok: true,
@@ -94,7 +94,7 @@ describe('InternalBetaHardeningUx Tests', () => {
           data: {
             readyForInternalBeta: false,
             checks: [
-              { id: 'runtime_ready', status: 'fail', message: 'O ambiente operacional não está pronto. Código: config_issue.', remediation: 'Corrija as inconsistências indicadas no painel de Workspace Settings.' }
+              { id: 'runtime_ready', status: 'fail', message: 'The operational environment is not ready. Code: config_issue.', remediation: 'Fix the inconsistencies shown in Workspace Settings.' }
             ]
           }
         })
@@ -105,11 +105,11 @@ describe('InternalBetaHardeningUx Tests', () => {
       });
 
     render(<InternalBetaDiagnosticsPanel workspaceId="test-ws" />);
-    
-    expect(await screen.findByText(/Corrija as inconsistências indicadas no painel de Workspace Settings/i)).toBeInTheDocument();
+
+    expect(await screen.findByText(/Fix the inconsistencies indicated in the Workspace Settings panel/i)).toBeInTheDocument();
   });
 
-  it('diagnostics não contém secret e não envia telemetria externa', async () => {
+  it('diagnostics hide secrets and do not send external telemetry', async () => {
     const fetchSpy = jest.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -134,7 +134,7 @@ describe('InternalBetaHardeningUx Tests', () => {
 
   it('error normalization remove API key, Authorization/Bearer, raw provider body e DB path', () => {
     const errorNormalizer = ErrorNormalizationService.getInstance();
-    
+
     // API key
     const rawErrorKey = new Error('Lacks key or key sk-zavorth-abc-12345 is bad');
     const normKey = errorNormalizer.normalize(rawErrorKey);
@@ -159,7 +159,7 @@ describe('InternalBetaHardeningUx Tests', () => {
     expect(normPath.message).toContain('[REDACTED_PATH]');
   });
 
-  it('UI não renderiza secretRef ou API key e mostra status seguros (HPM, PTY, fallback disabled)', async () => {
+  it('UI hides secretRef and API keys and shows safe statuses (HPM, PTY, fallback disabled)', async () => {
     (global.fetch as jest.Mock)
       .mockResolvedValueOnce({
         ok: true,
@@ -167,9 +167,9 @@ describe('InternalBetaHardeningUx Tests', () => {
           data: {
             readyForInternalBeta: true,
             checks: [
-              { id: 'host_power_mode', status: 'pass', message: 'Host Power Mode está desativado (seguro por padrão).' },
-              { id: 'pty_mode', status: 'pass', message: 'PTY Interactive Sessions está desativado (seguro por padrão).' },
-              { id: 'fallback_policy', status: 'pass', message: 'Provider Fallback está desativado (seguro por padrão).' }
+              { id: 'host_power_mode', status: 'pass', message: 'Host Power Mode esta desativado (seguro por padrao).' },
+              { id: 'pty_mode', status: 'pass', message: 'PTY Interactive Sessions esta desativado (seguro por padrao).' },
+              { id: 'fallback_policy', status: 'pass', message: 'Provider Fallback esta desativado (seguro por padrao).' }
             ]
           }
         })
@@ -181,9 +181,9 @@ describe('InternalBetaHardeningUx Tests', () => {
 
     render(<InternalBetaDiagnosticsPanel workspaceId="test-ws" />);
 
-    expect(await screen.findByText(/Host Power Mode está desativado/i)).toBeInTheDocument();
-    expect(screen.getByText(/PTY Interactive Sessions está desativado/i)).toBeInTheDocument();
-    expect(screen.getByText(/Provider Fallback está desativado/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Host Power Mode esta desativado/i)).toBeInTheDocument();
+    expect(screen.getByText(/PTY Interactive Sessions esta desativado/i)).toBeInTheDocument();
+    expect(screen.getByText(/Provider Fallback esta desativado/i)).toBeInTheDocument();
 
     const htmlContent = document.body.innerHTML;
     expect(htmlContent).not.toMatch(/secretRef|sk-/i);

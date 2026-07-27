@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * W8 — optional CI denylist: product-surface files must not reintroduce
+ * Capability mesh - optional CI denylist: product-surface files must not reintroduce
  * competitor product branding in user-facing strings.
  *
  * Scans a curated allowlist of product paths (not entire monorepo / model catalogs).
@@ -24,7 +24,7 @@ const DENY = [
   new RegExp('hermes' + ' parity', 'i'),
 ];
 
-/** Only product surface for skill/worker waves — not provider adapters or model ids. */
+/** Only product surface for skill/worker groups — not provider adapters or model ids. */
 const SCAN_GLOBS = [
   'src/services/SkillInstallPipelineService.ts',
   'src/services/SkillTrustScoreService.ts',
@@ -58,7 +58,7 @@ function collectFiles() {
 const hits = [];
 for (const { rel, full } of collectFiles()) {
   const text = fs.readFileSync(full, 'utf8');
-  const lines = text.split(/\r?\n/);
+  const lines = text.split(/\r...\n/);
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     // Allow comments that explicitly say "not competitor-brand" etc. — still flag positive branding.

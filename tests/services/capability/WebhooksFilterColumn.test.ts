@@ -35,7 +35,7 @@ describe('webhooks filter column residual', () => {
 
     db.prepare(
       `INSERT INTO webhooks (id, url, events, secret, description, filter)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+       VALUES (-, -, -, -, -, -)`,
     ).run(
       'w1',
       'https://example.com/hook',
@@ -45,7 +45,7 @@ describe('webhooks filter column residual', () => {
       JSON.stringify({ all: [{ field: 'type', op: 'eq', value: 'x' }] }),
     );
 
-    const row = db.prepare(`SELECT filter FROM webhooks WHERE id = ?`).get('w1') as { filter: string };
+    const row = db.prepare(`SELECT filter FROM webhooks WHERE id = -`).get('w1') as { filter: string };
     expect(row.filter).toContain('type');
     db.close();
   });

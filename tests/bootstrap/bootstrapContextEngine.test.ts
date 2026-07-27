@@ -8,7 +8,7 @@ describe('wireLegacyUnifiedGatewayAgentCallback', () => {
       prepareAsync: jest.fn().mockResolvedValue({
         messages: [
           { role: 'system', content: 'system via context engine' },
-          { role: 'user', content: 'me explique o plano' },
+          { role: 'user', content: 'explain the plan' },
         ],
         tools: [],
         firewallStats: 'Context firewall stats',
@@ -19,7 +19,7 @@ describe('wireLegacyUnifiedGatewayAgentCallback', () => {
       isProviderAvailable: jest.fn(() => true),
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'gemini',
-        response: { content: 'Resposta do gateway unificado.' },
+        response: { content: 'Unified gateway response.' },
       }),
     };
     const toolRuntime = {
@@ -44,7 +44,7 @@ describe('wireLegacyUnifiedGatewayAgentCallback', () => {
       surface: 'web',
       chatId: 'web:session-1',
       userId: 'web-user',
-      text: 'me explique o plano',
+      text: 'explain the plan',
       isGroup: false,
       reply,
       metadata: {
@@ -53,12 +53,12 @@ describe('wireLegacyUnifiedGatewayAgentCallback', () => {
     });
 
     expect(contextEngine.prepareAsync).toHaveBeenCalledWith(
-      'me explique o plano',
+      'explain the plan',
       'web-user',
       'web:session-1',
       'web',
       [],
-      expect.stringContaining('Voce e o **Zavorth**'),
+      expect.stringContaining('you e o **Zavorth**'),
       'workspace extra',
       undefined,
     );
@@ -70,8 +70,8 @@ describe('wireLegacyUnifiedGatewayAgentCallback', () => {
         allowFallback: true,
       }),
     );
-    expect(reply).toHaveBeenCalledWith('Resposta do gateway unificado.');
-    expect(result.responseText).toBe('Resposta do gateway unificado.');
+    expect(reply).toHaveBeenCalledWith('Unified gateway response.');
+    expect(result.responseText).toBe('Unified gateway response.');
     expect(logRepo.log).toHaveBeenCalledWith(
       'info',
       'ContextEngine',

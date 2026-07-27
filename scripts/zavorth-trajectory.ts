@@ -54,7 +54,7 @@ async function main() {
       return;
     }
     const raw = fs.readFileSync(resolvedBatchPath, 'utf8');
-    const prompts = raw.split(/\r?\n/u).map((line) => line.trim()).filter(Boolean);
+    const prompts = raw.split(/\r...\n/u).map((line) => line.trim()).filter(Boolean);
     if (prompts.length === 0) {
       console.error('[zavorth-trajectory] batch file is empty.');
       process.exitCode = 1;

@@ -22,7 +22,7 @@ const rules = [
   ruleContainsAll({
     id: 'channel-mesh-consistency-contract',
     label: 'Contract defines Channel Mesh consistency vocabulary',
-    target: 'Contract includes status, transport strategy, credential policy, connector routes, simulations and snapshots',
+    target: 'Contract includes status, transport strategy, credential policy, connector routes, dry-runs and snapshots',
     files: ['src/contracts/ChannelMeshConsistencyContract.ts'],
     needles: [
       'ZAVORTH_CHANNEL_MESH_CONSISTENCY_CONTRACT_VERSION',
@@ -30,14 +30,14 @@ const rules = [
       'ChannelMeshConsistencyTransportStrategy',
       'ChannelMeshCredentialPolicy',
       'ChannelMeshConnectorRoute',
-      'ChannelMeshConsistencySimulation',
+      'ChannelMeshConsistencyDryRun',
       'secretValuesSerialized: false',
     ],
   }),
   ruleContainsAll({
     id: 'channel-mesh-consistency-service',
     label: 'Service maps channel.message inventory into governed connector routes',
-    target: 'Service uses normalization, gateway adapter registry, generated plugin manifests and dry simulations',
+    target: 'Service uses normalization, gateway adapter registry, generated plugin manifests and dry-runs',
     files: ['src/services/ChannelMeshConsistencyService.ts'],
     needles: [
       'channel.message',
@@ -45,7 +45,7 @@ const rules = [
       'GatewayChannelAdapterRegistryService',
       'buildEntry',
       'generatedPluginManifest',
-      'buildSimulation',
+      'buildDryRun',
       'liveSendRequired: false',
       'bluebubbles',
       'googlechat',
@@ -55,7 +55,7 @@ const rules = [
   ruleContainsAll({
     id: 'channel-mesh-consistency-tests',
     label: 'Tests prove channel consistency behavior',
-    target: 'Tests cover native/adapter-backed, bridge/webhook templates, dry simulations, Plugin OS manifests and TLON bridge closure',
+    target: 'Tests cover native/adapter-backed, bridge/webhook templates, dry-runs, Plugin OS manifests and TLON bridge closure',
     files: ['tests/services/ChannelMeshConsistencyService.test.ts'],
     needles: [
       'private channel inventory',

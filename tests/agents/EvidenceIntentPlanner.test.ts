@@ -5,7 +5,7 @@ describe('EvidenceIntentPlanner', () => {
   const planner = new EvidenceIntentPlanner();
 
   it('keeps free-text-only plans neutral (general/hybrid)', () => {
-    const plan = planner.plan('como resolver erro de CORS no Next.js? tem issue ou workaround no GitHub?');
+    const plan = planner.plan('como resolver erro de CORS no Next.js- tem issue ou workaround no GitHub-');
 
     expect(plan).toMatchObject({
       mode: 'hybrid',
@@ -18,7 +18,7 @@ describe('EvidenceIntentPlanner', () => {
 
   it('uses structured medical domain for verified-first routing without free-text inference', () => {
     const plan = planner.plan({
-      query: 'quais os sintomas da gripe e fontes confiaveis?',
+      query: 'quais os sintomas da gripe e fontes confiaveis-',
       domain: 'medical',
     });
 
@@ -33,7 +33,7 @@ describe('EvidenceIntentPlanner', () => {
 
   it('uses structured consumer domain with hybrid mode by default', () => {
     const plan = planner.plan({
-      query: 'review do notebook Dell Inspiron, vale a pena ou o reddit reclama muito?',
+      query: 'review do notebook Dell Inspiron, vale a pena ou o reddit reclama muito-',
       domain: 'consumer',
     });
 
@@ -47,7 +47,7 @@ describe('EvidenceIntentPlanner', () => {
 
   it('uses structured technical domain without free-text mode switching', () => {
     const plan = planner.plan({
-      query: 'compare a documentacao oficial do React com o que a comunidade esta reclamando agora',
+      query: 'compare a documentaction oficial do React com o que a comunidade esta reclamando agora',
       domain: 'technical',
     });
 
@@ -58,7 +58,7 @@ describe('EvidenceIntentPlanner', () => {
 
   it('respects an explicit mode override with structured domain', () => {
     const plan = planEvidenceIntent({
-      query: 'what are dengue symptoms?',
+      query: 'what are dengue symptoms-',
       domain: 'medical',
       userRequestedMode: 'community',
     });
@@ -74,7 +74,7 @@ describe('EvidenceIntentPlanner', () => {
   it('attaches adaptive intent metadata from structured domain (not free-text product routing)', () => {
     const router = new EvidenceSearchRouter();
     const need = router.detect({
-      text: 'procure relatos no reddit sobre bug no Playwright 2026',
+      text: 'find relatos no reddit sobre bug no Playwright 2026',
       domain: 'technical',
       reason: 'research',
       userRequestedMode: 'community',
@@ -91,7 +91,7 @@ describe('EvidenceIntentPlanner', () => {
 
   it('does not activate evidence search from free text alone via the router', () => {
     const router = new EvidenceSearchRouter();
-    expect(router.detect('procure relatos no reddit sobre bug no Playwright 2026')).toBeNull();
+    expect(router.detect('find relatos no reddit sobre bug no Playwright 2026')).toBeNull();
   });
 
   it('annotates free-text signal hints without changing product mode', () => {

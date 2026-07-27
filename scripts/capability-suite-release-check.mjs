@@ -52,14 +52,14 @@ function runCommand(command, args, { capture = false, timeout = 120000 } = {}) {
 }
 
 function runStep(label, command, args, options = {}) {
-  console.log(`\n[checkpoint-11-check] ${label}`);
+  console.log(`\n[gate-11-check] ${label}`);
   return runCommand(command, args, options);
 }
 
 function assertFile(relativePath) {
   const absolutePath = path.resolve(projectRoot, relativePath);
   if (!fs.existsSync(absolutePath)) {
-    throw new Error(`Artefato esperado ausente: ${relativePath}`);
+    throw new Error(`Expected artifact missing: ${relativePath}`);
   }
 }
 
@@ -67,7 +67,7 @@ function parseJsonFromOutput(stdout) {
   const text = String(stdout || '').trim();
   const firstBrace = text.indexOf('{');
   if (firstBrace < 0) {
-    throw new Error('Nao encontrei payload JSON na saida capturada.');
+    throw new Error('Could not find JSON payload in captured output.');
   }
   return JSON.parse(text.slice(firstBrace));
 }
@@ -95,16 +95,16 @@ const stabilityResult = runStep('Snapshot JSON do Runtime Stability', npmCommand
 const snapshot = parseJsonFromOutput(stabilityResult.stdout);
 
 if (!snapshot?.gate || !Array.isArray(snapshot.gate.checks)) {
-  throw new Error('Snapshot de estabilidade nao contem gate/checks de release.');
+  throw new Error('Stability snapshot does not contain release gate/checks.');
 }
 
 if (snapshot.gate.status === 'failed') {
   console.warn(
-    `[checkpoint-11-check] warning: gate de release esta ${snapshot.gate.status} no ambiente atual: ${(
+    `[gate-11-check] warning: gate de release is ${snapshot.gate.status} no ambiente current: ${(
       snapshot.gate.blockingReasons || []
     ).join('; ')}`,
   );
 }
 
-console.log(`\n[checkpoint-11-check] Gate de release: ${snapshot.gate.status}.`);
-console.log('[checkpoint-11-check] Gate de release passou na validacao oficial.');
+console.log(`\n[gate-11-check] Gate de release: ${snapshot.gate.status}.`);
+console.log('[gate-11-check] Gate de release passou na validation oficial.');

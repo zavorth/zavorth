@@ -43,8 +43,7 @@ async function main(): Promise<void> {
     liveIoPerformed: [...liveReceiptByTarget.values()].some(receiptHasLiveIo),
     confirmLiveIo,
     status: profile === 'staging-live' && !confirmLiveIo ? 'blocked-until-confirmed' : 'ready-for-operator',
-    reason: profile === 'staging-live' && !confirmLiveIo
-      ? 'staging-live file/document/diff requires --confirm-live-io and explicit workspace paths.'
+    reason: profile === 'staging-live' && !confirmLiveIo ? 'staging-live file/document/diff requires --confirm-live-io and explicit workspace paths.'
       : 'Certification matrix exposes real file bytes, document extraction, artifact diffs and prose workflow decisions.',
     entries: selected.map((entry) => ({
       targetId: entry.targetId,

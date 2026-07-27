@@ -231,7 +231,7 @@ describe('ZavorthPluginActionService', () => {
             capabilities: ['chat'],
             searchText: 'openrouter',
             actions: [],
-            details: ['Trust: trusted', 'Proximo passo: Validar agora'],
+            details: ['Trust: trusted', 'Next passo: Validar agora'],
           },
           featuredIds: ['openrouter'],
           narrative: {
@@ -262,13 +262,13 @@ describe('ZavorthPluginActionService', () => {
     });
 
     expect(result.status).toBe('manual');
-    expect(result.summary).toContain('Doctor de OpenRouter pronto.');
+    expect(result.summary).toContain('Doctor de OpenRouter ready.');
     expect(result.details).toEqual(
       expect.arrayContaining([
         'Readiness: ready',
         'Trust: trusted',
         'Install: installed',
-        'Proximo passo: /integrations openrouter',
+        'Next passo: /integrations openrouter',
       ]),
     );
     expect(upsertState).not.toHaveBeenCalled();
@@ -326,7 +326,7 @@ describe('ZavorthPluginActionService', () => {
             capabilities: ['chat'],
             searchText: 'openrouter',
             actions: [],
-            details: ['Binding: Provider nativo'],
+            details: ['Binding: Provider nactive'],
           },
           featuredIds: ['openrouter'],
           narrative: {
@@ -364,7 +364,7 @@ describe('ZavorthPluginActionService', () => {
 
     expect(result.actionId).toBe('open');
     expect(result.status).toBe('manual');
-    expect(result.summary).toContain('proximo passo pronto');
+    expect(result.summary).toContain('next step ready');
     expect(result.details).toEqual(
       expect.arrayContaining([
         'Atalho recomendado: /integrations openrouter',

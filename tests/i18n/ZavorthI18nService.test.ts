@@ -209,7 +209,7 @@ describe('ZavorthI18nService', () => {
         const value = svc.t(key);
         expect(value).not.toBe(key);
         expect(value).not.toMatch(/^desktop\./);
-        expect(value).not.toBe('Acoes');
+        expect(value).not.toBe('Actions');
       }
       expect(svc.t('services.desktop.current_mode')).toBe('Current mode');
       expect(svc.t('services.surface.actions')).toBe('Actions');

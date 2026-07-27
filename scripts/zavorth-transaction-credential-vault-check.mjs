@@ -50,7 +50,7 @@ try {
   const credentialText = readFileSync(join(root, 'src/services/ZavorthTransactionCredentialRefService.ts'), 'utf8');
   const connectorText = readFileSync(join(root, 'src/services/ZavorthTransactionConnectorRegistryService.ts'), 'utf8');
   for (const marker of [
-    'zavorth-transaction-credential/checkpoint-5',
+    'zavorth-transaction-credential/gate-5',
     'rawSecretStored: false',
     'valueReadableByLlm: false',
     'credential_ref_format_invalid',
@@ -147,7 +147,7 @@ try {
     '--credential-ref',
     ref,
   ]);
-  if (connector.result.status !== 'simulated' || connector.result.payload?.credentialRef !== ref) {
+  if (connector.result.status !== 'dry-run' || connector.result.payload?.credentialRef !== ref) {
     failures.push('connector run did not accept registered credential ref');
   }
   if (connector.result.externalSideEffects !== false || connector.result.liveActionApplied !== false) {

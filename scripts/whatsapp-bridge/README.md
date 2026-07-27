@@ -1,6 +1,6 @@
 # Zavorth WhatsApp Baileys Bridge
 
-Processo isolado. Nao e dependencia do `package.json` raiz. O core so fala HTTP.
+Isolated process. It is not a root `package.json` dependency. The core only speaks HTTP.
 
 ## Install
 
@@ -34,7 +34,7 @@ npx tsx scripts/zavorth-whatsapp-bridge.ts start|stop|status|pair
 - `GET /health`
 - `GET /status`
 - `GET /qr`
-- `GET /messages?timeout=25000` long-poll
+- `GET /messages...timeout=25000` long-poll
 - `POST /send` `{ "chatId"|"to", "text"|"message" }`
 
 ## Inbound into Zavorth
@@ -50,4 +50,4 @@ npx tsx scripts/zavorth-whatsapp-bridge.ts start|stop|status|pair
 
 ## Notes
 
-Protocolo nao oficial. Preferir WhatsApp Cloud API para producao. Queda do bridge nao derruba o processo principal do Zavorth.
+Unofficial protocol. Prefer WhatsApp Cloud API for production. Bridge failure does not bring down the main Zavorth process.

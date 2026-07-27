@@ -7,7 +7,7 @@ describe('RuntimeStartupService', () => {
     const inspectLive = jest
       .fn()
       .mockResolvedValueOnce({
-        summary: 'O host ainda nao esta pronto.',
+        summary: 'O host ainda not esta ready.',
         runtime: {
           hostSupervisor: { alive: false },
           telegramWorker: { alive: false },
@@ -15,13 +15,13 @@ describe('RuntimeStartupService', () => {
         local: {
           ready: false,
           issues: [
-            'O host supervisor nao esta ativo.',
-            'A superficie web do Zavorth nao respondeu em http://127.0.0.1:33333/app.',
+            'O host supervisor not esta active.',
+            'A superficie web do Zavorth not respondeu em http://127.0.0.1:33333/app.',
           ],
         },
       })
       .mockResolvedValueOnce({
-        summary: 'O runtime local ainda nao esta pronto para uso continuo.',
+        summary: 'O runtime local ainda not esta ready para uso continuo.',
         runtime: {
           hostSupervisor: { alive: true },
           telegramWorker: { alive: true },
@@ -30,12 +30,12 @@ describe('RuntimeStartupService', () => {
         local: {
           ready: false,
           issues: [
-            'O host atual ainda nao foi autorizado para execucoes mutaveis.',
+            'The current host is not yet authorized for mutable executions.',
           ],
         },
       });
     const buildManifest = jest.fn().mockResolvedValue({
-      summary: 'Bootstrap fechado: Zavorth pronto para uso local e remoto',
+      summary: 'Bootstrap closed: Zavorth ready para uso local e remoto',
       local: { appUrl: 'http://127.0.0.1:33333/app' },
       remote: { appUrl: null },
       auth: { required: true, source: 'env', authorizedHost: false },
@@ -47,19 +47,19 @@ describe('RuntimeStartupService', () => {
       .fn()
       .mockReturnValueOnce({
         readyForUse: false,
-        blockingReasons: ['O host supervisor nao esta ativo.'],
+        blockingReasons: ['O host supervisor not esta active.'],
         warnings: [],
-        healthRenewal: { status: 'fresh', summary: 'Checks de health estao frescos ou ainda nao exigem renovacao leve.', items: [], commands: [] },
-        discordRepair: { status: 'not_applicable', summary: 'Discord nao esta habilitado neste runtime.', recommendedActions: [], nextStep: null },
-        summary: 'O host ainda nao esta pronto.',
+        healthRenewal: { status: 'fresh', summary: 'Checks de health estao frescos ou ainda not exigem renovaction leve.', items: [], commands: [] },
+        discordRepair: { status: 'not_applicable', summary: 'Discord not esta there isbilitado neste runtime.', recommendedActions: [], nextStep: null },
+        summary: 'O host ainda not esta ready.',
       })
       .mockReturnValueOnce({
         readyForUse: true,
         blockingReasons: [],
         warnings: [],
-        healthRenewal: { status: 'fresh', summary: 'Checks de health estao frescos ou ainda nao exigem renovacao leve.', items: [], commands: [] },
-        discordRepair: { status: 'not_applicable', summary: 'Discord nao esta habilitado neste runtime.', recommendedActions: [], nextStep: null },
-        summary: 'Bootstrap fechado: Zavorth pronto para uso local.',
+        healthRenewal: { status: 'fresh', summary: 'Checks de health estao frescos ou ainda not exigem renovaction leve.', items: [], commands: [] },
+        discordRepair: { status: 'not_applicable', summary: 'Discord not esta there isbilitado neste runtime.', recommendedActions: [], nextStep: null },
+        summary: 'Bootstrap closed: Zavorth ready para uso local.',
       });
 
     let clock = 0;
@@ -95,7 +95,7 @@ describe('RuntimeStartupService', () => {
     const prepareRuntime = jest.fn(async () => undefined);
     const launchRuntime = jest.fn(async () => undefined);
     const readiness = {
-      summary: 'A superficie web do Zavorth nao respondeu.',
+      summary: 'A superficie web do Zavorth not respondeu.',
       runtime: {
         hostSupervisor: { alive: true },
         telegramWorker: { alive: true },
@@ -104,7 +104,7 @@ describe('RuntimeStartupService', () => {
       local: {
         ready: false,
         issues: [
-          'A superficie web do Zavorth nao respondeu em http://127.0.0.1:33333/app.',
+          'A superficie web do Zavorth not respondeu em http://127.0.0.1:33333/app.',
         ],
       },
     };
@@ -120,16 +120,16 @@ describe('RuntimeStartupService', () => {
     });
     const assess = jest.fn().mockReturnValue({
       readyForUse: false,
-      blockingReasons: ['A superficie web do Zavorth nao respondeu em http://127.0.0.1:33333/app.'],
-      warnings: ['Existem 1 check(s) de health com renovacao leve recomendada.'],
+      blockingReasons: ['A superficie web do Zavorth not respondeu em http://127.0.0.1:33333/app.'],
+      warnings: ['Existem 1 check(s) de health com renovaction leve recomendada.'],
       healthRenewal: {
         status: 'renewal_recommended',
-        summary: 'Existem 1 check(s) de health com renovacao leve recomendada.',
-        items: [{ id: 'system-overlord-smoke', label: 'System Overlord smoke', command: 'npm run test:overlord:smoke', summary: 'O smoke do System Overlord ficou velho e merece renovacao leve.' }],
+        summary: 'Existem 1 check(s) de health com renovaction leve recomendada.',
+        items: [{ id: 'system-overlord-smoke', label: 'System Overlord smoke', command: 'npm run test:overlord:smoke', summary: 'O smoke do System Overlord ficou velho e merece renovaction leve.' }],
         commands: ['npm run test:overlord:smoke'],
       },
-      discordRepair: { status: 'not_applicable', summary: 'Discord nao esta habilitado neste runtime.', recommendedActions: [], nextStep: null },
-      summary: 'A superficie web do Zavorth nao respondeu.',
+      discordRepair: { status: 'not_applicable', summary: 'Discord not esta there isbilitado neste runtime.', recommendedActions: [], nextStep: null },
+      summary: 'A superficie web do Zavorth not respondeu.',
     });
 
     let clock = 0;
@@ -163,7 +163,7 @@ describe('RuntimeStartupService', () => {
   it('accepts a live dashboard on readonly startup even when the host lock is stale', async () => {
     const launchRuntime = jest.fn(async () => undefined);
     const inspectLive = jest.fn().mockResolvedValue({
-      summary: 'Zavorth ainda nao esta pronto para uso consistente: O host atual ainda nao foi autorizado para execucoes mutaveis.',
+      summary: 'Zavorth ainda not esta ready para uso consistente: The current host is not yet authorized for mutable executions.',
       runtime: {
         hostSupervisor: { alive: false },
         telegramWorker: { alive: true },
@@ -171,11 +171,11 @@ describe('RuntimeStartupService', () => {
       },
       local: {
         ready: false,
-        issues: ['O host atual ainda nao foi autorizado para execucoes mutaveis.'],
+        issues: ['The current host is not yet authorized for mutable executions.'],
       },
     });
     const buildManifest = jest.fn().mockResolvedValue({
-      summary: 'Bootstrap basico fechado: Zavorth pronto para uso local.',
+      summary: 'Bootstrap basico closed: Zavorth ready para uso local.',
       local: { appUrl: 'http://127.0.0.1:33333/app' },
       remote: { appUrl: null },
       auth: { required: true, source: 'env', authorizedHost: false },
@@ -186,15 +186,15 @@ describe('RuntimeStartupService', () => {
     const assess = jest.fn().mockReturnValue({
       readyForUse: true,
       blockingReasons: [],
-      warnings: ['Discord nativo ainda nao entrou em estado pronto.'],
-      healthRenewal: { status: 'fresh', summary: 'Checks de health estao frescos ou ainda nao exigem renovacao leve.', items: [], commands: [] },
+      warnings: ['Discord nactive ainda not entrou em estado ready.'],
+      healthRenewal: { status: 'fresh', summary: 'Checks de health estao frescos ou ainda not exigem renovaction leve.', items: [], commands: [] },
       discordRepair: {
         status: 'attention',
-        summary: 'Discord nativo ainda nao entrou em estado pronto.',
+        summary: 'Discord nactive ainda not entrou em estado ready.',
         recommendedActions: ['/autorepair', '/reload'],
-        nextStep: 'Use /autorepair ou /reload para reconciliar o gateway nativo do Discord.',
+        nextStep: 'Use /autorepair ou /reload para reconciliar o gateway nactive do Discord.',
       },
-      summary: 'Bootstrap basico fechado: Zavorth pronto para uso local. Avisos: Discord nativo ainda nao entrou em estado pronto.',
+      summary: 'Bootstrap basico closed: Zavorth ready para uso local. Avisos: Discord nactive ainda not entrou em estado ready.',
     });
 
     const service = new RuntimeStartupService({
@@ -221,7 +221,7 @@ describe('RuntimeStartupService', () => {
   it('prepares the runtime before attempting to launch it', async () => {
     const callOrder: string[] = [];
     const inspectLive = jest.fn().mockResolvedValue({
-      summary: 'Zavorth pronto para uso local e remoto.',
+      summary: 'Zavorth ready para uso local e remoto.',
       runtime: {
         hostSupervisor: { alive: true },
         telegramWorker: { alive: true },
@@ -232,7 +232,7 @@ describe('RuntimeStartupService', () => {
       },
     });
     const buildManifest = jest.fn().mockResolvedValue({
-      summary: 'Bootstrap fechado: Zavorth pronto para uso local e remoto',
+      summary: 'Bootstrap closed: Zavorth ready para uso local e remoto',
       local: { appUrl: 'http://127.0.0.1:33333/app' },
       remote: { appUrl: 'https://example.com/app' },
       auth: { required: true, source: 'env', authorizedHost: true },
@@ -244,9 +244,9 @@ describe('RuntimeStartupService', () => {
       readyForUse: true,
       blockingReasons: [],
       warnings: [],
-      healthRenewal: { status: 'fresh', summary: 'Checks de health estao frescos ou ainda nao exigem renovacao leve.', items: [], commands: [] },
-      discordRepair: { status: 'not_applicable', summary: 'Discord nao esta habilitado neste runtime.', recommendedActions: [], nextStep: null },
-      summary: 'Zavorth pronto para uso local e remoto.',
+      healthRenewal: { status: 'fresh', summary: 'Checks de health estao frescos ou ainda not exigem renovaction leve.', items: [], commands: [] },
+      discordRepair: { status: 'not_applicable', summary: 'Discord not esta there isbilitado neste runtime.', recommendedActions: [], nextStep: null },
+      summary: 'Zavorth ready para uso local e remoto.',
     });
 
     const service = new RuntimeStartupService({

@@ -254,7 +254,7 @@ header('4. Direct web execution via ActionHarness pipeline');
 {
   try {
     const result = await orchestrator.executePipeline(
-      'pesquise sobre IA open source',
+      'research open source AI',
       'web_search',
       { query: 'AI open source 2026' },
       { sessionId: 'smoke-test' },
@@ -288,7 +288,7 @@ header('4c. Approval-gated shell execution remains blocked without approval');
 {
   try {
     const result = await orchestrator.executePipeline(
-      'rode git status',
+      'run git status',
       'shell_run_allowlisted',
       { command: 'git status' },
       { sessionId: 'smoke-test' },
@@ -321,7 +321,7 @@ header('4e. New high-risk tools remain approval-gated');
 {
   try {
     const click = await orchestrator.executePipeline(
-      'clique no botao',
+      'click the button',
       'browser_click',
       { selector: 'button[type="submit"]' },
       { sessionId: 'smoke-test' },
@@ -329,7 +329,7 @@ header('4e. New high-risk tools remain approval-gated');
     assert(click.response.includes('FALHA') && click.response.includes('requires user approval'), 'browser_click requires approval');
 
     const send = await orchestrator.executePipeline(
-      'envie mensagem',
+      'send message',
       'channels_send_approved',
       { channel: 'slack', message: 'hello' },
       { sessionId: 'smoke-test' },
@@ -361,7 +361,7 @@ header('4e. New high-risk tools remain approval-gated');
     assert(absorb.response.includes('FALHA') && absorb.response.includes('requires user approval'), 'skills_absorb requires approval');
 
     const invoke = await orchestrator.executePipeline(
-      'chame agente externo',
+      'chame agente external',
       'agents_external_invoke',
       { profileId: 'codex', prompt: 'status' },
       { sessionId: 'smoke-test' },
@@ -369,7 +369,7 @@ header('4e. New high-risk tools remain approval-gated');
     assert(invoke.response.includes('FALHA') && invoke.response.includes('requires user approval'), 'agents_external_invoke requires approval');
 
     const workflow = await orchestrator.executePipeline(
-      'rode workflow',
+      'run workflow',
       'workflows_run',
       { script: 'qa:zavorth-capability-usage-docs' },
       { sessionId: 'smoke-test' },
@@ -377,7 +377,7 @@ header('4e. New high-risk tools remain approval-gated');
     assert(workflow.response.includes('FALHA') && workflow.response.includes('requires user approval'), 'workflows_run requires approval');
 
     const gmail = await orchestrator.executePipeline(
-      'pesquise meu gmail',
+      'search my Gmail',
       'gmail_search',
       { query: 'zavorth' },
       { sessionId: 'smoke-test' },
@@ -401,7 +401,7 @@ header('4e. New high-risk tools remain approval-gated');
     assert(canvas.response.includes('FALHA') && canvas.response.includes('requires user approval'), 'canvas_render requires approval');
 
     const computerVision = await orchestrator.executePipeline(
-      'veja tela',
+      'check screen',
       'computer_vision',
       { task: 'describe screen' },
       { sessionId: 'smoke-test' },

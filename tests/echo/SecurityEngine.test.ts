@@ -44,12 +44,12 @@ describe('SecurityEngine', () => {
 
   it('blocks external MQTT brokers', () => {
     expect(() => {
-      SecurityEngine.authorizeExecution('publicar mqtt', new MQTTPublisher(), {
+      SecurityEngine.authorizeExecution('publish mqtt', new MQTTPublisher(), {
         broker: 'mqtt://broker.hivemq.com:1883',
         topic: 'casa/sala/luz',
         payload: 'ON',
       });
-    }).toThrow(/localhost|private|local|nao e local/i);
+    }).toThrow(/localhost|private|local|not e local/i);
   });
 
   it('blocks external browser targets unless explicitly allowlisted', () => {
@@ -70,7 +70,7 @@ describe('SecurityEngine', () => {
     }).not.toThrow();
 
     expect(() => {
-      SecurityEngine.authorizeExecution('publicar mqtt local', new MQTTPublisher(), {
+      SecurityEngine.authorizeExecution('publish local mqtt', new MQTTPublisher(), {
         broker: 'mqtt://homeassistant.local:1883',
         topic: 'casa/sala/luz',
         payload: 'ON',
@@ -117,6 +117,6 @@ describe('SecurityEngine', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/blocked by security|bloqueado por seguranca/i);
+    expect(result.error).toMatch(/blocked by security|bloqueado por security/i);
   });
 });

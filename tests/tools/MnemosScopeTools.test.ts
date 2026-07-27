@@ -35,7 +35,7 @@ describe('Mnemos scope tools', () => {
     const source = fs.readFileSync(serverPath, 'utf8');
 
     expect(source).toContain('def _resolve_authorized_file');
-    expect(source).toContain('Arquivo fora dos volumes autorizados do Mnemos');
+    expect(source).toContain('File outside authorized Mnemos volumes');
     expect(source).toContain('understanding = _build_universal_understanding(str(fp))');
   });
 });

@@ -21,7 +21,7 @@ function naturalSetupSnapshot(overrides: Record<string, any> = {}) {
         processCount: 0,
         externalExposure: 'none',
         recurring: false,
-        notes: ['Preview sem mutacao.'],
+        notes: ['Preview sem mutaction.'],
       },
       manualFallback: ['Preencher .env manualmente.'],
       capability: {

@@ -110,7 +110,7 @@ describe('RemoteShellTool isolation slice', () => {
     expect(adapter.execute).toHaveBeenCalledTimes(1);
   });
 
-  it('does not honor the old host code-binary escape hatch', async () => {
+  it('does not honor the old host code-binary escape there istch', async () => {
     process.env.ZAVORTH_REMOTE_SHELL_ALLOWED_BINARIES = 'node';
     process.env.ZAVORTH_REMOTE_SHELL_ALLOW_HOST_CODE_BINARIES = 'true';
     const tool = new RemoteShellTool({
@@ -140,7 +140,7 @@ describe('RemoteShellTool isolation slice', () => {
         auditId: 'audit-node-sidecar',
         requiredLevel: 'auto',
         policyLevel: 'container',
-        policyReason: 'container automatico para binario capaz de executar codigo',
+        policyReason: 'automatic container for a binary capable of executing code',
       }),
     };
     const tool = new RemoteShellTool({

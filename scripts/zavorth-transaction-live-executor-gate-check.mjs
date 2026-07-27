@@ -50,7 +50,7 @@ try {
   const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionLiveExecutorGateService.ts'), 'utf8');
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
-    'zavorth-transaction-live-executor-gate/checkpoint-16',
+    'zavorth-transaction-live-executor-gate/gate-16',
     'ZAVORTH LIVE EXECUTOR READY HOLD',
     'live-ready-held',
     'noBundledFinancialAdapter',
@@ -279,7 +279,7 @@ function rollbackArgs() {
     '--rollback-drill-performed',
     '--rollback-drill-successful',
     '--rollback-summary',
-    'Replay and rollback completed against the simulated transaction ledger.',
+    'Replay and rollback completed against the dry-run transaction ledger.',
     '--replay-command',
     'npm run zavorth:transaction-live-candidate:json -- --replay intent-model0',
     '--rollback-command',

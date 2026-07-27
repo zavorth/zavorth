@@ -16,7 +16,7 @@ function runStep(label, command, args) {
     shell: process.platform === 'win32',
   });
   if (result.error) {
-    console.error(`[release-train] falha ao executar ${command}: ${result.error.message}`);
+    console.error(`[release-train] failure ao run ${command}: ${result.error.message}`);
   }
   if (result.status !== 0) {
     process.exit(result.status || 1);

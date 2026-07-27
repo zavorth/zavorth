@@ -17,6 +17,6 @@ describe('InfiniteMemoryCompressor', () => {
 
     expect(snapshot.storedChunks).toBeGreaterThan(0);
     expect(recalled.length).toBeGreaterThan(0);
-    expect(recalled[0].compressedSummary).toMatch(/Memoria comprimida|Compressed memory|rollback|health/i);
+    expect(recalled[0].compressedSummary).toMatch(/Compressed memory|Compressed memory|rollback|health/i);
   });
 });

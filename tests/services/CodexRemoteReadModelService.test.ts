@@ -18,7 +18,7 @@ describe('CodexRemoteReadModelService', () => {
         listSessions: jest.fn(() => [
           {
             sessionId: 'codex-1',
-            title: 'Sessao 1',
+            title: 'Session 1',
             status: 'running',
             profileId: 'default',
             updatedAt: '2026-04-07T18:30:00.000Z',
@@ -49,13 +49,13 @@ describe('CodexRemoteReadModelService', () => {
                 summary: 'Guardrail saudavel; faltam 1770s de 1800s.',
               },
             },
-            events: [{ message: 'Sessao criada.' }],
+            events: [{ message: 'Session criada.' }],
           },
         ]),
         readSession: jest.fn(async () => ({
           record: {
             sessionId: 'codex-1',
-            title: 'Sessao 1',
+            title: 'Session 1',
             status: 'running',
             profileId: 'default',
             prompt: 'continue',
@@ -89,7 +89,7 @@ describe('CodexRemoteReadModelService', () => {
             lastOutput: 'done',
             lastError: null,
           },
-          operatorSummary: 'Sessao em execucao.',
+          operatorSummary: 'Session running.',
           canResume: false,
           canStop: true,
           canOpenWeb: true,
@@ -115,7 +115,7 @@ describe('CodexRemoteReadModelService', () => {
             mode: 'full-user-visible',
             pendingApprovals: 0,
             approvalBridge: 'visible-when-present',
-            note: 'Sem aprovacoes ocultas.',
+            note: 'Sem approvescoes ocultas.',
           },
         })),
       } as any,

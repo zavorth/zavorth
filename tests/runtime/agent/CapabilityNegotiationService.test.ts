@@ -22,7 +22,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     events: [],
     toolExposure: {
       mode: 'restricted',
-      summary: '3 ferramentas expostas com policy restricted.',
+      summary: '3 tools expostas com policy restricted.',
       tools: [
         {
           id: 'workspace.read',
@@ -40,7 +40,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
           group: 'workspace',
           risk: 'danger',
           requiresApproval: true,
-          description: 'write_file pode alterar arquivos.',
+          description: 'write_file pode alterar files.',
         },
         {
           id: 'shell.exec',
@@ -49,7 +49,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
           group: 'local_control',
           risk: 'danger',
           requiresApproval: true,
-          description: 'shell.exec pode executar comandos locais.',
+          description: 'shell.exec can run local commands.',
         },
       ],
     },
@@ -76,7 +76,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
             requiresApproval: true,
             previewRequired: false,
             permission: 'approval',
-            reason: 'Pedido pode alterar arquivos.',
+            reason: 'Pedido pode alterar files.',
             nextSafeAction: 'Solicitar approval antes de escrever.',
           },
           {
@@ -108,7 +108,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
             requiresApproval: true,
             previewRequired: true,
             action: 'Gerar preview antes de aplicar.',
-            impact: 'Pode alterar arquivos.',
+            impact: 'Pode alterar files.',
           },
         ],
         toolExposure: {
@@ -172,7 +172,7 @@ describe('CapabilityNegotiationService Capability Negotiation', () => {
           id: 'approval-capability-scope',
           runId: 'run-capability-negotiation-1',
           title: 'Aprovar escopo de capabilities',
-          reason: 'Escopo sensivel.',
+          reason: 'Escopo sensitive.',
           risk: 'danger',
           status: 'approved',
           createdAt: '2026-05-04T00:36:00.000Z',
@@ -194,6 +194,6 @@ describe('CapabilityNegotiationService Capability Negotiation', () => {
     expect(snapshot.status).toBe('approved');
     expect(snapshot.scope.approved).toBe(true);
     expect(snapshot.policy.approvalsStillRequired).toBe(false);
-    expect(snapshot.nextSafeAction).toContain('escopo aprovado');
+    expect(snapshot.nextSafeAction).toContain('escopo approved');
   });
 });

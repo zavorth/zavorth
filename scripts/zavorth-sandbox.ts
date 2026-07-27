@@ -104,7 +104,7 @@ async function main() {
     } else {
       console.log('[sandbox] action plane oficial');
       console.log(`[sandbox] action=${execution.actionId} | status=${execution.status}`);
-      console.log(`[sandbox] resumo: ${execution.summary}`);
+      console.log(`[sandbox] summary: ${execution.summary}`);
       for (const detail of execution.details) {
         console.log(`- ${detail}`);
       }
@@ -131,9 +131,9 @@ async function main() {
       console.info = originalConsole.info;
       process.stdout.write(`${JSON.stringify(execution, null, 2)}\n`);
     } else {
-      console.log('[sandbox] preview oficial de execucao isolada');
+      console.log('[sandbox] official isolated execution preview');
       console.log(`[sandbox] status=${execution.status} | ok=${execution.ok ? 'yes' : 'no'}`);
-      console.log(`[sandbox] resumo: ${execution.summary}`);
+      console.log(`[sandbox] summary: ${execution.summary}`);
       if (execution.envelope) {
         console.log(`[sandbox] envelope=${execution.envelope.id} | profile=${execution.envelope.sandboxProfile} | risk=${execution.envelope.riskLevel}`);
       }
@@ -153,7 +153,7 @@ async function main() {
     console.info = originalConsole.info;
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[sandbox] leitura oficial do Sandbox Forte lazy');
+    console.log('[sandbox] read oficial do Sandbox Forte lazy');
     console.log(controlPlane.renderReport());
   }
   if (requirePass && !snapshot.summary.untrustedExecutionReady) {
@@ -162,6 +162,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[sandbox] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[sandbox] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

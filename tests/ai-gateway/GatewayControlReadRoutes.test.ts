@@ -22,7 +22,7 @@ describe('Gateway Control read routes', () => {
     generatedAt: '2026-04-27T12:00:00.000Z',
     boundary: {
       stableEntry: 'ZavorthGatewayRuntimeService.buildGatewayControlApiSnapshot',
-      currentCut: 'P2-006h',
+      currentCut: 'gateway-control-apih',
       doNotBypass: ['src/zavorth-control/app/api/* internals'],
     },
     health: {
@@ -40,7 +40,7 @@ describe('Gateway Control read routes', () => {
         localOnly: true,
         overlayFile: 'C:/repo/config/AIGateway-overlay.json',
         checkedAt: '2026-04-27T12:00:00.000Z',
-        message: 'Gateway proprio do AIGateway ativo.',
+        message: 'Gateway own do AIGateway active.',
       },
       lastHealthyProvider: 'openai',
       issues: [],
@@ -207,7 +207,7 @@ describe('Gateway Control read routes', () => {
     }
   });
 
-  it('returns selected read payloads from the P2-006 facade contract', () => {
+  it('returns selected read payloads from the gateway control facade contract', () => {
     const providersPayload = buildGatewayControlReadPayload('providers', { gatewayControlService });
     const healthPayload = buildGatewayControlReadPayload('health', { gatewayControlService });
 
@@ -229,7 +229,7 @@ describe('Gateway Control read routes', () => {
   });
 
   it('parses the advanced provider flag for route handlers', () => {
-    const request = new Request('http://127.0.0.1:3000/api/gateway-control/providers?advanced=true');
+    const request = new Request('http://127.0.0.1:3000/api/gateway-control/providers-advanced=true');
 
     expect(parseGatewayControlRouteOptions(request)).toEqual({
       includeAdvancedProviders: true,
@@ -311,7 +311,7 @@ describe('Gateway Control read routes', () => {
       httpStatus: 400,
       status: 'invalid',
       resource: 'combos.validate',
-      errors: expect.arrayContaining(['comboName e obrigatorio para combos.validate.']),
+      errors: expect.arrayContaining(['comboName is required for combos.validate.']),
     }));
     expect(JSON.stringify(payload)).not.toContain('combo-secret');
   });
@@ -331,7 +331,7 @@ describe('Gateway Control read routes', () => {
       httpStatus: 400,
       status: 'invalid',
       resource: 'cache.invalidate',
-      errors: expect.arrayContaining(['model e obrigatorio quando scope=model para cache.invalidate.']),
+      errors: expect.arrayContaining(['model is required when scope=model for cache.invalidate.']),
     }));
     expect(JSON.stringify(payload)).not.toContain('cache-secret');
   });
@@ -351,7 +351,7 @@ describe('Gateway Control read routes', () => {
       httpStatus: 400,
       status: 'invalid',
       resource: 'rate-limits.toggle',
-      errors: expect.arrayContaining(['enabled booleano e obrigatorio para rate-limits.toggle.']),
+      errors: expect.arrayContaining(['enabled boolean is required for rate-limits.toggle.']),
     }));
     expect(JSON.stringify(payload)).not.toContain('rate-limit-secret');
   });
@@ -456,7 +456,7 @@ describe('Gateway Control read routes', () => {
         timedOut: true,
         delegatedRoute: '/api/combos/test',
       }),
-      errors: expect.arrayContaining(['Delegacao excedeu o timeout de 5ms.']),
+      errors: expect.arrayContaining(['Delegaction excedeu o timeout de 5ms.']),
     }));
     expect(JSON.stringify(payload)).not.toContain('combo-secret');
   });
@@ -623,7 +623,7 @@ describe('Gateway Control read routes', () => {
       },
     );
     expect(fetchImpl).toHaveBeenCalledWith(
-      'http://127.0.0.1:3000/api/cache?model=gpt-4o',
+      'http://127.0.0.1:3000/api/cache-model=gpt-4o',
       expect.objectContaining({
         method: 'DELETE',
         headers: expect.objectContaining({
@@ -646,7 +646,7 @@ describe('Gateway Control read routes', () => {
         approvalId: 'permission-gateway-control-cache',
       }),
       result: expect.objectContaining({
-        equivalentPath: '/api/cache?model=gpt-4o',
+        equivalentPath: '/api/cache-model=gpt-4o',
         data: expect.objectContaining({
           ok: true,
           apiKey: '[redacted]',

@@ -25,7 +25,7 @@ const matrix = runProviderMatrix([]);
 const testPacket = runProviderMatrix(['test', 'openai']);
 
 if (matrix) {
-  assertRule('contract:version', matrix.contractVersion === '2026-05-14.checkpoint-3-live-completion', 'Provider readiness contract version is current');
+  assertRule('contract:version', matrix.contractVersion === '2026-05-14.gate-3-live-completion', 'Provider readiness contract version is current');
   assertRule('surface:matrix', matrix.surface === 'provider-readiness-matrix', 'Provider readiness matrix surface is exposed');
   assertRule('statuses:normalized', hasAnyStatus(matrix, ['ready', 'missing_auth', 'missing_base_url', 'needs_probe', 'degraded', 'unsupported', 'blocked']), 'Provider statuses are normalized');
   assertRule('commands:test', matrix.commands?.some((entry) => entry.id === 'providers-test'), 'Provider test command is exposed');

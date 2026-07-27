@@ -60,7 +60,7 @@ async function main(): Promise<void> {
   if (watch && !args.includes('--no-lock')) {
     const existing = readLock(lockPath);
     if (existing && existing.pid !== process.pid && isProcessAlive(existing.pid)) {
-      process.stdout.write(`[stay-online] watcher ja esta ativo no PID ${existing.pid}. Lock: ${lockPath}\n`);
+      process.stdout.write(`[stay-online] watcher already is active no PID ${existing.pid}. Lock: ${lockPath}\n`);
       return;
     }
     fs.mkdirSync(path.dirname(lockPath), { recursive: true });
@@ -320,7 +320,7 @@ function readAuthorizedTelegramChatIds(): string[] {
     const parsed = JSON.parse(fs.readFileSync(registryPath, 'utf8')) as { chats?: Array<{ chatId?: unknown }> };
     return Array.from(new Set((parsed.chats || [])
       .map((chat) => String(chat.chatId || '').trim())
-      .filter((chatId) => /^-?\d+$/.test(chatId))));
+      .filter((chatId) => /^-...\d+$/.test(chatId))));
   } catch {
     return [];
   }
@@ -330,7 +330,7 @@ function parseList(value: string): string[] {
   return String(value || '')
     .split(/[,\s]+/)
     .map((entry) => entry.trim())
-    .filter((entry) => /^-?\d+$/.test(entry) || /^@[a-zA-Z0-9_]{5,}$/.test(entry));
+    .filter((entry) => /^-...\d+$/.test(entry) || /^@[a-zA-Z0-9_]{5,}$/.test(entry));
 }
 
 function maskChatId(value: string): string {
@@ -351,7 +351,7 @@ function readNumberFlag(argv: string[], name: string): number | null {
 function readDurationMsFlag(argv: string[], name: string): number | null {
   const raw = readFlexibleStringFlag(argv, name);
   if (!raw) return null;
-  const match = raw.trim().match(/^(\d+)(ms|s|m|h)?$/i);
+  const match = raw.trim().match(/^(\d+)(ms|s|m|h)...$/i);
   if (!match) return readNumberFlag(argv, name);
   const value = Number(match[1]);
   const unit = String(match[2] || 'ms').toLowerCase();

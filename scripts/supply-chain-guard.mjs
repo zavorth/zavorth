@@ -9,7 +9,7 @@ const workspaceRoot = process.cwd();
 
 const LIFECYCLE_SCRIPTS = new Set(['preinstall', 'install', 'postinstall', 'prepare']);
 const DEPENDENCY_SECTIONS = ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies'];
-const RISKY_SPEC_RE = /^(?:https?:|git(?:\+ssh|\+https|\+http)?:|ssh:|file:|link:|\/|[A-Za-z]:[\\/])/i;
+const RISKY_SPEC_RE = /^(?:https?:|git(?:\+ssh|\+https|\+http)...:|ssh:|file:|link:|\/|[A-Za-z]:[\\/])/i;
 const UNPINNED_SPEC_RE = /^(?:\*|latest)$/i;
 const REMOTE_SCRIPT_RE = /\b(?:curl|wget|irm|iwr|Invoke-WebRequest|Invoke-RestMethod)\b[\s\S]*(?:\||;|&&)\s*(?:sh|bash|zsh|pwsh|powershell|cmd)\b/i;
 const OPAQUE_SHELL_RE = /\b(?:powershell|pwsh)\b[\s\S]*(?:-enc|-encodedcommand)\b/i;
@@ -52,9 +52,9 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[supply-chain-guard] checando manifests e scripts de dependencias');
+  console.log('[supply-chain-guard] checando manifests e scripts de dependencies');
   if (findings.length === 0) {
-    console.log('[supply-chain-guard] ok nenhum risco de supply chain detectado');
+    console.log('[supply-chain-guard] ok none risk de supply chain detectado');
   } else {
     console.log(`[supply-chain-guard] fail ${findings.length} achado(s)`);
     for (const finding of findings.slice(0, 30)) {
@@ -106,7 +106,7 @@ function scanPackageManifests(files) {
         file: relativePath,
         line: 1,
         rule: 'invalid-package-json',
-        detail: 'package.json invalido impede auditoria de supply chain',
+        detail: 'invalid package.json blocks supply-chain audit',
       });
       continue;
     }
@@ -131,7 +131,7 @@ function scanScripts(relativePath, raw, scripts) {
         file: relativePath,
         line,
         rule: 'package-lifecycle-script',
-        detail: `${name} scripts executam durante install/publish e exigem revisao explicita`,
+        detail: `${name} scripts executam durante install/publish e exigunder review explicit`,
       });
     }
     if (REMOTE_SCRIPT_RE.test(command)) {
@@ -139,7 +139,7 @@ function scanScripts(relativePath, raw, scripts) {
         file: relativePath,
         line,
         rule: 'remote-script-execution',
-        detail: `${name} baixa conteudo remoto e encadeia para shell`,
+        detail: `${name} downloads remote content and chains it to shell`,
       });
     }
     if (OPAQUE_SHELL_RE.test(command)) {
@@ -171,7 +171,7 @@ function scanDependencySpecs(relativePath, raw, manifest) {
           file: relativePath,
           line,
           rule: 'risky-dependency-spec',
-          detail: `${section}.${name} usa origem nao-registry (${redactSpec(spec)})`,
+          detail: `${section}.${name} uses non-registry origin (${redactSpec(spec)})`,
         });
       }
       if (UNPINNED_SPEC_RE.test(spec)) {
@@ -181,7 +181,7 @@ function scanDependencySpecs(relativePath, raw, manifest) {
             file: relativePath,
             line,
             rule: 'unpinned-dependency-spec',
-            detail: `${section}.${name} usa versao nao deterministica (${spec})`,
+            detail: `${section}.${name} uses non-deterministic version (${spec})`,
           });
         }
       }
@@ -217,7 +217,7 @@ function findLine(raw, needle) {
   if (index < 0) {
     return 1;
   }
-  return raw.slice(0, index).split(/\r?\n/).length;
+  return raw.slice(0, index).split(/\r...\n/).length;
 }
 
 function escapeJson(value) {

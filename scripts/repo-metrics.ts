@@ -64,21 +64,21 @@ const metrics = {
 if (asJson) {
   process.stdout.write(`${JSON.stringify(metrics, null, 2)}\n`);
 } else {
-  console.log('[repo-metrics] painel estrutural do Zavorth');
-  console.log(`[repo-metrics] branch=${health.branch} commit=${health.commit} gitClean=${health.gitClean ? 'sim' : 'nao'}`);
-  console.log(`[repo-metrics] src=${metrics.summary.sourceFiles} arquivos | tests=${metrics.summary.testFiles} arquivos | scripts=${packageScripts}`);
+  console.log('[repo-metrics] Zavorth structural panel');
+  console.log(`[repo-metrics] branch=${health.branch} commit=${health.commit} gitClean=${health.gitClean ? 'yes' : 'no'}`);
+  console.log(`[repo-metrics] src=${metrics.summary.sourceFiles} files | tests=${metrics.summary.testFiles} files | scripts=${packageScripts}`);
   console.log('');
   console.log('[repo-metrics] diretorios');
   for (const entry of directoryMetrics) {
-    console.log(`- ${entry.label}: ${entry.exists ? 'presente' : 'ausente'}, ${entry.files} arquivo(s), ${formatBytes(entry.bytes)}`);
+    console.log(`- ${entry.label}: ${entry.exists ? 'present' : 'missing'}, ${entry.files} file(s), ${formatBytes(entry.bytes)}`);
   }
   console.log('');
-  console.log('[repo-metrics] maiores arquivos em src');
+  console.log('[repo-metrics] largest files in src');
   for (const entry of metrics.hotspots.sourceByLines) {
     console.log(`- ${entry.relativePath}: ${entry.lines} linhas`);
   }
   console.log('');
-  console.log('[repo-metrics] maiores arquivos em tests');
+  console.log('[repo-metrics] largest files in tests');
   for (const entry of metrics.hotspots.testsByLines) {
     console.log(`- ${entry.relativePath}: ${entry.lines} linhas`);
   }
@@ -116,7 +116,7 @@ function listCodeFiles(root: string, topLevel: string): FileMetric[] {
     .filter((absolutePath) => /\.(ts|tsx|js|mjs|cjs)$/.test(absolutePath))
     .map((absolutePath) => {
       const relativePath = `${topLevel}/${path.relative(root, absolutePath).replace(/\\/g, '/')}`;
-      const lines = fs.readFileSync(absolutePath, 'utf8').split(/\r?\n/).length;
+      const lines = fs.readFileSync(absolutePath, 'utf8').split(/\r...\n/).length;
       return { relativePath, lines };
     });
 }
@@ -162,7 +162,7 @@ function formatBytes(bytes: number): string {
   const units = ['KB', 'MB', 'GB', 'TB'];
   let value = bytes / 1024;
   let index = 0;
-  while (value >= 1024 && index < units.length - 1) {
+  while (value >= 1024 && index < units.length ? 1) {
     value /= 1024;
     index += 1;
   }

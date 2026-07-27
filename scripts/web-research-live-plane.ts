@@ -50,8 +50,7 @@ async function main(): Promise<void> {
     liveIoPerformed: [...liveReceiptByTarget.values()].some(receiptHasLiveIo),
     confirmLiveIo,
     status: profile === 'staging-live' && !confirmLiveIo ? 'blocked-until-confirmed' : 'ready-for-operator',
-    reason: profile === 'staging-live' && !confirmLiveIo
-      ? 'staging-live web/search requires --confirm-live-io and real operator credentials/targets.'
+    reason: profile === 'staging-live' && !confirmLiveIo ? 'staging-live web/search requires --confirm-live-io and real operator credentials/targets.'
       : 'ZavorthControl controls exposes configured search providers, web extraction adapters, crawl policy and redacted receipts.',
     entries: selected.map((entry) => ({
       targetId: entry.targetId,
@@ -113,12 +112,10 @@ async function runLiveSmoke(entry: WebResearchLiveEntry): Promise<unknown> {
     };
   }
 
-  const mode = entry.modes.includes('browser-capture')
-    ? 'browser-capture'
+  const mode = entry.modes.includes('browser-capture') ? 'browser-capture'
     : entry.modes.includes('crawl') && readArg('--mode') === 'crawl'
       ? 'crawl'
-      : entry.modes.includes('readability')
-        ? 'readability'
+      : entry.modes.includes('readability') ? 'readability'
         : 'fetch';
   const adapter = buildExtractAdapter(entry);
   const service = new WebExtractService({

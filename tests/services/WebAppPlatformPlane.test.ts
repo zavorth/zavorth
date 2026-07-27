@@ -24,7 +24,7 @@ function buildPlatformSnapshot(selectedId: string | null = 'plugin:openrouter') 
       details: ['Pack: ui-debug'],
       entryIds: ['skill:zavorthBridge', 'mcp:filesystem'],
       searchText: 'collection ui debug',
-      actions: [{ id: 'collection:ui-debug:install', label: 'Adotar colecao', kind: 'install', command: '/platform install collection:ui-debug' }],
+      actions: [{ id: 'collection:ui-debug:install', label: 'Adotar collection', kind: 'install', command: '/platform install collection:ui-debug' }],
       items: [
         {
           id: 'skill:zavorthBridge',
@@ -70,7 +70,7 @@ function buildPlatformSnapshot(selectedId: string | null = 'plugin:openrouter') 
         id: 'plugin:openrouter',
         label: 'OpenRouter',
         kind: 'plugin',
-        summary: 'Gateway remoto pronto.',
+        summary: 'Gateway remoto ready.',
         actionHint: '/integrations openrouter',
         actions: [{ id: 'plugin:openrouter:inspect', label: 'Inspecionar', kind: 'inspect', command: '/platform plugin:openrouter' }],
       },
@@ -86,7 +86,7 @@ function buildPlatformSnapshot(selectedId: string | null = 'plugin:openrouter') 
         id: 'mcp:filesystem',
         label: 'filesystem',
         kind: 'mcp',
-        summary: 'Servidor MCP habilitado.',
+        summary: 'Servidor MCP there isbilitado.',
         actionHint: 'npx @modelcontextprotocol/server-filesystem',
         actions: [{ id: 'mcp:filesystem:inspect', label: 'Inspecionar', kind: 'inspect', command: '/platform mcp:filesystem' }],
       },
@@ -97,20 +97,19 @@ function buildPlatformSnapshot(selectedId: string | null = 'plugin:openrouter') 
           id: selectedId,
           label: 'OpenRouter',
           kind: 'plugin',
-          summary: 'Gateway remoto pronto.',
+          summary: 'Gateway remoto ready.',
           actionHint: '/integrations openrouter',
           actions: [{ id: 'plugin:openrouter:inspect', label: 'Inspecionar', kind: 'inspect', command: '/platform plugin:openrouter' }],
         }
       : null,
-    selectedCollection: selectedId === 'collection:ui-debug'
-      ? collections[0]
+    selectedCollection: selectedId === 'collection:ui-debug' ? collections[0]
       : null,
     query: null,
     featuredIds: ['plugin:openrouter', 'skill:zavorthBridge'],
     featuredCollectionIds: ['collection:ui-debug'],
     narrative: {
       headline: 'Platform plane unifica plugins, skills e MCPs.',
-      operatorSummary: '1 plugin, 1 skill e 1 MCP prontos.',
+      operatorSummary: '1 plugin, 1 skill e 1 MCP readys.',
     },
   };
 }
@@ -201,7 +200,7 @@ describe('WebApp platform plane', () => {
         actionId: 'open',
         status: 'manual',
         ok: true,
-        summary: 'OpenRouter: proximo passo pronto.',
+        summary: 'OpenRouter: next step ready.',
         details: ['Atalho recomendado: /integrations openrouter'],
         delegated: null,
         selected: buildPlatformSnapshot('plugin:openrouter').selected,
@@ -246,7 +245,7 @@ describe('WebApp platform plane', () => {
       expect.objectContaining({
         ok: true,
         result: expect.objectContaining({
-          summary: 'OpenRouter: proximo passo pronto.',
+          summary: 'OpenRouter: next step ready.',
         }),
         platform: expect.objectContaining({
           selected: expect.objectContaining({
@@ -273,7 +272,7 @@ describe('WebApp platform plane', () => {
         actionId: 'install',
         status: 'applied',
         ok: true,
-        summary: 'UI Debug adotada no platform plane.',
+        summary: 'UI Debug adotada in the platform plane.',
         details: ['Itens avaliados: 2 | aplicados: 1 | noop: 1 | bloqueados: 0.'],
         delegated: null,
         selected: null,
@@ -312,7 +311,7 @@ describe('WebApp platform plane', () => {
       expect.objectContaining({
         ok: true,
         result: expect.objectContaining({
-          summary: 'UI Debug adotada no platform plane.',
+          summary: 'UI Debug adotada in the platform plane.',
         }),
         platform: expect.objectContaining({
           selectedCollection: expect.objectContaining({
@@ -337,7 +336,7 @@ describe('WebApp platform plane', () => {
       sync: jest.fn(async () => ({
         ok: true,
         status: 'ready',
-        summary: 'Registry remoto pronto com 3 item(ns), 1 colecao(oes) e 1 recipe(s).',
+        summary: 'Remote registry ready com 3 item(s), 1 collection(s) e 1 recipe(s).',
         entryCount: 3,
         collectionCount: 1,
         recipeCount: 1,

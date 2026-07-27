@@ -36,7 +36,7 @@ function createMockCtx(permission = true) {
   };
 }
 
-describe('Wave 1 provider pack', () => {
+describe('Provider capability pack', () => {
   const prev = { ...process.env };
 
   afterEach(() => {

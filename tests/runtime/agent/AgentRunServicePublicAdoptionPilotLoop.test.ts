@@ -30,7 +30,7 @@ function productEntryRuntime() {
         },
         questions: [],
         writes: [],
-        summary: ['Profile pronto.'],
+        summary: ['Profile ready.'],
       } as any),
       buildWorkspaceIdentitySnapshot: () => ({
         nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
@@ -204,7 +204,7 @@ function publicMetadata() {
       nextRecommendedGate: {
         stage: '58',
         title: 'Integration Showcase And Partner Surface',
-        reason: 'fixture e degradacao segura',
+        reason: 'fixture e degradaction segura',
       },
     },
   };
@@ -218,7 +218,7 @@ describe('AgentRunService Public Adoption Pilot Loop Public Adoption Pilot', () 
       productEntryRuntime: productEntryRuntime(),
       executor: () => ({
         status: 'completed' as const,
-        summary: 'Public adoption pilot pronto.',
+        summary: 'Public adoption pilot ready.',
         replyText: 'ok',
       }),
     });

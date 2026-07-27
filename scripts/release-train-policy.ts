@@ -138,11 +138,11 @@ function assertInside(root: string, target: string): void {
   const resolvedTarget = path.resolve(target);
   const relative = path.relative(resolvedRoot, resolvedTarget);
   if (relative.startsWith('..') || path.isAbsolute(relative)) {
-    throw new Error(`recusando tocar caminho fora do artifactDir: ${target}`);
+    throw new Error(`recusando tocar path outside do artifactDir: ${target}`);
   }
 }
 
 main().catch((error) => {
-  console.error('[release-train] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[release-train] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

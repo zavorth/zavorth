@@ -44,7 +44,7 @@ describe('Conversation continuum capture (Learned Knowledge)', () => {
 
  it('captures a turn and recalls it by query', () => {
  const result = captureConversationTurn({
- userMessage: 'How do we configure the provider mesh for staging?',
+ userMessage: 'How do we configure the provider mesh for staging-',
  assistantMessage: 'Use the mesh checklist and verify API keys.',
  sessionId: 'sess-phase1',
  userId: 'user-a',

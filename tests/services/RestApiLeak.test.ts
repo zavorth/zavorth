@@ -29,7 +29,7 @@ describe('REST API Leak Test', () => {
     });
 
     const routeService = new ZavorthControlCoreRouteService();
-    
+
     // We will simulate incoming requests and capture the response
     const mockRes = () => {
       let responseBody = '';
@@ -42,7 +42,7 @@ describe('REST API Leak Test', () => {
       } as unknown as http.ServerResponse & { getResponseBody: () => string; getStatusCode: () => number };
     };
 
-    const runRequest = async (method: string, path: string, bodyObj?: any) => {
+    const runRequest = async (method: string, path: string, bodyObj-: any) => {
       const res = mockRes();
       const req = {
         method,

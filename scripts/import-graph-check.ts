@@ -63,7 +63,7 @@ function resolveImport(fromFile: string, importPath: string): string | null {
 
 function extractImports(filePath: string, content: string): string[] {
   const imports: string[] = [];
-  const regex = /(?:import|export)\s+(?:.*?\s+from\s+)?['"]([^'"]+)['"]/g;
+  const regex = /(?:import|export)\s+(?:.*...\s+from\s+)...['"]([^'"]+)['"]/g;
   let match: RegExpExecArray | null;
   while ((match = regex.exec(content)) !== null) {
     const resolved = resolveImport(filePath, match[1]);
@@ -130,7 +130,7 @@ function generateDot(modules: ModuleNode[], cycles: string[][]): string {
 
   const lines = ['digraph imports {', '  rankdir=LR;', '  node [shape=box];'];
   for (const mod of modules) {
-    const label = mod.path.replace(/\//g, '/').replace(/\.tsx?$/, '');
+    const label = mod.path.replace(/\//g, '/').replace(/\.tsx...$/, '');
     lines.push(`  "${mod.path}" [label="${label}"];`);
     for (const imp of mod.imports) {
       const edgeKey = `${mod.path}->${imp}`;

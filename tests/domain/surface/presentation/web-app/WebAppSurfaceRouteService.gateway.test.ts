@@ -29,8 +29,8 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Canal web pronto.',
-        operatorSummary: 'Sessions prontas.',
+        summary: 'Canal web ready.',
+        operatorSummary: 'Sessions ready.',
         actionHint: 'Use o app.',
         tags: ['primary'],
         actions: [],
@@ -56,8 +56,8 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Canal Telegram pronto.',
-        operatorSummary: 'Gateway ativo.',
+        summary: 'Canal Telegram ready.',
+        operatorSummary: 'Gateway active.',
         actionHint: 'Use o bot.',
         tags: ['chat'],
         actions: [],
@@ -69,7 +69,7 @@ describe('WebAppSurfaceRouteService', () => {
         implementationState: 'partial',
         configured: true,
         transport: 'native',
-        notes: ['Bridge em rollout.'],
+        notes: ['Bridge in rollout.'],
         features: {
           inbound: true,
           outbound: true,
@@ -123,7 +123,7 @@ describe('WebAppSurfaceRouteService', () => {
         implementationState: 'partial',
         configured: true,
         transport: 'webhook',
-        notes: ['Cloud API em rollout.'],
+        notes: ['Cloud API in rollout.'],
         features: {
           inbound: true,
           outbound: true,
@@ -163,7 +163,7 @@ describe('WebAppSurfaceRouteService', () => {
       featuredIds: ['web', 'telegram'],
       narrative: {
         headline: 'Channel Mesh pronta.',
-        operatorSummary: 'Canais operacionais disponiveis.',
+        operatorSummary: 'Operational channels available.',
       },
     };
   };
@@ -252,7 +252,7 @@ describe('WebAppSurfaceRouteService', () => {
     buildMemoryPlaneSnapshot: jest.fn(async () => null),
     resolveSessionId: jest.fn(() => 'session-web-1'),
     channelMesh: {
-      buildSnapshot: jest.fn(({ selectedId }: { selectedId?: string | null } = {}) =>
+      buildSnapshot: jest.fn(({ selectedId }: { selectedId-: string | null } = {}) =>
         makeChannelSnapshot(selectedId || null),
       ),
     },
@@ -274,7 +274,7 @@ describe('WebAppSurfaceRouteService', () => {
             currentMode: 'native',
             modes: ['native'],
             recommendedMode: 'native',
-            summary: 'Telegram pronto para bot token e allowlist.',
+            summary: 'Telegram ready for bot token and allowlist.',
             webhookPath: null,
             localWebhookUrl: null,
             publicWebhookUrl: null,
@@ -298,14 +298,14 @@ describe('WebAppSurfaceRouteService', () => {
             currentMode: 'stub',
             modes: ['stub', 'cloud-api', 'baileys'],
             recommendedMode: 'cloud-api',
-            summary: 'WhatsApp pode ser promovido para Cloud API.',
+            summary: 'WhatsApp can be promoted to Cloud API.',
             webhookPath: '/api/webhooks/whatsapp',
             localWebhookUrl: 'http://127.0.0.1:33333/api/webhooks/whatsapp',
             publicWebhookUrl: null,
             requiredEnvKeys: ['WHATSAPP_ACCESS_TOKEN'],
             missingEnvKeys: ['WHATSAPP_ACCESS_TOKEN'],
             scaffoldEntries: [],
-            notes: ['Promova para cloud-api quando tiver as credenciais.'],
+            notes: ['Promote to cloud-api when credentials are available.'],
             commands: {
               inspect: 'npm run channels:install -- --json',
               apply: 'npm run channels:install -- --channel whatsapp --mode cloud-api --apply',
@@ -413,7 +413,7 @@ describe('WebAppSurfaceRouteService', () => {
     const deps = createDeps({
       writeJson,
       readJsonBody: jest.fn(async () => ({
-        message: 'continuar',
+        message: 'continue',
         chatId: 'discord:room-1',
         sourceUserId: 'room-1',
       })),
@@ -439,7 +439,7 @@ describe('WebAppSurfaceRouteService', () => {
         platform: 'discord',
         chatId: 'discord:room-1',
         sourceUserId: 'room-1',
-        text: 'continuar',
+        text: 'continue',
       }),
     );
     expect(writeJson).toHaveBeenCalledWith(
@@ -477,7 +477,7 @@ describe('WebAppSurfaceRouteService', () => {
     const deps = createDeps({
       writeJson,
       readJsonBody: jest.fn(async () => ({
-        message: 'continuar',
+        message: 'continue',
         chatId,
         sourceUserId: 'room-1',
       })),
@@ -503,7 +503,7 @@ describe('WebAppSurfaceRouteService', () => {
         platform: channelId,
         chatId,
         sourceUserId: 'room-1',
-        text: 'continuar',
+        text: 'continue',
       }),
     );
     expect(writeJson).toHaveBeenCalledWith(

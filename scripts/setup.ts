@@ -1,8 +1,8 @@
 /**
- * 🐍 ZAVORTH — Setup Wizard
- * 
- * Script interativo para configurar o ambiente do Zavorth.
- * Roda via: npm run setup (ou npx tsx scripts/setup.ts)
+ * Zavorth Setup Wizard
+ *
+ * Interactive script for configuring the Zavorth environment.
+ * Run with: npm run setup or npx tsx scripts/setup.ts
  */
 
 import * as fs from 'fs';
@@ -24,66 +24,67 @@ interface SetupQuestion {
 const QUESTIONS: SetupQuestion[] = [
   {
     key: 'TELEGRAM_BOT_TOKEN',
-    prompt: '🤖 Qual é o Token do seu Bot do Telegram?\n   (Pegue com o @BotFather no Telegram)',
-    required: true,
+    prompt: 'Telegram bot token (optional if you do not use Telegram):',
+    required: false,
     secret: true,
-    validate: (v) => v.includes(':') ? null : 'Token inválido. O formato correto é: 123456789:ABCdefGHI...',
+    validate: (v) => !v || v.includes(':') ? null : 'Invalid Telegram token format.',
   },
   {
     key: 'TELEGRAM_ALLOWED_USER_IDS',
-    prompt: '🔑 Qual é o seu ID de usuário no Telegram?\n   (Use o bot @userinfobot para descobrir)',
-    required: true,
+    prompt: 'Telegram allowed user IDs (optional, comma-separated):',
+    required: false,
     secret: false,
-    validate: (v) => /^\d+(,\d+)*$/.test(v.trim()) ? null : 'Formato inválido. Use apenas números (ex: 123456789 ou 123,456).',
+    validate: (v) => !v.trim() || /^\d+(,\d+)*$/.test(v.trim()) ? null : 'Invalid comma-separated numeric ID list.',
   },
   {
     key: 'LLM_PROVIDER',
-    prompt: '🧠 Qual provider de IA deseja usar como padrão?\n   Opções: gemini, deepseek, openai, qwen, openrouter',
+    prompt: 'Default AI provider (any configured provider ID):',
     required: false,
     secret: false,
-    defaultValue: 'gemini',
-    validate: (v) => ['gemini', 'deepseek', 'openai', 'qwen', 'openrouter'].includes(v.toLowerCase()) ? null : 'Provider não reconhecido.',
+    defaultValue: 'auto',
+    validate: (v) => v.trim().length > 0 ? null : 'Provider ID cannot be empty.',
   },
   {
     key: 'GEMINI_API_KEY',
-    prompt: '🔐 Chave da API do Google Gemini (obrigatória se usar Gemini):\n   (Pegue em https://aistudio.google.com/apikey)',
-    required: true,
+    prompt: 'Primary provider API key (optional when using local or already configured providers):',
+    required: false,
     secret: true,
-    validate: (v) => v.startsWith('AIza') ? null : 'Chave Gemini geralmente começa com "AIza...".',
+    validate: (v) => !v || v.trim().length >= 8 ? null : 'API key looks too short.',
   },
   {
     key: 'GEMINI_API_KEY_2',
-    prompt: '🔐 Chave de failover do Gemini (opcional, pressione Enter para pular):',
+    prompt: 'Secondary provider API key (optional):',
     required: false,
     secret: true,
   },
   {
     key: 'DEEPSEEK_API_KEY',
-    prompt: '🔐 Chave da API DeepSeek (opcional, pressione Enter para pular):',
+    prompt: 'DeepSeek API key (optional):',
     required: false,
     secret: true,
   },
   {
     key: 'OPENAI_API_KEY',
-    prompt: '🔐 Chave da API OpenAI (opcional, pressione Enter para pular):',
+    prompt: 'OpenAI API key (optional):',
     required: false,
     secret: true,
   },
   {
     key: 'GROQ_API_KEY',
-    prompt: '🔐 Chave da API Groq (opcional, pressione Enter para pular):',
+    prompt: 'Groq API key (optional):',
     required: false,
     secret: true,
   },
   {
     key: 'OPENROUTER_API_KEY',
-    prompt: '🔐 Chave da API OpenRouter (opcional, pressione Enter para pular):',
+    prompt: 'OpenRouter API key (optional):',
     required: false,
     secret: true,
   },
 ];
 
-// === Defaults que não precisam de interação ===
+// Defaults that do not require interaction.
+// Defaults that do not require interaction.
 const STATIC_DEFAULTS: Record<string, string> = {
   MAX_ITERATIONS: '5',
   MEMORY_WINDOW_SIZE: '20',
@@ -122,19 +123,19 @@ class SetupWizard {
   private printBanner(): void {
     console.log('');
     console.log('  ╔══════════════════════════════════════════════╗');
-    console.log('  ║  🐍 ZAVORTH — Assistente de Configuração   ║');
-    console.log('  ║     "Pelo Soulfire, pela Lógica." 🐉🔥      ║');
+    console.log('      ZAVORTH - Setup Wizard');
+    console.log('      Product-ready local configuration');
     console.log('  ╚══════════════════════════════════════════════╝');
     console.log('');
-    console.log('  Este assistente vai te guiar na configuração');
-    console.log('  do ambiente do Zavorth. Vamos começar!');
+    console.log('  This wizard will guide the environment setup');
+    console.log('  for Zavorth. Let us begin!');
     console.log('');
   }
 
   private printSuccess(): void {
     console.log('');
     console.log('  ╔══════════════════════════════════════════════╗');
-    console.log('  ║  ✅ Configuração concluída com sucesso!      ║');
+    console.log('      Configuration completed successfully!');
     console.log('  ╚══════════════════════════════════════════════╝');
     console.log('');
     console.log('  Seu arquivo .env foi criado.');
@@ -142,18 +143,18 @@ class SetupWizard {
     console.log('');
     console.log('    npm run dev');
     console.log('');
-    console.log('  🐉🔥 O Zavorth está pronto para servir.');
+    console.log('  Zavorth is ready.');
     console.log('');
   }
 
   async run(): Promise<void> {
     this.printBanner();
 
-    // Verificar se já existe .env
+    // Check whether .env already exists.
     if (fs.existsSync(ENV_PATH)) {
-      const overwrite = await this.ask('  ⚠️  Já existe um arquivo .env. Deseja sobrescrevê-lo? (s/N): ');
+      const overwrite = await this.ask('  A .env file already exists. Overwrite it? (y/N): ');
       if (overwrite.toLowerCase() !== 's') {
-        console.log('\n  Operação cancelada. Seu .env atual foi mantido.\n');
+        console.log('\\n  Operation cancelled. The current .env was preserved.\\n');
         this.rl.close();
         return;
       }
@@ -166,8 +167,8 @@ class SetupWizard {
 
       while (!valid) {
         console.log('');
-        const defaultHint = q.defaultValue ? ` [padrão: ${q.defaultValue}]` : '';
-        const requiredHint = q.required ? ' (obrigatório)' : '';
+        const defaultHint = q.defaultValue ? ` [default: ${q.defaultValue}]` : '';
+        const requiredHint = q.required ? ' (required)' : '';
         value = await this.ask(`  ${q.prompt}${defaultHint}${requiredHint}\n  > `);
 
         if (!value && q.defaultValue) {
@@ -175,7 +176,7 @@ class SetupWizard {
         }
 
         if (!value && q.required) {
-          console.log('  ❌ Este campo é obrigatório. Tente novamente.');
+          console.log('  This field is required. Try again.');
           continue;
         }
 
@@ -209,7 +210,7 @@ class SetupWizard {
   private generateEnvFile(): void {
     const lines: string[] = [
       '# ============================================================',
-      '# 🐍 ZAVORTH — Configuração do Ambiente',
+    console.log('  for Zavorth. Let us begin!');
       '# Gerado automaticamente pelo Setup Wizard',
       `# Data: ${new Date().toISOString()}`,
       '# ============================================================',
@@ -242,7 +243,7 @@ class SetupWizard {
     }
 
     lines.push('');
-    lines.push('# === Configurações Padrão ===');
+    lines.push('# === Default Settings ===');
     for (const [key, value] of Object.entries(STATIC_DEFAULTS)) {
       lines.push(`${key}=${value}`);
     }

@@ -21,7 +21,7 @@ const requiredPackageScripts = [
 ];
 
 const requiredMarkers = [
-  'zavorth-transaction-intent/checkpoint-1',
+  'zavorth-transaction-intent/gate-1',
   'execute-trade',
   'pay-bill',
   'buy-api-credits',
@@ -82,7 +82,7 @@ if (eth.intent.kind !== 'execute-trade') {
 if (eth.intent.naturalFirstRoute !== 'approval-proposal') {
   failures.push(`ETH route mismatch: ${eth.intent.naturalFirstRoute}`);
 }
-if (eth.intent.safetyDecision.allowed !== true || eth.intent.safetyDecision.status !== 'simulation-only') {
+if (eth.intent.safetyDecision.allowed !== true || eth.intent.safetyDecision.status !== 'dry-run-only') {
   failures.push(`ETH safety mismatch: ${eth.intent.safetyDecision.status}`);
 }
 

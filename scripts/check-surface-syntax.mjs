@@ -78,7 +78,7 @@ for (const file of files) {
       },
     });
   } catch (error) {
-    console.error(`${file} - surface syntax check failed: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(`${file} ? surface syntax check failed: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
   }
 

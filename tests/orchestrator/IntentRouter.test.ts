@@ -3,11 +3,11 @@ import { IntentRouter } from '../../src/orchestrator/IntentRouter';
 describe('IntentRouter', () => {
   const router = new IntentRouter();
 
-  it('roteia pesquisa web basica em /task para a rota web estruturada', () => {
+  it('routes basic web research in /task to the structured web route', () => {
     const route = router.route({
       command_type: '/task',
-      command_args: 'pesquise as principais noticias de IA de hoje na web',
-      normalized_message: 'pesquise as principais noticias de ia de hoje na web',
+      command_args: 'research today main AI news on the web',
+      normalized_message: 'research today main ai news on the web',
       explicit_executor: null,
       references_last_task: false,
     });
@@ -17,7 +17,7 @@ describe('IntentRouter', () => {
     expect(route.intent).toBe('web_search');
   });
 
-  it('roteia geracao de interface em /task para Stitch', () => {
+  it('routes interface generation in /task to Stitch', () => {
     const route = router.route({
       command_type: '/task',
       command_args: 'gere uma landing page moderna com hero e cta',
@@ -31,11 +31,11 @@ describe('IntentRouter', () => {
     expect(route.intent).toBe('design_generation');
   });
 
-  it('roteia investigacao de codigo em /auto para ExternalExecutor', () => {
+  it('routes code investigation in /auto to ExternalExecutor', () => {
     const route = router.route({
       command_type: '/auto',
-      command_args: 'investigue esse bug no projeto e revise o codigo',
-      normalized_message: 'investigue esse bug no projeto e revise o codigo',
+      command_args: 'investigate this project bug and review the code',
+      normalized_message: 'investigate this project bug and review the code',
       explicit_executor: null,
       references_last_task: false,
     });
@@ -45,11 +45,11 @@ describe('IntentRouter', () => {
     expect(route.intent).toBe('code_execution');
   });
 
-  it('mantem conversa quando nao ha executor implicito claro', () => {
+  it('mantem conversa quando not there is executor implicito claro', () => {
     const route = router.route({
       command_type: '/task',
-      command_args: 'quero pensar em ideias para organizar minha rotina',
-      normalized_message: 'quero pensar em ideias para organizar minha rotina',
+      command_args: 'I want to think about ideas to organize my routine',
+      normalized_message: 'I want to think about ideas to organize my routine',
       explicit_executor: null,
       references_last_task: false,
     });
@@ -59,11 +59,11 @@ describe('IntentRouter', () => {
     expect(route.intent).toBe('hybrid_task');
   });
 
-  it('nao trata pergunta cotidiana como tarefa tecnica so por conter problema', () => {
+  it('not trata pergunta cotidiana como tarefa tecnica so por conter problema', () => {
     const route = router.route({
       command_type: '/task',
-      command_args: 'deixar a tampa do notebook semi fechada faz mal ou tem problema?',
-      normalized_message: 'deixar a tampa do notebook semi fechada faz mal ou tem problema?',
+      command_args: 'is it harmful or problematic to leave the laptop lid partly closed-',
+      normalized_message: 'is it harmful or problematic to leave the laptop lid partly closed-',
       explicit_executor: null,
       references_last_task: false,
     });

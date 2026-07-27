@@ -47,7 +47,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule(
-    'checkpoint-12-files',
+    'gate-12-files',
     'Intent model2 files exist',
     missing.length === 0,
     `${files.length - missing.length}/${files.length}`,
@@ -107,7 +107,7 @@ function ruleContainsMarkers() {
     }
   }
   return rule(
-    'checkpoint-12-markers',
+    'gate-12-markers',
     'CLI polish markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
@@ -233,7 +233,7 @@ function ruleSnapshot() {
   }
   const data = parseJson(result.stdout);
   const pass = data
-    && data.contractVersion === '2026-05-14.checkpoint-12-cli-final-product-polish'
+    && data.contractVersion === '2026-05-14.gate-12-cli-final-product-polish'
     && data.status === 'passed'
     && data.summary?.zavorthControlPath === '/control'
     && data.summary?.inkPreviewRendersOnce === true

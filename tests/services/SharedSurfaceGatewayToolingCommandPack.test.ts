@@ -21,7 +21,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
         baseUrl: 'http://127.0.0.1:21128/v1',
         upstreamBaseUrl: 'http://127.0.0.1:20128/v1',
         overlayFile: 'C:/repo/config/AIGateway-overlay.json',
-        message: 'Gateway proprio do AIGateway ativo.'}))} as any,
+        message: 'Gateway own do AIGateway active.'}))} as any,
     AIGatewayGatewayLauncherService: {
       ensureStarted: jest.fn(async () => ({
         enabled: true,
@@ -30,7 +30,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
         baseUrl: 'http://127.0.0.1:21128/v1',
         upstreamBaseUrl: 'http://127.0.0.1:20128/v1',
         overlayFile: 'C:/repo/config/AIGateway-overlay.json',
-        message: 'Gateway proprio do AIGateway ativo.'}))} as any,
+        message: 'Gateway own do AIGateway active.'}))} as any,
     GatewayCompatibilityDoctorService: {
       run: jest.fn(async () => ({
         ok: true,
@@ -64,7 +64,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
           memoryArtifacts: 2},
         narrative: {
           headline: 'Gateway ready.',
-          operatorSummary: 'Snapshot canonico.'}}))} as any,
+          operatorSummary: 'Canonical snapshot.'}}))} as any,
     toolSurfaceService: {
       buildSnapshot: jest.fn(() => ({
         summary: {
@@ -76,7 +76,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
         families: [
           {
             label: 'Session tools',
-            summary: 'Listagem, historico, envio e spawn de sessao.'}],
+            summary: 'Listagem, history, envio e spawn de session.'}],
         catalog: {
           entries: [
             {
@@ -85,13 +85,13 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
               familyLabel: 'Runtime Tools',
               kind: 'runtime-tool',
               readiness: 'ready',
-              summary: 'Le um arquivo do workspace.',
+              summary: 'Le um file do workspace.',
               command: null,
               details: ['1 parametro(s).']}],
           selected: null},
         narrative: {
-          headline: 'Plano oficial de tools.',
-          operatorSummary: '4 familias prontas.'}}))} as any,
+          headline: 'Official tool plan.',
+          operatorSummary: '4 familias ready.'}}))} as any,
     hookPlaneService: {
       buildSnapshot: jest.fn(() => ({
         summary: {
@@ -114,7 +114,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
             event: 'transport.before_action',
             command: 'npm run hooks:transport:before'}],
         narrative: {
-          headline: 'Plano oficial de hooks.',
+          headline: 'Official hook plan.',
           operatorSummary: '3 hooks registrados.'}}))} as any,
     zavorthBridgePreferenceStore: {
       getPreferredModel: jest.fn(async () => 'gemini-2.5-pro')} as any,
@@ -136,7 +136,7 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
       baseUrl: 'http://127.0.0.1:21128/v1',
       upstreamBaseUrl: 'http://127.0.0.1:20128/v1',
       overlayFile: 'C:/repo/config/AIGateway-overlay.json',
-      message: 'Gateway proprio do AIGateway ativo.'}));
+      message: 'Gateway own do AIGateway active.'}));
     const pack = buildPack({
       AIGatewayGatewayLauncherService: { ensureStarted } as any});
     const ctx = buildCtx('/AIGateway start');
@@ -161,7 +161,7 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
         memoryArtifacts: 2},
       narrative: {
         headline: 'Gateway ready.',
-        operatorSummary: 'Snapshot canonico.'}}));
+        operatorSummary: 'Canonical snapshot.'}}));
     const pack = buildPack({
       gatewayService: { buildHydratedSnapshot } as any});
     const ctx = buildCtx('/gateway');
@@ -194,7 +194,7 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
             familyLabel: 'Runtime Tools',
             kind: 'runtime-tool',
             readiness: 'ready',
-            summary: 'Le um arquivo do workspace.',
+            summary: 'Le um file do workspace.',
             command: null,
             details: ['1 parametro(s).']}],
         selected: {
@@ -203,11 +203,11 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
           familyLabel: 'Runtime Tools',
           kind: 'runtime-tool',
           readiness: 'ready',
-          summary: 'Le um arquivo do workspace.',
+          summary: 'Le um file do workspace.',
           command: null,
           details: ['1 parametro(s).']}},
       narrative: {
-        headline: 'Tool surface com 1 item visivel.',
+        headline: 'Tool surface with 1 visible item.',
         operatorSummary: 'Item em foco.'}});
     const pack = buildPack({
       toolSurfaceService: { buildSnapshot } as any});

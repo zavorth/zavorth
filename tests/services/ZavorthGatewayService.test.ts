@@ -13,8 +13,8 @@ describe('ZavorthGatewayService', () => {
       },
       teams: [],
       narrative: {
-        headline: '3 teams compostos.',
-        operatorSummary: '1 retomada pronta.',
+        headline: '3 composed teams.',
+        operatorSummary: '1 resumption pronta.',
       },
     }));
 
@@ -43,7 +43,7 @@ describe('ZavorthGatewayService', () => {
               label: 'Revisar policy',
               command: '/runtime',
               severity: 'warn',
-              reason: 'Runtime principal exige revisao.',
+              reason: 'Runtime principal exige review.',
             },
           ],
         })),
@@ -91,7 +91,7 @@ describe('ZavorthGatewayService', () => {
               claimed: 0,
               latestStatus: 'completed',
               latestAction: 'repair',
-              latestResultSummary: 'Repair concluido.',
+              latestResultSummary: 'Repair completed.',
               recoverKind: null,
             },
           },
@@ -129,12 +129,12 @@ describe('ZavorthGatewayService', () => {
               label: 'Reparar transporte',
               command: '/transports repair node-host',
               severity: 'warn',
-              reason: 'Node host aguardando heartbeat.',
+              reason: 'Node host waiting for heartbeat.',
             },
           ],
           narrative: {
-            headline: 'Transportes remotos prontos.',
-            operatorSummary: '2 prontos.',
+            headline: 'Transportes remotos readys.',
+            operatorSummary: '2 readys.',
           },
         })),
       } as any,
@@ -184,7 +184,7 @@ describe('ZavorthGatewayService', () => {
         expect.objectContaining({ id: 'transport-repair' }),
       ]),
     );
-    expect(snapshot.controlPlane.narrative.operatorSummary).toContain('4 runtime(s) pronto(s)');
+    expect(snapshot.controlPlane.narrative.operatorSummary).toContain('4 runtime(s) ready(s)');
     expect(snapshot.narrative.operatorSummary).toContain('Workspace em foco: workspace-alpha.');
     expect(buildTeamSnapshot).toHaveBeenCalledWith({ workspace: 'workspace-alpha' });
   });
@@ -456,10 +456,10 @@ describe('ZavorthGatewayService', () => {
                 surface: 'node-host',
               },
               notes: [],
-              operatorSummary: 'Host aguardando repair operacional.',
+              operatorSummary: 'Host waiting for repair operacional.',
               capabilities: [],
               canInvoke: true,
-              nextAction: 'Acionar repair do host alpha.',
+              nextAction: 'Trigger repair do host alpha.',
               trustLabel: 'trusted',
               pendingInvocations: 1,
               claimedInvocations: 0,
@@ -499,7 +499,7 @@ describe('ZavorthGatewayService', () => {
             operatorSummary: 'Node passivo.',
             capabilities: [],
             canInvoke: true,
-            nextAction: 'Acompanhar fila.',
+            nextAction: 'Track queue.',
             trustLabel: 'trusted',
             pendingInvocations: 0,
             claimedInvocations: 0,
@@ -519,7 +519,7 @@ describe('ZavorthGatewayService', () => {
           selectedActivity: null,
           narrative: {
             headline: '2 nodes no control plane.',
-            operatorSummary: 'Node host precisa de repair.',
+            operatorSummary: 'Node host needs de repair.',
           },
         })),
       } as any,
@@ -549,12 +549,12 @@ describe('ZavorthGatewayService', () => {
               label: 'Repair fallback remoto',
               command: '/transports repair node-host',
               severity: 'warn',
-              reason: 'Fallback do plano remoto.',
+              reason: 'Remote plan fallback.',
             },
           ],
           narrative: {
-            headline: 'Transportes remotos com atenção.',
-            operatorSummary: 'Node host aguardando recover.',
+            headline: 'Transportes remotos com attention.',
+            operatorSummary: 'Node host waiting for recover.',
           },
         })),
       } as any,
@@ -570,8 +570,8 @@ describe('ZavorthGatewayService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: 'node-host-repair',
-          label: 'Acionar repair do node host',
-          reason: 'Acionar repair do host alpha.',
+          label: 'Trigger repair do node host',
+          reason: 'Trigger repair do host alpha.',
         }),
       ]),
     );
@@ -598,8 +598,8 @@ describe('ZavorthGatewayService', () => {
             spawnReady: true,
           },
           narrative: {
-            headline: 'Sessions prontas.',
-            operatorSummary: '3 sessoes visiveis.',
+            headline: 'Sessions ready.',
+            operatorSummary: '3 visible sessions.',
           },
         })),
       } as any,
@@ -625,7 +625,7 @@ describe('ZavorthGatewayService', () => {
           suggestedActions: [],
           narrative: {
             headline: 'Memory plane',
-            operatorSummary: '5 artefatos e 4 memorias.',
+            operatorSummary: '5 artifacts and 4 memories.',
           },
         })),
       } as any,
@@ -646,7 +646,7 @@ describe('ZavorthGatewayService', () => {
           capabilityCatalog: [],
           suggestedActions: [],
           narrative: {
-            headline: 'Nodes ativos.',
+            headline: 'Nodes actives.',
             operatorSummary: '1 node pareado.',
           },
         })),
@@ -668,8 +668,8 @@ describe('ZavorthGatewayService', () => {
           selected: null,
           suggestedActions: [],
           narrative: {
-            headline: 'Transportes ativos.',
-            operatorSummary: '1 transporte pronto.',
+            headline: 'Transportes actives.',
+            operatorSummary: '1 transporte ready.',
           },
         })),
       } as any,
@@ -707,8 +707,8 @@ describe('ZavorthGatewayService', () => {
             summary: 'ready',
           },
           narrative: {
-            headline: 'Platform pronto.',
-            operatorSummary: '2 plugins ativos.',
+            headline: 'Platform ready.',
+            operatorSummary: '2 plugins actives.',
           },
         })),
       } as any,

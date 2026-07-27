@@ -88,7 +88,7 @@ describe('ZavorthControl Cross-Channel Continuity Channel mesh1', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-cross-channel-live',
-      text: 'continue esta sessao no terminal e no telegram',
+      text: 'continue esta session no terminal e no telegram',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

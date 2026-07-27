@@ -67,7 +67,7 @@ describe('NaturalFirstRunClassifier', () => {
 
   it('routes open-ended free text to the agent runtime (llm-reply)', () => {
     expect(classifier.classify({
-      text: 'qual a melhor forma de pensar sobre esse produto?',
+      text: 'qual a melhor forma de pensar sobre esse product-',
       channel: 'cli',
     })).toEqual(expect.objectContaining({
       route: 'llm-reply',
@@ -125,7 +125,7 @@ describe('NaturalFirstRunClassifier', () => {
 
   it('does not force approval from free-text mutation phrases alone', () => {
     expect(classifier.classify({
-      text: 'apague a pasta dist e faça push',
+      text: 'delete the dist folder and push',
       channel: 'web',
     })).toEqual(expect.objectContaining({
       route: 'llm-reply',
@@ -152,7 +152,7 @@ describe('NaturalFirstRunClassifier', () => {
 
   it('does not route memory phrase maps on free text; agent path owns NLU', () => {
     expect(classifier.classify({
-      text: 'como resolvemos aquele erro de permissao?',
+      text: 'como resolvemos aquele erro de permission-',
       channel: 'web',
     })).toEqual(expect.objectContaining({
       route: 'llm-reply',
@@ -171,7 +171,7 @@ describe('NaturalFirstRunClassifier', () => {
 
   it('keeps free-text memory-about-deploy as agent path without inventing approval from memory words', () => {
     expect(classifier.classify({
-      text: 'o que combinamos sobre aquele deploy?',
+      text: 'o que combinamos sobre aquele deploy-',
       channel: 'cli',
     })).toEqual(expect.objectContaining({
       route: 'llm-reply',
@@ -231,7 +231,7 @@ describe('NaturalFirstRunClassifier', () => {
 
   it('promotes explicit approval-required tools to approval proposals', () => {
     expect(classifier.classify({
-      text: 'prepare a mudanca',
+      text: 'prepare the change',
       channel: 'cli',
       requestedTools: ['workspace.write'],
       metadata: {
@@ -252,7 +252,7 @@ describe('NaturalFirstRunClassifier', () => {
 
   it('does not force capability-discovery from setup phrase maps; free text stays agent-owned', () => {
     expect(classifier.classify({
-      text: 'conectar Telegram e configurar o canal',
+      text: 'connect Telegram and configure the channel',
       channel: 'web',
     })).toEqual(expect.objectContaining({
       route: 'llm-reply',

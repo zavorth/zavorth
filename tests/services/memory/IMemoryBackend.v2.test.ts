@@ -84,13 +84,13 @@ describe('MemoryBackendCompatAdapter', () => {
     const v2 = asMemoryBackendV2(v1);
     expect(v2).toBeInstanceOf(MemoryBackendCompatAdapter);
 
-    const record = await v2.addMemoryRecord('u1', 'usuario gosta de cafe', {
+    const record = await v2.addMemoryRecord('u1', 'user likes coffee', {
       metadata: { category: 'preference', tags: ['food'], key: 'likes_coffee' },
       key: 'likes_coffee',
     });
     expect(record.metadata.category).toBe('preference');
     expect(record.metadata.tags).toEqual(['food']);
-    expect(store).toContain('usuario gosta de cafe');
+    expect(store).toContain('user likes coffee');
 
     const hits = await v2.searchMemoryRecords('u1', 'cafe', { limit: 5 });
     expect(hits.length).toBeGreaterThanOrEqual(1);
@@ -115,7 +115,7 @@ describe('LocalMemoryBackend v2 (mocked MemoryService)', () => {
   it('writes metadata, soft-deletes, and filters by category/tags', async () => {
     const rows = new Map<string, any>();
     const memoryService = {
-      remember: jest.fn(async (userId: string, key: string, value: string, category: string, options?: any) => {
+      remember: jest.fn(async (userId: string, key: string, value: string, category: string, options-: any) => {
         rows.set(`${userId}:${key}`, {
           id: rows.size + 1,
           user_id: userId,
@@ -128,7 +128,7 @@ describe('LocalMemoryBackend v2 (mocked MemoryService)', () => {
           metadata_json: options?.metadata ? JSON.stringify(options.metadata) : null,
         });
       }),
-      getByKey: jest.fn(async (userId: string, key: string, opts?: { includeDeleted?: boolean }) => {
+      getByKey: jest.fn(async (userId: string, key: string, opts-: { includeDeleted-: boolean }) => {
         const row = rows.get(`${userId}:${key}`);
         if (!row) return null;
         if (!opts?.includeDeleted && row.deleted_at) return null;
@@ -137,7 +137,7 @@ describe('LocalMemoryBackend v2 (mocked MemoryService)', () => {
       listRelevant: jest.fn(async (userId: string) =>
         [...rows.values()].filter((r) => r.user_id === userId && !r.deleted_at),
       ),
-      listAll: jest.fn(async (userId: string, opts?: { includeDeleted?: boolean }) =>
+      listAll: jest.fn(async (userId: string, opts-: { includeDeleted-: boolean }) =>
         [...rows.values()].filter(
           (r) => r.user_id === userId && (opts?.includeDeleted || !r.deleted_at),
         ),
@@ -201,7 +201,7 @@ describe('Mem0MemoryBackend v2', () => {
   it('forwards metadata and soft-deletes in local index', async () => {
     const add = jest.fn().mockResolvedValue({ id: 'remote-1' });
     const search = jest.fn().mockResolvedValue([
-      { id: 'remote-1', memory: 'usuario prefere respostas curtas', score: 0.9 },
+      { id: 'remote-1', memory: 'user prefers short answers', score: 0.9 },
     ]);
     const importer = jest.fn().mockResolvedValue({
       MemoryClient: class {
@@ -211,12 +211,12 @@ describe('Mem0MemoryBackend v2', () => {
     });
     const backend = new Mem0MemoryBackend('mem0-test-key', importer as any);
 
-    const record = await backend.addMemoryRecord('u1', 'usuario prefere respostas curtas', {
+    const record = await backend.addMemoryRecord('u1', 'user prefers short answers', {
       metadata: { category: 'preference', tags: ['style'] },
     });
     expect(record.id).toBe('remote-1');
     expect(add).toHaveBeenCalledWith(
-      'usuario prefere respostas curtas',
+      'user prefers short answers',
       expect.objectContaining({
         user_id: 'u1',
         metadata: expect.objectContaining({ category: 'preference' }),

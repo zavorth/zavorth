@@ -3,7 +3,7 @@ import { CommandParser } from '../../src/telegram/CommandParser';
 import { BotGateway } from '../../src/telegram/BotGateway';
 
 function createRealtimeMock() {
-  const messages: Array<{ role: string; content: string; kind?: string | null }> = [];
+  const messages: Array<{ role: string; content: string; kind-: string | null }> = [];
   return {
     messages,
     ensureSession: jest.fn(),
@@ -12,7 +12,7 @@ function createRealtimeMock() {
       messages.push({ role: 'user', content });
       return messages[messages.length - 1];
     }),
-    recordAssistantMessage: jest.fn((_sessionId: string, content: string, _taskId?: string | null, kind?: string | null) => {
+    recordAssistantMessage: jest.fn((_sessionId: string, content: string, _taskId-: string | null, kind-: string | null) => {
       messages.push({ role: 'assistant', content, kind });
       return messages[messages.length - 1];
     }),
@@ -125,8 +125,8 @@ describe('Cross-surface continuity', () => {
     const boundaryRequests: Array<{
       surface: string;
       requestedBy: string | null;
-      chatId?: string | null;
-      threadId?: string | null;
+      chatId-: string | null;
+      threadId-: string | null;
       rawText: string;
     }> = [];
     const surfaceApi = {

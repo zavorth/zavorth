@@ -34,7 +34,7 @@ describe('ZavorthControl memory plane endpoint', () => {
           latestHistoricalAt: null,
         },
         replay: {
-          headline: 'Replay pronto.',
+          headline: 'Replay ready.',
         },
         artifacts: {
           recent: [],
@@ -44,14 +44,14 @@ describe('ZavorthControl memory plane endpoint', () => {
         },
         workspace: {
           workspace: 'C:/repo',
-          summary: 'Workspace pronto para entrega.',
+          summary: 'Workspace ready para entrega.',
           recentArtifacts: [],
           continuityRecommendations: [],
           workflowRecommendations: [],
         },
         suggestedActions: [],
         narrative: {
-          headline: 'Retomada e entregas prontas.',
+          headline: 'Resume and deliveries ready.',
           operatorSummary: 'Snapshot oficial do memory plane.',
         },
       })),
@@ -73,7 +73,7 @@ describe('ZavorthControl memory plane endpoint', () => {
       expect.objectContaining({
         available: true,
         narrative: expect.objectContaining({
-          headline: 'Retomada e entregas prontas.',
+          headline: 'Resume and deliveries ready.',
           operatorSummary: 'Snapshot oficial do memory plane.',
         }),
         summary: expect.objectContaining({

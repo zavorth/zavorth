@@ -22,7 +22,7 @@ function makeTempDir(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-plugin-test-'));
 }
 
-describe('AllPluginsDeep — Deep coverage for all Zavorth plugins', () => {
+describe('AllPluginsDeep - Deep coverage for all Zavorth plugins', () => {
   const tempDirs: string[] = [];
 
   afterEach(() => {
@@ -118,12 +118,12 @@ describe('AllPluginsDeep — Deep coverage for all Zavorth plugins', () => {
     });
 
     it('processInteraction() should detect user names', () => {
-      const decisions = svc.processInteraction('Me chamo João', 'Olá João!');
+      const decisions = svc.processInteraction('My name is John', 'Hello John!');
       expect(Array.isArray(decisions)).toBe(true);
     });
 
     it('processInteraction() should detect preferences', () => {
-      const decisions = svc.processInteraction('Eu gosto de chocolate', 'Que bom!');
+      const decisions = svc.processInteraction('I like chocolate', 'Tthere ist is great!');
       expect(Array.isArray(decisions)).toBe(true);
     });
 
@@ -904,7 +904,7 @@ describe('AllPluginsDeep — Deep coverage for all Zavorth plugins', () => {
       const turns = [
         { role: 'user' as const, content: 'Hello', timestamp: new Date().toISOString() },
         { role: 'assistant' as const, content: 'Hi there!', timestamp: new Date().toISOString() },
-        { role: 'user' as const, content: 'How are you?', timestamp: new Date().toISOString() },
+        { role: 'user' as const, content: 'How are you-', timestamp: new Date().toISOString() },
       ];
       const result = svc.compress(turns, 'conservative');
       expect(result).toBeDefined();

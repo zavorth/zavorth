@@ -68,7 +68,7 @@ const rules = [
       'universal-preview',
       'Universal Preview Mode - Universal Preview',
       'resolveUniversalPreviewCliText',
-      'zavorth preview "<pedido>" [--json]',
+      'zavorth preview "<request>" [--json]',
     ],
   }),
   ruleContainsAcross({

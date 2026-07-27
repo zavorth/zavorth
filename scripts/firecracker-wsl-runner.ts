@@ -29,7 +29,7 @@ function parsePayload(): BridgePayload {
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
-    fail(`Payload invalido: ${error.message}`);
+    fail(`Payload invalid: ${error.message}`);
   }
 }
 
@@ -43,7 +43,7 @@ async function main() {
   }
 
   if (!payload.inputPath) {
-    fail('Payload de execucao sem inputPath.');
+    fail('Execution payload without inputPath.');
   }
 
   const raw = fs.readFileSync(payload.inputPath, 'utf8');

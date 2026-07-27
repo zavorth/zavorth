@@ -53,17 +53,17 @@ while ($attempts -lt 15 -and -not $targetProcess) {
         $cand = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 }
         if ($cand) { $targetProcess = $cand }
     }
-    
-    # 2. Fallback: Procura QUALQUER processo ZavorthBridge que tenha uma janela
+
+    # 2. Fallback: Procura QUALQUER process ZavorthBridge que tenha uma janela
     if (-not $targetProcess) {
-        $cands = Get-Process | Where-Object { 
-            ($_.ProcessName -match 'ZavorthBridge' -or $_.MainWindowTitle -like "*$WindowTitle*") -and $_.MainWindowHandle -ne 0 
+        $cands = Get-Process | Where-Object {
+            ($_.ProcessName -match 'ZavorthBridge' -or $_.MainWindowTitle -like "*$WindowTitle*") -and $_.MainWindowHandle -ne 0
         }
         if ($cands) {
-            # Prioriza o que tem o t?tulo esperado
+            # Prioriza o que tem o t...tulo esperado
             $best = $cands | Where-Object { $_.MainWindowTitle -like "*$WindowTitle*" } | Sort-Object StartTime -Descending | Select-Object -First 1
-            if ($best) { 
-                $targetProcess = $best 
+            if ($best) {
+                $targetProcess = $best
             } else {
                 $targetProcess = $cands | Sort-Object StartTime -Descending | Select-Object -First 1
             }
@@ -82,13 +82,13 @@ if (-not $targetProcess) {
 
 $activated = $false
 try {
-    # Tenta ativar pelo ID do processo
+    # Tenta ativar pelo ID do process
     [Microsoft.VisualBasic.Interaction]::AppActivate($targetProcess.Id)
     $activated = $true
 } catch {
     Start-Sleep -Milliseconds 500
     try {
-        # Fallback pelo t?tulo se o ID falhou (??s vezes acontece no Electron)
+        # Fallback pelo t...tulo se o ID failed (......s vezes acontece no Electron)
         $activated = $wshell.AppActivate($targetProcess.MainWindowTitle)
     } catch {}
 }
@@ -127,10 +127,10 @@ switch ($Mode) {
 
     Start-Sleep -Seconds 1
 
-    # Inicia a busca pela UI do modelo no Tree Walker
+    # starts a busca pela UI do modelo no Tree Walker
     $root = [System.Windows.Automation.AutomationElement]::FromHandle($targetProcess.MainWindowHandle)
-    
-    # Nomes conhecidos dos botoes de modelo no ZavorthBridge (dump UIA)
+
+    # names conhecidos dos botoes de modelo no ZavorthBridge (dump UIA)
     $knownModels = @('Gemini 3.1 Pro (High)', 'Gemini 3.1 Pro (Low)', 'Gemini 3 Flash', 'Claude Sonnet 4.6 (Thinking)', 'Claude Opus 4.6 (Thinking)', 'GPT-OSS 120B (Medium)')
 
     $modelBtn = $null
@@ -144,11 +144,11 @@ switch ($Mode) {
     }
 
     if (-not $modelBtn) {
-        # Se não achou os modelos, pode estar na tela inicial. Injeta Ctrl+E para abrir o Agent Manager.
+        # If models were not found, it may be on the initial screen. Inject Ctrl+E to open Agent Manager.
         [System.Windows.Forms.SendKeys]::SendWait('^{e}')
         Start-Sleep -Seconds 2
-        
-        # Recarrega a árvore e tenta de novo
+
+        # Reload the tree and try again
         $root = [System.Windows.Automation.AutomationElement]::FromHandle($targetProcess.MainWindowHandle)
         foreach ($m in $knownModels) {
             $cond = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty, $m)
@@ -161,18 +161,18 @@ switch ($Mode) {
     }
 
     if ($modelBtn) {
-        # Clica no seletor atual para abrir o menu
+        # Clica no seletor current para abrir o menu
         Click-Element $modelBtn
         Start-Sleep -Milliseconds 1500
-        
-        # Procura o modelo alvo na lista agora visivel. 
-        # Filtramos para NAO ser um botao (para evitar clicar no seletor de novo)
+
+        # Finds the target model in the visible list.
+        # Filters out buttons to avoid clicking the selector again.
         $targetCond = New-Object System.Windows.Automation.AndCondition(
             (New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty, $Text)),
             (New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::ControlTypeProperty, [System.Windows.Automation.ControlType]::Text))
         )
-        
-        # Tenta achar como Text primeiro, se falhar, tenta sem filtro de tipo mas ignorando o proprio $modelBtn
+
+        # Tries Text first; if that fails, searches without the type filter while ignoring the model button itself.
         $targetEl = $root.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $targetCond)
         if (-not $targetEl) {
             $targetCondSimple = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty, $Text)
@@ -184,7 +184,7 @@ switch ($Mode) {
                 }
             }
         }
-        
+
         if ($targetEl) {
             Click-Element $targetEl
             Start-Sleep -Milliseconds 500
@@ -197,11 +197,11 @@ switch ($Mode) {
   }
 
   'verify-model' {
-    # Para capturar e validar a tela sem OCR externo, se a árvore UIA não estiver exposta,
-    # apenas assumiremos true se o script chegou aqui sem quebrar (RPA cego verificado no bridge)
-    # ou podemos ler a área de transferência se tentarmos um "copy".
-    
-    # Vamos tentar acessar via UIAutomation a arvore de acessibilidade pelo text
+    # To capture and validate the screen without external OCR when the UIA tree is not exposed,
+    # the script only treats completion as successful when this bridge step finishes without throwing.
+    # or we can read the clipboard if we try a copy action.
+
+    # Try UIAutomation access through the accessibility tree text.
     $root = [System.Windows.Automation.AutomationElement]::FromHandle($targetProcess.MainWindowHandle)
     $condition = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty, $Text)
     $found = $root.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $condition)
@@ -209,7 +209,7 @@ switch ($Mode) {
     if ($found) {
         $Text = "Model detected in Accessibility Tree: $Text"
     } else {
-        # Fallback de verificacao
+        # Verification fallback
         $Text = "Blind UI attempt finished for $Text. Model visually assumed."
     }
   }

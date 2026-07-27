@@ -71,7 +71,7 @@ describe('ZavorthScheduledTaskOperationalGuardService', () => {
 });
 
 class MemoryScheduler {
-  public readonly pauseTask = jest.fn((id: string, reason?: string | null): ScheduledTask | null => {
+  public readonly pauseTask = jest.fn((id: string, reason-: string | null): ScheduledTask | null => {
     const task = this.tasks.find((entry) => entry.id === id) || null;
     if (!task) return null;
     task.status = 'paused';
@@ -120,7 +120,7 @@ function makeTask(id: string, metadata: any): ScheduledTask {
   return {
     id,
     command: '/status',
-    schedule: 'every 1h',
+    schedule: '{"kind":"interval","intervalMs":3600000}',
     created_at: '2026-05-12T09:00:00.000Z',
     last_run: null,
     next_run: '2026-05-12T11:00:00.000Z',

@@ -10,7 +10,7 @@ describe('EvidenceSearchPlanBuilder', () => {
   const builder = new EvidenceSearchPlanBuilder();
 
   it('keeps free-text-only plans neutral (no community product activation)', () => {
-    const plan = builder.build('como resolver erro de CORS no Next.js? tem workaround no Stack Overflow?');
+    const plan = builder.build('como resolver erro de CORS no Next.js- tem workaround no Stack Overflow-');
 
     expect(plan.intent).toMatchObject({
       mode: 'hybrid',
@@ -21,7 +21,7 @@ describe('EvidenceSearchPlanBuilder', () => {
 
   it('builds community-first source requirements from structured mode+domain', () => {
     const plan = builder.build({
-      query: 'como resolver erro de CORS no Next.js? tem workaround no Stack Overflow?',
+      query: 'como resolver erro de CORS no Next.js- tem workaround no Stack Overflow-',
       domain: 'technical',
       userRequestedMode: 'community',
     });
@@ -52,7 +52,7 @@ describe('EvidenceSearchPlanBuilder', () => {
 
   it('keeps structured medical searches verified and treats community sources as non-primary', () => {
     const plan = buildEvidenceSearchPlan({
-      query: 'quais os sintomas da gripe e fontes confiaveis?',
+      query: 'quais os sintomas da gripe e fontes confiaveis-',
       domain: 'medical',
     });
 
@@ -104,7 +104,7 @@ describe('EvidenceSearchPlanBuilder', () => {
 
   it('builds balanced plans for structured consumer domain without free-text inference', () => {
     const plan = builder.build({
-      query: 'Dell Inspiron notebook review is it worth it?',
+      query: 'Dell Inspiron notebook review is it worth it-',
       domain: 'consumer',
     });
 
@@ -127,7 +127,7 @@ describe('EvidenceSearchPlanBuilder', () => {
   it('attaches search plans to structured router decisions for downstream search execution', () => {
     const router = new EvidenceSearchRouter();
     const need = router.detect({
-      text: 'procure relatos no reddit sobre bug no Playwright 2026',
+      text: 'find relatos no reddit sobre bug no Playwright 2026',
       domain: 'technical',
       reason: 'research',
       userRequestedMode: 'community',

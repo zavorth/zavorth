@@ -41,7 +41,7 @@ function run(command, args, cwd) {
     if (result.error) {
       throw result.error;
     }
-    throw new Error(`${command} ${args.join(' ')} falhou com status ${result.status}`);
+    throw new Error(`${command} ${args.join(' ')} failed com status ${result.status}`);
   }
 }
 
@@ -69,7 +69,7 @@ function main() {
   }
 
   if (kind !== 'docs' && kind !== 'web' && kind !== 'website') {
-    throw new Error(`Superficie desconhecida: ${kind}`);
+    throw new Error(`Unknown surface: ${kind}`);
   }
 
   const cwd = ensureExternalSurfaceRoot(kind);

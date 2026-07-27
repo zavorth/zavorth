@@ -131,7 +131,7 @@ describe('V8 LiveUserProviderHarness', () => {
         ZAVORTH_MODEL_ID: 'company-model',
       } as NodeJS.ProcessEnv,
       runtimeFactory: () => ({
-        chatDetailed: async (messages: Array<{ role?: string; content?: string }> = [], tools: unknown[] = []) => {
+        chatDetailed: async (messages: Array<{ role-: string; content-: string }> = [], tools: unknown[] = []) => {
           calls += 1;
           const joined = messages.map((entry) => String(entry?.content || '')).join('\n');
           const markerMatch = joined.match(/MS-[a-f0-9]+/i);
@@ -288,7 +288,7 @@ describe('V8 LiveUserProviderHarness', () => {
 
   it('falls back to alternate model after rate-limit on primary (gemini mock)', async () => {
     const modelsHit: string[] = [];
-    const requests: Array<{ url: string; headers?: Record<string, string> }> = [];
+    const requests: Array<{ url: string; headers-: Record<string, string> }> = [];
     const harness = new LiveUserProviderHarness({
       projectRoot: fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-mf-')),
       env: {

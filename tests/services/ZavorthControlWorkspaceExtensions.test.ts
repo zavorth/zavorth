@@ -29,8 +29,7 @@ describe('ZavorthControl workspace extension plane endpoint', () => {
             lastRefreshed: '2026-04-05T09:00:00.000Z',
           },
         ],
-        selected: selectedId === 'repo-alpha'
-          ? {
+        selected: selectedId === 'repo-alpha' ? {
               workspace: 'C:/repo-alpha',
               workspaceName: 'Repo Alpha',
               slug: 'repo-alpha',
@@ -44,7 +43,7 @@ describe('ZavorthControl workspace extension plane endpoint', () => {
             }
           : null,
         narrative: {
-          headline: 'Workspace plane com 1 workspace(s) perfilado(s).',
+          headline: 'Workspace plane com 1 workspace(s) profileado(s).',
           operatorSummary: '3 comando(s), 2 hook(s) e 1 workspace(s) com instrucoes visiveis.',
         },
       })),
@@ -56,7 +55,7 @@ describe('ZavorthControl workspace extension plane endpoint', () => {
     await service.start();
     const { status, payload } = await fetchZavorthControlJson(
       service.getUrl(),
-      '/api/operations/workspace/extensions?selectedId=repo-alpha',
+      '/api/operations/workspace/extensions-selectedId=repo-alpha',
     );
     await service.stopAsync();
 

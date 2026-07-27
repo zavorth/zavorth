@@ -325,7 +325,7 @@ function runStaticChecks() {
 
   for (const forbidden of FORBIDDEN_PUBLIC_PLANS) {
     if (exists(forbidden)) {
-      issues.push(`public phase-plan stub must not exist outside archive: ${forbidden}`);
+      issues.push(`public phase-plan local must not exist outside archive: ${forbidden}`);
     }
   }
 
@@ -396,8 +396,7 @@ function writeReport(ok, inventory) {
   }
   console.log('');
   console.log(
-    ok
-      ? '[pass] release hardening complete — feature preservation + gates green'
+    ok ? '[pass] release hardening complete — feature preservation + gates green'
       : '[fail] release hardening failed — see steps above',
   );
 

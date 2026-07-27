@@ -9,7 +9,7 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'source-plugin-os-checkpoint-1-files',
+    id: 'source-plugin-os-gate-1-files',
     label: 'Intent model files exist',
     target: 'contract, adapter, matrix, doctor, absorption service, command, tests and package scripts are present',
     files: [
@@ -177,7 +177,7 @@ function runRuntimeRule() {
         `lifecycleReceipts=${receipt.summary?.lifecycleReceipts}`,
         `approvalsRequired=${receipt.summary?.approvalsRequired}`,
         `runtimeExecutionPerformed=${receipt.summary?.runtimeExecutionPerformed}`,
-        `next=${receipt.commands?.nextStage}`,
+        `next=${receipt.commands?.nextAction}`,
       ],
     };
   } catch (error) {
@@ -271,7 +271,7 @@ function read(relativePath) {
 
 function compactDetails(...values) {
   return values
-    .flatMap((value) => String(value || '').split(/\r?\n/g))
+    .flatMap((value) => String(value || '').split(/\r...\n/g))
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 12);

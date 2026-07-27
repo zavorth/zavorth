@@ -17,15 +17,15 @@ async function main(): Promise<void> {
         actions: [
           {
             id: 'runtime-cycle-followup',
-            label: 'Preparar pequeno refactor supervisionado',
+            label: 'Preparar pequeno refactor supervised',
             severity: 'warn',
-            reason: 'A runtime cycle segue experimental e precisa de preview supervisionada.',
+            reason: 'The runtime cycle remains experimental and needs supervised preview.',
             command: 'npm run qa:architecture',
           },
         ],
         narrative: {
-          operatorSummary: 'Arquitetura em atencao controlada para trilhas experimentais.',
-          nextAction: 'Rodar qa:architecture.',
+          operatorSummary: 'Arquitetura em attention controlada para trilhas experimentais.',
+          nextAction: 'run qa:architecture.',
         },
       }),
     } as any,
@@ -49,7 +49,7 @@ async function main(): Promise<void> {
         success: true,
         previewId: 'runtime-cycle-housekeeping-preview',
         artifactId: 'runtime-cycle-housekeeping-preview',
-        summary: `Preview pronta para: ${goal}`,
+        summary: `Preview ready for: ${goal}`,
         reason: 'ok',
       }),
     } as any,

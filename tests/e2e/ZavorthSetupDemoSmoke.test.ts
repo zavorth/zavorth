@@ -62,12 +62,12 @@ describe('Zavorth Phase D setup demo smoke', () => {
     const executor = jest.fn(() => ({
       status: 'completed' as const,
       summary: 'Phase D daily assistant demo executed after approval.',
-      replyText: 'Tarefa diaria concluida depois da aprovacao.',
+      replyText: 'Tarefa diaria concluida depois da approval.',
       events: [
         {
           kind: 'status' as const,
           title: 'Phase D executor',
-          detail: 'Executor governado acionado somente apos approval.',
+          detail: 'Governed executor is triggered only after approval.',
           status: 'done' as const,
         },
       ],
@@ -86,7 +86,7 @@ describe('Zavorth Phase D setup demo smoke', () => {
     });
 
     const task = await telegram.handleTask({
-      text: 'corrija o arquivo e rode npm test',
+      text: 'corrija o file e rode npm test',
       userId: 'demo-user',
       sessionId: 'telegram:demo',
       requestedTools: ['write_file', 'shell.exec'],
@@ -98,7 +98,7 @@ describe('Zavorth Phase D setup demo smoke', () => {
     expect(approvalId).toBeTruthy();
     expect(executor).not.toHaveBeenCalled();
 
-    // Structured slash/command + explicit ref (free-text "aprovar" alone is not approval intent).
+    // Structured slash/command + explicit ref (free-text "approve" alone is not approval intent).
     const approved = await telegram.handleApprovalIntent({
       text: `/approve ${approvalId}`,
       userId: 'demo-user',
@@ -107,7 +107,7 @@ describe('Zavorth Phase D setup demo smoke', () => {
     expect(approved?.run?.status).toBe('completed');
     // Product copy may be EN or mixed locale; accept either narrative.
     expect(String(approved?.text || '')).toMatch(
-      /Tarefa diaria concluida|Daily task completed|after approval|depois da aprovacao/i,
+      /Tarefa diaria concluida|Daily task completed|after approval|depois da approval/i,
     );
     expect(approved?.text).toContain('Zavorth');
     expect(String(approved?.text || '')).toMatch(/approval:\s*(approved|.*\(approved\))/i);

@@ -53,7 +53,7 @@ async function loadZavorthControlServiceModule() {
   ];
   const selected = candidates.find((candidate) => fs.existsSync(candidate.servicePath) && fs.existsSync(candidate.configPath));
   if (!selected) {
-    throw new Error('Nao foi possivel localizar ZavorthControlService para o smoke web.');
+    throw new Error('Could not locate ZavorthControlService for web smoke.');
   }
   zavorthControlServiceModule = await import(pathToFileURL(selected.servicePath).href);
   const configModule = await import(pathToFileURL(selected.configPath).href);
@@ -186,7 +186,7 @@ async function reserveFreePort() {
           return;
         }
         if (!address || typeof address === 'string') {
-          reject(new Error('Nao foi possivel reservar uma porta livre para o smoke web.'));
+          reject(new Error('Could not reserve a free port for web smoke.'));
           return;
         }
         resolve(address.port);
@@ -215,7 +215,7 @@ async function fetchJsonWithRetry(url, init = {}, options = {}) {
     }
   }
 
-  throw lastError || new Error('Falha inesperada ao consultar JSON.');
+  throw lastError || new Error('Unexpected failure while fetching JSON.');
 }
 
 async function inspectCandidateBaseUrl(baseUrl) {
@@ -370,10 +370,10 @@ function snapshotZavorthControlConfig(targetConfig) {
 
 function suppressSkillLoaderNoise() {
   const suppressedPrefixes = [
-    'Skill carregada:',
-    'Skill ignorada por configuracao:',
+    'Skill loaded:',
+    'Skill ignored by configuration:',
     'Total de skills carregadas:',
-    'Skill sem SKILL.md ignorada:',
+    'Skill without SKILL.md ignorada:',
   ];
   const originalLog = console.log;
   const originalWarn = console.warn;
@@ -515,7 +515,7 @@ async function smokeHtmlShell(baseUrl) {
     }
 
     const requiredMarkers = [
-      'Local gateway ready',
+      'local gateway ready',
       'Ask normally. Zavorth will answer, preview risky work, and ask before acting.',
       'Review this workspace safely',
       'Inbox',
@@ -525,18 +525,18 @@ async function smokeHtmlShell(baseUrl) {
     ];
     const missing = requiredMarkers.filter((marker) => !html.includes(marker));
     if (missing.length) {
-      throw new Error(`HTML sem elementos esperados: ${missing.join(', ')}`);
+      throw new Error(`HTML without elementos esperados: ${missing.join(', ')}`);
     }
 
-    return makeResult('ZavorthControl shell', 'PASSOU', 'HTML principal do /zavorthControl carregou com o gateway oficial.');
+    return makeResult('ZavorthControl shell', 'PASSED', 'Main /zavorthControl HTML loaded with the official gateway.');
   } catch (error) {
-    return makeResult('ZavorthControl shell', 'FALHOU', error?.message || String(error));
+    return makeResult('ZavorthControl shell', 'failed', error?.message || String(error));
   }
 }
 
 async function smokeAuth(baseUrl, token) {
   if (!token) {
-    return makeResult('Auth web', 'PULADO', 'Sem token resolvido para validar autenticacao.', false);
+    return makeResult('Auth web', 'SKIPPED', 'without token resolved for authentication validation.', false);
   }
 
   try {
@@ -550,9 +550,9 @@ async function smokeAuth(baseUrl, token) {
       throw new Error(payload.error || `status ${response.status}`);
     }
 
-    return makeResult('Auth web', 'PASSOU', 'Token validado com sucesso.');
+    return makeResult('Auth web', 'PASSED', 'Token validated successfully.');
   } catch (error) {
-    return makeResult('Auth web', 'FALHOU', error?.message || String(error));
+    return makeResult('Auth web', 'failed', error?.message || String(error));
   }
 }
 
@@ -571,14 +571,14 @@ async function smokeHostStatus(baseUrl, token) {
 
     const localReady = Boolean(payload?.readiness?.local?.ready);
     const remoteReady = Boolean(payload?.readiness?.remote?.ready);
-    const authorization = String(payload?.authorization?.status || 'desconhecida');
+    const authorization = String(payload?.authorization?.status || 'unknown');
     return makeResult(
       'Host status',
-      'PASSOU',
-      `Host respondeu; autorizacao ${authorization}; local ${localReady ? 'pronto' : 'pendente'}; remoto ${remoteReady ? 'pronto' : 'pendente'}.`,
+      'PASSED',
+      `Host responded; authorization ${authorization}; local ${localReady ? 'ready' : 'pending'}; remote ${remoteReady ? 'ready' : 'pending'}.`,
     );
   } catch (error) {
-    return makeResult('Host status', 'FALHOU', error?.message || String(error));
+    return makeResult('Host status', 'failed', error?.message || String(error));
   }
 }
 
@@ -593,14 +593,14 @@ async function smokeSession(baseUrl, token) {
     }
 
     return {
-      result: makeResult('Sessao web', 'PASSOU', `Sessao ${String(payload.sessionId).slice(0, 8)} aberta com continuidade carregada.`),
+      result: makeResult('Session web', 'PASSED', `Session ${String(payload.sessionId).slice(0, 8)} opened with loaded continuity.`),
       sessionId: String(payload.sessionId),
       tasks: [],
       continuity: payload.continuity || null,
     };
   } catch (error) {
     return {
-      result: makeResult('Sessao web', 'FALHOU', error?.message || String(error)),
+      result: makeResult('Session web', 'failed', error?.message || String(error)),
       sessionId: '',
       tasks: [],
       continuity: null,
@@ -625,12 +625,12 @@ async function smokeState(baseUrl, token, sessionId) {
     const tasks = Array.isArray(snapshot.tasks) ? snapshot.tasks : [];
     const messages = Array.isArray(snapshot.messages) ? snapshot.messages : [];
     return {
-      result: makeResult('Estado web', 'PASSOU', `${messages.length} mensagem(ns), ${tasks.length} task(s) e snapshot valido.`),
+      result: makeResult('Web state', 'PASSED', `${messages.length} message(s), ${tasks.length} task(s), and valid snapshot.`),
       tasks,
     };
   } catch (error) {
     return {
-      result: makeResult('Estado web', 'FALHOU', error?.message || String(error)),
+      result: makeResult('Estado web', 'failed', error?.message || String(error)),
       tasks: [],
     };
   }
@@ -652,9 +652,9 @@ async function smokeCatalog(baseUrl, token, sessionId) {
 
     const commands = Array.isArray(catalog.commands) ? catalog.commands.length : 0;
     const suggestions = Array.isArray(catalog.suggestedActions) ? catalog.suggestedActions.length : 0;
-    return makeResult('Catalogo', 'PASSOU', `${commands} comando(s) e ${suggestions} sugestao(oes) disponiveis.`);
+    return makeResult('catalog', 'PASSED', `${commands} command(s) and ${suggestions} suggestion(s) available.`);
   } catch (error) {
-    return makeResult('Catalogo', 'FALHOU', error?.message || String(error));
+    return makeResult('catalog', 'failed', error?.message || String(error));
   }
 }
 
@@ -702,9 +702,9 @@ async function smokePublicJson(baseUrl, token, endpoint, name, detailBuilder, re
     if (!response.ok || payload?.ok === false) {
       throw new Error(payload?.error || `status ${response.status}`);
     }
-    return makeResult(name, 'PASSOU', detailBuilder(payload));
+    return makeResult(name, 'PASSED', detailBuilder(payload));
   } catch (error) {
-    return makeResult(name, required ? 'FALHOU' : 'AVISO', error?.message || String(error), required);
+    return makeResult(name, required ? 'failed' : 'WARNING', error?.message || String(error), required);
   }
 }
 
@@ -717,26 +717,26 @@ async function runFallbackSmokeAttempt(baseUrl, token) {
     token,
     '/api/auth/status',
     'Auth status',
-    (payload) => `Auth status respondeu; webReady=${payload?.webReady ? 'sim' : 'nao'}.`,
+    (payload) => `Auth status responded; webReady=${payload?.webReady ? 'yes' : 'no'}.`,
   ));
   results.push(await smokePublicJson(
     baseUrl,
     token,
     '/api/v1/gateway/status',
-    'Gateway publico',
+    'Public gateway',
     (payload) => {
-      const lifecycle = String(payload?.lifecycle?.status || payload?.status || 'desconhecido');
-      return `Gateway publico respondeu com lifecycle ${lifecycle}.`;
+      const lifecycle = String(payload?.lifecycle?.status || payload?.status || 'unknown');
+      return `Public gateway responded with lifecycle ${lifecycle}.`;
     },
   ));
   results.push(await smokePublicJson(
     baseUrl,
     token,
     '/api/v1/platform/status',
-    'Platform publico',
+    'Public platform',
     (payload) => {
       const total = Number(payload?.summary?.total || 0);
-      return `Platform publico respondeu com ${total} item(ns).`;
+      return `Public platform responded with ${total} item(s).`;
     },
     false,
     20000,
@@ -747,8 +747,8 @@ async function runFallbackSmokeAttempt(baseUrl, token) {
     '/api/v1/ops/quality',
     'Quality gate',
     (payload) => {
-      const state = String(payload?.gate?.state || 'desconhecido');
-      return `Ops quality respondeu com gate ${state}.`;
+      const state = String(payload?.gate?.state || 'unknown');
+      return `Ops quality responded with gate ${state}.`;
     },
     false,
     25000,
@@ -765,7 +765,7 @@ async function runRealHostSurfaceSmokeAttempt(baseUrl, token) {
     token,
     '/api/auth/status',
     'Auth status',
-    (payload) => `Auth status respondeu; webReady=${payload?.webReady ? 'sim' : 'nao'}.`,
+    (payload) => `Auth status responded; webReady=${payload?.webReady ? 'yes' : 'no'}.`,
     true,
     10000,
   ));
@@ -800,12 +800,12 @@ function collectPreviewCandidate(tasks) {
 async function smokePreview(baseUrl, token, tasks) {
   const candidate = collectPreviewCandidate(tasks);
   if (!candidate) {
-    return makeResult('Preview arquivo', 'PULADO', 'Nenhum arquivo com caminho disponivel para preview.', false);
+    return makeResult('File preview', 'SKIPPED', 'No file with available path for preview.', false);
   }
 
   try {
     const response = await fetchWithTimeout(
-      `${baseUrl}/api/web/file-preview?path=${encodeURIComponent(candidate.path)}`,
+      `${baseUrl}/api/web/file-preview...path=${encodeURIComponent(candidate.path)}`,
       { headers: authHeaders(token) },
       8000,
     );
@@ -816,14 +816,13 @@ async function smokePreview(baseUrl, token, tasks) {
 
     const previewText = String(payload.preview.text || payload.preview.previewText || '').trim();
     return makeResult(
-      'Preview arquivo',
-      'PASSOU',
-      previewText
-        ? `Preview carregado para ${candidate.label}.`
-        : `Preview respondeu para ${candidate.label}.`,
+      'File preview',
+      'PASSED',
+      previewText ? `Preview loaded para ${candidate.label}.`
+        : `Preview responded for ${candidate.label}.`,
     );
   } catch (error) {
-    return makeResult('Preview arquivo', 'AVISO', error?.message || String(error), false);
+    return makeResult('File preview', 'WARNING', error?.message || String(error), false);
   }
 }
 
@@ -847,9 +846,9 @@ async function smokeEvents(baseUrl, token, sessionId) {
       await response.body.cancel().catch(() => undefined);
     }
 
-    return makeResult('Stream SSE', 'PASSOU', 'Endpoint SSE respondeu com content-type correto.');
+    return makeResult('Stream SSE', 'PASSED', 'SSE endpoint responded with the correct content-type.');
   } catch (error) {
-    return makeResult('Stream SSE', 'AVISO', error?.message || String(error), false);
+    return makeResult('Stream SSE', 'WARNING', error?.message || String(error), false);
   }
 }
 
@@ -863,7 +862,7 @@ async function run() {
 
   let ready = await waitForAppShell(baseUrl, waitMs);
   if (!ready) {
-    console.log(`Host nao respondeu em ${baseUrl}/zavorthControl dentro de ${waitMs}ms; seguindo para o fallback deterministico.\n`);
+    console.log(`Host did not respond at ${baseUrl}/zavorthControl within ${waitMs}ms; continuing to deterministic fallback.\n`);
   }
 
   const authorized = await resolveAuthorizedBaseUrl(args.baseUrl || '', args.token || '');
@@ -884,15 +883,15 @@ async function run() {
     finalBaseUrl = candidateBaseUrl;
     finalResults = await runRealHostSurfaceSmokeAttempt(candidateBaseUrl, candidateToken);
 
-    const blockingFailures = finalResults.filter((entry) => entry.required && entry.status === 'FALHOU');
+    const blockingFailures = finalResults.filter((entry) => entry.required && entry.status === 'failed');
     if (blockingFailures.length === 0) {
       break;
     }
   }
 
-  const blockingFailures = finalResults.filter((entry) => entry.required && entry.status === 'FALHOU');
+  const blockingFailures = finalResults.filter((entry) => entry.required && entry.status === 'failed');
   if (blockingFailures.length > 0) {
-    console.log('\nHost real nao respondeu ao smoke leve; iniciando zavorthControl temporario para validacao deterministica.\n');
+    console.log('\nReal host did not respond to lightweight smoke; starting temporary zavorthControl for deterministic validation.\n');
     const temporaryZavorthControl = await startTemporaryZavorthControlService();
     try {
       await waitForAppShell(temporaryZavorthControl.baseUrl, Math.max(waitMs, 30_000));
@@ -908,16 +907,16 @@ async function run() {
     console.log(`${result.name.padEnd(18, ' ')} ${result.status.padEnd(6, ' ')} ${result.detail}`);
   }
 
-  const finalBlockingFailures = finalResults.filter((entry) => entry.required && entry.status === 'FALHOU');
+  const finalBlockingFailures = finalResults.filter((entry) => entry.required && entry.status === 'failed');
   if (finalBlockingFailures.length) {
-    console.log('\nSmoke do app web terminou com falhas bloqueantes.');
+    console.log('\nWeb app smoke finished with blocking failures.');
     process.exit(1);
   }
 
-  console.log('\nSmoke do app web finalizado sem falhas bloqueantes.');
+  console.log('\nWeb app smoke finished without blocking failures.');
 }
 
 run().catch((error) => {
-  console.error('Falha inesperada no smoke do app web:', error);
+  console.error('Unexpected failure in web app smoke:', error);
   process.exit(1);
 });

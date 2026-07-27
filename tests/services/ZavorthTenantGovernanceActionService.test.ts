@@ -28,8 +28,8 @@ describe('ZavorthTenantGovernanceActionService', () => {
           {
             id: 'start-onboarding-review',
             label: 'Abrir review de onboarding',
-            description: 'Dispara um workflow de review para fechar onboarding e policy do tenant.',
-            command: '/workflow review Fechar onboarding do tenant discord-public',
+            description: 'Dispara um workflow de review para close onboarding e policy do tenant.',
+            command: '/workflow review Close onboarding do tenant discord-public',
             actionKind: 'guided',
             emphasis: 'primary',
           },
@@ -52,7 +52,7 @@ describe('ZavorthTenantGovernanceActionService', () => {
           {
             id: 'review-memoryplane',
             label: 'Revisar /memoryplane',
-            description: 'Retoma contexto, entregas e memorias ligadas a este tenant.',
+            description: 'Resumes context, deliveries, and memories linked to this tenant.',
             command: '/memoryplane',
             actionKind: 'guided',
             emphasis: 'secondary',
@@ -60,7 +60,7 @@ describe('ZavorthTenantGovernanceActionService', () => {
           {
             id: 'review-sessions',
             label: 'Revisar /sessions',
-            description: 'Abre o session plane para retomadas e handoffs ligados ao tenant.',
+            description: 'Abre o session plane para resumptions e handoffs ligados ao tenant.',
             command: '/sessions',
             actionKind: 'guided',
             emphasis: 'secondary',
@@ -249,7 +249,7 @@ describe('ZavorthTenantGovernanceActionService', () => {
 
   it('starts an onboarding review workflow for a tenant', async () => {
     const handleWorkflow = jest.fn(async (_ctx: any, args: string) => {
-      expect(args).toBe('review Fechar onboarding do tenant discord-public');
+      expect(args).toBe('review Close onboarding do tenant discord-public');
     });
     const service = new ZavorthTenantGovernanceActionService({
       tenantGovernanceService: {
@@ -278,7 +278,7 @@ describe('ZavorthTenantGovernanceActionService', () => {
       expect.objectContaining({
         status: 'started',
         actionId: 'start-onboarding-review',
-        command: '/workflow review Fechar onboarding do tenant discord-public',
+        command: '/workflow review Close onboarding do tenant discord-public',
       }),
     );
     expect(result.teams).toEqual(

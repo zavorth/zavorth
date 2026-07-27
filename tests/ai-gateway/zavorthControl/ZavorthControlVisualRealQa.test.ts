@@ -20,26 +20,26 @@ describe('ZavorthControlVisualRealQa', () => {
     let tick = 0;
     const executor: UniversalAgentExecutor = ({ run }) => ({
       status: 'completed',
-      summary: 'QA visual real concluido: approval aprovado e artifact pronto.',
-      replyText: 'Relatorio de QA visual real pronto.',
+      summary: 'QA visual real completed: approval approved e artifact ready.',
+      replyText: 'Report de QA visual real ready.',
       events: [
         {
           kind: 'tool',
-          title: 'Ferramenta executada',
+          title: 'Tool executed',
           detail: 'shell.exec liberado pelo approval universal.',
           status: 'done',
         },
         {
           kind: 'artifact',
           title: 'Artifact gerado',
-          detail: 'Relatorio anexado ao ZavorthControl.',
+          detail: 'Report anexado ao ZavorthControl.',
           status: 'done',
         },
       ],
       artifacts: [
         {
           id: 'qa-visual-real-report',
-          title: 'Relatorio de QA Visual Real',
+          title: 'Report de QA Visual Real',
           kind: 'report',
           createdAt: run.updatedAt,
           sessionId: run.sessionId,
@@ -62,7 +62,7 @@ describe('ZavorthControlVisualRealQa', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-zavorthControl-real-qa',
-      text: 'gere um relatorio em PDF e rode um comando local para validar o painel',
+      text: 'generate a PDF report and run a local command to validate the panel',
       requestedTools: ['shell.exec', 'pdf.generate'],
       modelProfile: {
         providerLabel: 'OpenAI',

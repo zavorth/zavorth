@@ -56,10 +56,10 @@ try {
   );
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
-    'zavorth-transaction-sandbox-controlled-executor/checkpoint-13',
+    'zavorth-transaction-sandbox-controlled-executor/gate-13',
     'ZAVORTH CONTROLLED SANDBOX EXECUTION ONLY',
     'sandbox-executed',
-    'localSandboxSimulationPerformed',
+    'localSandboxDryRunPerformed',
     'noExternalNetworkCall',
     'sandboxExternalIoPerformed',
   ]) {
@@ -107,7 +107,7 @@ try {
     '--sandbox-run-id',
     'intent-model3-sandbox-run',
   ]);
-  if (executed.status !== 'sandbox-executed' || executed.executionReceipt?.localSandboxSimulationPerformed !== true) {
+  if (executed.status !== 'sandbox-executed' || executed.executionReceipt?.localSandboxDryRunPerformed !== true) {
     failures.push(`sandbox execution mismatch: ${executed.status}`);
   }
   if (
@@ -179,7 +179,7 @@ try {
   console.log('- Intent model3 consumes Intent model2 sandbox-certification-ready packets');
   console.log('- dedicated sandbox owner phrase gates local sandbox execution');
   console.log('- sandbox-executed emits a local receipt with no endpoint call or live effect');
-  console.log('- kill switch, simulation failure and raw secrets remain blocked');
+  console.log('- kill switch, dry-run failure and raw secrets remain blocked');
 } finally {
   rmSync(tempDir, { recursive: true, force: true });
 }
@@ -241,7 +241,7 @@ function rollbackArgs() {
     '--rollback-drill-performed',
     '--rollback-drill-successful',
     '--rollback-summary',
-    'Replay and rollback completed against the simulated transaction ledger.',
+    'Replay and rollback completed against the dry-run transaction ledger.',
     '--replay-command',
     'npm run zavorth:transaction-live-candidate:json -- --replay intent-model0',
     '--rollback-command',

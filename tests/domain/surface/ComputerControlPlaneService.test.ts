@@ -7,7 +7,7 @@ describe('ZavorthComputerControlPlaneService', () => {
     const snapshot = await service.execute({
       action: 'computer.observe',
       targetWindow: 'Notepad',
-      screenText: 'Tela normal sem segredo',
+      screenText: 'Normal screen without secrets',
       sourceSurface: 'telegram',
     });
 
@@ -36,13 +36,13 @@ describe('ZavorthComputerControlPlaneService', () => {
 
     expect(snapshot.watchMode.available).toBe(false);
     expect(response.metadata?.setupRequired).toBe(true);
-    expect(serialized).toContain('Ativar observacao do computador');
+    expect(serialized).toContain('Ativar observation do computador');
     expect(serialized).toContain('/watchmode');
   });
 
   it.each([
     ['Windows PowerShell', 'terminal'],
-    ['Executar', 'shell-launcher'],
+    ['Run', 'shell-launcher'],
     ['Bitwarden', 'password-manager'],
     ['Authenticator MFA', 'mfa-or-auth'],
   ])('blocks sensitive desktop target %s', async (targetWindow, risk) => {
@@ -66,8 +66,8 @@ describe('ZavorthComputerControlPlaneService', () => {
       action: 'computer.plan',
       targetWindow: 'Notepad',
       targetText: 'Salvar',
-      payload: 'Texto aprovado',
-      objective: 'clique, digite e pressione enter',
+      payload: 'Texto approved',
+      objective: 'click, type, and press enter',
     });
 
     expect(snapshot.status).toBe('approval-required');

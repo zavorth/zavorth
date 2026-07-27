@@ -35,7 +35,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-core] minimal kernel falhou.');
+  console.error('[zavorth-core] minimal kernel failed.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

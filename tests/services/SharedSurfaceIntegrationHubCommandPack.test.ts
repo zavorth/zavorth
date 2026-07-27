@@ -16,7 +16,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceIntegratio
   return new SharedSurfaceIntegrationHubCommandPack({
     integrationHubService: {
       renderCatalogReport: jest.fn(() => 'Zavorth integration catalog'),
-      renderManifestReport: jest.fn(() => 'Manifesto da integracao Discord'),
+      renderManifestReport: jest.fn(() => 'Manifesto da integraction Discord'),
       renderConnectReport: jest.fn(() => 'Conexao guiada com Discord'),
     } as any,
     ...overrides,
@@ -43,7 +43,7 @@ describe('SharedSurfaceIntegrationHubCommandPack', () => {
   });
 
   it('renders an integration manifest when a target is provided', async () => {
-    const renderManifestReport = jest.fn(() => 'Manifesto da integracao Discord');
+    const renderManifestReport = jest.fn(() => 'Manifesto da integraction Discord');
     const pack = buildPack({
       integrationHubService: {
         renderCatalogReport: jest.fn(),
@@ -57,7 +57,7 @@ describe('SharedSurfaceIntegrationHubCommandPack', () => {
 
     expect(handled).toBe(true);
     expect(renderManifestReport).toHaveBeenCalledWith('discord');
-    expect(ctx.reply).toHaveBeenCalledWith('Manifesto da integracao Discord');
+    expect(ctx.reply).toHaveBeenCalledWith('Manifesto da integraction Discord');
   });
 
   it('starts a guided connection with an explicit mode', async () => {
@@ -91,7 +91,7 @@ describe('SharedSurfaceIntegrationHubCommandPack', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(
-      'Use /connect <integracao>. Exemplos: /connect discord, /connect slack, /connect whatsapp, /connect openrouter.',
+      'Use /connect <integraction>. Exemplos: /connect discord, /connect slack, /connect whatsapp, /connect openrouter.',
     );
   });
 

@@ -12,11 +12,11 @@ $iconPath = Join-Path $projectRoot 'assets\launcher\zavorth-shortcut.ico'
 $powershellPath = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
 
 if (-not (Test-Path $unifiedLauncherScriptPath)) {
-  throw "Nao encontrei o launcher unificado em $unifiedLauncherScriptPath"
+  throw "Could not find the unified launcher at $unifiedLauncherScriptPath"
 }
 
 if (-not (Test-Path $powershellPath)) {
-  throw "Nao encontrei o PowerShell em $powershellPath"
+  throw "Could not find PowerShell at $powershellPath"
 }
 
 if ((Test-Path $iconGeneratorPath) -and -not (Test-Path $iconPath)) {
@@ -25,7 +25,7 @@ if ((Test-Path $iconGeneratorPath) -and -not (Test-Path $iconPath)) {
 
 $startupPath = [Environment]::GetFolderPath('Startup')
 if (-not $startupPath) {
-  throw 'Nao foi possivel localizar a pasta Startup do usuario atual.'
+  throw 'Could not locate the current user Startup folder.'
 }
 
 $shortcutPaths = @(
@@ -40,12 +40,12 @@ if ($Remove) {
     if (Test-Path $shortcutPath) {
       Remove-Item -LiteralPath $shortcutPath -Force
       $removedAny = $true
-      Write-Host 'Atalho removido do Startup:'
+      Write-Host 'shortcut removido do Startup:'
       Write-Host $shortcutPath
     }
   }
   if (-not $removedAny) {
-    Write-Host 'Nenhum atalho do Zavorth foi encontrado no Startup.'
+    Write-Host 'Nenhum shortcut do Zavorth foi encontrado no Startup.'
   }
   exit 0
 }
@@ -56,11 +56,11 @@ if ($null -ne $env:ZAVORTH_ALLOW_STARTUP_INSTALL) {
 }
 
 if ($allowStartupInstall.ToLowerInvariant() -ne 'true') {
-  throw 'Startup automatico bloqueado por padrao. Defina ZAVORTH_ALLOW_STARTUP_INSTALL=true para instalar este atalho conscientemente.'
+  throw 'Automatic startup is blocked by default. Set ZAVORTH_ALLOW_STARTUP_INSTALL=true to install this shortcut deliberately.'
 }
 
 if (-not $AllowInstall) {
-  throw 'Instalacao de Startup exige confirmacao explicita. Rode o script com -AllowInstall para prosseguir conscientemente.'
+  throw 'Startup installation requires explicit confirmation. Run this script with -AllowInstall to continue intentionally.'
 }
 
 $shell = New-Object -ComObject WScript.Shell
@@ -69,7 +69,7 @@ $shortcut = $shell.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = $powershellPath
 $shortcut.Arguments = "-ExecutionPolicy Bypass -NoLogo -WindowStyle Minimized -File `"$unifiedLauncherScriptPath`" -Headless"
 $shortcut.WorkingDirectory = $projectRoot
-$shortcut.Description = 'Inicia o Zavorth oficial automaticamente ao entrar no Windows.'
+$shortcut.Description = 'starts o Zavorth oficial automaticamente ao entrar no Windows.'
 $shortcut.WindowStyle = 7
 
 if (Test-Path $iconPath) {
@@ -84,5 +84,5 @@ foreach ($legacyShortcutPath in $shortcutPaths | Select-Object -Skip 1) {
   }
 }
 
-Write-Host 'Atalho do Startup criado com sucesso:'
+Write-Host 'Startup shortcut created successfully:'
 Write-Host $shortcutPath

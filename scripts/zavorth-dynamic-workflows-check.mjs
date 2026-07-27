@@ -34,7 +34,7 @@ function filesExist() {
     'tests/services/ZavorthDynamicWorkflowService.test.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', 'Dynamic workflow files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check and tests are present', missing);
+  return rule('files', 'Dynamic workflow files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check and tests are present', missing);
 }
 
 function markersPresent() {
@@ -79,7 +79,7 @@ function markersPresent() {
 
 function jsonFixture() {
   const storageDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-dynamic-workflows-check-'));
-  const result = runTs(['scripts/zavorth-dynamic-workflows.ts', '--objective', 'analise 80 arquivos', '--fanout', '80', '--max-concurrency', '12', '--max-cents', '75', '--worker-model', 'cheap', '--synthesis-model', 'premium', '--storage-dir', storageDir, '--json']);
+  const result = runTs(['scripts/zavorth-dynamic-workflows.ts', '--objective', 'analyze 80 files', '--fanout', '80', '--max-concurrency', '12', '--max-cents', '75', '--worker-model', 'cheap', '--synthesis-model', 'premium', '--storage-dir', storageDir, '--json']);
   return jsonRule('json-fixture', 'Dynamic workflow CLI emits governed preview JSON', result, (snapshot) =>
     snapshot.contractVersion === 'zavorth-dynamic-workflows/1'
     && snapshot.status === 'needs-approval'
@@ -93,7 +93,7 @@ function jsonFixture() {
 
 function blockedFixture() {
   const storageDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-dynamic-workflows-check-'));
-  const result = runTs(['scripts/zavorth-dynamic-workflows.ts', '--objective', 'pesquisa sem limite', '--fanout', '500', '--max-concurrency', '60', '--max-cents', '1', '--worker-model', 'premium', '--synthesis-model', 'premium', '--storage-dir', storageDir, '--json']);
+  const result = runTs(['scripts/zavorth-dynamic-workflows.ts', '--objective', 'pesquisa without limite', '--fanout', '500', '--max-concurrency', '60', '--max-cents', '1', '--worker-model', 'premium', '--synthesis-model', 'premium', '--storage-dir', storageDir, '--json']);
   return jsonRule('blocked-fixture', 'Dynamic workflow blocks excessive fanout and budget', result, (snapshot) =>
     snapshot.status === 'blocked'
     && snapshot.blockedReasons.includes('requested fanout exceeds hard cap')
@@ -104,7 +104,7 @@ function blockedFixture() {
 
 function launchFixture() {
   const storageDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-dynamic-workflows-check-'));
-  const preview = runTs(['scripts/zavorth-dynamic-workflows.ts', '--objective', 'audite 24 arquivos', '--fanout', '24', '--max-concurrency', '6', '--max-cents', '80', '--worker-model', 'cheap', '--synthesis-model', 'premium', '--storage-dir', storageDir, '--json']);
+  const preview = runTs(['scripts/zavorth-dynamic-workflows.ts', '--objective', 'audit 24 files', '--fanout', '24', '--max-concurrency', '6', '--max-cents', '80', '--worker-model', 'cheap', '--synthesis-model', 'premium', '--storage-dir', storageDir, '--json']);
   if (preview.status !== 0) {
     return rule('launch-fixture', 'Dynamic workflow launch materializes saved previews with approval', false, `preview exit ${preview.status ?? 'unknown'}`, 'preview saved and launch materialized', compact(preview.stderr, preview.stdout));
   }
@@ -186,5 +186,5 @@ function rule(id, label, passed, observed, target, details = []) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

@@ -10,7 +10,7 @@ describe('DiscordBootPolicyService', () => {
         nativeTokenConfigured: false,
         bridgeConfigured: false,
       }),
-    ).toThrow('Discord esta marcado como obrigatorio no boot');
+    ).toThrow('Discord esta marcado como required no boot');
   });
 
   it('allows boot when Discord is optional or configured', () => {

@@ -63,13 +63,13 @@ const rules = [
     files: ['src/contracts/ProviderLongTailActivationContract.ts'],
     needles: [
       'ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION',
-      '2026-05-04.live-checkpoint-5',
+      '2026-05-04.live-gate-5',
       'ProviderLongTailActivationId',
       'generatedProviderManifestsRemainingLongTail: false',
       'generatedProviderManifestsRemainingTotal: false',
       'ProviderLongTailConfiguredDoctorReceipt',
       'ProviderLongTailStagingLiveReceipt',
-      'Intent model3 - Live Consistency Certification',
+      'Live Consistency Certification',
     ],
   }),
   ruleContainsAll({
@@ -116,7 +116,7 @@ const rules = [
       'runConfiguredDoctor',
       'runStagingLiveSmoke',
       'missingRequiredEnv',
-      'Intent model3 - Live Consistency Certification',
+      'Live Consistency Certification',
     ],
   }),
   ruleContainsAll({

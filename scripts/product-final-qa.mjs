@@ -33,7 +33,7 @@ function runStep(label, command, args, options = {}) {
       ...options,
     });
   if (result.error) {
-    console.error(`[product-final-qa] falha ao executar ${command}: ${result.error.message}`);
+    console.error(`[product-final-qa] failure ao run ${command}: ${result.error.message}`);
     process.exit(1);
   }
   if (result.status !== 0) {
@@ -47,7 +47,7 @@ if (!skipBuild) {
 
 runStep('zavorth control cockpit gate', npmCmd, ['run', 'qa:zavorthControl']);
 
-runStep('testes criticos de produto', npxCmd, [
+runStep('testes criticals de produto', npxCmd, [
   'jest',
   'tests/services/WebConsoleAssetService.test.ts',
   'tests/services/ZavorthEvalControlPlaneService.test.ts',
@@ -103,7 +103,7 @@ if (process.platform === 'win32') {
 }
 
 console.log(
-  `\n[product-final-qa] Produto validado: ${
-    skipBuild ? 'build ignorado nesta execucao, ' : 'build, '
-  }cockpit, trust plane, watch mode, canais, hub/MCP, QA gates, governance/policy, replay/learning, ecossistema/SDKs, runtime distribuido, estabilidade supervisionada, rollout persistente, natural-first, automations/scheduled runs e System Overlord supervisionado passaram.`,
+  `\n[product-final-qa] Product validated: ${
+    skipBuild ? 'build skipped in this execution, ' : 'build, '
+  }cockpit, trust plane, watch mode, channels, hub/MCP, QA gates, governance/policy, replay/learning, ecossistema/SDKs, runtime distribuido, estabilidade supervised, rollout persistente, natural-first, automations/scheduled runs e System Overlord supervised passaram.`,
 );

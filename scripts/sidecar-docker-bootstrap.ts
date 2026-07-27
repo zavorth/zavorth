@@ -61,11 +61,9 @@ const report = {
     detail: firecracker.detail,
   },
   pulls,
-  nextSafeAction: ready
-    ? 'Sidecars de execucao isolada prontos para uso governado.'
-    : shouldPull
-      ? 'Revisar Docker/Firecracker local antes de habilitar tools live isoladas.'
-      : 'Rode npm run sidecars:bootstrap -- --pull para preparar imagens Docker aprovadas.',
+  nextSafeAction: ready ? 'Isolated execution sidecars ready for governed use.'
+    : shouldPull ? 'Revisar Docker/Firecracker local before habilitar tools live isoladas.'
+      : 'Run npm run sidecars:bootstrap -- --pull para preparar imagens Docker approved.',
 };
 
 fs.mkdirSync(path.dirname(reportFile), { recursive: true });

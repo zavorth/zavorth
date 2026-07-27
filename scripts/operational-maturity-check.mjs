@@ -85,12 +85,12 @@ function main() {
   const seenIds = new Set();
 
   if (matrix.schemaVersion !== 'operational-maturity.v1') {
-    issues.push(`schemaVersion invalido: ${matrix.schemaVersion}`);
+    issues.push(`schemaVersion invalid: ${matrix.schemaVersion}`);
   }
 
   for (const status of ['stable', 'official-but-provisioned', 'experimental', 'draft', 'deprecated']) {
     if (!allowedStatuses.has(status)) {
-      issues.push(`status canonico ausente da matriz: ${status}`);
+      issues.push(`status canonical missing da matriz: ${status}`);
     }
   }
 
@@ -101,12 +101,12 @@ function main() {
     seenIds.add(capability.id);
 
     if (!allowedStatuses.has(capability.status)) {
-      issues.push(`${capability.id}: status invalido ${capability.status}`);
+      issues.push(`${capability.id}: status invalid ${capability.status}`);
     }
 
     for (const evidence of capability.evidence || []) {
       if (!exists(evidence)) {
-        issues.push(`${capability.id}: evidencia ausente ${evidence}`);
+        issues.push(`${capability.id}: evidence missing ${evidence}`);
       }
     }
 
@@ -117,14 +117,14 @@ function main() {
       if (command.kind === 'cli') {
         const parts = String(command.value || '').trim().split(/\s+/g);
         if (parts[0] !== 'zavorth' || !allowedCliCommands.has(parts[1])) {
-          issues.push(`${capability.id}: comando CLI nao canonico ${command.value}`);
+          issues.push(`${capability.id}: non-canonical CLI command ${command.value}`);
         }
       }
     }
 
     if ((capability.id === 'nexus-surface' || capability.id === 'echo-edge-layer')
       && (capability.isPrimaryBrain || capability.isParallelRuntime)) {
-      issues.push(`${capability.id}: nao pode ser cerebro principal nem runtime paralelo`);
+      issues.push(`${capability.id}: cannot be the main brain or parallel runtime`);
     }
   }
 
@@ -138,14 +138,14 @@ function main() {
     'echo-edge-layer',
   ]) {
     if (!seenIds.has(requiredId)) {
-      issues.push(`capability obrigatoria ausente: ${requiredId}`);
+      issues.push(`capability obrigatoria missing: ${requiredId}`);
     }
   }
 
   const docs = collectDocText();
   for (const doc of docs) {
     if (!doc.text) {
-      issues.push(`documento ausente: ${doc.relativePath}`);
+      issues.push(`documento missing: ${doc.relativePath}`);
       continue;
     }
 
@@ -159,7 +159,7 @@ function main() {
     const cliCommands = unique(extractMatches(doc.text, /(?:^|`|\n)(zavorth\s+([a-zA-Z0-9:_-]+))/g).map((value) => value.split(/\s+/g)[1]));
     for (const command of cliCommands) {
       if (!allowedCliCommands.has(command)) {
-        issues.push(`${doc.relativePath}: cita comando CLI nao canonico zavorth ${command}`);
+        issues.push(`${doc.relativePath}: cita non-canonical CLI command zavorth ${command}`);
       }
     }
   }
@@ -167,20 +167,20 @@ function main() {
   const architectureDoc = fs.readFileSync(path.join(root, 'docs', 'architecture.md'), 'utf8');
   for (const capability of matrix.capabilities || []) {
     if (!architectureDoc.includes(`\`${capability.id}\``)) {
-      issues.push(`docs/architecture.md nao referencia capability canonica ${capability.id}`);
+      issues.push(`docs/architecture.md does not reference canonical capability ${capability.id}`);
     }
   }
-  if (!architectureDoc.includes('Nexus nao e runtime paralelo')) {
-    issues.push('docs/architecture.md precisa declarar que Nexus nao e runtime paralelo');
+  if (!architectureDoc.includes('Nexus is not a parallel runtime')) {
+    issues.push('docs/architecture.md must state that Nexus is not a parallel runtime');
   }
   if (!architectureDoc.includes('Intelligence Fabric')) {
-    issues.push('docs/architecture.md precisa apontar o cerebro real para o Intelligence Fabric');
+    issues.push('docs/architecture.md must point the real brain to the Intelligence Fabric');
   }
-  if (architectureDoc.toLowerCase().includes('nexus e o cerebro')) {
-    issues.push('docs/architecture.md contem claim proibido: Nexus e o cerebro');
+  if (architectureDoc.toLowerCase().includes('nexus e o brain')) {
+    issues.push('docs/architecture.md contains claim proibido: Nexus e o brain');
   }
-  if (architectureDoc.toLowerCase().includes('echo e o cerebro principal')) {
-    issues.push('docs/architecture.md contem claim proibido: Echo e o cerebro principal');
+  if (architectureDoc.toLowerCase().includes('echo e o brain principal')) {
+    issues.push('docs/architecture.md contains claim proibido: Echo e o brain principal');
   }
 
   const serviceSource = fs.readFileSync(
@@ -188,12 +188,12 @@ function main() {
     'utf8',
   );
   if (!serviceSource.includes('buildSnapshot') || !serviceSource.includes('renderConsole')) {
-    issues.push('OperationalMaturityService precisa expor buildSnapshot e renderConsole');
+    issues.push('OperationalMaturityService must expose buildSnapshot and renderConsole');
   }
 
   const coreRouteSource = fs.readFileSync(path.join(root, 'src', 'services', 'ZavorthControlCoreRouteService.ts'), 'utf8');
   if (!coreRouteSource.includes('/api/v2/maturity/snapshot')) {
-    issues.push('ZavorthControlCoreRouteService precisa expor /api/v2/maturity/snapshot');
+    issues.push('ZavorthControlCoreRouteService must expose /api/v2/maturity/snapshot');
   }
 
   const counts = statusCounts(matrix.capabilities || []);

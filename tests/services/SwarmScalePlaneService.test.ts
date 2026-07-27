@@ -71,7 +71,7 @@ describe('SwarmScalePlaneService', () => {
     const llmRuntime = {
       chatDetailed: jest.fn(async (messages: unknown[], tools: unknown[], options: Record<string, unknown>) => {
         calls.push({ messages, tools, options });
-        const telemetry = options.telemetry as { kind?: string; agentId?: string } | undefined;
+        const telemetry = options.telemetry as { kind-: string; agentId-: string } | undefined;
         if (telemetry?.kind === 'planner') {
           return {
             response: {

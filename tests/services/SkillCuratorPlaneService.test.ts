@@ -340,14 +340,14 @@ describe('SkillCuratorPlaneService', () => {
     now: string;
     skills: Array<Record<string, unknown>>;
     tempDir: string;
-    intervalHours?: number;
-    minIdleHours?: number;
-    staleAfterDays?: number;
-    archiveAfterDays?: number;
-    llmRuntime?: any;
-    llmReviewEnabled?: boolean;
-    profileId?: string;
-    improvementPolicy?: any;
+    intervalHours-: number;
+    minIdleHours-: number;
+    staleAfterDays-: number;
+    archiveAfterDays-: number;
+    llmRuntime-: any;
+    llmReviewEnabled-: boolean;
+    profileId-: string;
+    improvementPolicy-: any;
   }) {
     return new SkillCuratorPlaneService({
       database: options.db as any,

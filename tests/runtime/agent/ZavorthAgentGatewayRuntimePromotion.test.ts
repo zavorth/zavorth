@@ -50,7 +50,7 @@ describe('ZavorthAgentGateway runtime promotion governance', () => {
     expect(snapshot.runtimePromotionGovernance.prohibitedPublicClaims).toEqual(expect.arrayContaining([
       expect.objectContaining({
         itemId: 'session-v2-pty',
-        claim: 'PTY / Session V2 esta pronto/stable',
+        claim: 'PTY / Session V2 esta ready/stable',
       }),
       expect.objectContaining({
         itemId: 'session-recorder',

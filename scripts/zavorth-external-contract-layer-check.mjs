@@ -48,7 +48,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'checkpoint-1-files',
+    id: 'gate-1-files',
     label: 'Intent model contract layer files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
@@ -95,7 +95,7 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'checkpoint-1-markers',
+    id: 'gate-1-markers',
     label: 'Intent model contract layer markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
@@ -156,7 +156,7 @@ function runContractLayerBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousInventoryStatus === 'blocked';
   return {
-    id: 'checkpoint-1-blocked-fixture',
+    id: 'gate-1-blocked-fixture',
     label: 'Contract layer blocks without Security contract readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, inventory=${snapshot.previousInventoryStatus}` : `exit ${result.status}`,

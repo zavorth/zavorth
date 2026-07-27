@@ -102,7 +102,7 @@ describe('ZavorthCapabilitySetupQueueService', () => {
     });
     expect(snapshot.summary.open).toBe(1);
     expect(snapshot.tickets[0].id).toBe(ticket.id);
-    expect(report).toContain('Fila de configuracao');
+    expect(report).toContain('Fila de configuraction');
   });
 
   it('keeps queue storage inside the Zavorth root', () => {

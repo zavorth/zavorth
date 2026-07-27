@@ -65,7 +65,7 @@ describe('HostCommandApprovalService', () => {
     expect(result.riskLevel).toBe('LOW');
 
     // Verify raw values NOT persisted in SQLite
-    const row = db.get<any>('SELECT * FROM workspace_host_command_proposals WHERE operation_id = ?', [result.operationId]);
+    const row = db.get<any>('SELECT * FROM workspace_host_command_proposals WHERE operation_id = -', [result.operationId]);
     expect(row).toBeDefined();
     expect(row.command_hash).toBe(service.hashValue(command));
     expect(row.command_preview_redacted).toBe('git');
@@ -103,7 +103,7 @@ describe('HostCommandApprovalService', () => {
     const result = await service.propose(workspaceId, 'git', [], '.', false, 'status');
     await service.resolve(result.operationId, false);
 
-    const row = db.get('SELECT * FROM workspace_host_command_proposals WHERE operation_id = ?', [result.operationId]);
+    const row = db.get('SELECT * FROM workspace_host_command_proposals WHERE operation_id = -', [result.operationId]);
     expect(row).toBeUndefined();
     expect(HostCommandPayloadCache.getInstance().get(result.operationId)).toBeUndefined();
   });
@@ -118,7 +118,7 @@ describe('HostCommandApprovalService', () => {
 
     // Try resolving with RUN -> succeeds
     await service.resolve(result.operationId, true, 'RUN');
-    const row = db.get<any>('SELECT approved FROM workspace_host_command_proposals WHERE operation_id = ?', [result.operationId]);
+    const row = db.get<any>('SELECT approved FROM workspace_host_command_proposals WHERE operation_id = -', [result.operationId]);
     expect(row.approved).toBe(1);
   });
 

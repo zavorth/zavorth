@@ -74,7 +74,7 @@ describe('Zavorth CLI run/artifact/receipt replay hardening', () => {
 
     expect(text).toContain('Run / Artifact / Receipt Replay Hardening - Channel mesh5');
     expect(text).toMatch(/replay|tools|Artifact|Receipt/i);
-    expect(text).toContain('conteudo de artifact nao foi inventado');
-    expect(text).toContain('Dashboard: /zavorthControl?runId=');
+    expect(text).toContain('content de artifact was not inventado');
+    expect(text).toContain('Dashboard: /zavorthControl-runId=');
   });
 });

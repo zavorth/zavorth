@@ -121,7 +121,7 @@ function validateToken(token) {
   console.log(TerminalTheme.colors.primaryLight.bold('5. Interactive Prompts (Confirm, Input, Select)'));
 
   if (process.stdout.isTTY) {
-    const confirm = await TerminalPrompt.confirm('Apply the suggested fixes to src/auth/jwt.js?', true);
+    const confirm = await TerminalPrompt.confirm('Apply the suggested fixes to src/auth/jwt.js...', true);
     console.log(TerminalTheme.colors.dim(`Selected answer: ${confirm ? 'Yes' : 'No'}`));
 
     if (confirm) {
@@ -130,7 +130,7 @@ function validateToken(token) {
     }
   } else {
     console.log(TerminalTheme.colors.dim('[Non-interactive environment: skipping real interactive prompts]'));
-    console.log(TerminalTheme.colors.primary('> Apply the suggested fixes to src/auth/jwt.js? (y/N)'));
+    console.log(TerminalTheme.colors.primary('> Apply the suggested fixes to src/auth/jwt.js... (y/N)'));
     console.log(TerminalTheme.colors.primary('> Select the deployment environment: (Use arrow keys)'));
     console.log(TerminalTheme.colors.dim('  > development\n    staging\n    production'));
   }

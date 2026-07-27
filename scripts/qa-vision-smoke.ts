@@ -121,10 +121,10 @@ async function main(): Promise<void> {
         analyzeScreenshot: async () => ({
           ok: true,
           providerName: 'qa-vision-provider',
-          summary: 'Tela mostra o fluxo supervisionado do Zavorth.',
-          responseText: 'Vejo o fluxo supervisionado do Zavorth na tela.',
+          summary: 'Screen shows the supervised Zavorth flow.',
+          responseText: 'I see the supervised Zavorth flow on screen.',
           observedTexts: ['Zavorth', 'QA vision'],
-          suggestedNextAction: 'seguir com a validacao',
+          suggestedNextAction: 'seguir com a validation',
           confidence: 0.91,
           rawResponse: '{"ok":true}',
           error: null,
@@ -132,7 +132,7 @@ async function main(): Promise<void> {
       } as any,
     );
     const visionResult = await visionTool.execute({
-      question: 'O que esta visivel na tela?',
+      question: 'What is visible on screen...',
       mode: 'active_window',
       returnBase64: false,
     }, {

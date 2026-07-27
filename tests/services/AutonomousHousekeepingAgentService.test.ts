@@ -27,14 +27,14 @@ describe('AutonomousHousekeepingAgentService', () => {
           actions: [
             {
               id: 'trim-services',
-              label: 'Esvaziar facades de compatibilidade',
+              label: 'Empty compatibility facades',
               severity: 'warn',
-              reason: 'Ainda existem facades temporarias para remover.',
+              reason: 'Temporary facades still remain to remove.',
               command: 'npm run qa:architecture',
             },
           ],
           narrative: {
-            operatorSummary: 'Arquitetura pede mais uma rodada de limpeza.',
+            operatorSummary: 'Arquitetura pede mais uma run de limpeza.',
             nextAction: 'Rodar qa:architecture.',
           },
         })),

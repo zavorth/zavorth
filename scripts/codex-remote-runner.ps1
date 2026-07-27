@@ -88,7 +88,7 @@ if (-not "$resolvedPrompt".Trim()) {
   $resolvedPrompt = $Prompt
 }
 if (-not "$resolvedPrompt".Trim()) {
-  throw 'O runner do Codex Remote recebeu um prompt vazio.'
+  throw 'The Codex Remote runner received an empty prompt.'
 }
 
 Write-JsonFile -Path $StatusFilePath -Payload @{
@@ -225,7 +225,7 @@ $state = if ($timedOut) {
   'failed'
 }
 $lastError = if ($timedOut) {
-  "Sessao interrompida pelo guardrail de tempo do Codex Remote apos ${MaxRuntimeSeconds}s."
+  "Session interrupted by the Codex Remote time guardrail after ${MaxRuntimeSeconds}s."
 } elseif ($exitCode -ne 0) {
   if ($caughtError) { $caughtError } else { $lastMeaningful }
 } else {

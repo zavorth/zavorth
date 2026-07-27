@@ -56,12 +56,12 @@ describe('MemoryVectorStore', () => {
     const store = new MemoryVectorStore(dir, { forceFallback: true });
     await store.save({
       ...chunk('one', 'session-a', ['alpha', 'approval']),
-      compressedSummary: 'Memoria sobre approval da luz da sala.',
+      compressedSummary: 'Memory about approval da luz da sala.',
       embedding: [1, 0, 0],
     });
     await store.save({
       ...chunk('two', 'session-b', ['gamma']),
-      compressedSummary: 'Memoria sobre browser automation.',
+      compressedSummary: 'Memory about browser automation.',
       embedding: [0, 1, 0],
     });
 

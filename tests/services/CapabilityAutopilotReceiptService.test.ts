@@ -14,7 +14,7 @@ const descriptor: CapabilityOperationalDescriptor = {
   label: 'Gemini CLI',
   type: 'executor',
   intent: 'code_execution',
-  summary: 'Executa tarefas via Gemini CLI.',
+  summary: 'Runs tasks through Gemini CLI.',
   source: 'builtin',
   command: '/gemini',
   tags: ['gemini', 'cli'],
@@ -39,8 +39,8 @@ const readiness: CapabilityReadinessSnapshot = {
   severity: 'error',
   ready: false,
   safeToRun: false,
-  summary: 'Gemini CLI ainda nao esta pronto.',
-  detail: 'Faltam requisitos obrigatorios: Gemini CLI binary.',
+  summary: 'Gemini CLI ainda not esta ready.',
+  detail: 'Faltam requisitos requireds: Gemini CLI binary.',
   checkedTargets: [
     {
       kind: 'binary',
@@ -55,7 +55,7 @@ const readiness: CapabilityReadinessSnapshot = {
       id: 'gemini_cli_binary',
       type: 'binary',
       label: 'Gemini CLI binary',
-      description: 'Comando gemini precisa estar instalado e visivel no PATH.',
+      description: 'Gemini command must be installed and visible on PATH.',
       required: true,
     },
   ],
@@ -76,15 +76,15 @@ const diagnosis: CapabilityDiagnosis = {
   generatedAt: FIXED_NOW.toISOString(),
   failureKind: 'missing_binary',
   status: 'missing',
-  rootCause: 'Binario obrigatorio ausente: Gemini CLI binary.',
+  rootCause: 'Binario required missing: Gemini CLI binary.',
   confidence: 0.94,
   repairable: true,
   requiresUserInput: true,
   narratives: [
     {
       audience: 'everyday_user',
-      headline: 'Gemini CLI ainda nao esta instalado ou nao foi encontrado.',
-      explanation: 'Eu entendi o que voce quer usar, mas a ferramenta local ainda nao apareceu no computador ou no PATH.',
+      headline: 'Gemini CLI ainda not esta instalado ou was not encontrado.',
+      explanation: 'I understood what you want to use, but the local tool has not appeared on the computer or PATH yet.',
     },
     {
       audience: 'technical_operator',
@@ -114,7 +114,7 @@ const repairPlan: CapabilityRepairPlan = {
   diagnosisId: 'diagnosis-1',
   createdAt: FIXED_NOW.toISOString(),
   status: 'approval_required',
-  summary: 'Gemini CLI: plano proposto para missing_binary.',
+  summary: 'Gemini CLI: plan proposed for missing_binary.',
   riskLevel: 7,
   trustLevelRequired: 'collaborator',
   permissionRequirements: [
@@ -122,7 +122,7 @@ const repairPlan: CapabilityRepairPlan = {
       id: 'executor-gemini-cli-install_binary-host',
       kind: 'install_binary',
       scope: 'host',
-      reason: 'Instalar ou localizar uma ferramenta local exige permissao no host.',
+      reason: 'Installing or locating a local tool requires host permission.',
       requestedValue: 'gemini_cli',
       resolvedValue: 'gemini_cli',
       riskLevel: 7,
@@ -134,21 +134,21 @@ const repairPlan: CapabilityRepairPlan = {
       id: 'explain-problem',
       kind: 'explain',
       title: 'Explicar o problema',
-      summary: 'Binario obrigatorio ausente.',
+      summary: 'Binario required missing.',
       command: null,
       installStep: null,
       permissionIds: [],
-      expectedOutcome: 'Usuario entende.',
+      expectedOutcome: 'The user understands.',
     },
     {
       id: 'request-permission',
       kind: 'ask_user',
-      title: 'Pedir permissao contextual',
-      summary: 'install_binary (host, risco 7)',
+      title: 'Pedir permission contextual',
+      summary: 'install_binary (host, risk 7)',
       command: null,
       installStep: null,
       permissionIds: ['executor-gemini-cli-install_binary-host'],
-      expectedOutcome: 'Permissao aprovada.',
+      expectedOutcome: 'Permission approved.',
     },
   ],
   validators: [
@@ -166,14 +166,14 @@ const repairPlan: CapabilityRepairPlan = {
       id: 'fallback-codex',
       label: 'Tentar codex',
       executorName: 'codex',
-      reason: 'Fallback visivel.',
+      reason: 'Fallback visible.',
       requiresPermission: true,
       policyAllowed: null,
     },
     {
       id: 'fallback-manual-guidance',
-      label: 'Orientacao manual',
-      reason: 'Explicar ao usuario como preparar.',
+      label: 'Orientaction manual',
+      reason: 'Explain to the user how to prepare.',
       requiresPermission: false,
       policyAllowed: true,
     },
@@ -214,10 +214,10 @@ describe('CapabilityAutopilotReceiptService', () => {
         gate: 'capability-autopilot-receipt',
       },
     });
-    expect(receipt.headline).toBe('Gemini CLI precisa da sua permissao antes de eu mexer nisso.');
-    expect(receipt.userSummary).toContain('preciso de 1 permissao');
+    expect(receipt.headline).toBe('Gemini CLI needs da sua permission antes de eu mexer nisso.');
+    expect(receipt.userSummary).toContain('preciso de 1 permission');
     expect(receipt.userSummary).toContain('nenhuma sera usada escondida');
-    expect(receipt.userSummary).toContain('retomar exatamente o pedido original');
+    expect(receipt.userSummary).toContain('resume exatamente o pedido original');
     expect(receipt.timeline.map((entry) => entry.stage)).toEqual([
       'intent',
       'preflight',
@@ -254,8 +254,8 @@ describe('CapabilityAutopilotReceiptService', () => {
         status: 'ready',
         ready: true,
         safeToRun: true,
-        summary: 'Gemini CLI esta pronto.',
-        detail: 'Nenhum bloqueio encontrado.',
+        summary: 'Gemini CLI esta ready.',
+        detail: 'No block found.',
         missingRequirements: [],
         blockingReason: null,
       },
@@ -263,7 +263,7 @@ describe('CapabilityAutopilotReceiptService', () => {
         ...diagnosis,
         failureKind: 'unknown',
         status: 'ready',
-        rootCause: 'Nenhuma falha operacional detectada no readiness atual.',
+        rootCause: 'Noa failure operacional detectada no readiness atual.',
         repairable: false,
         requiresUserInput: false,
         confidence: 1,
@@ -271,7 +271,7 @@ describe('CapabilityAutopilotReceiptService', () => {
       repairPlan: {
         ...repairPlan,
         status: 'validated',
-        summary: 'Gemini CLI ja esta pronto; nenhum reparo necessario.',
+        summary: 'Gemini CLI is already ready; no repair needed.',
         riskLevel: 0,
         trustLevelRequired: 'protected',
         permissionRequirements: [],
@@ -285,7 +285,7 @@ describe('CapabilityAutopilotReceiptService', () => {
       stage: 'resume',
       trustLevel: 'protected',
     });
-    expect(receipt.headline).toBe('Gemini CLI esta pronto; posso retomar o pedido original.');
-    expect(receipt.userSummary).toContain('ja esta pronto');
+    expect(receipt.headline).toBe('Gemini CLI esta ready; posso resume o pedido original.');
+    expect(receipt.userSummary).toContain('already is ready');
   });
 });

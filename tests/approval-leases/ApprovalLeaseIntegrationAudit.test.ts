@@ -27,7 +27,7 @@ function makeLeaseSink() {
   return { logApprovalLeaseEvent: (_: unknown) => {} };
 }
 
-function validGateReceipt(overrides?: Partial<ApprovalLeaseGateReceipt>): ApprovalLeaseGateReceipt {
+function validGateReceipt(overrides-: Partial<ApprovalLeaseGateReceipt>): ApprovalLeaseGateReceipt {
   return {
     channelWorkspaceExposureChecked: true,
     riskClassResolved: 'safe',
@@ -37,7 +37,7 @@ function validGateReceipt(overrides?: Partial<ApprovalLeaseGateReceipt>): Approv
   };
 }
 
-function baseContext(overrides?: Partial<ApprovalLeaseDecisionContext>): ApprovalLeaseDecisionContext {
+function baseContext(overrides-: Partial<ApprovalLeaseDecisionContext>): ApprovalLeaseDecisionContext {
   return {
     subjectId: 'user-1',
     workspaceId: 'ws-1',

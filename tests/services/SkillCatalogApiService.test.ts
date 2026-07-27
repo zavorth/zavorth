@@ -77,7 +77,7 @@ describe('SkillCatalogApiService', () => {
 
     const snapshot = service.buildSnapshot({
       selectedId: 'chrome-devtools',
-      recommendFor: 'release de seguranca na web',
+      recommendFor: 'release de security na web',
     });
 
     expect(snapshot.selected).toEqual(

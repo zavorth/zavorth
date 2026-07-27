@@ -36,7 +36,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('vision-files', 'Vision control plane files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Intent model files present', missing);
+  return rule('vision-files', 'Vision control plane files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all Intent model files present', missing);
 }
 
 function ruleMarkers() {
@@ -44,7 +44,7 @@ function ruleMarkers() {
     ['src/contracts/ZavorthVisionControlPlaneContract.ts', ['rawContentStored: false', 'liveActionApplied: false', 'allow_readonly', 'allow_with_redaction', 'noClickOrType', 'noExternalIo']],
     ['src/services/ZavorthVisionControlPlaneService.ts', ['untrusted_visual_evidence', 'Policy Broker profile permits read-only perception only', 'noRawSecretsSerialized', 'Intent model stores references and redacted text only']],
     ['src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['/vision', 'parseVisionCommand', 'ZavorthPerceptionInvocationRouter']],
-    ['src/services/SharedSurfaceCommandContract.ts', ["discordSlashName: 'vision'", 'Observa evidencias visuais']],
+    ['src/services/SharedSurfaceCommandContract.ts', ["discordSlashName: 'vision'", 'Observa evidence visuais']],
   ];
   const missing = [];
   for (const [file, needles] of checks) {
@@ -81,7 +81,7 @@ function runPlainFixture() {
     '--json',
     '--action', 'status',
     '--target-kind', 'browser',
-    '--text', 'Tela mostra uma pagina de login sem dados sensiveis.',
+    '--text', 'Screen shows a login page without sensitive data.',
   ]);
   return jsonRule('vision-plain-fixture', 'Read-only plain observation is allowed', result, (snapshot) =>
     snapshot.status === 'ready'
@@ -128,5 +128,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

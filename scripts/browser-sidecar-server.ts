@@ -60,7 +60,7 @@ function readBody(req: http.IncomingMessage): Promise<Record<string, unknown>> {
     req.on('data', (chunk) => {
       body += chunk.toString();
       if (body.length > 1_000_000) {
-        reject(new Error('Payload grande demais para o browser sidecar.'));
+        reject(new Error('Payload is too large for the browser sidecar.'));
       }
     });
     req.on('error', reject);
@@ -71,7 +71,7 @@ function readBody(req: http.IncomingMessage): Promise<Record<string, unknown>> {
           ? parsed as Record<string, unknown>
           : {});
       } catch {
-        reject(new Error('JSON invalido no browser sidecar.'));
+        reject(new Error('JSON invalid no browser sidecar.'));
       }
     });
   });
@@ -124,7 +124,7 @@ server.listen(port, host, () => {
   writeStatus({
     running: true,
     ready: true,
-    message: 'Browser sidecar pronto para MCP isolado.',
+    message: 'Browser sidecar ready for isolated MCP.',
   });
   console.log(`[browser-sidecar] listening on ${baseUrl}`);
 });

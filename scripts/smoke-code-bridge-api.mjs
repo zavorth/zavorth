@@ -28,7 +28,7 @@ async function smokeLocal() {
 }
 
 async function smokeHttp(base) {
-  const url = `${base.replace(/\/$/, "")}/api/code-bridge?name=smoke-api`
+  const url = `${base.replace(/\/$/, "")}/api/code-bridge...name=smoke-api`
   try {
     const res = await fetch(url, { cache: "no-store" })
     const text = await res.text()
@@ -61,7 +61,7 @@ async function smokeHttp(base) {
     console.log("HTTP POST heartbeat ok")
     return true
   } catch (error) {
-    console.error("HTTP smoke failed (is gateway on :3001?):", error.message || error)
+    console.error("HTTP smoke failed (is gateway on :3001...):", error.message || error)
     return false
   }
 }

@@ -93,7 +93,7 @@ describe('WorkspaceTaskMandate Endpoint Integration Tests', () => {
     const { deps, jsonCalls } = buildMockDeps(async () => ({}), false);
     const req = { method: 'GET' } as http.IncomingMessage;
     const res = {} as http.ServerResponse;
-    const url = new URL(`http://localhost/api/v2/workspace/task-mandates/pending?workspaceId=${workspaceId}`);
+    const url = new URL(`http://localhost/api/v2/workspace/task-mandates/pending-workspaceId=${workspaceId}`);
 
     const handled = await routeService.handleRequest(req, res, url, url.pathname, deps as any);
     expect(handled).toBe(true);
@@ -104,7 +104,7 @@ describe('WorkspaceTaskMandate Endpoint Integration Tests', () => {
     const { deps, jsonCalls } = buildMockDeps();
     const req = { method: 'GET' } as http.IncomingMessage;
     const res = {} as http.ServerResponse;
-    const url = new URL(`http://localhost/api/v2/workspace/task-mandates/pending?workspaceId=different-workspace`);
+    const url = new URL(`http://localhost/api/v2/workspace/task-mandates/pending-workspaceId=different-workspace`);
 
     const handled = await routeService.handleRequest(req, res, url, url.pathname, deps as any);
     expect(handled).toBe(true);
@@ -129,7 +129,7 @@ describe('WorkspaceTaskMandate Endpoint Integration Tests', () => {
     const { deps: depsPending, jsonCalls: jsonCallsPending } = buildMockDeps();
     const reqPending = { method: 'GET' } as http.IncomingMessage;
     const resPending = {} as http.ServerResponse;
-    const urlPending = new URL(`http://localhost/api/v2/workspace/task-mandates/pending?workspaceId=${workspaceId}`);
+    const urlPending = new URL(`http://localhost/api/v2/workspace/task-mandates/pending-workspaceId=${workspaceId}`);
 
     const handledPending = await routeService.handleRequest(reqPending, resPending, urlPending, urlPending.pathname, depsPending as any);
     expect(handledPending).toBe(true);
@@ -151,7 +151,7 @@ describe('WorkspaceTaskMandate Endpoint Integration Tests', () => {
 
     // Query active mandate: targetDirectories must be relativized
     const { deps: depsActive, jsonCalls: jsonCallsActive } = buildMockDeps();
-    const urlActive = new URL(`http://localhost/api/v2/workspace/task-mandates/active?workspaceId=${workspaceId}`);
+    const urlActive = new URL(`http://localhost/api/v2/workspace/task-mandates/active-workspaceId=${workspaceId}`);
     const handledActive = await routeService.handleRequest(reqPending, resPending, urlActive, urlActive.pathname, depsActive as any);
     expect(handledActive).toBe(true);
     expect(jsonCallsActive[0].status).toBe(200);

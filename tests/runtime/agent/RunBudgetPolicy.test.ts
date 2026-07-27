@@ -35,7 +35,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     events: [],
     toolExposure: {
       mode: 'safe',
-      summary: 'Sem ferramentas.',
+      summary: 'Sem tools.',
       tools: [],
     },
     replyPorts: [],
@@ -67,7 +67,7 @@ describe('RunBudgetPolicy', () => {
       run: createRun({
         toolExposure: {
           mode: 'safe',
-          summary: 'Uma ferramenta.',
+          summary: 'One tool.',
           tools: [
             {
               id: 'read_file',

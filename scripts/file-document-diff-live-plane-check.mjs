@@ -35,7 +35,7 @@ const rules = [
     files: ['src/contracts/FileDocumentDiffLivePlaneContract.ts'],
     needles: [
       'ZAVORTH_FILE_DOCUMENT_DIFF_LIVE_PLANE_CONTRACT_VERSION',
-      '2026-05-04.live-checkpoint-9',
+      '2026-05-04.live-gate-9',
       'file-transfer',
       'document-extract',
       'diffs',
@@ -49,7 +49,7 @@ const rules = [
   ruleContainsAll({
     id: 'file-document-diff-live-adapters',
     label: 'Adapters implement file transfer, document text and diff engine',
-    target: 'Local adapters handle bytes, extraction and unified diff creation',
+    target: 'local adapters handle bytes, extraction and unified diff creation',
     files: ['src/adapters/files/FileDocumentDiffLiveAdapters.ts'],
     needles: [
       'LocalFileTransferAdapter',

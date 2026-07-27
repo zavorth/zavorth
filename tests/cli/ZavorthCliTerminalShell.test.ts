@@ -85,8 +85,8 @@ describe('Zavorth CLI terminal shell', () => {
     expect(memory?.aliases).toEqual(expect.arrayContaining(['/mnemos', '/recall']));
     expect(output).toContain('auto:auto');
     expect(output).toContain('Conversation');
-    expect(output).not.toContain('Memória');
-    expect(output).not.toContain('Aprovações');
+    expect(output).not.toContain('Memory');
+    expect(output).not.toContain('Approvals');
   });
 
   it('queues user input while a run is active instead of dropping or executing it directly', () => {

@@ -16,8 +16,7 @@ const acceptRelayRoute = args.includes('--accept-relay') || process.env.ZAVORTH_
 const armLiveProbe = args.includes('--arm-live-probe') || process.env.ZAVORTH_REMOTE_MESH_ARM_LIVE_PROBE === '1';
 const executeLiveProbe = args.includes('--execute-live-probe') || process.env.ZAVORTH_REMOTE_MESH_EXECUTE_LIVE_PROBE === '1';
 const allowTailnetHttp = args.includes('--allow-tailnet-http') || process.env.ZAVORTH_REMOTE_MESH_ALLOW_TAILNET_HTTP === '1';
-const authHeaderName = args.includes('--x-zavorth-token')
-  ? 'X-Zavorth-Remote-Token' as const
+const authHeaderName = args.includes('--x-zavorth-token') ? 'X-Zavorth-Remote-Token' as const
   : 'Authorization' as const;
 
 main().catch((error) => {
@@ -177,7 +176,7 @@ function readinessFromEnv(target: string | null): RemoteMeshSandboxReadinessSnap
       readiness: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json',
       readinessNoLiveProbes: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json --no-live-probes',
       focusedTests: 'npx jest tests/services/RemoteMeshSandboxReadinessService.test.ts --runInBand',
-      nextStage: 'R1 - Remote Mesh and Sandbox Contracts',
+      nextAction: 'Remote mesh and sandbox contracts',
     },
   };
 }

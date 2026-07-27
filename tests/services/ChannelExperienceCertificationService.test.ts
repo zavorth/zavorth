@@ -58,7 +58,7 @@ describe('ChannelExperienceCertificationService', () => {
 
     const report = service.renderReport({ selectedId: 'whatsapp' });
 
-    expect(report).toContain('Certificacao de experiencia dos canais do Zavorth');
+    expect(report).toContain('Zavorth channel experience certification');
     expect(report).toContain('WhatsApp: certified');
     expect(report).toContain('ZavorthControl: contract-ready');
   });
@@ -186,8 +186,8 @@ function makeEntry(
   id: string,
   label: string,
   overrides: Partial<ChannelMeshSnapshotEntry> & {
-    features?: Partial<ChannelFeatureSet>;
-    interactiveSurface?: Partial<NonNullable<ChannelMeshSnapshotEntry['interactiveSurface']>>;
+    features-: Partial<ChannelFeatureSet>;
+    interactiveSurface-: Partial<NonNullable<ChannelMeshSnapshotEntry['interactiveSurface']>>;
   } = {},
 ): ChannelMeshSnapshotEntry {
   const features: ChannelFeatureSet = {
@@ -216,8 +216,8 @@ function makeEntry(
   const statusRows: ChannelMeshSnapshotEntry['statusRows'] = [
     { label: 'Readiness', value: 'ready', tone: 'success' },
     { label: 'Transporte', value: String(overrides.transport || 'native'), tone: 'neutral' },
-    { label: 'Configurado', value: 'sim', tone: 'success' },
-    { label: 'Envio', value: 'sim', tone: 'success' },
+    { label: 'Configured', value: 'yes', tone: 'success' },
+    { label: 'Delivery', value: 'yes', tone: 'success' },
   ];
   const interactiveSurface: NonNullable<ChannelMeshSnapshotEntry['interactiveSurface']> = {
     statusCard: true,

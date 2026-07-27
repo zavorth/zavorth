@@ -486,7 +486,7 @@ describe('ExperienceCoreService runtime state bus integration', () => {
     });
 
     const result = await service.executeCommand({
-      text: 'aprovar aprendizado',
+      text: 'approve aprendizado',
       surface: 'api',
       userId: 'desktop-user',
       sessionId: 'session-learning',

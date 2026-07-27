@@ -13,26 +13,26 @@ async function main() {
     return;
   }
 
-  console.log('[zavorth-access] manifesto de acesso');
-  console.log(`[zavorth-access] resumo: ${manifest.summary}`);
-  console.log(`[zavorth-access] app local: ${manifest.local.appUrl}`);
+  console.log('[zavorth-access] access manifest');
+  console.log(`[zavorth-access] summary: ${manifest.summary}`);
+  console.log(`[zavorth-access] local app: ${manifest.local.appUrl}`);
   console.log(`[zavorth-access] remote app: ${manifest.remote.appUrl || 'not configured'}`);
   console.log(`[zavorth-access] web auth: ${manifest.auth.required ? manifest.auth.source : 'absent'} | host authorized: ${manifest.auth.authorizedHost === false ? 'no' : 'yes'}`);
   if (manifest.recommendedPlan) {
-    console.log('[zavorth-access] proximo passo oficial:');
+    console.log('[zavorth-access] official next step:');
     console.log(`- ${manifest.recommendedPlan.primaryLabel}: ${manifest.recommendedPlan.primarySummary}`);
     if (manifest.recommendedPlan.primaryCommand) {
-      console.log(`  comando: ${manifest.recommendedPlan.primaryCommand}`);
+      console.log(`  command: ${manifest.recommendedPlan.primaryCommand}`);
     }
     if (manifest.recommendedPlan.openTarget) {
-      console.log(`  abrir: ${manifest.recommendedPlan.openTarget}`);
+      console.log(`  open: ${manifest.recommendedPlan.openTarget}`);
     }
     console.log(`- launcher: ${manifest.recommendedPlan.launcherRecommendation.summary}`);
-    console.log(`  comando: ${manifest.recommendedPlan.launcherRecommendation.command}`);
-    console.log(`- remoto oficial: ${manifest.recommendedPlan.remoteRecommendation.summary}`);
-    console.log(`  comando: ${manifest.recommendedPlan.remoteRecommendation.command}`);
+    console.log(`  command: ${manifest.recommendedPlan.launcherRecommendation.command}`);
+    console.log(`- official remote: ${manifest.recommendedPlan.remoteRecommendation.summary}`);
+    console.log(`  command: ${manifest.recommendedPlan.remoteRecommendation.command}`);
   }
-  console.log('[zavorth-access] comandos recomendados:');
+  console.log('[zavorth-access] recommended commands:');
   console.log(`- bootstrap: ${manifest.commands.bootstrap}`);
   console.log(`- go: ${manifest.commands.go}`);
   console.log(`- install: ${manifest.commands.install}`);
@@ -47,10 +47,10 @@ async function main() {
   console.log(`- trust: ${manifest.commands.trust}`);
 
   if (manifest.surfaces.length > 0) {
-    console.log('[zavorth-access] superficies recomendadas:');
+    console.log('[zavorth-access] recommended surfaces:');
     for (const surface of manifest.surfaces) {
       console.log(
-        `- ${surface.label}: ${surface.entry}${surface.remoteEntry ? ` | remoto: ${surface.remoteEntry}` : ''} | ${
+        `- ${surface.label}: ${surface.entry}${surface.remoteEntry ? ` | remote: ${surface.remoteEntry}` : ''} | ${
           surface.ready ? 'ready' : 'pending'
         }`,
       );
@@ -58,28 +58,28 @@ async function main() {
   }
 
   if (manifest.guides.local.length > 0) {
-    console.log('[zavorth-access] uso local:');
+    console.log('[zavorth-access] local usage:');
     for (const line of manifest.guides.local) {
       console.log(`- ${line}`);
     }
   }
 
   if (manifest.guides.remote.length > 0) {
-    console.log('[zavorth-access] uso remoto:');
+    console.log('[zavorth-access] remote usage:');
     for (const line of manifest.guides.remote) {
       console.log(`- ${line}`);
     }
   }
 
   if (manifest.nextSteps.length > 0) {
-    console.log('[zavorth-access] proximos passos:');
+    console.log('[zavorth-access] next steps:');
     for (const step of manifest.nextSteps) {
       console.log(`- ${step.title}: ${step.description}`);
     }
   }
 
   if (manifest.warnings.length > 0) {
-    console.log('[zavorth-access] avisos:');
+    console.log('[zavorth-access] warnings:');
     for (const warning of manifest.warnings) {
       console.log(`- ${warning}`);
     }

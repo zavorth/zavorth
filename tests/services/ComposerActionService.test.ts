@@ -28,7 +28,7 @@ describe('ComposerActionService', () => {
         {
           id: 'action:approve:perm-123456789',
           type: 'action',
-          label: '#aprovar:perm-123',
+          label: '#approve:perm-123',
           payload: {
             action: 'approve_permission',
             permissionId: 'perm-123456789',
@@ -68,7 +68,7 @@ describe('ComposerActionService', () => {
           status: 'completed',
           raw_message: '/plan revisar o repo',
           normalized_message: '/plan revisar o repo',
-          result_summary: 'Planejamento pronto.',
+          result_summary: 'Planejamento ready.',
           error_summary: null,
           metadata: {},
         })),
@@ -83,7 +83,7 @@ describe('ComposerActionService', () => {
         {
           id: 'action:resume:task-123456789',
           type: 'action',
-          label: '#retomar:task-123',
+          label: '#resume:task-123',
           payload: {
             action: 'resume_task',
             taskId: 'task-123456789',
@@ -137,7 +137,7 @@ describe('ComposerActionService', () => {
         {
           id: 'action:resume-workflow:wf-ship-demo-001',
           type: 'action',
-          label: '#retomar-workflow:wf-ship-demo-001',
+          label: '#resume-workflow:wf-ship-demo-001',
           payload: {
             action: 'resume_workflow',
             workflowRunId: 'wf-ship-demo-001',
@@ -185,7 +185,7 @@ describe('ComposerActionService', () => {
         {
           id: 'action:resume-workflow-stage:wf-ship-demo-001:review',
           type: 'action',
-          label: '#retomar-etapa:revisao-final',
+          label: '#resume-stage:review-final',
           payload: {
             action: 'resume_workflow',
             workflowRunId: 'wf-ship-demo-001',
@@ -234,7 +234,7 @@ describe('ComposerActionService', () => {
         {
           id: 'action:resume-workflow-stage:wf-ship-demo-001:maker:completed',
           type: 'action',
-          label: '#reiniciar-etapa:codex-maker',
+          label: '#restart-stage:codex-maker',
           payload: {
             action: 'restart_workflow_stage',
             workflowRunId: 'wf-ship-demo-001',
@@ -329,7 +329,7 @@ describe('ComposerActionService', () => {
         {
           id: 'action:artifact:artifact-123',
           type: 'action',
-          label: '#ver-artefato:build-log',
+          label: '#view-artifact:build-log',
           payload: {
             action: 'describe_artifact',
             taskId: 'task-123456789',
@@ -348,7 +348,7 @@ describe('ComposerActionService', () => {
         {
           id: 'action:file:file-123',
           type: 'action',
-          label: '#ver-arquivo:index.ts',
+          label: '#ver-file:index.ts',
           payload: {
             action: 'describe_file',
             taskId: 'task-123456789',
@@ -365,14 +365,14 @@ describe('ComposerActionService', () => {
     expect(fileResult).toMatchObject({ handled: true, taskId: 'task-123456789' });
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-3',
-      expect.stringContaining('Artefato referenciado nesta sessao.'),
+      expect.stringContaining('Artifact referenced in this session.'),
       'task-123456789',
       'artifact-info',
       [expect.objectContaining({ type: 'action' })],
     );
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-4',
-      expect.stringContaining('Arquivo referenciado nesta sessao.'),
+      expect.stringContaining('File referenciado nesta session.'),
       'task-123456789',
       'file-info',
       [expect.objectContaining({ type: 'action' })],
@@ -402,7 +402,7 @@ describe('ComposerActionService', () => {
         {
           id: 'action:redeliver:artifact-123',
           type: 'action',
-          label: '#reentregar-artefato:build-log',
+          label: '#redeliver-artifact:build-log',
           payload: {
             action: 'redeliver_artifact',
             taskId: 'task-123456789',
@@ -421,7 +421,7 @@ describe('ComposerActionService', () => {
     expect(result).toMatchObject({ handled: true, taskId: 'task-123456789' });
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-5',
-      expect.stringContaining('Reentrega pronta para este artefato.'),
+      expect.stringContaining('Redelivery ready for this artifact.'),
       'task-123456789',
       'artifact-redelivery',
       [expect.objectContaining({ type: 'action' })],

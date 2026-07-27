@@ -32,7 +32,7 @@ describe('Mnemos MCP E2E', () => {
     fs.mkdirSync(db, { recursive: true });
     fs.mkdirSync(scan, { recursive: true });
     const sourcePath = path.join(scan, 'echo-memory-note.md');
-    fs.writeFileSync(sourcePath, 'Echo lembra que Mnemos indexa memoria local com seguranca.', 'utf8');
+    fs.writeFileSync(sourcePath, 'Echo remembers that Mnemos indexes secure local memory.', 'utf8');
 
     execFileSync('docker', ['build', '-t', 'mnemos-cognitive-engine:latest', 'apps/mnemos'], {
       cwd: process.cwd(),
@@ -78,7 +78,7 @@ describe('Mnemos MCP E2E', () => {
 
       const searchResult = await client.callTool({
         name: 'search_memory',
-        arguments: { query: 'memoria local segura' },
+        arguments: { query: 'secure local memory' },
       });
       expect(JSON.stringify(searchResult.content)).toContain('hits');
     } finally {

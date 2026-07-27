@@ -8,22 +8,22 @@ describe('ScaleToZeroManager', () => {
   let tempDir: string;
   let stateFilePath: string;
   let mockRegistry: jest.Mocked<ChannelGatewayRegistry>;
-  let mockGateway: any;
+  let localGateway: any;
 
   beforeEach(() => {
     jest.useFakeTimers();
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-scale-tests-'));
     stateFilePath = path.join(tempDir, 'scale-state.json');
-    
-    mockGateway = {
+
+    localGateway = {
       id: 'test-gw',
       shutdown: jest.fn().mockResolvedValue(undefined),
       initialize: jest.fn().mockResolvedValue(undefined),
     };
 
     mockRegistry = {
-      resolveGateway: jest.fn().mockReturnValue(mockGateway),
-      listGateways: jest.fn().mockReturnValue([mockGateway]),
+      resolveGateway: jest.fn().mockReturnValue(localGateway),
+      listGateways: jest.fn().mockReturnValue([localGateway]),
     } as any;
   });
 
@@ -41,7 +41,7 @@ describe('ScaleToZeroManager', () => {
   it('should allow configuration overrides and persist them', () => {
     const manager = new ScaleToZeroManager({ stateFilePath });
     manager.configure({ enabled: true, defaultIdleTimeoutMs: 1000 });
-    
+
     expect(manager.getConfig().enabled).toBe(true);
     expect(manager.getConfig().defaultIdleTimeoutMs).toBe(1000);
     expect(fs.existsSync(stateFilePath)).toBe(true);
@@ -55,7 +55,7 @@ describe('ScaleToZeroManager', () => {
   it('should record activity and track idle/shutdown status', () => {
     const manager = new ScaleToZeroManager({ stateFilePath });
     manager.recordActivity('test-gw');
-    
+
     const state = manager.getState('test-gw');
     expect(state).not.toBeNull();
     expect(state?.gatewayId).toBe('test-gw');
@@ -74,9 +74,9 @@ describe('ScaleToZeroManager', () => {
 
     manager.recordActivity('test-gw');
     const result = await manager.shutdown('test-gw');
-    
+
     expect(result).toBe(true);
-    expect(mockGateway.shutdown).toHaveBeenCalled();
+    expect(localGateway.shutdown).toHaveBeenCalled();
     expect(onShutdown).toHaveBeenCalledWith('test-gw');
     expect(manager.isShutdown('test-gw')).toBe(true);
     expect(manager.isIdle('test-gw')).toBe(true);
@@ -93,11 +93,11 @@ describe('ScaleToZeroManager', () => {
 
     manager.recordActivity('test-gw');
     await manager.shutdown('test-gw');
-    
+
     const result = await manager.warmUp('test-gw');
-    
+
     expect(result).toBe(true);
-    expect(mockGateway.initialize).toHaveBeenCalled();
+    expect(localGateway.initialize).toHaveBeenCalled();
     expect(onWarmUp).toHaveBeenCalledWith('test-gw');
     expect(manager.isShutdown('test-gw')).toBe(false);
     expect(manager.isIdle('test-gw')).toBe(false);
@@ -116,13 +116,13 @@ describe('ScaleToZeroManager', () => {
 
     // Advance timer past checkInterval and idleTimeout
     jest.advanceTimersByTime(1100);
-    
+
     // We need to wait for any promises in runCheck to resolve
-    await Promise.resolve(); 
+    await Promise.resolve();
 
     expect(manager.isIdle('test-gw')).toBe(true);
     expect(manager.isShutdown('test-gw')).toBe(true);
-    expect(mockGateway.shutdown).toHaveBeenCalled();
+    expect(localGateway.shutdown).toHaveBeenCalled();
 
     manager.stop();
   });

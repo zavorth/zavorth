@@ -249,7 +249,7 @@ describe('WebConsoleAssetService', () => {
     const outsideFile = path.join(os.tmpdir(), `zavorth-web-preview-outside-${Date.now()}.md`);
     fs.writeFileSync(outsideFile, 'blocked');
     try {
-      expect(() => service.readPreviewFile(outsideFile)).toThrow('Esse arquivo esta fora do workspace do Zavorth.');
+      expect(() => service.readPreviewFile(outsideFile)).toThrow('Esse file esta fora do workspace do Zavorth.');
     } finally {
       if (fs.existsSync(outsideFile)) {
         fs.rmSync(outsideFile, { force: true });

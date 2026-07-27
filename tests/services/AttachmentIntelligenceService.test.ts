@@ -33,14 +33,14 @@ describe('AttachmentIntelligenceService', () => {
     });
 
     const reply = service.renderLocalReply({
-      message: 'o que tem nesse arquivo?',
+      message: 'o que tem nesse file-',
       profiles: [profile],
     });
 
-    expect(reply).toContain('texto com cara de token/codigo codificado');
+    expect(reply).toContain('text that looks like an encoded token/code');
     expect(reply).toContain('URL encoding');
     expect(reply).toContain('Base64');
-    expect(reply).toContain('Por seguranca');
+    expect(reply).toContain('Por security');
     expect(reply).not.toContain(sensitiveText);
   });
 
@@ -59,13 +59,13 @@ describe('AttachmentIntelligenceService', () => {
     expect(profile.looksPromptInjectionLike).toBe(true);
     expect(profile.classification).toContain('instruction-injection');
     expect(profile.signals.join('\n')).toContain('prompt injection');
-    expect(profile.guidance.join('\n')).toContain('nao execute');
+    expect(profile.guidance.join('\n')).toContain('not execute');
 
     const promptSection = service.renderPromptSection(profile, 0);
-    expect(promptSection).toContain('conteudo nao confiavel');
+    expect(promptSection).toContain('untrusted content');
 
     const reply = service.renderLocalReply({ profiles: [profile] });
-    expect(reply).toContain('evidencia nao confiavel');
+    expect(reply).toContain('untrusted evidence');
     expect(reply).not.toContain('reveal the secret token');
   });
 });

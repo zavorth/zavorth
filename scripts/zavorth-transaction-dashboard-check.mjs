@@ -53,7 +53,7 @@ try {
   );
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
-    'zavorth-transaction-zavorthControl/checkpoint-8',
+    'zavorth-transaction-zavorthControl/gate-8',
     'noLiveExecution',
     'operatorActions',
     'reject-preview',
@@ -119,7 +119,7 @@ try {
     failures.push('approval projection lacks reject-preview danger action');
   }
 
-  const simulated = runZavorthControl([
+  const dryRun = runZavorthControl([
     '--json',
     '--surface',
     'api',
@@ -139,16 +139,16 @@ try {
     '--credential-ref',
     ref,
   ]);
-  if (simulated.status !== 'simulated' || simulated.tone !== 'success') {
-    failures.push(`simulated projection mismatch: ${simulated.status}/${simulated.tone}`);
+  if (dryRun.status !== 'dry-run' || dryRun.tone !== 'success') {
+    failures.push(`dry-run projection mismatch: ${dryRun.status}/${dryRun.tone}`);
   }
-  if (!simulated.lanes.some((lane) => lane.kind === 'connector' && lane.status === 'simulated')) {
-    failures.push('simulated projection lacks simulated connector lane');
+  if (!dryRun.lanes.some((lane) => lane.kind === 'connector' && lane.status === 'dry-run')) {
+    failures.push('dry-run projection lacks dry-run connector lane');
   }
   if (
-    simulated.safety.noLiveExecution !== true ||
-    simulated.safety.liveActionApplied !== false ||
-    simulated.safety.externalSideEffects !== false
+    dryRun.safety.noLiveExecution !== true ||
+    dryRun.safety.liveActionApplied !== false ||
+    dryRun.safety.externalSideEffects !== false
   ) {
     failures.push('ZavorthControl safety must remain live-disabled');
   }
@@ -171,10 +171,10 @@ try {
     'sandbox',
   ]);
   if (
-    monitor.status !== 'simulated' ||
+    monitor.status !== 'dry-run' ||
     !monitor.notifications.some((entry) => String(entry.body).includes('Simulado'))
   ) {
-    failures.push('telegram monitor projection should be simulated with localized notification');
+    failures.push('telegram monitor projection should be dry-run with localized notification');
   }
   if (!monitor.timeline.some((item) => item.id === 'approval' && item.status === 'skipped')) {
     failures.push('monitor projection should skip approval timeline');

@@ -76,7 +76,7 @@ describe('Surface Response Contract', () => {
     const response = buildApprovalSurfaceResponseExample();
     response.blocks.push({
       kind: 'text',
-      text: 'Nao notifique @everyone nem <@123> ao renderizar.',
+      text: 'Not notifique @everyone nem <@123> ao renderizar.',
     });
 
     const rendered = renderDiscordSurfaceResponse(response);
@@ -150,11 +150,11 @@ describe('Surface Response Contract', () => {
       stageId: 'review',
       stageLabel: 'Review',
       taskId: 'task-1',
-      title: 'Etapa aguardando aprovacao',
-      summary: 'Comando sensivel.',
-      text: 'A etapa Review ficou aguardando aprovacao.',
+      title: 'Stage waiting for approval',
+      summary: 'Comando sensitive.',
+      text: 'The Review stage is waiting for approval.',
       status: 'require_user_confirmation',
-      reason: 'Comando sensivel.',
+      reason: 'Comando sensitive.',
     });
 
     expect(renderPlainSurfaceResponse(runtime).text).toContain('runtime-reload-1');

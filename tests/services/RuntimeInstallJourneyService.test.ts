@@ -122,11 +122,11 @@ function buildRepairReport(overrides: Partial<RuntimeBootstrapRepairReport> = {}
           },
           recommendations: [],
           nextSteps: [],
-          summary: 'Zavorth pronto para uso local e remoto.',
+          summary: 'Zavorth ready para uso local e remoto.',
         },
       },
       actions: [],
-      summary: 'Bootstrap fechado.',
+      summary: 'Bootstrap closed.',
     },
     steps: [],
     final: {
@@ -244,13 +244,13 @@ function buildRepairReport(overrides: Partial<RuntimeBootstrapRepairReport> = {}
           },
           recommendations: [],
           nextSteps: [],
-          summary: 'Zavorth pronto para uso local e remoto.',
+          summary: 'Zavorth ready para uso local e remoto.',
         },
       },
       actions: [],
-      summary: 'Bootstrap fechado.',
+      summary: 'Bootstrap closed.',
     },
-    summary: 'Correcoes seguras aplicadas. Bootstrap fechado.',
+    summary: 'Correcoes seguras aplicadas. Bootstrap closed.',
     ...overrides,
   } as any;
 }
@@ -264,7 +264,7 @@ function buildStartupResult(overrides: Partial<RuntimeStartupResult> = {}): Runt
     readiness: buildRepairReport().final.supervisedRuntime.accessReadiness,
     manifest: {
       generatedAt: '2026-04-05T10:00:11.000Z',
-      summary: 'Zavorth pronto para uso local e remoto.',
+      summary: 'Zavorth ready para uso local e remoto.',
       local: {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
@@ -286,7 +286,7 @@ function buildStartupResult(overrides: Partial<RuntimeStartupResult> = {}): Runt
       },
       officialRemote: {
         ready: true,
-        summary: 'Acesso remoto oficial pronto e validado.',
+        summary: 'Official remote access ready and validated.',
         recommendedProvider: null,
         recommendedAction: null,
         appUrl: 'https://zavorth.example.com/zavorthControl',
@@ -321,23 +321,23 @@ function buildStartupResult(overrides: Partial<RuntimeStartupResult> = {}): Runt
       recommendedPlan: {
         primaryAction: 'open-local',
           primaryLabel: 'Abrir shell web do runtime',
-          primarySummary: 'Dashboard pronto em http://127.0.0.1:33333/dashboard.',
+          primarySummary: 'Dashboard ready em http://127.0.0.1:33333/dashboard.',
         primaryCommand: null,
         openTarget: 'http://127.0.0.1:33333/dashboard',
         launcherRecommendation: {
           command: 'npm run launcher:startup:install',
-          summary: 'Startup oficial do Windows e opcional e bloqueado por padrao. So habilite conscientemente se voce realmente quiser login automatico.',
+          summary: 'Official Windows startup is optional and blocked by policy. Enable it consciously only if you really want automatic login.',
         },
         remoteRecommendation: {
           ready: true,
           command: 'npm run ops:remote:go',
           appUrl: 'https://zavorth.example.com/zavorthControl',
-          summary: 'Acesso remoto oficial pronto e validado.',
+          summary: 'Official remote access ready and validated.',
           nextSteps: [],
         },
       },
     },
-    summary: 'Zavorth pronto para uso local e remoto.',
+    summary: 'Zavorth ready para uso local e remoto.',
     ...overrides,
   } as any;
 }
@@ -366,7 +366,7 @@ describe('RuntimeInstallJourneyService', () => {
       pollIntervalMs: 321,
       requireMutableAccess: false,
     });
-    expect(report.summary).toBe('Zavorth pronto para uso local e remoto.');
+    expect(report.summary).toBe('Zavorth ready para uso local e remoto.');
     expect(report.manifest.local.appUrl).toBe('http://127.0.0.1:33333/dashboard');
     expect(report.phases).toEqual(
       expect.arrayContaining([
@@ -392,7 +392,7 @@ describe('RuntimeInstallJourneyService', () => {
     const repairService = {
       repairLive: jest.fn().mockResolvedValue(buildRepairReport({
         dryRun: true,
-        summary: 'Bootstrap ainda pendente: falta fechar acesso remoto.',
+        summary: 'Bootstrap ainda pendente: falta close acesso remoto.',
       })),
     };
     const startupService = {
@@ -400,10 +400,10 @@ describe('RuntimeInstallJourneyService', () => {
     };
     const manifestService = {
       buildManifest: jest.fn().mockResolvedValue(buildStartupResult({
-        summary: 'Bootstrap basico fechado: Zavorth pronto para uso local.',
+        summary: 'Bootstrap basico closed: Zavorth ready para uso local.',
         manifest: {
           ...buildStartupResult().manifest,
-          summary: 'Bootstrap basico fechado: Zavorth pronto para uso local.',
+          summary: 'Bootstrap basico closed: Zavorth ready para uso local.',
           remote: {
             ready: false,
             baseUrl: null,
@@ -424,20 +424,20 @@ describe('RuntimeInstallJourneyService', () => {
           nextSteps: [
             {
               id: 'connect-remote-frontend',
-              title: 'Fechar acesso remoto',
-            description: 'Defina a URL publica HTTPS e conecte o shell web remoto.',
+              title: 'Close acesso remoto',
+            description: 'Defina a URL public HTTPS e conecte o shell web remoto.',
               blocking: false,
             },
           ],
           recommendedPlan: {
             primaryAction: 'open-local',
           primaryLabel: 'Abrir shell web do runtime',
-          primarySummary: 'Dashboard pronto em http://127.0.0.1:33333/dashboard.',
+          primarySummary: 'Dashboard ready em http://127.0.0.1:33333/dashboard.',
             primaryCommand: null,
             openTarget: 'http://127.0.0.1:33333/dashboard',
         launcherRecommendation: {
           command: 'npm run launcher:startup:install',
-          summary: 'Startup oficial do Windows e opcional e bloqueado por padrao. So habilite conscientemente se voce realmente quiser login automatico.',
+          summary: 'Official Windows startup is optional and blocked by policy. Enable it consciously only if you really want automatic login.',
         },
             remoteRecommendation: {
               ready: false,
@@ -489,7 +489,7 @@ describe('RuntimeInstallJourneyService', () => {
         }),
       ]),
     );
-    expect(report.summary).toBe('Bootstrap basico fechado: Zavorth pronto para uso local.');
+    expect(report.summary).toBe('Bootstrap basico closed: Zavorth ready para uso local.');
     expect(report.phases.find((phase) => phase.id === 'channels')?.summary).toMatch(/web-only|web\+telegram/);
   });
 
@@ -497,7 +497,7 @@ describe('RuntimeInstallJourneyService', () => {
     const repairService = {
       repairLive: jest.fn().mockResolvedValue(buildRepairReport({
         dryRun: true,
-        summary: 'Bootstrap basico fechado: falta liberar o remoto oficial.',
+        summary: 'Bootstrap basico closed: falta liberar o remoto oficial.',
       })),
     };
     const startupService = {
@@ -505,10 +505,10 @@ describe('RuntimeInstallJourneyService', () => {
     };
     const manifestService = {
       buildManifest: jest.fn().mockResolvedValue(buildStartupResult({
-        summary: 'Bootstrap basico fechado: Zavorth pronto para uso local.',
+        summary: 'Bootstrap basico closed: Zavorth ready para uso local.',
         manifest: {
           ...buildStartupResult().manifest,
-          summary: 'Bootstrap basico fechado: Zavorth pronto para uso local.',
+          summary: 'Bootstrap basico closed: Zavorth ready para uso local.',
           remote: {
             ready: false,
             baseUrl: null,
@@ -529,12 +529,12 @@ describe('RuntimeInstallJourneyService', () => {
           recommendedPlan: {
             primaryAction: 'open-local',
           primaryLabel: 'Abrir shell web do runtime',
-          primarySummary: 'Dashboard pronto em http://127.0.0.1:33333/dashboard.',
+          primarySummary: 'Dashboard ready em http://127.0.0.1:33333/dashboard.',
             primaryCommand: null,
             openTarget: 'http://127.0.0.1:33333/dashboard',
             launcherRecommendation: {
               command: 'npm run launcher:startup:install',
-              summary: 'Startup oficial do Windows e opcional e bloqueado por padrao. So habilite conscientemente se voce realmente quiser login automatico.',
+              summary: 'Official Windows startup is optional and blocked by policy. Enable it consciously only if you really want automatic login.',
             },
             remoteRecommendation: {
               ready: false,
@@ -568,7 +568,7 @@ describe('RuntimeInstallJourneyService', () => {
         }),
         expect.objectContaining({
           id: 'next-step',
-          title: 'Fechar acesso remoto oficial',
+          title: 'Close acesso remoto oficial',
           status: 'action',
           command: 'npm run ops:remote:go',
           summary: 'Acesso remoto oficial ainda pede rollout guiado.',
@@ -606,18 +606,18 @@ describe('RuntimeInstallJourneyService', () => {
           recommendedPlan: {
             primaryAction: 'trust',
             primaryLabel: 'Liberar este host',
-            primarySummary: 'Autorize este host antes de executar acoes mutaveis, escrita local ou entregas persistidas.',
+            primarySummary: 'Authorize this host before running mutable actions, local writes, or persisted deliveries.',
             primaryCommand: '/hostauth trust',
             openTarget: 'http://127.0.0.1:33333/dashboard',
             launcherRecommendation: {
               command: 'npm run launcher:startup:install',
-              summary: 'Startup oficial do Windows e opcional e bloqueado por padrao. So habilite conscientemente se voce realmente quiser login automatico.',
+              summary: 'Official Windows startup is optional and blocked by policy. Enable it consciously only if you really want automatic login.',
             },
             remoteRecommendation: {
               ready: true,
               command: 'npm run ops:remote:go',
               appUrl: 'https://zavorth.example.com/zavorthControl',
-              summary: 'Acesso remoto oficial pronto e validado.',
+              summary: 'Official remote access ready and validated.',
               nextSteps: [],
             },
           },
@@ -649,7 +649,7 @@ describe('RuntimeInstallJourneyService', () => {
           title: 'Liberar este host',
           status: 'action',
           command: '/hostauth trust',
-          summary: 'Autorize este host antes de executar acoes mutaveis, escrita local ou entregas persistidas.',
+          summary: 'Authorize this host before running mutable actions, local writes, or persisted deliveries.',
         }),
       ]),
     );

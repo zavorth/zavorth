@@ -100,7 +100,7 @@ function renderText(snapshot: Awaited<ReturnType<ZavorthNativeAutonomySpineServi
     `backend provider: ${snapshot.summary.backendProviderReady ? 'ready' : 'review'}`,
     '',
     'stages:',
-    ...snapshot.stages.map((stage) => `- ${stage.id}: ${stage.status} - ${stage.summary}`),
+    ...snapshot.stages.map((stage) => `- ${stage.id}: ${stage.status} ? ${stage.summary}`),
     '',
     'review center:',
     ...snapshot.reviewCenter.actions.map((action) => `- ${action}`),

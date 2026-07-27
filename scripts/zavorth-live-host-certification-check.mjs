@@ -17,7 +17,7 @@ const checks = [
     file: 'src/services/ZavorthHostLiveCertificationService.ts',
     markers: [
       'ZavorthHostLiveCertificationService',
-      'Provider real configurado',
+      'Provider real configured',
       'Recipients/allowlist delimitados',
       'noExternalSendDuringCertification',
     ],

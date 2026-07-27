@@ -57,7 +57,7 @@ describe('ZavorthHandoffEnvelopeService', () => {
       sessionId: 'session-secret',
       activeMandate: 'Use api_key=should-not-leak for nothing.',
       messages: [
-        { role: 'user', content: 'My token=super-secret-token-value should never appear.' },
+        { role: 'user', content: 'My token=[redacted-secret] should never appear.' },
       ],
     });
 

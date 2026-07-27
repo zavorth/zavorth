@@ -20,7 +20,7 @@ describe('ZavorthControl Provider Mesh Consolidation Channel mesh3', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-provider-mesh',
-      text: 'escolha modelo para coding',
+      text: 'choose model for coding',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
     });
@@ -73,7 +73,7 @@ describe('ZavorthControl Provider Mesh Consolidation Channel mesh3', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-provider-mesh-live',
-      text: 'qual provider para reasoning?',
+      text: 'which provider for reasoning-',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
     });

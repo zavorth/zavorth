@@ -23,8 +23,8 @@ function buildChannelSnapshot(selectedId = 'telegram') {
         identityHints: true,
       },
       source: 'runtime',
-      summary: 'Canal pronto.',
-      operatorSummary: 'sessions_send pronto.',
+      summary: 'Canal ready.',
+      operatorSummary: 'sessions_send ready.',
       actionHint: 'Use /help no Telegram.',
       tags: ['native'],
       actions: [
@@ -55,7 +55,7 @@ function buildChannelSnapshot(selectedId = 'telegram') {
       },
       source: 'runtime',
       summary: 'Canal virtual.',
-      operatorSummary: 'sessions_send pronto.',
+      operatorSummary: 'sessions_send ready.',
       actionHint: 'Abra o app.',
       tags: ['virtual'],
       actions: [
@@ -95,8 +95,8 @@ function buildChannelSnapshot(selectedId = 'telegram') {
         nextStep: 'Aguardando QR da bridge local.',
       },
       source: 'runtime',
-      summary: 'Canal pronto.',
-      operatorSummary: 'stub local pronto.',
+      summary: 'Canal ready.',
+      operatorSummary: 'stub local ready.',
       actionHint: 'Use /channels broadcast-test whatsapp para validar o outbox local.',
       tags: ['local'],
       actions: [
@@ -127,7 +127,7 @@ function buildChannelSnapshot(selectedId = 'telegram') {
       },
       source: 'roadmap',
       summary: 'Canal planejado.',
-      operatorSummary: 'Slack ainda nao foi conectado ao runtime principal.',
+      operatorSummary: 'Slack ainda was not conectado ao runtime principal.',
       actionHint: 'Planejar o adapter de Slack e o contract de mensagens antes do onboarding.',
       tags: ['roadmap'],
       actions: [
@@ -143,8 +143,7 @@ function buildChannelSnapshot(selectedId = 'telegram') {
     liveReady: entry.id !== 'slack',
     defaultRouteAllowed: entry.id !== 'slack',
     readinessProof: entry.id === 'slack' ? 'none' : 'health',
-    defaultBlockReason: entry.id === 'slack'
-      ? 'Channel is not ready; use prepare/doctor before enabling live actions.'
+    defaultBlockReason: entry.id === 'slack' ? 'Channel is not ready; use prepare/doctor before enabling live actions.'
       : null,
   }));
 
@@ -184,7 +183,7 @@ function buildChannelSnapshot(selectedId = 'telegram') {
     },
     narrative: {
       headline: 'Channel Mesh do Zavorth',
-      operatorSummary: '2 canais prontos.',
+      operatorSummary: '2 canais readys.',
     },
   };
 }
@@ -250,7 +249,7 @@ describe('ZavorthChannelActionService', () => {
       reason: 'channel-mesh-action',
     });
     expect(result.status).toBe('applied');
-    expect(result.summary).toContain('sem reiniciar gateways ativos');
+    expect(result.summary).toContain('sem reiniciar gateways actives');
     expect(result.policyReloadReceipt?.changedChannels).toEqual(['telegram']);
   });
 
@@ -280,7 +279,7 @@ describe('ZavorthChannelActionService', () => {
     expect(resolveBroadcastRecipients).toHaveBeenCalledWith(['admin', 'operator']);
     expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Teste do Channel Mesh em Telegram'), ['admin', 'operator']);
     expect(result.status).toBe('applied');
-    expect(result.summary).toContain('Teste de broadcast enviado');
+    expect(result.summary).toContain('Teste de broadcast sent');
   });
 
   it('broadcasts a WhatsApp test payload through the late-bound stub gateway', async () => {
@@ -316,8 +315,8 @@ describe('ZavorthChannelActionService', () => {
     const requestLoginQr = jest.fn(async () => ({
       ok: true,
       status: 'ready',
-      summary: 'QR de login do WhatsApp pronto para exibicao no operador.',
-      details: ['Mostre a imagem para o usuario autorizado escanear no WhatsApp.'],
+      summary: 'QR de login do WhatsApp ready para exibicao no operador.',
+      details: ['Show the image for the authorized user to scan in WhatsApp.'],
       loginQr: {
         supported: true,
         state: 'ready',
@@ -365,7 +364,7 @@ describe('ZavorthChannelActionService', () => {
     }));
     const logout = jest.fn(async () => ({
       ok: true,
-      summary: 'Sessao local do WhatsApp encerrada no runtime supervisionado.',
+      summary: 'Session local do WhatsApp encerrada no runtime supervisionado.',
       details: ['Receipt: whatsapp-logout.json.'],
     }));
     const service = new ZavorthChannelActionService({
@@ -400,7 +399,7 @@ describe('ZavorthChannelActionService', () => {
     expect(relinkResult.status).toBe('applied');
     expect(logoutResult.status).toBe('applied');
     expect(relinkResult.summary).toContain('Pareamento local');
-    expect(logoutResult.summary).toContain('Sessao local');
+    expect(logoutResult.summary).toContain('Session local');
   });
 
   it('blocks a Slack test payload when the channel has no live proof', async () => {
@@ -429,8 +428,8 @@ describe('ZavorthChannelActionService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Canal parcial, mas com outbox local pronto para teste.',
-        operatorSummary: 'Slack local pronto para um smoke de outbound.',
+        summary: 'Canal parcial, mas com outbox local ready para teste.',
+        operatorSummary: 'Slack local ready para um smoke de outbound.',
         actionHint: 'Use /channels prepare slack e depois /channels broadcast-test slack.',
         tags: ['local'],
         actions: [
@@ -497,7 +496,7 @@ describe('ZavorthChannelActionService', () => {
         implementationState: 'full',
         configured: true,
         transport: 'native',
-        notes: ['Slack nativo esta configurado e o runtime ja confirmou outbound real pela Web API.'],
+        notes: ['Slack nactive esta configurado e o runtime ja confirmou outbound real pela Web API.'],
         features: {
           inbound: true,
           outbound: true,
@@ -512,7 +511,7 @@ describe('ZavorthChannelActionService', () => {
         },
         source: 'runtime',
         summary: 'Canal operacional via Slack Web API.',
-        operatorSummary: 'sessions_send pronto.',
+        operatorSummary: 'sessions_send ready.',
         actionHint: 'Use /channels broadcast-test slack e aponte o Slack para /api/webhooks/slack.',
         tags: ['native'],
         actions: [
@@ -564,7 +563,7 @@ describe('ZavorthChannelActionService', () => {
         },
         source: 'runtime',
         summary: 'Canal operacional via WhatsApp Cloud API.',
-        operatorSummary: 'sessions_send pronto.',
+        operatorSummary: 'sessions_send ready.',
         actionHint: 'Use /channels broadcast-test whatsapp e confirme o callback em /api/webhooks/whatsapp.',
         tags: ['webhook'],
         actions: [
@@ -616,7 +615,7 @@ describe('ZavorthChannelActionService', () => {
         },
         source: 'runtime',
         summary: 'Canal operacional via Instagram Messaging API.',
-        operatorSummary: 'sessions_send pronto.',
+        operatorSummary: 'sessions_send ready.',
         actionHint: 'Use /channels broadcast-test instagram e confirme o callback em /api/webhooks/instagram.',
         tags: ['webhook'],
         actions: [

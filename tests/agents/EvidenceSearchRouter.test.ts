@@ -4,21 +4,21 @@ describe('EvidenceSearchRouter', () => {
   const router = new EvidenceSearchRouter();
 
   it('never forces external search from free text alone', () => {
-    expect(router.detect('what are the latest medical discoveries worldwide?')).toBeNull();
+    expect(router.detect('what are the latest medical discoveries worldwide-')).toBeNull();
     expect(router.detect('find court cases about moral damages for flight delays')).toBeNull();
-    expect(router.detect('procure artigos cientificos sobre CRISPR e envie os links')).toBeNull();
-    expect(router.detect('verifique a versao mais recente do pacote playwright e mande a documentacao')).toBeNull();
-    expect(router.detect('consulte fontes oficiais sobre a nova regulacao de IA no Brasil')).toBeNull();
+    expect(router.detect('find artigos cientificos sobre CRISPR e envie os links')).toBeNull();
+    expect(router.detect('check the latest playwright package version and send the documentation')).toBeNull();
+    expect(router.detect('consulte fontes oficiais sobre a nova regulaction de IA no Brasil')).toBeNull();
     expect(router.detect('tell me the latest weekly news on global politics')).toBeNull();
-    expect(router.detect('qual melhor air fryer custo beneficio em 2026?')).toBeNull();
-    expect(router.detect('faca um relatorio com fontes sobre impactos do home office')).toBeNull();
+    expect(router.detect('what is the best value air fryer in 2026-')).toBeNull();
+    expect(router.detect('create a sourced report about remote work impacts')).toBeNull();
     expect(router.detect('teach me a simple pancake recipe')).toBeNull();
-    expect(router.detect('procure relatos no reddit sobre bug no Playwright 2026')).toBeNull();
-    expect(router.detect('quais sintomas de dengue e fontes confiaveis?')).toBeNull();
+    expect(router.detect('find relatos no reddit sobre bug no Playwright 2026')).toBeNull();
+    expect(router.detect('quais sintomas de dengue e fontes confiaveis-')).toBeNull();
   });
 
   it('activates medical evidence search only from structured domain/reason', () => {
-    const message = 'what are the latest medical discoveries worldwide?';
+    const message = 'what are the latest medical discoveries worldwide-';
     const need = router.detect({
       text: message,
       domain: 'medical',
@@ -54,7 +54,7 @@ describe('EvidenceSearchRouter', () => {
   });
 
   it('activates scientific evidence search from structured domain', () => {
-    const message = 'procure artigos cientificos sobre CRISPR e envie os links';
+    const message = 'find artigos cientificos sobre CRISPR e envie os links';
     const need = router.detect({
       text: message,
       domain: 'scientific',
@@ -71,7 +71,7 @@ describe('EvidenceSearchRouter', () => {
   });
 
   it('activates technical search from structured domain without free-text product routing', () => {
-    const message = 'verifique a versao mais recente do pacote playwright e mande a documentacao';
+    const message = 'check the latest playwright package version and send the documentation';
     const need = router.detect({
       text: message,
       domain: 'technical',
@@ -89,7 +89,7 @@ describe('EvidenceSearchRouter', () => {
   });
 
   it('activates public policy search from structured domain', () => {
-    const message = 'consulte fontes oficiais sobre a nova regulacao de IA no Brasil';
+    const message = 'consulte fontes oficiais sobre a nova regulaction de IA no Brasil';
     const need = router.detect({
       text: message,
       domain: 'public_policy',
@@ -106,7 +106,7 @@ describe('EvidenceSearchRouter', () => {
   });
 
   it('activates consumer decision search from structured domain', () => {
-    const message = 'qual melhor air fryer custo beneficio em 2026?';
+    const message = 'what is the best value air fryer in 2026-';
     const need = router.detect({
       text: message,
       domain: 'consumer',
@@ -125,7 +125,7 @@ describe('EvidenceSearchRouter', () => {
   });
 
   it('activates general evidence reports from structured reason', () => {
-    const message = 'faca um relatorio com fontes sobre impactos do home office';
+    const message = 'create a sourced report about remote work impacts';
     const need = router.detect({
       text: message,
       domain: 'general',
@@ -149,7 +149,7 @@ describe('EvidenceSearchRouter', () => {
 
   it('builds transparent answer policy for structured community technical evidence', () => {
     const need = router.detect({
-      text: 'procure relatos no reddit sobre bug no Playwright 2026',
+      text: 'find relatos no reddit sobre bug no Playwright 2026',
       domain: 'technical',
       reason: 'research',
       userRequestedMode: 'community',
@@ -166,7 +166,7 @@ describe('EvidenceSearchRouter', () => {
 
   it('builds official-first answer policy for structured medical evidence', () => {
     const need = router.detect({
-      text: 'quais sintomas de dengue e fontes confiaveis?',
+      text: 'quais sintomas de dengue e fontes confiaveis-',
       domain: 'medical',
       reason: 'high_stakes',
     });

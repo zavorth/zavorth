@@ -33,7 +33,7 @@ function filesExist() {
     'tests/services/ZavorthEndToEndMissionFlowPublicRuntimeCertificationService.test.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', 'ZavorthControl controls files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all files present', missing);
+  return rule('files', 'ZavorthControl controls files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all files present', missing);
 }
 
 function packageScriptsWired() {
@@ -65,7 +65,7 @@ function runCertificationSnapshot() {
   }
   try {
     const data = JSON.parse(result.stdout);
-    const pass = data.contractVersion === '2026-05-14.checkpoint-8-end-to-end-mission-flow-public-runtime-certification'
+    const pass = data.contractVersion === '2026-05-14.gate-8-end-to-end-mission-flow-public-runtime-certification'
       && data.status !== 'blocked'
       && data.summary?.previewFirst === true
       && data.summary?.receiptReady === true
@@ -90,5 +90,5 @@ function rule(id, label, passed, observed, target, details = []) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

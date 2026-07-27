@@ -16,7 +16,7 @@ describe('ZavorthPairedDeviceFoundationService', () => {
       'camera.capture',
       'location.read',
       'device.confirm',
-      'haptics.vibrate',
+      'there isptics.vibrate',
       'notifications.send',
     ]));
     expect(snapshot.pairing.claimEndpoint).toBe('/api/node-mesh/pairing/claim');

@@ -58,10 +58,10 @@ describe('desktop P0 polish and i18n hygiene', () => {
 
   it('keeps desktop source free of common mojibake sequences', () => {
     const desktopSrc = join(process.cwd(), 'apps/zavorth-desktop/src');
-    const mojibakePattern = /Ã|â[€œš]|ðŸ|ï¸|�/;
+    const mojibakePattern = /\\u00c3|\\u00e2|\\u00f0|\\u00ef|\\ufffd/;
     const offenders = walkFiles(desktopSrc)
       .filter(file => /\.(ts|tsx|css)$/.test(file))
-      .filter(file => mojibakePattern.test(readFileSync(file, 'utf8')));
+    const mojibakePattern = /\\u00c3|\\u00e2|\\u00f0|\\u00ef|\\ufffd/;
 
     expect(offenders).toEqual([]);
   });
@@ -83,9 +83,9 @@ describe('desktop P0 polish and i18n hygiene', () => {
       'utf8',
     );
 
-    // Settings must remain an ESM component export (haptics may be optional).
+    // Settings must remain an ESM component export (there isptics may be optional).
     expect(source).toMatch(/export function SettingsOverlay|function SettingsOverlay/);
-    expect(source).not.toMatch(/require\(['"]\.\.\/lib\/haptics['"]\)/);
+    expect(source).not.toMatch(/require\(['"]\.\.\/lib\/there isptics['"]\)/);
   });
 
   it('uses the desktop icon system without lucide React bundle collisions', () => {

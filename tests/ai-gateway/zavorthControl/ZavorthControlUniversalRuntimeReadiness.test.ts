@@ -26,7 +26,7 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
       agentRun: {
         runId: 'run-42',
         status: 'running',
-        goal: 'Comparar o que mudou nesta pasta',
+        goal: 'Compare what changed in this folder',
         sessionId: 'session-42',
         events: [
           {
@@ -41,7 +41,7 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
         {
           id: 'agent-event-1',
           kind: 'thinking',
-          title: 'Plano preparado',
+          title: 'Prepared plan',
           status: 'thinking',
         },
       ],
@@ -51,12 +51,12 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
         tools: [
           {
             id: 'fs.read',
-            label: 'Ler arquivos',
+            label: 'Ler files',
             risk: 'safe',
           },
           {
             id: 'shell.exec',
-            label: 'Executar shell',
+            label: 'Run shell',
             risk: 'danger',
             requiresApproval: true,
           },
@@ -93,7 +93,7 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
       id: 'run-42',
       sessionId: 'session-42',
       status: 'running',
-      title: 'Comparar o que mudou nesta pasta',
+      title: 'Compare what changed in this folder',
     }));
     expect(viewModel.agentRun?.events).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -194,8 +194,8 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
       idFactory: createIdFactory(),
       executor: ({ run }) => ({
         status: 'completed',
-        summary: 'Artifact pronto pelo runtime universal.',
-        replyText: 'Artifact pronto.',
+        summary: 'Artifact ready pelo runtime universal.',
+        replyText: 'Artifact ready.',
         artifacts: [
           {
             id: 'artifact-zavorthControl-readiness',
@@ -250,7 +250,7 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
       id: completed.run.id,
       sessionId: 'session-zavorthControl-readiness',
       status: 'completed',
-      summary: 'Artifact pronto pelo runtime universal.',
+      summary: 'Artifact ready pelo runtime universal.',
     }));
     expect(viewModel.artifacts).toEqual([
       expect.objectContaining({
@@ -282,7 +282,7 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-zavorthControl-approval',
-      text: 'edite um arquivo quando aprovado',
+      text: 'edite um file quando approved',
       requestedTools: ['write_file'],
     });
     const approved = await gateway.approve(pending.run.approvals[0].id);

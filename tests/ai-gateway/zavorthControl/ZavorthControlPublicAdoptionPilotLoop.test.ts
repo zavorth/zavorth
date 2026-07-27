@@ -32,7 +32,7 @@ function productEntryRuntime() {
         },
         questions: [],
         writes: [],
-        summary: ['Profile pronto.'],
+        summary: ['Profile ready.'],
       } as any),
       buildWorkspaceIdentitySnapshot: () => ({
         nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
@@ -91,7 +91,7 @@ function publicMetadata() {
       supportPolicy: [{ id: 'privacy-first' }, { id: 'install-runtime' }, { id: 'feature-planning' }],
       zavorthControlMetrics: [{ id: 'feedback-count-by-area', aggregateOnly: true, excludesPayload: true }, { id: 'severity-mix', aggregateOnly: true, excludesPayload: true }, { id: 'pilot-status', aggregateOnly: true, excludesPayload: true }, { id: 'follow-up-aging', aggregateOnly: true, excludesPayload: true }],
       checks: [{ id: 'pilot-loop:feedback-preview', status: 'pass' }, { id: 'pilot-loop:pilot-ledger', status: 'pass' }, { id: 'pilot-loop:zavorthControl', status: 'pass' }],
-      nextRecommendedGate: { stage: '58', title: 'Integration Showcase And Partner Surface', reason: 'fixture e degradacao segura' },
+      nextRecommendedGate: { stage: '58', title: 'Integration Showcase And Partner Surface', reason: 'fixture e degradaction segura' },
     },
   };
 }

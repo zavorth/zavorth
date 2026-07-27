@@ -199,7 +199,7 @@ describe('SourceAgentRuntimeBridgeService Preview engine', () => {
         artifactFirstReceipts: true,
       }),
     );
-    expect(snapshot.commands.nextStage).toBe('Approval gate - Provider Mesh Expansion Pack');
+    expect(snapshot.commands.nextAction).toBe('Approval gate - Provider Mesh Expansion Pack');
     expect(text).toContain('Zavorth Source Agent Runtime Bridge - Preview engine');
     expect(text).toContain('Next: Approval gate - Provider Mesh Expansion Pack');
   });

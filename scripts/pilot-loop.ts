@@ -81,7 +81,7 @@ function buildFeedbackPreview() {
     sendsData: false,
     consent: 'not-granted',
     templateIds: PILOT_FEEDBACK_TEMPLATES.map((template) => template.id),
-    redactions: ['tokens', 'secrets', 'paths pessoais', 'payload bruto', 'logs sensiveis', 'workspace privado'],
+    redactions: ['tokens', 'secrets', 'paths pessoais', 'payload bruto', 'logs sensitive', 'private workspace'],
     sample: {
       area: 'install',
       severity: 'high',
@@ -124,7 +124,7 @@ function buildZavorthControl() {
     aggregationOnly: true,
     notes: [
       'ZavorthControl agrega area, severidade, status e follow-ups.',
-      'Nenhum payload bruto, token, secret ou path pessoal entra no artifact.',
+      'No payload bruto, token, secret ou path pessoal entra no artifact.',
     ],
   };
 }
@@ -140,11 +140,11 @@ function assertInside(root: string, target: string): void {
   const resolvedTarget = path.resolve(target);
   const relative = path.relative(resolvedRoot, resolvedTarget);
   if (relative.startsWith('..') || path.isAbsolute(relative)) {
-    throw new Error(`recusando tocar caminho fora do artifactDir: ${target}`);
+    throw new Error(`recusando tocar path outside do artifactDir: ${target}`);
   }
 }
 
 main().catch((error) => {
-  console.error('[pilot-loop] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[pilot-loop] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

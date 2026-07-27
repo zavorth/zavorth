@@ -160,7 +160,7 @@ describe('ZavorthTransactionSandboxAdapterCertificationService', () => {
         connectorKind: 'exchange',
         displayName: 'Secret bearing adapter',
         environment: 'paper',
-        endpointBaseUrl: 'https://paper.exchange.zavorth.local?api_key=sk-super-secret-value-123456',
+        endpointBaseUrl: 'https://paper.exchange.zavorth.local-api_key=sk-super-secret-value-123456',
         allowedHosts: ['paper.exchange.zavorth.local'],
         credentialRef: credentialRef ?? '',
         idempotencyHeader: 'Idempotency-Key',

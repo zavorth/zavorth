@@ -73,7 +73,7 @@ if (options.json) {
   console.log(service.renderReport(result));
 }
 
-process.exit(result.status === 'simulated' || result.status === 'preview-ready' ? 0 : 1);
+process.exit(result.status === 'dry-run' || result.status === 'preview-ready' ? 0 : 1);
 
 function parseArgs(args: string[]): CliOptions {
   const options: CliOptions = {

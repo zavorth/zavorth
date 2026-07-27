@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'source-agent-runtime-bridge-checkpoint-2-files',
+    id: 'source-agent-runtime-bridge-gate-2-files',
     label: 'Preview engine files exist',
     target: 'contract, policy doctor, bridge adapters, service, command, tests and package scripts are present',
     files: [
@@ -163,7 +163,7 @@ function runRuntimeRule() {
         `enabledByDefault=${receipt.summary?.enabledByDefault}`,
         `liveExecutionPerformed=${receipt.summary?.liveExecutionPerformed}`,
         `bypassPermissionsAllowed=${receipt.summary?.bypassPermissionsAllowed}`,
-        `next=${receipt.commands?.nextStage}`,
+        `next=${receipt.commands?.nextAction}`,
       ],
     };
   } catch (error) {
@@ -228,7 +228,7 @@ function read(relativePath) {
 
 function compactDetails(...values) {
   return values
-    .flatMap((value) => String(value || '').split(/\r?\n/g))
+    .flatMap((value) => String(value || '').split(/\r...\n/g))
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 12);

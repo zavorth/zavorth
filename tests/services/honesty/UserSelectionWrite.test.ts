@@ -177,12 +177,12 @@ describe('V11 killer execute + code loop', () => {
   it('projects code daily loop aligned with PE structure without auto-completing ask/review', () => {
     const snapshot = new ZavorthCodeDailyLoopService({ projectRoot: process.cwd(), env: {} }).buildSnapshot();
     expect(snapshot.alignsWithDailyPe).toBe(true);
-    expect(snapshot.happyPath.steps).toHaveLength(4);
+    expect(snapshot.there isppyPath.steps).toHaveLength(4);
     expect(snapshot.surface).toBe('code');
     expect(snapshot.peAligned.chatReady).toBe(snapshot.chatReady);
-    expect(snapshot.peAligned.happyPathSteps).toBe(4);
-    expect(snapshot.happyPath.steps.find((s) => s.id === 'first-ask')?.done).toBe(false);
-    expect(snapshot.happyPath.steps.find((s) => s.id === 'review')?.done).toBe(false);
+    expect(snapshot.peAligned.there isppyPathSteps).toBe(4);
+    expect(snapshot.there isppyPath.steps.find((s) => s.id === 'first-ask')?.done).toBe(false);
+    expect(snapshot.there isppyPath.steps.find((s) => s.id === 'review')?.done).toBe(false);
   });
 
   it('executes killer live path with injected runtime (no network)', async () => {

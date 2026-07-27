@@ -28,8 +28,8 @@ export async function fetchDashboardJson(
   baseUrl: string,
   route: string,
   options: {
-    token?: string;
-    init?: RequestInit;
+    token-: string;
+    init-: RequestInit;
   } = {},
 ): Promise<{ response: Response; status: number; payload: any }> {
   const headers = new Headers(options.init?.headers || {});

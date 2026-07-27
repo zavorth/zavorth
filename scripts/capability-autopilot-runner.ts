@@ -46,7 +46,7 @@ const dryRun = !argv.includes('--apply');
 const capabilityId = (() => { try { return requireAutopilotCapabilityId(typeof argv !== 'undefined' ? argv : process.argv.slice(2)); } catch (error) { process.stderr.write('[' + 'capability-autopilot-runner' + '] ' + (error instanceof Error ? error.message : String(error)) + '\n'); process.exit(1); return ''; } })();
 
 main().catch((error) => {
-  process.stderr.write(`[capability-autopilot-runner] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(`[capability-autopilot-runner] failure: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 });
 
@@ -58,7 +58,7 @@ async function main(): Promise<void> {
   });
 
   if (!receipt.repairPlan) {
-    throw new Error(`Capability ${capabilityId} nao gerou repair plan.`);
+    throw new Error(`Capability ${capabilityId} did not generate repair plan.`);
   }
 
   const runner = new CapabilityAutopilotApprovedRepairRunnerService();
@@ -66,7 +66,7 @@ async function main(): Promise<void> {
     repairPlan: receipt.repairPlan,
     permissions: buildFixtureApprovals(receipt),
     dryRun,
-    requestedBy: 'checkpoint-61-gate',
+    requestedBy: 'gate-61-gate',
   });
   const snapshot = buildSnapshot(receipt, run, dryRun);
 
@@ -94,7 +94,7 @@ function buildFixtureApprovals(receipt: CapabilityReceipt): PermissionRequest[] 
   }
 
   return repairPlan.permissionRequirements.map((requirement, index) => ({
-    permission_id: `checkpoint-61-fixture-${index + 1}`,
+    permission_id: `gate-61-fixture-${index + 1}`,
     created_at: receipt.generatedAt,
     updated_at: receipt.generatedAt,
     task_id: receipt.resumeIntent?.taskId || null,
@@ -112,9 +112,9 @@ function buildFixtureApprovals(receipt: CapabilityReceipt): PermissionRequest[] 
     requested_value: requirement.requestedValue || null,
     resolved_value: requirement.resolvedValue || null,
     reason: requirement.reason,
-    requested_by: receipt.resumeIntent?.userId || 'checkpoint-61-gate',
-    decided_by: 'checkpoint-61-gate',
-    decision_note: 'Fixture local do gate Runtime gateway1; nao persiste no ledger.',
+    requested_by: receipt.resumeIntent?.userId || 'gate-61-gate',
+    decided_by: 'gate-61-gate',
+    decision_note: 'Local fixture of Runtime gateway1 gate; does not persist in ledger.',
     metadata: {
       capability_autopilot: true,
       stage: 'capability-autopilot-repair-runner',
@@ -154,7 +154,7 @@ function buildSnapshot(
       stage: '62',
       title: 'Validation And Resume Loop',
       reason:
-        'Depois do runner aprovado, o proximo passo e validar readiness pos-reparo e retomar o pedido original somente quando a capability estiver pronta.',
+        'After the approved runner, the next step is to validate post-repair readiness and resume the original request only when the capability is ready.',
     },
   };
 }
@@ -167,39 +167,38 @@ function buildChecks(
   return [
     check(
       'capability-autopilot-runner:approval',
-      'permissao aprovada antes do runner',
+      'permission approved before runner',
       run.approved && run.permissionStatus === 'approved' || run.permissionStatus === 'not_required' ? 'pass' : 'fail',
-      'O runner so pode passar pelo gate quando as permissoes exigidas estao aprovadas ou nao sao necessarias.',
+      'The runner can only pass the gate when required permissions are approved or not required.',
       [`permissionStatus=${run.permissionStatus}`, `approved=${String(run.approved)}`],
     ),
     check(
       'capability-autopilot-runner:dry-run-default',
-      'dry-run seguro por padrao',
+      'safe dry-run by default',
       dryRun && run.dryRun ? 'pass' : 'warn',
-      dryRun
-        ? 'O gate roda em dry-run e nao executa comandos reais.'
-        : 'Modo apply foi solicitado explicitamente; confirmar evidencias antes de release.',
+      dryRun ? 'The gate runs in dry-run and does not execute real commands.'
+        : 'Apply mode was explicitly requested; confirm evidence before release.',
       [`dryRun=${String(run.dryRun)}`],
     ),
     check(
       'capability-autopilot-runner:step-results',
-      'steps registrados',
+      'steps registered',
       run.steps.length === (receipt.repairPlan?.steps.length || 0) ? 'pass' : 'fail',
-      'Cada step do repair plan precisa aparecer no resultado do runner.',
+      'Each repair plan step needs to appear in the runner result.',
       [`planSteps=${String(receipt.repairPlan?.steps.length || 0)}`, `runSteps=${String(run.steps.length)}`],
     ),
     check(
       'capability-autopilot-runner:no-hidden-command',
-      'sem comando real invisivel',
+      'no hidden real command',
       dryRun && run.steps.every((step) => step.status !== 'succeeded' || !step.command) ? 'pass' : 'fail',
-      'Em dry-run, comandos executaveis devem ficar como dry_run, nunca como executados.',
+      'In dry-run, executable commands should stay as dry_run, never as executed.',
       run.steps.map((step) => `${step.stepId}:${step.status}`),
     ),
     check(
       'capability-autopilot-runner:status',
-      'status final aceito',
+      'accepted final status',
       ['dry_run', 'completed', 'partial'].includes(run.status) ? 'pass' : 'fail',
-      'O runner aprovado precisa terminar em dry_run/completed/partial, sem blocked ou failed.',
+      'The approved runner needs to finish as dry_run/completed/partial, without blocked or failed.',
       [`status=${run.status}`],
     ),
   ];
@@ -237,7 +236,7 @@ function renderReport(snapshot: CapabilityAutopilotRunnerSnapshot): string {
     }
   }
   lines.push('');
-  lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
+  lines.push(`recommended next step: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
   lines.push(snapshot.nextRecommendedStage.reason);
   return lines.join('\n');
 }

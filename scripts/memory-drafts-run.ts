@@ -18,11 +18,11 @@ async function main(): Promise<void> {
     // Full promote path: autoExtract draft-only → MemoryService.promoteMemoryDraft → durable recall.
     const extracted = await memory.autoExtract(
       'check-user',
-      'Meu nome e Check User e prefiro dark mode.',
+      'My name is Check User and I prefer dark mode.',
       'Ok.',
     );
     const pending = memory.listMemoryDrafts('check-user');
-    const draft = pending.find((item) => item.key === 'preferencia' || item.key === 'nome') || pending[0];
+    const draft = pending.find((item) => item.key === 'preference' || item.key === 'nome') || pending[0];
     if (!draft || extracted.persisted !== false || extracted.mode !== 'draft-only') {
       process.stdout.write(asJson ? '{"ok":false}\n' : 'memory-drafts check: fail (draft-only extract)\n');
       process.exitCode = 1;
@@ -60,7 +60,7 @@ async function main(): Promise<void> {
   if (action === 'extract-demo') {
     const result = await memory.autoExtract(
       'demo-user',
-      'Meu nome e Demo User e prefiro respostas curtas.',
+      'My name is Demo User and I prefer short replies.',
       'Ok.',
     );
     const snapshot = store.snapshot('demo-user');

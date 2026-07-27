@@ -24,7 +24,7 @@ function buildRegistrySnapshot(overrides: Record<string, any> = {}) {
             kind: 'dry-run',
             label: 'Dry-run pelo bridge',
             command: 'npm run zavorth:universal-skill-bridge -- --skill "research-pack"',
-            apiPath: '/api/skills/bridge?id=research-pack&invoke=1',
+            apiPath: '/api/skills/bridge-id=research-pack&invoke=1',
             requiresApproval: false,
             safeDefault: true,
             reason: 'Dry-run.',
@@ -73,7 +73,7 @@ function buildRegistrySnapshot(overrides: Record<string, any> = {}) {
       invokeDryRun: 'npm run zavorth:universal-skill-bridge-registry -- --skill <name> --invoke',
       invokeLive: 'npm run zavorth:universal-skill-bridge-registry -- --skill <name> --invoke --live --approval-id <approval-id>',
       check: 'npm run zavorth:universal-skill-bridge-registry:check --silent',
-      nextStage: 'Credential vault - Activation UX and Channel Command Packs',
+      nextAction: 'Credential vault - Activation UX and Channel Command Packs',
     },
     ...overrides,
   };

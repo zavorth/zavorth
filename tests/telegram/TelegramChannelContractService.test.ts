@@ -17,8 +17,8 @@ describe('TelegramChannelContractService', () => {
   });
 
   function createService(options: {
-    cacheWindowMs?: number;
-    now?: () => Date;
+    cacheWindowMs-: number;
+    now-: () => Date;
   } = {}) {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-telegram-policy-'));
     tempDirs.push(root);

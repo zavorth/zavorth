@@ -45,7 +45,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule(
-    'checkpoint-15-files',
+    'gate-15-files',
     'Intent model5 files exist',
     missing.length === 0,
     `${files.length - missing.length}/${files.length}`,
@@ -85,7 +85,7 @@ function ruleContainsMarkers() {
     }
   }
   return rule(
-    'checkpoint-15-markers',
+    'gate-15-markers',
     'Final repo markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
@@ -148,7 +148,7 @@ function ruleSnapshot() {
   }
   const data = parseJson(result.stdout);
   const pass = data
-    && data.contractVersion === '2026-05-14.checkpoint-15-documentation-repo-final'
+    && data.contractVersion === '2026-05-14.gate-15-documentation-repo-final'
     && data.status === 'passed'
     && data.summary?.publicDocsNeedingFix === 0
     && data.summary?.archiveOrDeleteCandidates === 0

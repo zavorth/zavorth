@@ -11,7 +11,7 @@ function renderMarkdown(snapshot: ReturnType<SkillCatalogService['buildSnapshot'
     '',
     `- Total skills: ${snapshot.summary.total}`,
     `- Imported skills: ${snapshot.summary.imported}`,
-    `- Local skills: ${snapshot.summary.local}`,
+    `- local skills: ${snapshot.summary.local}`,
     `- Trusted sources: ${snapshot.summary.trusted}`,
     `- Review sources: ${snapshot.summary.review}`,
     '',

@@ -6,7 +6,7 @@ import { ZavorthBridgeAdapter } from '../../src/agents/ZavorthBridgeAdapter';
 jest.mock('../../src/agents/ZavorthBridgeAdapter', () => ({
   ZavorthBridgeAdapter: jest.fn().mockImplementation(() => ({
     generatePlan: jest.fn().mockResolvedValue({
-      objective: 'Plano seguro',
+      objective: 'Safe plan',
       executor_recommendation: 'local_executor',
       workspace_recommendation: 'core',
       risk_level: 0,
@@ -199,17 +199,17 @@ describe('MailboxWatcher', () => {
           {
             step_id: 'step-1',
             type: 'shell',
-            description: 'Rodar auditoria no agente remoto',
+            description: 'Rodar audit no agente remoto',
             tool: null,
             args: null,
             command: 'Revise o modulo principal',
             file_targets: ['C:/repo'],
-            expected_output: 'Resumo da auditoria',
+            expected_output: 'Resumo da audit',
             sensitive: false,
           },
         ],
         validation_steps: [],
-        success_condition: 'Resumo pronto',
+        success_condition: 'Resumo ready',
         rollback_condition: null,
         notes: [],
       }),
@@ -242,7 +242,7 @@ describe('MailboxWatcher', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'ExternalExecutor concluiu a auditoria',
+          stdout: 'ExternalExecutor concluiu a audit',
           stderr: '',
         },
       }),
@@ -284,7 +284,7 @@ describe('MailboxWatcher', () => {
     );
     expect(broadcaster.broadcast).toHaveBeenCalledWith(
       expect.stringMatching(
-        /Execucao autonoma concluida via external_executor|Autonomous execution completed (?:via|through) external_executor/i,
+        /Autonomous execution completed through external_executor|Autonomous execution completed (-:via|through) external_executor/i,
       ),
     );
   });
@@ -292,7 +292,7 @@ describe('MailboxWatcher', () => {
   it('executes tool steps through ToolRuntimeService before concluding the mailbox task', async () => {
     (ZavorthBridgeAdapter as jest.Mock).mockImplementationOnce(() => ({
       generatePlan: jest.fn().mockResolvedValue({
-        objective: 'Consultar arquivo local',
+        objective: 'Consultar file local',
         executor_recommendation: 'local_executor',
         workspace_recommendation: 'C:/repo',
         risk_level: 0,
@@ -306,12 +306,12 @@ describe('MailboxWatcher', () => {
             args: { path: 'README.md' },
             command: null,
             file_targets: ['C:/repo/README.md'],
-            expected_output: 'Conteudo do arquivo',
+            expected_output: 'File content',
             sensitive: false,
           },
         ],
         validation_steps: [],
-        success_condition: 'Conteudo pronto',
+        success_condition: 'Content ready',
         rollback_condition: null,
         notes: [],
       }),
@@ -338,7 +338,7 @@ describe('MailboxWatcher', () => {
     const logRepo = createTestLogRepo();
     const broadcaster = { broadcast: jest.fn().mockResolvedValue(undefined) } as any;
     const toolRuntime = {
-      executeTool: jest.fn().mockResolvedValue('conteudo README'),
+      executeTool: jest.fn().mockResolvedValue('content README'),
     } as any;
     const watcher = new MailboxWatcher(taskManager, logRepo, broadcaster, toolRuntime, {
       inboxDir,

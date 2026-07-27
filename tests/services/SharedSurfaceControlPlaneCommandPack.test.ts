@@ -46,7 +46,7 @@ describe('SharedSurfaceControlPlaneCommandPack', () => {
             regressions: 1,
           },
           narrative: {
-            operatorSummary: 'Uma regressao precisa de atencao.',
+            operatorSummary: 'A regression needs attention.',
           },
           regressions: [{ label: 'Gateway smoke', severity: 'high' }],
           telemetry: {
@@ -88,6 +88,6 @@ describe('SharedSurfaceControlPlaneCommandPack', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Eval observability: Eval + Observability'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Maior regressao: Gateway smoke'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Largest regression: Gateway smoke'));
   });
 });

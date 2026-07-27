@@ -37,8 +37,8 @@ const minCrashFreePercent = readNumberArg(argv, '--min-crash-free=', 99.9);
 const p0IncidentCount = readNumberArg(argv, '--p0-incidents=', 0);
 const p1IncidentCount = readNumberArg(argv, '--p1-incidents=', 0);
 const maxP1Incidents = readNumberArg(argv, '--max-p1-incidents=', 0);
-const negativeFeedbackPercent = readNumberArg(argv, '--negative-feedback=', 5);
-const maxNegativeFeedbackPercent = readNumberArg(argv, '--max-negative-feedback=', 15);
+const denytiveFeedbackPercent = readNumberArg(argv, '--denytive-feedback=', 5);
+const maxNegativeFeedbackPercent = readNumberArg(argv, '--max-denytive-feedback=', 15);
 const nextCohortPercent = readNumberArg(argv, '--next-cohort-percent=', 10);
 const maxNextCohortPercent = readNumberArg(argv, '--max-next-cohort-percent=', 25);
 
@@ -68,7 +68,7 @@ function main(): void {
       rollbackTriggered,
       rollbackRecommended,
       supportLoadOk,
-      negativeFeedbackPercent,
+      denytiveFeedbackPercent,
       maxNegativeFeedbackPercent,
       canaryCohortStable,
       promotionApproved,
@@ -80,18 +80,18 @@ function main(): void {
       autoPromoteEnabled,
       globalRolloutEnabled,
       skipApprovalEnabled,
-      actorId: 'checkpoint-83-gate',
-      canaryPromotionReceiptId: 'checkpoint-83-canary-promotion',
-      observationWindowId: canaryObservationComplete ? 'checkpoint-83-observation-window' : null,
-      telemetrySnapshotId: telemetryFresh ? 'checkpoint-83-telemetry-snapshot' : null,
-      incidentReviewId: 'checkpoint-83-incident-review',
-      feedbackSummaryId: 'checkpoint-83-feedback-summary',
-      nextCohortId: 'checkpoint-83-next-cohort',
-      promotionApprovalId: promotionApproved ? 'checkpoint-83-promotion-approval' : null,
-      rollbackRunbookId: rollbackRunbookReady ? 'checkpoint-83-rollback-runbook' : null,
-      observabilityReviewId: observabilityReviewReady ? 'checkpoint-83-observability-review' : null,
-      auditReceiptId: auditPersisted ? 'checkpoint-83-audit' : null,
-      reason: 'checkpoint-83-canary-monitoring-promotion-gate',
+      actorId: 'gate-83-gate',
+      canaryPromotionReceiptId: 'gate-83-canary-promotion',
+      observationWindowId: canaryObservationComplete ? 'gate-83-observation-window' : null,
+      telemetrySnapshotId: telemetryFresh ? 'gate-83-telemetry-snapshot' : null,
+      incidentReviewId: 'gate-83-incident-review',
+      feedbackSummaryId: 'gate-83-feedback-summary',
+      nextCohortId: 'gate-83-next-cohort',
+      promotionApprovalId: promotionApproved ? 'gate-83-promotion-approval' : null,
+      rollbackRunbookId: rollbackRunbookReady ? 'gate-83-rollback-runbook' : null,
+      observabilityReviewId: observabilityReviewReady ? 'gate-83-observability-review' : null,
+      auditReceiptId: auditPersisted ? 'gate-83-audit' : null,
+      reason: 'gate-83-canary-monitoring-promotion-gate',
     });
 
     if (asJson) {
@@ -106,7 +106,7 @@ function main(): void {
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
-    process.stderr.write(`[capability-autopilot-canary-promotion] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.stderr.write(`[capability-autopilot-canary-promotion] failure: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   }
 }
@@ -149,8 +149,8 @@ function readReleaseExecutionSource(): CapabilityAutopilotReleaseExecutionSnapsh
         '--p0-incidents=',
         '--p1-incidents=',
         '--max-p1-incidents=',
-        '--negative-feedback=',
-        '--max-negative-feedback=',
+        '--denytive-feedback=',
+        '--max-denytive-feedback=',
         '--next-cohort-percent=',
         '--max-next-cohort-percent=',
       ],

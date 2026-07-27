@@ -80,7 +80,7 @@ describe('GatewayCallbackRouter', () => {
     await router.handleCallback(ctx, '/channels logout whatsapp');
 
     expect(deps.handleSurfaceCommandCallback).not.toHaveBeenCalled();
-    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({ text: 'Comando nao reconhecido.' });
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({ text: 'Comando not reconhecido.' });
   });
 
   it('reports callback errors through the injected logger and user ack', async () => {

@@ -22,12 +22,12 @@ const rules = [
   ruleContainsAll({
     id: 'provider-channel-smoke-contract',
     label: 'Contract defines provider/channel smoke proof vocabulary',
-    target: 'Contract captures mock-live harness, receipts, no-live-IO policy and next worker handoff',
+    target: 'Contract captures dry-live harness, receipts, no-live-IO policy and next worker handoff',
     files: ['src/contracts/ProviderChannelSmokeProofContract.ts'],
     needles: [
       'ZAVORTH_PROVIDER_CHANNEL_SMOKE_PROOF_CONTRACT_VERSION',
       '2026-05-04.worker-5',
-      'mock-live-harness',
+      'dry-live-harness',
       'operator-live-ready',
       'ProviderSmokeProof',
       'ChannelSmokeProof',
@@ -62,7 +62,7 @@ const rules = [
     target: 'Tests cover full tracked inventories, provider strategies, channel strategies, blocked receipts and no secret values',
     files: ['tests/services/ProviderChannelSmokeProofService.test.ts'],
     needles: [
-      'closes provider and channel mock/live smoke proof for the tracked inventories',
+      'closes provider and channel local/live smoke proof for the tracked inventories',
       'first-class, generic and local providers',
       'native, webhook and local bridge channels',
       'blocks explicit unsupported provider or unmapped channel entries',
@@ -87,14 +87,14 @@ const rules = [
   ruleContainsAll({
     id: 'provider-channel-smoke-doc',
     label: 'Private doc records Worker 5 closure',
-    target: 'Documentation explains provider/channel mock/live smoke closure and next worker',
+    target: 'Documentation explains provider/channel local/live smoke closure and next worker',
     files: ['docs/README.md'],
     needles: [
       'Worker 5',
       'Provider Channel Smoke Proof',
-      'mock-live-harness',
-      'sem chamadas externas reais',
-      'sem envios reais de canal',
+      'dry-live-harness',
+      'without chamadas externas reais',
+      'without real channel sends',
       'Worker 6',
     ],
   }),

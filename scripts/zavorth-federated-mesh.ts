@@ -70,7 +70,7 @@ async function main() {
     } else {
       console.log('[federated-mesh] pair oficial');
       console.log(`[federated-mesh] node=${result.node.id} | profile=${result.node.profile} | trust=${result.node.trust}`);
-      console.log(`[federated-mesh] resumo: ${result.summary}`);
+      console.log(`[federated-mesh] summary: ${result.summary}`);
       console.log(`[federated-mesh] bootstrap: ${result.bootstrapCommand || 'n/d'}`);
     }
     return;
@@ -95,7 +95,7 @@ async function main() {
     } else {
       console.log('[federated-mesh] heartbeat oficial');
       console.log(`[federated-mesh] status=${result.status}`);
-      console.log(`[federated-mesh] resumo: ${result.summary}`);
+      console.log(`[federated-mesh] summary: ${result.summary}`);
     }
     if (result.status !== 'accepted') {
       process.exitCode = 1;
@@ -114,9 +114,9 @@ async function main() {
       console.info = originalConsole.info;
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     } else {
-      console.log('[federated-mesh] revogacao oficial');
+      console.log('[federated-mesh] revocation oficial');
       console.log(`[federated-mesh] status=${result.status}`);
-      console.log(`[federated-mesh] resumo: ${result.summary}`);
+      console.log(`[federated-mesh] summary: ${result.summary}`);
     }
     if (result.status !== 'revoked') {
       process.exitCode = 1;
@@ -161,14 +161,14 @@ async function main() {
     console.info = originalConsole.info;
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[federated-mesh] leitura oficial do federated mesh');
+    console.log('[federated-mesh] read oficial do federated mesh');
     console.log(`[federated-mesh] postura=${snapshot.summary.posture} | infra=${snapshot.summary.infrastructureState} | implementation=${snapshot.summary.implementationReady ? 'ready' : 'pending'}`);
     console.log(`[federated-mesh] nodes=${snapshot.summary.onlineNodes}/${snapshot.summary.remoteNodes} online | revoked=${snapshot.summary.revokedNodes} | capabilities=${snapshot.summary.routeableCapabilities}/${snapshot.summary.capabilityCount}`);
     console.log(`[federated-mesh] runtime pesado iniciado=${snapshot.summary.heavyRuntimesStarted ? 'yes' : 'no'}`);
-    console.log(`[federated-mesh] resumo: ${snapshot.narrative.operatorSummary}`);
-    console.log(`[federated-mesh] proximo passo: ${snapshot.narrative.nextAction}`);
+    console.log(`[federated-mesh] summary: ${snapshot.narrative.operatorSummary}`);
+    console.log(`[federated-mesh] next passo: ${snapshot.narrative.nextAction}`);
     if (snapshot.actions.length > 0) {
-      console.log('[federated-mesh] acoes sugeridas:');
+      console.log('[federated-mesh] actions sugeridas:');
       for (const action of snapshot.actions.slice(0, 5)) {
         console.log(`- ${action.label}: ${action.command}`);
       }
@@ -180,6 +180,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[federated-mesh] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[federated-mesh] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

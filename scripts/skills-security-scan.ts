@@ -73,7 +73,7 @@ function renderImportedCatalog(): void {
 
 function renderSourcePreview(options: CliOptions): void {
   if (!options.sourceId) {
-    throw new Error('Informe --source-id para auditar uma fonte externa. Sem isso, use o scan do catalogo importado local.');
+    throw new Error('Informe --source-id para auditar uma source external. without isso, use o scan do catalog importado local.');
   }
 
   const importer = new SkillImportService();

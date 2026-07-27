@@ -26,7 +26,7 @@ function Invoke-WslRoot {
 
   & wsl.exe -d $Distro -u root -- bash -lc $Command
   if ($LASTEXITCODE -ne 0) {
-    throw "Falha ao executar no WSL ($Distro): $Command"
+    throw "Failure ao run no WSL ($Distro): $Command"
   }
 }
 
@@ -141,15 +141,15 @@ exit /b %ERRORLEVEL%
 Write-Host 'Preparando gVisor no WSL...'
 Invoke-WslRoot 'apt-get update >/dev/null && DEBIAN_FRONTEND=noninteractive apt-get install -y runsc >/dev/null'
 
-Write-Host 'Gravando configuracao do daemon dedicado...'
+Write-Host 'Writing dedicated daemon configuration...'
 $daemonConfig | & wsl.exe -d $Distro -u root -- tee /etc/docker/daemon-zavorth.json > $null
 if ($LASTEXITCODE -ne 0) {
-  throw 'Falha ao gravar /etc/docker/daemon-zavorth.json no WSL.'
+  throw 'Failure ao gravar /etc/docker/daemon-zavorth.json no WSL.'
 }
 
 $serviceUnit | & wsl.exe -d $Distro -u root -- tee /etc/systemd/system/zavorth-docker.service > $null
 if ($LASTEXITCODE -ne 0) {
-  throw 'Falha ao gravar /etc/systemd/system/zavorth-docker.service no WSL.'
+  throw 'Failure ao gravar /etc/systemd/system/zavorth-docker.service no WSL.'
 }
 
 Write-Host 'Ativando daemon dedicado...'
@@ -157,7 +157,7 @@ Invoke-WslRoot 'systemctl daemon-reload && systemctl enable zavorth-docker.servi
 Start-Sleep -Seconds 3
 Invoke-WslRoot 'systemctl is-active zavorth-docker.service >/dev/null'
 
-Write-Host 'Criando shim local sem espacos...'
+Write-Host 'Criando shim local without espacos...'
 $shimDir = Split-Path -Parent $ShimPath
 if (-not (Test-Path -LiteralPath $shimDir)) {
   New-Item -ItemType Directory -Path $shimDir -Force | Out-Null
@@ -185,6 +185,6 @@ Write-Host 'Validando runsc no daemon dedicado...'
 Invoke-WslRoot 'DOCKER_HOST=unix:///var/run/docker-zavorth.sock docker run --rm --runtime runsc busybox true >/dev/null'
 
 Write-Host ''
-Write-Host 'gVisor local preparado com sucesso.'
+Write-Host 'gVisor local prepared com success.'
 Write-Host "Shim: $ShimPath"
 Write-Host 'Daemon: unix:///var/run/docker-zavorth.sock'

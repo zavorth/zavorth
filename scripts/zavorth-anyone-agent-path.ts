@@ -20,7 +20,7 @@ function printHuman(snapshot: ReturnType<ZavorthAnyoneAgentPathService['buildSna
   for (const area of snapshot.areas) {
     console.log(`[${area.id}] ${area.title} — ${area.status}`);
     console.log(`    ${area.summary}`);
-    if (area.humanNext) console.log(`    próximo: ${area.humanNext}`);
+    if (area.humanNext) console.log(`    next: ${area.humanNext}`);
   }
   console.log('');
   console.log('Comandos:');
@@ -52,7 +52,7 @@ async function main(): Promise<void> {
     const snapshot = service.enableLearning(true);
     if (json) console.log(JSON.stringify(snapshot, null, 2));
     else {
-      console.log('Aprendizado ativo (grava preferências e rascunhos com desfazer).');
+      console.log('Learning is active and records preferences and drafts with undo support.');
       printHuman(snapshot);
     }
     return;
@@ -62,7 +62,7 @@ async function main(): Promise<void> {
     const snapshot = service.enableLearning(false);
     if (json) console.log(JSON.stringify(snapshot, null, 2));
     else {
-      console.log('Aprendizado em modo revisado (não grava sozinho).');
+      console.log('Learning is in reviewed mode and does not write by itself.');
       printHuman(snapshot);
     }
     return;

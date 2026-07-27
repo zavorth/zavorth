@@ -26,7 +26,7 @@ function runNpm(args) {
       env: process.env,
     });
   if (result.error) {
-    console.error(`[product-next-check] falha ao executar ${npmCommand} ${args.join(' ')}:`, result.error.message);
+    console.error(`[product-next-check] failure ao run ${npmCommand} ${args.join(' ')}:`, result.error.message);
   }
   return result;
 }
@@ -39,7 +39,7 @@ function runJest(args) {
     env: process.env,
   });
   if (result.error) {
-    console.error('[product-next-check] falha ao executar Jest:', result.error.message);
+    console.error('[product-next-check] failure ao run Jest:', result.error.message);
   }
   return result;
 }
@@ -138,7 +138,7 @@ const requestedSuites = selectedSuite === 'all'
 for (const suiteName of requestedSuites) {
   const tests = suites[suiteName] || aggregateSuites[suiteName];
   if (!tests) {
-    console.error(`[product-next-check] suite invalida: ${suiteName}`);
+    console.error(`[product-next-check] suite invalid: ${suiteName}`);
     process.exit(1);
   }
 }

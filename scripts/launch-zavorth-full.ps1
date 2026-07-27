@@ -45,7 +45,7 @@ function Invoke-LoggedCommand {
       Tee-Object -FilePath $lastLogFile -Append
 
     if ($LASTEXITCODE -ne 0) {
-      throw "Comando falhou com codigo ${LASTEXITCODE}: $commandPreview"
+      throw "Comando failed with code ${LASTEXITCODE}: $commandPreview"
     }
   } finally {
     Pop-Location
@@ -55,48 +55,48 @@ function Invoke-LoggedCommand {
 Write-LauncherLine '==========================================='
 Write-LauncherLine ' Zavorth Full Stack Launcher'
 Write-LauncherLine '==========================================='
-Write-LauncherLine "Projeto: $projectRoot"
-Write-LauncherLine "Log atual: $logFile"
+Write-LauncherLine "Project: $projectRoot"
+Write-LauncherLine "Log current: $logFile"
 
 Push-Location $projectRoot
 try {
   if (-not (Test-Path (Join-Path $projectRoot 'package.json'))) {
-    throw "Nao encontrei package.json em $projectRoot"
+    throw "Could not find package.json in $projectRoot"
   }
 
   if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-    throw 'Node.js nao esta instalado ou nao esta no PATH.'
+    throw 'Node.js is not installed or not in PATH.'
   }
 
   if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
-    throw 'npm nao esta disponivel no PATH.'
+    throw 'npm is not available in PATH.'
   }
 
   if (-not (Test-Path (Join-Path $projectRoot 'node_modules'))) {
-    Invoke-LoggedCommand '[1/4] Instalando dependencias do Zavorth...' 'npm' @('install')
+    Invoke-LoggedCommand '[1/4] Instalando dependencies do Zavorth...' 'npm' @('install')
   } else {
-    Write-LauncherLine '[1/4] Dependencias do Zavorth ja estao presentes.'
+    Write-LauncherLine '[1/4] dependencies do Zavorth already are presentes.'
   }
 
   $thirdPartyBootstrapScript = Join-Path $projectRoot 'scripts\bootstrap-third-party.mjs'
   if (-not (Test-Path (Join-Path $projectRoot 'data\vendor-worktrees\AIGateway\package.json'))) {
     if (-not (Test-Path $thirdPartyBootstrapScript)) {
-      Write-LauncherLine '[2/4] Bootstrap legado de terceiros ausente; vou seguir sem os sidecars opcionais.'
+      Write-LauncherLine '[2/4] Bootstrap legado de terceiros ausente; vou seguir without os sidecars optional.'
     } else {
       try {
         Invoke-LoggedCommand '[2/4] Preparando copias locais de AIGateway e ZavorthTerminalRemoteChat...' 'node' @('scripts/bootstrap-third-party.mjs')
       } catch {
-        Write-LauncherLine ("[2/4] Bootstrap de terceiros falhou ({0}); vou seguir sem os sidecars opcionais." -f $_.Exception.Message)
+        Write-LauncherLine ("[2/4] Bootstrap de terceiros failed ({0}); vou seguir without os sidecars optional." -f $_.Exception.Message)
       }
     }
   } else {
-    Write-LauncherLine '[2/4] Copias locais de terceiros ja estao preparadas.'
+    Write-LauncherLine '[2/4] Copias locais de terceiros already are preparadas.'
   }
 
   if (-not (Test-Path (Join-Path $projectRoot 'dist\host.js'))) {
     Invoke-LoggedCommand '[3/4] Compilando o Zavorth...' 'npm' @('run', 'build')
   } else {
-    Write-LauncherLine '[3/4] Build do Zavorth ja existe.'
+    Write-LauncherLine '[3/4] Build do Zavorth already existe.'
   }
 
   $startAllArgs = @('run', 'start:all')
@@ -106,9 +106,9 @@ try {
   }
 
   Invoke-LoggedCommand '[4/4] Iniciando ZavorthBridge + Zavorth + AIGateway...' 'npm' $startAllArgs
-  Write-LauncherLine 'Launcher finalizado.'
+  Write-LauncherLine 'Launcher finished.'
 } catch {
-  Write-LauncherLine "Falha no launcher: $($_.Exception.Message)"
+  Write-LauncherLine "Failure no launcher: $($_.Exception.Message)"
   throw
 } finally {
   Pop-Location

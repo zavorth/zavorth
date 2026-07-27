@@ -16,7 +16,7 @@ async function waitForSocketMessage(
     }
     await new Promise((resolve) => setTimeout(resolve, 25));
   }
-  throw new Error('Mensagem esperada nao chegou a tempo no gateway WebSocket.');
+  throw new Error('Expected message did not arrive in time on gateway WebSocket.');
 }
 
 describe('ZavorthGatewayControlSocketService', () => {
@@ -208,7 +208,7 @@ describe('ZavorthGatewayControlSocketService', () => {
           companionPlane: {
             companions: [{ id: 'docker-desktop', status: 'idle' }],
           },
-          runtimeWarnings: ['Host em pressao moderada.'],
+          runtimeWarnings: ['Host em pressure moderada.'],
           actionRecommendations: [{ plane: 'resources', label: 'Inspecionar companions' }],
         }) as any),
         buildCanonicalHistory: jest.fn(async (sessionId: string) => ({
@@ -259,7 +259,7 @@ describe('ZavorthGatewayControlSocketService', () => {
         resolveModeEscalation: jest.fn(async () => ({
           ok: true,
           decision: 'approve',
-          summary: 'Escalonamento aprovado.',
+          summary: 'Escalonamento approved.',
           snapshot: {
             effectiveMode: {
               id: 'builder',
@@ -318,7 +318,7 @@ describe('ZavorthGatewayControlSocketService', () => {
             authEnabled: true,
             gatewaySource: 'runtime',
             issues: [],
-            summary: 'Gateway WS pronto.',
+            summary: 'Gateway WS ready.',
           },
           controlPlane: {
             preferredTransport: 'ws',
@@ -378,7 +378,7 @@ describe('ZavorthGatewayControlSocketService', () => {
     await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
     const address = server.address();
     if (!address || typeof address === 'string') {
-      throw new Error('Porta TCP indisponivel para o teste do gateway WebSocket.');
+      throw new Error('Porta TCP unavailable para o teste do gateway WebSocket.');
     }
 
     const query = new URLSearchParams({
@@ -387,7 +387,7 @@ describe('ZavorthGatewayControlSocketService', () => {
       replay: 'full',
     });
     const client = new WebSocket(
-      `ws://127.0.0.1:${address.port}/api/web/gateway/ws?${query.toString()}`,
+      `ws://127.0.0.1:${address.port}/api/web/gateway/ws-${query.toString()}`,
     );
     const messages: Array<Record<string, any>> = [];
     client.on('message', (payload) => {
@@ -637,7 +637,7 @@ describe('ZavorthGatewayControlSocketService', () => {
         ok: true,
         result: expect.objectContaining({
           decision: 'approve',
-          summary: 'Escalonamento aprovado.',
+          summary: 'Escalonamento approved.',
         }),
       }),
     );
@@ -656,7 +656,7 @@ describe('ZavorthGatewayControlSocketService', () => {
       }),
     );
 
-    client.send(JSON.stringify({ id: 'spawn-1', method: 'session.create', params: { message: 'nova sessao' } }));
+    client.send(JSON.stringify({ id: 'spawn-1', method: 'session.create', params: { message: 'nova session' } }));
     const spawnResponse = await waitForSocketMessage(
       messages,
       (payload) => payload.type === 'response' && payload.id === 'spawn-1',

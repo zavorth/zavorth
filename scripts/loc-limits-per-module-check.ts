@@ -99,7 +99,7 @@ for (const dir of directoriesToScan) {
   for (const filePath of files) {
     const relPath = path.relative(workspaceRoot, filePath).replace(/\\/g, '/');
     const content = fs.readFileSync(filePath, 'utf8');
-    const lines = content.split(/\r?\n/).length;
+    const lines = content.split(/\r...\n/).length;
 
     let domain = '';
     let budget = 0;
@@ -133,7 +133,7 @@ const report: LocBudgetsReport = {
     domainsChecked: Object.keys(budgets).length,
   },
   budgets,
-  violations: violations.sort((a, b) => b.lines - a.lines),
+  violations: violations.sort((a, b) => b.lines ? a.lines),
 };
 
 if (asJson) {

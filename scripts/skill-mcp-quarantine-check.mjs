@@ -87,7 +87,7 @@ const rules = [
       'buildSkillMcpQuarantine',
       'mapSkillMcpQuarantine',
       'Policy de quarentena',
-      'em quarentena',
+      'quarantined',
     ],
   }),
   ruleContainsAll({

@@ -35,12 +35,12 @@ describe('SkillLoader', () => {
     writeSkill(
       path.join(workspaceRoot, 'vendors', 'blocked-source', 'blocked-vendor'),
       'blocked-vendor',
-      'Skill de source nao permitida.',
+      'Skill de source not allowed.',
     );
     writeSkill(
       path.join(workspaceRoot, 'vendors', 'curated-source', 'security-threat-model'),
       'security-threat-model',
-      'Skill explicitamente permitida.',
+      'Skill explicitamente allowed.',
     );
     writeSkill(
       path.join(workspaceRoot, 'vendors', 'curated-source', 'chrome-devtools'),

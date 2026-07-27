@@ -9,13 +9,13 @@ describe('ZavorthCapabilityMeshService', () => {
   it('prefers exact internal skills before external agents', () => {
     const service = createService({
       skills: [
-        skill('security-review-assistant', 'Revisao de seguranca de codigo TypeScript', ['security', 'code-review']),
+        skill('security-review-assistant', 'Review de security de code TypeScript', ['security', 'code-review']),
       ],
       external: [externalProfile('security-external', 'External security reviewer', ['security', 'review'])],
     });
 
     const snapshot = service.buildSnapshot({
-      requestText: 'faça uma revisão de segurança deste código TypeScript',
+      requestText: 'review the security of this TypeScript code',
     });
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_CAPABILITY_MESH_CONTRACT_VERSION);
@@ -61,12 +61,12 @@ describe('ZavorthCapabilityMeshService', () => {
 
   it('can select a connected external agent when it is clearly better and requested', () => {
     const service = createService({
-      skills: [skill('generic-code-review', 'Revisao generica de codigo', ['review'])],
+      skills: [skill('generic-code-review', 'Review generica de code', ['review'])],
       external: [externalProfile('rust-reviewer', 'Rust specialist reviewer', ['rust', 'review', 'security'])],
     });
 
     const snapshot = service.buildSnapshot({
-      requestText: 'use o melhor agente externo para revisar Rust com seguranca',
+      requestText: 'use o melhor agente externo para revisar Rust com security',
       preferExternal: true,
     });
 
@@ -74,7 +74,7 @@ describe('ZavorthCapabilityMeshService', () => {
       candidate.kind === 'external-agent' && candidate.metadata.externalProfileId === 'rust-reviewer',
     )).toBe(true);
     expect(snapshot.selected.decision).toBe('delegate-external-agent');
-    expect(snapshot.selected.summary).toContain('aprovacao por chamada');
+    expect(snapshot.selected.summary).toContain('approval por call');
     expect(snapshot.selected.nextCommand).toContain('zavorth external-agent run');
     expect(snapshot.selected.nextCommand).not.toContain('--approve-external-execution');
     expect(snapshot.safety.perRunApprovalStillRequired).toBe(true);
@@ -82,8 +82,8 @@ describe('ZavorthCapabilityMeshService', () => {
 });
 
 function createService(input: {
-  skills?: SkillCatalogEntry[];
-  external?: ReturnType<typeof externalProfile>[];
+  skills-: SkillCatalogEntry[];
+  external-: ReturnType<typeof externalProfile>[];
 } = {}): ZavorthCapabilityMeshService {
   return new ZavorthCapabilityMeshService({
     now: () => new Date('2026-05-17T03:20:00.000Z'),

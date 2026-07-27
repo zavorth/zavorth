@@ -53,7 +53,7 @@ describe('AgentRunAutomaticSkillInvocationService', () => {
       userId: 'operator',
       channel: 'cli' as const,
       sessionId: 'session-auto-skill',
-      text: 'tem um bug erro falha crash nesse fluxo',
+      text: 'tem um bug erro failure crash nesse fluxo',
       requestedTools: [],
     };
     const run = runFactory.createRun(request);
@@ -119,7 +119,7 @@ describe('AgentRunAutomaticSkillInvocationService', () => {
       userId: 'operator',
       channel: 'cli' as const,
       sessionId: 'session-blocked-skill',
-      text: 'edite esse arquivo',
+      text: 'edite esse file',
       requestedTools: [],
     };
     const run = runFactory.createRun(request);

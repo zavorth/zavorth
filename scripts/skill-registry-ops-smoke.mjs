@@ -13,7 +13,7 @@ const root = path.resolve(__dirname, '..');
 const require = createRequire(import.meta.url);
 
 // Prefer compiled dist if present; else tsx/ts-node is not assumed — use dynamic import of .js from dist
-// For monorepo smoke we instantiate via child_process node + tsx when available, else pure fs simulation of CLI paths.
+// For monorepo smoke we instantiate via child_process node + tsx when available, else pure fs dry-run of CLI paths.
 
 async function main() {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-skill-ops-'));

@@ -41,12 +41,12 @@ describe('RuntimeBootstrapRepairService', () => {
           remote: { baseUrl: 'https://zavorth.example.com', appUrl: 'https://zavorth.example.com/app', ready: true, issues: [] },
           recommendations: [],
           nextSteps: [],
-          summary: 'Zavorth pronto para uso local e remoto.',
+          summary: 'Zavorth ready para uso local e remoto.',
         },
         lastReloadReport: null,
       },
       actions: [],
-      summary: 'Bootstrap fechado: Zavorth pronto para uso local e remoto.',
+      summary: 'Bootstrap closed: Zavorth ready para uso local e remoto.',
     };
   }
 
@@ -60,9 +60,9 @@ describe('RuntimeBootstrapRepairService', () => {
       actions: [
         {
           id: 'install-dependencies',
-          title: 'Instalar dependencias',
+          title: 'Install dependencies',
           command: 'npm install',
-          reason: 'Dependencias pendentes.',
+          reason: 'Depending items pendentes.',
           blocking: true,
           autoFixCommand: {
             command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
@@ -83,7 +83,7 @@ describe('RuntimeBootstrapRepairService', () => {
           },
         },
       ],
-      summary: 'Bootstrap ainda pendente: Dependencias pendentes.',
+      summary: 'Bootstrap ainda pendente: Depending items pendentes.',
     };
     const finalReport = buildBaseReport();
     const inspect = jest
@@ -108,7 +108,7 @@ describe('RuntimeBootstrapRepairService', () => {
           new Date('2026-03-31T15:00:00.100Z'),
         ];
         let index = 0;
-        return () => ticks[Math.min(index++, ticks.length - 1)];
+        return () => ticks[Math.min(index++, ticks.length ? 1)];
       })(),
     });
 
@@ -116,8 +116,8 @@ describe('RuntimeBootstrapRepairService', () => {
 
     expect(runCommand).toHaveBeenCalledTimes(2);
     expect(report.steps.map((step) => step.status)).toEqual(['executed', 'executed']);
-    expect(report.final.summary).toBe('Bootstrap fechado: Zavorth pronto para uso local e remoto.');
-    expect(report.summary).toBe('Correcoes seguras aplicadas. Bootstrap fechado: Zavorth pronto para uso local e remoto.');
+    expect(report.final.summary).toBe('Bootstrap closed: Zavorth ready para uso local e remoto.');
+    expect(report.summary).toBe('Correcoes seguras aplicadas. Bootstrap closed: Zavorth ready para uso local e remoto.');
   });
 
   it('returns a no-op report when no safe repair is available', () => {
@@ -131,7 +131,7 @@ describe('RuntimeBootstrapRepairService', () => {
     const report = repair.repair();
 
     expect(report.steps).toHaveLength(0);
-    expect(report.summary).toBe('Nenhuma correcao segura disponivel para execucao automatica no momento.');
+    expect(report.summary).toBe('No safe correction is available for automatic execution right now.');
   });
 
   it('stops on blocking failure and reports the error clearly', () => {
@@ -144,9 +144,9 @@ describe('RuntimeBootstrapRepairService', () => {
       actions: [
         {
           id: 'install-dependencies',
-          title: 'Instalar dependencias',
+          title: 'Install dependencies',
           command: 'npm install',
-          reason: 'Dependencias pendentes.',
+          reason: 'Depending items pendentes.',
           blocking: true,
           autoFixCommand: {
             command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
@@ -167,7 +167,7 @@ describe('RuntimeBootstrapRepairService', () => {
           },
         },
       ],
-      summary: 'Bootstrap ainda pendente: Dependencias pendentes.',
+      summary: 'Bootstrap ainda pendente: Depending items pendentes.',
     };
     const inspect = jest
       .fn()
@@ -190,7 +190,7 @@ describe('RuntimeBootstrapRepairService', () => {
     expect(runCommand).toHaveBeenCalledTimes(1);
     expect(report.steps).toHaveLength(1);
     expect(report.steps[0]?.status).toBe('failed');
-    expect(report.summary).toBe('Falha ao aplicar a correcao segura "Instalar dependencias". network failure');
+    expect(report.summary).toBe('Failure while applying the safe correction "Install dependencies". network failure');
   });
 
   it('supports dry-run without executing commands', () => {
@@ -224,7 +224,7 @@ describe('RuntimeBootstrapRepairService', () => {
 
     expect(runCommand).not.toHaveBeenCalled();
     expect(report.steps[0]?.status).toBe('skipped');
-    expect(report.summary).toBe('Plano de correcao gerado com 1 acao(oes) segura(s).');
+    expect(report.summary).toBe('Correction plan generated with 1 safe action(s).');
   });
 
   it('can refresh the final report through inspectLive after repairs', async () => {
@@ -237,9 +237,9 @@ describe('RuntimeBootstrapRepairService', () => {
       actions: [
         {
           id: 'install-dependencies',
-          title: 'Instalar dependencias',
+          title: 'Install dependencies',
           command: 'npm install',
-          reason: 'Dependencias pendentes.',
+          reason: 'Depending items pendentes.',
           blocking: true,
           autoFixCommand: {
             command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
@@ -248,7 +248,7 @@ describe('RuntimeBootstrapRepairService', () => {
           },
         },
       ],
-      summary: 'Bootstrap ainda pendente: Dependencias pendentes.',
+      summary: 'Bootstrap ainda pendente: Depending items pendentes.',
     };
     const finalReport = buildBaseReport();
     const inspect = jest.fn().mockReturnValue(pendingReport);
@@ -267,6 +267,6 @@ describe('RuntimeBootstrapRepairService', () => {
 
     expect(runCommand).toHaveBeenCalledTimes(1);
     expect(inspectLive).toHaveBeenCalledTimes(2);
-    expect(report.final.summary).toBe('Bootstrap fechado: Zavorth pronto para uso local e remoto.');
+    expect(report.final.summary).toBe('Bootstrap closed: Zavorth ready para uso local e remoto.');
   });
 });

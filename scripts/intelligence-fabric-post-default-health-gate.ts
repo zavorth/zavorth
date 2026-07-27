@@ -137,7 +137,7 @@ function run(
     requestedTools: [],
     modelProfile: {
       providerLabel: 'Zavorth',
-      modelLabel: 'modelo atual',
+      modelLabel: 'modelo current',
       routingPolicy: 'gateway',
       ready: true,
     },

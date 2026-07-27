@@ -182,7 +182,7 @@ describe('ZavorthSkillEcosystemPackService Dashboard controls', () => {
       noCoreBloat: true,
       mcpAcpBridgeOptional: true,
     }));
-    expect(snapshot.commands.nextStage).toBe('Certification matrix - Full Functional Closure');
+    expect(snapshot.commands.nextAction).toBe('Certification matrix - Full Functional Closure');
     expect(text).toContain('Zavorth Skill Ecosystem Pack - Dashboard controls');
     expect(text).toContain('Next: Certification matrix - Full Functional Closure');
   });

@@ -17,7 +17,7 @@ describe('TelegramFunController', () => {
     const controller = new TelegramFunController(funGamesService, botApi);
     await controller.handle(ctx, '/joke');
 
-    expect(ctx.reply).toHaveBeenCalledWith('Pensando em algo cruel e engracado...');
+    expect(ctx.reply).toHaveBeenCalledWith('Thinking of something cruel and funny...');
     expect(funGamesService.tellAJoke).toHaveBeenCalledTimes(1);
     expect(botApi.editMessageText).toHaveBeenCalledWith(42, 99, 'Piada final', { parse_mode: 'Markdown' });
   });

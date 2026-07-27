@@ -44,7 +44,7 @@ async function main(): Promise<void> {
           summary: 'Resumo via gateway Nexus.',
           status: 'completed',
         },
-        replies: [{ text: 'Resposta via Agent Gateway.' }],
+        replies: [{ text: 'Response through Agent Gateway.' }],
       };
     },
   };
@@ -58,7 +58,7 @@ async function main(): Promise<void> {
 
   const executeHandled = await route.handleRequest(
     createReq('POST', '/api/v2/nexus/execute', {
-      prompt: 'verifique o estado operacional do Zavorth',
+      prompt: 'verifique o estado operational do Zavorth',
       requestId: 'request-cross-surface-1',
       traceId: 'trace-cross-surface-1',
       sessionId: 'nexus-cross-surface-session',
@@ -75,14 +75,14 @@ async function main(): Promise<void> {
 
   assert.equal(executeHandled, true);
   assert.equal(gatewayInputs.length, 1);
-  assert.equal(gatewayInputs[0].text, 'verifique o estado operacional do Zavorth');
+  assert.equal(gatewayInputs[0].text, 'verifique o estado operational do Zavorth');
   assert.equal(gatewayInputs[0].channel, 'api');
   assert.equal(gatewayInputs[0].sessionId, 'nexus-cross-surface-session');
   assert.equal(gatewayInputs[0].metadata.source, 'nexus-surface');
   assert.equal(gatewayInputs[0].metadata.route, '/api/v2/nexus/execute');
   assert.equal(calls[0].statusCode, 200);
   assert.equal(calls[0].body.source, 'ZavorthAgentGateway');
-  assert.equal(calls[0].body.response, 'Resposta via Agent Gateway.');
+  assert.equal(calls[0].body.response, 'Response through Agent Gateway.');
 
   const resolverContext: ResolverContext = {
     sessionId: 'telegram-session',
@@ -135,7 +135,7 @@ function createEchoDouble(resolverContexts: ResolverContext[]) {
   const pendingPermission = {
     id: 'approval-cross-surface-1',
     action: 'os_screenshot',
-    reason: 'Permissao compartilhada para validar paridade cross-surface.',
+    reason: 'Shared permission used to validate cross-surface parity.',
     requestedAt: '2026-04-18T12:00:00.000Z',
     status: 'pending',
   };
@@ -145,10 +145,10 @@ function createEchoDouble(resolverContexts: ResolverContext[]) {
     getHistory: () => [{
       id: 'exec-cross-surface-1',
       timestamp: '2026-04-18T12:00:00.000Z',
-      prompt: 'capture a tela',
+      prompt: 'capture the screen',
       status: 'permission_pending',
       durationMs: 12,
-      finalResponse: 'Acao requer permissao.',
+      finalResponse: 'Action requires permission.',
       toolCalls: [{ toolName: 'os_screenshot' }],
     }],
     buildSnapshot: async () => ({
@@ -161,7 +161,7 @@ function createEchoDouble(resolverContexts: ResolverContext[]) {
       },
       tools: [{
         name: 'os_screenshot',
-        description: 'Captura a tela local',
+        description: 'Captures the local screen',
         category: 'OS',
         dangerLevel: 'moderate',
         requiresPermission: true,
@@ -172,7 +172,7 @@ function createEchoDouble(resolverContexts: ResolverContext[]) {
         posture: 'healthy',
         activeStatus: 'idle',
         pendingApprovals: 1,
-        nextAction: 'Aguardando aprovacao.',
+        nextAction: 'Waiting for approval.',
       },
       voiceMetrics: {
         totalRequests: 0,

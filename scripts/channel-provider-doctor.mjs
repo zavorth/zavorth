@@ -15,14 +15,14 @@ async function main() {
   }
 
   console.log('[channels] doctor');
-  console.log(`[channels] resumo: ${report.summary}`);
+  console.log(`[channels] summary: ${report.summary}`);
   console.log(`[channels] status: ${report.status}`);
   for (const item of report.items) {
     console.log(
       `[channels] ${item.channelId}: ${item.status} | mode=${item.mode} | configured=${item.configured ? 'yes' : 'no'} | ${item.summary}`,
     );
     if (item.error) {
-      console.log(`[channels] ${item.channelId} erro: ${item.error}`);
+      console.log(`[channels] ${item.channelId} error: ${item.error}`);
     }
     if (item.details.length > 0) {
       for (const detail of item.details) {
@@ -37,6 +37,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(`[channels] doctor falhou: ${error.message || error}`);
+  console.error(`[channels] doctor failed: ${error.message || error}`);
   process.exitCode = 1;
 });

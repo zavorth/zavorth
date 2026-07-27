@@ -17,8 +17,8 @@ const readiness: CapabilityReadinessSnapshot = {
   severity: 'error',
   ready: false,
   safeToRun: false,
-  summary: 'Gemini CLI ainda nao esta pronto.',
-  detail: 'Autenticacao ausente.',
+  summary: 'Gemini CLI ainda not esta ready.',
+  detail: 'Autenticaction missing.',
   checkedTargets: [],
   missingRequirements: [],
   blockingReason: 'missing_auth',
@@ -36,14 +36,13 @@ function createHint(
     capabilityId: 'executor-gemini-cli',
     status: 'hint_available',
     hintKind,
-    readiness: hintKind === 'ready'
-      ? {
+    readiness: hintKind === 'ready' ? {
         ...readiness,
         status: 'ready',
         severity: 'info',
         ready: true,
         safeToRun: true,
-        summary: 'Gemini CLI esta pronto.',
+        summary: 'Gemini CLI esta ready.',
         blockingReason: null,
       }
       : readiness,
@@ -60,13 +59,13 @@ function createHint(
       bestMatch: null,
       shouldPreloadHint: true,
       recommendedNextAction,
-      safeSummary: 'Memoria procedural redigida. Nada deve ser executado automaticamente.',
+      safeSummary: 'Procedural memory redacted. Nothing should run automatically.',
       metadata: {
         autoExecute: false,
       },
     },
     headline: 'Preflight conhecido.',
-    userSummary: 'Existe uma dica de preflight, mas nada sera executado automaticamente.',
+    userSummary: 'There is a preflight hint, but nothing will execute automatically.',
     technicalSummary: `preflightHint=hint_available; hintKind=${hintKind}; autoExecute=false`,
     recommendedNextAction,
     shouldAskPermission: hintKind === 'permission' || hintKind === 'fallback' || hintKind === 'repair',
@@ -244,6 +243,6 @@ describe('CapabilityAutopilotPreflightDispatchReceiptService', () => {
         status: 'fail',
       });
     expect(receiptService.renderReport(blocked)).toContain('Gate capability-autopilot-preflight-dispatch-receipt - Preflight Handler Execution Receipts');
-    expect(receiptService.renderReport(blocked)).toContain('proximo passo recomendada: 71 - Preflight Dispatch Adapter Integration');
+    expect(receiptService.renderReport(blocked)).toContain('next step recomendada: 71 - Preflight Dispatch Adapter Integration');
   });
 });

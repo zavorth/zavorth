@@ -49,7 +49,7 @@ describe('DiagnosticsExporterService', () => {
 
     expect(report.contractVersion).toBe('zavorth-diagnostics-export/1');
     expect(report.projectRoot).toContain('[REDACTED_PATH]');
-    
+
     // Verify file output
     expect(fs.existsSync(outputPath)).toBe(true);
     const fileContent = fs.readFileSync(outputPath, 'utf8');

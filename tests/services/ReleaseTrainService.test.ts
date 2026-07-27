@@ -138,8 +138,8 @@ describe('ReleaseTrainService', () => {
 
   it('fails when cycle closure is removed from docs', () => {
     const service = serviceFromFixture({
-      'core:docs/product-direction.md': docs76Source().replaceAll('ciclo 53-59 fechado', 'ciclo em aberto'),
-      'core:docs/product-direction.md': roadmapSource().replaceAll('ciclo 53-59 fechado', 'ciclo em aberto'),
+      'core:docs/product-direction.md': docs76Source().replaceAll('ciclo 53-59 closed', 'ciclo em aberto'),
+      'core:docs/product-direction.md': roadmapSource().replaceAll('ciclo 53-59 closed', 'ciclo em aberto'),
     }, { requireArtifacts: true });
 
     const snapshot = service.buildSnapshot();
@@ -159,7 +159,7 @@ describe('ReleaseTrainService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Readiness checkpoint 9 - v1.x Release Train And LTS Policy');
-    expect(report).toContain('proxima acao recomendada: Ciclo 53-59 fechado');
+    expect(report).toContain('next action recomendada: Ciclo 53-59 closed');
   });
 });
 
@@ -260,8 +260,8 @@ function docs76Source() {
     'GitHub Releases',
     'qa:release-train',
     'qa:release-train',
-    'Nao Objetivos',
-    'ciclo 53-59 fechado',
+    'Not Objetivos',
+    'ciclo 53-59 closed',
   ].join('\n');
 }
 
@@ -271,8 +271,8 @@ function roadmapSource() {
     'release train LTS v1.0.0 stable baseline v1.0.x v1.1.0 hotfix release candidate rollback GitHub Releases',
     'qa:release-train',
     'qa:release-train',
-    'Nao Objetivos',
-    'ciclo 53-59 fechado',
+    'Not Objetivos',
+    'ciclo 53-59 closed',
   ].join('\n');
 }
 

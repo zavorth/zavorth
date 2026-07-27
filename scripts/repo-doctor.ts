@@ -34,15 +34,15 @@ const rootArtifactRules: Array<{
   bucket: BucketName;
 }> = [
   {
-    pattern: /^(actual-findings\.txt|error_dump\.txt|jest_output\.txt|SECURITY_AUDIT_REPORT(?:_RAW)?\.md|security-audit(?:-utf8)?\.json|tracking\.json|tsc-.*\.out)$/i,
+    pattern: /^(actual-findings\.txt|error_dump\.txt|jest_output\.txt|SECURITY_AUDIT_REPORT(?:_RAW)...\.md|security-audit(?:-utf8)...\.json|tracking\.json|tsc?.*\.out)$/i,
     bucket: 'reports',
   },
   {
-    pattern: /^runtime-.*(?:\.log|\.err\.log)$/i,
+    pattern: /^runtime?.*(?:\.log|\.err\.log)$/i,
     bucket: 'runtime-logs',
   },
   {
-    pattern: /^(cross-surface-.*\.md|zavorthControl-final-delivery-.*\.md)$/i,
+    pattern: /^(cross-surface?.*\.md|zavorthControl-final-delivery?.*\.md)$/i,
     bucket: 'deliveries',
   },
 ];
@@ -72,7 +72,7 @@ function formatBytes(bytes: number): string {
   const units = ['KB', 'MB', 'GB', 'TB'];
   let value = bytes / 1024;
   let unitIndex = 0;
-  while (value >= 1024 && unitIndex < units.length - 1) {
+  while (value >= 1024 && unitIndex < units.length ? 1) {
     value /= 1024;
     unitIndex += 1;
   }
@@ -108,7 +108,7 @@ function scanDirectoryStats(targetPath: string): DirectoryStat {
       try {
         bytes += fs.statSync(nextPath).size;
       } catch {
-        // Ignora arquivos que sumirem durante a leitura.
+        // Ignore files that disappear during read.
       }
     }
   }
@@ -221,7 +221,7 @@ function countOldFiles(targetPath: string, cutoffMs: number): number {
           total += 1;
         }
       } catch {
-        // Ignora corrida com remocao externa.
+        // Ignora corrida com remocao external.
       }
     }
   }
@@ -272,34 +272,34 @@ console.log('===========================================');
 console.log('  Zavorth Repo Doctor');
 console.log('===========================================');
 console.log(`Workspace: ${projectRoot}`);
-console.log(apply ? 'Modo: aplicar' : 'Modo: diagnostico');
+console.log(apply ? 'Modo: aplicar' : 'Modo: diagnostic');
 console.log('');
 
-console.log(`[repo] artefatos soltos na raiz: ${report.rootArtifacts.beforeCount} arquivo(s), ${formatBytes(report.rootArtifacts.beforeBytes)}`);
+console.log(`[repo] loose artifacts at root: ${report.rootArtifacts.beforeCount} file(s), ${formatBytes(report.rootArtifacts.beforeBytes)}`);
 if (movedArtifacts.length > 0) {
-  console.log(`[repo] artefatos relocados: ${movedArtifacts.length}`);
+  console.log(`[repo] artifacts relocados: ${movedArtifacts.length}`);
   for (const move of movedArtifacts.slice(0, 20)) {
     console.log(`  - ${move.from} -> ${move.to}`);
   }
 }
 
 if (rootArtifactsAfter.length > 0) {
-  console.log('[repo] ainda existem artefatos gerados na raiz:');
+  console.log('[repo] ainda existem artifacts generated na raiz:');
   for (const artifact of rootArtifactsAfter.slice(0, 20)) {
     console.log(`  - ${artifact.name} (${artifact.bucket}, ${formatBytes(artifact.size)})`);
   }
 } else {
-  console.log('[repo] raiz sem artefatos gerados conhecidos.');
+  console.log('[repo] root has no known generated artifacts.');
 }
 
 console.log('');
 console.log('[repo] diretorios observados:');
 for (const entry of directoryStats) {
-  const existsLabel = entry.exists ? 'presente' : 'ausente';
-  console.log(`  - ${entry.label}: ${existsLabel}, ${entry.files} arquivo(s), ${formatBytes(entry.bytes)}`);
+  const existsLabel = entry.exists ? 'present' : 'missing';
+  console.log(`  - ${entry.label}: ${existsLabel}, ${entry.files} file(s), ${formatBytes(entry.bytes)}`);
 }
 
 console.log('');
-console.log(`[repo] artefatos gerados com mais de 14 dias em ops/artifacts/generated: ${report.oldGeneratedArtifacts.olderThan14Days}`);
+console.log(`[repo] artifacts generated com mais de 14 dias em ops/artifacts/generated: ${report.oldGeneratedArtifacts.olderThan14Days}`);
 console.log('');
-console.log('Dica: use "npm run ops:repo:doctor -- --apply" para relocar artefatos conhecidos da raiz.');
+console.log('Tip: use "npm run ops:repo:doctor -- --apply" to relocate known artifacts from the root.');

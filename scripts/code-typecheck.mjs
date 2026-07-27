@@ -13,7 +13,7 @@
  *   4) tsc -p tsconfig.typecheck.json (narrow slice) — local / ALLOW_SLICE only
  *
  * CI (CI=true|1): hard-fail if tools missing or full typecheck fails.
- * Local: try full; if only the slice succeeds, exit 0 when not CI or when
+ * local: try full; if only the slice succeeds, exit 0 when not CI or when
  *   ZAVORTH_TYPECHECK_ALLOW_SLICE=1 (with a clear warning).
  *
  * Env:
@@ -45,7 +45,7 @@ function resolveBun() {
   try {
     const where = spawnSync("where.exe", ["bun"], { encoding: "utf8", windowsHide: true })
     const lines = (where.stdout || "")
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((s) => s.trim())
       .filter(Boolean)
     const exe = lines.find((l) => /\.exe$/i.test(l) && !/\.cmd$/i.test(l))
@@ -136,7 +136,7 @@ function isToolMissing(r) {
   if (/Cannot find module ['"][^'"]*@typescript[/\\]native-preview/i.test(text)) return true
   if (/Unable to resolve @typescript\/native-preview/i.test(text)) return true
   if (/Executable not found:.*tsgo/i.test(text)) return true
-  if (/(^|[\s'"])tsgo(\.js|\.exe)?\b.*\b(is not recognized|not found|ENOENT)/i.test(text)) return true
+  if (/(^|[\s'"])tsgo(\.js|\.exe)...\b.*\b(is not recognized|not found|ENOENT)/i.test(text)) return true
   if (/error: Script not found ["']typecheck["']/i.test(text)) return true
   if (/spawn\s+\S*bun\S*\s+ENOENT/i.test(text)) return true
   if (r.status === null && !text.trim()) return true

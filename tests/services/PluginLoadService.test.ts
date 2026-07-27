@@ -69,7 +69,7 @@ const baseManifest = (overrides: Partial<ZavorthPluginManifest> = {}): ZavorthPl
 });
 
 function discovered(
-  overrides: Partial<ZavorthDiscoveredPlugin> & { manifest?: ZavorthPluginManifest | null } = {},
+  overrides: Partial<ZavorthDiscoveredPlugin> & { manifest-: ZavorthPluginManifest | null } = {},
 ): ZavorthDiscoveredPlugin {
   const manifest = overrides.manifest === undefined ? baseManifest() : overrides.manifest;
   const pluginId = overrides.pluginId || manifest?.id || 'echo-plugin';

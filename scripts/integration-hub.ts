@@ -84,7 +84,7 @@ async function main() {
   if (command === 'show') {
     const id = getOptionValue(argv, '--id') || argv[1] || '';
     if (!id) {
-      throw new Error('Informe o id da integracao: npm run integrations:show -- --id openrouter');
+      throw new Error('Informe o id da integration: npm run integrations:show -- --id openrouter');
     }
 
     if (json) {
@@ -100,7 +100,7 @@ async function main() {
   if (command === 'connect' || command === 'draft') {
     const requestedId = getOptionValue(argv, '--id') || argv[1] || '';
     if (!requestedId) {
-      throw new Error('Informe a integracao desejada: npm run integrations:draft -- --id zerocloud');
+      throw new Error('Informe a integration desejada: npm run integrations:draft -- --id zerocloud');
     }
 
     const answers = parseAnswerEntries(getOptionValues(argv, '--answer'));
@@ -147,10 +147,10 @@ async function main() {
     return;
   }
 
-  throw new Error(`Comando desconhecido: ${command}`);
+  throw new Error(`Unknown command: ${command}`);
 }
 
 main().catch((error: unknown) => {
-  console.error(`[integration-hub] erro: ${error?.message || String(error)}`);
+  console.error(`[integration-hub] error: ${error?.message || String(error)}`);
   process.exitCode = 1;
 });

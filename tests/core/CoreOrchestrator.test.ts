@@ -168,7 +168,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       chatId: 'discord:dm:42',
       isGroup: false,
       transport: 'text',
-      rawText: 'olá, me explica o estado atual',
+      rawText: 'hello, explain the current state',
       reply,
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
@@ -177,7 +177,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       expect.objectContaining({
         channel: 'discord',
         sessionId: 'discord:dm:42',
-        text: 'olá, me explica o estado atual',
+        text: 'hello, explain the current state',
         metadata: expect.objectContaining({
           source: 'core-orchestrator',
           platform: 'discord',
@@ -191,7 +191,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       }),
       {},
     );
-    expect(reply).toHaveBeenCalledWith('Agent: olá, me explica o estado atual');
+    expect(reply).toHaveBeenCalledWith('Agent: hello, explain the current state');
     expect(legacyUnifiedGateway.recordEvent).not.toHaveBeenCalled();
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(dispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
@@ -274,7 +274,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       chatId: 'slack:channel:ops',
       isGroup: true,
       transport: 'text',
-      rawText: 'liste a pasta downloads',
+      rawText: 'list the downloads folder',
       reply,
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
@@ -283,7 +283,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
     expect(agentGateway.handle).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: 'slack',
-        text: 'liste a pasta downloads',
+        text: 'list the downloads folder',
         requestedTools: ['read_file'],
         metadata: expect.objectContaining({
           surfaceTaskDispatcherDeferred: true,
@@ -297,7 +297,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       expect.objectContaining({
         platform: 'slack',
         chatId: 'slack:channel:ops',
-        text: 'liste a pasta downloads',
+        text: 'list the downloads folder',
         sourceUserId: 'slack-user',
         sessionId: 'slack:channel:ops',
       }),
@@ -341,7 +341,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       chatId: 'discord:dm:42',
       isGroup: false,
       transport: 'text',
-      rawText: 'me explique o plano atual',
+      rawText: 'me explique o current plane',
       reply,
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
@@ -351,7 +351,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
         surface: 'discord',
         userId: 'discord-user',
         chatId: 'discord:dm:42',
-        text: 'me explique o plano atual',
+        text: 'me explique o current plane',
         metadata: expect.objectContaining({
           stage: 'legacy-unified-conversation-fallback-v1',
           transport: 'text',
@@ -359,7 +359,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       }),
     );
     expect(legacyUnifiedGateway.recordEvent).not.toHaveBeenCalled();
-    expect(reply).toHaveBeenCalledWith('Gateway: me explique o plano atual');
+    expect(reply).toHaveBeenCalledWith('Gateway: me explique o current plane');
     expect(dispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
   });
 
@@ -477,7 +477,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
 
-    expect(reply).toHaveBeenCalledWith('No Discord publico, use os slash commands do Zavorth nos canais liberados.');
+    expect(reply).toHaveBeenCalledWith('On public Discord, use Zavorth slash commands in allowed channels.');
     expect(reply).not.toHaveBeenCalledWith(expect.stringContaining('/autorepair'));
     expect(dispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
   });

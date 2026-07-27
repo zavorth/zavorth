@@ -74,10 +74,10 @@ function buildSmokeArtifact() {
   const results: IntegrationShowcaseSmokeResult[] = INTEGRATION_SHOWCASE_ITEMS.map((item) => {
     const issues: string[] = [];
     if (!item.fixtureAvailable || !item.modes.includes('fixture')) {
-      issues.push('fixture mode ausente');
+      issues.push('fixture mode missing');
     }
     if (!item.safeDegradation.trim()) {
-      issues.push('degradacao segura ausente');
+      issues.push('safe degradation missing');
     }
     if (item.trustPlaneControls.length < 2) {
       issues.push('Trust Plane insuficiente');
@@ -156,11 +156,11 @@ function assertInside(root: string, target: string): void {
   const resolvedTarget = path.resolve(target);
   const relative = path.relative(resolvedRoot, resolvedTarget);
   if (relative.startsWith('..') || path.isAbsolute(relative)) {
-    throw new Error(`recusando tocar caminho fora do artifactDir: ${target}`);
+    throw new Error(`recusando tocar path outside do artifactDir: ${target}`);
   }
 }
 
 main().catch((error) => {
-  console.error('[integration-showcase] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[integration-showcase] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

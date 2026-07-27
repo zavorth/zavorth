@@ -86,7 +86,7 @@ function validate(manifest: any): string[] {
 
 function render(manifest: any, failures: string[]): string {
   const lines = [
-    '[release-artifacts] phase 8 standalone launcher artifacts',
+    '[release-artifacts] gate 8 standalone launcher artifacts',
     `[release-artifacts] package ${manifest.packageName}@${manifest.version}`,
     `[release-artifacts] native binary status: ${manifest.nativeBinaryStatus}`,
     `[release-artifacts] artifacts: ${(manifest.artifacts || []).length}`,

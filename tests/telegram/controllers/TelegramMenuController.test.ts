@@ -1,14 +1,14 @@
 import { TelegramMenuController } from '../../../src/telegram/controllers/TelegramMenuController';
 
 describe('TelegramMenuController', () => {
-  it('keeps help natural-first with short human menu (phase 1)', () => {
+  it('keeps help natural-first with short human menu (initial path)', () => {
     const controller = new TelegramMenuController({ api: {} } as any);
     const help = controller.getHelpText();
 
     expect(help).toMatch(/Fale normal primeiro|Start with natural language/i);
     expect(help).toMatch(/texto livre|free text/i);
-    expect(help).toMatch(/o que voce sabe fazer/i);
-    expect(help).toMatch(/o que voce aprendeu/i);
+    expect(help).toMatch(/o que you sabe fazer/i);
+    expect(help).toMatch(/o que you aprendeu/i);
     expect(help).toMatch(/desfazer aprendizado/i);
     expect(help).toContain('/status');
     expect(help).toContain('/help');

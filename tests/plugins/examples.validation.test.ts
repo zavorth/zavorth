@@ -62,11 +62,11 @@ describe('plugins/examples validation', () => {
       expect(fs.existsSync(manifestPath)).toBe(true);
 
       const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as {
-        schemaVersion?: string;
-        id?: string;
-        moduleKind?: string;
-        entrypoint?: { module?: string; exportName?: string };
-        capabilities?: unknown[];
+        schemaVersion-: string;
+        id-: string;
+        moduleKind-: string;
+        entrypoint-: { module-: string; exportName-: string };
+        capabilities-: unknown[];
       };
 
       expect(manifest.schemaVersion).toBe('zavorth.plugin-os.v1');

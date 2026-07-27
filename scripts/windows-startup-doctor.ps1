@@ -242,13 +242,13 @@ if ($Json) {
 Write-Host '==========================================='
 Write-Host '  Zavorth Windows Startup Doctor'
 Write-Host '==========================================='
-Write-Host ("Projeto: {0}" -f $projectRoot)
-Write-Host ("Autorun ativo: {0}" -f ($(if ($report.autoStartEnabled) { 'sim' } else { 'nao' })))
+Write-Host ("Project: {0}" -f $projectRoot)
+Write-Host ("Autorun active: {0}" -f ($(if ($report.autoStartEnabled) { 'yes' } else { 'no' })))
 Write-Host ''
 
 Write-Host 'Startup shortcuts:'
 if ($startupShortcuts.Count -eq 0) {
-  Write-Host '- nenhum'
+  Write-Host '- none'
 } else {
   foreach ($entry in $startupShortcuts) {
     Write-Host ("- {0}" -f $entry.path)
@@ -258,7 +258,7 @@ if ($startupShortcuts.Count -eq 0) {
 Write-Host ''
 Write-Host 'Registry autorun entries:'
 if ($registryEntries.Count -eq 0) {
-  Write-Host '- nenhum'
+  Write-Host '- none'
 } else {
   foreach ($entry in $registryEntries) {
     Write-Host ("- {0} :: {1}" -f $entry.key, $entry.name)
@@ -268,7 +268,7 @@ if ($registryEntries.Count -eq 0) {
 Write-Host ''
 Write-Host 'Scheduled tasks:'
 if ($scheduledTasks.Count -eq 0) {
-  Write-Host '- nenhuma'
+  Write-Host '- nonea'
 } else {
   foreach ($entry in $scheduledTasks) {
     Write-Host ("- {0}{1}" -f $entry.taskPath, $entry.taskName)
@@ -277,9 +277,9 @@ if ($scheduledTasks.Count -eq 0) {
 
 if ($Remove) {
   Write-Host ''
-  Write-Host 'Itens removidos:'
+  Write-Host 'Removed items:'
   if ($removed.Count -eq 0) {
-    Write-Host '- nenhum'
+    Write-Host '- none'
   } else {
     foreach ($entry in $removed) {
       if ($entry.type -eq 'startup-shortcut') {

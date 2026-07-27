@@ -24,14 +24,14 @@ async function main() {
   if (asJson) {
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[zavorth-governance] leitura consolidada da Governance');
+    console.log('[zavorth-governance] read consolidada da Governance');
     console.log(`[zavorth-governance] postura: ${snapshot.summary.posture}`);
-    console.log(`[zavorth-governance] resumo: ${snapshot.narrative.operatorSummary}`);
+    console.log(`[zavorth-governance] summary: ${snapshot.narrative.operatorSummary}`);
     console.log(`[zavorth-governance] tenants: ${snapshot.summary.tenants} | shared: ${snapshot.summary.sharedTenants} | onboarding: ${snapshot.summary.pendingOnboarding}`);
     console.log(`[zavorth-governance] trust: MCP ${snapshot.summary.mcpProfile} | approvals ${snapshot.summary.pendingApprovals} | high-risk ${snapshot.summary.highRiskCapabilities}`);
-    console.log(`[zavorth-governance] proximo passo: ${snapshot.narrative.nextAction}`);
+    console.log(`[zavorth-governance] next passo: ${snapshot.narrative.nextAction}`);
     if (snapshot.actions.length > 0) {
-      console.log('[zavorth-governance] acoes sugeridas:');
+      console.log('[zavorth-governance] actions sugeridas:');
       for (const action of snapshot.actions) {
         console.log(`- ${action.label}${action.command ? ` | ${action.command}` : ''}`);
       }
@@ -44,6 +44,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-governance] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[zavorth-governance] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

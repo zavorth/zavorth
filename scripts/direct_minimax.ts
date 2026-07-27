@@ -15,8 +15,8 @@ const client = new OpenAI({
 });
 
 async function testMinimax() {
-  const prompt = process.argv[2] || 'Olá Minimax!';
-  const outputFile = process.argv[3]; // Caminho opcional para salvar o HTML extraído
+  const prompt = process.argv[2] || 'Hello Minimax!';
+  const outputFile = process.argv[3]; // Optional path for saving extracted HTML
   const model = 'minimax/minimax-m2.7';
 
   console.error(`🚀 Enviando prompt para ${model}...`);
@@ -32,22 +32,22 @@ async function testMinimax() {
     const content = response.choices[0]?.message?.content;
 
     if (!content) {
-      console.error('⚠️ O modelo não retornou conteúdo.');
+      console.error('The model returned no content.');
       process.exit(1);
     }
 
-    // Extrair HTML de dentro do bloco ```html ... ```
+    // Extract HTML from inside the ```html ... ``` block
     const htmlMatch = content.match(/```html\s*([\s\S]*?)```/);
     const htmlContent = htmlMatch ? htmlMatch[1].trim() : content.trim();
 
-    // Se tiver arquivo de saída, salvar lá
+    // Save to the output file when provided
     if (outputFile) {
       fs.mkdirSync(path.dirname(outputFile), { recursive: true });
       fs.writeFileSync(outputFile, htmlContent, 'utf8');
       console.error(`✅ HTML salvo em: ${outputFile}`);
       console.error(`📊 Tamanho: ${htmlContent.length} caracteres, ~${htmlContent.split('\n').length} linhas`);
       
-      // Verificar se o HTML está completo
+      // Check whether the HTML is complete
       const hasClosingHtml = htmlContent.includes('</html>');
       const hasClosingBody = htmlContent.includes('</body>');
       if (!hasClosingHtml || !hasClosingBody) {
@@ -56,7 +56,7 @@ async function testMinimax() {
         console.error('✅ HTML COMPLETO verificado (</body> e </html> presentes).');
       }
     } else {
-      // Sem arquivo de saída, imprimir no stdout
+      // Print to stdout when no output file is provided
       console.log(htmlContent);
     }
 

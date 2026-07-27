@@ -38,7 +38,7 @@ function makeLeaseSink() {
 const NOW = '2026-06-15T12:00:00.000Z';
 const CORR = 'corr-integration-test';
 
-function validGateReceipt(overrides?: Partial<ApprovalLeaseGateReceipt>): ApprovalLeaseGateReceipt {
+function validGateReceipt(overrides-: Partial<ApprovalLeaseGateReceipt>): ApprovalLeaseGateReceipt {
   return {
     channelWorkspaceExposureChecked: true,
     riskClassResolved: 'safe',
@@ -48,7 +48,7 @@ function validGateReceipt(overrides?: Partial<ApprovalLeaseGateReceipt>): Approv
   };
 }
 
-function baseContext(overrides?: Partial<ApprovalLeaseDecisionContext>): ApprovalLeaseDecisionContext {
+function baseContext(overrides-: Partial<ApprovalLeaseDecisionContext>): ApprovalLeaseDecisionContext {
   return {
     subjectId: 'user-1',
     workspaceId: 'ws-1',

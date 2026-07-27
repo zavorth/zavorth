@@ -62,7 +62,7 @@ const checks = [
   {
     id: 'a2ui-sandbox-policy',
     file: 'src/services/ZavorthA2UIService.ts',
-    markers: ['risk-simulation', 'actionDispatch', 'transaction-plane', 'inlineHandlers'],
+    markers: ['risk-dry-run', 'actionDispatch', 'transaction-plane', 'inlineHandlers'],
   },
   {
     id: 'focused-tests',

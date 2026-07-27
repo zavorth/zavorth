@@ -155,7 +155,7 @@ if (asJson) {
       console.log(`  - ${file.file}: ${issues.join(', ')}`);
     }
     if (failingFiles.length > 20) {
-      console.log(`  ... and ${failingFiles.length - 20} more`);
+      console.log(`  ? and ${failingFiles.length - 20} more`);
     }
   }
 }

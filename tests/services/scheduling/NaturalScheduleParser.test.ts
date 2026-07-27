@@ -1,150 +1,80 @@
 import {
   nextRunFromNaturalSchedule,
   parseNaturalSchedule,
+  parseNaturalScheduleAsync,
 } from '../../../src/services/scheduling/NaturalScheduleParser';
 
-describe('NaturalScheduleParser (Phase 5)', () => {
-  const fixedNow = new Date('2026-03-24T10:05:00.000Z'); // Tuesday
+describe('NaturalScheduleParser canonical contract', () => {
+  const fixedNow = new Date('2026-03-24T10:05:00.000Z');
 
-  beforeEach(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(fixedNow);
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
-  describe('interval (EN + PT)', () => {
-    it('parses every Nm / every Nh', () => {
-      expect(parseNaturalSchedule('every 30m')).toMatchObject({
-        kind: 'interval',
-        normalized: 'every 30m',
-        intervalMs: 30 * 60_000,
-        cron: '*/30 * * * *',
-      });
-      expect(parseNaturalSchedule('every 2h')).toMatchObject({
-        kind: 'interval',
-        normalized: 'every 2h',
-        intervalMs: 2 * 3_600_000,
-        cron: '0 */2 * * *',
-      });
-    });
-
-    it('parses every N minutes|hours and PT a cada', () => {
-      expect(parseNaturalSchedule('every 15 minutes')?.normalized).toBe('every 15m');
-      expect(parseNaturalSchedule('every 3 hours')?.normalized).toBe('every 3h');
-      expect(parseNaturalSchedule('a cada 30 minutos')?.normalized).toBe('every 30m');
-      expect(parseNaturalSchedule('a cada 2 horas')?.normalized).toBe('every 2h');
-    });
-
-    it('parses hourly / de hora em hora', () => {
-      expect(parseNaturalSchedule('hourly')?.normalized).toBe('every 1h');
-      expect(parseNaturalSchedule('de hora em hora')?.normalized).toBe('every 1h');
-      expect(parseNaturalSchedule('a cada hora')?.normalized).toBe('every 1h');
-    });
-
-    it('rejects intervals below 1 minute or above 30 days', () => {
-      expect(parseNaturalSchedule('every 0m')).toBeNull();
-      expect(parseNaturalSchedule('every 50000h')).toBeNull();
-    });
-
-    it('computes next run from interval', () => {
-      const parsed = parseNaturalSchedule('every 1h', fixedNow)!;
-      const next = nextRunFromNaturalSchedule(parsed, fixedNow);
-      expect(next?.toISOString()).toBe('2026-03-24T11:05:00.000Z');
+  it('accepts interval JSON without language keywords', () => {
+    expect(parseNaturalSchedule('{"kind":"interval","intervalMs":7200000}')).toMatchObject({
+      kind: 'interval',
+      normalized: '{"kind":"interval","intervalMs":7200000}',
+      intervalMs: 7_200_000,
+      cron: null,
     });
   });
 
-  describe('daily (EN + PT)', () => {
-    it('parses daily HH:mm and daily at am/pm', () => {
-      expect(parseNaturalSchedule('daily 09:30')).toMatchObject({
-        kind: 'daily',
-        normalized: 'daily 09:30',
-        localTime: '09:30',
-        cron: '30 9 * * *',
-      });
-      expect(parseNaturalSchedule('daily at 9am')?.normalized).toBe('daily 09:00');
-      expect(parseNaturalSchedule('daily at 9:30pm')?.normalized).toBe('daily 21:30');
-      expect(parseNaturalSchedule('every day at 10:00')?.normalized).toBe('daily 10:00');
+  it('accepts calendar day and calendar week JSON', () => {
+    expect(parseNaturalSchedule('{"kind":"calendar_day","targetHour":9,"targetMinute":30}')).toMatchObject({
+      kind: 'calendar_day',
+      normalized: '{"kind":"calendar_day","targetHour":9,"targetMinute":30}',
+      localTime: '09:30',
+      cron: '30 9 * * *',
     });
-
-    it('parses PT todo dia / diariamente', () => {
-      expect(parseNaturalSchedule('todo dia as 9h')?.normalized).toBe('daily 09:00');
-      expect(parseNaturalSchedule('todos os dias as 09:30')?.normalized).toBe('daily 09:30');
-      expect(parseNaturalSchedule('diariamente as 18h')?.normalized).toBe('daily 18:00');
-      expect(parseNaturalSchedule('todo dia')?.normalized).toBe('daily 09:00');
-    });
-
-    it('computes next daily run (rolls to next day when past)', () => {
-      // fixedNow is 10:05 UTC; local depends on TZ — use explicit local clock via fromDate fields
-      const from = new Date(2026, 2, 24, 10, 5, 0); // local 10:05
-      const parsed = parseNaturalSchedule('daily 09:00', from)!;
-      const next = nextRunFromNaturalSchedule(parsed, from)!;
-      expect(next.getHours()).toBe(9);
-      expect(next.getMinutes()).toBe(0);
-      expect(next.getDate()).toBe(25);
+    expect(parseNaturalSchedule('{"kind":"calendar_week","targetWeekday":5,"targetHour":18,"targetMinute":0}')).toMatchObject({
+      kind: 'calendar_week',
+      normalized: '{"kind":"calendar_week","targetWeekday":5,"targetHour":18,"targetMinute":0}',
+      weekday: 5,
+      localTime: '18:00',
     });
   });
 
-  describe('weekly (EN + PT)', () => {
-    it('parses every weekday and weekly on', () => {
-      expect(parseNaturalSchedule('every monday')).toMatchObject({
-        kind: 'weekly',
-        weekday: 1,
-        localTime: '09:00',
-        cron: '0 9 * * 1',
-      });
-      expect(parseNaturalSchedule('every friday at 18:00')).toMatchObject({
-        kind: 'weekly',
-        weekday: 5,
-        localTime: '18:00',
-      });
-      expect(parseNaturalSchedule('weekly on friday at 18:00')?.normalized).toBe(
-        'weekly 5 18:00',
-      );
+  it('does not parse natural language at the deterministic boundary', () => {
+    expect(parseNaturalSchedule('legacy interval schedule text')).toBeNull();
+    expect(parseNaturalSchedule('legacy calendar schedule text')).toBeNull();
+    expect(parseNaturalSchedule('legacy natural-language schedule text')).toBeNull();
+  });
+
+  it('delegates natural language to the async resolver', async () => {
+    const resolved = await parseNaturalScheduleAsync('user language request', {
+      async resolveScheduleIntent() {
+        return parseNaturalSchedule('{"kind":"calendar_day","targetHour":9,"targetMinute":0}');
+      },
     });
 
-    it('parses PT toda segunda / toda sexta', () => {
-      expect(parseNaturalSchedule('toda segunda')?.normalized).toBe('weekly 1 09:00');
-      expect(parseNaturalSchedule('toda sexta-feira as 18h')?.normalized).toBe(
-        'weekly 5 18:00',
-      );
-      expect(parseNaturalSchedule('semanalmente')?.normalized).toBe('weekly 1 09:00');
-    });
-
-    it('computes next weekly run', () => {
-      // 2026-03-24 is Tuesday (2); next Monday is Mar 30
-      const from = new Date(2026, 2, 24, 10, 5, 0);
-      const parsed = parseNaturalSchedule('every monday at 10:00', from)!;
-      const next = nextRunFromNaturalSchedule(parsed, from)!;
-      expect(next.getDay()).toBe(1);
-      expect(next.getDate()).toBe(30);
-      expect(next.getHours()).toBe(10);
+    expect(resolved).toMatchObject({
+      kind: 'calendar_day',
+      normalized: '{"kind":"calendar_day","targetHour":9,"targetMinute":0}',
     });
   });
 
-  describe('cron', () => {
-    it('accepts 5-field cron as-is', () => {
-      expect(parseNaturalSchedule('0 9 * * 1')).toMatchObject({
-        kind: 'cron',
-        normalized: '0 9 * * 1',
-        cron: '0 9 * * 1',
-      });
-    });
+  it('computes next runs from canonical schedules', () => {
+    const interval = parseNaturalSchedule('{"kind":"interval","intervalMs":3600000}')!;
+    expect(nextRunFromNaturalSchedule(interval, fixedNow)?.toISOString())
+      .toBe('2026-03-24T11:05:00.000Z');
 
-    it('falls back to +1 min for cron next run', () => {
-      const parsed = parseNaturalSchedule('0 9 * * *', fixedNow)!;
-      const next = nextRunFromNaturalSchedule(parsed, fixedNow);
-      expect(next?.getTime()).toBe(fixedNow.getTime() + 60_000);
-    });
+    const from = new Date(2026, 2, 24, 10, 5, 0);
+    const calendarDay = parseNaturalSchedule('{"kind":"calendar_day","targetHour":9,"targetMinute":0}')!;
+    const dayNext = nextRunFromNaturalSchedule(calendarDay, from)!;
+    expect(dayNext.getDate()).toBe(25);
+    expect(dayNext.getHours()).toBe(9);
+
+    const calendarWeek = parseNaturalSchedule('{"kind":"calendar_week","targetWeekday":1,"targetHour":10,"targetMinute":0}')!;
+    const weekNext = nextRunFromNaturalSchedule(calendarWeek, from)!;
+    expect(weekNext.getDay()).toBe(1);
+    expect(weekNext.getDate()).toBe(30);
   });
 
-  describe('invalid', () => {
-    it('returns null for empty or unknown phrases', () => {
-      expect(parseNaturalSchedule('')).toBeNull();
-      expect(parseNaturalSchedule('every second')).toBeNull();
-      expect(parseNaturalSchedule('quando der vontade')).toBeNull();
+  it('accepts cron JSON and uses the conservative next-run fallback', () => {
+    const parsed = parseNaturalSchedule('{"kind":"cron","cron":"0 9 * * 1"}')!;
+    expect(parsed).toMatchObject({
+      kind: 'cron',
+      normalized: '{"kind":"cron","cron":"0 9 * * 1"}',
+      cron: '0 9 * * 1',
     });
+    expect(nextRunFromNaturalSchedule(parsed, fixedNow)?.getTime())
+      .toBe(fixedNow.getTime() + 60_000);
   });
 });

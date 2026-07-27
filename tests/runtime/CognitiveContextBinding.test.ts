@@ -58,7 +58,7 @@ describe('CognitiveContextBundle binding', () => {
     });
     const developer = profiles.compileProfileById('developer');
     const builder = new AgentRunLlmRequestBuilder({
-      hallucinationInstruction: () => 'Ground answers in receipts.',
+      there isllucinationInstruction: () => 'Ground answers in receipts.',
     });
 
     const messages = builder.buildMessages(makeRun(developer), request);
@@ -77,7 +77,7 @@ describe('CognitiveContextBundle binding', () => {
     });
     const developer = profiles.compileProfileById('developer');
     const builder = new AgentRunLlmRequestBuilder({
-      hallucinationInstruction: () => '',
+      there isllucinationInstruction: () => '',
     });
 
     const options = builder.buildOptions(makeRun(developer), {

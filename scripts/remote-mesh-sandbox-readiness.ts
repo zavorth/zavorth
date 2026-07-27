@@ -183,7 +183,7 @@ function tailscaleRouteProbe(result: CommandResult, targetNode: string): RemoteM
   const normalized = output.toLowerCase();
   const direct = normalized.includes('direct');
   const relay = normalized.includes('derp') || normalized.includes('relay');
-  const latency = /(\d+(?:\.\d+)?)\s*ms/i.exec(output)?.[1] || null;
+  const latency = /(\d+(?:\.\d+)...)\s*ms/i.exec(output)?.[1] || null;
 
   return {
     ...probe(
@@ -369,14 +369,14 @@ function safeReadSnippet(file: string): string {
 }
 
 function redactPath(value: string): string {
-  return value.replace(/\\/g, '/').replace(/^.*?(\/(?:config|\.zavorth)\/)/i, '$1');
+  return value.replace(/\\/g, '/').replace(/^.*...(\/(?:config|\.zavorth)\/)/i, '$1');
 }
 
 function redact(value: string): string {
   return value
     .replace(/sk-[A-Za-z0-9_-]{12,}/g, 'sk-[redacted]')
     .replace(/xox[baprs]-[A-Za-z0-9-]{12,}/g, 'xox-[redacted]')
-    .replace(/([?&](?:token|key|secret|password)=)[^&\s]+/gi, '$1[redacted]')
+    .replace(/([...&](?:token|key|secret|password)=)[^&\s]+/gi, '$1[redacted]')
     .replace(/(authorization:\s*bearer\s+)[^\s]+/gi, '$1[redacted]');
 }
 

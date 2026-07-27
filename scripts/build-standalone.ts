@@ -40,7 +40,7 @@ function main(): void {
     `[standalone] mode: ${dryRun ? 'dry-run' : 'write'}`,
     `[standalone] output: ${path.relative(projectRoot, outDir)}`,
     `[standalone] artifacts: ${planned.length}`,
-    '[standalone] native binary status: not built in this phase; launcher requires Node.js 18+',
+    '[standalone] native binary status: not built in this build; launcher requires Node.js 18+'
     '[standalone] ok',
     '',
   ].join('\n'));

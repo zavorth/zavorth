@@ -245,7 +245,7 @@ function Test-BlockedWindowTitle([string]$Title) {
     '\bpwsh\b',
     '\bprompt\s+de\s+comando\b',
     '\bcommand\s+prompt\b',
-    '\bcmd(?:\.exe)?\b',
+    '\bcmd(...:\.exe)...\b',
     '\bwindows\s+terminal\b',
     '\bterminal\b',
     '\bconhost\b',
@@ -261,10 +261,10 @@ function Test-BlockedWindowTitle([string]$Title) {
 function Test-BlockedPressKeyPayload([string]$Value) {
   if ([string]::IsNullOrWhiteSpace($Value)) { return $false }
   $patterns = @(
-    '\bwin(?:dows)?\s*\+\s*r\b',
-    '\{(?:lwin|rwin|win|windows)\}',
+    '\bwin(...:dows)...\s*\+\s*r\b',
+    '\{(...:lwin|rwin|win|windows)\}',
     '#\s*r',
-    '^\s*\^\s*\{?esc(?:ape)?\}?\s*$'
+    '^\s*\^\s*\{...esc(...:ape)...\}...\s*$'
   )
   foreach ($pattern in $patterns) {
     if ($Value -match $pattern) { return $true }
@@ -284,45 +284,45 @@ $result = [ordered]@{
 try {
   $targetProcess = Find-TargetProcess -Title $WindowTitle -Pid $ProcessId
   if (-not $targetProcess) {
-    throw "Janela nao encontrada: WindowTitle='$WindowTitle', ProcessId=$ProcessId"
+    throw "Window not found: WindowTitle='$WindowTitle', ProcessId=$ProcessId"
   }
 
   $result.windowTitle = $targetProcess.MainWindowTitle
   $result.pid = $targetProcess.Id
 
   if (Test-BlockedWindowTitle $targetProcess.MainWindowTitle) {
-    throw "Automacao de desktop bloqueada: janela sensivel ou console nao pode ser alvo ('$($targetProcess.MainWindowTitle)')."
+    throw "Desktop automation blocked: sensitive window or console cannot be targeted ('$($targetProcess.MainWindowTitle)')."
   }
 
   if ($Action -eq 'press-key' -and (Test-BlockedPressKeyPayload $Payload)) {
-    throw "Automacao de desktop bloqueada: atalho de launcher/shell nao permitido."
+    throw "Desktop automation blocked: launcher/shell shortcut is not allowed."
   }
 
   $activated = Activate-Window $targetProcess
   if (-not $activated) {
-    throw "Nao foi possivel ativar a janela '$($targetProcess.MainWindowTitle)'."
+    throw "Could not activate window '$($targetProcess.MainWindowTitle)'."
   }
 
   switch ($Action) {
     'focus-window' {
       $result.ok = $true
-      $result.message = "Janela '$($targetProcess.MainWindowTitle)' ativada com sucesso."
+      $result.message = "Janela '$($targetProcess.MainWindowTitle)' ativada com success."
     }
 
     'click-element' {
       if ([string]::IsNullOrWhiteSpace($TargetText)) {
-        throw "Parametro TargetText obrigatorio para click-element."
+        throw "Parametro TargetText required para click-element."
       }
 
       $root = Get-UiRoot $targetProcess
       $element = Find-ElementByText $root $TargetText
       if (-not $element) {
-        throw "Elemento com texto '$TargetText' nao encontrado na janela '$($targetProcess.MainWindowTitle)'."
+        throw "Element with text '$TargetText' not found in window '$($targetProcess.MainWindowTitle)'."
       }
 
       $clicked = Click-AtElement $element
       if (-not $clicked) {
-        throw "Falha ao clicar no elemento '$TargetText'."
+        throw "Failure ao clicar no elemento '$TargetText'."
       }
 
       $result.ok = $true
@@ -335,7 +335,7 @@ try {
 
     'type-text' {
       if ([string]::IsNullOrWhiteSpace($Payload)) {
-        throw "Parametro Payload obrigatorio para type-text."
+        throw "Parametro Payload required para type-text."
       }
 
       Set-Clipboard -Value $Payload
@@ -344,19 +344,19 @@ try {
       Start-Sleep -Milliseconds 100
 
       $result.ok = $true
-      $result.message = "Texto colado com sucesso ($($Payload.Length) caracteres)."
+      $result.message = "Texto colado com success ($($Payload.Length) caracteres)."
     }
 
     'press-key' {
       if ([string]::IsNullOrWhiteSpace($Payload)) {
-        throw "Parametro Payload obrigatorio para press-key (ex: '{ENTER}', '^s', '%{F4}')."
+        throw "Parametro Payload required para press-key (ex: '{ENTER}', '^s', '%{F4}')."
       }
 
       [System.Windows.Forms.SendKeys]::SendWait($Payload)
       Start-Sleep -Milliseconds 100
 
       $result.ok = $true
-      $result.message = "Tecla '$Payload' enviada com sucesso."
+      $result.message = "Tecla '$Payload' enviada com success."
     }
 
     'screenshot' {

@@ -84,11 +84,11 @@ export function buildZavorthBridgeArgs(config) {
 
 export function launchZavorthBridgeDetached(config) {
   if (isPathLike(config.command) && !fs.existsSync(config.command)) {
-    throw new Error(`Nao encontrei o executavel do ZavorthBridge em ${config.command}.`);
+    throw new Error(`Could not find the ZavorthBridge executable at ${config.command}.`);
   }
 
   if (!fs.existsSync(config.workspace)) {
-    throw new Error(`A workspace configurada para abrir no ZavorthBridge nao existe: ${config.workspace}.`);
+    throw new Error(`The workspace configured for ZavorthBridge does not exist: ${config.workspace}.`);
   }
 
   const args = buildZavorthBridgeArgs(config);
@@ -129,7 +129,7 @@ export function formatZavorthBridgeLaunchSummary(config, args, pid = null) {
     '',
     `CLI: ${config.command}`,
     `Workspace: ${config.workspace}`,
-    `Perfil: ${config.profileName || '(sem perfil)'}`,
+    `Perfil: ${config.profileName || '(without profile)'}`,
     `Janela: ${config.windowFlag}`,
     `CDP: http://127.0.0.1:${config.remoteDebuggingPort}`,
     `Remoto Zavorth: ${config.remoteBaseUrl}`,

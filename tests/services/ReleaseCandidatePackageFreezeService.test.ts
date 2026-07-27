@@ -98,7 +98,7 @@ describe('ReleaseCandidatePackageFreezeService Intent model6', () => {
         typecheck: 'npm run runtime:check --silent',
         packDryRun: 'npm pack --dry-run',
         smokeLedger: 'npm run public-launch-smoke-ledger --silent -- --require-ready',
-        nextStage: 'Release candidate distribution rehearsal',
+        nextAction: 'Release candidate distribution rehearsal',
       }),
     );
     expect(snapshot.policy).toEqual(

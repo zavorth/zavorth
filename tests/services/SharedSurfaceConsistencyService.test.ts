@@ -11,7 +11,7 @@ describe('SharedSurfaceConsistencyService', () => {
         },
         telegram: {
           ready: true,
-          summary: 'Telegram pronto para uso.',
+          summary: 'Telegram ready para uso.',
         },
         discord: {
           enabled: true,
@@ -58,7 +58,7 @@ describe('SharedSurfaceConsistencyService', () => {
         },
         telegram: {
           ready: false,
-          summary: 'Telegram ainda aguardando token e allowlist.',
+          summary: 'Telegram ainda waiting for token e allowlist.',
         },
         discord: {
           enabled: false,
@@ -102,7 +102,7 @@ describe('SharedSurfaceConsistencyService', () => {
         access: {
           recommendedPlan: {
             primaryAction: 'remote',
-            primaryLabel: 'Fechar acesso remoto oficial',
+            primaryLabel: 'Close acesso remoto oficial',
             primarySummary: 'Continue o rollout remoto oficial.',
             primaryCommand: 'npm run ops:remote:go',
             openTarget: 'https://zavorth.example.com/app',
@@ -117,7 +117,7 @@ describe('SharedSurfaceConsistencyService', () => {
         continuity: {
           suggestedAction: {
             reason: 'Ha uma pesquisa pronta para virar briefing.',
-            prompt: 'Retome a pesquisa anterior e transforme os achados em briefing final.',
+            prompt: 'Resume a pesquisa anterior e transforme os findings em briefing final.',
           },
           focusTask: {
             taskId: 'task-001',
@@ -151,23 +151,23 @@ describe('SharedSurfaceConsistencyService', () => {
             actionable_stages: [
               {
                 id: 'draft',
-                label: 'Rascunho',
+                label: 'Draft',
                 status: 'completed',
-                reason: 'Rascunho inicial entregue.',
+                reason: 'Initial draft delivered.',
                 task_id: 'task-draft-001',
               },
               {
                 id: 'delivery',
                 label: 'Entrega final',
                 status: 'approval_pending',
-                reason: 'Aguardando retomada apos aprovacao.',
+                reason: 'Aguardando resumption after approval.',
                 task_id: 'task-delivery-001',
               },
             ],
             resume_stage: {
               id: 'delivery',
               label: 'Entrega final',
-              reason: 'Aguardando retomada apos aprovacao.',
+              reason: 'Aguardando resumption after approval.',
             },
           },
         ],
@@ -216,7 +216,7 @@ describe('SharedSurfaceConsistencyService', () => {
         expect.objectContaining({
           actionId: 'resume-workflow-stage:workflow-001:draft',
           actionType: 'restart-workflow-stage',
-          title: 'Reexecutar Rascunho',
+          title: 'Rerun Draft',
           context: expect.objectContaining({
             workflowRunId: 'workflow-001',
             workflowStageId: 'draft',
@@ -246,7 +246,7 @@ describe('SharedSurfaceConsistencyService', () => {
           equivalents: expect.objectContaining({
             telegram: expect.objectContaining({
               mode: 'command',
-              value: '/arquivo artifacts/briefing-final.md',
+              value: '/file artifacts/briefing-final.md',
             }),
           }),
         }),
@@ -334,7 +334,7 @@ describe('SharedSurfaceConsistencyService', () => {
             resume_stage: {
               id: 'delivery',
               label: 'Entrega final',
-              reason: 'Bloqueado aguardando decisao do operador.',
+              reason: 'Bloqueado waiting for decision do operador.',
             },
           },
         ],
@@ -369,7 +369,7 @@ describe('SharedSurfaceConsistencyService', () => {
             resume_stage: {
               id: 'delivery',
               label: 'Entrega final',
-              reason: 'Bloqueado aguardando decisao do operador.',
+              reason: 'Bloqueado waiting for decision do operador.',
             },
           },
         ],
@@ -396,7 +396,7 @@ describe('SharedSurfaceConsistencyService', () => {
           recommendedPlan: {
             primaryAction: 'trust',
             primaryLabel: 'Liberar este host',
-            primarySummary: 'Autorize este host antes de executar acoes mutaveis, escrita local ou entregas persistidas.',
+            primarySummary: 'Authorize this host before running mutable actions, local writes, or persisted deliveries.',
             primaryCommand: '/hostauth trust',
             openTarget: 'http://127.0.0.1:33333/app',
           },

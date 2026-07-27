@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import { UniversalSkillApprovedZavorthControlCanaryService } from '../../src/services/UniversalSkillApprovedZavorthControlCanaryService.js';
 
-function writeSkill(root: string, input: { dirName: string; name: string; description: string; body?: string }): void {
+function writeSkill(root: string, input: { dirName: string; name: string; description: string; body-: string }): void {
   const dir = path.join(root, input.dirName);
   fs.mkdirSync(path.join(dir, 'references'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'SKILL.md'), [
@@ -125,7 +125,7 @@ describe('UniversalSkillApprovedZavorthControlCanaryService Intent model0', () =
           severity: 'warning',
           observed: 'preview coverage warning',
           target: 'full preview coverage',
-          summary: 'Uma fonte grande excedeu limite de arquivos no preview.',
+          summary: 'Uma fonte grande excedeu limite de files no preview.',
         },
       ],
       batches: [cleanBatch],
@@ -162,7 +162,7 @@ describe('UniversalSkillApprovedZavorthControlCanaryService Intent model0', () =
                     candidates: [
                       {
                         status: 'blocked',
-                        blockedReason: 'Limite de 1000 arquivos atingido no preview.',
+                        blockedReason: 'Limite de 1000 files atingido no preview.',
                         issues: [{ code: 'zip-entry-limit' }],
                         manifest: { name: 'large-reference-pack' },
                       },
@@ -236,7 +236,7 @@ describe('UniversalSkillApprovedZavorthControlCanaryService Intent model0', () =
           severity: 'warning',
           observed: 'hostile candidate blocked',
           target: 'coverage-only warnings only',
-          summary: 'Um candidato exigiu bloqueio por risco de conteudo.',
+          summary: 'A candidate required blocking due to content risk.',
         },
       ],
       batches: [batch],

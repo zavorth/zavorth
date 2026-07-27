@@ -27,7 +27,7 @@ async function main() {
   if (asJson) {
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[rollout-readiness] leitura consolidada do rollout persistente');
+    console.log('[rollout-readiness] read consolidada do rollout persistente');
     console.log(await service.renderReport({ profile, scope, refresh }));
   }
 
@@ -37,6 +37,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[rollout-readiness] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[rollout-readiness] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

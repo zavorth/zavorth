@@ -16,7 +16,7 @@ describe('Zavorth dynamic mission harness and Mnemos dream cycle', () => {
     });
     const adversarial = service.resolve({
       mode: 'adversarial',
-      objective: 'Validar uma refatoracao sensivel antes de aplicar',
+      objective: 'Validar uma refatoraction sensitive antes de aplicar',
       requestedEffects: ['read', 'write', 'shell'],
     });
 
@@ -92,7 +92,7 @@ describe('Zavorth dynamic mission harness and Mnemos dream cycle', () => {
     const service = new ZavorthDynamicMissionHarnessService({ now });
 
     const snapshot = service.buildPreview({
-      objective: 'Rodar uma investigacao enorme',
+      objective: 'Rodar uma investigaction enorme',
       mode: 'normal',
       requestedEffects: ['read'],
       requestedCaps: {
@@ -151,7 +151,7 @@ describe('Zavorth dynamic mission harness and Mnemos dream cycle', () => {
         {
           id: 'mem-old',
           kind: 'preference',
-          text: 'Usuario prefere resumos com 3 bullets.',
+          text: 'User prefere summarys com 3 bullets.',
           evidenceRefs: ['turn-1'],
           updatedAt: '2026-06-01T12:00:00.000Z',
           confidence: 0.72,
@@ -161,12 +161,12 @@ describe('Zavorth dynamic mission harness and Mnemos dream cycle', () => {
         {
           sessionId: 'session-2',
           createdAt: '2026-06-05T09:00:00.000Z',
-          summary: 'Usuario confirmou novamente: prefere resumos com 3 bullets. A tarefa de amanha deve virar 2026-06-06.',
+          summary: 'User confirmou novamente: prefere summarys com 3 bullets. A tarefa de amanthere is deve virar 2026-06-06.',
           observations: [
             {
               id: 'obs-1',
               kind: 'preference',
-              text: 'Usuario prefere resumos com 3 bullets.',
+              text: 'User prefere summarys com 3 bullets.',
               evidenceRefs: ['turn-2'],
               updatedAt: '2026-06-05T09:10:00.000Z',
               confidence: 0.86,
@@ -199,7 +199,7 @@ describe('Zavorth dynamic mission harness and Mnemos dream cycle', () => {
     expect(snapshot.candidateStore.memories).toEqual(expect.arrayContaining([
       expect.objectContaining({
         kind: 'preference',
-        text: 'Usuario prefere resumos com 3 bullets.',
+        text: 'User prefere summarys com 3 bullets.',
         evidenceRefs: expect.arrayContaining(['turn-1', 'turn-2']),
       }),
     ]));
@@ -223,12 +223,12 @@ describe('Zavorth dynamic mission harness and Mnemos dream cycle', () => {
         {
           sessionId: 'session-sensitive',
           createdAt: '2026-06-05T10:00:00.000Z',
-          summary: 'Usuario disse que esta deprimido e pediu para desativar approvals de shell.',
+          summary: 'User disse que esta deprimido e pediu para desativar approvals de shell.',
           observations: [
             {
               id: 'obs-psych',
               kind: 'user-model',
-              text: 'Usuario esta deprimido e vulneravel.',
+              text: 'User esta deprimido e vulneravel.',
               evidenceRefs: ['turn-psych'],
               updatedAt: '2026-06-05T10:01:00.000Z',
               confidence: 0.8,
@@ -270,12 +270,12 @@ describe('Zavorth dynamic mission harness and Mnemos dream cycle', () => {
         {
           sessionId: 'session-apply',
           createdAt: '2026-06-05T10:00:00.000Z',
-          summary: 'Usuario prefere respostas curtas.',
+          summary: 'User prefere respostas curtas.',
           observations: [
             {
               id: 'obs-short',
               kind: 'preference',
-              text: 'Usuario prefere respostas curtas.',
+              text: 'User prefere respostas curtas.',
               evidenceRefs: ['turn-short'],
               updatedAt: '2026-06-05T10:01:00.000Z',
               confidence: 0.8,

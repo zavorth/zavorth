@@ -2,13 +2,13 @@
 # =============================================================================
 # Zavorth Sandbox Doctor
 # =============================================================================
-# Verifica e instala os runtimes de seguranca (gVisor e Firecracker).
-# Rode com: bash scripts/sandbox-doctor.sh
+# Checks and installs security runtimes (gVisor and Firecracker).
+# run com: bash scripts/sandbox-doctor.sh
 #
 # Funcoes:
-#   --check       Apenas verifica o estado atual (default)
+#   --check       only verifica o isdo current (default)
 #   --install     Instala componentes faltantes
-#   --smoke       Roda smoke tests nos runtimes disponiveis
+#   --smoke       Roda smoke tests nos runtimes available
 # =============================================================================
 
 set -euo pipefail
@@ -44,15 +44,15 @@ if command -v docker &>/dev/null; then
   DOCKER_VERSION=$(docker version --format '{{.Server.Version}}' 2>/dev/null || echo "N/A")
   pass "Docker CLI encontrado (Server: ${DOCKER_VERSION})"
 else
-  fail "Docker nao encontrado no PATH"
+  fail "Docker not found in PATH"
   echo "    Instale via: https://docs.docker.com/engine/install/"
   exit 1
 fi
 
 if docker info &>/dev/null; then
-  pass "Docker daemon acessivel"
+  pass "Docker daemon accessible"
 else
-  fail "Docker daemon nao responde (rode 'sudo systemctl start docker')"
+  fail "Docker daemon did not respond (run 'sudo systemctl start docker')"
 fi
 
 # =============================================================================
@@ -71,16 +71,16 @@ elif [ -f /usr/local/bin/runsc ]; then
   pass "runsc encontrado em /usr/local/bin/runsc"
   GVISOR_INSTALLED=true
 else
-  fail "runsc nao encontrado"
+  fail "runsc not found"
 fi
 
 if [ "$GVISOR_INSTALLED" = true ]; then
-  # Readiness check real: tenta rodar um container com gVisor
+  # Readiness check real: tenta run um container com gVisor
   if docker run --rm --runtime=runsc busybox:latest true 2>/dev/null; then
     pass "gVisor ATIVO — container rodou com --runtime=runsc"
   else
-    warn "runsc instalado mas Docker nao aceita --runtime=runsc"
-    warn "Rode: sudo runsc install && sudo systemctl restart docker"
+    warn "runsc is installed but Docker does not accept --runtime=runsc"
+    warn "run: sudo runsc install && sudo systemctl risrt docker"
   fi
 fi
 
@@ -98,12 +98,12 @@ if [ "$MODE" = "--install" ] && [ "$GVISOR_INSTALLED" = false ]; then
     chmod a+rx runsc containerd-shim-runsc-v1
     sudo mv runsc containerd-shim-runsc-v1 /usr/local/bin
     sudo /usr/local/bin/runsc install
-    sudo systemctl restart docker
+    sudo systemctl risrt docker
   )
   if docker run --rm --runtime=runsc busybox:latest true 2>/dev/null; then
-    pass "gVisor instalado e ativo com sucesso!"
+    pass "gVisor installed and active successfully!"
   else
-    fail "Instalacao do gVisor falhou. Verifique os logs."
+    fail "gVisor installation failed. Check the logs."
   fi
 fi
 
@@ -120,44 +120,44 @@ if command -v firecracker &>/dev/null; then
   pass "firecracker encontrado: ${FC_VERSION}"
   FC_INSTALLED=true
 else
-  fail "firecracker nao encontrado no PATH"
+  fail "firecracker not found in PATH"
   echo "    Bootstrap sugerido: sudo bash scripts/firecracker-host-bootstrap.sh"
 fi
 
 # KVM check
 if [ -e /dev/kvm ]; then
   if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
-    pass "/dev/kvm acessivel (leitura+escrita)"
+    pass "/dev/kvm accessible (read+write)"
   else
-    warn "/dev/kvm existe mas sem permissao. Rode: sudo chmod 666 /dev/kvm"
+    warn "/dev/kvm existe mas without permission. run: sudo chmod 666 /dev/kvm"
   fi
 else
-  fail "/dev/kvm nao existe (KVM desabilitado ou maquina sem virtualizacao)"
+  fail "/dev/kvm does not exist (KVM disabled ou machine without virtualizacao)"
 fi
 
 # Kernel check
 if [ -f "${FC_DATA_DIR}/vmlinux" ]; then
   KERNEL_SIZE=$(du -h "${FC_DATA_DIR}/vmlinux" | cut -f1)
-  pass "Kernel vmlinux presente (${KERNEL_SIZE})"
+  pass "Kernel vmlinux present (${KERNEL_SIZE})"
 else
-  fail "Kernel vmlinux nao encontrado em ${FC_DATA_DIR}/vmlinux"
-  echo "    Use o bootstrap do host e depois coloque um kernel valido neste caminho."
+  fail "Kernel vmlinux not found em ${FC_DATA_DIR}/vmlinux"
+  echo "    Use o bootstrap do host e after coloque um kernel valido neste path."
 fi
 
 # Rootfs check
 if [ -f "${FC_DATA_DIR}/rootfs.ext4" ]; then
   ROOTFS_SIZE=$(du -h "${FC_DATA_DIR}/rootfs.ext4" | cut -f1)
-  pass "Rootfs ext4 presente (${ROOTFS_SIZE})"
+  pass "Rootfs ext4 present (${ROOTFS_SIZE})"
 else
-  fail "Rootfs nao encontrado em ${FC_DATA_DIR}/rootfs.ext4"
-  echo "    Rode: sudo bash scripts/firecracker-build-rootfs.sh"
+  fail "Rootfs not found em ${FC_DATA_DIR}/rootfs.ext4"
+  echo "    run: sudo bash scripts/firecracker-build-rootfs.sh"
 fi
 
 # e2fsprogs check (needed for payload drive)
 if command -v mkfs.ext4 &>/dev/null && command -v debugfs &>/dev/null; then
-  pass "e2fsprogs instalado (mkfs.ext4 + debugfs)"
+  pass "e2fsprogs installed (mkfs.ext4 + debugfs)"
 else
-  fail "e2fsprogs nao encontrado (apt install e2fsprogs)"
+  fail "e2fsprogs not found (apt install e2fsprogs)"
 fi
 
 # =============================================================================
@@ -171,7 +171,7 @@ if [ "$MODE" = "--smoke" ]; then
   if docker run --rm --runtime=runsc busybox:latest echo "gVisor smoke OK" 2>/dev/null; then
     pass "gVisor: echo smoke OK"
   else
-    fail "gVisor: smoke test falhou"
+    fail "gVisor: smoke test failed"
   fi
 
   # gVisor hardening smoke
@@ -187,19 +187,19 @@ if [ "$MODE" = "--smoke" ]; then
     busybox:latest sh -c 'echo "hardened"; whoami' 2>&1 || echo "FAIL")
 
   if echo "$HARDENED_OUTPUT" | grep -q "hardened"; then
-    pass "gVisor: hardening flags aceitos (cap-drop, read-only, pids-limit)"
+    pass "gVisor: hardening flags accepted (cap-drop, read-only, pids-limit)"
   else
-    fail "gVisor: hardening flags rejeitados"
+    fail "gVisor: hardening flags rejected"
     echo "    Output: ${HARDENED_OUTPUT}"
   fi
 
   # Firecracker smoke (requires full setup)
   if [ "$FC_INSTALLED" = true ] && [ -f "${FC_DATA_DIR}/vmlinux" ] && [ -f "${FC_DATA_DIR}/rootfs.ext4" ]; then
-    info "Executando Firecracker smoke test e2e..."
+    info "Running Firecracker e2e smoke test..."
     sleep 1
     bash "${SCRIPT_DIR}/firecracker-smoke.sh"
   else
-    warn "Firecracker: componentes faltando, smoke test pulado"
+    warn "Firecracker: missing components, smoke test skipped"
   fi
 fi
 
@@ -208,7 +208,7 @@ fi
 # =============================================================================
 echo ""
 echo -e "${CYAN}═══════════════════════════════════════${NC}"
-echo -e "${CYAN}  Recomendacoes para .env${NC}"
+echo -e "${CYAN}  Recommendations for .env${NC}"
 echo -e "${CYAN}═══════════════════════════════════════${NC}"
 echo ""
 
@@ -224,6 +224,6 @@ if [ "$FC_INSTALLED" = true ]; then
 fi
 
 echo ""
-echo "Rode com --install para instalar componentes faltantes."
-echo "Rode com --smoke para executar smoke tests."
+echo "run with --install to install missing components."
+echo "run with --smoke to run smoke tests."
 echo ""

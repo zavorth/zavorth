@@ -17,8 +17,7 @@ function main(): void {
       steps: snapshot.happyPath.steps.map((step) => step.id),
     };
     process.stdout.write(
-      asJson
-        ? `${JSON.stringify(payload, null, 2)}\n`
+      asJson ? `${JSON.stringify(payload, null, 2)}\n`
         : `code daily loop check: ${ok ? 'pass' : 'fail'}\n`,
     );
     process.exitCode = ok ? 0 : 1;
@@ -26,8 +25,7 @@ function main(): void {
   }
 
   process.stdout.write(
-    asJson
-      ? `${JSON.stringify(snapshot, null, 2)}\n`
+    asJson ? `${JSON.stringify(snapshot, null, 2)}\n`
       : `${service.renderText(snapshot)}\n`,
   );
 }

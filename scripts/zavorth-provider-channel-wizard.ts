@@ -39,9 +39,9 @@ type WizardFlags = {
 };
 
 const CHANNEL_OPTIONS: Array<{ value: ZavorthChannelWizardId; label: string; hint: string }> = [
-  { value: 'telegram', label: 'Telegram', hint: 'Bot token + allowlist de usuario.' },
+  { value: 'telegram', label: 'Telegram', hint: 'Bot token + user allowlist.' },
   { value: 'discord', label: 'Discord', hint: 'Bot token + guild/channel allowlist.' },
-  { value: 'slack', label: 'Slack', hint: 'Token + allowlist de workspace/canal quando usado.' },
+  { value: 'slack', label: 'Slack', hint: 'Token + allowlist de workspace/canal when usado.' },
   { value: 'whatsapp', label: 'WhatsApp', hint: 'Token/bridge configuravel.' },
   { value: 'signal', label: 'Signal', hint: 'Bridge local configuravel.' },
   { value: 'email', label: 'Email', hint: 'Mailbox/SMTP configuravel.' },
@@ -78,7 +78,7 @@ async function runProvider(action: 'add' | 'switch'): Promise<void> {
   const providerId = flags.provider || (interactive ? await selectProvider() : 'deferred');
   const provider = resolveSetupStudioProvider(providerId);
   const modelId = flags.model || (interactive && provider.id !== 'deferred'
-    ? await textPrompt('Modelo padrao deste provider', provider.defaultModel)
+    ? await textPrompt('Modelo default deste provider', provider.defaultModel)
     : provider.defaultModel);
   const providerSecret = readSecretFromEnv(flags.secretEnv)
     || (interactive && provider.needsSecret ? await optionalSecret(`Chave de API para ${provider.label}`) : null);
@@ -108,7 +108,7 @@ async function runAutoDiscovery(action: 'add' | 'switch', interactive: boolean):
 
   const providerId = flags.provider || (interactive ? await textPrompt('ID do provider (ex: groq, together)', '') : null);
   if (!providerId) {
-    p.log.error('Provider ID e obrigatorio para auto-discovery.');
+    p.log.error('Provider ID e required para auto-discovery.');
     return;
   }
 
@@ -179,7 +179,7 @@ async function runAutoDiscovery(action: 'add' | 'switch', interactive: boolean):
         scanDirs: [],
       });
       ZavorthSetupStudioService.applyZavorthSetupStudioEnvPlan(plan);
-      p.log.success('Configuracao gravada em .env');
+      p.log.success('Configuraction gravada em .env');
     }
   }
 }
@@ -192,9 +192,9 @@ async function runChannel(initialChannelId: string | null): Promise<void> {
       ? await selectChannel()
       : normalizeZavorthChannelWizardId(flags.channel || 'telegram');
   const token = readSecretFromEnv(flags.tokenEnv)
-    || (interactive ? await optionalSecret(`Token/credencial para ${channelId}`) : null);
-  const allowedUserIds = flags.allowedUsers || (interactive ? await optionalText('Usuarios permitidos, separados por virgula', '') : null);
-  const allowedGuildIds = flags.allowedGuilds || (interactive && channelId === 'discord' ? await optionalText('Guilds permitidas, separadas por virgula', '') : null);
+    || (interactive ? await optionalSecret(`Token/credential para ${channelId}`) : null);
+  const allowedUserIds = flags.allowedUsers || (interactive ? await optionalText('Users permitidos, separados por virgula', '') : null);
+  const allowedGuildIds = flags.allowedGuilds || (interactive && channelId === 'discord' ? await optionalText('Allowed guilds, comma-separated', '') : null);
   const allowedChannelIds = flags.allowedChannels || (interactive && ['discord', 'slack'].includes(channelId)
     ? await optionalText('Canais permitidos, separados por virgula', '')
     : null);
@@ -268,18 +268,18 @@ function readSecretFromEnv(envName: string | null): string | null {
   if (!envName) return null;
   const value = process.env[envName];
   if (!value) {
-    throw new Error(`A variavel ${envName} nao esta definida.`);
+    throw new Error(`Variable ${envName} is not defined.`);
   }
   return value;
 }
 
 async function selectProvider(): Promise<string> {
   const selected = await p.select({
-    message: 'Qual provider voce quer configurar?',
+    message: 'Which provider do you want to configure...',
     options: ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS.filter((provider) => provider.id !== 'deferred').map((provider) => ({
       value: provider.id,
       label: provider.label,
-      hint: provider.needsSecret ? 'Pode salvar chave por prompt secreto.' : 'Nao exige chave.',
+      hint: provider.needsSecret ? 'Can save key through secret prompt.' : 'Does not require a key.',
     })),
     initialValue: 'gemini',
   });
@@ -289,7 +289,7 @@ async function selectProvider(): Promise<string> {
 
 async function selectChannel(): Promise<ZavorthChannelWizardId> {
   const selected = await p.select({
-    message: 'Qual canal voce quer configurar?',
+    message: 'Which channel do you want to configure...',
     options: CHANNEL_OPTIONS,
     initialValue: 'telegram',
   });
@@ -301,7 +301,7 @@ async function textPrompt(message: string, initialValue: string): Promise<string
   const value = await p.text({
     message,
     initialValue,
-    validate: (input) => String(input || '').trim() ? undefined : 'Informe um valor.',
+    validate: (input) => String(input || '').trim() ? undefined : 'Informe um value.',
   });
   if (p.isCancel(value)) throw new Error('Wizard cancelado.');
   return String(value).trim();
@@ -315,7 +315,7 @@ async function optionalText(message: string, initialValue: string): Promise<stri
 
 async function optionalSecret(message: string): Promise<string | null> {
   const wantsSecret = await p.confirm({
-    message: `${message}: salvar agora?`,
+    message: `${message}: salvar agora...`,
     initialValue: false,
   });
   if (p.isCancel(wantsSecret) || !wantsSecret) return null;
@@ -326,7 +326,7 @@ async function optionalSecret(message: string): Promise<string | null> {
 
 async function confirmApply(): Promise<boolean> {
   const confirmed = await p.confirm({
-    message: 'Gravar essas configuracoes no .env agora?',
+    message: 'Gravar essas configurations no .env agora...',
     initialValue: false,
   });
   if (p.isCancel(confirmed)) throw new Error('Wizard cancelado.');
@@ -360,11 +360,11 @@ async function maybeRunProviderLiveValidation(input: {
       return validation;
     }
     const next = await p.select({
-      message: 'O teste live falhou. Como deseja seguir?',
+      message: 'O teste live failed. Como deseja seguir...',
       options: [
-        { value: 'retry', label: 'Tentar novamente', hint: 'Repete o ping com a mesma chave/modelo.' },
-        { value: 'save', label: 'Salvar mesmo assim', hint: 'Guarda prova sanitizada da falha.' },
-        { value: 'skip', label: 'Pular teste', hint: 'Nao grava prova live.' },
+        { value: 'retry', label: 'try again', hint: 'Repete o ping com a mesma chave/modelo.' },
+        { value: 'save', label: 'Salvar mesmo assim', hint: 'Guarda prova sanitizada da failure.' },
+        { value: 'skip', label: 'Skip test', hint: 'Does not write live proof.' },
       ],
       initialValue: 'retry',
     });
@@ -379,7 +379,7 @@ async function maybeRunProviderLiveValidation(input: {
 
 async function confirmLiveTest(): Promise<boolean> {
   const confirmed = await p.confirm({
-    message: 'Testar esse provider agora com uma chamada live leve?',
+    message: 'Testar esse provider agora com uma call live leve...',
     initialValue: false,
   });
   if (p.isCancel(confirmed)) throw new Error('Wizard cancelado.');
@@ -409,7 +409,7 @@ async function runProviderLiveValidation(input: {
     providerSecret: input.providerSecret,
     explicitUserConsent: true,
   });
-  spinner.stop(validation.status === 'passed' ? 'Provider validado.' : 'Teste live concluido com atencao.');
+  spinner.stop(validation.status === 'passed' ? 'Provider validated.' : 'Teste live completed com attention.');
   return validation;
 }
 
@@ -438,28 +438,28 @@ function printHelp(): void {
     '',
     'Auto-Discovery:',
     '  Use --discover para descobrir modelos automaticamente via API do provider.',
-    '  Requer --provider e --base-url. Opcional: --api-key, --kind (openai_compatible|anthropic_compatible).',
+    '  Requer --provider e --base-url. optional: --api-key, --kind (openai_compatible|anthropic_compatible).',
     '  Exemplo: zavorth providers add --discover --provider groq --base-url https://api.groq.com/openai/v1 --api-key $GROQ_API_KEY',
     '',
-    'Segredos:',
-    '  Use o prompt interativo ou --secret-env NOME_DA_ENV / --token-env NOME_DA_ENV.',
-    '  O wizard nunca imprime o valor bruto da chave.',
+    'secrets:',
+    '  Use the interactive prompt or --secret-env ENV_NAME / --token-env ENV_NAME.',
+    '  O wizard nunca imprime o value bruto da chave.',
     '',
     'Opcoes:',
     '  --json              Saida estruturada.',
-    '  --apply             Grava no .env. Sem isso, e preview.',
-    '  --test-live         Executa ping real leve, somente quando pedido.',
-    '  --skip-live-test    Nao pergunta por teste live.',
+    '  --apply             Grava no .env. without isso, e preview.',
+    '  --test-live         Runs a lightweight live ping only when requested.',
+    '  --skip-live-test    Does not ask for live test.',
     '  --provider <id>     Provider alvo.',
-    '  --model <id>        Modelo padrao.',
+    '  --model <id>        Modelo default.',
     '  --channel <id>      Canal alvo.',
     '  --allowed-users <ids>',
     '  --allowed-guilds <ids>',
     '  --allowed-channels <ids>',
     '  --owners <ids>',
-    '  --discover          Ativa auto-discovery de modelos via API.',
-    '  --base-url <url>    Base URL do provider (obrigatorio com --discover).',
-    '  --api-key <key>     Chave de API (opcional com --discover).',
+    '  --discover          Enables model auto-discovery through the API.',
+    '  --base-url <url>    Base URL do provider (required com --discover).',
+    '  --api-key <key>     Chave de API (optional com --discover).',
     '  --kind <type>       Tipo de compatibilidade: openai_compatible ou anthropic_compatible.',
     '',
   ].join('\n'));

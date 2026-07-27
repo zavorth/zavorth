@@ -4,15 +4,15 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
   const createWorkflowRun = (overrides: Record<string, any> = {}) => ({
     workflow_run_id: 'workflow-run-1',
     workflow_name: 'ship-docs',
-    objective: 'Fechar docs operacionais.',
+    objective: 'Close docs operacionais.',
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
     updated_at: '2026-04-12T17:50:00.000Z',
     status: 'paused',
     resume_stage: {
       id: 'stage-docs',
-      reason: 'Docs precisam de retomada operacional.',
+      reason: 'Docs needsm de resumption operacional.',
     },
-    resume_prompt: 'Retome a partir do stage-docs e valide docs.',
+    resume_prompt: 'Resume a partir do stage-docs e valide docs.',
     artifacts: [
       {
         id: 'artifact-workflow-docs',
@@ -65,7 +65,7 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
                 approvalId: null,
                 artifactId: null,
                 status: 'replayed',
-                summary: 'Replay pronto para retomada.',
+                summary: 'Replay ready para resumption.',
                 source: 'session-replay',
                 surface: 'web',
                 parentId: 'workflow-run-1',
@@ -118,7 +118,7 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
             total: 4,
           },
           narrative: {
-            operatorSummary: 'Memoria em camadas pronta.',
+            operatorSummary: 'Memory em camadas pronta.',
           },
         })),
         readMetrics: jest.fn(async () => ({
@@ -152,7 +152,7 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
             },
           ],
           narrative: {
-            operatorSummary: '1 candidato pronto para review.',
+            operatorSummary: '1 candidato ready para review.',
           },
         })),
         readMetrics: jest.fn(async () => ({

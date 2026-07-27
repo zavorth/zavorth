@@ -19,7 +19,7 @@ describe('RuntimeAccessLaunchService', () => {
     )).toEqual({
       source: 'remote',
       url: 'https://zavorth.example/dashboard',
-      reason: 'Abri o Home remoto porque ele ja esta pronto.',
+      reason: 'Abri o Home remoto porque ele already is ready.',
     });
   });
 
@@ -41,7 +41,7 @@ describe('RuntimeAccessLaunchService', () => {
     )).toEqual({
       source: 'local',
       url: 'http://127.0.0.1:33333/dashboard',
-      reason: 'Abri o Home local porque ele ja esta pronto.',
+      reason: 'Abri o Home local porque ele already is ready.',
     });
   });
 
@@ -63,7 +63,7 @@ describe('RuntimeAccessLaunchService', () => {
     )).toEqual({
       source: 'none',
       url: null,
-      reason: 'O Home remoto ainda nao esta pronto para abrir.',
+      reason: 'O Home remoto ainda not esta ready para abrir.',
     });
   });
 

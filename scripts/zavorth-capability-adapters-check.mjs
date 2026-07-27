@@ -36,7 +36,7 @@ if (result.stdout) {
 }
 if (snapshot) {
   if (snapshot.surface !== 'capability-adapter-draft') failures.push('surface mismatch');
-  if (!snapshot.safety?.simulatedPrototypesOnly) failures.push('simulated prototype boundary missing');
+  if (!snapshot.safety?.dryRunPrototypesOnly) failures.push('dry-run prototype boundary missing');
   if (!snapshot.safety?.capabilityLabRequired) failures.push('capability lab boundary missing');
   if (!snapshot.safety?.defaultEnabledFalse || !snapshot.safety?.liveAllowedByDefaultFalse) failures.push('disabled/live-default boundary missing');
   if (!snapshot.safety?.noCapabilityInstalled || !snapshot.safety?.noLiveActivation) failures.push('install/live boundary missing');

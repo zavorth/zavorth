@@ -127,7 +127,7 @@ describe('ReleaseUxWizardService', () => {
     const report = await service.renderReport();
 
     expect(report).toContain('Gate release-ux-wizard - Release UX');
-    expect(report).toContain('proximo passo recomendada: 42 - Tenant/Team Ops');
+    expect(report).toContain('next step recomendada: 42 - Tenant/Team Ops');
   });
 });
 
@@ -185,7 +185,7 @@ function releasePresenceFixture(overrides: Partial<ZavorthReleasePresenceSnapsho
       },
       risk: {
         level: 'low',
-        reasons: ['release com historico e rollback em postura aceitavel'],
+        reasons: ['release with history and rollback in acceptable posture'],
       },
       verification: {
         available: true,
@@ -200,7 +200,7 @@ function releasePresenceFixture(overrides: Partial<ZavorthReleasePresenceSnapsho
       generatedFrom: 'publish-history+telemetry-ledger',
       entries: [
         'Ultimo publish: release-b em 2026-04-24T16:00:00.000Z.',
-        'Diff: 3 arquivo(s) adicionados ou alterados.',
+        'Diff: 3 file(s) adicionados ou alterados.',
       ],
     },
     diff: {
@@ -211,7 +211,7 @@ function releasePresenceFixture(overrides: Partial<ZavorthReleasePresenceSnapsho
         to: { id: 'release-b', label: 'release-b', commit: 'bbbbbbbb22222222', publishedAt: '2026-04-24T16:00:00.000Z' },
         comparedAt: '2026-04-24T17:00:00.000Z',
         commitChanged: true,
-        summary: 'release-a (aaaaaaaa) -> release-b (bbbbbbbb): 3 arquivo(s) adicionados/alterados.',
+        summary: 'release-a (aaaaaaaa) -> release-b (bbbbbbbb): 3 file(s) adicionados/alterados.',
         overall: { added: 1, changed: 2, removed: 0, unchanged: 5 },
         targets: {
           docs: {
@@ -238,7 +238,7 @@ function releasePresenceFixture(overrides: Partial<ZavorthReleasePresenceSnapsho
           },
         },
       },
-      summary: 'release-a (aaaaaaaa) -> release-b (bbbbbbbb): 3 arquivo(s) adicionados/alterados.',
+      summary: 'release-a (aaaaaaaa) -> release-b (bbbbbbbb): 3 file(s) adicionados/alterados.',
     },
     rollback: {
       targetId: 'release-a',
@@ -251,7 +251,7 @@ function releasePresenceFixture(overrides: Partial<ZavorthReleasePresenceSnapsho
         status: 'pass',
         checks: [
           { id: 'target-resolved', status: 'pass', summary: 'Target release-a resolvido.' },
-          { id: 'diff-evidence', status: 'pass', summary: 'Diff pronto.' },
+          { id: 'diff-evidence', status: 'pass', summary: 'Diff ready.' },
         ],
       },
       evidence: ['commit=aaaaaaaa11111111', 'publishedAt=2026-04-24T15:00:00.000Z'],
@@ -311,8 +311,8 @@ function releasePresenceFixture(overrides: Partial<ZavorthReleasePresenceSnapsho
       presence: 'zavorth release presence --json',
     },
     narrative: {
-      headline: 'Release stable pronto.',
-      operatorSummary: 'low: release com historico e rollback em postura aceitavel',
+      headline: 'Release stable ready.',
+      operatorSummary: 'low: release with history and rollback in acceptable posture',
     },
   };
 

@@ -52,6 +52,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error('[deterministic-qa] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[deterministic-qa] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

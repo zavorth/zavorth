@@ -70,7 +70,7 @@ describe('ZavorthOneCommandOperatorCheckService', () => {
     expect(snapshot.status).toBe('attention');
     expect(snapshot.strictPass).toBe(false);
     expect(snapshot.summary.liveProviderProbeRequested).toBe(true);
-    expect(snapshot.areas.find((area) => area.id === 'daily-use')?.summary).toContain('pedem atencao');
+    expect(snapshot.areas.find((area) => area.id === 'daily-use')?.summary).toContain('need attention');
     expect(snapshot.source.dashboard.permissionPanel.items.map((item) => item.id)).toContain('extreme-mode');
   });
 
@@ -159,8 +159,7 @@ function dailyUseSnapshot(status: 'passed' | 'attention') {
       attention: status === 'passed' ? 0 : 1,
       failed: 0,
     },
-    findings: status === 'passed'
-      ? []
+    findings: status === 'passed' ? []
       : [{
         severity: 'warning',
         summary: 'Skill Curator ainda tem merges destrutivos em preview.',
@@ -178,8 +177,8 @@ function dashboardSnapshot() {
     generatedAt: '2026-05-18T12:00:00.000Z',
     surface: 'dashboard-experience-home',
     permissionPanel: {
-      title: 'Permissoes',
-      defaultPosture: 'Projection-only: botoes abrem revisao.',
+      title: 'permissions',
+      defaultPosture: 'Projection-only: botoes abrunder review.',
       items: [
         { id: 'permissions' },
         { id: 'auto-approvals' },

@@ -259,7 +259,7 @@ function sha256(bytes: Buffer): string {
 
 function assertInside(root: string, target: string): void {
   if (!isInside(root, target)) {
-    throw new Error(`recusando tocar caminho fora do diretorio esperado: ${target}`);
+    throw new Error(`recusando tocar path outside do diretorio esperado: ${target}`);
   }
 }
 
@@ -271,6 +271,6 @@ function isInside(root: string, target: string): boolean {
 }
 
 main().catch((error) => {
-  console.error('[distribution-hardening] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[distribution-hardening] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

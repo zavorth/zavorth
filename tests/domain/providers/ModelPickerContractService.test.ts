@@ -104,7 +104,7 @@ function createProviderControlPlane() {
   };
 
   return {
-    listProviders: jest.fn(({ includeAdvanced }: { includeAdvanced?: boolean } = {}) => (
+    listProviders: jest.fn(({ includeAdvanced }: { includeAdvanced-: boolean } = {}) => (
       includeAdvanced ? providers : providers.filter((entry) => entry.visibility === 'public')
     )),
     listProfiles: jest.fn(() => profiles),

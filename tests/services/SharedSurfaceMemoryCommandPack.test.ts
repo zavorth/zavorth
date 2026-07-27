@@ -31,7 +31,7 @@ function buildMemoryPlaneSnapshot(overrides: Record<string, any> = {}) {
       relevant: [
         {
           key: 'gateway',
-          value: 'Gateway pronto para smoke.',
+          value: 'Gateway ready para smoke.',
           category: 'runtime',
           updatedAt: '2026-04-15T12:00:00.000Z',
         },
@@ -64,13 +64,13 @@ function buildMemoryPlaneSnapshot(overrides: Record<string, any> = {}) {
         id: 'resume',
         label: 'Abrir replay',
         command: '/sessionhistory latest',
-        reason: 'Retomar a ultima execucao.',
+        reason: 'Resume the last execution.',
         kind: 'resume',
       },
     ],
     narrative: {
-      headline: 'Memoria operacional pronta.',
-      operatorSummary: 'Ha contexto suficiente para retomar o runtime.',
+      headline: 'Operational memory pronta.',
+      operatorSummary: 'Ha contexto suficiente para resume o runtime.',
     },
     ...overrides,
   };
@@ -174,7 +174,7 @@ describe('SharedSurfaceMemoryCommandPack', () => {
     );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth resume and deliveries'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Build report: Build verde.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('gateway: Gateway pronto para smoke.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('gateway: Gateway ready para smoke.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Abrir replay: /sessionhistory latest'));
   });
 
@@ -195,7 +195,7 @@ describe('SharedSurfaceMemoryCommandPack', () => {
       },
       narrative: {
         headline: 'Layered memory indexada.',
-        operatorSummary: 'Memoria pronta para retomada.',
+        operatorSummary: 'Memory ready para resumption.',
       },
     }));
     const pack = buildPack({
@@ -312,7 +312,7 @@ describe('SharedSurfaceMemoryCommandPack', () => {
         buildSnapshot,
       } as any,
     });
-    const ctx = buildCtx('mostre a memoria recente');
+    const ctx = buildCtx('show recent memory');
 
     const handled = await pack.maybeHandle(ctx as any, '/memoryplane', '');
     expect(handled).toBe(true);

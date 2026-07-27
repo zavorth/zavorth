@@ -42,7 +42,7 @@ describe('NaturalChannelSetupTurnService', () => {
             enabled: true,
             configured: true,
             status: 'passed',
-            summary: 'Slack validado.',
+            summary: 'Slack validated.',
             error: null,
             recommendedAction: null,
             details: [],
@@ -57,7 +57,7 @@ describe('NaturalChannelSetupTurnService', () => {
         actionId: 'send-test',
         status: 'applied',
         ok: true,
-        summary: 'Teste de broadcast enviado para Slack.',
+        summary: 'Teste de broadcast sent para Slack.',
         details: [],
         selected: null,
         snapshot: {
@@ -162,12 +162,12 @@ describe('NaturalChannelSetupTurnService', () => {
     const { service } = createService();
 
     const result = await service.buildTurn({
-      intentText: 'Quero conectar voce em mais um lugar, mas ainda nao decidi qual.',
+      intentText: 'Quero conectar you em mais um lugar, mas ainda not decidi qual.',
     });
 
     expect(result.channelId).toBeNull();
     expect(result.applyResult).toBeNull();
-    expect(result.naturalReply).toContain('Me diga qual canal voce quer conectar');
+    expect(result.naturalReply).toContain('Me diga qual canal you quer conectar');
   });
 
   it('previews requested mutations without writing secrets or running doctor/test', async () => {

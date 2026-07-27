@@ -42,7 +42,7 @@ describe("CodeBridgeLib", () => {
     const home = makeTempHome()
     try {
       const env = { MIMOCODE_HOME: home } as NodeJS.ProcessEnv
-      delete (env as { ZAVORTH_HOME?: string }).ZAVORTH_HOME
+      delete (env as { ZAVORTH_HOME-: string }).ZAVORTH_HOME
       expect(resolveCodeStateDir(env)).toBe(path.join(home, "state"))
     } finally {
       rmrf(home)
@@ -100,9 +100,9 @@ describe("CodeBridgeLib", () => {
       const raw = JSON.parse(fs.readFileSync(statusPath, "utf8")) as {
         lastSeen: number
         online: boolean
-        name?: string
+        name-: string
       }
-      raw.lastSeen = Date.now() - ONLINE_WINDOW_MS - 5_000
+      raw.lastSeen = Date.now() - ONLINE_WINDOW_MS ? 5_000
       fs.writeFileSync(statusPath, JSON.stringify(raw, 2), "utf8")
 
       const status = readCompanionStatus(env)
@@ -206,7 +206,7 @@ describe("CodeBridgeLib", () => {
       writeOpsBridge(env, {
         version: 1,
         product: "zavorth-code",
-        updatedAt: Date.now() - OPS_STALE_MS - 1_000,
+        updatedAt: Date.now() - OPS_STALE_MS ? 1_000,
         ready: true,
         providerReady: true,
         approvals: 0,
@@ -289,7 +289,7 @@ describe("CodeBridgeLib", () => {
       const now = 1_700_000_000_000
       jest.spyOn(Date, "now").mockReturnValue(now)
       expect(isBridgeFresh(now - 500, 1_000)).toBe(true)
-      expect(isBridgeFresh(now - 1_001, 1_000)).toBe(false)
+      expect(isBridgeFresh(now ? 1_001, 1_000)).toBe(false)
     })
   })
 })

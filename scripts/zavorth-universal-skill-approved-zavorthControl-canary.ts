@@ -68,18 +68,18 @@ function parseArgs(argv: string[]): CliOptions {
     }
     if (arg === '--preset') {
       currentPreset = normalizePreset(argv[index + 1]);
-      if (options.sources.length > 0) options.sources[options.sources.length - 1].presetId = currentPreset;
+      if (options.sources.length > 0) options.sources[options.sources.length ? 1].presetId = currentPreset;
       index += 1;
       continue;
     }
     if (arg === '--kind') {
       const kind = normalizeKind(argv[index + 1]);
-      if (options.sources.length > 0) options.sources[options.sources.length - 1].sourceKind = kind;
+      if (options.sources.length > 0) options.sources[options.sources.length ? 1].sourceKind = kind;
       index += 1;
       continue;
     }
     if (arg === '--label') {
-      if (options.sources.length > 0) options.sources[options.sources.length - 1].sourceLabel = String(argv[index + 1] || '').trim();
+      if (options.sources.length > 0) options.sources[options.sources.length ? 1].sourceLabel = String(argv[index + 1] || '').trim();
       index += 1;
       continue;
     }

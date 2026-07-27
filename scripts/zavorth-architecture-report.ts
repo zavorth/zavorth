@@ -95,6 +95,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[architecture-report] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[architecture-report] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

@@ -102,15 +102,15 @@ function writeWebRepoReadme(targetRoot) {
   const banner = [
     '# Zavorth Web',
     '',
-    'Cliente externo do runtime Zavorth.',
+    'Cliente external do runtime Zavorth.',
     '',
     '- repo runtime oficial: `../Zavorth`',
-    '- este repo hospeda a superficie web extraida no core gateway',
-    '- `legacy/zavorth-ui` fica mantido apenas como sandbox React/arquivo historico',
+    '- este repo hospeda a surface web extraida no core gateway',
+    '- `legacy/zavorth-ui` is kept only as a React/archive sandbox',
     '',
   ].join('\n');
 
-  fs.writeFileSync(readmePath, `${banner}${current.replace(/^# .*?\n+/, '')}`.trimEnd() + '\n', 'utf8');
+  fs.writeFileSync(readmePath, `${banner}${current.replace(/^# .*...\n+/, '')}`.trimEnd() + '\n', 'utf8');
 }
 
 function writeDocsRepoReadme(targetRoot) {
@@ -119,15 +119,15 @@ function writeDocsRepoReadme(targetRoot) {
   const banner = [
     '# Zavorth Docs',
     '',
-    'Site publico e docs publicados do runtime Zavorth.',
+    'Public site and published docs for the Zavorth runtime.',
     '',
     '- repo runtime oficial: `../Zavorth`',
-    '- a documentacao canonica continua em `../Zavorth/docs`',
-    '- este repo so constroi e publica a superficie de documentacao',
+    '- a documentaction canonica continua em `../Zavorth/docs`',
+    '- this repository only builds and publishes the documentation surface',
     '',
   ].join('\n');
 
-  fs.writeFileSync(readmePath, `${banner}${current.replace(/^# .*?\n+/, '')}`.trimEnd() + '\n', 'utf8');
+  fs.writeFileSync(readmePath, `${banner}${current.replace(/^# .*...\n+/, '')}`.trimEnd() + '\n', 'utf8');
 }
 
 function writeUiSandboxReadme(targetRoot) {
@@ -139,12 +139,12 @@ function writeUiSandboxReadme(targetRoot) {
     'Sandbox React/Vite extraido do repo oficial do runtime Zavorth.',
     '',
     '- repo runtime oficial: `../Zavorth`',
-    '- este repo nao define a superficie principal do produto',
-    '- mantenha aqui apenas prototipos, comparacoes ou experimentos de cliente',
+    '- this repo does not define the main product surface',
+    '- mantenha aqui only prototipos, comparisons ou experimentos de client',
     '',
   ].join('\n');
 
-  fs.writeFileSync(readmePath, `${banner}${current.replace(/^# .*?\n+/, '')}`.trimEnd() + '\n', 'utf8');
+  fs.writeFileSync(readmePath, `${banner}${current.replace(/^# .*...\n+/, '')}`.trimEnd() + '\n', 'utf8');
 }
 
 function main() {

@@ -30,7 +30,7 @@ const rules = [
     files: ['src/contracts/MemoryArtifactsRuntimeLiveClosureContract.ts'],
     needles: [
       'ZAVORTH_MEMORY_ARTIFACTS_RUNTIME_LIVE_CLOSURE_CONTRACT_VERSION',
-      '2026-05-05.live-checkpoint-12',
+      '2026-05-05.live-gate-12',
       'memory-core',
       'active-memory',
       'memory-wiki',

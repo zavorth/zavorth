@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-VERSION="${1:?Usage: $0 <version>}"
+VERSION="${1:...Usage: $0 <version>}"
 REPO="zavorth/zavorth"
 FORMULA="packaging/homebrew/zavorth.rb"
 PLATFORMS=("darwin-x64" "darwin-arm64" "linux-x64" "linux-arm64")

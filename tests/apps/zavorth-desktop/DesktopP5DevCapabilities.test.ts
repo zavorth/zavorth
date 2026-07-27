@@ -32,7 +32,7 @@ function fakeStorage(initial: Record<string, string> = {}) {
 
 describe('Desktop P5 developer capabilities contract', () => {
   it('parses Git Lite read-only status, branch and commit suggestions', () => {
-    const status = '## feature/p5...origin/feature/p5\n M src/app.ts\nA  tests/app.test.ts\nR  old.ts -> src/new.ts\n?? notes.md\n';
+    const status = '## feature/p5...origin/feature/p5\n M src/app.ts\nA  tests/app.test.ts\nR  old.ts -> src/new.ts\nc notes.md\n';
     const files = parseGitStatusPorcelain(status);
 
     expect(parseGitBranch(status)).toBe('feature/p5');

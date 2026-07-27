@@ -30,7 +30,7 @@ const rules = [
     files: ['src/contracts/MediaGenerationLivePlaneContract.ts'],
     needles: [
       'ZAVORTH_MEDIA_GENERATION_LIVE_PLANE_CONTRACT_VERSION',
-      '2026-05-04.live-checkpoint-6',
+      '2026-05-04.live-gate-6',
       'image-generation-core',
       'video-generation-core',
       'audioRoutedToStage7: true',

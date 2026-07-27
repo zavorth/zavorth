@@ -263,7 +263,7 @@ describe('ZavorthQaControlPlaneService', () => {
           memoryDeltaBytes: 999999,
           success: true,
           error: null,
-          warning: 'Nenhum transporte remoto elegivel para doctor neste runtime.',
+          warning: 'No transporte remoto elegivel para doctor neste runtime.',
           details: { status: 'skipped', items: 4 },
         },
       ],
@@ -318,7 +318,7 @@ describe('ZavorthQaControlPlaneService', () => {
         narrative: {
           headline: 'Architecture',
           operatorSummary: 'Arquitetura ainda com avisos.',
-          nextAction: 'Fechar o gate.',
+          nextAction: 'Close o gate.',
         },
       }),
     });

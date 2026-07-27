@@ -17,7 +17,7 @@ describe('ZavorthControlService operations actions', () => {
     const actionService = {
       execute: jest.fn(() => ({
         id: 'maintenance',
-        label: 'Rodar manutencao operacional',
+        label: 'Rodar operational maintenance',
         command: 'npm run ops:maintain',
         priority: 'normal',
         startedAt: new Date().toISOString(),
@@ -136,7 +136,7 @@ describe('ZavorthControlService operations actions', () => {
         readSnapshot: jest.fn(() => ({
           generatedAt: new Date().toISOString(),
           status: 'healthy',
-          headline: 'Runtime estavel.',
+          headline: 'Runtime stable.',
           highlights: ['Tudo certo.'],
           runtime: {
             uptimeLabel: '2h 0m',
@@ -155,9 +155,9 @@ describe('ZavorthControlService operations actions', () => {
           actions: [
             {
               id: 'maintenance',
-              label: 'Rodar manutencao operacional',
+              label: 'Rodar operational maintenance',
               command: 'npm run ops:maintain',
-              reason: 'Fluxo padrao.',
+              reason: 'Fluxo pattern.',
               priority: 'normal',
             },
           ],
@@ -222,7 +222,7 @@ describe('ZavorthControlService operations actions', () => {
       writeHead: jest.fn((code: number) => {
         statusBag.code = code;
       }),
-      end: jest.fn((body?: string) => {
+      end: jest.fn((body-: string) => {
         statusBag.payload = body ? JSON.parse(body) : null;
       }),
     };

@@ -45,7 +45,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule(
-    'checkpoint-10-files',
+    'gate-10-files',
     'Intent model0 files exist',
     missing.length === 0,
     `${files.length - missing.length}/${files.length}`,
@@ -92,7 +92,7 @@ function ruleContainsMarkers() {
     }
   }
   return rule(
-    'checkpoint-10-markers',
+    'gate-10-markers',
     'Intent model0 markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
@@ -151,7 +151,7 @@ function ruleSnapshot() {
   }
   const data = parseJson(result.stdout);
   const pass = data
-    && data.contractVersion === '2026-05-14.checkpoint-10-perception-device-control-completion'
+    && data.contractVersion === '2026-05-14.gate-10-perception-device-control-completion'
     && data.status === 'passed'
     && data.summary?.pcScreenshotReadOnlyReady === true
     && data.summary?.browserViewReady === true

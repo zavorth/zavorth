@@ -22,7 +22,7 @@ function createFlags(json: boolean) {
 
 describe('Zavorth CLI Public Site Docs Demo Sync Channel mesh9', () => {
   it('parses public-sync text after aliases', () => {
-    expect(resolvePublicSiteDocsDemoSyncCliText('public-sync "alinhar docs"')).toBe('alinhar docs');
+    expect(resolvePublicSiteDocsDemoSyncCliText('public-sync "align docs"')).toBe('align docs');
     expect(resolvePublicSiteDocsDemoSyncCliText('site-docs-demo latest')).toBe('');
   });
 
@@ -34,7 +34,7 @@ describe('Zavorth CLI Public Site Docs Demo Sync Channel mesh9', () => {
       effectiveFlags: createFlags(true),
       commandName: 'public-sync',
       normalized: 'public-sync',
-      args: 'public-sync "alinhar docs"',
+      args: 'public-sync "align docs"',
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -75,7 +75,7 @@ describe('Zavorth CLI Public Site Docs Demo Sync Channel mesh9', () => {
 
   it('formats a compact human summary', () => {
     const snapshot = buildPublicSiteDocsDemoSyncCliSnapshot({
-      text: 'alinhar docs',
+      text: 'align docs',
       userId: 'grey',
       sessionId: 'session-cli-public-sync-human',
     });
@@ -84,7 +84,7 @@ describe('Zavorth CLI Public Site Docs Demo Sync Channel mesh9', () => {
 
     expect(text).toContain('Public Site / Docs / Demo Sync - Channel mesh9');
     expect(text).toMatch(/build|publico|not executed|Public Site|Docs/i);
-    expect(text).toContain('stable claim nao foi publicado');
-    expect(text).toContain('Dashboard: /zavorthControl?runId=');
+    expect(text).toContain('stable claim was not publicdo');
+    expect(text).toContain('Dashboard: /zavorthControl-runId=');
   });
 });

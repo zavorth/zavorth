@@ -44,8 +44,7 @@ const entries = list
   .map((entry) => {
     const id = String(entry.id || '').trim();
     const sourceBundled = String(entry.source || `bundled://${id}`);
-    const remoteSource = baseUrl
-      ? `${baseUrl}/${encodeURIComponent(id)}.tgz`
+    const remoteSource = baseUrl ? `${baseUrl}/${encodeURIComponent(id)}.tgz`
       : sourceBundled.startsWith('http')
         ? sourceBundled
         : `bundled://${id}`;

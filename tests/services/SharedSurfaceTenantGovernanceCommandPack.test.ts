@@ -15,7 +15,7 @@ function buildCtx(rawText = '/tenants') {
 function buildTeamSnapshot() {
   return {
     narrative: {
-      headline: 'Teams prontos.',
+      headline: 'Teams readys.',
       operatorSummary: '1 team composto disponivel.',
     },
     teams: [
@@ -27,7 +27,7 @@ function buildTeamSnapshot() {
         status: 'ready',
         runStats: { total: 2, resumable: 1 },
         surfaces: [{ label: 'Telegram', status: 'ready', summary: 'Comando exposto.' }],
-        operatorSummary: 'Pronto para execucao assistida.',
+        operatorSummary: 'Ready for assisted execution.',
       },
     ],
   };
@@ -38,7 +38,7 @@ function buildTenantSnapshot() {
     narrative: {
       headline: 'Governanca pronta.',
       operatorSummary: '1 tenant observado.',
-      nextAction: 'Revisar canais compartilhados.',
+      nextAction: 'Revisar canais shareds.',
     },
     summary: {
       total: 1,
@@ -54,11 +54,11 @@ function buildTenantSnapshot() {
         governanceStatus: 'attention',
         tenantId: 'discord-public',
         scopeLabel: 'publico',
-        operatorSummary: 'Tenant publico precisa revisao guiada.',
+        operatorSummary: 'Tenant publico needs review guiada.',
         sessionId: null,
         sourceUserId: null,
         runtimeUserId: 'telegram-user',
-        recipe: { label: 'Review', summary: 'Revisar setup compartilhado.' },
+        recipe: { label: 'Review', summary: 'Revisar setup shared.' },
         nextAction: 'Executar inspect-tenant.',
         actions: [
           {

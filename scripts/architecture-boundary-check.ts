@@ -16,9 +16,9 @@ async function main() {
       violations,
     }, null, 2)}\n`);
   } else {
-    console.log('[architecture-boundary] checando imports entre dominios oficiais');
+    console.log('[architecture-boundary] checando imports entre domains oficiais');
     console.log(`[architecture-boundary] arestas auditadas: ${snapshot.summary.crossDomainEdges}`);
-    console.log(`[architecture-boundary] violacoes: ${violations.length}`);
+    console.log(`[architecture-boundary] violations: ${violations.length}`);
     for (const violation of violations.slice(0, 20)) {
       console.log(
         `- ${violation.importerDomain} -> ${violation.targetDomain}: `
@@ -34,7 +34,7 @@ async function main() {
 
 main().catch((error) => {
   console.error(
-    '[architecture-boundary] falhou:',
+    '[architecture-boundary] failed:',
     error instanceof Error ? error.message : String(error),
   );
   process.exit(1);

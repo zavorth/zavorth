@@ -31,7 +31,7 @@ describe('WebAppRuntimeRouteService', () => {
         },
       ],
       narrative: {
-        headline: 'Learning pronto.',
+        headline: 'Learning ready.',
         operatorSummary: '1 promovido.',
       },
     };
@@ -197,7 +197,7 @@ describe('WebAppRuntimeRouteService', () => {
     const searchHandled = await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/memory/search?q=ship'),
+      new URL('http://localhost/api/web/memory/search-q=ship'),
       '/api/web/memory/search',
       baseDeps,
     );
@@ -330,14 +330,14 @@ describe('WebAppRuntimeRouteService', () => {
     const writeJson = jest.fn();
     const installJourneyReport = {
       generatedAt: '2026-04-09T10:00:00.000Z',
-      summary: 'Host oficial pronto.',
+      summary: 'Host oficial ready.',
       manifest: {
         local: { ready: true, appUrl: 'http://127.0.0.1:33333/app' },
         remote: { ready: false, appUrl: null },
         auth: { authorizedHost: true },
       },
       phases: [
-        { id: 'go', title: 'Atalho oficial', status: 'ready', summary: 'Tudo pronto.', command: null },
+        { id: 'go', title: 'Atalho oficial', status: 'ready', summary: 'Tudo ready.', command: null },
       ],
     };
     const runInstallJourney = jest.fn(async () => installJourneyReport);
@@ -446,7 +446,7 @@ describe('WebAppRuntimeRouteService', () => {
       ok: true,
       action: 'go',
       report: expect.objectContaining({
-        summary: 'Host oficial pronto.',
+        summary: 'Host oficial ready.',
       }),
       readiness: expect.objectContaining({
         local: expect.objectContaining({
@@ -459,7 +459,7 @@ describe('WebAppRuntimeRouteService', () => {
         }),
       }),
       installJourney: expect.objectContaining({
-        summary: 'Host oficial pronto.',
+        summary: 'Host oficial ready.',
       }),
       officialRemoteAccess: expect.objectContaining({
         summary: 'Remoto ainda pendente.',
@@ -543,19 +543,19 @@ describe('WebAppRuntimeRouteService', () => {
     const req = { method: 'GET' } as http.IncomingMessage;
     const res = {} as http.ServerResponse;
     const sessionId = 'session-web-2';
-    const url = new URL(`http://localhost/api/web/host/surface-consistency?sessionId=${encodeURIComponent(sessionId)}`);
+    const url = new URL(`http://localhost/api/web/host/surface-consistency-sessionId=${encodeURIComponent(sessionId)}`);
     const consistencySnapshot = {
       generatedAt: '2026-04-06T12:00:00.000Z',
       summary: 'Paridade pronta.',
       surfaces: {
         web: { ready: true, summary: 'Web pronta.' },
-        telegram: { ready: true, summary: 'Telegram pronto.' },
+        telegram: { ready: true, summary: 'Telegram ready.' },
         discord: {
           enabled: true,
           commandExposure: 'operator',
           publicServerMode: false,
           slashReadyCount: 1,
-          summary: 'Discord pronto.',
+          summary: 'Discord ready.',
         },
       },
       counts: {
@@ -577,7 +577,7 @@ describe('WebAppRuntimeRouteService', () => {
     const accessManifest = {
       recommendedPlan: {
         primaryAction: 'remote',
-        primaryLabel: 'Fechar acesso remoto oficial',
+        primaryLabel: 'Close acesso remoto oficial',
         primarySummary: 'Continue o rollout remoto oficial.',
         primaryCommand: 'npm run ops:remote:go',
         openTarget: 'https://zavorth.example.com/app',
@@ -596,11 +596,11 @@ describe('WebAppRuntimeRouteService', () => {
         suggestedAction: {
           kind: 'resume-active',
           label: 'Continuar',
-          reason: 'Ha um contexto recente para retomar.',
-          prompt: 'Retome o briefing final no mesmo contexto.',
+          reason: 'There is recent context to resume.',
+          prompt: 'Resume o briefing final no mesmo contexto.',
         },
         workspaceContext: {
-          followupPrompt: 'Retome o briefing final no mesmo contexto.',
+          followupPrompt: 'Resume o briefing final no mesmo contexto.',
           recentArtifact: {
             name: 'briefing-final.md',
             path: 'artifacts/briefing-final.md',
@@ -608,7 +608,7 @@ describe('WebAppRuntimeRouteService', () => {
           },
           activeFocus: {
             label: 'Finalizar briefing',
-            reason: 'Ainda falta consolidar a versao final.',
+            reason: 'The final version still needs consolidation.',
             taskId: 'task-001',
           },
         },
@@ -701,7 +701,7 @@ describe('WebAppRuntimeRouteService', () => {
         context: expect.objectContaining({
           continuity: expect.objectContaining({
             suggestedAction: expect.objectContaining({
-              prompt: 'Retome o briefing final no mesmo contexto.',
+              prompt: 'Resume o briefing final no mesmo contexto.',
             }),
           }),
           tasks: expect.arrayContaining([
@@ -748,13 +748,13 @@ describe('WebAppRuntimeRouteService', () => {
     const routeService = new WebAppRuntimeRouteService();
     const writeJson = jest.fn();
     const inspect = jest.fn(async () => ({
-      summary: 'Acesso remoto oficial pronto.',
+      summary: 'Acesso remoto oficial ready.',
       remote: { ready: true, appUrl: 'https://zavorth.example.com/app' },
       rollout: { activeId: 'local-cloudflare', recommendedId: null, candidates: [] },
       state: { status: 'ready', provider: 'local-cloudflare' },
     }));
     const runAction = jest.fn(async () => ({
-      summary: 'A validacao do acesso remoto oficial ainda encontrou pendencias.',
+      summary: 'A validaction do acesso remoto oficial ainda encontrou pending items.',
       remote: {
         ready: false,
         appUrl: 'https://zavorth.example.com/app',
@@ -858,7 +858,7 @@ describe('WebAppRuntimeRouteService', () => {
       expect.objectContaining({
         ok: true,
         report: expect.objectContaining({
-          summary: 'Acesso remoto oficial pronto.',
+          summary: 'Acesso remoto oficial ready.',
         }),
       }),
       200,
@@ -884,7 +884,7 @@ describe('WebAppRuntimeRouteService', () => {
     const routeService = new WebAppRuntimeRouteService();
     const writeJson = jest.fn();
     const inspect = jest.fn(async () => ({
-      summary: 'Acesso remoto oficial pronto.',
+      summary: 'Acesso remoto oficial ready.',
       remote: { ready: true, appUrl: 'https://zavorth.example.com/app' },
       rollout: { activeId: 'local-cloudflare', recommendedId: null, candidates: [] },
       state: { status: 'ready', provider: 'local-cloudflare' },
@@ -948,7 +948,7 @@ describe('WebAppRuntimeRouteService', () => {
       expect.objectContaining({
         ok: true,
         report: expect.objectContaining({
-          summary: 'Acesso remoto oficial pronto.',
+          summary: 'Acesso remoto oficial ready.',
         }),
       }),
       200,

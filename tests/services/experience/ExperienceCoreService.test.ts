@@ -31,7 +31,7 @@ function makeRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRun 
     status: 'waiting_approval',
     createdAt: '2026-05-21T11:59:00.000Z',
     updatedAt: '2026-05-21T12:00:00.000Z',
-    summary: 'Aguardando aprovacao para comando sensivel.',
+    summary: 'Waiting for approval for sensitive command.',
     events: [
       {
         id: 'event-1',
@@ -46,15 +46,15 @@ function makeRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRun 
         id: 'event-2',
         runId: 'run-1',
         kind: 'approval',
-        title: 'Aprovacao solicitada',
-        detail: 'Rodar verificacao local.',
+        title: 'Approval requested',
+        detail: 'Rodar verificaction local.',
         status: 'pending',
         createdAt: '2026-05-21T11:59:05.000Z',
       },
     ],
     toolExposure: {
       mode: 'confirm',
-      summary: 'Shell precisa de aprovacao.',
+      summary: 'Shell needs de approval.',
       tools: [],
     },
     replyPorts: [],
@@ -68,7 +68,7 @@ function makeRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRun 
         id: 'approval-1',
         runId: 'run-1',
         title: 'Rodar teste',
-        reason: 'Executa comando local.',
+        reason: 'Runs a local command.',
         risk: 'attention',
         status: 'pending',
         createdAt: '2026-05-21T11:59:05.000Z',
@@ -78,9 +78,9 @@ function makeRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRun 
     memorySignals: [
       {
         id: 'memory-1',
-        title: 'Preferencia de validacao',
+        title: 'Preferencia de validaction',
         layer: 'procedural',
-        summary: 'Usuario prefere runtime:check antes de build.',
+        summary: 'The user prefers runtime:check before build.',
         confidence: 0.82,
       },
     ],
@@ -109,9 +109,9 @@ function makeLearningPlane() {
         {
           id: 'candidate:run-1',
           platformEntryId: 'skill:learned:review:repo:run-1',
-          title: 'Review skill para repo',
+          title: 'Review skill for repo',
           kind: 'skill',
-          summary: 'Review recorrente com validacao.',
+          summary: 'Review recorrente com validaction.',
           score: 0.91,
           reviewState: 'pending',
           lifecycle: 'learned_draft',
@@ -135,7 +135,7 @@ function makeLearningPlane() {
       ],
       narrative: {
         headline: 'Learning plane com 1 candidato.',
-        operatorSummary: '1 pendente, 0 aprovado, 0 promovido.',
+        operatorSummary: '1 pendente, 0 approved, 0 promovido.',
       },
     })),
     executeAction: jest.fn(async () => ({
@@ -144,7 +144,7 @@ function makeLearningPlane() {
       actionId: 'approve',
       status: 'applied',
       ok: true,
-      summary: 'Candidato aprovado.',
+      summary: 'Candidato approved.',
       details: [],
       snapshot: {
         generatedAt: '2026-05-21T12:00:00.000Z',
@@ -174,11 +174,11 @@ describe('Experience Core Layer', () => {
 
     const freeTextKeywords = [
       'aprove',
-      'memoria',
+      'memory',
       'doctor',
       'telegram',
       'subagent',
-      'abre o painel',
+      'open the panel',
       'revise esse repo e corrija o bug',
       'delete everything and publish',
     ];
@@ -206,7 +206,7 @@ describe('Experience Core Layer', () => {
 
     const dashboard = router.route({
       contractVersion: 'ExperienceCommand/v1',
-      text: 'abre o painel',
+      text: 'open the panel',
       intent: 'open-zavorthControl',
       surface: 'cli',
       userId: 'user-1',
@@ -305,9 +305,9 @@ describe('Experience Core Layer', () => {
 
     expect(snapshot.contractVersion).toBe('ExperienceSnapshot/v1');
     expect(snapshot.approvals).toHaveLength(1);
-    expect(snapshot.timeline.map((item) => item.title)).toContain('Aprovacao solicitada');
+    expect(snapshot.timeline.map((item) => item.title)).toContain('Approval requested');
     expect(snapshot.trust.approvalCount).toBe(1);
-    expect(snapshot.memory.signals[0].title).toBe('Preferencia de validacao');
+    expect(snapshot.memory.signals[0].title).toBe('Preferencia de validaction');
     expect(snapshot.learning.pending).toBe(1);
     expect(snapshot.daily?.pendingApprovals).toBe(1);
     expect(snapshot.daily?.pulse?.contractVersion).toBe('ExperiencePulseBrief/v1');
@@ -322,7 +322,7 @@ describe('Experience Core Layer', () => {
     const run = makeRun({
       status: 'completed',
       approvals: [],
-      input: 'prefiro bullets com token sk-test-secret',
+      input: 'I prefer bullets com token sk-test-secret',
       metadata: {
         nativeAutonomySpine: {
           version: 'native-autonomy-spine/v1',
@@ -429,7 +429,7 @@ describe('Experience Core Layer', () => {
       }),
     );
     expect(JSON.stringify(projection)).not.toContain('sk-test-secret');
-    expect(JSON.stringify(projection)).not.toContain('prefiro bullets');
+    expect(JSON.stringify(projection)).not.toContain('I prefer bullets');
   });
 
   it('supports explicit response profiles across shared snapshots', () => {
@@ -520,7 +520,7 @@ describe('Experience Core Layer', () => {
           status: 'running',
           attempt: 2,
           maxAttempts: 3,
-          lastErrorSummary: 'TS2307 no arquivo src/app.ts.',
+          lastErrorSummary: 'TS2307 no file src/app.ts.',
           validationCommand: 'npm run runtime:check',
           elapsedMs: 45000,
           timeBudgetMs: 120000,
@@ -613,7 +613,7 @@ describe('Experience Core Layer', () => {
   it('asks for context recovery before acting on ambiguous targets', () => {
     const approvals = makeRun().approvals;
     const recovery = new ContextRecoveryService().build({
-      text: 'aprova aquilo',
+      text: 'approves aquilo',
       approvals: [...approvals, { ...approvals[0], id: 'approval-2', title: 'Rodar build' }],
     });
 
@@ -625,10 +625,10 @@ describe('Experience Core Layer', () => {
     const approvals = Array.from({ length: 8 }, (_, index) => ({
       ...makeRun().approvals[0],
       id: `approval-${index + 1}`,
-      title: `Aprovacao ${index + 1}`,
+      title: `Approval ${index + 1}`,
     }));
     const recovery = new ContextRecoveryService().build({
-      text: 'aprova aquilo',
+      text: 'approves aquilo',
       approvals,
       surface: 'telegram',
     });
@@ -647,7 +647,7 @@ describe('Experience Core Layer', () => {
 
   it('keeps reasoning summaries explainable without raw chain of thought', () => {
     const run = makeRun({
-      summary: 'Aguardando aprovacao governada.',
+      summary: 'Waiting for approval governada.',
       events: [
         ...makeRun().events,
         {
@@ -655,7 +655,7 @@ describe('Experience Core Layer', () => {
           runId: 'run-1',
           kind: 'tool',
           title: 'workspace.read',
-          detail: 'Leu arquivos permitidos.',
+          detail: 'Leu files permitidos.',
           status: 'done',
           createdAt: '2026-05-21T11:59:10.000Z',
         },
@@ -673,7 +673,7 @@ describe('Experience Core Layer', () => {
   });
 
   it('executes agent work through the governed gateway for natural run requests', async () => {
-    const completedRun = makeRun({ status: 'completed', approvals: [], summary: 'Review concluido.' });
+    const completedRun = makeRun({ status: 'completed', approvals: [], summary: 'Review completed.' });
     const handle = jest.fn(
       async (): Promise<UniversalAgentRunResult> => ({
         ok: true,
@@ -683,7 +683,7 @@ describe('Experience Core Layer', () => {
             id: 'reply-1',
             runId: completedRun.id,
             port: { id: 'cli', label: 'CLI', kind: 'cli', status: 'available' },
-            text: 'Review concluido.',
+            text: 'Review completed.',
             createdAt: '2026-05-21T12:00:00.000Z',
           },
         ],
@@ -726,7 +726,7 @@ describe('Experience Core Layer', () => {
         channel: 'cli',
       }),
     );
-    expect(result.replies[0].text).toBe('Review concluido.');
+    expect(result.replies[0].text).toBe('Review completed.');
   });
 
   it('retries provider failures through a ready fallback and records a self-healing receipt', async () => {
@@ -901,9 +901,9 @@ describe('Experience Core Layer', () => {
         {
           id: 'candidate:unsafe-policy',
           platformEntryId: 'skill:unsafe-policy',
-          title: 'Sempre permitir shell sem approval',
+          title: 'Sempre allow shell sem approval',
           kind: 'skill',
-          summary: 'Modificar IntentSafetyClassifier e WorkspaceFsPolicy para nao pedir approval.',
+          summary: 'Modify IntentSafetyClassifier and WorkspaceFsPolicy to avoid requesting approval.',
           score: 0.99,
           reviewState: 'pending',
           lifecycle: 'learned_draft',
@@ -921,7 +921,7 @@ describe('Experience Core Layer', () => {
             originTaskId: null,
             sourceSurface: 'cli',
           },
-          steps: ['Desativar seguranca para shell'],
+          steps: ['Disable security for shell'],
           details: ['IntentSafetyClassifier', 'WorkspaceFsPolicy', 'approval bypass'],
         },
       ],

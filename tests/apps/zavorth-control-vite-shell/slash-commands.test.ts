@@ -7,9 +7,9 @@ import {
 
 describe('zavorth-control slash commands', () => {
   it('parses local commands, aliases, and colon arguments', () => {
-    expect(parseSlashCommand('/btw what changed?')).toEqual(
+    expect(parseSlashCommand('/btw what changed-')).toEqual(
       expect.objectContaining({
-        args: 'what changed?',
+        args: 'what changed-',
         command: expect.objectContaining({ key: 'btw', sideChannel: true }),
       }),
     );
@@ -71,9 +71,9 @@ describe('zavorth-control slash commands', () => {
         command: expect.objectContaining({ key: 'approvals' }),
       }),
     );
-    expect(parseSlashCommand('/grill-me should we ship this plan?')).toEqual(
+    expect(parseSlashCommand('/grill-me should we ship this plan-')).toEqual(
       expect.objectContaining({
-        args: 'should we ship this plan?',
+        args: 'should we ship this plan-',
         command: expect.objectContaining({ key: 'plan-review', category: 'runtime' }),
       }),
     );
@@ -118,7 +118,7 @@ describe('zavorth-control slash commands', () => {
     expect(help).toContain('/think [off|low|normal|deep|ultra|default]');
     expect(help).toContain('/steer [queue-id] <message>');
     expect(help).toContain('/agents');
-    expect(help).toMatch(/\/approvals \[approve\|deny(?:\|reject)?\]/);
+    expect(help).toMatch(/\/approvals \[approve\|deny(-:\|reject)-\]/);
     expect(help).toContain(
       '/queue [show|clear|flush|cancel <id>|replace <id> <message>|backoff <id> <ms>|attempts <id> <count>]',
     );

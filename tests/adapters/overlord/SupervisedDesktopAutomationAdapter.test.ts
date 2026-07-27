@@ -4,7 +4,7 @@ import { isOperatorContinuityEnvelope } from '../../../src/runtime/operator/Oper
 describe('SupervisedDesktopAutomationAdapter', () => {
   it('executes scoped desktop actions through DesktopAutomationTool', async () => {
     const desktopTool = {
-      execute: jest.fn(async () => 'Acao executada com sucesso.'),
+      execute: jest.fn(async () => 'Action completed successfully.'),
     };
     const adapter = new SupervisedDesktopAutomationAdapter({ desktopTool, platform: 'win32' });
 

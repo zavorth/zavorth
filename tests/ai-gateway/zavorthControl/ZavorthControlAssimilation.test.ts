@@ -60,7 +60,7 @@ describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
       executor: ({ run }) => ({
         status: 'completed',
         summary: 'ZavorthControl recebeu o evento bridged como runtime Zavorth.',
-        replyText: 'Evento bridged visivel no ZavorthControl.',
+        replyText: 'Bridged event visible in ZavorthControl.',
         artifacts: [
           {
             id: 'artifact-surface-controls-bridged-event',
@@ -142,7 +142,7 @@ describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
           }),
           expect.objectContaining({
             role: 'assistant',
-            text: 'Evento bridged visivel no ZavorthControl.',
+            text: 'Bridged event visible in ZavorthControl.',
           }),
         ]),
       }),
@@ -231,7 +231,7 @@ describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
       executor: ({ run }) => ({
         status: 'completed',
         summary: 'Realtime projection atualizada.',
-        replyText: 'Atualizacao visivel.',
+        replyText: 'Update visible.',
         artifacts: [
           {
             id: 'artifact-surface-controls-realtime',

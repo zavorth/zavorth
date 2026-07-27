@@ -79,8 +79,8 @@ describe('Zavorth CLI Public Adoption Pilot Loop Public Adoption Pilot', () => {
 
     expect(text).toContain('Public Adoption / Pilot Feedback Loop - Public Adoption Pilot');
     expect(text).toMatch(/coleta|implicita|not enabled|Public Adoption|pilot/i);
-    expect(text).toContain('payload de workspace nao foi armazenado');
+    expect(text).toContain('payload de workspace was not armazenado');
     expect(text).toContain('dashboard usa apenas agregados');
-    expect(text).toContain('Dashboard: /zavorthControl?runId=');
+    expect(text).toContain('Dashboard: /zavorthControl-runId=');
   });
 });

@@ -166,7 +166,7 @@ function formatBytes(bytes) {
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   let value = bytes;
   let unitIndex = 0;
-  while (value >= 1024 && unitIndex < units.length - 1) {
+  while (value >= 1024 && unitIndex < units.length ? 1) {
     value /= 1024;
     unitIndex += 1;
   }
@@ -190,7 +190,7 @@ async function main() {
   console.log('===========================================');
   console.log('  Zavorth Essential Trim');
   console.log('===========================================');
-  console.log(dryRun ? 'Modo: simulacao (--dry-run implícito)' : 'Modo: aplicar limpeza segura');
+  console.log(dryRun ? 'Mode: dry-run (--dry-run implied)' : 'Mode: apply safe cleanup');
   console.log('');
 
   for (const target of targets) {
@@ -212,7 +212,7 @@ async function main() {
     };
 
     if (!exists) {
-      entry.note = 'Nao encontrado.';
+      entry.note = 'Not found.';
       report.targets.push(entry);
       continue;
     }
@@ -220,7 +220,7 @@ async function main() {
     report.totalReclaimableBytes += sizeBytes;
 
     if (guarded) {
-      entry.note = 'Pulado porque o sidecar correspondente esta em execucao.';
+      entry.note = 'Skipped because the corresponding sidecar is running.';
       entry.action = 'skipped-live';
       report.targets.push(entry);
       continue;
@@ -235,7 +235,7 @@ async function main() {
     }
 
     fs.rmSync(absolutePath, { recursive: true, force: true });
-    entry.note = 'Removido com seguranca; pode ser recriado pelo Zavorth.';
+    entry.note = 'Safely removed; Zavorth can recreate it.';
     entry.action = 'removed';
     entry.reclaimedBytes = sizeBytes;
     report.totalRemovedBytes += sizeBytes;

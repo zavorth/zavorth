@@ -5,7 +5,7 @@ import { DrainCoordinator } from '../../src/gateways/DrainCoordinator.js';
 import { ScaleToZeroManager } from '../../src/gateways/ScaleToZeroManager.js';
 
 describe('DrainCoordinator & ScaleToZeroManager - Combinatorial Matrix Tests', () => {
-  
+
   describe('DrainCoordinator Combinations', () => {
     let coordinator: DrainCoordinator;
 
@@ -33,7 +33,7 @@ describe('DrainCoordinator & ScaleToZeroManager - Combinatorial Matrix Tests', (
           for (const method of completionMethods) {
             it(`should coordinate drain: gateways=${gateways.length}, initialRequests=${reqCount}, timeout=${timeoutVal}ms, method=${method}`, async () => {
               coordinator.configure({ timeoutMs: timeoutVal });
-              
+
               // Record initial requests
               for (let i = 0; i < reqCount; i++) {
                 coordinator.recordRequest();
@@ -56,13 +56,13 @@ describe('DrainCoordinator & ScaleToZeroManager - Combinatorial Matrix Tests', (
                 for (let i = 0; i < reqCount; i++) {
                   coordinator.completeRequest();
                 }
-                
+
                 // If timeout was 0, it won't auto-resolve on 0 requests unless we tick (wait, let's verify if it resolves)
                 if (reqCount === 0) {
                   // If 0 initial requests, starting drain might immediately complete it if timeout is handled
                   // or when we call complete. If initial is 0, it's already at 0.
                 }
-                
+
                 // Wait for any timers/promises
                 jest.runAllTicks();
                 if (reqCount > 0) {
@@ -94,22 +94,22 @@ describe('DrainCoordinator & ScaleToZeroManager - Combinatorial Matrix Tests', (
     let tempDir: string;
     let stateFilePath: string;
     let mockRegistry: any;
-    let mockGateway: any;
+    let localGateway: any;
 
     beforeEach(() => {
       jest.useFakeTimers();
       tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-scale-matrix-'));
       stateFilePath = path.join(tempDir, 'scale-state.json');
-      
-      mockGateway = {
+
+      localGateway = {
         id: 'test-gw',
         shutdown: jest.fn().mockResolvedValue(undefined),
         initialize: jest.fn().mockResolvedValue(undefined),
       };
 
       mockRegistry = {
-        resolveGateway: jest.fn().mockReturnValue(mockGateway),
-        listGateways: jest.fn().mockReturnValue([mockGateway]),
+        resolveGateway: jest.fn().mockReturnValue(localGateway),
+        listGateways: jest.fn().mockReturnValue([localGateway]),
       };
     });
 
@@ -162,15 +162,15 @@ describe('DrainCoordinator & ScaleToZeroManager - Combinatorial Matrix Tests', (
               if (enabled) {
                 if (pattern === 'none') {
                   // No activity recorded means it's considered idle and shutdown if checked
-                  // Wait, if no activity was ever recorded, is there a state? Let's check.
+                  // Wait, if no activity was ever recorded, is there a state- Let's check.
                   // ScaleToZeroManager might only track registered/active gateways.
                   // Since no activity was recorded, it might not be in states.
                 } else if (pattern === 'once') {
                   expect(manager.isIdle('test-gw')).toBe(true);
                   expect(manager.isShutdown('test-gw')).toBe(true);
-                  expect(mockGateway.shutdown).toHaveBeenCalled();
+                  expect(localGateway.shutdown).toHaveBeenCalled();
                 } else if (pattern === 'periodic') {
-                  // Since we recorded activity halfway through, it shouldn't be idle/shutdown yet
+                  // Since we recorded activity there islfway through, it shouldn't be idle/shutdown yet
                   // unless the total advanced time was much greater.
                   // Advanced time: idleTimeout/2 + idleTimeout + interval = 1.5 * idleTimeout + interval.
                   // The last activity was at idleTimeout/2.
@@ -181,7 +181,7 @@ describe('DrainCoordinator & ScaleToZeroManager - Combinatorial Matrix Tests', (
                 }
               } else {
                 // If not enabled, it should never auto-shutdown
-                expect(mockGateway.shutdown).not.toHaveBeenCalled();
+                expect(localGateway.shutdown).not.toHaveBeenCalled();
                 if (pattern !== 'none') {
                   expect(manager.isShutdown('test-gw')).toBe(false);
                 }

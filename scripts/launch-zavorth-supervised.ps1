@@ -1,4 +1,4 @@
-﻿param(
+param(
   [switch]$DryRun,
   [switch]$Headless,
   [switch]$ForceRestart,
@@ -127,7 +127,7 @@ function Open-HelpfulFile {
   try {
     Start-Process -FilePath 'notepad.exe' -ArgumentList @($Path) | Out-Null
   } catch {
-    Write-LauncherLine "Nao consegui abrir automaticamente: $Path"
+    Write-LauncherLine "Could not open automatically: $Path"
   }
 }
 
@@ -156,7 +156,7 @@ function Show-LauncherFailure {
       [System.Windows.Forms.MessageBoxIcon]::Error
     ) | Out-Null
   } catch {
-    Write-LauncherLine "Nao consegui abrir a MessageBox de falha. Veja o log em $activeLastLogFile"
+    Write-LauncherLine "Could not open the failure MessageBox. Check the log at $activeLastLogFile"
   }
 }
 
@@ -226,7 +226,7 @@ function Invoke-LoggedCommand {
       Tee-Object -FilePath $lastLogFile -Append
 
     if ($LASTEXITCODE -ne 0) {
-      throw "Comando falhou com codigo ${LASTEXITCODE}: $commandPreview"
+      throw "Comando failed with code ${LASTEXITCODE}: $commandPreview"
     }
   } finally {
     Pop-Location
@@ -260,7 +260,7 @@ function Invoke-AutoRepairCli {
   if (Test-Path $autoRepairDistCliPath) {
     $strategies += [pscustomobject]@{
       Name = 'node-dist-cli'
-      Description = '[6/7] O Zavorth vai tentar um autoreparo seguro via CLI compilado...'
+      Description = '[6/7] O Zavorth vai try um self-repair seguro via CLI compilado...'
       FilePath = 'node'
       Arguments = @($autoRepairDistCliPath) + $scriptArgs
     }
@@ -269,7 +269,7 @@ function Invoke-AutoRepairCli {
   if ((Test-Path $autoRepairDistWrapperPath) -and (Test-Path $autoRepairDistModulePath)) {
     $strategies += [pscustomobject]@{
       Name = 'node-dist-wrapper'
-      Description = '[6/7] O Zavorth vai tentar um autoreparo seguro via wrapper JS compilado...'
+      Description = '[6/7] O Zavorth vai try um self-repair seguro via wrapper JS compilado...'
       FilePath = 'node'
       Arguments = @($autoRepairDistWrapperPath) + $scriptArgs
     }
@@ -278,7 +278,7 @@ function Invoke-AutoRepairCli {
   if (Test-Path $autoRepairTsScriptPath) {
     $strategies += [pscustomobject]@{
       Name = 'node-tsx-import'
-      Description = '[6/7] O Zavorth vai tentar um autoreparo seguro via node --import tsx...'
+      Description = '[6/7] O Zavorth vai try um self-repair seguro via node --import tsx...'
       FilePath = 'node'
       Arguments = @('--import', 'tsx', $autoRepairTsScriptPath) + $scriptArgs
     }
@@ -286,7 +286,7 @@ function Invoke-AutoRepairCli {
 
   $strategies += [pscustomobject]@{
     Name = 'npm-script'
-    Description = '[6/7] O Zavorth vai tentar um autoreparo seguro via npm run ops:autorepair...'
+    Description = '[6/7] O Zavorth vai try um self-repair seguro via npm run ops:autorepair...'
     FilePath = 'npm'
     Arguments = @('run', 'ops:autorepair', '--') + $scriptArgs
   }
@@ -307,7 +307,7 @@ function Invoke-AutoRepairCli {
     } catch {
       $failureMessage = $_.Exception.Message
       $failures += ("{0}: {1}" -f $strategy.Name, $failureMessage)
-      Write-LauncherLine ("Autoreparo via CLI falhou usando {0}: {1}" -f $strategy.Name, $failureMessage)
+      Write-LauncherLine ("self-repair via CLI failed usando {0}: {1}" -f $strategy.Name, $failureMessage)
     }
   }
 
@@ -454,7 +454,7 @@ function Get-LockStatus {
   }
 
   if ($lockedPid -le 0) {
-    Write-LauncherLine "$RoleName lock sem PID valido. Vou limpar e seguir."
+    Write-LauncherLine "$RoleName lock without PID valido. Vou limpar e seguir."
     Remove-LockFileSafely -Path $LockPath
     return [PSCustomObject]@{
       Active = $false
@@ -477,7 +477,7 @@ function Get-LockStatus {
     (-not (Test-ProcessMatchesProjectMarkers -ProcessId $lockedPid -Markers $Markers)) -and
     (-not (Test-ProcessStartMatchesLock -ProcessId $lockedPid -LockStartedAt $lock.startedAt))
   ) {
-    Write-LauncherLine "$RoleName lock aponta para um processo que nao parece ser do Zavorth ($lockedPid). Vou limpar e seguir."
+    Write-LauncherLine "$RoleName lock aponta para um process que not parece ser do Zavorth ($lockedPid). Vou limpar e seguir."
     Remove-LockFileSafely -Path $LockPath
     return [PSCustomObject]@{
       Active = $false
@@ -525,12 +525,12 @@ function Stop-ProcessTreeSafely {
       Stop-Process -Id $ProcessId -Force -ErrorAction Stop
       $terminated = -not (Test-ProcessAlive -ProcessId $ProcessId)
     } catch {
-      Write-LauncherLine "Nao consegui encerrar $Label (PID $ProcessId): $($_.Exception.Message)"
+      Write-LauncherLine "Could not stop $Label (PID $ProcessId): $($_.Exception.Message)"
     }
   }
 
   if (-not $terminated -and (Test-ProcessAlive -ProcessId $ProcessId)) {
-    Write-LauncherLine "$Label (PID $ProcessId) continuou ativo depois da tentativa de encerramento."
+    Write-LauncherLine "$Label (PID $ProcessId) continuou active after da tentativa de encerramento."
   }
 }
 
@@ -554,12 +554,12 @@ function Stop-OrphanedZavorthProcesses {
       return $false
     }
   } catch {
-    Write-LauncherLine "Nao consegui listar processos para limpeza preventiva: $($_.Exception.Message)"
+    Write-LauncherLine "Could not list processes for preventive cleanup: $($_.Exception.Message)"
     return
   }
 
   if ($candidates.Count -eq 0) {
-    Write-LauncherLine 'Nenhum processo orfao do Zavorth foi encontrado.'
+    Write-LauncherLine 'Nenhum process orfao do Zavorth foi encontrado.'
     return
   }
 
@@ -706,7 +706,7 @@ function Test-WebSurfaceReady {
         }
       }
     } catch {
-      # segue com a porta padrao
+      # segue com a porta default
     }
   }
 
@@ -779,7 +779,7 @@ function Send-TelegramNotification {
     Add-LauncherAction ("telegram-notify-$Status")
     return $true
   } catch {
-    Write-LauncherLine "Nao consegui enviar notificacao Telegram do launcher: $($_.Exception.Message)"
+    Write-LauncherLine "Could not send the launcher Telegram notification: $($_.Exception.Message)"
     return $false
   }
 }
@@ -791,7 +791,7 @@ function Build-LauncherNotificationMessage {
     [string[]]$ExtraLines = @()
   )
 
-  $label = if ($Status -eq 'success') { 'Zavorth supervisionado online' } else { 'Zavorth supervisionado falhou ao subir' }
+  $label = if ($Status -eq 'success') { 'Zavorth supervised online' } else { 'Zavorth supervised failed ao subir' }
   $requestLine = if ($RequestedBy) { "Solicitado por: $RequestedBy" } else { '' }
   $reasonLine = if ($Reason) { "Motivo: $Reason" } else { '' }
   $actionPreview = @($launcherReport.actions) | Select-Object -First 6
@@ -801,7 +801,7 @@ function Build-LauncherNotificationMessage {
     $SummaryLine
     $requestLine
     $reasonLine
-    if ($actionPreview.Count -gt 0) { "Acoes: $($actionPreview -join ' | ')" } else { '' }
+    if ($actionPreview.Count -gt 0) { "Actions: $($actionPreview -join ' | ')" } else { '' }
     @($ExtraLines | Where-Object { $_ })
     "Log: $lastLogFile"
   ) | Where-Object { $_ } | ForEach-Object { "$_".Trim() } | Where-Object { $_ } | Out-String
@@ -848,13 +848,13 @@ function Save-PendingStartupNotification {
     createdAt = (Get-Date).ToString('o')
     requestedBy = $RequestedBy
     reason = $Reason
-    source = 'launcher-supervisionado'
+    source = 'launcher-supervised'
   }
 
   New-Item -ItemType Directory -Force -Path (Split-Path -Parent $pendingStartupNotificationFile) | Out-Null
   Set-Content -Path $pendingStartupNotificationFile -Value ($payload | ConvertTo-Json -Depth 4) -Encoding UTF8
   $launcherReport.pendingStartupNotificationQueued = $true
-  Write-LauncherLine ("Notificacao de startup supervisionado enfileirada para o chat {0}." -f $chatId)
+  Write-LauncherLine ("Notificaction de startup supervised enfileirada para o chat {0}." -f $chatId)
   Add-LauncherAction 'startup-notification-queued'
 }
 
@@ -871,10 +871,10 @@ function Clear-PendingStartupNotification {
 function Ensure-EnvReady {
   if (-not (Test-Path $envPath)) {
     if (-not (Test-Path $envExamplePath)) {
-      throw 'Nao encontrei .env nem .env.example para preparar a configuracao.'
+      throw 'Could not find .env or .env.example to prepare configuration.'
     }
 
-    Write-LauncherLine '[1/7] O arquivo .env nao existe. Vou criar um template para voce.'
+    Write-LauncherLine '[1/7] The .env file does not exist. I will create a template for you.'
     if ($DryRun) {
       Write-LauncherLine "[dry-run] Copiaria $envExamplePath para $envPath"
     } else {
@@ -882,7 +882,7 @@ function Ensure-EnvReady {
     }
 
     Open-HelpfulFile -Path $envPath
-    throw 'Criei um .env a partir do template. Preencha as credenciais principais e clique no atalho de novo.'
+    throw 'Criei um .env a partir do template. Preencha as credentials principais e clique no shortcut de novo.'
   }
 
   $envMap = Read-DotEnvFile -Path $envPath
@@ -939,17 +939,17 @@ function Ensure-EnvReady {
       break
     }
     'AIGateway' {
-      # Provider local, sem chave obrigatoria aqui.
+      # Provider local, without chave obrigatoria aqui.
       break
     }
   }
 
   if ($issues.Count -gt 0) {
     Open-HelpfulFile -Path $envPath
-    throw ("Configuracao incompleta no .env para o provider '{0}': {1}" -f $provider, (($issues | Select-Object -Unique) -join ', '))
+    throw ("Configuraction incompleta no .env para o provider '{0}': {1}" -f $provider, (($issues | Select-Object -Unique) -join ', '))
   }
 
-  Write-LauncherLine ("[1/7] Configuracao minima do .env validada para o provider '{0}'." -f $provider)
+  Write-LauncherLine ("[1/7] Configuraction minima do .env validada para o provider '{0}'." -f $provider)
   return $envMap
 }
 
@@ -1157,21 +1157,21 @@ function Ensure-ThirdPartyReady {
     }
 
     if (-not (Test-Path $thirdPartyBootstrapScript)) {
-      Write-LauncherLine ("[4/7] Bootstrap legado de terceiros ausente; vou seguir sem {0} e manter o Zavorth supervisionado em modo degradado." -f ($missingTargets -join ', '))
+      Write-LauncherLine ("[4/7] Bootstrap legado de terceiros ausente; vou seguir without {0} e manter o Zavorth supervised em modo degradado." -f ($missingTargets -join ', '))
       Add-LauncherAction 'third-party-bootstrap-missing'
     } elseif (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-      Write-LauncherLine ("[4/7] Git indisponivel para recriar worktrees de terceiros ({0}); vou seguir sem esses sidecars." -f ($missingTargets -join ', '))
+      Write-LauncherLine ("[4/7] Git unavailable para recriar worktrees de terceiros ({0}); vou seguir without esses sidecars." -f ($missingTargets -join ', '))
       Add-LauncherAction 'third-party-bootstrap-skipped-no-git'
     } else {
       try {
         Invoke-LoggedCommand '[4/7] Preparando copias locais de AIGateway e ZavorthTerminalRemoteChat...' 'node' @('scripts/bootstrap-third-party.mjs')
       } catch {
-        Write-LauncherLine ("[4/7] Bootstrap de terceiros falhou ({0}); vou seguir sem esses sidecars por enquanto." -f $_.Exception.Message)
+        Write-LauncherLine ("[4/7] Bootstrap de terceiros failed ({0}); vou seguir without esses sidecars por enquanto." -f $_.Exception.Message)
         Add-LauncherAction 'third-party-bootstrap-failed'
       }
     }
   } else {
-    Write-LauncherLine '[4/7] Worktrees de terceiros ja estao prontos.'
+    Write-LauncherLine '[4/7] Worktrees de terceiros already are ready.'
   }
 
   $sidecarTasks = New-Object System.Collections.Generic.List[object]
@@ -1191,7 +1191,7 @@ function Ensure-ThirdPartyReady {
   }
 
   if ($sidecarTasks.Count -eq 0) {
-    Write-LauncherLine '[5/7] Nenhum sidecar local precisa de preparacao adicional.'
+    Write-LauncherLine '[5/7] No local sidecar needs additional preparation.'
     return
   }
 
@@ -1199,12 +1199,12 @@ function Ensure-ThirdPartyReady {
   foreach ($sidecar in $sidecarTasks) {
     if (Test-NpmInstallRequired -WorkingDirectory $sidecar.Directory) {
       $ranInstall = $true
-      Invoke-LoggedCommand ("[5/7] Atualizando dependencias do {0}..." -f $sidecar.Name) 'npm' @('install') $sidecar.Directory
+      Invoke-LoggedCommand ("[5/7] Atualizando dependencies do {0}..." -f $sidecar.Name) 'npm' @('install') $sidecar.Directory
     }
   }
 
   if (-not $ranInstall) {
-    Write-LauncherLine '[5/7] Dependencias dos sidecars ja estao prontas.'
+    Write-LauncherLine '[5/7] sidecar dependencies are ready.'
   }
 }
 
@@ -1212,7 +1212,7 @@ function Invoke-ZavorthBuildWithRepair {
   param([bool]$BuildRequired)
 
   if (-not $BuildRequired) {
-    Write-LauncherLine '[6/7] Build supervisionado ja esta atualizado.'
+    Write-LauncherLine '[6/7] Build supervised already is atualizado.'
     return
   }
 
@@ -1220,24 +1220,24 @@ function Invoke-ZavorthBuildWithRepair {
     Invoke-LoggedCommand '[6/7] Build do Zavorth ausente ou desatualizado. Recompilando...' 'npm' @('run', 'build')
     Add-LauncherAction 'build'
   } catch {
-    Write-LauncherLine '[6/7] Build falhou. Vou tentar um reparo rapido com npm install antes de recompilar.'
+    Write-LauncherLine '[6/7] Build failed. Vou try um reparo rapido com npm install before recompilar.'
     Add-LauncherAction 'build-failed-initial'
     try {
-      Invoke-LoggedCommand '[6/7] Reparando dependencias do Zavorth antes de tentar o build de novo...' 'npm' @('install')
+      Invoke-LoggedCommand '[6/7] Reparando dependencies do Zavorth before try o build de novo...' 'npm' @('install')
       Add-LauncherAction 'repair-install'
-      Invoke-LoggedCommand '[6/7] Recompilando novamente apos o reparo...' 'npm' @('run', 'build')
+      Invoke-LoggedCommand '[6/7] Recompilando again after o reparo...' 'npm' @('run', 'build')
       Add-LauncherAction 'build-after-repair'
     } catch {
-      Write-LauncherLine '[6/7] Build ainda falhou depois do npm install. Vou tentar um autoreparo seguro do proprio Zavorth.'
+      Write-LauncherLine '[6/7] Build ainda failed after do npm install. Vou try um self-repair seguro do own Zavorth.'
       Add-LauncherAction 'build-failed-after-repair'
-      $autoRepairReason = 'Falha de build no launcher supervisionado apos npm install.'
+      $autoRepairReason = 'Failure de build no launcher supervised after npm install.'
       $autoRepairRequestedBy = if ($RequestedBy) { $RequestedBy } else { 'launcher' }
       $autoRepairWorked = Invoke-AutoRepairCli -Reason $autoRepairReason -RequestedBy $autoRepairRequestedBy -Force -Goal 'repair'
       if (-not $autoRepairWorked) {
         throw
       }
 
-      Invoke-LoggedCommand '[6/7] Recompilando novamente apos o autoreparo...' 'npm' @('run', 'build')
+      Invoke-LoggedCommand '[6/7] Recompilando again after o self-repair...' 'npm' @('run', 'build')
       Add-LauncherAction 'build-after-autorepair'
     }
   }
@@ -1245,13 +1245,13 @@ function Invoke-ZavorthBuildWithRepair {
 
 function Start-CodexRemoteBroker {
   if (-not (Test-Path $codexRemoteBrokerScriptPath)) {
-    throw "Nao encontrei o broker PowerShell do Codex Remote em $codexRemoteBrokerScriptPath"
+    throw "Could not find the Codex Remote PowerShell broker at $codexRemoteBrokerScriptPath"
   }
 
-  Write-LauncherLine '[7/7] Iniciando o broker PowerShell do Codex Remote...'
+  Write-LauncherLine '[7/7] Starting the Codex Remote PowerShell broker...'
 
   if ($DryRun) {
-    Write-LauncherLine ("[dry-run] Broker do Codex Remote seria iniciado em {0}" -f $codexRemoteBrokerScriptPath)
+    Write-LauncherLine ("[dry-run] Codex Remote broker would start at {0}" -f $codexRemoteBrokerScriptPath)
     return $null
   }
 
@@ -1311,7 +1311,7 @@ function Start-CodexRemoteBroker {
   $process.StartInfo = $startInfo
 
   if (-not $process.Start()) {
-    throw 'Nao consegui iniciar o broker PowerShell do Codex Remote.'
+    throw 'Could not start the Codex Remote PowerShell broker.'
   }
 
   return $process
@@ -1328,21 +1328,21 @@ function Wait-ForCodexRemoteBrokerBoot {
   while ((Get-Date) -lt $deadline) {
     $brokerStatus = Get-LockStatus -LockPath $codexRemoteBrokerLockFile -RoleName 'Codex Remote broker' -Markers $brokerProcessMarkers
     if ($brokerStatus.Active) {
-      Write-LauncherLine ("Broker PowerShell do Codex Remote ativo (PID {0})." -f $brokerStatus.Pid)
+      Write-LauncherLine ("Codex Remote PowerShell broker active (PID {0})." -f $brokerStatus.Pid)
       return
     }
 
     if ($null -ne $BrokerProcess) {
       $BrokerProcess.Refresh()
       if ($BrokerProcess.HasExited) {
-        throw ("O broker PowerShell do Codex Remote encerrou cedo com codigo {0}." -f $BrokerProcess.ExitCode)
+        throw ("The Codex Remote PowerShell broker exited early with code {0}." -f $BrokerProcess.ExitCode)
       }
     }
 
     Start-Sleep -Seconds 1
   }
 
-  throw 'O broker PowerShell do Codex Remote nao confirmou boot no tempo esperado.'
+  throw 'The Codex Remote PowerShell broker did not confirm boot within the expected time.'
 }
 
 function Ensure-CodexRemoteBrokerRunning {
@@ -1351,7 +1351,7 @@ function Ensure-CodexRemoteBrokerRunning {
   Save-LauncherReport
 
   if ($brokerStatus.Active) {
-    Write-LauncherLine ("Broker PowerShell do Codex Remote ja esta ativo (PID {0})." -f $brokerStatus.Pid)
+    Write-LauncherLine ("Codex Remote PowerShell broker is already active (PID {0})." -f $brokerStatus.Pid)
     Add-LauncherAction 'codex-remote-broker-already-healthy'
     return
   }
@@ -1377,12 +1377,12 @@ function Start-SupervisorWithRetry {
 
       if (-not $bootFailureAutoRepairDone) {
         $bootFailureReason = if ($Reason) {
-          "Falha de boot no launcher supervisionado. Contexto original: $Reason"
+          "Failure de boot no launcher supervised. Contexto original: $Reason"
         } else {
-          'Falha de boot no launcher supervisionado.'
+          'Failure de boot no launcher supervised.'
         }
         $bootFailureRequestedBy = if ($RequestedBy) { $RequestedBy } else { 'launcher' }
-        Write-LauncherLine ("Boot supervisionado falhou na tentativa {0}. Vou disparar um autoreparo seguro antes de tentar de novo." -f $attempt)
+        Write-LauncherLine ("Boot supervised failed na tentativa {0}. Vou trigger um self-repair seguro before try de novo." -f $attempt)
         Add-LauncherAction 'boot-autorepair-requested'
         $bootAutoRepairWorked = Invoke-AutoRepairCli -Reason $bootFailureReason -RequestedBy $bootFailureRequestedBy -Force -Goal 'repair'
         if ($bootAutoRepairWorked) {
@@ -1394,7 +1394,7 @@ function Start-SupervisorWithRetry {
         $bootFailureAutoRepairDone = $true
       }
 
-      Write-LauncherLine ("Boot supervisionado falhou na tentativa {0}. Vou limpar o estado e tentar uma vez mais." -f $attempt)
+      Write-LauncherLine ("Boot supervised failed na tentativa {0}. Vou limpar o estado e try uma vez mais." -f $attempt)
       Add-LauncherAction ("boot-retry-$attempt")
       Stop-OrphanedZavorthProcesses
       $attempt += 1
@@ -1404,10 +1404,10 @@ function Start-SupervisorWithRetry {
 
 function Start-DetachedSupervisor {
   if (-not (Test-Path $runnerScriptPath)) {
-    throw "Nao encontrei o runner supervisionado em $runnerScriptPath"
+    throw "Could not find the supervised runner at $runnerScriptPath"
   }
 
-  Write-LauncherLine '[7/7] Iniciando Zavorth supervisionado com verificacao de boot...'
+  Write-LauncherLine '[7/7] Iniciando Zavorth supervised com verificaction de boot...'
 
   if ($DryRun) {
     Write-LauncherLine ("[dry-run] Start-Process {0} -File `"{1}`"" -f $powershellPath, $runnerScriptPath)
@@ -1422,7 +1422,7 @@ function Start-DetachedSupervisor {
 
   $cmdPath = Join-Path $env:SystemRoot 'System32\cmd.exe'
   if (-not (Test-Path $cmdPath)) {
-    throw "Nao encontrei o cmd.exe em $cmdPath"
+    throw "Could not find cmd.exe at $cmdPath"
   }
 
   $quotedPowerShell = '"' + $powershellPath + '"'
@@ -1468,14 +1468,14 @@ function Start-DetachedSupervisor {
   }
 
   if (-not $environmentApplied) {
-    Write-LauncherLine 'Nao consegui aplicar um ambiente sanitizado ao processo supervisionado. Vou seguir com o ambiente padrao.'
+    Write-LauncherLine 'Could not apply a sanitized environment to the supervised process. Continuing with the default environment.'
   }
 
   $process = New-Object System.Diagnostics.Process
   $process.StartInfo = $startInfo
 
   if (-not $process.Start()) {
-    throw 'Nao consegui iniciar o processo supervisionado.'
+    throw 'Could not start the supervised process.'
   }
 
   return $process
@@ -1493,14 +1493,14 @@ function Prepare-RuntimeLogPath {
     $extension = [System.IO.Path]::GetExtension($PreferredPath)
     $fallbackPath = Join-Path $directory ("{0}-{1}{2}" -f $baseName, (Get-Date -Format 'yyyyMMdd-HHmmss-fff'), $extension)
 
-    Write-LauncherLine ("Arquivo de log em uso ({0}). Vou usar {1} nesta tentativa." -f $PreferredPath, $fallbackPath)
+    Write-LauncherLine ("Log file in use ({0}). I will use {1} in this attempt." -f $PreferredPath, $fallbackPath)
     Set-Content -Path $fallbackPath -Value '' -Encoding UTF8
     return $fallbackPath
   }
 }
 
 function Start-DetachedSingleProcessWorker {
-  Write-LauncherLine '[7/7] Host supervisor indisponivel. Iniciando worker direto em modo degradado...'
+  Write-LauncherLine '[7/7] Host supervisor unavailable. Iniciando worker direct em modo degradado...'
 
   if ($DryRun) {
     Write-LauncherLine ("[dry-run] Worker degradado seria iniciado em {0}" -f (Join-Path $projectRoot 'dist\index.js'))
@@ -1509,7 +1509,7 @@ function Start-DetachedSingleProcessWorker {
 
   $workerScriptPath = Join-Path $projectRoot 'dist\index.js'
   if (-not (Test-Path $workerScriptPath)) {
-    throw "Nao encontrei o worker compilado em $workerScriptPath"
+    throw "Could not find the compiled worker at $workerScriptPath"
   }
 
   $nodePath = (Get-Command node -ErrorAction Stop).Source
@@ -1570,7 +1570,7 @@ function Start-DetachedSingleProcessWorker {
   $process.StartInfo = $startInfo
 
   if (-not $process.Start()) {
-    throw 'Nao consegui iniciar o worker degradado do Zavorth.'
+    throw 'Could not start the degraded Zavorth worker.'
   }
 
   Add-LauncherAction 'boot-degraded-single-process'
@@ -1612,27 +1612,27 @@ function Wait-ForSupervisorBoot {
 
     if ($workerStatus.Active) {
       if ($fallbackWorkerStarted) {
-        Write-LauncherLine ("Zavorth iniciou em modo degradado com worker direto (PID {0})." -f $workerStatus.Pid)
+        Write-LauncherLine ("Zavorth iniciou em modo degradado com worker direct (PID {0})." -f $workerStatus.Pid)
       } else {
-        Write-LauncherLine ("Zavorth supervisionado confirmou o worker Telegram (PID {0})." -f $workerStatus.Pid)
+        Write-LauncherLine ("Zavorth supervised confirmou o worker Telegram (PID {0})." -f $workerStatus.Pid)
       }
       return
     }
 
     if (Test-LogContains -Path $runtimeStdOutLog -Pattern 'Worker booted successfully\.') {
-      Write-LauncherLine 'Zavorth supervisionado confirmou boot completo.'
+      Write-LauncherLine 'Zavorth supervised confirmou boot completo.'
       return
     }
 
     if ($null -ne $WrapperProcess) {
       $WrapperProcess.Refresh()
       if ($WrapperProcess.HasExited) {
-        throw ("O bootstrap supervisionado encerrou cedo com codigo {0}." -f $WrapperProcess.ExitCode)
+        throw ("O bootstrap supervised encerrou cedo with code {0}." -f $WrapperProcess.ExitCode)
       }
     }
 
     if ((-not $fallbackWorkerStarted) -and (Test-LogContains -Path $runtimeStdErrLog -Pattern 'spawn EPERM')) {
-      Write-LauncherLine 'Detectei spawn EPERM no host supervisionado. Vou subir o Zavorth em modo degradado de processo unico.'
+      Write-LauncherLine 'Detectei spawn EPERM no host supervised. Vou subir o Zavorth em modo degradado de process single.'
       $null = Start-DetachedSingleProcessWorker
       $fallbackWorkerStarted = $true
       Start-Sleep -Seconds 2
@@ -1644,41 +1644,41 @@ function Wait-ForSupervisorBoot {
 
   $hostStatus = Get-LockStatus -LockPath $hostLockFile -RoleName 'Host supervisor' -Markers $hostProcessMarkers
   if ($hostStatus.Active) {
-    Write-LauncherLine ("O supervisor iniciou (PID {0}) e segue subindo em segundo plano." -f $hostStatus.Pid)
+    Write-LauncherLine ("Supervisor started (PID {0}) and continues booting in the background." -f $hostStatus.Pid)
     return
   }
 
-  throw 'O supervisor nao confirmou boot nem lock do host no tempo esperado.'
+  throw 'O supervisor not confirmou boot nem lock do host no tempo esperado.'
 }
 
 Write-LauncherLine '==========================================='
 Write-LauncherLine ' Zavorth Supervised Launcher'
 Write-LauncherLine '==========================================='
-Write-LauncherLine "Projeto: $projectRoot"
-Write-LauncherLine "Log atual: $logFile"
+Write-LauncherLine "Project: $projectRoot"
+Write-LauncherLine "Log current: $logFile"
 
 Push-Location $projectRoot
 try {
   if (-not (Test-Path (Join-Path $projectRoot 'package.json'))) {
-    throw "Nao encontrei package.json em $projectRoot"
+    throw "Could not find package.json at $projectRoot"
   }
 
   if (-not (Test-Path $powershellPath)) {
-    throw "Nao encontrei o PowerShell em $powershellPath"
+    throw "Could not find PowerShell at $powershellPath"
   }
 
   if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-    throw 'Node.js nao esta instalado ou nao esta no PATH.'
+    throw 'Node.js is not installed or is not on PATH.'
   }
 
   if (-not (Get-Command 'npm.cmd' -ErrorAction SilentlyContinue)) {
-    throw 'npm.cmd nao esta disponivel no PATH.'
+    throw 'npm.cmd is not available on PATH.'
   }
 
   $envMap = Ensure-EnvReady
   Add-LauncherAction 'env-ready'
 
-  Write-LauncherLine '[2/7] Limpando locks orfaos e processos presos do Zavorth...'
+  Write-LauncherLine '[2/7] Limpando locks orfaos e processs presos do Zavorth...'
   $hostStatus = Get-LockStatus -LockPath $hostLockFile -RoleName 'Host supervisor' -Markers $hostProcessMarkers
   $workerStatus = Get-LockStatus -LockPath $telegramLockFile -RoleName 'Worker Telegram' -Markers $workerProcessMarkers
   $brokerStatus = Get-LockStatus -LockPath $codexRemoteBrokerLockFile -RoleName 'Codex Remote broker' -Markers $brokerProcessMarkers
@@ -1688,10 +1688,10 @@ try {
   $requiresReload = $ForceRestart -or $installRequired -or $buildRequired
   $reloadReasons = New-Object System.Collections.Generic.List[string]
   if ($ForceRestart) {
-    $reloadReasons.Add('forcado explicitamente')
+    $reloadReasons.Add('forcado explicitmente')
   }
   if ($installRequired) {
-    $reloadReasons.Add('dependencias desatualizadas')
+    $reloadReasons.Add('dependencies desatualizadas')
   }
   if ($buildRequired) {
     $reloadReasons.Add('build desatualizado')
@@ -1706,9 +1706,9 @@ try {
 
   if ($hostStatus.Active -and $workerStatus.Active) {
     if (-not $surfaceHealth.Ready) {
-      Write-LauncherLine ("Host e worker estao ativos, mas a superficie web nao respondeu em {0}. Vou reciclar a stack supervisionada." -f $surfaceHealth.Url)
+      Write-LauncherLine ("Host e worker are actives, mas a surface web not respondeu em {0}. Vou reciclar a stack supervised." -f $surfaceHealth.Url)
       if ($surfaceHealth.Error) {
-        Write-LauncherLine ("Detalhe da superficie web: {0}" -f $surfaceHealth.Error)
+        Write-LauncherLine ("Detalhe da surface web: {0}" -f $surfaceHealth.Error)
       }
       Add-LauncherAction 'reload-stale-surface'
       $requiresReload = $true
@@ -1716,17 +1716,17 @@ try {
 
     if (-not $requiresReload) {
       Ensure-CodexRemoteBrokerRunning
-      Write-LauncherLine ("Zavorth supervisionado ja esta ativo e saudavel (host PID {0}, worker PID {1})." -f $hostStatus.Pid, $workerStatus.Pid)
+      Write-LauncherLine ("Zavorth supervised already is active e saudavel (host PID {0}, worker PID {1})." -f $hostStatus.Pid, $workerStatus.Pid)
       Add-LauncherAction 'already-healthy'
       $launcherReport.status = 'success'
       $launcherReport.finishedAt = (Get-Date).ToString('o')
       Save-LauncherReport
-      Write-LauncherLine 'Launcher finalizado.'
+      Write-LauncherLine 'Launcher finished.'
       return
     }
 
     Write-LauncherLine (
-      "Zavorth supervisionado esta saudavel, mas encontrei mudancas que exigem reciclagem da stack ({0})." -f ($reloadReasons -join ', ')
+      "Zavorth supervised is saudavel, mas encontrei changes que exigem reciclagem da stack ({0})." -f ($reloadReasons -join ', ')
     )
     Add-LauncherAction 'reload-healthy-stack'
   }
@@ -1734,31 +1734,31 @@ try {
   if ($hostStatus.Active -and -not $workerStatus.Active) {
     $hostAgeSeconds = Get-ProcessAgeSeconds -ProcessId $hostStatus.Pid
     if ($null -ne $hostAgeSeconds -and $hostAgeSeconds -lt 90 -and -not $requiresReload) {
-      Write-LauncherLine ("O host supervisor ja esta subindo (PID {0}, uptime {1}s)." -f $hostStatus.Pid, $hostAgeSeconds)
+      Write-LauncherLine ("O host supervisor already is subindo (PID {0}, uptime {1}s)." -f $hostStatus.Pid, $hostAgeSeconds)
       Add-LauncherAction 'host-already-booting'
       $launcherReport.status = 'success'
       $launcherReport.finishedAt = (Get-Date).ToString('o')
       Save-LauncherReport
-      Write-LauncherLine 'Launcher finalizado.'
+      Write-LauncherLine 'Launcher finished.'
       return
     }
 
-    Write-LauncherLine ("O host supervisor parece travado sem worker ativo (PID {0}). Vou reiniciar a stack supervisionada." -f $hostStatus.Pid)
+    Write-LauncherLine ("O host supervisor parece travado without worker active (PID {0}). Vou reiniciar a stack supervised." -f $hostStatus.Pid)
     Add-LauncherAction 'reload-stuck-host'
   }
 
   if ($requiresReload -and $hostStatus.Active) {
-    Stop-ProcessTreeSafely -ProcessId $hostStatus.Pid -Label 'Host supervisor ativo'
+    Stop-ProcessTreeSafely -ProcessId $hostStatus.Pid -Label 'Host supervisor active'
     Add-LauncherAction 'stop-active-host'
   }
 
   if ($requiresReload -and $workerStatus.Active) {
-    Stop-ProcessTreeSafely -ProcessId $workerStatus.Pid -Label 'Worker Telegram ativo'
+    Stop-ProcessTreeSafely -ProcessId $workerStatus.Pid -Label 'Worker Telegram active'
     Add-LauncherAction 'stop-active-worker'
   }
 
   if ($requiresReload -and $brokerStatus.Active) {
-    Stop-ProcessTreeSafely -ProcessId $brokerStatus.Pid -Label 'Broker PowerShell do Codex Remote'
+    Stop-ProcessTreeSafely -ProcessId $brokerStatus.Pid -Label 'Codex Remote PowerShell broker'
     Add-LauncherAction 'stop-active-codex-remote-broker'
   }
 
@@ -1768,10 +1768,10 @@ try {
   $null = Get-LockStatus -LockPath $telegramLockFile -RoleName 'Worker Telegram' -Markers $workerProcessMarkers
 
   if ($installRequired) {
-    Invoke-LoggedCommand '[3/7] Instalando ou atualizando dependencias do Zavorth...' 'npm' @('install')
+    Invoke-LoggedCommand '[3/7] Instalando ou atualizando dependencies do Zavorth...' 'npm' @('install')
     Add-LauncherAction 'npm-install'
   } else {
-    Write-LauncherLine '[3/7] Dependencias do Zavorth ja estao presentes.'
+    Write-LauncherLine '[3/7] dependencies do Zavorth already are presentes.'
   }
 
   Ensure-ThirdPartyReady -EnvMap $envMap
@@ -1783,10 +1783,10 @@ try {
     } elseif ($Reason) {
       $Reason
     } else {
-      'Autoreparo preventivo solicitado ao launcher supervisionado.'
+      'self-repair preventivo solicitado ao launcher supervised.'
     }
     $preflightAutoRepairRequestedBy = if ($RequestedBy) { $RequestedBy } else { 'launcher' }
-    Write-LauncherLine '[6/7] O launcher recebeu um pedido de autoreparo preventivo antes do boot.'
+    Write-LauncherLine '[6/7] O launcher recebeu um request de self-repair preventivo before do boot.'
     $preflightAutoRepairWorked = Invoke-AutoRepairCli -Reason $preflightAutoRepairReason -RequestedBy $preflightAutoRepairRequestedBy -Force -Goal 'repair'
     if ($preflightAutoRepairWorked) {
       Add-LauncherAction 'autorepair-preflight'
@@ -1806,7 +1806,7 @@ try {
   $launcherReport.status = 'success'
   $launcherReport.finishedAt = (Get-Date).ToString('o')
   Save-LauncherReport
-  $successMessage = (Build-LauncherNotificationMessage -Status 'success' -SummaryLine 'O launcher supervisionado terminou o boot com sucesso.' -ExtraLines @(
+  $successMessage = (Build-LauncherNotificationMessage -Status 'success' -SummaryLine 'O launcher supervised terminou o boot com success.' -ExtraLines @(
       if ($reloadReasons.Count -gt 0) { "Motivos do recycle: $($reloadReasons -join ', ')" } else { '' }
     )).Trim()
   Save-PendingStartupNotification -EnvMap $envMap -Status 'success' -Message $successMessage
@@ -1814,17 +1814,17 @@ try {
   if ($directSuccessNotificationSent) {
     Clear-PendingStartupNotification
   }
-  Write-LauncherLine 'Launcher finalizado.'
+  Write-LauncherLine 'Launcher finished.'
 } catch {
   $launcherReport.status = 'failed'
   $launcherReport.finishedAt = (Get-Date).ToString('o')
   $launcherReport.errorMessage = $_.Exception.Message
   Save-LauncherReport
   if ($envMap) {
-    $failureMessage = (Build-LauncherNotificationMessage -Status 'failed' -SummaryLine ("Falha no launcher supervisionado: {0}" -f $_.Exception.Message)).Trim()
+    $failureMessage = (Build-LauncherNotificationMessage -Status 'failed' -SummaryLine ("Failure no launcher supervised: {0}" -f $_.Exception.Message)).Trim()
     Send-TelegramNotification -EnvMap $envMap -Status 'failed' -Message $failureMessage
   }
-  Show-LauncherFailure -Message ("Falha no launcher supervisionado: {0}" -f $_.Exception.Message) -PathsToOpen @($lastLogFile, $runtimeStdErrLog, $runtimeStdOutLog, $envPath)
+  Show-LauncherFailure -Message ("Failure no launcher supervised: {0}" -f $_.Exception.Message) -PathsToOpen @($lastLogFile, $runtimeStdErrLog, $runtimeStdOutLog, $envPath)
   throw
 } finally {
   Pop-Location

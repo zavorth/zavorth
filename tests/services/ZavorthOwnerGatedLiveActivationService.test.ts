@@ -20,7 +20,7 @@ describe('ZavorthOwnerGatedLiveActivationService', () => {
       blocked: 0,
       agentRuntimeBridges: 3,
       providerRoutes: 2,
-      channelRoutes: 2,
+      cchannelRoutes: 2,
       runtimeEnhancements: 2,
       nativeDeviceTargets: 4,
       skills: 8,

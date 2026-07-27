@@ -58,7 +58,7 @@ describe('GatewayChannelAdapterRegistryService', () => {
           readiness: 'ready',
           implementationState: 'full',
           transport: 'native',
-          notes: ['Runtime do Discord operando em modo nativo.'],
+          notes: ['Discord runtime operating in native mode.'],
           features: {
             attachments: true,
             threads: true,
@@ -104,7 +104,7 @@ describe('GatewayChannelAdapterRegistryService', () => {
         transport: 'native',
         notes: expect.arrayContaining([
           'Discord base.',
-          'Runtime do Discord operando em modo nativo.',
+          'Discord runtime operating in native mode.',
         ]),
         features: expect.objectContaining({
           attachments: true,
@@ -240,7 +240,7 @@ describe('GatewayChannelAdapterRegistryService', () => {
         transport: 'native',
         notes: expect.arrayContaining([
           'Gateway do Discord anexado ao mesh operacional do Zavorth.',
-          'Runtime do Discord operando em modo nativo.',
+          'Discord runtime operating in native mode.',
         ]),
         features: expect.objectContaining({
           sessionSend: true,
@@ -296,8 +296,8 @@ describe('GatewayChannelAdapterRegistryService', () => {
         transport: 'native',
         notes: expect.arrayContaining([
           'Gateway do Slack anexado ao mesh operacional do Zavorth.',
-          'Runtime do Slack operando em modo nativo pela Web API.',
-          'Workspace do Slack configurado em workspace-1.',
+          'Slack runtime operating in native mode through Web API.',
+          'Slack workspace configured in workspace-1.',
         ]),
         features: expect.objectContaining({
           sessionSend: true,
@@ -340,7 +340,7 @@ describe('GatewayChannelAdapterRegistryService', () => {
             started: true,
             recipientsConfigured: 1,
             providerConfigured: true,
-            providerDecision: 'Cloud API conectada; webhook verification, inbound e outbound oficial estao ativos.',
+            providerDecision: 'Cloud API conectada; webhook verification, inbound e outbound oficial estao actives.',
             phoneNumberId: '1234567890',
             webhookConfigured: true,
             lastError: null,
@@ -358,8 +358,8 @@ describe('GatewayChannelAdapterRegistryService', () => {
         notes: expect.arrayContaining([
           'Gateway do WhatsApp anexado ao mesh operacional do Zavorth.',
           'Runtime do WhatsApp operando pela Cloud API da Meta.',
-          'Cloud API conectada; webhook verification, inbound e outbound oficial estao ativos.',
-          'Phone number id configurado em 1234567890.',
+          'Cloud API conectada; webhook verification, inbound e outbound oficial estao actives.',
+          'Phone number id configured in 1234567890.',
         ]),
         features: expect.objectContaining({
           sessionSend: true,
@@ -444,7 +444,7 @@ describe('GatewayChannelAdapterRegistryService', () => {
       }),
       statusRows: expect.arrayContaining([
         expect.objectContaining({ label: 'Bridge', value: 'configurada' }),
-        expect.objectContaining({ label: 'Read-only', value: 'sim' }),
+        expect.objectContaining({ label: 'Read-only', value: 'yes' }),
         expect.objectContaining({ label: 'Recipients', value: '1' }),
       ]),
     }));

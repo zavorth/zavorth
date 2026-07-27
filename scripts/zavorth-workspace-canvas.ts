@@ -104,12 +104,12 @@ async function main() {
     console.info = originalConsole.info;
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[workspace-canvas] leitura oficial da Workspace canvas');
+    console.log('[workspace-canvas] read oficial da Workspace canvas');
     console.log(`[workspace-canvas] postura=${snapshot.summary.posture} | entities=${snapshot.summary.entities} | approvals=${snapshot.summary.pendingApprovals}/${snapshot.summary.approvals}`);
     console.log(`[workspace-canvas] locks=${snapshot.summary.locks} | attachments=${snapshot.summary.attachments} | diagrams=${snapshot.summary.diagrams}`);
     console.log(`[workspace-canvas] runtime pesado iniciado=${snapshot.summary.heavyRuntimesStarted ? 'yes' : 'no'}`);
-    console.log(`[workspace-canvas] resumo: ${snapshot.narrative.operatorSummary}`);
-    console.log(`[workspace-canvas] proximo passo: ${snapshot.narrative.nextAction}`);
+    console.log(`[workspace-canvas] summary: ${snapshot.narrative.operatorSummary}`);
+    console.log(`[workspace-canvas] next passo: ${snapshot.narrative.nextAction}`);
     console.log('[workspace-canvas] fallback:');
     for (const command of snapshot.policy.cliFallbackCommands) {
       console.log(`- ${command}`);
@@ -135,7 +135,7 @@ function output(
   } else {
     console.log(`[workspace-canvas] ${label}`);
     console.log(`[workspace-canvas] status=${result.status || (ok ? 'ok' : 'blocked')} | ok=${ok ? 'yes' : 'no'}`);
-    console.log(`[workspace-canvas] resumo: ${result.summary || result.plan?.summary || 'acao registrada'}`);
+    console.log(`[workspace-canvas] summary: ${result.summary || result.plan?.summary || 'recorded action'}`);
     if (result.mutationPlan?.id) {
       console.log(`[workspace-canvas] mutationPlan=${result.mutationPlan.id}`);
     }
@@ -146,6 +146,6 @@ function output(
 }
 
 main().catch((error) => {
-  console.error('[workspace-canvas] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[workspace-canvas] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

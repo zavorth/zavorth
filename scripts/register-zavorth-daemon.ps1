@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 
 $startupInstaller = Join-Path $PSScriptRoot 'install-windows-startup.ps1'
 if (-not (Test-Path $startupInstaller)) {
-  throw "Nao encontrei o instalador oficial de Startup em $startupInstaller"
+  throw "Could not find the official Startup installer at $startupInstaller"
 }
 
 $argsList = @()

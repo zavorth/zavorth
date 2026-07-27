@@ -75,7 +75,7 @@ function isProcessAlive(pid: number): boolean {
 
 function clearLocks() {
   console.log('[zavorth-repair] Running clear-locks...');
-  
+
   // 1. Check host supervisor lock
   const hostLockFile = config.hostSupervisorLockFile;
   if (fs.existsSync(hostLockFile)) {

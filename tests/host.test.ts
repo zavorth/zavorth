@@ -583,7 +583,7 @@ describe('ZavorthHost', () => {
 
     host.start();
     (host as any).pendingBootFailureReason =
-      'Falha de boot detectada pelo host supervisor: o worker excedeu o boot grace period sem enviar boot_success.';
+      'Failure de boot detectada pelo host supervisor: o worker excedeu o boot grace period sem enviar boot_success.';
     child.emit('exit', 1, null);
 
     expect(spawnImpl).not.toHaveBeenCalled();

@@ -90,8 +90,8 @@ async function main() {
       return;
     }
 
-    console.log('[zavorth-channels] catalogo de setup de canais');
-    console.log(`[zavorth-channels] resumo: ${report.summary}`);
+    console.log('[zavorth-channels] channel setup catalog');
+    console.log(`[zavorth-channels] summary: ${report.summary}`);
     console.log(`[zavorth-channels] comando base: ${report.command}`);
     for (const entry of report.entries) {
       console.log(`[zavorth-channels] ${entry.channelId}: ${entry.status} | mode=${entry.currentMode} | ${entry.summary}`);
@@ -105,22 +105,22 @@ async function main() {
         console.log(`  env obrigatorias: ${entry.requiredEnvKeys.join(', ')}`);
       }
       if (entry.optionalEnvKeys.length > 0) {
-        console.log(`  env opcionais: ${entry.optionalEnvKeys.join(', ')}`);
+        console.log(`  env optional: ${entry.optionalEnvKeys.join(', ')}`);
       }
       for (const note of entry.notes.slice(0, 3)) {
         console.log(`  - ${note}`);
       }
     }
-    console.log('[zavorth-channels] para o caminho guiado oficial, use: npm run setup:channels');
-    console.log('[zavorth-channels] para aplicar um preset legado direto: npm run ops:channels -- --channel slack --mode stub --apply');
+    console.log('[zavorth-channels] para o path guiado oficial, use: npm run setup:channels');
+    console.log('[zavorth-channels] para aplicar um preset legado direct: npm run ops:channels -- --channel slack --mode local --apply');
     return;
   }
 
   if (!args.channelId) {
-    throw new Error('Use --channel telegram|discord|slack|whatsapp|signal|imessage|teams|email junto com --apply.');
+    throw new Error('Use --channel telegram|discord|slack|whatsapp|signal|imessage|teams|email with --apply.');
   }
   if (!args.mode) {
-    throw new Error('Use --mode native|bridge|stub|local-outbox|cloud-api|baileys|signal-cli|mac-bridge|graph-bot|smtp-imap junto com --apply.');
+    throw new Error('Use --mode native|bridge|local|local-outbox|cloud-api|baileys|signal-cli|mac-bridge|graph-bot|smtp-imap with --apply.');
   }
 
   const result = service.apply({
@@ -135,11 +135,11 @@ async function main() {
   }
 
   console.log('[zavorth-channels] preset aplicado');
-  console.log(`[zavorth-channels] resumo: ${result.summary}`);
-  console.log(`[zavorth-channels] canal: ${result.channelId} | modo: ${result.mode}`);
-  console.log(`[zavorth-channels] env atualizadas: ${result.envKeysWritten.join(', ') || 'nenhuma'}`);
+  console.log(`[zavorth-channels] summary: ${result.summary}`);
+  console.log(`[zavorth-channels] channel: ${result.channelId} | mode: ${result.mode}`);
+  console.log(`[zavorth-channels] updated env keys: ${result.envKeysWritten.join(', ') || 'none'}`);
   if (result.filesTouched.length > 0) {
-    console.log('[zavorth-channels] arquivos/dirs tocados:');
+    console.log('[zavorth-channels] files/dirs tocados:');
     for (const target of result.filesTouched) {
       console.log(`- ${target}`);
     }
@@ -174,7 +174,7 @@ function normalizeMode(value: string): ChannelSetupMode | null {
   switch (normalized) {
     case 'native':
     case 'bridge':
-    case 'stub':
+    case 'local':
     case 'local-outbox':
     case 'cloud-api':
     case 'baileys':
@@ -189,7 +189,7 @@ function normalizeMode(value: string): ChannelSetupMode | null {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-channels] falha ao preparar os canais.');
+  console.error('[zavorth-channels] failure preparing channels.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

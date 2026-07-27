@@ -36,7 +36,7 @@ const rules = [
     files: ['src/contracts/SatelliteDeviceLivePlaneContract.ts'],
     needles: [
       'ZAVORTH_SATELLITE_DEVICE_LIVE_PLANE_CONTRACT_VERSION',
-      '2026-05-05.live-checkpoint-11',
+      '2026-05-05.live-gate-11',
       'device-pair',
       'phone-control',
       'bonjour',

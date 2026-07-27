@@ -13,30 +13,28 @@ describe('Run Observatory Run Observatory', () => {
   it('projects runs into receipts, timeline, replay and health without creating a parallel pipeline', async () => {
     const executor: UniversalAgentExecutor = ({ request, run }) => ({
       status: request.text.includes('falhe') ? 'failed' : 'completed',
-      summary: request.text.includes('falhe')
-        ? 'Falha observavel registrada.'
-        : 'Relatorio observavel pronto.',
+      summary: request.text.includes('falhe') ? 'Failure observavel registrada.'
+        : 'Report observavel ready.',
       replyText: 'Run registrada no observatory.',
       events: [
         {
           kind: request.text.includes('falhe') ? 'error' : 'tool',
           title: request.text.includes('falhe') ? 'Executor falhou' : 'workspace_scan',
-          detail: request.text.includes('falhe')
-            ? 'Erro controlado para health degraded.'
-            : 'Workspace analisado em modo leitura.',
+          detail: request.text.includes('falhe') ? 'Controlled error for degraded health.'
+            : 'Workspace analyzed in read-only mode.',
           status: request.text.includes('falhe') ? 'failed' : 'done',
           metadata: request.text.includes('falhe') ? undefined : {
             planId: 'plan-diff-preview-1',
             status: 'applied',
             approvalRequired: false,
             diffReceiptText: [
-              'Previa de alteracao',
-              'Resumo: 1 arquivo, 1 hunk, Risk 3 reversivel.',
+              'Previa de change',
+              'Resumo: 1 file, 1 hunk, Risk 3 reversivel.',
               'Apply: so com pedido explicito.',
             ].join('\n'),
             rollbackArtifactPath: 'data/runtime/intelligence-fabric-rollbacks/plan-diff-preview-1/rollback.json',
             diffReceipt: {
-              summary: '1 arquivo, 1 hunk, Risk 3 reversivel.',
+              summary: '1 file, 1 hunk, Risk 3 reversivel.',
               files: [
                 {
                   path: 'notes/preview.txt',
@@ -52,7 +50,7 @@ describe('Run Observatory Run Observatory', () => {
       artifacts: request.text.includes('falhe') ? [] : [
         {
           id: 'artifact-observatory-1',
-          title: 'Relatorio observavel',
+          title: 'Report observavel',
           kind: 'report',
           createdAt: run.createdAt,
           sessionId: run.sessionId,
@@ -83,7 +81,7 @@ describe('Run Observatory Run Observatory', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-observatory-product',
-      text: 'gere relatorio observavel',
+      text: 'generate observable report',
       requestedTools: ['read_file'],
     });
     const failed = await gateway.handle({
@@ -140,7 +138,7 @@ describe('Run Observatory Run Observatory', () => {
       expect.objectContaining({
         runId: completed.run.id,
         kind: 'artifact',
-        title: 'Relatorio observavel',
+        title: 'Report observavel',
       }),
       expect.objectContaining({
         runId: completed.run.id,
@@ -167,7 +165,7 @@ describe('Run Observatory Run Observatory', () => {
     expect(snapshot.diffPreviews).toEqual([
       expect.objectContaining({
         planId: 'plan-diff-preview-1',
-        title: 'Previa de alteracao',
+        title: 'Previa de change',
         applied: true,
         actions: expect.objectContaining({
           approveApplyLabel: 'Aplicado',

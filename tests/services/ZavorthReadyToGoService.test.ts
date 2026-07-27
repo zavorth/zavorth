@@ -100,7 +100,7 @@ describe('ZavorthReadyToGoService', () => {
             {
               id: 'fix-telegram',
               status: 'attention',
-              label: 'Guiar conexao do Telegram',
+              label: 'Guide Telegram connection',
               command: 'zavorth connectors doctor telegram',
             },
           ],

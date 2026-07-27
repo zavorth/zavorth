@@ -39,6 +39,6 @@ describe('SharedSurfaceCommandService smart commands', () => {
     await expect(service.maybeHandle(ctx as any)).resolves.toBe(true);
 
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Status: approval-required'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Proximo: zavorth smart-command /sethome C:/Users/ermys/Documents --apply --approval-id <approval-id>'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Next: zavorth smart-command /sethome C:/Users/ermys/Documents --apply --approval-id <approval-id>'));
   });
 });

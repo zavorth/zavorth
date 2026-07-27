@@ -51,7 +51,7 @@ describe('TelegramOpsController', () => {
           nextPlannedAt: '2026-03-29T09:00:00.000Z'}),
         sendNow: jest.fn().mockResolvedValue({
           sent: true,
-          message: 'Relatorio diario enviado agora.'}),
+          message: 'Report diario sent agora.'}),
         ...overrides.dailyReportService} as any,
       {
         isEnabled: jest.fn().mockReturnValue(false),
@@ -127,7 +127,7 @@ describe('TelegramOpsController', () => {
       {
         activate: jest.fn().mockResolvedValue({ active: true, message: 'activated' }),
         restore: jest.fn().mockResolvedValue({ active: false, message: 'restaurado' }),
-        status: jest.fn().mockResolvedValue({ active: false, message: 'inativo' }),
+        status: jest.fn().mockResolvedValue({ active: false, message: 'inactive' }),
         ...overrides.remoteModeManager} as any,
       {
         writeSnapshot: jest.fn().mockReturnValue({
@@ -154,7 +154,7 @@ describe('TelegramOpsController', () => {
           warnings: []}),
         ...overrides.wslControl} as any,
       {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth\n\nBuild: em dia.'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Zavorth changes and state\n\nBuild: up to date.'),
         requestReload: jest.fn().mockResolvedValue({
           accepted: true,
           requestId: 'reload-123',
@@ -169,9 +169,9 @@ describe('TelegramOpsController', () => {
           report: {} as any}),
         ...overrides.autoRepairService} as any,
       {
-        renderCatalogReport: jest.fn().mockReturnValue('Zavorth Integration Hub\n\nConectores em destaque:'),
-        renderManifestReport: jest.fn().mockReturnValue('Integracao selecionada'),
-        renderConnectReport: jest.fn().mockReturnValue('Conexao preparada:\n\ncustomizado em Docker'),
+        renderCatalogReport: jest.fn().mockReturnValue('Zavorth Integration Hub\n\nFeatured connectors:'),
+        renderManifestReport: jest.fn().mockReturnValue('Integraction selecionada'),
+        renderConnectReport: jest.fn().mockReturnValue('Connection prepared:\n\ncustomized in Docker'),
         ...overrides.integrationHubService} as any,
       {
         buildSnapshot: jest.fn().mockResolvedValue({
@@ -247,13 +247,13 @@ describe('TelegramOpsController', () => {
                 ramIdleMb: 64,
                 diskMb: 1,
                 processCount: 0},
-              fallbackBehavior: 'usar comandos nativos',
-              notes: 'Skill plane pronto.'}]}),
+              fallbackBehavior: 'usar comandos nactives',
+              notes: 'Skill plane ready.'}]}),
         ...overrides.capabilityLifecycleService} as any,
       {
         buildManifest: jest.fn().mockResolvedValue({
           generatedAt: '2026-04-05T10:00:00.000Z',
-          summary: 'Zavorth pronto para uso local e remoto.',
+          summary: 'Zavorth ready for local and remote use.',
           local: {
             ready: true,
             baseUrl: 'http://127.0.0.1:33333',
@@ -311,9 +311,9 @@ describe('TelegramOpsController', () => {
               id: 'configure-public-base-url',
               title: 'Configure public URL',
               command: 'definir ZAVORTH_PUBLIC_BASE_URL',
-              reason: 'Falta URL publica.',
+              reason: 'Falta URL public.',
               blocking: false}],
-          summary: 'Bootstrap basico fechado: Zavorth pronto para uso local.'}),
+          summary: 'Bootstrap basico closed: Zavorth ready for local use.'}),
         ...overrides.runtimeBootstrapService} as any,
       {
         inspect: jest.fn().mockResolvedValue({
@@ -322,7 +322,7 @@ describe('TelegramOpsController', () => {
             ready: false,
             baseUrl: null,
             appUrl: null,
-            issues: ['Defina uma URL publica.']},
+            issues: ['Defina uma URL public.']},
           rollout: {
             activeId: null,
             candidates: []},
@@ -469,7 +469,7 @@ describe('TelegramOpsController', () => {
                   success_rate: 1,
                   friction_rate: 0,
                   last_seen_at: '2026-04-02T10:05:00.000Z',
-                  rationale: '2/2 concluido(s).'}],
+                  rationale: '2/2 completed(s).'}],
               highestFriction: [
                 {
                   executor: 'external_executor',
@@ -487,7 +487,7 @@ describe('TelegramOpsController', () => {
                   success_rate: 0,
                   friction_rate: 1,
                   last_seen_at: '2026-04-02T10:05:00.000Z',
-                  rationale: '1 falha, 1 aguardando aprovacao.'}]},
+                  rationale: '1 failure, 1 waiting for approval.'}]},
             approvedPolicies: [
               {
                 executor: 'external_executor',
@@ -503,14 +503,14 @@ describe('TelegramOpsController', () => {
                 blocked: 0,
                 failed: 0,
                 last_seen_at: '2026-04-02T10:05:00.000Z'}]},
-          insights: ['Workflow com retomada pronta no ship.']})}});
+          insights: ['Workflow com resumption pronta no ship.']})}});
 
     await controller.handleStatus(ctx);
 
     const productText = ctx.reply.mock.calls[0][0];
     expect(productText).toMatch(/Produto|Product/);
     expect(productText).toContain('Observed window: 3 request(s) | 1 workflow(s) | 1 delivery item(s).');
-    expect(productText).toContain('Primary insight: Workflow com retomada pronta no ship.');
+    expect(productText).toContain('Primary insight: Workflow com resumption pronta no ship.');
     expect(productText).toContain('Most active surface: telegram (3 request(s)).');
     expect(productText).toContain('Best recent route: codex in research/competitive_analysis (2/2 completed).');
     expect(productText).toContain('Workflow to resume: ship');
@@ -542,7 +542,7 @@ describe('TelegramOpsController', () => {
     await controller.handleIntegrations(ctx, '');
 
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth Integration Hub');
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Conectores em destaque:');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Featured connectors:');
   });
 
   it('starts a safe connection draft', async () => {
@@ -554,8 +554,8 @@ describe('TelegramOpsController', () => {
 
     await controller.handleConnect(ctx, 'zerocloud docker');
 
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Conexao preparada:');
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('customizado em Docker');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Connection prepared:');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('customized in Docker');
   });
 
   it('returns the dashboard URL through the chat context', async () => {
@@ -707,7 +707,7 @@ describe('TelegramOpsController', () => {
 
     expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toContain('Roteiro de demo do Zavorth');
     expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toContain('/demo stitch');
-    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toContain('Cena de demo: Geracao com Stitch');
+    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toContain('Cena de demo: Geraction com Stitch');
     expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toContain('/stitch crie uma landing page moderna');
   });
 
@@ -794,11 +794,11 @@ describe('TelegramOpsController', () => {
     await controller.handleDemo(ctx, 'reset');
 
     expect(start).toHaveBeenCalledWith('42');
-    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Sequencia guiada iniciada|Guided sequence|Demo mode enabled for this sequence/i);
-    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Como abrir a apresentacao|open the presentation|Guided sequence|step|Passo 1\/4/i);
+    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Guided sequence started|Guided sequence|Demo mode enabled for this sequence/i);
+    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Como abrir a apresentaction|open the presentation|Guided sequence|step|Step 1\/4/i);
     expect(next).toHaveBeenCalledWith('42', 4);
-    // Product copy uses "Passo N/M: <title>" (PT); keep legacy "Etapa" as alternate.
-    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toMatch(/(?:Passo|Etapa)\s*2\/4:\s*Arquivos/);
+    // Product copy uses "Step N/M: <title>".
+    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toMatch(/Step\s*2\/4:\s*Files/);
     expect(reset).toHaveBeenCalledWith('42');
     expect(String(ctx.reply.mock.calls[2]?.[0] ?? '')).toMatch(
       /Guided sequence reset|Sequencia guiada reiniciada|Use \/demo start/i,
@@ -813,7 +813,7 @@ describe('TelegramOpsController', () => {
 
     await controller.handleDemo(ctx, 'short');
 
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Apresentacao curta do Zavorth');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Apresentaction curta do Zavorth');
   });
 
   it('reports and sends the daily report on demand', async () => {
@@ -822,7 +822,7 @@ describe('TelegramOpsController', () => {
       reply: jest.fn().mockResolvedValue(undefined)} as any;
     const sendNow = jest.fn().mockResolvedValue({
       sent: true,
-      message: 'Relatorio diario enviado agora.'});
+      message: 'Report diario sent agora.'});
     const controller = createController({
       dailyReportService: {
         getStatus: jest.fn().mockReturnValue({
@@ -837,9 +837,9 @@ describe('TelegramOpsController', () => {
     await controller.handleDailyReport(ctx, '');
     await controller.handleDailyReport(ctx, 'now');
 
-    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toContain('O relatorio diario esta ativo.');
+    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toContain('The daily report is active.');
     expect(sendNow).toHaveBeenCalledWith('42');
-    expect(ctx.reply).toHaveBeenNthCalledWith(2, 'Relatorio diario enviado agora.');
+    expect(ctx.reply).toHaveBeenNthCalledWith(2, 'Report diario sent agora.');
   });
 
   it('reports the current primary and ZavorthBridge models', async () => {
@@ -863,7 +863,7 @@ describe('TelegramOpsController', () => {
     const start = jest.fn().mockResolvedValue({
       ok: true,
       action: 'start',
-      message: 'WSL iniciado e confirmado para a distro Ubuntu-24.04.',
+      message: 'WSL started and confirmed for distro Ubuntu-24.04.',
       warnings: ['Sem marcador extra'],
       distros: [
         { name: 'Ubuntu-24.04', version: 2, state: 'Running', isDefault: true }]});
@@ -881,7 +881,7 @@ describe('TelegramOpsController', () => {
   it('summarizes the latest local changes on demand', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined)} as any;
-    const summarizeRecentChanges = jest.fn().mockReturnValue('Mudancas e estado do Zavorth\n\nBuild: em dia.');
+    const summarizeRecentChanges = jest.fn().mockReturnValue('Zavorth changes and state\n\nBuild: up to date.');
     const controller = createController({
       supervisedRuntimeService: {
         summarizeRecentChanges}});
@@ -889,7 +889,7 @@ describe('TelegramOpsController', () => {
     await controller.handleChanges(ctx);
 
     expect(summarizeRecentChanges).toHaveBeenCalled();
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Mudancas e estado do Zavorth');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth changes and state');
   });
 
   it('requests a supervised reload and passes the chat as notification target', async () => {
@@ -924,7 +924,7 @@ describe('TelegramOpsController', () => {
     const requestReload = jest.fn().mockResolvedValue({
       accepted: false,
       requestId: 'reload-789',
-      summary: 'O runtime supervisionado ja parece saudavel e sem pendencias de install/build. Use /selfupdate force se quiser reciclar mesmo assim.'});
+      summary: 'O runtime supervisionado ja parece saudavel e sem pending items de install/build. Use /selfupdate force se quiser reciclar mesmo assim.'});
     const controller = createController({
       supervisedRuntimeService: {
         requestReload}});
@@ -1010,7 +1010,7 @@ describe('TelegramOpsController', () => {
   it('keeps maintenance on explicit slash commands', () => {
     const controller = createController();
 
-    expect(controller.parseRuntimeMaintenanceCommand('resuma as ultimas alteracoes do zavorth')).toBeNull();
+    expect(controller.parseRuntimeMaintenanceCommand('summarize recent zavorth changes')).toBeNull();
     expect(controller.parseRuntimeMaintenanceCommand('/changes')).toEqual({
       action: 'changes',
       force: false,
@@ -1045,7 +1045,7 @@ describe('TelegramOpsController', () => {
         event_type: 'EXECUTION_COMPLETED',
         task_id: 'task-abcdef12',
         policy_decision: 'ALLOWED',
-        execution_summary: 'Execucao concluida com sucesso.'}]);
+        execution_summary: 'Execution completed successfully.'}]);
     const getMode = jest.fn().mockReturnValue('BUILD');
     const controller = createController({
       auditLogger: {
@@ -1082,8 +1082,8 @@ describe('TelegramOpsController', () => {
     await controller.handleOperationalMode(ctx, '');
 
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/Modo operacional atual: READ_ONLY|Current operational mode: READ_ONLY/);
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/read: (sim|yes)/);
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/write: (nao|no)/);
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\\n'))).toMatch(/read: (yes|true)/);
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/write: (not|no)/);
   });
 
   it('changes the operational mode and records an audit event', async () => {

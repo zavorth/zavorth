@@ -30,7 +30,7 @@ const rules = [
     files: ['src/contracts/ChannelLongTailActivationContract.ts'],
     needles: [
       'ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION',
-      '2026-05-04.live-checkpoint-3',
+      '2026-05-04.live-gate-3',
       'ChannelLongTailActivationId',
       'bluebubbles',
       'clickclack',

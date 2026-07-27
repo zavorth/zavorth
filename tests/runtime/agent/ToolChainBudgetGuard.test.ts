@@ -75,7 +75,7 @@ describe('ToolChainBudgetGuard', () => {
       allowed: false,
       degraded: true,
       reason: 'dangerous-tool-without-approval',
-      summary: 'Cadeia de tools degradada antes da execucao: dangerous-tool-without-approval.',
+      summary: 'Tool chain degraded before execution: dangerous-tool-without-approval.',
       blockedToolIds: ['shell.exec'],
     }));
     expect(decision.metadata).toEqual(expect.objectContaining({

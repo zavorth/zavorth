@@ -137,7 +137,7 @@ describe('ArtifactReplayWorkbenchService', () => {
       now: () => new Date('2026-04-24T00:00:00.000Z'),
     });
 
-    await expect(service.renderReport({ limit: 12 })).resolves.toContain('proximo passo recomendada: release-ux-wizard - Release UX');
+    await expect(service.renderReport({ limit: 12 })).resolves.toContain('next step recomendada: release-ux-wizard - Release UX');
   });
 });
 
@@ -201,7 +201,7 @@ function controlPlaneFixture(overrides: Record<string, any> = {}) {
         createdAt: '2026-04-24T00:00:00.000Z',
         summary: 'Log reutilizavel.',
         reusable: true,
-        resumePrompt: 'Retome a partir do release-log.txt.',
+        resumePrompt: 'Resume a partir do release-log.txt.',
       },
     ],
     timeline: [
@@ -281,7 +281,7 @@ function controlPlaneFixture(overrides: Record<string, any> = {}) {
     },
     narrative: {
       headline: 'Replay ok',
-      operatorSummary: 'Replay pronto.',
+      operatorSummary: 'Replay ready.',
       nextAction: 'Comparar runs.',
     },
     ...overrides,

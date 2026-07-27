@@ -34,7 +34,7 @@ function filesExist() {
     'tests/services/ZavorthSchedulerPerceptionDeviceLiveCompletionService.test.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', 'Surface controls files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all files present', missing);
+  return rule('files', 'Surface controls files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all files present', missing);
 }
 
 function packageScriptsWired() {
@@ -66,7 +66,7 @@ function runCompletionSnapshot() {
   }
   try {
     const data = JSON.parse(result.stdout);
-    const pass = data.contractVersion === '2026-05-14.checkpoint-7-scheduler-perception-device-live-completion'
+    const pass = data.contractVersion === '2026-05-14.gate-7-scheduler-perception-device-live-completion'
       && data.status !== 'blocked'
       && data.summary?.schedulerDailyUseReady === true
       && data.summary?.perceptionReadOnlyReady === true
@@ -89,5 +89,5 @@ function rule(id, label, passed, observed, target, details = []) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

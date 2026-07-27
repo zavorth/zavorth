@@ -19,7 +19,7 @@ describe('AgentRunService Universal Preview Mode', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-preview-only',
-      text: 'simule corrigir o arquivo e rode testes sem executar',
+      text: 'preview the file fix and tests without executing',
       requestedTools: ['write_file', 'shell.exec'],
       metadata: {
         universalPreviewMode: {
@@ -49,7 +49,7 @@ describe('AgentRunService Universal Preview Mode', () => {
       }),
     );
     expect(result.replies[0].text).toContain('Universal Preview Mode - Universal Preview');
-    expect(result.replies[0].text).toContain('nenhuma ferramenta foi executada');
+    expect(result.replies[0].text).toContain('no tool was executed');
   });
 
   it('keeps ordinary dangerous requests on the approval path while storing runtime preview metadata', async () => {
@@ -64,7 +64,7 @@ describe('AgentRunService Universal Preview Mode', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-runtime-preview',
-      text: 'corrija o arquivo e rode os testes',
+      text: 'corrija o file e rode os testes',
       requestedTools: ['write_file', 'shell.exec'],
     });
 

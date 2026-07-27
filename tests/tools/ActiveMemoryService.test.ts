@@ -72,7 +72,7 @@ describe('ActiveMemoryService', () => {
   });
 
   it('processes interaction for name', () => {
-    const decisions = service.processInteraction('Me chamo Ermys', 'Prazer, Ermys!');
+    const decisions = service.processInteraction('My name is Ermys', 'Nice to meet you, Ermys!');
     expect(decisions.length).toBeGreaterThan(0);
   });
 

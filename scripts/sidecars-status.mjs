@@ -12,7 +12,7 @@ const envFile = path.resolve(projectRoot, '.env');
 
 const envMap = {};
 if (fs.existsSync(envFile)) {
-  for (const rawLine of fs.readFileSync(envFile, 'utf8').split(/\r?\n/u)) {
+  for (const rawLine of fs.readFileSync(envFile, 'utf8').split(/\r...\n/u)) {
     const line = rawLine.trim();
     if (!line || line.startsWith('#')) {
       continue;
@@ -57,7 +57,7 @@ const aiGatewaySidecar = readJson(['AIGateway-sidecar.json', 'ai-gateway-sidecar
   running: false,
   ready: false,
   baseUrl: 'http://127.0.0.1:20128/v1',
-  message: 'Sem status salvo ainda.',
+  message: 'without status salvo ainda.',
 });
 
 const aiGatewayGateway = readJson('zavorth-control-last.json', {
@@ -66,7 +66,7 @@ const aiGatewayGateway = readJson('zavorth-control-last.json', {
   ready: false,
   baseUrl: 'http://127.0.0.1:21128/v1',
   upstreamBaseUrl: 'http://127.0.0.1:20128/v1',
-  message: 'Sem status salvo ainda.',
+  message: 'without status salvo ainda.',
 });
 
 const aiGateway = {
@@ -81,9 +81,8 @@ const aiGateway = {
   pid: aiGatewaySidecar.pid || aiGatewayGateway.pid || null,
   message: aiGatewayGateway.enabled
     ? (aiGatewayGateway.ready
-        ? (aiGatewaySidecar.enabled
-            ? 'Gateway proprio do AIGateway pronto sobre upstream supervisionado.'
-            : 'Gateway proprio do AIGateway pronto em modo gateway-only.')
+        ? (aiGatewaySidecar.enabled ? 'Gateway own do AIGateway ready sobre upstream supervised.'
+            : 'Gateway own do AIGateway ready em modo gateway-only.')
         : aiGatewayGateway.message)
     : aiGatewaySidecar.message,
 };
@@ -94,7 +93,7 @@ const zavorthTerminal = readJson('zavorth-terminal-sidecar.json', {
   ready: false,
   baseUrl: 'http://127.0.0.1:4747',
   localUrl: 'http://127.0.0.1:4747',
-  message: 'Sem status salvo ainda.',
+  message: 'without status salvo ainda.',
 });
 
 const runtimeShellSidecar = readJson('sidecar-docker-bootstrap-last.json', {
@@ -102,14 +101,14 @@ const runtimeShellSidecar = readJson('sidecar-docker-bootstrap-last.json', {
   docker: {
     enabled: envBoolean('ZAVORTH_DOCKER_SANDBOX_ENABLED', true),
     canRun: false,
-    detail: 'Bootstrap Docker de sidecars ainda nao foi executado.',
+    detail: 'Docker sidecar bootstrap has not run yet.',
   },
   firecracker: {
     enabled: envBoolean('ZAVORTH_FIRECRACKER_ENABLED', false),
     canRun: false,
-    detail: 'Bootstrap MicroVM ainda nao foi executado.',
+    detail: 'MicroVM bootstrap has not run yet.',
   },
-  nextSafeAction: 'Rode npm run sidecars:bootstrap -- --pull para preparar imagens Docker aprovadas.',
+  nextSafeAction: 'Run npm run sidecars:bootstrap -- --pull para preparar imagens Docker approved.',
 });
 
 const browserSidecar = readJson('browser-sidecar.json', {
@@ -118,7 +117,7 @@ const browserSidecar = readJson('browser-sidecar.json', {
   ready: false,
   baseUrl: process.env.ZAVORTH_BROWSER_SIDECAR_URL || envMap.ZAVORTH_BROWSER_SIDECAR_URL || 'http://127.0.0.1:35791',
   localUrl: process.env.ZAVORTH_BROWSER_SIDECAR_URL || envMap.ZAVORTH_BROWSER_SIDECAR_URL || 'http://127.0.0.1:35791',
-  message: 'Browser sidecar sem status salvo nesta sessao.',
+  message: 'Browser sidecar has no saved status for this session.',
 });
 
 const readPortFromUrl = (rawUrl, fallbackPort) => {
@@ -180,7 +179,7 @@ const getListeningPidWindows = (port) => {
     return null;
   }
 
-  const lines = output.split(/\r?\n/u);
+  const lines = output.split(/\r...\n/u);
   for (const line of lines) {
     if (!line.includes(`:${port}`) || !/\bLISTENING\b/i.test(line)) {
       continue;
@@ -208,25 +207,25 @@ const describe = async (snapshot, primaryUrl, fallbackPort) => {
   const portPid = getListeningPid(port);
   const livePort = await isPortListening(port).catch(() => false);
   if (snapshot.pid && !isProcessAlive(snapshot.pid)) {
-    return 'offline | O ultimo processo registrado nao esta mais ativo.';
+    return 'offline | The last registered process is no longer active.';
   }
   if (!snapshot.enabled) {
     return `desativado | ${snapshot.message}`;
   }
   if (snapshot.pid && isProcessAlive(snapshot.pid) && snapshot.ready) {
-    return `pronto | ${primaryUrl}`;
+    return `ready | ${primaryUrl}`;
   }
   if (snapshot.pid && isProcessAlive(snapshot.pid) && (snapshot.running || snapshot.ready)) {
     return `subindo | ${primaryUrl}`;
   }
   if (portPid && snapshot.pid && portPid === Number(snapshot.pid) && snapshot.ready) {
-    return `pronto | ${primaryUrl}`;
+    return `ready | ${primaryUrl}`;
   }
   if (portPid && livePort) {
-    return `indefinido | porta ${port} ocupada por PID ${portPid}, sem ownership confirmado do Zavorth.`;
+    return `indefinido | porta ${port} ocupada por PID ${portPid}, without ownership confirmado do Zavorth.`;
   }
   if ((snapshot.running || snapshot.ready) && !livePort) {
-    return `offline | O ultimo snapshot indicava atividade, mas a porta ${port} nao responde mais.`;
+    return `offline | The last snapshot indicated activity, but port ${port} no longer responds.`;
   }
   return `offline | ${snapshot.message}`;
 };
@@ -244,5 +243,5 @@ console.log('Sidecars do Zavorth');
 console.log('');
 console.log(`AI Gateway: ${await describe(aiGateway, aiGateway.baseUrl, 21128)}`);
 console.log(`Zavorth Terminal: ${await describe(zavorthTerminal, zavorthTerminal.localUrl || zavorthTerminal.baseUrl, 4747)}`);
-console.log(`Runtime Shell Sidecar: ${runtimeShellSidecar.ready || runtimeShellSidecar.docker?.canRun || runtimeShellSidecar.firecracker?.canRun ? 'pronto' : 'atencao'} | ${runtimeShellSidecar.nextSafeAction || runtimeShellSidecar.docker?.detail || runtimeShellSidecar.firecracker?.detail}`);
+console.log(`Runtime Shell Sidecar: ${runtimeShellSidecar.ready || runtimeShellSidecar.docker?.canRun || runtimeShellSidecar.firecracker?.canRun ? 'ready' : 'attention'} | ${runtimeShellSidecar.nextSafeAction || runtimeShellSidecar.docker?.detail || runtimeShellSidecar.firecracker?.detail}`);
 console.log(`Browser Sidecar: ${await describe(browserSidecar, browserSidecar.localUrl || browserSidecar.baseUrl, 35791)}`);

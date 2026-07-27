@@ -137,7 +137,7 @@ describe('LiveReadinessService Intent model', () => {
       expect.objectContaining({
         check: 'npm run live-readiness:check --silent',
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Preview engine - Channel Live Activation P0',
+        nextAction: 'Preview engine - Channel Live Activation P0',
       }),
     );
     expect(JSON.stringify(snapshot)).not.toContain('sk-');

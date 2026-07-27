@@ -18,7 +18,7 @@ type Args = {
   approvalId: string | null;
   explicitSubagents: boolean;
   live: boolean;
-  mockLive: boolean;
+  dryLive: boolean;
   sourceSurface: string | null;
   providerName: string | null;
   modelName: string | null;
@@ -49,8 +49,8 @@ async function main(): Promise<void> {
     approvalId: args.approvalId,
     explicitSubagents: args.explicitSubagents,
     live: args.live,
-    mockLive: args.mockLive,
-    executionMode: args.mockLive ? 'mock-live' : args.live ? 'live-llm' : null,
+    dryLive: args.dryLive,
+    executionMode: args.dryLive ? 'dry-live' : args.live ? 'live-llm' : null,
     sourceSurface: args.sourceSurface,
     providerName: args.providerName,
     modelName: args.modelName,
@@ -86,7 +86,7 @@ function parseArgs(argv: string[]): Args {
     approvalId: null,
     explicitSubagents: false,
     live: false,
-    mockLive: false,
+    dryLive: false,
     sourceSurface: null,
     providerName: null,
     modelName: null,
@@ -100,9 +100,9 @@ function parseArgs(argv: string[]): Args {
     else if (arg === '--no-persist') out.persistState = false;
     else if (arg === '--explicit' || arg === '--explicit-subagents') out.explicitSubagents = true;
     else if (arg === '--live') out.live = true;
-    else if (arg === '--mock-live') {
+    else if (arg === '--dry-live') {
       out.live = true;
-      out.mockLive = true;
+      out.dryLive = true;
     }
     else if (arg === '--task') out.task = argv[++index] || null;
     else if (arg.startsWith('--task=')) out.task = arg.slice('--task='.length);

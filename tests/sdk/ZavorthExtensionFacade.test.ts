@@ -67,7 +67,7 @@ describe('ZavorthExtensionFacade Tests', () => {
     expect(result.status).toBe('pending_approval');
   });
 
-  it('rejeita duplicate namespace/name collision com a mesma assinatura', () => {
+  it('rejects duplicate namespace/name collision com a mesma assinatura', () => {
     ZavorthExtensionFacade.registerCustomTool(validDescriptor);
 
     expect(() => {
@@ -96,7 +96,7 @@ describe('ZavorthExtensionFacade Tests', () => {
     );
   });
 
-  it('falha claramente se o audit logger obrigatorio estiver indisponivel', () => {
+  it('failure claramente se o audit logger required estiver unavailable', () => {
     // Unregister logger
     ServiceRegistry.resetForTests();
 

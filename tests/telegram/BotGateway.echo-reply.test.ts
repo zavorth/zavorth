@@ -41,7 +41,7 @@ describe('BotGateway shared surface Echo reply', () => {
     const surfaceCtx = buildSharedSurfaceTelegramContext(
       runtime,
       ctx,
-      '[Automatically transcribed audio]\nDetected language: en-US\noi',
+      '[Automatically transcribed audio]\nhello',
       '456',
       'user-1',
     );
@@ -65,11 +65,11 @@ describe('BotGateway shared surface Echo reply', () => {
     const ctx = createContext();
     const surfaceCtx = buildSharedSurfaceTelegramContext(runtime, ctx, 'menu', '456', 'user-1');
 
-    await surfaceCtx.reply('Escolha uma opcao.', { reply_markup: { inline_keyboard: [] } });
+    await surfaceCtx.reply('Choose uma opcao.', { reply_markup: { inline_keyboard: [] } });
 
     expect(runtime.echoAudioHandler.synthesize).not.toHaveBeenCalled();
     expect(ctx.replyWithVoice).not.toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith('Escolha uma opcao.', { reply_markup: { inline_keyboard: [] } });
+    expect(ctx.reply).toHaveBeenCalledWith('Choose uma opcao.', { reply_markup: { inline_keyboard: [] } });
   });
 
   it('synthesizes voice for structured preferVoiceReply even before global Echo is enabled', async () => {
@@ -78,18 +78,18 @@ describe('BotGateway shared surface Echo reply', () => {
     const surfaceCtx = buildSharedSurfaceTelegramContext(
       runtime,
       ctx,
-      'voce pode me responder em audio?',
+      'can you reply with audio-',
       '456',
       'user-1',
       undefined,
       { voiceFlow: { preferVoiceReply: true } },
     );
 
-    await surfaceCtx.reply('Sim, posso responder por audio quando voce pedir.');
+    await surfaceCtx.reply('Yes, I can reply with audio when you ask.');
 
     expect(runtime.echoPreferenceStore.isEchoModeActive).not.toHaveBeenCalled();
     expect(runtime.echoAudioHandler.synthesize).toHaveBeenCalledWith(
-      'Sim, posso responder por audio quando voce pedir.',
+      'Yes, I can reply with audio when you ask.',
       expect.objectContaining({
         preferredLanguageCode: 'en-US',
       }),
@@ -104,16 +104,16 @@ describe('BotGateway shared surface Echo reply', () => {
     const surfaceCtx = buildSharedSurfaceTelegramContext(
       runtime,
       ctx,
-      'voce pode me responder em audio?',
+      'can you reply with audio-',
       '456',
       'user-1',
     );
 
-    await surfaceCtx.reply('Sim, posso responder por audio quando voce pedir.');
+    await surfaceCtx.reply('Yes, I can reply with audio when you ask.');
 
     expect(runtime.echoAudioHandler.synthesize).not.toHaveBeenCalled();
     expect(ctx.replyWithVoice).not.toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith('Sim, posso responder por audio quando voce pedir.', undefined);
+    expect(ctx.reply).toHaveBeenCalledWith('Yes, I can reply with audio when you ask.', undefined);
   });
 
   it('keeps medium Telegram Echo replies on the low-latency path', async () => {
@@ -122,7 +122,7 @@ describe('BotGateway shared surface Echo reply', () => {
     const surfaceCtx = buildSharedSurfaceTelegramContext(
       runtime,
       ctx,
-      '[Automatically transcribed audio]\nDetected language: en-US\nresuma isso',
+      '[Automatically transcribed audio]\nsummarize this',
       '456',
       'user-1',
     );

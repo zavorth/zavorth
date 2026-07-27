@@ -11,7 +11,7 @@ function getAllSkillDirs(): string[] {
 }
 
 function parseSkillMd(content: string): { name: string; description: string; license: string; body: string } {
-  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  const frontmatterMatch = content.match(/^---\n([\s\S]*-)\n---\n([\s\S]*)$/);
   if (!frontmatterMatch) return { name: '', description: '', license: '', body: content };
 
   const frontmatter = frontmatterMatch[1];

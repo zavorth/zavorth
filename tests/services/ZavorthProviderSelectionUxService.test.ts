@@ -87,20 +87,15 @@ describe('ZavorthProviderSelectionUxService', () => {
 
 function readinessPlane(routes: AccessRouteCatalogEntry[]) {
   return {
-    async buildLiveSnapshot(input: { providerId?: string | null }) {
+    async buildLiveSnapshot(input: { providerId-: string | null }) {
       const entries = routes
         .filter((entry) => !input.providerId || entry.id === input.providerId || entry.providerId === input.providerId)
         .map((entry) => {
-          const status = entry.readinessCode === 'ready'
-            ? 'ready'
-            : entry.readinessCode === 'needs_probe'
-              ? 'needs_probe'
-              : entry.readinessCode === 'missing_auth'
-                ? 'missing_auth'
-                : entry.readinessCode === 'missing_base_url'
-                  ? 'missing_base_url'
-                  : entry.readinessCode === 'unsupported'
-                    ? 'unsupported'
+          const status = entry.readinessCode === 'ready' ? 'ready'
+            : entry.readinessCode === 'needs_probe' ? 'needs_probe'
+              : entry.readinessCode === 'missing_auth' ? 'missing_auth'
+                : entry.readinessCode === 'missing_base_url' ? 'missing_base_url'
+                  : entry.readinessCode === 'unsupported' ? 'unsupported'
                     : 'degraded';
           return {
             id: entry.id,
@@ -187,10 +182,8 @@ function readinessPlane(routes: AccessRouteCatalogEntry[]) {
 }
 
 function route(id: string, code: AccessRouteReadinessCode): AccessRouteCatalogEntry {
-  const readiness: ModelPickerReadiness = code === 'ready'
-    ? 'ready'
-    : code === 'needs_probe'
-      ? 'needs_probe'
+  const readiness: ModelPickerReadiness = code === 'ready' ? 'ready'
+    : code === 'needs_probe' ? 'needs_probe'
       : 'needs_config';
   return {
     id,

@@ -48,7 +48,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-core] capability activation ledger doctor falhou.');
+  console.error('[zavorth-core] capability activation ledger doctor failed.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

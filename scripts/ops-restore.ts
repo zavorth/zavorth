@@ -51,13 +51,13 @@ async function main() {
     return;
   }
 
-  console.log(`[ops-restore] ${dryRun ? 'dry-run' : 'restore'} concluido`);
+  console.log(`[ops-restore] ${dryRun ? 'dry-run' : 'restore'} completed`);
   console.log(`[ops-restore] snapshotId: ${manifest.snapshotId}`);
   console.log(`[ops-restore] snapshotDir: ${manifest.snapshotDir}`);
   console.log(`[ops-restore] restored: ${payload.restoredTargets.length}`);
 }
 
 main().catch((error) => {
-  console.error('[ops-restore] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[ops-restore] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

@@ -77,7 +77,7 @@ function capture(command, args, cwd) {
 function stripAnsi(text) {
   return text.replace(
     // eslint-disable-next-line no-control-regex
-    /\u001b(?:\[[0-9;?]*[ -/]*[@-~]|\][^\u0007]*(?:\u0007|\u001b\\))/g,
+    /\u001b(?:\[[0-9;...]*[ -/]*[@-~]|\][^\u0007]*(?:\u0007|\u001b\\))/g,
     '',
   );
 }

@@ -10,11 +10,11 @@ describe('ProductEmptyStates UX Tests', () => {
   it('renders EmptyState for missing workspace scenario', () => {
     const { container } = render(
       <EmptyState
-        title="Nenhum workspace configurado"
-        description="Abra ou crie um workspace para começar a usar o Zavorth."
+        title="No workspace configurado"
+        description="Open or create a workspace to start using Zavorth."
       />
     );
-    expect(container.textContent).toContain('Nenhum workspace configurado');
+    expect(container.textContent).toContain('No workspace configurado');
     expect(container.textContent).toContain('Abra ou crie um workspace');
     expect(container.textContent).not.toContain('undefined');
     expect(container.textContent).not.toContain('null');
@@ -24,43 +24,43 @@ describe('ProductEmptyStates UX Tests', () => {
   it('renders EmptyState for missing provider scenario', () => {
     const { container } = render(
       <EmptyState
-        title="Nenhum provider ativo"
-        description="Configure um provider de IA em Configurações > Providers para habilitar o agente."
+        title="No provider active"
+        description="Configure an AI provider in Settings > Providers to enable the agent."
       />
     );
-    expect(container.textContent).toContain('Nenhum provider ativo');
+    expect(container.textContent).toContain('No provider active');
     expect(container.textContent).toContain('Configure um provider');
   });
 
   it('renders EmptyState for empty task list', () => {
     const { container } = render(
       <EmptyState
-        title="Nenhuma tarefa em andamento"
-        description="Inicie uma conversa com o Zavorth para ver suas tarefas aqui."
+        title="No task in progress"
+        description="Start a conversation with Zavorth to see your tasks here."
       />
     );
-    expect(container.textContent).toContain('Nenhuma tarefa em andamento');
+    expect(container.textContent).toContain('No task in progress');
   });
 
   it('renders EmptyState for empty memory list', () => {
     const { container } = render(
       <EmptyState
-        title="Nenhuma memória salva"
-        description="O Zavorth irá aprender com suas interações e salvar referências úteis aqui."
+        title="No saved memory"
+        description="O Zavorth ira aprender com suas interactions e salvar referencias uteis aqui."
       />
     );
-    expect(container.textContent).toContain('Nenhuma memória salva');
+    expect(container.textContent).toContain('No saved memory');
   });
 
   it('renders error InlineAlert for workspace_not_trusted state', () => {
     const { container } = render(
       <InlineAlert
         type="warning"
-        title="Workspace não confiado"
-        message="Para continuar, confirme que este workspace é seguro e confiável."
+        title="Untrusted workspace"
+        message="To continue, confirm this workspace is safe and trusted."
       />
     );
-    expect(container.textContent).toContain('Workspace não confiado');
+    expect(container.textContent).toContain('Untrusted workspace');
     expect(container.textContent).toContain('confirme que este workspace');
   });
 
@@ -68,17 +68,17 @@ describe('ProductEmptyStates UX Tests', () => {
     const { container } = render(
       <InlineAlert
         type="error"
-        title="Chave de API ausente"
-        message="O provider selecionado não possui uma chave de API configurada. Acesse Configurações > Providers."
+        title="Chave de API missing"
+        message="The selected provider has no configured API key. Open Settings > Providers."
       />
     );
-    expect(container.textContent).toContain('Chave de API ausente');
+    expect(container.textContent).toContain('Chave de API missing');
     expect(container.textContent).not.toContain('undefined');
   });
 
   it('renders StatusBadge for loading state without null values', () => {
     const { container } = render(
-      <StatusBadge status="neutral">Carregando…</StatusBadge>
+      <StatusBadge status="neutral">Loading...</StatusBadge>
     );
     expect(container.textContent).toContain('Carregando');
     expect(container.textContent).not.toContain('null');
@@ -87,15 +87,15 @@ describe('ProductEmptyStates UX Tests', () => {
 
   it('renders StatusBadge for success state', () => {
     const { container } = render(
-      <StatusBadge status="success">Pronto</StatusBadge>
+      <StatusBadge status="success">Ready</StatusBadge>
     );
-    expect(container.textContent).toContain('Pronto');
+    expect(container.textContent).toContain('Ready');
   });
 
   it('renders StatusBadge for error state', () => {
     const { container } = render(
-      <StatusBadge status="error">Falha</StatusBadge>
+      <StatusBadge status="error">Failure</StatusBadge>
     );
-    expect(container.textContent).toContain('Falha');
+    expect(container.textContent).toContain('Failure');
   });
 });

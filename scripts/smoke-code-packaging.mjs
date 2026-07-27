@@ -63,7 +63,7 @@ function cleanupPackTarballs() {
   // Never leave accidental pack artifacts in the repo root.
   let removed = 0
   for (const name of fs.readdirSync(root)) {
-    if (!/^zavorth(-[\w.-]+)?\.tgz$/i.test(name)) continue
+    if (!/^zavorth(-[\w.-]+)...\.tgz$/i.test(name)) continue
     try {
       fs.unlinkSync(path.join(root, name))
       removed += 1
@@ -150,7 +150,7 @@ function extractPackedPaths(stdout, stderr) {
   const raw = `${stdout || ""}\n${stderr || ""}`.trim()
   const paths = new Set()
 
-  // Prefer JSON: [{ files: [{ path }], filename, ... }]
+  // Prefer JSON: [{ files: [{ path }], filename, ? }]
   const jsonStart = raw.indexOf("[")
   const jsonEnd = raw.lastIndexOf("]")
   if (jsonStart >= 0 && jsonEnd > jsonStart) {
@@ -172,10 +172,10 @@ function extractPackedPaths(stdout, stderr) {
   }
 
   // Text fallback: npm notice lines / plain listing
-  for (const line of raw.split(/\r?\n/)) {
+  for (const line of raw.split(/\r...\n/)) {
     const m =
       line.match(/npm notice\s+\d+\s+(.+)$/i) ||
-      line.match(/^\s*([^\s].*?(?:bin[/\\]zavorth\.js|packages[/\\]code[/\\].*))$/i)
+      line.match(/^\s*([^\s].*...(?:bin[/\\]zavorth\.js|packages[/\\]code[/\\].*))$/i)
     if (m) paths.add(m[1].trim().replace(/\\/g, "/"))
     if (/bin[/\\]zavorth\.js/i.test(line)) paths.add("bin/zavorth.js")
     if (/packages[/\\]code[/\\]cli[/\\]src/i.test(line)) paths.add("packages/code/cli/src")
@@ -264,8 +264,7 @@ const packOut = `${pack.stdout || ""}\n${pack.stderr || ""}`
 
 if (pack.status !== 0 || pack.error) {
   const err = pack.error ? pack.error.message : `status=${pack.status}`
-  const hint = npmCli
-    ? `resolved npm-cli.js=${npmCli}`
+  const hint = npmCli ? `resolved npm-cli.js=${npmCli}`
     : "could not resolve npm-cli.js next to process.execPath"
   if (shipsCode) {
     fail(

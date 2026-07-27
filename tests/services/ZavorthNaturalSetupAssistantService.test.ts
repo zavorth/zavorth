@@ -16,7 +16,7 @@ describe('ZavorthNaturalSetupAssistantService', () => {
     const service = new ZavorthNaturalSetupAssistantService(buildRuntime());
 
     const snapshot = service.buildSnapshot({
-      text: 'quero conectar slack com token xoxb-redact-fixture',
+      text: 'quero conectar slack com token redacted-slack-token-fixture',
       actorLabel: 'operator',
     });
 
@@ -27,14 +27,14 @@ describe('ZavorthNaturalSetupAssistantService', () => {
     expect(snapshot.governancePlan).toBeNull();
     expect(snapshot.readiness.status).toBe('needs_manual_choice');
     expect(snapshot.request.redactedText).toContain('[SECRET_REDACTED]');
-    expect(snapshot.request.redactedText).not.toContain('xoxb-redact-fixture');
+    expect(snapshot.request.redactedText).not.toContain('redacted-slack-token-fixture');
     expect(snapshot.secretPlan.rawSecretValuesSerialized).toBe(false);
     expect(snapshot.secretPlan.detectedSecretInputs[0]).toMatchObject({
       field: 'slack.botToken',
       source: 'text',
       acceptedForPersistence: false,
     });
-    expect(JSON.stringify(snapshot)).not.toContain('xoxb-redact-fixture');
+    expect(JSON.stringify(snapshot)).not.toContain('redacted-slack-token-fixture');
     expect(snapshot.safety).toMatchObject({
       previewOnly: true,
       liveActivation: false,
@@ -46,7 +46,7 @@ describe('ZavorthNaturalSetupAssistantService', () => {
     const service = new ZavorthNaturalSetupAssistantService(buildRuntime());
 
     const snapshot = service.buildSnapshot({
-      text: 'operator note with token xoxb-redact-fixture',
+      text: 'operator note with token redacted-slack-token-fixture',
       actorLabel: 'operator',
       preferredCapabilityId: 'channel:slack',
       action: 'connect',
@@ -308,15 +308,11 @@ function buildReceipt(target: CapabilityHubItem, approved: boolean): GovernanceR
 function buildRecipe(target: CapabilityHubItem): GovernanceRecipeDefinition {
   const isProvider = target.kind === 'provider';
   return {
-    id: isProvider
-      ? 'provider-mcp-readiness'
-      : target.kind === 'channel'
-        ? 'safe-channel-activation'
+    id: isProvider ? 'provider-mcp-readiness'
+      : target.kind === 'channel' ? 'safe-channel-activation'
         : 'governed-skill-run',
-    label: isProvider
-      ? 'Provider and MCP readiness'
-      : target.kind === 'channel'
-        ? 'Safe channel activation'
+    label: isProvider ? 'Provider and MCP readiness'
+      : target.kind === 'channel' ? 'Safe channel activation'
         : 'Governed execution',
     summary: 'Fixture recipe.',
     targetKinds: [target.kind],

@@ -174,7 +174,7 @@ function ruleNativeSkillHygiene() {
     /\b(reference|rival)\s+(agent|assistant|runtime)\b/i,
     /\binspir(?:ed|ado|ada)\b/i,
     /\bbest[- ]in[- ]class\b/i,
-    /\bsuperior(ity)?\b/i,
+    /\bsuperior(ity)...\b/i,
   ];
   const issues = [];
   const deniedDirectExecutionProfile = ['local', 'execution'].join('-');
@@ -294,7 +294,7 @@ function read(relativePath) {
 
 function compact(...values) {
   return values
-    .flatMap((value) => String(value || '').split(/\r?\n/g))
+    .flatMap((value) => String(value || '').split(/\r...\n/g))
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 12);

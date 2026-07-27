@@ -27,7 +27,7 @@ describe('ToolExecutor hooks', () => {
     );
 
     await expect(executor.executeTool('read_file', { path: 'README.md' })).rejects.toThrow(
-      'Um hook bloqueou a execucao do runtime para essa tool.',
+      'A hook blocked runtime execution for this tool.',
     );
 
     expect(registry.getTool).not.toHaveBeenCalled();
@@ -62,7 +62,7 @@ describe('ToolExecutor hooks', () => {
     }));
     const registry = {
       getTool: jest.fn().mockReturnValue({
-        execute: jest.fn().mockResolvedValue('conteudo'),
+        execute: jest.fn().mockResolvedValue('content'),
       }),
     } as any;
     const executor = new ToolExecutor(
@@ -78,7 +78,7 @@ describe('ToolExecutor hooks', () => {
 
     const result = await executor.executeTool('read_file', { path: 'README.md' });
 
-    expect(result).toBe('conteudo');
+    expect(result).toBe('content');
     expect(run).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
@@ -122,7 +122,7 @@ describe('ToolExecutor hooks', () => {
       },
     );
     await expect(missingExecutor.executeTool('missing_tool', { taskId: 'task-1' })).rejects.toThrow(
-      'Ferramenta "missing_tool" nao encontrada no registro.',
+      'Ferramenta "missing_tool" not encontrada no registro.',
     );
 
     const failingExecutor = new ToolExecutor(

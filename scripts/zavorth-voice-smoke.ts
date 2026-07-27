@@ -110,7 +110,7 @@ async function main(): Promise<number> {
         agentHandler: handler,
         speakHandler: async () => ({
           mimeType: 'audio/mpeg',
-          audioBase64: Buffer.from('fake-mp3').toString('base64'),
+          audioBase64: Buffer.from('synthetic-mp3').toString('base64'),
           provider: 'edge-tts',
         }),
       });

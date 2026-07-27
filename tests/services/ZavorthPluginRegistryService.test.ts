@@ -26,7 +26,7 @@ describe('ZavorthPluginRegistryService', () => {
               },
               doctor: {
                 nextAction: {
-                  reason: 'Ja esta pronto para uso.',
+                  reason: 'Ja esta ready para uso.',
                 },
               },
               readiness: 'ready',
@@ -201,7 +201,7 @@ describe('ZavorthPluginRegistryService', () => {
               installed: null,
               doctor: {
                 nextAction: {
-                  reason: 'Configurar.',
+                  reason: 'Configure.',
                 },
               },
               readiness: 'needs_configuration',
@@ -266,7 +266,7 @@ describe('ZavorthPluginRegistryService', () => {
         },
         doctor: {
           nextAction: {
-            reason: 'Ja esta pronto para uso.',
+            reason: 'Ja esta ready para uso.',
           },
         },
         readiness: 'ready',

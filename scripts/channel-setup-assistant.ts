@@ -7,7 +7,7 @@ import type { ChannelInstallMode } from '../src/services/ChannelInstallScaffoldS
 const CHANNEL_INSTALL_MODES = [
   'native',
   'bridge',
-  'stub',
+  'local',
   'cloud-api',
   'baileys',
   'signal-cli',
@@ -91,7 +91,7 @@ async function main() {
 
   if (args.apply) {
     if (!args.channelId) {
-      throw new Error('Use --channel <telegram|discord|slack|whatsapp|signal|imessage|teams|email> junto com --apply.');
+      throw new Error('Use --channel <telegram|discord|slack|whatsapp|signal|imessage|teams|email> with --apply.');
     }
     const result = await service.apply({
       channelId: args.channelId,
@@ -105,7 +105,7 @@ async function main() {
     renderAssistant(result.assistant);
     console.log('');
     console.log(`[channels:assistant] scaffold aplicado em ${result.applyReport.env.filePath}`);
-    console.log(`[channels:assistant] chaves escritas: ${result.applyReport.env.writtenKeys.join(', ') || 'nenhuma'}`);
+    console.log(`[channels:assistant] written keys: ${result.applyReport.env.writtenKeys.join(', ') || 'none'}`);
     return;
   }
 
@@ -140,16 +140,16 @@ async function main() {
 }
 
 function renderAssistant(session: ReturnType<ChannelSetupAssistantService['buildSession']>): void {
-  console.log('[channels:assistant] Assistente de setup de canais');
+  console.log('[channels:assistant] Channel setup assistant');
   console.log(`[channels:assistant] status: ${session.status}`);
-  console.log(`[channels:assistant] resposta: ${session.naturalReply}`);
+  console.log(`[channels:assistant] response: ${session.naturalReply}`);
   if (session.selected) {
     console.log(`[channels:assistant] canal: ${session.selected.label}`);
     console.log(`[channels:assistant] modo: ${session.selected.setupMode}`);
     console.log(`[channels:assistant] faltando: ${session.selected.missingEnvKeys.join(', ') || 'nada'}`);
-    console.log(`[channels:assistant] proximo passo: ${session.selected.operatorNextStep}`);
+    console.log(`[channels:assistant] next passo: ${session.selected.operatorNextStep}`);
   } else {
-    console.log('[channels:assistant] canais disponiveis:');
+    console.log('[channels:assistant] available channels:');
     for (const option of session.options) {
       console.log(`- ${option.label}: ${option.operatorNextStep}`);
     }

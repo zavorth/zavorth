@@ -146,7 +146,7 @@ async function main(): Promise<void> {
   resetConversationContinuumCache();
 
   const userId = 'golden-path-user';
-  const goal = 'How do I run the release checklist and list repository files step by step?';
+  const goal = 'How do I run the release checklist and list repository files step by step...';
 
   // --- 1. Workflow draft from multi-tool success ---
   let t0 = Date.now();
@@ -237,7 +237,7 @@ async function main(): Promise<void> {
     fail('pack-inject', `expected 4 pillars, got ${pack.pillarsQueried.join(',')}`, t0, root);
   }
   const weights = equalPillarWeights();
-  const scored = scoreLearnedKnowledgeIntent('what did we discuss about providers last time?');
+  const scored = scoreLearnedKnowledgeIntent('what did we discuss about providers last time...');
   if (JSON.stringify(scored) !== JSON.stringify(weights)) {
     fail('pack-inject', 'scoreLearnedKnowledgeIntent still keyword-skews pillars', t0, root);
   }
@@ -346,7 +346,7 @@ async function main(): Promise<void> {
   t0 = Date.now();
   const ux = new UserExperienceIntentRouter();
   const phrases = [
-    'resuma o estado e o link do PR',
+    'summarize o estado e o link do PR',
     'compile uma equipe de agentes swarm',
     'promote this skill and forget the draft',
   ];

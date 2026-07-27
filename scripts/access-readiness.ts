@@ -19,8 +19,8 @@ async function main() {
     return;
   }
 
-  console.log('[zavorth-access] prontidao do runtime');
-  console.log(`[zavorth-access] resumo: ${report.summary}`);
+  console.log('[zavorth-access] runtime readiness');
+  console.log(`[zavorth-access] summary: ${report.summary}`);
   console.log(
     `[zavorth-access] local: ${report.local.ready ? 'ready' : localConsoleUsable ? 'readonly' : 'pending'} | ${report.local.appUrl}`,
   );
@@ -32,17 +32,15 @@ async function main() {
   );
   console.log(
     `[zavorth-access] ${
-      report.runtime.discordBridge.mode === 'native' ? 'discord nativo' : 'discord bridge'
+      report.runtime.discordBridge.mode === 'native' ? 'native discord' : 'discord bridge'
     }: ${
-      !report.runtime.discordBridge.enabled
-        ? 'desabilitado'
-        : report.runtime.discordBridge.started
-          ? 'ready'
+      !report.runtime.discordBridge.enabled ? 'disabled'
+        : report.runtime.discordBridge.started ? 'ready'
           : 'pending'
     }`,
   );
   console.log(
-    `[zavorth-access] auth web: ${report.auth.enabled ? report.auth.source : 'ausente'} | host autorizado: ${
+    `[zavorth-access] web auth: ${report.auth.enabled ? report.auth.source : 'absent'} | host authorized: ${
       report.runtime.hostAuthorized === false ? 'no' : 'yes'
     }`,
   );
@@ -55,14 +53,14 @@ async function main() {
   );
 
   if (report.nextSteps.length > 0) {
-    console.log('[zavorth-access] proximos passos:');
+    console.log('[zavorth-access] next steps:');
     for (const step of report.nextSteps) {
       console.log(`- ${step.title}: ${step.description}`);
     }
   }
 
   if (report.recommendations.length > 0) {
-    console.log('[zavorth-access] recomendacoes:');
+    console.log('[zavorth-access] recommendations:');
     for (const recommendation of report.recommendations) {
       console.log(`- ${recommendation}`);
     }

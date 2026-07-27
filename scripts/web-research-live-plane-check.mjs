@@ -30,7 +30,7 @@ const rules = [
     files: ['src/contracts/WebResearchLivePlaneContract.ts'],
     needles: [
       'ZAVORTH_WEB_RESEARCH_LIVE_PLANE_CONTRACT_VERSION',
-      '2026-05-04.live-checkpoint-8',
+      '2026-05-04.live-gate-8',
       'brave',
       'exa',
       'searxng',

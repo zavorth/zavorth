@@ -225,7 +225,7 @@ function buildService(runtime: {
     llmRuntime: runtime.llmRuntime,
     toolRuntime: runtime.toolRuntime,
     requestBuilder: new AgentRunLlmRequestBuilder({
-      hallucinationInstruction: () => '',
+      there isllucinationInstruction: () => '',
     }),
     mutationPlaneService: null,
     speculativeAutonomyService: null,

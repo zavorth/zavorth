@@ -19,7 +19,7 @@ async function main(): Promise<void> {
     now: () => new Date(now),
   });
   const simple = service.buildSnapshot({
-    text: 'oi, me explique o que voce faz',
+    text: 'hi, explain what you can do',
     surface: 'web',
     userRole: 'owner',
   });
@@ -30,7 +30,7 @@ async function main(): Promise<void> {
     workspaceRoot: 'C:/repo',
   });
   const missingCapability = service.buildSnapshot({
-    text: 'quero usar voce atraves do canal radio caseiro',
+    text: 'I want to use you through a custom radio channel',
     surface: 'web',
     userRole: 'owner',
     workspaceRoot: 'C:/repo',
@@ -47,7 +47,7 @@ async function main(): Promise<void> {
     userRole: 'owner',
   });
   const secretHygiene = service.buildSnapshot({
-    text: 'faça isso sempre desse jeito',
+    text: 'always do it this way',
     surface: 'cli',
     userRole: 'owner',
     policySource: {
@@ -55,7 +55,7 @@ async function main(): Promise<void> {
         { id: 'secret_rule', action: 'read', target: 'token=sk-policy-secret-value', decision: 'deny' },
       ],
     },
-    constitutionContent: '## Preferencias\n- Sempre responder em portugues com token=sk-constitution-secret-value',
+    constitutionContent: '## Preferences\n- Keep sensitive values redacted with token=[redacted-secret]',
     learningCandidates: [
       {
         id: 'candidate secret/id',
@@ -121,7 +121,7 @@ async function main(): Promise<void> {
     ]),
     check('secret-hygiene-redacts-derived-text', [
       [!secretHygieneJson.includes('sk-policy-secret-value'), 'policy compiler must redact raw policy secrets'],
-      [!secretHygieneJson.includes('sk-constitution-secret-value'), 'constitution hints must redact raw secrets'],
+      [!secretHygieneJson.includes('[redacted-secret]'), 'constitution hints must redact raw secrets'],
       [!secretHygieneJson.includes('sk-title-secret-value'), 'skill mining title must redact raw secrets'],
       [!secretHygieneJson.includes('ghp_secretValueShouldDisappear'), 'skill mining summary must redact raw tokens'],
     ]),

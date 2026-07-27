@@ -63,7 +63,7 @@ const scenarios: Scenario[] = [
   },
   {
     id: 'draft-patch-free',
-    input: { text: 'crie um patch em rascunho para corrigir bug' },
+    input: { text: 'create a draft patch to fix a bug' },
     expect: (snapshot) => [
       snapshot.classification.riskLevel === 2 ? '' : 'draft patch must be risk 2',
       snapshot.riskGate.overallDecision === 'allow' ? '' : 'draft patch must be allowed in shadow planning',
@@ -72,7 +72,7 @@ const scenarios: Scenario[] = [
   },
   {
     id: 'local-owner-reversible-write',
-    input: { text: 'aplique uma edicao reversivel no workspace', trustMode: 'local_owner', workspaceRoot: 'C:/workspace/zavorth-core/Zavorth' },
+    input: { text: 'aplique uma edicao reversible no workspace', trustMode: 'local_owner', workspaceRoot: 'C:/workspace/zavorth-core/Zavorth' },
     expect: (snapshot) => [
       snapshot.classification.riskLevel === 3 ? '' : 'workspace edit must be risk 3',
       snapshot.riskGate.overallDecision === 'allow' ? '' : 'local owner reversible write should be allowed',
@@ -80,7 +80,7 @@ const scenarios: Scenario[] = [
   },
   {
     id: 'install-is-gated',
-    input: { text: 'rode npm install lodash' },
+    input: { text: 'run npm install lodash' },
     expect: (snapshot) => [
       snapshot.classification.riskLevel === 4 ? '' : 'install must be risk 4',
       snapshot.riskGate.requiresApproval ? '' : 'install must require approval',
@@ -100,7 +100,7 @@ const scenarios: Scenario[] = [
   },
   {
     id: 'existing-capability-uses-hub',
-    input: { text: 'quero configurar meu Slack' },
+    input: { text: 'configure Slack' },
     expect: (snapshot) => [
       snapshot.capabilityBuilder.status === 'existing_capability' ? '' : 'known capability should use Capability Hub',
       snapshot.activation.liveActionApplied ? 'known capability flow must not apply live activation' : '',
@@ -108,7 +108,7 @@ const scenarios: Scenario[] = [
   },
   {
     id: 'unknown-capability-draft-only',
-    input: { text: 'quero usar voce atraves do canal caseiro-xpto' },
+    input: { text: 'use the custom channel named home-xpto' },
     expect: (snapshot) => [
       snapshot.capabilityBuilder.status === 'draft_ready' ? '' : 'unknown capability should become draft',
       snapshot.capabilityBuilder.manifest?.defaultEnabled === false ? '' : 'new capability must start disabled',
@@ -118,7 +118,7 @@ const scenarios: Scenario[] = [
   },
   {
     id: 'manual-model-override',
-    input: { text: 'faca revisao de seguranca', userForcedModel: 'owner/model-strong' },
+    input: { text: 'perform security review', userForcedModel: 'owner/model-strong' },
     expect: (snapshot) => [
       snapshot.modelRouting.source === 'manual-override' ? '' : 'manual model override must win',
       snapshot.modelRouting.selectedModelId === 'owner/model-strong' ? '' : 'manual model id mismatch',

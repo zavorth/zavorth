@@ -145,7 +145,7 @@ function validateManifest(value) {
 
 function renderReport(value, failures, target) {
   const lines = [
-    '[installer-release] phase 7 release distribution manifest',
+    '[installer-release] gate 7 release distribution manifest',
     `[installer-release] package ${value.package.name}@${value.package.version}`,
     `[installer-release] mode ${value.distribution.activeMode}`,
     `[installer-release] manifest ${relative(root, target)}`,

@@ -7,7 +7,7 @@ describe('ToolExecutor telemetry', () => {
     } as any;
     const registry = {
       getTool: jest.fn().mockReturnValue({
-        execute: jest.fn().mockResolvedValue('conteudo'),
+        execute: jest.fn().mockResolvedValue('content'),
       }),
     } as any;
     const executor = new ToolExecutor(registry, { log: jest.fn() } as any, telemetryRuntime);
@@ -17,7 +17,7 @@ describe('ToolExecutor telemetry', () => {
       metadata: { traceId: 'trace-tool-123' },
     });
 
-    expect(result).toBe('conteudo');
+    expect(result).toBe('content');
     expect(telemetryRuntime.record).toHaveBeenCalledWith(
       expect.objectContaining({
         traceId: 'trace-tool-123',
@@ -46,7 +46,7 @@ describe('ToolExecutor telemetry', () => {
     const executor = new ToolExecutor(registry, { log: jest.fn() } as any, telemetryRuntime);
 
     await expect(executor.executeTool('missing_tool', { taskId: 'task-1' })).rejects.toThrow(
-      'Ferramenta "missing_tool" nao encontrada no registro.',
+      'Ferramenta "missing_tool" not encontrada no registro.',
     );
 
     expect(telemetryRuntime.record).toHaveBeenCalledWith(

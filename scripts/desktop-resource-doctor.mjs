@@ -12,7 +12,7 @@ async function main() {
   const asJson = argv.includes('--json');
 
   if (!fs.existsSync(distServicePath)) {
-    throw new Error('Desktop doctor exige build previa. Rode npm run build antes de usar este comando.');
+    throw new Error('Desktop doctor requires a previous build. Run npm run build before using this command.');
   }
 
   const moduleUrl = pathToFileURL(distServicePath).href;
@@ -37,7 +37,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-ops] desktop doctor falhou.');
+  console.error('[zavorth-ops] desktop doctor failed.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

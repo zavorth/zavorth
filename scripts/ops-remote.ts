@@ -76,24 +76,24 @@ async function main() {
     return;
   }
 
-  console.log('[zavorth-remote] caminho remoto oficial');
+  console.log('[zavorth-remote] path remote oficial');
   if (action) {
-    console.log(`[zavorth-remote] acao: ${action}${provider ? ` (${provider})` : ''}`);
+    console.log(`[zavorth-remote] action: ${action}${provider ? ` (${provider})` : ''}`);
   }
-  console.log(`[zavorth-remote] resumo: ${report.summary}`);
-  console.log(`[zavorth-remote] app remoto: ${report.remote.appUrl || 'nao configurado'}`);
-  console.log(`[zavorth-remote] status: ${report.remote.ready ? 'pronto' : 'pendente'}`);
-  console.log(`[zavorth-remote] rollout ativo: ${report.rollout.activeId || 'nenhum'}`);
+  console.log(`[zavorth-remote] summary: ${report.summary}`);
+  console.log(`[zavorth-remote] remote app: ${report.remote.appUrl || 'not configured'}`);
+  console.log(`[zavorth-remote] status: ${report.remote.ready ? 'ready' : 'pending'}`);
+  console.log(`[zavorth-remote] rollout active: ${report.rollout.activeId || 'nenhum'}`);
   console.log(`[zavorth-remote] estado guiado: ${report.state.status}`);
   if (launchSelection) {
-    console.log(`[zavorth-remote] abrir: ${launchSelection.url || 'nao disponivel'} | ${launchSelection.reason}`);
+    console.log(`[zavorth-remote] open: ${launchSelection.url || 'not available'} | ${launchSelection.reason}`);
     if (launchResult?.attempted) {
-      console.log(`[zavorth-remote] launch: ${launchResult.ok ? 'ok' : 'falhou'}${launchResult.error ? ` (${launchResult.error})` : ''}`);
+      console.log(`[zavorth-remote] launch: ${launchResult.ok ? 'ok' : 'failed'}${launchResult.error ? ` (${launchResult.error})` : ''}`);
     }
   }
 
   if (report.remote.issues.length > 0) {
-    console.log('[zavorth-remote] bloqueios atuais:');
+    console.log('[zavorth-remote] bloqueios current:');
     for (const issue of report.remote.issues) {
       console.log(`- ${issue}`);
     }
@@ -104,11 +104,11 @@ async function main() {
     for (const candidate of report.rollout.candidates) {
       const recommendation = candidate.id === report.rollout.recommendedId ? ' | recomendado' : '';
       console.log(
-        `- ${candidate.label}: ${candidate.ready ? 'pronto' : 'pendente'} (${candidate.doneSteps}/${candidate.totalSteps})${recommendation}`,
+        `- ${candidate.label}: ${candidate.ready ? 'ready' : 'pending'} (${candidate.doneSteps}/${candidate.totalSteps})${recommendation}`,
       );
       console.log(`  comando: ${candidate.command}`);
       console.log(`  guia: ${candidate.guide}`);
-      console.log(`  resumo: ${candidate.summary}`);
+      console.log(`  summary: ${candidate.summary}`);
       for (const highlight of candidate.pendingHighlights) {
         console.log(`  pendencia: ${highlight}`);
       }
@@ -124,7 +124,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-remote] falha ao validar o caminho remoto oficial.');
+  console.error('[zavorth-remote] failure ao validate o path remote oficial.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

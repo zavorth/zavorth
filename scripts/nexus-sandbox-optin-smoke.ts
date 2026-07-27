@@ -19,7 +19,7 @@ async function main(): Promise<void> {
       skipped: true,
       requestedTier,
       resolvedTier: null,
-      reason: 'ZAVORTH_SANDBOX_SMOKE_OPT_IN=false; smoke opt-in nao foi solicitado.',
+      reason: 'ZAVORTH_SANDBOX_SMOKE_OPT_IN=false; smoke opt-in was not requested.',
     });
     return;
   }
@@ -31,7 +31,7 @@ async function main(): Promise<void> {
       skipped: true,
       requestedTier,
       resolvedTier: null,
-      reason: 'Nenhum tier de sandbox habilitado/operavel no host atual.',
+      reason: 'No tier de sandbox habilitado/operable no host current.',
     });
     return;
   }
@@ -140,7 +140,7 @@ async function runMicrovmSmoke(strict: boolean): Promise<Record<string, unknown>
 
 function handleUnavailable(strict: boolean, tier: string, detail: string): Record<string, unknown> {
   if (strict) {
-    throw new Error(`Tier ${tier} indisponivel para smoke opt-in: ${detail}`);
+    throw new Error(`Tier ${tier} unavailable para smoke opt-in: ${detail}`);
   }
 
   return {

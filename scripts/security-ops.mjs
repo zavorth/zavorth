@@ -98,7 +98,7 @@ const forbiddenDeployPathPatterns = [
 
 const trackedSensitivePatterns = [
   /^\.env$/i,
-  /^\.env\.(?!example$)/i,
+  /^\.env\.(...!example$)/i,
   /^data\/runtime\//i,
   /^data\/agent-bridge\//i,
   /^data\/config-gitops\//i,
@@ -252,7 +252,7 @@ function isPlaceholderValue(value) {
 function getTrackedFiles() {
   const output = capture('git', ['ls-files'], projectRoot);
   return output
-    .split(/\r?\n/)
+    .split(/\r...\n/)
     .map((entry) => entry.trim())
     .filter(Boolean);
 }
@@ -379,7 +379,7 @@ function getLineMatches(relativePath, matchers) {
   }
 
   const normalizedMatchers = Array.isArray(matchers) ? matchers : [matchers];
-  const lines = content.split(/\r?\n/);
+  const lines = content.split(/\r...\n/);
   const matches = [];
 
   lines.forEach((line, index) => {
@@ -458,10 +458,10 @@ function buildSecuritySummaryFromFindings(findings) {
   const buckets = bucketFindings(findings);
   const total = findings.length;
   if (!total) {
-    return 'Nenhum problema relevante detectado.';
+    return 'No problema relevante detectado.';
   }
 
-  return `${buckets.P0.length} P0, ${buckets.P1.length} P1 e ${buckets.P2.length} P2 em ${total} finding(s).`;
+  return `${buckets.P0.length} P0, ${buckets.P1.length} P1 and ${buckets.P2.length} P2 em ${total} finding(s).`;
 }
 
 function buildLegacyMessages(findings) {
@@ -535,12 +535,12 @@ function readSettingsSnapshot() {
   };
 
   if (!fs.existsSync(dbPath)) {
-    snapshot.errors.push('Banco local ainda nao foi materializado.');
+    snapshot.errors.push('local database has not been materialized yet.');
     return snapshot;
   }
 
   if (!BetterSqlite3) {
-    snapshot.errors.push('better-sqlite3 nao esta disponivel para leitura direta do estado.');
+    snapshot.errors.push('better-sqlite3 is not available para read direta of the state.');
     return snapshot;
   }
 
@@ -602,22 +602,15 @@ function getResolvedWebRuntime() {
 
 function addBaselineFindings(findings, context) {
   const trackedSensitiveFiles = getTrackedFiles().filter(isTrackedSensitiveFile);
-  const zavorthControlAuthSource = process.env.ZAVORTH_WEB_AUTH_TOKEN
-    ? 'env'
-    : process.env.ZAVORTH_HIGH_RISK_APPROVAL_PIN
-      ? 'pin'
-      : readText(webTokenFile)
-        ? 'runtime-file'
+  const zavorthControlAuthSource = process.env.ZAVORTH_WEB_AUTH_TOKEN ? 'env'
+    : process.env.ZAVORTH_HIGH_RISK_APPROVAL_PIN ? 'pin'
+      : readText(webTokenFile) ? 'runtime-file'
         : 'missing';
-  const mailboxSource = process.env.ZAVORTH_MAILBOX_SECRET
-    ? 'env'
-    : readText(mailboxSecretFile)
-      ? 'runtime-file'
+  const mailboxSource = process.env.ZAVORTH_MAILBOX_SECRET ? 'env'
+    : readText(mailboxSecretFile) ? 'runtime-file'
       : 'missing';
-  const dbSource = process.env.ZAVORTH_DB_ENCRYPTION_KEY
-    ? 'env'
-    : readText(dbKeyFile)
-      ? 'runtime-file'
+  const dbSource = process.env.ZAVORTH_DB_ENCRYPTION_KEY ? 'env'
+    : readText(dbKeyFile) ? 'runtime-file'
       : 'missing';
 
   if (zavorthControlAuthSource === 'pin') {
@@ -625,14 +618,14 @@ function addBaselineFindings(findings, context) {
       id: 'zavorthControl_auth_reuses_high_risk_pin',
       area: 'web-auth',
       severity: 'medium',
-      title: 'Painel web reutiliza o PIN de alto risco como token',
-      detail: 'O token web fica acoplado ao mesmo segredo de aprovacao de alto risco, ampliando impacto em caso de vazamento.',
-      remediation: 'Gerar um token dedicado para a web e remover a reutilizacao do PIN.',
+      title: 'Web panel reuses the high-risk PIN as a token',
+      detail: 'The web token is coupled to the same high-risk approval secret, increasing impact in case of leakage.',
+      remediation: 'Generate a dedicated web token and remove PIN reuse.',
       evidence: [
         {
           file: '.env',
           line: null,
-          snippet: 'ZAVORTH_HIGH_RISK_APPROVAL_PIN esta sendo usado como fallback do token web.',
+          snippet: 'ZAVORTH_HIGH_RISK_APPROVAL_PIN is sendo usado como fallback of the token web.',
         },
       ],
     }));
@@ -643,16 +636,16 @@ function addBaselineFindings(findings, context) {
       id: 'zavorthControl_auth_missing',
       area: 'web-auth',
       severity: 'high',
-      title: 'Nao existe token web dedicado materializado',
-      detail: 'Sem token materializado, o runtime depende de estados mais permissivos ou de provisioning tardio.',
-      remediation: 'Gerar imediatamente um token local dedicado para o painel web.',
+      title: 'Dedicated web token material was not found',
+      detail: 'Without token material, the runtime depends on more permissive states or late provisioning.',
+      remediation: 'Generate a dedicated local token for the web panel immediately.',
       autoFixable: true,
       fixCommand: 'npm run security:fix',
       evidence: [
         {
           file: normalizeRelativePath(path.relative(projectRoot, webTokenFile)),
           line: null,
-          snippet: 'Arquivo de token web ausente.',
+          snippet: 'Web token file is missing.',
         },
       ],
     }));
@@ -663,16 +656,16 @@ function addBaselineFindings(findings, context) {
       id: 'mailbox_secret_missing',
       area: 'secrets',
       severity: 'medium',
-      title: 'Segredo da mailbox ainda nao foi materializado',
-      detail: 'A mailbox fica sem segredo local persistido, o que reduz previsibilidade operacional e dificulta rotacao.',
-      remediation: 'Materializar um segredo dedicado para a mailbox.',
+      title: 'Mailbox secret has not been materialized yet',
+      detail: 'A mailbox fica without secret local persistido, o que reduz previsibilidade operational and dificulta rotaction.',
+      remediation: 'Materializar um secret dedicado para a mailbox.',
       autoFixable: true,
       fixCommand: 'npm run security:fix',
       evidence: [
         {
           file: normalizeRelativePath(path.relative(projectRoot, mailboxSecretFile)),
           line: null,
-          snippet: 'Arquivo de segredo da mailbox ausente.',
+          snippet: 'Mailbox secret file is missing.',
         },
       ],
     }));
@@ -683,14 +676,14 @@ function addBaselineFindings(findings, context) {
       id: 'db_encryption_key_missing',
       area: 'storage',
       severity: 'medium',
-      title: 'Chave de criptografia local do banco nao foi materializada',
-      detail: 'Sem a chave local materializada, a postura de protecao em repouso fica incompleta ou dependente de bootstrap futuro.',
-      remediation: 'Provisionar uma chave dedicada para criptografia local do banco.',
+      title: 'local database encryption key has not been materialized',
+      detail: 'without a key local materializada, a postura de protection em repouso fica incompleta or dependente de bootstrap futuro.',
+      remediation: 'Provisionar uma key dedicada para encryption local of the database.',
       evidence: [
         {
           file: normalizeRelativePath(path.relative(projectRoot, dbKeyFile)),
           line: null,
-          snippet: 'Arquivo da chave de criptografia ausente.',
+          snippet: 'Encryption key file is missing.',
         },
       ],
     }));
@@ -701,16 +694,16 @@ function addBaselineFindings(findings, context) {
       id: 'host_identity_missing',
       area: 'host-auth',
       severity: 'low',
-      title: 'Identidade/autorizacao do host ainda nao foi materializada',
-      detail: 'O host auth existe no runtime, mas o arquivo de identidade ainda nao foi gerado antecipadamente.',
-      remediation: 'Materializar a identidade do host local para estabilizar a readiness operacional.',
+      title: 'Host identity/authorization has not been materialized yet',
+      detail: 'Host auth exists in the runtime, but the identity file still was not generated ahead of time.',
+      remediation: 'Materializar a identidade of the host local para estabilizar a readiness operational.',
       autoFixable: true,
       fixCommand: 'npm run security:fix',
       evidence: [
         {
           file: normalizeRelativePath(path.relative(projectRoot, hostIdentityFile)),
           line: null,
-          snippet: 'Arquivo de identidade do host ausente.',
+          snippet: 'Host identity file is missing.',
         },
       ],
     }));
@@ -721,13 +714,13 @@ function addBaselineFindings(findings, context) {
       id: 'tracked_sensitive_files',
       area: 'repository',
       severity: 'critical',
-      title: 'Arquivos sensiveis estao rastreados pelo git',
-      detail: 'Segredos e artefatos sensiveis versionados ampliam risco de vazamento e tornam rollback/clone perigosos.',
-      remediation: 'Remover os arquivos do versionamento, regenerar os segredos e ajustar o ignore do repositorio.',
+      title: 'Sensitive files are tracked by git',
+      detail: 'Versioned sensitive secrets and artifacts increase leakage risk and make rollback/clone dangerous.',
+      remediation: 'Remover os files of the versionamento, regenerar os secrets and ajustar o ignore of the repository.',
       evidence: trackedSensitiveFiles.map((file) => ({
         file,
         line: null,
-        snippet: 'Arquivo sensivel rastreado no git.',
+        snippet: 'Sensitive file tracked by git.',
       })),
     }));
   }
@@ -757,13 +750,11 @@ function addAuthTopologyFindings(findings, context) {
       id: 'conditional_global_auth_bypass',
       area: 'web-auth',
       severity: runtimeNoLogin ? 'critical' : 'high',
-      title: 'Auth global pode ser desligada para toda a Management API',
-      detail: runtimeNoLogin
-        ? 'O banco indica requireLogin=false no estado atual, o que coloca a API de gerenciamento em modo efetivamente aberto para todas as rotas que dependem so do middleware global.'
-        : onboardingOpen
-          ? 'Em onboarding sem senha, a Management API pode entrar em modo sem auth para rotas que dependem so do middleware global.'
-          : 'A topologia atual permite que a auth global deixe de proteger rotas de gerenciamento em estados sem senha ou com requireLogin=false.',
-      remediation: 'Separar rotas sensiveis de onboarding, exigir auth local para superficies criticas e eliminar o bypass global para endpoints administrativos.',
+      title: 'Auth global pode ser desligada for every a Management API',
+      detail: runtimeNoLogin ? 'O database indica requireLogin=false in the state current, o que coloca a API de gerenciamento in mode efetivamente aberto para todas as routes que dependem only of the middleware global.'
+        : onboardingOpen ? 'Em onboarding without password, a Management API pode entrar in mode without auth para routes que dependem only of the middleware global.'
+          : 'A topologia current permite que a auth global deixe de proteger routes de gerenciamento in states without password or with requireLogin=false.',
+      remediation: 'Separate sensitive routes from onboarding, require local auth for critical surfaces, and remove global bypass for administrative endpoints.',
       evidence: [...apiAuthEvidence, ...proxyEvidence],
     }));
   }
@@ -780,16 +771,16 @@ function addAuthTopologyFindings(findings, context) {
       id: 'sensitive_routes_missing_local_auth',
       area: 'web-surface',
       severity: runtimeNoLogin ? 'critical' : 'high',
-      title: 'Rotas sensiveis nao possuem guarda local de autenticacao',
-      detail: 'Essas rotas dependem apenas do middleware global. Quando a auth global relaxa, endpoints de backup, logs ou MCP ficam expostos alem do esperado.',
-      remediation: 'Adicionar guardas locais estritas para rotas administrativas e de exportacao de dados.',
+      title: 'Sensitive routes do not have local authentication guards',
+      detail: 'Essas routes dependem only of the middleware global. when a auth global relaxa, endpoints de backup, logs or MCP ficam expostos alem of the esperado.',
+      remediation: 'Adicionar guardas locais estritas para routes administractives and de exportaction de dados.',
       evidence: missingRoutes.flatMap((route) => {
         const line = getFirstLineMatch(route.path, [/export async function/, /async function guardEnabled/]);
         return [
           line || {
             file: route.path,
             line: null,
-            snippet: `Rota sensivel sem requireManagementAuth/isAuthenticated: ${route.surface}`,
+            snippet: `Sensitive route without requireManagementAuth/isAuthenticated: ${route.surface}`,
           },
         ];
       }),
@@ -801,9 +792,9 @@ function addAuthTopologyFindings(findings, context) {
       id: 'sensitive_routes_conditional_auth',
       area: 'web-surface',
       severity: runtimeNoLogin ? 'high' : 'medium',
-      title: 'Rotas sensiveis usam guarda condicional que desliga junto com a auth global',
-      detail: 'Mesmo quando a rota chama um helper de auth, o helper atual devolve permissao nula se o runtime entrar em estado sem login.',
-      remediation: 'Criar uma guarda administrativa estrita para superficies de alto impacto, separada do fluxo de onboarding/fresh install.',
+      title: 'Sensitive routes use a conditional guard that turns off with global auth',
+      detail: 'Mesmo when a route chama um helper de auth, o helper current devolve permission nula se o runtime entrar em state without login.',
+      remediation: 'Create a strict administrative guard for high-impact surfaces, separate from the onboarding/fresh-install flow.',
       evidence: conditionalRoutes.flatMap((route) => route.guard.evidence.slice(0, 2)),
     }));
   }
@@ -815,11 +806,10 @@ function addAuthTopologyFindings(findings, context) {
       id: 'mcp_sse_surface_unguarded',
       area: 'mcp',
       severity: mcpEnabledNow ? 'critical' : 'high',
-      title: 'A superficie MCP/SSE nao possui auth local',
-      detail: mcpEnabledNow
-        ? 'O estado atual indica MCP habilitado via SSE, e a rota nao possui auth local. Isso transforma uma superficie de tools em risco operacional imediato.'
-        : 'A rota MCP/SSE depende apenas do estado de enable/transport e nao exige auth local por conta propria.',
-      remediation: 'Adicionar auth administrativa estrita na rota MCP/SSE e tratar essa superficie como equivalente a acesso operador.',
+      title: 'A surface MCP/SSE does not have auth local',
+      detail: mcpEnabledNow ? 'O state current indica MCP habilitado via SSE, and a route does not have auth local. Isso transforma uma surface de tools em risk operational imediato.'
+        : 'An MCP/SSE route depends only on enable/transport state and does not require local auth on its own.',
+      remediation: 'Adicionar auth administractive estrita in the route MCP/SSE and tratar this surface como equivalente a access operador.',
       evidence: [
         ...(mcpRoute.guard.evidence || []),
         ...getLineMatches(mcpRoute.path, [/settings\.mcpEnabled/, /transport !== 'sse'/]),
@@ -833,7 +823,7 @@ function addAuthTopologyFindings(findings, context) {
 function addSurfaceHardeningFindings(findings, context) {
   const webRuntimeEvidence = getLineMatches(
     'src/config/sections/webRuntimeConfig.ts',
-    /process\.env\.PORT \? '0\.0\.0\.0' : '127\.0\.0\.1'/,
+    /process\.env\.PORT \... '0\.0\.0\.0' : '127\.0\.0\.1'/,
   );
   const runtime = context.webRuntime;
 
@@ -842,11 +832,10 @@ function addSurfaceHardeningFindings(findings, context) {
       id: 'web_host_defaults_to_all_interfaces_on_port_env',
       area: 'web-surface',
       severity: runtime.fromPortEnv ? 'high' : 'medium',
-      title: 'Web host cai em 0.0.0.0 quando PORT esta presente',
-      detail: runtime.fromPortEnv
-        ? `No estado atual, o host resolvido esta em ${runtime.host}:${runtime.port} porque PORT foi detectado sem ZAVORTH_WEB_HOST explicito.`
-        : 'O runtime contem um default que amplia o bind para todas as interfaces em ambientes com PORT definido.',
-      remediation: 'Trocar o default para loopback por padrao e exigir bind explicito para exposicao remota.',
+      title: 'Web host cai em 0.0.0.0 when PORT is present',
+      detail: runtime.fromPortEnv ? `No state current, o host resolvido is em ${runtime.host}:${runtime.port} porque PORT foi detectado without ZAVORTH_WEB_HOST explicit.`
+        : 'O runtime contains um default que amplia o bind para todas as interfaces in environments with PORT definido.',
+      remediation: 'Switch the default to loopback and require explicit bind for remote exposure.',
       evidence: webRuntimeEvidence,
     }));
   }
@@ -864,9 +853,9 @@ function addSurfaceHardeningFindings(findings, context) {
       id: 'websocket_query_token_enabled',
       area: 'websocket-auth',
       severity: 'medium',
-      title: 'Upgrade WebSocket aceita token na query string',
-      detail: 'Tokens em URL podem vazar por logs, historico, proxy e prints de troubleshooting. Para superficies de agente, header dedicado e mais seguro.',
-      remediation: 'Remover token por query string e aceitar apenas Authorization ou header dedicado.',
+      title: 'Upgrade WebSocket aceita token in the query string',
+      detail: 'Tokens in URLs can leak through logs, history, proxies, and troubleshooting screenshots. For agent surfaces, a dedicated header is safer.',
+      remediation: 'Remover token por query string and aceitar only Authorization or header dedicado.',
       evidence: [...queryTokenEvidence, ...queryTokenTestEvidence],
     }));
   }
@@ -880,9 +869,9 @@ function addSurfaceHardeningFindings(findings, context) {
       id: 'classic_loopback_auth_bypass',
       area: 'legacy-surface',
       severity: 'medium',
-      title: 'Superficie legada /classic aceita loopback como bypass de auth',
-      detail: 'Esse pressuposto funciona so em local puro. Em ambientes com reverse proxy, bridge local ou tunel, a confianca em loopback pode mascarar uma fronteira mais fraca.',
-      remediation: 'Remover o bypass por loopback em superficies administrativas ou isola-lo estritamente a um socket local controlado.',
+      title: 'surface legada /classic aceita loopback como bypass de auth',
+      detail: 'That assumption only works in purely local environments. With reverse proxies, local bridges, or tunnels, loopback trust can hide a weaker boundary.',
+      remediation: 'Remover o bypass por loopback in surfaces administractives or isola-lo estritamente a um socket local controlado.',
       evidence: classicEvidence,
     }));
   }
@@ -900,9 +889,9 @@ function addSurfaceHardeningFindings(findings, context) {
       id: 'workspace_root_broader_than_repo',
       area: 'workspace-boundary',
       severity: 'medium',
-      title: 'Workspace autorizado padrao e mais amplo do que o repositorio do Zavorth',
-      detail: `O workspace root resolvido sobe para ${path.resolve(projectRoot, '..', '..')}, ampliando a area que ferramentas e agentes podem considerar autorizada.`,
-      remediation: 'Restringir o default ao repositorio atual e exigir allowlists explicitas para areas adicionais.',
+      title: 'Default approved workspace is broader than the Zavorth repository',
+      detail: `The resolved workspace root climbs to ${path.resolve(projectRoot, '..', '..')}, expanding the area tools and agents may treat as approved.`,
+      remediation: 'Restringir o default ao repository current and exigir allowlists explicit para areas adicionais.',
       evidence: [...workspaceEvidence, ...workspaceResolverEvidence],
     }));
   }
@@ -919,9 +908,9 @@ function addRuntimeSettingsFindings(findings, context) {
       id: 'runtime_require_login_disabled',
       area: 'runtime-config',
       severity: 'critical',
-      title: 'O runtime atual esta com requireLogin=false',
-      detail: 'No estado atual do banco, a Management API e o zavorthControl podem cair em postura aberta demais para superficies administrativas.',
-      remediation: 'Reativar requireLogin, separar o fluxo de onboarding e exigir auth local nas rotas sensiveis.',
+      title: 'O runtime current is with requireLogin=false',
+      detail: 'No state current of the database, a Management API and o zavorthControl podem cair em postura aberta demais para surfaces administractives.',
+      remediation: 'Reactivate requireLogin, separate the onboarding flow, and require local auth in sensitive routes.',
       evidence: [
         {
           file: normalizeRelativePath(path.relative(projectRoot, dbPath)),
@@ -937,14 +926,14 @@ function addRuntimeSettingsFindings(findings, context) {
       id: 'runtime_setup_complete_without_password',
       area: 'runtime-config',
       severity: 'high',
-      title: 'O runtime esta marcado como setupComplete sem senha efetiva',
-      detail: 'Esse estado amplia risco de confiar em onboarding finalizado enquanto o runtime segue com auth fraca ou desativada.',
-      remediation: 'Exigir senha/token efetivo antes de considerar o setup completo em superficies administrativas.',
+      title: 'O runtime is marcado como setupComplete without password efetiva',
+      detail: 'Esse state amplia risk de trusting onboarding finished enquanto o runtime segue with auth fraca or desactiveda.',
+      remediation: 'Exigir password/token efetivo before considerar o setup completo in surfaces administractives.',
       evidence: [
         {
           file: normalizeRelativePath(path.relative(projectRoot, dbPath)),
           line: null,
-          snippet: 'settings.setupComplete = true e nenhuma senha/token efetivo detectado',
+          snippet: 'settings.setupComplete = true and no password/token efetivo detectado',
         },
       ],
     }));
@@ -1027,10 +1016,8 @@ function backupFile(filePath, prefix) {
 }
 
 function rotateWebToken(force = false) {
-  const authSource = process.env.ZAVORTH_WEB_AUTH_TOKEN
-    ? 'env'
-    : process.env.ZAVORTH_HIGH_RISK_APPROVAL_PIN
-      ? 'pin'
+  const authSource = process.env.ZAVORTH_WEB_AUTH_TOKEN ? 'env'
+    : process.env.ZAVORTH_HIGH_RISK_APPROVAL_PIN ? 'pin'
       : 'runtime-file';
 
   if (authSource !== 'runtime-file' && !force) {
@@ -1038,7 +1025,7 @@ function rotateWebToken(force = false) {
       rotated: false,
       activeSource: authSource,
       tokenFile: webTokenFile,
-      note: 'Token em arquivo nao e a fonte ativa. Use --force para rotacionar mesmo assim.',
+      note: 'Token file is not the active source. Use --force to rotate anyway.',
     };
   }
 
@@ -1060,7 +1047,7 @@ function rotateMailboxSecret(force = false) {
       rotated: false,
       activeSource: 'env',
       secretFile: mailboxSecretFile,
-      note: 'A mailbox esta usando ZAVORTH_MAILBOX_SECRET. Use --force para rotacionar o arquivo local mesmo assim.',
+      note: 'The mailbox is using ZAVORTH_MAILBOX_SECRET. Use --force to rotate the local file anyway.',
     };
   }
 
@@ -1069,7 +1056,7 @@ function rotateMailboxSecret(force = false) {
     : [];
   if (pendingEntries.length > 0 && !force) {
     throw new Error(
-      `Existem mensagens pendentes na mailbox (${pendingEntries.length}). Use --force se quiser rotacionar mesmo assim.`,
+      `There are pending messages in the mailbox (${pendingEntries.length}). Use --force to rotate anyway.`,
     );
   }
 
@@ -1091,7 +1078,7 @@ function materializeHostIdentity(force = false) {
     return {
       created: false,
       file: hostIdentityFile,
-      note: 'Arquivo de identidade do host ja existe.',
+      note: 'Host identity file already exists.',
     };
   }
 
@@ -1144,7 +1131,7 @@ function applySafeFixes(options = {}) {
         id: 'fix_web_token_missing',
         status: 'skipped',
         result: {
-          note: 'PIN de alto risco continua sendo a fonte ativa. O autofix nao sobrescreve env/approval pin.',
+          note: 'PIN de alto risk remains the active source. O autofix does not overwrite env/approval pin.',
         },
       });
     }
@@ -1193,7 +1180,7 @@ function applySafeFixes(options = {}) {
       id: 'no_safe_fixes_applied',
       status: 'noop',
       result: {
-        note: 'Nenhum autofix seguro era aplicavel no estado atual.',
+        note: 'No autofix seguro era applicable in the state current.',
       },
     });
   }
@@ -1274,13 +1261,13 @@ function runPreflight() {
       id: 'preflight_tracked_sensitive_files',
       area: 'release',
       severity: 'critical',
-      title: 'Preflight encontrou arquivos sensiveis rastreados pelo git',
-      detail: 'Artefatos sensiveis versionados podem vazar para superficies remotas ou para terceiros que clonarem o repositorio.',
-      remediation: 'Remover do versionamento e regenerar os segredos antes do publish.',
+      title: 'Preflight found sensitive files tracked by git',
+      detail: 'Versioned sensitive artifacts can leak to remote surfaces or third parties that clone the repository.',
+      remediation: 'Remover of the versionamento and regenerar os secrets before of the publish.',
       evidence: trackedSensitiveFiles.map((file) => ({
         file,
         line: null,
-        snippet: 'Arquivo sensivel rastreado no git.',
+        snippet: 'Sensitive file tracked by git.',
       })),
     }));
   }
@@ -1290,13 +1277,13 @@ function runPreflight() {
       id: 'preflight_missing_remote_targets',
       area: 'release',
       severity: 'high',
-      title: 'Targets remotos esperados nao foram preparados',
-      detail: 'O publish remoto nao deve continuar quando as superficies empacotadas ainda nao existem.',
-      remediation: 'Rodar remote:prepare antes de qualquer publish.',
+      title: 'Expected remote targets were not prepared',
+      detail: 'Remote publish must not continue when packaged surfaces still do not exist.',
+      remediation: 'run remote:prepare before any publish.',
       evidence: missingTargets.map((entry) => ({
         file: normalizeRelativePath(path.relative(projectRoot, entry.path)),
         line: null,
-        snippet: 'Target remoto ausente.',
+        snippet: 'Target remote missing.',
       })),
     }));
   }
@@ -1306,13 +1293,13 @@ function runPreflight() {
       id: 'preflight_forbidden_files_in_remote_surface',
       area: 'release',
       severity: 'critical',
-      title: 'Superficie remota contem artefatos locais/sensiveis',
-      detail: 'Arquivos de runtime, segredos ou artefatos locais apareceram no pacote remoto preparado.',
-      remediation: 'Limpar a superficie remota e reforcar o preflight antes do deploy.',
+      title: 'remote surface contains local or sensitive artifacts',
+      detail: 'Runtime files, secrets, or local artifacts appeared in the prepared remote package.',
+      remediation: 'Clean the remote surface and strengthen preflight before deploy.',
       evidence: forbiddenDeployFiles.map((file) => ({
         file,
         line: null,
-        snippet: 'Arquivo local/sensivel encontrado na superficie remota.',
+        snippet: 'local/sensitive file found in the remote surface.',
       })),
     }));
   }
@@ -1322,13 +1309,13 @@ function runPreflight() {
       id: 'preflight_materialized_secrets_leaked',
       area: 'release',
       severity: 'critical',
-      title: 'Segredos materializados apareceram na superficie remota',
-      detail: 'Valores de token/chave materializados localmente foram encontrados dentro do artefato preparado para publish.',
-      remediation: 'Bloquear o publish, limpar os artefatos e rotacionar os segredos afetados.',
+      title: 'materialized secrets appeared in the remote surface',
+      detail: 'Locally materialized token/key values were found inside the artifact prepared for publish.',
+      remediation: 'Block publish, clean the artifacts, and rotate affected secrets.',
       evidence: leakedSecrets.map((entry) => ({
         file: entry.file,
         line: null,
-        snippet: `Segredo local vazou a partir de ${entry.source}.`,
+        snippet: `secret local vazou a partir de ${entry.source}.`,
       })),
     }));
   }
@@ -1338,9 +1325,9 @@ function runPreflight() {
       id: 'preflight_no_materialized_secrets_detected',
       area: 'release',
       severity: 'low',
-      title: 'Nenhum segredo materializado foi encontrado para varredura de vazamento',
-      detail: 'O preflight nao encontrou segredos materializados o suficiente para validar vazamento por conteudo.',
-      remediation: 'Confirmar se os segredos esperados estao vindos por env ou arquivos e revisar a cobertura do preflight.',
+      title: 'No materialized secret was found for leakage scanning',
+      detail: 'The preflight did not find enough materialized secrets to validate content leakage.',
+      remediation: 'Confirm expected secrets come from environment or files and review preflight coverage.',
       evidence: [],
     }));
   }
@@ -1416,7 +1403,7 @@ function renderGapReportMarkdown(report) {
   const lines = [];
   lines.push('# Zavorth Security Gap Report');
   lines.push('');
-  lines.push(`Gerado em: ${report.generatedAt}`);
+  lines.push(`Generated at: ${report.generatedAt}`);
   lines.push('');
   lines.push(`Resumo: ${report.summary}`);
   lines.push('');
@@ -1426,7 +1413,7 @@ function renderGapReportMarkdown(report) {
     lines.push(`## ${priority}`);
     lines.push('');
     if (!items.length) {
-      lines.push('Nenhum finding nesta prioridade.');
+      lines.push('No finding in this prioridade.');
       lines.push('');
       continue;
     }
@@ -1436,7 +1423,7 @@ function renderGapReportMarkdown(report) {
       lines.push('');
       lines.push(`- id: ${item.id}`);
       lines.push(`- severidade: ${item.severity}`);
-      lines.push(`- autofix: ${item.autoFixable ? 'sim' : 'nao'}`);
+      lines.push(`- autofix: ${item.autoFixable ? 'yes' : 'not'}`);
       if (item.remediation) {
         lines.push(`- remediation: ${item.remediation}`);
       }
@@ -1588,15 +1575,15 @@ function parseArgs(argv) {
 }
 
 function printHelp() {
-  console.log('Uso: node scripts/security-ops.mjs <audit|preflight|fix|doctor|gap-report|rotate-web-token|rotate-mailbox-secret> [--deep] [--fix] [--force] [--strict] [--json]');
+  console.log('usage: node scripts/security-ops.mjs <audit|preflight|fix|doctor|gap-report|rotate-web-token|rotate-mailbox-secret> [--deep] [--fix] [--force] [--strict] [--json]');
   console.log('');
   console.log('Comandos:');
-  console.log('  audit        Auditoria de seguranca do runtime/repositorio.');
-  console.log('  audit --deep Auditoria ampliada com leitura do estado local e priorizacao P0/P1/P2.');
-  console.log('  fix          Aplica apenas autofixes seguros (token web, mailbox secret, host identity).');
-  console.log('  doctor       Roda audit deep + preflight + gap-report e salva tudo em data/runtime/.');
-  console.log('  gap-report   Gera o backlog de seguranca em JSON + Markdown a partir do audit atual.');
-  console.log('  preflight    Verifica vazamento de segredos na superficie remota preparada.');
+  console.log('  audit        Runtime/repository security audit.');
+  console.log('  audit --deep Auditoria ampliada with read of the state local and priorizaction P0/P1/P2.');
+  console.log('  fix          Aplica only autofixes seguros (token web, mailbox secret, host identity).');
+  console.log('  doctor       Runs deep audit + preflight + gap-report and saves everything in data/runtime/.');
+  console.log('  gap-report   Generates the security backlog as JSON + Markdown from the current audit.');
+  console.log('  preflight    Checks secret leakage in the prepared remote surface.');
 }
 
 function main() {
@@ -1686,19 +1673,19 @@ function main() {
 
   if (argv.command === 'rotate-web-token') {
     const result = rotateWebToken(argv.force);
-    console.log(`[security] web token ${result.rotated ? 'rotacionado' : 'nao alterado'}`);
+    console.log(`[security] web token ${result.rotated ? 'rotated' : 'not alterado'}`);
     console.log(JSON.stringify(result, null, 2));
     return;
   }
 
   if (argv.command === 'rotate-mailbox-secret') {
     const result = rotateMailboxSecret(argv.force);
-    console.log(`[security] mailbox secret ${result.rotated ? 'rotacionado' : 'nao alterado'}`);
+    console.log(`[security] mailbox secret ${result.rotated ? 'rotated' : 'not alterado'}`);
     console.log(JSON.stringify(result, null, 2));
     return;
   }
 
-  throw new Error(`Comando de seguranca desconhecido: ${argv.command}`);
+  throw new Error(`Unknown security command: ${argv.command}`);
 }
 
 main();

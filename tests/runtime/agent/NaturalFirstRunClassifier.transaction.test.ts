@@ -7,7 +7,7 @@ describe('NaturalFirstRunClassifier structured tool risk', () => {
 
   it('routes free-text purchase phrases to the agent (no keyword force)', () => {
     const result = classifier.classify({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmation antes.',
       channel: 'web',
       availableTools: ['zavorth.transaction-runtime'],
     });

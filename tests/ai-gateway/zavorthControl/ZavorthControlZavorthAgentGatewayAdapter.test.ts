@@ -20,8 +20,8 @@ describe('ZavorthControlZavorthAgentGatewayAdapter', () => {
       defaultModelLabel: 'gpt-4o',
       executor: ({ run }) => ({
         status: 'completed',
-        summary: 'Relatorio preparado pelo runtime universal.',
-        replyText: 'Relatorio pronto.',
+        summary: 'Report preparado pelo runtime universal.',
+        replyText: 'Report ready.',
         memorySignals: [
           {
             id: 'memory-1',
@@ -34,7 +34,7 @@ describe('ZavorthControlZavorthAgentGatewayAdapter', () => {
         artifacts: [
           {
             id: 'artifact-1',
-            title: 'Relatorio',
+            title: 'Report',
             kind: 'report',
             createdAt: run.createdAt,
             sessionId: run.sessionId,
@@ -48,7 +48,7 @@ describe('ZavorthControlZavorthAgentGatewayAdapter', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-ui',
-      text: 'me envie o relatorio em PDF',
+      text: 'send me the PDF report',
       requestedTools: ['pdf.generate'],
       modelProfile: {
         routingPolicy: 'gateway',
@@ -70,7 +70,7 @@ describe('ZavorthControlZavorthAgentGatewayAdapter', () => {
       id: result.run.id,
       status: 'completed',
       sessionId: 'session-ui',
-      title: 'me envie o relatorio em PDF',
+      title: 'send me the PDF report',
     }));
     expect(viewModel.runtime).toEqual(expect.objectContaining({
       currentProviderLabel: 'OpenAI',
@@ -98,11 +98,11 @@ describe('ZavorthControlZavorthAgentGatewayAdapter', () => {
     expect(viewModel.messages).toEqual(expect.arrayContaining([
       expect.objectContaining({
         role: 'user',
-        text: 'me envie o relatorio em PDF',
+        text: 'send me the PDF report',
       }),
       expect.objectContaining({
         role: 'assistant',
-        text: 'Relatorio preparado pelo runtime universal.',
+        text: 'Report preparado pelo runtime universal.',
       }),
     ]));
     expect(viewModel.tasks).toEqual(expect.arrayContaining([

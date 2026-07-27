@@ -2,7 +2,7 @@
  * Code bridge Node smoke suite (no Next server required).
  *
  * - runSmoke() against isolated ZAVORTH_HOME
- * - fake ops-bridge.json → assert summarize tones (ready / approvals / stale)
+ * - synthetic ops-bridge.json → assert summarize tones (ready / approvals / stale)
  * - cleans temp dir
  * - exit 1 on failure
  *

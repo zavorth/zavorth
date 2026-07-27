@@ -53,7 +53,7 @@ describe('BotGatewayTaskRuntimeBootstrap', () => {
       },
       legacyUnifiedGateway: {
         handleEvent: jest.fn().mockResolvedValue({
-          responseText: 'Resposta pelo ingresso unificado.',
+          responseText: 'Response through the unified ingress.',
         }),
       },
     };
@@ -77,7 +77,7 @@ describe('BotGatewayTaskRuntimeBootstrap', () => {
         source: 'telegram',
       }),
     }));
-    expect(task.result_summary).toBe('Resposta pelo ingresso unificado.');
+    expect(task.result_summary).toBe('Response through the unified ingress.');
     expect(taskManager.saveTask).toHaveBeenCalledWith(task);
     expect(ctx.reply).not.toHaveBeenCalled();
   });
@@ -97,9 +97,9 @@ describe('BotGatewayTaskRuntimeBootstrap', () => {
       echoOutputStage,
       legacyUnifiedGateway: {
         handleEvent: jest.fn(async (event: any) => {
-          await event.reply('Resposta por voz pelo ingresso unificado.');
+          await event.reply('Voice response through the unified ingress.');
           return {
-            responseText: 'Resposta por voz pelo ingresso unificado.',
+            responseText: 'Voice response through the unified ingress.',
           };
         }),
       },
@@ -115,12 +115,12 @@ describe('BotGatewayTaskRuntimeBootstrap', () => {
       replyWithVoice: jest.fn().mockResolvedValue(undefined),
     } as any;
 
-    await ingress(ctx, task, 'voce pode responder em audio?');
+    await ingress(ctx, task, 'can you respond with audio-');
 
     expect(echoOutputStage.deliver).toHaveBeenCalledWith(expect.objectContaining({
       surface: 'telegram',
-      text: 'Resposta por voz pelo ingresso unificado.',
-      rawInput: 'voce pode responder em audio?',
+      text: 'Voice response through the unified ingress.',
+      rawInput: 'can you respond with audio-',
       taskId: 'task-12345678',
       requestedBy: '99',
       sessionId: '42',
@@ -159,7 +159,7 @@ describe('BotGatewayTaskRuntimeBootstrap', () => {
     expect(gateway.logRepo.log).toHaveBeenCalledWith(
       'error',
       'BotGateway',
-      expect.stringMatching(/LegacyUnifiedGatewayAdapter indisponivel/),
+      expect.stringMatching(/LegacyUnifiedGatewayAdapter unavailable/),
       expect.anything(),
     );
     expect(taskManager.saveTask).not.toHaveBeenCalled();

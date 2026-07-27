@@ -48,7 +48,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'checkpoint-5-files',
+    id: 'gate-5-files',
     label: 'Credential vault channel messaging files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
@@ -77,17 +77,17 @@ function ruleContainsMarkers() {
       'outbound-reply-exits-through-reply-pipeline',
     ]],
     ['docs/README.md', [
-      'checkpoint-5-channels-and-messaging-ready',
-      '291 Runtime gateway - Sessions, Memory, And Continuation',
+      'gate-5-channels-and-messaging-ready',
+      'Runtime gateway - Sessions, Memory, And Continuation',
       'Zavorth Channel Messaging Bridge',
     ]],
     ['docs/README.md', [
-      'checkpoint-5-channels-and-messaging-complete',
+      'gate-5-channels-and-messaging-complete',
       'Zavorth Channel Messaging Bridge',
       'NormalizedInboundMessage',
       'ReplyPipeline',
       'ZavorthTrustPlane',
-      '291 Runtime gateway - Sessions, Memory, And Continuation',
+      'Runtime gateway - Sessions, Memory, And Continuation',
     ]],
     ['package.json', [
       'zavorth:channel-messaging-bridge',
@@ -106,7 +106,7 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'checkpoint-5-markers',
+    id: 'gate-5-markers',
     label: 'Credential vault channel messaging markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
@@ -127,7 +127,7 @@ function runChannelMessagingFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'checkpoint-5-channel-messaging-fixture',
+      id: 'gate-5-channel-messaging-fixture',
       label: 'Channel messaging bridge fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -152,7 +152,7 @@ function runChannelMessagingFixture() {
     && snapshot.safety?.noLiveOutboundSend === true
     && snapshot.safety?.noRawCredentialStorage === true;
   return {
-    id: 'checkpoint-5-channel-messaging-fixture',
+    id: 'gate-5-channel-messaging-fixture',
     label: 'Channel messaging bridge fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, ${snapshot.summary.normalizedChannels} channel(s), ${snapshot.summary.replyPacketsBuilt} reply packet(s)` : 'invalid channel messaging snapshot',
@@ -178,7 +178,7 @@ function runChannelMessagingBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousCapabilityProviderStatus === 'blocked';
   return {
-    id: 'checkpoint-5-blocked-fixture',
+    id: 'gate-5-blocked-fixture',
     label: 'Channel messaging bridge blocks without Connector registry readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, capabilityProvider=${snapshot.previousCapabilityProviderStatus}` : `exit ${result.status}`,

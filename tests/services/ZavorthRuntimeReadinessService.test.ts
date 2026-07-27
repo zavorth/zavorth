@@ -112,7 +112,7 @@ describe('ZavorthRuntimeReadinessService', () => {
 function providerSnapshot(input: {
   ready: number;
   defaultRouteAllowed: number;
-  missingAuth?: number;
+  missingAuth-: number;
 }) {
   return {
     contractVersion: '2026-05-14.checkpoint-3-live-completion',

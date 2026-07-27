@@ -49,14 +49,14 @@ const rules = [
       'ToolRehearsalService',
       'toolRehearsal',
       'createToolRehearsalProposalIfNeeded',
-      'Aprovar tool rehearsal',
+      'approve tool rehearsal',
       'TOOL_REHEARSAL_CONTRACT_VERSION',
     ],
   }),
   ruleContainsAcross({
     id: 'cli-exposes-tool-rehearsal',
     label: 'CLI exposes Tool Rehearsal',
-    target: 'zavorth rehearse renders simulated tool calls in text or JSON',
+    target: 'zavorth rehearse renders dry-run tool calls in text or JSON',
     files: [
       'src/cli/ZavorthCliRegistryOps.ts',
       'src/cli/ZavorthCliToolRehearsalRenderer.ts',

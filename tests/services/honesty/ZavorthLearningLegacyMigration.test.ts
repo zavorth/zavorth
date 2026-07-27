@@ -37,7 +37,7 @@ describe('ZavorthLearningLegacyMigration honesty', () => {
       version: 1,
       preferences: [{
         id: 'pref-legacy-1',
-        summary: 'prefiro respostas curtas legadas',
+        summary: 'I prefer short replies legadas',
         createdAt: new Date().toISOString(),
       }],
     }, null, 2)}\n`, 'utf8');
@@ -68,18 +68,18 @@ describe('ZavorthLearningLegacyMigration honesty', () => {
       version: 1,
       preferences: [{
         id: 'pref-legacy-2',
-        summary: 'prefiro bullets do legado',
+        summary: 'I prefer legacy bullets',
         createdAt: new Date().toISOString(),
       }],
     }, null, 2)}\n`, 'utf8');
 
     const runtime = getProductSurfaceRuntime(tempDir);
     const injectTg = runtime.formatInjectBlocks({ userId: 'op-111' });
-    expect(injectTg).toContain('prefiro bullets do legado');
+    expect(injectTg).toContain('I prefer legacy bullets');
     expect(injectTg).toContain('<learned_preferences');
 
     const injectWa = runtime.formatInjectBlocks({ userId: 'wa-chat-1' });
-    expect(injectWa).toContain('prefiro bullets do legado');
+    expect(injectWa).toContain('I prefer legacy bullets');
 
     // telegram write gate: explicit allow
     const write = await runtime.recordSuccessfulTurn({

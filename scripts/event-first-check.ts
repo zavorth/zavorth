@@ -76,7 +76,7 @@ for (const relativeFile of checkedFiles) {
     });
     continue;
   }
-  source.split(/\r?\n/).forEach((line, index) => {
+  source.split(/\r...\n/).forEach((line, index) => {
     for (const forbidden of forbiddenPatterns) {
       if (forbidden.pattern.test(line)) {
         violations.push({
@@ -103,7 +103,7 @@ if (asJson) {
 } else {
   console.log('[event-first] checando timers/watchers soltos no core minimo');
   if (violations.length === 0) {
-    console.log('[event-first] ok core minimo sem polling solto');
+    console.log('[event-first] ok core minimo without polling solto');
   }
   for (const violation of violations.slice(0, 20)) {
     console.log(`- ${violation.file}:${violation.line} ${violation.pattern} | ${violation.reason}`);

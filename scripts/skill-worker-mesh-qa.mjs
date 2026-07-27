@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * W8 — focused Skill + Worker mesh QA pack (not the whole monorepo).
+ * Capability mesh - focused Skill + Worker mesh QA pack (not the whole monorepo).
  * Covers contracts, install pipeline, trust, executor bind, mesh, router, discovery, exposure.
  */
 import { spawnSync } from 'node:child_process';
@@ -10,26 +10,26 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const tests = [
-  // W0
+  // group-0
   'tests/contracts/ZavorthSkillWorkerMeshContract.test.ts',
-  // W1
+  // group-1
   'tests/services/SkillInstallPipelineService.test.ts',
-  // W2
+  // group-2
   'tests/services/SkillTrustScoreService.test.ts',
-  // W3
+  // group-3
   'tests/services/SkillExecutorBindingService.test.ts',
   'tests/services/SkillToolRegistryBridge.test.ts',
-  // W4
+  // group-4
   'tests/services/WorkerMeshService.test.ts',
   'tests/tools/AgentManagerTool.test.ts',
-  // W5
+  // group-5
   'tests/services/WorkerDelegationRouterService.test.ts',
-  // W6
+  // group-6
   'tests/services/SkillWorkerDiscoveryService.test.ts',
-  // W7
+  // group-7
   'tests/runtime/agent/ToolExposureProfile.test.ts',
   'tests/services/PluginOsAgentReadiness.test.ts',
-  // W8 integration demo
+  // group-8 integration demo
   'tests/services/SkillWorkerMeshDemo.test.ts',
 ];
 
@@ -50,7 +50,7 @@ function run(cmd, args, cwd = root) {
   }
 }
 
-console.log('Skill + Worker mesh QA pack (W8)');
+console.log('Skill + Worker mesh QA pack (group-8)');
 console.log(`root: ${root}`);
 console.log(`tests: ${tests.length}`);
 
@@ -68,4 +68,4 @@ run(process.execPath, ['scripts/skill-worker-brand-denylist-check.mjs']);
 run(process.execPath, ['scripts/skill-worker-mesh-demo.mjs']);
 
 console.log('\nSkill + Worker mesh QA pack: OK');
-console.log('W9 gate: see docs/product/skill-worker-mesh-qa-gate.md');
+console.log('Capability gate: see docs/product/skill-worker-mesh-qa-gate.md');

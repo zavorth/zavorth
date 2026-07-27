@@ -48,7 +48,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'checkpoint-7-files',
+    id: 'gate-7-files',
     label: 'Surface controls delegated worker files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
@@ -78,7 +78,7 @@ function ruleContainsMarkers() {
     ]],
     ['docs/README.md', [
       'delegated-workers-ready',
-      '291 ZavorthControl controls - Native Replacement And Decommission',
+      'ZavorthControl controls - Native Replacement And Decommission',
       'Zavorth Delegated Worker Bridge',
     ]],
     ['docs/README.md', [
@@ -87,7 +87,7 @@ function ruleContainsMarkers() {
       'zavorth-gateway-delegated-only',
       'dry-run',
       'artifact/event/status',
-      '291 ZavorthControl controls - Native Replacement And Decommission',
+      'ZavorthControl controls - Native Replacement And Decommission',
     ]],
     ['package.json', [
       'zavorth:delegated-worker-bridge',
@@ -106,7 +106,7 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'checkpoint-7-markers',
+    id: 'gate-7-markers',
     label: 'Surface controls delegated worker markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
@@ -127,7 +127,7 @@ function runDelegatedWorkerFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'checkpoint-7-delegated-worker-fixture',
+      id: 'gate-7-delegated-worker-fixture',
       label: 'Delegated worker bridge fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -151,7 +151,7 @@ function runDelegatedWorkerFixture() {
     && snapshot.safety?.dispatchMode === 'zavorth-gateway-delegated-only'
     && snapshot.safety?.noWorkerLaunchPerformed === true;
   return {
-    id: 'checkpoint-7-delegated-worker-fixture',
+    id: 'gate-7-delegated-worker-fixture',
     label: 'Delegated worker bridge fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, ${snapshot.summary.workerDescriptors} worker(s), ${snapshot.summary.artifactEventsReturned} artifact event(s)` : 'invalid delegated worker snapshot',
@@ -177,7 +177,7 @@ function runDelegatedWorkerBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousSessionMemoryStatus === 'blocked';
   return {
-    id: 'checkpoint-7-blocked-fixture',
+    id: 'gate-7-blocked-fixture',
     label: 'Delegated worker bridge blocks without Runtime gateway readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, sessionMemory=${snapshot.previousSessionMemoryStatus}` : `exit ${result.status}`,

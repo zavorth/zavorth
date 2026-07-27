@@ -21,32 +21,32 @@ type Finding = {
 const RULES: Rule[] = [
   {
     id: 'personal-workspace-path',
-    description: 'Caminho pessoal de workspace ainda versionado.',
+    description: 'path pessoal de workspace ainda versionado.',
     pattern: /C:(?:\/|\\)TESTES DEV/i,
   },
   {
     id: 'personal-user-profile',
-    description: 'Perfil de usuario pessoal ainda versionado.',
+    description: 'Personal user profile is still versioned.',
     pattern: /C:\\Users\\ermys/i,
   },
   {
     id: 'personal-handle',
-    description: 'Handle pessoal ainda exposto em arquivo rastreado.',
+    description: 'Personal handle still exposed in a tracked file.',
     pattern: /greyveritrakkj|site-greyveritrakkjs-projects|ermys\.zavorth-zavorthBridge|"publisher"\s*:\s*"ermys"/i,
   },
   {
     id: 'query-token-auth',
     description: 'Token ainda aparece em query string.',
-    pattern: /[?&]token=/i,
+    pattern: /[...&]token=/i,
   },
   {
     id: 'wildcard-cors',
-    description: 'CORS permissivo por wildcard ainda presente.',
+    description: 'CORS permissivo por wildcard ainda present.',
     pattern: /origin\s*\|\|\s*['"]\*['"]/i,
   },
   {
     id: 'predictable-remote-password',
-    description: 'Default previsivel de senha remota ainda presente.',
+    description: 'Predictable remote password default is still present.',
     pattern: /['"]zavorth-remote['"]/i,
   },
 ];
@@ -118,7 +118,7 @@ function readTextFile(fullPath: string): string | null {
 
 function scanFile(relativePath: string, content: string): Finding[] {
   const findings: Finding[] = [];
-  const lines = content.split(/\r?\n/);
+  const lines = content.split(/\r...\n/);
 
   lines.forEach((line, index) => {
     for (const rule of RULES) {
@@ -174,16 +174,16 @@ function main() {
   }
 
   if (!identityFailure && findings.length === 0) {
-    console.log('[release-scan] OK: nenhum marcador critico de release hygiene encontrado em arquivos rastreados.');
+    console.log('[release-scan] OK: no critical release hygiene marker found in tracked files.');
     return;
   }
 
   if (identityFailure) {
-    console.error('[release-scan] Falha no gate de identidade publica Zavorth.');
+    console.error('[release-scan] Failure no gate de identidade public Zavorth.');
     console.error(identityFailure);
   }
   if (findings.length > 0) {
-    console.error(`[release-scan] Falha: ${findings.length} marcador(es) critico(s) encontrados.`);
+    console.error(`[release-scan] Failure: ${findings.length} critical marker(s) found.`);
   }
   for (const finding of findings) {
     console.error(

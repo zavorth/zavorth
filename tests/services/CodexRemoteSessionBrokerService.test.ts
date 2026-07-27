@@ -16,7 +16,7 @@ describe('CodexRemoteSessionBrokerService', () => {
         resolveExecutionProfile: jest.fn(() => ({
           id: 'default',
           label: 'Default Codex',
-          description: 'padrao',
+          description: 'pattern',
           codexCliPath: 'C:\\Codex\\codex.exe',
           codexHome: 'C:\\Users\\ermys\\.codex',
           workspaceRoot: tempDir,

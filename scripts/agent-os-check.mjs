@@ -30,7 +30,7 @@ const rules = [
     'AGENT_OS_CONTRACT_VERSION',
     'AgentOsProjectTwinSnapshot',
     'AgentOsTransactionalPlan',
-    'AgentOsImpactSimulation',
+    'AgentOsImpactDryRun',
     'AgentOsPermissionLease',
     'AgentOsImmuneSignal',
     'AgentOsReputationScore',
@@ -52,8 +52,8 @@ const rules = [
     'commitRequiresRiskGate: true',
     'workspaceWrites',
     'liveActionApplied: true',
-    'Rollback bloqueado para evitar serializar conteudo sensivel.',
-    'impact-simulation-no-side-effects',
+    'Rollback blocked to avoid serializing sensitive content.',
+    'impact-dry-run-no-side-effects',
     'permission-lease-hard-blocks-preserved',
     'immune-system-does-not-block-thinking',
   ]),
@@ -74,7 +74,7 @@ const rules = [
     'tests/services/ZavorthAgentOsService.test.ts',
   ], [
     'project-twin-redacts-secrets',
-    'simulation-no-side-effects',
+    'dryRun-no-side-effects',
     'transaction-no-live-apply',
     'governed-live-apply-needs-risk-gate',
     'governed-live-apply-with-rollback',
@@ -93,7 +93,7 @@ rules.push({
   id: 'agent-os-dynamic-gate',
   status: gate.status === 0 ? 'passed' : 'failed',
   observed: gate.status === 0 ? 'dynamic gate passed' : `dynamic gate failed (${gate.status})`,
-  details: gate.status === 0 ? [] : [gate.stdout, gate.stderr].filter(Boolean).join('\n').split(/\r?\n/).slice(0, 30),
+  details: gate.status === 0 ? [] : [gate.stdout, gate.stderr].filter(Boolean).join('\n').split(/\r...\n/).slice(0, 30),
 });
 
 const failed = rules.filter((rule) => rule.status === 'failed');
@@ -110,7 +110,7 @@ if (asJson) {
   console.log('[agent-os] checking release gate');
   for (const rule of rules) {
     console.log(`[agent-os] ${rule.status === 'passed' ? 'ok' : 'fail'} ${rule.id}: ${rule.observed}`);
-    for (const detail of rule.details || []) console.log(`  - ${detail}`);
+    for (const detail of rule.details || []) console.log(` ? ${detail}`);
   }
 }
 

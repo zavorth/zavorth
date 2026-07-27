@@ -73,23 +73,23 @@ describe('RuntimeAccessManifestService', () => {
         ready: true,
         issues: [],
       },
-      recommendations: ['Use o /dashboard local como superficie principal para operar e aprovar o Zavorth.'],
+      recommendations: ['Use o /dashboard local como superficie principal para operar e approve o Zavorth.'],
       nextSteps: [
         {
           id: 'connect-remote-frontend',
           title: 'Conectar o frontend remoto',
-          description: 'Abra o app publicado e conecte ao runtime.',
+          description: 'Abra o app publicdo e conecte ao runtime.',
           blocking: false,
         },
       ],
-      summary: 'Zavorth pronto para uso local e remoto.',
+      summary: 'Zavorth ready for local and remote use.',
     };
 
     const service = new RuntimeAccessManifestService({
       inspectLive: jest.fn().mockResolvedValue(readiness),
     } as any, {
       inspect: jest.fn().mockResolvedValue({
-        summary: 'Rollout remoto oficial pronto e validado.',
+        summary: 'Official remote rollout ready and validated.',
         remote: {
           ready: true,
           baseUrl: 'https://zavorth.example.com',
@@ -141,7 +141,7 @@ describe('RuntimeAccessManifestService', () => {
         }),
         officialRemote: expect.objectContaining({
           ready: true,
-          summary: 'Rollout remoto oficial pronto e validado.',
+          summary: 'Official remote rollout ready and validated.',
           recommendedProvider: null,
           recommendedAction: null,
           appUrl: 'https://zavorth.example.com/zavorthControl',
@@ -345,7 +345,7 @@ describe('RuntimeAccessManifestService', () => {
       },
       recommendations: [],
       nextSteps: [],
-      summary: 'Zavorth pronto para uso local e remoto.',
+      summary: 'Zavorth ready for local and remote use.',
     };
 
     const service = new RuntimeAccessManifestService();
@@ -354,7 +354,7 @@ describe('RuntimeAccessManifestService', () => {
     expect(manifest.officialRemote).toEqual(
       expect.objectContaining({
         ready: true,
-        summary: 'Acesso remoto oficial pronto.',
+        summary: 'Acesso remoto oficial ready.',
         appUrl: 'https://zavorth.example.com/zavorthControl',
       }),
     );
@@ -418,13 +418,13 @@ describe('RuntimeAccessManifestService', () => {
         dashboardUrl: 'http://127.0.0.1:33333/',
         appUrl: 'http://127.0.0.1:33333/dashboard',
         ready: false,
-        issues: ['A superficie web do Zavorth nao respondeu em http://127.0.0.1:33333/dashboard.'],
+        issues: ['The Zavorth web surface did not respond at http://127.0.0.1:33333/dashboard.'],
       },
       remote: {
         baseUrl: 'https://zavorth.example.com',
         appUrl: 'https://zavorth.example.com/zavorthControl',
         ready: false,
-        issues: ['A URL publica ainda nao foi validada.'],
+        issues: ['A URL public ainda was not validada.'],
       },
       recommendations: [],
       nextSteps: [
@@ -435,7 +435,7 @@ describe('RuntimeAccessManifestService', () => {
           blocking: true,
         },
       ],
-      summary: 'Zavorth ainda nao esta pronto para uso consistente.',
+      summary: 'Zavorth ainda not esta ready para uso consistente.',
     };
 
     const service = new RuntimeAccessManifestService();
@@ -470,7 +470,7 @@ describe('RuntimeAccessManifestService', () => {
           allowedGuildIds: [],
           pendingInbox: 0,
           pendingOutbox: 0,
-          lastError: 'Gateway nativo ainda inicializando.',
+          lastError: 'Gateway nactive ainda inicializando.',
           updatedAt: null,
         },
         tenants: {
@@ -530,7 +530,7 @@ describe('RuntimeAccessManifestService', () => {
       },
       recommendations: [],
       nextSteps: [],
-      summary: 'Zavorth pronto para uso local com avisos operacionais.',
+      summary: 'Zavorth ready para uso local com avisos operacionais.',
     } as RuntimeAccessReadinessReport;
 
     const service = new RuntimeAccessManifestService();
@@ -538,17 +538,17 @@ describe('RuntimeAccessManifestService', () => {
 
     expect(manifest.guides.local).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('Existem 1 check(s) de health com renovacao leve recomendada'),
+        expect.stringContaining('Existem 1 check(s) de health com renovaction leve recomendada'),
       ]),
     );
     expect(manifest.guides.remote).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('Existem 1 check(s) de health com renovacao leve recomendada'),
+        expect.stringContaining('Existem 1 check(s) de health com renovaction leve recomendada'),
       ]),
     );
     expect(manifest.warnings).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('Existem 1 check(s) de health com renovacao leve recomendada'),
+        expect.stringContaining('Existem 1 check(s) de health com renovaction leve recomendada'),
       ]),
     );
   });

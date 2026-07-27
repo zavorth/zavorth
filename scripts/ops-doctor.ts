@@ -43,9 +43,9 @@ async function main() {
   }
 
   console.log('[zavorth-ops] doctor geral');
-  console.log(`[zavorth-ops] resumo: ${report.summary}`);
+  console.log(`[zavorth-ops] summary: ${report.summary}`);
   console.log(
-    `[zavorth-ops] local: ${report.local.ready ? 'pronto' : 'pendente'} | remoto: ${report.remote.ready ? 'pronto' : 'pendente'}`,
+    `[zavorth-ops] local: ${report.local.ready ? 'ready' : 'pending'} | remote: ${report.remote.ready ? 'ready' : 'pending'}`,
   );
   console.log(
     formatDoctorLine(
@@ -65,7 +65,7 @@ async function main() {
   );
   console.log(
     formatDoctorLine(
-      'canais',
+      'channels',
       report.runtime.channelProviderDoctor.status,
       report.runtime.channelProviderDoctor.summary,
       report.runtime.channelProviderDoctor.command,
@@ -88,7 +88,7 @@ async function main() {
   }
 
   if (report.recommendations.length > 0) {
-    console.log('[zavorth-ops] recomendacoes:');
+    console.log('[zavorth-ops] recommendations:');
     for (const rec of report.recommendations.slice(0, 6)) {
       console.log(`- ${rec}`);
     }
@@ -106,7 +106,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-ops] doctor geral falhou.');
+  console.error('[zavorth-ops] doctor geral failed.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

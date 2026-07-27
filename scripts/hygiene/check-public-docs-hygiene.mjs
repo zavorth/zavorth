@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const FORBIDDEN_TERMS = [
-  /Phase 21/i,
+  /Review path1/i,
   /21Q/,
   /21R-A/,
   /21S-A/,
@@ -88,7 +88,7 @@ if (import.meta.url.endsWith(process.argv[1]?.replace(/\\/g, '/'))) {
   const failures = verifyPublicDocsHygiene();
   if (failures.length > 0) {
     console.error('Public Docs Hygiene Check FAILED:');
-    failures.forEach(f => console.error(` - ${f}`));
+    failures.forEach(f => console.error(` ? ${f}`));
     process.exit(1);
   } else {
     console.log('Public Docs Hygiene Check PASSED: no internal phase details leaked in public docs.');

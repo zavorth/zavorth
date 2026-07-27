@@ -93,7 +93,7 @@ function isTextAsset(filePath) {
 function copyFile(source, target) {
   fs.mkdirSync(path.dirname(target), { recursive: true });
   if (isTextAsset(source)) {
-    const text = fs.readFileSync(source, 'utf8').replace(/\r\n?/g, '\n');
+    const text = fs.readFileSync(source, 'utf8').replace(/\r\n.../g, '\n');
     fs.writeFileSync(target, text, 'utf8');
     return;
   }
@@ -136,7 +136,7 @@ function normalizeExistingTextFiles(targetRoot) {
     }
     if (!entry.isFile() || !isTextAsset(entryPath)) continue;
     const text = fs.readFileSync(entryPath, 'utf8');
-    const normalized = text.replace(/\r\n?/g, '\n');
+    const normalized = text.replace(/\r\n.../g, '\n');
     if (normalized !== text) fs.writeFileSync(entryPath, normalized, 'utf8');
   }
 }

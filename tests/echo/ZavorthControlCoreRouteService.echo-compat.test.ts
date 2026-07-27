@@ -148,28 +148,28 @@ describe('ZavorthControlCoreRouteService Echo compatibility routes', () => {
     await route.handleRequest(
       { method: 'GET', headers: {} } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/v2/a2ui/snapshot?surfaceId=cockpit'),
+      new URL('http://localhost/api/v2/a2ui/snapshot-surfaceId=cockpit'),
       '/api/v2/a2ui/snapshot',
       deps,
     );
     await route.handleRequest(
       { method: 'GET', headers: {} } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/v2/a2ui/events?surfaceId=cockpit&limit=5'),
+      new URL('http://localhost/api/v2/a2ui/events-surfaceId=cockpit&limit=5'),
       '/api/v2/a2ui/events',
       deps,
     );
     await route.handleRequest(
       { method: 'GET', headers: {} } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/v2/a2ui/assets?surfaceId=cockpit'),
+      new URL('http://localhost/api/v2/a2ui/assets-surfaceId=cockpit'),
       '/api/v2/a2ui/assets',
       deps,
     );
     await route.handleRequest(
       { method: 'GET', headers: {} } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/v2/a2ui/stream?surfaceId=cockpit'),
+      new URL('http://localhost/api/v2/a2ui/stream-surfaceId=cockpit'),
       '/api/v2/a2ui/stream',
       deps,
     );

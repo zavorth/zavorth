@@ -35,7 +35,7 @@ const failPhase = readArg('--fail-stage=') as CapabilityAutopilotReleaseGateEvid
 const omitPhase = readArg('--omit-stage=') as CapabilityAutopilotReleaseGateEvidence['phase'] | null;
 
 main().catch((error) => {
-  process.stderr.write(`[capability-autopilot-release-decision] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(`[capability-autopilot-release-decision] failure: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 });
 
@@ -113,9 +113,9 @@ function buildChecks(
   return [
     check(
       'capability-autopilot-release:all-phases',
-      'gates de preflight/provider com evidencia',
+      'preflight/provider gates with evidence',
       decision.missingPhases.length === 0 && decision.failedPhases.length === 0 ? 'pass' : 'fail',
-      'A decisao de v1.1 exige evidencia de todos os gates de preflight e provider.',
+      'The v1.1 decision requires evidence from all preflight and provider gates.',
       [
         `passed=${decision.passedPhases.join(',')}`,
         `missing=${decision.missingPhases.join(',') || '<none>'}`,
@@ -124,11 +124,11 @@ function buildChecks(
     ),
     check(
       'capability-autopilot-release:flagged',
-      'ship atras de flag',
+      'ship behind flag',
       decision.decision === 'ship_v1_1_flagged' &&
         decision.featureFlag.name === 'ZAVORTH_CAPABILITY_AUTOPILOT' &&
         decision.featureFlag.defaultEnabled === false ? 'pass' : 'fail',
-      'Capability Autopilot e potente demais para entrar default-on sem pilotos; v1.1 deve sair atras de flag.',
+      'Capability Autopilot is too powerful to ship default-on without pilots; v1.1 should ship behind a flag.',
       [
         `decision=${decision.decision}`,
         `flag=${decision.featureFlag.name}`,
@@ -137,9 +137,9 @@ function buildChecks(
     ),
     check(
       'capability-autopilot-release:risk',
-      'risco aceito',
+      'accepted risk',
       decision.riskPosture === 'medium' && decision.releaseChannel === 'alpha' ? 'pass' : 'fail',
-      'A postura esperada para v1.1 e alpha/flagged: gates passam, mas reparo/fallback ainda exigem supervisao.',
+      'The expected posture for v1.1 is alpha/flagged: gates pass, but repair/fallback still require supervision.',
       [
         `risk=${decision.riskPosture}`,
         `channel=${decision.releaseChannel}`,
@@ -147,19 +147,19 @@ function buildChecks(
     ),
     check(
       'capability-autopilot-release:guardrails',
-      'guardrails completos',
+      'complete guardrails',
       decision.guardrails.length >= 6 &&
         decision.guardrails.some((entry) => entry.includes('Preflight')) &&
         decision.guardrails.some((entry) => entry.includes('Fallback')) &&
         decision.guardrails.some((entry) => entry.includes('Memory/replay')) ? 'pass' : 'fail',
-      'Release decision precisa carregar os guardrails essenciais do ciclo 60-65.',
+      'Release decision needs to carry the essential guardrails of the 60-65 cycle.',
       decision.guardrails,
     ),
     check(
       'capability-autopilot-release:rollback',
-      'rollback simples',
+      'simple rollback',
       decision.rollbackPlan.some((entry) => entry.includes('ZAVORTH_CAPABILITY_AUTOPILOT')) ? 'pass' : 'fail',
-      'Rollback precisa ser desligar a flag, sem reverter a baseline v1.0.0.',
+      'Rollback needs to be disabling the flag, without reverting the v1.0.0 baseline.',
       decision.rollbackPlan,
     ),
   ];

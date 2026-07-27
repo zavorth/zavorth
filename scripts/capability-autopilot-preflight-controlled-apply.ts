@@ -39,12 +39,12 @@ const expectedSurfaces = readSurfaces('--expected-surfaces=') || surfaces;
 const allowedSurfaces = readSurfaces('--allowed-surfaces=') || surfaces;
 const budgetLimitUnits = readNumberArg('--budget-limit=', 25);
 const estimatedBudgetUnits = readOptionalNumberArg('--estimated-budget=');
-const rawIntentProbe = 'STAGE76-RAW-INTENT-MUST-NOT-LEAK';
-const rawWorkspaceProbe = 'C:/private/STAGE76-RAW-WORKSPACE-MUST-NOT-LEAK';
+const rawIntentProbe = 'GATE76-RAW-INTENT-MUST-NOT-LEAK';
+const rawWorkspaceProbe = 'C:/private/GATE76-RAW-WORKSPACE-MUST-NOT-LEAK';
 
 const fixtureAdapter: CapabilityPreflightControlledRealApplyAdapter = (decision, context) => ({
   ok: true,
-  adapterReceiptId: `checkpoint-76-fixture-${decision.realApplyGateId.slice(-8)}`,
+  adapterReceiptId: `gate-76-fixture-${decision.realApplyGateId.slice(-8)}`,
   mode: 'fixture',
   sideEffectInvoked: true,
   executedAgainstRealTarget: false,
@@ -55,14 +55,14 @@ const fixtureAdapter: CapabilityPreflightControlledRealApplyAdapter = (decision,
     `rollbackPlan=${context.rollbackPlanId || '<none>'}`,
     `auditReceipt=${context.auditReceiptId || '<none>'}`,
   ],
-  rollbackToken: `checkpoint-76-rollback-${decision.sourceSurface}-${decision.sourceAction?.kind || 'none'}`,
+  rollbackToken: `gate-76-rollback-${decision.sourceSurface}-${decision.sourceAction?.kind || 'none'}`,
   metadata: {
     fixture: true,
   },
 });
 
 main().catch((error) => {
-  process.stderr.write(`[capability-autopilot-preflight-controlled-apply] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(`[capability-autopilot-preflight-controlled-apply] failure: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 });
 
@@ -79,9 +79,9 @@ async function main(): Promise<void> {
   const receiptService = new CapabilityAutopilotPreflightDispatchReceiptService();
   const receiptSnapshot = receiptService.buildReceiptSnapshot(sourceSnapshot, {
     explicitlyConfirmed,
-    actorId: 'checkpoint-76-gate',
-    confirmationId: explicitlyConfirmed ? 'checkpoint-76-explicit-confirmation' : null,
-    reason: 'checkpoint-76-controlled-apply-executor',
+    actorId: 'gate-76-gate',
+    confirmationId: explicitlyConfirmed ? 'gate-76-explicit-confirmation' : null,
+    reason: 'gate-76-controlled-apply-executor',
   });
   const adapterService = new CapabilityAutopilotPreflightDispatchAdapterService();
   const adapterSnapshot = adapterService.buildAdapterSnapshot(receiptSnapshot);
@@ -89,24 +89,24 @@ async function main(): Promise<void> {
   const sideEffectSnapshot = sideEffectGateService.buildGateSnapshot(adapterSnapshot, {
     approvalGranted,
     validationPassed,
-    actorId: 'checkpoint-76-gate',
-    approvalReceiptId: approvalGranted ? 'checkpoint-76-approval' : null,
-    validationReceiptId: validationPassed ? 'checkpoint-76-validation' : null,
-    reason: 'checkpoint-76-controlled-apply-executor',
+    actorId: 'gate-76-gate',
+    approvalReceiptId: approvalGranted ? 'gate-76-approval' : null,
+    validationReceiptId: validationPassed ? 'gate-76-validation' : null,
+    reason: 'gate-76-controlled-apply-executor',
   });
   const applyService = new CapabilityAutopilotPreflightApplyAdapterService();
   const applySnapshot = applyService.buildApplySnapshot(sideEffectSnapshot, {
     explicitApplyConfirmed,
-    actorId: 'checkpoint-76-gate',
-    applyConfirmationId: explicitApplyConfirmed ? 'checkpoint-76-apply-confirmation' : null,
-    reason: 'checkpoint-76-controlled-apply-executor',
+    actorId: 'gate-76-gate',
+    applyConfirmationId: explicitApplyConfirmed ? 'gate-76-apply-confirmation' : null,
+    reason: 'gate-76-controlled-apply-executor',
   });
   const dryRunService = new CapabilityAutopilotPreflightApplyDryRunExecutorService();
   const dryRunSnapshot = dryRunService.buildExecutorSnapshot(applySnapshot, {
     dryRunConfirmed,
-    actorId: 'checkpoint-76-gate',
-    dryRunReceiptId: dryRunConfirmed ? 'checkpoint-76-dry-run-confirmation' : null,
-    reason: 'checkpoint-76-controlled-apply-executor',
+    actorId: 'gate-76-gate',
+    dryRunReceiptId: dryRunConfirmed ? 'gate-76-dry-run-confirmation' : null,
+    reason: 'gate-76-controlled-apply-executor',
   });
   const realApplyGateService = new CapabilityAutopilotPreflightRealApplyApprovalGateService();
   const approvalSnapshot = realApplyGateService.buildGateSnapshot(dryRunSnapshot, {
@@ -116,11 +116,11 @@ async function main(): Promise<void> {
     allowedSurfaces,
     budgetLimitUnits,
     estimatedBudgetUnits,
-    actorId: 'checkpoint-76-gate',
-    finalApprovalReceiptId: finalApprovalGranted ? 'checkpoint-76-final-approval' : null,
-    budgetReceiptId: budgetApproved ? 'checkpoint-76-budget' : null,
-    scopeReceiptId: scopeApproved ? 'checkpoint-76-scope' : null,
-    reason: 'checkpoint-76-controlled-apply-executor',
+    actorId: 'gate-76-gate',
+    finalApprovalReceiptId: finalApprovalGranted ? 'gate-76-final-approval' : null,
+    budgetReceiptId: budgetApproved ? 'gate-76-budget' : null,
+    scopeReceiptId: scopeApproved ? 'gate-76-scope' : null,
+    reason: 'gate-76-controlled-apply-executor',
   });
   const controlledApplyService = new CapabilityAutopilotPreflightControlledRealApplyExecutorService({
     adapter: adapterEnabled ? fixtureAdapter : null,
@@ -130,12 +130,12 @@ async function main(): Promise<void> {
     budgetLocked,
     rollbackPlanApproved,
     auditSinkReady,
-    actorId: 'checkpoint-76-gate',
-    executionReceiptId: controlledExecutionConfirmed ? 'checkpoint-76-controlled-execution' : null,
-    budgetLockId: budgetLocked ? 'checkpoint-76-budget-lock' : null,
-    rollbackPlanId: rollbackPlanApproved ? 'checkpoint-76-rollback-plan' : null,
-    auditReceiptId: auditSinkReady ? 'checkpoint-76-audit' : null,
-    reason: 'checkpoint-76-controlled-apply-executor',
+    actorId: 'gate-76-gate',
+    executionReceiptId: controlledExecutionConfirmed ? 'gate-76-controlled-execution' : null,
+    budgetLockId: budgetLocked ? 'gate-76-budget-lock' : null,
+    rollbackPlanId: rollbackPlanApproved ? 'gate-76-rollback-plan' : null,
+    auditReceiptId: auditSinkReady ? 'gate-76-audit' : null,
+    reason: 'gate-76-controlled-apply-executor',
   });
 
   if (asJson) {

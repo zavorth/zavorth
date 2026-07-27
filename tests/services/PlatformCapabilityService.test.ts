@@ -136,10 +136,10 @@ describe('PlatformCapabilityService', () => {
     expect(service.describe('whatsapp').readiness).toBe('planned');
     expect(service.describe('instagram').readiness).toBe('planned');
     expect(service.describe('slack').readiness).toBe('planned');
-    expect(service.describe('discord').notes.join(' ')).toContain('Discord ja possui trilha de runtime no Zavorth');
-    expect(service.describe('whatsapp').notes.join(' ')).toContain('WhatsApp ja possui trilha de runtime no Zavorth');
-    expect(service.describe('instagram').notes.join(' ')).toContain('Instagram agora possui trilha de runtime no Zavorth');
-    expect(service.describe('slack').notes.join(' ')).toContain('Slack ja possui trilha de runtime no Zavorth');
+    expect(service.describe('discord').notes.join(' ')).toContain('Discord ja possui trilthere is de runtime no Zavorth');
+    expect(service.describe('whatsapp').notes.join(' ')).toContain('WhatsApp ja possui trilthere is de runtime no Zavorth');
+    expect(service.describe('instagram').notes.join(' ')).toContain('Instagram agora possui trilthere is de runtime no Zavorth');
+    expect(service.describe('slack').notes.join(' ')).toContain('Slack ja possui trilthere is de runtime no Zavorth');
     expect(service.describe('signal').readiness).toBe('planned');
     expect(service.describe('imessage').readiness).toBe('planned');
     expect(service.describe('teams').readiness).toBe('planned');
@@ -296,7 +296,7 @@ describe('PlatformCapabilityService', () => {
       transport: 'native',
       configured: true,
     });
-    expect(capability.notes.join(' ')).toContain('Slack nativo esta configurado');
+    expect(capability.notes.join(' ')).toContain('Slack nactive esta configurado');
     expect(capability.notes.join(' ')).toContain('Slack Web API apontando para https://slack.test/api.');
     expect(service.getSummary().ready).toContain('slack');
   });
@@ -482,7 +482,7 @@ describe('PlatformCapabilityService', () => {
     const capability = service.describe('discord');
 
     expect(capability.envKeys).toEqual(expect.arrayContaining(['DISCORD_ALLOWED_CHANNEL_IDS', 'DISCORD_COMMAND_EXPOSURE']));
-    expect(capability.notes.join(' ')).toContain('Rollout por canal ativo para 2 canal(is) do Discord.');
+    expect(capability.notes.join(' ')).toContain('Rollout por canal active para 2 canal(is) do Discord.');
     expect(capability.notes.join(' ')).toContain('Exposicao atual de slash commands: minimal.');
   });
 
@@ -497,7 +497,7 @@ describe('PlatformCapabilityService', () => {
     const capability = service.describe('discord');
 
     expect(capability.readiness).toBe('partial');
-    expect(capability.notes.join(' ')).toContain('Modo de servidor publico ativo');
+    expect(capability.notes.join(' ')).toContain('Public server mode active');
   });
 
   it('marks Discord bridge as ready only when the relay runtime snapshot is healthy', () => {

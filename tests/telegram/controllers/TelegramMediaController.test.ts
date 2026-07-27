@@ -19,7 +19,7 @@ describe('TelegramMediaController', () => {
       message: {
         document: {
           mime_type: 'application/pdf',
-          file_name: 'relatorio.pdf',
+          file_name: 'report.pdf',
           file_size: 11 * 1024 * 1024,
         },
       },
@@ -140,8 +140,8 @@ describe('TelegramMediaController', () => {
 
     const dispatchConversational = jest.fn();
     const audioHandler = {
-      transcribeDetailed: jest.fn().mockRejectedValue(new Error('STT indisponivel')),
-      transcribe: jest.fn().mockRejectedValue(new Error('STT indisponivel')),
+      transcribeDetailed: jest.fn().mockRejectedValue(new Error('STT unavailable')),
+      transcribe: jest.fn().mockRejectedValue(new Error('STT unavailable')),
       synthesize: jest.fn().mockResolvedValue('C:/tmp/fallback.mp3'),
       cleanup: jest.fn(),
     };
@@ -190,14 +190,14 @@ describe('TelegramMediaController', () => {
     const dispatchConversational = jest.fn();
     const audioHandler = {
       transcribeDetailed: jest.fn().mockResolvedValue({
-        text: 'Zavorth, voce consegue me ouvir corretamente?',
+        text: 'Zavorth, you consegue me ouvir corretamente-',
         provider: 'gemini',
         languageCode: 'en-US',
         latencyMs: 10,
         warnings: [],
         failures: [],
       }),
-      transcribe: jest.fn().mockResolvedValue('Zavorth, voce consegue me ouvir corretamente?'),
+      transcribe: jest.fn().mockResolvedValue('Zavorth, you consegue me ouvir corretamente-'),
       synthesize: jest.fn().mockResolvedValue('C:/tmp/check.mp3'),
       cleanup: jest.fn(),
     };
@@ -253,7 +253,7 @@ describe('TelegramMediaController', () => {
     const dispatchConversational = jest.fn();
     const audioHandler = {
       transcribeDetailed: jest.fn().mockResolvedValue({
-        text: 'Ola, Zavorth, voce ta conseguindo me ouvir perfeitamente?',
+        text: 'Ola, Zavorth, you ta conseguindo me ouvir perfeitamente-',
         provider: 'gemini',
         languageCode: 'en-US',
         latencyMs: 10,
@@ -308,7 +308,7 @@ describe('TelegramMediaController', () => {
     const dispatchConversational = jest.fn().mockResolvedValue(undefined);
     const audioHandler = {
       transcribeDetailed: jest.fn().mockResolvedValue({
-        text: 'Pesquise as noticias das ultimas 24 horas.',
+        text: 'Research the news from the last 24 hours.',
         provider: 'openai',
         model: 'whisper-1',
         languageCode: 'en-US',
@@ -347,7 +347,7 @@ describe('TelegramMediaController', () => {
 
     expect(dispatchConversational).toHaveBeenCalledWith(
       ctx,
-      'Pesquise as noticias das ultimas 24 horas.',
+      'Research the news from the last 24 hours.',
       undefined,
       expect.objectContaining({
         traceId: expect.stringContaining('telegram-voice-'),
@@ -359,7 +359,7 @@ describe('TelegramMediaController', () => {
           sttModel: 'whisper-1',
           sttLanguageCode: 'en-US',
           sttLatencyMs: 123,
-          transcriptChars: 'Pesquise as noticias das ultimas 24 horas.'.length,
+          transcriptChars: 'Research the news from the last 24 hours.'.length,
         }),
       }),
     );
@@ -373,7 +373,7 @@ describe('TelegramMediaController', () => {
     const dispatchConversational = jest.fn().mockResolvedValue(undefined);
     const audioHandler = {
       transcribeDetailed: jest.fn().mockResolvedValue({
-        text: 'Voce consegue me mandar um audio me respondendo, por gentileza?',
+        text: 'Can you send me an audio reply, please-',
         provider: 'gemini',
         model: 'gemini-2.5-flash',
         languageCode: 'es',
@@ -417,7 +417,7 @@ describe('TelegramMediaController', () => {
     // Preferred language still comes from structured Telegram language_code (en-us), not STT guess (es).
     expect(dispatchConversational).toHaveBeenCalledWith(
       ctx,
-      'Voce consegue me mandar um audio me respondendo, por gentileza?',
+      'Can you send me an audio reply, please-',
       undefined,
       expect.objectContaining({
         preferredLanguageCode: 'en-US',
@@ -440,7 +440,7 @@ describe('TelegramMediaController', () => {
     const dispatchConversational = jest.fn().mockResolvedValue(undefined);
     const audioHandler = {
       transcribeDetailed: jest.fn().mockResolvedValue({
-        text: 'Zavorth, me explique mais sobre essa noticia que voce citou.',
+        text: 'Zavorth, me explique mais sobre essa noticia que you citou.',
         provider: 'openai',
         model: 'whisper-1',
         languageCode: 'en-US',
@@ -479,7 +479,7 @@ describe('TelegramMediaController', () => {
 
     expect(dispatchConversational).toHaveBeenCalledWith(
       ctx,
-      'me explique mais sobre essa noticia que voce citou.',
+      'me explique mais sobre essa noticia que you citou.',
       undefined,
       expect.objectContaining({
         transport: 'voice',

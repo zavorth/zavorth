@@ -17,11 +17,11 @@ type MockResponse = http.ServerResponse & {
 function createReq(
   method: string,
   url: string,
-  body?: unknown,
+  body-: unknown,
   options: {
-    headers?: Record<string, string>;
-    remoteAddress?: string;
-    rawBody?: string;
+    headers-: Record<string, string>;
+    remoteAddress-: string;
+    rawBody-: string;
   } = {},
 ): http.IncomingMessage {
   const req = new PassThrough() as unknown as http.IncomingMessage;
@@ -50,7 +50,7 @@ function createRes(): MockResponse {
     setHeader: (name: string, value: string) => {
       headers[String(name)] = String(value);
     },
-    end(chunk?: any) {
+    end(chunk-: any) {
       this.body = chunk ? Buffer.from(chunk) : Buffer.alloc(0);
       return this;
     },
@@ -60,10 +60,10 @@ function createRes(): MockResponse {
 function createDeps() {
   const calls: WriteCall[] = [];
   const echo = {
-    listTools: jest.fn((category?: string) => [
+    listTools: jest.fn((category-: string) => [
       {
         name: 'os_screenshot',
-        description: 'Captura a tela local',
+        description: 'Captures the local screen',
         category: category || 'OS',
         dangerLevel: 'moderate',
         requiresPermission: true,
@@ -81,7 +81,7 @@ function createDeps() {
       },
       tools: [{
         name: 'os_screenshot',
-        description: 'Captura a tela local',
+        description: 'Captures the local screen',
         category: 'OS',
         dangerLevel: 'moderate',
         requiresPermission: true,
@@ -162,12 +162,12 @@ describe('ZavorthControlEchoRouteService', () => {
     const route = new ZavorthControlEchoRouteService();
     const { calls, deps, echo } = createDeps();
     const res = createRes();
-    const req = createReq('GET', '/api/v2/echo/tools?category=OS');
+    const req = createReq('GET', '/api/v2/echo/tools-category=OS');
 
     const handled = await route.handleRequest(
       req,
       res,
-      new URL('http://localhost/api/v2/echo/tools?category=OS'),
+      new URL('http://localhost/api/v2/echo/tools-category=OS'),
       '/api/v2/echo/tools',
       deps,
     );
@@ -302,7 +302,7 @@ describe('ZavorthControlEchoRouteService', () => {
     expect(echo.resolvePermission).not.toHaveBeenCalled();
     expect(calls[0]).toEqual({
       statusCode: 400,
-      body: { error: 'Campos "id" (string) e "approved" (boolean) obrigatorios.' },
+      body: { error: 'Campos "id" (string) e "approved" (boolean) requireds.' },
     });
   });
 
@@ -329,7 +329,7 @@ describe('ZavorthControlEchoRouteService', () => {
     expect(echo.processIntent).not.toHaveBeenCalled();
     expect(calls[0]).toEqual({
       statusCode: 400,
-      body: { error: 'Campo "prompt" e obrigatorio.' },
+      body: { error: 'Campo "prompt" e required.' },
     });
   });
 
@@ -352,7 +352,7 @@ describe('ZavorthControlEchoRouteService', () => {
     expect(echo.processIntent).not.toHaveBeenCalled();
     expect(calls[0]).toEqual({
       statusCode: 400,
-      body: { error: 'Payload Echo invalido.' },
+      body: { error: 'Payload Echo invalid.' },
     });
   });
 
@@ -376,9 +376,9 @@ describe('ZavorthControlEchoRouteService', () => {
     );
 
     await route.handleRequest(
-      createReq('GET', '/api/v2/echo/history?limit=5'),
+      createReq('GET', '/api/v2/echo/history-limit=5'),
       resHistory,
-      new URL('http://localhost/api/v2/echo/history?limit=5'),
+      new URL('http://localhost/api/v2/echo/history-limit=5'),
       '/api/v2/echo/history',
       deps,
     );
@@ -411,7 +411,7 @@ describe('ZavorthControlEchoRouteService', () => {
         },
         replies: [
           {
-            text: 'Resposta via ReplyPipeline.',
+            text: 'Response through ReplyPipeline.',
           },
         ],
       })),
@@ -420,7 +420,7 @@ describe('ZavorthControlEchoRouteService', () => {
 
     const handled = await route.handleRequest(
       createReq('POST', '/api/v2/nexus/execute', {
-        prompt: 'abrir o painel de controle',
+        prompt: 'open the control panel',
         category: 'OS',
         requestId: 'request-nexus-1',
         traceId: 'trace-nexus-1',
@@ -443,7 +443,7 @@ describe('ZavorthControlEchoRouteService', () => {
       userId: 'nexus-user',
       sessionId: 'nexus-session',
       channel: 'api',
-      text: 'abrir o painel de controle',
+      text: 'open the control panel',
       requestedTools: ['echo_hands'],
       replyPort: expect.objectContaining({
         id: 'nexus-session:nexus',
@@ -464,9 +464,9 @@ describe('ZavorthControlEchoRouteService', () => {
       body: expect.objectContaining({
         ok: true,
         source: 'ZavorthAgentGateway',
-        response: 'Resposta via ReplyPipeline.',
+        response: 'Response through ReplyPipeline.',
         normalizedInboundMessage: expect.objectContaining({
-          text: 'abrir o painel de controle',
+          text: 'open the control panel',
           channel: 'api',
         }),
       }),
@@ -799,7 +799,7 @@ describe('ZavorthControlEchoRouteService', () => {
     expect(echo.synthesizeSpeech).not.toHaveBeenCalled();
     expect(calls[0]).toEqual({
       statusCode: 400,
-      body: { error: 'Campo "input" e obrigatorio.' },
+      body: { error: 'Campo "input" e required.' },
     });
   });
 

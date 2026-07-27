@@ -13,8 +13,8 @@ function createTask(overrides: Partial<Task> = {}): Task {
     source: 'telegram',
     chat_id: '4242',
     user_id: '42',
-    raw_message: 'corrija o arquivo package.json e rode npm test',
-    normalized_message: 'corrija o arquivo package.json e rode npm test',
+    raw_message: 'corrija o file package.json e rode npm test',
+    normalized_message: 'corrija o file package.json e rode npm test',
     command_type: '/task',
     intent: 'conversation',
     target: null,
@@ -71,11 +71,11 @@ describe('TelegramConversationAutonomousService', () => {
           status: 'waiting_approval',
           createdAt: '2026-05-02T00:00:00.000Z',
           updatedAt: '2026-05-02T00:00:00.000Z',
-          summary: 'Preciso da sua aprovacao para continuar com seguranca.',
+          summary: 'I need your approval to continue safely.',
           events: [],
           toolExposure: {
             mode: 'restricted',
-            summary: '2 ferramentas expostas com policy restricted.',
+            summary: '2 tools expostas com policy restricted.',
             tools: [
               { id: 'write_file', risk: 'danger', requiresApproval: true },
               { id: 'shell.exec', risk: 'danger', requiresApproval: true },
@@ -96,7 +96,7 @@ describe('TelegramConversationAutonomousService', () => {
         },
         replies: [
           {
-            text: 'Preciso da sua aprovacao para continuar com seguranca.',
+            text: 'I need your approval to continue safely.',
           },
         ],
       })),
@@ -157,7 +157,7 @@ describe('TelegramConversationAutonomousService', () => {
       expect.anything(),
     );
     expect(ctx.reply).toHaveBeenCalledWith(
-      'Preciso da sua aprovacao para continuar com seguranca.',
+      'I need your approval to continue safely.',
       expect.anything(),
     );
   });

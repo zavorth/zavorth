@@ -18,7 +18,7 @@ describe('ZavorthControl workflow and effort projection', () => {
 
   it('projects effort control and dynamic workflow metadata into the view model without leaking secrets', () => {
     const dynamicWorkflow = new ZavorthDynamicWorkflowService({ now }).buildPreview({
-      objective: 'revise 60 arquivos com token=secret-value e sintetize achados',
+      objective: 'revise 60 files com token=secret-value e sintetize findings',
       requestedFanout: 60,
       maxConcurrency: 10,
       maxCents: 120,
@@ -27,7 +27,7 @@ describe('ZavorthControl workflow and effort projection', () => {
     });
     const effortControl = new ZavorthEffortControlService({ now }).buildSnapshot({
       level: 'ultra-code',
-      request: 'revise 60 arquivos com token=secret-value',
+      request: 'revise 60 files com token=secret-value',
       maxCents: 120,
     });
     const gatewaySnapshot = {
@@ -40,8 +40,8 @@ describe('ZavorthControl workflow and effort projection', () => {
         userId: 'grey',
         channel: 'web',
         status: 'completed',
-        title: 'revise 60 arquivos',
-        input: 'revise 60 arquivos',
+        title: 'revise 60 files',
+        input: 'revise 60 files',
         createdAt: now().toISOString(),
         updatedAt: now().toISOString(),
         metadata: {
@@ -94,7 +94,7 @@ describe('ZavorthControl workflow and effort projection', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-agent-team-fallback',
-      text: 'compile equipe de agentes para validar workflow',
+      text: 'compile an agent team to validate the workflow',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

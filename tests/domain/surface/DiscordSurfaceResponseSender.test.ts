@@ -26,7 +26,7 @@ describe('DiscordSurfaceResponseSender', () => {
       {
         approvalId: TASK_ID,
         title: 'Approval needed',
-        summary: 'Run shell?',
+        summary: 'Run shell-',
         riskLabel: 'high',
       },
       profile,
@@ -79,7 +79,7 @@ describe('DiscordSurfaceResponseSender', () => {
 
   it('replyWithDiscordSurfaceResponse registers pending approval when chatId + messageId + track id', async () => {
     const response = approvalResponse();
-    const sent: Array<{ text: string; options?: unknown }> = [];
+    const sent: Array<{ text: string; options-: unknown }> = [];
 
     const result = await replyWithDiscordSurfaceResponse(
       {

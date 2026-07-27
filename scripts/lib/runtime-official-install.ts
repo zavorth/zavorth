@@ -122,12 +122,9 @@ export async function executeOfficialInstallFlow(
       error: null,
       output: null,
     };
-  const launchPreference = effectiveArgs.openRemote
-    ? 'remote'
-    : (effectiveArgs.openLocal
-      ? 'local'
-      : ((effectiveArgs.openBest || effectiveArgs.openApp)
-        ? 'best'
+  const launchPreference = effectiveArgs.openRemote ? 'remote'
+    : (effectiveArgs.openLocal ? 'local'
+      : ((effectiveArgs.openBest || effectiveArgs.openApp) ? 'best'
         : resolveRecommendedLaunchPreference(report)));
   const launchSelection = launchPreference
     ? launchService.selectTarget(
@@ -180,7 +177,7 @@ export function formatOfficialInstallReport(
   options: OfficialInstallPresentationOptions = {},
 ): string {
   const title = String(options.title || '').trim()
-    || (report.local.ready ? 'Zavorth ligado' : 'Zavorth ainda precisa de um ajuste');
+    || (report.local.ready ? 'Zavorth is on' : 'Zavorth still needs an adjustment');
   const eyebrow = String(options.eyebrow || '').trim() || 'Zavorth';
   const readinessTone = report.local.ready
     ? (report.remote.configured && !report.remote.ready ? 'warning' : 'success')
@@ -192,17 +189,16 @@ export function formatOfficialInstallReport(
       lines: buildOfficialCurrentLines(report, options),
     },
     {
-      title: 'Acesso local',
+      title: 'access local',
       tone: report.local.ready ? 'success' : 'warning',
       lines: [
-        report.local.ready
-          ? `- pronto em ${report.local.appUrl}`
-          : `- ainda nao ficou pronto em ${report.local.appUrl}`,
+        report.local.ready ? `- ready em ${report.local.appUrl}`
+          : `- not ready yet at ${report.local.appUrl}`,
         describeLocalTrust(report),
       ],
     },
     {
-      title: 'Acesso remoto',
+      title: 'access remote',
       tone: report.remote.ready ? 'success' : (report.remote.configured ? 'warning' : 'info'),
       lines: buildRemoteLines(report),
     },
@@ -244,21 +240,21 @@ function buildOfficialCurrentLines(
   const lines: string[] = [];
 
   if (report.local.ready) {
-    lines.push('- O Zavorth ja pode abrir a interface principal.');
+    lines.push('- O Zavorth already pode abrir a interface principal.');
   } else {
     lines.push(`- ${sanitizeOfficialNarrative(report.journey.summary)}`);
   }
 
   if (options.dryRun) {
-    lines.push('- Este foi um dry-run: nada foi aplicado neste host.');
+    lines.push('- This was a dry-run: nothing was applied on this host.');
   }
 
   if (report.remote.ready && !report.local.ready) {
-    lines.push('- O acesso remoto ja esta pronto, mesmo com a entrada local ainda pendente.');
+    lines.push('- O access remote already is ready, mesmo com a entrada local ainda pending.');
   }
 
   if (!report.remote.configured && !report.local.ready) {
-    lines.push('- O acesso remoto ainda nao foi configurado neste ambiente.');
+    lines.push('- Remote access has not been configured in this environment yet.');
   }
 
   return lines.slice(0, 3);
@@ -325,25 +321,25 @@ function parseNumericFlag(argv: string[], name: string, fallback: number): numbe
 
 function describeLocalTrust(report: RuntimeOfficialAccessReport): string {
   if (report.local.trust.applied) {
-    return '- autorizacao deste host: ok';
+    return '- authorization deste host: ok';
   }
   if (report.local.trust.attempted) {
-    return `- autorizacao deste host: falhou${report.local.trust.error ? ` (${report.local.trust.error})` : ''}`;
+    return `- authorization deste host: failed${report.local.trust.error ? ` (${report.local.trust.error})` : ''}`;
   }
-  return '- autorizacao deste host: ainda nao aplicada';
+  return '- host authorization: not applied yet';
 }
 
 function buildRemoteLines(report: RuntimeOfficialAccessReport): string[] {
   const lines: string[] = [];
   if (!report.remote.configured) {
-    lines.push('- ainda nao configurado');
+    lines.push('- not configured yet');
   } else if (report.remote.ready) {
-    lines.push(`- pronto${report.remote.appUrl ? ` em ${report.remote.appUrl}` : ''}`);
+    lines.push(`- ready${report.remote.appUrl ? ` em ${report.remote.appUrl}` : ''}`);
   } else {
-    lines.push(`- ainda pendente${report.remote.appUrl ? ` em ${report.remote.appUrl}` : ''}`);
+    lines.push(`- ainda pending${report.remote.appUrl ? ` em ${report.remote.appUrl}` : ''}`);
   }
 
-  lines.push(`- token web: ${report.tokenSource === 'missing' ? 'ainda nao configurado' : report.tokenSource}`);
+  lines.push(`- token web: ${report.tokenSource === 'missing' ? 'not configured yet' : report.tokenSource}`);
 
   for (const issue of report.remote.issues.slice(0, 2)) {
     lines.push(`- ${sanitizeOfficialNarrative(issue)}`);
@@ -358,16 +354,15 @@ function buildOpeningLines(
   const lines: string[] = [];
   if (launcher && !launcher.skipped) {
     lines.push(
-      launcher.applied
-        ? `- atalho do sistema: ok (${launcher.mode})`
-        : `- atalho do sistema: falhou${launcher.error ? ` (${launcher.error})` : ''}`,
+      launcher.applied ? `- shortcut do sistema: ok (${launcher.mode})`
+        : `- shortcut do sistema: failed${launcher.error ? ` (${launcher.error})` : ''}`,
     );
   }
   if (appOpen && !appOpen.skipped) {
     lines.push(
       appOpen.opened
         ? `- abertura da interface: ok${appOpen.targetUrl ? ` (${appOpen.targetUrl})` : ''}`
-        : `- abertura da interface: falhou${appOpen.error ? ` (${appOpen.error})` : ''}`,
+        : `- abertura da interface: failed${appOpen.error ? ` (${appOpen.error})` : ''}`,
     );
   }
   return lines;
@@ -384,23 +379,22 @@ function sanitizeOfficialStep(
   }
 
   if (/\/hostauth trust/i.test(normalized)) {
-    return options.dryRun
-      ? 'Saia do dry-run quando quiser que o Zavorth tente aplicar a preparacao local de verdade.'
-      : 'Libere a autorizacao deste host atual para o Zavorth operar localmente.';
+    return options.dryRun ? 'Exit dry-run when you want Zavorth to apply the local preparation for real.'
+      : 'Libere a authorization deste host current para o Zavorth operar localmente.';
   }
 
   const currentCommand = normalizeCommandLabel(options.currentCommand || '');
   if (currentCommand && includesCommand(normalized, currentCommand)) {
     if (options.dryRun) {
-      return 'Saia do dry-run quando quiser que o Zavorth tente aplicar a preparacao local de verdade.';
+      return 'Exit dry-run when you want Zavorth to apply the local preparation for real.';
     }
     if (/ZAVORTH_PUBLIC_BASE_URL/i.test(normalized)) {
-      return 'Defina ZAVORTH_PUBLIC_BASE_URL quando quiser expor o Zavorth por HTTPS.';
+      return 'set ZAVORTH_PUBLIC_BASE_URL when exposing Zavorth over HTTPS.';
     }
-    if (/autoriz/i.test(normalized) || /trust local/i.test(normalized)) {
-      return 'Libere a autorizacao deste host atual para o Zavorth operar localmente.';
+    if (normalized.includes('trust local')) {
+      return 'Libere a authorization deste host current para o Zavorth operar localmente.';
     }
-    return 'Use zavorth doctor se quiser ver exatamente o que ainda esta bloqueando o Zavorth.';
+    return 'Use zavorth doctor to see exactly what is still blocking Zavorth.';
   }
 
   return normalized;
@@ -425,20 +419,20 @@ function buildPresentationNextSteps(
   if (options.currentCommand && options.dryRun) {
     ensureStep(
       steps,
-      'Saia do dry-run quando quiser que o Zavorth tente aplicar a preparacao local de verdade.',
+      'Exit dry-run when you want Zavorth to apply the local preparation for real.',
     );
   }
 
   if (!report.local.ready && !report.local.trust.applied && !options.dryRun) {
-    ensureStep(steps, 'Libere a autorizacao deste host atual para o Zavorth operar localmente.');
+    ensureStep(steps, 'Libere a authorization deste host current para o Zavorth operar localmente.');
   }
 
   if (!report.remote.configured) {
-    ensureStep(steps, 'Defina ZAVORTH_PUBLIC_BASE_URL quando quiser expor o Zavorth por HTTPS.');
+    ensureStep(steps, 'set ZAVORTH_PUBLIC_BASE_URL when exposing Zavorth over HTTPS.');
   }
 
   if (!report.local.ready) {
-    ensureStep(steps, 'Use zavorth doctor se quiser ver exatamente o que ainda esta bloqueando o Zavorth.');
+    ensureStep(steps, 'Use zavorth doctor to see exactly what is still blocking Zavorth.');
   }
 
   return steps.slice(0, 4);
@@ -447,9 +441,9 @@ function buildPresentationNextSteps(
 function sanitizeOfficialNarrative(value: string): string {
   return String(value || '')
     .replace(/runtime/gi, 'Zavorth')
-    .replace(/superficie/gi, 'entrada')
+    .replace(/surface/gi, 'entrada')
     .replace(/ZavorthControl/gi, 'interface principal')
-    .replace(/host supervisor/gi, 'servico principal')
+    .replace(/host supervisor/gi, 'service principal')
     .replace(/\s+/g, ' ')
     .trim();
 }

@@ -39,7 +39,7 @@ describe('LearnedKnowledgePlaneService (no keyword routing)', () => {
   });
 
   it('does not keyword-route free text — equal pillar weights for any phrasing', () => {
-    const a = scoreLearnedKnowledgeIntent('what did we discuss about providers last time?');
+    const a = scoreLearnedKnowledgeIntent('what did we discuss about providers last time-');
     const b = scoreLearnedKnowledgeIntent('how to run the release checklist step by step');
     const c = scoreLearnedKnowledgeIntent('I prefer short answers and my name is Grey');
     const equal = equalPillarWeights();
@@ -98,7 +98,7 @@ describe('LearnedKnowledgePlaneService (no keyword routing)', () => {
     const loop = new ExperienceSkillLearningLoopService({ projectRoot: tmp });
     await loop.processTurn({
       userId: 'wf-user',
-      userMessage: 'How do I run the release checklist and list repository files step by step?',
+      userMessage: 'How do I run the release checklist and list repository files step by step-',
       assistantText: 'Done with multi-tool workflow.',
       toolsCalled: ['read_file', 'list_directory', 'run_command', 'search_code'],
       toolCallCount: 4,
@@ -108,7 +108,7 @@ describe('LearnedKnowledgePlaneService (no keyword routing)', () => {
 
     const pack = new LearnedKnowledgePlaneService({ projectRoot: tmp }).buildPack({
       userId: 'wf-user',
-      userMessage: 'How do I run the release checklist step by step again?',
+      userMessage: 'How do I run the release checklist step by step again-',
       projectRoot: tmp,
       tokenBudget: 1500,
     });
@@ -121,7 +121,7 @@ describe('LearnedKnowledgePlaneService (no keyword routing)', () => {
     process.env.ZAVORTH_LEARNED_KNOWLEDGE = '0';
     const pack = new LearnedKnowledgePlaneService({ projectRoot: tmp }).buildPack({
       userId: 'x',
-      userMessage: 'what did we decide?',
+      userMessage: 'what did we decide-',
       projectRoot: tmp,
     });
     expect(pack.hits).toEqual([]);

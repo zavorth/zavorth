@@ -45,7 +45,7 @@ function filesExist() {
     'docs/operations.md',
   ];
   const missing = files.filter((file) => !existsSync(join(root, file)));
-  return rule('files', missing.length === 0, `${files.length - missing.length}/${files.length} files present`, missing);
+  return rule('files', missing.length === 0, `${files.length ? missing.length}/${files.length} files present`, missing);
 }
 
 function markersPresent() {

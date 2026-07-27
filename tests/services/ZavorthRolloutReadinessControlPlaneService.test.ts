@@ -15,8 +15,8 @@ function healthyQa(overrides: Record<string, any> = {}) {
       releaseReady: true,
     },
     narrative: {
-      operatorSummary: 'QA pronto.',
-      nextAction: 'Release pronto.',
+      operatorSummary: 'QA ready.',
+      nextAction: 'Release ready.',
     },
     ...overrides,
   };
@@ -33,8 +33,8 @@ function distributedRuntime(overrides: Record<string, any> = {}) {
       readyTransports: 3,
     },
     narrative: {
-      operatorSummary: 'Runtime pronto.',
-      nextAction: 'Runtime pronto.',
+      operatorSummary: 'Runtime ready.',
+      nextAction: 'Runtime ready.',
     },
     entries: [{ id: 'full-node-snapshot' }],
     ...overrides,
@@ -184,9 +184,9 @@ describe('ZavorthRolloutReadinessControlPlaneService', () => {
     expect(snapshot.gate.blockers).toEqual([]);
     expect(snapshot.gate.warnings).toEqual(expect.arrayContaining([
       'Runtime distribuido esta em postura critica.',
-      'Runtime Stability Gate nao esta passed.',
-      'Backup/maintenance/restore recente ausente ou vencido.',
-      'Historico de publish limpo/recente ausente.',
+      'Runtime Stability Gate not esta passed.',
+      'Backup/maintenance/restore recente missing ou vencido.',
+      'Historico de publish limpo/recente missing.',
     ]));
   });
 
@@ -217,10 +217,10 @@ describe('ZavorthRolloutReadinessControlPlaneService', () => {
     expect(snapshot.gate.canProceed).toBe(false);
     expect(snapshot.gate.blockers).toEqual(expect.arrayContaining([
       'Runtime distribuido esta em postura critica.',
-      'Runtime Stability Gate precisa estar passed para production.',
-      'Backup/maintenance/restore recente ausente ou vencido.',
-      'Historico de publish limpo/recente ausente.',
-      'Keepalive supervisionado nao esta ativo.',
+      'Runtime Stability Gate needs estar passed para production.',
+      'Backup/maintenance/restore recente missing ou vencido.',
+      'Historico de publish limpo/recente missing.',
+      'Keepalive supervisionado not esta active.',
     ]));
   });
 

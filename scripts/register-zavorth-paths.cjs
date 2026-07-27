@@ -61,8 +61,7 @@ function resolveAlias(request) {
     }
     const root = preferDistOrSrc(relDir);
     const rest =
-      request === prefix
-        ? 'index.js'
+      request === prefix ? 'index.js'
         : request.slice(prefix.length + 1);
     for (const candidate of candidateFiles(path.join(root, rest))) {
       if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {

@@ -21,7 +21,7 @@ function buildToolSurfaceSnapshot(selectedId: string | null = 'read_file', query
         label: 'Runtime Tools',
         status: 'ready',
         total: 2,
-        summary: 'Runtime Tools expõe 2 item(ns), com 2 pronto(s) no plano atual.',
+        summary: 'Runtime Tools exposes 2 item(s), with 2 ready item(s) in the current plane.',
         examples: ['read_file', 'web_search'],
       },
     ],
@@ -45,9 +45,9 @@ function buildToolSurfaceSnapshot(selectedId: string | null = 'read_file', query
           kind: 'runtime-tool',
           source: 'runtime:registry',
           readiness: 'ready',
-          summary: 'Le um arquivo do workspace.',
+          summary: 'Le um file do workspace.',
           command: null,
-          details: ['1 parametro(s).', '1 obrigatorio(s).'],
+          details: ['1 parametro(s).', '1 required(s).'],
           searchText: 'read_file runtime',
         },
       ],
@@ -60,24 +60,23 @@ function buildToolSurfaceSnapshot(selectedId: string | null = 'read_file', query
             kind: 'runtime-tool',
             source: 'runtime:registry',
             readiness: 'ready',
-            summary: 'Le um arquivo do workspace.',
+            summary: 'Le um file do workspace.',
             command: null,
-            details: ['1 parametro(s).', '1 obrigatorio(s).'],
+            details: ['1 parametro(s).', '1 required(s).'],
             searchText: 'read_file runtime',
           }
         : null,
       featuredIds: ['read_file'],
       query,
       narrative: {
-        headline: query
-          ? `Tool surface com 1 item(ns) visivel(is) para "${query}".`
+        headline: query ? `Tool surface com 1 item(s) visible para "${query}".`
           : 'Surface explicita com 9 tool(s).',
         operatorSummary: 'Runtime Tools em foco.',
       },
     },
     narrative: {
-      headline: 'Zavorth expõe 4 familias de tools no plano atual.',
-      operatorSummary: '3 familia(s) prontas, 1 parcial(is) e 0 planejada(s).',
+      headline: 'Zavorth exposes 4 tool families in the current plane.',
+      operatorSummary: '3 ready family/families, 1 partial e 0 planned.',
     },
   };
 }
@@ -116,7 +115,7 @@ describe('WebApp tool surface endpoint', () => {
     await service.start();
     const { status, payload } = await fetchDashboardJson(
       service.getUrl(),
-      '/api/web/tools?selectedId=read_file&q=read_file',
+      '/api/web/tools-selectedId=read_file&q=read_file',
       { token: 'web-secret' },
     );
     await service.stopAsync();

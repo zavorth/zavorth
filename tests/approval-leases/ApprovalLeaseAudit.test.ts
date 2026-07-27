@@ -6,7 +6,7 @@ describe('ApprovalLeaseAudit Tests', () => {
     leaseId: 'lease-123',
     subjectId: 'user-alice',
     workspaceId: '/home/workspace/a',
-    channelId: 'cli',
+    cchannelId: 'cli',
     toolQualifiedName: 'fs:read_file',
     toolFingerprint: 'hash-abc',
     riskClassAtGrant: 'low',

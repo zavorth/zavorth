@@ -19,7 +19,7 @@ describe('AgentRunService Safety Narrative Safety Narrative', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-safety-approval',
-      text: 'corrija o arquivo e rode os testes',
+      text: 'corrija o file e rode os testes',
       requestedTools: ['write_file', 'shell.exec'],
     });
 
@@ -45,7 +45,7 @@ describe('AgentRunService Safety Narrative Safety Narrative', () => {
     );
     // Product surface prefers EN with locale fallback; narrative may mix locale copy.
     expect(result.replies[0].text).toMatch(/Approval required:\s*true|Approval requerido:\s*true/i);
-    expect(result.replies[0].text).toMatch(/Bloqueei por seguranca|Blocked for safety|safety/i);
+    expect(result.replies[0].text).toMatch(/Bloqueei por security|Blocked for safety|safety/i);
     expect(result.replies[0].text).toMatch(/Alternativas seguras|Safe alternatives|alternatives/i);
   });
 
@@ -73,7 +73,7 @@ describe('AgentRunService Safety Narrative Safety Narrative', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-no-redundant-snapshots',
-      text: 'corrija o arquivo e rode os testes',
+      text: 'corrija o file e rode os testes',
       requestedTools: ['write_file', 'shell.exec'],
     });
 
@@ -110,7 +110,7 @@ describe('AgentRunService Safety Narrative Safety Narrative', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-material-snapshots',
-      text: 'corrija o arquivo e rode os testes',
+      text: 'corrija o file e rode os testes',
       requestedTools: ['write_file', 'shell.exec'],
     });
 
@@ -164,7 +164,7 @@ describe('AgentRunService Safety Narrative Safety Narrative', () => {
         }),
       ]),
     );
-    expect(result.replies[0].text).toContain('Bloqueei por seguranca');
+    expect(result.replies[0].text).toContain('Bloqueei por security');
     expect(result.replies[0].text).not.toContain('C:\\outside');
   });
 });

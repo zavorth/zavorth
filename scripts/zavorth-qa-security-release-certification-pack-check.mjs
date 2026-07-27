@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'zavorth-qa-security-release-checkpoint-7-files',
+    id: 'zavorth-qa-security-release-gate-7-files',
     label: 'Surface controls files exist',
     target: 'contract, five family services, runner, command, SDK export and tests are present',
     files: [
@@ -172,7 +172,7 @@ function runRuntimeRule() {
         `patchRisksTracked=${receipt.summary?.patchRisksTracked}`,
         `rawWorkflowYamlCopied=${receipt.summary?.rawWorkflowYamlCopied}`,
         `dependencyPatchesAcceptedSilently=${receipt.summary?.dependencyPatchesAcceptedSilently}`,
-        `next=${receipt.commands?.nextStage}`,
+        `next=${receipt.commands?.nextAction}`,
       ],
     };
   } catch (error) {

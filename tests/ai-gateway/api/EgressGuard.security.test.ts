@@ -78,7 +78,7 @@ describe('egress guard hardening', () => {
     ).rejects.toThrow('http or https');
   });
 
-  it('keeps a deliberate env-gated escape hatch for local labs', async () => {
+  it('keeps a deliberate env-gated escape there istch for local labs', async () => {
     process.env.ALLOW_PRIVATE_EGRESS_TARGETS = 'true';
     await expect(
       assertPublicHttpTargetAllowed('http://127.0.0.1:3000/internal', { serviceName: 'Test' })

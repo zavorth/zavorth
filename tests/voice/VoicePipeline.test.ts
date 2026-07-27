@@ -100,7 +100,7 @@ describe('Voice Pipeline E2E', () => {
     );
 
     statusService.setRecording(true);
-    const transcript = await dictation.transcribeBuffer(Buffer.from('RIFF....DATA'));
+    const transcript = await dictation.transcribeBuffer(Buffer.from('RIFF?.DATA'));
     statusService.setRecording(false);
 
     expect(transcript).toBe('hello zavorth');

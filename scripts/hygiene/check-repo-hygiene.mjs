@@ -80,7 +80,7 @@ if (import.meta.url.endsWith(process.argv[1]?.replace(/\\/g, '/'))) {
   const failures = verifyHygiene();
   if (failures.length > 0) {
     console.error('Repository Hygiene Check FAILED:');
-    failures.forEach(f => console.error(` - ${f}`));
+    failures.forEach(f => console.error(` ? ${f}`));
     process.exit(1);
   } else {
     console.log('Repository Hygiene Check PASSED: no forbidden temporary files or phase-specific documentation tracked.');

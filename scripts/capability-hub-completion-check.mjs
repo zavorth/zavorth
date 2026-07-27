@@ -76,7 +76,7 @@ const dynamicRule = {
     dynamic.error ? String(dynamic.error.message || dynamic.error) : '',
     dynamic.stdout,
     dynamic.stderr,
-  ].filter(Boolean).join('\n').split(/\r?\n/).slice(0, 20),
+  ].filter(Boolean).join('\n').split(/\r...\n/).slice(0, 20),
 };
 const rules = [...staticRules, dynamicRule];
 const failed = rules.filter((rule) => rule.status === 'failed');

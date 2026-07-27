@@ -21,7 +21,7 @@ if ($windowsPath -match '^([A-Za-z]):/(.*)$') {
   $rest = $Matches[2]
   $wslProjectRoot = "/mnt/$drive/$rest"
 } else {
-  throw "Nao foi possivel converter o caminho do projeto para WSL: $projectRoot"
+  throw "Could not convert the project path to WSL: $projectRoot"
 }
 
 $modeArg = if ($Smoke) { ' --smoke' } else { '' }

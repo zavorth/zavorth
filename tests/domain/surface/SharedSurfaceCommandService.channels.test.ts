@@ -26,7 +26,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: 'procure na memoria por gateway release',
+      rawText: 'find in memory by gateway release',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -164,7 +164,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(ctx.reply).toHaveBeenCalledWith(
       expect.stringContaining('Operational commands stay restricted to the owner'),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learn = skill drafts · /learning = candidates'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learn = skill drafts - /learning = candidates'));
   });
 
   it('handles natural-language ZavorthBridge mobile requests through the shared surface', async () => {
@@ -196,7 +196,7 @@ describe('SharedSurfaceCommandService', () => {
           targetUrl: 'https://ag.example.com',
           httpStatus: 200,
         },
-        summary: 'Acesso movel do ZavorthBridge ativo via URL publica.',
+        summary: 'Acesso movel do ZavorthBridge active via URL public.',
         recommendations: [],
         doctorSummary: 'Doctor concluiu com sucesso.',
         guide: {
@@ -323,7 +323,7 @@ describe('SharedSurfaceCommandService', () => {
         localOnly: true,
         overlayFile: 'C:/repo/config/AIGateway-overlay.json',
         checkedAt: '2026-04-05T12:00:00.000Z',
-        message: 'Gateway proprio do AIGateway ativo.',
+        message: 'Gateway own do AIGateway active.',
       })),
     };
     const service = new SharedSurfaceCommandService({
@@ -378,7 +378,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/reload'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/autorepair'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learn = skill drafts · /learning = candidates'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/learn = skill drafts - /learning = candidates'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Owner operational tools are available'));
   });
 
@@ -480,7 +480,7 @@ describe('SharedSurfaceCommandService', () => {
         },
         replay: {
           recommendedEntry: {
-            reason: 'Existe um melhor ponto de retomada.',
+            reason: 'There is a better resumption point.',
           },
         },
         workspace: null,
@@ -491,7 +491,7 @@ describe('SharedSurfaceCommandService', () => {
           },
         ],
         narrative: {
-          headline: 'Retomada e entregas prontas.',
+          headline: 'Resume and deliveries ready.',
           operatorSummary: 'Snapshot oficial do memory plane.',
         },
       })),
@@ -561,7 +561,7 @@ describe('SharedSurfaceCommandService', () => {
         actionId: 'promote',
         status: 'applied',
         ok: true,
-        summary: 'Ship playbook promovido para trusted local.',
+        summary: 'Ship playbook promoted to trusted local.',
         details: ['Gate explicito aplicado.'],
         snapshot: {
           generatedAt: '2026-04-09T15:10:00.000Z',
@@ -685,7 +685,7 @@ describe('SharedSurfaceCommandService', () => {
         },
         narrative: {
           headline: 'Gateway ready.',
-          operatorSummary: 'Snapshot canonico.',
+          operatorSummary: 'Canonical snapshot.',
         },
       })),
     };
@@ -731,7 +731,7 @@ describe('SharedSurfaceCommandService', () => {
         families: [
           {
             label: 'Session tools',
-            summary: 'Listagem, historico, envio e spawn de sessao.',
+            summary: 'Listagem, history, envio e spawn de session.',
           },
         ],
         catalog: {
@@ -746,8 +746,8 @@ describe('SharedSurfaceCommandService', () => {
           selected: null,
         },
         narrative: {
-          headline: 'Plano oficial de tools.',
-          operatorSummary: '4 familias prontas.',
+          headline: 'Official tool plan.',
+          operatorSummary: '4 familias ready.',
         },
       })),
     };
@@ -768,7 +768,7 @@ describe('SharedSurfaceCommandService', () => {
       }),
     );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth Tool Surface'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Plano oficial de tools.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Official tool plan.'));
   });
 
   it('renders the hook plane through the shared command surface', async () => {
@@ -798,7 +798,7 @@ describe('SharedSurfaceCommandService', () => {
             id: 'transport.before_action',
             label: 'Antes do transporte',
             stage: 'transport',
-            description: 'Valida o transporte remoto antes da acao.',
+            description: 'Valida o transporte remoto antes da action.',
             status: 'ready',
             registeredHooks: 2,
             sampleCommand: 'npm run hooks:transport:before',
@@ -813,7 +813,7 @@ describe('SharedSurfaceCommandService', () => {
           },
         ],
         narrative: {
-          headline: 'Plano oficial de hooks.',
+          headline: 'Official hook plan.',
           operatorSummary: '3 hooks registrados.',
         },
       })),
@@ -864,9 +864,9 @@ describe('SharedSurfaceCommandService', () => {
               familyLabel: 'Runtime Tools',
               kind: 'runtime-tool',
               readiness: 'ready',
-              summary: 'Le um arquivo do workspace.',
+              summary: 'Le um file do workspace.',
               command: null,
-              details: ['1 parametro(s).', '1 obrigatorio(s).'],
+              details: ['1 parametro(s).', '1 required(s).'],
             },
           ],
           selected: {
@@ -875,14 +875,14 @@ describe('SharedSurfaceCommandService', () => {
             familyLabel: 'Runtime Tools',
             kind: 'runtime-tool',
             readiness: 'ready',
-            summary: 'Le um arquivo do workspace.',
+            summary: 'Le um file do workspace.',
             command: null,
-            details: ['1 parametro(s).', '1 obrigatorio(s).'],
+            details: ['1 parametro(s).', '1 required(s).'],
           },
         },
         narrative: {
-          headline: 'Tool surface com 1 item visivel.',
-          operatorSummary: 'Item em foco.',
+          headline: 'Tool surface with 1 visible item.',
+          operatorSummary: 'Focused item.',
         },
       })),
     };
@@ -915,7 +915,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: '/sessionsend web:session-2 -- continue o plano',
+      rawText: '/sessionsend web:session-2 -- continue the plan',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -947,7 +947,7 @@ describe('SharedSurfaceCommandService', () => {
         platform: 'web',
         chatId: 'web:session-2',
         sessionId: 'session-2',
-        text: 'continue o plano',
+        text: 'continue the plan',
       }),
     );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Message dispatched to the session.'));
@@ -1154,8 +1154,8 @@ describe('SharedSurfaceCommandService', () => {
             recent: 1,
           },
           narrative: {
-            headline: 'Node Oracle Node tem fila remota ativa.',
-            operatorSummary: 'Ultima activity: browser.proxy em status completed.',
+            headline: 'Node Oracle Node tem queue remota ativa.',
+            operatorSummary: 'Latest activity: browser.proxy completed.',
           },
         },
         suggestedActions: [],
@@ -1318,7 +1318,7 @@ describe('SharedSurfaceCommandService', () => {
         invoke: 'npm run zavorth:natural-invocation -- --text "<request>"',
         invokeJson: 'npm run zavorth:natural-invocation:json -- --text "<request>"',
         check: 'npm run zavorth:natural-invocation:check --silent',
-        nextStage: 'Runtime gateway - Absorption Materialization And Bridge Handoff',
+        nextAction: 'Runtime gateway - Absorption Materialization And Bridge Handoff',
       },
     }));
     const surfaceTaskDispatcher = {

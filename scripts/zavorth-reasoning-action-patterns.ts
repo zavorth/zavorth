@@ -15,7 +15,7 @@ type Args = {
 const args = parseArgs(process.argv.slice(2));
 const service = new ZavorthReasoningActionPatternService();
 const snapshot = service.plan({
-  text: args.text || 'responder com seguranca',
+  text: args.text || 'respond safely',
   surface: args.surface,
   actorId: args.actorId,
   availableSurfaces: args.availableSurfaces,

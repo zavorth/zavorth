@@ -5,7 +5,7 @@ describe('RuntimeRecoveryService', () => {
     const service = new RuntimeRecoveryService();
 
     const assessment = service.assess({
-      summary: 'Zavorth pronto para uso local.',
+      summary: 'Zavorth ready para uso local.',
       runtime: {
         hostSupervisor: { alive: true },
         telegramWorker: { alive: true },
@@ -18,12 +18,12 @@ describe('RuntimeRecoveryService', () => {
           allowedGuildIds: [],
           pendingInbox: 0,
           pendingOutbox: 0,
-          lastError: 'Gateway nativo ainda inicializando.',
+          lastError: 'Gateway nactive ainda inicializando.',
           updatedAt: null,
         },
         nodeMeshSmoke: { status: 'passed', stale: true },
         systemOverlordSmoke: { status: 'missing', stale: false },
-        channelProviderDoctor: { status: 'missing', stale: false },
+        cchannelProviderDoctor: { status: 'missing', stale: false },
         remoteTransportDoctor: { status: 'missing', stale: false },
       },
       local: {
@@ -34,10 +34,10 @@ describe('RuntimeRecoveryService', () => {
 
     expect(assessment.readyForUse).toBe(true);
     expect(assessment.discordRepair.status).toBe('not_applicable');
-    expect(assessment.discordRepair.summary).toContain('dormente no perfil atual');
+    expect(assessment.discordRepair.summary).toContain('dormente no profile atual');
     expect(assessment.warnings).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('Existem 1 check(s) de health com renovacao leve recomendada'),
+        expect.stringContaining('Existem 1 check(s) de health com renovaction leve recomendada'),
       ]),
     );
   });

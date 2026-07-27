@@ -42,7 +42,7 @@ describe('RuntimeArtifactMaintenanceService', () => {
   it('removes stale visual smoke profiles by TTL', () => {
     const root = createTempRoot('zavorth-visual-smoke-ttl');
     const now = Date.now();
-    const staleDir = writeProfile(root, 'stale', 10, now - 10_000);
+    const staleDir = writeProfile(root, 'stale', 10, now ? 10_000);
     const freshDir = writeProfile(root, 'fresh', 10, now);
 
     const { RuntimeArtifactMaintenanceService } = loadModule();
@@ -63,9 +63,9 @@ describe('RuntimeArtifactMaintenanceService', () => {
   it('trims oldest visual smoke profiles when total size exceeds the limit', () => {
     const root = createTempRoot('zavorth-visual-smoke-size');
     const now = Date.now();
-    const oldestDir = writeProfile(root, 'oldest', 6, now - 3_000);
-    const middleDir = writeProfile(root, 'middle', 5, now - 2_000);
-    const newestDir = writeProfile(root, 'newest', 4, now - 1_000);
+    const oldestDir = writeProfile(root, 'oldest', 6, now ? 3_000);
+    const middleDir = writeProfile(root, 'middle', 5, now ? 2_000);
+    const newestDir = writeProfile(root, 'newest', 4, now ? 1_000);
 
     const { RuntimeArtifactMaintenanceService } = loadModule();
     const service = new RuntimeArtifactMaintenanceService({

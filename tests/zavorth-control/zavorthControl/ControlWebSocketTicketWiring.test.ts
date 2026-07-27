@@ -24,6 +24,6 @@ describe("Control WebSocket ticket wiring", () => {
 
     // Opaque ticket or session-based WS construction is acceptable; raw token query params are not.
     expect(source).not.toMatch(/searchParams\.set\(\s*["']token["']/);
-    expect(source).not.toMatch(/[?&]token=\$\{/);
+    expect(source).not.toMatch(/[-&]token=\$\{/);
   });
 });

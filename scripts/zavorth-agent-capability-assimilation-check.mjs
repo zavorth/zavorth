@@ -37,7 +37,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('assimilation-files', 'Intent model files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('assimilation-files', 'Intent model files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
@@ -61,7 +61,7 @@ function ruleMarkers() {
 function runMatrixFixture() {
   const result = runTs('scripts/zavorth-agent-capability-assimilation.ts', ['--json']);
   return jsonRule('assimilation-matrix-fixture', 'Assimilation matrix builds', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.agent-capability-assimilation-checkpoint-1'
+    snapshot.contractVersion === '2026-05-11.agent-capability-assimilation-gate-1'
     && snapshot.status === 'attention'
     && snapshot.summary.items >= 10
     && snapshot.summary.categoriesCovered === 9
@@ -122,5 +122,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

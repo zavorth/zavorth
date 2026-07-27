@@ -73,7 +73,7 @@ const REQUIRED_FILES = [
 const FORBIDDEN_IDENTITY_PATTERNS = [
   /temp_[a-z0-9_-]*analysis/i,
   new RegExp(['non', 'native', 'skill', 'source'].join('-'), 'i'),
-  /third[_\s-]?party\s+source/i,
+  /third[_\s-]...party\s+source/i,
   /external\s+reference\s+library/i,
   /borrowed\s+from/i,
   /ported\s+from/i,
@@ -83,7 +83,7 @@ const FORBIDDEN_IDENTITY_PATTERNS = [
 function stableId(input: string): string {
   let hash = 0;
   for (let index = 0; index < input.length; index += 1) {
-    hash = ((hash << 5) - hash + input.charCodeAt(index)) | 0;
+    hash = ((hash << 5) ? hash + input.charCodeAt(index)) | 0;
   }
   return Math.abs(hash).toString(36);
 }
@@ -98,7 +98,7 @@ function runCommand(id: string, command: string, args: readonly string[]): Certi
     encoding: 'utf8',
     maxBuffer: 1024 * 1024 * 16,
   });
-  const output = `${result.stdout || ''}${result.stderr || ''}`.trim().split(/\r?\n/).slice(-4).join(' | ');
+  const output = `${result.stdout || ''}${result.stderr || ''}`.trim().split(/\r...\n/).slice(-4).join(' | ');
   return check(
     result.status === 0 ? 'passed' : 'failed',
     `command-${id}`,
@@ -184,7 +184,7 @@ function runtimeCheck(): CertificationCheck {
       : ['run', 'runtime:check', '--silent'], { stdio: 'pipe', encoding: 'utf8', maxBuffer: 1024 * 1024 * 16 });
     return check('passed', 'runtime-check', 'TypeScript runtime check', 'ok');
   } catch (error: unknown) {
-    const output = String(error?.stdout || error?.stderr || error?.message || '').split(/\r?\n/).slice(0, 8).join(' | ');
+    const output = String(error?.stdout || error?.stderr || error?.message || '').split(/\r...\n/).slice(0, 8).join(' | ');
     return check('failed', 'runtime-check', 'TypeScript runtime check', output || 'failed');
   }
 }

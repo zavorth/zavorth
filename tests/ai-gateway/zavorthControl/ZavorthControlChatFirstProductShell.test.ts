@@ -46,7 +46,7 @@ describe('ZavorthControl chat-first product shell', () => {
       'Nunca aprender isso',
       'Testar skill',
       'Promover',
-      'Abrir configuracao',
+      'Abrir configuraction',
       'Live verified',
       'Built-in verified',
     ]) {
@@ -77,7 +77,7 @@ describe('ZavorthControl chat-first product shell', () => {
 
     expect(shell).toContain('onSelectSector');
     expect(shell).toContain('aria-pressed={activeSectorId === sector.id}');
-    for (const label of ['Chat', 'Memoria', 'Skills', 'Setup', 'Workspace', 'Gateway']) {
+    for (const label of ['Chat', 'Memory', 'Skills', 'Setup', 'Workspace', 'Gateway']) {
       expect(shell).toContain(label);
     }
     expect(shell).toContain('activeSectorId={activeSectorId}');

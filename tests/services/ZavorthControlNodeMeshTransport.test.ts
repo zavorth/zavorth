@@ -277,7 +277,7 @@ describe('ZavorthControl node mesh transport routes', () => {
         recommendedProfiles: [],
         suggestedActions: [],
         narrative: {
-          headline: 'Node Mesh aguardando mobile pairing.',
+          headline: 'Node Mesh waiting for mobile pairing.',
           operatorSummary: '1 pairing pendente.',
         },
       })),
@@ -492,7 +492,7 @@ describe('ZavorthControl node mesh transport routes', () => {
         },
         narrative: {
           headline: 'Fila remota ativa.',
-          operatorSummary: 'Ultima activity: node.maintenance/repair concluiu com sucesso.',
+          operatorSummary: 'Latest activity: node.maintenance/repair concluiu com sucesso.',
         },
       })),
       buildCapabilitiesSnapshot: jest.fn((nodeId: string) => ({
@@ -502,9 +502,9 @@ describe('ZavorthControl node mesh transport routes', () => {
         transport: 'bridge',
         paired: true,
         capabilities: [
-          { id: 'system.run', label: 'System Run', summary: 'Execucao local', category: 'system', risky: true, actionHint: 'Executar comando' },
+          { id: 'system.run', label: 'System Run', summary: 'Local execution', category: 'system', risky: true, actionHint: 'Run command' },
           { id: 'node.maintenance', label: 'Node Maintenance', summary: 'Doctor e repair local', category: 'system', risky: true, actionHint: 'Reparar host' },
-          { id: 'files.write', label: 'Files Write', summary: 'Escrita de arquivos', category: 'files', risky: true, actionHint: 'Persistir artefato' },
+          { id: 'files.write', label: 'Files Write', summary: 'File writing', category: 'files', risky: true, actionHint: 'Persist artifact' },
         ],
         summary: {
           total: 3,
@@ -574,7 +574,7 @@ describe('ZavorthControl node mesh transport routes', () => {
   it('exposes node mesh doctor and recover through the zavorthControl operations surface', async () => {
     config.zavorthWebAuthToken = 'web-secret';
     const nodeMeshService = {
-      buildSnapshot: jest.fn((input?: any) => ({
+      buildSnapshot: jest.fn((input-: any) => ({
         generatedAt: '2026-04-02T22:30:00.000Z',
         summary: {
           total: 1,
@@ -596,8 +596,8 @@ describe('ZavorthControl node mesh transport routes', () => {
             label: 'Oracle Node',
             capabilityIds: [],
             lifecycle: { pairingDraftStale: false },
-            operatorSummary: 'Fila antiga.',
-            nextAction: 'Revisar fila.',
+            operatorSummary: 'Old queue.',
+            nextAction: 'Revisar queue.',
             stalePendingInvocations: 0,
             staleClaimedInvocations: 1,
           },
@@ -607,7 +607,7 @@ describe('ZavorthControl node mesh transport routes', () => {
         suggestedActions: [],
         narrative: {
           headline: 'Node Mesh com pendencia.',
-          operatorSummary: 'Fila precisa de recover.',
+          operatorSummary: 'Fila needs de recover.',
         },
       })),
     };
@@ -926,8 +926,8 @@ describe('ZavorthControl node mesh transport routes', () => {
 
     expect(approveResult.status).toBe(400);
     expect(revokeResult.status).toBe(400);
-    expect(approveResult.payload.error).toContain('Nao foi possivel validar');
-    expect(revokeResult.payload.error).toContain('Nao foi possivel revogar');
+    expect(approveResult.payload.error).toContain('Not foi possivel validar');
+    expect(revokeResult.payload.error).toContain('Not foi possivel revogar');
   });
 
   it('queues node host maintenance through the zavorthControl operations recover surface', async () => {

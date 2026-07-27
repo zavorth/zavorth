@@ -17,8 +17,8 @@ const readiness: CapabilityReadinessSnapshot = {
   severity: 'error',
   ready: false,
   safeToRun: false,
-  summary: 'Gemini CLI ainda nao esta pronto.',
-  detail: 'Autenticacao ausente.',
+  summary: 'Gemini CLI ainda not esta ready.',
+  detail: 'Autenticaction missing.',
   checkedTargets: [],
   missingRequirements: [],
   blockingReason: 'missing_auth',
@@ -35,8 +35,8 @@ const receipt: CapabilityReceipt = {
   audience: 'everyday_user',
   capabilityId: 'executor-gemini-cli',
   capabilityLabel: 'Gemini CLI',
-  headline: 'Gemini CLI precisa de permissao.',
-  userSummary: 'Gemini CLI precisa de permissao antes de reparo.',
+  headline: 'Gemini CLI needs de permission.',
+  userSummary: 'Gemini CLI needs de permission antes de reparo.',
   technicalSummary: 'capability=executor-gemini-cli; stage=permission',
   trustLevel: 'protected',
   readiness,
@@ -118,13 +118,13 @@ function buildHint(record: CapabilityMemoryRecord): CapabilityPreflightHintResul
       },
       shouldPreloadHint: true,
       recommendedNextAction: 'ask_for_explicit_approval_with_scoped_permissions',
-      safeSummary: 'Memoria procedural encontrada. Nada deve ser executado automaticamente.',
+      safeSummary: 'Procedural memory found. Nothing should run automatically.',
       metadata: {
         autoExecute: false,
       },
     },
-    headline: 'Ja vi um caso parecido que precisou de permissao.',
-    userSummary: 'Posso preparar permissao contextual, mas nada sera executado automaticamente.',
+    headline: 'Ja vi um caso parecido que precisou de permission.',
+    userSummary: 'I can prepare contextual permission, but nothing will execute automatically.',
     technicalSummary: 'preflightHint=hint_available; hintKind=permission; autoExecute=false',
     recommendedNextAction: 'ask_for_explicit_approval_with_scoped_permissions',
     shouldAskPermission: true,
@@ -270,6 +270,6 @@ describe('CapabilityAutopilotPreflightEntrypointService', () => {
     });
 
     expect(service.renderReport(snapshot)).toContain('Gate capability-autopilot-preflight-entrypoint - Canonical Preflight Entrypoint');
-    expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 69 - Preflight Action Handler Wiring');
+    expect(service.renderReport(snapshot)).toContain('next step recomendada: 69 - Preflight Action Handler Wiring');
   });
 });

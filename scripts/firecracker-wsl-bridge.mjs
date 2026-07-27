@@ -9,7 +9,7 @@ function send(message) {
 
 async function handleRequest(payload) {
   if (!payload || typeof payload !== 'object') {
-    throw new Error('Payload ausente ou invalido.');
+    throw new Error('Payload missing or invalid.');
   }
 
   if (payload.mode === 'status') {
@@ -20,7 +20,7 @@ async function handleRequest(payload) {
     return { result: await runtime.execute(payload.request) };
   }
 
-  throw new Error(`Modo desconhecido: ${String(payload.mode || '')}`);
+  throw new Error(`Unknown mode: ${String(payload.mode || '')}`);
 }
 
 const rl = readline.createInterface({
@@ -43,7 +43,7 @@ rl.on('line', async (line) => {
     send({
       id: null,
       ok: false,
-      error: `JSON invalido: ${error.message}`,
+      error: `JSON invalid: ${error.message}`,
     });
     return;
   }

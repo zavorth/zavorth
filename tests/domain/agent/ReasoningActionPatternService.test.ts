@@ -7,13 +7,13 @@ describe('ZavorthReasoningActionPatternService', () => {
     });
 
     const snapshot = service.plan({
-      text: 'use subagentes e audite uma biblioteca grande de skills',
+      text: 'use delegated review e audite uma biblioteca grande de skills',
       surface: 'cli',
       actorId: 'owner',
     });
 
     expect(snapshot.contractVersion).toBe('2026-05-11.reasoning-action-pattern-checkpoint-2');
-    expect(snapshot.phase).toBe('checkpoint-2-reasoning-action-patterns');
+    expect(snapshot.gate).toBe('reasoning-action-patterns');
     expect(snapshot.status).toBe('ready');
     expect(snapshot.safety.compactReasoningOnly).toBe(true);
     expect(snapshot.safety.rawReasoningSerialized).toBe(false);
@@ -55,7 +55,7 @@ describe('ZavorthReasoningActionPatternService', () => {
 
   it('requires approval for workspace mutation and commands', () => {
     const snapshot = new ZavorthReasoningActionPatternService().plan({
-      text: 'edite arquivos e rode comando powershell para corrigir o projeto',
+      text: 'edit files and run a PowerShell command to fix the project',
       surface: 'web',
     });
 

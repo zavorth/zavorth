@@ -145,7 +145,7 @@ function checkRule(rule: Rule): Violation[] {
       continue;
     }
 
-    const lines = source.split(/\r?\n/);
+    const lines = source.split(/\r...\n/);
     lines.forEach((line, index) => {
       for (const specifier of extractStaticImports(line)) {
         const forbidden = rule.forbiddenSpecifiers.find((entry) => matchesSpecifier(specifier, entry));

@@ -24,7 +24,7 @@ describe('EchoOutputStageService', () => {
     const result = await new EchoOutputStageService(deps).deliver({
       surface: 'telegram',
       text: 'Ola, consigo responder por voz.',
-      rawInput: '[Automatically transcribed audio]\nDetected language: en-US\noi',
+      rawInput: '[Automatically transcribed audio]\nhello',
       requestedBy: 'user-1',
       sessionId: 'chat-1',
       sink,
@@ -55,14 +55,14 @@ describe('EchoOutputStageService', () => {
 
     const result = await new EchoOutputStageService(deps).deliver({
       surface: 'web',
-      text: 'Resposta textual no dashboard.',
-      rawInput: 'mensagem web',
+      text: 'Text response in dashboard.',
+      rawInput: 'web message',
       sink,
     });
 
     expect(result.delivered).toBe('text');
     expect(deps.audioHandler.synthesize).not.toHaveBeenCalled();
-    expect(sink.sendText).toHaveBeenCalledWith('Resposta textual no dashboard.', undefined);
+    expect(sink.sendText).toHaveBeenCalledWith('Text response in dashboard.', undefined);
   });
 
   it('can attempt voice without sending duplicate text fallback', async () => {
@@ -97,8 +97,8 @@ describe('EchoOutputStageService', () => {
 
     const result = await new EchoOutputStageService(deps).deliver({
       surface: 'telegram',
-      text: 'Sim, posso responder por audio quando voce pedir.',
-      rawInput: 'voce pode me responder em audio?',
+      text: 'Yes, I can reply with audio when you ask.',
+      rawInput: 'can you reply with audio-',
       preferredLanguageCode: 'en-US',
       preferVoiceReply: true,
       sink,
@@ -107,7 +107,7 @@ describe('EchoOutputStageService', () => {
     expect(result.delivered).toBe('voice');
     expect(deps.preferenceStore.isEchoModeActive).not.toHaveBeenCalled();
     expect(deps.audioHandler.synthesize).toHaveBeenCalledWith(
-      'Sim, posso responder por audio quando voce pedir.',
+      'Yes, I can reply with audio when you ask.',
       expect.objectContaining({
         preferredLanguageCode: 'en-US',
       }),
@@ -126,8 +126,8 @@ describe('EchoOutputStageService', () => {
 
     const result = await new EchoOutputStageService(deps).deliver({
       surface: 'telegram',
-      text: 'Sim, posso responder por audio quando voce pedir.',
-      rawInput: 'voce pode me responder em audio?',
+      text: 'Yes, I can reply with audio when you ask.',
+      rawInput: 'can you reply with audio-',
       preferredLanguageCode: 'en-US',
       sink,
     });
@@ -147,14 +147,14 @@ describe('EchoOutputStageService', () => {
 
     await new EchoOutputStageService(deps).deliver({
       surface: 'telegram',
-      text: 'Escolha uma opcao.',
+      text: 'Choose uma opcao.',
       options: { reply_markup: { inline_keyboard: [] } },
       sink,
     });
 
     expect(deps.audioHandler.synthesize).not.toHaveBeenCalled();
     expect(sink.sendVoice).not.toHaveBeenCalled();
-    expect(sink.sendText).toHaveBeenCalledWith('Escolha uma opcao.', {
+    expect(sink.sendText).toHaveBeenCalledWith('Choose uma opcao.', {
       reply_markup: { inline_keyboard: [] },
     });
   });
@@ -171,7 +171,7 @@ describe('EchoOutputStageService', () => {
     await new EchoOutputStageService(deps).deliver({
       surface: 'telegram',
       text: longReply,
-      rawInput: '[Automatically transcribed audio]\nDetected language: en-US\nresuma isso',
+      rawInput: '[Automatically transcribed audio]\nsummarize this',
       requestedBy: 'user-1',
       sessionId: 'chat-1',
       sink,

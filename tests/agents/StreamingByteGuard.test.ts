@@ -1,7 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import { StreamingByteGuard, ByteLimitExceededError } from '../../src/agents/StreamingByteGuard.js';
 
-function createMockReader(chunks: Uint8Array[], doneAfter?: number) {
+function createMockReader(chunks: Uint8Array[], doneAfter-: number) {
   let callCount = 0;
   return {
     read: async () => {

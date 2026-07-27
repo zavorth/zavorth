@@ -44,7 +44,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule(
-    'phase-1-files',
+    'capability-map-files',
     'Capability absorption files exist',
     missing.length === 0,
     `${files.length - missing.length}/${files.length}`,
@@ -83,7 +83,7 @@ function ruleContainsMarkers() {
     }
   }
   return rule(
-    'phase-1-markers',
+    'capability-map-markers',
     'Capability absorption markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
@@ -131,7 +131,7 @@ function ruleSnapshot() {
   const data = parseJson(result.stdout);
   const statuses = new Set((data?.items || []).map((entry) => entry.status));
   const pass = data
-    && data.contractVersion === '2026-05-24.phase-1-capability-absorption-map'
+    && data.contractVersion === '2026-05-24.capability-absorption-map'
     && ['passed', 'attention'].includes(data.status)
     && data.summary?.total >= 16
     && data.summary?.native >= 2

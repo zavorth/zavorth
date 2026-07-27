@@ -97,10 +97,10 @@ async function main() {
   const topRegression = snapshot.regressions[0] || null;
   const topHealthy = snapshot.scorecards.find((entry) => entry.status === 'healthy') || null;
 
-  console.log('[zavorth-evals] leitura operacional de evals');
+  console.log('[zavorth-evals] read operational de evals');
   console.log(`[zavorth-evals] escopo: ${formatScope(scope)}`);
   console.log(`[zavorth-evals] postura: ${snapshot.summary.posture}`);
-  console.log(`[zavorth-evals] resumo: ${snapshot.narrative.operatorSummary}`);
+  console.log(`[zavorth-evals] summary: ${snapshot.narrative.operatorSummary}`);
   console.log(
     `[zavorth-evals] scorecards=${snapshot.summary.scorecards} | datasets=${snapshot.summary.datasets} | regressions=${snapshot.summary.regressions}`,
   );
@@ -125,7 +125,7 @@ async function main() {
 
   if (topRegression) {
     console.log(
-      `[zavorth-evals] maior regressao: ${topRegression.label} | severidade=${topRegression.severity}`,
+      `[zavorth-evals] largest regression: ${topRegression.label} | severidade=${topRegression.severity}`,
     );
   }
 
@@ -138,7 +138,7 @@ async function main() {
   if (snapshot.datasets.length > 0) {
     console.log('[zavorth-evals] datasets:');
     for (const entry of snapshot.datasets.slice(0, 5)) {
-      console.log(`- ${entry.label}: ${entry.sampleCount} item(ns) | ${entry.manifest.baselineRef}`);
+      console.log(`- ${entry.label}: ${entry.sampleCount} item(s) | ${entry.manifest.baselineRef}`);
     }
   }
 
@@ -153,7 +153,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-evals] falha ao montar a leitura operacional.');
+  console.error('[zavorth-evals] failure ao montar a read operational.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

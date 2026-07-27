@@ -22,7 +22,7 @@ function createFlags(json: boolean) {
 
 describe('Zavorth CLI Blueprint Completion final gate', () => {
   it('parses blueprint completion text after aliases', () => {
-    expect(resolveBlueprintCompletionCliText('blueprint-completion "fechar tudo"')).toBe('fechar tudo');
+    expect(resolveBlueprintCompletionCliText('blueprint-completion "close tudo"')).toBe('close tudo');
     expect(resolveBlueprintCompletionCliText('final-gate latest')).toBe('');
   });
 
@@ -34,7 +34,7 @@ describe('Zavorth CLI Blueprint Completion final gate', () => {
       effectiveFlags: createFlags(true),
       commandName: 'blueprint-completion',
       normalized: 'blueprint-completion',
-      args: 'blueprint-completion "fechar blueprint"',
+      args: 'blueprint-completion "close blueprint"',
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -67,7 +67,7 @@ describe('Zavorth CLI Blueprint Completion final gate', () => {
 
   it('formats a compact human summary', () => {
     const snapshot = buildBlueprintCompletionCliSnapshot({
-      text: 'fechar blueprint',
+      text: 'close blueprint',
       userId: 'grey',
       sessionId: 'session-cli-blueprint-human',
     });

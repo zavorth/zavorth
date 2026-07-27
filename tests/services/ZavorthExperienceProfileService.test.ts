@@ -42,7 +42,7 @@ describe('ZavorthExperienceProfileService', () => {
       .toBe('personal');
     expect(service.buildContract({ intent: 'I am doing vibe coding in this repo' }).selected.profileId)
       .toBe('developer');
-    expect(service.buildContract({ intent: 'quero modo empresa com auditoria e compliance' }).selected.profileId)
+    expect(service.buildContract({ intent: 'quero modo empresa com audit e compliance' }).selected.profileId)
       .toBe('business');
     expect(service.buildContract({ intent: 'I need scripts, posts and content research' }).selected.profileId)
       .toBe('creator');

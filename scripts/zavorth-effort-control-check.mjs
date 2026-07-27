@@ -32,7 +32,7 @@ function filesExist() {
     'tests/services/ZavorthEffortControlService.test.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', 'Effort control files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check and tests are present', missing);
+  return rule('files', 'Effort control files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check and tests are present', missing);
 }
 
 function markersPresent() {
@@ -72,7 +72,7 @@ function markersPresent() {
 }
 
 function lowFixture() {
-  const result = runTs(['scripts/zavorth-effort-control.ts', 'low', '--request', 'resuma agora', '--json']);
+  const result = runTs(['scripts/zavorth-effort-control.ts', 'low', '--request', 'summarize agora', '--json']);
   return jsonRule('low-json', 'Low effort emits cheap bounded JSON', result, (snapshot) =>
     snapshot.contractVersion === 'zavorth-effort-control/1'
     && snapshot.effectiveLevel === 'low'
@@ -139,5 +139,5 @@ function rule(id, label, passed, observed, target, details = []) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

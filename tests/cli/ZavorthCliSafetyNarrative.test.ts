@@ -33,7 +33,7 @@ describe('Zavorth CLI Safety Narrative', () => {
       effectiveFlags: createFlags(true),
       commandName: 'safety',
       normalized: 'safety',
-      args: 'corrija arquivo e rode testes',
+      args: 'corrija file e rode testes',
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -58,7 +58,7 @@ describe('Zavorth CLI Safety Narrative', () => {
 
   it('formats a compact human summary', () => {
     const snapshot = buildSafetyNarrativeCliSnapshot({
-      text: 'corrija arquivo e rode testes',
+      text: 'corrija file e rode testes',
       userId: 'grey',
       sessionId: 'session-cli-safety-human',
     });
@@ -67,6 +67,6 @@ describe('Zavorth CLI Safety Narrative', () => {
 
     expect(text).toContain('Safety Narrative - Safety Narrative');
     expect(text).toContain('Alternativas seguras');
-    expect(text).toContain('Dashboard: /zavorthControl?sector=overview');
+    expect(text).toContain('Dashboard: /zavorthControl-sector=overview');
   });
 });

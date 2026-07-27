@@ -324,7 +324,7 @@ describe('HubWorkspaceView Safe Integration', () => {
 
     const html = container!.innerHTML;
     expect(html).toContain('Local settings');
-    expect(html).toContain('Governed context memory.');
+    expect(html).toContain('Learned context, candidates, and local memory protection.');
   });
 
   it('renders default grid sections (settings, personalization, automations)', () => {
@@ -339,9 +339,9 @@ describe('HubWorkspaceView Safe Integration', () => {
 
     const html = container!.innerHTML;
     // English hub shell labels after product rewrite.
-    expect(html).toMatch(/Settings|Configuracoes/i);
-    expect(html).toMatch(/Personalization|Personalizacao|Workspace|Trust|Daily/i);
-    expect(html).toMatch(/Automations|Automacoes|Slash Commands|Power/i);
+    expect(html).toMatch(/Settings|Configuractions/i);
+    expect(html).toMatch(/Personalization|Personalizaction|Workspace|Trust|Daily/i);
+    expect(html).toMatch(/Automations|Automations|Slash Commands|Power/i);
   });
 
   it('renders section corresponding to skills', () => {

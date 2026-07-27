@@ -6,7 +6,7 @@ const args = process.argv.slice(2);
 const asJson = args.includes('--json');
 const requirePass = args.includes('--require-pass');
 const prompt = readFlag('prompt') || args.find((arg) => !arg.startsWith('--')) || 'ping';
-const transport = args.includes('--stdio') || args.includes('--acp-sdk-stdio') ? 'acp-sdk-stdio' : 'mock-jsonrpc';
+const transport = args.includes('--stdio') || args.includes('--acp-sdk-stdio') ? 'acp-sdk-stdio' : 'local-jsonrpc';
 const serverId = readFlag('server') || process.env.ZAVORTH_ACPX_BRIDGE_SERVER_ID || 'local-acp';
 const receiptPath = readFlag('receipt');
 const stdioCommand = readFlag('stdio-command') || process.env.ZAVORTH_ACPX_BRIDGE_STDIO_COMMAND;

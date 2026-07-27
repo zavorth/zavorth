@@ -52,7 +52,7 @@ describe('Daily product experience operator continuity link', () => {
         wizardSteps: [],
       },
       mcpCatalog: {
-        title: 'Adicionar ferramenta',
+        title: 'Add tool',
         status: 'attention',
         scanned: 0,
         blocked: 0,
@@ -61,7 +61,7 @@ describe('Daily product experience operator continuity link', () => {
         items: [],
       },
       continuousEvals: {
-        title: 'Rodar avaliacoes',
+        title: 'Rodar avaliactions',
         status: 'attention',
         commands: [],
         summary: 'projection only',

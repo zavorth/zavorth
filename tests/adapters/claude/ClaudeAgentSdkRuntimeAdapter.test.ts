@@ -35,7 +35,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
         return sdkMessages({
           type: 'result',
           subtype: 'success',
-          result: 'Resposta Claude governada.',
+          result: 'Governed Claude response.',
           stop_reason: 'end_turn',
           session_id: 'claude-session-1',
         });
@@ -43,13 +43,13 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
     });
 
     const result = await adapter.chatDetailed([
-      { role: 'system', content: 'Responda como Zavorth.' },
+      { role: 'system', content: 'Respond as Zavorth.' },
       { role: 'user', content: 'Ola' },
     ]);
 
     expect(result.providerName).toBe('claude-agent-sdk');
     expect(result.modelName).toBe('claude-test-model');
-    expect(result.response.content).toBe('Resposta Claude governada.');
+    expect(result.response.content).toBe('Governed Claude response.');
     expect(result.route.fallbackAllowed).toBe(false);
     expect(calls).toHaveLength(1);
     expect(calls[0].options).toEqual(expect.objectContaining({
@@ -207,14 +207,14 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
         return sdkMessages({
           type: 'result',
           subtype: 'success',
-          result: 'Plano sem tools live.',
+          result: 'Plan without live tools.',
           stop_reason: 'end_turn',
         });
       },
     });
 
     const result = await adapter.chatDetailed([
-      { role: 'user', content: 'Crie um arquivo.' },
+      { role: 'user', content: 'Crie um file.' },
     ], [], {
       toolPolicy: {
         requestedTools: ['Write', 'Bash'],
@@ -255,14 +255,14 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
         return sdkMessages({
           type: 'result',
           subtype: 'success',
-          result: 'Write aprovado, Bash nao.',
+          result: 'Write approved, Bash not.',
           stop_reason: 'end_turn',
         });
       },
     });
 
     const result = await adapter.chatDetailed([
-      { role: 'user', content: 'Atualize um arquivo.' },
+      { role: 'user', content: 'Atualize um file.' },
     ], [], {
       toolPolicy: {
         requestedTools: ['Write', 'Bash'],
@@ -340,7 +340,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
     const result = await service.run({
       userId: 'user-1',
       channel: 'cli',
-      text: 'Explique a integracao Claude.',
+      text: 'Explique a integraction Claude.',
       requestedTools: [],
       metadata: {
         providerName: 'claude-agent-sdk',
@@ -371,7 +371,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
         return sdkMessages({
           type: 'result',
           subtype: 'success',
-          result: 'Run retomado com Write aprovado.',
+          result: 'Run resumed com Write approved.',
           stop_reason: 'end_turn',
           session_id: 'claude-session-approved-tools',
         });
@@ -380,7 +380,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
     const request: UniversalAgentRequest = {
       userId: 'user-1',
       channel: 'cli',
-      text: 'Atualize um arquivo usando Claude.',
+      text: 'Atualize um file usando Claude.',
       requestedTools: ['Write'],
       metadata: {
         providerName: 'claude-agent-sdk',
@@ -394,19 +394,19 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
       sessionId: 'cli:request-approved-tools',
       userId: 'user-1',
       channel: 'cli',
-      title: 'Atualize um arquivo usando Claude.',
+      title: 'Atualize um file usando Claude.',
       input: request.text,
       status: 'running',
       createdAt: '2026-05-05T05:30:00.000Z',
       updatedAt: '2026-05-05T05:31:00.000Z',
-      summary: 'Aprovacao recebida.',
+      summary: 'Approval received.',
       events: [
         {
           id: 'agent-event-approved-write',
           runId: 'agent-run-approved-tools',
           kind: 'approval',
           title: 'Aprovar Write',
-          detail: 'Write pode alterar arquivos e exige aprovacao.',
+          detail: 'Write can change files and requires approval.',
           status: 'done',
           createdAt: '2026-05-05T05:31:00.000Z',
           metadata: {
@@ -417,7 +417,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
       ],
       toolExposure: {
         mode: 'restricted',
-        summary: 'Write e Bash expostos com aprovacao.',
+        summary: 'Write e Bash expostos com approval.',
         tools: [
           {
             id: 'Write',
@@ -444,7 +444,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
           id: 'approval-write',
           runId: 'agent-run-approved-tools',
           title: 'Aprovar Write',
-          reason: 'Write pode alterar arquivos e exige aprovacao.',
+          reason: 'Write can change files and requires approval.',
           risk: 'danger',
           status: 'approved',
           createdAt: '2026-05-05T05:30:00.000Z',
@@ -460,7 +460,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
 
     const result = await executor.executeIfAvailable(run, request);
 
-    expect(result?.replyText).toContain('Run retomado com Write aprovado.');
+    expect(result?.replyText).toContain('Run resumed com Write approved.');
     expect(capturedOptions).toEqual(expect.objectContaining({
       permissionMode: 'dontAsk',
       tools: ['Write'],

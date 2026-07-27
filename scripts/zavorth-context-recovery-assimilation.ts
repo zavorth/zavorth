@@ -27,7 +27,7 @@ type Args = {
 const args = parseArgs(process.argv.slice(2));
 const service = new ZavorthContextRecoveryAssimilationService();
 const snapshot = service.buildSnapshot({
-  text: args.text || 'continuar com seguranca',
+  text: args.text || 'continue safely',
   surface: args.surface,
   actorId: args.actorId,
   sessionId: args.sessionId,

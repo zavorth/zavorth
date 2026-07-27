@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals
 
 import { AccessControlService } from '../../src/security/AccessControlService';
 import { SessionCloner } from '../../src/runtime/sessions/SessionCloner';
-import { SessionCheckpoint } from '../../src/runtime/sessions/SessionCheckpoint';
+import { SessionSnapshotManager } from '../../src/runtime/sessions/SessionSnapshotManager';
 import { MessageBus } from '../../src/agents/MessageBus';
 import { AgentCommunicator } from '../../src/agents/AgentCommunicator';
 import { ToolVersionRegistry } from '../../src/tools/ToolVersionRegistry';
@@ -180,18 +180,18 @@ describe('FeatureIntegration — Cross-module integration tests', () => {
   });
 
   // ──────────────────────────────────────────────────────────────
-  // 2. Session Clone + Checkpoint
+  // 2. Session Clone + Snapshot
   // ──────────────────────────────────────────────────────────────
-  describe('Session Clone + Checkpoint', () => {
+  describe('Session Clone + Snapshot', () => {
     let cloner: SessionCloner;
-    let checkpoint: SessionCheckpoint;
+    let snapshot: SessionSnapshotManager;
 
     beforeEach(() => {
       cloner = new SessionCloner();
-      checkpoint = new SessionCheckpoint({ maxCheckpointsPerSession: 100 });
+      snapshot = new SessionSnapshotManager({ maxSnapshotsPerSession: 100 });
     });
 
-    it('should clone a session and then checkpoint the clone independently', () => {
+    it('should clone a session and then snapshot the clone independently', () => {
       const originalData = sampleSessionData('ses_original');
       cloner.registerSession('ses_original', originalData);
 
@@ -204,11 +204,11 @@ describe('FeatureIntegration — Cross-module integration tests', () => {
       expect(clonedData!.messages).toHaveLength(2);
       expect(clonedData!.memory).toHaveLength(1);
 
-      checkpoint.registerSession('ses_original', originalData);
-      checkpoint.registerSession(clone.id, clonedData!);
+      snapshot.registerSession('ses_original', originalData);
+      snapshot.registerSession(clone.id, clonedData!);
 
-      const cpOriginal = checkpoint.createCheckpoint('ses_original', 'original-baseline');
-      const cpClone = checkpoint.createCheckpoint(clone.id, 'clone-after-clone');
+      const cpOriginal = snapshot.createSnapshot('ses_original', 'original-baseline');
+      const cpClone = snapshot.createSnapshot(clone.id, 'clone-after-clone');
 
       expect(cpOriginal.sessionId).toBe('ses_original');
       expect(cpClone.sessionId).toBe(clone.id);
@@ -219,7 +219,7 @@ describe('FeatureIntegration — Cross-module integration tests', () => {
       expect(cpClone.data.messages).toHaveLength(2);
     });
 
-    it('should modify clone data without affecting original, then checkpoint both', () => {
+    it('should modify clone data without affecting original, then snapshot both', () => {
       const originalData = sampleSessionData('ses_1');
       cloner.registerSession('ses_1', originalData);
 
@@ -228,11 +228,11 @@ describe('FeatureIntegration — Cross-module integration tests', () => {
       forkData.messages.push({ role: 'user', content: 'Fork-specific message', timestamp: '2025-01-02T00:00:00Z' });
       forkData.config = { ...forkData.config, temperature: 0.3 };
 
-      checkpoint.registerSession('ses_1', originalData);
-      checkpoint.registerSession(fork.id, forkData);
+      snapshot.registerSession('ses_1', originalData);
+      snapshot.registerSession(fork.id, forkData);
 
-      const cpOrig = checkpoint.createCheckpoint('ses_1', 'pre-fork');
-      const cpFork = checkpoint.createCheckpoint(fork.id, 'post-fork-edit');
+      const cpOrig = snapshot.createSnapshot('ses_1', 'pre-fork');
+      const cpFork = snapshot.createSnapshot(fork.id, 'post-fork-edit');
 
       expect(cpOrig.data.messages).toHaveLength(2);
       expect(cpFork.data.messages).toHaveLength(3);
@@ -240,23 +240,23 @@ describe('FeatureIntegration — Cross-module integration tests', () => {
       expect(cpFork.data.config).toEqual({ model: 'gpt-4o', temperature: 0.3 });
     });
 
-    it('should restore clone from checkpoint after modifying it', () => {
+    it('should restore clone from snapshot after modifying it', () => {
       const data = sampleSessionData('ses_restore');
       cloner.registerSession('ses_restore', data);
-      checkpoint.registerSession('ses_restore', data);
+      snapshot.registerSession('ses_restore', data);
 
-      const cp1 = checkpoint.createCheckpoint('ses_restore', 'before-change');
+      const cp1 = snapshot.createSnapshot('ses_restore', 'before-change');
       const sessionData = cloner.getSessionData('ses_restore')!;
       sessionData.messages.push({ role: 'user', content: 'New message', timestamp: '2025-02-01T00:00:00Z' });
 
       expect(cloner.getSessionData('ses_restore')!.messages).toHaveLength(3);
 
-      const restored = checkpoint.restoreCheckpoint(cp1.id);
+      const restored = snapshot.restoreSnapshot(cp1.id);
       expect(restored).not.toBeNull();
       expect(restored!.messages).toHaveLength(2);
     });
 
-    it('should track lineage across clone and checkpoint operations', () => {
+    it('should track lineage across clone and snapshot operations', () => {
       const data = sampleSessionData('ses_lineage');
       cloner.registerSession('ses_lineage', data);
 

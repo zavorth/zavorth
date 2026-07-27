@@ -17,7 +17,7 @@ if (json) {
     console.log(`- [${finding.severity}] ${finding.kind}${page}: ${finding.summary}`);
   }
   if (snapshot.findings.length > 12) {
-    console.log(`- ... ${snapshot.findings.length - 12} more findings`);
+    console.log(`- ? ${snapshot.findings.length - 12} more findings`);
   }
 }
 

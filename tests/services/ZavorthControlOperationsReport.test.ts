@@ -11,7 +11,7 @@ describe('ZavorthControlService operations report', () => {
   it('serves the consolidated report endpoint and references it from the zavorthControl html', async () => {
     const reportSnapshot = {
       generatedAt: new Date().toISOString(),
-      headline: 'Runtime estavel.',
+      headline: 'Runtime stable.',
       continuity: {
         suggestedAction: {
           kind: 'review-latest',
@@ -36,7 +36,7 @@ describe('ZavorthControlService operations report', () => {
         platformLabel: 'win32 / x64',
       },
       operations: {
-        sidecarsLabel: '2/2 prontos',
+        sidecarsLabel: '2/2 readys',
         publishLabel: 'agora',
         storageLabel: '78% livre',
         automationLabel: 'ativa',
@@ -52,12 +52,12 @@ describe('ZavorthControlService operations report', () => {
       alerts: [],
       actions: [
         {
-          label: 'Rodar manutencao operacional',
+          label: 'Rodar operational maintenance',
           command: 'npm run ops:maintain',
-          reason: 'Fluxo padrao.',
+          reason: 'Fluxo pattern.',
         },
       ],
-      text: 'Relatorio consolidado do Zavorth',
+      text: 'Report consolidado do Zavorth',
     };
 
     const buildSnapshot = jest.fn().mockResolvedValue(reportSnapshot);
@@ -81,8 +81,8 @@ describe('ZavorthControlService operations report', () => {
     expect(html).toContain('/zavorthControl');
     expect(report).toEqual(
       expect.objectContaining({
-        headline: 'Runtime estavel.',
-        text: 'Relatorio consolidado do Zavorth',
+        headline: 'Runtime stable.',
+        text: 'Report consolidado do Zavorth',
         continuity: expect.objectContaining({
           suggestedAction: expect.objectContaining({
             kind: 'review-latest',

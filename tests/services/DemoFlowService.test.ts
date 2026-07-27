@@ -6,7 +6,7 @@ describe('DemoFlowService', () => {
     const text = service.formatOverview();
 
     expect(text).toContain('Roteiro de demo do Zavorth');
-    expect(text).toContain('Modo demo: inativo.');
+    expect(text).toContain('Modo demo: inactive.');
     expect(text).toContain('/demo research');
     expect(text).toContain('/demo files');
     expect(text).toContain('/demo workflow');
@@ -40,11 +40,11 @@ describe('DemoFlowService', () => {
   it('formats short and guided demo outputs', () => {
     const service = new DemoFlowService();
 
-    expect(service.formatShortPresentation()).toContain('Apresentacao curta do Zavorth');
-    expect(service.formatGuidedStart()).toContain('Sequencia guiada iniciada.');
-    expect(service.formatGuidedCompletion()).toContain('Fechamento sugerido:');
-    expect(service.formatGuidedStep(0)).toContain('Passo 1/4: Pesquisa web');
-    expect(service.formatGuidedStep(1)).toContain('Se aparecer permissao:');
+    expect(service.formatShortPresentation()).toContain('Apresentaction curta do Zavorth');
+    expect(service.formatGuidedStart()).toContain('Guided sequence started.');
+    expect(service.formatGuidedCompletion()).toContain('Suggested closure:');
+    expect(service.formatGuidedStep(0)).toContain('Step 1/4: Pesquisa web');
+    expect(service.formatGuidedStep(1)).toContain('Se aparecer permission:');
     expect(service.formatGuidedStep(99)).toBeNull();
   });
 });

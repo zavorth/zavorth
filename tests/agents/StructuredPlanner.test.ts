@@ -27,7 +27,7 @@ describe('StructuredPlanner', () => {
     const deepseekProvider = {
       chat: jest.fn().mockResolvedValue({
         content: JSON.stringify({
-          objective: 'Encontrar arquivo',
+          objective: 'Encontrar file',
           context: 'Teste',
           assumptions: [],
           executor_recommendation: 'local_executor',
@@ -52,7 +52,7 @@ describe('StructuredPlanner', () => {
       if (name === 'deepseek') {
         return deepseekProvider as any;
       }
-      throw new Error(`Provider nao esperado: ${name}`);
+      throw new Error(`Provider not esperado: ${name}`);
     });
 
     (config as any).llmProvider = 'gemini';
@@ -64,12 +64,12 @@ describe('StructuredPlanner', () => {
     const planner = new StructuredPlanner();
     const task = {
       task_id: 'task-1',
-      raw_message: '/plan localizar arquivo',
-      normalized_message: 'localizar arquivo',
+      raw_message: '/plan localizar file',
+      normalized_message: 'localizar file',
       parent_task_id: null,
     } as any;
 
-    const result = await planner.generatePlan(task, 'gere um plano em json');
+    const result = await planner.generatePlan(task, 'generate a plan in JSON');
 
     expect(result.providerUsed).toBe('deepseek');
     expect(result.fallbackUsed).toBe(true);

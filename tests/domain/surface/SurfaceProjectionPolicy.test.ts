@@ -28,7 +28,7 @@ describe('SurfaceProjectionPolicy / projectSemanticCard (F2)', () => {
     return buildAgentPermissionSemanticCard({
       approvalId: taskId,
       title: 'Approval needed',
-      summary: 'Run shell?',
+      summary: 'Run shell-',
       riskLabel: 'high',
     });
   }

@@ -89,7 +89,7 @@ function buildService(root: string, overrides: Record<string, any> = {}) {
       generatedAt: '2026-04-24T12:00:00.000Z',
       decision: 'requires_approval',
       ok: false,
-      reason: 'Acao fisica exige approval canonico.',
+      reason: 'Physical action requires canonical approval.',
       permission: { permission_id: 'perm-hardware-1', status: 'pending' },
       profile: 'ops',
       capabilityId: 'hardware.home-assistant',
@@ -294,7 +294,7 @@ describe('ZavorthHardwareActionPlaneService', () => {
       allowlisted: true,
     });
     service.activateEmergencyStop({
-      reason: 'manutencao eletrica',
+      reason: 'electrical maintenance',
       requestedBy: 'tester',
     });
 
@@ -306,7 +306,7 @@ describe('ZavorthHardwareActionPlaneService', () => {
     const snapshot = await service.buildSnapshot();
 
     expect(planned.status).toBe('blocked');
-    expect(planned.blockers.join(' ')).toContain('Emergency stop ativo');
+    expect(planned.blockers.join(' ')).toContain('Emergency stop active');
     expect(snapshot.summary.emergencyStopActive).toBe(true);
     expect(snapshot.audit[0]).toEqual(expect.objectContaining({
       event: 'hardware.action.blocked',

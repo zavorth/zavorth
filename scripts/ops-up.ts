@@ -137,7 +137,7 @@ async function main() {
     }
   };
   let launchAttempted = false;
-  let repairSummary = 'nao necessario';
+  let repairSummary = 'not needed';
   let repairStepsExecuted = 0;
 
   const startup = new RuntimeStartupService({
@@ -149,36 +149,35 @@ async function main() {
       const failedNonBlockingSteps = repair.steps.filter((step) => step.status === 'failed' && !step.blocking);
       const hasExecutedStep = repairStepsExecuted > 0;
       if (failedBlockingStep) {
-        repairSummary = 'falhou';
+        repairSummary = 'failed';
         throw new Error(failedBlockingStep.error || repair.summary);
       }
 
       repairSummary = failedNonBlockingSteps.length > 0
         ? 'aplicado-com-avisos'
-        : hasExecutedStep
-          ? 'aplicado'
-          : 'nao necessario';
+        : hasExecutedStep ? 'aplicado'
+          : 'not needed';
       if (hasExecutedStep) {
-        logProgress(`reparo seguro aplicado (${repairStepsExecuted} passo(s)).`);
+        logProgress(`safe repair applied (${repairStepsExecuted} step(s)).`);
       } else {
-        logProgress('nenhuma correcao segura precisou ser aplicada.');
+        logProgress('no safe correction needed to be applied.');
       }
       if (failedNonBlockingSteps.length > 0) {
         for (const step of failedNonBlockingSteps) {
-          logProgress(`aviso nao bloqueante em ${step.title}: ${step.error || 'falha sem detalhe.'}`);
+          logProgress(`non-blocking warning in ${step.title}: ${step.error || 'failure without details.'}`);
         }
       }
     },
     readinessService,
     launchRuntime: async () => {
-      logProgress('verificando se o host precisa subir...');
+      logProgress('checking whether the host needs to start...');
       const readiness = await readinessService.inspectLive();
       if (readiness.local.ready && (!requireMutableAccess || readiness.runtime.hostAuthorized !== false)) {
-        logProgress('o host ja estava pronto.');
+        logProgress('o host already estava ready.');
         return;
       }
       launchAttempted = true;
-      logProgress('subindo o host supervisionado...');
+      logProgress('subindo o host supervised...');
       launchDetachedRuntime();
     },
   });
@@ -218,37 +217,37 @@ async function main() {
     return;
   }
 
-  console.log('[zavorth-up] bootstrap operacional');
-  console.log(`[zavorth-up] resumo: ${result.summary}`);
-  console.log(`[zavorth-up] reparo seguro: ${repairSummary} | passos=${repairStepsExecuted}`);
+  console.log('[zavorth-up] bootstrap operational');
+  console.log(`[zavorth-up] summary: ${result.summary}`);
+  console.log(`[zavorth-up] safe repair: ${repairSummary} | steps=${repairStepsExecuted}`);
   if (result.ok && !result.readiness.local.ready) {
-    console.log('[zavorth-up] console local pronta em modo readonly; faltam apenas itens mutaveis/remotos.');
+    console.log('[zavorth-up] local console ready in read-only mode; only mutable/remote items are missing.');
   }
   console.log(
-    `[zavorth-up] launch: ${launchAttempted ? 'tentado' : 'nao necessario'} | tentativas=${result.attempts} | duracao=${result.durationMs}ms`,
+    `[zavorth-up] launch: ${launchAttempted ? 'attempted' : 'not needed'} | attempts=${result.attempts} | duration=${result.durationMs}ms`,
   );
   console.log(
-    `[zavorth-up] local: ${result.readiness.local.ready ? 'pronto' : result.ok ? 'readonly' : 'pendente'} | ${result.manifest.local.appUrl}`,
+    `[zavorth-up] local: ${result.readiness.local.ready ? 'ready' : result.ok ? 'readonly' : 'pending'} | ${result.manifest.local.appUrl}`,
   );
   console.log(
-    `[zavorth-up] remoto: ${result.readiness.remote.ready ? 'pronto' : 'pendente'} | ${result.manifest.remote.appUrl || 'nao configurado'}`,
+    `[zavorth-up] remote: ${result.readiness.remote.ready ? 'ready' : 'pending'} | ${result.manifest.remote.appUrl || 'not configured'}`,
   );
   console.log(
-    `[zavorth-up] auth: ${result.manifest.auth.required ? result.manifest.auth.source : 'ausente'} | host autorizado: ${
-      result.manifest.auth.authorizedHost === false ? 'nao' : 'sim'
+    `[zavorth-up] auth: ${result.manifest.auth.required ? result.manifest.auth.source : 'absent'} | host approved: ${
+      result.manifest.auth.authorizedHost === false ? 'no' : 'yes'
     }`,
   );
   if (launchSelection) {
-    console.log(`[zavorth-up] abrir: ${launchSelection.url || 'nao disponivel'} | ${launchSelection.reason}`);
+    console.log(`[zavorth-up] open: ${launchSelection.url || 'not available'} | ${launchSelection.reason}`);
     if (launchResult?.attempted) {
-      console.log(`[zavorth-up] launch: ${launchResult.ok ? 'ok' : 'falhou'}${launchResult.error ? ` (${launchResult.error})` : ''}`);
+      console.log(`[zavorth-up] launch: ${launchResult.ok ? 'ok' : 'failed'}${launchResult.error ? ` (${launchResult.error})` : ''}`);
     }
   }
   if (result.manifest.surfaces.length > 0) {
     console.log('[zavorth-up] entradas recomendadas:');
     for (const surface of result.manifest.surfaces.filter((entry) => entry.primary || entry.id === 'telegram' || entry.id === 'cli')) {
       console.log(
-        `- ${surface.label}: ${surface.entry}${surface.remoteEntry ? ` | remoto: ${surface.remoteEntry}` : ''}`,
+        `- ${surface.label}: ${surface.entry}${surface.remoteEntry ? ` | remote: ${surface.remoteEntry}` : ''}`,
       );
     }
   }
@@ -266,7 +265,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-up] falha ao subir o runtime.');
+  console.error('[zavorth-up] failure ao subir o runtime.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

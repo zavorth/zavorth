@@ -9,7 +9,7 @@ describe('ProviderSecretMetadataLeak', () => {
 
   beforeEach(() => {
     service = new ZavorthControlCoreRouteService();
-    
+
     (ProviderConfigService.getInstance as jest.Mock).mockReturnValue({
       getProviders: jest.fn().mockResolvedValue([{
         providerId: 'openai-1',
@@ -25,7 +25,7 @@ describe('ProviderSecretMetadataLeak', () => {
   const runRoute = async (method: string, path: string) => {
     let responseBody = '';
     let responseStatus = 200;
-    
+
     const req = {
       method,
       url: path,
@@ -34,13 +34,13 @@ describe('ProviderSecretMetadataLeak', () => {
         if (event === 'end') cb();
       }
     };
-    
+
     const res = {
       statusCode: 200,
       setHeader: jest.fn(),
       end: (data: string) => { responseBody = data; }
     };
-    
+
     const deps = {
       readJsonBody: async () => ({}),
       writeJson: (resObj: any, data: any, status = 200) => {
@@ -57,14 +57,14 @@ describe('ProviderSecretMetadataLeak', () => {
     return { responseStatus, responseBody };
   };
 
-  it('GET /api/v2/providers nao deve conter suffix ou secretRef nas respostas publicas/de servico', async () => {
+  it('GET /api/v2/providers must not contain suffix or secretRef in public/service responses', async () => {
     const result = await runRoute('GET', '/api/v2/providers');
     expect(result.responseStatus).toBe(200);
-    
+
     const parsed = JSON.parse(result.responseBody);
     const provider = parsed.data[0];
 
-    // Nao deve expor secretRef ou suffix nas rotas comuns de listagem
+    // Not deve expor secretRef ou suffix nas rotas comuns de listagem
     expect(provider.secretRef).toBeUndefined();
     expect(provider.keySuffix).toBeUndefined();
     expect(provider.apiKey).toBeUndefined();

@@ -34,8 +34,8 @@ const sdkIndex = read('src/sdk/index.ts');
 const pkg = read('package.json');
 
 checks.push(
-  has(contract, 'contract:version', '2026-05-05.live-checkpoint-13'),
-  has(contract, 'contract:phase', 'Intent model3 - Live Consistency Certification'),
+  has(contract, 'contract:version', '2026-05-05.live-gate-13'),
+  has(contract, 'contract:phase', 'Live Consistency Certification'),
   has(contract, 'contract:profiles', 'staging-live', 'production-live'),
   has(contract, 'contract:inventory', 'sourceModules: number', 'providers: number', 'channels: number'),
   has(contract, 'contract:disallowed-status', 'misleadingAdapterBacked: 0', 'dryRunOnly: number', 'templateOnly: number', 'planned: number'),
@@ -68,7 +68,7 @@ checks.push(
   has(service, 'service:truthfulness', 'signedExclusionsLedger', 'not-claimed-without-operator-live-receipts', 'not-executed-by-certification'),
   has(script, 'script:cli', '--profile', '--require-certified', 'formatCertificationText', 'production-live'),
   has(tests, 'tests:coverage', 'staging-live', 'production-live', 'signedExclusionsLedger', 'stagingLiveSmokeCommands'),
-  has(docs, 'docs:ledger', 'Intent model3 - Live Consistency Certification', 'modules tracked', 'providers', 'channels', 'No live external IO'),
+  has(docs, 'docs:ledger', 'Live Consistency Certification', 'modules tracked', 'providers', 'channels', 'No live external IO'),
   has(sdkContracts, 'sdk:contract-export', 'LiveReadinessCertificationContract'),
   has(sdkIndex, 'sdk:service-export', 'LiveReadinessCertificationService'),
   has(pkg, 'package:scripts',

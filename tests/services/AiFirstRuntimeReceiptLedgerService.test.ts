@@ -58,7 +58,7 @@ function conversationSample(sampleId: string, text: string): AiFirstShadowBatchR
     legacyDecision: currentDecision('web'),
     rawAiPlan: {
       intent: { primary: 'conversation', confidence: 0.9 },
-      proposedActions: [{ kind: 'answer', summary: 'Responder em conversa.' }],
+      proposedActions: [{ kind: 'answer', summary: 'Respond in conversation.' }],
     },
   };
 }
@@ -81,7 +81,7 @@ function cleanRegistry(): AiFirstPromotionCandidateRegistrySnapshot {
     samples: [
       conversationSample('conversation-a', 'Oi, me explique uma ideia.'),
       conversationSample('conversation-b', 'Me ajude a pensar num nome melhor.'),
-      conversationSample('conversation-c', 'Resuma minha ideia em uma frase.'),
+      conversationSample('conversation-c', 'Summarize my idea in one sentence.'),
     ],
   });
   let registryCounter = 0;
@@ -289,15 +289,15 @@ describe('AiFirstRuntimeReceiptLedgerService', () => {
   it('redacts ledger metadata and keeps JSONL emission secret-safe', () => {
     const service = createLedgerService();
     const snapshot = service.buildLedger({
-      ledgerName: 'ledger token: xoxb-test-token-placeholder-123456',
+      ledgerName: 'ledger token: redacted-slack-token-placeholder',
       adapterSnapshots: adapterSnapshots(),
     });
     const serialized = JSON.stringify(snapshot);
     const jsonl = service.toJsonl(snapshot);
 
-    expect(serialized).not.toContain('xoxb-test-token-placeholder-123456');
+    expect(serialized).not.toContain('redacted-slack-token-placeholder');
     expect(serialized).toContain('[redacted-secret]');
-    expect(jsonl).not.toContain('xoxb-test-token-placeholder-123456');
+    expect(jsonl).not.toContain('redacted-slack-token-placeholder');
     expect(snapshot.summary.secretLeakDetected).toBe(false);
   });
 });

@@ -6,10 +6,10 @@ describe('ZavorthAgentGateway live LLM steering', () => {
   it('aborts and reissues the active LLM call when /steer arrives mid-flight', async () => {
     const capturedMessages: ChatMessage[][] = [];
     const capturedSignals: Array<AbortSignal | undefined> = [];
-    const emitted: Array<{ type: string; payload?: Record<string, unknown> }> = [];
+    const emitted: Array<{ type: string; payload-: Record<string, unknown> }> = [];
     const firstCallAbort = jest.fn();
     const llmRuntime = {
-      chatDetailed: jest.fn((messages: ChatMessage[], _tools?: ToolDefinition[], options?: { signal?: AbortSignal }) => {
+      chatDetailed: jest.fn((messages: ChatMessage[], _tools-: ToolDefinition[], options-: { signal-: AbortSignal }) => {
         capturedMessages.push(messages.map((message) => ({ ...message })));
         capturedSignals.push(options?.signal);
         if (capturedMessages.length === 1) {
@@ -22,7 +22,7 @@ describe('ZavorthAgentGateway live LLM steering', () => {
             }, { once: true });
           });
         }
-        return Promise.resolve(llmResult('Resposta revisada com steering em uma frase.'));
+        return Promise.resolve(llmResult('Revised response with live steering in one sentence.'));
       }),
       getPreferredProviderName: jest.fn(() => 'openai'),
     };
@@ -60,7 +60,7 @@ describe('ZavorthAgentGateway live LLM steering', () => {
     const steered = gateway.steer({
       runId: activeRun?.id,
       sessionId: 'web:live-steering',
-      text: 'Responda em uma unica frase e mencione que o steering chegou ao vivo.',
+      text: 'Reply in one sentence and mention that live steering arrived.',
       source: 'zavorth-control-steer',
       queueItemId: 'queue-live-1',
     });
@@ -87,9 +87,9 @@ describe('ZavorthAgentGateway live LLM steering', () => {
       }),
     ]));
     expect(capturedMessages[1].map((message) => message.content).join('\n')).toContain(
-      'Responda em uma unica frase',
+      'Reply in one sentence',
     );
-    expect(result.replies[0].text).toBe('Resposta revisada com steering em uma frase.');
+    expect(result.replies[0].text).toBe('Revised response with live steering in one sentence.');
     expect(result.run.steering).toEqual([
       expect.objectContaining({
         queueItemId: 'queue-live-1',
@@ -133,7 +133,7 @@ describe('ZavorthAgentGateway live LLM steering', () => {
         type: 'agent.stream.assistant',
         payload: expect.objectContaining({
           phase: 'delta',
-          accumulated: 'Resposta revisada com steering em uma frase.',
+          accumulated: 'Revised response with live steering in one sentence.',
           runId: result.run.id,
           sessionId: 'web:live-steering',
         }),

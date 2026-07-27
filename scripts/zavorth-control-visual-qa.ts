@@ -48,7 +48,7 @@ async function captureScreenshots(): Promise<void> {
     const captures = [
       { id: 'desktop', width: 1440, height: 1000, file: path.join(outDir, 'desktop.png'), query: '' },
       { id: 'mobile', width: 390, height: 844, file: path.join(outDir, 'mobile.png'), query: '' },
-      { id: 'auto-subagents', width: 1440, height: 1800, file: path.join(outDir, 'auto-subagents.png'), query: '?fixture=auto-subagents' },
+      { id: 'auto-subagents', width: 1440, height: 1800, file: path.join(outDir, 'auto-subagents.png'), query: '...fixture=auto-subagents' },
     ];
     for (const captureTarget of captures) {
       const page = await browser.newPage({

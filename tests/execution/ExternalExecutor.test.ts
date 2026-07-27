@@ -18,8 +18,8 @@ describe('ExternalExecutor', () => {
       task_id: 'task-123',
       executor: 'external_executor',
       workspace,
-      objective: 'Revisar arquivos de bootstrap',
-      instructions: ['Leia BOOTSTRAP.md e SOUL.md', 'Resuma os riscos encontrados'],
+      objective: 'Revisar files de bootstrap',
+      instructions: ['Read BOOTSTRAP.md and SOUL.md', 'Summarize the risks found'],
       allowed_paths: [workspace],
       blocked_paths: [],
       allowed_commands: [],
@@ -34,7 +34,7 @@ describe('ExternalExecutor', () => {
 
   it('builds a WSL invocation for the configured External Executor agent', async () => {
     const runner = jest.fn().mockResolvedValue({
-      stdout: 'Resumo pronto',
+      stdout: 'Resumo ready',
       stderr: '',
     });
     const executor = new ExternalExecutor({
@@ -54,7 +54,7 @@ describe('ExternalExecutor', () => {
     const result = await executor.execute(buildRequest());
 
     expect(result.success).toBe(true);
-    expect(result.stdout).toBe('Resumo pronto');
+    expect(result.stdout).toBe('Resumo ready');
     expect(result.metadata.workspace_wsl).toBe(workspaceWsl);
     expect(runner).toHaveBeenCalledTimes(1);
     expect(runner).toHaveBeenCalledWith(
@@ -211,7 +211,7 @@ describe('ExternalExecutor', () => {
     const runner = jest.fn().mockResolvedValue({
       stdout: Buffer.from([
         `PATH_ACCESS_REQUIRED: ${workspaceRootWsl}`,
-        'Preciso validar a pasta de trabalho.',
+        'I need to validate the workspace folder.',
       ].join('\n')),
       stderr: Buffer.from(''),
     });
@@ -240,8 +240,8 @@ describe('ExternalExecutor', () => {
 
   it('normalizes unknown runner errors before surfacing stdout and stderr', async () => {
     const runner = jest.fn().mockRejectedValue({
-      message: 'falha externa',
-      stdout: Buffer.from('saida parcial'),
+      message: 'failure externa',
+      stdout: Buffer.from('partial output'),
       stderr: Buffer.from('detalhe do erro'),
     });
     const executor = new ExternalExecutor({
@@ -258,8 +258,8 @@ describe('ExternalExecutor', () => {
 
     expect(result.success).toBe(false);
     expect(result.error_code).toBe('EXTERNAL_EXECUTOR_AGENT_FAILED');
-    expect(result.error_message).toBe('falha externa');
-    expect(result.stdout).toBe('saida parcial');
+    expect(result.error_message).toBe('failure externa');
+    expect(result.stdout).toBe('partial output');
     expect(result.stderr).toBe('detalhe do erro');
   });
 
@@ -297,7 +297,7 @@ describe('ExternalExecutor', () => {
 
     const prompt = runner.mock.calls[0][1][runner.mock.calls[0][1].length - 1];
     expect(prompt).toMatch(
-      /Dentro do workspace aprovado, trate todo o restante como somente leitura|Inside the approved workspace, treat everything else as read-only/i,
+      /Inside the approved workspace, treat everything else as read-only|Inside the approved workspace, treat everything else as read-only/i,
     );
     expect(prompt).toMatch(
       /So escreva nos caminhos marcados como leitura e escrita|Only write to paths marked as read and write/i,
@@ -331,7 +331,7 @@ describe('ExternalExecutor', () => {
     const runner = jest.fn().mockResolvedValue({
       stdout: [
         `PATH_ACCESS_REQUIRED: ${workspaceRootWsl}`,
-        'Preciso listar essa pasta especifica para responder o pedido.',
+        'I need to list this specific folder to answer the request.',
       ].join('\n'),
       stderr: '',
     });
@@ -346,24 +346,24 @@ describe('ExternalExecutor', () => {
     });
 
     const result = await executor.execute(buildRequest({
-      objective: 'Liste o conteudo da pasta workspace',
-      instructions: ['Verifique o que tem dentro da pasta workspace'],
+      objective: 'List the workspace folder content',
+      instructions: ['Check what is inside the workspace folder'],
     }));
 
     expect(result.success).toBe(false);
     expect(result.error_code).toBe('EXTERNAL_EXECUTOR_PATH_ACCESS_REQUIRED');
-    expect(String(result.error_message || '')).toMatch(/PATH_ACCESS_REQUIRED|workspace|pasta|additional access|path/i);
+    expect(String(result.error_message || '')).toMatch(/PATH_ACCESS_REQUIRED|workspace|folder|additional access|path/i);
     expect(result.metadata.requested_access_path_raw || result.metadata.requested_access_path || result.metadata.requested_access_path_windows).toBeTruthy();
     // Windows mapping only applies on Windows hosts / WSL conversion paths.
     if (process.platform === 'win32') {
       expect(result.metadata.requested_access_path_windows).toBe(workspaceRoot);
     }
-    expect(String(result.metadata.requested_access_reason || result.error_message || '')).toMatch(/Preciso listar|listar essa pasta|list|access/i);
+    expect(String(result.metadata.requested_access_reason || result.error_message || '')).toMatch(/need to list|list this folder|list|access/i);
   });
 
   it('includes fine-grained path and command policies in the delegated prompt', async () => {
     const runner = jest.fn().mockResolvedValue({
-      stdout: 'Resumo pronto',
+      stdout: 'Resumo ready',
       stderr: '',
     });
     const executor = new ExternalExecutor({
@@ -409,7 +409,7 @@ describe('ExternalExecutor', () => {
         '-lc',
         expect.stringMatching(
           new RegExp(
-            `${workspaceRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\((?:somente leitura e listagem|read-only listing|read only and listing)\\)`,
+            `${workspaceRoot.replace(/[.*+-^${}()|[\]\\]/g, '\\$&')} \\((-:read-only listing|read-only listing|read only and listing)\\)`,
             'i',
           ),
         ),
@@ -424,7 +424,7 @@ describe('ExternalExecutor', () => {
         '-e',
         'bash',
         '-lc',
-        expect.stringMatching(/npm run \* \((?:prefixo aprovado|approved prefix)\)/i),
+        expect.stringMatching(/npm run \* \((-:prefixo approved|approved prefix)\)/i),
       ],
       expect.any(Object),
     );
@@ -432,7 +432,7 @@ describe('ExternalExecutor', () => {
 
   it('prefers an agent id injected by the Zavorth permission layer', async () => {
     const runner = jest.fn().mockResolvedValue({
-      stdout: 'Resumo pronto',
+      stdout: 'Resumo ready',
       stderr: '',
     });
     const executor = new ExternalExecutor({
@@ -559,7 +559,7 @@ describe('ExternalExecutor', () => {
     expect(result.stdout).toBe('Resumo recuperado');
     expect(result.metadata.gateway_recovered).toBe(true);
     expect(result.actions_executed).toContain(
-      'Gateway do external runner reiniciado automaticamente antes da execucao.',
+      'External runner gateway restarted automatically before execution.',
     );
     expect(runner).toHaveBeenNthCalledWith(
       2,

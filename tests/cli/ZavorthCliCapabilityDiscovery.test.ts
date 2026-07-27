@@ -22,7 +22,7 @@ function createFlags(json: boolean) {
 
 describe('Zavorth CLI Natural Capability Discovery', () => {
   it('parses quoted natural language input', () => {
-    expect(resolveCapabilityDiscoveryCliText('"corrija arquivo"')).toBe('corrija arquivo');
+    expect(resolveCapabilityDiscoveryCliText('"corrija file"')).toBe('corrija file');
   });
 
   it('renders discovery JSON through the registry command', async () => {
@@ -33,7 +33,7 @@ describe('Zavorth CLI Natural Capability Discovery', () => {
       effectiveFlags: createFlags(true),
       commandName: 'discover',
       normalized: 'discover',
-      args: 'corrija arquivo e rode testes',
+      args: 'corrija file e rode testes',
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -67,6 +67,6 @@ describe('Zavorth CLI Natural Capability Discovery', () => {
 
     expect(text).toContain('Natural Capability Discovery - Capability Discovery');
     expect(text).toContain('selfmod.preview');
-    expect(text).toContain('Dashboard: /zavorthControl?sector=skills');
+    expect(text).toContain('Dashboard: /zavorthControl-sector=skills');
   });
 });

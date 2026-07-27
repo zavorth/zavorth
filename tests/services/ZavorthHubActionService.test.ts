@@ -34,7 +34,7 @@ describe('ZavorthHubActionService', () => {
     const sync = jest.fn(async () => ({
       ok: true,
       status: 'healthy',
-      summary: 'Registry remoto sincronizado.',
+      summary: 'Remote registry sincronizado.',
       entryCount: 8,
       collectionCount: 2,
       recipeCount: 3,
@@ -79,10 +79,10 @@ describe('ZavorthHubActionService', () => {
           actions: [
             {
               id: 'integration:discord',
-              label: 'Fechar discord',
+              label: 'Close discord',
               surface: 'integrations',
               kind: 'open',
-              rationale: 'Ainda falta fechar token e allowlist.',
+              rationale: 'Ainda falta close token e allowlist.',
               command: '/hub run integration:discord',
             },
           ],
@@ -133,13 +133,13 @@ describe('ZavorthHubActionService', () => {
               label: 'Abrir biblioteca de skills',
               surface: 'skills',
               kind: 'inspect',
-              rationale: 'Ha recipes prontas para revisar.',
+              rationale: 'Ha ready recipes para revisar.',
               command: '/hub run skills:skills-library',
             },
           ],
           narrative: {
             headline: 'Hub',
-            operatorSummary: 'Skill plane pronto.',
+            operatorSummary: 'Skill plane ready.',
             nextAction: 'Abrir biblioteca.',
           },
         })),

@@ -49,7 +49,7 @@ async function main() {
     } else {
       console.log('[replay-learning] apply oficial');
       console.log(`[replay-learning] status=${result.status} | ok=${result.ok ? 'yes' : 'no'}`);
-      console.log(`[replay-learning] resumo: ${result.summary}`);
+      console.log(`[replay-learning] summary: ${result.summary}`);
       for (const detail of result.details) {
         console.log(`- ${detail}`);
       }
@@ -71,9 +71,9 @@ async function main() {
       console.info = originalConsole.info;
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     } else {
-      console.log('[replay-learning] revogacao oficial');
+      console.log('[replay-learning] revocation oficial');
       console.log(`[replay-learning] status=${result.status} | ok=${result.ok ? 'yes' : 'no'}`);
-      console.log(`[replay-learning] resumo: ${result.summary}`);
+      console.log(`[replay-learning] summary: ${result.summary}`);
       for (const detail of result.details) {
         console.log(`- ${detail}`);
       }
@@ -107,7 +107,7 @@ async function main() {
       console.info = originalConsole.info;
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     } else {
-      console.log('[replay-learning] perfil local exportavel');
+      console.log('[replay-learning] profile local exportavel');
       console.log(`mode=${result.mode} | approved=${result.approvedRecordIds.length} | revoked=${result.revokedRecordIds.length}`);
     }
     return;
@@ -129,7 +129,7 @@ async function main() {
     } else {
       console.log('[replay-learning] preview oficial');
       console.log(`[replay-learning] status=${result.status} | ok=${result.ok ? 'yes' : 'no'}`);
-      console.log(`[replay-learning] resumo: ${result.summary}`);
+      console.log(`[replay-learning] summary: ${result.summary}`);
       for (const record of result.records) {
         console.log(`- ${record.kind}: ${record.summary} | ${record.status} | ${record.id}`);
       }
@@ -149,13 +149,13 @@ async function main() {
     console.info = originalConsole.info;
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[replay-learning] leitura oficial da Replay learning');
+    console.log('[replay-learning] read oficial da Replay learning');
     console.log(`[replay-learning] postura: ${snapshot.summary.posture}`);
-    console.log(`[replay-learning] resumo: ${snapshot.narrative.operatorSummary}`);
-    console.log(`[replay-learning] replay: ${snapshot.summary.timelineEvents} evento(s) | compare ${snapshot.summary.compareReady ? 'pronto' : 'nao pronto'} | resume ${snapshot.summary.resumeReady ? 'pronto' : 'sem alvo'}`);
-    console.log(`[replay-learning] learning: ${snapshot.summary.learningCandidates} candidato(s) | ${snapshot.summary.pendingLearning} pendente(s) | ${snapshot.summary.promotedLearning} aprovado(s)`);
-    console.log(`[replay-learning] memory: ${snapshot.summary.memoryEntries} entrada(s) | ${snapshot.summary.proceduralEntries} procedimento(s) | pressao ${snapshot.summary.memoryPressure}`);
-    console.log(`[replay-learning] proximo passo: ${snapshot.narrative.nextAction}`);
+    console.log(`[replay-learning] summary: ${snapshot.narrative.operatorSummary}`);
+    console.log(`[replay-learning] replay: ${snapshot.summary.timelineEvents} evento(s) | compare ${snapshot.summary.compareReady ? 'ready' : 'not ready'} | resume ${snapshot.summary.resumeReady ? 'ready' : 'no target'}`);
+    console.log(`[replay-learning] learning: ${snapshot.summary.learningCandidates} candidate(s) | ${snapshot.summary.pendingLearning} pending(s) | ${snapshot.summary.promotedLearning} approved(s)`);
+    console.log(`[replay-learning] memory: ${snapshot.summary.memoryEntries} entry(s) | ${snapshot.summary.proceduralEntries} procedure(s) | pressure ${snapshot.summary.memoryPressure}`);
+    console.log(`[replay-learning] next passo: ${snapshot.narrative.nextAction}`);
     if (snapshot.records.length > 0) {
       console.log('[replay-learning] recentes:');
       for (const record of snapshot.records.slice(0, limit)) {
@@ -170,6 +170,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[replay-learning] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[replay-learning] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

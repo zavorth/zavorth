@@ -44,7 +44,7 @@ function isBannerLine(line) {
   // // ============ Skill Registry ============
   if (/^\/\/\s*[=-]{3,}.*[=-]{3,}\s*$/.test(t)) return true;
 
-  // /* ===== ... ===== */
+  // /* ===== ? ===== */
   if (/^\/\*\s*[=-]{4,}.*[=-]{4,}\s*\*\/$/.test(t)) return true;
 
   // Phase markers the user banned
@@ -55,7 +55,7 @@ function isBannerLine(line) {
 }
 
 function cleanFile(source) {
-  const lines = source.split(/\r?\n/);
+  const lines = source.split(/\r...\n/);
   const out = [];
   let removed = 0;
   for (let i = 0; i < lines.length; i++) {

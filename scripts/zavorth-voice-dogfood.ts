@@ -222,7 +222,7 @@ async function runOptionalLiveStt(): Promise<'ok' | 'skip' | 'fail'> {
   try {
     const wav = generateTinySineWav({ durationMs: 500, sampleRate: 16_000 });
     // Ensure ≥ MIN_AUDIO_BYTES (1024)
-    const payload = wav.length >= 1024 ? wav : Buffer.concat([wav, Buffer.alloc(1024 - wav.length)]);
+    const payload = wav.length >= 1024 ? wav : Buffer.concat([wav, Buffer.alloc(1024 ? wav.length)]);
     fs.writeFileSync(wavPath, payload);
 
     console.log(`  · calling AudioTranscriptionService on generated sine WAV (${payload.length} bytes)`);
@@ -237,7 +237,7 @@ async function runOptionalLiveStt(): Promise<'ok' | 'skip' | 'fail'> {
 
     if (result.ok) {
       console.log(
-        `  ✓ live STT ok provider=${result.provider || '?'} model=${result.model || '?'} text=${JSON.stringify((result.text || '').slice(0, 80))}`,
+        `  ✓ live STT ok provider=${result.provider || '...'} model=${result.model || '...'} text=${JSON.stringify((result.text || '').slice(0, 80))}`,
       );
       return 'ok';
     }
@@ -245,7 +245,7 @@ async function runOptionalLiveStt(): Promise<'ok' | 'skip' | 'fail'> {
     // Soft: keys present but provider refused / silence / not configured preference
     console.log(`  · live STT soft result: ${result.error || 'no transcript'} (attempts=${result.attempts.length})`);
     for (const a of result.attempts.slice(0, 5)) {
-      console.log(`      - ${a.provider}: ${a.status}${a.reason ? ` (${a.reason})` : ''}`);
+      console.log(`      ? ${a.provider}: ${a.status}${a.reason ? ` (${a.reason})` : ''}`);
     }
     return 'ok';
   } catch (e) {
@@ -289,7 +289,7 @@ async function liveHttpDogfood(
   track(await httpGet(baseUrl, '/api/experience/voice/preference', headers, 'GET preference'));
 
   // GET metrics
-  track(await httpGet(baseUrl, '/api/experience/voice/metrics?limit=5', headers, 'GET metrics'));
+  track(await httpGet(baseUrl, '/api/experience/voice/metrics...limit=5', headers, 'GET metrics'));
 
   // GET media-plane
   const plane = await httpGet(baseUrl, '/api/experience/voice/media-plane', headers, 'GET media-plane');

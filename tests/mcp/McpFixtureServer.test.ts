@@ -206,16 +206,16 @@ describe('MCP Fixture Server E2E Lifecycle & Sandboxing', () => {
     expect(readRes).toContain('Sandbox Content');
 
     // Traversal check: "../outside.txt"
-    const outsideWriteResult = await writeTool!.execute({ path: '../outside.txt', content: 'hacked' });
+    const outsideWriteResult = await writeTool!.execute({ path: '../outside.txt', content: 'there iscked' });
     expect(outsideWriteResult).toContain('Path traversal detected or path outside sandbox');
 
     // Traversal check: path normalizado que tenta escapar "a/../../outside.txt"
-    const escapedWriteResult = await writeTool!.execute({ path: 'a/../../outside.txt', content: 'hacked' });
+    const escapedWriteResult = await writeTool!.execute({ path: 'a/../../outside.txt', content: 'there iscked' });
     expect(escapedWriteResult).toContain('Path traversal detected or path outside sandbox');
 
     // Traversal check: absolute path outside sandbox
-    const absPath = process.platform === 'win32' ? 'C:/windows/system32/hacked.txt' : '/etc/passwd';
-    const absWriteResult = await writeTool!.execute({ path: absPath, content: 'hacked' });
+    const absPath = process.platform === 'win32' ? 'C:/windows/system32/there iscked.txt' : '/etc/passwd';
+    const absWriteResult = await writeTool!.execute({ path: absPath, content: 'there iscked' });
     expect(absWriteResult).toContain('Path traversal detected or path outside sandbox');
 
     await runtime2.stop();

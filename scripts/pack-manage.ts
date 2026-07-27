@@ -155,7 +155,7 @@ function runStatus(options: CliOptions): void {
     : snapshot.capabilities.filter((entry) => options.showAllCapabilities || PACK_IDS.includes(entry.capabilityId));
 
   if (capabilities.length === 0) {
-    throw new Error(`Nao encontrei esse pack/capability. Packs suportados: ${PACK_IDS.join(', ')}.`);
+    throw new Error(`Could not find that pack/capability. Supported packs: ${PACK_IDS.join(', ')}.`);
   }
 
   console.log(
@@ -176,16 +176,15 @@ function runAdd(options: CliOptions): void {
   }
   const snapshot = lifecycleService.enableCapability(packId, 'pack:add script', options.scope);
   if (!snapshot) {
-    throw new Error(`Nao consegui habilitar o pack ${packId}.`);
+    throw new Error(`Could not enable pack ${packId}.`);
   }
 
   console.log(
     [
       `[pack-add] Pack ${packId} habilitado com escopo ${options.scope}.`,
       renderCapabilityLine(snapshot),
-      options.skipInstall
-        ? '[pack-add] Instalacao opcional pulada por --skip-install.'
-        : `[pack-add] Provisionamento npm concluido para ${packId} quando aplicavel.`,
+      options.skipInstall ? '[pack-add] Instalaction optional pulada por --skip-install.'
+        : `[pack-add] npm provisioning completed para ${packId} when applicable.`,
     ].join('\n'),
   );
 }
@@ -195,16 +194,15 @@ function runRemove(options: CliOptions): void {
   const lifecycleService = createLifecycleService(options.stateFilePath);
   const snapshot = lifecycleService.disableCapability(packId, 'pack:remove script');
   if (!snapshot) {
-    throw new Error(`Nao consegui desabilitar o pack ${packId}.`);
+    throw new Error(`Could not disable pack ${packId}.`);
   }
 
   const cleanedPaths = options.skipClean ? [] : cleanCapabilityArtifacts(resolveCapabilityProvisionSpec(packId));
   console.log(
     [
-      `[pack-remove] Pack ${packId} desabilitado.`,
+      `[pack-remove] Pack ${packId} disabled.`,
       renderCapabilityLine(snapshot),
-      options.skipClean
-        ? '[pack-remove] Cleanup adicional pulado por --skip-clean.'
+      options.skipClean ? '[pack-remove] Cleanup adicional pulado por --skip-clean.'
         : `[pack-remove] Cleanup adicional removeu ${cleanedPaths.length} path(s).`,
     ].join('\n'),
   );

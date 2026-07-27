@@ -65,8 +65,8 @@ describe('official domain ownership expansion facades', () => {
             timelineEvents: 9,
           },
           narrative: {
-            headline: 'Memoria consolidada.',
-            operatorSummary: 'Memory pronta via dominio.',
+            headline: 'Consolidated memory.',
+            operatorSummary: 'Memory ready through domain.',
           },
         }),
       },
@@ -75,7 +75,7 @@ describe('official domain ownership expansion facades', () => {
     expect(snapshot.metrics.persistedMemories).toBe(11);
     expect(snapshot.metrics.relevantMemories).toBe(7);
     expect(snapshot.metrics.timelineEvents).toBe(9);
-    expect(snapshot.summary).toBe('Memory pronta via dominio.');
+    expect(snapshot.summary).toBe('Memory ready through domain.');
   });
 
   it('builds the transports snapshot through the remote transport adapter', () => {
@@ -93,7 +93,7 @@ describe('official domain ownership expansion facades', () => {
           },
           narrative: {
             headline: 'Transportes observados.',
-            operatorSummary: 'Transports pronta via dominio.',
+            operatorSummary: 'Transports ready through domain.',
           },
           selected: {
             operatorSummary: 'Discord bridge operante.',
@@ -105,7 +105,7 @@ describe('official domain ownership expansion facades', () => {
     expect(snapshot.metrics.total).toBe(5);
     expect(snapshot.metrics.ready).toBe(3);
     expect(snapshot.metrics.pendingWork).toBe(2);
-    expect(snapshot.summary).toBe('Transports pronta via dominio.');
+    expect(snapshot.summary).toBe('Transports ready through domain.');
   });
 
   it('builds the trust-governance snapshot through the trust and governance planes', () => {
@@ -120,7 +120,7 @@ describe('official domain ownership expansion facades', () => {
           },
           narrative: {
             headline: 'Trust plane operando.',
-            operatorSummary: 'Trust visivel.',
+            operatorSummary: 'Trust visible.',
           },
         }),
       },
@@ -133,7 +133,7 @@ describe('official domain ownership expansion facades', () => {
           },
           narrative: {
             headline: 'Governance control plane operando.',
-            operatorSummary: 'Governance visivel.',
+            operatorSummary: 'Governance visible.',
           },
         }),
       },
@@ -142,7 +142,7 @@ describe('official domain ownership expansion facades', () => {
     expect(snapshot.metrics.trustReady).toBe(true);
     expect(snapshot.metrics.governanceReady).toBe(true);
     expect(snapshot.metrics.policiesTracked).toBe(6);
-    expect(snapshot.summary).toBe('Governance visivel.');
+    expect(snapshot.summary).toBe('Governance visible.');
   });
 
   it('builds the platform ecosystem snapshot through registry and ecosystem planes', () => {
@@ -159,7 +159,7 @@ describe('official domain ownership expansion facades', () => {
             reviewPending: 1,
           },
           narrative: {
-            headline: 'Registry publicado.',
+            headline: 'Registry publicdo.',
             operatorSummary: 'Registry ready.',
           },
         }),
@@ -176,7 +176,7 @@ describe('official domain ownership expansion facades', () => {
             recipeCoverageMissing: 1,
           },
           narrative: {
-            headline: 'Ecossistema publicado.',
+            headline: 'Ecossistema publicdo.',
             operatorSummary: 'Ecosystem ready.',
           },
         }),
@@ -197,7 +197,7 @@ describe('official domain ownership expansion facades', () => {
           generatedAt: '2026-04-17T18:00:00.000Z',
           narrative: {
             headline: 'Operations health verde.',
-            operatorSummary: 'Health visivel.',
+            operatorSummary: 'Health visible.',
           },
         }),
       },
@@ -209,7 +209,7 @@ describe('official domain ownership expansion facades', () => {
             controlPlaneFamiliesTotal: 5,
           },
           narrative: {
-            operatorSummary: 'Scorecard visivel.',
+            operatorSummary: 'Scorecard visible.',
           },
         }),
       },
@@ -221,6 +221,6 @@ describe('official domain ownership expansion facades', () => {
     expect(snapshot.metrics.controlPlanes).toBe(5);
     expect(snapshot.metrics.scorecards).toBe(2);
     expect(snapshot.metrics.healthSignalsReady).toBe(true);
-    expect(snapshot.summary).toBe('Scorecard visivel.');
+    expect(snapshot.summary).toBe('Scorecard visible.');
   });
 });

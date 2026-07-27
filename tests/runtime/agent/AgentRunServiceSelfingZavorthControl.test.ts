@@ -15,14 +15,14 @@ describe('AgentRunService Selfing ZavorthControl Selfing ZavorthControl', () => 
       idFactory: createIdFactory(),
       executor: () => ({
         status: 'completed' as const,
-        summary: 'Selfing atualizado apos executor.',
+        summary: 'Selfing atualizado after executor.',
         replyText: 'ok',
         memorySignals: [
           {
             id: 'executor-memory',
-            title: 'Memoria do executor',
+            title: 'Executor memory',
             layer: 'semantic' as const,
-            summary: 'Executor confirmou preferencia do usuario.',
+            summary: 'Executor confirmed the user preference.',
             confidence: 0.86,
           },
         ],
@@ -79,6 +79,6 @@ describe('AgentRunService Selfing ZavorthControl Selfing ZavorthControl', () => 
         noMemoryChanged: true,
       }),
     }));
-    expect(selfing.cards.some((card: any) => card.title === 'Memoria do executor')).toBe(true);
+    expect(selfing.cards.some((card: any) => card.title === 'Executor memory')).toBe(true);
   });
 });

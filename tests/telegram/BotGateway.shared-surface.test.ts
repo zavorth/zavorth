@@ -142,9 +142,9 @@ describe('BotGateway shared surface fallback', () => {
     const gateway = createGatewayHarness(null);
     gateway.legacyUnifiedGateway = {
       handleEvent: jest.fn(async (event: any) => {
-        await event.reply('Resposta pelo gateway unificado.');
+        await event.reply('Response through the unified gateway.');
         return {
-          responseText: 'Resposta pelo gateway unificado.',
+          responseText: 'Response through the unified gateway.',
           surface: 'telegram',
           intentCategory: 'delegated',
           firewallStats: '',
@@ -154,20 +154,20 @@ describe('BotGateway shared surface fallback', () => {
     };
     const ctx = createTelegramContext();
 
-    await gateway.processTextMessage(ctx, 'consegue me ouvir?', [{ mimeType: 'audio/ogg', data: 'abc' }]);
+    await gateway.processTextMessage(ctx, 'consegue me ouvir-', [{ mimeType: 'audio/ogg', data: 'abc' }]);
 
     expect(gateway.legacyUnifiedGateway.handleEvent).toHaveBeenCalledWith(expect.objectContaining({
       surface: 'telegram',
       chatId: '99',
       userId: '42',
-      text: 'consegue me ouvir?',
+      text: 'consegue me ouvir-',
       inlineData: [{ mimeType: 'audio/ogg', data: 'abc' }],
       metadata: expect.objectContaining({
         phase: 'legacy-unified-conversation-fallback-v1',
         isVoiceInput: true,
       }),
     }));
-    expect(ctx.reply).toHaveBeenCalledWith('Resposta pelo gateway unificado.', undefined);
+    expect(ctx.reply).toHaveBeenCalledWith('Response through the unified gateway.', undefined);
     expect(gateway.surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
   });
 
@@ -175,9 +175,9 @@ describe('BotGateway shared surface fallback', () => {
     const gateway = createGatewayHarness(null);
     gateway.legacyUnifiedGateway = {
       handleEvent: jest.fn(async (event: any) => {
-        await event.reply('Resposta pelo gateway unificado.');
+        await event.reply('Response through the unified gateway.');
         return {
-          responseText: 'Resposta pelo gateway unificado.',
+          responseText: 'Response through the unified gateway.',
           surface: 'telegram',
           intentCategory: 'delegated',
           firewallStats: '',

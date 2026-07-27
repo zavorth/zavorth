@@ -17,7 +17,7 @@ function createActiveRun() {
     status: 'completed',
     createdAt: generatedAt,
     updatedAt: generatedAt,
-    summary: 'Run concluido.',
+    summary: 'Run completed.',
     events: [],
     toolExposure: {
       mode: 'safe',
@@ -144,7 +144,7 @@ function createRuntimeSnapshot() {
       generatedAt,
       boundary: {
         stableEntry: 'ZavorthGatewayRuntimeService.buildGatewayControlApiSnapshot',
-        currentCut: 'P2-006h',
+        currentCut: 'gateway-control-apih',
         doNotBypass: [],
       },
       health: {
@@ -405,8 +405,8 @@ describe('AIGatewayNativeConvergenceService', () => {
         id: 'budget-provider-health-correlation',
         status: 'partial',
         blockers: expect.arrayContaining([
-          'run.metadata.runBudget ausente.',
-          'run.metadata.providerRouteBudgetCorrelation ausente.',
+          'run.metadata.runBudget missing.',
+          'run.metadata.providerRouteBudgetCorrelation missing.',
         ]),
       }),
     ]));

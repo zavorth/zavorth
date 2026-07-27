@@ -127,7 +127,7 @@ for (const marker of [
 }
 const honestyStripped = visualDemo
   .replace(/not a live agent session/gi, '')
-  .replace(/não é uma sessão de agente ao vivo/gi, '');
+  .replace(/is not a live agent session/gi, '');
 if (/\blive agent (session|runtime)\b/i.test(honestyStripped)) {
   throw new Error('visual demo must not claim a live agent session or live agent runtime');
 }

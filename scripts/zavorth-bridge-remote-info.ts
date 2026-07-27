@@ -13,28 +13,28 @@ function main() {
       return;
     }
 
-    console.log('[zavorth-bridge-remote] status nativo');
-    console.log(`[zavorth-bridge-remote] resumo: ${status.summary}`);
+    console.log('[zavorth-bridge-remote] status nactive');
+    console.log(`[zavorth-bridge-remote] summary: ${status.summary}`);
     console.log(
-      `[zavorth-bridge-remote] sidecar: ${status.sidecar?.ready ? 'pronto' : 'indisponivel'} | base=${status.access.baseUrl} | local=${status.access.localUrl || 'n/d'}`,
+      `[zavorth-bridge-remote] sidecar: ${status.sidecar?.ready ? 'ready' : 'unavailable'} | base=${status.access.baseUrl} | local=${status.access.localUrl || 'n/d'}`,
     );
     console.log(
       `[zavorth-bridge-remote] bridge: ${status.bridge.online ? 'online' : 'offline'} | instance=${status.bridge.instanceId || 'n/d'} | pending=${status.bridge.pendingHandoffs ?? 'n/d'}`,
     );
     console.log(
-      `[zavorth-bridge-remote] remote mode: ${status.remoteMode.active === false ? 'inativo' : 'ok'} | session: ${status.session.accessible === false ? 'bloqueada' : 'ok'}`,
+      `[zavorth-bridge-remote] remote mode: ${status.remoteMode.active === false ? 'inactive' : 'ok'} | session: ${status.session.accessible === false ? 'blocked' : 'ok'}`,
     );
     console.log(
-      `[zavorth-bridge-remote] acesso: ${status.access.readyForRemoteUse ? 'pronto para uso remoto' : 'precisa de atencao'} | protegido=${status.access.protectedByPassword ? 'sim' : 'nao'}`,
+      `[zavorth-bridge-remote] access: ${status.access.readyForRemoteUse ? 'ready for remote use' : 'needs attention'} | protected=${status.access.protectedByPassword ? 'yes' : 'no'}`,
     );
     if (status.access.recommendations.length > 0) {
-      console.log('[zavorth-bridge-remote] recomendacoes:');
+      console.log('[zavorth-bridge-remote] recommendations:');
       for (const recommendation of status.access.recommendations) {
         console.log(`- ${recommendation}`);
       }
     }
   }).catch((error) => {
-    console.error(`[zavorth-bridge-remote] falha: ${error.message || error}`);
+    console.error(`[zavorth-bridge-remote] failure: ${error.message || error}`);
     process.exitCode = 1;
   });
 }

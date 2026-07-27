@@ -41,7 +41,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
 
     const snapshot = await service.execute({
       action: 'device.observe',
-      screenText: 'Tela do app aberta sem segredo',
+      screenText: 'Open app screen without secrets',
       uiXml: '<hierarchy><node text="CHECK" /></hierarchy>',
       sourceSurface: 'telegram',
     });
@@ -58,7 +58,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
     const runner = mockRunner([
       ok('List of devices attached\nABC123 device product:redfin model:Pixel_5 transport_id:1\n'),
       ok('', Buffer.from('fake-png')),
-      ok('UI hierchary dumped to: /sdcard/zavorth-window.xml'),
+      ok('UI hierarchy dumped to: /sdcard/zavorth-window.xml'),
       ok('<hierarchy><node text="OK" /></hierarchy>'),
       ok('mCurrentFocus=Window{u0 com.example/.MainActivity}'),
     ]);
@@ -92,7 +92,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
     const snapshot = await service.execute({
       action: 'device.plan',
       targetText: 'CHECK',
-      payload: 'texto aprovado',
+      payload: 'approved text',
       // Free-text objective must not infer keyevent / swipe / install.
       objective: 'toque, digite e pressione enter',
     });
@@ -114,7 +114,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
     const snapshot = await service.execute({
       action: 'device.plan',
       // Free-text action words must not activate tap/type/key/install product steps.
-      objective: 'toque no botao, digite o texto, pressione enter e faca swipe',
+      objective: 'tap the button, type the text, press enter, and swipe',
     });
 
     const kinds = snapshot.plan.steps.map((step) => step.kind);

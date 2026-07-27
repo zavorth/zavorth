@@ -70,7 +70,7 @@ function buildService(root: string, now = () => new Date('2026-04-21T10:00:00.00
       generatedAt: '2026-04-21T10:00:00.000Z',
       decision: 'requires_approval',
       ok: false,
-      reason: 'Invocacao remota mutavel exige approval.',
+      reason: 'Invocaction remota mutavel exige approval.',
       permission: { permission_id: 'perm-fmesh-1', status: 'pending' },
       profile: 'ops',
       capabilityId: 'files.write',
@@ -291,6 +291,6 @@ describe('ZavorthFederatedMeshControlPlaneService', () => {
     expect(snapshot.summary.infrastructureState).toBe('offline');
     expect(snapshot.distributedRuntime.offlineReason).toContain('sem heartbeat');
     expect(route.status).toBe('fallback_local');
-    expect(route.blockers.join(' ')).toContain('nao esta online');
+    expect(route.blockers.join(' ')).toContain('not esta online');
   });
 });

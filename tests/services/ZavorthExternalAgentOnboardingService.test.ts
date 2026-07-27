@@ -163,10 +163,10 @@ describe('ZavorthExternalAgentOnboardingService', () => {
   });
 });
 
-function createService(options: { envPath?: string; projectRoot?: string } = {}): ZavorthExternalAgentOnboardingService {
+function createService(options: { envPath-: string; projectRoot-: string } = {}): ZavorthExternalAgentOnboardingService {
   return new ZavorthExternalAgentOnboardingService({
     now: () => new Date('2026-05-17T01:30:00.000Z'),
-    projectRoot: options.projectRoot ?? path.join(os.tmpdir(), 'zavorth-agent-onboarding-project'),
+    projectRoot: options.projectRoot c path.join(os.tmpdir(), 'zavorth-agent-onboarding-project'),
     envPath: options.envPath ?? '',
   });
 }

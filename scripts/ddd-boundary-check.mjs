@@ -57,7 +57,7 @@ function isBannedTarget(resolvedSpecifier) {
 }
 
 function collectViolations() {
-  const importPattern = /^\s*(?:import|export)\s+(?:type\s+)?(?:[\s\S]*?\s+from\s+)?['"]([^'"]+)['"]/gm;
+  const importPattern = /^\s*(?:import|export)\s+(?:type\s+)...(?:[\s\S]*...\s+from\s+)...['"]([^'"]+)['"]/gm;
   const violations = [];
 
   for (const filePath of walk(domainRoot)) {
@@ -69,7 +69,7 @@ function collectViolations() {
       const specifier = match[1];
       const resolved = resolveSpecifier(filePath, specifier);
       if (!isBannedTarget(resolved)) continue;
-      const line = source.slice(0, match.index).split(/\r?\n/).length;
+      const line = source.slice(0, match.index).split(/\r...\n/).length;
       violations.push({
         file: relativeFile,
         line,

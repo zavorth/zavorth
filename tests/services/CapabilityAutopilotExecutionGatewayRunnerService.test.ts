@@ -29,7 +29,7 @@ const commandStep: CapabilityRepairStep = {
   id: 'install-gemini',
   kind: 'install_binary',
   title: 'Instalar Gemini CLI',
-  summary: 'Preparar o binario gemini no host aprovado.',
+  summary: 'Preparar o binario gemini no host approved.',
   command: {
     executor: 'gemini_cli',
     command: 'gemini --version',
@@ -40,8 +40,8 @@ const commandStep: CapabilityRepairStep = {
   },
   installStep: null,
   permissionIds: ['permission-1'],
-  expectedOutcome: 'Gemini CLI responde com versao.',
-  rollbackHint: 'Remover pacote instalado se necessario.',
+  expectedOutcome: 'Gemini CLI responds with version.',
+  rollbackHint: 'Remove installed package if necessary.',
 };
 
 function createRepairPlan(overrides: Partial<CapabilityRepairPlan> = {}): CapabilityRepairPlan {
@@ -51,7 +51,7 @@ function createRepairPlan(overrides: Partial<CapabilityRepairPlan> = {}): Capabi
     diagnosisId: 'diagnosis-1',
     createdAt: FIXED_NOW.toISOString(),
     status: 'approved',
-    summary: 'Reparo aprovado para Gemini CLI ausente.',
+    summary: 'Repair approved for missing Gemini CLI.',
     riskLevel: 7,
     trustLevelRequired: 'collaborator',
     permissionRequirements: [
@@ -133,7 +133,7 @@ function createExecutionResult(overrides: Partial<ExecutionResult> = {}): Execut
 function createDecision(overrides: Partial<GatewayDecision> = {}): GatewayDecision {
   return {
     allowed: true,
-    reason: 'Execucao concluida com sucesso.',
+    reason: 'Execution completed successfully.',
     requires_confirmation: false,
     correlation: {
       traceId: 'trace-1',
@@ -220,7 +220,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
 
   it('honors command-level dry run before the gateway executes anything mutating', async () => {
     const submit = jest.fn(async () => createDecision({
-      reason: 'Dry run - plano validado com sucesso.',
+      reason: 'Dry run - plan validated successfully.',
       execution_result: createExecutionResult({
         executor: 'dry_run',
         success: true,
@@ -250,7 +250,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
 
     expect(result).toMatchObject({
       success: true,
-      summary: 'ExecutionGateway validou o repair em dry-run.',
+      summary: 'ExecutionGateway validated the repair in dry-run.',
       metadata: {
         dryRun: true,
       },
@@ -261,7 +261,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
   it('maps a blocked gateway decision into a failed repair step without hiding the reason', async () => {
     const submit = jest.fn(async () => createDecision({
       allowed: false,
-      reason: 'Bloqueado pela politica de seguranca.',
+      reason: 'Blocked by security policy.',
       execution_result: null,
       policy_evaluation: {
         allowed: false,
@@ -289,7 +289,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
 
     expect(result).toMatchObject({
       success: false,
-      summary: 'ExecutionGateway bloqueou o repair: Bloqueado pela politica de seguranca.',
+      summary: 'ExecutionGateway bloqueou o repair: Blocked by security policy.',
       metadata: {
         gatewayAllowed: false,
         executionId: null,
@@ -312,7 +312,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
       ...commandStep,
       kind: 'switch_executor',
       id: 'fallback-codex',
-      title: 'Trocar para Codex',
+      title: 'Switch to Codex',
     };
 
     const result = await service.run({
@@ -324,7 +324,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
 
     expect(result).toMatchObject({
       success: false,
-      summary: 'Fallback automatico bloqueado antes do gateway.',
+      summary: 'Automatic fallback blocked before the gateway.',
     });
     expect(submit).not.toHaveBeenCalled();
   });

@@ -21,7 +21,7 @@ describe('ZavorthControl product docs', () => {
     expect(readme).toContain('docs/zavorth-cli.md');
     expect(readme).not.toContain('npm run zavorth:operator-check');
     expect(readme).not.toContain('npm run go');
-    expect(readme.split(/\r?\n/u).length).toBeLessThan(220);
+    expect(readme.split(/\r-\n/u).length).toBeLessThan(220);
   });
 
   it('points quickstart and web docs to Zavorth Control as the official entry', () => {

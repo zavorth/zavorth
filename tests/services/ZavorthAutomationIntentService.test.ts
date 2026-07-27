@@ -1,31 +1,50 @@
 import { ZavorthAutomationIntentService } from '../../src/services/ZavorthAutomationIntentService.js';
 
 describe('ZavorthAutomationIntentService', () => {
-  it('parses a daily natural-first automation request', () => {
+  it('builds a ready automation plan from structured canonical input', () => {
     const service = new ZavorthAutomationIntentService();
 
     const plan = service.buildPlan({
-      intentText: 'todo dia as 9h verifique meus canais no app',
+      intentText: 'check important channels',
+      promptText: 'check important channels',
+      scheduleText: '{"kind":"daily","targetHour":9,"targetMinute":0}',
+      delivery: 'app',
       defaultDelivery: 'telegram',
     });
 
     expect(plan.posture).toBe('ready');
-    expect(plan.schedule).toBe('daily 09:00');
+    expect(plan.schedule).toBe('{"kind":"daily","targetHour":9,"targetMinute":0}');
     expect(plan.delivery).toBe('app');
-    expect(plan.prompt).toContain('verifique meus canais');
+    expect(plan.prompt).toContain('check important channels');
   });
 
-  it('keeps webhook delivery target when present', () => {
+  it('keeps explicit webhook delivery target from structured input', () => {
     const service = new ZavorthAutomationIntentService();
 
     const plan = service.buildPlan({
-      intentText: 'a cada 2h revisar transports via webhook https://example.com/hook',
+      intentText: 'review transports',
+      promptText: 'review transports',
+      scheduleText: '{"kind":"interval","intervalMs":7200000}',
+      delivery: 'webhook',
+      deliveryTarget: 'https://example.com/hook',
       defaultDelivery: 'app',
     });
 
     expect(plan.posture).toBe('ready');
-    expect(plan.schedule).toBe('every 2h');
+    expect(plan.schedule).toBe('{"kind":"interval","intervalMs":7200000}');
     expect(plan.delivery).toBe('webhook');
     expect(plan.deliveryTarget).toBe('https://example.com/hook');
+  });
+
+  it('does not infer schedule from language-specific free text', () => {
+    const service = new ZavorthAutomationIntentService();
+
+    const plan = service.buildPlan({
+      intentText: 'please do this tomorrow morning',
+      defaultDelivery: 'app',
+    });
+
+    expect(plan.posture).toBe('needs_schedule');
+    expect(plan.schedule).toBeNull();
   });
 });

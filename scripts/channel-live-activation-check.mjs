@@ -31,7 +31,7 @@ const rules = [
     files: ['src/contracts/ChannelLiveActivationContract.ts'],
     needles: [
       'ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION',
-      '2026-05-04.live-checkpoint-2',
+      '2026-05-04.live-gate-2',
       'ChannelLiveActivationP0Id',
       'signal',
       'msteams',
@@ -45,7 +45,7 @@ const rules = [
   ruleContainsAll({
     id: 'channel-live-activation-service',
     label: 'Service closes the six P0 channel activation gates',
-    target: 'Service gives every P0 channel config, doctor, inbound/outbound mock, real send path and staging live command',
+    target: 'Service gives every P0 channel config, doctor, inbound/outbound local, real send path and staging live command',
     files: ['src/services/ChannelLiveActivationService.ts'],
     needles: [
       'ChannelLiveActivationService',
@@ -91,7 +91,7 @@ const rules = [
     id: 'signal-gateway-wiring',
     label: 'Signal gateway uses live adapter before fallback',
     target: 'Signal calls the live adapter when configured and keeps outbox as fallback only',
-    files: ['src/gateways/SignalGateway.stub.ts'],
+    files: ['src/gateways/SignalGateway.ts'],
     needles: [
       'SignalLiveClient',
       'sendOrFallback',
@@ -104,7 +104,7 @@ const rules = [
     id: 'teams-gateway-wiring',
     label: 'Teams gateway uses live adapter before fallback',
     target: 'Teams calls the live adapter when configured and keeps outbox as fallback only',
-    files: ['src/gateways/TeamsGateway.stub.ts'],
+    files: ['src/gateways/TeamsGateway.ts'],
     needles: [
       'TeamsGraphBotClient',
       'sendOrFallback',

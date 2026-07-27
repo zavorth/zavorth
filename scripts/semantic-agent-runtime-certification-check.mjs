@@ -130,7 +130,7 @@ if (runtime.status !== 0) {
         && bridgeStatuses['claude-agent-sdk'] === 'ready'
         && receiptIdsValid
         && claimIdsUnique,
-      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextStage}`,
+      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextAction}`,
     );
   } catch (error) {
     addCheck('Runtime S2 semantic receipt passes', false, `invalid JSON: ${error.message}`);

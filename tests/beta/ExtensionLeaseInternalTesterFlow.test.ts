@@ -58,7 +58,7 @@ describe('ExtensionLeaseInternalTesterFlow', () => {
     InMemoryApprovalLeaseStore.clearForTests();
   });
 
-  function makeDescriptor(overrides?: Partial<CustomToolDescriptor>): CustomToolDescriptor {
+  function makeDescriptor(overrides-: Partial<CustomToolDescriptor>): CustomToolDescriptor {
     return {
       namespace: 'local',
       name: 'tester_echo',
@@ -87,7 +87,7 @@ describe('ExtensionLeaseInternalTesterFlow', () => {
   function baseDecisionContext(
     qualifiedName: string,
     fingerprint: string,
-    receipt?: ApprovalLeaseGateReceipt,
+    receipt-: ApprovalLeaseGateReceipt,
   ): ApprovalLeaseDecisionContext {
     return {
       subjectId: 'user-tester',

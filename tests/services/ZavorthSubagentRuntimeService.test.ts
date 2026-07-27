@@ -15,7 +15,7 @@ describe('ZavorthSubagentRuntimeService Connector registry', () => {
       });
       const snapshot = await service.execute({
         action: 'subagents.spawn',
-        task: 'use subagentes e analise localmente',
+        task: 'use delegated review e analise localmente',
         explicitSubagents: true,
         // Structured read-only riskHints — free-text never preclears risk.
         riskHints: {
@@ -53,7 +53,7 @@ describe('ZavorthSubagentRuntimeService Connector registry', () => {
       // tasks default to approval-required without structured riskHints.
       const snapshot = await service.execute({
         action: 'subagents.spawn',
-        task: 'use subagentes e edite arquivos com um comando shell',
+        task: 'use delegated review e edite files com um comando shell',
         explicitSubagents: true,
         persistState: false,
       });
@@ -77,7 +77,7 @@ describe('ZavorthSubagentRuntimeService Connector registry', () => {
       });
       const snapshot = await service.execute({
         action: 'subagents.spawn',
-        task: 'use subagentes e analise localmente',
+        task: 'use delegated review e analise localmente',
         roleIds: ['planner', 'qa'],
         explicitSubagents: true,
         riskHints: {
@@ -116,7 +116,7 @@ describe('ZavorthSubagentRuntimeService Connector registry', () => {
       });
       const spawned = await service.execute({
         action: 'subagents.spawn',
-        task: 'use subagentes e acompanhe esta auditoria',
+        task: 'use delegated review e acompanhe esta audit',
         mode: 'session',
         explicitSubagents: true,
         riskHints: {
@@ -160,7 +160,7 @@ describe('ZavorthSubagentRuntimeService Connector registry', () => {
     try {
       const policy = new ZavorthSubagentAutoInvocationPolicyService();
       const decision = policy.decide({
-        text: 'faca uma auditoria profunda em todo o Zavorth, procure falhas e valide os achados',
+        text: 'run a deep audit em todo o Zavorth, find failures e valide os findings',
         taskKind: 'security',
         taskSubtype: 'audit',
       });
@@ -171,7 +171,7 @@ describe('ZavorthSubagentRuntimeService Connector registry', () => {
       });
       const snapshot = await service.execute({
         action: 'subagents.spawn',
-        task: 'use subagentes para auditar localmente em modo somente leitura',
+        task: 'use delegated review para auditar localmente em modo read-only',
         roleIds: decision.roleIds,
         explicitSubagents: true,
         riskHints: {

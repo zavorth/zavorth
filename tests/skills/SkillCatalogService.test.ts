@@ -51,7 +51,7 @@ describe('SkillCatalogService', () => {
       },
       {
         name: 'security-threat-model',
-        description: 'Threat model para revisar riscos.',
+        description: 'Threat model to review risks.',
         dirPath: 'C:/skills/imported/security-threat-model',
         skillFilePath: 'C:/skills/imported/security-threat-model/SKILL.md',
         supportFilePaths: [],
@@ -88,7 +88,7 @@ describe('SkillCatalogService', () => {
             score: 39,
             level: 'medium',
             reviewRequired: true,
-            reasons: ['Fonte exige revisao manual.'],
+            reasons: ['Fonte exige review manual.'],
           },
           licensePolicy: {
             label: 'review',

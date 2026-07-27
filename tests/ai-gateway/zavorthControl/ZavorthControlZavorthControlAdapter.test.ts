@@ -33,7 +33,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
             {
               id: 'evt-1',
               kind: 'thinking',
-              title: 'Plano montado',
+              title: 'Assembled plan',
               status: 'running',
             },
           ],
@@ -44,7 +44,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
           id: 'task-1',
           title: 'Analisar repositorio',
           status: 'running',
-          summary: 'Scan em andamento.',
+          summary: 'Scan in progress.',
           runId: 'run-1',
           updatedAt: '2026-04-26T12:00:30.000Z',
         },
@@ -60,7 +60,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
       artifacts: [
         {
           id: 'artifact-1',
-          title: 'Relatorio de inventario',
+          title: 'Report de inventario',
           kind: 'report',
           status: 'ready',
           createdAt: '2026-04-26T12:01:00.000Z',
@@ -69,9 +69,9 @@ describe('ZavorthControlZavorthControlAdapter', () => {
       memoryRecallSources: [
         {
           id: 'memory-1',
-          title: 'Decisao de produto',
+          title: 'Product decision',
           layer: 'semantic',
-          summary: 'ZavorthControl fake vira referencia visual oficial.',
+          summary: 'ZavorthControl visual fixture becomes the official visual reference.',
           confidence: 0.91,
         },
       ],
@@ -86,12 +86,12 @@ describe('ZavorthControlZavorthControlAdapter', () => {
         confidence: 0.88,
         live: true,
         roles: [
-          { roleId: 'auditor', label: 'Auditor', whySelected: 'auditoria profunda' },
+          { roleId: 'auditor', label: 'Auditor', whySelected: 'audit profunda' },
         ],
         triggers: ['deep-audit'],
         riskSignals: [],
         publicRationale: 'Complexidade alta com leitura segura.',
-        nextSafeAction: 'Acompanhar workers e receipts.',
+        nextSafeAction: 'Track workers e receipts.',
         safety: {
           noRawChainOfThought: true,
           noSecretValuesSerialized: true,
@@ -163,9 +163,9 @@ describe('ZavorthControlZavorthControlAdapter', () => {
         ok: true,
         generatedAt: '2026-04-26T12:03:00.000Z',
         operatorExperience: {
-          statusLabel: 'Pronto',
+          statusLabel: 'Ready',
           tone: 'ok',
-          primaryMessage: 'Nexus esta pronto para operar.',
+          primaryMessage: 'Nexus is ready to operate.',
           nextStep: 'Continue usando.',
           cards: [
             {
@@ -192,7 +192,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
               status: 'completed',
               durationMs: 42,
               tools: ['status'],
-              finalResponse: 'Tudo pronto.',
+              finalResponse: 'Tudo ready.',
             },
           ],
         },
@@ -210,8 +210,8 @@ describe('ZavorthControlZavorthControlAdapter', () => {
               id: 'browser-mcp',
               label: 'Browser MCP',
               status: 'official-but-provisioned',
-              publicStatus: 'precisa configurar',
-              runtimeTruth: 'Browser sidecar precisa de doctor.',
+              publicStatus: 'needs setup',
+              runtimeTruth: 'Browser sidecar needs de doctor.',
               ownerLayer: 'tooling',
               commands: ['npm run mcp:browser:doctor'],
               limitations: ['Scripts arbitrarios exigem sidecar isolado.'],
@@ -256,7 +256,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
             totalRequests: 2,
           },
           watchMode: {
-            nextAction: 'Sem pendencias.',
+            nextAction: 'Sem pending items.',
           },
         },
         actions: [
@@ -348,7 +348,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
         expect.objectContaining({ command: '/agents read session-1' }),
       ]),
       timeline: expect.arrayContaining([
-        expect.objectContaining({ title: 'Decisao de subagentes' }),
+        expect.objectContaining({ title: 'Delegated review decision' }),
       ]),
       receipts: expect.arrayContaining([
         expect.objectContaining({ kind: 'decision' }),
@@ -424,11 +424,11 @@ describe('ZavorthControlZavorthControlAdapter', () => {
     ]));
     expect(viewModel.nexusWorkbench).toEqual(expect.objectContaining({
       status: 'ready',
-      headline: 'Nexus pronto pelo runtime principal.',
+      headline: 'Nexus ready pelo runtime principal.',
       operatorExperience: expect.objectContaining({
-        statusLabel: 'Pronto',
+        statusLabel: 'Ready',
         tone: 'ok',
-        primaryMessage: 'Nexus esta pronto para operar.',
+        primaryMessage: 'Nexus is ready to operate.',
         nextStep: 'Continue usando.',
         cards: [
           expect.objectContaining({
@@ -483,12 +483,12 @@ describe('ZavorthControlZavorthControlAdapter', () => {
         status: 'ready',
       },
       wsStatus: 'connected',
-      runtimeWarnings: ['Provider principal indisponivel.'],
+      runtimeWarnings: ['Provider principal unavailable.'],
       approvals: [
         {
           id: 'approval-1',
-          title: 'Permitir escrita em arquivo',
-          reason: 'A tarefa precisa alterar um arquivo.',
+          title: 'Allow file write',
+          reason: 'A tarefa needs change a file.',
         },
       ],
     });
@@ -543,7 +543,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
             readiness: 'ready',
             ready: true,
             fallbackOrder: [],
-            explanation: ['Configuracao atual seleciona openai/gpt-4o.'],
+            explanation: ['Configuraction atual seleciona openai/gpt-4o.'],
           },
         },
       },
@@ -582,7 +582,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
           readiness: 'ready',
           ready: true,
           fallbackOrder: ['gemini', 'openai'],
-          selectionExplanation: ['Configuracao atual seleciona gemini/gemini-2.5-flash.'],
+          selectionExplanation: ['Configuraction atual seleciona gemini/gemini-2.5-flash.'],
         },
         metadata: {
           modelPickerSelection: {
@@ -596,7 +596,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
             readiness: 'ready',
             ready: true,
             fallbackOrder: ['gemini', 'openai'],
-            explanation: ['Configuracao atual seleciona gemini/gemini-2.5-flash.'],
+            explanation: ['Configuraction atual seleciona gemini/gemini-2.5-flash.'],
           },
           runBudget: {
             source: 'RunBudgetPolicy',
@@ -623,7 +623,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
               readiness: 'ready',
               ready: true,
               fallbackOrder: ['gemini', 'openai'],
-              explanation: ['Configuracao atual seleciona gemini/gemini-2.5-flash.'],
+              explanation: ['Configuraction atual seleciona gemini/gemini-2.5-flash.'],
               matchedEffectiveProvider: true,
             },
             budget: {
@@ -667,7 +667,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
       readiness: 'ready',
       ready: true,
       fallbackOrder: ['gemini', 'openai'],
-      selectionExplanation: ['Configuracao atual seleciona gemini/gemini-2.5-flash.'],
+      selectionExplanation: ['Configuraction atual seleciona gemini/gemini-2.5-flash.'],
     }));
     expect(viewModel.agentRun?.events).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -707,13 +707,13 @@ describe('ZavorthControlZavorthControlAdapter', () => {
         sessionId: 'session-trace',
         status: 'waiting_approval',
         title: 'Editar README',
-        summary: 'Preparando alteracao governada.',
+        summary: 'Preparando change governada.',
         events: [
           {
             id: 'event-thinking',
             kind: 'thinking',
             title: 'Thought for 1s',
-            detail: 'Analisando o pedido e selecionando ferramentas seguras.',
+            detail: 'Analisando o pedido e selecionando tools seguras.',
             status: 'done',
           },
         ],
@@ -724,7 +724,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
           kind: 'skill.selected',
           skillName: 'workspace-edit',
           title: 'Selected skill',
-          summary: 'O pedido exige editar arquivo dentro do workspace.',
+          summary: 'O pedido exige editar file dentro do workspace.',
           status: 'done',
         },
         {
@@ -732,7 +732,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
           kind: 'tool.awaiting_approval',
           toolName: 'apply_patch',
           title: 'Waiting for approval',
-          summary: 'Patch preparado; nenhuma escrita foi feita antes da aprovacao.',
+          summary: 'Patch preparado; nenhuma escrita foi feita antes da approval.',
           target: 'README.md',
           risk: 'attention',
           status: 'pending',
@@ -807,8 +807,8 @@ describe('ZavorthControlZavorthControlAdapter', () => {
     });
 
     expect(viewModel.runtime.status).toBe('offline');
-    expect(viewModel.runtime.currentModelLabel).toBe('modelo nao informado');
-    expect(viewModel.runtime.currentProviderLabel).toBe('provider nao informado');
+    expect(viewModel.runtime.currentModelLabel).toBe('modelo not informado');
+    expect(viewModel.runtime.currentProviderLabel).toBe('provider not informado');
     expect(viewModel.sessions).toHaveLength(0);
     expect(viewModel.messages).toHaveLength(0);
     expect(viewModel.artifacts).toHaveLength(0);

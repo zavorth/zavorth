@@ -30,9 +30,9 @@ async function main() {
     return;
   }
 
-  console.log('[zavorth-ecosystem] leitura consolidada da Ecosystem');
+  console.log('[zavorth-ecosystem] read consolidada da Ecosystem');
   console.log(`[zavorth-ecosystem] postura: ${snapshot.summary.posture}`);
-  console.log(`[zavorth-ecosystem] resumo: ${snapshot.narrative.operatorSummary}`);
+  console.log(`[zavorth-ecosystem] summary: ${snapshot.narrative.operatorSummary}`);
   console.log(
     `[zavorth-ecosystem] registry=${snapshot.summary.registryEntries} | collections=${snapshot.summary.collections} | recipes=${snapshot.summary.recipes} | review=${snapshot.summary.reviewPending}`,
   );
@@ -42,10 +42,10 @@ async function main() {
   console.log(
     `[zavorth-ecosystem] examples: clients=${snapshot.summary.clientExamples} | nodes=${snapshot.summary.nodeExamples} | recipe-missing=${snapshot.summary.recipeCoverageMissing}`,
   );
-  console.log(`[zavorth-ecosystem] proximo passo: ${snapshot.narrative.nextAction}`);
+  console.log(`[zavorth-ecosystem] next passo: ${snapshot.narrative.nextAction}`);
 
   if (snapshot.actions.length > 0) {
-    console.log('[zavorth-ecosystem] acoes sugeridas:');
+    console.log('[zavorth-ecosystem] actions sugeridas:');
     for (const action of snapshot.actions.slice(0, 6)) {
       console.log(`- ${action.label}: ${action.command || action.reason}`);
     }
@@ -53,6 +53,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-ecosystem] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[zavorth-ecosystem] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

@@ -9,7 +9,7 @@ describe('Agent surface UX', () => {
     const telegram = renderSurfaceResponseForTarget('telegram', response);
     const discord = renderSurfaceResponseForTarget('discord', response);
 
-    expect(telegram.text).toContain('Agentes do Zavorth');
+    expect(telegram.text).toContain('Zavorth agents');
     expect(telegram.text).toContain('/agents read latest');
     expect((telegram.native as any).replyMarkup.inline_keyboard.flat()).toEqual(
       expect.arrayContaining([
@@ -27,7 +27,7 @@ describe('Agent surface UX', () => {
 
     for (const target of ['whatsapp', 'signal', 'imessage', 'cli', 'web'] as const) {
       const rendered = renderSurfaceResponseForTarget(target, response);
-      expect(rendered.text).toContain('Agentes do Zavorth');
+      expect(rendered.text).toContain('Zavorth agents');
       expect(rendered.text).toContain('/agents status');
       expect(rendered.text).toContain('/agents cancel latest');
     }
@@ -42,7 +42,7 @@ describe('Agent surface UX', () => {
     const signal = renderSurfaceResponseForTarget('signal', response);
 
     expect(telegram.text).toContain('Zavorth Natural Invoke');
-    expect(telegram.text).toMatch(/Action: spawn_team|Acao: spawn_team|spawn_team/i);
+    expect(telegram.text).toMatch(/Action: spawn_team|spawn_team/i);
     expect((telegram.native as any).replyMarkup.inline_keyboard.flat()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ text: 'Planejar' }),
@@ -130,10 +130,10 @@ function buildSnapshot() {
       dashboardProjection: {
         available: true,
         title: 'Auto subagents',
-        summary: 'Zavorth escolheu subagentes read-only.',
+        summary: 'Zavorth chose read-only delegated review.',
         selectedBy: 'explicit-user-request',
         roles: ['planner', 'qa'],
-        triggers: ['subagentes'],
+        triggers: ['delegated review'],
         riskSignals: [],
         nextSafeAction: '/agents read latest',
       },
@@ -161,7 +161,7 @@ function buildPlan() {
       label: 'Governed subagent team',
       kind: 'team',
       confidence: 0.94,
-      reason: 'Pedido explicito de subagentes.',
+      reason: 'Pedido explicito de delegated review.',
       requiresApproval: false,
     }],
     selectedSkillName: null,
@@ -187,7 +187,7 @@ function buildPlan() {
     narrative: {
       headline: 'Natural invocation routed',
       summary: 'Router selected spawn_team.',
-      nextAction: 'Acompanhe em /agents status.',
+      nextAction: 'Track it in /agents status.',
     },
     commands: {},
   };

@@ -67,7 +67,7 @@ describe('Zavorth CLI Provider Mesh Consolidation', () => {
 
   it('formats a compact human summary', () => {
     const snapshot = buildProviderMeshConsolidationCliSnapshot({
-      text: 'melhor modelo para coding',
+      text: 'best model for coding',
       userId: 'grey',
       sessionId: 'session-cli-provider-mesh-human',
     });
@@ -76,7 +76,7 @@ describe('Zavorth CLI Provider Mesh Consolidation', () => {
 
     expect(text).toContain('Provider Mesh / Model Picker Consolidation - Channel mesh3');
     expect(text).toContain('P0-extra');
-    expect(text).toMatch(/provider|nao|executed|Provider Mesh|Model Picker/i);
-    expect(text).toContain('Dashboard: /zavorthControl?sector=config');
+    expect(text).toMatch(/provider|not|executed|Provider Mesh|Model Picker/i);
+    expect(text).toContain('Dashboard: /zavorthControl-sector=config');
   });
 });
