@@ -2557,7 +2557,7 @@ export function initControlApp() {
       <div class="experience-profile-panel__switcher" aria-label="Experience profile">
         ${buttons}
       </div>
-      <p class="experience-profile-panel__hint">Say "${escapeHtml(profile.naturalPrompts[0])}" any time. This changes wording and setup, not execution authority.</p>
+      <p class="experience-profile-panel__hint">Choose a profile here or use /profile with an explicit profile id. This changes wording and setup, not execution authority.</p>
     `;
   }
 
@@ -2580,17 +2580,6 @@ export function initControlApp() {
         meta: 'dashboard',
         status: 'ready',
       });
-    }
-  }
-
-  function applyNaturalExperienceProfileSwitch(text) {
-    const normalized = String(text || '')
-      .trim()
-      .toLowerCase();
-    if (!/\b(use|switch|mode|profile|modo|profile|troque|usar|quero)\b/.test(normalized)) return;
-    const resolved = resolveExperienceProfile(normalized, selectedExperienceProfile || 'personal');
-    if (resolved.id !== selectedExperienceProfile) {
-      setSelectedExperienceProfile(resolved.id);
     }
   }
 
@@ -3683,10 +3672,6 @@ ${current}`
     if (!options.fromQueue && handleLocalSlashCommand(text)) {
       return true;
     }
-    if (!options.fromQueue) {
-      applyNaturalExperienceProfileSwitch(text);
-    }
-
     const submittedItem = options.queueItem || snapshotQueuedPrompt(text);
     const submitKey = promptSubmitKey(submittedItem);
     if (inFlightSubmitKeys.has(submitKey) && !options.fromQueue) {
@@ -4861,7 +4846,7 @@ ${current}`
           `Suggested setup: ${profile.suggestedChannels.join(', ')}. Capabilities: ${profile.suggestedCapabilities.slice(0, 4).join(', ')}.`,
           '',
           'If this browser needs access, paste the local token. I will mark the runtime connected only after the local bridge confirms it.',
-          `You can say "${profile.naturalPrompts[0]}" or choose another profile any time. I will adapt wording and setup without bypassing approvals.`,
+          'Choose another profile any time from the profile panel or with /profile <id>. I will adapt wording and setup without bypassing approvals.',
           'Nothing sensitive is written to memory until you confirm it.',
         ].join('\n'),
 

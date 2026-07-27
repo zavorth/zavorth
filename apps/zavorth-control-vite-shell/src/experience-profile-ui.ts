@@ -102,30 +102,10 @@ export const EXPERIENCE_PROFILE_CATALOG: ExperienceProfileUiContract[] = [
   },
 ];
 
-const PROFILE_ALIASES: Record<string, ExperienceProfileId> = {
-  personal: 'personal',
-  daily: 'personal',
-  creator: 'creator',
-  content: 'creator',
-  research: 'creator',
-  developer: 'developer',
-  dev: 'developer',
-  code: 'developer',
-  business: 'business',
-  compliance: 'business',
-  audit: 'business',
-  power: 'power',
-  advanced: 'power',
-  runtime: 'power',
-};
-
 export function resolveExperienceProfile(input: unknown, fallback: ExperienceProfileId = 'personal'): ExperienceProfileUiContract {
   const normalized = normalizeText(input);
   const explicit = EXPERIENCE_PROFILE_CATALOG.find((profile) => profile.id === normalized);
   if (explicit) return explicit;
-  for (const [alias, profileId] of Object.entries(PROFILE_ALIASES)) {
-    if (normalized.includes(alias)) return getExperienceProfile(profileId, fallback);
-  }
   return getExperienceProfile(fallback, 'personal');
 }
 
