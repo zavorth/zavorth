@@ -297,9 +297,9 @@ function formatWorkflowLabel(workflow: string | null): string | null {
   if (!normalized) {
     return null;
   }
-  if (normalized === 'ship') return 'Workflow de entrega';
-  if (normalized === 'review') return 'Workflow de review';
-  if (normalized === 'research') return 'Workflow de research';
+  if (normalized === 'ship') return 'Delivery workflow';
+  if (normalized === 'review') return 'Review workflow';
+  if (normalized === 'research') return 'Research workflow';
   return `Workflow ${normalized}`;
 }
 
@@ -361,10 +361,10 @@ function buildBaseNextActions(input: {
   if (input.recentArtifactTaskId) {
     actions.push({
       kind: 'open_latest_delivery',
-      label: input.recentArtifactName ? `Abrir ${input.recentArtifactName}`
-        : 'Abrir ultima entrega',
+      label: input.recentArtifactName ? `Open ${input.recentArtifactName}`
+        : 'Open latest delivery',
       command: `/files ${shortId(input.recentArtifactTaskId)}`,
-      reason: input.recentArtifactName ? `Inspecionar a entrega recente ${input.recentArtifactName}.`
+      reason: input.recentArtifactName ? `Inspect the recent delivery ${input.recentArtifactName}.`
         : 'Inspect the last delivery before continuing.',
       taskId: input.recentArtifactTaskId,
     });
@@ -375,7 +375,7 @@ function buildBaseNextActions(input: {
       runId: input.workflowRunId,
       stageId: input.stageId,
       stageLabel: input.stageLabel,
-      reason: input.workflowLabel ? `${input.workflowLabel} ainda pode ser retomado do ponto current.`
+      reason: input.workflowLabel ? `${input.workflowLabel} can still resume from the current point.`
         : null,
     }),
   );
@@ -420,15 +420,15 @@ function buildClosedWorkflowFollowupPrompt(input: {
   const parts: string[] = [];
 
   parts.push(
-    titleHint ? `Continue a conversation sobre ${titleHint}.`
-      : 'Continue a conversation current.',
+    titleHint ? `Continue the conversation about ${titleHint}.`
+      : 'Continue the current conversation.',
   );
   parts.push(
-    input.closeReason ? `O workflow anterior foi encerrado by the operator: ${input.closeReason}.`
-      : 'O workflow anterior foi encerrado by the operator.',
+    input.closeReason ? `The previous workflow was closed by the operator: ${input.closeReason}.`
+      : 'The previous workflow was closed by the operator.',
   );
   if (input.recentArtifactName) {
-    parts.push(`Use ${input.recentArtifactName} como base for decidir o next passo util.`);
+    parts.push(`Use ${input.recentArtifactName} as the basis for deciding the next useful step.`);
   } else {
     parts.push('Continue from the current context without automatically resuming the previous workflow.');
   }
@@ -495,7 +495,7 @@ function buildOperationalInsight(operationalMemory: Record<string, any>): string
     const subtype = asText(routeOutcome.task_subtype);
     const rationale = asText(routeOutcome.rationale);
     return normalizeInsightText(
-      `Better rota recente: ${executor} fecha ${kind}${subtype && subtype !== 'general' ? `/${subtype}` : ''}${rationale ? ` (${rationale})` : ''}.`,
+      `Recent better route: ${executor} closes ${kind}${subtype && subtype !== 'general' ? `/${subtype}` : ''}${rationale ? ` (${rationale})` : ''}.`,
     );
   }
 
@@ -517,7 +517,7 @@ function buildOperationalInsight(operationalMemory: Record<string, any>): string
   if (approvedPolicy) {
     const executor = asText(approvedPolicy.executor) || 'executor';
     const kind = asText(approvedPolicy.kind) || 'policy';
-    return normalizeInsightText(`Politica already reaproveitada in this workspace: ${executor}/${kind}.`);
+    return normalizeInsightText(`Policy already reused in this workspace: ${executor}/${kind}.`);
   }
 
   const successfulExecutor = Array.isArray(operationalMemory.successful_executors)
@@ -562,7 +562,7 @@ function buildFollowupPrompt(input: {
         : 'Resume the conversation that came from Telegram.',
     );
   } else {
-    parts.push(titleHint ? `Continue a conversation sobre ${titleHint}.` : 'Continue a conversation current.');
+    parts.push(titleHint ? `Continue the conversation about ${titleHint}.` : 'Continue the current conversation.');
   }
 
   if (input.continuityReason) {
@@ -570,7 +570,7 @@ function buildFollowupPrompt(input: {
   } else if (input.continuityLabel) {
     parts.push(`${cleanTitleCandidate(input.continuityLabel)}.`);
   } else if (input.operationalSummary) {
-    parts.push(`Leve in conta este contexto: ${input.operationalSummary}.`);
+    parts.push(`Take this context into account: ${input.operationalSummary}.`);
   }
 
   if (input.workflowLabel) {
@@ -578,7 +578,7 @@ function buildFollowupPrompt(input: {
   }
 
   if (input.recentArtifactName) {
-    parts.push(`Use ${input.recentArtifactName} como base do que vier agora.`);
+    parts.push(`Use ${input.recentArtifactName} as the basis for what comes next.`);
   }
 
   const prompt = parts.join(' ').replace(/\s+/g, ' ').trim();

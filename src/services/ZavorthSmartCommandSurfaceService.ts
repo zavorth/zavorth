@@ -325,13 +325,13 @@ export class ZavorthSmartCommandSurfaceService {
       snapshot.reply.title,
       snapshot.reply.body,
       '',
-      `Comando: ${snapshot.command.canonicalSlash || snapshot.command.raw}`,
+      `Command: ${snapshot.command.canonicalSlash || snapshot.command.raw}`,
       `Status: ${snapshot.status}`,
       `Channel: ${snapshot.channel}`,
       snapshot.action.nextCommand ? `next: ${snapshot.action.nextCommand}` : null,
     ].filter(Boolean) as string[];
     if (snapshot.reply.hints.length > 0) {
-      lines.push('', 'Dicas');
+      lines.push('', 'Hints');
       for (const hint of snapshot.reply.hints) {
         lines.push(`- ${hint}`);
       }
@@ -372,7 +372,7 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
       body: 'The current channel received a new conversation context. Memory and receipt histories remain auditable.',
       hints: [
         'Write your next request in free-form text.',
-        'Use /history para review conversas anteriores when available.',
+        'Use /history to review previous conversations when available.',
       ],
     };
   }
@@ -389,7 +389,7 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
     return {
       title: args ? 'Persona prepared' : 'Zavorth personas',
       body: args ? `Persona "${args}" stayed in preview. Applying persona changes persistent behavior and requires approval.`
-        : 'Use /personality <nome> para propor uma persona ou tom de trabalho.',
+        : 'Use /personality <name> to propose a persona or work tone.',
       hints: ['Nothing was saved without approval.', 'Use SOUL.md only as a governed profile source.'],
     };
   }
@@ -466,7 +466,7 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
     return {
       title: args ? 'Home prepared' : 'Workspace home',
       body: args ? `Proposed new home: ${args}. Persistent writes require approval and a safe path.`
-        : 'Informe um path: /sethome <path>. O Zavorth vai validate before gravar.',
+        : 'Provide a path: /sethome <path>. Zavorth validates it before saving.',
       hints: ['There is no automatic computer scan.', 'Use explicit paths.'],
     };
   }
@@ -486,10 +486,10 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
 
 function approvalReasonFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): string | null {
   if (command.executionMode === 'approval-gated') {
-    return `${command.label} pode alterar estado, cancelar trabalho ou run rollback.`;
+    return `${command.label} can alter state, cancel work, or run rollback.`;
   }
   if (ctx.apply) {
-    return `${command.label} foi chamado com apply e needs approval.`;
+    return `${command.label} was called with apply and needs approval.`;
   }
   return null;
 }
@@ -535,17 +535,17 @@ function stripSmartCommandRuntimeFlags(value: string): string {
     .replace(/\s+--apply\b/gi, '')
     .replace(/\s+--approval-id(?:=|\s+)\S+/gi, '')
     .replace(/\s+--channel(?:=|\s+)\S+/gi, '')
-    .replace(/\s+--session(?:-id)...(?:=|\s+)\S+/gi, '')
+    .replace(/\s+--session(?:-id)?(?:=|\s+)\S+/gi, '')
     .trim();
 }
 
 function hasSmartCommandFlag(rawText: string, name: string): boolean {
-  const escaped = name.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return new RegExp(`(?:^|\\s)--${escaped}(?:\\s|$)`, 'i').test(String(rawText || ''));
 }
 
 function extractSmartCommandInlineValue(rawText: string, name: string): string | null {
-  const escaped = name.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const match = String(rawText || '').match(new RegExp(`(?:^|\\s)--${escaped}(?:=|\\s+)(\\S+)`, 'i'));
   return match?.[1]?.trim() || null;
 }

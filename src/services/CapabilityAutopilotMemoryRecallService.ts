@@ -189,7 +189,7 @@ export class CapabilityAutopilotMemoryRecallService {
 
     const reasons: CapabilityMemoryRecallReason[] = [];
     if (query.capabilityId && record.capabilityId === query.capabilityId) {
-      reasons.push(this.reason('capability', 40, 'Mesma capability.'));
+      reasons.push(this.reason('capability', 40, 'Same capability.'));
     }
     if (query.workspaceHash && record.workspaceHash === query.workspaceHash) {
       reasons.push(this.reason('workspace', 25, 'Same workspace redacted by hash.'));
@@ -198,13 +198,13 @@ export class CapabilityAutopilotMemoryRecallService {
       reasons.push(this.reason('intent', 25, 'Similar intent by redacted fingerprint.'));
     }
     if (query.failureKind && record.failureKind === query.failureKind) {
-      reasons.push(this.reason('failure', 15, 'Mesmo tipo de failure anterior.'));
+      reasons.push(this.reason('failure', 15, 'Same previous failure kind.'));
     }
     if (query.preferredOutcomes?.includes(record.outcome)) {
-      reasons.push(this.reason('outcome', 12, `Outcome anterior util: ${record.outcome}.`));
+      reasons.push(this.reason('outcome', 12, `Useful previous outcome: ${record.outcome}.`));
     }
     if (record.replayable) {
-      reasons.push(this.reason('replayable', 8, 'Registro pode virar replay seguro.'));
+      reasons.push(this.reason('replayable', 8, 'Record can become a safe replay.'));
     }
 
     const score = reasons.reduce((sum, reason) => sum + reason.score, 0) - (record.outcome === 'failed' ? 30 : 0);
@@ -236,8 +236,8 @@ export class CapabilityAutopilotMemoryRecallService {
   private buildSafeSummary(bestMatch: CapabilityMemoryRecallMatch): string {
     return [
       `Procedural memory found for ${bestMatch.capabilityId}.`,
-      `Action sugerida: ${bestMatch.recommendedNextAction}.`,
-      `Licao safe: ${bestMatch.lesson}`,
+      `Suggested action: ${bestMatch.recommendedNextAction}.`,
+      `Safe lesson: ${bestMatch.lesson}`,
       'Nothing should be executed automatically because of this memory.',
     ].join(' ');
   }
