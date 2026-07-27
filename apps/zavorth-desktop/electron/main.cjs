@@ -1292,7 +1292,7 @@ function updateHomeDir() {
   }
 }
 
-// Phase 7 — electron-updater for packaged installers (GitHub fallback remains).
+// electron-updater for packaged installers (GitHub fallback remains).
 const desktopElectronUpdater = createDesktopElectronUpdater({
   isPackaged: () => {
     try {

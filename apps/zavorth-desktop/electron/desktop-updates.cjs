@@ -2,7 +2,7 @@
  * Local-first update channel for Zavorth Desktop.
  *
  * Priority:
- * 1. electron-updater (Phase 7) — when packaged installers + service enabled
+ * 1. electron-updater when packaged installers and the service are enabled
  * 2. Optional custom manifest (ZAVORTH_UPDATE_MANIFEST_URL) — only if you host one later
  * 3. GitHub Releases for the repo (default: zavorth/zavorth) — no website required
  *
@@ -213,7 +213,7 @@ async function checkUpdates(input = {}) {
   const manifestUrl = String(process.env.ZAVORTH_UPDATE_MANIFEST_URL || input.manifestUrl || '').trim();
   const channel = String(process.env.ZAVORTH_UPDATE_CHANNEL || 'github');
 
-  // Phase 7: prefer electron-updater for packaged Desktop when the bridge is provided.
+  // Prefer electron-updater for packaged Desktop when the bridge is provided.
   const electronUpdater = input.electronUpdater || null;
   if (electronUpdater && typeof electronUpdater.isEnabled === 'function' && electronUpdater.isEnabled()) {
     const eu = await electronUpdater.checkForUpdates();
@@ -386,7 +386,7 @@ async function downloadUpdate(input = {}) {
   const state = readState(homeDir);
   const electronUpdater = input.electronUpdater || null;
 
-  // Phase 7: in-app download via electron-updater when enabled.
+  // In-app download via electron-updater when enabled.
   if (electronUpdater && typeof electronUpdater.isEnabled === 'function' && electronUpdater.isEnabled()) {
     const dl = await electronUpdater.downloadUpdate();
     if (dl.ok) {
@@ -480,7 +480,7 @@ async function installUpdate(input = {}) {
   const currentVersion = String(input.currentVersion || '0.1.0');
   const electronUpdater = input.electronUpdater || null;
 
-  // Phase 7: quitAndInstall when electron-updater has a downloaded package.
+  // quitAndInstall when electron-updater has a downloaded package.
   if (
     electronUpdater
     && typeof electronUpdater.isEnabled === 'function'

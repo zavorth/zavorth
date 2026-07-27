@@ -21,7 +21,7 @@ function createMockAutoUpdater(handlers = {}) {
     },
     async checkForUpdates() {
       if (handlers.checkForUpdates) return handlers.checkForUpdates();
-      return { updateInfo: { version: '0.2.0', releaseNotes: 'Phase 7' } };
+      return { updateInfo: { version: '0.2.0', releaseNotes: 'Installer update' } };
     },
     async downloadUpdate() {
       if (handlers.downloadUpdate) return handlers.downloadUpdate();
