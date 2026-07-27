@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import Observation
 import UserNotifications
 import WatchKit
@@ -39,82 +39,82 @@ enum WatchExecApprovalCloseReason: String, Codable, Equatable {
 struct WatchExecApprovalItem: Codable, Equatable, Identifiable {
     var id: String
     var commandText: String
-    var commandPreview: String?
-    var host: String?
-    var nodeId: String?
-    var agentId: String?
-    var expiresAtMs: Int?
+    var commandPreview: String...
+    var host: String...
+    var nodeId: String...
+    var agentId: String...
+    var expiresAtMs: Int...
     var allowedDecisions: [WatchExecApprovalDecision]
-    var risk: WatchRiskLevel?
+    var risk: WatchRiskLevel...
 }
 
 struct WatchExecApprovalPromptMessage: Codable, Equatable {
     var approval: WatchExecApprovalItem
-    var sentAtMs: Int?
-    var deliveryId: String?
-    var resetResolvingState: Bool?
+    var sentAtMs: Int...
+    var deliveryId: String...
+    var resetResolvingState: Bool...
 }
 
 struct WatchExecApprovalResolvedMessage: Codable, Equatable {
     var approvalId: String
-    var decision: WatchExecApprovalDecision?
-    var resolvedAtMs: Int?
-    var source: String?
+    var decision: WatchExecApprovalDecision...
+    var resolvedAtMs: Int...
+    var source: String...
 }
 
 struct WatchExecApprovalExpiredMessage: Codable, Equatable {
     var approvalId: String
     var reason: WatchExecApprovalCloseReason
-    var expiredAtMs: Int?
+    var expiredAtMs: Int...
 }
 
 struct WatchExecApprovalSnapshotMessage: Codable, Equatable {
     var approvals: [WatchExecApprovalItem]
-    var sentAtMs: Int?
-    var snapshotId: String?
+    var sentAtMs: Int...
+    var snapshotId: String...
 }
 
 struct WatchExecApprovalSnapshotRequestMessage: Codable, Equatable {
     var requestId: String
-    var sentAtMs: Int?
+    var sentAtMs: Int...
 }
 
 struct WatchExecApprovalResolveMessage: Codable, Equatable {
     var approvalId: String
     var decision: WatchExecApprovalDecision
     var replyId: String
-    var sentAtMs: Int?
+    var sentAtMs: Int...
 }
 
 struct WatchAppSnapshotMessage: Codable, Equatable {
     var gatewayStatusText: String
     var gatewayConnected: Bool
     var agentName: String
-    var agentAvatarURL: String?
-    var agentAvatarText: String?
+    var agentAvatarURL: String...
+    var agentAvatarText: String...
     var sessionKey: String
-    var gatewayStableID: String?
+    var gatewayStableID: String...
     var talkStatusText: String
     var talkEnabled: Bool
     var talkListening: Bool
     var talkSpeaking: Bool
     var pendingApprovalCount: Int
-    var chatItems: [WatchChatItem]?
-    var chatStatusText: String?
-    var sentAtMs: Int?
-    var snapshotId: String?
+    var chatItems: [WatchChatItem]...
+    var chatStatusText: String...
+    var sentAtMs: Int...
+    var snapshotId: String...
 }
 
 struct WatchChatItem: Codable, Equatable, Identifiable {
     var id: String
     var role: String
     var text: String
-    var timestampMs: Int?
+    var timestampMs: Int...
 }
 
 struct WatchAppSnapshotRequestMessage: Codable, Equatable {
     var requestId: String
-    var sentAtMs: Int?
+    var sentAtMs: Int...
 }
 
 enum WatchAppCommand: String, Codable, Equatable {
@@ -128,29 +128,29 @@ enum WatchAppCommand: String, Codable, Equatable {
 struct WatchAppCommandMessage: Codable, Equatable {
     var command: WatchAppCommand
     var commandId: String
-    var sessionKey: String?
-    var gatewayStableID: String?
-    var text: String?
-    var sentAtMs: Int?
+    var sessionKey: String...
+    var gatewayStableID: String...
+    var text: String...
+    var sentAtMs: Int...
 }
 
 struct WatchPromptAction: Codable, Equatable, Identifiable {
     var id: String
     var label: String
-    var style: String?
+    var style: String...
 }
 
 struct WatchNotifyMessage {
-    var id: String?
+    var id: String...
     var title: String
     var body: String
-    var sentAtMs: Int?
-    var promptId: String?
-    var sessionKey: String?
-    var kind: String?
-    var details: String?
-    var expiresAtMs: Int?
-    var risk: String?
+    var sentAtMs: Int...
+    var promptId: String...
+    var sessionKey: String...
+    var kind: String...
+    var details: String...
+    var expiresAtMs: Int...
+    var risk: String...
     var actions: [WatchPromptAction]
 }
 
@@ -159,9 +159,9 @@ struct WatchExecApprovalRecord: Codable, Equatable, Identifiable {
     var transport: String
     var updatedAt: Date
     var isResolving: Bool
-    var pendingDecision: WatchExecApprovalDecision?
-    var statusText: String?
-    var statusAt: Date?
+    var pendingDecision: WatchExecApprovalDecision...
+    var statusText: String...
+    var statusAt: Date...
 
     var id: String {
         self.approval.id
@@ -174,25 +174,25 @@ struct WatchExecApprovalRecord: Codable, Equatable, Identifiable {
         var body: String
         var transport: String
         var updatedAt: Date
-        var lastDeliveryKey: String?
-        var promptId: String?
-        var sessionKey: String?
-        var kind: String?
-        var details: String?
-        var expiresAtMs: Int?
-        var risk: String?
-        var actions: [WatchPromptAction]?
-        var replyStatusText: String?
-        var replyStatusAt: Date?
+        var lastDeliveryKey: String...
+        var promptId: String...
+        var sessionKey: String...
+        var kind: String...
+        var details: String...
+        var expiresAtMs: Int...
+        var risk: String...
+        var actions: [WatchPromptAction]...
+        var replyStatusText: String...
+        var replyStatusAt: Date...
         var execApprovals: [WatchExecApprovalRecord]
-        var selectedExecApprovalID: String?
-        var lastExecApprovalSnapshotID: String?
-        var lastExecApprovalOutcomeText: String?
-        var lastExecApprovalOutcomeAt: Date?
-        var appSnapshot: WatchAppSnapshotMessage?
-        var appSnapshotUpdatedAt: Date?
-        var appSnapshotStatusText: String?
-        var appCommandStatusText: String?
+        var selectedExecApprovalID: String...
+        var lastExecApprovalSnapshotID: String...
+        var lastExecApprovalOutcomeText: String...
+        var lastExecApprovalOutcomeAt: Date...
+        var appSnapshot: WatchAppSnapshotMessage...
+        var appSnapshotUpdatedAt: Date...
+        var appSnapshotStatusText: String...
+        var appCommandStatusText: String...
     }
 
     private static let persistedStateKey = "watch.inbox.state.v2"
@@ -203,32 +203,32 @@ struct WatchExecApprovalRecord: Codable, Equatable, Identifiable {
     var title = WatchInboxStore.defaultTitle
     var body = WatchInboxStore.defaultBody
     var transport = "none"
-    var updatedAt: Date?
-    var promptId: String?
-    var sessionKey: String?
-    var kind: String?
-    var details: String?
-    var expiresAtMs: Int?
-    var risk: String?
+    var updatedAt: Date...
+    var promptId: String...
+    var sessionKey: String...
+    var kind: String...
+    var details: String...
+    var expiresAtMs: Int...
+    var risk: String...
     var actions: [WatchPromptAction] = []
-    var replyStatusText: String?
-    var replyStatusAt: Date?
+    var replyStatusText: String...
+    var replyStatusAt: Date...
     var isReplySending = false
     var execApprovals: [WatchExecApprovalRecord] = []
-    var selectedExecApprovalID: String?
-    var lastExecApprovalOutcomeText: String?
-    var lastExecApprovalOutcomeAt: Date?
-    var appSnapshot: WatchAppSnapshotMessage?
-    var appSnapshotUpdatedAt: Date?
-    var appSnapshotStatusText: String?
-    var appCommandStatusText: String?
-    var greetingTextOverride: String?
+    var selectedExecApprovalID: String...
+    var lastExecApprovalOutcomeText: String...
+    var lastExecApprovalOutcomeAt: Date...
+    var appSnapshot: WatchAppSnapshotMessage...
+    var appSnapshotUpdatedAt: Date...
+    var appSnapshotStatusText: String...
+    var appCommandStatusText: String...
+    var greetingTextOverride: String...
     var isExecApprovalReviewLoading = false
-    var execApprovalReviewStatusText: String?
-    var execApprovalReviewStatusAt: Date?
-    private var lastExecApprovalSnapshotID: String?
+    var execApprovalReviewStatusText: String...
+    var execApprovalReviewStatusAt: Date...
+    private var lastExecApprovalSnapshotID: String...
     private var hasCompletedExecApprovalSnapshotRefreshInSession = false
-    private var lastDeliveryKey: String?
+    private var lastDeliveryKey: String...
 
     init(
         defaults: UserDefaults = .standard,
@@ -255,7 +255,7 @@ struct WatchExecApprovalRecord: Codable, Equatable, Identifiable {
         }
     }
 
-    var activeExecApproval: WatchExecApprovalRecord? {
+    var activeExecApproval: WatchExecApprovalRecord... {
         if let selectedExecApprovalID,
            let selected = execApprovals.first(where: { $0.id == selectedExecApprovalID })
         {
@@ -336,7 +336,7 @@ struct WatchExecApprovalRecord: Codable, Equatable, Identifiable {
     }
 
     func consume(message: WatchNotifyMessage, transport: String) {
-        let messageID = message.id?
+        let messageID = message.id...
             .trimmingCharacters(in: .whitespacesAndNewlines)
         let deliveryKey = self.deliveryKey(
             messageID: messageID,
@@ -463,7 +463,7 @@ struct WatchExecApprovalRecord: Codable, Equatable, Identifiable {
         self.persistState()
     }
 
-    func makeAppCommand(_ command: WatchAppCommand, text: String? = nil) -> WatchAppCommandMessage {
+    func makeAppCommand(_ command: WatchAppCommand, text: String... = nil) -> WatchAppCommandMessage {
         let snapshotSessionKey = self.appSnapshot?.sessionKey.trimmingCharacters(in: .whitespacesAndNewlines)
         return WatchAppCommandMessage(
             command: command,
@@ -607,7 +607,7 @@ struct WatchExecApprovalRecord: Codable, Equatable, Identifiable {
     private func mergedExecApprovalRecord(
         approval: WatchExecApprovalItem,
         transport: String,
-        existingRecord: WatchExecApprovalRecord?,
+        existingRecord: WatchExecApprovalRecord...,
         resetResolvingState: Bool = false) -> WatchExecApprovalRecord
     {
         // Preserve in-flight state across ordinary snapshot/prompt refreshes so duplicate
@@ -652,7 +652,7 @@ struct WatchExecApprovalRecord: Codable, Equatable, Identifiable {
 
     private func restorePersistedState() {
         guard let data = defaults.data(forKey: Self.persistedStateKey),
-              let state = try? JSONDecoder().decode(PersistedState.self, from: data)
+              let state = try... JSONDecoder().decode(PersistedState.self, from: data)
         else {
             return
         }
@@ -708,11 +708,11 @@ struct WatchExecApprovalRecord: Codable, Equatable, Identifiable {
             appSnapshotUpdatedAt: appSnapshotUpdatedAt,
             appSnapshotStatusText: appSnapshotStatusText,
             appCommandStatusText: appCommandStatusText)
-        guard let data = try? JSONEncoder().encode(state) else { return }
+        guard let data = try... JSONEncoder().encode(state) else { return }
         self.defaults.set(data, forKey: Self.persistedStateKey)
     }
 
-    private func deliveryKey(messageID: String?, title: String, body: String, sentAtMs: Int?) -> String {
+    private func deliveryKey(messageID: String..., title: String, body: String, sentAtMs: Int...) -> String {
         if let messageID, messageID.isEmpty == false {
             return "id:\(messageID)"
         }
@@ -724,13 +724,13 @@ struct WatchExecApprovalRecord: Codable, Equatable, Identifiable {
         let settings = await center.notificationSettings()
         switch settings.authorizationStatus {
         case .notDetermined:
-            _ = try? await center.requestAuthorization(options: [.alert, .sound])
+            _ = try... await center.requestAuthorization(options: [.alert, .sound])
         default:
             break
         }
     }
 
-    private func mapHapticRisk(_ risk: String?) -> WKHapticType {
+    private func mapHapticRisk(_ risk: String...) -> WKHapticType {
         switch risk?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
         case "high":
             .failure
@@ -775,7 +775,7 @@ struct WatchExecApprovalRecord: Codable, Equatable, Identifiable {
         self.persistState()
     }
 
-    private func postLocalNotification(identifier: String, title: String, body: String, risk: String?) async {
+    private func postLocalNotification(identifier: String, title: String, body: String, risk: String...) async {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
@@ -787,7 +787,7 @@ struct WatchExecApprovalRecord: Codable, Equatable, Identifiable {
             content: content,
             trigger: UNTimeIntervalNotificationTrigger(timeInterval: 0.2, repeats: false))
 
-        _ = try? await UNUserNotificationCenter.current().add(request)
+        _ = try... await UNUserNotificationCenter.current().add(request)
         WKInterfaceDevice.current().play(self.mapHapticRisk(risk))
     }
 

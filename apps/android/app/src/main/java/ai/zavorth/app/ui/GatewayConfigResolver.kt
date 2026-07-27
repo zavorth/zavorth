@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.gateway.isLocalCleartextGatewayHost
 import kotlinx.serialization.json.Json
@@ -21,9 +21,9 @@ internal data class GatewayEndpointConfig(
 /** Decoded setup-code payload; only one credential family is expected to be populated. */
 internal data class GatewaySetupCode(
   val url: String,
-  val bootstrapToken: String?,
-  val token: String?,
-  val password: String?,
+  val bootstrapToken: String...,
+  val token: String...,
+  val password: String...,
 )
 
 /** Final gateway connection fields selected from setup-code or manual UI input. */
@@ -51,14 +51,14 @@ internal enum class GatewayEndpointInputSource {
 
 /** Endpoint parse result that preserves the reason when no usable config exists. */
 internal data class GatewayEndpointParseResult(
-  val config: GatewayEndpointConfig? = null,
-  val error: GatewayEndpointValidationError? = null,
+  val config: GatewayEndpointConfig... = null,
+  val error: GatewayEndpointValidationError... = null,
 )
 
 /** QR scan result that separates a usable setup code from validation copy. */
 internal data class GatewayScannedSetupCodeResult(
-  val setupCode: String? = null,
-  val error: GatewayEndpointValidationError? = null,
+  val setupCode: String... = null,
+  val error: GatewayEndpointValidationError... = null,
 )
 
 private val gatewaySetupJson = Json { ignoreUnknownKeys = true }
@@ -80,7 +80,7 @@ internal fun resolveGatewayConnectConfig(
   fallbackBootstrapToken: String,
   fallbackToken: String,
   fallbackPassword: String,
-): GatewayConnectConfig? {
+): GatewayConnectConfig... {
   if (useSetupCode) {
     val setup = decodeGatewaySetupCode(setupCode) ?: return null
     val parsed = parseGatewayEndpointResult(setup.url).config ?: return null
@@ -132,7 +132,7 @@ internal fun resolveGatewayConnectConfig(
 }
 
 /** Parses an endpoint string and returns only the valid connection config. */
-internal fun parseGatewayEndpoint(rawInput: String): GatewayEndpointConfig? = parseGatewayEndpointResult(rawInput).config
+internal fun parseGatewayEndpoint(rawInput: String): GatewayEndpointConfig... = parseGatewayEndpointResult(rawInput).config
 
 /** Parses and validates gateway endpoint input with user-facing error reasons. */
 internal fun parseGatewayEndpointResult(rawInput: String): GatewayEndpointParseResult {
@@ -179,7 +179,7 @@ internal fun parseGatewayEndpointResult(rawInput: String): GatewayEndpointParseR
 }
 
 /** Decodes base64url setup-code payloads produced by gateway onboarding. */
-internal fun decodeGatewaySetupCode(rawInput: String): GatewaySetupCode? {
+internal fun decodeGatewaySetupCode(rawInput: String): GatewaySetupCode... {
   val trimmed = rawInput.trim()
   if (trimmed.isEmpty()) return null
 
@@ -249,7 +249,7 @@ internal fun composeGatewayManualUrl(
   hostInput: String,
   portInput: String,
   tls: Boolean,
-): String? {
+): String... {
   val host = hostInput.trim()
   if (host.isEmpty()) return null
   val portTrimmed = portInput.trim()
@@ -264,9 +264,9 @@ internal fun composeGatewayManualUrl(
   return "$scheme://$host:$port"
 }
 
-private fun parseJsonObject(input: String): JsonObject? = runCatching { gatewaySetupJson.parseToJsonElement(input).jsonObject }.getOrNull()
+private fun parseJsonObject(input: String): JsonObject... = runCatching { gatewaySetupJson.parseToJsonElement(input).jsonObject }.getOrNull()
 
-private fun resolveSetupCodeCandidate(rawInput: String): String? {
+private fun resolveSetupCodeCandidate(rawInput: String): String... {
   val trimmed = rawInput.trim()
   if (trimmed.isEmpty()) return null
   val qrSetupCode = parseJsonObject(trimmed)?.let { jsonField(it, "setupCode") }
@@ -276,7 +276,7 @@ private fun resolveSetupCodeCandidate(rawInput: String): String? {
 private fun jsonField(
   obj: JsonObject,
   key: String,
-): String? {
-  val value = (obj[key] as? JsonPrimitive)?.contentOrNull?.trim().orEmpty()
+): String... {
+  val value = (obj[key] as... JsonPrimitive)?.contentOrNull?.trim().orEmpty()
   return value.ifEmpty { null }
 }

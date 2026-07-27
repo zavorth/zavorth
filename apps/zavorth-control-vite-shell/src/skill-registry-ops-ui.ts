@@ -100,7 +100,7 @@ function renderList(root: HTMLElement, skills: SkillRow[], selectedId: string | 
     btn.className = `daily-settings-row${selectedId === id ? ' is-active' : ''}`;
     btn.setAttribute('data-skill-registry-item', id);
     btn.innerHTML = `<div><strong>${escapeHtml(skill.name || id)}</strong><span>${escapeHtml(
-      `${skill.version || '—'} · ${skill.signed ? `signed (${skill.signatureMode || 'hmac'})` : 'unsigned'} · risk ${skill.riskLevel || '?'}`,
+      `${skill.version || '—'} · ${skill.signed ? `signed (${skill.signatureMode || 'hmac'})` : 'unsigned'} · risk ${skill.riskLevel || '...'}`,
     )}</span></div>`;
     btn.addEventListener('click', () => onSelect(id));
     list.appendChild(btn);

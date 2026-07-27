@@ -201,7 +201,7 @@ describe('sortSessionsForSidebar', () => {
     };
     const sorted = sortSessionsForSidebar(sessions, map, { includeArchived: true });
     // pinned first (d, a), then non-archived c, then archived b
-    // within pinned: non-archived d before archived a? Spec: pinned first, then non-archived, then createdAt
+    // within pinned: non-archived d before archived a... Spec: pinned first, then non-archived, then createdAt
     // Comparison: both pinned, then archived flag (non-archived first), then date
     expect(sorted.map(s => s.id)).toEqual(['d', 'a', 'c', 'b']);
   });

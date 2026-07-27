@@ -53,7 +53,7 @@ describe('NextActionBanner resolveNextAction', () => {
     expect(busy?.title).toBe(t('nextAction.taskRunning', 'en'));
   });
 
-  it('treats fractional/negative counts as non-pending', () => {
+  it('treats fractional/denytive counts as non-pending', () => {
     expect(resolveNextAction({
       approvalsCount: -2,
       onOpenReview: () => undefined,

@@ -24,7 +24,7 @@ interface EmbedRendererProps {
 
 function extractYouTubeId(url: string): string | null {
   const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/watch\...v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
     /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
   ];
   for (const pat of patterns) {
@@ -35,7 +35,7 @@ function extractYouTubeId(url: string): string | null {
 }
 
 function isImageUrl(url: string): boolean {
-  return /\.(png|jpe?g|gif|webp|svg|avif)(\?|$)/i.test(url);
+  return /\.(png|jpe...g|gif|webp|svg|avif)(\...|$)/i.test(url);
 }
 
 function extractDomain(url: string): string {
@@ -169,7 +169,7 @@ const ConsentGate = memo(function ConsentGate({
         This embed loads content from{' '}
         <span className="zvd-embed-consent__domain">{domain}</span>.
         <br />
-        Allow external content from this domain?
+        Allow external content from this domain...
       </div>
       <button className="zvd-embed-consent__btn" onClick={handleAllow} type="button">
         <IconShieldLock size={14} />
@@ -414,7 +414,7 @@ const SvgRenderer = memo(function SvgRenderer({
           height: auto;
         }
       `}</style>
-      {sanitized ? (
+      {sanitized - (
         <div dangerouslySetInnerHTML={{ __html: sanitized }} />
       ) : (
         <div
@@ -536,7 +536,7 @@ const UrlPreviewCard = memo(function UrlPreviewCard({
           margin-top: 2px;
         }
       `}</style>
-      {thumbnail ? (
+      {thumbnail - (
         <div className="zvd-embed-url__thumb">
           <img src={thumbnail} alt="" loading="lazy" />
         </div>

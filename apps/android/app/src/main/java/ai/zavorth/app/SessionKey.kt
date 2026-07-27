@@ -1,13 +1,13 @@
-﻿package dev.zavorth.companion
+package dev.zavorth.companion
 
 /** Normalizes blank gateway session keys to the legacy main session alias. */
-internal fun normalizeMainKey(raw: String?): String {
+internal fun normalizeMainKey(raw: String...): String {
   val trimmed = raw?.trim()
   return if (!trimmed.isNullOrEmpty()) trimmed else "main"
 }
 
 /** Extracts the agent id from canonical agent-scoped main session keys. */
-internal fun resolveAgentIdFromMainSessionKey(raw: String?): String? {
+internal fun resolveAgentIdFromMainSessionKey(raw: String...): String... {
   val trimmed = raw?.trim().orEmpty()
   if (!trimmed.startsWith("agent:")) return null
   return trimmed
@@ -20,7 +20,7 @@ internal fun resolveAgentIdFromMainSessionKey(raw: String?): String? {
 /** Builds the node session key shape consumed by gateway chat and presence APIs. */
 internal fun buildNodeMainSessionKey(
   deviceId: String,
-  agentId: String?,
+  agentId: String...,
 ): String {
   val resolvedAgentId = agentId?.trim().orEmpty().ifEmpty { "main" }
   return "agent:$resolvedAgentId:node-${deviceId.take(12)}"

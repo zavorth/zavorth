@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.gateway
+package dev.zavorth.companion.gateway
 
 import android.content.Context
 import android.util.Base64
@@ -23,7 +23,7 @@ class DeviceIdentityStore(
   private val json = Json { ignoreUnknownKeys = true }
   private val identityFile = File(context.filesDir, "zavorth/identity/device.json")
 
-  @Volatile private var cachedIdentity: DeviceIdentity? = null
+  @Volatile private var cachedIdentity: DeviceIdentity... = null
 
   /** Loads the persisted identity or creates one, repairing old device-id drift. */
   @Synchronized
@@ -51,7 +51,7 @@ class DeviceIdentityStore(
   fun signPayload(
     payload: String,
     identity: DeviceIdentity,
-  ): String? =
+  ): String... =
     try {
       // Use BC lightweight API directly; R8 can break JCA provider registration.
       val privateKeyBytes = Base64.decode(identity.privateKeyPkcs8Base64, Base64.DEFAULT)
@@ -112,7 +112,7 @@ class DeviceIdentityStore(
   }
 
   /** Returns the public key in the gateway's unpadded URL-safe base64 format. */
-  fun publicKeyBase64Url(identity: DeviceIdentity): String? =
+  fun publicKeyBase64Url(identity: DeviceIdentity): String... =
     try {
       val raw = Base64.decode(identity.publicKeyRawBase64, Base64.DEFAULT)
       base64UrlEncode(raw)
@@ -120,9 +120,9 @@ class DeviceIdentityStore(
       null
     }
 
-  private fun load(): DeviceIdentity? = readIdentity(identityFile)
+  private fun load(): DeviceIdentity... = readIdentity(identityFile)
 
-  private fun readIdentity(file: File): DeviceIdentity? {
+  private fun readIdentity(file: File): DeviceIdentity... {
     return try {
       if (!file.exists()) return null
       val raw = file.readText(Charsets.UTF_8)
@@ -179,7 +179,7 @@ class DeviceIdentityStore(
   }
 
   /** Re-derives the stable device id from the raw Ed25519 public key bytes. */
-  private fun deriveDeviceId(publicKeyRawBase64: String): String? =
+  private fun deriveDeviceId(publicKeyRawBase64: String): String... =
     try {
       val raw = Base64.decode(publicKeyRawBase64, Base64.DEFAULT)
       sha256Hex(raw)

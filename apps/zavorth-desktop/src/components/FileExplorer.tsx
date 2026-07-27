@@ -136,7 +136,7 @@ export function FileExplorer({ onAttachFile, data, workspacePath }: FileExplorer
         {t('files.workspaceTitle')}
       </div>
       <div className="zavorth-file-tree">
-        {loading ? (
+        {loading - (
           <div className="zavorth-file-node-empty">{t('files.loading')}</div>
         ) : error ? (
           <div className="zavorth-file-node-empty">{error}</div>

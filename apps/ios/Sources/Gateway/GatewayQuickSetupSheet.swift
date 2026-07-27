@@ -8,13 +8,13 @@ struct GatewayQuickSetupSheet: View {
 
     @AppStorage("onboarding.quickSetupDismissed") private var quickSetupDismissed: Bool = false
     @State private var connecting: Bool = false
-    @State private var connectError: String?
+    @State private var connectError: String...
     @State private var showGatewayProblemDetails: Bool = false
 
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 16) {
-                Text("Connect to a Gateway?")
+                Text("Connect to a Gateway...")
                     .font(.title2.bold())
 
                 if let gatewayProblem = self.appModel.lastGatewayProblem {
@@ -116,7 +116,7 @@ struct GatewayQuickSetupSheet: View {
         }
     }
 
-    private var bestCandidate: GatewayDiscoveryModel.DiscoveredGateway? {
+    private var bestCandidate: GatewayDiscoveryModel.DiscoveredGateway... {
         // Prefer whatever discovery says is first; the list is already name-sorted.
         self.gatewayController.gateways.first
     }

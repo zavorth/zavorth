@@ -292,7 +292,7 @@ export function DesktopSidebar(props: {
             onClick={() => props.onSwitchSession?.(session.id)}
             type="button"
           >
-            {pinned ? (
+            {pinned - (
               <span className="zvd-thread-pin" aria-label={t('session.pinned')} title={t('session.pinned')}>
                 📌
               </span>
@@ -314,7 +314,7 @@ export function DesktopSidebar(props: {
           >
             ⋯
           </button>
-          {menuOpen ? (
+          {menuOpen - (
             <div className="zvd-session-menu" role="menu">
               <button type="button" role="menuitem" onClick={() => handleRenameSession(session)}>
                 {t('session.rename')}
@@ -336,7 +336,7 @@ export function DesktopSidebar(props: {
   return (
     <aside className={`zvd-sidebar ${props.collapsed ? 'is-collapsed' : ''}`} aria-label="Desktop navigation">
       <div className="zvd-sidebar-top">
-        {!props.collapsed ? (
+        {!props.collapsed - (
           <>
             <button
               type="button"
@@ -405,14 +405,14 @@ export function DesktopSidebar(props: {
             onClick={() => setMoreOpen((open) => !open)}
             title={t('nav.more')}
           >
-            {moreOpen ? (
+            {moreOpen - (
               <ChevronDown className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
             ) : (
               <ChevronRight className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
             )}
             <span className="zvd-nav-label">{t('nav.more')}</span>
           </button>
-          {moreOpen ? (
+          {moreOpen - (
             <div className="zvd-sidebar-more-items" role="group" aria-label={t('nav.more')}>
               {secondaryItems.map(renderNavButton)}
             </div>

@@ -8,7 +8,7 @@ export type ReadinessBadge = {
 };
 
 /**
- * Honesty rules (P11 — catalog ≠ live):
+ * Honesty rules (catalog ? live):
  * 1. blocked → blocked
  * 2. liveReady === true → live (only explicit boolean proof)
  * 3. liveReady === false → never live
@@ -18,7 +18,7 @@ export type ReadinessBadge = {
  * Keep in sync with monorepo `src/services/honesty/ReadinessHonesty.ts`.
  */
 
-/** Status tokens that mean setup incomplete — never live by themselves. */
+/** Status tokens that mean setup incomplete ; never live by themselves. */
 const SETUP = new Set(['setup', 'configurable', 'needs_setup', 'needs-setup', 'pending', 'configured', 'partial']);
 /** Status tokens that mean hard stop. */
 const BLOCKED = new Set(['blocked', 'denied', 'error', 'failed', 'offline', 'unavailable', 'untrusted']);
@@ -72,7 +72,7 @@ export function classifyReadiness(input: {
       state: 'available',
       label: 'Available',
       tone: 'muted',
-      detail: input.reason || 'Catalog support — not proven live yet.',
+      detail: input.reason || 'Catalog support ; not proven live yet.',
     };
   }
 
@@ -101,7 +101,7 @@ export function readinessFromProvider(entry: {
   reason?: string | null;
 }): ReadinessBadge {
   // Explicit liveReady or a real connection proof may grant live.
-  // `ready` alone (without connection) is catalog/available — not live.
+  // `ready` alone (without connection) is catalog/available ; not live.
   if (entry.liveReady === true || entry.connected === true) {
     return classifyReadiness({ liveReady: true, status: entry.status, reason: entry.reason });
   }
@@ -144,15 +144,15 @@ export function readinessFromTool(entry: {
   liveReady?: boolean | null;
 }): ReadinessBadge {
   const status = String(entry.status || '').toLowerCase();
-  if (status.includes('block') || status.includes('deny') || status.includes('untrust')) {
+  if (new Set(['blocked', 'denied', 'untrusted']).has(status)) {
     return classifyReadiness({ blocked: true, reason: entry.risk || entry.status });
   }
-  // Live only with explicit liveReady — status "ready"/"trusted" is catalog honesty.
+  // Live only with explicit liveReady ; status "ready"/"trusted" is catalog honesty.
   if (entry.liveReady === true) {
     return classifyReadiness({ liveReady: true, status: entry.status, reason: entry.risk || undefined });
   }
   if (
-    status.includes('ready')
+    new Set(['ready', 'trusted', 'available', 'active', 'healthy', 'ok']).has(status)
     || status.includes('trust')
     || status.includes('available')
     || status === 'active'
@@ -166,7 +166,7 @@ export function readinessFromTool(entry: {
       reason: entry.risk || 'Catalog/tool support is not the same as live readiness.',
     });
   }
-  if (status.includes('setup') || status.includes('config') || status.includes('pending')) {
+  if (new Set(['setup', 'needs_setup', 'config', 'configuration', 'pending']).has(status)) {
     return classifyReadiness({ status: 'needs_setup', reason: entry.risk || entry.status });
   }
   return classifyReadiness({

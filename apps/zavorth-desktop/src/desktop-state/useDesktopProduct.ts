@@ -135,7 +135,7 @@ export function useDesktopProduct(input: {
     try {
       const boardOk = await pushBoardMutation(board, 'sync-board');
       if (!boardOk) {
-        input.setNotice('Workboard sync failed. Local board kept; runtime push unavailable.');
+        input.setNotice('Workboard sync failed. local board kept; runtime push unavailable.');
         return false;
       }
       const cards = board.cards.slice();
@@ -149,8 +149,7 @@ export function useDesktopProduct(input: {
           break;
         }
       }
-      input.setNotice(cardsOk
-        ? `Workboard “${board.name}” synced to runtime.`
+      input.setNotice(cardsOk ? `Workboard “${board.name}” synced to runtime.`
         : `Workboard “${board.name}” partially synced. Some cards stayed local.`);
       return cardsOk;
     } finally {
@@ -267,13 +266,12 @@ export function useDesktopProduct(input: {
           previewSummary = [
             `trust=${preview.trust || 'review'}`,
             `perms=${permCount}`,
-            risks.length ? risks.join('; ') : null,
+            risks.length - risks.join('; ') : null,
             preview.needsCredentials ? 'may need credentials' : null,
           ].filter(Boolean).join(' · ');
-          const riskText = risks.length ? risks.join('; ') : (preview.text || 'review recommended');
+          const riskText = risks.length - risks.join('; ') : (preview.text || 'review recommended');
           input.setNotice(
-            preview.needsCredentials
-              ? `${pluginId} may need credentials. Risks: ${riskText}. Enabling only because you clicked Enable (never auto).`
+            preview.needsCredentials ? `${pluginId} may need credentials. Risks: ${riskText}. Enabling only because you clicked Enable (never auto).`
               : `Before enable — ${pluginId}: ${riskText}. Proceeding with your explicit Enable…`,
           );
           previewSummary = riskText;
@@ -292,8 +290,7 @@ export function useDesktopProduct(input: {
         await refreshPluginOs();
       }
       input.setNotice(
-        previewSummary
-          ? `Enabled ${pluginId}. You approved this enable. Risks noted: ${previewSummary}`
+        previewSummary ? `Enabled ${pluginId}. You approved this enable. Risks noted: ${previewSummary}`
           : `Enabled ${pluginId}. You approved this enable (never auto-enables).`,
       );
     } catch (error: unknown) {
@@ -328,8 +325,7 @@ export function useDesktopProduct(input: {
       }
       const bridged = result.data?.result?.bridged as { pluginId?: string; trust?: string; enabled?: boolean } | undefined;
       input.setNotice(
-        bridged
-          ? `Inspect ${bridged.pluginId || pluginId}: enabled=${Boolean(bridged.enabled)} trust=${bridged.trust || 'review'}`
+        bridged ? `Inspect ${bridged.pluginId || pluginId}: enabled=${Boolean(bridged.enabled)} trust=${bridged.trust || 'review'}`
           : `Inspected ${pluginId}.`,
       );
       if (result.data?.snapshot) {
@@ -377,11 +373,10 @@ export function useDesktopProduct(input: {
           text?: string;
         } | undefined;
         const top = (rec?.recommendations || []).slice(0, 3)
-          .map((item) => item.pluginId || '?')
+          .map((item) => item.pluginId || '...')
           .join(', ');
         input.setNotice(
-          top
-            ? `Suggestions: ${top}. Never auto-enables — use Enable or Recommend only.`
+          top ? `Suggestions: ${top}. Never auto-enables — use Enable or Recommend only.`
             : (rec?.text || `No plugin matches for "${intent}".`),
         );
         return;
@@ -390,8 +385,7 @@ export function useDesktopProduct(input: {
       setPluginOsSuggest(suggest);
       const primary = suggest?.primary;
       input.setNotice(
-        primary?.pluginId
-          ? `${primary.pluginId} can help. Choose Enable or Recommend only — never auto-enables.`
+        primary?.pluginId ? `${primary.pluginId} can help. Choose Enable or Recommend only — never auto-enables.`
           : (suggest?.message || `No enableable plugin for "${intent}".`),
       );
       if (result.data?.snapshot) {
@@ -411,8 +405,7 @@ export function useDesktopProduct(input: {
     }
     if (actionId === 'recommend_only') {
       input.setNotice(
-        pluginId
-          ? `Recommend only: keep ${pluginId} as a suggestion. Not enabled.`
+        pluginId ? `Recommend only: keep ${pluginId} as a suggestion. Not enabled.`
           : 'Recommend only — nothing enabled.',
       );
       setPluginOsSuggest(null);
@@ -433,8 +426,7 @@ export function useDesktopProduct(input: {
       const catalog = result.data?.result?.catalog as { enabled?: string[] } | undefined;
       const enabled = Array.isArray(catalog?.enabled) ? catalog!.enabled! : [];
       input.setNotice(
-        enabled.length
-          ? `Bootstrap catalog enabled ${enabled.length} plugin(s): ${enabled.slice(0, 6).join(', ')}`
+        enabled.length ? `Bootstrap catalog enabled ${enabled.length} plugin(s): ${enabled.slice(0, 6).join(', ')}`
           : String(result.data?.result?.notice || 'Bootstrap catalog applied (no new enables).'),
       );
       if (result.data?.snapshot) {
@@ -589,7 +581,7 @@ export function useDesktopProduct(input: {
         path: '/api/skills/marketplace/install',
         body: {
           name: plugin?.name || pluginId,
-          description: plugin?.description || 'Skill instalada pelo Zavorth Desktop.',
+          description: plugin?.description || 'Skill installed by Zavorth Desktop.',
           version: plugin?.version || '1.0.0',
           skillMdContent: plugin?.skillMdContent || `# ${plugin?.name || pluginId}\n\n${plugin?.description || ''}`,
           sourceUrl: plugin?.sourceUrl,

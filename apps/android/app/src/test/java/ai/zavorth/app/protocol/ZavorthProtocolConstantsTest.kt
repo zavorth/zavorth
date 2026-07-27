@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.protocol
+package dev.zavorth.companion.protocol
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

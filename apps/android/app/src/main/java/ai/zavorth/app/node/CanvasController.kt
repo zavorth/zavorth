@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.BuildConfig
 import android.graphics.Bitmap
@@ -34,29 +34,29 @@ class CanvasController {
     Jpeg("jpeg"),
   }
 
-  @Volatile private var webView: WebView? = null
+  @Volatile private var webView: WebView... = null
 
-  @Volatile private var url: String? = null
+  @Volatile private var url: String... = null
 
   @Volatile private var debugStatusEnabled: Boolean = false
 
-  @Volatile private var debugStatusTitle: String? = null
+  @Volatile private var debugStatusTitle: String... = null
 
-  @Volatile private var debugStatusSubtitle: String? = null
+  @Volatile private var debugStatusSubtitle: String... = null
 
-  @Volatile private var homeCanvasStateJson: String? = null
-  private val _currentUrl = MutableStateFlow<String?>(null)
-  val currentUrl: StateFlow<String?> = _currentUrl.asStateFlow()
+  @Volatile private var homeCanvasStateJson: String... = null
+  private val _currentUrl = MutableStateFlow<String...>(null)
+  val currentUrl: StateFlow<String...> = _currentUrl.asStateFlow()
 
   private val scaffoldAssetUrl = CanvasActionTrust.scaffoldAssetUrl
   private val localA2uiAssetUrl = CanvasActionTrust.localA2uiAssetUrl
 
-  private fun clampJpegQuality(quality: Double?): Int {
+  private fun clampJpegQuality(quality: Double...): Int {
     val q = (quality ?: 0.82).coerceIn(0.1, 1.0)
     return (q * 100.0).toInt().coerceIn(1, 100)
   }
 
-  private fun Bitmap.scaleForMaxWidth(maxWidth: Int?): Bitmap {
+  private fun Bitmap.scaleForMaxWidth(maxWidth: Int...): Bitmap {
     if (maxWidth == null || maxWidth <= 0 || width <= maxWidth) {
       return this
     }
@@ -95,7 +95,7 @@ class CanvasController {
     reload()
   }
 
-  fun currentUrl(): String? = url
+  fun currentUrl(): String... = url
 
   fun setDebugStatusEnabled(enabled: Boolean) {
     debugStatusEnabled = enabled
@@ -103,8 +103,8 @@ class CanvasController {
   }
 
   fun setDebugStatus(
-    title: String?,
-    subtitle: String?,
+    title: String...,
+    subtitle: String...,
   ) {
     debugStatusTitle = title
     debugStatusSubtitle = subtitle
@@ -116,7 +116,7 @@ class CanvasController {
     applyHomeCanvasState()
   }
 
-  fun updateHomeCanvasState(json: String?) {
+  fun updateHomeCanvasState(json: String...) {
     homeCanvasStateJson = json
     applyHomeCanvasState()
   }
@@ -206,8 +206,8 @@ class CanvasController {
   /** Captures the WebView as PNG/JPEG base64 with optional width and quality bounds. */
   suspend fun snapshotBase64(
     format: SnapshotFormat,
-    quality: Double?,
-    maxWidth: Int?,
+    quality: Double...,
+    maxWidth: Int...,
   ): String =
     withContext(Dispatchers.Main) {
       val wv = webView ?: throw IllegalStateException("no webview")
@@ -249,31 +249,31 @@ class CanvasController {
      */
     data class SnapshotParams(
       val format: SnapshotFormat,
-      val quality: Double?,
-      val maxWidth: Int?,
+      val quality: Double...,
+      val maxWidth: Int...,
     )
 
     /** Parses canvas.navigate params and returns blank when the payload is missing or invalid. */
-    fun parseNavigateUrl(paramsJson: String?): String {
+    fun parseNavigateUrl(paramsJson: String...): String {
       val obj = parseParamsObject(paramsJson) ?: return ""
       return obj.string("url").trim()
     }
 
     /** Parses non-blank JavaScript from canvas.eval params. */
-    fun parseEvalJs(paramsJson: String?): String? {
+    fun parseEvalJs(paramsJson: String...): String... {
       val obj = parseParamsObject(paramsJson) ?: return null
       val js = obj.string("javaScript").trim()
       return js.takeIf { it.isNotBlank() }
     }
 
-    fun parseSnapshotMaxWidth(paramsJson: String?): Int? {
+    fun parseSnapshotMaxWidth(paramsJson: String...): Int... {
       val obj = parseParamsObject(paramsJson) ?: return null
       if (!obj.containsKey("maxWidth")) return null
       val width = obj.int("maxWidth") ?: 0
       return width.takeIf { it > 0 }
     }
 
-    fun parseSnapshotFormat(paramsJson: String?): SnapshotFormat {
+    fun parseSnapshotFormat(paramsJson: String...): SnapshotFormat {
       val obj = parseParamsObject(paramsJson) ?: return SnapshotFormat.Jpeg
       val raw = obj.string("format").trim().lowercase()
       return when (raw) {
@@ -284,7 +284,7 @@ class CanvasController {
       }
     }
 
-    fun parseSnapshotQuality(paramsJson: String?): Double? {
+    fun parseSnapshotQuality(paramsJson: String...): Double... {
       val obj = parseParamsObject(paramsJson) ?: return null
       if (!obj.containsKey("quality")) return null
       val q = obj.double("quality") ?: Double.NaN
@@ -294,7 +294,7 @@ class CanvasController {
     }
 
     /** Parses canvas.snapshot params using JPEG defaults and encoder-safe bounds. */
-    fun parseSnapshotParams(paramsJson: String?): SnapshotParams =
+    fun parseSnapshotParams(paramsJson: String...): SnapshotParams =
       SnapshotParams(
         format = parseSnapshotFormat(paramsJson),
         quality = parseSnapshotQuality(paramsJson),
@@ -303,7 +303,7 @@ class CanvasController {
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    private fun parseParamsObject(paramsJson: String?): JsonObject? {
+    private fun parseParamsObject(paramsJson: String...): JsonObject... {
       val raw = paramsJson?.trim().orEmpty()
       if (raw.isEmpty()) return null
       return try {
@@ -313,21 +313,21 @@ class CanvasController {
       }
     }
 
-    private fun JsonElement?.asObjectOrNull(): JsonObject? = this as? JsonObject
+    private fun JsonElement?.asObjectOrNull(): JsonObject... = this as... JsonObject
 
     private fun JsonObject.string(key: String): String {
-      val prim = this[key] as? JsonPrimitive ?: return ""
+      val prim = this[key] as... JsonPrimitive ?: return ""
       val raw = prim.content
       return raw.takeIf { it != "null" }.orEmpty()
     }
 
-    private fun JsonObject.int(key: String): Int? {
-      val prim = this[key] as? JsonPrimitive ?: return null
+    private fun JsonObject.int(key: String): Int... {
+      val prim = this[key] as... JsonPrimitive ?: return null
       return prim.content.toIntOrNull()
     }
 
-    private fun JsonObject.double(key: String): Double? {
-      val prim = this[key] as? JsonPrimitive ?: return null
+    private fun JsonObject.double(key: String): Double... {
+      val prim = this[key] as... JsonPrimitive ?: return null
       return prim.content.toDoubleOrNull()
     }
   }

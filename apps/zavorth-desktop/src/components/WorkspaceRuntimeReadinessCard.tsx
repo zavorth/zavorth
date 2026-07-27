@@ -49,7 +49,7 @@ export const WorkspaceRuntimeReadinessCard: React.FC<{ readiness: WorkspaceRunti
             <StatusBadge status={readiness.policyReady ? 'success' : 'error'}>Policy</StatusBadge>
           </span>
         </div>
-        
+
         {safeIssues.length > 0 && (
           <ul className="readiness-issues" style={{ paddingLeft: '20px', margin: 0 }}>
             {safeIssues.map((issue, idx) => (

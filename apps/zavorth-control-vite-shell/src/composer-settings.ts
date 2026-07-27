@@ -42,7 +42,7 @@ export function persistComposerSettings(nextSettings: Partial<ComposerSettings>)
   try {
     localStorage.setItem(COMPOSER_SETTINGS_KEY, JSON.stringify(normalized));
   } catch {
-    // Local composer preferences are best-effort.
+    // local composer preferences are best-effort.
   }
   return normalized;
 }
@@ -76,7 +76,7 @@ export function composerSettingLabel(key: string, value: unknown) {
   if (key === 'model') {
     if (normalized === 'auto') return '';
     if (normalized === 'safe') return 'Safe model';
-    if (normalized === 'local') return 'Local model';
+    if (normalized === 'local') return 'local model';
     return normalized;
   }
   if (key === 'effort') return normalized === 'balanced' ? 'normal effort' : `${normalized} effort`;

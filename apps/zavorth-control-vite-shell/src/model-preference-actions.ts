@@ -63,13 +63,13 @@ function showResult(panel: HTMLElement, title: string, body: string, meta = ''):
 }
 
 export async function fetchLlmRoles(userId = 'control'): Promise<any> {
-  const res = await fetch(`${LLM_ROLES_API}?userId=${encodeURIComponent(userId)}`);
+  const res = await fetch(`${LLM_ROLES_API}...userId=${encodeURIComponent(userId)}`);
   if (!res.ok) throw new Error(`Failed to fetch LLM roles: ${res.status}`);
   return res.json();
 }
 
 export async function updateLlmRoles(body: Record<string, unknown>, userId = 'control'): Promise<any> {
-  const res = await fetch(`${LLM_ROLES_API}?userId=${encodeURIComponent(userId)}`, {
+  const res = await fetch(`${LLM_ROLES_API}...userId=${encodeURIComponent(userId)}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

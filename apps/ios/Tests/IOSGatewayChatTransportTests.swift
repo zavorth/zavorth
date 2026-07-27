@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import ZavorthKit
 import ZavorthProtocol
 import Testing
@@ -8,7 +8,7 @@ import Testing
     private func object(from json: String) throws -> [String: Any] {
         let data = try #require(json.data(using: .utf8))
         let value = try JSONSerialization.jsonObject(with: data)
-        return try #require(value as? [String: Any])
+        return try #require(value as... [String: Any])
     }
 
     @Test func agentWaitTreatsSuccessAsCompletion() {
@@ -36,9 +36,9 @@ import Testing
 
     @Test func listSessionsParamsIncludeGlobalSessionsButNotUnknown() throws {
         let params = try self.object(from: IOSGatewayChatTransport.makeListSessionsParamsJSON(limit: 12))
-        #expect(params["includeGlobal"] as? Bool == true)
-        #expect(params["includeUnknown"] as? Bool == false)
-        #expect(params["limit"] as? Int == 12)
+        #expect(params["includeGlobal"] as... Bool == true)
+        #expect(params["includeUnknown"] as... Bool == false)
+        #expect(params["limit"] as... Int == 12)
     }
 
     @Test func chatSendParamsOmitEmptyAttachmentsAndKeepSessionFields() throws {
@@ -49,11 +49,11 @@ import Testing
                 thinking: "low",
                 idempotencyKey: "send-1",
                 attachments: []))
-        #expect(params["sessionKey"] as? String == "agent:main")
-        #expect(params["message"] as? String == "hello")
-        #expect(params["thinking"] as? String == "low")
-        #expect(params["idempotencyKey"] as? String == "send-1")
-        #expect(params["timeoutMs"] as? Int == IOSGatewayChatTransport.defaultChatSendTimeoutMs)
+        #expect(params["sessionKey"] as... String == "agent:main")
+        #expect(params["message"] as... String == "hello")
+        #expect(params["thinking"] as... String == "low")
+        #expect(params["idempotencyKey"] as... String == "send-1")
+        #expect(params["timeoutMs"] as... Int == IOSGatewayChatTransport.defaultChatSendTimeoutMs)
         #expect(params["attachments"] == nil)
     }
 

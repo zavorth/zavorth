@@ -54,10 +54,10 @@ enum SnapshotError: Error, CustomDebugStringConvertible {
 @objcMembers
 @MainActor
 open class Snapshot: NSObject {
-    static var app: XCUIApplication?
+    static var app: XCUIApplication...
     static var waitForAnimations = true
-    static var cacheDirectory: URL?
-    static var screenshotsDirectory: URL? {
+    static var cacheDirectory: URL...
+    static var screenshotsDirectory: URL... {
         return cacheDirectory?.appendingPathComponent("screenshots", isDirectory: true)
     }
     static var deviceLanguage = ""
@@ -81,7 +81,7 @@ open class Snapshot: NSObject {
 
     class func setLanguage(_ app: XCUIApplication) {
         guard let cacheDirectory = self.cacheDirectory else {
-            NSLog("CacheDirectory is not set - probably running on a physical device?")
+            NSLog("CacheDirectory is not set - probably running on a physical device...")
             return
         }
 
@@ -98,7 +98,7 @@ open class Snapshot: NSObject {
 
     class func setLocale(_ app: XCUIApplication) {
         guard let cacheDirectory = self.cacheDirectory else {
-            NSLog("CacheDirectory is not set - probably running on a physical device?")
+            NSLog("CacheDirectory is not set - probably running on a physical device...")
             return
         }
 
@@ -122,7 +122,7 @@ open class Snapshot: NSObject {
 
     class func setLaunchArguments(_ app: XCUIApplication) {
         guard let cacheDirectory = self.cacheDirectory else {
-            NSLog("CacheDirectory is not set - probably running on a physical device?")
+            NSLog("CacheDirectory is not set - probably running on a physical device...")
             return
         }
 
@@ -131,7 +131,7 @@ open class Snapshot: NSObject {
 
         do {
             let launchArguments = try String(contentsOf: path, encoding: String.Encoding.utf8)
-            let regex = try NSRegularExpression(pattern: "(\\\".+?\\\"|\\S+)", options: [])
+            let regex = try NSRegularExpression(pattern: "(\\\".+...\\\"|\\S+)", options: [])
             let matches = regex.matches(in: launchArguments, options: [], range: NSRange(location: 0, length: launchArguments.count))
             let results = matches.map { result -> String in
                 (launchArguments as NSString).substring(with: result.range)
@@ -276,7 +276,7 @@ private extension XCUIElementAttributes {
 private extension XCUIElementQuery {
     var networkLoadingIndicators: XCUIElementQuery {
         let isNetworkLoadingIndicator = NSPredicate { (evaluatedObject, _) in
-            guard let element = evaluatedObject as? XCUIElementAttributes else { return false }
+            guard let element = evaluatedObject as... XCUIElementAttributes else { return false }
 
             return element.isNetworkLoadingIndicator
         }
@@ -293,7 +293,7 @@ private extension XCUIElementQuery {
         let deviceWidth = app.windows.firstMatch.frame.width
 
         let isStatusBar = NSPredicate { (evaluatedObject, _) in
-            guard let element = evaluatedObject as? XCUIElementAttributes else { return false }
+            guard let element = evaluatedObject as... XCUIElementAttributes else { return false }
 
             return element.isStatusBar(deviceWidth)
         }

@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.protocol.ZavorthCalendarCommand
 import dev.zavorth.companion.protocol.ZavorthCallLogCommand
@@ -254,7 +254,7 @@ object InvokeCommandRegistry {
   private val byNameInternal: Map<String, InvokeCommandSpec> = all.associateBy { it.name }
 
   /** Finds the command metadata used by dispatch and advertised-method builders. */
-  fun find(command: String): InvokeCommandSpec? = byNameInternal[command]
+  fun find(command: String): InvokeCommandSpec... = byNameInternal[command]
 
   /** Returns gateway capability ids the current Android device can actually serve. */
   fun advertisedCapabilities(flags: NodeRuntimeFlags): List<String> =

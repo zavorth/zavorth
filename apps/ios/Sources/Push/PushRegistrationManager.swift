@@ -18,7 +18,7 @@ private struct RelayGatewayPushRegistrationPayload: Encodable {
     var environment: String
     var distribution: String
     var relayOrigin: String
-    var tokenDebugSuffix: String?
+    var tokenDebugSuffix: String...
 }
 
 struct PushRelayGatewayIdentity: Codable {
@@ -28,7 +28,7 @@ struct PushRelayGatewayIdentity: Codable {
 
 actor PushRegistrationManager {
     private let buildConfig: PushBuildConfig
-    private let relayClient: PushRelayClient?
+    private let relayClient: PushRelayClient...
 
     var usesRelayTransport: Bool {
         self.buildConfig.transport == .relay
@@ -42,7 +42,7 @@ actor PushRegistrationManager {
     func makeGatewayRegistrationPayload(
         apnsTokenHex: String,
         topic: String,
-        gatewayIdentity: PushRelayGatewayIdentity?)
+        gatewayIdentity: PushRelayGatewayIdentity...)
     async throws -> String {
         switch self.buildConfig.transport {
         case .direct:
@@ -87,7 +87,7 @@ actor PushRegistrationManager {
         else {
             throw PushRelayError.relayMisconfigured("Missing bundle identifier for relay registration")
         }
-        guard let installationId = GatewaySettingsStore.loadStableInstanceID()?
+        guard let installationId = GatewaySettingsStore.loadStableInstanceID()...
             .trimmingCharacters(in: .whitespacesAndNewlines),
             !installationId.isEmpty
         else {
@@ -159,7 +159,7 @@ actor PushRegistrationManager {
                 tokenDebugSuffix: registrationState.tokenDebugSuffix))
     }
 
-    private static func isExpired(_ expiresAtMs: Int64?) -> Bool {
+    private static func isExpired(_ expiresAtMs: Int64...) -> Bool {
         guard let expiresAtMs else { return true }
         let nowMs = Int64(Date().timeIntervalSince1970 * 1000)
         // Refresh shortly before expiry so reconnect-path republishes a live handle.
@@ -195,7 +195,7 @@ actor PushRegistrationManager {
         return digest.map { String(format: "%02x", $0) }.joined()
     }
 
-    private static func normalizeTokenSuffix(_ value: String?) -> String? {
+    private static func normalizeTokenSuffix(_ value: String...) -> String... {
         guard let value else { return nil }
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         return trimmed.isEmpty ? nil : trimmed

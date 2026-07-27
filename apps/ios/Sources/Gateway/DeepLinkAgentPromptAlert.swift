@@ -1,9 +1,9 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct DeepLinkAgentPromptAlert: ViewModifier {
     @Environment(NodeAppModel.self) private var appModel: NodeAppModel
 
-    private var promptBinding: Binding<NodeAppModel.AgentDeepLinkPrompt?> {
+    private var promptBinding: Binding<NodeAppModel.AgentDeepLinkPrompt...> {
         Binding(
             get: { self.appModel.pendingAgentDeepLinkPrompt },
             set: { _ in
@@ -14,7 +14,7 @@ struct DeepLinkAgentPromptAlert: ViewModifier {
     func body(content: Content) -> some View {
         content.alert(item: self.promptBinding) { prompt in
             Alert(
-                title: Text("Run Zavorth agent?"),
+                title: Text("Run Zavorth agent..."),
                 message: Text(
                     """
                     Message:

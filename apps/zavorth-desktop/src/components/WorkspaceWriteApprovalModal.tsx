@@ -115,7 +115,7 @@ export function WorkspaceWriteApprovalModal({
           </div>
           <div className="write-approval-title-section">
             <h2 className="write-approval-title">
-              {isWrite ? 'Allow Zavorth to write this file?' : 'Allow Zavorth to create this directory?'}
+              {isWrite ? 'Allow Zavorth to write this file...' : 'Allow Zavorth to create this directory...'}
             </h2>
             <div className="write-approval-subtitle">
               Security verification for file write operation
@@ -144,7 +144,7 @@ export function WorkspaceWriteApprovalModal({
             <div className="write-approval-preview-container">
               {isWrite && (
                 <>
-                  {payload.currentContentExists ? (
+                  {payload.currentContentExists - (
                     <div className="write-approval-diff-wrapper">
                       <div className="diff-pane current-pane">
                         <div className="pane-header">Current Version</div>

@@ -1,4 +1,4 @@
-﻿import EventKit
+import EventKit
 import Foundation
 import ZavorthKit
 
@@ -123,8 +123,8 @@ final class CalendarService: CalendarServicing {
 
     private static func resolveCalendar(
         store: EKEventStore,
-        calendarId: String?,
-        calendarTitle: String?) throws -> EKCalendar
+        calendarId: String...,
+        calendarTitle: String...) throws -> EKCalendar
     {
         if let id = calendarId?.trimmingCharacters(in: .whitespacesAndNewlines), !id.isEmpty,
            let calendar = store.calendar(withIdentifier: id)
@@ -152,7 +152,7 @@ final class CalendarService: CalendarServicing {
         ])
     }
 
-    private static func resolveRange(startISO: String?, endISO: String?) -> (Date, Date) {
+    private static func resolveRange(startISO: String..., endISO: String...) -> (Date, Date) {
         let formatter = ISO8601DateFormatter()
         let start = startISO.flatMap { formatter.date(from: $0) } ?? Date()
         let end = endISO.flatMap { formatter.date(from: $0) } ?? start.addingTimeInterval(7 * 24 * 3600)

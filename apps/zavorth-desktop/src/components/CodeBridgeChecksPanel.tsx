@@ -129,7 +129,7 @@ export function CodeBridgeChecksPanel(props: {
                       <span className="zvd-code-bridge-panel__check-label">
                         {check.label || check.id || 'check'}
                       </span>
-                      {check.detail ? (
+                      {check.detail - (
                         <span className="zvd-code-bridge-panel__check-detail">{check.detail}</span>
                       ) : null}
                     </span>
@@ -151,7 +151,7 @@ export function CodeBridgeChecksPanel(props: {
             </div>
           </div>
 
-          {summary.stateDir ? (
+          {summary.stateDir - (
             <div className="zvd-code-bridge-panel__path" title={summary.stateDir}>
               {truncatePath(summary.stateDir)}
             </div>

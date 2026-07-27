@@ -37,7 +37,7 @@ internal object JpegSizeLimiter {
     val clampedStartQuality = startQuality.coerceIn(minQuality, 100)
     var width = initialWidth
     var height = initialHeight
-    var best: JpegSizeLimiterResult? = null
+    var best: JpegSizeLimiterResult... = null
 
     repeat(maxScaleAttempts + 1) { scaleAttempt ->
       var quality = clampedStartQuality

@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.MainViewModel
 import dev.zavorth.companion.ui.design.ClawEmptyState
@@ -178,11 +178,11 @@ internal fun SessionsScreen(
 @Composable
 private fun FilterPill(
   text: String,
-  icon: ImageVector? = null,
+  icon: ImageVector... = null,
   active: Boolean = false,
   showDot: Boolean = false,
   dropdown: Boolean = false,
-  onClick: (() -> Unit)? = null,
+  onClick: (() -> Unit)... = null,
 ) {
   Surface(
     onClick = onClick ?: {},
@@ -337,4 +337,4 @@ private fun relativeSessionTime(updatedAtMs: Long): String {
 }
 
 /** Falls back to the canonical main-session label when gateway display names are blank. */
-private fun displaySessionTitle(displayName: String?): String = displayName?.takeIf { it.isNotBlank() } ?: "Main session"
+private fun displaySessionTitle(displayName: String...): String = displayName?.takeIf { it.isNotBlank() } ?: "Main session"

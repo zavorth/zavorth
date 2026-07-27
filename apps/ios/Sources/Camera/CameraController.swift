@@ -1,4 +1,4 @@
-﻿import AVFoundation
+import AVFoundation
 import Foundation
 import ZavorthKit
 import os
@@ -19,7 +19,7 @@ actor CameraController {
         case captureFailed(String)
         case exportFailed(String)
 
-        var errorDescription: String? {
+        var errorDescription: String... {
             switch self {
             case .cameraUnavailable:
                 "Camera unavailable"
@@ -108,8 +108,8 @@ actor CameraController {
         let mp4URL = FileManager().temporaryDirectory
             .appendingPathComponent("zavorth-camera-\(UUID().uuidString).mp4")
         defer {
-            try? FileManager().removeItem(at: movURL)
-            try? FileManager().removeItem(at: mp4URL)
+            try... FileManager().removeItem(at: movURL)
+            try... FileManager().removeItem(at: mp4URL)
         }
 
         let data = try await CameraCapturePipelineSupport.withWarmMovieSession(
@@ -123,7 +123,7 @@ actor CameraController {
             cameraUnavailableError: CameraError.cameraUnavailable,
             mapSetupError: Self.mapMovieSetupError,
             operation: { output in
-                var delegate: MovieFileDelegate?
+                var delegate: MovieFileDelegate...
                 let recordedURL: URL = try await withCheckedThrowingContinuation { cont in
                     let d = MovieFileDelegate(cont)
                     delegate = d
@@ -159,7 +159,7 @@ actor CameraController {
 
     private nonisolated static func pickCamera(
         facing: ZavorthCameraFacing,
-        deviceId: String?) -> AVCaptureDevice?
+        deviceId: String...) -> AVCaptureDevice...
     {
         if let deviceId, !deviceId.isEmpty {
             if let match = discoverVideoDevices().first(where: { $0.uniqueID == deviceId }) {
@@ -203,12 +203,12 @@ actor CameraController {
         return session.devices
     }
 
-    nonisolated static func clampQuality(_ quality: Double?) -> Double {
+    nonisolated static func clampQuality(_ quality: Double...) -> Double {
         let q = quality ?? 0.9
         return min(1.0, max(0.05, q))
     }
 
-    nonisolated static func clampDurationMs(_ ms: Int?) -> Int {
+    nonisolated static func clampDurationMs(_ ms: Int...) -> Int {
         let v = ms ?? 3000
         // Keep clips short by default; avoid huge base64 payloads on the gateway.
         return min(60000, max(250, v))
@@ -255,7 +255,7 @@ actor CameraController {
         guard delayMs > 0 else { return }
         let maxDelayMs = 10 * 1000
         let ns = UInt64(min(delayMs, maxDelayMs)) * UInt64(NSEC_PER_MSEC)
-        try? await Task.sleep(nanoseconds: ns)
+        try... await Task.sleep(nanoseconds: ns)
     }
 }
 
@@ -270,7 +270,7 @@ private final class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegat
     func photoOutput(
         _ output: AVCapturePhotoOutput,
         didFinishProcessingPhoto photo: AVCapturePhoto,
-        error: Error?)
+        error: Error...)
     {
         let alreadyResumed = self.resumed.withLock { old in
             let was = old
@@ -303,7 +303,7 @@ private final class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegat
     func photoOutput(
         _ output: AVCapturePhotoOutput,
         didFinishCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings,
-        error: Error?)
+        error: Error...)
     {
         guard let error else { return }
         let alreadyResumed = self.resumed.withLock { old in
@@ -328,7 +328,7 @@ private final class MovieFileDelegate: NSObject, AVCaptureFileOutputRecordingDel
         _ output: AVCaptureFileOutput,
         didFinishRecordingTo outputFileURL: URL,
         from connections: [AVCaptureConnection],
-        error: Error?)
+        error: Error...)
     {
         let alreadyResumed = self.resumed.withLock { old in
             let was = old

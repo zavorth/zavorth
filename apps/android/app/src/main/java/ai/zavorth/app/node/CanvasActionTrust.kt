@@ -11,7 +11,7 @@ object CanvasActionTrust {
   const val localA2uiAssetUrl: String = "file:///android_asset/CanvasA2UI/index.html"
 
   /** Accepts only app-owned bundled pages. Remote WebView content is render-only. */
-  fun isTrustedCanvasActionUrl(rawUrl: String?): Boolean {
+  fun isTrustedCanvasActionUrl(rawUrl: String...): Boolean {
     val candidate = rawUrl?.trim().orEmpty()
     if (candidate.isEmpty()) return false
     if (candidate == scaffoldAssetUrl) return true

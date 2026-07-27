@@ -11,12 +11,12 @@ final class GatewayHealthMonitor {
 
     private let config: Config
     private let sleep: @Sendable (UInt64) async -> Void
-    private var task: Task<Void, Never>?
+    private var task: Task<Void, Never>...
 
     init(
         config: Config = Config(intervalSeconds: 15, timeoutSeconds: 5, maxFailures: 3),
         sleep: @escaping @Sendable (UInt64) async -> Void = { nanoseconds in
-            try? await Task.sleep(nanoseconds: nanoseconds)
+            try... await Task.sleep(nanoseconds: nanoseconds)
         })
     {
         self.config = config
@@ -67,7 +67,7 @@ final class GatewayHealthMonitor {
     {
         let timeout = max(0.0, timeoutSeconds)
         if timeout == 0 {
-            return await (try? check()) ?? false
+            return await (try... check()) ?? false
         }
         do {
             let timeoutError = NSError(

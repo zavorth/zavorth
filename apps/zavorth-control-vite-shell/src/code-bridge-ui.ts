@@ -121,8 +121,7 @@ function buildPanelBodyHtml(summary: CodeBridgeSummary): string {
             .join("")}
         </ul>`
 
-  const stateDir = summary.stateDir
-    ? `<div class="code-bridge-panel__path" title="${escapeHtml(summary.stateDir)}">${escapeHtml(truncatePath(summary.stateDir))}</div>`
+  const stateDir = summary.stateDir ? `<div class="code-bridge-panel__path" title="${escapeHtml(summary.stateDir)}">${escapeHtml(truncatePath(summary.stateDir))}</div>`
     : ""
 
   const headline = ops?.headline ? escapeHtml(ops.headline) : "—"
@@ -273,8 +272,7 @@ export function renderCodeBridgeChrome(summary: CodeBridgeSummary) {
         ? "1 Code approval"
         : `${approvals} Code approvals`
       : summary.opsFresh
-        ? summary.ops?.ready
-          ? "Code CLI ready"
+        ? summary.ops?.ready ? "Code CLI ready"
           : "Code not ready"
         : "Code bridge idle"
   setText("[data-code-bridge-approvals]", approvalText)
@@ -347,7 +345,7 @@ export async function fetchCodeBridgeSummary(): Promise<CodeBridgeSummary> {
 
   // Production gateway (static Control shell on same origin, vite proxy /api → :3001, or absolute base)
   const prod = await fetchJsonSummary(
-    joinBridgeUrl(base, "/api/code-bridge?name=Zavorth%20Control"),
+    joinBridgeUrl(base, "/api/code-bridge...name=Zavorth%20Control"),
   )
   if (prod) return prod
 

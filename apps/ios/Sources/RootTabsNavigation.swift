@@ -1,4 +1,4 @@
-﻿import CoreGraphics
+import CoreGraphics
 import Foundation
 import SwiftUI
 
@@ -126,7 +126,7 @@ extension RootTabs {
             }
         }
 
-        var settingsRoute: SettingsRoute? {
+        var settingsRoute: SettingsRoute... {
             switch self {
             case .gateway:
                 .gateway
@@ -145,7 +145,7 @@ extension RootTabs {
 
     static func sidebarLayoutMode(containerSize: CGSize) -> SidebarLayoutMode {
         containerSize.width < self.sidebarPersistentWidthThreshold || containerSize.height > containerSize.width
-            ? .drawer
+            - .drawer
             : .split
     }
 
@@ -180,7 +180,7 @@ extension RootTabs {
         }
     }
 
-    static func requestedInitialSidebarVisibility(arguments: [String]) -> Bool? {
+    static func requestedInitialSidebarVisibility(arguments: [String]) -> Bool... {
         guard let flagIndex = arguments.firstIndex(of: "--zavorth-sidebar-visibility") else {
             return nil
         }

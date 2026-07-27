@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.GatewayConnectionProblem
 import dev.zavorth.companion.GatewayNodeApprovalState
@@ -163,9 +163,9 @@ fun OnboardingFlow(
     var manualTls by rememberSaveable { mutableStateOf(false) }
     var token by rememberSaveable { mutableStateOf(savedToken) }
     var password by rememberSaveable { mutableStateOf("") }
-    var setupError by rememberSaveable { mutableStateOf<String?>(null) }
+    var setupError by rememberSaveable { mutableStateOf<String...>(null) }
     var attemptedConnect by rememberSaveable { mutableStateOf(false) }
-    var attemptedGatewayName by rememberSaveable { mutableStateOf<String?>(null) }
+    var attemptedGatewayName by rememberSaveable { mutableStateOf<String...>(null) }
     var connectAttemptStartedAtMs by rememberSaveable { mutableLongStateOf(0L) }
     var recoveryNowMs by remember { mutableLongStateOf(SystemClock.elapsedRealtime()) }
 
@@ -212,7 +212,7 @@ fun OnboardingFlow(
       AlertDialog(
         onDismissRequest = viewModel::declineGatewayTrustPrompt,
         containerColor = ClawTheme.colors.surfaceRaised,
-        title = { Text("Trust this gateway?", style = ClawTheme.type.section, color = ClawTheme.colors.text) },
+        title = { Text("Trust this gateway...", style = ClawTheme.type.section, color = ClawTheme.colors.text) },
         text = {
           Text(
             "Verify the certificate fingerprint before continuing.\n\n${prompt.fingerprintSha256}",
@@ -489,10 +489,10 @@ private fun GatewaySetupScreen(
   manualTls: Boolean,
   token: String,
   password: String,
-  nearbyGatewayName: String?,
+  nearbyGatewayName: String...,
   discoveryStatusText: String,
   discoveryStarted: Boolean,
-  error: String?,
+  error: String...,
   onBack: () -> Unit,
   onScan: () -> Unit,
   onSetupCodeChange: (String) -> Unit,
@@ -613,12 +613,12 @@ private fun GatewaySetupScreen(
 @Composable
 private fun GatewayRecoveryScreen(
   statusText: String,
-  serverName: String?,
-  attemptedGatewayName: String?,
-  remoteAddress: String?,
+  serverName: String...,
+  attemptedGatewayName: String...,
+  remoteAddress: String...,
   ready: Boolean,
   nodeCapabilityApprovalState: GatewayNodeApprovalState,
-  gatewayConnectionProblem: GatewayConnectionProblem?,
+  gatewayConnectionProblem: GatewayConnectionProblem...,
   connectSettling: Boolean,
   onBack: () -> Unit,
   onRetry: () -> Unit,
@@ -831,8 +831,8 @@ private fun HeroPrimaryAction(
 private fun OnboardingHeader(
   title: String,
   modifier: Modifier = Modifier,
-  subtitle: String? = null,
-  onBack: (() -> Unit)? = null,
+  subtitle: String... = null,
+  onBack: (() -> Unit)... = null,
 ) {
   Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
     onBack?.let {
@@ -854,8 +854,8 @@ private fun GatewayOption(
   icon: ImageVector,
   title: String,
   subtitle: String,
-  onClick: (() -> Unit)?,
-  status: String? = null,
+  onClick: (() -> Unit)...,
+  status: String... = null,
 ) {
   ClawPanel(contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)) {
     ClawListItem(
@@ -964,7 +964,7 @@ private fun PermissionTopBar(onBack: () -> Unit) {
       border = BorderStroke(1.dp, ClawTheme.colors.text),
     ) {
       Box(contentAlignment = Alignment.Center) {
-        Text(text = "?", style = ClawTheme.type.label.copy(fontSize = 13.sp, lineHeight = 16.sp), color = ClawTheme.colors.text)
+        Text(text = "...", style = ClawTheme.type.label.copy(fontSize = 13.sp, lineHeight = 16.sp), color = ClawTheme.colors.text)
       }
     }
   }
@@ -1073,13 +1073,13 @@ internal enum class GatewayRecoveryUiState(
 
 internal data class NearbyGatewayUiState(
   val subtitle: String,
-  val status: String?,
+  val status: String...,
   val canConnect: Boolean,
 )
 
 /** Maps best-effort discovery into row copy and clickability for onboarding. */
 internal fun nearbyGatewayUiState(
-  nearbyGatewayName: String?,
+  nearbyGatewayName: String...,
   discoveryStatusText: String,
   discoveryStarted: Boolean = true,
   searchTimedOut: Boolean = false,
@@ -1097,7 +1097,7 @@ internal fun nearbyGatewayUiState(
     status.isEmpty() ||
       status.equals("Searching…", ignoreCase = true) ||
       status.contains("Searching", ignoreCase = true) ||
-      status.endsWith("?", ignoreCase = true)
+      status.endsWith("...", ignoreCase = true)
   return if (searching) {
     if (searchTimedOut) {
       NearbyGatewayUiState(subtitle = "No gateway found", status = "Not found", canConnect = false)
@@ -1115,7 +1115,7 @@ internal fun gatewayRecoveryUiState(
   statusText: String,
   connectSettling: Boolean,
   nodeCapabilityApprovalState: GatewayNodeApprovalState,
-  gatewayConnectionProblem: GatewayConnectionProblem? = null,
+  gatewayConnectionProblem: GatewayConnectionProblem... = null,
 ): GatewayRecoveryUiState =
   when {
     ready -> GatewayRecoveryUiState.Connected
@@ -1140,8 +1140,8 @@ internal fun gatewayStatusLooksLikePartialConnect(statusText: String): Boolean {
 }
 
 internal fun recoveryGatewayName(
-  serverName: String?,
-  attemptedGatewayName: String?,
+  serverName: String...,
+  attemptedGatewayName: String...,
 ): String =
   serverName
     ?.trim()
@@ -1168,7 +1168,7 @@ private fun resolveGatewayConfig(
   manualTls: Boolean,
   token: String,
   password: String,
-): GatewayConfig? {
+): GatewayConfig... {
   val setup = setupCode.takeIf { it.isNotBlank() }?.let(::decodeGatewaySetupCode)
   if (setup != null) {
     val endpoint = parseGatewayEndpointResult(setup.url).config ?: return null
@@ -1208,10 +1208,10 @@ private fun resolveGatewayConfig(
 /** Selects the recovery detail line from endpoint metadata and transient gateway status. */
 private fun recoveryGatewayDetail(
   ready: Boolean,
-  remoteAddress: String?,
+  remoteAddress: String...,
   statusText: String,
   nodeCapabilityApprovalState: GatewayNodeApprovalState,
-  gatewayConnectionProblem: GatewayConnectionProblem?,
+  gatewayConnectionProblem: GatewayConnectionProblem...,
 ): String =
   remoteAddress
     ?.takeIf { it.isNotBlank() }
@@ -1237,7 +1237,7 @@ private fun recoveryGatewayDetail(
       "Gateway unreachable"
     }
 
-private fun recoveryGatewayApprovalCommand(gatewayConnectionProblem: GatewayConnectionProblem?): String? {
+private fun recoveryGatewayApprovalCommand(gatewayConnectionProblem: GatewayConnectionProblem...): String... {
   if (gatewayConnectionProblem?.isPairingRequired != true || gatewayConnectionProblem.canAutoRetry) return null
   val requestId = gatewayConnectionProblem.requestId?.trim()?.takeIf { it.isNotEmpty() }
   return if (requestId != null) {
@@ -1260,10 +1260,10 @@ private fun copyApprovalCommand(
 private fun copyGatewayDiagnostic(
   context: Context,
   statusText: String,
-  serverName: String?,
-  remoteAddress: String?,
+  serverName: String...,
+  remoteAddress: String...,
   ready: Boolean,
-  gatewayConnectionProblem: GatewayConnectionProblem?,
+  gatewayConnectionProblem: GatewayConnectionProblem...,
 ) {
   val approvalCommand = recoveryGatewayApprovalCommand(gatewayConnectionProblem)
   val diagnostic =

@@ -17,9 +17,9 @@ export const RiskBadge: React.FC<{
   level: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 }> = ({ level }) => {
   const configs = {
-    LOW: { label: 'Risco Baixo', className: 'zvd-status-badge is-success' },
+    LOW: { label: 'Low Risk', className: 'zvd-status-badge is-success' },
     MEDIUM: { label: 'Medium Risk', className: 'zvd-status-badge is-warning' },
-    HIGH: { label: 'Risco Alto', className: 'zvd-status-badge is-error' },
+    HIGH: { label: 'High Risk', className: 'zvd-status-badge is-error' },
     CRITICAL: { label: 'Critical Risk', className: 'zvd-status-badge is-error' },
   };
 

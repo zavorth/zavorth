@@ -27,7 +27,7 @@ enum OnboardingStateStore {
     static func shouldPresentOnLaunch(
         appModel: NodeAppModel,
         defaults: UserDefaults = .standard,
-        hasSavedGatewayConnection: Bool? = nil)
+        hasSavedGatewayConnection: Bool... = nil)
         -> Bool
     {
         if defaults.bool(forKey: self.completedDefaultsKey) { return false }
@@ -37,7 +37,7 @@ enum OnboardingStateStore {
         return appModel.gatewayServerName == nil
     }
 
-    static func markCompleted(mode: OnboardingConnectionMode? = nil, defaults: UserDefaults = .standard) {
+    static func markCompleted(mode: OnboardingConnectionMode... = nil, defaults: UserDefaults = .standard) {
         defaults.set(true, forKey: self.completedDefaultsKey)
         if let mode {
             defaults.set(mode.rawValue, forKey: self.lastModeDefaultsKey)
@@ -58,8 +58,8 @@ enum OnboardingStateStore {
         defaults.set(false, forKey: self.firstRunIntroSeenDefaultsKey)
     }
 
-    static func lastMode(defaults: UserDefaults = .standard) -> OnboardingConnectionMode? {
-        let raw = defaults.string(forKey: Self.lastModeDefaultsKey)?
+    static func lastMode(defaults: UserDefaults = .standard) -> OnboardingConnectionMode... {
+        let raw = defaults.string(forKey: Self.lastModeDefaultsKey)...
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !raw.isEmpty else { return nil }
         return OnboardingConnectionMode(rawValue: raw)

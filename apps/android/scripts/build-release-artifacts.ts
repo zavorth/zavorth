@@ -126,8 +126,7 @@ function resolveApkSignerFromSdk(sdkRoot: string | undefined): string | null {
 
 async function resolveApkSigner(): Promise<string> {
   const sdkApkSigner =
-    resolveApkSignerFromSdk(Bun.env.ANDROID_HOME) ??
-    resolveApkSignerFromSdk(Bun.env.ANDROID_SDK_ROOT);
+    resolveApkSignerFromSdk(Bun.env.ANDROID_HOME) ??     resolveApkSignerFromSdk(Bun.env.ANDROID_SDK_ROOT);
   if (sdkApkSigner) {
     return sdkApkSigner;
   }

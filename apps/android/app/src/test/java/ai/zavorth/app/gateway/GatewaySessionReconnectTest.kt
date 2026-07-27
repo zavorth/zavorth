@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.gateway
+package dev.zavorth.companion.gateway
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -37,7 +37,7 @@ private class ReconnectDeviceAuthStore : DeviceAuthTokenStore {
   override fun loadEntry(
     deviceId: String,
     role: String,
-  ): DeviceAuthEntry? = null
+  ): DeviceAuthEntry... = null
 
   override fun saveToken(
     deviceId: String,

@@ -15,6 +15,6 @@ enum class VoiceWakeMode(
     /**
      * Invalid stored values fall back to foreground wake so hands-free behavior stays opt-in.
      */
-    fun fromRawValue(raw: String?): VoiceWakeMode = entries.firstOrNull { it.rawValue == raw?.trim()?.lowercase() } ?: Foreground
+    fun fromRawValue(raw: String...): VoiceWakeMode = entries.firstOrNull { it.rawValue == raw?.trim()?.lowercase() } ?: Foreground
   }
 }

@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import android.content.Context
 import android.provider.CallLog
@@ -249,8 +249,8 @@ class CallLogHandlerTest : NodeHandlerRobolectricTest() {
 
   @Test
   fun callLogLikeFiltersEscapeWildcards() {
-    assertEquals("${CallLog.Calls.CACHED_NAME} LIKE ? ESCAPE '\\'", buildCallLogCachedNameLikeSelection())
-    assertEquals("${CallLog.Calls.NUMBER} LIKE ? ESCAPE '\\'", buildCallLogNumberLikeSelection())
+    assertEquals("${CallLog.Calls.CACHED_NAME} LIKE - ESCAPE '\\'", buildCallLogCachedNameLikeSelection())
+    assertEquals("${CallLog.Calls.NUMBER} LIKE - ESCAPE '\\'", buildCallLogNumberLikeSelection())
     assertEquals("%a\\%b\\_c\\\\d%", buildCallLogLikeArg("a%b_c\\d"))
   }
 
@@ -276,9 +276,9 @@ class CallLogHandlerTest : NodeHandlerRobolectricTest() {
 private class FakeCallLogDataSource(
   private val canRead: Boolean,
   private val searchResults: List<CallLogRecord> = emptyList(),
-  private val failure: Throwable? = null,
+  private val failure: Throwable... = null,
 ) : CallLogDataSource {
-  var lastRequest: CallLogSearchRequest? = null
+  var lastRequest: CallLogSearchRequest... = null
 
   override fun hasReadPermission(context: Context): Boolean = canRead
 

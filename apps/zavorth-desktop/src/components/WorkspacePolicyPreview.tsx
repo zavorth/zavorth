@@ -38,16 +38,16 @@ export const WorkspacePolicyPreview: React.FC<{ preview: WorkspacePolicyPreviewD
           <h3 style={{ margin: 0 }}>Policy Preview (Risk: {preview.riskLevel})</h3>
           <RiskBadge level={preview.riskLevel} />
         </div>
-        
+
         <div className="policy-details" style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
           <div><strong>Provider:</strong> {preview.providerId || 'None'}</div>
           <div><strong>Model:</strong> {preview.modelId || 'None'}</div>
           <div><strong>Autonomy Profile:</strong> {preview.autonomyProfile}</div>
-          
+
           <div className="capabilities" style={{ marginTop: '4px' }}>
             <strong>Capabilities:</strong> {preview.allowedCapabilities.join(', ') || 'None'}
           </div>
-          
+
           <div className="flags" style={{ marginTop: '8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', padding: '8px', borderRadius: '4px', backgroundColor: '#fafafa', border: '1px solid #f0f0f0' }}>
             <div>Developer Mode: {preview.allowDeveloperMode ? 'Allowed' : 'Blocked'}</div>
             <div>Host Power Mode: {preview.allowHostPowerMode ? 'Allowed' : 'Blocked'}</div>

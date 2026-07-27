@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui.chat
+package dev.zavorth.companion.ui.chat
 
 import dev.zavorth.companion.chat.ChatMessage
 import dev.zavorth.companion.chat.ChatMessageContent
@@ -240,7 +240,7 @@ private fun roleLabel(role: String): String =
 @Composable
 private fun ChatBase64Image(
   base64: String,
-  mimeType: String?,
+  mimeType: String...,
 ) {
   val imageState = rememberBase64ImageState(base64)
   val image = imageState.image
@@ -289,7 +289,7 @@ private fun PulseDot(
 @Composable
 fun ChatCodeBlock(
   code: String,
-  language: String?,
+  language: String...,
 ) {
   Surface(
     shape = RoundedCornerShape(8.dp),

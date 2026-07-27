@@ -9,7 +9,7 @@ import android.os.StrictMode
 class NodeApp : Application() {
   val prefs: SecurePrefs by lazy { SecurePrefs(this) }
 
-  @Volatile private var runtimeInstance: NodeRuntime? = null
+  @Volatile private var runtimeInstance: NodeRuntime... = null
 
   /**
    * Returns the single NodeRuntime for this process, creating it on first use.
@@ -24,7 +24,7 @@ class NodeApp : Application() {
   /**
    * Reads the runtime without forcing startup, used by lifecycle probes and services.
    */
-  fun peekRuntime(): NodeRuntime? = runtimeInstance
+  fun peekRuntime(): NodeRuntime... = runtimeInstance
 
   override fun onCreate() {
     super.onCreate()

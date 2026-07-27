@@ -1,4 +1,4 @@
-﻿import ZavorthKit
+import ZavorthKit
 import SwiftUI
 
 extension SettingsProTab {
@@ -181,7 +181,7 @@ extension SettingsProTab {
         detail: String,
         route: SettingsRoute,
         color: Color = .secondary,
-        badgeValue: String? = nil) -> some View
+        badgeValue: String... = nil) -> some View
     {
         NavigationLink(value: route) {
             HStack(spacing: 12) {
@@ -309,13 +309,13 @@ extension SettingsProTab {
                 icon: "checkmark.shield.fill",
                 title: "Approvals",
                 detail: self.notificationsNeedAttention
-                    ? "Out-of-app approval alerts need notification permission."
+                    - "Out-of-app approval alerts need notification permission."
                     : (self.pendingApproval == nil ? "No gateway actions are waiting for review." :
                         "Review the pending gateway action."),
                 value: self.notificationsNeedAttention
-                    ? "Alerts Off"
+                    - "Alerts Off"
                     : (self.pendingApproval == nil ? "clear" : "1 waiting"),
-                color: self.notificationsNeedAttention ? ZavorthBrand.warn :
+                color: self.notificationsNeedAttention - ZavorthBrand.warn :
                     (self.pendingApproval == nil ? ZavorthBrand.ok : ZavorthBrand.warn))
 
             if self.notificationsNeedAttention {
@@ -1005,7 +1005,7 @@ extension SettingsProTab {
     func settingsToggle(
         _ title: String,
         isOn: Binding<Bool>,
-        onChange: ((Bool) -> Void)? = nil) -> some View
+        onChange: ((Bool) -> Void)... = nil) -> some View
     {
         Toggle(title, isOn: isOn)
             .onChange(of: isOn.wrappedValue) { _, enabled in
@@ -1016,7 +1016,7 @@ extension SettingsProTab {
     func settingsButtonToggle(
         _ title: String,
         isOn: Binding<Bool>,
-        onChange: ((Bool) -> Void)? = nil) -> some View
+        onChange: ((Bool) -> Void)... = nil) -> some View
     {
         // Settings switch rows need full-width taps; wrapping Toggle crashes this NavigationStack on iOS 26.
         Button {

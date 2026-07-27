@@ -208,8 +208,7 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
       options.recordTraceEvent({
         type: 'step',
         title: 'Developer mission preview',
-        detail: pendingWorkspaceSelection
-          ? `Read-only repository review for ${pendingWorkspaceSelection.root}.`
+        detail: pendingWorkspaceSelection ? `Read-only repository review for ${pendingWorkspaceSelection.root}.`
           : 'Workspace selection required before review.',
         meta: 'read-only',
         status: pendingWorkspaceSelection ? 'running' : 'waiting',
@@ -311,7 +310,7 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
 
     options.recordTraceEvent({
       type: 'step',
-      title: 'Local preview runtime',
+      title: 'local preview runtime',
       detail: 'No live bridge is available; using the local dashboard response.',
       status: 'fallback',
     });
@@ -336,25 +335,12 @@ async function delayedThinking(
 }
 
 function canvasHintForRequest(text: string, attachments: any[]) {
-  const haystack = [
-    text,
-    attachments.map((file) => `${file.name || ''} ${file.type || ''} ${file.media?.kind || ''}`).join(' '),
-  ].join(' ');
-  const visual = /\b(ui|ux|interface|layout|screen|page|site|website|frontend|react|vite|css|html|style|design|figma|component|visual|tela|aparencia|pagina|estilo)\b/i.test(haystack);
-  const diff = /\b(diff|patch|preview|apply|change|edit|modify|alterar|editar|mudanca)\b/i.test(haystack);
   const media = attachments.some((file) => ['image', 'video'].includes(String(file.media?.kind || '').toLowerCase()));
-  if (visual || media) {
+  if (media) {
     return {
       recommended: true,
       autoOpen: true,
       reason: 'Visual or interface work is easier to review in Z-Canvas before applying changes.',
-    };
-  }
-  if (diff) {
-    return {
-      recommended: true,
-      autoOpen: false,
-      reason: 'Diff or preview work can be reviewed safely in Z-Canvas.',
     };
   }
   return { recommended: false, autoOpen: false, reason: '' };

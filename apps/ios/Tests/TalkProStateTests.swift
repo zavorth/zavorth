@@ -1,4 +1,4 @@
-﻿import Testing
+import Testing
 @testable import Zavorth
 
 @Suite struct TalkProStateTests {

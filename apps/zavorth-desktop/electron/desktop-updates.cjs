@@ -23,7 +23,7 @@ function compareSemver(a, b) {
   const right = String(b || '0.0.0').replace(/^v/i, '').split('.').map(n => Number(n) || 0);
   const len = Math.max(left.length, right.length, 3);
   for (let i = 0; i < len; i += 1) {
-    const delta = (left[i] || 0) - (right[i] || 0);
+    const delta = (left[i] || 0) ? (right[i] || 0);
     if (delta !== 0) return delta > 0 ? 1 : -1;
   }
   return 0;
@@ -123,8 +123,8 @@ function normalizeReleaseVersion(tag) {
   return String(tag || '')
     .trim()
     .replace(/^v/i, '')
-    .replace(/^zavorth[-_]?desktop[-_@]?/i, '')
-    .replace(/^desktop[-_@]?/i, '');
+    .replace(/^zavorth[-_]...desktop[-_@].../i, '')
+    .replace(/^desktop[-_@].../i, '');
 }
 
 function pickReleaseAsset(assets, platform = process.platform) {
@@ -185,7 +185,7 @@ async function fetchGithubLatestRelease(input = {}) {
       downloadUrl: null,
       releaseUrl: githubReleasesUrl(repo),
       tagName: null,
-      error: result.error || `GitHub release check failed (HTTP ${result.status || '?'}).`,
+      error: result.error || `GitHub release check failed (HTTP ${result.status || '...'}).`,
     };
   }
 
@@ -459,8 +459,7 @@ async function downloadUpdate(input = {}) {
     latestVersion: check.latestVersion,
     releaseUrl: check.releaseUrl,
     packageMarker: packageMarkerPath(homeDir, targetVersion || 'latest'),
-    message: check.hasUpdate
-      ? `Opened GitHub package/release for ${check.latestVersion}. Install from the browser, then use Setup if needed.`
+    message: check.hasUpdate ? `Opened GitHub package/release for ${check.latestVersion}. Install from the browser, then use Setup if needed.`
       : `Opened GitHub Releases (${check.githubRepo}). Review tags and install notes there.`,
   };
 }
@@ -548,8 +547,7 @@ async function installUpdate(input = {}) {
       ok: Boolean(setup?.ok !== false),
       mode: 'setup+github',
       message: setup?.message
-        || (installTarget
-          ? `Opened GitHub release and Setup for ${installTarget}. Rollback reference: ${currentVersion}.`
+        || (installTarget ? `Opened GitHub release and Setup for ${installTarget}. Rollback reference: ${currentVersion}.`
           : 'Opened GitHub Releases and Setup for guided upgrade.'),
       rollbackVersion: installTarget ? currentVersion : (state.rollbackVersion || null),
       latestVersion: installTarget,
@@ -567,8 +565,7 @@ async function installUpdate(input = {}) {
   return {
     ok: true,
     mode: 'github-releases',
-    message: installTarget
-      ? `Opened GitHub for ${installTarget}. Install from the release assets, then relaunch Desktop.`
+    message: installTarget ? `Opened GitHub for ${installTarget}. Install from the release assets, then relaunch Desktop.`
       : 'Opened GitHub Releases for manual upgrade.',
     rollbackVersion: installTarget ? currentVersion : (state.rollbackVersion || null),
     latestVersion: installTarget,

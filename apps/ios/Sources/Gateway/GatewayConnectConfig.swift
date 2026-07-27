@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import ZavorthKit
 
 /// Single source of truth for "how we connect" to the current gateway.
@@ -12,10 +12,10 @@ import ZavorthKit
 struct GatewayConnectConfig {
     let url: URL
     let stableID: String
-    let tls: GatewayTLSParams?
-    let token: String?
-    let bootstrapToken: String?
-    let password: String?
+    let tls: GatewayTLSParams...
+    let token: String...
+    let bootstrapToken: String...
+    let password: String...
     let nodeOptions: GatewayConnectOptions
 
     /// Stable, non-empty identifier used for gateway-scoped persistence keys.
@@ -36,11 +36,11 @@ struct GatewayConnectConfig {
             Self.sameOptions(self.nodeOptions, other.nodeOptions)
     }
 
-    private static func sameTLS(_ lhs: GatewayTLSParams?, _ rhs: GatewayTLSParams?) -> Bool {
+    private static func sameTLS(_ lhs: GatewayTLSParams..., _ rhs: GatewayTLSParams...) -> Bool {
         switch (lhs, rhs) {
         case (nil, nil):
             true
-        case let (lhs?, rhs?):
+        case let (lhs..., rhs...):
             lhs.required == rhs.required &&
                 lhs.expectedFingerprint == rhs.expectedFingerprint &&
                 lhs.allowTOFU == rhs.allowTOFU &&

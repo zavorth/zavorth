@@ -145,8 +145,8 @@ export function shouldHandleBusinessAuditFlow(userText: unknown, guidedFlow: str
   if (guidedFlow === 'business-audit') return true;
   const lower = String(userText || '').toLowerCase();
   const asksBusiness = lower.includes('business mode')
-    || /\b(run|start|prepare|show)\b.{0,34}\b(audit|policy|approvals?|compliance|governance)\b/.test(lower)
-    || /\b(audit|policy|approvals?|compliance|governance)\b.{0,34}\b(business|company|team|enterprise)\b/.test(lower);
+    || /\b(run|start|prepare|show)\b.{0,34}\b(audit|policy|approvals...|compliance|governance)\b/.test(lower)
+    || /\b(audit|policy|approvals...|compliance|governance)\b.{0,34}\b(business|company|team|enterprise)\b/.test(lower);
   const asksDeveloperOnly = /\b(repository|repo|workspace|patch|codebase)\b/.test(lower);
   return asksBusiness && !asksDeveloperOnly;
 }

@@ -28,12 +28,12 @@ class CameraHandler(
   private val appContext: Context,
   private val camera: CameraCaptureManager,
   private val externalAudioCaptureActive: MutableStateFlow<Boolean>,
-  private val showCameraHud: (message: String, kind: CameraHudKind, autoHideMs: Long?) -> Unit,
+  private val showCameraHud: (message: String, kind: CameraHudKind, autoHideMs: Long...) -> Unit,
   private val triggerCameraFlash: () -> Unit,
   private val invokeErrorFromThrowable: (err: Throwable) -> Pair<String, String>,
 ) {
   /** Handles camera.list by exposing CameraX devices through gateway metadata. */
-  suspend fun handleList(_paramsJson: String?): GatewaySession.InvokeResult =
+  suspend fun handleList(_paramsJson: String...): GatewaySession.InvokeResult =
     try {
       val devices = camera.listDevices()
       val payload =
@@ -61,7 +61,7 @@ class CameraHandler(
     }
 
   /** Handles camera.snap with HUD progress, flash feedback, and normalized invoke errors. */
-  suspend fun handleSnap(paramsJson: String?): GatewaySession.InvokeResult {
+  suspend fun handleSnap(paramsJson: String...): GatewaySession.InvokeResult {
     val logFile = if (BuildConfig.DEBUG) java.io.File(appContext.cacheDir, "camera_debug.log") else null
 
     fun camLog(msg: String) {
@@ -101,7 +101,7 @@ class CameraHandler(
   }
 
   /** Handles camera.clip and keeps external audio capture paused while camera audio is active. */
-  suspend fun handleClip(paramsJson: String?): GatewaySession.InvokeResult {
+  suspend fun handleClip(paramsJson: String...): GatewaySession.InvokeResult {
     val clipLogFile = if (BuildConfig.DEBUG) java.io.File(appContext.cacheDir, "camera_debug.log") else null
 
     fun clipLog(msg: String) {
@@ -167,7 +167,7 @@ class CameraHandler(
     }
   }
 
-  private fun parseIncludeAudio(paramsJson: String?): Boolean? {
+  private fun parseIncludeAudio(paramsJson: String...): Boolean... {
     if (paramsJson.isNullOrBlank()) return null
     val root =
       try {
@@ -176,7 +176,7 @@ class CameraHandler(
         null
       } ?: return null
     val value =
-      (root["includeAudio"] as? JsonPrimitive)
+      (root["includeAudio"] as... JsonPrimitive)
         ?.contentOrNull
         ?.trim()
         ?.lowercase()

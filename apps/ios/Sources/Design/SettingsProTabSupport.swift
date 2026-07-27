@@ -1,4 +1,4 @@
-﻿import Darwin
+import Darwin
 import ZavorthKit
 import SwiftUI
 import UserNotifications
@@ -189,7 +189,7 @@ enum SettingsDiagnostics {
 
 extension SettingsProTab {
     static func hasTailnetIPv4() -> Bool {
-        var addrList: UnsafeMutablePointer<ifaddrs>?
+        var addrList: UnsafeMutablePointer<ifaddrs>...
         guard getifaddrs(&addrList) == 0, let first = addrList else { return false }
         defer { freeifaddrs(addrList) }
         for ptr in sequence(first: first, next: { $0.pointee.ifa_next }) {

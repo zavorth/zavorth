@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 enum ZavorthProMetric {
     static let pagePadding: CGFloat = 18
@@ -25,8 +25,8 @@ struct ZavorthProBackground: View {
 
 struct ProSectionHeader: View {
     let title: String
-    var actionTitle: String?
-    var action: (() -> Void)?
+    var actionTitle: String...
+    var action: (() -> Void)...
     var uppercase = true
 
     var body: some View {
@@ -53,7 +53,7 @@ struct ProSectionHeader: View {
 }
 
 struct ProCard<Content: View>: View {
-    var tint: Color?
+    var tint: Color...
     var isProminent: Bool = false
     var padding: CGFloat = 12
     var radius: CGFloat = ZavorthProMetric.cardRadius
@@ -73,7 +73,7 @@ struct ProCard<Content: View>: View {
 private struct ProPanelBackground: View {
     @Environment(\.colorScheme) private var colorScheme
     let radius: CGFloat
-    let tint: Color?
+    let tint: Color...
     let isProminent: Bool
 
     var body: some View {
@@ -95,7 +95,7 @@ private struct ProPanelBackground: View {
 
     private var fill: AnyShapeStyle {
         let base = self.isProminent
-            ? Color(uiColor: .systemBackground)
+            - Color(uiColor: .systemBackground)
             : Color(uiColor: .secondarySystemGroupedBackground)
         if let tint {
             let gradient = LinearGradient(
@@ -159,7 +159,7 @@ private struct ProGlassSurfaceModifier: ViewModifier {
 
 extension View {
     func proPanelSurface(
-        tint: Color? = nil,
+        tint: Color... = nil,
         radius: CGFloat = ZavorthProMetric.cardRadius,
         isProminent: Bool = false) -> some View
     {
@@ -187,7 +187,7 @@ extension View {
 
 private struct ProPanelSurfaceModifier: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
-    let tint: Color?
+    let tint: Color...
     let radius: CGFloat
     let isProminent: Bool
 
@@ -226,13 +226,13 @@ struct ProIconBadge: View {
 struct ZavorthSidebarHeaderAction {
     let systemName: String
     let accessibilityLabel: String
-    let accessibilityIdentifier: String?
+    let accessibilityIdentifier: String...
     let action: () -> Void
 
     init(
         systemName: String,
         accessibilityLabel: String,
-        accessibilityIdentifier: String? = nil,
+        accessibilityIdentifier: String... = nil,
         action: @escaping () -> Void)
     {
         self.systemName = systemName
@@ -282,7 +282,7 @@ struct ZavorthAdaptiveHeaderRow<Leading: View, Accessory: View>: View {
     let subtitle: String
     var titleFont: Font = .title3.weight(.semibold)
     var subtitleFont: Font = .subheadline
-    var subtitleLineLimit: Int? = 2
+    var subtitleLineLimit: Int... = 2
     @ViewBuilder let leading: Leading
     @ViewBuilder let accessory: Accessory
 
@@ -291,7 +291,7 @@ struct ZavorthAdaptiveHeaderRow<Leading: View, Accessory: View>: View {
         subtitle: String,
         titleFont: Font = .title3.weight(.semibold),
         subtitleFont: Font = .subheadline,
-        subtitleLineLimit: Int? = 2,
+        subtitleLineLimit: Int... = 2,
         @ViewBuilder leading: () -> Leading,
         @ViewBuilder accessory: () -> Accessory)
     {
@@ -426,7 +426,7 @@ struct ProCapsule: View {
     @Environment(\.colorScheme) private var colorScheme
     let title: String
     let color: Color
-    var icon: String?
+    var icon: String...
 
     var body: some View {
         HStack(spacing: 6) {
@@ -579,12 +579,12 @@ struct ProMetricGrid: View {
 
 struct ProPanelHeader: View {
     let title: String
-    var value: String?
-    var actionTitle: String?
-    var actionIcon: String?
-    var actionAccessibilityLabel: String?
+    var value: String...
+    var actionTitle: String...
+    var actionIcon: String...
+    var actionAccessibilityLabel: String...
     var isActionDisabled = false
-    var action: (() -> Void)?
+    var action: (() -> Void)...
 
     var body: some View {
         HStack(spacing: 8) {
@@ -625,10 +625,10 @@ struct ProStatusRow: View {
     let icon: String
     let title: String
     let detail: String
-    let value: String?
+    let value: String...
     let color: Color
-    var actionTitle: String?
-    var action: (() -> Void)?
+    var actionTitle: String...
+    var action: (() -> Void)...
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {

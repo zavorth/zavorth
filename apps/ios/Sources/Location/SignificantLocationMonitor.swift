@@ -11,7 +11,7 @@ enum SignificantLocationMonitor {
         locationService: any LocationServicing,
         locationMode: ZavorthLocationMode,
         gateway: GatewayNodeSession,
-        beforeSend: (@MainActor @Sendable () async -> Void)? = nil)
+        beforeSend: (@MainActor @Sendable () async -> Void)... = nil)
     {
         guard locationMode == .always else { return }
         let status = locationService.authorizationStatus()
@@ -21,14 +21,14 @@ enum SignificantLocationMonitor {
                 var lat: Double
                 var lon: Double
                 var accuracyMeters: Double
-                var source: String?
+                var source: String...
             }
             let payload = Payload(
                 lat: location.coordinate.latitude,
                 lon: location.coordinate.longitude,
                 accuracyMeters: location.horizontalAccuracy,
                 source: "ios-significant-location")
-            guard let data = try? JSONEncoder().encode(payload),
+            guard let data = try... JSONEncoder().encode(payload),
                   let json = String(data: data, encoding: .utf8)
             else { return }
             Task { @MainActor in

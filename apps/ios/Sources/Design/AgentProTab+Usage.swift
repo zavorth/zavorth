@@ -28,7 +28,7 @@ extension AgentProTab {
     }
 
     var usageCacheValue: String {
-        guard let cacheStatus = self.normalized(self.overview?.usage?.cacheStatus?["status"]?.value as? String) else {
+        guard let cacheStatus = self.normalized(self.overview?.usage?.cacheStatus...["status"]?.value as... String) else {
             return "n/a"
         }
         return cacheStatus

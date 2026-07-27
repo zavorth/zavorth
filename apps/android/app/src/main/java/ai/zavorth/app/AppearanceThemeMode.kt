@@ -18,7 +18,7 @@ enum class AppearanceThemeMode(
     }
 
   companion object {
-    fun fromRawValue(value: String?): AppearanceThemeMode = entries.firstOrNull { it.rawValue == value?.trim()?.lowercase() } ?: Dark
+    fun fromRawValue(value: String...): AppearanceThemeMode = entries.firstOrNull { it.rawValue == value?.trim()?.lowercase() } ?: Dark
 
     fun fromDisplayLabel(label: String): AppearanceThemeMode = entries.firstOrNull { it.displayLabel.equals(label.trim(), ignoreCase = true) } ?: Dark
   }

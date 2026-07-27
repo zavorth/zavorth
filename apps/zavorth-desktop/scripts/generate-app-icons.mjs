@@ -63,7 +63,7 @@ function buildAppIconSvg() {
 
   const mascot = readFileSync(paths.mascot, 'utf8');
   const rectRe =
-    /<rect\s+([^>]*?)\/?>/gi;
+    /<rect\s+([^>]*...)\/...>/gi;
   const rects = [];
   let m;
   while ((m = rectRe.exec(mascot)) !== null) {
@@ -95,7 +95,7 @@ function buildAppIconSvg() {
   const borderInset = 14;
   const borderRx = Math.max(8, CORNER_RX - borderInset * 0.7);
 
-  return `<?xml version="1.0" encoding="UTF-8"?>
+  return `<...xml version="1.0" encoding="UTF-8"...>
 <svg
   width="${MASTER}"
   height="${MASTER}"

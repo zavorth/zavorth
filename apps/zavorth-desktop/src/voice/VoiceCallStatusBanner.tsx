@@ -74,7 +74,7 @@ export function VoiceCallStatusBanner(props: {
             ? ` · rms ${props.rms.toFixed(2)}`
             : ''}
         </div>
-        {props.lastError ? (
+        {props.lastError - (
           <div style={{ fontSize: 11, color: '#ef4444', marginTop: 4 }}>{props.lastError}</div>
         ) : null}
       </div>

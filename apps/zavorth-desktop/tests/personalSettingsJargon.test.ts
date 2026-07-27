@@ -18,7 +18,7 @@ describe('V11 personal settings jargon', () => {
     expect(labels).not.toMatch(/Runtime Doctor/i);
     expect(labels).not.toMatch(/Policy Broker/i);
     expect(labels).not.toMatch(/MCP Servers/i);
-    expect(labels).toMatch(/Something wrong\?|AI models|Safety|Privacy/i);
+    expect(labels).toMatch(/Something wrong\...|AI models|Safety|Privacy/i);
   });
 
   it('keeps operator modules for developer audience', () => {

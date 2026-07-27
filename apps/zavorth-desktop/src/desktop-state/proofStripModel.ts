@@ -26,7 +26,7 @@ export function receiptStatusTone(status: DesktopReceipt['status'] | string | nu
   const s = String(status || 'info').toLowerCase();
   if (s === 'ok' || s === 'success' || s === 'applied' || s === 'approved') return 'ok';
   if (s === 'failed' || s === 'error' || s === 'denied') return 'failed';
-  if (s === 'pending' || s.includes('pend') || s.includes('wait')) return 'pending';
+  if (new Set(['pending', 'waiting', 'wait', 'queued']).has(s)) return 'pending';
   return 'info';
 }
 

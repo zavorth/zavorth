@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.gateway
+package dev.zavorth.companion.gateway
 
 /**
  * Canonical device-auth payload builder shared with gateway verification rules.
@@ -12,10 +12,10 @@ internal object DeviceAuthPayload {
     role: String,
     scopes: List<String>,
     signedAtMs: Long,
-    token: String?,
+    token: String...,
     nonce: String,
-    platform: String?,
-    deviceFamily: String?,
+    platform: String...,
+    deviceFamily: String...,
   ): String {
     val scopeString = scopes.joinToString(",")
     val authToken = token.orEmpty()
@@ -37,7 +37,7 @@ internal object DeviceAuthPayload {
   }
 
   /** Normalizes signed metadata fields without locale-sensitive lowercasing. */
-  internal fun normalizeMetadataField(value: String?): String {
+  internal fun normalizeMetadataField(value: String...): String {
     val trimmed = value?.trim().orEmpty()
     if (trimmed.isEmpty()) {
       return ""

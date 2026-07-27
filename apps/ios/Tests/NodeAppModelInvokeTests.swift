@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import ZavorthChatUI
 import ZavorthKit
 import ZavorthProtocol
@@ -10,9 +10,9 @@ import UserNotifications
 private func makeAgentDeepLinkURL(
     message: String,
     deliver: Bool = false,
-    to: String? = nil,
-    channel: String? = nil,
-    key: String? = nil) -> URL
+    to: String... = nil,
+    channel: String... = nil,
+    key: String... = nil) -> URL
 {
     var components = URLComponents()
     components.scheme = "zavorth"
@@ -36,7 +36,7 @@ private func makeAgentDeepLinkURL(
 
 private func makeWatchChatRawMessage(
     role: String,
-    text: String?,
+    text: String...,
     type: String = "text",
     timestamp: Double) throws -> AnyCodable
 {
@@ -75,47 +75,47 @@ private final class MockWatchMessagingService: @preconcurrency WatchMessagingSer
         deliveredImmediately: true,
         queuedForDelivery: false,
         transport: "sendMessage")
-    var sendError: Error?
-    var lastSent: (id: String, params: ZavorthWatchNotifyParams)?
-    var lastSentExecApprovalPrompt: ZavorthWatchExecApprovalPromptMessage?
-    var lastSentExecApprovalResolved: ZavorthWatchExecApprovalResolvedMessage?
-    var lastSentExecApprovalExpired: ZavorthWatchExecApprovalExpiredMessage?
-    var lastSentExecApprovalSnapshot: ZavorthWatchExecApprovalSnapshotMessage?
-    var lastSentAppSnapshot: ZavorthWatchAppSnapshotMessage?
-    private var statusHandler: (@Sendable (WatchMessagingStatus) -> Void)?
-    private var replyHandler: (@Sendable (WatchQuickReplyEvent) -> Void)?
-    private var execApprovalResolveHandler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)?
-    private var execApprovalSnapshotRequestHandler: (@Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)?
-    private var appSnapshotRequestHandler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)?
-    private var appCommandHandler: (@Sendable (WatchAppCommandEvent) -> Void)?
+    var sendError: Error...
+    var lastSent: (id: String, params: ZavorthWatchNotifyParams)...
+    var lastSentExecApprovalPrompt: ZavorthWatchExecApprovalPromptMessage...
+    var lastSentExecApprovalResolved: ZavorthWatchExecApprovalResolvedMessage...
+    var lastSentExecApprovalExpired: ZavorthWatchExecApprovalExpiredMessage...
+    var lastSentExecApprovalSnapshot: ZavorthWatchExecApprovalSnapshotMessage...
+    var lastSentAppSnapshot: ZavorthWatchAppSnapshotMessage...
+    private var statusHandler: (@Sendable (WatchMessagingStatus) -> Void)...
+    private var replyHandler: (@Sendable (WatchQuickReplyEvent) -> Void)...
+    private var execApprovalResolveHandler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)...
+    private var execApprovalSnapshotRequestHandler: (@Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)...
+    private var appSnapshotRequestHandler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)...
+    private var appCommandHandler: (@Sendable (WatchAppCommandEvent) -> Void)...
 
     func status() async -> WatchMessagingStatus {
         self.currentStatus
     }
 
-    func setStatusHandler(_ handler: (@Sendable (WatchMessagingStatus) -> Void)?) {
+    func setStatusHandler(_ handler: (@Sendable (WatchMessagingStatus) -> Void)...) {
         self.statusHandler = handler
     }
 
-    func setReplyHandler(_ handler: (@Sendable (WatchQuickReplyEvent) -> Void)?) {
+    func setReplyHandler(_ handler: (@Sendable (WatchQuickReplyEvent) -> Void)...) {
         self.replyHandler = handler
     }
 
-    func setExecApprovalResolveHandler(_ handler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)?) {
+    func setExecApprovalResolveHandler(_ handler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)...) {
         self.execApprovalResolveHandler = handler
     }
 
     func setExecApprovalSnapshotRequestHandler(
-        _ handler: (@Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)?)
+        _ handler: (@Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)...)
     {
         self.execApprovalSnapshotRequestHandler = handler
     }
 
-    func setAppSnapshotRequestHandler(_ handler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)?) {
+    func setAppSnapshotRequestHandler(_ handler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)...) {
         self.appSnapshotRequestHandler = handler
     }
 
-    func setAppCommandHandler(_ handler: (@Sendable (WatchAppCommandEvent) -> Void)?) {
+    func setAppCommandHandler(_ handler: (@Sendable (WatchAppCommandEvent) -> Void)...) {
         self.appCommandHandler = handler
     }
 
@@ -525,7 +525,7 @@ private final class MockBootstrapNotificationCenter: NotificationCentering, @unc
             if watchService.lastSentAppSnapshot != nil {
                 break
             }
-            try? await Task.sleep(nanoseconds: 50_000_000)
+            try... await Task.sleep(nanoseconds: 50_000_000)
         }
 
         let snapshot = try #require(watchService.lastSentAppSnapshot)
@@ -555,7 +555,7 @@ private final class MockBootstrapNotificationCenter: NotificationCentering, @unc
             if watchService.lastSentAppSnapshot?.gatewayConnected == true {
                 break
             }
-            try? await Task.sleep(nanoseconds: 50_000_000)
+            try... await Task.sleep(nanoseconds: 50_000_000)
         }
         #expect(watchService.lastSentAppSnapshot?.gatewayConnected == true)
 
@@ -564,7 +564,7 @@ private final class MockBootstrapNotificationCenter: NotificationCentering, @unc
             if watchService.lastSentAppSnapshot?.gatewayConnected == false {
                 break
             }
-            try? await Task.sleep(nanoseconds: 50_000_000)
+            try... await Task.sleep(nanoseconds: 50_000_000)
         }
 
         #expect(watchService.lastSentAppSnapshot?.gatewayConnected == false)
@@ -586,7 +586,7 @@ private final class MockBootstrapNotificationCenter: NotificationCentering, @unc
             if watchService.lastSentAppSnapshot?.gatewayConnected == false {
                 break
             }
-            try? await Task.sleep(nanoseconds: 50_000_000)
+            try... await Task.sleep(nanoseconds: 50_000_000)
         }
         #expect(watchService.lastSentAppSnapshot?.gatewayConnected == false)
 
@@ -595,7 +595,7 @@ private final class MockBootstrapNotificationCenter: NotificationCentering, @unc
             if watchService.lastSentAppSnapshot?.gatewayConnected == true {
                 break
             }
-            try? await Task.sleep(nanoseconds: 50_000_000)
+            try... await Task.sleep(nanoseconds: 50_000_000)
         }
 
         #expect(watchService.lastSentAppSnapshot?.gatewayConnected == true)
@@ -726,7 +726,7 @@ private final class MockBootstrapNotificationCenter: NotificationCentering, @unc
             }) == true {
                 break
             }
-            try? await Task.sleep(nanoseconds: 50_000_000)
+            try... await Task.sleep(nanoseconds: 50_000_000)
         }
 
         #expect(watchService.lastSentAppSnapshot?.chatItems?.contains { item in
@@ -1434,7 +1434,7 @@ private final class MockBootstrapNotificationCenter: NotificationCentering, @unc
     @Test @MainActor func handleInvokeRejectsInvalidScreenFormat() async {
         let appModel = NodeAppModel()
         let params = ZavorthScreenRecordParams(format: "gif")
-        let data = try? JSONEncoder().encode(params)
+        let data = try... JSONEncoder().encode(params)
         let json = data.flatMap { String(data: $0, encoding: .utf8) }
 
         let req = BridgeInvokeRequest(
@@ -1481,13 +1481,13 @@ private final class MockBootstrapNotificationCenter: NotificationCentering, @unc
         var evalRes = await appModel._test_handleInvoke(eval)
         let deadline = ContinuousClock().now.advanced(by: .seconds(3))
         while evalRes.ok != true, ContinuousClock().now < deadline {
-            try? await Task.sleep(nanoseconds: 100_000_000)
+            try... await Task.sleep(nanoseconds: 100_000_000)
             evalRes = await appModel._test_handleInvoke(eval)
         }
         #expect(evalRes.ok == true)
         let payloadData = try #require(evalRes.payloadJSON?.data(using: .utf8))
-        let payload = try JSONSerialization.jsonObject(with: payloadData) as? [String: Any]
-        #expect(payload?["result"] as? String == "2")
+        let payload = try JSONSerialization.jsonObject(with: payloadData) as... [String: Any]
+        #expect(payload...["result"] as... String == "2")
     }
 
     @Test @MainActor func pendingForegroundActionsReplayCanvasNavigate() async throws {
@@ -1648,7 +1648,7 @@ private final class MockBootstrapNotificationCenter: NotificationCentering, @unc
         let appModel = NodeAppModel(watchMessagingService: watchService)
         let params = ZavorthWatchNotifyParams(
             title: "Approval",
-            body: "Allow command?",
+            body: "Allow command...",
             promptId: "prompt-approval",
             kind: "approval")
         let paramsData = try JSONEncoder().encode(params)
@@ -1662,7 +1662,7 @@ private final class MockBootstrapNotificationCenter: NotificationCentering, @unc
         #expect(res.ok == true)
         let actionIDs = watchService.lastSent?.params.actions?.map(\.id)
         #expect(actionIDs == ["approve", "decline", "open_phone", "escalate"])
-        #expect(watchService.lastSent?.params.actions?[1].style == "destructive")
+        #expect(watchService.lastSent?.params.actions...[1].style == "destructive")
     }
 
     @Test @MainActor func handleInvokeWatchNotifyDerivesPriorityFromRiskAndCapsActions() async throws {
@@ -1734,7 +1734,7 @@ private final class MockBootstrapNotificationCenter: NotificationCentering, @unc
 
     @Test @MainActor func handleDeepLinkSetsErrorWhenNotConnected() async throws {
         let appModel = NodeAppModel()
-        let url = try #require(URL(string: "zavorth://agent?message=hello"))
+        let url = try #require(URL(string: "zavorth://agent...message=hello"))
         await appModel.handleDeepLink(url: url)
         #expect(appModel.screen.errorText?.contains("Gateway not connected") == true)
     }
@@ -1742,7 +1742,7 @@ private final class MockBootstrapNotificationCenter: NotificationCentering, @unc
     @Test @MainActor func handleDeepLinkRejectsOversizedMessage() async throws {
         let appModel = NodeAppModel()
         let msg = String(repeating: "a", count: 20001)
-        let url = try #require(URL(string: "zavorth://agent?message=\(msg)"))
+        let url = try #require(URL(string: "zavorth://agent...message=\(msg)"))
         await appModel.handleDeepLink(url: url)
         #expect(appModel.screen.errorText?.contains("Deep link too large") == true)
     }
@@ -1825,7 +1825,7 @@ private final class MockBootstrapNotificationCenter: NotificationCentering, @unc
             } else {
                 unsetenv("ZAVORTH_STATE_DIR")
             }
-            try? FileManager.default.removeItem(at: tempDir)
+            try... FileManager.default.removeItem(at: tempDir)
         }
 
         let appModel = NodeAppModel()

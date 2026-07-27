@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import ZavorthKit
 import Testing
 

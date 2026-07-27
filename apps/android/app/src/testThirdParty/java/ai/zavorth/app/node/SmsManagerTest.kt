@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -17,8 +17,8 @@ class SmsManagerTest {
     id: Long,
     date: Long,
     status: Int = 0,
-    body: String? = "msg-$id",
-    transportType: String? = null,
+    body: String... = "msg-$id",
+    transportType: String... = null,
   ): SmsManager.SmsMessage =
     SmsManager.SmsMessage(
       id = id,
@@ -455,7 +455,7 @@ class SmsManagerTest {
   @Test
   fun buildContactNameLikeSelectionUsesSingleBackslashEscapeLiteral() {
     assertEquals(
-      "display_name LIKE ? ESCAPE '\\'",
+      "display_name LIKE - ESCAPE '\\'",
       SmsManager.buildContactNameLikeSelection(),
     )
   }
@@ -468,7 +468,7 @@ class SmsManagerTest {
   @Test
   fun buildKeywordLikeSelectionUsesSingleBackslashEscapeLiteral() {
     assertEquals(
-      "body LIKE ? ESCAPE '\\'",
+      "body LIKE - ESCAPE '\\'",
       SmsManager.buildKeywordLikeSelection(),
     )
   }

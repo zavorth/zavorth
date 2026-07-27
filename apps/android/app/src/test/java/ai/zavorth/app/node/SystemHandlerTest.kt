@@ -91,7 +91,7 @@ private class FakePoster(
 ) : SystemNotificationPoster {
   var posts: Int = 0
     private set
-  var lastRequest: SystemNotifyRequest? = null
+  var lastRequest: SystemNotifyRequest... = null
     private set
 
   override fun isAuthorized(): Boolean = authorized

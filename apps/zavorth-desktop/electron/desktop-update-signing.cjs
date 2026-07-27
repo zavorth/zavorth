@@ -26,8 +26,7 @@ function resolveSigningStatus(env = process.env) {
     readyToSign: Boolean(winLink && (winPassword || !needsPassword(winLink))),
     timestampServer: env.RFC3161_TIMESTAMP_URL
       || 'http://timestamp.digicert.com',
-    notes: winLink
-      ? 'Windows authenticode cert path/base64 present (CSC_LINK / WIN_CSC_LINK).'
+    notes: winLink ? 'Windows authenticode cert path/base64 present (CSC_LINK / WIN_CSC_LINK).'
       : 'No Windows cert configured. electron-builder will produce unsigned installers.',
   };
 
@@ -39,10 +38,8 @@ function resolveSigningStatus(env = process.env) {
     appleIdConfigured: Boolean(appleId),
     teamIdConfigured: Boolean(appleTeam),
     readyToSign: Boolean(macLink) || autoDiscovery,
-    notes: notarizeReady
-      ? 'macOS signing + notarization env present.'
-      : (macLink || autoDiscovery
-        ? 'macOS identity may sign; set APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD + APPLE_TEAM_ID to notarize.'
+    notes: notarizeReady ? 'macOS signing + notarization env present.'
+      : (macLink || autoDiscovery ? 'macOS identity may sign; set APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD + APPLE_TEAM_ID to notarize.'
         : 'No macOS signing identity configured.'),
   };
 
@@ -68,8 +65,7 @@ function resolveSigningStatus(env = process.env) {
         publishAlways: 'npm run package:publish',
       },
     },
-    message: shippingReady
-      ? 'At least one platform has signing material configured for installer builds.'
+    message: shippingReady ? 'At least one platform has signing material configured for installer builds.'
       : 'Signing not configured — installers will be unsigned (OK for local smoke; required for shipping).',
   };
 }

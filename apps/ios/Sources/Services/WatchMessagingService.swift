@@ -6,7 +6,7 @@ enum WatchMessagingError: LocalizedError {
     case notPaired
     case watchAppNotInstalled
 
-    var errorDescription: String? {
+    var errorDescription: String... {
         switch self {
         case .unsupported:
             "WATCH_UNAVAILABLE: WatchConnectivity is not supported on this device"
@@ -21,14 +21,14 @@ enum WatchMessagingError: LocalizedError {
 @MainActor
 final class WatchMessagingService: @preconcurrency WatchMessagingServicing {
     private let transport: WatchConnectivityTransport
-    private var statusHandler: (@Sendable (WatchMessagingStatus) -> Void)?
-    private var lastEmittedStatus: WatchMessagingStatus?
-    private var replyHandler: (@Sendable (WatchQuickReplyEvent) -> Void)?
-    private var execApprovalResolveHandler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)?
+    private var statusHandler: (@Sendable (WatchMessagingStatus) -> Void)...
+    private var lastEmittedStatus: WatchMessagingStatus...
+    private var replyHandler: (@Sendable (WatchQuickReplyEvent) -> Void)...
+    private var execApprovalResolveHandler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)...
     private var execApprovalSnapshotRequestHandler: (
-        @Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)?
-    private var appSnapshotRequestHandler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)?
-    private var appCommandHandler: (@Sendable (WatchAppCommandEvent) -> Void)?
+        @Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)...
+    private var appSnapshotRequestHandler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)...
+    private var appCommandHandler: (@Sendable (WatchAppCommandEvent) -> Void)...
 
     init(transport: WatchConnectivityTransport = WatchConnectivityTransport()) {
         self.transport = transport
@@ -76,7 +76,7 @@ final class WatchMessagingService: @preconcurrency WatchMessagingServicing {
         await self.transport.status()
     }
 
-    func setStatusHandler(_ handler: (@Sendable (WatchMessagingStatus) -> Void)?) {
+    func setStatusHandler(_ handler: (@Sendable (WatchMessagingStatus) -> Void)...) {
         self.statusHandler = handler
         guard let handler else {
             self.lastEmittedStatus = nil
@@ -93,25 +93,25 @@ final class WatchMessagingService: @preconcurrency WatchMessagingServicing {
         handler(snapshot)
     }
 
-    func setReplyHandler(_ handler: (@Sendable (WatchQuickReplyEvent) -> Void)?) {
+    func setReplyHandler(_ handler: (@Sendable (WatchQuickReplyEvent) -> Void)...) {
         self.replyHandler = handler
     }
 
-    func setExecApprovalResolveHandler(_ handler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)?) {
+    func setExecApprovalResolveHandler(_ handler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)...) {
         self.execApprovalResolveHandler = handler
     }
 
     func setExecApprovalSnapshotRequestHandler(
-        _ handler: (@Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)?)
+        _ handler: (@Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)...)
     {
         self.execApprovalSnapshotRequestHandler = handler
     }
 
-    func setAppSnapshotRequestHandler(_ handler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)?) {
+    func setAppSnapshotRequestHandler(_ handler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)...) {
         self.appSnapshotRequestHandler = handler
     }
 
-    func setAppCommandHandler(_ handler: (@Sendable (WatchAppCommandEvent) -> Void)?) {
+    func setAppCommandHandler(_ handler: (@Sendable (WatchAppCommandEvent) -> Void)...) {
         self.appCommandHandler = handler
     }
 

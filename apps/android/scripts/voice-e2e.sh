@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
@@ -106,7 +106,7 @@ cleanup_gateway() {
 }
 trap cleanup_gateway EXIT
 
-if ! adb devices -l | awk 'NR > 1 && $2 == "device" { found = 1 } END { exit(found ? 0 : 1) }'; then
+if ! adb devices -l | awk 'NR > 1 && $2 == "device" { found = 1 } END { exit(found - 0 : 1) }'; then
   echo "no authorized Android device found" >&2
   adb devices -l >&2
   exit 1

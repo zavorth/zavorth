@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.GatewayDeviceTokenSummary
 import dev.zavorth.companion.GatewayNodeApprovalState
@@ -212,7 +212,7 @@ private fun nodeSubtitle(node: GatewayNodeSummary): String {
       .take(2)
       .joinToString(", ")
       .takeIf { it.isNotBlank() }
-  return listOfNotNull(kind, version, status, approval, commands).joinToString(" · ")
+  return listOfNotNull(kind, version, status, approval, commands).joinToString(" - ")
 }
 
 private fun nodeStatusText(node: GatewayNodeSummary): String =
@@ -235,7 +235,7 @@ private fun nodeStatus(node: GatewayNodeSummary): ClawStatus =
     -> if (node.connected) ClawStatus.Neutral else ClawStatus.Warning
   }
 
-private fun nodeApprovalSubtitle(approvalState: GatewayNodeApprovalState): String? =
+private fun nodeApprovalSubtitle(approvalState: GatewayNodeApprovalState): String... =
   when (approvalState) {
     GatewayNodeApprovalState.Approved -> "Approved"
     GatewayNodeApprovalState.PendingApproval -> "Capability approval pending"
@@ -250,14 +250,14 @@ private fun pendingDeviceSubtitle(device: GatewayPendingDeviceSummary): String {
   val roles = formatDeviceList(device.roles, "role")
   val scopes = formatDeviceList(device.scopes, "scope")
   val requested = device.requestedAtMs?.let { "requested ${relativeDeviceTime(it)}" }
-  return listOfNotNull(roles, scopes, requested, device.remoteIp).joinToString(" · ")
+  return listOfNotNull(roles, scopes, requested, device.remoteIp).joinToString(" - ")
 }
 
 private fun pairedDeviceSubtitle(device: GatewayPairedDeviceSummary): String {
   val roles = formatDeviceList(device.roles, "role")
   val scopes = formatDeviceList(device.scopes, "scope")
   val tokens = "${device.tokens.count { !it.revoked }}/${device.tokens.size} active tokens"
-  return listOfNotNull(roles, scopes, tokens, device.remoteIp).joinToString(" · ")
+  return listOfNotNull(roles, scopes, tokens, device.remoteIp).joinToString(" - ")
 }
 
 private fun pairedDeviceStatusText(tokens: List<GatewayDeviceTokenSummary>): String =
@@ -277,7 +277,7 @@ private fun pairedDeviceStatus(tokens: List<GatewayDeviceTokenSummary>): ClawSta
 private fun formatDeviceList(
   values: List<String>,
   fallback: String,
-): String? =
+): String... =
   when (values.size) {
     0 -> null
     1 -> values.first()

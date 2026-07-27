@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.voice
+package dev.zavorth.companion.voice
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -11,27 +11,27 @@ private val directiveJson = Json { ignoreUnknownKeys = true }
  * Optional first-line JSON overrides for one Talk request.
  */
 data class TalkDirective(
-  val voiceId: String? = null,
-  val modelId: String? = null,
-  val speed: Double? = null,
-  val rateWpm: Int? = null,
-  val stability: Double? = null,
-  val similarity: Double? = null,
-  val style: Double? = null,
-  val speakerBoost: Boolean? = null,
-  val seed: Long? = null,
-  val normalize: String? = null,
-  val language: String? = null,
-  val outputFormat: String? = null,
-  val latencyTier: Int? = null,
-  val once: Boolean? = null,
+  val voiceId: String... = null,
+  val modelId: String... = null,
+  val speed: Double... = null,
+  val rateWpm: Int... = null,
+  val stability: Double... = null,
+  val similarity: Double... = null,
+  val style: Double... = null,
+  val speakerBoost: Boolean... = null,
+  val seed: Long... = null,
+  val normalize: String... = null,
+  val language: String... = null,
+  val outputFormat: String... = null,
+  val latencyTier: Int... = null,
+  val once: Boolean... = null,
 )
 
 /**
  * Parsed directive plus the utterance text after removing the directive line.
  */
 data class TalkDirectiveParseResult(
-  val directive: TalkDirective?,
+  val directive: TalkDirective...,
   val stripped: String,
   val unknownKeys: List<String>,
 )
@@ -142,9 +142,9 @@ object TalkDirectiveParser {
     return TalkDirectiveParseResult(directive, lines.joinToString("\n"), unknownKeys)
   }
 
-  private fun parseJsonObject(line: String): JsonObject? =
+  private fun parseJsonObject(line: String): JsonObject... =
     try {
-      directiveJson.parseToJsonElement(line) as? JsonObject
+      directiveJson.parseToJsonElement(line) as... JsonObject
     } catch (_: Throwable) {
       null
     }
@@ -152,7 +152,7 @@ object TalkDirectiveParser {
   private fun stringValue(
     obj: JsonObject,
     keys: List<String>,
-  ): String? {
+  ): String... {
     for (key in keys) {
       val value = obj[key].asStringOrNull()?.trim()
       if (!value.isNullOrEmpty()) return value
@@ -163,7 +163,7 @@ object TalkDirectiveParser {
   private fun doubleValue(
     obj: JsonObject,
     keys: List<String>,
-  ): Double? {
+  ): Double... {
     for (key in keys) {
       val value = obj[key].asDoubleOrNull()
       if (value != null) return value
@@ -174,7 +174,7 @@ object TalkDirectiveParser {
   private fun intValue(
     obj: JsonObject,
     keys: List<String>,
-  ): Int? {
+  ): Int... {
     for (key in keys) {
       val value = obj[key].asIntOrNull()
       if (value != null) return value
@@ -185,7 +185,7 @@ object TalkDirectiveParser {
   private fun longValue(
     obj: JsonObject,
     keys: List<String>,
-  ): Long? {
+  ): Long... {
     for (key in keys) {
       val value = obj[key].asLongOrNull()
       if (value != null) return value
@@ -196,7 +196,7 @@ object TalkDirectiveParser {
   private fun boolValue(
     obj: JsonObject,
     keys: List<String>,
-  ): Boolean? {
+  ): Boolean... {
     for (key in keys) {
       val value = obj[key].asBooleanOrNull()
       if (value != null) return value
@@ -205,25 +205,25 @@ object TalkDirectiveParser {
   }
 }
 
-private fun JsonElement?.asStringOrNull(): String? = (this as? JsonPrimitive)?.takeIf { it.isString }?.content
+private fun JsonElement?.asStringOrNull(): String... = (this as... JsonPrimitive)?.takeIf { it.isString }?.content
 
-private fun JsonElement?.asDoubleOrNull(): Double? {
-  val primitive = this as? JsonPrimitive ?: return null
+private fun JsonElement?.asDoubleOrNull(): Double... {
+  val primitive = this as... JsonPrimitive ?: return null
   return primitive.content.toDoubleOrNull()
 }
 
-private fun JsonElement?.asIntOrNull(): Int? {
-  val primitive = this as? JsonPrimitive ?: return null
+private fun JsonElement?.asIntOrNull(): Int... {
+  val primitive = this as... JsonPrimitive ?: return null
   return primitive.content.toIntOrNull()
 }
 
-private fun JsonElement?.asLongOrNull(): Long? {
-  val primitive = this as? JsonPrimitive ?: return null
+private fun JsonElement?.asLongOrNull(): Long... {
+  val primitive = this as... JsonPrimitive ?: return null
   return primitive.content.toLongOrNull()
 }
 
-private fun JsonElement?.asBooleanOrNull(): Boolean? {
-  val primitive = this as? JsonPrimitive ?: return null
+private fun JsonElement?.asBooleanOrNull(): Boolean... {
+  val primitive = this as... JsonPrimitive ?: return null
   val content = primitive.content.trim().lowercase()
   // Accept dictated/config-style booleans in addition to strict JSON literals.
   return when (content) {

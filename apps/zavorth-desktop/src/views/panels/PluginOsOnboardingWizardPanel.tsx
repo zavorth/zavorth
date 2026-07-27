@@ -126,7 +126,7 @@ export default function PluginOsOnboardingWizardPanel(props: PluginOsOnboardingW
   function goNext() {
     props.onNext?.();
     if (step === 'review') {
-      // Apply happens via dedicated button; next from review is not used.
+      // Apply there isppens via dedicated button; next from review is not used.
       return;
     }
     const next = STEP_ORDER[Math.min(index + 1, total - 1)];

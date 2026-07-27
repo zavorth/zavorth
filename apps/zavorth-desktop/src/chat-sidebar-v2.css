@@ -1,0 +1,1064 @@
+
+
+/* ── Thread & Chat Container ───────────────────────── */
+.zvd-app .zvd-thread {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  overflow-y: auto !important;
+  padding-bottom: 150px !important;
+  scroll-behavior: smooth !important;
+  background: radial-gradient(circle at 50% 35%, #0f2766 0%, #071536 60%, #050d24 100%) !important;
+}
+
+.zvd-app .zvd-thread-messages-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px !important;
+  width: min(780px, 92%) !important;
+  margin: 0 auto !important;
+  padding: 32px 0 24px !important;
+}
+
+/* ── User Message Bubble (Single-glass bubble) ─ */
+.zvd-app .zvd-message--user {
+  align-self: flex-end !important;
+  margin-left: auto !important;
+  max-width: min(80%, 600px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin-bottom: 8px !important;
+  animation: zvd-msg-slideIn 200ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.zvd-app .zvd-message--user .zvd-message__role {
+  display: none !important;
+}
+
+.zvd-app .zvd-message--user .zvd-message__body {
+  position: relative !important;
+  display: inline-block !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 18px 18px 4px 18px !important;
+  padding: 10px 16px !important;
+  color: #f3f6f4 !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  word-break: break-word !important;
+}
+
+.zvd-app .zvd-message--user .zvd-message__body p {
+  margin: 0 !important;
+  color: #f3f6f4 !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+}
+
+/* ── Assistant Message (Document render) ─ */
+.zvd-app .zvd-message--assistant {
+  align-self: flex-start !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  animation: zvd-msg-fadeIn 280ms ease !important;
+}
+
+.zvd-app .zvd-message--assistant .zvd-message__role {
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  color: var(--zvd-accent, #00e88f) !important;
+  letter-spacing: -0.01em !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  text-transform: uppercase !important;
+  margin-bottom: 2px !important;
+}
+
+.zvd-app .zvd-message--assistant .zvd-message__role::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--zvd-accent, #00e88f);
+  box-shadow: 0 0 8px var(--zvd-accent, #00e88f);
+}
+
+.zvd-app .zvd-message--assistant .zvd-message__body {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: #e4e9e6 !important;
+  font-size: 14.5px !important;
+  line-height: 1.65 !important;
+  word-break: break-word !important;
+}
+
+/* ── System Message (No box, no border) ─ */
+.zvd-app .zvd-message--system {
+  align-self: flex-start !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #8f9b95 !important;
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+}
+
+.zvd-app .zvd-message--system .zvd-message__body {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.zvd-app .zvd-message--system .zvd-message__role {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #6f7a75 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  margin-bottom: 4px !important;
+  display: block !important;
+}
+
+/* ── Code Block Streaming Glow ─────────────────────── */
+.zvd-app .zvd-code-block.is-streaming,
+.zvd-app [data-streaming="true"] pre {
+  animation: zvd-code-stream-glow 2s infinite ease-in-out !important;
+}
+
+@keyframes zvd-code-stream-glow {
+  0%, 100% {
+    border-color: rgba(0, 232, 143, 0.3);
+    box-shadow: 0 0 14px rgba(0, 232, 143, 0.12);
+  }
+  50% {
+    border-color: rgba(0, 232, 143, 0.65);
+    box-shadow: 0 0 24px rgba(0, 232, 143, 0.28);
+  }
+}
+
+/* ── Centered wordmark ────────────────── */
+.zvd-app .zvd-empty-thread {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: calc(100vh - 220px) !important;
+  padding: 40px 20px !important;
+  text-align: center !important;
+}
+
+.zvd-app .zvd-empty-wordmark-wrap {
+  margin-bottom: 36px !important;
+  user-select: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.zvd-app .zvd-empty-wordmark {
+  font-size: clamp(2.6rem, 5.8vw, 4.4rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  margin: 0 0 12px 0 !important;
+  line-height: 0.95 !important;
+  color: #e2e8f5 !important;
+  background: linear-gradient(180deg, #ffffff 0%, #a8c0f5 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  font-family: 'Playfair Display', Georgia, serif, system-ui, -apple-system !important;
+  filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.7)) !important;
+}
+
+.zvd-app .zvd-empty-subtitle {
+  margin: 0 auto !important;
+  max-width: 580px !important;
+  font-size: 14.5px !important;
+  font-weight: 400 !important;
+  line-height: 1.55 !important;
+  color: #8da4d0 !important;
+  text-align: center !important;
+}
+
+.zvd-app.theme-dark .zvd-empty-wordmark {
+  color: #ffffff !important;
+  background: linear-gradient(180deg, #ffffff 0%, rgba(200, 220, 255, 0.85) 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* ── Minimalist sidebar ────────────── */
+.zvd-app .zvd-sidebar {
+  position: relative !important;
+  background: #060e24 !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  user-select: none !important;
+  transition: width 180ms ease !important;
+}
+
+.zvd-app .zvd-sidebar-resize-rail {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 99;
+  transition: background 160ms ease;
+}
+
+.zvd-app .zvd-sidebar-resize-rail:hover,
+.zvd-app .zvd-sidebar-resize-rail.is-resizing {
+  background: var(--zvd-accent, #00e88f);
+  opacity: 0.6;
+}
+
+/* Brand Header */
+.zvd-app .zvd-sidebar-top {
+  padding: 14px 16px 10px !important;
+  border-bottom: none !important;
+}
+
+.zvd-app .zvd-brand strong {
+  font-size: 15px !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.02em !important;
+  color: #ffffff !important;
+}
+
+/* New Session & Search Buttons */
+.zvd-app .zvd-new-session,
+.zvd-app .zvd-search-session {
+  appearance: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  height: 34px !important;
+  margin: 4px 8px !important;
+  padding: 0 10px !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #8e9b94 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 120ms ease !important;
+}
+
+.zvd-app .zvd-new-session {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #e4e9e6 !important;
+}
+
+.zvd-app .zvd-new-session:hover,
+.zvd-app .zvd-search-session:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Sidebar Nav Items */
+.zvd-app .zvd-sidebar-nav {
+  padding: 6px 8px !important;
+  gap: 2px !important;
+}
+
+.zvd-app .zvd-sidebar-nav button {
+  height: 32px !important;
+  padding: 0 10px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #8e9b94 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transition: all 120ms ease !important;
+}
+
+.zvd-app .zvd-sidebar-nav button:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.zvd-app .zvd-sidebar-nav button.is-active {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.zvd-app .zvd-sidebar-nav button.is-active .zvd-nav-icon {
+  color: #ffffff !important;
+}
+
+.zvd-app .zvd-sidebar-section-header > p,
+.zvd-app .zvd-sidebar-chats > p,
+.zvd-app .zvd-sidebar-projects > p {
+  color: #5c6862 !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+.zvd-app .zvd-project-root,
+.zvd-app .zvd-project-card,
+.zvd-app .zvd-sidebar-thread-row {
+  border-radius: 8px !important;
+  border: none !important;
+  color: #8e9b94 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.zvd-app .zvd-project-root:hover,
+.zvd-app .zvd-project-card:hover,
+.zvd-app .zvd-sidebar-thread-row:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.zvd-app .zvd-project-root.is-active,
+.zvd-app .zvd-sidebar-thread-row.is-active {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── Attachment Bar ────────────────────────────────── */
+.zvd-composer-attachment-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 14px 4px;
+}
+
+.zvd-composer-attachment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #d0dad5;
+  font-size: 12px;
+}
+
+.zvd-composer-attachment-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  object-fit: cover;
+}
+
+.zvd-composer-attachment-remove {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: #8a9690;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.zvd-composer-attachment-remove:hover {
+  color: #ffffff;
+}
+
+/* ── Dropzone Overlay ──────────────────────────────── */
+.zvd-dropzone-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(8, 10, 12, 0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: zvd-overlay-fadeIn 150ms ease;
+}
+
+.zvd-dropzone-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 60px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px dashed var(--zvd-accent, #00e88f);
+  color: #ffffff;
+  text-align: center;
+  gap: 10px;
+}
+
+.zvd-dropzone-icon {
+  color: var(--zvd-accent, #00e88f);
+}
+
+/* ── Right Inspector Rail ──────────────────────────── */
+.zvd-inspector-rail {
+  width: 320px;
+  height: 100%;
+  background: #080a0c;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+.zvd-inspector-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.zvd-inspector-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.zvd-inspector-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #8e9b94;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.zvd-inspector-tab.is-active {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.zvd-inspector-close-btn {
+  background: transparent;
+  border: none;
+  color: #8e9b94;
+  cursor: pointer;
+}
+
+.zvd-inspector-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.zvd-inspector-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #647069;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* File Tree */
+.zvd-file-tree-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 5px;
+  background: transparent;
+  border: none;
+  color: #b0bcb5;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.zvd-file-tree-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+/* Git Review */
+.zvd-git-churn-summary {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+
+.zvd-git-stat-add { color: #00e88f; display: flex; align-items: center; gap: 4px; }
+.zvd-git-stat-del { color: #ef4444; display: flex; align-items: center; gap: 4px; }
+
+.zvd-git-file-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 12.5px;
+  color: #d0dad5;
+  margin-bottom: 4px;
+}
+
+.zvd-git-ship-bar {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.zvd-git-commit-input {
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.zvd-git-ship-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--zvd-accent, #00e88f);
+  color: #000000;
+  font-size: 12.5px;
+  font-weight: 650;
+  border: none;
+  cursor: pointer;
+}
+
+/* Agent Terminal */
+.zvd-terminal-body {
+  font-family: monospace;
+  font-size: 11.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.zvd-terminal-line {
+  display: flex;
+  gap: 8px;
+}
+
+.zvd-term-time { color: #5c6862; }
+.zvd-terminal-line.is-cmd .zvd-term-text { color: #3b82f6; }
+.zvd-terminal-line.is-success .zvd-term-text { color: #00e88f; }
+.zvd-terminal-line.is-error .zvd-term-text { color: #ef4444; }
+
+/* ── Starmap ───────────────────────────────────────── */
+.zvd-starmap-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #06080a;
+}
+
+.zvd-starmap-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.zvd-starmap-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.zvd-starmap-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.zvd-starmap-controls button {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.zvd-starmap-canvas {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Settings and secondary views ─────── */
+.zvd-app .zvd-page {
+  padding: 24px 32px !important;
+  max-width: 1080px !important;
+  margin: 0 auto !important;
+}
+
+.zvd-app .zvd-page-header h1 {
+  font-size: 22px !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.02em !important;
+  color: #ffffff !important;
+}
+
+.zvd-app .zvd-page-header p {
+  color: #8e9b94 !important;
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+}
+
+/* Scrollable Text Tabs Bar */
+.zvd-app .zvd-text-tabs {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  gap: 6px !important;
+  padding: 4px !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  margin-bottom: 24px !important;
+  scrollbar-width: none !important;
+}
+
+.zvd-app .zvd-text-tabs::-webkit-scrollbar {
+  display: none !important;
+}
+
+.zvd-app .zvd-text-tabs button {
+  white-space: nowrap !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  border-radius: 7px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: #8e9b94 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transition: all 120ms ease !important;
+}
+
+.zvd-app .zvd-text-tabs button:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+.zvd-app .zvd-text-tabs button.is-active,
+.zvd-app .zvd-text-tabs button[aria-selected="true"] {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Clean Cards & Sections */
+.zvd-app .zvd-settings-section,
+.zvd-app .zvd-settings-card,
+.zvd-app .zvd-surface-card,
+.zvd-app .zvd-panel-card {
+  border-radius: 12px !important;
+  background: #080a0c !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding: 20px !important;
+  margin-bottom: 16px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Muted Banners */
+.zvd-app .zvd-readiness-banner,
+.zvd-app .zvd-untrusted-banner,
+.zvd-app [role="alert"] {
+  border-radius: 10px !important;
+  padding: 12px 16px !important;
+  font-size: 13px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: #d0dad5 !important;
+}
+
+.zvd-app .zvd-untrusted-banner {
+  border-left: 3px solid #ef4444 !important;
+  background: rgba(239, 68, 68, 0.06) !important;
+  color: #fca5a5 !important;
+}
+
+/* Inputs & Form Controls */
+.zvd-app .zvd-form-input,
+.zvd-app .zvd-form-select,
+.zvd-app .zvd-form-textarea,
+.zvd-app .zvd-input,
+.zvd-app .zvd-select,
+.zvd-app .zvd-inline-select {
+  height: 34px !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  padding: 0 10px !important;
+}
+
+.zvd-app .zvd-form-input:focus,
+.zvd-app .zvd-form-select:focus,
+.zvd-app .zvd-inline-select:focus {
+  border-color: var(--zvd-accent, #00e88f) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(0, 232, 143, 0.15) !important;
+}
+
+/* ── Cockpit Dashboard & Runtime Overview ──────────── */
+.zvd-cockpit-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.zvd-cockpit-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 32px;
+  color: #8e9b94;
+  font-size: 13px;
+  justify-content: center;
+}
+
+.zvd-cockpit-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.zvd-cockpit-banner.is-success {
+  border-left: 3px solid #00e88f;
+}
+
+.zvd-cockpit-banner.is-success .zvd-cockpit-banner-icon {
+  color: #00e88f;
+}
+
+.zvd-cockpit-banner.is-warning {
+  border-left: 3px solid #f59e0b;
+}
+
+.zvd-cockpit-banner.is-warning .zvd-cockpit-banner-icon {
+  color: #f59e0b;
+}
+
+.zvd-cockpit-banner.is-error {
+  border-left: 3px solid #ef4444;
+}
+
+.zvd-cockpit-banner.is-error .zvd-cockpit-banner-icon {
+  color: #ef4444;
+}
+
+.zvd-cockpit-banner-text h3 {
+  font-size: 14px;
+  font-weight: 650;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+}
+
+.zvd-cockpit-banner-text p {
+  font-size: 12.5px;
+  color: #a0aaa5;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.zvd-cockpit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.zvd-cockpit-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #080a0c;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.zvd-cockpit-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #728079;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.zvd-cockpit-card-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.zvd-cockpit-card-value.is-warning {
+  color: #f59e0b;
+}
+
+.zvd-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #728079;
+}
+
+.zvd-dot.is-online {
+  background: #00e88f;
+  box-shadow: 0 0 8px #00e88f;
+}
+
+.zvd-dot.is-offline {
+  background: #ef4444;
+}
+
+.zvd-cockpit-diag-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  font-size: 12.5px;
+}
+
+.zvd-cockpit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.zvd-btn-primary-solid {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #000000;
+  font-size: 13px;
+  font-weight: 650;
+  border: none;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.zvd-btn-primary-solid:hover {
+  background: #e6eae8;
+  transform: translateY(-1px);
+}
+
+.zvd-btn-ghost-outline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.zvd-btn-ghost-outline:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Panel Error Fallback ──────────────────────────── */
+.zvd-panel-error-fallback {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.zvd-panel-error-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 36px 48px;
+  border-radius: 16px;
+  background: #080a0c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+  max-width: 480px;
+}
+
+.zvd-panel-error-icon {
+  color: #ef4444;
+}
+
+.zvd-panel-error-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.zvd-panel-error-card p {
+  font-size: 13px;
+  color: #8e9b94;
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+/* ── Settings Overlay & Modal Window (Dark glass) ───── */
+.zvd-settings-backdrop,
+.zvd-settings-overlay,
+div[class*="zvd-settings-backdrop"],
+div[class*="zvd-settings-overlay"] {
+  background: rgba(4, 6, 8, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+.zvd-settings-window {
+  background: #080a0c !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6) !important;
+  color: #ffffff !important;
+}
+
+.zvd-settings-sidebar {
+  background: #06080a !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+}
+
+.zvd-settings-content {
+  background: #080a0c !important;
+  color: #ffffff !important;
+}
+
+.zvd-settings-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: #080a0c !important;
+  color: #ffffff !important;
+}
+
+.zvd-settings-header h2 {
+  color: #ffffff !important;
+}
+
+.zvd-settings-tab-btn {
+  color: #8e9b94 !important;
+  border-radius: 8px !important;
+}
+
+.zvd-settings-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+.zvd-settings-tab-btn--active {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* ── Keyframes ─────────────────────────────────────── */
+@keyframes zvd-overlay-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zvd-modal-zoomIn {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes zvd-msg-slideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes zvd-msg-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

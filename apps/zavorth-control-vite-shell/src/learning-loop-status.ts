@@ -112,8 +112,7 @@ function bindPromoteActions(root: HTMLElement, onPromoted?: () => void): void {
         const title = result.title ? String(result.title).slice(0, 48) : `draft ${ordinal}`;
         const msg = dryRun
           ? result.text || `Dry-run promote ${ordinal} ok`
-          : result.skillName
-            ? `${translate('Promoted')}: ${title} → ${result.skillName}`
+          : result.skillName ? `${translate('Promoted')}: ${title} → ${result.skillName}`
             : `${translate('Promoted')}: ${title}`;
         flashButton(btn, dryRun ? translate('Preview ok') : translate('Promoted'));
         window.emitSignal?.(dryRun ? 'info' : 'success', translate('Learning loop'), msg.slice(0, 240));
@@ -228,7 +227,7 @@ export function bindLearningLoopStatusCard(): void {
   };
 
   const loadStatus = (): void => {
-    fetch('/api/learning-loop?userId=control')
+    fetch('/api/learning-loop...userId=control')
       .then(async (res) => {
         if (!res.ok) throw new Error(String(res.status));
         const data = await res.json();
@@ -248,8 +247,7 @@ export function bindLearningLoopStatusCard(): void {
           : '';
         const m = data?.metrics;
         const metricsLine =
-          m && typeof m === 'object' && m.weekKey
-            ? `${translate('Week')} ${m.weekKey}: ${translate('created')} ${Number(m.draftsCreated || 0)} · ${translate('promotes')} ${Number(m.promotes || 0)} · ${translate('reuses')} ${Number(m.reuses || 0)}`
+          m && typeof m === 'object' && m.weekKey ? `${translate('Week')} ${m.weekKey}: ${translate('created')} ${Number(m.draftsCreated || 0)} · ${translate('promotes')} ${Number(m.promotes || 0)} · ${translate('reuses')} ${Number(m.reuses || 0)}`
             : undefined;
         const planeNote =
           typeof data?.planeNote === 'string' && data.planeNote.trim() ? String(data.planeNote).trim() : undefined;

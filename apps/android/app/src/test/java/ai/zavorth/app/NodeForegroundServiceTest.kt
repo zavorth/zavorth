@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion
+package dev.zavorth.companion
 
 import android.app.Notification
 import android.content.Intent
@@ -51,11 +51,11 @@ class NodeForegroundServiceTest {
   fun voiceNotificationSuffixReflectsActiveCaptureMode() {
     assertEquals("", voiceNotificationSuffix(VoiceCaptureMode.Off, false, false, false, false))
     assertEquals(
-      " · Mic: Listening",
+      " - Mic: Listening",
       voiceNotificationSuffix(VoiceCaptureMode.ManualMic, true, true, false, false),
     )
     assertEquals(
-      " · Talk: Speaking",
+      " - Talk: Speaking",
       voiceNotificationSuffix(VoiceCaptureMode.TalkMode, false, false, true, true),
     )
   }

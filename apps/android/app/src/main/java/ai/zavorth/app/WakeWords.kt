@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion
+package dev.zavorth.companion
 
 /**
  * Wake-word parsing limits and sanitizers shared by settings and voice runtime paths.
@@ -14,7 +14,7 @@ object WakeWords {
   fun parseIfChanged(
     input: String,
     current: List<String>,
-  ): List<String>? {
+  ): List<String>... {
     val parsed = parseCommaSeparated(input)
     return if (parsed == current) null else parsed
   }

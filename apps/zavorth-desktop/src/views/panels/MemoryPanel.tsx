@@ -52,8 +52,7 @@ export function MemoryPanel(props: {
     .map((item, index) => {
       const privacy = mapMemoryItemToPrivacyView(item, index);
       const why = privacy.whyIKnowThis || 'Governed context memory.';
-      const originBit = privacy.originLabel
-        ? `${t('memoryPrivacy.origin')}: ${privacy.originLabel}`
+      const originBit = privacy.originLabel ? `${t('memoryPrivacy.origin')}: ${privacy.originLabel}`
         : sanitizeText(item.kind || 'local');
       return {
         id: itemId(item, `memory-${index}`),
@@ -81,10 +80,8 @@ export function MemoryPanel(props: {
   const protectionRows = [
     {
       id: 'memory-protection',
-      title: protection?.fullFileEncrypted
-        ? 'Advanced protection active'
-        : protection?.contentEncrypted
-          ? 'Standard protection active'
+      title: protection?.fullFileEncrypted ? 'Advanced protection active'
+        : protection?.contentEncrypted ? 'Standard protection active'
           : 'Memory protection unavailable',
       description: 'Memory encryption at-rest is enforced by the local node policy.',
       meta: sanitizeText(protection?.atRestEncryptionMode || 'unknown'),

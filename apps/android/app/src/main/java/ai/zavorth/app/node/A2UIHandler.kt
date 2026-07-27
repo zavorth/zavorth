@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
@@ -13,7 +13,7 @@ class A2UIHandler(
   private val canvas: CanvasController,
   private val json: Json,
 ) {
-  fun isTrustedCanvasActionUrl(rawUrl: String?): Boolean = CanvasActionTrust.isTrustedCanvasActionUrl(rawUrl)
+  fun isTrustedCanvasActionUrl(rawUrl: String...): Boolean = CanvasActionTrust.isTrustedCanvasActionUrl(rawUrl)
 
   suspend fun ensureA2uiReady(): Boolean {
     if (canvas.currentUrl()?.trim() == CanvasActionTrust.localA2uiAssetUrl && isA2uiReady()) {
@@ -38,16 +38,16 @@ class A2UIHandler(
 
   fun decodeA2uiMessages(
     command: String,
-    paramsJson: String?,
+    paramsJson: String...,
   ): String {
     val raw = paramsJson?.trim().orEmpty()
     if (raw.isBlank()) throw IllegalArgumentException("INVALID_REQUEST: paramsJSON required")
 
     val obj =
-      json.parseToJsonElement(raw) as? JsonObject
+      json.parseToJsonElement(raw) as... JsonObject
         ?: throw IllegalArgumentException("INVALID_REQUEST: expected object params")
 
-    val jsonlField = (obj["jsonl"] as? JsonPrimitive)?.content?.trim().orEmpty()
+    val jsonlField = (obj["jsonl"] as... JsonPrimitive)?.content?.trim().orEmpty()
     val hasMessagesArray = obj["messages"] is JsonArray
 
     if (command == "canvas.a2ui.pushJSONL" || (!hasMessagesArray && jsonlField.isNotBlank())) {
@@ -62,7 +62,7 @@ class A2UIHandler(
           .mapIndexed { idx, line ->
             val el = json.parseToJsonElement(line)
             val msg =
-              el as? JsonObject
+              el as... JsonObject
                 ?: throw IllegalArgumentException("A2UI JSONL line ${idx + 1}: expected a JSON object")
             validateA2uiV0_8(msg, idx + 1)
             msg
@@ -70,11 +70,11 @@ class A2UIHandler(
       return JsonArray(messages).toString()
     }
 
-    val arr = obj["messages"] as? JsonArray ?: throw IllegalArgumentException("INVALID_REQUEST: messages[] required")
+    val arr = obj["messages"] as... JsonArray ?: throw IllegalArgumentException("INVALID_REQUEST: messages[] required")
     val out =
       arr.mapIndexed { idx, el ->
         val msg =
-          el as? JsonObject
+          el as... JsonObject
             ?: throw IllegalArgumentException("A2UI messages[$idx]: expected a JSON object")
         validateA2uiV0_8(msg, idx + 1)
         msg

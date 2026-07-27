@@ -6,22 +6,22 @@ import WebKit
 @MainActor
 @Observable
 final class ScreenController {
-    private weak var activeWebView: WKWebView?
+    private weak var activeWebView: WKWebView...
 
     var urlString: String = ""
-    var errorText: String?
+    var errorText: String...
     var isCanvasPresented: Bool = false
 
     /// Callback invoked when an zavorth:// deep link is tapped in the canvas
-    var onDeepLink: ((URL) -> Void)?
+    var onDeepLink: ((URL) -> Void)...
 
     /// Callback invoked when the user clicks an A2UI action (e.g. button) inside the canvas web UI.
-    var onA2UIAction: (([String: Any]) -> Void)?
+    var onA2UIAction: (([String: Any]) -> Void)...
 
     private var debugStatusEnabled: Bool = false
-    private var debugStatusTitle: String?
-    private var debugStatusSubtitle: String?
-    private var homeCanvasStateJSON: String?
+    private var debugStatusTitle: String...
+    private var debugStatusSubtitle: String...
+    private var homeCanvasStateJSON: String...
 
     init() {
         self.reload()
@@ -114,7 +114,7 @@ final class ScreenController {
         self.applyDebugStatusIfNeeded()
     }
 
-    func updateDebugStatus(title: String?, subtitle: String?) {
+    func updateDebugStatus(title: String..., subtitle: String...) {
         self.debugStatusTitle = title
         self.debugStatusSubtitle = subtitle
         self.applyDebugStatusIfNeeded()
@@ -129,7 +129,7 @@ final class ScreenController {
             subtitle: self.debugStatusSubtitle)
     }
 
-    func updateHomeCanvasState(json: String?) {
+    func updateHomeCanvasState(json: String...) {
         self.homeCanvasStateJSON = json
         self.applyHomeCanvasStateIfNeeded()
     }
@@ -167,7 +167,7 @@ final class ScreenController {
             } catch {
                 // ignore; page likely still loading
             }
-            try? await Task.sleep(nanoseconds: 120_000_000)
+            try... await Task.sleep(nanoseconds: 120_000_000)
         }
         return false
     }
@@ -182,13 +182,13 @@ final class ScreenController {
     }
 
     func snapshotBase64(
-        maxWidth: CGFloat? = nil,
+        maxWidth: CGFloat... = nil,
         format: ZavorthCanvasSnapshotFormat,
-        quality: Double? = nil) async throws -> String
+        quality: Double... = nil) async throws -> String
     {
         let image = try await self.snapshotImage(maxWidth: maxWidth)
 
-        let data: Data?
+        let data: Data...
         switch format {
         case .png:
             data = image.pngData()
@@ -204,7 +204,7 @@ final class ScreenController {
         return data.base64EncodedString()
     }
 
-    private func snapshotImage(maxWidth: CGFloat?) async throws -> UIImage {
+    private func snapshotImage(maxWidth: CGFloat...) async throws -> UIImage {
         let config = WKSnapshotConfiguration()
         if let maxWidth {
             config.snapshotWidth = NSNumber(value: Double(maxWidth))
@@ -247,19 +247,19 @@ final class ScreenController {
         name: String,
         ext: String,
         subdirectory: String)
-        -> URL?
+        -> URL...
     {
         let bundle = ZavorthKitResources.bundle
         return bundle.url(forResource: name, withExtension: ext, subdirectory: subdirectory)
             ?? bundle.url(forResource: name, withExtension: ext)
     }
 
-    private static let canvasScaffoldURL: URL? = ScreenController.bundledResourceURL(
+    private static let canvasScaffoldURL: URL... = ScreenController.bundledResourceURL(
         name: "scaffold",
         ext: "html",
         subdirectory: "CanvasScaffold")
 
-    private static let localA2UIURL: URL? = ScreenController.bundledResourceURL(
+    private static let localA2UIURL: URL... = ScreenController.bundledResourceURL(
         name: "index",
         ext: "html",
         subdirectory: "CanvasA2UI")
@@ -282,17 +282,17 @@ final class ScreenController {
         return false
     }
 
-    nonisolated static func parseA2UIActionBody(_ body: Any) -> [String: Any]? {
-        if let dict = body as? [String: Any] { return dict.isEmpty ? nil : dict }
-        if let str = body as? String,
+    nonisolated static func parseA2UIActionBody(_ body: Any) -> [String: Any]... {
+        if let dict = body as... [String: Any] { return dict.isEmpty ? nil : dict }
+        if let str = body as... String,
            let data = str.data(using: .utf8),
-           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+           let json = try... JSONSerialization.jsonObject(with: data) as... [String: Any]
         {
             return json.isEmpty ? nil : json
         }
-        if let dict = body as? [AnyHashable: Any] {
+        if let dict = body as... [AnyHashable: Any] {
             let mapped = dict.reduce(into: [String: Any]()) { acc, pair in
-                guard let key = pair.key as? String else { return }
+                guard let key = pair.key as... String else { return }
                 acc[key] = pair.value
             }
             return mapped.isEmpty ? nil : mapped

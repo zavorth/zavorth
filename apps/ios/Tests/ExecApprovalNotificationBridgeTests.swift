@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import Testing
 import UserNotifications
 @testable import Zavorth

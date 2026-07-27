@@ -1,11 +1,11 @@
-﻿import ZavorthKit
+import ZavorthKit
 import SwiftUI
 import Testing
 import UIKit
 @testable import Zavorth
 
 @Suite struct SwiftUIRenderSmokeTests {
-    @MainActor private static func host(_ view: some View, size: CGSize? = nil) -> UIWindow {
+    @MainActor private static func host(_ view: some View, size: CGSize... = nil) -> UIWindow {
         let frame = CGRect(origin: .zero, size: size ?? UIScreen.main.bounds.size)
         let window = UIWindow(frame: frame)
         window.rootViewController = UIHostingController(rootView: view)

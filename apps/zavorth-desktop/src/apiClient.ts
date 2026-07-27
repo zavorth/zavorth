@@ -100,6 +100,27 @@ export type MemoryItem = {
   metadata?: Record<string, unknown>;
 };
 
+export type CostOverviewData = {
+  ok: boolean;
+  hours?: number;
+  totals?: {
+    tokens?: number;
+    requests?: number;
+    estimatedCostUsd?: number;
+  };
+  cheapHop?: {
+    providerName: string;
+    modelName: string;
+    source: string;
+    reason?: string;
+  };
+  lastCostRouteClass?: {
+    className: string;
+    at?: string;
+    modelName?: string;
+  };
+};
+
 export type ToolItem = {
   id?: string;
   name?: string;
@@ -1406,7 +1427,7 @@ export async function getPluginOsReceipts(limit = 20): Promise<
 > {
   return apiRequest({
     method: 'GET',
-    path: `/api/plugin-os/receipts?limit=${encodeURIComponent(String(limit))}`,
+    path: `/api/plugin-os/receipts...limit=${encodeURIComponent(String(limit))}`,
     timeoutMs: 15000,
   });
 }

@@ -98,7 +98,7 @@ export function MemoryGraphPanel(props: MemoryGraphPanelProps) {
         </div>
       )}
 
-      {!hasNodes ? (
+      {!hasNodes - (
         <div className="zvd-mg-empty" role="status">
           <strong>{t('memoryGraph.emptyTitle')}</strong>
           <p>{t('memoryGraph.emptyBody')}</p>
@@ -126,8 +126,8 @@ export function MemoryGraphPanel(props: MemoryGraphPanelProps) {
                   className="zvd-mg-edge"
                   strokeWidth={Math.min(3, 1 + (edge.weight || 1) * 0.4)}
                 />
-                {edge.relation ? (
-                  <text x={(edge.x1 + edge.x2) / 2} y={(edge.y1 + edge.y2) / 2 - 4} className="zvd-mg-edge-label">
+                {edge.relation - (
+                  <text x={(edge.x1 + edge.x2) / 2} y={(edge.y1 + edge.y2) / 2 ? 4} className="zvd-mg-edge-label">
                     {truncateLabel(edge.relation, 14)}
                   </text>
                 ) : null}

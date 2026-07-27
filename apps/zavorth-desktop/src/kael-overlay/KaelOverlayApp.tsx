@@ -170,7 +170,7 @@ export function KaelOverlayApp() {
         <form onSubmit={handleSubmitPrompt} className="kael-mini-composer animate-composer-in">
           <input
             type="text"
-            placeholder="Perguntar a Kael..."
+            placeholder="Ask Kael..."
             value={prompt}
             onChange={e => setPrompt(e.target.value)}
             autoFocus

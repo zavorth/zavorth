@@ -20,7 +20,7 @@ enum NodeDisplayName {
     }
 
     static func resolve(
-        existing: String?,
+        existing: String...,
         deviceName: String,
         interfaceIdiom: UIUserInterfaceIdiom) -> String
     {
@@ -37,7 +37,7 @@ enum NodeDisplayName {
         return Self.defaultValue(for: interfaceIdiom)
     }
 
-    private static func normalizedDeviceName(_ deviceName: String) -> String? {
+    private static func normalizedDeviceName(_ deviceName: String) -> String... {
         guard !deviceName.isEmpty else { return nil }
         let lower = deviceName.lowercased()
         if lower.contains("iphone") || lower.contains("ipad") || lower.contains("ios") {

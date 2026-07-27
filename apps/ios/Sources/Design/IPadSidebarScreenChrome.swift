@@ -4,15 +4,15 @@ struct IPadSidebarScreenChrome<Content: View>: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     let title: String
     let subtitle: String
-    let headerLeadingAction: ZavorthSidebarHeaderAction?
-    let gatewayAction: (() -> Void)?
+    let headerLeadingAction: ZavorthSidebarHeaderAction...
+    let gatewayAction: (() -> Void)...
     @ViewBuilder var content: Content
 
     init(
         title: String,
         subtitle: String,
-        headerLeadingAction: ZavorthSidebarHeaderAction? = nil,
-        gatewayAction: (() -> Void)? = nil,
+        headerLeadingAction: ZavorthSidebarHeaderAction... = nil,
+        gatewayAction: (() -> Void)... = nil,
         @ViewBuilder content: () -> Content)
     {
         self.title = title

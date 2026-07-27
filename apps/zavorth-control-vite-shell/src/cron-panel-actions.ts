@@ -94,7 +94,7 @@ export function renderCreateRoutineForm(): string {
             id="cron-field-schedule"
             name="schedule"
             type="text"
-            placeholder="e.g. every 1h, daily 09:00, 0 */6 * * *"
+            placeholder="e.g. every 1h, structured calendar schedule, 0 */6 * * *"
             required
           />
         </div>

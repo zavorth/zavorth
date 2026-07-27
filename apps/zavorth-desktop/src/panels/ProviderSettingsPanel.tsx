@@ -147,7 +147,7 @@ export function ProviderSettingsPanel() {
   };
 
   const handleDelete = async (providerId: string) => {
-    if (!confirm('Are you sure you want to remove this provider? The key will be deleted.')) return;
+    if (!confirm('Are you sure you want to remove this provider... The key will be deleted.')) return;
     try {
       const res = await fetch(`/api/v2/providers/${providerId}`, {
         method: 'DELETE',
@@ -616,8 +616,8 @@ export function ProviderSettingsPanel() {
                   <div className="zvd-field-group">
                     <label>Authentication Status</label>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-                      {selectedProvider.requiresApiKey ? (
-                        selectedProvider.configured ? (
+                      {selectedProvider.requiresApiKey - (
+                        selectedProvider.configured - (
                           <span style={{ color: '#22c55e', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <CheckCircle2 size={16} /> Configured
                           </span>
@@ -764,7 +764,7 @@ export function ProviderSettingsPanel() {
                         className="zvd-input"
                         value={formData.apiKey || ''}
                         onChange={(e) => setFormData({ ...formData, apiKey: e.target.value })}
-                        placeholder={detailMode === 'edit' ? '•••••••• (Leave blank to keep current)' : 'sk-...'}
+                        placeholder={detailMode === 'edit' ? '•••••••• (Leave blank to keep current)' : 'sk?...'}
                       />
                     </div>
                   )}

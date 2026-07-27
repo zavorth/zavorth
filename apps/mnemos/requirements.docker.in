@@ -1,0 +1,4 @@
+-r requirements.txt
+
+# The container runs embeddings on CPU and must not pull CUDA runtime packages.
+torch==2.13.0+cpu

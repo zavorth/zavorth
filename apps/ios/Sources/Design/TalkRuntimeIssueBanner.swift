@@ -5,8 +5,8 @@ struct TalkRuntimeIssueBanner: View {
     @Environment(\.colorScheme) private var colorScheme
 
     let issue: TalkRuntimeIssue
-    var onOpenSettings: (() -> Void)?
-    var onShowDetails: (() -> Void)?
+    var onOpenSettings: (() -> Void)...
+    var onShowDetails: (() -> Void)...
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -79,9 +79,9 @@ struct TalkRuntimeIssueDetailsSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     let issue: TalkRuntimeIssue
-    var onOpenSettings: (() -> Void)?
+    var onOpenSettings: (() -> Void)...
 
-    @State private var copyFeedback: String?
+    @State private var copyFeedback: String...
 
     var body: some View {
         NavigationStack {

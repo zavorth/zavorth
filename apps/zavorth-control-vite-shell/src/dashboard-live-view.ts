@@ -402,7 +402,7 @@ export function createDashboardLiveView({
       readinessItems: trustLoopModel.readinessItems,
     });
 
-    // Highlight Review dock when approvals pending
+    // Highlight Review dock when pending approvals
     document.querySelectorAll<HTMLElement>('.dock-node[data-sector="sales-os"]').forEach((node) => {
       node.classList.toggle('has-badge', snapshot.activeApprovals > 0);
       let badge = node.querySelector<HTMLElement>('.dock-node__badge');

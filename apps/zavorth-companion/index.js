@@ -11,7 +11,7 @@ function ensureBuild() {
     return;
   }
   console.log('--- Zavorth Desktop Companion ---');
-  console.log('Build ausente. Compilando o companion antes de iniciar...');
+  console.log('Build missing. Compiling the companion before starting...');
   const result = spawnSync(npmCommand, ['run', 'build', '--silent'], {
     cwd: repoRoot,
     stdio: 'inherit',

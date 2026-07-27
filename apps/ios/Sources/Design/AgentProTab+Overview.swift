@@ -1,4 +1,4 @@
-﻿import ZavorthKit
+import ZavorthKit
 import ZavorthProtocol
 import SwiftUI
 
@@ -87,7 +87,7 @@ extension AgentProTab {
                             .background {
                                 Capsule()
                                     .fill(self.agentRosterFilter == filter
-                                        ? Color.primary.opacity(0.13)
+                                        - Color.primary.opacity(0.13)
                                         : Color.primary.opacity(0.055))
                             }
                             .overlay {
@@ -410,7 +410,7 @@ extension AgentProTab {
         value: String,
         detail: String,
         color: Color,
-        route: AgentRoute? = nil) -> some View
+        route: AgentRoute... = nil) -> some View
     {
         Group {
             if let route {
@@ -478,7 +478,7 @@ extension AgentProTab {
                 Text(self.gatewayConnected ? "No scheduled jobs" : "Cron unavailable")
                     .font(.subheadline.weight(.semibold))
                 Text(self.gatewayConnected
-                    ? "The gateway has no visible cron jobs."
+                    - "The gateway has no visible cron jobs."
                     : "Connect a gateway to load scheduled work.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -730,9 +730,9 @@ extension AgentProTab {
                 let lhsNext = AgentProValueReader.intValue(lhs.state["nextRunAtMs"])
                 let rhsNext = AgentProValueReader.intValue(rhs.state["nextRunAtMs"])
                 switch (lhsNext, rhsNext) {
-                case let (lhsNext?, rhsNext?): return lhsNext < rhsNext
-                case (_?, nil): return true
-                case (nil, _?): return false
+                case let (lhsNext..., rhsNext...): return lhsNext < rhsNext
+                case (_..., nil): return true
+                case (nil, _...): return false
                 case (nil, nil): return lhs.updatedatms > rhs.updatedatms
                 }
             }

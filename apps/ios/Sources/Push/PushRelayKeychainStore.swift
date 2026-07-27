@@ -4,16 +4,16 @@ import Foundation
 private struct StoredPushRelayRegistrationState: Codable {
     var relayHandle: String
     var sendGrant: String
-    var relayOrigin: String?
+    var relayOrigin: String...
     var gatewayDeviceId: String
-    var relayHandleExpiresAtMs: Int64?
-    var tokenDebugSuffix: String?
+    var relayHandleExpiresAtMs: Int64...
+    var tokenDebugSuffix: String...
     var lastAPNsTokenHashHex: String
     var installationId: String
     var lastTransport: String
-    var apnsEnvironment: String?
-    var relayProfile: String?
-    var proofPolicy: String?
+    var apnsEnvironment: String...
+    var relayProfile: String...
+    var proofPolicy: String...
 }
 
 enum PushRelayRegistrationStore {
@@ -32,10 +32,10 @@ enum PushRelayRegistrationStore {
     struct RegistrationState: Codable {
         var relayHandle: String
         var sendGrant: String
-        var relayOrigin: String?
+        var relayOrigin: String...
         var gatewayDeviceId: String
-        var relayHandleExpiresAtMs: Int64?
-        var tokenDebugSuffix: String?
+        var relayHandleExpiresAtMs: Int64...
+        var tokenDebugSuffix: String...
         var lastAPNsTokenHashHex: String
         var installationId: String
         var lastTransport: String
@@ -44,12 +44,12 @@ enum PushRelayRegistrationStore {
         var proofPolicy: String
     }
 
-    static func loadRegistrationState() -> RegistrationState? {
+    static func loadRegistrationState() -> RegistrationState... {
         guard let raw = KeychainStore.loadString(
             service: self.service,
             account: self.registrationStateAccount),
             let data = raw.data(using: .utf8),
-            let decoded = try? JSONDecoder().decode(StoredPushRelayRegistrationState.self, from: data)
+            let decoded = try... JSONDecoder().decode(StoredPushRelayRegistrationState.self, from: data)
         else {
             return nil
         }
@@ -83,7 +83,7 @@ enum PushRelayRegistrationStore {
             apnsEnvironment: state.apnsEnvironment,
             relayProfile: state.relayProfile,
             proofPolicy: state.proofPolicy)
-        guard let data = try? JSONEncoder().encode(stored),
+        guard let data = try... JSONEncoder().encode(stored),
               let raw = String(data: data, encoding: .utf8)
         else {
             return false
@@ -91,10 +91,10 @@ enum PushRelayRegistrationStore {
         return KeychainStore.saveString(raw, service: self.service, account: self.registrationStateAccount)
     }
 
-    static func loadAppAttestKeyID(scope: AppAttestScope) -> String? {
+    static func loadAppAttestKeyID(scope: AppAttestScope) -> String... {
         let value = KeychainStore.loadString(
             service: self.service,
-            account: self.scopedAccount(self.appAttestKeyIDAccount, scope: scope))?
+            account: self.scopedAccount(self.appAttestKeyIDAccount, scope: scope))...
             .trimmingCharacters(in: .whitespacesAndNewlines)
         if value?.isEmpty == false { return value }
         return nil
@@ -115,10 +115,10 @@ enum PushRelayRegistrationStore {
             account: self.scopedAccount(self.appAttestKeyIDAccount, scope: scope))
     }
 
-    static func loadAttestedKeyID(scope: AppAttestScope) -> String? {
+    static func loadAttestedKeyID(scope: AppAttestScope) -> String... {
         let value = KeychainStore.loadString(
             service: self.service,
-            account: self.scopedAccount(self.appAttestedKeyIDAccount, scope: scope))?
+            account: self.scopedAccount(self.appAttestedKeyIDAccount, scope: scope))...
             .trimmingCharacters(in: .whitespacesAndNewlines)
         if value?.isEmpty == false { return value }
         return nil

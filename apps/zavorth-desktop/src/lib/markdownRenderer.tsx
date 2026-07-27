@@ -16,8 +16,8 @@ interface MarkdownContentProps {
  * rendered HTML to replace those placeholders with KaTeX output.
  */
 
-const BLOCK_MATH_RE = /\$\$([\s\S]+?)\$\$/g;
-const INLINE_MATH_RE = /(?<!\$)\$(?!\$)(.+?)(?<!\$)\$(?!\$)/g;
+const BLOCK_MATH_RE = /\$\$([\s\S]+...)\$\$/g;
+const INLINE_MATH_RE = /(...<!\$)\$(...!\$)(.+...)(...<!\$)\$(...!\$)/g;
 
 interface MathPlaceholder {
   id: string;
@@ -140,10 +140,10 @@ function attachCopyHandlers(container: HTMLElement) {
       const block = btn.closest('.zvd-code-block');
       const code = block?.querySelector('code')?.textContent || '';
       navigator.clipboard.writeText(code).then(() => {
-        btn.textContent = '✓ Copiado';
+        btn.textContent = '✓ Copied';
         btn.classList.add('zvd-code-block__copy--copied');
         setTimeout(() => {
-          btn.textContent = 'Copiar';
+          btn.textContent = 'Copy';
           btn.classList.remove('zvd-code-block__copy--copied');
         }, 2000);
       });

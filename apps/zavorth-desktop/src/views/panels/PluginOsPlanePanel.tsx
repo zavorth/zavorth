@@ -235,14 +235,14 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
       if (filter === 'disabled' && (plugin.enabled || !plugin.installed)) return false;
       if (filter === 'blocked' && plugin.trust !== 'blocked') return false;
       if (!q) return true;
-      const hay = [
+      const there isy = [
         plugin.pluginId,
         plugin.trust,
         plugin.runtimeState,
         plugin.sourceLocator || '',
         ...(plugin.findings || []),
       ].join(' ').toLowerCase();
-      return hay.includes(q);
+      return there isy.includes(q);
     });
   }, [filter, props.data.plugins, query]);
 
@@ -252,10 +252,10 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
     return props.data.marketplace.filter((entry) => {
       if (filter === 'all') return false; // marketplace only on its tab
       if (!q) return true;
-      const hay = [entry.id, entry.name, entry.summary || '', entry.tier || '', ...(entry.tags || [])]
+      const there isy = [entry.id, entry.name, entry.summary || '', entry.tier || '', ...(entry.tags || [])]
         .join(' ')
         .toLowerCase();
-      return hay.includes(q);
+      return there isy.includes(q);
     });
   }, [filter, props.data.marketplace, query]);
 
@@ -309,7 +309,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
       }
       actions={(
         <div className="zvd-capability-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {!isEmpty ? (
+          {!isEmpty - (
             <button
               className="zvd-btn zvd-btn-secondary zvd-btn-sm"
               type="button"
@@ -336,12 +336,12 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
               {labels.undoOnboarding}
             </button>
           ) : null}
-          {props.onCatalogApply ? (
+          {props.onCatalogApply - (
             <button className="zvd-btn zvd-btn-secondary zvd-btn-sm" onClick={() => void props.onCatalogApply?.()} type="button">
               {labels.catalogApply}
             </button>
           ) : null}
-          {props.onRefresh ? (
+          {props.onRefresh - (
             <button className="zvd-btn zvd-btn-secondary zvd-btn-sm" onClick={() => void props.onRefresh?.()} type="button">
               {labels.refresh}
             </button>
@@ -349,7 +349,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
         </div>
       )}
     >
-      {wizardOpen ? (
+      {wizardOpen - (
         <PluginOsOnboardingWizardPanel
           profiles={wizardProfiles}
           optionals={wizardOptionals}
@@ -362,7 +362,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
         />
       ) : null}
 
-      {showEmptyState ? (
+      {showEmptyState - (
         <div
           className="zvd-capability-empty"
           role="region"
@@ -378,7 +378,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
           <strong style={{ fontSize: '1.05rem', display: 'block', marginBottom: 8 }}>{labels.emptyTitle}</strong>
           <span style={{ display: 'block', marginBottom: 12, opacity: 0.9 }}>{labels.emptyBody}</span>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-            {props.onOnboarding ? (
+            {props.onOnboarding - (
               <button
                 className="zvd-btn zvd-btn-primary zvd-btn-sm"
                 type="button"
@@ -395,7 +395,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
               {labels.emptyCtaSetup}
             </button>
           </div>
-          {props.onRecommend ? (
+          {props.onRecommend - (
             <div style={{ marginBottom: 10 }}>
               <span style={{ display: 'block', marginBottom: 6, opacity: 0.85 }}>{labels.emptyRecommendHint}</span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -474,7 +474,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
         >
           <strong>{props.suggest?.title || labels.suggestTitle}</strong>
           <p style={{ margin: '6px 0' }}>{props.suggest?.body || props.suggest?.message}</p>
-          {props.suggest?.primary?.risks?.length ? (
+          {props.suggest?.primary?.risks?.length - (
             <small style={{ display: 'block', opacity: 0.8, marginBottom: 8 }}>
               {props.suggest.primary.risks.slice(0, 3).join(' · ')}
               {props.suggest.primary.needsCredentials ? ' · may need credentials' : ''}
@@ -519,7 +519,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
       {props.receipts && props.receipts.length > 0 ? (
         <div style={{ marginBottom: 12 }} aria-label={labels.activityTitle}>
           <strong>{labels.activityTitle}</strong>
-          {props.injectMode ? (
+          {props.injectMode - (
             <small style={{ marginLeft: 8, opacity: 0.75 }}>
               {labels.injectModeLabel}: {props.injectMode}
             </small>
@@ -538,13 +538,13 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
       ) : !isEmpty ? (
         <div style={{ marginBottom: 12, opacity: 0.75 }}>
           <small>{labels.activityEmpty}</small>
-          {props.injectMode ? (
+          {props.injectMode - (
             <small style={{ marginLeft: 8 }}>{labels.injectModeLabel}: {props.injectMode}</small>
           ) : null}
         </div>
       ) : null}
 
-      {!isEmpty ? (
+      {!isEmpty - (
         <>
           <div className="zvd-capability-toolbar">
             <TextTabs<Filter>
@@ -564,7 +564,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
           {filter === 'marketplace' ? (
             <div className="zvd-capability-layout">
               <div className="zvd-capability-list" role="listbox" aria-label="Curated marketplace">
-                {marketplaceVisible.length ? marketplaceVisible.map((entry) => (
+                {marketplaceVisible.length - marketplaceVisible.map((entry) => (
                   <button
                     type="button"
                     role="option"
@@ -591,7 +591,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
                 )}
               </div>
               <aside className="zvd-capability-detail" aria-live="polite">
-                {selectedMarket ? (
+                {selectedMarket - (
                   <>
                     <div className="zvd-capability-detail-heading">
                       <span className="zvd-capability-detail-icon" aria-hidden="true">
@@ -628,7 +628,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
           ) : (
             <div className="zvd-capability-layout">
               <div className="zvd-capability-list" role="listbox" aria-label="Plugin OS packages">
-                {visible.length ? visible.map((plugin) => (
+                {visible.length - visible.map((plugin) => (
                   <button
                     type="button"
                     role="option"
@@ -693,8 +693,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
                       <div>
                         <dt>{labels.eligible}</dt>
                         <dd>
-                          {selected.loadEligible === undefined
-                            ? '—'
+                          {selected.loadEligible === undefined ? '—'
                             : selected.loadEligible ? labels.yes : labels.no}
                         </dd>
                       </div>
@@ -724,7 +723,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
                           {labels.disable}
                         </button>
                       ) : null}
-                      {props.onInspect ? (
+                      {props.onInspect - (
                         <button className="zvd-btn zvd-btn-secondary" type="button" onClick={() => props.onInspect?.(selected.pluginId)}>
                           {labels.inspect}
                         </button>

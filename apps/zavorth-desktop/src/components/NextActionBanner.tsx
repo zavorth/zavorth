@@ -86,3 +86,39 @@ export function NextActionBanner(props: NextActionBannerProps) {
 
 /** Exported for unit tests — pure resolution of banner copy/CTA. */
 export { resolveNextAction };
+
+/** Ordered list of secondary chip IDs shown below the primary Do-now action. */
+export const DESKTOP_DO_NOW_SECONDARY_IDS = ['approve', 'doctor', 'channels', 'prove'] as const;
+
+export type DoNowSecondaryChip = {
+  id: string;
+  label: string;
+  onClick: () => void;
+};
+
+type BuildDoNowSecondariesOptions = {
+  approvalsCount: number;
+  onOpenReview?: () => void;
+  onDoctor?: () => void;
+  onOpenChannels?: () => void;
+  onOpenProve?: () => void;
+};
+
+/** Build the secondary action chips shown below the primary Do-now CTA. */
+export function buildDesktopDoNowSecondaries(options: BuildDoNowSecondariesOptions): DoNowSecondaryChip[] {
+  const chips: DoNowSecondaryChip[] = [];
+  const dedupeApprove = options.approvalsCount > 0;
+  if (!dedupeApprove && options.onOpenReview) {
+    chips.push({ id: 'approve', label: 'Review', onClick: options.onOpenReview });
+  }
+  if (options.onDoctor) {
+    chips.push({ id: 'doctor', label: 'Doctor', onClick: options.onDoctor });
+  }
+  if (options.onOpenChannels) {
+    chips.push({ id: 'channels', label: 'Channels', onClick: options.onOpenChannels });
+  }
+  if (options.onOpenProve) {
+    chips.push({ id: 'prove', label: 'Prove', onClick: options.onOpenProve });
+  }
+  return chips;
+}

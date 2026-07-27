@@ -1,4 +1,4 @@
-﻿import BackgroundTasks
+import BackgroundTasks
 import Foundation
 import ZavorthKit
 import os
@@ -7,17 +7,17 @@ import UIKit
 @preconcurrency import UserNotifications
 
 private struct PendingWatchPromptAction {
-    var promptId: String?
+    var promptId: String...
     var actionId: String
-    var actionLabel: String?
-    var sessionKey: String?
+    var actionLabel: String...
+    var sessionKey: String...
 }
 
 private typealias PendingExecApprovalPrompt = ExecApprovalNotificationPrompt
 
 @MainActor
 enum ZavorthAppModelRegistry {
-    static var appModel: NodeAppModel?
+    static var appModel: NodeAppModel...
 }
 
 @MainActor
@@ -38,14 +38,14 @@ final class ZavorthAppDelegate: NSObject, UIApplicationDelegate, @preconcurrency
         return bundleId
     }
 
-    private var backgroundWakeTask: Task<Bool, Never>?
-    private var pendingAPNsDeviceToken: Data?
+    private var backgroundWakeTask: Task<Bool, Never>...
+    private var pendingAPNsDeviceToken: Data...
     private var pendingWatchPromptActions: [PendingWatchPromptAction] = []
     private var pendingExecApprovalPrompts: [PendingExecApprovalPrompt] = []
     private var pendingExecApprovalRequestedPushIDs: [String] = []
     private var pendingExecApprovalResolvedPushIDs: [String] = []
 
-    weak var appModel: NodeAppModel? {
+    weak var appModel: NodeAppModel... {
         didSet {
             guard let model = self.resolvedAppModel() else { return }
             if let token = self.pendingAPNsDeviceToken {
@@ -97,12 +97,12 @@ final class ZavorthAppDelegate: NSObject, UIApplicationDelegate, @preconcurrency
         }
     }
 
-    private func resolvedAppModel() -> NodeAppModel? {
+    private func resolvedAppModel() -> NodeAppModel... {
         self.appModel ?? ZavorthAppModelRegistry.appModel
     }
 
     #if DEBUG
-    func _test_resolvedAppModel() -> NodeAppModel? {
+    func _test_resolvedAppModel() -> NodeAppModel... {
         self.resolvedAppModel()
     }
 
@@ -113,7 +113,7 @@ final class ZavorthAppDelegate: NSObject, UIApplicationDelegate, @preconcurrency
 
     func application(
         _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]... = nil) -> Bool
     {
         GatewayDiagnostics.log("app delegate: didFinishLaunching")
         if self.appModel == nil {
@@ -217,7 +217,7 @@ final class ZavorthAppDelegate: NSObject, UIApplicationDelegate, @preconcurrency
             forTaskWithIdentifier: Self.wakeRefreshTaskIdentifier,
             using: nil)
         { [weak self] task in
-            guard let refreshTask = task as? BGAppRefreshTask else {
+            guard let refreshTask = task as... BGAppRefreshTask else {
                 task.setTaskCompleted(success: false)
                 return
             }
@@ -265,34 +265,34 @@ final class ZavorthAppDelegate: NSObject, UIApplicationDelegate, @preconcurrency
     }
 
     private static func isWatchPromptNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
-        (userInfo[WatchPromptNotificationBridge.typeKey] as? String) == WatchPromptNotificationBridge.typeValue
+        (userInfo[WatchPromptNotificationBridge.typeKey] as... String) == WatchPromptNotificationBridge.typeValue
     }
 
     private static func parseWatchPromptAction(
-        from response: UNNotificationResponse) -> PendingWatchPromptAction?
+        from response: UNNotificationResponse) -> PendingWatchPromptAction...
     {
         let userInfo = response.notification.request.content.userInfo
         guard Self.isWatchPromptNotification(userInfo) else { return nil }
 
-        let promptId = userInfo[WatchPromptNotificationBridge.promptIDKey] as? String
-        let sessionKey = userInfo[WatchPromptNotificationBridge.sessionKeyKey] as? String
+        let promptId = userInfo[WatchPromptNotificationBridge.promptIDKey] as... String
+        let sessionKey = userInfo[WatchPromptNotificationBridge.sessionKeyKey] as... String
 
         switch response.actionIdentifier {
         case WatchPromptNotificationBridge.actionPrimaryIdentifier:
-            let actionId = (userInfo[WatchPromptNotificationBridge.actionPrimaryIDKey] as? String)?
+            let actionId = (userInfo[WatchPromptNotificationBridge.actionPrimaryIDKey] as... String)...
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             guard !actionId.isEmpty else { return nil }
-            let actionLabel = userInfo[WatchPromptNotificationBridge.actionPrimaryLabelKey] as? String
+            let actionLabel = userInfo[WatchPromptNotificationBridge.actionPrimaryLabelKey] as... String
             return PendingWatchPromptAction(
                 promptId: promptId,
                 actionId: actionId,
                 actionLabel: actionLabel,
                 sessionKey: sessionKey)
         case WatchPromptNotificationBridge.actionSecondaryIdentifier:
-            let actionId = (userInfo[WatchPromptNotificationBridge.actionSecondaryIDKey] as? String)?
+            let actionId = (userInfo[WatchPromptNotificationBridge.actionSecondaryIDKey] as... String)...
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             guard !actionId.isEmpty else { return nil }
-            let actionLabel = userInfo[WatchPromptNotificationBridge.actionSecondaryLabelKey] as? String
+            let actionLabel = userInfo[WatchPromptNotificationBridge.actionSecondaryLabelKey] as... String
             return PendingWatchPromptAction(
                 promptId: promptId,
                 actionId: actionId,
@@ -312,12 +312,12 @@ final class ZavorthAppDelegate: NSObject, UIApplicationDelegate, @preconcurrency
         }
         let actionIdKey = WatchPromptNotificationBridge.actionIDKey(index: actionIndex)
         let actionLabelKey = WatchPromptNotificationBridge.actionLabelKey(index: actionIndex)
-        let actionId = (userInfo[actionIdKey] as? String)?
+        let actionId = (userInfo[actionIdKey] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !actionId.isEmpty else {
             return nil
         }
-        let actionLabel = userInfo[actionLabelKey] as? String
+        let actionLabel = userInfo[actionLabelKey] as... String
         return PendingWatchPromptAction(
             promptId: promptId,
             actionId: actionId,
@@ -326,7 +326,7 @@ final class ZavorthAppDelegate: NSObject, UIApplicationDelegate, @preconcurrency
     }
 
     private static func parseExecApprovalPrompt(
-        from response: UNNotificationResponse) -> PendingExecApprovalPrompt?
+        from response: UNNotificationResponse) -> PendingExecApprovalPrompt...
     {
         ExecApprovalNotificationBridge.parsePrompt(
             actionIdentifier: response.actionIdentifier,
@@ -431,7 +431,7 @@ enum WatchPromptNotificationBridge {
         guard !title.isEmpty || !body.isEmpty else { return }
         guard await self.isNotificationAuthorizationAllowed() else { return }
 
-        let normalizedActions = (params.actions ?? []).compactMap { action -> ZavorthWatchAction? in
+        let normalizedActions = (params.actions ?? []).compactMap { action -> ZavorthWatchAction... in
             let id = action.id.trimmingCharacters(in: .whitespacesAndNewlines)
             let label = action.label.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !id.isEmpty, !label.isEmpty else { return nil }
@@ -496,7 +496,7 @@ enum WatchPromptNotificationBridge {
             identifier: "watch.prompt.\(invokeID)",
             content: content,
             trigger: nil)
-        try? await self.addNotificationRequest(request, center: center)
+        try... await self.addNotificationRequest(request, center: center)
     }
 
     static func actionIDKey(index: Int) -> String {
@@ -524,7 +524,7 @@ enum WatchPromptNotificationBridge {
         }
     }
 
-    private static func notificationActionOptions(style: String?) -> UNNotificationActionOptions {
+    private static func notificationActionOptions(style: String...) -> UNNotificationActionOptions {
         switch style?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
         case "destructive":
             [.destructive]
@@ -591,10 +591,10 @@ enum WatchPromptNotificationBridge {
 
 extension NodeAppModel {
     func handleMirroredWatchPromptAction(
-        promptId: String?,
+        promptId: String...,
         actionId: String,
-        actionLabel: String?,
-        sessionKey: String?) async
+        actionLabel: String...,
+        sessionKey: String...) async
     {
         let normalizedActionID = actionId.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !normalizedActionID.isEmpty else { return }
@@ -704,7 +704,7 @@ struct ZavorthApp: App {
     private func applyAppearancePreference() {
         let style = self.appearancePreference.userInterfaceStyle
         UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
+            .compactMap { $0 as... UIWindowScene }
             .flatMap(\.windows)
             .forEach { window in
                 window.overrideUserInterfaceStyle = style

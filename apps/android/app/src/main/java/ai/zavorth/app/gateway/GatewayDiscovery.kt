@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.gateway
+package dev.zavorth.companion.gateway
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -78,12 +78,12 @@ class GatewayDiscovery(
   /** Short diagnostic text shown by connect UI while discovery is running. */
   val statusText: StateFlow<String> = _statusText.asStateFlow()
 
-  private var unicastJob: Job? = null
+  private var unicastJob: Job... = null
   private val dnsExecutor: Executor = Executors.newCachedThreadPool()
   private val availableNetworks = ConcurrentHashMap.newKeySet<Network>()
   private val serviceInfoCallbacks = ConcurrentHashMap<String, Any>()
 
-  @Volatile private var lastWideAreaRcode: Int? = null
+  @Volatile private var lastWideAreaRcode: Int... = null
 
   @Volatile private var lastWideAreaCount: Int = 0
 
@@ -260,7 +260,7 @@ class GatewayDiscovery(
     val tlsEnabled = txtBool(resolved, "gatewayTls")
     val tlsFingerprint = txt(resolved, "gatewayTlsSha256")
     val id = stableId(serviceName, "local.")
-    // Local NSD gives the socket host/port; TXT ports are retained as gateway metadata only.
+    // local NSD gives the socket host/port; TXT ports are retained as gateway metadata only.
     localById[id] =
       GatewayEndpoint(
         stableId = id,
@@ -277,16 +277,16 @@ class GatewayDiscovery(
     publish()
   }
 
-  private fun resolvedHostAddress(resolved: NsdServiceInfo): String? {
+  private fun resolvedHostAddress(resolved: NsdServiceInfo): String... {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
       return resolved.hostAddresses.firstOrNull()?.hostAddress
     }
     return legacyHostAddress(resolved)
   }
 
-  private fun legacyHostAddress(resolved: NsdServiceInfo): String? =
+  private fun legacyHostAddress(resolved: NsdServiceInfo): String... =
     try {
-      val host = NsdServiceInfo::class.java.getMethod("getHost").invoke(resolved) as? InetAddress
+      val host = NsdServiceInfo::class.java.getMethod("getHost").invoke(resolved) as... InetAddress
       host?.hostAddress
     } catch (_: Throwable) {
       null
@@ -306,7 +306,7 @@ class GatewayDiscovery(
 
     val wide =
       when (wideRcode) {
-        null -> "Wide: ?"
+        null -> "Wide: ..."
         Rcode.NOERROR -> "Wide: $wideCount"
         Rcode.NXDOMAIN -> "Wide: NXDOMAIN"
         else -> "Wide: ${Rcode.string(wideRcode)}"
@@ -315,7 +315,7 @@ class GatewayDiscovery(
     return when {
       localCount == 0 && wideRcode == null -> "Searching for gateways…"
       localCount == 0 -> "$wide"
-      else -> "Local: $localCount • $wide"
+      else -> "local: $localCount • $wide"
     }
   }
 
@@ -329,7 +329,7 @@ class GatewayDiscovery(
   private fun txt(
     info: NsdServiceInfo,
     key: String,
-  ): String? {
+  ): String... {
     val bytes = info.attributes[key] ?: return null
     return try {
       String(bytes, Charsets.UTF_8).trim().ifEmpty { null }
@@ -341,7 +341,7 @@ class GatewayDiscovery(
   private fun txtInt(
     info: NsdServiceInfo,
     key: String,
-  ): Int? = txt(info, key)?.toIntOrNull()
+  ): Int... = txt(info, key)?.toIntOrNull()
 
   private fun txtBool(
     info: NsdServiceInfo,
@@ -354,16 +354,16 @@ class GatewayDiscovery(
   private suspend fun refreshUnicast(domain: String) {
     val ptrName = "${serviceType}$domain"
     val ptrMsg = lookupUnicastMessage(ptrName, Type.PTR) ?: return
-    val ptrRecords = records(ptrMsg, Section.ANSWER).mapNotNull { it as? PTRRecord }
+    val ptrRecords = records(ptrMsg, Section.ANSWER).mapNotNull { it as... PTRRecord }
 
     val next = LinkedHashMap<String, GatewayEndpoint>()
     for (ptr in ptrRecords) {
       val instanceFqdn = ptr.target.toString()
       val srv =
-        recordByName(ptrMsg, instanceFqdn, Type.SRV) as? SRVRecord
+        recordByName(ptrMsg, instanceFqdn, Type.SRV) as... SRVRecord
           ?: run {
             val msg = lookupUnicastMessage(instanceFqdn, Type.SRV) ?: return@run null
-            recordByName(msg, instanceFqdn, Type.SRV) as? SRVRecord
+            recordByName(msg, instanceFqdn, Type.SRV) as... SRVRecord
           }
           ?: continue
       val port = srv.port
@@ -380,13 +380,13 @@ class GatewayDiscovery(
       val txtFromPtr =
         recordsByName(ptrMsg, Section.ADDITIONAL)[keyName(instanceFqdn)]
           .orEmpty()
-          .mapNotNull { it as? TXTRecord }
+          .mapNotNull { it as... TXTRecord }
       val txt =
         if (txtFromPtr.isNotEmpty()) {
           txtFromPtr
         } else {
           val msg = lookupUnicastMessage(instanceFqdn, Type.TXT)
-          records(msg, Section.ANSWER).mapNotNull { it as? TXTRecord }
+          records(msg, Section.ANSWER).mapNotNull { it as... TXTRecord }
         }
       val instanceName = BonjourEscapes.decode(decodeInstanceName(instanceFqdn, domain))
       val displayName = BonjourEscapes.decode(txtValue(txt, "displayName") ?: instanceName)
@@ -445,7 +445,7 @@ class GatewayDiscovery(
   private suspend fun lookupUnicastMessage(
     name: String,
     type: Int,
-  ): Message? {
+  ): Message... {
     val query =
       try {
         Message.newQuery(
@@ -472,7 +472,7 @@ class GatewayDiscovery(
     }
   }
 
-  private suspend fun queryViaSystemDns(query: Message): Message? {
+  private suspend fun queryViaSystemDns(query: Message): Message... {
     val network = preferredDnsNetwork()
     val bytes =
       try {
@@ -489,7 +489,7 @@ class GatewayDiscovery(
   }
 
   private fun records(
-    msg: Message?,
+    msg: Message...,
     section: Int,
   ): List<Record> = msg?.getSection(section).orEmpty()
 
@@ -511,7 +511,7 @@ class GatewayDiscovery(
     msg: Message,
     fqdn: String,
     type: Int,
-  ): Record? {
+  ): Record... {
     val key = keyName(fqdn)
     val byNameAnswer = recordsByName(msg, Section.ANSWER)
     val fromAnswer = byNameAnswer[key].orEmpty().firstOrNull { it.type == type }
@@ -522,18 +522,18 @@ class GatewayDiscovery(
   }
 
   private fun resolveHostFromMessage(
-    msg: Message?,
+    msg: Message...,
     hostname: String,
-  ): String? {
+  ): String... {
     val m = msg ?: return null
     val key = keyName(hostname)
     val additional = recordsByName(m, Section.ADDITIONAL)[key].orEmpty()
-    val a = additional.mapNotNull { it as? ARecord }.mapNotNull { it.address?.hostAddress }
-    val aaaa = additional.mapNotNull { it as? AAAARecord }.mapNotNull { it.address?.hostAddress }
+    val a = additional.mapNotNull { it as... ARecord }.mapNotNull { it.address?.hostAddress }
+    val aaaa = additional.mapNotNull { it as... AAAARecord }.mapNotNull { it.address?.hostAddress }
     return a.firstOrNull() ?: aaaa.firstOrNull()
   }
 
-  private fun preferredDnsNetwork(): android.net.Network? {
+  private fun preferredDnsNetwork(): android.net.Network... {
     val cm = connectivity ?: return null
 
     // Prefer VPN (Tailscale) when present; otherwise use the active network.
@@ -552,7 +552,7 @@ class GatewayDiscovery(
       addAll(availableNetworks)
     }.distinct()
 
-  private fun createDirectResolver(): Resolver? {
+  private fun createDirectResolver(): Resolver... {
     val cm = connectivity ?: return null
 
     val candidateNetworks =
@@ -595,7 +595,7 @@ class GatewayDiscovery(
   }
 
   private suspend fun rawQuery(
-    network: android.net.Network?,
+    network: android.net.Network...,
     wireQuery: ByteArray,
   ): ByteArray =
     suspendCancellableCoroutine { cont ->
@@ -626,7 +626,7 @@ class GatewayDiscovery(
   private fun txtValue(
     records: List<TXTRecord>,
     key: String,
-  ): String? {
+  ): String... {
     val prefix = "$key="
     for (r in records) {
       val strings: List<String> =
@@ -648,7 +648,7 @@ class GatewayDiscovery(
   private fun txtIntValue(
     records: List<TXTRecord>,
     key: String,
-  ): Int? = txtValue(records, key)?.toIntOrNull()
+  ): Int... = txtValue(records, key)?.toIntOrNull()
 
   private fun txtBoolValue(
     records: List<TXTRecord>,
@@ -674,14 +674,14 @@ class GatewayDiscovery(
     }
   }
 
-  private suspend fun resolveHostUnicast(hostname: String): String? {
+  private suspend fun resolveHostUnicast(hostname: String): String... {
     val a =
       records(lookupUnicastMessage(hostname, Type.A), Section.ANSWER)
-        .mapNotNull { it as? ARecord }
+        .mapNotNull { it as... ARecord }
         .mapNotNull { it.address?.hostAddress }
     val aaaa =
       records(lookupUnicastMessage(hostname, Type.AAAA), Section.ANSWER)
-        .mapNotNull { it as? AAAARecord }
+        .mapNotNull { it as... AAAARecord }
         .mapNotNull { it.address?.hostAddress }
 
     return a.firstOrNull() ?: aaaa.firstOrNull()

@@ -134,8 +134,7 @@ export function buildRuntimeDoctorChecks(input: RuntimeDoctorInput): RuntimeDoct
       status: providerCount > 0 || selectedModel ? 'pass' : 'warn',
       detail: providerCount > 0
         ? `${providerCount} provider(s) detected${selectedModel ? `, model ${selectedModel}.` : '.'}`
-        : selectedModel
-          ? `Selected model: ${selectedModel}.`
+        : selectedModel ? `Selected model: ${selectedModel}.`
           : 'No provider connected yet.',
       actionLabel: providerCount > 0 || selectedModel ? undefined : 'Configure provider',
     },
@@ -144,20 +143,17 @@ export function buildRuntimeDoctorChecks(input: RuntimeDoctorInput): RuntimeDoct
       label: 'Workspace',
       description: 'Active directory, folder trust and read/write scope.',
       status: !workspacePath ? 'warn' : input.workspaceTrusted === false ? 'fail' : 'pass',
-      detail: !workspacePath
-        ? 'No folder workspace has been selected.'
-        : input.workspaceTrusted === false
-          ? `Workspace needs explicit trust: ${workspacePath}.`
+      detail: !workspacePath ? 'No folder workspace has been selected.'
+        : input.workspaceTrusted === false ? `Workspace needs explicit trust: ${workspacePath}.`
           : `Active workspace: ${workspacePath}.`,
       actionLabel: !workspacePath ? 'Choose workspace' : input.workspaceTrusted === false ? 'Review trust' : undefined,
     },
     {
       id: 'permissions',
       label: 'Permissions',
-      description: 'Local token, sensitive scopes, approval and revocation.',
+      description: 'local token, sensitive scopes, approval and revocation.',
       status: input.tokenReady === false ? 'fail' : permissionIssueCount > 0 ? 'warn' : 'pass',
-      detail: input.tokenReady === false
-        ? 'Local token is not ready.'
+      detail: input.tokenReady === false ? 'local token is not ready.'
         : permissionIssueCount > 0
           ? `${permissionIssueCount} permission issue(s) need review.`
           : 'Token and sensitive permissions are consistent.',
@@ -177,12 +173,11 @@ export function buildRuntimeDoctorChecks(input: RuntimeDoctorInput): RuntimeDoct
     },
     {
       id: 'backend',
-      label: 'Local backend',
-      description: 'Local API, sessions, provider runtime and post-sleep recovery.',
+      label: 'local backend',
+      description: 'local API, sessions, provider runtime and post-sleep recovery.',
       status: input.runtimeRunning && input.backendReachable !== false ? 'pass' : 'fail',
-      detail: input.runtimeRunning && input.backendReachable !== false
-        ? 'Local backend is responding.'
-        : 'Local backend is not responding.',
+      detail: input.runtimeRunning && input.backendReachable !== false ? 'local backend is responding.'
+        : 'local backend is not responding.',
       actionLabel: input.runtimeRunning && input.backendReachable !== false ? undefined : 'Start runtime',
     },
   ];
@@ -220,8 +215,7 @@ export function detectRemoteDisplayFromEnv(env: Record<string, string | undefine
   return {
     remote,
     severity: remote ? 'warning' : 'none',
-    reason: remote
-      ? 'Remote session detected; sensitive actions should require extra confirmation.'
+    reason: remote ? 'Remote session detected; sensitive actions should require extra confirmation.'
       : 'No remote display signal detected.',
     signals,
   };
@@ -244,8 +238,7 @@ export function buildDesktopSafeModeState(input: {
   return {
     enabled,
     reason: input.reason || (enabled
-      ? input.remoteDisplay
-        ? 'Safe mode is active because a remote session was detected.'
+      ? input.remoteDisplay ? 'Safe mode is active because a remote session was detected.'
         : 'Safe mode is active manually.'
       : 'Safe mode is disabled.'),
     startedAt: input.startedAt || null,

@@ -36,7 +36,7 @@ export function UpdateControlPanel(props: {
         <div><span>Checked</span><strong>{status?.checkedAt ? new Date(status.checkedAt).toLocaleString() : 'never'}</strong></div>
       </div>
 
-      {status?.releaseNotes?.length ? (
+      {status?.releaseNotes?.length - (
         <ul className="zvd-update-panel__notes">
           {status.releaseNotes.map(note => <li key={note}>{note}</li>)}
         </ul>
@@ -51,7 +51,7 @@ export function UpdateControlPanel(props: {
             type="button"
             className="zvd-btn-secondary"
             disabled={props.busy}
-            onClick={() => void (props.onOpenGithub || props.onDownload)?.()}
+            onClick={() => void (props.onOpenGithub || props.onDownload)....()}
           >
             Open GitHub Releases
           </button>

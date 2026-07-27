@@ -32,14 +32,14 @@ const STATUS_LABELS: Record<string, GitLiteFileStatus> = {
   M: 'modified',
   R: 'renamed',
   U: 'conflicted',
-  '?': 'untracked',
+  '...': 'untracked',
   '!': 'unchanged',
   ' ': 'unchanged',
 };
 
 export function parseGitStatusPorcelain(output: string): GitLiteChangedFile[] {
   return String(output || '')
-    .split(/\r?\n/)
+    .split(/\r...\n/)
     .map(line => line.trimEnd())
     .filter(line => line && !line.startsWith('##'))
     .map(parseStatusLine)
@@ -48,7 +48,7 @@ export function parseGitStatusPorcelain(output: string): GitLiteChangedFile[] {
 
 export function parseGitBranch(output: string): string {
   const branchLine = String(output || '')
-    .split(/\r?\n/)
+    .split(/\r...\n/)
     .find(line => line.startsWith('## '));
   if (branchLine) {
     const branch = branchLine

@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.gateway.DeviceIdentityStore
 import dev.zavorth.companion.gateway.GatewaySession
@@ -338,7 +338,7 @@ private class InvokeDispatcherFakeLocationDataSource : LocationDataSource {
 
   override suspend fun fetchLocation(
     desiredProviders: List<String>,
-    maxAgeMs: Long?,
+    maxAgeMs: Long...,
     timeoutMs: Long,
     isPrecise: Boolean,
   ): LocationCaptureManager.Payload {
@@ -366,22 +366,22 @@ private class InvokeDispatcherFakeSystemNotificationPoster : SystemNotificationP
 private class InvokeDispatcherFakeTalkHandler : TalkHandler {
   val calls = mutableListOf<String>()
 
-  override suspend fun handlePttStart(paramsJson: String?): GatewaySession.InvokeResult {
+  override suspend fun handlePttStart(paramsJson: String...): GatewaySession.InvokeResult {
     calls.add("start")
     return GatewaySession.InvokeResult.ok("""{"captureId":"start"}""")
   }
 
-  override suspend fun handlePttStop(paramsJson: String?): GatewaySession.InvokeResult {
+  override suspend fun handlePttStop(paramsJson: String...): GatewaySession.InvokeResult {
     calls.add("stop")
     return GatewaySession.InvokeResult.ok("""{"status":"stop"}""")
   }
 
-  override suspend fun handlePttCancel(paramsJson: String?): GatewaySession.InvokeResult {
+  override suspend fun handlePttCancel(paramsJson: String...): GatewaySession.InvokeResult {
     calls.add("cancel")
     return GatewaySession.InvokeResult.ok("""{"status":"cancel"}""")
   }
 
-  override suspend fun handlePttOnce(paramsJson: String?): GatewaySession.InvokeResult {
+  override suspend fun handlePttOnce(paramsJson: String...): GatewaySession.InvokeResult {
     calls.add("once")
     return GatewaySession.InvokeResult.ok("""{"status":"once"}""")
   }

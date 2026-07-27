@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.gateway
+package dev.zavorth.companion.gateway
 
 data class ParsedInvokeError(
   val code: String,

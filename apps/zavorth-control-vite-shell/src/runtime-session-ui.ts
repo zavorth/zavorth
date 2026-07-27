@@ -98,7 +98,7 @@ function normalizeRemoteMeshApprovalCard(card: any) {
     targetKind: String(card?.targetKind || 'notebook').trim(),
     targetLabel: String(card?.targetLabel || 'Notebook MCP').trim(),
     badge: String(card?.zavorthControl?.badge || 'Needs approval').trim(),
-    primaryActionLabel: String(card?.zavorthControl?.primaryActionLabel || 'Aplicar no MCP').trim(),
+    primaryActionLabel: String(card?.zavorthControl?.primaryActionLabel || 'Apply in MCP').trim(),
     applyToolName,
     applyArguments,
     approvalPhrase: String(approval?.approvalPhrase || '').trim(),

@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui.design
+package dev.zavorth.companion.ui.design
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -45,9 +45,9 @@ internal data class ClawNavItem(
 internal fun ClawTopBar(
   title: String,
   modifier: Modifier = Modifier,
-  subtitle: String? = null,
-  navigation: (@Composable () -> Unit)? = null,
-  actions: (@Composable () -> Unit)? = null,
+  subtitle: String... = null,
+  navigation: (@Composable () -> Unit)... = null,
+  actions: (@Composable () -> Unit)... = null,
 ) {
   Row(
     modifier =

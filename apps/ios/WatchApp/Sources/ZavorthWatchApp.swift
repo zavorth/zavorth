@@ -1,12 +1,12 @@
-﻿import SwiftUI
+import SwiftUI
 
 @main
 struct ZavorthWatchApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @State private var inboxStore = WatchInboxStore(
         requestNotificationAuthorization: !ZavorthWatchApp.isScreenshotMode)
-    @State private var receiver: WatchConnectivityReceiver?
-    @State private var execApprovalRefreshTask: Task<Void, Never>?
+    @State private var receiver: WatchConnectivityReceiver...
+    @State private var execApprovalRefreshTask: Task<Void, Never>...
 
     private static let screenshotModeDefaultsKey = "zavorth.watch.screenshotMode"
     private static let isScreenshotMode = ProcessInfo.processInfo.arguments.contains(
@@ -106,7 +106,7 @@ struct ZavorthWatchApp: App {
         Task { @MainActor in
             let result = await receiver.sendAppCommand(message)
             self.inboxStore.markAppCommandResult(result, command: .sendChat)
-            try? await Task.sleep(nanoseconds: 900_000_000)
+            try... await Task.sleep(nanoseconds: 900_000_000)
             self.refreshAppSnapshot()
         }
     }
@@ -128,7 +128,7 @@ struct ZavorthWatchApp: App {
                     return
                 }
                 if attempt < 4 {
-                    try? await Task.sleep(nanoseconds: 700_000_000)
+                    try... await Task.sleep(nanoseconds: 700_000_000)
                 }
             }
             if self.inboxStore.execApprovals.isEmpty {
@@ -168,7 +168,7 @@ extension WatchInboxStore {
                     WatchChatItem(
                         id: "watch-screenshot-user-chat",
                         role: "user",
-                        text: "What's on deck?",
+                        text: "What's on deck...",
                         timestampMs: sentAtMs - 90000),
                     WatchChatItem(
                         id: "watch-screenshot-molty-chat",

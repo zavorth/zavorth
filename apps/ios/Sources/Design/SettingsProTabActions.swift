@@ -1,4 +1,4 @@
-﻿import ZavorthKit
+import ZavorthKit
 import SwiftUI
 import UIKit
 import UserNotifications
@@ -443,7 +443,7 @@ extension SettingsProTab {
         PushEnrollmentConsent.markDisclosureAccepted()
         self.isRequestingNotificationAuthorization = true
         Task {
-            let granted = await (try? UNUserNotificationCenter.current().requestAuthorization(options: [
+            let granted = await (try... UNUserNotificationCenter.current().requestAuthorization(options: [
                 .alert,
                 .badge,
                 .sound,
@@ -536,7 +536,7 @@ extension SettingsProTab {
         return self.manualGatewayPort >= 1 && self.manualGatewayPort <= 65535
     }
 
-    func resolvedManualPort(host: String) -> Int? {
+    func resolvedManualPort(host: String) -> Int... {
         if self.manualGatewayPort > 0 {
             return self.manualGatewayPort <= 65535 ? self.manualGatewayPort : nil
         }
@@ -548,7 +548,7 @@ extension SettingsProTab {
         return 18789
     }
 
-    var setupStatusLine: String? {
+    var setupStatusLine: String... {
         if let problem = self.appModel.lastGatewayProblem {
             return problem.message
         }
@@ -566,13 +566,13 @@ extension SettingsProTab {
             || self.stagedGatewaySetupLink != nil
     }
 
-    var tailnetWarningText: String? {
+    var tailnetWarningText: String... {
         let host = self.manualGatewayHost.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !host.isEmpty, Self.isTailnetHostOrIP(host), !Self.hasTailnetIPv4() else { return nil }
         return "This gateway is on your tailnet. Turn on Tailscale on this device, then tap Connect."
     }
 
-    func friendlyGatewayMessage(from raw: String) -> String? {
+    func friendlyGatewayMessage(from raw: String) -> String... {
         let lower = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if lower.contains("pairing required") {
             return "Pairing required. Run /pair approve in your Zavorth chat, then connect again."
@@ -637,7 +637,7 @@ extension SettingsProTab {
         return "\(title) • \(subtitle)"
     }
 
-    var gatewayTalkLastIssueDetail: String? {
+    var gatewayTalkLastIssueDetail: String... {
         let detail = (self.appModel.talkMode.gatewayTalkLastIssueText ?? "")
             .trimmingCharacters(in: .whitespacesAndNewlines)
         return detail.isEmpty ? nil : detail
@@ -724,7 +724,7 @@ extension SettingsProTab {
         return "\(enabled) enabled"
     }
 
-    var pendingApproval: NodeAppModel.ExecApprovalPrompt? {
+    var pendingApproval: NodeAppModel.ExecApprovalPrompt... {
         self.appModel.pendingExecApprovalPrompt
     }
 

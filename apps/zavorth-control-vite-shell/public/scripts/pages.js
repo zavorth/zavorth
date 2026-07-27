@@ -27,7 +27,7 @@
           </div>
           <div class="work-now-strip" aria-label="Current runtime facts">
             <span><strong data-live-runtime-state>Runtime</strong><small data-live-runtime-detail>Checking access</small></span>
-            <span><strong data-live-gateway-state>Gateway</strong><small data-live-gateway-detail>Local route</small></span>
+            <span><strong data-live-gateway-state>Gateway</strong><small data-live-gateway-detail>local route</small></span>
             <span><strong data-live-sync-state>Last sync</strong><small data-live-sync-detail>Starting now</small></span>
           </div>
         </section>
@@ -239,7 +239,7 @@
         <div class="platform-main">
           <div class="platform-section-title">Library</div>
           <div class="tool-empty-action">
-            <strong>Not sure what to use?</strong>
+            <strong>Not sure what to use...</strong>
             <span>Ask Zavorth to choose the lightest safe tool for the current request.</span>
             <button type="button" data-dashboard-prompt="Choose the lightest safe tool for my current request. Explain the risk before using anything.">Choose for me</button>
           </div>

@@ -149,7 +149,7 @@ export function createLocalPreviewResponses({
         `Gateway:   Connected\nAgent:     Running\nModel:     ${getCurrentModelLabel()}\nRoute:     ${getCurrentModelRouteLabel()}`,
       );
       appendEcho('core', 'Systems are operational. Full report below:', traces + cells);
-    } else if (lower.includes('agente') || lower.includes('criar')) {
+    } else if (lower.includes('/agent') || lower.includes('agent.create')) {
       const traces = buildSystemTrace('Compiling the new agent manifest...') + buildSystemTrace('Waiting for operator approval.');
       const cells = buildLogicCell(
         'generate_manifest',
@@ -157,9 +157,9 @@ export function createLocalPreviewResponses({
         '1.2s',
         `{\n  "name": "Data Analyst",\n  "model": ${JSON.stringify(getCurrentModelLabel())},\n  "tools": ["python_exec", "db_read"]\n}`,
       );
-      appendEcho('core', 'Manifest created successfully. Do you want me to deploy it to the mesh?', traces + cells + buildInteractiveButtons());
-    } else if (lower.includes('run') || lower.includes('exec') || lower.includes('comando')) {
-      const traces = buildSystemTrace('Conectando ao shell TTY1...');
+      appendEcho('core', 'Manifest created successfully. Do you want me to deploy it to the mesh...', traces + cells + buildInteractiveButtons());
+    } else if (lower.includes('shell.exec') || lower.includes('terminal.run')) {
+      const traces = buildSystemTrace('Connecting to shell TTY1...');
       const cells = buildLogicCell(
         'run_command',
         'M4 17l6-6-6-6M12 19h8',

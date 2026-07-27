@@ -202,8 +202,7 @@ function createDesktopElectronUpdater(options = {}) {
         providerConfigured: true,
         downloaded: Boolean(updateDownloaded && compareSemver(updateDownloaded.version, current) > 0),
         updateInfo: info,
-        message: hasUpdate
-          ? `Installer update ${latest} is available (electron-updater). Download in-app, then install.`
+        message: hasUpdate ? `Installer update ${latest} is available (electron-updater). Download in-app, then install.`
           : `Desktop ${current} is up to date (electron-updater).`,
       };
     } catch (error) {
@@ -236,14 +235,13 @@ function createDesktopElectronUpdater(options = {}) {
       } else {
         return { ok: false, error: 'downloadUpdate is not supported by this autoUpdater instance.' };
       }
-      // Prefer event-driven state; if mock sets updateDownloaded synchronously, use it.
+      // Prefer event-driven state; if local sets updateDownloaded synchronously, use it.
       const version = updateDownloaded?.version || updateAvailable?.version || null;
       return {
         ok: true,
         mode: 'electron-updater-download',
         latestVersion: version,
-        message: version
-          ? `Downloaded installer update ${version}. Install when ready (app will relaunch).`
+        message: version ? `Downloaded installer update ${version}. Install when ready (app will relaunch).`
           : 'Download started via electron-updater.',
         progress: downloadProgress,
       };
@@ -309,7 +307,7 @@ function createDesktopElectronUpdater(options = {}) {
     };
   }
 
-  /** Test helper: simulate downloaded package without network. */
+  /** Test helper: dry-run downloaded package without network. */
   function __setDownloadedForTests(info) {
     updateDownloaded = normalizeUpdateInfo(info);
   }
@@ -362,7 +360,7 @@ function compareSemver(a, b) {
   const right = String(b || '0.0.0').replace(/^v/i, '').split('.').map((n) => Number(n) || 0);
   const len = Math.max(left.length, right.length, 3);
   for (let i = 0; i < len; i += 1) {
-    const delta = (left[i] || 0) - (right[i] || 0);
+    const delta = (left[i] || 0) ? (right[i] || 0);
     if (delta !== 0) return delta > 0 ? 1 : -1;
   }
   return 0;

@@ -76,8 +76,7 @@ export function renderTrustLoopPanelHtml(model: TrustLoopPanelModel): string {
         </div>
       </div>
       <p class="daily-muted trust-loop-panel__risk-line" data-risk-budget-line>${escapeHtml(riskLine)}</p>
-      ${readiness.length
-        ? `<div class="trust-loop-panel__readiness" data-trust-loop-readiness aria-label="${escapeHtml(translate('Readiness'))}">
+      ${readiness.length ? `<div class="trust-loop-panel__readiness" data-trust-loop-readiness aria-label="${escapeHtml(translate('Readiness'))}">
             ${readiness.map(readinessBadgeHtml).join('')}
             <small class="daily-muted">${escapeHtml(translate('Catalog is not live proof.'))}</small>
           </div>`

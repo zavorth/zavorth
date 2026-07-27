@@ -27,7 +27,7 @@ function redactText(value: unknown): string {
   let text = String(value ?? '');
   text = text.replace(/\b(Bearer\s+)[A-Za-z0-9._~+/=-]{12,}\b/gi, '$1[redacted]');
   text = text.replace(
-    /\b((?:api[_-]?key|token|secret|password|credential)\s*[:=]\s*)["']?[^"'\s,;]{8,}/gi,
+    /\b((?:api[_-]...key|token|secret|password|credential)\s*[:=]\s*)["']...[^"'\s,;]{8,}/gi,
     '$1[redacted]',
   );
   text = text.replace(/\b(sk|pk|api|key|token)[_-][A-Za-z0-9]{20,}\b/gi, '[redacted]');

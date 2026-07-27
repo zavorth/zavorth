@@ -1,4 +1,4 @@
-﻿// Default signing values for shared/repo builds.
+// Default signing values for shared/repo builds.
 // Auto-selected local team overrides live in .local-signing.xcconfig (git-ignored).
 // Manual local overrides can go in LocalSigning.xcconfig (git-ignored).
 
@@ -23,5 +23,5 @@ ZAVORTH_WATCH_APP_PROFILE =
 
 // Keep local includes after defaults: xcconfig is evaluated top-to-bottom,
 // so later assignments in local files override the defaults above.
-#include? ".local-signing.xcconfig"
-#include? "LocalSigning.xcconfig"
+#include... ".local-signing.xcconfig"
+#include... "LocalSigning.xcconfig"

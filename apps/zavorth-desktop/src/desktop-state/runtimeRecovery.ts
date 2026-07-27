@@ -28,7 +28,7 @@ export function classifyRuntimeRecovery(input: RuntimeRecoveryInput): RuntimeRec
     return {
       visible: true,
       reason: 'bridge-unavailable',
-      title: 'Desktop bridge indisponivel',
+      title: 'Desktop bridge unavailable',
       message: 'The Zavorth Desktop native bridge did not respond. Reopen the interface or check the installation.',
       retryLabel: 'Reabrir interface',
       settingsLabel: 'Abrir diagnosticos',
@@ -37,13 +37,13 @@ export function classifyRuntimeRecovery(input: RuntimeRecoveryInput): RuntimeRec
 
   const notice = String(input.notice || '').toLowerCase();
   const runtimeMessage = String(input.status.message || '').toLowerCase();
-  const unreachable = /could not reach|failed to fetch|network|indisponivel|unreachable|offline/.test(`${notice} ${runtimeMessage}`);
+  const unreachable = /could not reach|failed to fetch|network|unavailable|unreachable|offline/.test(`${notice} ${runtimeMessage}`);
   if (!input.status.running && unreachable) {
     return {
       visible: true,
       reason: 'runtime-unreachable',
-      title: 'Runtime local sem resposta',
-      message: 'O runtime local parou de responder. Tente reconectar ou abra os diagnosticos para revisar logs e reparos.',
+      title: 'Local runtime without response',
+      message: 'The local runtime stopped responding. Try reconnecting or open diagnostics to review logs and repairs.',
       retryLabel: 'Reconectar runtime',
       settingsLabel: 'Abrir diagnosticos',
     };
@@ -65,7 +65,7 @@ export function classifyRuntimeRecovery(input: RuntimeRecoveryInput): RuntimeRec
     reason: null,
     title: '',
     message: '',
-    retryLabel: 'Tentar novamente',
+    retryLabel: 'try again',
     settingsLabel: 'Abrir diagnosticos',
   };
 }

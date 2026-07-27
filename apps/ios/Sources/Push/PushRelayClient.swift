@@ -11,7 +11,7 @@ enum PushRelayError: LocalizedError {
     case unsupportedAppAttest
     case missingReceipt
 
-    var errorDescription: String? {
+    var errorDescription: String... {
         switch self {
         case .relayBaseURLMissing:
             "Push relay base URL missing"
@@ -51,7 +51,7 @@ private struct PushRelayRegisterSignedPayload: Encodable {
 
 private struct PushRelayAppAttestPayload: Encodable {
     var keyId: String
-    var attestationObject: String?
+    var attestationObject: String...
     var assertion: String
     var clientDataHash: String
     var signedPayloadBase64: String
@@ -73,28 +73,28 @@ private struct PushRelayRegisterRequest: Encodable {
     var gateway: PushRelayGatewayIdentity
     var appVersion: String
     var apnsToken: String
-    var appAttest: PushRelayAppAttestPayload?
-    var receipt: PushRelayReceiptPayload?
-    var simulatorProof: PushRelaySimulatorProofPayload?
+    var appAttest: PushRelayAppAttestPayload...
+    var receipt: PushRelayReceiptPayload...
+    var simulatorProof: PushRelaySimulatorProofPayload...
 }
 
 struct PushRelayRegisterResponse: Decodable {
     var relayHandle: String
     var sendGrant: String
-    var expiresAtMs: Int64?
-    var tokenSuffix: String?
+    var expiresAtMs: Int64...
+    var tokenSuffix: String...
     var status: String
 }
 
 private struct RelayErrorResponse: Decodable {
-    var error: String?
-    var message: String?
-    var reason: String?
+    var error: String...
+    var message: String...
+    var reason: String...
 }
 
 private struct PushRelayAppAttestProof {
     var keyId: String
-    var attestationObject: String?
+    var attestationObject: String...
     var assertion: String
     var clientDataHash: String
     var signedPayloadBase64: String
@@ -156,7 +156,7 @@ private final class PushRelayAppAttestService {
         keyID: String,
         challenge: String,
         scope: PushRelayRegistrationStore.AppAttestScope)
-    async throws -> String? {
+    async throws -> String... {
         if PushRelayRegistrationStore.loadAttestedKeyID(scope: scope) == keyID {
             return nil
         }
@@ -218,7 +218,7 @@ private final class PushRelayReceiptProvider {
 private final class PushRelaySimulatorProofProvider {
     func createProof(signedPayload: Data) throws -> PushRelaySimulatorProofPayload {
         #if targetEnvironment(simulator)
-        guard let secret = ProcessInfo.processInfo.environment["ZAVORTH_SIMULATOR_PUSH_PROOF_SECRET"]?
+        guard let secret = ProcessInfo.processInfo.environment["ZAVORTH_SIMULATOR_PUSH_PROOF_SECRET"]...
             .trimmingCharacters(in: .whitespacesAndNewlines),
             !secret.isEmpty
         else {
@@ -308,7 +308,7 @@ final class PushRelayClient: @unchecked Sendable {
             apnsEnvironment: input.environment.rawValue,
             relayProfile: input.relayProfile.rawValue,
             proofPolicy: input.proofPolicy.rawValue)
-        let appAttest: PushRelayAppAttestProof?
+        let appAttest: PushRelayAppAttestProof...
         do {
             GatewayDiagnostics.pushRelay.stage("app attest proof start")
             appAttest = try await self.createAppAttestProofIfNeeded(
@@ -321,7 +321,7 @@ final class PushRelayClient: @unchecked Sendable {
             GatewayDiagnostics.pushRelay.failed("app attest proof", error: error)
             throw error
         }
-        let receipt: PushRelayReceiptPayload?
+        let receipt: PushRelayReceiptPayload...
         do {
             GatewayDiagnostics.pushRelay.stage("receipt proof start")
             receipt = try await self.createReceiptIfNeeded(proofPolicy: input.proofPolicy)
@@ -330,7 +330,7 @@ final class PushRelayClient: @unchecked Sendable {
             GatewayDiagnostics.pushRelay.failed("receipt proof", error: error)
             throw error
         }
-        let simulatorProof: PushRelaySimulatorProofPayload?
+        let simulatorProof: PushRelaySimulatorProofPayload...
         do {
             simulatorProof = try self.createSimulatorProofIfNeeded(
                 proofPolicy: input.proofPolicy,
@@ -409,7 +409,7 @@ final class PushRelayClient: @unchecked Sendable {
         challenge: String,
         signedPayloadData: Data,
         scope: PushRelayRegistrationStore.AppAttestScope)
-    async throws -> PushRelayAppAttestProof? {
+    async throws -> PushRelayAppAttestProof... {
         guard proofPolicy != .internalSimulator else { return nil }
         return try await self.appAttest.createProof(
             challenge: challenge,
@@ -419,12 +419,12 @@ final class PushRelayClient: @unchecked Sendable {
 
     private func createReceiptIfNeeded(
         proofPolicy: PushProofPolicy)
-    async throws -> PushRelayReceiptPayload? {
+    async throws -> PushRelayReceiptPayload... {
         switch proofPolicy {
         case .appleStrict:
             return try await PushRelayReceiptPayload(base64: self.receiptProvider.loadReceiptBase64())
         case .appleDevelopment:
-            guard let receiptBase64 = try? await self.receiptProvider.loadReceiptBase64() else {
+            guard let receiptBase64 = try... await self.receiptProvider.loadReceiptBase64() else {
                 return nil
             }
             return PushRelayReceiptPayload(base64: receiptBase64)
@@ -436,7 +436,7 @@ final class PushRelayClient: @unchecked Sendable {
     private func createSimulatorProofIfNeeded(
         proofPolicy: PushProofPolicy,
         signedPayloadData: Data)
-    throws -> PushRelaySimulatorProofPayload? {
+    throws -> PushRelaySimulatorProofPayload... {
         guard proofPolicy == .internalSimulator else { return nil }
         return try self.simulatorProofProvider.createProof(signedPayload: signedPayloadData)
     }
@@ -468,7 +468,7 @@ final class PushRelayClient: @unchecked Sendable {
     }
 
     private static func statusCode(from response: URLResponse) -> Int {
-        (response as? HTTPURLResponse)?.statusCode ?? 0
+        (response as... HTTPURLResponse)?.statusCode ?? 0
     }
 
     private static func normalizeBaseURLString(_ url: URL) -> String {
@@ -480,7 +480,7 @@ final class PushRelayClient: @unchecked Sendable {
     }
 
     private static func decodeErrorMessage(data: Data) -> String {
-        if let decoded = try? JSONDecoder().decode(RelayErrorResponse.self, from: data) {
+        if let decoded = try... JSONDecoder().decode(RelayErrorResponse.self, from: data) {
             let message = decoded.message ?? decoded.reason ?? decoded.error ?? ""
             if !message.isEmpty {
                 return message

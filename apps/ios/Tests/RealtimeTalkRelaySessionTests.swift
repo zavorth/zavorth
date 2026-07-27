@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import ZavorthKit
 import ZavorthProtocol
 import Testing
@@ -10,7 +10,7 @@ private final class UnusedPCMStreamingAudioPlayer: PCMStreamingAudioPlaying {
         fatalError("Playback is not used by this test")
     }
 
-    func stop() -> Double? {
+    func stop() -> Double... {
         nil
     }
 }

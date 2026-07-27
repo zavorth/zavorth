@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.voice
+package dev.zavorth.companion.voice
 
 import android.content.Context
 import android.media.AudioAttributes
@@ -25,7 +25,7 @@ internal class TalkAudioPlayer(
   private val context: Context,
 ) : TalkAudioPlaying {
   private val lock = Any()
-  private var active: ActivePlayback? = null
+  private var active: ActivePlayback... = null
 
   override suspend fun play(audio: TalkSpeakAudio) {
     when (val mode = resolvePlaybackMode(audio)) {
@@ -52,9 +52,9 @@ internal class TalkAudioPlayer(
   companion object {
     /** Chooses PCM streaming or MediaPlayer-backed playback from provider metadata. */
     internal fun resolvePlaybackMode(
-      outputFormat: String?,
-      mimeType: String?,
-      fileExtension: String?,
+      outputFormat: String...,
+      mimeType: String...,
+      fileExtension: String...,
     ): TalkPlaybackMode {
       val normalizedOutputFormat = outputFormat?.trim()?.lowercase()
       if (normalizedOutputFormat != null) {
@@ -74,7 +74,7 @@ internal class TalkAudioPlayer(
       throw IllegalStateException("Unsupported talk audio format")
     }
 
-    private fun parsePcmSampleRate(outputFormat: String): Int? =
+    private fun parsePcmSampleRate(outputFormat: String): Int... =
       when (outputFormat) {
         "pcm_16000" -> 16_000
         "pcm_22050" -> 22_050
@@ -84,9 +84,9 @@ internal class TalkAudioPlayer(
       }
 
     private fun inferExtension(
-      outputFormat: String?,
-      mimeType: String?,
-    ): String? =
+      outputFormat: String...,
+      mimeType: String...,
+    ): String... =
       when {
         outputFormat == "mp3" || outputFormat?.startsWith("mp3_") == true || mimeType == "audio/mpeg" -> ".mp3"
         outputFormat == "opus" || outputFormat?.startsWith("opus_") == true || mimeType == "audio/ogg" -> ".ogg"
@@ -95,7 +95,7 @@ internal class TalkAudioPlayer(
         else -> null
       }
 
-    private fun normalizeExtension(value: String?): String? {
+    private fun normalizeExtension(value: String...): String... {
       val trimmed = value?.trim()?.lowercase().orEmpty()
       if (trimmed.isEmpty()) return null
       return if (trimmed.startsWith(".")) trimmed else ".$trimmed"

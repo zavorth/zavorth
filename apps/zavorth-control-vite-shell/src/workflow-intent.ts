@@ -78,5 +78,5 @@ function redactPreview(value: string): string {
   return value
     .slice(0, 600)
     .replace(/\b(sk-[A-Za-z0-9_-]{8,}|ghp_[A-Za-z0-9_]{8,}|AIza[A-Za-z0-9_-]{12,})\b/g, '[redacted-secret]')
-    .replace(/\b(token|secret|password|api[_-]?key)\s*[:=]\s*[^,\s]+/gi, '$1=[redacted]');
+    .replace(/\b(token|secret|password|api[_-]...key)\s*[:=]\s*[^,\s]+/gi, '$1=[redacted]');
 }

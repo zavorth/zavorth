@@ -60,10 +60,7 @@ export function normalizeMessages(value: unknown): ChatMessage[] {
 
 export function itemId(item: ApprovalItem | LearningItem | MemoryItem | ToolItem, fallback: string): string {
   return String(
-    item.id ??
-      ('approvalId' in item ? item.approvalId : undefined) ??
-      ('candidateId' in item ? item.candidateId : undefined) ??
-      fallback,
+    item.id ??       ('approvalId' in item ? item.approvalId : undefined) ??       ('candidateId' in item ? item.candidateId : undefined) ??       fallback,
   );
 }
 

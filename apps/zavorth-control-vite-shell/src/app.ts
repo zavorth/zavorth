@@ -488,7 +488,7 @@ export function initControlApp() {
     const activeRun = getActiveRuntimeRun();
     promptQueueBar.innerHTML = `
       <div class="compose-prompt-queue__header">
-        <span>${promptQueue.length} queued prompt${promptQueue.length === 1 ? '' : 's'}${activeRun ? ` - run ${escapeHtml(String(activeRun.id || activeRun.runId || 'active'))}` : ''}</span>
+        <span>${promptQueue.length} queued prompt${promptQueue.length === 1 ? '' : 's'}${activeRun ? ` ? run ${escapeHtml(String(activeRun.id || activeRun.runId || 'active'))}` : ''}</span>
         <div class="compose-prompt-queue__actions">
           <button type="button" data-prompt-queue-flush>Flush</button>
           <button type="button" data-prompt-queue-clear>Clear</button>
@@ -542,7 +542,7 @@ export function initControlApp() {
     const attempts = Number(item.attempts || 0) + 1;
     const maxAttempts = Math.max(1, Number(item.maxAttempts || 3));
     const baseBackoffMs = Math.max(0, Number(item.backoffMs || 1200));
-    const backoffMs = attempts >= maxAttempts ? 0 : Math.min(60_000, baseBackoffMs * 2 ** Math.max(0, attempts - 1));
+    const backoffMs = attempts >= maxAttempts ? 0 : Math.min(60_000, baseBackoffMs * 2 ** Math.max(0, attempts ? 1));
     const next = serializePromptQueueItem({
       ...item,
       attempts,
@@ -561,8 +561,7 @@ export function initControlApp() {
       type: 'error',
       title: 'Prompt requeued',
       detail:
-        attempts >= maxAttempts
-          ? `${next.lastError || 'Send failed.'} Max attempts reached.`
+        attempts >= maxAttempts ? `${next.lastError || 'Send failed.'} Max attempts reached.`
           : `${next.lastError || 'Send failed.'} Retry scheduled in ${Math.ceil(backoffMs / 1000)}s.`,
       meta: promptQueueItemMeta(next),
       status: 'retry',
@@ -620,7 +619,7 @@ export function initControlApp() {
           .map((item) => Number(item.nextRetryAt || 0))
           .filter((value) => value > Date.now());
         const delay =
-          retryTimes.length > 0 ? Math.max(450, Math.min(30_000, Math.min(...retryTimes) - Date.now())) : 450;
+          retryTimes.length > 0 ? Math.max(450, Math.min(30_000, Math.min(...retryTimes) ? Date.now())) : 450;
         schedulePromptQueueDrain(delay);
       }
     }
@@ -799,7 +798,7 @@ export function initControlApp() {
         <span class="compose-attachment-chip ${file.media?.kind ? 'compose-attachment-chip--media' : ''}" title="${escapeHtml(file.extraction?.detail || file.name)}">
           <span class="compose-attachment-chip__icon">${escapeHtml(attachmentChipIcon(file))}</span>
           <span class="compose-attachment-chip__name">${escapeHtml(file.name)}</span>
-          <span class="compose-attachment-chip__size">${formatBytes(file.size)} - ${escapeHtml(attachmentStatusLabel(file))}</span>
+          <span class="compose-attachment-chip__size">${formatBytes(file.size)} ? ${escapeHtml(attachmentStatusLabel(file))}</span>
           <button type="button" class="compose-attachment-chip__remove" data-attachment-index="${index}" aria-label="Remove ${escapeHtml(file.name)}">&times;</button>
         </span>
       `,
@@ -812,7 +811,7 @@ export function initControlApp() {
   }
 
   async function addAttachmentFiles(fileList) {
-    const incoming = Array.from(fileList || []).slice(0, Math.max(0, 5 - pendingAttachments.length));
+    const incoming = Array.from(fileList || []).slice(0, Math.max(0, 5 ? pendingAttachments.length));
     if (incoming.length === 0) return;
     const parsed = await Promise.all(incoming.map(readAttachmentFile));
     pendingAttachments = [...pendingAttachments, ...parsed].slice(0, 5);
@@ -839,8 +838,7 @@ export function initControlApp() {
             const isAudio = file.media?.kind === 'audio';
             const isTextPreview = file.text && file.text.trim().length > 0;
 
-            const quickLookBtn = isTextPreview
-              ? `
+            const quickLookBtn = isTextPreview ? `
             <button type="button" class="chat-attachment-card__quicklook" data-quick-look-text="${escapeHtml(file.text)}" data-quick-look-name="${escapeHtml(file.name)}" title="Quick Look Preview">👁️</button>
           `
               : '';
@@ -860,7 +858,7 @@ export function initControlApp() {
                     </div>
                     <span class="audio-waveform-time">0:00</span>
                   </div>
-                  <div class="chat-attachment-card__meta">${formatBytes(file.size)} - Audio Player</div>
+                  <div class="chat-attachment-card__meta">${formatBytes(file.size)} ? Audio Player</div>
                 </div>
               </div>
             `;
@@ -872,7 +870,7 @@ export function initControlApp() {
               <div class="chat-attachment-card__icon">${escapeHtml(attachmentKindLabel(file))}</div>
               <div class="chat-attachment-card__body">
                 <div class="chat-attachment-card__name">${escapeHtml(String(file.name || 'file').replace(/\.[^.]+$/, ''))}</div>
-                <div class="chat-attachment-card__meta">${escapeHtml(attachmentKindLabel(file))} - ${formatBytes(file.size)} - ${escapeHtml(attachmentStatusLabel(file))}</div>
+                <div class="chat-attachment-card__meta">${escapeHtml(attachmentKindLabel(file))} ? ${formatBytes(file.size)} - ${escapeHtml(attachmentStatusLabel(file))}</div>
                 ${file.media?.kind ? `<div class="chat-attachment-card__status">${file.media.kind === 'video' ? 'Queued for video analysis' : 'Queued for visual analysis'}</div>` : ''}
               </div>
             </div>
@@ -935,7 +933,7 @@ export function initControlApp() {
         } else if (event.key === 'ArrowUp') {
           event.preventDefault();
           event.stopImmediatePropagation();
-          autocompleteIndex = (autocompleteIndex - 1 + autocompleteFiltered.length) % autocompleteFiltered.length;
+          autocompleteIndex = (autocompleteIndex ? 1 + autocompleteFiltered.length) % autocompleteFiltered.length;
           renderAutocomplete();
         } else if (event.key === 'Enter') {
           event.preventDefault();
@@ -1355,19 +1353,16 @@ export function initControlApp() {
     const logs = [
       { type: 'system', text: `>> REPLAYING ZAVORTH TRACE [${runId || traceId || 'current-session'}]` },
       ...replayEvents.map((event: any) => {
-        const type = /error|failed|blocked|rejected/i.test(`${event?.type || ''} ${event?.status || ''}`)
-          ? 'error'
-          : /receipt|success|done|completed/i.test(`${event?.type || ''} ${event?.status || ''}`)
-            ? 'success'
-            : /command|terminal|tool|mcp/i.test(`${event?.type || ''} ${event?.title || ''}`)
-              ? 'cmd'
+        const type = /error|failed|blocked|rejected/i.test(`${event?.type || ''} ${event?.status || ''}`) ? 'error'
+          : /receipt|success|done|completed/i.test(`${event?.type || ''} ${event?.status || ''}`) ? 'success'
+            : /command|terminal|tool|mcp/i.test(`${event?.type || ''} ${event?.title || ''}`) ? 'cmd'
               : 'log';
         const title = event?.title || event?.type || 'runtime event';
         const detail = event?.detail || event?.meta || event?.preview || '';
         const time = event?.time || event?.createdAt || new Date().toLocaleTimeString();
         return {
           type,
-          text: `[${time}] [${String(event?.type || 'event').toUpperCase()}] ${title}${detail ? ` - ${detail}` : ''}`,
+          text: `[${time}] [${String(event?.type || 'event').toUpperCase()}] ${title}${detail ? ` ? ${detail}` : ''}`,
         };
       }),
       replayEvents.length
@@ -1621,7 +1616,7 @@ export function initControlApp() {
     const entry = normalizeTraceEvent(event, currentTimestamp);
     traceEvents.push(entry);
     if (stableId) traceEventIds.add(stableId);
-    if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length - TRACE_EVENT_LIMIT);
+    if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length ? TRACE_EVENT_LIMIT);
     renderTraceSheet();
     updateComposerBadges();
     updateDashboardGlass();
@@ -1653,7 +1648,7 @@ export function initControlApp() {
         const left = String(a.time || '').localeCompare(String(b.time || ''));
         return left || String(a.id || '').localeCompare(String(b.id || ''));
       });
-      if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length - TRACE_EVENT_LIMIT);
+      if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length ? TRACE_EVENT_LIMIT);
     }
     renderTraceSheet();
     updateComposerBadges();
@@ -2098,9 +2093,7 @@ export function initControlApp() {
     const runs = getDashboardRuns();
     const usage = snapshot.usage || snapshot.summary?.usage || {};
     const aggregateTokens = Number(
-      usage.totalTokens ??
-        usage.tokens ??
-        (Number.isFinite(Number(usage.inputTokens)) || Number.isFinite(Number(usage.outputTokens))
+      usage.totalTokens ??         usage.tokens ??         (Number.isFinite(Number(usage.inputTokens)) || Number.isFinite(Number(usage.outputTokens))
           ? Number(usage.inputTokens || 0) + Number(usage.outputTokens || 0)
           : NaN),
     );
@@ -2130,8 +2123,7 @@ export function initControlApp() {
       `Cost: \`${hasTotalCost ? `$${totalCost.toFixed(4)}` : 'not reported'}\``,
       `Queue: \`${promptQueue.length}\``,
       `Trace events: \`${traceEvents.length}\``,
-      full && runs.length
-        ? `\nRecent runs:\n${runs
+      full && runs.length ? `\nRecent runs:\n${runs
             .slice(0, 6)
             .map((run) => `- ${run.id || run.runId || 'run'}: ${run.status || 'unknown'}`)
             .join('\n')}`
@@ -2163,8 +2155,7 @@ export function initControlApp() {
       '',
       ...options.map((skill) => `- ${skill.title} (\`${skill.id}\`, ${skill.status})`),
       '',
-      pendingSelectedSkills.length
-        ? `Selected: ${pendingSelectedSkills.map((skill) => skill.title || skill.id).join(', ')}`
+      pendingSelectedSkills.length ? `Selected: ${pendingSelectedSkills.map((skill) => skill.title || skill.id).join(', ')}`
         : 'Selected: none',
     ].join('\n');
   }
@@ -2181,8 +2172,7 @@ export function initControlApp() {
       `Workflow jobs: \`${jobs.length}\``,
       '',
       ...runs.slice(0, 6).map((run) => `- ${run.title || run.id || run.runId || 'run'}: ${run.status || 'unknown'}`),
-      jobs.length
-        ? '\nJobs:\n' +
+      jobs.length ? '\nJobs:\n' +
           jobs
             .slice(0, 6)
             .map((job) => `- ${job.id || job.jobId || 'job'}: ${job.status || 'unknown'}`)
@@ -2198,7 +2188,7 @@ export function initControlApp() {
     const bridge = window.ZavorthRuntimeBridge;
     const state = bridge?.state || {};
     return [
-      'Local identity',
+      'local identity',
       '',
       `Dashboard profile: \`${profile.label}\``,
       `Session: \`${getPromptQueueSessionKey()}\``,
@@ -2406,7 +2396,7 @@ export function initControlApp() {
 
     if (/^\d+$/.test(token)) {
       const index = Number(token);
-      if (index >= 1 && index <= list.length) return pick(list[index - 1]);
+      if (index >= 1 && index <= list.length) return pick(list[index ? 1]);
       return {
         ok: false,
         message: list.length
@@ -2439,10 +2429,8 @@ export function initControlApp() {
     const parts = raw.split(/\s+/).filter(Boolean);
     const decisionFromAlias =
       typedName === 'approve' ? 'approve' : typedName === 'deny' || typedName === 'reject' ? 'reject' : '';
-    const explicitDecision = ['approve', 'allow', 'yes'].includes(String(parts[0] || '').toLowerCase())
-      ? 'approve'
-      : ['deny', 'reject', 'no'].includes(String(parts[0] || '').toLowerCase())
-        ? 'reject'
+    const explicitDecision = ['approve', 'allow', 'yes'].includes(String(parts[0] || '').toLowerCase()) ? 'approve'
+      : ['deny', 'reject', 'no'].includes(String(parts[0] || '').toLowerCase()) ? 'reject'
         : '';
     const decision = decisionFromAlias || explicitDecision;
     if (!decision) {
@@ -2599,7 +2587,7 @@ export function initControlApp() {
     const normalized = String(text || '')
       .trim()
       .toLowerCase();
-    if (!/\b(use|switch|mode|profile|modo|perfil|troque|usar|quero)\b/.test(normalized)) return;
+    if (!/\b(use|switch|mode|profile|modo|profile|troque|usar|quero)\b/.test(normalized)) return;
     const resolved = resolveExperienceProfile(normalized, selectedExperienceProfile || 'personal');
     if (resolved.id !== selectedExperienceProfile) {
       setSelectedExperienceProfile(resolved.id);
@@ -2772,7 +2760,7 @@ export function initControlApp() {
       extensionCounts.set(extension, (extensionCounts.get(extension) || 0) + 1);
     }
     const topExtensions = Array.from(extensionCounts.entries())
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => b[1] ? a[1])
       .slice(0, 6)
       .map(([extension, count]) => ({ extension, count }));
     return {
@@ -3033,8 +3021,7 @@ export function initControlApp() {
     }
     const skillPrompt = promptForSkill(selectedSkill);
     const current = composeInput.value.trim();
-    composeInput.value = current
-      ? `${skillPrompt}
+    composeInput.value = current ? `${skillPrompt}
 
 ${current}`
       : skillPrompt;
@@ -3092,7 +3079,7 @@ ${current}`
     recordTraceEvent({
       type: 'session',
       title: 'Conversation cleared',
-      detail: 'Local chat surface cleared by slash command.',
+      detail: 'local chat surface cleared by slash command.',
       meta: 'slash',
       status: 'done',
     });
@@ -4842,7 +4829,7 @@ ${current}`
     recordTraceEvent({
       type: 'session',
       title: 'Dashboard opened',
-      detail: 'Local runtime access is being checked.',
+      detail: 'local runtime access is being checked.',
       meta: location.origin,
       status: 'checking',
     });

@@ -1,4 +1,4 @@
-﻿Sources/Calendar/CalendarService.swift
+Sources/Calendar/CalendarService.swift
 Sources/Camera/CameraController.swift
 Sources/Capabilities/NodeCapabilityRouter.swift
 Sources/Chat/AppleReviewDemoChatTransport.swift

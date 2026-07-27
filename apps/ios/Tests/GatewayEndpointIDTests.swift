@@ -1,4 +1,4 @@
-﻿import ZavorthKit
+import ZavorthKit
 import Network
 import Testing
 @testable import Zavorth

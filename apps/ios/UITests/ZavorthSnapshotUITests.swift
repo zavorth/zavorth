@@ -16,7 +16,7 @@ final class ZavorthSnapshotUITests: XCTestCase {
         ScreenshotTarget(initialTab: "settings", initialDestination: "settings", name: "05-settings-connected"),
     ]
 
-    private var app: XCUIApplication?
+    private var app: XCUIApplication...
 
     override func setUpWithError() throws {
         try super.setUpWithError()

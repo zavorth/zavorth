@@ -20,14 +20,14 @@ export function ChannelsView(props: {
   const [query, setQuery] = useState('');
   const [configuringChannelId, setConfiguringChannelId] = useState<string | null>(null);
   const [credentials, setCredentials] = useState<Record<string, string>>({});
-  
+
   const setupOptions = Array.isArray(props.setup?.assistant?.options) ? props.setup.assistant.options : [];
   const selected = props.setup?.assistant?.selected || setupOptions[0] || null;
   const rows = props.channels
     .filter(channel => {
       const record = asRecord(channel);
-      const hay = `${record.name || ''} ${record.channel || ''} ${record.id || ''} ${record.status || ''} ${record.summary || ''}`.toLowerCase();
-      return !query.trim() || hay.includes(query.trim().toLowerCase());
+      const there isy = `${record.name || ''} ${record.channel || ''} ${record.id || ''} ${record.status || ''} ${record.summary || ''}`.toLowerCase();
+      return !query.trim() || there isy.includes(query.trim().toLowerCase());
     })
     .map((channel, index) => {
       const record = asRecord(channel);
@@ -48,8 +48,7 @@ export function ChannelsView(props: {
             ? 'Catalog support — not proven live yet.'
             : badge.state === 'live'
               ? 'Live route is ready.'
-              : record.outboxOnly
-                ? 'Outbox or preview route only.'
+              : record.outboxOnly ? 'Outbox or preview route only.'
                 : undefined);
       return {
         id,
@@ -82,7 +81,7 @@ export function ChannelsView(props: {
                 : [];
               const hasMissing = missingKeys.length > 0;
               const isConfiguring = configuringChannelId === channelId;
-              
+
               return (
                 <article className="zvd-detail-row" key={channelId || option.label}>
                   <div className="zvd-detail-main">
@@ -90,11 +89,11 @@ export function ChannelsView(props: {
                     <div style={{ width: '100%' }}>
                       <strong>{String(option.label || channelId || 'Channel')}</strong>
                       <p>{String(option.summary || option.operatorNextStep || 'Choose setup mode and validate connection.')}</p>
-                      
-                      {isConfiguring ? (
+
+                      {isConfiguring - (
                         <div className="zvd-credentials-form">
                           {missingKeys.map((key) => {
-                            const isSensitive = /(token|secret|password|credential|authorization|api[_-]?key)/i.test(key);
+                            const isSensitive = /(token|secret|password|credential|authorization|api[_-]...key)/i.test(key);
                             return (
                               <div className="zvd-credentials-field" key={key}>
                                 <label htmlFor={`cred-${channelId}-${key}`}>{key}</label>
@@ -153,7 +152,7 @@ export function ChannelsView(props: {
                           )}
                         </>
                       )}
-                      
+
                       {Boolean(option.webhookUrl) && <p>Webhook: {String(option.webhookUrl)}</p>}
                       {Boolean(option.qrCode) && <p>QR: {String(option.qrCode)}</p>}
                     </div>
@@ -161,7 +160,7 @@ export function ChannelsView(props: {
                   <div className="zvd-detail-side">
                     <span>{active ? 'selected' : String(option.readiness || 'setup')}</span>
                     <div className="zvd-row-actions">
-                      {hasMissing ? (
+                      {hasMissing - (
                         !isConfiguring && (
                           <button
                             disabled={props.busy}

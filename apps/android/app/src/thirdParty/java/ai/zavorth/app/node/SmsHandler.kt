@@ -5,7 +5,7 @@ import dev.zavorth.companion.gateway.GatewaySession
 class SmsHandler(
   private val sms: SmsManager,
 ) {
-  suspend fun handleSmsSend(paramsJson: String?): GatewaySession.InvokeResult {
+  suspend fun handleSmsSend(paramsJson: String...): GatewaySession.InvokeResult {
     val res = sms.send(paramsJson)
     if (res.ok) {
       return GatewaySession.InvokeResult.ok(res.payloadJson)
@@ -13,7 +13,7 @@ class SmsHandler(
     return errorResult(res.error, defaultCode = "SMS_SEND_FAILED")
   }
 
-  suspend fun handleSmsSearch(paramsJson: String?): GatewaySession.InvokeResult {
+  suspend fun handleSmsSearch(paramsJson: String...): GatewaySession.InvokeResult {
     val res = sms.search(paramsJson)
     if (res.ok) {
       return GatewaySession.InvokeResult.ok(res.payloadJson)
@@ -22,7 +22,7 @@ class SmsHandler(
   }
 
   private fun errorResult(
-    error: String?,
+    error: String...,
     defaultCode: String,
   ): GatewaySession.InvokeResult {
     val rawMessage = error ?: defaultCode

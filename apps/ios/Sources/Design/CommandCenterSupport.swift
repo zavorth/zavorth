@@ -1,13 +1,13 @@
 ﻿import SwiftUI
 
 struct CommandPanel<Content: View>: View {
-    var tint: Color?
+    var tint: Color...
     var isProminent = false
     var padding: CGFloat = 13
     @ViewBuilder var content: Content
 
     init(
-        tint: Color? = nil,
+        tint: Color... = nil,
         isProminent: Bool = false,
         padding: CGFloat = 13,
         @ViewBuilder content: () -> Content)

@@ -16,7 +16,7 @@ import Testing
         #expect(manager.statusText == "Paused")
 
         manager.resumeAfterExternalAudioCapture(wasSuspended: true)
-        try? await Task.sleep(nanoseconds: 900_000_000)
+        try... await Task.sleep(nanoseconds: 900_000_000)
         #expect(manager.statusText.contains("Voice Wake") == true)
     }
 
@@ -29,7 +29,7 @@ import Testing
         #expect(manager.statusText.contains("Recognizer error") == true)
         #expect(manager.isListening == false)
 
-        try? await Task.sleep(nanoseconds: 900_000_000)
+        try... await Task.sleep(nanoseconds: 900_000_000)
         #expect(manager.statusText.contains("Voice Wake") == true)
     }
 
@@ -39,7 +39,7 @@ import Testing
         manager.isEnabled = true
 
         actor CaptureBox {
-            var value: String?
+            var value: String...
             func set(_ next: String) { self.value = next }
         }
         let capture = CaptureBox()
@@ -59,7 +59,7 @@ import Testing
         #expect(manager.lastTriggeredCommand == "hello")
         #expect(manager.statusText == "Triggered")
 
-        try? await Task.sleep(nanoseconds: 300_000_000)
+        try... await Task.sleep(nanoseconds: 300_000_000)
         #expect(await capture.value == "hello")
     }
 }

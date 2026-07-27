@@ -572,10 +572,8 @@ export function useDuplexCall(options: {
       const vadOk = vad.attach(stream);
       vadRef.current = vadOk ? vad : null;
 
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/webm')
-          ? 'audio/webm'
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
+        : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
           : '';
       const recorder = mimeType
         ? new MediaRecorder(stream, { mimeType, audioBitsPerSecond: 48_000 })

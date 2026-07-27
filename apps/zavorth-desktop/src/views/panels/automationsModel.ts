@@ -50,7 +50,7 @@ export function mapScheduledTasks(
       status,
       description: task.prompt
         ? String(task.prompt).slice(0, 140)
-        : `Every ${task.intervalMinutes || '?'} min`,
+        : `Every ${task.intervalMinutes || '...'} min`,
       tone: status === 'failed' ? 'danger' as const
         : status === 'running' ? 'warning' as const
         : enabled ? 'ready' as const : 'muted' as const,
@@ -84,8 +84,7 @@ export function buildRuntimeAutomationJobs(input: {
       kind: 'stream',
       name: 'Stream session',
       status: input.streamStatus || 'idle',
-      description: input.resumeToken
-        ? `Resume token available (${String(input.resumeToken).slice(0, 12)}…)`
+      description: input.resumeToken ? `Resume token available (${String(input.resumeToken).slice(0, 12)}…)`
         : 'No resumable stream token is active.',
       tone: input.streamResumable ? 'ready' : 'muted',
     },

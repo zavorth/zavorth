@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui.design
+package dev.zavorth.companion.ui.design
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -47,7 +47,7 @@ internal fun ClawEmptyState(
   title: String,
   body: String,
   modifier: Modifier = Modifier,
-  action: (@Composable () -> Unit)? = null,
+  action: (@Composable () -> Unit)... = null,
 ) {
   ClawPanel(modifier = modifier) {
     Column(
@@ -90,7 +90,7 @@ internal fun ClawErrorState(
   title: String,
   body: String,
   modifier: Modifier = Modifier,
-  action: (@Composable () -> Unit)? = null,
+  action: (@Composable () -> Unit)... = null,
 ) {
   ClawPanel(modifier = modifier) {
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {

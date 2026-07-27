@@ -49,11 +49,11 @@ export function PlanCardView(props: PlanCardViewProps) {
         <div className="zvd-plan-card__titles">
           <span className="zvd-plan-card__eyebrow">{t('thread.planTitle')}</span>
           <strong className="zvd-plan-card__title">{plan.title || t('thread.planTitle')}</strong>
-          {plan.summary ? (
+          {plan.summary - (
             <p className="zvd-plan-card__summary">{plan.summary}</p>
           ) : null}
         </div>
-        {plan.risk ? (
+        {plan.risk - (
           <Badge tone={riskTone(plan.risk)} className="zvd-plan-card__risk">
             {plan.risk}
           </Badge>
@@ -76,7 +76,7 @@ export function PlanCardView(props: PlanCardViewProps) {
                   <strong className="zvd-plan-card__step-title">{step.title}</strong>
                   <span className="zvd-plan-card__step-status">{stepStatusLabel(step.status)}</span>
                 </div>
-                {step.detail ? (
+                {step.detail - (
                   <p className="zvd-plan-card__step-detail">{step.detail}</p>
                 ) : null}
               </div>
@@ -87,7 +87,7 @@ export function PlanCardView(props: PlanCardViewProps) {
 
       {(showApprove || showReject || showEdit) ? (
         <div className="zvd-plan-card__actions">
-          {showApprove ? (
+          {showApprove - (
             <Button
               variant="default"
               size="sm"
@@ -97,7 +97,7 @@ export function PlanCardView(props: PlanCardViewProps) {
               {t('thread.planApprove')}
             </Button>
           ) : null}
-          {showReject ? (
+          {showReject - (
             <Button
               variant="destructive"
               size="sm"
@@ -107,7 +107,7 @@ export function PlanCardView(props: PlanCardViewProps) {
               {t('thread.planReject')}
             </Button>
           ) : null}
-          {showEdit ? (
+          {showEdit - (
             <Button
               variant="ghost"
               size="sm"

@@ -62,8 +62,8 @@ export function CockpitDashboard({
     try {
       const [trustRes, configRes, diagRes, mandateRes] = await Promise.all([
         getWorkspaceTrustStatus(workspaceId).catch(() => ({ ok: false, trusted: false })),
-        fetch(`/api/v2/workspace/agent-config?workspaceId=${encodeURIComponent(workspaceId)}`).then(r => r.json() as Promise<CockpitConfig>).catch(() => ({} as CockpitConfig)),
-        fetch(`/api/v2/workspace/agent-config/diagnostics?workspaceId=${encodeURIComponent(workspaceId)}`).then(r => r.json() as Promise<CockpitDiagnostics>).catch(() => ({} as CockpitDiagnostics)),
+        fetch(`/api/v2/workspace/agent-config...workspaceId=${encodeURIComponent(workspaceId)}`).then(r => r.json() as Promise<CockpitConfig>).catch(() => ({} as CockpitConfig)),
+        fetch(`/api/v2/workspace/agent-config/diagnostics...workspaceId=${encodeURIComponent(workspaceId)}`).then(r => r.json() as Promise<CockpitDiagnostics>).catch(() => ({} as CockpitDiagnostics)),
         loadActiveMandate(workspaceId).catch(() => null)
       ]);
 
@@ -85,7 +85,7 @@ export function CockpitDashboard({
   if (loading) {
     return (
       <div style={{ padding: '24px', color: '#8c8c8c', textAlign: 'center' }}>
-        <span>Carregando cockpit do agente...</span>
+        <span>Loading agent cockpit...</span>
       </div>
     );
   }
@@ -96,7 +96,7 @@ export function CockpitDashboard({
   const isOperational = status.running && hasConnectedProvider && trusted;
 
   let overallStatus: 'success' | 'warning' | 'error' = 'warning';
-  let overallTitle = 'Zavorth: Modo Restrito';
+  let overallTitle = 'Zavorth: Restricted Mode';
   let overallMessage = 'The agent is operating under strict policies. Every command outside the workspace requires manual approval.';
 
   if (isOperational) {
@@ -109,8 +109,8 @@ export function CockpitDashboard({
     overallMessage = 'To enable the agent natively and safely, you need to trust this workspace.';
   } else if (!hasConnectedProvider) {
     overallStatus = 'warning';
-    overallTitle = 'Aguardando Provedor de IA';
-    overallMessage = 'Nenhuma chave de API ou provedor de IA configurado. Configure um provedor nas abas para iniciar.';
+    overallTitle = 'Waiting for AI Provider';
+    overallMessage = 'No API key or AI provider configured. Set up a provider in the tabs to get started.';
   }
 
   const diagnosticChecks = diagnostics?.checks || diagnostics?.data?.checks || [];
@@ -127,25 +127,25 @@ export function CockpitDashboard({
         message={overallMessage}
       />
 
-      <SurfaceCard title="Solicitações Pendentes & Diagnósticos" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <SurfaceCard title="Pending Requests & Diagnostics" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '13px', color: 'var(--zvd-text-muted, #595959)' }}>Aprovações Pendentes</span>
+          <span style={{ fontSize: '13px', color: 'var(--zvd-text-muted, #595959)' }}>Pending Approvals</span>
           <span style={{ fontSize: '14px', fontWeight: 'bold', color: approvalsCount > 0 ? '#ff4d4f' : '#52c41a' }}>
-            {approvalsCount} pendentes
+            {approvalsCount} pending
           </span>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '13px', color: 'var(--zvd-text-muted, #595959)' }}>Mandato de Tarefa Ativa</span>
+          <span style={{ fontSize: '13px', color: 'var(--zvd-text-muted, #595959)' }}>Active Task Mandate</span>
           <span style={{ fontSize: '13px', fontWeight: '600', color: activeMandate ? '#52c41a' : '#faad14' }}>
-            {activeMandate ? 'Configurado' : 'Nenhum'}
+            {activeMandate ? 'Configured' : 'None'}
           </span>
         </div>
 
         {hasDiagnosticsWarnings && (
           <div style={{ marginTop: '8px', padding: '10px', borderRadius: '6px', backgroundColor: 'var(--zvd-warning-bg, #fffbe6)', border: '1px solid var(--zvd-warning-border, #ffe58f)' }}>
             <span style={{ fontSize: '12px', color: '#ad6800' }}>
-              O painel de diagnósticos possui alertas que precisam de atenção.
+              The diagnostics panel has warnings that need attention.
             </span>
           </div>
         )}
@@ -153,13 +153,13 @@ export function CockpitDashboard({
         <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
           <button
             onClick={onStart}
-            style={{ 
-              padding: '6px 12px', 
-              fontSize: '12px', 
-              cursor: 'pointer', 
-              borderRadius: '6px', 
-              border: '1px solid var(--zvd-border)', 
-              background: 'var(--zvd-border-soft)', 
+            style={{
+              padding: '6px 12px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              borderRadius: '6px',
+              border: '1px solid var(--zvd-border)',
+              background: 'var(--zvd-border-soft)',
               color: 'var(--zvd-text)',
               fontWeight: 500
             }}
@@ -168,13 +168,13 @@ export function CockpitDashboard({
           </button>
           <button
             onClick={onRepair}
-            style={{ 
-              padding: '6px 12px', 
-              fontSize: '12px', 
-              cursor: 'pointer', 
-              borderRadius: '6px', 
-              border: '1px solid var(--zvd-border)', 
-              background: 'var(--zvd-border-soft)', 
+            style={{
+              padding: '6px 12px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              borderRadius: '6px',
+              border: '1px solid var(--zvd-border)',
+              background: 'var(--zvd-border-soft)',
               color: 'var(--zvd-text)',
               fontWeight: 500
             }}

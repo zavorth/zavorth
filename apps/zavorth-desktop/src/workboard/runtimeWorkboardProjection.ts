@@ -125,8 +125,7 @@ function buildRuntimeLabels(task: RuntimeWorkboardTask): string[] {
   return [
     task.status,
     task.claimedBy ? `worker ${task.claimedBy}` : null,
-    typeof task.attempts === 'number' && typeof task.maxRetries === 'number'
-      ? `retry ${task.attempts}/${task.maxRetries}`
+    typeof task.attempts === 'number' && typeof task.maxRetries === 'number' ? `retry ${task.attempts}/${task.maxRetries}`
       : null,
     artifactCount === 1 ? '1 artifact' : artifactCount > 1 ? `${artifactCount} artifacts` : null,
     commentCount === 1 ? '1 comment' : commentCount > 1 ? `${commentCount} comments` : null,

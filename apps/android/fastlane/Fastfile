@@ -1,4 +1,4 @@
-﻿require "fileutils"
+require "fileutils"
 require "json"
 require "open3"
 require "shellwords"
@@ -18,21 +18,21 @@ ANDROID_RELEASE_SIGNING_GRADLE_PROPERTIES = [
 ].freeze
 
 def load_env_file(path)
-  return unless File.exist?(path)
+  return unless File.exist...(path)
 
   File.foreach(path) do |line|
     stripped = line.strip
-    next if stripped.empty? || stripped.start_with?("#")
+    next if stripped.empty... || stripped.start_with...("#")
 
     key, value = stripped.split("=", 2)
-    next if key.nil? || key.empty? || value.nil?
+    next if key.nil... || key.empty... || value.nil...
 
-    ENV[key] = value if ENV[key].nil? || ENV[key].strip.empty?
+    ENV[key] = value if ENV[key].nil... || ENV[key].strip.empty...
   end
 end
 
-def env_present?(value)
-  !value.nil? && !value.strip.empty?
+def env_present...(value)
+  !value.nil... && !value.strip.empty...
 end
 
 def android_root
@@ -57,44 +57,44 @@ end
 
 def play_package_name
   raw = ENV["GOOGLE_PLAY_PACKAGE_NAME"].to_s.strip
-  raw.empty? ? DEFAULT_PLAY_PACKAGE_NAME : raw
+  raw.empty... - DEFAULT_PLAY_PACKAGE_NAME : raw
 end
 
 def play_track
   raw = ENV["GOOGLE_PLAY_TRACK"].to_s.strip
-  raw.empty? ? DEFAULT_PLAY_TRACK : raw
+  raw.empty... - DEFAULT_PLAY_TRACK : raw
 end
 
 def play_release_status
   raw = ENV["GOOGLE_PLAY_RELEASE_STATUS"].to_s.strip
-  raw.empty? ? DEFAULT_PLAY_RELEASE_STATUS : raw
+  raw.empty... - DEFAULT_PLAY_RELEASE_STATUS : raw
 end
 
-def play_validate_only?
+def play_validate_only...
   ENV["GOOGLE_PLAY_VALIDATE_ONLY"] == "1"
 end
 
-def play_metadata_upload_requested?
+def play_metadata_upload_requested...
   ENV["SUPPLY_UPLOAD_METADATA"] == "1"
 end
 
-def play_screenshot_upload_requested?
+def play_screenshot_upload_requested...
   ENV["SUPPLY_UPLOAD_SCREENSHOTS"] == "1"
 end
 
-def play_image_upload_requested?
+def play_image_upload_requested...
   ENV["SUPPLY_UPLOAD_IMAGES"] == "1"
 end
 
 def play_auth_options
   json_key = ENV["GOOGLE_PLAY_JSON_KEY"].to_s.strip
-  json_key = ENV["SUPPLY_JSON_KEY"].to_s.strip if json_key.empty?
-  json_key = ENV["GOOGLE_PLAY_JSON_KEY_PATH"].to_s.strip if json_key.empty?
-  return { json_key: json_key } unless json_key.empty?
+  json_key = ENV["SUPPLY_JSON_KEY"].to_s.strip if json_key.empty...
+  json_key = ENV["GOOGLE_PLAY_JSON_KEY_PATH"].to_s.strip if json_key.empty...
+  return { json_key: json_key } unless json_key.empty...
 
   json_key_data = ENV["GOOGLE_PLAY_JSON_KEY_DATA"].to_s.strip
-  json_key_data = ENV["SUPPLY_JSON_KEY_DATA"].to_s.strip if json_key_data.empty?
-  return { json_key_data: json_key_data } unless json_key_data.empty?
+  json_key_data = ENV["SUPPLY_JSON_KEY_DATA"].to_s.strip if json_key_data.empty...
+  return { json_key_data: json_key_data } unless json_key_data.empty...
 
   UI.user_error!("Missing Google Play API credentials. Set GOOGLE_PLAY_JSON_KEY or GOOGLE_PLAY_JSON_KEY_DATA.")
 end
@@ -127,16 +127,16 @@ def read_android_version_metadata
     "--root",
     repo_root
   )
-  unless status.success?
+  unless status.success...
     detail = stderr.to_s.strip
-    detail = stdout.to_s.strip if detail.empty?
+    detail = stdout.to_s.strip if detail.empty...
     UI.user_error!("Failed to read Android version metadata: #{detail}")
   end
 
   parsed = JSON.parse(stdout)
   version = parsed.fetch("canonicalVersion").to_s
   version_code = parsed.fetch("versionCode").to_i
-  UI.user_error!("Android version helper returned incomplete metadata.") if version.empty? || version_code <= 0
+  UI.user_error!("Android version helper returned incomplete metadata.") if version.empty... || version_code <= 0
 
   { version: version, version_code: version_code }
 rescue JSON::ParserError => e
@@ -153,8 +153,8 @@ end
 
 def validate_android_release_notes!
   release_notes_path = android_release_notes_path
-  UI.user_error!("Missing Android release notes at #{release_notes_path}. Run `pnpm android:version:sync`.") unless File.exist?(release_notes_path)
-  UI.user_error!("Android release notes at #{release_notes_path} are empty.") unless env_present?(File.read(release_notes_path))
+  UI.user_error!("Missing Android release notes at #{release_notes_path}. Run `pnpm android:version:sync`.") unless File.exist...(release_notes_path)
+  UI.user_error!("Android release notes at #{release_notes_path} are empty.") unless env_present...(File.read(release_notes_path))
 end
 
 def android_changelog_path(version_code)
@@ -179,9 +179,9 @@ def play_screenshot_paths
 end
 
 def validate_android_screenshots!
-  return unless play_screenshot_upload_requested?
+  return unless play_screenshot_upload_requested...
 
-  if play_screenshot_paths.empty?
+  if play_screenshot_paths.empty...
     UI.user_error!("SUPPLY_UPLOAD_SCREENSHOTS=1 but no PNG screenshots were found under apps/android/fastlane/metadata/android/*/images.")
   end
 end
@@ -204,7 +204,7 @@ end
 
 def release_git_sha
   stdout, stderr, status = Open3.capture3("git", "rev-parse", "HEAD", chdir: repo_root)
-  UI.user_error!("Unable to resolve release Git SHA: #{stderr.strip}") unless status.success?
+  UI.user_error!("Unable to resolve release Git SHA: #{stderr.strip}") unless status.success...
   stdout.strip
 end
 
@@ -251,21 +251,21 @@ def record_mobile_release_ref!(platform:, version:, build: nil, version_code: ni
 end
 
 def read_android_release_signing_properties!(path)
-  UI.user_error!("Missing materialized Android release signing properties at #{path}.") unless File.exist?(path)
+  UI.user_error!("Missing materialized Android release signing properties at #{path}.") unless File.exist...(path)
 
   properties = {}
   File.foreach(path) do |line|
     stripped = line.strip
-    next if stripped.empty? || stripped.start_with?("#")
+    next if stripped.empty... || stripped.start_with...("#")
 
     key, value = stripped.split("=", 2)
-    next if key.nil? || key.empty? || value.nil?
+    next if key.nil... || key.empty... || value.nil...
 
     properties[key] = value.strip
   end
 
-  missing = ANDROID_RELEASE_SIGNING_GRADLE_PROPERTIES.reject { |key| env_present?(properties[key]) }
-  UI.user_error!("Materialized Android release signing properties are missing: #{missing.join(', ')}.") unless missing.empty?
+  missing = ANDROID_RELEASE_SIGNING_GRADLE_PROPERTIES.reject { |key| env_present...(properties[key]) }
+  UI.user_error!("Materialized Android release signing properties are missing: #{missing.join(', ')}.") unless missing.empty...
 
   properties
 end
@@ -282,9 +282,9 @@ def sync_android_release_signing!
 end
 
 def prepare_android_release_signing!
-  if env_present?(ENV["MATCH_PASSWORD"])
+  if env_present...(ENV["MATCH_PASSWORD"])
     sync_android_release_signing!
-  elsif File.exist?(android_release_signing_materialized_properties_path)
+  elsif File.exist...(android_release_signing_materialized_properties_path)
     export_android_release_signing_properties!(android_release_signing_materialized_properties_path)
   end
 end
@@ -300,7 +300,7 @@ def print_android_release_plan!(version_metadata)
   UI.message("  package: #{play_package_name}")
   UI.message("  track: #{play_track}")
   UI.message("  release_status: #{play_release_status}")
-  UI.message("  validate_only: #{play_validate_only?}")
+  UI.message("  validate_only: #{play_validate_only...}")
   UI.message("  versionName: #{version_metadata.fetch(:version)}")
   UI.message("  versionCode: #{version_metadata.fetch(:version_code)}")
 end
@@ -325,11 +325,11 @@ def upload_play_store_metadata!(version_metadata)
     metadata_path: play_metadata_path,
     skip_upload_apk: true,
     skip_upload_aab: true,
-    skip_upload_metadata: !play_metadata_upload_requested?,
+    skip_upload_metadata: !play_metadata_upload_requested...,
     skip_upload_changelogs: false,
-    skip_upload_images: !play_image_upload_requested?,
-    skip_upload_screenshots: !play_screenshot_upload_requested?,
-    validate_only: play_validate_only?
+    skip_upload_images: !play_image_upload_requested...,
+    skip_upload_screenshots: !play_screenshot_upload_requested...,
+    validate_only: play_validate_only...
   )
 end
 
@@ -345,7 +345,7 @@ def upload_play_store_build!(version_metadata, upload_metadata: false, upload_im
   validate_android_screenshots!
   sync_android_changelog!(version_metadata.fetch(:version_code))
   artifact_path = release_artifact_path(version_metadata.fetch(:version))
-  UI.user_error!("Missing Play release artifact at #{artifact_path}. Run pnpm android:release:archive first.") unless File.exist?(artifact_path)
+  UI.user_error!("Missing Play release artifact at #{artifact_path}. Run pnpm android:release:archive first.") unless File.exist...(artifact_path)
 
   upload_to_play_store(
     **play_auth_options,
@@ -359,10 +359,10 @@ def upload_play_store_build!(version_metadata, upload_metadata: false, upload_im
     skip_upload_changelogs: false,
     skip_upload_images: !upload_images,
     skip_upload_screenshots: !upload_screenshots,
-    validate_only: play_validate_only?
+    validate_only: play_validate_only...
   )
 
-  unless play_validate_only?
+  unless play_validate_only...
     record_mobile_release_ref!(
       platform: "android",
       version: version_metadata.fetch(:version),
@@ -417,7 +417,7 @@ platform :android do
   lane :metadata do
     sync_android_versioning!
     version_metadata = read_android_version_metadata
-    ENV["SUPPLY_UPLOAD_METADATA"] = "1" unless ENV.key?("SUPPLY_UPLOAD_METADATA")
+    ENV["SUPPLY_UPLOAD_METADATA"] = "1" unless ENV.key...("SUPPLY_UPLOAD_METADATA")
     upload_play_store_metadata!(version_metadata)
     UI.success("Uploaded Android Play metadata for #{version_metadata[:version]} (#{version_metadata[:version_code]}).")
   end

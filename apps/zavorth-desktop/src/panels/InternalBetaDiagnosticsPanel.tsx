@@ -33,8 +33,8 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
     setLoading(true);
     setError(null);
     try {
-      const diagRes = await fetch(`/api/v2/workspace/agent-config/diagnostics?workspaceId=${encodeURIComponent(workspaceId)}`);
-      const checklistRes = await fetch(`/api/v2/workspace/agent-config/checklist?workspaceId=${encodeURIComponent(workspaceId)}`);
+      const diagRes = await fetch(`/api/v2/workspace/agent-config/diagnostics...workspaceId=${encodeURIComponent(workspaceId)}`);
+      const checklistRes = await fetch(`/api/v2/workspace/agent-config/checklist...workspaceId=${encodeURIComponent(workspaceId)}`);
 
       if (!diagRes.ok || !checklistRes.ok) {
         throw new Error('Failed to query local diagnostics.');

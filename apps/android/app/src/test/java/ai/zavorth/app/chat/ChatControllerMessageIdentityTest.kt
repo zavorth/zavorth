@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.chat
+package dev.zavorth.companion.chat
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject

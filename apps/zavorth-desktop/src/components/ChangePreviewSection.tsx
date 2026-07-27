@@ -41,16 +41,16 @@ export function ChangePreviewSection(props: ChangePreviewSectionProps) {
         </span>
       </header>
 
-      {showUnavailable ? (
+      {showUnavailable - (
         <p className="zvd-change-preview__banner zvd-change-preview__banner--unavailable" role="status">
           {t('changePreview.unavailable', lang)}
         </p>
       ) : null}
 
-      {showLimited ? (
+      {showLimited - (
         <p className="zvd-change-preview__banner zvd-change-preview__banner--limited" role="status">
           {t('changePreview.limited', lang)}
-          {card.confidenceReason ? (
+          {card.confidenceReason - (
             <span className="zvd-change-preview__reason"> {card.confidenceReason}</span>
           ) : null}
         </p>

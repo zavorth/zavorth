@@ -114,7 +114,7 @@ export function initRuntimeBridge() {
     if (String(query.traceId || '').trim()) params.set('traceId', String(query.traceId).trim());
     if (String(query.status || '').trim()) params.set('status', String(query.status).trim());
     if (String(query.limit || '').trim()) params.set('limit', String(query.limit).trim());
-    const path = `/api/web/dashboard/events?${params.toString()}`;
+    const path = `/api/web/dashboard/events...${params.toString()}`;
     const payload = await readJson(path, {
       headers: authHeaders(),
     });
@@ -237,12 +237,9 @@ export function initRuntimeBridge() {
 
   function statusBadge(status, label) {
     const normalized = String(status || '').toLowerCase();
-    const tone = normalized.includes('ready') || normalized.includes('online') || normalized.includes('connected') || normalized.includes('true') || normalized.includes('completed') || normalized.includes('done')
-      ? 'ok'
-      : normalized.includes('degraded') || normalized.includes('protected') || normalized.includes('auth') || normalized.includes('queued') || normalized.includes('waiting') || normalized.includes('pending')
-        ? 'warn'
-        : normalized.includes('offline') || normalized.includes('blocked') || normalized.includes('false') || normalized.includes('failed') || normalized.includes('error') || normalized.includes('cancelled') || normalized.includes('rejected')
-          ? 'danger'
+    const tone = normalized.includes('ready') || normalized.includes('online') || normalized.includes('connected') || normalized.includes('true') || normalized.includes('completed') || normalized.includes('done') ? 'ok'
+      : normalized.includes('degraded') || normalized.includes('protected') || normalized.includes('auth') || normalized.includes('queued') || normalized.includes('waiting') || normalized.includes('pending') ? 'warn'
+        : normalized.includes('offline') || normalized.includes('blocked') || normalized.includes('false') || normalized.includes('failed') || normalized.includes('error') || normalized.includes('cancelled') || normalized.includes('rejected') ? 'danger'
           : 'info';
     return `<span class="badge badge--${tone}"><span class="badge__dot"></span>${label}</span>`;
   }
@@ -571,8 +568,7 @@ export function initRuntimeBridge() {
         return;
       }
       setPulseLabel('Ready');
-      pulse.title = state.realtime.lastError
-        ? `Tab unlocked. Live runtime connected; live stream reconnecting: ${state.realtime.lastError}`
+      pulse.title = state.realtime.lastError ? `Tab unlocked. Live runtime connected; live stream reconnecting: ${state.realtime.lastError}`
         : 'Tab unlocked. Live runtime connected to the dashboard.';
       setPulseAccessState('unlocked');
       updateLiveStripFromRuntime('Runtime unlocked', 'Live requests are available', 'Gateway ready', state.realtime.lastError ? 'Stream reconnecting' : 'Live route');
@@ -582,11 +578,10 @@ export function initRuntimeBridge() {
 
     if (command?.authRequired) {
       setPulseLabel('Protected');
-      pulse.title = hasStoredToken()
-        ? 'Token saved in this tab, but the runtime still requires validation. Click to review.'
+      pulse.title = hasStoredToken() ? 'Token saved in this tab, but the runtime still requires validation. Click to review.'
         : 'The dashboard is protected. Live data requires the local token. Click to unlock.';
       setPulseAccessState('protected');
-      updateLiveStripFromRuntime('Token required', hasStoredToken() ? 'Saved token needs validation' : 'Unlock to send live messages', 'Gateway protected', 'Local token required');
+      updateLiveStripFromRuntime('Token required', hasStoredToken() ? 'Saved token needs validation' : 'Unlock to send live messages', 'Gateway protected', 'local token required');
       wireUnlockPulse(true);
       return;
     }
@@ -595,12 +590,12 @@ export function initRuntimeBridge() {
       setPulseLabel('Ready');
       pulse.title = 'Dashboard connected to the local server.';
       setPulseAccessState('local');
-      updateLiveStripFromRuntime('Runtime connected', 'Local server responding', 'Gateway ready', 'Dashboard route');
+      updateLiveStripFromRuntime('Runtime connected', 'local server responding', 'Gateway ready', 'Dashboard route');
       wireUnlockPulse(false);
       return;
     }
 
-    setPulseLabel('Local');
+    setPulseLabel('local');
     pulse.title = 'Waiting for runtime state.';
     setPulseAccessState('local');
     updateLiveStripFromRuntime('Runtime local', 'Waiting for live state', 'Gateway local', 'Dashboard route');
@@ -648,7 +643,7 @@ export function initRuntimeBridge() {
     updateSummaryCard('Tokens Used', '-', 'token telemetry is not connected yet');
     updateSummaryCard('Total Cost', '-', 'live costs are not connected yet');
     updateSummaryCard('Active Sessions', numberLabel(activeSessions), activeRun ? `active: ${text(activeRun.title, activeRun.id)}` : 'no active run now');
-    updateSummaryCard('Uptime', state.auth?.webReady ? 'Online' : 'Local', state.auth?.gatewayReady ? 'gateway ready' : 'local dashboard responding');
+    updateSummaryCard('Uptime', state.auth?.webReady ? 'Online' : 'local', state.auth?.gatewayReady ? 'gateway ready' : 'local dashboard responding');
     updateSummaryCard('Average Latency', activeRun ? text(activeRun.status, 'run') : '0', pendingApprovals ? `${pendingApprovals} approval(s) pending` : deriveNextRunAction(activeRun));
 
     const activeRunStatus = String(activeRun?.status || '').toLowerCase();
@@ -668,8 +663,7 @@ export function initRuntimeBridge() {
     const approvalText = document.querySelector('[data-dashboard-approval-text]');
     if (approvalTitle) approvalTitle.textContent = pendingApprovals ? `${pendingApprovals} pending` : 'Nothing needs you';
     if (approvalText) {
-      approvalText.textContent = pendingApprovals
-        ? 'Review pending decisions.'
+      approvalText.textContent = pendingApprovals ? 'Review pending decisions.'
         : 'Nothing pending.';
     }
 
@@ -679,8 +673,7 @@ export function initRuntimeBridge() {
     const inboxApprovalText = document.querySelector('[data-inbox-approval-text]');
     if (inboxApprovalTitle) inboxApprovalTitle.textContent = pendingApprovals ? `${pendingApprovals} pending approval${pendingApprovals === 1 ? '' : 's'}` : 'No pending approvals';
     if (inboxApprovalText) {
-      inboxApprovalText.textContent = pendingApprovals
-        ? 'Review before acting.'
+      inboxApprovalText.textContent = pendingApprovals ? 'Review before acting.'
         : 'No risky actions waiting.';
     }
 
@@ -880,12 +873,12 @@ export function initRuntimeBridge() {
       const value = row.querySelector('.info-row__value');
       if (!value) return;
       if (label === 'endpoint') value.textContent = `${location.origin}/api`;
-      if (label === 'auth') value.textContent = state.zavorthControl?.authRequired ? 'Local token required' : 'Local session';
-      if (label === 'status') value.innerHTML = statusBadge(state.auth?.webReady ? 'ready' : 'degraded', state.auth?.webReady ? 'Connected' : 'Local');
+      if (label === 'auth') value.textContent = state.zavorthControl?.authRequired ? 'local token required' : 'local session';
+      if (label === 'status') value.innerHTML = statusBadge(state.auth?.webReady ? 'ready' : 'degraded', state.auth?.webReady ? 'Connected' : 'local');
       if (label === 'chat') value.textContent = modelProfile.modelLabel;
       if (label === 'agents') value.textContent = modelProfile.modelLabel;
       if (label === 'fallback') value.textContent = modelProfile.fallbackModelLabel || 'not configured';
-      if (label === 'protocol') value.textContent = `${modelProfile.providerLabel} - ${getCurrentModelRouteLabel()}`;
+      if (label === 'protocol') value.textContent = `${modelProfile.providerLabel} ? ${getCurrentModelRouteLabel()}`;
     });
 
     updatePremiumStatus('Auto approvals', pendingApprovalCount() ? 'attention' : 'limited', pendingApprovalCount() ? 'warn' : 'info');
@@ -964,7 +957,7 @@ export function initRuntimeBridge() {
     const ids = configuredChannelIds();
     const priority = ['web', 'dashboard', 'local'];
     const match = priority.find((id) => ids.has(id));
-    if (!match) return ids.size > 3 ? 'Remote' : 'Local';
+    if (!match) return ids.size > 3 ? 'Remote' : 'local';
     if (match === 'web' || match === 'dashboard') return 'Web';
     return match.charAt(0).toUpperCase() + match.slice(1);
   }
@@ -1003,18 +996,14 @@ export function initRuntimeBridge() {
     const skillCount = getAvailableSkills().filter((skill) => !/disabled/i.test(String(skill.status || ''))).length;
     const live = readHonestBoolean(state.zavorthControl?.live, false);
     const protectedRuntime = readHonestBoolean(state.zavorthControl?.authRequired, false);
-    const gatewayLabel = state.realtime.connected
-      ? 'Live'
-      : live
-        ? 'Unlocked'
-        : protectedRuntime
-          ? 'Protected'
-          : state.auth?.webReady
-            ? 'Ready'
-            : 'Local';
+    const gatewayLabel = state.realtime.connected ? 'Live'
+      : live ? 'Unlocked'
+        : protectedRuntime ? 'Protected'
+          : state.auth?.webReady ? 'Ready'
+            : 'local';
 
     setControlTelemetry('model', modelProfile.modelLabel || 'Auto');
-    setControlTelemetry('provider', `${modelProfile.providerLabel || 'Provider'} - ${getCurrentModelRouteLabel()}`);
+    setControlTelemetry('provider', `${modelProfile.providerLabel || 'Provider'} ? ${getCurrentModelRouteLabel()}`);
     setControlTelemetry('gateway', gatewayLabel);
     setControlTelemetry('approvals', pending ? `${pending} pending` : '0');
     setControlTelemetry('receipts', String(receipts || 0));
@@ -1042,7 +1031,7 @@ export function initRuntimeBridge() {
     const status = text(run?.status, 'ready');
     const next = deriveNextRunAction(run);
     const channel = text(run?.channel || run?.source || run?.surface, firstReadyChannelLabel());
-    if (next && next !== 'No active run') return `${status} - ${next}`;
+    if (next && next !== 'No active run') return `${status} ? ${next}`;
     return `${status} - ${channel}`;
   }
 
@@ -1081,7 +1070,7 @@ export function initRuntimeBridge() {
     return [
       {
         title: 'Main workspace',
-        subtitle: state.realtime.connected ? 'Live gateway connected' : 'Local gateway ready',
+        subtitle: state.realtime.connected ? 'Live gateway connected' : 'local gateway ready',
         prompt: 'Show the current main session status.',
         active: true,
       },
@@ -1119,7 +1108,7 @@ export function initRuntimeBridge() {
     if (list) {
       const runs = getRuns()
         .slice()
-        .sort((a, b) => new Date(b?.updatedAt || b?.createdAt || 0).getTime() - new Date(a?.updatedAt || a?.createdAt || 0).getTime())
+        .sort((a, b) => new Date(b?.updatedAt || b?.createdAt || 0).getTime() ? new Date(a?.updatedAt || a?.createdAt || 0).getTime())
         .slice(0, 5);
       const active = getActiveRun();
       list.innerHTML = runs.length
@@ -1151,7 +1140,7 @@ export function initRuntimeBridge() {
       controlRailLinkHtml(
         `Input (${firstReadyChannelLabel()})`,
         'Show active input routes.',
-        firstReadyChannelLabel() !== 'Local',
+        firstReadyChannelLabel() !== 'local',
       ),
     ].join('');
   }
@@ -1181,17 +1170,15 @@ export function initRuntimeBridge() {
       entityCardHtml({
         title: 'Dashboard',
         id: 'web:/dashboard',
-        status: state.zavorthControl?.live ? 'Online' : state.zavorthControl?.authRequired ? 'Protected' : 'Local',
-        detail: state.zavorthControl?.authRequired
-          ? 'Live data requires the local token before it appears here.'
+        status: state.zavorthControl?.live ? 'Online' : state.zavorthControl?.authRequired ? 'Protected' : 'local',
+        detail: state.zavorthControl?.authRequired ? 'Live data requires the local token before it appears here.'
           : 'Dashboard connected to the local web surface.',
       }),
       entityCardHtml({
         title: 'Realtime',
         id: '/api/web/events',
         status: state.realtime.connected ? 'Live' : state.realtime.connecting ? 'Connecting' : 'Waiting for session',
-        detail: state.realtime.connected
-          ? `Latest event: ${text(state.realtime.lastEventType, 'stream')}`
+        detail: state.realtime.connected ? `Latest event: ${text(state.realtime.lastEventType, 'stream')}`
           : 'The live stream starts when there is an unlocked live session.',
       }),
     ];
@@ -1344,8 +1331,7 @@ export function initRuntimeBridge() {
         title: profile.label || profile.id,
         id: profile.id,
         status: profile.liveExecutionEnabled ? 'Live gated' : 'Registered',
-        detail: profile.isolation?.strongBoundary
-          ? `${profile.adapter || 'agent'} with strong isolation.`
+        detail: profile.isolation?.strongBoundary ? `${profile.adapter || 'agent'} with strong isolation.`
           : `${profile.adapter || 'agent'} registered; each live run remains approval gated.`,
         meta: `<span class="badge badge--muted">${escapeHtml(profile.isolation?.kind || 'local-supervised')}</span>`,
       })).join(''));
@@ -1358,8 +1344,7 @@ export function initRuntimeBridge() {
         title: 'Agent Gateway',
         id: getCurrentModelLabel(),
         status: state.zavorthControl?.authRequired ? 'Protected' : 'Waiting',
-        detail: state.zavorthControl?.authRequired
-          ? 'Unlock with the local token to list live runs.'
+        detail: state.zavorthControl?.authRequired ? 'Unlock with the local token to list live runs.'
           : 'No live runs yet.',
         meta: `<span class="badge badge--muted">${escapeHtml(getCurrentModelLabel())}</span>`,
       }));
@@ -1517,8 +1502,7 @@ export function initRuntimeBridge() {
           premiumList.innerHTML = activeSkills
             .map((skill) => {
               const isNative = skill.sourceId === 'zavorth-native';
-              const archiveBtn = isNative
-                ? ''
+              const archiveBtn = isNative ? ''
                 : `<button type="button" class="skill-row__archive daily-button daily-button--ghost" data-skill-archive-id="${escapeHtml(skill.id)}">Archive</button>`;
 
               const pinBtn = `<button type="button" class="skill-row__pin daily-button daily-button--ghost" data-skill-pin-id="${escapeHtml(skill.id)}" data-skill-pinned="${skill.pinned}">${skill.pinned ? 'Pinned' : 'Pin'}</button>`;
@@ -1611,7 +1595,7 @@ export function initRuntimeBridge() {
     const skillFilterFor = (tool) => {
       const haystack = `${tool.status || ''} ${tool.summary || ''}`.toLowerCase();
       if (!tool.enabled || /setup|scope|consent|config|credential|token/.test(haystack)) return 'setup';
-      if (/approval|preview|blocked|gated|simulation|simulate/.test(haystack)) return 'approval';
+      if (/approval|preview|blocked|gated|dryRun|simulate/.test(haystack)) return 'approval';
       return 'ready';
     };
     const renderSkillRow = (tool) => {
@@ -1673,10 +1657,8 @@ export function initRuntimeBridge() {
     setLiveStripValue('[data-tools-live-count]', tools.length || 0);
     setLiveStripValue(
       '[data-tools-live-ready]',
-      tools.length
-        ? `${readyCount} ready / ${approvalCount} gated`
-        : state.zavorthControl?.authRequired
-          ? 'unlock required'
+      tools.length ? `${readyCount} ready / ${approvalCount} gated`
+        : state.zavorthControl?.authRequired ? 'unlock required'
           : 'waiting'
     );
     setLiveStripValue(
@@ -1696,8 +1678,7 @@ export function initRuntimeBridge() {
           title: 'Active run tools',
           id: 'live runtime',
           status: state.zavorthControl?.authRequired ? 'Protected' : 'Waiting',
-          detail: state.zavorthControl?.authRequired
-            ? 'Unlock the dashboard to read live tools.'
+          detail: state.zavorthControl?.authRequired ? 'Unlock the dashboard to read live tools.'
             : 'No tool is exposed by an active run right now.',
         })
       );
@@ -1922,7 +1903,7 @@ export function initRuntimeBridge() {
     }
 
     if (artifact.path && isTextArtifact(artifact)) {
-      const payload = await readJson(`/api/web/file-preview?path=${encodeURIComponent(artifact.path)}`, {
+      const payload = await readJson(`/api/web/file-preview...path=${encodeURIComponent(artifact.path)}`, {
         headers: authHeaders(),
       });
       const content = String(payload?.preview?.content || payload?.content || '').trim();
@@ -1934,7 +1915,7 @@ export function initRuntimeBridge() {
     }
 
     if (artifact.path && isVisualAsset(artifact)) {
-      const blob = await readBlob(`/api/web/file-asset?path=${encodeURIComponent(artifact.path)}`, {
+      const blob = await readBlob(`/api/web/file-asset...path=${encodeURIComponent(artifact.path)}`, {
         headers: authHeaders(),
       });
       const objectUrl = URL.createObjectURL(blob);
@@ -2040,12 +2021,10 @@ export function initRuntimeBridge() {
     const unlocked = readHonestBoolean(state.zavorthControl?.live, false)
       && !readHonestBoolean(state.zavorthControl?.authRequired, false);
     const protectedMode = readHonestBoolean(state.zavorthControl?.authRequired, false);
-    const statusLabel = unlocked ? 'Unlocked' : protectedMode ? 'Protected' : 'Local';
+    const statusLabel = unlocked ? 'Unlocked' : protectedMode ? 'Protected' : 'local';
     const statusTone = unlocked ? 'ok' : protectedMode ? 'warn' : 'info';
-    const detail = unlocked
-      ? 'This tab is authorized to read live runs, send messages and track Zavorth approvals.'
-      : protectedMode
-        ? 'The dashboard gateway is protected. Live data requires this installation local token.'
+    const detail = unlocked ? 'This tab is authorized to read live runs, send messages and track Zavorth approvals.'
+      : protectedMode ? 'The dashboard gateway is protected. Live data requires this installation local token.'
         : 'The dashboard is connected locally, but has not received an unlocked live runtime yet.';
     const content = `
       <div class="config-form">
@@ -2106,8 +2085,8 @@ export function initRuntimeBridge() {
         <div class="zavorth-unlock-card__header">
           <div class="zavorth-unlock-card__mark">Z</div>
           <div>
-            <span class="zavorth-unlock-card__eyebrow">Local access</span>
-            <h4>Local runtime</h4>
+            <span class="zavorth-unlock-card__eyebrow">local access</span>
+            <h4>local runtime</h4>
           </div>
         </div>
         <p class="zavorth-unlock-card__reason">
@@ -2127,7 +2106,7 @@ export function initRuntimeBridge() {
         </p>
         <div class="zavorth-unlock-help">
           <button id="zavorth-unlock-help-toggle" class="zavorth-unlock-help__toggle" type="button" aria-expanded="false" aria-controls="zavorth-unlock-help-panel">
-            Where do I find the token?
+            Where do I find the token...
           </button>
           <div id="zavorth-unlock-help-panel" class="zavorth-unlock-help__panel" hidden>
             <ol>
@@ -2136,7 +2115,7 @@ export function initRuntimeBridge() {
               <li>If the token fails, generate a new one and do not reuse an old token from another tab.</li>
             </ol>
             <div class="zavorth-unlock-status-grid" aria-label="Connection requirements">
-              <span><strong>Runtime</strong><small>${state.auth?.webReady || state.auth?.gatewayReady ? 'Local server reachable' : 'Checking local server'}</small></span>
+              <span><strong>Runtime</strong><small>${state.auth?.webReady || state.auth?.gatewayReady ? 'local server reachable' : 'Checking local server'}</small></span>
               <span><strong>Auth</strong><small>${hasStoredToken() ? 'Token saved in this tab' : 'Token required'}</small></span>
               <span><strong>Session</strong><small>${readSessionId() ? 'Existing session found' : 'New session ready'}</small></span>
             </div>
@@ -2666,13 +2645,13 @@ export function initRuntimeBridge() {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({
-        provider: 'stub',
+        provider: 'local',
         platform: 'whatsapp',
         tenantId: 'default-tenant',
         channelAccountId: 'sales-channel-whatsapp',
         providerMessageId,
         customerId: 'lead-zavorth-control',
-        text: 'I think it is expensive, but I am still interested. Is there still availability?',
+        text: 'I think it is expensive, but I am still interested. Is there still availability...',
         traceId: `trace-${providerMessageId}`,
         metadata: { source: 'zavorth-control-sales-os' },
       }),
@@ -2702,8 +2681,7 @@ export function initRuntimeBridge() {
       }),
     });
     const receiptId = String(payload?.receipt?.structuredContent?.receiptId || '').trim();
-    const receiptSummary = receiptId
-      ? `Receipt ${receiptId} received from the MCP notebook.`
+    const receiptSummary = receiptId ? `Receipt ${receiptId} received from the MCP notebook.`
       : String(payload?.receipt?.contentText || payload?.error || '').trim();
     ui.emitSignal?.(
       payload?.ok ? 'success' : 'error',

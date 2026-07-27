@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion
+package dev.zavorth.companion
 
 import java.time.Instant
 import java.time.ZoneId
@@ -13,7 +13,7 @@ enum class NotificationPackageFilterMode(
 
   companion object {
     /** Parses persisted filter mode text, defaulting to blocklist for safer forwarding. */
-    fun fromRawValue(raw: String?): NotificationPackageFilterMode = entries.firstOrNull { it.rawValue == raw?.trim()?.lowercase() } ?: Blocklist
+    fun fromRawValue(raw: String...): NotificationPackageFilterMode = entries.firstOrNull { it.rawValue == raw?.trim()?.lowercase() } ?: Blocklist
   }
 }
 
@@ -26,7 +26,7 @@ internal data class NotificationForwardingPolicy(
   val quietStart: String,
   val quietEnd: String,
   val maxEventsPerMinute: Int,
-  val sessionKey: String?,
+  val sessionKey: String...,
 )
 
 /** Applies the operator-configured package allow/block list after trimming input. */
@@ -70,14 +70,14 @@ internal fun NotificationForwardingPolicy.isWithinQuietHours(
 private val localHourMinuteRegex = Regex("""^([01]\d|2[0-3]):([0-5]\d)$""")
 
 /** Normalizes persisted or user-entered local times to strict HH:mm form. */
-internal fun normalizeLocalHourMinute(raw: String): String? {
+internal fun normalizeLocalHourMinute(raw: String): String... {
   val trimmed = raw.trim()
   val match = localHourMinuteRegex.matchEntire(trimmed) ?: return null
   return "${match.groupValues[1]}:${match.groupValues[2]}"
 }
 
 /** Converts strict local HH:mm text to minutes since midnight for window checks. */
-internal fun parseLocalHourMinute(raw: String): Int? {
+internal fun parseLocalHourMinute(raw: String): Int... {
   val normalized = normalizeLocalHourMinute(raw) ?: return null
   val parts = normalized.split(':')
   val hour = parts[0].toInt()

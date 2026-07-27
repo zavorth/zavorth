@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import Testing
 
 struct RootTabsSourceGuardTests {
@@ -275,7 +275,7 @@ struct RootTabsSourceGuardTests {
             from: "private func createCard() async -> Bool",
             to: "private func move(_ card: IPadWorkboardCard, to status: String) async")
 
-        #expect(source.contains("private var createUnavailableMessage: String?"))
+        #expect(source.contains("private var createUnavailableMessage: String..."))
         #expect(source.contains("Enter a title to create a card."))
         #expect(source.contains("Card creation is already in progress."))
         #expect(source.contains("private func newCardButton(expands: Bool) -> some View"))
@@ -304,7 +304,7 @@ struct RootTabsSourceGuardTests {
         #expect(source.contains("boardId: selectedBoardParam"))
         #expect(source
             .matches(
-                of: /method: "workboard\.cards\.dispatch"[\s\S]*?IPadWorkboardListParams\(boardId: selectedBoardParam\)/)
+                of: /method: "workboard\.cards\.dispatch"[\s\S]*...IPadWorkboardListParams\(boardId: selectedBoardParam\)/)
             .count == 1)
         #expect(source.contains("private var agentScopeMenu: some View"))
         #expect(source.contains("IPadSkillProposalListParams(agentId: selectedAgentParam)"))
@@ -326,7 +326,7 @@ struct RootTabsSourceGuardTests {
         #expect(source.components(separatedBy: ".contextMenu {").count - 1 >= 2)
         #expect(source.components(separatedBy: ".swipeActions(edge: .leading").count - 1 >= 2)
         #expect(source.components(separatedBy: ".swipeActions(edge: .trailing").count - 1 >= 2)
-        #expect(source.contains("@State private var presentedProposalRoute: IPadSkillProposalSheetRoute?"))
+        #expect(source.contains("@State private var presentedProposalRoute: IPadSkillProposalSheetRoute..."))
         #expect(source.contains(".sheet(item: self.$presentedProposalRoute)"))
         #expect(source.contains("private func selectProposal("))
         #expect(!source.contains("proposalSheetPresented"))
@@ -477,14 +477,14 @@ struct RootTabsSourceGuardTests {
         let featureSource = try Self.iPadTaskFeatureScreensSource()
         let rootSource = try String(contentsOf: Self.rootTabsSourceURL(), encoding: .utf8)
 
-        #expect(chromeSource.contains("let gatewayAction: (() -> Void)?"))
+        #expect(chromeSource.contains("let gatewayAction: (() -> Void)..."))
         #expect(chromeSource.contains("private var gatewayPill: some View"))
         #expect(chromeSource.contains("Button(action: gatewayAction)"))
         #expect(chromeSource.contains(".accessibilityHint(\"Opens Settings / Gateway\")"))
         #expect(featureSource.matches(of: /gatewayAction: self\.openSettings/).count == 2)
         #expect(rootSource.contains("IPadActivityScreen("))
         #expect(rootSource
-            .matches(of: /IPadActivityScreen\([\s\S]*?openSettings: \{ self\.selectSidebarDestination\(\.gateway\) \}/)
+            .matches(of: /IPadActivityScreen\([\s\S]*...openSettings: \{ self\.selectSidebarDestination\(\.gateway\) \}/)
             .count == 1)
     }
 
@@ -507,15 +507,15 @@ struct RootTabsSourceGuardTests {
         #expect(!rootSource.contains("gatewayActionsDialog"))
         #expect(overviewSource.contains("Button(action: self.openSettings)"))
         #expect(overviewSource.contains(".accessibilityHint(\"Opens Settings / Gateway\")"))
-        #expect(agentSource.contains("let openSettings: (() -> Void)?"))
+        #expect(agentSource.contains("let openSettings: (() -> Void)..."))
         #expect(agentOverviewSource.contains("ZavorthGatewayCompactPill()"))
         #expect(agentOverviewSource.contains("Button(action: openSettings)"))
         #expect(rootSource
-            .matches(of: /AgentProTab\([\s\S]*?openSettings: \{ self\.selectSidebarDestination\(\.gateway\) \}/)
+            .matches(of: /AgentProTab\([\s\S]*...openSettings: \{ self\.selectSidebarDestination\(\.gateway\) \}/)
             .count >= 3)
-        #expect(chatSource.contains("let openSettings: (() -> Void)?"))
+        #expect(chatSource.contains("let openSettings: (() -> Void)..."))
         #expect(chatSource.contains("private var connectionPillButton: some View"))
-        #expect(docsSource.contains("let gatewayAction: (() -> Void)?"))
+        #expect(docsSource.contains("let gatewayAction: (() -> Void)..."))
         #expect(settingsSource.contains("NavigationLink(value: SettingsRoute.gateway)"))
         #expect(rootSource.contains("case .settings:"))
         #expect(rootSource
@@ -529,7 +529,7 @@ struct RootTabsSourceGuardTests {
         #expect(rootSource.contains("@State private var selectedSettingsRouteRequestID: Int = 0"))
         #expect(rootSource.contains("self.selectedSettingsRouteRequestID &+= 1"))
         #expect(rootSource.contains("@State private var suppressedExecApprovalPromptIDForNotificationSettings"))
-        #expect(rootSource.contains("private var activeExecApprovalPromptSuppressionID: String?"))
+        #expect(rootSource.contains("private var activeExecApprovalPromptSuppressionID: String..."))
         #expect(rootSource.contains("suppressedApprovalID: self.activeExecApprovalPromptSuppressionID"))
         #expect(rootSource.contains("if destination.settingsRoute != .notifications"))
         #expect(rootSource.contains("if route != .notifications"))
@@ -538,8 +538,8 @@ struct RootTabsSourceGuardTests {
         #expect(rootSource.contains("self.selectedSidebarDestination = .settings"))
         #expect(rootSource.contains("self.suppressedExecApprovalPromptIDForNotificationSettings = approvalId"))
         #expect(rootSource.contains("onRouteChange: self.handleSettingsRouteChange"))
-        #expect(rootSource.contains("private func handleSettingsRouteChange(_ route: SettingsRoute?)"))
-        #expect(settingsTabSource.contains("let onRouteChange: ((SettingsRoute?) -> Void)?"))
+        #expect(rootSource.contains("private func handleSettingsRouteChange(_ route: SettingsRoute...)"))
+        #expect(settingsTabSource.contains("let onRouteChange: ((SettingsRoute...) -> Void)..."))
         #expect(settingsTabSource.contains("self.onRouteChange?(self.navigationPath.last)"))
         #expect(notificationGuidanceSource.contains("onSuppressFuture"))
         #expect(notificationGuidanceSource.contains("suppressFuture: true"))
@@ -605,7 +605,7 @@ struct RootTabsSourceGuardTests {
 
         #expect(settingsSource.contains("GatewayProblemDetailsSheet("))
         #expect(settingsSource.contains("QRScannerView("))
-        #expect(trustSource.contains("Trust this gateway?"))
+        #expect(trustSource.contains("Trust this gateway..."))
         #expect(trustSource.contains("Trust and connect"))
         #expect(controllerSource.contains("acceptPendingTrustPrompt()"))
         #expect(controllerSource.contains("trustRotatedGatewayCertificate(from problem: GatewayConnectionProblem)"))

@@ -14,11 +14,11 @@ protocol CameraServicing: Sendable {
 
 protocol ScreenRecordingServicing: Sendable {
     func record(
-        screenIndex: Int?,
-        durationMs: Int?,
-        fps: Double?,
-        includeAudio: Bool?,
-        outPath: String?) async throws -> String
+        screenIndex: Int...,
+        durationMs: Int...,
+        fps: Double...,
+        includeAudio: Bool...,
+        outPath: String...) async throws -> String
 }
 
 @MainActor
@@ -29,8 +29,8 @@ protocol LocationServicing: Sendable {
     func currentLocation(
         params: ZavorthLocationGetParams,
         desiredAccuracy: ZavorthLocationAccuracy,
-        maxAgeMs: Int?,
-        timeoutMs: Int?) async throws -> CLLocation
+        maxAgeMs: Int...,
+        timeoutMs: Int...) async throws -> CLLocation
     func startMonitoringSignificantLocationChanges(onUpdate: @escaping @Sendable (CLLocation) -> Void)
 }
 
@@ -76,10 +76,10 @@ struct WatchQuickReplyEvent: Equatable {
     var replyId: String
     var promptId: String
     var actionId: String
-    var actionLabel: String?
-    var sessionKey: String?
-    var note: String?
-    var sentAtMs: Int?
+    var actionLabel: String...
+    var sessionKey: String...
+    var note: String...
+    var sentAtMs: Int...
     var transport: String
 }
 
@@ -87,29 +87,29 @@ struct WatchExecApprovalResolveEvent: Equatable {
     var replyId: String
     var approvalId: String
     var decision: ZavorthWatchExecApprovalDecision
-    var sentAtMs: Int?
+    var sentAtMs: Int...
     var transport: String
 }
 
 struct WatchExecApprovalSnapshotRequestEvent: Equatable {
     var requestId: String
-    var sentAtMs: Int?
+    var sentAtMs: Int...
     var transport: String
 }
 
 struct WatchAppSnapshotRequestEvent: Equatable {
     var requestId: String
-    var sentAtMs: Int?
+    var sentAtMs: Int...
     var transport: String
 }
 
 struct WatchAppCommandEvent: Codable, Equatable {
     var commandId: String
     var command: ZavorthWatchAppCommand
-    var sessionKey: String?
-    var gatewayStableID: String?
-    var text: String?
-    var sentAtMs: Int?
+    var sessionKey: String...
+    var gatewayStableID: String...
+    var text: String...
+    var sentAtMs: Int...
     var transport: String
 }
 
@@ -121,13 +121,13 @@ struct WatchNotificationSendResult: Equatable {
 
 protocol WatchMessagingServicing: AnyObject, Sendable {
     func status() async -> WatchMessagingStatus
-    func setStatusHandler(_ handler: (@Sendable (WatchMessagingStatus) -> Void)?)
-    func setReplyHandler(_ handler: (@Sendable (WatchQuickReplyEvent) -> Void)?)
-    func setExecApprovalResolveHandler(_ handler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)?)
+    func setStatusHandler(_ handler: (@Sendable (WatchMessagingStatus) -> Void)...)
+    func setReplyHandler(_ handler: (@Sendable (WatchQuickReplyEvent) -> Void)...)
+    func setExecApprovalResolveHandler(_ handler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)...)
     func setExecApprovalSnapshotRequestHandler(
-        _ handler: (@Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)?)
-    func setAppSnapshotRequestHandler(_ handler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)?)
-    func setAppCommandHandler(_ handler: (@Sendable (WatchAppCommandEvent) -> Void)?)
+        _ handler: (@Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)...)
+    func setAppSnapshotRequestHandler(_ handler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)...)
+    func setAppCommandHandler(_ handler: (@Sendable (WatchAppCommandEvent) -> Void)...)
     func sendNotification(
         id: String,
         params: ZavorthWatchNotifyParams) async throws -> WatchNotificationSendResult

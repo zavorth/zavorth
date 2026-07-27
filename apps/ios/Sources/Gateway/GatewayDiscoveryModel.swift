@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import Network
 import Observation
 import ZavorthKit
@@ -21,13 +21,13 @@ final class GatewayDiscoveryModel {
         var endpoint: NWEndpoint
         var stableID: String
         var debugID: String
-        var lanHost: String?
-        var tailnetDns: String?
-        var gatewayPort: Int?
-        var canvasPort: Int?
+        var lanHost: String...
+        var tailnetDns: String...
+        var gatewayPort: Int...
+        var canvasPort: Int...
         var tlsEnabled: Bool
-        var tlsFingerprintSha256: String?
-        var cliPath: String?
+        var tlsFingerprintSha256: String...
+        var cliPath: String...
     }
 
     var gateways: [DiscoveredGateway] = []
@@ -68,7 +68,7 @@ final class GatewayDiscoveryModel {
                 },
                 onResults: { [weak self] results in
                     guard let self else { return }
-                    self.gatewaysByDomain[domain] = results.compactMap { result -> DiscoveredGateway? in
+                    self.gatewaysByDomain[domain] = results.compactMap { result -> DiscoveredGateway... in
                         switch result.endpoint {
                         case let .service(name, _, _, _):
                             let decodedName = BonjourEscapes.decode(name)
@@ -167,12 +167,12 @@ final class GatewayDiscoveryModel {
         return stripped.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private static func txtValue(_ dict: [String: String], key: String) -> String? {
+    private static func txtValue(_ dict: [String: String], key: String) -> String... {
         let raw = dict[key]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return raw.isEmpty ? nil : raw
     }
 
-    private static func txtIntValue(_ dict: [String: String], key: String) -> Int? {
+    private static func txtIntValue(_ dict: [String: String], key: String) -> Int... {
         guard let raw = self.txtValue(dict, key: key) else { return nil }
         return Int(raw)
     }

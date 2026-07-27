@@ -24,13 +24,13 @@ struct ScreenWebView: UIViewRepresentable {
 
 @MainActor
 final class ScreenWebViewCoordinator: NSObject {
-    private weak var controller: ScreenController?
+    private weak var controller: ScreenController...
     private let navigationDelegate = ScreenNavigationDelegate()
     private let a2uiActionHandler = CanvasA2UIActionMessageHandler()
     private let userContentController = WKUserContentController()
 
-    private(set) var managedWebView: WKWebView?
-    private weak var containerView: UIView?
+    private(set) var managedWebView: WKWebView...
+    private weak var containerView: UIView...
 
     init(controller: ScreenController) {
         self.controller = controller
@@ -128,7 +128,7 @@ final class ScreenWebViewCoordinator: NSObject {
 /// Handles navigation policy to intercept zavorth:// deep links from canvas
 @MainActor
 private final class ScreenNavigationDelegate: NSObject, WKNavigationDelegate {
-    weak var controller: ScreenController?
+    weak var controller: ScreenController...
 
     func webView(
         _: WKWebView,
@@ -152,19 +152,19 @@ private final class ScreenNavigationDelegate: NSObject, WKNavigationDelegate {
 
     func webView(
         _: WKWebView,
-        didFailProvisionalNavigation _: WKNavigation?,
+        didFailProvisionalNavigation _: WKNavigation...,
         withError error: any Error)
     {
         self.controller?.errorText = error.localizedDescription
     }
 
-    func webView(_: WKWebView, didFinish _: WKNavigation?) {
+    func webView(_: WKWebView, didFinish _: WKNavigation...) {
         self.controller?.errorText = nil
         self.controller?.applyDebugStatusIfNeeded()
         self.controller?.applyHomeCanvasStateIfNeeded()
     }
 
-    func webView(_: WKWebView, didFail _: WKNavigation?, withError error: any Error) {
+    func webView(_: WKWebView, didFail _: WKNavigation..., withError error: any Error) {
         self.controller?.errorText = error.localizedDescription
     }
 }
@@ -173,7 +173,7 @@ private final class CanvasA2UIActionMessageHandler: NSObject, WKScriptMessageHan
     static let messageName = "zavorthCanvasA2UIAction"
     static let handlerNames = [messageName]
 
-    weak var controller: ScreenController?
+    weak var controller: ScreenController...
 
     func userContentController(_: WKUserContentController, didReceive message: WKScriptMessage) {
         guard Self.handlerNames.contains(message.name) else { return }

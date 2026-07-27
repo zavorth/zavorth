@@ -134,14 +134,11 @@ function MemoryPanel(props: {
   onLearningDecision(id: string, decision: 'approve' | 'reject' | 'forget'): void | Promise<void>;
   onEncryptionAction(action: 'preview' | 'apply' | 'rollback'): void | Promise<void>;
 }) {
-  const protectionLabel = props.encryptionStatus?.fullFileEncrypted
-    ? 'Advanced memory protection'
-    : props.encryptionStatus?.contentEncrypted
-      ? 'Standard memory protection'
+  const protectionLabel = props.encryptionStatus?.fullFileEncrypted ? 'Advanced memory protection'
+    : props.encryptionStatus?.contentEncrypted ? 'Standard memory protection'
       : 'Memory protection';
   const protectionState = props.encryptionStatus
-    ? props.encryptionStatus.fullFileEncrypted
-      ? 'Whole memory file is sealed.'
+    ? props.encryptionStatus.fullFileEncrypted ? 'Whole memory file is sealed.'
       : props.encryptionStatus.guidance
     : 'Status unavailable.';
   const canRollback = Boolean(props.encryptionReceipt?.backupPath && props.encryptionReceipt.status === 'applied');
@@ -172,7 +169,7 @@ function MemoryPanel(props: {
         return (
           <div className="zvd-panel-card" key={id}>
             <strong>{candidate.title || candidate.kind || 'Learning candidate'}</strong>
-            <span>{candidate.summary || `${candidate.lane || 'lane'} - ${candidate.risk || 'risk unknown'}`}</span>
+            <span>{candidate.summary || `${candidate.lane || 'lane'} ? ${candidate.risk || 'risk unknown'}`}</span>
             <div className="zvd-card-actions">
               <button disabled={props.busy} onClick={() => void props.onLearningDecision(id, 'approve')}>Approve</button>
               <button disabled={props.busy} onClick={() => void props.onLearningDecision(id, 'reject')}>Reject</button>

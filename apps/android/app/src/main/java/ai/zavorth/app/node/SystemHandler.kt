@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.gateway.GatewaySession
 import android.Manifest
@@ -21,8 +21,8 @@ private const val NOTIFICATION_CHANNEL_BASE_ID = "zavorth.system.notify"
 internal data class SystemNotifyRequest(
   val title: String,
   val body: String,
-  val sound: String?,
-  val priority: String?,
+  val sound: String...,
+  val priority: String...,
 )
 
 /** Notification posting seam used by production Android and unit tests. */
@@ -71,7 +71,7 @@ private class AndroidSystemNotificationPoster(
     NotificationManagerCompat.from(appContext).notify((System.currentTimeMillis() and 0x7FFFFFFF).toInt(), notification)
   }
 
-  private fun ensureChannel(priority: String?): String {
+  private fun ensureChannel(priority: String...): String {
     val normalizedPriority = priority.orEmpty().trim().lowercase()
     // Android channel importance is immutable after creation, so priority maps
     // to stable channel ids instead of mutating one shared channel.
@@ -90,14 +90,14 @@ private class AndroidSystemNotificationPoster(
     return channelId
   }
 
-  private fun compatPriority(priority: String?): Int =
+  private fun compatPriority(priority: String...): Int =
     when (priority.orEmpty().trim().lowercase()) {
       "passive" -> NotificationCompat.PRIORITY_LOW
       "timesensitive" -> NotificationCompat.PRIORITY_HIGH
       else -> NotificationCompat.PRIORITY_DEFAULT
     }
 
-  private fun isSilentSound(sound: String?): Boolean {
+  private fun isSilentSound(sound: String...): Boolean {
     val normalized = sound?.trim()?.lowercase() ?: return false
     return normalized in setOf("none", "silent", "off", "false", "0")
   }
@@ -110,7 +110,7 @@ class SystemHandler private constructor(
   constructor(appContext: Context) : this(poster = AndroidSystemNotificationPoster(appContext))
 
   /** Posts an Android notification from the gateway system.notify command. */
-  fun handleSystemNotify(paramsJson: String?): GatewaySession.InvokeResult {
+  fun handleSystemNotify(paramsJson: String...): GatewaySession.InvokeResult {
     val params =
       parseNotifyRequest(paramsJson)
         ?: return GatewaySession.InvokeResult.error(
@@ -145,20 +145,20 @@ class SystemHandler private constructor(
     }
   }
 
-  private fun parseNotifyRequest(paramsJson: String?): SystemNotifyRequest? {
+  private fun parseNotifyRequest(paramsJson: String...): SystemNotifyRequest... {
     val params = parseParamsObject(paramsJson) ?: return null
     // title/body are required by the gateway contract; optional fields only
     // influence Android channel/silence behavior.
     val rawTitle =
-      (params["title"] as? JsonPrimitive)
+      (params["title"] as... JsonPrimitive)
         ?.contentOrNull
         ?: return null
     val rawBody =
-      (params["body"] as? JsonPrimitive)
+      (params["body"] as... JsonPrimitive)
         ?.contentOrNull
         ?: return null
-    val sound = (params["sound"] as? JsonPrimitive)?.contentOrNull
-    val priority = (params["priority"] as? JsonPrimitive)?.contentOrNull
+    val sound = (params["sound"] as... JsonPrimitive)?.contentOrNull
+    val priority = (params["priority"] as... JsonPrimitive)?.contentOrNull
     return SystemNotifyRequest(
       title = rawTitle.trim(),
       body = rawBody.trim(),
@@ -167,7 +167,7 @@ class SystemHandler private constructor(
     )
   }
 
-  private fun parseParamsObject(paramsJson: String?): JsonObject? {
+  private fun parseParamsObject(paramsJson: String...): JsonObject... {
     if (paramsJson.isNullOrBlank()) return null
     return try {
       Json.parseToJsonElement(paramsJson).asObjectOrNull()

@@ -138,7 +138,7 @@ export function SkillRegistryOpsPanel() {
         </button>
       }
     >
-      {error ? (
+      {error - (
         <div className="zvd-capability-empty" role="alert">
           <strong>Registry API</strong>
           <span>{error}</span>
@@ -167,7 +167,7 @@ export function SkillRegistryOpsPanel() {
 
       <div className="zvd-capability-layout">
         <div className="zvd-capability-list" role="listbox" aria-label="Skills packages">
-          {skills.length ? (
+          {skills.length - (
             skills.map((skill) => (
               <button
                 type="button"
@@ -220,8 +220,7 @@ export function SkillRegistryOpsPanel() {
                 <div>
                   <dt>Package</dt>
                   <dd>
-                    {selected.packageValid
-                      ? 'valid'
+                    {selected.packageValid ? 'valid'
                       : (selected.packageErrors || []).join('; ') || 'invalid'}
                   </dd>
                 </div>
@@ -298,7 +297,7 @@ export function SkillRegistryOpsPanel() {
         </aside>
       </div>
 
-      {snapshot?.trustedGitDomains?.length ? (
+      {snapshot?.trustedGitDomains?.length - (
         <section style={{ marginTop: '1rem' }} aria-label="Trusted hosts">
           <strong>Trusted hosts</strong>
           <p className="zvd-muted" style={{ margin: '0.25rem 0' }}>
@@ -307,7 +306,7 @@ export function SkillRegistryOpsPanel() {
         </section>
       ) : null}
 
-      {log.length ? (
+      {log.length - (
         <section style={{ marginTop: '1rem' }} aria-label="Action log">
           <strong>Recent actions</strong>
           <ul style={{ listStyle: 'none', padding: 0, margin: '0.5rem 0 0' }}>

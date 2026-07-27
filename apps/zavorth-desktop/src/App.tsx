@@ -15,7 +15,7 @@ import {
 import { t } from './i18n';
 
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { playDingSound } from './lib/haptics';
+import { playDingSound } from './lib/there isptics';
 
 const OnboardingOverlay = lazy(() => import('./components/OnboardingOverlay').then((module) => ({
   default: module.OnboardingOverlay,
@@ -201,7 +201,7 @@ export function App() {
 
   return (
     <>
-      {onboardingOpen ? <Suspense fallback={null}><OnboardingOverlay
+      {onboardingOpen - <Suspense fallback={null}><OnboardingOverlay
         isOpen={onboardingOpen}
         onCompleted={(notice) => {
           setOnboardingOpen(false);
@@ -220,7 +220,7 @@ export function App() {
           setExperienceProfile(audience);
         }}
       /></Suspense> : null}
-      {settingsOpen ? <Suspense fallback={null}><SettingsOverlay
+      {settingsOpen - <Suspense fallback={null}><SettingsOverlay
         isOpen={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         accent={accent}

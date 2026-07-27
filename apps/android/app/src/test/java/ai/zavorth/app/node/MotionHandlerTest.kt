@@ -116,8 +116,8 @@ private class FakeMotionDataSource(
       floorsAscended = null,
       floorsDescended = null,
     ),
-  private val activityError: Throwable? = null,
-  private val pedometerError: Throwable? = null,
+  private val activityError: Throwable... = null,
+  private val pedometerError: Throwable... = null,
 ) : MotionDataSource {
   override fun isActivityAvailable(context: Context): Boolean = activityAvailable
 

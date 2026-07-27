@@ -93,10 +93,10 @@ describe('KeyboardShortcutsPanel', () => {
       expect(allKbd.some(kbd => kbd.textContent === 'K')).toBe(true);
     });
 
-    it('renders single-key shortcuts like "?" and "Esc"', () => {
+    it('renders single-key shortcuts like "..." and "Esc"', () => {
       renderPanel();
       const allKbd = Array.from(document.querySelectorAll('.zvd-kbd-chip'));
-      expect(allKbd.some(kbd => kbd.textContent === '?')).toBe(true);
+      expect(allKbd.some(kbd => kbd.textContent === '...')).toBe(true);
       expect(allKbd.some(kbd => kbd.textContent === 'Esc')).toBe(true);
     });
 

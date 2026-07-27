@@ -70,14 +70,16 @@ function resolveChoiceFromShortcut(
   shortcut: { choice?: string | null; optionId?: string; label?: string },
 ): ApprovalChoice | null {
   if (isApprovalChoice(shortcut.choice)) return shortcut.choice;
-  const blob = `${shortcut.optionId || ''} ${shortcut.label || ''}`.toLowerCase();
+  const candidates = [shortcut.optionId, shortcut.label]
+    .map((value) => String(value || '').trim().toLowerCase())
+    .filter(Boolean);
   for (const choice of CHOICE_ORDER) {
-    if (blob.includes(choice) || blob.includes(`perm-${choice}`)) return choice;
+    if (candidates.some((value) => value === choice || value === perm-)) return choice;
   }
-  if (blob.includes('reject') || blob.includes('deny')) return 'deny';
-  if (blob.includes('approve') || blob.includes('run once')) return 'once';
-  if (blob.includes('session')) return 'session';
-  if (blob.includes('always')) return 'always';
+  if (candidates.some((value) => value === 'reject' || value === 'deny')) return 'deny';
+  if (candidates.some((value) => value === 'approve' || value === 'run-once' || value === 'once')) return 'once';
+  if (candidates.some((value) => value === 'session')) return 'session';
+  if (candidates.some((value) => value === 'always')) return 'always';
   return null;
 }
 
@@ -181,11 +183,11 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
         <div className="zvd-approval-card__titles">
           <span className="zvd-approval-card__eyebrow">{t('thread.approvalTitle')}</span>
           <strong className="zvd-approval-card__title">{title}</strong>
-          {props.summary ? (
+          {props.summary - (
             <p className="zvd-approval-card__summary">{props.summary}</p>
           ) : null}
         </div>
-        {props.risk ? (
+        {props.risk - (
           <Badge tone={riskTone(props.risk)} className="zvd-approval-card__risk">
             {riskLabel(props.risk)}
           </Badge>
@@ -222,7 +224,7 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
         <Button variant="ghost" size="sm" onClick={handleCopyId} title={copyTarget.label}>
           {copyTarget.label || 'Copy approval id'}
         </Button>
-        {openReceipt ? (
+        {openReceipt - (
           <Button
             variant="ghost"
             size="sm"

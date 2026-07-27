@@ -1,22 +1,17 @@
 """
-Mnemos Cognitive Engine — MCP Server (Model Context Protocol)
+Zavorth local memory engine.
 
-Motor de Memória Local do Zavorth.
-Expõe tools de busca semântica, varredura de metadados e indexação de arquivos
-via protocolo MCP sobre Standard I/O (stdin/stdout).
+Exposes semantic search, metadata scanning, and file indexing tools over MCP.
 
-O Zavorth Core (Node.js) consome este servidor como um child process,
-registrando automaticamente as tools no ToolRegistry do agente.
+Architecture:
+  - ChromaDB: local vector database.
+  - SentenceTransformers: lightweight local model for vector generation.
+  - Watchdog: asynchronous sentinel for automatic vault indexing.
 
-Arquitetura:
-  - ChromaDB: Banco vetorial local para armazenamento de embeddings.
-  - SentenceTransformers: Modelo local leve para geração de vetores.
-  - Watchdog: Sentinela assíncrona para indexação automática do cofre.
-
-Segurança:
-  - Este servidor roda em container Docker isolado.
-  - Os diretórios de varredura são montados como volumes READ-ONLY.
-  - Nenhum arquivo do host é acessado sem autorização explícita do usuário.
+Security:
+  - This server runs in an isolated Docker container.
+  - Scan directories are mounted as READ-ONLY volumes.
+  - No host file is accessed without explicit user authorization.
 """
 
 import os
@@ -36,7 +31,7 @@ from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
 # ---------------------------------------------------------------------------
-# Configuração
+# Configuration
 # ---------------------------------------------------------------------------
 
 CHROMA_DB_DIR = os.environ.get("MNEMOS_CHROMA_DB_DIR", "/app/data/vector_db")
@@ -49,12 +44,12 @@ MAX_RESULTS = int(os.environ.get("MNEMOS_MAX_RESULTS", "10"))
 logging.basicConfig(
     level=logging.INFO,
     format="[Mnemos] %(asctime)s %(levelname)s %(message)s",
-    stream=sys.stderr,  # Importante: logs vão pra stderr, stdout é reservado pro MCP
+    stream=sys.stderr,  # stdout is reserved for MCP
 )
 logger = logging.getLogger("mnemos")
 
 # ---------------------------------------------------------------------------
-# Motor Vetorial (Lazy-loaded para economia de RAM)
+# Motor Vetorial (Lazy-loaded para saving de RAM)
 # ---------------------------------------------------------------------------
 
 _chroma_client = None
@@ -72,9 +67,9 @@ def _get_embedding_function():
             _embedding_function = SentenceTransformerEmbeddingFunction(
                 model_name=EMBEDDING_MODEL,
             )
-            logger.info("Modelo de embedding carregado com sucesso.")
+            logger.info("Modelo de embedding loaded com success.")
         except Exception as e:
-            logger.error(f"Falha ao carregar modelo de embedding: {e}")
+            logger.error(f"Failed to load embedding model: {e}")
             raise
     return _embedding_function
 
@@ -96,13 +91,13 @@ def _get_collection():
             metadata={"hnsw:space": "cosine"},
         )
         logger.info(
-            f"Collection 'mnemos_vault' pronta. Documentos atuais: {_chroma_collection.count()}"
+            f"Collection 'mnemos_vault' ready. Documents current: {_chroma_collection.count()}"
         )
     return _chroma_collection
 
 
 # ---------------------------------------------------------------------------
-# Extração de Texto
+# Text extraction
 # ---------------------------------------------------------------------------
 
 TEXT_EXTENSIONS = {
@@ -150,13 +145,13 @@ def _is_relative_to(candidate: Path, root: Path) -> bool:
 def _resolve_authorized_file(file_path: str) -> tuple[Optional[Path], Optional[dict[str, Any]]]:
     raw = str(file_path or "").strip()
     if not raw:
-        return None, {"status": "error", "error": "Caminho do arquivo nao especificado."}
+        return None, {"status": "error", "error": "File path was not specified."}
     fp = _safe_resolve_path(raw)
     roots = _authorized_roots()
     if not roots or not any(_is_relative_to(fp, root) for root in roots):
         return None, {
             "status": "blocked",
-            "error": "Arquivo fora dos volumes autorizados do Mnemos.",
+            "error": "File is outside authorized Mnemos volumes.",
             "file_name": Path(raw).name,
             "allowed_roots": [str(root) for root in roots],
             "indexable_text": "",
@@ -164,7 +159,7 @@ def _resolve_authorized_file(file_path: str) -> tuple[Optional[Path], Optional[d
     if not fp.exists() or not fp.is_file():
         return None, {
             "status": "error",
-            "error": f"Arquivo nao encontrado: {Path(raw).name}",
+            "error": f"File not found: {Path(raw).name}",
             "file_name": Path(raw).name,
             "indexable_text": "",
         }
@@ -172,7 +167,7 @@ def _resolve_authorized_file(file_path: str) -> tuple[Optional[Path], Optional[d
 
 
 def _extract_text(file_path: str) -> Optional[str]:
-    """Extrai texto de um arquivo, suportando texto puro e PDFs."""
+    """Extracts text from a file, supporting plain text and PDFs."""
     fp, error = _resolve_authorized_file(file_path)
     if error or fp is None:
         return None
@@ -183,13 +178,13 @@ def _extract_text(file_path: str) -> Optional[str]:
         try:
             return fp.read_text(encoding="utf-8", errors="replace")
         except Exception as e:
-            logger.warning(f"Falha ao ler texto de {file_path}: {e}")
+            logger.warning(f"Failed to read text from {file_path}: {e}")
             return None
 
     if ext in PDF_EXTENSIONS:
         try:
             import subprocess
-            # Usa pdftotext se disponível no container
+            # Use pdftotext when available in the container.
             result = subprocess.run(
                 ["pdftotext", file_path, "-"],
                 capture_output=True, text=True, timeout=30,
@@ -199,7 +194,7 @@ def _extract_text(file_path: str) -> Optional[str]:
         except FileNotFoundError:
             pass
         except Exception as e:
-            logger.warning(f"Falha pdftotext em {file_path}: {e}")
+            logger.warning(f"pdftotext failed for {file_path}: {e}")
 
         # Fallback: pypdf
         try:
@@ -423,7 +418,7 @@ def _extract_image_ocr(fp: Path, parts: list[dict[str, Any]], extractors: list[s
 def _build_universal_understanding(file_path: str) -> dict[str, Any]:
     fp, error = _resolve_authorized_file(file_path)
     if error or fp is None:
-        return error or {"status": "error", "error": "Arquivo nao autorizado.", "indexable_text": ""}
+        return error or {"status": "error", "error": "File is not authorized.", "indexable_text": ""}
 
     ext = fp.suffix.lower()
     document_type = _classify_document_type(ext)
@@ -526,7 +521,7 @@ def _build_universal_understanding(file_path: str) -> dict[str, Any]:
 
 
 def _chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str]:
-    """Divide texto em chunks com sobreposição para melhor recall na busca."""
+    """Splits text into overlapping chunks for better search recall."""
     if len(text) <= chunk_size:
         return [text]
 
@@ -543,7 +538,7 @@ def _chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str
 
 
 # ---------------------------------------------------------------------------
-# Servidor MCP
+# server MCP
 # ---------------------------------------------------------------------------
 
 server = Server("mnemos-cognitive-engine")
@@ -551,26 +546,25 @@ server = Server("mnemos-cognitive-engine")
 
 @server.list_tools()
 async def list_tools() -> list[Tool]:
-    """Declara ao Zavorth quais ferramentas o Mnemos oferece."""
+    """Declares the tools Mnemos exposes to Zavorth."""
     return [
         Tool(
             name="search_memory",
             description=(
-                "Pesquisa o banco de memória vetorial local do Mnemos por "
-                "fragmentos de conhecimento semanticamente relevantes à query. "
-                "Use para buscar anotações, trechos de PDFs, e conteúdos "
-                "previamente indexados pelo usuário. [Estágio 1 - Zona Quente]"
+                "Searches the local Mnemos vector memory database for "
+                "knowledge fragments semantically relevant to the query. "
+                "Use it to find notes, PDF excerpts, and content previously indexed by the user."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "query": {
                         "type": "string",
-                        "description": "A pergunta ou frase de busca semântica.",
+                        "description": "The semantic search question or phrase.",
                     },
                     "limit": {
                         "type": "integer",
-                        "description": "Quantidade máxima de resultados.",
+                        "description": "Maximum number of results.",
                         "default": 5,
                     },
                 },
@@ -580,10 +574,8 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="scan_local_metadata",
             description=(
-                "Varre os diretórios autorizados pelo usuário procurando arquivos "
-                "cujo nome contenha as palavras-chave fornecidas. Busca leve por "
-                "metadados, sem ler o conteúdo dos arquivos. Ideal quando a busca "
-                "vetorial não encontrar nada. [Estágio 2 - Radar Leve]"
+                "Scans user-authorized directories for files whose names contain "
+                "the provided keywords. Lightweight metadata search without reading file contents."
             ),
             inputSchema={
                 "type": "object",
@@ -591,12 +583,12 @@ async def list_tools() -> list[Tool]:
                     "keywords": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "Lista de palavras-chave para filtrar nomes de arquivos.",
+                        "description": "List of keywords for filtering file names.",
                     },
                     "extensions": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "Extensões de arquivo opcionais para filtrar (ex: ['.pdf', '.docx']).",
+                        "description": "Optional file extensions to filter, for example ['.pdf', '.docx'].",
                     },
                 },
                 "required": ["keywords"],
@@ -605,21 +597,20 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="index_file",
             description=(
-                "Lê, extrai texto e indexa um arquivo específico no banco vetorial. "
-                "Use após o usuário confirmar que deseja indexar um arquivo encontrado "
-                "pelo scan de metadados. [Estágio 3 - Indexação sob demanda]"
+                "Reads, extracts text, and indexes a specific file in the vector database. "
+                "Use after the user confirms they want to index a file found by metadata scan."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "file_path": {
                         "type": "string",
-                        "description": "Caminho absoluto do arquivo a indexar (dentro dos volumes montados).",
+                        "description": "Absolute path of the file to index inside mounted volumes.",
                     },
                     "tags": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "Tags opcionais para categorizar o documento.",
+                        "description": "Optional tags for categorizing the document.",
                     },
                 },
                 "required": ["file_path"],
@@ -628,19 +619,18 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="understand_file",
             description=(
-                "Analisa um arquivo autorizado com o pipeline Mnemos Universal File Understanding "
-                "sem indexar: texto, PDF, OCR, DOCX, XLSX, PPTX, imagem, tabelas e recibo de limites."
+                "Analyzes an authorized file with the Mnemos Universal File Understanding pipeline without indexing: text, PDF, OCR, DOCX, XLSX, PPTX, image, tables, and limit receipt."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "file_path": {
                         "type": "string",
-                        "description": "Caminho absoluto do arquivo dentro dos volumes autorizados.",
+                        "description": "Absolute file path inside authorized volumes.",
                     },
                     "include_text": {
                         "type": "boolean",
-                        "description": "Se true, inclui o texto extraido completo. Default false.",
+                        "description": "If true, includes the full extracted text. Default false.",
                         "default": False,
                     },
                 },
@@ -650,8 +640,7 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="vault_status",
             description=(
-                "Retorna estatísticas do cofre de memória: quantidade de documentos "
-                "indexados, espaço em disco, diretórios monitorados, etc."
+                "Returns memory vault statistics: indexed document count, disk space, monitored directories, and related status."
             ),
             inputSchema={
                 "type": "object",
@@ -661,18 +650,18 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="delete_memory",
             description=(
-                "Remove um documento específico do banco vetorial por ID ou nome de arquivo."
+                "Removes a specific document from the vector database by ID or source file name."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "document_id": {
                         "type": "string",
-                        "description": "ID do documento no banco vetorial.",
+                        "description": "Document ID in the vector database.",
                     },
                     "source_file": {
                         "type": "string",
-                        "description": "Nome do arquivo fonte para remover todos os chunks associados.",
+                        "description": "Source file name used to remove all associated chunks.",
                     },
                 },
             },
@@ -682,7 +671,7 @@ async def list_tools() -> list[Tool]:
 
 @server.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[TextContent]:
-    """Roteia a chamada para a implementação correta da tool."""
+    """Routes the call to the correct tool implementation."""
     try:
         if name == "search_memory":
             return await _handle_search_memory(arguments)
@@ -697,31 +686,31 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         elif name == "delete_memory":
             return await _handle_delete_memory(arguments)
         else:
-            return [TextContent(type="text", text=f"Tool desconhecida: {name}")]
+            return [TextContent(type="text", text=f"Unknown tool: {name}")]
     except Exception as e:
-        logger.error(f"Erro ao executar tool '{name}': {e}", exc_info=True)
-        return [TextContent(type="text", text=f"Erro interno no Mnemos: {str(e)}")]
+        logger.error(f"Error executing tool '{name}': {e}", exc_info=True)
+        return [TextContent(type="text", text=f"Internal Mnemos error: {str(e)}")]
 
 
 # ---------------------------------------------------------------------------
-# Implementação das Tools
+# Tool implementations
 # ---------------------------------------------------------------------------
 
 
 async def _handle_search_memory(args: dict) -> list[TextContent]:
-    """Estágio 1: Busca semântica no banco vetorial."""
+    """Semantic search in the vector database."""
     query = str(args.get("query", "")).strip()
     limit = int(args.get("limit", 5))
 
     if not query:
-        return [TextContent(type="text", text=json.dumps({"error": "Query vazia."}))]
+        return [TextContent(type="text", text=json.dumps({"error": "Empty query."}))]
 
     collection = _get_collection()
     if collection.count() == 0:
         return [TextContent(type="text", text=json.dumps({
             "hits": [],
             "total_documents": 0,
-            "message": "O cofre está vazio. Nenhum documento foi indexado ainda.",
+            "message": "The vault is empty. No document has been indexed yet.",
         }))]
 
     results = collection.query(
@@ -745,21 +734,21 @@ async def _handle_search_memory(args: dict) -> list[TextContent]:
     response = {
         "hits": hits,
         "total_documents": collection.count(),
-        "message": f"Encontrados {len(hits)} fragmentos relevantes." if hits else "Nenhum resultado encontrado no cofre.",
+        "message": f"Found {len(hits)} relevant fragment(s)." if hits else "No result found in the vault.",
     }
 
     return [TextContent(type="text", text=json.dumps(response, ensure_ascii=False))]
 
 
 async def _handle_scan_local_metadata(args: dict) -> list[TextContent]:
-    """Estágio 2: Varredura leve de metadados nos diretórios autorizados."""
+    """Lightweight metadata scan in authorized directories."""
     keywords = args.get("keywords", [])
     extensions = args.get("extensions", [])
 
     if not keywords:
-        return [TextContent(type="text", text=json.dumps({"error": "Nenhuma keyword fornecida."}))]
+        return [TextContent(type="text", text=json.dumps({"error": "No keyword provided."}))]
 
-    # Normaliza keywords e extensões
+    # Normalize keywords and extensions.
     keywords_lower = [kw.lower() for kw in keywords]
     extensions_lower = [ext.lower() if ext.startswith(".") else f".{ext.lower()}" for ext in extensions]
 
@@ -770,10 +759,10 @@ async def _handle_scan_local_metadata(args: dict) -> list[TextContent]:
         return [TextContent(type="text", text=json.dumps({
             "results": [],
             "scanned_path": str(scan_base),
-            "message": "Nenhum diretório de scan autorizado está montado.",
+            "message": "No authorized scan directory is mounted.",
         }))]
 
-    # Varredura com profundidade limitada
+    # Scan with bounded depth.
     def scan_dir(directory: Path, depth: int = 0):
         if depth > MAX_SCAN_DEPTH:
             return
@@ -781,10 +770,10 @@ async def _handle_scan_local_metadata(args: dict) -> list[TextContent]:
             for entry in directory.iterdir():
                 if entry.is_file():
                     name_lower = entry.name.lower()
-                    # Filtra por extensão se especificada
+                    # Filter by extension when specified.
                     if extensions_lower and entry.suffix.lower() not in extensions_lower:
                         continue
-                    # Match por keyword no nome do arquivo
+                    # Match by keyword in the file name.
                     if any(kw in name_lower for kw in keywords_lower):
                         found_files.append({
                             "name": entry.name,
@@ -795,7 +784,7 @@ async def _handle_scan_local_metadata(args: dict) -> list[TextContent]:
                 elif entry.is_dir() and not entry.name.startswith("."):
                     scan_dir(entry, depth + 1)
         except PermissionError:
-            pass  # Silenciosamente ignora diretórios sem permissão
+            pass  # Silently ignore directories without permission.
 
     scan_dir(scan_base)
 
@@ -803,14 +792,14 @@ async def _handle_scan_local_metadata(args: dict) -> list[TextContent]:
         "results": found_files[:MAX_RESULTS],
         "total_found": len(found_files),
         "scanned_path": str(scan_base),
-        "message": f"Encontrados {len(found_files)} arquivo(s) correspondentes." if found_files else "Nenhum arquivo encontrado nos diretórios autorizados.",
+        "message": f"Found {len(found_files)} matching file(s)." if found_files else "No file found in authorized directories.",
     }
 
     return [TextContent(type="text", text=json.dumps(response, ensure_ascii=False))]
 
 
 async def _handle_understand_file(args: dict) -> list[TextContent]:
-    """Previa Universal File Understanding sem indexar."""
+    """Preview Universal File Understanding without indexing."""
     file_path = str(args.get("file_path", "")).strip()
     include_text = bool(args.get("include_text", False))
 
@@ -823,7 +812,7 @@ async def _handle_understand_file(args: dict) -> list[TextContent]:
 
 
 async def _handle_index_file(args: dict) -> list[TextContent]:
-    """Estágio 3: Indexação de arquivo no banco vetorial."""
+    """File indexing in the vector database."""
     file_path = str(args.get("file_path", "")).strip()
     tags = args.get("tags", [])
 
@@ -831,7 +820,7 @@ async def _handle_index_file(args: dict) -> list[TextContent]:
     if path_error or fp is None:
         return [TextContent(type="text", text=json.dumps(path_error, ensure_ascii=False))]
 
-    # Extrai texto
+    # Text extraction
     understanding = _build_universal_understanding(str(fp))
     if understanding.get("status") == "error":
         return [TextContent(type="text", text=json.dumps({
@@ -842,18 +831,18 @@ async def _handle_index_file(args: dict) -> list[TextContent]:
     text = str(understanding.get("indexable_text") or "")
     if not text or not text.strip():
         return [TextContent(type="text", text=json.dumps({
-            "error": f"Não foi possível extrair texto do arquivo: {fp.name}",
+            "error": f"Could not extract text from file: {fp.name}",
             "extension": fp.suffix,
             "understanding_receipt": understanding.get("receipt"),
             "warnings": understanding.get("warnings", []),
         }))]
 
-    # Divide em chunks
+    # Split into chunks
     chunks = _chunk_text(text)
     if not chunks:
-        return [TextContent(type="text", text=json.dumps({"error": "Nenhum chunk de texto gerado."}))]
+        return [TextContent(type="text", text=json.dumps({"error": "No text chunk was generated."}))]
 
-    # Indexa no ChromaDB
+    # Index in ChromaDB
     collection = _get_collection()
 
     source_hash = hashlib.sha256(file_path.encode("utf-8")).hexdigest()[:10]
@@ -873,14 +862,14 @@ async def _handle_index_file(args: dict) -> list[TextContent]:
         "confidence": str(understanding.get("confidence", 0.0)),
     } for i in range(len(chunks))]
 
-    # Upsert para permitir re-indexação
+    # Upsert to allow re-indexing
     collection.upsert(
         ids=ids,
         documents=chunks,
         metadatas=metadatas,
     )
 
-    logger.info(f"Arquivo indexado: {fp.name} ({len(chunks)} chunks)")
+    logger.info(f"Indexed file: {fp.name} ({len(chunks)} chunks)")
 
     response = {
         "status": "success",
@@ -892,21 +881,21 @@ async def _handle_index_file(args: dict) -> list[TextContent]:
         "extractors": understanding.get("extractors", []),
         "capabilities": understanding.get("capabilities", {}),
         "warnings": understanding.get("warnings", []),
-        "message": f"'{fp.name}' indexado com sucesso ({len(chunks)} fragmentos).",
+        "message": f"'{fp.name}' indexed successfully ({len(chunks)} fragments).",
     }
 
     return [TextContent(type="text", text=json.dumps(response, ensure_ascii=False))]
 
 
 async def _handle_vault_status(args: dict) -> list[TextContent]:
-    """Retorna estatísticas do cofre de memória."""
+    """Returns memory vault statistics."""
     collection = _get_collection()
 
-    # Calcula espaço em disco do DB
+    # Calculate DB disk usage
     db_path = Path(CHROMA_DB_DIR)
     db_size = sum(f.stat().st_size for f in db_path.rglob("*") if f.is_file()) if db_path.exists() else 0
 
-    # Verifica volumes montados
+    # Check mounted volumes
     scan_base = Path(SCAN_VOLUMES_BASE)
     mounted_volumes = []
     if scan_base.exists():
@@ -939,12 +928,12 @@ async def _handle_vault_status(args: dict) -> list[TextContent]:
 
 
 async def _handle_delete_memory(args: dict) -> list[TextContent]:
-    """Remove documentos do banco vetorial."""
+    """Removes documents from the vector database."""
     document_id = str(args.get("document_id", "")).strip()
     source_file = str(args.get("source_file", "")).strip()
 
     if not document_id and not source_file:
-        return [TextContent(type="text", text=json.dumps({"error": "Especifique document_id ou source_file."}))]
+        return [TextContent(type="text", text=json.dumps({"error": "Specify document_id or source_file."}))]
 
     collection = _get_collection()
 
@@ -954,13 +943,13 @@ async def _handle_delete_memory(args: dict) -> list[TextContent]:
             return [TextContent(type="text", text=json.dumps({
                 "status": "success",
                 "deleted_id": document_id,
-                "message": f"Documento '{document_id}' removido do cofre.",
+                "message": f"Document '{document_id}' removed from the vault.",
             }))]
         except Exception as e:
             return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
 
     if source_file:
-        # Busca todos os chunks desse arquivo fonte
+        # Find all chunks for this source file
         results = collection.get(
             where={"source": source_file},
             include=["metadatas"],
@@ -971,23 +960,23 @@ async def _handle_delete_memory(args: dict) -> list[TextContent]:
                 "status": "success",
                 "source_file": source_file,
                 "chunks_deleted": len(results["ids"]),
-                "message": f"Todos os {len(results['ids'])} chunks de '{source_file}' foram removidos.",
+                "message": f"All {len(results['ids'])} chunks from '{source_file}' were removed.",
             }))]
         else:
             return [TextContent(type="text", text=json.dumps({
                 "status": "not_found",
                 "source_file": source_file,
-                "message": f"Nenhum chunk encontrado para o arquivo '{source_file}'.",
+                "message": f"No chunk found for file '{source_file}'.",
             }))]
 
 
 # ---------------------------------------------------------------------------
-# Entrypoint
+# Entry point
 # ---------------------------------------------------------------------------
 
 async def main():
-    """Inicializa o servidor MCP via stdin/stdout."""
-    logger.info("Iniciando Mnemos Cognitive Engine (MCP Server)...")
+    """Initializes the MCP server through stdin/stdout."""
+    logger.info("Starting Mnemos Cognitive Engine (MCP Server)...")
     logger.info(f"ChromaDB dir: {CHROMA_DB_DIR}")
     logger.info(f"Scan volumes: {SCAN_VOLUMES_BASE}")
     logger.info(f"Embedding model: {EMBEDDING_MODEL}")

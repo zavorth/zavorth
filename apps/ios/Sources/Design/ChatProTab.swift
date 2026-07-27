@@ -1,24 +1,24 @@
-﻿import ZavorthChatUI
+import ZavorthChatUI
 import ZavorthProtocol
 import SwiftUI
 
 struct ChatProTab: View {
     @Environment(NodeAppModel.self) private var appModel
     @Environment(\.colorScheme) private var colorScheme
-    @State private var viewModel: ZavorthChatViewModel?
+    @State private var viewModel: ZavorthChatViewModel...
     @State private var viewModelTransportModeID = ""
-    let headerLeadingAction: ZavorthSidebarHeaderAction?
-    let headerTitle: String?
-    let headerSubtitle: String?
+    let headerLeadingAction: ZavorthSidebarHeaderAction...
+    let headerTitle: String...
+    let headerSubtitle: String...
     let showsAgentBadge: Bool
-    let openSettings: (() -> Void)?
+    let openSettings: (() -> Void)...
 
     init(
-        headerLeadingAction: ZavorthSidebarHeaderAction? = nil,
-        headerTitle: String? = nil,
-        headerSubtitle: String? = nil,
+        headerLeadingAction: ZavorthSidebarHeaderAction... = nil,
+        headerTitle: String... = nil,
+        headerSubtitle: String... = nil,
         showsAgentBadge: Bool = true,
-        openSettings: (() -> Void)? = nil)
+        openSettings: (() -> Void)... = nil)
     {
         self.headerLeadingAction = headerLeadingAction
         self.headerTitle = headerTitle
@@ -280,7 +280,7 @@ struct ChatProTab: View {
         self.colorScheme == .light ? ZavorthBrand.info : ZavorthBrand.accent
     }
 
-    private var activeAgent: AgentSummary? {
+    private var activeAgent: AgentSummary... {
         self.appModel.gatewayAgents.first { $0.id == self.activeAgentID }
     }
 
@@ -290,7 +290,7 @@ struct ChatProTab: View {
 
     private var agentBadge: String {
         if let identity = self.activeAgent?.identity,
-           let emoji = identity["emoji"]?.value as? String,
+           let emoji = identity["emoji"]?.value as... String,
            let normalizedEmoji = self.normalized(emoji)
         {
             return normalizedEmoji
@@ -305,7 +305,7 @@ struct ChatProTab: View {
         return "OC"
     }
 
-    private func normalized(_ value: String?) -> String? {
+    private func normalized(_ value: String...) -> String... {
         guard let value else { return nil }
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed

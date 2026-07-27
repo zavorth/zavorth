@@ -202,7 +202,7 @@ async function translateAndCacheKey(key: string, englishText: string, targetLang
     const translatedText = await remoteTranslator(key, englishText, targetLang);
     if (translatedText && translatedText.trim()) {
       const cleanText = translatedText.trim();
-      
+
       // Update in memory
       if (!dictionaries[targetLang]) {
         dictionaries[targetLang] = {

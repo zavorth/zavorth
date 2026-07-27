@@ -32,7 +32,7 @@ export type DashboardSector = {
 
 export const DASHBOARD_SURFACE_VERSION = 'zavorth-control-surface/2026-07-12';
 
-/** Phase 8 / 8.1 / 8.2 — sectors rendered as React SSR islands in the Vite shell. */
+/** Dashboard sectors rendered as React SSR islands in the Vite shell. */
 export const DASHBOARD_REACT_ISLAND_SECTOR_IDS = [
   'overview',
   'sales-os',

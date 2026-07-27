@@ -62,8 +62,7 @@ export function skillFromOption(option: Element | null): ComposerSkill | null {
 }
 
 export function promptForSkill(skill: ComposerSkill) {
-  return skill.prompt
-    ? `Use ${skill.title}: ${skill.prompt}`
+  return skill.prompt ? `Use ${skill.title}: ${skill.prompt}`
     : `Use ${skill.title} for this request.`;
 }
 

@@ -31,10 +31,10 @@ internal object NodePresenceAliveBeacon {
    * Minimal gateway response fields used to decide whether a liveness event was accepted.
    */
   data class ResponsePayload(
-    val ok: Boolean?,
-    val event: String?,
-    val handled: Boolean?,
-    val reason: String?,
+    val ok: Boolean...,
+    val event: String...,
+    val handled: Boolean...,
+    val reason: String...,
   )
 
   private val json = Json { ignoreUnknownKeys = true }
@@ -42,7 +42,7 @@ internal object NodePresenceAliveBeacon {
   /** Skips sends after a recent successful presence update. */
   fun shouldSkipRecentSuccess(
     nowMs: Long,
-    lastSuccessAtMs: Long?,
+    lastSuccessAtMs: Long...,
     minIntervalMs: Long = MIN_SUCCESS_INTERVAL_MS,
   ): Boolean {
     val last = lastSuccessAtMs ?: return false
@@ -68,9 +68,9 @@ internal object NodePresenceAliveBeacon {
     displayName: String,
     version: String,
     platform: String,
-    deviceFamily: String?,
-    modelIdentifier: String?,
-    pushTransport: String? = null,
+    deviceFamily: String...,
+    modelIdentifier: String...,
+    pushTransport: String... = null,
   ): String =
     buildJsonObject {
       put("trigger", JsonPrimitive(trigger.rawValue))
@@ -84,7 +84,7 @@ internal object NodePresenceAliveBeacon {
     }.toString()
 
   /** Parses the gateway response while rejecting empty, oversized, or malformed payloads. */
-  fun decodeResponse(payloadJson: String?): ResponsePayload? {
+  fun decodeResponse(payloadJson: String...): ResponsePayload... {
     val raw = payloadJson?.trim()?.takeIf { it.isNotEmpty() } ?: return null
     // Bound log/IPC responses before JSON parsing to avoid memory spikes from
     // malformed gateway replies.
@@ -104,7 +104,7 @@ internal object NodePresenceAliveBeacon {
   }
 
   /** Sanitizes gateway response reasons before writing them into Android logs. */
-  fun sanitizeReasonForLog(raw: String?): String {
+  fun sanitizeReasonForLog(raw: String...): String {
     val value = raw?.trim()?.takeIf { it.isNotEmpty() } ?: "unsupported"
     return value
       .map { ch -> if (ch.isISOControl()) ' ' else ch }

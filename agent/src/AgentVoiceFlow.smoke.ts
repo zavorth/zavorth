@@ -36,7 +36,7 @@ async function smokeOnlineVoiceFlow(): Promise<void> {
     recorder: {
       record: async () => {
         events.push('online:record');
-        fs.writeFileSync(audioPath, 'fake audio');
+        fs.writeFileSync(audioPath, 'sample audio');
         return audioPath;
       },
       cleanup: (filePath) => {
@@ -120,7 +120,7 @@ async function smokeOnlineVoiceFlow(): Promise<void> {
       speak: async (text) => {
         events.push('online:tts');
         assert.equal(text, 'Approval pending to turn on the light.');
-        fs.writeFileSync(ttsPath, 'fake tts');
+        fs.writeFileSync(ttsPath, 'sample tts');
         return ttsPath;
       },
       cleanup: (filePath) => {
@@ -171,7 +171,7 @@ async function smokeConnectionFallbackFlow(): Promise<void> {
 
   const offlineResult = await offlineClient.processIntent('agent offline test', 'VOICE');
   assert.equal(offlineResult.success, false);
-  assert.match(offlineResult.response, /Falha de conexao|demorou demais|Connection with backend|took too long/i);
+  assert.match(offlineResult.response, /Connection failure|took too long|Connection with backend|took too long/i);
 
   const audioPath = path.join(os.tmpdir(), `zavorth-agent-offline-${process.pid}-${Date.now()}.wav`);
   let cleanedAudio = false;
@@ -181,7 +181,7 @@ async function smokeConnectionFallbackFlow(): Promise<void> {
     recorder: {
       record: async () => {
         events.push('offline:record');
-        fs.writeFileSync(audioPath, 'fake offline audio');
+        fs.writeFileSync(audioPath, 'sample offline audio');
         return audioPath;
       },
       cleanup: (filePath) => {
@@ -280,7 +280,7 @@ async function smokeCloudVoiceFallbackFlow(): Promise<void> {
         assert.equal(body.requestedBy, 'zavorth-agent-voice-smoke');
         assert.equal(body.sessionId, 'agent-voice-session');
       }
-      return new Response(Buffer.from('fake cloud audio'), {
+      return new Response(Buffer.from('sample cloud audio'), {
         status: 200,
         headers: { 'content-type': 'audio/wav' },
       });
@@ -316,7 +316,7 @@ async function smokeCloudVoiceFallbackFlow(): Promise<void> {
     recorder: {
       record: async () => {
         events.push('cloud:record');
-        fs.writeFileSync(audioPath, 'fake cloud audio');
+        fs.writeFileSync(audioPath, 'sample cloud audio');
         return audioPath;
       },
       cleanup: (filePath) => {

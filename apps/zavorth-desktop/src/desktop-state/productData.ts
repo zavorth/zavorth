@@ -261,8 +261,7 @@ export function mapToolsToPlugins(tools: ToolItem[]): PluginItem[] {
       const name = String(tool.title || tool.name || id).trim();
       if (!id || !name) return null;
       const statusText = String(tool.status || '').toLowerCase();
-      const status: PluginStatus = statusText.includes('install') || statusText.includes('ready') || statusText.includes('trusted')
-        ? 'installed'
+      const status: PluginStatus = statusText.includes('install') || statusText.includes('ready') || statusText.includes('trusted') ? 'installed'
         : 'available';
       return {
         id,

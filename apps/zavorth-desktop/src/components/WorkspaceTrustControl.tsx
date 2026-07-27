@@ -135,8 +135,7 @@ export function WorkspaceTrustControl({
       </div>
 
       <p style={{ color: '#888', margin: '0 0 12px 0', fontSize: '11px', lineHeight: '1.4' }}>
-        {trusted 
-          ? 'Zavorth is allowed to run low/medium-risk commands automatically in this folder according to options below.'
+        {trusted ? 'Zavorth is allowed to run low/medium-risk commands automatically in this folder according to options below.'
           : 'Zavorth runs commands in Restricted Mode. Every execution requires manual approval.'
         }
       </p>

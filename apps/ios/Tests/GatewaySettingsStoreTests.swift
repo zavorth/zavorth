@@ -27,16 +27,16 @@ private let lastGatewayDefaultsKeys = [
 ]
 private let lastGatewayKeychainEntry = KeychainEntry(service: gatewayService, account: "lastConnection")
 
-private func snapshotDefaults(_ keys: [String]) -> [String: Any?] {
+private func snapshotDefaults(_ keys: [String]) -> [String: Any...] {
     let defaults = UserDefaults.standard
-    var snapshot: [String: Any?] = [:]
+    var snapshot: [String: Any...] = [:]
     for key in keys {
         snapshot[key] = defaults.object(forKey: key)
     }
     return snapshot
 }
 
-private func applyDefaults(_ values: [String: Any?]) {
+private func applyDefaults(_ values: [String: Any...]) {
     let defaults = UserDefaults.standard
     for (key, value) in values {
         if let value {
@@ -47,19 +47,19 @@ private func applyDefaults(_ values: [String: Any?]) {
     }
 }
 
-private func restoreDefaults(_ snapshot: [String: Any?]) {
+private func restoreDefaults(_ snapshot: [String: Any...]) {
     applyDefaults(snapshot)
 }
 
-private func snapshotKeychain(_ entries: [KeychainEntry]) -> [KeychainEntry: String?] {
-    var snapshot: [KeychainEntry: String?] = [:]
+private func snapshotKeychain(_ entries: [KeychainEntry]) -> [KeychainEntry: String...] {
+    var snapshot: [KeychainEntry: String...] = [:]
     for entry in entries {
         snapshot[entry] = KeychainStore.loadString(service: entry.service, account: entry.account)
     }
     return snapshot
 }
 
-private func applyKeychain(_ values: [KeychainEntry: String?]) {
+private func applyKeychain(_ values: [KeychainEntry: String...]) {
     for (entry, value) in values {
         if let value {
             _ = KeychainStore.saveString(value, service: entry.service, account: entry.account)
@@ -69,7 +69,7 @@ private func applyKeychain(_ values: [KeychainEntry: String?]) {
     }
 }
 
-private func restoreKeychain(_ snapshot: [KeychainEntry: String?]) {
+private func restoreKeychain(_ snapshot: [KeychainEntry: String...]) {
     applyKeychain(snapshot)
 }
 

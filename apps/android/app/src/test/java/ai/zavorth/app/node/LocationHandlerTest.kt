@@ -162,13 +162,13 @@ class LocationHandlerTest : NodeHandlerRobolectricTest() {
 private class FakeLocationDataSource(
   private val fineGranted: Boolean,
   private val coarseGranted: Boolean,
-  private val payload: LocationCaptureManager.Payload? = null,
-  private val failure: Throwable? = null,
+  private val payload: LocationCaptureManager.Payload... = null,
+  private val failure: Throwable... = null,
   private val timeout: Boolean = false,
 ) : LocationDataSource {
   var lastDesiredProviders: List<String> = emptyList()
-  var lastMaxAgeMs: Long? = null
-  var lastTimeoutMs: Long? = null
+  var lastMaxAgeMs: Long... = null
+  var lastTimeoutMs: Long... = null
   var lastIsPrecise: Boolean = false
 
   override fun hasFinePermission(context: Context): Boolean = fineGranted
@@ -177,7 +177,7 @@ private class FakeLocationDataSource(
 
   override suspend fun fetchLocation(
     desiredProviders: List<String>,
-    maxAgeMs: Long?,
+    maxAgeMs: Long...,
     timeoutMs: Long,
     isPrecise: Boolean,
   ): LocationCaptureManager.Payload {

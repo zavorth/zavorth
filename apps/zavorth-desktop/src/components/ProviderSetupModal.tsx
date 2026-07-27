@@ -100,12 +100,12 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
     try {
       // For a real test without saving first, we'd need to send the payload.
       // But the backend testConnection expects providerId.
-      // So testing before saving might fail if provider doesn't exist yet, 
+      // So testing before saving might fail if provider doesn't exist yet,
       // unless we save first. Let's enforce save first or allow test if providerId exists.
       if (!formData.providerId) {
         throw new Error('Please save the provider before testing the connection.');
       }
-      
+
       const res = await fetch('/api/v2/providers/test-connection', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -231,10 +231,10 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
                 <button
                   type="button"
                   onClick={async () => {
-                    if (!confirm('Deseja realmente remover a chave de API salva?')) return;
+                    if (!confirm('Deseja realmente remover a chave de API salva...')) return;
                     try {
                       const res = await fetch(`/api/v2/providers/${formData.providerId}/secret`, { method: 'DELETE' });
-                      if (!res.ok) throw new Error('Falha ao remover a chave');
+                      if (!res.ok) throw new Error('Failure ao remover a chave');
                       setFormData({ ...formData, configured: false, apiKey: '' });
                       alert('Key removed successfully. Status was updated to Missing.');
                     } catch (err: unknown) {
@@ -275,7 +275,7 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
               onClick={handleTest}
               disabled={testing || !formData.providerId}
               className="text-sm px-3 py-1.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-200 disabled:opacity-50 transition-colors"
-              title={!formData.providerId ? 'Salve o provider antes de testar' : ''}
+              title={!formData.providerId ? 'Salve o provider before testar' : ''}
             >
               {testing ? 'Testing...' : 'Test Connection'}
             </button>

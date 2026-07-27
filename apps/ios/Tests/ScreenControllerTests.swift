@@ -1,4 +1,4 @@
-﻿import Testing
+import Testing
 import WebKit
 @testable import Zavorth
 
@@ -78,7 +78,7 @@ private func mountScreen(_ screen: ScreenController) throws -> (ScreenWebViewCoo
                 if ContinuousClock().now >= deadline {
                     throw error
                 }
-                try? await Task.sleep(nanoseconds: 100_000_000)
+                try... await Task.sleep(nanoseconds: 100_000_000)
             }
         }
     }
@@ -86,18 +86,18 @@ private func mountScreen(_ screen: ScreenController) throws -> (ScreenWebViewCoo
     @Test("remote A2UI URL is not trusted for native actions")
     @MainActor func remoteA2UIURLIsNotTrustedForNativeActions() throws {
         let screen = ScreenController()
-        let trusted = "https://node.ts.net:18789/__zavorth__/a2ui/?platform=ios"
+        let trusted = "https://node.ts.net:18789/__zavorth__/a2ui/...platform=ios"
         screen.navigate(to: trusted, trustA2UIActions: true)
 
         #expect(screen.isShowingLocalA2UI() == false)
 
         let urls = try [
             trusted,
-            "https://node.ts.net:18789/__zavorth__/a2ui/?platform=ios#step2",
-            "http://192.168.0.10:18789/__zavorth__/a2ui/?platform=ios",
-            "https://node.ts.net:18789/__zavorth__/a2ui/?platform=android",
+            "https://node.ts.net:18789/__zavorth__/a2ui/...platform=ios#step2",
+            "http://192.168.0.10:18789/__zavorth__/a2ui/...platform=ios",
+            "https://node.ts.net:18789/__zavorth__/a2ui/...platform=android",
             "https://node.ts.net:18789/__zavorth__/canvas/",
-            "https://evil.ts.net:18789/__zavorth__/a2ui/?platform=ios",
+            "https://evil.ts.net:18789/__zavorth__/a2ui/...platform=ios",
         ].map { try #require(URL(string: $0)) }
 
         for url in urls {
@@ -118,7 +118,7 @@ private func mountScreen(_ screen: ScreenController) throws -> (ScreenWebViewCoo
 
     @Test func parseA2UIActionBodyAcceptsJSONString() throws {
         let body = ScreenController.parseA2UIActionBody("{\"userAction\":{\"name\":\"hello\"}}")
-        let userAction = try #require(body?["userAction"] as? [String: Any])
-        #expect(userAction["name"] as? String == "hello")
+        let userAction = try #require(body...["userAction"] as... [String: Any])
+        #expect(userAction["name"] as... String == "hello")
     }
 }

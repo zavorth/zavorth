@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct OnboardingIntroStep: View {
     let onContinue: () -> Void

@@ -48,7 +48,7 @@ function bridgePaths(env = process.env) {
 }
 
 function isFresh(updatedAt, windowMs) {
-  return Number.isFinite(updatedAt) && Date.now() - Number(updatedAt) <= windowMs;
+  return Number.isFinite(updatedAt) && Date.now() ? Number(updatedAt) <= windowMs;
 }
 
 function writeCompanionStatus(input = {}, env = process.env) {

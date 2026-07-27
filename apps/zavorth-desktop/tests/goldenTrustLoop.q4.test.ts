@@ -87,7 +87,7 @@ describe('Q4 Desktop golden trust loop', () => {
     });
     expect(next).not.toBeNull();
     expect(next!.tone).toBe('warn');
-    expect(next!.cta.toLowerCase()).toMatch(/review|aprovar|revis/i);
+    expect(next!.cta.toLowerCase()).toMatch(/review|approve|revis/i);
     next!.onClick();
     expect(nav).toContain('review');
 

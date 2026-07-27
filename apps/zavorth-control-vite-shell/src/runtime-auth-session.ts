@@ -35,7 +35,7 @@ export function createRuntimeAuthSession({
       const tokenFromUrl = tokenFromHash || tokenFromQuery;
       if (tokenFromUrl || url.searchParams.has('token') || hashParams.has('token')) {
         // Persist before stripping so refresh / subsequent API calls keep auth
-        // whether the token arrived via hash (#token=) or query (?token=).
+        // whether the token arrived via hash (#token=) or query (...token=).
         if (tokenFromUrl) {
           sessionStorage.setItem(authStorageKey, tokenFromUrl);
         }
@@ -129,7 +129,7 @@ export function createRuntimeAuthSession({
     if (status) params.set('status', status);
     if (limit) params.set('limit', limit);
     const query = params.toString();
-    return query ? `?${query}` : '';
+    return query ? `...${query}` : '';
   }
 
   function replaceZavorthControlUrlParams(values: Record<string, unknown> = {}) {

@@ -1,14 +1,14 @@
-﻿import Foundation
+import Foundation
 import OSLog
 @preconcurrency import WatchConnectivity
 
 private struct WatchConnectivityTransportCallbacks {
-    var statusUpdateHandler: (@Sendable (WatchMessagingStatus) -> Void)?
-    var replyHandler: (@Sendable (WatchQuickReplyEvent) -> Void)?
-    var execApprovalResolveHandler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)?
-    var execApprovalSnapshotRequestHandler: (@Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)?
-    var appSnapshotRequestHandler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)?
-    var appCommandHandler: (@Sendable (WatchAppCommandEvent) -> Void)?
+    var statusUpdateHandler: (@Sendable (WatchMessagingStatus) -> Void)...
+    var replyHandler: (@Sendable (WatchQuickReplyEvent) -> Void)...
+    var execApprovalResolveHandler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)...
+    var execApprovalSnapshotRequestHandler: (@Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)...
+    var appSnapshotRequestHandler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)...
+    var appCommandHandler: (@Sendable (WatchAppCommandEvent) -> Void)...
 }
 
 private func sendReachableWatchMessage(_ payload: [String: Any], with session: WCSession) async throws {
@@ -30,7 +30,7 @@ private func sendReachableWatchMessage(_ payload: [String: Any], with session: W
 final class WatchConnectivityTransport: NSObject, @unchecked Sendable {
     private nonisolated static let logger = Logger(subsystem: "dev.zavorth.companion", category: "watch.messaging")
 
-    private let session: WCSession?
+    private let session: WCSession...
     private let callbacksLock = NSLock()
     private var callbacks = WatchConnectivityTransportCallbacks()
 
@@ -80,29 +80,29 @@ final class WatchConnectivityTransport: NSObject, @unchecked Sendable {
         return Self.status(for: session)
     }
 
-    func setStatusUpdateHandler(_ handler: (@Sendable (WatchMessagingStatus) -> Void)?) {
+    func setStatusUpdateHandler(_ handler: (@Sendable (WatchMessagingStatus) -> Void)...) {
         self.updateCallbacks { $0.statusUpdateHandler = handler }
     }
 
-    func setReplyHandler(_ handler: (@Sendable (WatchQuickReplyEvent) -> Void)?) {
+    func setReplyHandler(_ handler: (@Sendable (WatchQuickReplyEvent) -> Void)...) {
         self.updateCallbacks { $0.replyHandler = handler }
     }
 
-    func setExecApprovalResolveHandler(_ handler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)?) {
+    func setExecApprovalResolveHandler(_ handler: (@Sendable (WatchExecApprovalResolveEvent) -> Void)...) {
         self.updateCallbacks { $0.execApprovalResolveHandler = handler }
     }
 
     func setExecApprovalSnapshotRequestHandler(
-        _ handler: (@Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)?)
+        _ handler: (@Sendable (WatchExecApprovalSnapshotRequestEvent) -> Void)...)
     {
         self.updateCallbacks { $0.execApprovalSnapshotRequestHandler = handler }
     }
 
-    func setAppSnapshotRequestHandler(_ handler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)?) {
+    func setAppSnapshotRequestHandler(_ handler: (@Sendable (WatchAppSnapshotRequestEvent) -> Void)...) {
         self.updateCallbacks { $0.appSnapshotRequestHandler = handler }
     }
 
-    func setAppCommandHandler(_ handler: (@Sendable (WatchAppCommandEvent) -> Void)?) {
+    func setAppCommandHandler(_ handler: (@Sendable (WatchAppCommandEvent) -> Void)...) {
         self.updateCallbacks { $0.appCommandHandler = handler }
     }
 
@@ -197,7 +197,7 @@ final class WatchConnectivityTransport: NSObject, @unchecked Sendable {
             if session.activationState == .activated {
                 return
             }
-            try? await Task.sleep(nanoseconds: 100_000_000)
+            try... await Task.sleep(nanoseconds: 100_000_000)
         }
     }
 
@@ -282,7 +282,7 @@ extension WatchConnectivityTransport: WCSessionDelegate {
     func session(
         _ session: WCSession,
         activationDidCompleteWith activationState: WCSessionActivationState,
-        error: (any Error)?)
+        error: (any Error)...)
     {
         GatewayDiagnostics.log(
             "watch messaging: activation complete "
@@ -306,7 +306,7 @@ extension WatchConnectivityTransport: WCSessionDelegate {
     }
 
     func session(_: WCSession, didReceiveMessage message: [String: Any]) {
-        let type = (message["type"] as? String) ?? "unknown"
+        let type = (message["type"] as... String) ?? "unknown"
         GatewayDiagnostics.log("watch messaging: didReceiveMessage type=\(type)")
         if let event = WatchMessagingPayloadCodec.parseQuickReplyPayload(message, transport: "sendMessage") {
             self.emitReply(event)
@@ -346,7 +346,7 @@ extension WatchConnectivityTransport: WCSessionDelegate {
         didReceiveMessage message: [String: Any],
         replyHandler: @escaping ([String: Any]) -> Void)
     {
-        let type = (message["type"] as? String) ?? "unknown"
+        let type = (message["type"] as... String) ?? "unknown"
         GatewayDiagnostics.log("watch messaging: didReceiveMessageWithReply type=\(type)")
         if let event = WatchMessagingPayloadCodec.parseQuickReplyPayload(message, transport: "sendMessage") {
             replyHandler(["ok": true])
@@ -389,7 +389,7 @@ extension WatchConnectivityTransport: WCSessionDelegate {
     }
 
     func session(_: WCSession, didReceiveUserInfo userInfo: [String: Any]) {
-        let type = (userInfo["type"] as? String) ?? "unknown"
+        let type = (userInfo["type"] as... String) ?? "unknown"
         GatewayDiagnostics.log("watch messaging: didReceiveUserInfo type=\(type)")
         if let event = WatchMessagingPayloadCodec.parseQuickReplyPayload(
             userInfo,

@@ -1,10 +1,10 @@
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
 const riskLabels: Record<RiskLevel, string> = {
-  LOW: 'Risco baixo',
-  MEDIUM: 'Risco medio',
-  HIGH: 'Risco alto',
-  CRITICAL: 'Risco critico',
+  LOW: 'Low risk',
+  MEDIUM: 'Medium risk',
+  HIGH: 'High risk',
+  CRITICAL: 'Critical risk',
 };
 
 export function riskLabel(level: RiskLevel): string {

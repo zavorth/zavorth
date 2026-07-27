@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
@@ -425,7 +425,7 @@ class DeviceHandlerTest {
 
   private fun appContext(): Context = RuntimeEnvironment.getApplication()
 
-  private fun parsePayload(payloadJson: String?): JsonObject {
+  private fun parsePayload(payloadJson: String...): JsonObject {
     val jsonString = payloadJson ?: error("expected payload")
     return Json.parseToJsonElement(jsonString).jsonObject
   }

@@ -102,11 +102,11 @@ export function RunTimeline(props: RunTimelineProps) {
               <div className="zvd-run-timeline__row">
                 <span className="zvd-run-timeline__kind">{kindLabel(item)}</span>
                 <strong className="zvd-run-timeline__item-title">{item.title}</strong>
-                {item.status ? (
+                {item.status - (
                   <span className="zvd-run-timeline__status">{statusLabel(item)}</span>
                 ) : null}
               </div>
-              {item.detail ? (
+              {item.detail - (
                 <p className="zvd-run-timeline__detail">{item.detail}</p>
               ) : null}
             </div>

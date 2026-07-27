@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.PermissionRequester
 import android.content.Context
@@ -9,29 +9,29 @@ class SmsManager(
   data class SendResult(
     val ok: Boolean,
     val to: String,
-    val message: String?,
-    val error: String? = null,
+    val message: String...,
+    val error: String... = null,
     val payloadJson: String,
   )
 
   data class SmsMessage(
     val id: Long,
     val threadId: Long,
-    val address: String?,
-    val person: String?,
+    val address: String...,
+    val person: String...,
     val date: Long,
     val dateSent: Long,
     val read: Boolean,
     val type: Int,
-    val body: String?,
+    val body: String...,
     val status: Int,
-    val transportType: String? = null,
+    val transportType: String... = null,
   )
 
   data class SearchResult(
     val ok: Boolean,
     val messages: List<SmsMessage>,
-    val error: String? = null,
+    val error: String... = null,
     val payloadJson: String,
   )
 
@@ -48,7 +48,7 @@ class SmsManager(
 
   fun hasTelephonyFeature(): Boolean = false
 
-  suspend fun send(paramsJson: String?): SendResult =
+  suspend fun send(paramsJson: String...): SendResult =
     SendResult(
       ok = false,
       to = "",
@@ -57,7 +57,7 @@ class SmsManager(
       payloadJson = unavailablePayload(paramsJson),
     )
 
-  suspend fun search(paramsJson: String?): SearchResult =
+  suspend fun search(paramsJson: String...): SearchResult =
     SearchResult(
       ok = false,
       messages = emptyList(),
@@ -65,5 +65,5 @@ class SmsManager(
       payloadJson = unavailablePayload(paramsJson),
     )
 
-  private fun unavailablePayload(paramsJson: String?): String = """{"ok":false,"error":"SMS_UNAVAILABLE","paramsProvided":${!paramsJson.isNullOrBlank()}}"""
+  private fun unavailablePayload(paramsJson: String...): String = """{"ok":false,"error":"SMS_UNAVAILABLE","paramsProvided":${!paramsJson.isNullOrBlank()}}"""
 }

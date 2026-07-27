@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.gateway.GatewaySession
 import android.Manifest
@@ -15,8 +15,8 @@ import kotlinx.serialization.json.put
 private const val DEFAULT_CALL_LOG_LIMIT = 25
 
 internal data class CallLogRecord(
-  val number: String?,
-  val cachedName: String?,
+  val number: String...,
+  val cachedName: String...,
   val date: Long,
   val duration: Long,
   val type: Int,
@@ -25,13 +25,13 @@ internal data class CallLogRecord(
 internal data class CallLogSearchRequest(
   val limit: Int, // Number of records to return
   val offset: Int, // Offset value
-  val cachedName: String?, // Search by contact name
-  val number: String?, // Search by phone number
-  val date: Long?, // Search by time (timestamp, deprecated, use dateStart/dateEnd)
-  val dateStart: Long?, // Query start time (timestamp)
-  val dateEnd: Long?, // Query end time (timestamp)
-  val duration: Long?, // Search by duration (seconds)
-  val type: Int?, // Search by call log type
+  val cachedName: String..., // Search by contact name
+  val number: String..., // Search by phone number
+  val date: Long..., // Search by time (timestamp, deprecated, use dateStart/dateEnd)
+  val dateStart: Long..., // Query start time (timestamp)
+  val dateEnd: Long..., // Query end time (timestamp)
+  val duration: Long..., // Search by duration (seconds)
+  val type: Int..., // Search by call log type
 )
 
 internal interface CallLogDataSource {
@@ -80,28 +80,28 @@ private object SystemCallLogDataSource : CallLogDataSource {
 
     // Support time range query
     if (request.dateStart != null && request.dateEnd != null) {
-      selections.add("${CallLog.Calls.DATE} >= ? AND ${CallLog.Calls.DATE} <= ?")
+      selections.add("${CallLog.Calls.DATE} >= - AND ${CallLog.Calls.DATE} <= ...")
       selectionArgs.add(request.dateStart.toString())
       selectionArgs.add(request.dateEnd.toString())
     } else if (request.dateStart != null) {
-      selections.add("${CallLog.Calls.DATE} >= ?")
+      selections.add("${CallLog.Calls.DATE} >= ...")
       selectionArgs.add(request.dateStart.toString())
     } else if (request.dateEnd != null) {
-      selections.add("${CallLog.Calls.DATE} <= ?")
+      selections.add("${CallLog.Calls.DATE} <= ...")
       selectionArgs.add(request.dateEnd.toString())
     } else if (request.date != null) {
       // Compatible with the old date parameter (exact match)
-      selections.add("${CallLog.Calls.DATE} = ?")
+      selections.add("${CallLog.Calls.DATE} = ...")
       selectionArgs.add(request.date.toString())
     }
 
     request.duration?.let {
-      selections.add("${CallLog.Calls.DURATION} = ?")
+      selections.add("${CallLog.Calls.DURATION} = ...")
       selectionArgs.add(it.toString())
     }
 
     request.type?.let {
-      selections.add("${CallLog.Calls.TYPE} = ?")
+      selections.add("${CallLog.Calls.TYPE} = ...")
       selectionArgs.add(it.toString())
     }
 
@@ -162,9 +162,9 @@ internal fun escapeCallLogSqlLikeLiteral(value: String): String =
     }
   }
 
-internal fun buildCallLogCachedNameLikeSelection(): String = "${CallLog.Calls.CACHED_NAME} LIKE ? ESCAPE '\\'"
+internal fun buildCallLogCachedNameLikeSelection(): String = "${CallLog.Calls.CACHED_NAME} LIKE - ESCAPE '\\'"
 
-internal fun buildCallLogNumberLikeSelection(): String = "${CallLog.Calls.NUMBER} LIKE ? ESCAPE '\\'"
+internal fun buildCallLogNumberLikeSelection(): String = "${CallLog.Calls.NUMBER} LIKE - ESCAPE '\\'"
 
 internal fun buildCallLogLikeArg(value: String): String = "%${escapeCallLogSqlLikeLiteral(value)}%"
 
@@ -174,7 +174,7 @@ class CallLogHandler private constructor(
 ) {
   constructor(appContext: Context) : this(appContext = appContext, dataSource = SystemCallLogDataSource)
 
-  fun handleCallLogSearch(paramsJson: String?): GatewaySession.InvokeResult {
+  fun handleCallLogSearch(paramsJson: String...): GatewaySession.InvokeResult {
     if (!dataSource.hasReadPermission(appContext)) {
       return GatewaySession.InvokeResult.error(
         code = "CALL_LOG_PERMISSION_REQUIRED",
@@ -209,7 +209,7 @@ class CallLogHandler private constructor(
     }
   }
 
-  private fun parseSearchRequest(paramsJson: String?): CallLogSearchRequest? {
+  private fun parseSearchRequest(paramsJson: String...): CallLogSearchRequest... {
     if (paramsJson.isNullOrBlank()) {
       return CallLogSearchRequest(
         limit = DEFAULT_CALL_LOG_LIMIT,
@@ -232,18 +232,18 @@ class CallLogHandler private constructor(
       } ?: return null
 
     val limit =
-      ((params["limit"] as? JsonPrimitive)?.content?.toIntOrNull() ?: DEFAULT_CALL_LOG_LIMIT)
+      ((params["limit"] as... JsonPrimitive)?.content?.toIntOrNull() ?: DEFAULT_CALL_LOG_LIMIT)
         .coerceIn(1, 200)
     val offset =
-      ((params["offset"] as? JsonPrimitive)?.content?.toIntOrNull() ?: 0)
+      ((params["offset"] as... JsonPrimitive)?.content?.toIntOrNull() ?: 0)
         .coerceAtLeast(0)
-    val cachedName = (params["cachedName"] as? JsonPrimitive)?.content?.takeIf { it.isNotBlank() }
-    val number = (params["number"] as? JsonPrimitive)?.content?.takeIf { it.isNotBlank() }
-    val date = (params["date"] as? JsonPrimitive)?.content?.toLongOrNull()
-    val dateStart = (params["dateStart"] as? JsonPrimitive)?.content?.toLongOrNull()
-    val dateEnd = (params["dateEnd"] as? JsonPrimitive)?.content?.toLongOrNull()
-    val duration = (params["duration"] as? JsonPrimitive)?.content?.toLongOrNull()
-    val type = (params["type"] as? JsonPrimitive)?.content?.toIntOrNull()
+    val cachedName = (params["cachedName"] as... JsonPrimitive)?.content?.takeIf { it.isNotBlank() }
+    val number = (params["number"] as... JsonPrimitive)?.content?.takeIf { it.isNotBlank() }
+    val date = (params["date"] as... JsonPrimitive)?.content?.toLongOrNull()
+    val dateStart = (params["dateStart"] as... JsonPrimitive)?.content?.toLongOrNull()
+    val dateEnd = (params["dateEnd"] as... JsonPrimitive)?.content?.toLongOrNull()
+    val duration = (params["duration"] as... JsonPrimitive)?.content?.toLongOrNull()
+    val type = (params["type"] as... JsonPrimitive)?.content?.toIntOrNull()
 
     return CallLogSearchRequest(
       limit = limit,

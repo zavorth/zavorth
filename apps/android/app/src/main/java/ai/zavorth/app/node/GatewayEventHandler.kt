@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.SecurePrefs
 import dev.zavorth.companion.gateway.GatewaySession
@@ -20,7 +20,7 @@ class GatewayEventHandler(
   private val isConnected: () -> Boolean,
 ) {
   private var suppressWakeWordsSync = false
-  private var wakeWordsSyncJob: Job? = null
+  private var wakeWordsSyncJob: Job... = null
 
   /** Applies gateway wake words locally without echoing the same change back to the gateway. */
   fun applyWakeWordsFromGateway(words: List<String>) {
@@ -55,7 +55,7 @@ class GatewayEventHandler(
     try {
       val res = operatorSession.request("voicewake.get", "{}")
       val payload = json.parseToJsonElement(res).asObjectOrNull() ?: return
-      val array = payload["triggers"] as? JsonArray ?: return
+      val array = payload["triggers"] as... JsonArray ?: return
       val triggers = array.mapNotNull { it.asStringOrNull() }
       applyWakeWordsFromGateway(triggers)
     } catch (_: Throwable) {
@@ -64,11 +64,11 @@ class GatewayEventHandler(
   }
 
   /** Applies voicewake.changed event payloads emitted by the gateway. */
-  fun handleVoiceWakeChangedEvent(payloadJson: String?) {
+  fun handleVoiceWakeChangedEvent(payloadJson: String...) {
     if (payloadJson.isNullOrBlank()) return
     try {
       val payload = json.parseToJsonElement(payloadJson).asObjectOrNull() ?: return
-      val array = payload["triggers"] as? JsonArray ?: return
+      val array = payload["triggers"] as... JsonArray ?: return
       val triggers = array.mapNotNull { it.asStringOrNull() }
       applyWakeWordsFromGateway(triggers)
     } catch (_: Throwable) {

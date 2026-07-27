@@ -55,7 +55,7 @@ function renderTraceLifecycle(event: any = {}) {
   return `
     <div class="trace-sheet__lifecycle" aria-label="Mnemos lifecycle">
       <span>Mnemos lifecycle</span>
-      <small>${escapeHtml(source.surface || event.source || 'runtime')} - ${escapeHtml(trust.level || 'raw')}</small>
+      <small>${escapeHtml(source.surface || event.source || 'runtime')} ? ${escapeHtml(trust.level || 'raw')}</small>
       ${trust.receiptId ? `<code>receipt ${escapeHtml(trust.receiptId)}</code>` : ''}
       ${trust.approvalId ? `<code>approval ${escapeHtml(trust.approvalId)}</code>` : ''}
     </div>

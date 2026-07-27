@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode

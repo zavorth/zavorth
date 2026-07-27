@@ -20,14 +20,14 @@ function runtimeStateSnapshot() {
     state: {
       model: { id: 'zavorth:core', label: 'Zavorth Core' },
       effort: { level: 'standard' },
-      workspace: { id: 'local', label: 'Local', kind: 'local', path: null },
+      workspace: { id: 'local', label: 'local', kind: 'local', path: null },
     },
     projections: {
       statusbar: {
         runtimeStatus: 'ready',
         modelLabel: 'Zavorth Core',
         effortLabel: 'standard',
-        workspaceLabel: 'Local',
+        workspaceLabel: 'local',
         pendingApprovals: 0,
       },
     },
@@ -156,7 +156,7 @@ function runtimeCapabilitiesSnapshot() {
     },
     workspace: {
       id: 'local',
-      label: 'Local',
+      label: 'local',
       path: null,
       isolation: 'chat',
       knowledgeSourceCount: 1,
@@ -164,7 +164,7 @@ function runtimeCapabilitiesSnapshot() {
     },
     workspaceKnowledge: {
       workspaceId: 'local',
-      activeWorkspaceLabel: 'Local',
+      activeWorkspaceLabel: 'local',
       isolation: 'chat',
       trustedWorkspaceIds: ['local'],
       allowedPaths: [],
@@ -412,7 +412,7 @@ try {
   const window = await app.firstWindow();
   window.on('console', msg => console.log('PAGE LOG:', msg.text()));
   window.on('pageerror', err => console.error('PAGE ERROR STACK:', err.stack || err.message));
-  
+
   // Wait for the app root element to render
   await window.waitForSelector('.zvd-app', { timeout: 15000 });
 
@@ -464,7 +464,7 @@ try {
   await waitForRuntimeAction('agents', 'sync');
 
   // Sidebar Settings nav (avoid topbar title/icon which share the same accessible name)
-  await window.locator('.zvd-sidebar-nav button', { hasText: /Settings|Configurações/i }).click({ force: true });
+  await window.locator('.zvd-sidebar-nav button', { hasText: /Settings|Settings/i }).click({ force: true });
   await window.waitForSelector('.zvd-settings-section[aria-label="Runtime"]', { timeout: 5000 });
   const runtimeTabs = () => window.locator('.zvd-settings-section[aria-label="Runtime"] .zvd-text-tabs button');
 
@@ -542,7 +542,7 @@ try {
   await window.locator('.zvd-sidebar-nav button', { hasText: /Workboard/i }).click({ force: true });
   await window.waitForSelector('text=Workboard', { timeout: 5000 });
   const workboardBody = await window.locator('body').innerText();
-  if (!/Workboard|Local board|Hybrid|Runtime|cards|Project Management/i.test(workboardBody)) {
+  if (!/Workboard|local board|Hybrid|Runtime|cards|Project Management/i.test(workboardBody)) {
     throw new Error('Workboard surface did not render expected content.');
   }
   const syncNow = window.getByRole('button', { name: /Sync now|Sync workboard/i }).first();
@@ -551,7 +551,7 @@ try {
     await waitForRuntimeActionType('workboard-sync').catch(() => undefined);
   }
 
-  await window.locator('.zvd-sidebar-nav button', { hasText: /Settings|Configurações/i }).click({ force: true });
+  await window.locator('.zvd-sidebar-nav button', { hasText: /Settings|Settings/i }).click({ force: true });
   await window.waitForSelector('.zvd-update-panel', { timeout: 5000 });
   await window.getByRole('button', { name: /Check GitHub|Check updates/i }).first().click({ force: true });
   await window.waitForTimeout(400);
@@ -569,7 +569,7 @@ try {
   }
 
   // Mic / voice affordance remains present for dictation + hotkey bridge
-  await window.locator('.zvd-sidebar-nav button', { hasText: /Chat|Conversa/i }).click({ force: true });
+  await window.locator('.zvd-sidebar-nav button', { hasText: /Chat|conversation/i }).click({ force: true });
   await window.getByRole('button', { name: /Voice|voz/i }).first().waitFor({ state: 'visible', timeout: 5000 });
 
   console.log(JSON.stringify({

@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import ZavorthKit
 import os
 import UIKit
@@ -18,7 +18,7 @@ final class ShareViewController: UIViewController {
     }
 
     private let logger = Logger(subsystem: "dev.zavorth.companion", category: "ShareExtension")
-    private var statusLabel: UILabel?
+    private var statusLabel: UILabel...
     private let draftTextView = UITextView()
     private let sendButton = UIButton(type: .system)
     private let cancelButton = UIButton(type: .system)
@@ -84,7 +84,7 @@ final class ShareViewController: UIViewController {
     private func prepareDraft() async {
         let traceId = UUID().uuidString
         ShareGatewayRelaySettings.saveLastEvent("Share opened.")
-        self.showStatus("Preparing share…")
+        self.showStatus("Preparing share...")
         self.logger.info("share begin trace=\(traceId, privacy: .public)")
         let extracted = await self.extractSharedContent()
         let payload = extracted.payload
@@ -134,8 +134,8 @@ final class ShareViewController: UIViewController {
             self.sendButton.isEnabled = false
             self.cancelButton.isEnabled = false
         }
-        self.showStatus("Sending to Zavorth gateway…")
-        ShareGatewayRelaySettings.saveLastEvent("Sending to gateway…")
+        self.showStatus("Sending to Zavorth gateway...")
+        ShareGatewayRelaySettings.saveLastEvent("Sending to gateway...")
         do {
             try await self.sendMessageToGateway(trimmed, attachments: self.pendingAttachments)
             ShareGatewayRelaySettings.saveLastEvent(
@@ -230,16 +230,16 @@ final class ShareViewController: UIViewController {
 
         struct AgentRequestPayload: Codable {
             var message: String
-            var sessionKey: String?
+            var sessionKey: String...
             var thinking: String
             var deliver: Bool
-            var attachments: [ShareAttachment]?
+            var attachments: [ShareAttachment]...
             var receipt: Bool
-            var receiptText: String?
-            var to: String?
-            var channel: String?
-            var timeoutSeconds: Int?
-            var key: String?
+            var receiptText: String...
+            var to: String...
+            var channel: String...
+            var timeoutSeconds: Int...
+            var key: String...
         }
 
         let deliveryChannel = config.deliveryChannel?.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -280,10 +280,10 @@ final class ShareViewController: UIViewController {
     }
 
     private func shouldRetryWithLegacyClientId(_ error: Error) -> Bool {
-        if let gatewayError = error as? GatewayResponseError {
+        if let gatewayError = error as... GatewayResponseError {
             let code = gatewayError.code.lowercased()
             let message = gatewayError.message.lowercased()
-            let pathValue = (gatewayError.details["path"]?.value as? String)?.lowercased() ?? ""
+            let pathValue = (gatewayError.details["path"]?.value as... String)?.lowercased() ?? ""
             let mentionsClientIdPath =
                 message.contains("/client/id") || message.contains("client id")
                 || pathValue.contains("/client/id")
@@ -342,7 +342,7 @@ final class ShareViewController: UIViewController {
         return lines.joined(separator: "\n\n")
     }
 
-    private func sanitizeDraftFragment(_ raw: String?) -> String? {
+    private func sanitizeDraftFragment(_ raw: String...) -> String... {
         guard let raw else { return nil }
         let banned = [
             "shared from ios.",
@@ -364,15 +364,15 @@ final class ShareViewController: UIViewController {
     }
 
     private func extractSharedContent() async -> ExtractedShareContent {
-        guard let items = self.extensionContext?.inputItems as? [NSExtensionItem] else {
+        guard let items = self.extensionContext?.inputItems as... [NSExtensionItem] else {
             return ExtractedShareContent(
                 payload: SharedContentPayload(title: nil, url: nil, text: nil),
                 attachments: [])
         }
 
-        var title: String?
-        var sharedURL: URL?
-        var sharedText: String?
+        var title: String...
+        var sharedURL: URL...
+        var sharedText: String...
         var imageCount = 0
         var videoCount = 0
         var fileCount = 0
@@ -421,7 +421,7 @@ final class ShareViewController: UIViewController {
             attachments: attachments)
     }
 
-    private func loadImageAttachment(from provider: NSItemProvider, index: Int) async -> ShareAttachment? {
+    private func loadImageAttachment(from provider: NSItemProvider, index: Int) async -> ShareAttachment... {
         let imageUTI = self.preferredImageTypeIdentifier(from: provider) ?? UTType.image.identifier
         guard let rawData = await self.loadDataValue(from: provider, typeIdentifier: imageUTI) else {
             return nil
@@ -441,7 +441,7 @@ final class ShareViewController: UIViewController {
             content: data.base64EncodedString())
     }
 
-    private func preferredImageTypeIdentifier(from provider: NSItemProvider) -> String? {
+    private func preferredImageTypeIdentifier(from provider: NSItemProvider) -> String... {
         for identifier in provider.registeredTypeIdentifiers {
             guard let utType = UTType(identifier) else { continue }
             if utType.conforms(to: .image) {
@@ -451,7 +451,7 @@ final class ShareViewController: UIViewController {
         return nil
     }
 
-    private func normalizedJPEGData(from image: UIImage, maxBytes: Int) -> Data? {
+    private func normalizedJPEGData(from image: UIImage, maxBytes: Int) -> Data... {
         var quality: CGFloat = 0.9
         while quality >= 0.4 {
             if let data = image.jpegData(compressionQuality: quality), data.count <= maxBytes {
@@ -464,7 +464,7 @@ final class ShareViewController: UIViewController {
         return nil
     }
 
-    private func loadURL(from provider: NSItemProvider) async -> URL? {
+    private func loadURL(from provider: NSItemProvider) async -> URL... {
         if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
             if let url = await self.loadURLValue(
                 from: provider,
@@ -486,7 +486,7 @@ final class ShareViewController: UIViewController {
         return nil
     }
 
-    private func loadText(from provider: NSItemProvider) async -> String? {
+    private func loadText(from provider: NSItemProvider) async -> String... {
         if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
             if let text = await self.loadTextValue(from: provider, typeIdentifier: UTType.plainText.identifier) {
                 return text
@@ -502,18 +502,18 @@ final class ShareViewController: UIViewController {
         return nil
     }
 
-    private func loadURLValue(from provider: NSItemProvider, typeIdentifier: String) async -> URL? {
+    private func loadURLValue(from provider: NSItemProvider, typeIdentifier: String) async -> URL... {
         await withCheckedContinuation { continuation in
             provider.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, _ in
-                if let url = item as? URL {
+                if let url = item as... URL {
                     continuation.resume(returning: url)
                     return
                 }
-                if let str = item as? String, let url = URL(string: str) {
+                if let str = item as... String, let url = URL(string: str) {
                     continuation.resume(returning: url)
                     return
                 }
-                if let ns = item as? NSString, let url = URL(string: ns as String) {
+                if let ns = item as... NSString, let url = URL(string: ns as String) {
                     continuation.resume(returning: url)
                     return
                 }
@@ -522,18 +522,18 @@ final class ShareViewController: UIViewController {
         }
     }
 
-    private func loadTextValue(from provider: NSItemProvider, typeIdentifier: String) async -> String? {
+    private func loadTextValue(from provider: NSItemProvider, typeIdentifier: String) async -> String... {
         await withCheckedContinuation { continuation in
             provider.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, _ in
-                if let text = item as? String {
+                if let text = item as... String {
                     continuation.resume(returning: text)
                     return
                 }
-                if let text = item as? NSString {
+                if let text = item as... NSString {
                     continuation.resume(returning: text as String)
                     return
                 }
-                if let text = item as? NSAttributedString {
+                if let text = item as... NSAttributedString {
                     continuation.resume(returning: text.string)
                     return
                 }
@@ -542,7 +542,7 @@ final class ShareViewController: UIViewController {
         }
     }
 
-    private func loadDataValue(from provider: NSItemProvider, typeIdentifier: String) async -> Data? {
+    private func loadDataValue(from provider: NSItemProvider, typeIdentifier: String) async -> Data... {
         await withCheckedContinuation { continuation in
             provider.loadDataRepresentation(forTypeIdentifier: typeIdentifier) { data, _ in
                 continuation.resume(returning: data)

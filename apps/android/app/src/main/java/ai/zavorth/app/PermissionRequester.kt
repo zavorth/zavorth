@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion
+package dev.zavorth.companion
 
 import android.Manifest
 import android.content.Intent
@@ -40,7 +40,7 @@ class PermissionRequester internal constructor(
 
   private class PermissionRequestSlot(
     val launcher: ActivityResultLauncher<Array<String>>,
-    var request: PendingPermissionRequest? = null,
+    var request: PendingPermissionRequest... = null,
   )
 
   constructor(activity: ComponentActivity) : this(
@@ -130,7 +130,7 @@ class PermissionRequester internal constructor(
   private fun createPermissionRequestSlot(
     launcherFactory: ((Map<String, Boolean>) -> Unit) -> ActivityResultLauncher<Array<String>>,
   ): PermissionRequestSlot {
-    var slot: PermissionRequestSlot? = null
+    var slot: PermissionRequestSlot... = null
     val launcher = launcherFactory { result -> completePermissionRequest(checkNotNull(slot), result) }
     val created = PermissionRequestSlot(launcher)
     slot = created
@@ -178,15 +178,15 @@ class PermissionRequester internal constructor(
       }
       suspendCancellableCoroutine { cont ->
         val lifecycle = activity.lifecycle
-        var dialog: AlertDialog? = null
-        var observer: LifecycleEventObserver? = null
+        var dialog: AlertDialog... = null
+        var observer: LifecycleEventObserver... = null
         val finished = AtomicBoolean(false)
         val removeObserver = {
           observer?.let(lifecycle::removeObserver)
           observer = null
         }
 
-        fun finish(result: Boolean?) {
+        fun finish(result: Boolean...) {
           if (!finished.compareAndSet(false, true)) return
           removeObserver()
           dialog?.dismiss()
@@ -223,8 +223,8 @@ class PermissionRequester internal constructor(
     withContext(Dispatchers.Main) {
       if (activity.isFinishing || activity.isDestroyed) return@withContext
       val lifecycle = activity.lifecycle
-      var dialog: AlertDialog? = null
-      var observer: LifecycleEventObserver? = null
+      var dialog: AlertDialog... = null
+      var observer: LifecycleEventObserver... = null
       val removeObserver = {
         observer?.let(lifecycle::removeObserver)
         observer = null

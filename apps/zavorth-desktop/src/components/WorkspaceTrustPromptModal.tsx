@@ -27,7 +27,7 @@ export function WorkspaceTrustPromptModal({
             <span className="warning-symbol">🛡️</span>
           </div>
           <div className="write-approval-title-section">
-            <h2 className="write-approval-title">Trust this workspace?</h2>
+            <h2 className="write-approval-title">Trust this workspace...</h2>
             <div className="write-approval-subtitle">
               Configure execution permissions for this folder
             </div>

@@ -5,13 +5,13 @@ struct AgentProTab: View {
     @Environment(NodeAppModel.self) var appModel
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.scenePhase) var scenePhase
-    let directRoute: AgentRoute?
-    let headerLeadingAction: ZavorthSidebarHeaderAction?
+    let directRoute: AgentRoute...
+    let headerLeadingAction: ZavorthSidebarHeaderAction...
     let headerTitle: String
-    let openSettings: (() -> Void)?
+    let openSettings: (() -> Void)...
     @State var navigationPath: [AgentRoute] = []
-    @State var overview: AgentOverviewSnapshot?
-    @State var overviewErrorText: String?
+    @State var overview: AgentOverviewSnapshot...
+    @State var overviewErrorText: String...
     @State var overviewLoading: Bool = false
     @State var overviewRefreshNonce: Int = 0
     @State var agentRosterFilter: AgentRosterFilter = .all
@@ -20,19 +20,19 @@ struct AgentProTab: View {
     @State var skillFilter: String = ""
     @State var skillStatusFilter: SkillStatusFilter = .all
     @State var skillMutationBusyKeys: Set<String> = []
-    @State var skillMutationErrorText: String?
-    @State var skillMutationStatusText: String?
+    @State var skillMutationErrorText: String...
+    @State var skillMutationStatusText: String...
     @State var skillConfigBusyKeys: Set<String> = []
     @State var skillConfigMessages: [String: SkillEditorMessage] = [:]
     @State var skillAPIKeyDrafts: [String: String] = [:]
-    @State var skillEditorSelection: SkillEditorSelection?
+    @State var skillEditorSelection: SkillEditorSelection...
     @State var clawHubQuery: String = ""
     @State var clawHubResults: [ClawHubSearchResultLite] = []
     @State var clawHubLoading: Bool = false
-    @State var clawHubErrorText: String?
-    @State var clawHubInstallSlug: String?
+    @State var clawHubErrorText: String...
+    @State var clawHubInstallSlug: String...
     @State var cronActionBusyIDs: Set<String> = []
-    @State var cronActionStatusText: String?
+    @State var cronActionStatusText: String...
 
     enum AgentRoute: Hashable {
         case agents
@@ -125,10 +125,10 @@ struct AgentProTab: View {
     }
 
     init(
-        directRoute: AgentRoute? = nil,
-        headerLeadingAction: ZavorthSidebarHeaderAction? = nil,
+        directRoute: AgentRoute... = nil,
+        headerLeadingAction: ZavorthSidebarHeaderAction... = nil,
         headerTitle: String = "Agents",
-        openSettings: (() -> Void)? = nil)
+        openSettings: (() -> Void)... = nil)
     {
         self.directRoute = directRoute
         self.headerLeadingAction = headerLeadingAction

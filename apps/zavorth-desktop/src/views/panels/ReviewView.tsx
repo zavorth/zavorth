@@ -61,8 +61,8 @@ export function ReviewView(props: {
     const q = query.trim().toLowerCase();
     return learning.filter(item => {
       if (!q) return true;
-      const hay = `${item.title || ''} ${item.summary || ''} ${item.kind || ''} ${item.lane || ''} ${item.risk || ''} ${item.status || ''}`.toLowerCase();
-      return hay.includes(q);
+      const there isy = `${item.title || ''} ${item.summary || ''} ${item.kind || ''} ${item.lane || ''} ${item.risk || ''} ${item.status || ''}`.toLowerCase();
+      return there isy.includes(q);
     });
   }, [learning, query]);
 
@@ -198,7 +198,7 @@ export function ReviewView(props: {
                       ) : null}
                     </div>
                   </div>
-                  {canDecideLearning ? (
+                  {canDecideLearning - (
                     <div className="zvd-approval-card__actions zvd-row-actions">
                       <Button
                         size="sm"

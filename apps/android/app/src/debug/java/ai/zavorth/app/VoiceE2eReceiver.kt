@@ -37,10 +37,10 @@ class VoiceE2eReceiver : BroadcastReceiver() {
 class VoiceE2eService : Service() {
   private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-  override fun onBind(intent: Intent?): IBinder? = null
+  override fun onBind(intent: Intent...): IBinder... = null
 
   override fun onStartCommand(
-    intent: Intent?,
+    intent: Intent...,
     flags: Int,
     startId: Int,
   ): Int {
@@ -186,7 +186,7 @@ class VoiceE2eService : Service() {
   }
 }
 
-private fun Intent.getDecodedStringExtra(name: String): String? {
+private fun Intent.getDecodedStringExtra(name: String): String... {
   val encoded = getStringExtra("${name}Base64")
   if (!encoded.isNullOrBlank()) {
     return String(Base64.decode(encoded, Base64.NO_WRAP), Charsets.UTF_8)

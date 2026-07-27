@@ -3,7 +3,7 @@ import Foundation
 enum PermissionRequestBridge {
     final class Box: @unchecked Sendable {
         private let lock = NSLock()
-        private var continuation: CheckedContinuation<Bool, Never>?
+        private var continuation: CheckedContinuation<Bool, Never>...
         private var hasResumed = false
 
         func install(_ continuation: CheckedContinuation<Bool, Never>) -> Bool {

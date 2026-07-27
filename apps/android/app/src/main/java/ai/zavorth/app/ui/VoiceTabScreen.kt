@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.MainViewModel
 import dev.zavorth.companion.VoiceCaptureMode
@@ -106,7 +106,7 @@ fun VoiceTabScreen(viewModel: MainViewModel) {
   val showThinkingBubble = micIsSending && !hasStreamingAssistant
 
   var hasMicPermission by remember { mutableStateOf(context.hasRecordAudioPermission()) }
-  var pendingVoicePermissionAction by remember { mutableStateOf<PendingVoicePermissionAction?>(null) }
+  var pendingVoicePermissionAction by remember { mutableStateOf<PendingVoicePermissionAction...>(null) }
 
   DisposableEffect(lifecycleOwner, context) {
     val observer =
@@ -508,7 +508,7 @@ private fun Context.hasRecordAudioPermission(): Boolean =
 /**
  * Walks ContextWrappers until an Activity is found for permission rationale checks.
  */
-private fun Context.findActivity(): Activity? =
+private fun Context.findActivity(): Activity... =
   when (this) {
     is Activity -> this
     is ContextWrapper -> baseContext.findActivity()

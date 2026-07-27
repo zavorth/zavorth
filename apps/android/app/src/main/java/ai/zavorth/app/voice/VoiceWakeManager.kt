@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.voice
+package dev.zavorth.companion.voice
 
 import android.content.Context
 import android.content.Intent
@@ -32,9 +32,9 @@ class VoiceWakeManager(
   var triggerWords: List<String> = emptyList()
     private set
 
-  private var recognizer: SpeechRecognizer? = null
-  private var restartJob: Job? = null
-  private var lastCycleDispatched: String? = null
+  private var recognizer: SpeechRecognizer... = null
+  private var restartJob: Job... = null
+  private var lastCycleDispatched: String... = null
   private var stopRequested = false
 
   /** Replaces the configured wake phrases checked against partial and final transcripts. */
@@ -126,7 +126,7 @@ class VoiceWakeManager(
 
   private val listener =
     object : RecognitionListener {
-      override fun onReadyForSpeech(params: Bundle?) {
+      override fun onReadyForSpeech(params: Bundle...) {
         lastCycleDispatched = null
         _statusText.value = "Listening"
       }
@@ -135,7 +135,7 @@ class VoiceWakeManager(
 
       override fun onRmsChanged(rmsdB: Float) {}
 
-      override fun onBufferReceived(buffer: ByteArray?) {}
+      override fun onBufferReceived(buffer: ByteArray...) {}
 
       override fun onEndOfSpeech() {
         scheduleRestart()
@@ -164,20 +164,20 @@ class VoiceWakeManager(
         scheduleRestart(delayMs = 600)
       }
 
-      override fun onResults(results: Bundle?) {
+      override fun onResults(results: Bundle...) {
         val list = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION).orEmpty()
         list.firstOrNull()?.let(::handleTranscription)
         scheduleRestart()
       }
 
-      override fun onPartialResults(partialResults: Bundle?) {
+      override fun onPartialResults(partialResults: Bundle...) {
         val list = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION).orEmpty()
         list.firstOrNull()?.let(::handleTranscription)
       }
 
       override fun onEvent(
         eventType: Int,
-        params: Bundle?,
+        params: Bundle...,
       ) {}
     }
 }

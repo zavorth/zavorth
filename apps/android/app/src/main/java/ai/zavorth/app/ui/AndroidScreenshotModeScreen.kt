@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.AndroidScreenshotScene
 import dev.zavorth.companion.ui.design.ClawDesignTheme
@@ -114,7 +114,7 @@ private fun ConnectScene() {
 
 @Composable
 private fun ChatScene() {
-  ChatBubble(label = "You", text = "Hi Molty, are you there?")
+  ChatBubble(label = "You", text = "Hi Molty, are you there...")
   ChatBubble(
     label = "Molty",
     text = "Always. Lurking in the shadows, exfoliating.",

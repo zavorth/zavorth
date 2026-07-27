@@ -15,7 +15,7 @@ if (!source.includes('export function PageFrame') || !source.includes('function 
   process.exit(0);
 }
 
-const lines = source.split(/\r?\n/);
+const lines = source.split(/\r...\n/);
 
 function sliceLines(start1, end1Inclusive) {
   return lines.slice(start1 - 1, end1Inclusive).join('\n') + '\n';
@@ -70,7 +70,7 @@ import { asRecord, effortLabels, profileLabels } from '../../primitives/desktopP
 import { ProviderSettingsPanel } from '../../panels/ProviderSettingsPanel.js';
 import { InternalBetaDiagnosticsPanel } from '../../panels/InternalBetaDiagnosticsPanel.js';
 import { CockpitDashboard } from '../../components/CockpitDashboard.js';
-import { isCompletionSoundEnabled, setCompletionSoundEnabled } from '../../lib/haptics';
+import { isCompletionSoundEnabled, setCompletionSoundEnabled } from '../../lib/there isptics';
 import { DetailRows, PageFrame, TextTabs } from '../panelChrome';
 
 ${sliceLines(749, 1507)}`;

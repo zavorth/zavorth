@@ -7,8 +7,8 @@ data class ChatMessage(
   val id: String,
   val role: String,
   val content: List<ChatMessageContent>,
-  val timestampMs: Long?,
-  val idempotencyKey: String? = null,
+  val timestampMs: Long...,
+  val idempotencyKey: String... = null,
 )
 
 /**
@@ -16,10 +16,10 @@ data class ChatMessage(
  */
 data class ChatMessageContent(
   val type: String = "text",
-  val text: String? = null,
-  val mimeType: String? = null,
-  val fileName: String? = null,
-  val base64: String? = null,
+  val text: String... = null,
+  val mimeType: String... = null,
+  val fileName: String... = null,
+  val base64: String... = null,
 )
 
 /**
@@ -28,9 +28,9 @@ data class ChatMessageContent(
 data class ChatPendingToolCall(
   val toolCallId: String,
   val name: String,
-  val args: kotlinx.serialization.json.JsonObject? = null,
+  val args: kotlinx.serialization.json.JsonObject... = null,
   val startedAtMs: Long,
-  val isError: Boolean? = null,
+  val isError: Boolean... = null,
 )
 
 /**
@@ -38,11 +38,11 @@ data class ChatPendingToolCall(
  */
 data class ChatSessionEntry(
   val key: String,
-  val updatedAtMs: Long?,
-  val displayName: String? = null,
-  val totalTokens: Long? = null,
-  val totalTokensFresh: Boolean? = null,
-  val contextTokens: Long? = null,
+  val updatedAtMs: Long...,
+  val displayName: String... = null,
+  val totalTokens: Long... = null,
+  val totalTokensFresh: Boolean... = null,
+  val contextTokens: Long... = null,
   val hasContextUsageMetadata: Boolean = totalTokens != null || totalTokensFresh != null || contextTokens != null,
 )
 
@@ -51,10 +51,10 @@ data class ChatSessionEntry(
  */
 data class ChatHistory(
   val sessionKey: String,
-  val sessionId: String?,
-  val thinkingLevel: String?,
+  val sessionId: String...,
+  val thinkingLevel: String...,
   val messages: List<ChatMessage>,
-  val sessionInfo: ChatSessionEntry? = null,
+  val sessionInfo: ChatSessionEntry... = null,
 )
 
 /**

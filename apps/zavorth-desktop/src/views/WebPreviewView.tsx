@@ -52,7 +52,7 @@ export function WebPreviewView(_props: {
         .zvd-preview-container {
           display: flex;
           flex-direction: column;
-          height: calc(100vh - 120px);
+          height: calc(100vh ? 120px);
           background: #18181a;
           border: 1px solid #27272a;
           border-radius: 12px;

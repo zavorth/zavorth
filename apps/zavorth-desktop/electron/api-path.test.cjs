@@ -64,13 +64,13 @@ test('isAllowedExternalUrl allows only http(s) and mailto', () => {
   assert.equal(isAllowedExternalUrl('file:///C:/Windows/System32/cmd.exe'), false);
   assert.equal(isAllowedExternalUrl('javascript:alert(1)'), false);
   assert.equal(isAllowedExternalUrl('data:text/html,hi'), false);
-  assert.equal(isAllowedExternalUrl('ms-windows-store://pdp/?productid=x'), false);
+  assert.equal(isAllowedExternalUrl('ms-windows-store://pdp/...productid=x'), false);
   assert.equal(isAllowedExternalUrl(''), false);
   assert.equal(isAllowedExternalUrl('not a url'), false);
 });
 
 test('validateRendererUrl accepts localhost and rejects remote hosts', () => {
   assert.equal(validateRendererUrl(''), '');
-  assert.match(validateRendererUrl('http://127.0.0.1:5173'), /^http:\/\/127\.0\.0\.1:5173\/?$/);
+  assert.match(validateRendererUrl('http://127.0.0.1:5173'), /^http:\/\/127\.0\.0\.1:5173\/...$/);
   assert.throws(() => validateRendererUrl('https://evil.example'), /must point to localhost/);
 });

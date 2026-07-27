@@ -237,8 +237,7 @@ export function parseSlashCommand(value: string): ParsedSlashCommand {
   if (name === '/workflows') {
     return {
       kind: 'send',
-      text: args
-        ? `Plan a governed workflow with budget, worker limits and synthesis: ${args}`
+      text: args ? `Plan a governed workflow with budget, worker limits and synthesis: ${args}`
         : 'Plan a governed workflow with budget, worker limits and synthesis.',
     };
   }

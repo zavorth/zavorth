@@ -22,7 +22,7 @@ enum BackgroundAliveBeacon {
         var platform: String
         var deviceFamily: String
         var modelIdentifier: String
-        var pushTransport: String?
+        var pushTransport: String...
     }
 
     struct NodeEventRequestPayload: Codable {
@@ -31,10 +31,10 @@ enum BackgroundAliveBeacon {
     }
 
     struct NodeEventResponsePayload: Decodable {
-        var ok: Bool?
-        var event: String?
-        var handled: Bool?
-        var reason: String?
+        var ok: Bool...
+        var event: String...
+        var handled: Bool...
+        var reason: String...
     }
 
     static func normalizeTrigger(_ raw: String) -> Trigger {
@@ -45,7 +45,7 @@ enum BackgroundAliveBeacon {
     static func shouldSkipRecentSuccess(
         isGatewayConnected: Bool,
         now: Date,
-        lastSuccessAtMs: Double?,
+        lastSuccessAtMs: Double...,
         minInterval: TimeInterval = Self.minSuccessIntervalSeconds) -> Bool
     {
         guard isGatewayConnected else { return false }
@@ -55,7 +55,7 @@ enum BackgroundAliveBeacon {
     }
 
     @MainActor
-    static func makePayload(trigger: Trigger, displayName: String, pushTransport: String?) -> Payload {
+    static func makePayload(trigger: Trigger, displayName: String, pushTransport: String...) -> Payload {
         Payload(
             trigger: trigger.rawValue,
             sentAtMs: Int64(Date().timeIntervalSince1970 * 1000),
@@ -86,7 +86,7 @@ enum BackgroundAliveBeacon {
         return requestJSON
     }
 
-    static func decodeResponse(_ data: Data) -> NodeEventResponsePayload? {
-        try? JSONDecoder().decode(NodeEventResponsePayload.self, from: data)
+    static func decodeResponse(_ data: Data) -> NodeEventResponsePayload... {
+        try... JSONDecoder().decode(NodeEventResponsePayload.self, from: data)
     }
 }

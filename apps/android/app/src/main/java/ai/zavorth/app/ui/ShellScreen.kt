@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.BuildConfig
 import dev.zavorth.companion.GatewayAgentSummary
@@ -333,7 +333,7 @@ private fun GatewayTrustDialog(
   AlertDialog(
     onDismissRequest = onDecline,
     containerColor = ClawTheme.colors.surfaceRaised,
-    title = { Text("Trust this gateway?", style = ClawTheme.type.section, color = ClawTheme.colors.text) },
+    title = { Text("Trust this gateway...", style = ClawTheme.type.section, color = ClawTheme.colors.text) },
     text = { Text(message, style = ClawTheme.type.body, color = ClawTheme.colors.textMuted) },
     confirmButton = {
       TextButton(onClick = onAccept) {
@@ -504,10 +504,10 @@ private fun OverviewScreen(
 
 private data class ModuleRow(
   val title: String,
-  val subtitle: String?,
+  val subtitle: String...,
   val icon: ImageVector,
   val tab: Tab,
-  val settingsRoute: SettingsRoute? = null,
+  val settingsRoute: SettingsRoute... = null,
 )
 
 @Composable
@@ -877,8 +877,8 @@ internal data class OverviewMetricCard(
   val icon: ImageVector,
   val tint: Color,
   val tab: Tab,
-  val settingsRoute: SettingsRoute? = null,
-  val progressFraction: Float? = null,
+  val settingsRoute: SettingsRoute... = null,
+  val progressFraction: Float... = null,
 )
 
 @Composable
@@ -921,8 +921,8 @@ internal data class OverviewMetricCardSpec(
   val icon: ImageVector,
   val status: ClawStatus,
   val tab: Tab,
-  val settingsRoute: SettingsRoute? = null,
-  val progressFraction: Float? = null,
+  val settingsRoute: SettingsRoute... = null,
+  val progressFraction: Float... = null,
 )
 
 internal fun overviewMetricCardSpecs(
@@ -1003,7 +1003,7 @@ internal fun overviewMetricCardSpecs(
 
 internal fun overviewAgentName(
   agents: List<GatewayAgentSummary>,
-  defaultAgentId: String?,
+  defaultAgentId: String...,
 ): String {
   val agent = overviewAgent(agents = agents, defaultAgentId = defaultAgentId)
   return agent?.name?.takeIf { it.isNotBlank() } ?: agent?.id?.takeIf { it.isNotBlank() } ?: "Zavorth"
@@ -1011,7 +1011,7 @@ internal fun overviewAgentName(
 
 internal fun overviewAgentBadgeText(
   agents: List<GatewayAgentSummary>,
-  defaultAgentId: String?,
+  defaultAgentId: String...,
 ): String {
   val agent = overviewAgent(agents = agents, defaultAgentId = defaultAgentId)
   agent
@@ -1026,8 +1026,8 @@ internal fun overviewAgentBadgeText(
 
 private fun overviewAgent(
   agents: List<GatewayAgentSummary>,
-  defaultAgentId: String?,
-): GatewayAgentSummary? {
+  defaultAgentId: String...,
+): GatewayAgentSummary... {
   val defaultId = defaultAgentId?.trim().orEmpty()
   return if (defaultId.isBlank()) {
     agents.firstOrNull()
@@ -1119,7 +1119,7 @@ internal data class HomeAttentionRow(
   val subtitle: String,
   val icon: ImageVector,
   val tab: Tab,
-  val settingsRoute: SettingsRoute? = null,
+  val settingsRoute: SettingsRoute... = null,
 )
 
 internal fun homeAttentionRows(
@@ -1186,7 +1186,7 @@ private fun HomeAttentionPanel(
 @Composable
 private fun SectionLabel(
   title: String,
-  action: (@Composable () -> Unit)? = null,
+  action: (@Composable () -> Unit)... = null,
 ) {
   Row(
     modifier = Modifier.fillMaxWidth(),
@@ -1507,7 +1507,7 @@ private fun approvalsSummary(count: Int): String =
     else -> "$count pending"
   }
 
-private fun approvalsStatus(count: Int): Boolean? = if (count > 0) true else null
+private fun approvalsStatus(count: Int): Boolean... = if (count > 0) true else null
 
 /** Summarizes scheduled gateway jobs for overview and settings rows. */
 private fun cronJobsSummary(count: Int): String =
@@ -1532,7 +1532,7 @@ private fun skillsSummaryText(skills: List<GatewaySkillSummary>): String {
 }
 
 /** Converts gateway skill health into a tri-state settings status dot. */
-private fun skillsStatus(skills: List<GatewaySkillSummary>): Boolean? =
+private fun skillsStatus(skills: List<GatewaySkillSummary>): Boolean... =
   when {
     skills.isEmpty() -> null
     skills.any { it.blockedByAllowlist || (!it.disabled && (!it.eligible || it.missingCount > 0)) } -> false
@@ -1553,7 +1553,7 @@ private fun nodesDevicesSummaryText(summary: GatewayNodesDevicesSummary): String
 }
 
 /** Maps node/device state to a settings status dot, treating pending pairings as attention-needed. */
-private fun nodesDevicesStatus(summary: GatewayNodesDevicesSummary): Boolean? =
+private fun nodesDevicesStatus(summary: GatewayNodesDevicesSummary): Boolean... =
   when {
     summary.pendingDevices.isNotEmpty() -> false
     summary.hasNodeCapabilityApprovalPending() -> false
@@ -1580,7 +1580,7 @@ private fun channelsSummaryText(summary: GatewayChannelsSummary): String {
 }
 
 /** Maps channel health to the settings status dot shown in the shell. */
-private fun channelsStatus(summary: GatewayChannelsSummary): Boolean? =
+private fun channelsStatus(summary: GatewayChannelsSummary): Boolean... =
   when {
     summary.channels.any { it.error != null } -> false
     summary.channels.any { it.connected || it.running } -> true
@@ -1597,7 +1597,7 @@ private fun dreamingSummaryText(summary: GatewayDreamingSummary): String =
   }
 
 /** Maps dreaming store/phase health and enabled state to a settings status dot. */
-private fun dreamingStatus(summary: GatewayDreamingSummary): Boolean? =
+private fun dreamingStatus(summary: GatewayDreamingSummary): Boolean... =
   when {
     !summary.storeHealthy || !summary.phaseSignalHealthy -> false
     summary.enabled -> true
@@ -1608,8 +1608,8 @@ internal data class SettingsRow(
   val title: String,
   val value: String,
   val icon: ImageVector,
-  val status: Boolean? = null,
-  val route: SettingsRoute? = null,
+  val status: Boolean... = null,
+  val route: SettingsRoute... = null,
 )
 
 internal data class SettingsSection(
@@ -1720,7 +1720,7 @@ private fun ProfilePanel(
 private fun SettingsGroup(
   rows: List<SettingsRow>,
   onOpen: (SettingsRoute) -> Unit,
-  onAction: (() -> Unit)? = null,
+  onAction: (() -> Unit)... = null,
 ) {
   ClawPanel(contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)) {
     Column {
@@ -1789,7 +1789,7 @@ private fun relativeSessionTime(updatedAtMs: Long): String {
   return "${hours / 24}d"
 }
 
-private fun displaySessionTitle(displayName: String?): String = displayName?.takeIf { it.isNotBlank() } ?: "Main session"
+private fun displaySessionTitle(displayName: String...): String = displayName?.takeIf { it.isNotBlank() } ?: "Main session"
 
 private fun gatewaySummary(
   statusText: String,

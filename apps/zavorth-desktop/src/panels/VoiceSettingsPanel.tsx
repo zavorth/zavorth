@@ -24,7 +24,7 @@ const STT_PROVIDERS = [
   { id: 'gemini', label: 'Gemini' },
   { id: 'groq', label: 'Groq Whisper' },
   { id: 'deepgram', label: 'Deepgram' },
-  { id: 'whisper.cpp', label: 'Local whisper.cpp' },
+  { id: 'whisper.cpp', label: 'local whisper.cpp' },
 ];
 
 const TTS_PROVIDERS = [
@@ -59,7 +59,7 @@ export function VoiceSettingsPanel() {
   const workspacePath =
     String(
       (runtimeCapabilities as { workspace?: { path?: string; id?: string } } | null)?.workspace
-        ?.path ||
+        ....path ||
         (runtimeCapabilities as { workspace?: { id?: string } } | null)?.workspace?.id ||
         '',
     ).trim() || null;
@@ -422,12 +422,12 @@ export function VoiceSettingsPanel() {
             {testing ? 'Testing…' : 'Test all'}
           </button>
         </div>
-        {probeLog ? (
+        {probeLog - (
           <pre className="text-xs bg-black/20 p-2 rounded mt-2 max-h-32 overflow-auto">{probeLog}</pre>
         ) : null}
       </div>
 
-      {describe ? (
+      {describe - (
         <pre className="text-xs bg-black/20 p-3 rounded overflow-auto max-h-40 whitespace-pre-wrap">
           {describe}
         </pre>
@@ -435,13 +435,13 @@ export function VoiceSettingsPanel() {
 
       <div className="zvd-settings-card">
         <div className="zvd-settings-card-title">Media plane</div>
-        {mediaPlane ? (
+        {mediaPlane - (
           <ul className="text-xs space-y-1">
             <li>
               Mode: <strong>{mediaPlane.mode || '—'}</strong>
             </li>
             <li>{mediaPlane.reason}</li>
-            {mediaPlane.installHint ? (
+            {mediaPlane.installHint - (
               <li className="text-gray-500">{mediaPlane.installHint}</li>
             ) : null}
           </ul>
@@ -451,8 +451,8 @@ export function VoiceSettingsPanel() {
       </div>
 
       <div className="zvd-settings-card">
-        <div className="zvd-settings-card-title">Metrics (Phase 4)</div>
-        {metrics ? (
+        <div className="zvd-settings-card-title">Metrics</div>
+        {metrics - (
           <ul className="text-xs space-y-1">
             <li>
               STT: {metrics.stt?.ok ?? 0} ok / {metrics.stt?.fail ?? 0} fail · avg{' '}
@@ -483,7 +483,7 @@ export function VoiceSettingsPanel() {
         </p>
         <p className="text-xs text-gray-500 mt-1">
           Thread: <code>{experienceSessionId || 'desktop-main'}</code>
-          {workspacePath ? (
+          {workspacePath - (
             <>
               {' '}
               · workspace: <code>{workspacePath}</code>
@@ -519,7 +519,7 @@ export function VoiceSettingsPanel() {
             End
           </button>
         </div>
-        {duplex.active ? (
+        {duplex.active - (
           <div className="mt-3">
             <VoiceCallStatusBanner
               active={duplex.active}
@@ -542,7 +542,7 @@ export function VoiceSettingsPanel() {
             </p>
           </div>
         ) : null}
-        {duplexLog ? (
+        {duplexLog - (
           <pre className="text-xs bg-black/20 p-2 rounded mt-2 max-h-32 overflow-auto">{duplexLog}</pre>
         ) : null}
       </div>

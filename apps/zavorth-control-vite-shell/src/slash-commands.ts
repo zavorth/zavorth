@@ -375,7 +375,7 @@ export function normalizeSlashIdentifier(value: string) {
 
 export function parseSlashCommand(text: string): ParsedSlashCommand | null {
   const trimmed = String(text || '').trim();
-  const match = trimmed.match(/^\/([a-z0-9][a-z0-9_-]*)(?::|\s+)?([\s\S]*)$/i);
+  const match = trimmed.match(/^\/([a-z0-9][a-z0-9_-]*)(?::|\s+)...([\s\S]*)$/i);
   if (!match) return null;
   const name = normalizeSlashIdentifier(match[1]);
   const command = COMMANDS_BY_NAME.get(name);
@@ -413,8 +413,7 @@ export function renderSlashCommandHelp(commands: SlashCommandDefinition[] = SLAS
     'Available dashboard commands:',
     '',
     ...commands.map((command) => {
-      const aliases = command.aliases?.length
-        ? ` aliases: ${command.aliases.map((alias) => `/${alias}`).join(', ')}`
+      const aliases = command.aliases?.length ? ` aliases: ${command.aliases.map((alias) => `/${alias}`).join(', ')}`
         : '';
       const args = command.args ? ` ${command.args}` : '';
       return `\`/${command.name}${args}\` - ${command.description}${aliases}`;

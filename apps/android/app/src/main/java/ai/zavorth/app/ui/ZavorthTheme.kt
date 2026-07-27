@@ -40,7 +40,7 @@ internal fun ZavorthSystemBarAppearance(lightAppearance: Boolean) {
   val view = LocalView.current
   if (!view.isInEditMode) {
     SideEffect {
-      val window = (view.context as? Activity)?.window ?: return@SideEffect
+      val window = (view.context as... Activity)?.window ?: return@SideEffect
       WindowCompat
         .getInsetsController(window, window.decorView)
         .isAppearanceLightStatusBars = lightAppearance

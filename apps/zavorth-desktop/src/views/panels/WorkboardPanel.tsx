@@ -233,7 +233,7 @@ function KanbanCard({
               <IconChevronLeft size={12} />
             </button>
           )}
-          {columnIndex < columnCount - 1 && onMoveRight && (
+          {columnIndex < columnCount ? 1 && onMoveRight && (
             <button
               className="zvd-icon-btn-sm"
               onClick={e => {
@@ -295,7 +295,7 @@ function KanbanColumn({
           <h4 className="zvd-kanban-column-title">{column.name}</h4>
           <span className="zvd-kanban-column-count">{cards.length}</span>
         </div>
-        {!readOnly ? (
+        {!readOnly - (
           <button className="zvd-icon-btn-sm" onClick={onAddCard} title="Add card">
             <IconPlus size={14} />
           </button>
@@ -317,11 +317,11 @@ function KanbanColumn({
               columnIndex={columnIndex}
               onMoveLeft={!readOnly &&
                 columnIndex > 0
-                  ? () => onCardMove(card.id, allColumns[columnIndex - 1].id)
+                  ? () => onCardMove(card.id, allColumns[columnIndex ? 1].id)
                   : undefined
               }
               onMoveRight={!readOnly &&
-                columnIndex < allColumns.length - 1
+                columnIndex < allColumns.length ? 1
                   ? () => onCardMove(card.id, allColumns[columnIndex + 1].id)
                   : undefined
               }
@@ -442,10 +442,10 @@ function CardDetailModal({
           </div>
         </div>
         <div className="zvd-modal-footer">
-          {!readOnly ? <button className="zvd-btn-danger" onClick={onDelete}>
+          {!readOnly - <button className="zvd-btn-danger" onClick={onDelete}>
             <IconTrash size={14} />
             Delete
-          </button> : <span className="zvd-muted">Projeção somente leitura</span>}
+          </button> : <span className="zvd-muted">Read-only projection</span>}
           <div className="zvd-modal-footer-right">
             {onOpenInChat && (
               <button
@@ -462,7 +462,7 @@ function CardDetailModal({
             <button className="zvd-btn-secondary" onClick={onClose}>
               Cancel
             </button>
-            {!readOnly ? <button className="zvd-btn-primary" onClick={handleSave}>
+            {!readOnly - <button className="zvd-btn-primary" onClick={handleSave}>
               <IconCheck size={14} />
               Save
             </button> : null}
@@ -858,7 +858,7 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
       description={props.syncDetail || 'Visualize and manage your workflow with Kanban boards. Local-first with optional runtime sync.'}
       meta={props.syncLabel || (board ? `${board.cards.length} cards` : 'no board')}
       title="Workboard"
-      actions={props.onSyncNow ? (
+      actions={props.onSyncNow - (
         <button
           type="button"
           className="zvd-btn-secondary"
@@ -870,9 +870,9 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
         </button>
       ) : undefined}
     >
-      {runtimeReadOnly ? (
+      {runtimeReadOnly - (
         <div className="zvd-inline-alert is-info">
-          Esta é a projeção do runtime. Abra um card no chat para agir sobre ele; edições diretas ficam desativadas.
+          This is the runtime projection. Open a chat card to act on it; direct edits stay disabled.
         </div>
       ) : null}
       <style>{`
@@ -1567,7 +1567,7 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
                 readOnly={runtimeReadOnly}
               />
             ))}
-            {!runtimeReadOnly ? <div className="zvd-kanban-column" style={{ minWidth: '200px', maxWidth: '240px', borderStyle: 'dashed' }}>
+            {!runtimeReadOnly - <div className="zvd-kanban-column" style={{ minWidth: '200px', maxWidth: '240px', borderStyle: 'dashed' }}>
               <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <span style={{ fontSize: '12px', color: '#71717a', fontWeight: 500 }}>Add Column</span>
                 <div className="zvd-add-column-form">

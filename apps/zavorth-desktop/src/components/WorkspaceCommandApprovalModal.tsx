@@ -64,7 +64,7 @@ export function WorkspaceCommandApprovalModal({
           </div>
           <div className="write-approval-title-section">
             <h2 className="write-approval-title">
-              Allow Zavorth to run this command?
+              Allow Zavorth to run this command...
             </h2>
             <div className="write-approval-subtitle">
               Security verification for command execution
