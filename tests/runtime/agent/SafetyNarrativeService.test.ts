@@ -42,7 +42,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
       {
         id: 'approval-safety-1',
         runId: 'run-safety-1',
-        title: 'Aprovar Write file',
+        title: 'Approve Write file',
         reason: 'editar C:\\Users\\grey\\secrets\\token.txt com api_key=sk-secret1234567890',
         risk: 'danger',
         status: 'pending',

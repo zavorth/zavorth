@@ -116,7 +116,7 @@ async function main() {
   }
 
   if (report.nextSteps.length > 0) {
-    console.log('[zavorth-remote] proximos passos:');
+    console.log('[zavorth-remote] next steps:');
     for (const step of report.nextSteps) {
       console.log(`- ${step}`);
     }

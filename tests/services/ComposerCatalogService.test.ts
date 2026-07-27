@@ -89,7 +89,7 @@ describe('ComposerCatalogService', () => {
             label: 'Codex Maker',
             executor: 'codex',
             role: 'maker',
-            strategy_note: 'Implementaction inicial already concluida.',
+            strategy_note: 'Initial implementation already completed.',
             index: 0,
             status: 'completed',
             task_id: 'task-123456789',
@@ -98,7 +98,7 @@ describe('ComposerCatalogService', () => {
             handoff_summary: 'Implementation completed and ready for review.',
             started_at: '2026-03-29T00:00:00.000Z',
             finished_at: '2026-03-29T00:01:00.000Z',
-            result_summary: 'Implementaction concluida.',
+            result_summary: 'Implementation completed.',
             artifact_count: 1,
           },
           {

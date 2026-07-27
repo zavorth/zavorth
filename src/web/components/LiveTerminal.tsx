@@ -116,7 +116,7 @@ export function LiveTerminal({
         <div style={styles.headerLeft}>
           <span style={styles.dot(connected ? '#4ade80' : '#f87171')} />
           <span style={styles.title}>
-            {sessionId || 'Terminal'} — {connected ? 'Conectado' : 'Desconectado'}
+            {sessionId || 'Terminal'} — {connected ? 'Connected' : 'Disconnected'}
           </span>
         </div>
         <div style={styles.statusBadge(STATUS_COLORS[status])}>

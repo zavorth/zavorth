@@ -72,9 +72,9 @@ describe('Web app tenant governance endpoint', () => {
             },
           ],
           narrative: {
-            headline: 'Governanca de tenants com 2 tenant(s) observado(s).',
+            headline: 'Tenant governance with 2 tenant(s) observado(s).',
             operatorSummary: '1 shared | 1 pending onboarding',
-            nextAction: 'Close onboarding antes de abrir novas superficies.',
+            nextAction: 'Close onboarding antes de abrir novas surfaces.',
           },
         })),
       } as any,
@@ -154,7 +154,7 @@ describe('Web app tenant governance endpoint', () => {
           pendingOnboarding: [],
           featuredRecipes: [],
           narrative: {
-            headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
+            headline: 'Tenant governance with 1 tenant(s) observado(s).',
             operatorSummary: '1 shared',
             nextAction: 'Revisar runtime.',
           },
@@ -228,7 +228,7 @@ describe('Web app tenant governance endpoint', () => {
         pendingOnboarding: [],
         featuredRecipes: [],
         narrative: {
-          headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
+          headline: 'Tenant governance with 1 tenant(s) observado(s).',
           operatorSummary: '1 shared',
           nextAction: 'Revisar teams.',
         },
@@ -316,7 +316,7 @@ describe('Web app tenant governance endpoint', () => {
         pendingOnboarding: [],
         featuredRecipes: [],
         narrative: {
-          headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
+          headline: 'Tenant governance with 1 tenant(s) observado(s).',
           operatorSummary: '1 shared',
           nextAction: 'Revisar teams.',
         },
@@ -387,7 +387,7 @@ describe('Web app tenant governance endpoint', () => {
           channels: null,
           memoryPlane: {
             summary: { persistedMemories: 4 },
-            narrative: { headline: 'Retomada pronta.' },
+            narrative: { headline: 'Resume ready.' },
           },
           runtimeModes: null,
           securityMesh: null,

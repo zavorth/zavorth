@@ -41,12 +41,12 @@ describe('RuntimeBootstrapRepairService', () => {
           remote: { baseUrl: 'https://zavorth.example.com', appUrl: 'https://zavorth.example.com/app', ready: true, issues: [] },
           recommendations: [],
           nextSteps: [],
-          summary: 'Zavorth ready para uso local e remoto.',
+          summary: 'Zavorth is ready for local and remote use.',
         },
         lastReloadReport: null,
       },
       actions: [],
-      summary: 'Bootstrap closed: Zavorth ready para uso local e remoto.',
+      summary: 'Bootstrap closed: Zavorth is ready for local and remote use.',
     };
   }
 
@@ -116,8 +116,8 @@ describe('RuntimeBootstrapRepairService', () => {
 
     expect(runCommand).toHaveBeenCalledTimes(2);
     expect(report.steps.map((step) => step.status)).toEqual(['executed', 'executed']);
-    expect(report.final.summary).toBe('Bootstrap closed: Zavorth ready para uso local e remoto.');
-    expect(report.summary).toBe('Correcoes seguras aplicadas. Bootstrap closed: Zavorth ready para uso local e remoto.');
+    expect(report.final.summary).toBe('Bootstrap closed: Zavorth is ready for local and remote use.');
+    expect(report.summary).toBe('Safe corrections applied. Bootstrap closed: Zavorth is ready for local and remote use.');
   });
 
   it('returns a no-op report when no safe repair is available', () => {
@@ -267,6 +267,6 @@ describe('RuntimeBootstrapRepairService', () => {
 
     expect(runCommand).toHaveBeenCalledTimes(1);
     expect(inspectLive).toHaveBeenCalledTimes(2);
-    expect(report.final.summary).toBe('Bootstrap closed: Zavorth ready para uso local e remoto.');
+    expect(report.final.summary).toBe('Bootstrap closed: Zavorth is ready for local and remote use.');
   });
 });

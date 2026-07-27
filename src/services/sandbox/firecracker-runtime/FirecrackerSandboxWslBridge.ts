@@ -90,7 +90,7 @@ export function getWslStatus(wslProjectRoot: string | null): FirecrackerSandboxS
   }
 
   return buildWslUnavailableStatus(
-    `Failure ao obter status do Firecracker via WSL ${config.firecrackerWslDistro}.`,
+    `Failed to obter status do Firecracker via WSL ${config.firecrackerWslDistro}.`,
   );
 }
 

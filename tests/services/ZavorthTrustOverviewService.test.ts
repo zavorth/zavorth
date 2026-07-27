@@ -28,7 +28,7 @@ describe('ZavorthTrustOverviewService', () => {
             },
           ],
           narrative: {
-            nextAction: 'Revisar superficies e allowlists.',
+            nextAction: 'Revisar surfaces e allowlists.',
           },
         })),
       },

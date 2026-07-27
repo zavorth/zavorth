@@ -126,7 +126,7 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
               },
             ],
             actions: {
-              approveApplyLabel: 'Aprovar/aplicar',
+              approveApplyLabel: 'Approve/apply',
               approveApplyInstruction: 'Ask Zavorth to apply draft plan-zavorthControl-diff.',
               rollbackLabel: 'Rollback sera gerado no apply',
               rollbackInstruction: 'Depois do apply, o receipt vai apontar o artifact de rollback reversivel.',
@@ -301,7 +301,7 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
         expect.objectContaining({
           planId: 'plan-zavorthControl-diff',
           actions: expect.objectContaining({
-            approveApplyLabel: 'Aprovar/aplicar',
+            approveApplyLabel: 'Approve/apply',
           }),
         }),
       ],

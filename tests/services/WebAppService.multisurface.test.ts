@@ -254,7 +254,7 @@ describe('Web app multisurface flow', () => {
           },
           workspace: {
             workspace: 'C:/repo',
-            summary: 'Workspace com uma entrega pronta para resume.',
+            summary: 'Workspace with a delivery ready to resume.',
             recentArtifacts: [],
             continuityRecommendations: [],
             workflowRecommendations: [],

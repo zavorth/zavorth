@@ -127,13 +127,13 @@ function buildChannelSnapshot(selectedId = 'telegram') {
       },
       source: 'roadmap',
       summary: 'Canal planejado.',
-      operatorSummary: 'Slack ainda was not conectado ao runtime principal.',
+      operatorSummary: 'Slack ainda was not connected ao runtime principal.',
       actionHint: 'Planejar o adapter de Slack e o contract de mensagens antes do onboarding.',
       tags: ['roadmap'],
       actions: [
         { id: 'slack:inspect', label: 'Inspecionar', kind: 'inspect', command: '/channels slack' },
         { id: 'slack:policy', label: 'Ver policy', kind: 'policy', command: '/channels policy slack' },
-        { id: 'slack:prepare', label: 'Preparar onboarding', kind: 'prepare', command: '/channels prepare slack' },
+        { id: 'slack:prepare', label: 'Prepare onboarding', kind: 'prepare', command: '/channels prepare slack' },
       ],
     },
   ];
@@ -249,7 +249,7 @@ describe('ZavorthChannelActionService', () => {
       reason: 'channel-mesh-action',
     });
     expect(result.status).toBe('applied');
-    expect(result.summary).toContain('sem reiniciar gateways actives');
+    expect(result.summary).toContain('without restarting active gateways');
     expect(result.policyReloadReceipt?.changedChannels).toEqual(['telegram']);
   });
 
@@ -435,7 +435,7 @@ describe('ZavorthChannelActionService', () => {
         actions: [
           { id: 'slack:inspect', label: 'Inspecionar', kind: 'inspect', command: '/channels slack' },
           { id: 'slack:policy', label: 'Ver policy', kind: 'policy', command: '/channels policy slack' },
-          { id: 'slack:prepare', label: 'Preparar onboarding', kind: 'prepare', command: '/channels prepare slack' },
+          { id: 'slack:prepare', label: 'Prepare onboarding', kind: 'prepare', command: '/channels prepare slack' },
           { id: 'slack:broadcast-test', label: 'Testar broadcast', kind: 'broadcast-test', command: '/channels broadcast-test slack' },
         ],
       },
@@ -517,7 +517,7 @@ describe('ZavorthChannelActionService', () => {
         actions: [
           { id: 'slack:inspect', label: 'Inspecionar', kind: 'inspect', command: '/channels slack' },
           { id: 'slack:policy', label: 'Ver policy', kind: 'policy', command: '/channels policy slack' },
-          { id: 'slack:prepare', label: 'Preparar onboarding', kind: 'prepare', command: '/channels prepare slack' },
+          { id: 'slack:prepare', label: 'Prepare onboarding', kind: 'prepare', command: '/channels prepare slack' },
         ],
       },
     };
@@ -569,7 +569,7 @@ describe('ZavorthChannelActionService', () => {
         actions: [
           { id: 'whatsapp:inspect', label: 'Inspecionar', kind: 'inspect', command: '/channels whatsapp' },
           { id: 'whatsapp:policy', label: 'Ver policy', kind: 'policy', command: '/channels policy whatsapp' },
-          { id: 'whatsapp:prepare', label: 'Preparar canal', kind: 'prepare', command: '/channels prepare whatsapp' },
+          { id: 'whatsapp:prepare', label: 'Prepare channel', kind: 'prepare', command: '/channels prepare whatsapp' },
         ],
       },
     };
@@ -621,7 +621,7 @@ describe('ZavorthChannelActionService', () => {
         actions: [
           { id: 'instagram:inspect', label: 'Inspecionar', kind: 'inspect', command: '/channels instagram' },
           { id: 'instagram:policy', label: 'Ver policy', kind: 'policy', command: '/channels policy instagram' },
-          { id: 'instagram:prepare', label: 'Preparar canal', kind: 'prepare', command: '/channels prepare instagram' },
+          { id: 'instagram:prepare', label: 'Prepare channel', kind: 'prepare', command: '/channels prepare instagram' },
         ],
       },
     };

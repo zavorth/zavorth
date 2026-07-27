@@ -131,7 +131,7 @@ describe('ZavorthLayeredMemoryService', () => {
               {
                 id: 'timeline-1',
                 label: 'Ship release',
-                summary: 'Release pronta para o ambiente stable.',
+                summary: 'Release ready para o ambiente stable.',
                 source: 'workflow',
                 status: 'current',
                 happenedAt: '2026-04-09T14:30:00.000Z',

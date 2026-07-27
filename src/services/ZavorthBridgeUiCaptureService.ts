@@ -141,7 +141,7 @@ export class ZavorthBridgeUiCaptureService {
         notes: null,
         rawResponse: null,
         errorCode: 'capture_failed',
-        errorMessage: captureResult.error || 'Failure ao capturar a window do ZavorthBridge.',
+        errorMessage: captureResult.error || 'Failed to capture a window do ZavorthBridge.',
         uiVerified: null,
         uiDiagnostics: null,
       };
@@ -338,7 +338,7 @@ export class ZavorthBridgeUiCaptureService {
           try {
             resolve(JSON.parse(stdout.trim()) as CaptureScriptResult);
           } catch (parseError: unknown) {
-  const parseErrorLike = asErrorLike(parseError);reject(new Error(`Failure ao interpretar a captura do ZavorthBridge: ${parseErrorLike.message}`));
+  const parseErrorLike = asErrorLike(parseError);reject(new Error(`Failed to interpret a captura do ZavorthBridge: ${parseErrorLike.message}`));
           }
         },
       );
@@ -395,7 +395,7 @@ export class ZavorthBridgeUiCaptureService {
                 parsed.diagnostics && typeof parsed.diagnostics === 'object' ? parsed.diagnostics : null,
             });
           } catch (parseError: unknown) {
-  const parseErrorLike = asErrorLike(parseError);reject(new Error(`Failure ao interpretar a read local da UI do ZavorthBridge: ${parseErrorLike.message}`));
+  const parseErrorLike = asErrorLike(parseError);reject(new Error(`Failed to interpret a read local da UI do ZavorthBridge: ${parseErrorLike.message}`));
           }
         },
       );

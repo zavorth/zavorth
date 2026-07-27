@@ -237,7 +237,7 @@ export class IntegrationActionExecutionSupport {
       const err = asErrorLike(error);
       this.writeFileSyncImpl(
         logFd,
-        `[${this.now().toISOString()}] Failure ao iniciar action: ${errorMessage(error)}${lineBreak}`,
+        `[${this.now().toISOString()}] Failed to start action: ${errorMessage(error)}${lineBreak}`,
         'utf8',
       );
       this.closeSyncImpl(logFd);

@@ -188,7 +188,7 @@ export class ZavorthRemoteTransportService {
       operatorSummary: bridge.started
         ? (bridge.mode === 'native'
             ? 'Native Discord is ready for Gateway input and output.'
-            : 'Discord bridge pronto para sincronizar inbox e outbox.')
+            : 'Discord bridge ready para sincronizar inbox e outbox.')
         : dormant
           ? 'Discord esta configurado, mas dormente no perfil atual para manter o core leve.'
         : bridge.enabled
@@ -251,7 +251,7 @@ export class ZavorthRemoteTransportService {
       available: card.ready,
       endpoint: probeEndpoint,
       operatorSummary: card.ready
-        ? `${card.name} pronto para ampliar o roteamento remoto do Zavorth.`
+        ? `${card.name} ready para ampliar o roteamento remoto do Zavorth.`
         : dormant
           ? `${card.name} esta dormente no perfil atual para manter o core leve.`
         : card.enabled
@@ -270,7 +270,7 @@ export class ZavorthRemoteTransportService {
           ? 'Health confirmado pelo sidecar.'
           : dormant
             ? 'Sidecar dormente pelo lifecycle do perfil atual.'
-          : (card.enabled ? 'Sidecar ainda sem health pronto.' : 'Sidecar desativado.'),
+          : (card.enabled ? 'Sidecar ainda sem health ready.' : 'Sidecar desativado.'),
       },
       details: [
         advertisedEndpoint
@@ -356,7 +356,7 @@ export class ZavorthRemoteTransportService {
           : 'No node selected in the remote plane.',
       },
       details: [
-        `Nodes visiveis: ${nodeMesh.summary.total}.`,
+        `Nodes visible: ${nodeMesh.summary.total}.`,
         `Pareados: ${nodeMesh.summary.paired}.`,
         `Pendentes: ${nodeMesh.summary.pending}.`,
         `Online: ${nodeMesh.summary.online}.`,
@@ -384,7 +384,7 @@ export class ZavorthRemoteTransportService {
     if (nodeHost && nodeHost.readiness !== 'ready') {
       actions.push({
         id: 'node-host-pair',
-        label: 'Preparar node host',
+        label: 'Prepare node host',
         command: nodeHost.actionHint || '/nodepair headless',
         severity: nodeMesh.summary.paired > 0 ? 'warn' : 'info',
         reason: nodeHost.operatorSummary,
@@ -403,7 +403,7 @@ export class ZavorthRemoteTransportService {
     if (AIGateway && AIGateway.readiness !== 'ready') {
       actions.push({
         id: 'AIGateway-prepare',
-        label: 'Preparar AIGateway',
+        label: 'Prepare AIGateway',
         command: AIGateway.actionHint || '/connect AIGateway',
         severity: AIGateway.readiness === 'partial' ? 'warn' : 'info',
         reason: AIGateway.operatorSummary,
@@ -571,7 +571,7 @@ export class ZavorthRemoteTransportService {
     }
     actions.push({
       id: `${transportId}:prepare`,
-      label: 'Preparar',
+      label: 'Prepare',
       command: `/transports prepare ${transportId}`,
       kind: 'prepare',
     });

@@ -183,7 +183,7 @@ describe('TelegramInspectionController', () => {
       shouldHandleNaturalQuery: jest.fn().mockReturnValue(true),
       prepare: jest.fn().mockResolvedValue({
         kind: 'result',
-        text: 'Comparaction entre index.html e old-index.html',
+        text: 'Comparison between index.html e old-index.html',
       }),
     } as any;
     const controller = new TelegramInspectionController(
@@ -199,7 +199,7 @@ describe('TelegramInspectionController', () => {
     await controller.handleTaskFiles(ctx, 'compare "index.html" e "old-index.html"', '42');
 
     expect(inspectionService.prepare).toHaveBeenCalled();
-    expect(ctx.reply.mock.calls[0][0]).toContain('Comparaction entre index.html e old-index.html');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Comparison between index.html e old-index.html');
   });
 
   it('creates a scoped permission request for natural inspection outside allowed roots', async () => {

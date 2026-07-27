@@ -68,7 +68,7 @@ describe('CanonicalPublicApiService', () => {
       lastError: {
         level: 'error',
         category: 'Database',
-        message: 'Failure ao abrir o banco.',
+        message: 'Failed to open o banco.',
         timestamp: '2026-04-11T02:20:57.000Z',
       },
     });

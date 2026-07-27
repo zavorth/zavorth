@@ -545,10 +545,10 @@ export class ProductizationEvidenceService {
       return 'Remove stable claims or publish real release, installer, and rollback evidence before continuing.';
     }
     if (stableAllowed) {
-      return 'Preparar Channel mesh7 com Product Entry Runtime e First Run without quebrar gates.';
+      return 'Prepare Channel mesh7 com Product Entry Runtime e First Run without quebrar gates.';
     }
     if (releaseStatus === 'preview-ready') {
-      return 'Seguir para Channel mesh7 mantendo canal preview e receipts de produto.';
+      return 'Seguir para Channel mesh7 mantendo channel preview e receipts de produto.';
     }
     return 'run gates locais e manter release em preview-only.';
   }

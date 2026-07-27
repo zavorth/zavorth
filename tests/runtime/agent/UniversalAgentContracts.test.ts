@@ -234,7 +234,7 @@ describe('Universal agent contract facade', () => {
       traceId: request.traceId,
       profile: 'warm',
       hot: {
-        canonicalSessionPrompt: 'Session canonica pronta.',
+        canonicalSessionPrompt: 'Canonical session ready.',
       },
       warm: {
         workspacePrompt: 'Workspace Zavorth com instrucoes locais.',
@@ -443,7 +443,7 @@ describe('Universal agent contract facade', () => {
       },
       narrative: {
         headline: 'Zavorth exposes 1 familia de tools no current plane.',
-        operatorSummary: '1 familia pronta.',
+        operatorSummary: '1 family ready.',
       },
     };
 

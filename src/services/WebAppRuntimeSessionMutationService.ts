@@ -238,7 +238,7 @@ export class WebAppRuntimeSessionMutationService {
       const body = await deps.readJsonBody(req);
       const payload = await this.executeCanonicalSpawn(body, deps, helpers);
       deps.writeJson(res, payload, 200);
-    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao abrir session derivada.') }, 400);
+    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to open session derivada.') }, 400);
     }
     return true;
   }
@@ -253,7 +253,7 @@ export class WebAppRuntimeSessionMutationService {
       const body = await deps.readJsonBody(req);
       const payload = await this.executeCanonicalCompact(body, deps, helpers);
       deps.writeJson(res, payload, 200);
-    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao compactar session.') }, 500);
+    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to compact session.') }, 500);
     }
     return true;
   }
@@ -385,7 +385,7 @@ export class WebAppRuntimeSessionMutationService {
       },
       narrative: {
         headline: sessionTargets > 0
-          ? 'Gateway resumido para mutation canonicamente rastreada.'
+          ? 'Gateway resumido para mutation canonicalmente rastreada.'
           : 'Gateway resumido without sessions vinculadas.',
         operatorSummary: `${sessionTargets} session target(s) available for fast continuity.`,
       },

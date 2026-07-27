@@ -299,7 +299,7 @@ function formatWorkflowLabel(workflow: string | null): string | null {
   }
   if (normalized === 'ship') return 'Workflow de entrega';
   if (normalized === 'review') return 'Workflow de review';
-  if (normalized === 'research') return 'Workflow de pesquisa';
+  if (normalized === 'research') return 'Workflow de research';
   return `Workflow ${normalized}`;
 }
 

@@ -79,7 +79,7 @@ function makeSnapshot(): ExperienceSnapshot {
       createdAt: '2026-05-21T12:00:00.000Z',
       actions: [{
         id: 'approve:approval-secret-id',
-        label: 'Aprovar',
+        label: 'Approve',
         kind: 'approval',
         command: 'zavorth approve approval-secret-id',
         route: null,

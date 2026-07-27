@@ -266,7 +266,7 @@ export class RuntimeBootstrapRepairService {
       return `Failure while applying the safe correction "${failedStep.title}". ${failedStep.error || 'Check the environment before trying again.'}`;
     }
 
-    return `Correcoes seguras aplicadas. ${final.summary}`;
+    return `Safe corrections applied. ${final.summary}`;
   }
 
   private normalizeError(error: unknown): string {

@@ -213,7 +213,7 @@ export class WasmSandboxRuntime implements ISandboxRuntime {
       worker.once('error', (error) => {
         settle({
           stdout: '',
-          stderr: `[WasmSandbox] Failure ao iniciar worker: ${error.message}`,
+          stderr: `[WasmSandbox] Failed to start worker: ${error.message}`,
           exitCode: -1,
           selectedExport: String(requestExportName || '').trim() || null,
           returnValue: null,

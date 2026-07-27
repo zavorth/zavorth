@@ -647,7 +647,7 @@ export class SwarmV2Service {
       : await this.synthesizeOfficialOutput(state, allResults, finalStatus);
     state.synthesisSummary = finalStatus === 'cancelled'
       ? 'Swarm cancelled by the operator.'
-      : `Sintese oficial gerada com ${allResults.length}/${state.roles.length} role(s).`;
+      : `Official synthesis generated with ${allResults.length}/${state.roles.length} role(s).`;
     this.pushReplay(state, 'swarm.synthesized', state.synthesisSummary, {
       outputChars: synthesizedOutput.length,
       finalStatus,

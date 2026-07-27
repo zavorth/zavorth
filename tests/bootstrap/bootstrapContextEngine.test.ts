@@ -75,7 +75,7 @@ describe('wireLegacyUnifiedGatewayAgentCallback', () => {
     expect(logRepo.log).toHaveBeenCalledWith(
       'info',
       'ContextEngine',
-      'LegacyUnifiedGatewayAdapter agent callback conectado no bootstrap central.',
+      'LegacyUnifiedGatewayAdapter agent callback connected no bootstrap central.',
     );
   });
 });

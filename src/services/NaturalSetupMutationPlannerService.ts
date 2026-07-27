@@ -114,7 +114,7 @@ export class NaturalSetupMutationPlannerService {
     const plan = this.mutationPlane.createPlan({
       domain: 'setup',
       actionId: 'natural-setup',
-      title: selectedChannelId ? `Apply natural setup for ${selectedChannelId}` : 'Apply natural setup for canal',
+      title: selectedChannelId ? `Apply natural setup for ${selectedChannelId}` : 'Apply natural setup for channel',
       summary: 'run scaffold, doctor, or send-test detected by Natural Setup only after approval.',
       requestedBy: input.requestedBy || null,
       sourceSurface: input.sourceSurface || 'natural-setup',
@@ -125,7 +125,7 @@ export class NaturalSetupMutationPlannerService {
       readinessGates: [readinessGate],
       validationPlan: [
         'Mascarar secrets before persistir.',
-        'validate canal e modo before do apply.',
+        'validate channel e modo before do apply.',
         'Consult Capability Lifecycle and Trust Plane before any activation.',
         'run doctor only after valid scaffold/env.',
       ],

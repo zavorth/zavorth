@@ -383,7 +383,7 @@ export class ModelCatalogAggregationService {
       return {
         id: familyId,
         label: resolvedFamily?.label || first.providerLabel,
-        summary: resolvedFamily?.summary || `Catalogo agregado para ${first.providerLabel}.`,
+        summary: resolvedFamily?.summary || `Aggregated catalog for ${first.providerLabel}.`,
         vendorId: resolvedFamily?.vendorId || first.providerId,
         providerIds: unique([...(resolvedFamily?.providerIds || []), ...familyModels.map((model) => model.providerId)]),
         defaultModelName: first.root || null,

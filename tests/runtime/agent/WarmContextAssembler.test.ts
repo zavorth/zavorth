@@ -63,7 +63,7 @@ describe('WarmContextAssembler', () => {
       hot: {
         continuityPrompt: 'Continuidade recente.',
         summaryPrompt: 'Resumo curto.',
-        canonicalSessionPrompt: 'Session canonica.',
+        canonicalSessionPrompt: 'Session canonical.',
         recentEvents: [
           {
             kind: 'input',
@@ -121,7 +121,7 @@ describe('WarmContextAssembler', () => {
       sessionId: 'web:empty-warm',
       channel: 'web',
       hot: {
-        canonicalSessionPrompt: 'Session canonica pronta.',
+        canonicalSessionPrompt: 'Canonical session ready.',
       },
       warm: {
         workspacePrompt: 'Workspace carregado.',
@@ -143,7 +143,7 @@ describe('WarmContextAssembler', () => {
     });
 
     expect(snapshot.hot).toEqual(expect.objectContaining({
-      canonicalSessionPrompt: 'Session canonica pronta.',
+      canonicalSessionPrompt: 'Canonical session ready.',
       recentEvents: [],
       metadata: {},
     }));

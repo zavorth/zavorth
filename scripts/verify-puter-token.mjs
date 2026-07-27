@@ -56,6 +56,6 @@ try {
 } catch (error) {
   clearTimeout(timeout);
   const message = error instanceof Error ? error.message : String(error);
-  console.error(`Failure ao validate token Puter: ${message}`);
+  console.error(`Failed to validate token Puter: ${message}`);
   process.exit(1);
 }

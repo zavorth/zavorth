@@ -27,7 +27,7 @@ describe('ZavorthCapabilityCatalogService', () => {
             id: 'route-external-executor-auto',
             label: 'Broad investigation',
             type: 'executor',
-            description: 'Rota automatica para investigaction.',
+            description: 'Rota automatica to investigaction.',
             intent: 'code_execution',
             executor_preference: 'external_executor',
             dispatch_mode: 'execution',
@@ -169,7 +169,7 @@ describe('ZavorthCapabilityCatalogService', () => {
               manifest: {
                 id: 'openrouter',
                 label: 'OpenRouter',
-                summary: 'API remota pronta para chat e code.',
+                summary: 'Remote API ready for chat and code.',
                 category: 'provider',
               },
               installed: { status: 'connected' },
@@ -180,7 +180,7 @@ describe('ZavorthCapabilityCatalogService', () => {
               manifest: {
                 id: 'AIGateway',
                 label: 'AIGateway',
-                summary: 'Sidecar local para ponteamento.',
+                summary: 'Sidecar local to ponteamento.',
                 category: 'sidecar',
               },
               installed: null,
@@ -191,7 +191,7 @@ describe('ZavorthCapabilityCatalogService', () => {
               manifest: {
                 id: 'zerocloud',
                 label: 'ZeroCloud Template',
-                summary: 'Template para novo conector.',
+                summary: 'Template to novo conector.',
                 category: 'template',
               },
               installed: null,
@@ -421,7 +421,7 @@ describe('ZavorthCapabilityCatalogService', () => {
         summary: expect.objectContaining({ exposed: 1, receipts: 1 }),
       }),
     );
-    expect(snapshot.narrative.headline).toContain('3 capacidades');
+    expect(snapshot.narrative.headline).toContain('3 capabilitys');
     expect(snapshot.narrative.operatorSummary).toContain('2 comandos diretos');
     expect(snapshot.narrative.operatorSummary).toContain('1 provider(s) ready(s)');
     expect(snapshot.narrative.operatorSummary).toContain('1/1 capability(ies) MCP conectada(s)');

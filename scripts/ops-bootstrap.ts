@@ -82,7 +82,7 @@ async function main() {
   }
 
   if (report.actions.length > 0) {
-    console.log('[zavorth-bootstrap] proximos passos:');
+    console.log('[zavorth-bootstrap] next steps:');
     for (const action of report.actions) {
       console.log(`- ${action.title} -> ${action.command}`);
       console.log(`  ${action.reason}`);

@@ -127,7 +127,7 @@ export class ZavorthPlatformActionService {
           ...selected.details.slice(0, 4),
         ]);
       case 'doctor':
-        return this.finishEntry(actionId, selected, 'manual', `Doctor for ${selected.label} pronto.`, [
+        return this.finishEntry(actionId, selected, 'manual', `Doctor for ${selected.label} ready.`, [
           selected.summary,
           `Readiness: ${selected.readiness}`,
           `Trust: ${selected.trust}`,
@@ -170,7 +170,7 @@ export class ZavorthPlatformActionService {
           ...selectedCollection.details.slice(0, 4),
         ]);
       case 'open':
-        return this.finishCollection(actionId, selectedCollection, 'manual', `${selectedCollection.label}: trilha pronta.`, [
+        return this.finishCollection(actionId, selectedCollection, 'manual', `${selectedCollection.label}: track ready.`, [
           `Recommended shortcut: ${selectedCollection.actionHint || 'n/d'}`,
           selectedCollection.summary,
           ...selectedCollection.details.slice(0, 4),
@@ -288,7 +288,7 @@ export class ZavorthPlatformActionService {
     }
 
     return this.finishEntry(actionId, selected, 'blocked', `${selected.label} uses the learning plane lifecycle, not ${actionId}.`, [
-      'Use install para aprovar o draft, trust para promover trusted local ou review para mandar para quarentena.',
+      'Use install para approve o draft, trust para promover trusted local ou review para mandar para quarentena.',
       'O lifecycle learned-local continua fail-closed ate promocao explicita.',
     ]);
   }
@@ -323,7 +323,7 @@ export class ZavorthPlatformActionService {
           ...selectedRecipe.details.slice(0, 4),
         ]);
       case 'open':
-        return this.finishRecipe(actionId, selectedRecipe, 'manual', `${selectedRecipe.label}: guia pronta.`, [
+        return this.finishRecipe(actionId, selectedRecipe, 'manual', `${selectedRecipe.label}: guide ready.`, [
           `Recommended shortcut: ${selectedRecipe.actionHint || 'n/d'}`,
           selectedRecipe.summary,
           ...selectedRecipe.steps.slice(0, 4),

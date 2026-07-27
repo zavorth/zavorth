@@ -25,7 +25,7 @@ describe('RuntimeOfficialAccessService', () => {
         appUrl: 'https://zavorth.example.com/zavorthControl',
       },
       nextSteps: [],
-      summary: 'Zavorth ready para uso local.',
+      summary: 'Zavorth is ready for local use.',
     } as any;
     const refreshedReadiness = {
       ...initialReadiness,
@@ -38,7 +38,7 @@ describe('RuntimeOfficialAccessService', () => {
         baseUrl: 'https://zavorth.example.com',
         appUrl: 'https://zavorth.example.com/zavorthControl',
       },
-      summary: 'Zavorth ready para uso local e remoto.',
+      summary: 'Zavorth is ready for local and remote use.',
     } as any;
     const initialManifest = {
       local: {
@@ -58,7 +58,7 @@ describe('RuntimeOfficialAccessService', () => {
         start: 'npm run ops:start',
         remote: 'npm run ops:remote:official',
       },
-      summary: 'Zavorth ready para uso local.',
+      summary: 'Zavorth is ready for local use.',
     } as any;
     const refreshedManifest = {
       ...initialManifest,
@@ -70,7 +70,7 @@ describe('RuntimeOfficialAccessService', () => {
       auth: {
         authorizedHost: true,
       },
-      summary: 'Zavorth ready para uso local e remoto.',
+      summary: 'Zavorth is ready for local and remote use.',
     } as any;
 
     const fetchImpl = jest
@@ -251,7 +251,7 @@ describe('RuntimeOfficialAccessService', () => {
         appUrl: 'https://zavorth.example.com/zavorthControl',
       },
       nextSteps: [],
-      summary: 'Zavorth ready para uso local.',
+      summary: 'Zavorth is ready for local use.',
     } as any;
     const manifest = {
       local: {
@@ -272,7 +272,7 @@ describe('RuntimeOfficialAccessService', () => {
         remote: 'npm run ops:remote:official',
         remoteGo: 'npm run ops:remote:go',
       },
-      summary: 'Zavorth ready para uso local.',
+      summary: 'Zavorth is ready for local use.',
     } as any;
 
     const fetchImpl = jest
@@ -340,7 +340,7 @@ describe('RuntimeOfficialAccessService', () => {
         appUrl: 'https://zavorth.example.com/zavorthControl',
       },
       nextSteps: [],
-      summary: 'Zavorth ready para uso local.',
+      summary: 'Zavorth is ready for local use.',
     } as any;
     const manifest = {
       local: {
@@ -361,7 +361,7 @@ describe('RuntimeOfficialAccessService', () => {
         start: 'npm run ops:start',
         remote: 'npm run ops:remote:official',
       },
-      summary: 'Zavorth ready para uso local.',
+      summary: 'Zavorth is ready for local use.',
     } as any;
 
     const fetchImpl = jest
@@ -427,7 +427,7 @@ describe('RuntimeOfficialAccessService', () => {
         appUrl: 'https://zavorth.example.com/zavorthControl',
       },
       nextSteps: [],
-      summary: 'Zavorth ready para uso local e remoto.',
+      summary: 'Zavorth is ready for local and remote use.',
     } as any;
     const manifest = {
       local: {
@@ -449,7 +449,7 @@ describe('RuntimeOfficialAccessService', () => {
         remote: 'npm run ops:remote:official',
         remoteGo: 'npm run ops:remote:go',
       },
-      summary: 'Zavorth ready para uso local e remoto.',
+      summary: 'Zavorth is ready for local and remote use.',
     } as any;
 
     const fetchImpl = jest

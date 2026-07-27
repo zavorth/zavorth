@@ -376,7 +376,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
           </ul>
         </article>
         <article id="journey-card" class="handoff-card">
-          <h2>Preparar this host</h2>
+          <h2>Prepare this host</h2>
           <p id="journey-card-note" class="muted-copy section-note">Use this path when the local runtime is not ready yet or this host still needs trust.</p>
           <div class="action-row compact-remote-actions">
             <button id="journey-trust-action" type="button" class="action-button" hidden>Autorizar this host</button>

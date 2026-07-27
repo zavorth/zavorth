@@ -427,7 +427,7 @@ function createTemporaryWebRuntimeDeps() {
         created_at: new Date().toISOString(),
         status: 'queued',
         raw_message: payload?.text || '',
-        result_summary: 'Dispatch aceito no smoke temporario.',
+        result_summary: 'Dispatch aceito no smoke temporary.',
         metadata: {
           runtime_user_id: payload?.userId || 'web-smoke-user',
           surface_identity: {

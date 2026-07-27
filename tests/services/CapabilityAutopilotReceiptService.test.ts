@@ -65,7 +65,7 @@ const readiness: CapabilityReadinessSnapshot = {
   evidence: [],
   suggestedNextAction: {
     label: 'Planejar reparo de requisitos',
-    reason: 'Falta binario.',
+    reason: 'Falta binary.',
     repairable: true,
   },
 };

@@ -5,7 +5,7 @@ describe('RuntimeRecoveryService', () => {
     const service = new RuntimeRecoveryService();
 
     const assessment = service.assess({
-      summary: 'Zavorth ready para uso local.',
+      summary: 'Zavorth is ready for local use.',
       runtime: {
         hostSupervisor: { alive: true },
         telegramWorker: { alive: true },

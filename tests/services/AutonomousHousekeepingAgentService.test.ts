@@ -65,7 +65,7 @@ describe('AutonomousHousekeepingAgentService', () => {
           success: true,
           previewId: 'preview-runtime-cycle',
           artifactId: 'preview-runtime-cycle',
-          summary: `Preview pronta para: ${goal}`,
+          summary: `Preview ready para: ${goal}`,
           reason: 'ok',
         })),
       } as any,

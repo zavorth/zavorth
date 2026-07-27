@@ -202,7 +202,7 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
         return {
           status: 'failed',
           ok: false,
-          summary: `Failure ao aplicar rascunho; rollback local executado: ${error instanceof Error ? err.message : String(error)}`,
+          summary: `Failed to aplicar rascunho; rollback local executado: ${error instanceof Error ? err.message : String(error)}`,
           appliedActions: [],
           rollbackAvailable: true,
           rollbackArtifactPath,
@@ -250,7 +250,7 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
       return {
         status: 'failed',
         ok: false,
-        summary: `Failure ao restaurar rollback artifact: ${error instanceof Error ? err.message : String(error)}`,
+        summary: `Failed to restore rollback artifact: ${error instanceof Error ? err.message : String(error)}`,
         appliedActions: [],
         rollbackAvailable: false,
         rollbackArtifactPath: rollbackArtifactPath || null,

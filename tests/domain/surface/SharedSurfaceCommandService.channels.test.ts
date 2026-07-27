@@ -69,7 +69,7 @@ describe('SharedSurfaceCommandService', () => {
           {
             id: 'timeline-1',
             label: 'Gateway release',
-            summary: 'Release final pronta.',
+            summary: 'Final release ready.',
             memoryLayer: 'episodic',
             source: 'workflow',
             confidence: 0.74,
@@ -621,7 +621,7 @@ describe('SharedSurfaceCommandService', () => {
           {
             id: 'timeline-1',
             label: 'Gateway release',
-            summary: 'Release final pronta.',
+            summary: 'Final release ready.',
             memoryLayer: 'episodic',
             source: 'workflow',
             confidence: 0.74,
@@ -1238,7 +1238,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: 'mande um agente pesquisar e outro validar canais',
+      rawText: 'ask one agent to research and another to validate channels',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -1273,7 +1273,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: '/invoke mande um agente pesquisar e outro validar canais',
+      rawText: '/invoke ask one agent to research and another to validate channels',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -1341,7 +1341,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(handled).toBe(true);
     expect(plan).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: 'mande um agente pesquisar e outro validar canais',
+        text: 'ask one agent to research and another to validate channels',
         autoExecute: true,
         channel: 'telegram',
         actorId: 'telegram-user',

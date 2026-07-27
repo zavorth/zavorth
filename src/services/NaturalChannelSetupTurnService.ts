@@ -214,7 +214,7 @@ export class NaturalChannelSetupTurnService {
     } else if (channelId === 'slack') {
       add('SLACK_BOT_TOKEN', ['slack bot token', 'token do slack', 'bot token']);
       add('SLACK_SIGNING_SECRET', ['slack signing secret', 'signing secret']);
-      add('SLACK_ALLOWED_CHANNEL_IDS', ['slack channel id', 'slack channel ids', 'canal do slack']);
+      add('SLACK_ALLOWED_CHANNEL_IDS', ['slack channel id', 'slack channel ids', 'Slack channel']);
     } else if (channelId === 'whatsapp') {
       add('WHATSAPP_PHONE_NUMBER_ID', ['phone number id', 'number id']);
       add('WHATSAPP_ACCESS_TOKEN', ['whatsapp access token', 'token do whatsapp', 'access token']);

@@ -183,13 +183,13 @@ export function bindVoiceDictation({
         const finalMime = recorder.mimeType || 'audio/webm';
         const blob = new Blob(recordingChunks, { type: finalMime });
         const ext = finalMime.includes('webm') ? 'webm' : finalMime.includes('ogg') ? 'ogg' : finalMime.includes('mp4') ? 'mp4' : 'wav';
-        const file = new File([blob], `gravaction-voz.${ext}`, { type: finalMime });
+        const file = new File([blob], `voice-recording.${ext}`, { type: finalMime });
 
         if (onAttachFile) {
           await onAttachFile([file]);
         }
         if (composeInput) {
-          composeInput.value = `[Audio: gravaction-voz.${ext}]`;
+          composeInput.value = `[Audio: voice-recording.${ext}]`;
           composeInput.dispatchEvent(new Event('input'));
         }
         if (recordingStream) {

@@ -483,7 +483,7 @@ export class ZavorthBridgeControlService {
             ),
           ),
         }));
-    } catch (error: unknown) {logger.warn(`[ZavorthBridgeControlService] Failure ao carregar modelos permitidos: ${error}`);
+    } catch (error: unknown) {logger.warn(`[ZavorthBridgeControlService] Failed to load modelos permitidos: ${error}`);
       return [];
     }
   }

@@ -53,7 +53,7 @@ describe('SkillMcpSidecarService', () => {
               id: 'codebase-navigation',
               kind: 'recipe',
               label: 'Navegaction e depuraction rapida',
-              reason: 'Recipe pronta.',
+              reason: 'Recipe ready.',
               score: 4,
             },
           ],

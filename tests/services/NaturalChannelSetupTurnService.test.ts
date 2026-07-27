@@ -167,7 +167,7 @@ describe('NaturalChannelSetupTurnService', () => {
 
     expect(result.channelId).toBeNull();
     expect(result.applyResult).toBeNull();
-    expect(result.naturalReply).toContain('Me diga qual canal you quer conectar');
+    expect(result.naturalReply).toContain('Me diga qual channel you quer conectar');
   });
 
   it('previews requested mutations without writing secrets or running doctor/test', async () => {

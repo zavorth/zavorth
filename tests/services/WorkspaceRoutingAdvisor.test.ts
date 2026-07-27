@@ -320,7 +320,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             type: 'file',
             path: null,
             url: null,
-            summary: 'Entrega pronta para review.',
+            summary: 'Delivery ready for review.',
             created_at: new Date().toISOString(),
             executor: 'codex',
           },

@@ -51,7 +51,7 @@ export class LocalMemoryBackend implements IMemoryBackend {
     const text = String(content || '').trim();
     const meta = options?.metadata || {};
     const key = String(options?.key || meta.key || `fato_${Date.now()}`).trim().toLowerCase();
-    const category = String(meta.category || 'agente_extraido').trim().toLowerCase() || 'agente_extraido';
+    const category = String(meta.category || 'agent_extracted').trim().toLowerCase() || 'agent_extracted';
     const metadata: MemoryMetadata = {
       ...meta,
       key,

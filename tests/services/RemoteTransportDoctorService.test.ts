@@ -286,7 +286,7 @@ describe('RemoteTransportDoctorService', () => {
               telemetry: {
                 updatedAt: '2026-04-02T12:08:30.000Z',
                 pendingWork: 0,
-                lastError: 'Failure ao encamyr request ao AIGateway upstream: fetch failed',
+                lastError: 'Failed to forward request to AIGateway upstream: fetch failed',
                 statusLine: 'Sidecar ainda sem health ready.',
               },
               details: ['Sem PID active.'],

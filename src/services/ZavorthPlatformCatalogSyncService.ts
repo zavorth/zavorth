@@ -255,7 +255,7 @@ export class ZavorthPlatformCatalogSyncService {
         ok: true,
         ...this.readStatus(),
       };
-    } catch (error: unknown) {const failed = this.persistFailure(errorMessage(error, 'Failure ao sincronizar o registry remote.'));
+    } catch (error: unknown) {const failed = this.persistFailure(errorMessage(error, 'Failed to sync o registry remote.'));
       return {
         ok: false,
         ...failed,
@@ -284,7 +284,7 @@ export class ZavorthPlatformCatalogSyncService {
       entryCount: Number(previous?.entryCount || 0) || 0,
       collectionCount: Number(previous?.collectionCount || 0) || 0,
       recipeCount: Number(previous?.recipeCount || 0) || 0,
-      error: String(message || '').trim() || 'Failure ao sincronizar o registry remote.',
+      error: String(message || '').trim() || 'Failed to sync o registry remote.',
     };
     this.writeJsonFile(this.statusFile, nextState);
     return this.readStatus();

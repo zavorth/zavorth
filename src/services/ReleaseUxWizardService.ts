@@ -309,7 +309,7 @@ export class ReleaseUxWizardService {
       },
       {
         id: 'rollback-preview',
-        label: 'Preparar rollback preview',
+        label: 'Prepare rollback preview',
         phase: 'rollback',
         command: rollback.command,
         previewOnly: true,

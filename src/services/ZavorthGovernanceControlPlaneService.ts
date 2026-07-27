@@ -327,7 +327,7 @@ export class ZavorthGovernanceControlPlaneService {
         id: 'plugins',
         label: 'Plugin trust',
         posture: surfacePosture('plugins'),
-        boundary: `${installedPlugins} instalado(s)`,
+        boundary: `${installedPlugins} installed`,
         allowlistState: `${trustedPlugins}/${installedPlugins} trusted`,
         auditState: `${Number(input.plugins?.summary?.catalogBacked || 0)} catalog-backed`,
         nextAction: trustedPlugins < installedPlugins ? 'review plugins instalados ainda without trusted.' : 'Manter provenance e trust por plugin.',
@@ -470,7 +470,7 @@ export class ZavorthGovernanceControlPlaneService {
         label: 'Plugins instalados without trusted',
         severity: 'warn',
         decision: 'audit',
-        rationale: `${installedPlugins - trustedPlugins} plugin(s) instalado(s) are not trusted yet.`,
+        rationale: `${installedPlugins - trustedPlugins} plugin(s) installed are not trusted yet.`,
         command: '/plugins review',
       });
     }

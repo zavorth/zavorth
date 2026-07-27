@@ -286,6 +286,6 @@ describe('TelegramSelfModificationController', () => {
 
     expect(task.status).toBe('failed');
     expect(deps.selfModificationService.createPreview).toHaveBeenCalled();
-    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Saida da validaction|validation|Preview|bloqueado/i);
+    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Output da validaction|validation|Preview|bloqueado/i);
   });
 });

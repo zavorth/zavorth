@@ -85,7 +85,7 @@ export class WebAppSurfaceToolingRouteService {
           result,
           plugins: deps.pluginRegistry.buildSnapshot({ selectedId: pluginId }),
         }, 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao run a action do plugin plane.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to run a action do plugin plane.') }, 400);
       }
       return true;
     }
@@ -134,7 +134,7 @@ export class WebAppSurfaceToolingRouteService {
             ? deps.pluginRegistry.buildSnapshot({ selectedId: entryId.replace(/^plugin:/i, '') })
             : null,
         }, 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao run a action do platform plane.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to run a action do platform plane.') }, 400);
       }
       return true;
     }
@@ -156,7 +156,7 @@ export class WebAppSurfaceToolingRouteService {
           },
           result.ok ? 200 : 400,
         );
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao sincronizar o platform plane.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to sync o platform plane.') }, 400);
       }
       return true;
     }
@@ -241,7 +241,7 @@ export class WebAppSurfaceToolingRouteService {
           },
           run.ok ? 200 : 409,
         );
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao run o hook plane.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to run o hook plane.') }, 400);
       }
       return true;
     }
@@ -336,7 +336,7 @@ export class WebAppSurfaceToolingRouteService {
           action,
           trustPlane: action?.snapshot || deps.trustPlane.buildSnapshot(),
         }, action?.status === 'waiting_approval' ? 202 : 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao agir no Trust Plane.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to agir no Trust Plane.') }, 400);
       }
       return true;
     }
@@ -353,7 +353,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/tenants' && req.method === 'GET') {
       if (!deps.tenantGovernance) {
-        deps.writeJson(res, { ok: false, error: 'Governanca de tenants unavailable.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Tenant governance unavailable.' }, 503);
         return true;
       }
 
@@ -384,7 +384,7 @@ export class WebAppSurfaceToolingRouteService {
           return true;
         }
         if (!['inspect-tenant', 'review-teams', 'review-channels', 'review-runtime', 'review-memoryplane', 'review-sessions', 'start-onboarding-review', 'start-tenant-audit'].includes(actionId)) {
-          deps.writeJson(res, { ok: false, error: 'actionId invalid para a governanca de tenants.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'actionId invalid to a governanca de tenants.' }, 400);
           return true;
         }
 
@@ -394,7 +394,7 @@ export class WebAppSurfaceToolingRouteService {
           workspace: deps.workspaceRoot,
         });
         deps.writeJson(res, { ok: true, ...result }, result?.action?.status === 'started' ? 202 : 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao run a action guiada do tenant.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to run a action guiada do tenant.') }, 400);
       }
       return true;
     }
@@ -419,7 +419,7 @@ export class WebAppSurfaceToolingRouteService {
         const body = await deps.readJsonBody(req);
         const actionId = String(body?.actionId || '').trim() as 'start_loop' | 'resume_loop';
         if (!actionId || !['start_loop', 'resume_loop'].includes(actionId)) {
-          deps.writeJson(res, { ok: false, error: 'actionId invalid para o Agent OS.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'actionId invalid to o Agent OS.' }, 400);
           return true;
         }
 
@@ -435,7 +435,7 @@ export class WebAppSurfaceToolingRouteService {
         });
 
         deps.writeJson(res, { ok: true, ...result }, 202);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao run a action do Agent OS.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to run a action do Agent OS.') }, 400);
       }
       return true;
     }
@@ -456,7 +456,7 @@ export class WebAppSurfaceToolingRouteService {
 
         const action = deps.operationsActions.execute(actionId);
         deps.writeJson(res, { ok: true, action, accepted: action.status === 'started' }, action.status === 'started' ? 202 : 500);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao iniciar action operational.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to start action operational.') }, 400);
       }
       return true;
     }
@@ -492,7 +492,7 @@ export class WebAppSurfaceToolingRouteService {
           forceRepair: body?.forceRepair === true,
         });
         deps.writeJson(res, { ok: mobileAccess.ok, mobileAccess }, mobileAccess.ok ? 200 : 409);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao iniciar o access movel do ZavorthBridge.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to start o access movel do ZavorthBridge.') }, 400);
       }
       return true;
     }
@@ -508,7 +508,7 @@ export class WebAppSurfaceToolingRouteService {
           requestedBy: deps.runtime?.webUserId || 'web-user',
         });
         deps.writeJson(res, { ok: true, mobileAccess }, 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao encerrar o access movel do ZavorthBridge.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to stop o access movel do ZavorthBridge.') }, 400);
       }
       return true;
     }
@@ -573,12 +573,12 @@ export class WebAppSurfaceToolingRouteService {
           }
           report = await deps.AIGatewayUpstreamSync.rollback();
         } else {
-          deps.writeJson(res, { ok: false, error: 'actionId invalid para o AIGateway.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'actionId invalid to o AIGateway.' }, 400);
           return true;
         }
 
         deps.writeJson(res, { ok: report.ok, report }, report.ok ? 200 : 409);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao operar o AIGateway.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to operar o AIGateway.') }, 400);
       }
       return true;
     }
@@ -633,7 +633,7 @@ export class WebAppSurfaceToolingRouteService {
           },
           200,
         );
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao preparar a integration.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to prepare a integration.') }, 400);
       }
       return true;
     }
@@ -667,7 +667,7 @@ export class WebAppSurfaceToolingRouteService {
           },
           action.status === 'started' ? 202 : 200,
         );
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao run a action guiada.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to run a action guiada.') }, 400);
       }
       return true;
     }
@@ -712,7 +712,7 @@ export class WebAppSurfaceToolingRouteService {
           },
           200,
         );
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao aplicar o profile de provider.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to aplicar o profile de provider.') }, 400);
       }
       return true;
     }

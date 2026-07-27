@@ -246,7 +246,7 @@ export class MemoryService {
         entry,
         score: this.scoreMemoryEntry(entry, queryTokens, queryEmbedding),
       }))
-      .filter((item) => item.score > 0.45) // Threshold mais alto para embeddings reais
+      .filter((item) => item.score > 0.45)
       .sort((left, right) => right.score - left.score)
       .slice(0, limit)
       .map((item) => item.entry);
@@ -552,49 +552,42 @@ export class MemoryService {
   }
 
   private extractSemanticTokens(text: string): string[] {
-    const stopWords = new Set([
-      'para',
-      'com',
-      'que',
-      'uma',
-      'como',
-      'isso',
-      'essa',
-      'esse',
-      'aqui',
-      'agora',
-      'after',
-      'sobre',
-      'entre',
-      'quero',
-      'preciso',
-      'favor',
-      'telegram',
-      'meu',
-      'minha',
-      'seu',
-      'sua',
-      'por',
-      'dos',
-      'das',
-      'nos',
-      'nas',
-      'uma',
-      'uns',
-      'umas',
-    ]);
-
     return Array.from(
       new Set(
-        String(text || '')
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .split(/[^a-z0-9_:/\\.-]+/i)
-          .map((token) => token.trim())
-          .filter((token) => token.length >= 3 && !stopWords.has(token)),
+        this.tokenizeSemanticText(text)
+          .filter((token) => token.length >= 3),
       ),
     );
+  }
+
+  private tokenizeSemanticText(text: string): string[] {
+    const tokens: string[] = [];
+    let current = '';
+    for (const char of String(text || '').toLowerCase().normalize('NFD')) {
+      if (char >= '\u0300' && char <= '\u036f') {
+        continue;
+      }
+      if (this.isSemanticTokenChar(char)) {
+        current += char;
+        continue;
+      }
+      if (current) tokens.push(current);
+      current = '';
+    }
+    if (current) tokens.push(current);
+    return tokens;
+  }
+
+  private isSemanticTokenChar(char: string): boolean {
+    if (!char) return false;
+    return char.toLocaleLowerCase() !== char.toLocaleUpperCase()
+      || (char >= '0' && char <= '9')
+      || char === '_'
+      || char === ':'
+      || char === '/'
+      || char === '\\'
+      || char === '.'
+      || char === '-';
   }
 
   private scoreMemoryEntry(entry: MemoryEntry, queryTokens: string[], queryEmbedding: number[]): number {
@@ -608,10 +601,8 @@ export class MemoryService {
     }
 
     const storedEmbedding = this.parseEmbedding(entry.embedding);
-    // Se n......o houver embedding (ex: entrada antiga), ignoramos o score vetorial ou poder......amos gerar agora
     const vectorScore = storedEmbedding ? this.cosineSimilarity(queryEmbedding, storedEmbedding) : 0;
 
-    // Pesos: Vetorial tem mais peso que l......xico no RAG real
     let score = lexicalScore * 0.3 + vectorScore * 10;
 
     if (score <= 0) {

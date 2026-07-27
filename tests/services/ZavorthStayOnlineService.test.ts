@@ -221,7 +221,7 @@ function readyToGoSnapshot(overrides: Record<string, any> = {}) {
     status: overrides.status || 'ready',
     remoteReady: overrides.remoteReady ?? true,
     localReady: overrides.localReady ?? true,
-    headline: overrides.headline || 'Pode sair do PC: Zavorth esta ready para uso remoto.',
+    headline: overrides.headline || 'You can leave the PC: Zavorth is ready for remote use.',
     summary,
     provider: {
       activeProvider: 'openai',

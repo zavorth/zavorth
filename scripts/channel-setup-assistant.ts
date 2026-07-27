@@ -144,7 +144,7 @@ function renderAssistant(session: ReturnType<ChannelSetupAssistantService['build
   console.log(`[channels:assistant] status: ${session.status}`);
   console.log(`[channels:assistant] response: ${session.naturalReply}`);
   if (session.selected) {
-    console.log(`[channels:assistant] canal: ${session.selected.label}`);
+    console.log(`[channels:assistant] channel: ${session.selected.label}`);
     console.log(`[channels:assistant] modo: ${session.selected.setupMode}`);
     console.log(`[channels:assistant] faltando: ${session.selected.missingEnvKeys.join(', ') || 'nada'}`);
     console.log(`[channels:assistant] next passo: ${session.selected.operatorNextStep}`);

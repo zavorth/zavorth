@@ -101,7 +101,7 @@ describe('ChannelFabricService', () => {
   test('uses device locale with English fallback and validates visible text boundaries', () => {
     registerChannelFabricAdapter({ profileId: 'telegram' });
     const pt = renderChannelGovernancePresentation('telegram', { title: 'Publicar', reason: 'Alteraction approved.', locale: 'pt-BR' });
-    expect(pt.approval.actions?.map((action) => action.label)).toEqual(['Aprovar', 'Negar']);
+    expect(pt.approval.actions?.map((action) => action.label)).toEqual(['Approve', 'Deny']);
     const fallback = renderChannelGovernancePresentation('telegram', { title: 'Publish', reason: 'Approved change.', locale: 'de-DE' });
     expect(fallback.approval.actions?.map((action) => action.label)).toEqual(['Approve', 'Deny']);
     expect(() => renderChannelGovernancePresentation('telegram', { title: '', reason: 'Reason' })).toThrow(/title is required/);

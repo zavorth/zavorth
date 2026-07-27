@@ -41,7 +41,7 @@ type WizardFlags = {
 const CHANNEL_OPTIONS: Array<{ value: ZavorthChannelWizardId; label: string; hint: string }> = [
   { value: 'telegram', label: 'Telegram', hint: 'Bot token + user allowlist.' },
   { value: 'discord', label: 'Discord', hint: 'Bot token + guild/channel allowlist.' },
-  { value: 'slack', label: 'Slack', hint: 'Token + allowlist de workspace/canal when usado.' },
+  { value: 'slack', label: 'Slack', hint: 'Token + allowlist de workspace/channel when used.' },
   { value: 'whatsapp', label: 'WhatsApp', hint: 'Token/bridge configuravel.' },
   { value: 'signal', label: 'Signal', hint: 'Bridge local configuravel.' },
   { value: 'email', label: 'Email', hint: 'Mailbox/SMTP configuravel.' },
@@ -81,7 +81,7 @@ async function runProvider(action: 'add' | 'switch'): Promise<void> {
     ? await textPrompt('Modelo default deste provider', provider.defaultModel)
     : provider.defaultModel);
   const providerSecret = readSecretFromEnv(flags.secretEnv)
-    || (interactive && provider.needsSecret ? await optionalSecret(`Chave de API para ${provider.label}`) : null);
+    || (interactive && provider.needsSecret ? await optionalSecret(`API key for ${provider.label}`) : null);
   const liveValidation = await maybeRunProviderLiveValidation({
     interactive,
     providerId,
@@ -118,7 +118,7 @@ async function runAutoDiscovery(action: 'add' | 'switch', interactive: boolean):
     return;
   }
 
-  const apiKey = flags.apiKey || readSecretFromEnv(flags.secretEnv) || (interactive ? await optionalSecret(`Chave de API para ${providerId}`) : null);
+  const apiKey = flags.apiKey || readSecretFromEnv(flags.secretEnv) || (interactive ? await optionalSecret(`API key for ${providerId}`) : null);
   const kind = (flags.discoverKind as 'openai_compatible' | 'anthropic_compatible') || 'openai_compatible';
 
   p.log.info(`Descobrindo modelos de ${providerId} em ${baseUrl}...`);
@@ -446,20 +446,20 @@ function printHelp(): void {
     '  O wizard nunca imprime o value bruto da chave.',
     '',
     'Opcoes:',
-    '  --json              Saida estruturada.',
+    '  --json              Output estruturada.',
     '  --apply             Grava no .env. without isso, e preview.',
     '  --test-live         Runs a lightweight live ping only when requested.',
     '  --skip-live-test    Does not ask for live test.',
     '  --provider <id>     Provider alvo.',
     '  --model <id>        Modelo default.',
-    '  --channel <id>      Canal alvo.',
+    '  --channel <id>      Channel alvo.',
     '  --allowed-users <ids>',
     '  --allowed-guilds <ids>',
     '  --allowed-channels <ids>',
     '  --owners <ids>',
     '  --discover          Enables model auto-discovery through the API.',
     '  --base-url <url>    Base URL do provider (required com --discover).',
-    '  --api-key <key>     Chave de API (optional com --discover).',
+    '  --api-key <key>     API key (optional com --discover).',
     '  --kind <type>       Tipo de compatibilidade: openai_compatible ou anthropic_compatible.',
     '',
   ].join('\n'));

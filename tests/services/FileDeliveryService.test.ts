@@ -73,7 +73,7 @@ describe('FileDeliveryService', () => {
     expect(service.shouldHandleText('42', '/task find the report.pdf file in the downloads folder')).toBe(true);
   });
 
-  it('guarda as opcoes ambiguras e resolve a choose numerada depois', async () => {
+  it('guarda as options ambiguras e resolve a choose numerada depois', async () => {
     const first = path.join(downloadsDir, 'sales-report.pdf');
     const second = path.join(downloadsDir, 'financial-report.pdf');
     await fs.promises.writeFile(first, 'vendas');

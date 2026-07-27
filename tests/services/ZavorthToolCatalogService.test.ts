@@ -21,7 +21,7 @@ describe('ZavorthToolCatalogService', () => {
             label: 'Research Route',
             source: 'plugin',
             matchers: [{ keywords: ['pesquise'] }],
-            routing_reason: 'Pedido de pesquisa',
+            routing_reason: 'Research request',
             type: 'research',
           },
         ],

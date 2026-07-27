@@ -351,7 +351,7 @@ export class NodeHostCapabilityFilesystemService {
         watcher.on('error', (error) => {
           cleanupAndFinish({
             ok: false,
-            resultSummary: `Failure ao observar ${targetPath}.`,
+            resultSummary: `Failed to observe ${targetPath}.`,
             stdout: null,
             stderr: error instanceof Error ? error.message : String(error || 'watch failed'),
             exitCode: null,
@@ -366,7 +366,7 @@ export class NodeHostCapabilityFilesystemService {
         const err = asErrorLike(error);
         cleanupAndFinish({
           ok: false,
-          resultSummary: `Failure ao iniciar observation em ${targetPath}.`,
+          resultSummary: `Failed to start observation em ${targetPath}.`,
           stdout: null,
           stderr: error instanceof Error ? err.message : String(error || 'watch failed'),
           exitCode: null,

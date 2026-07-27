@@ -124,7 +124,7 @@ export class ZavorthAgentSkillCapabilityCertificationService {
       persistState: false,
     });
     const naturalSubagent = await this.naturalRouter.plan({
-      text: 'mande um agente pesquisar e outro review em modo local read-only',
+      text: 'ask one agent to research e outro review em modo local read-only',
       autoExecute: true,
       dryLiveSubagents: true,
       skillCatalog,

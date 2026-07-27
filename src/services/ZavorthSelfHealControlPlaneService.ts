@@ -524,7 +524,7 @@ export class ZavorthSelfHealControlPlaneService {
       const message = error instanceof Error ? err.message : String(error);
       return {
         snapshot: null,
-        error: `Failure ao ler OperationsHealthService: ${message}`,
+        error: `Failed to read OperationsHealthService: ${message}`,
       };
     }
   }

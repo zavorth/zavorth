@@ -149,7 +149,7 @@ export class ChannelExperienceConsistencyService {
       },
       commands: {
         overview: '/channels consistency',
-        selected: '/channels consistency <canal>',
+        selected: '/channels consistency <channel>',
         channelMesh: '/channels',
         commandDeck: '/commands channel',
       },
@@ -249,11 +249,11 @@ export class ChannelExperienceConsistencyService {
         'Adapter registrado',
         true,
         present,
-        present ? 'canal present no Channel Mesh' : 'canal missing do Channel Mesh',
+        present ? 'channel present no Channel Mesh' : 'channel missing do Channel Mesh',
       ),
       check(
         'status-card',
-        'Status por canal',
+        'Channel status',
         true,
         statusRowsReady,
         statusRowsReady ? 'status card/rows available' : 'without readable status card',
@@ -442,7 +442,7 @@ export class ChannelExperienceConsistencyService {
     }
     const firstGap = entries.find((entry) => entry.blockers.length > 0);
     return firstGap ? `/channels consistency ${firstGap.channelId} e fechar: ${firstGap.blockers[0]}`
-      : 'Manter os checks de paridade no doctor before cada rollout de canal.';
+      : 'Keep parity checks in doctor before each channel rollout.';
   }
 
   private hasPassingCheck(entry: ChannelExperienceConsistencyEntry, checkId: string): boolean {

@@ -88,7 +88,7 @@ describe('ZavorthRuntimeModesService', () => {
               doctor: {
                 nextAction: {
                   command: '/connect AIGateway',
-                  reason: 'Ja esta ready para uso.',
+                  reason: 'Already ready for use.',
                 },
               },
             },

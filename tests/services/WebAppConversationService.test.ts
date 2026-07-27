@@ -682,7 +682,7 @@ describe('WebAppConversationService natural-first routing', () => {
     expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-binary' }).activeRun).toBeNull();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-dashboard-binary',
-      expect.stringContaining('chegou apenas como metadados'),
+      expect.stringContaining('arrived as metadata only'),
       null,
       'attachment-unsupported',
     );
@@ -823,7 +823,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     await service.processChatSend({
       sessionId: 'session-dashboard-workflow-fractional-budget',
-      message: 'compare notas de pesquisa em paralelo',
+      message: 'compare notas de research em paralelo',
       composerSettings: { effort: 'low' },
       workflowIntent: {
         source: 'slash-command',

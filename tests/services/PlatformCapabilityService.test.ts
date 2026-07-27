@@ -482,7 +482,7 @@ describe('PlatformCapabilityService', () => {
     const capability = service.describe('discord');
 
     expect(capability.envKeys).toEqual(expect.arrayContaining(['DISCORD_ALLOWED_CHANNEL_IDS', 'DISCORD_COMMAND_EXPOSURE']));
-    expect(capability.notes.join(' ')).toContain('Rollout por canal active para 2 canal(is) do Discord.');
+    expect(capability.notes.join(' ')).toContain('Rollout por channel active para 2 channel(s) do Discord.');
     expect(capability.notes.join(' ')).toContain('Exposicao atual de slash commands: minimal.');
   });
 

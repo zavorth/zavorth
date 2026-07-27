@@ -497,7 +497,7 @@ describe('ChannelProviderDoctorService', () => {
         started: true,
         recipientsConfigured: 0,
         providerConfigured: true,
-        providerDecision: 'Stub local mantido enquanto o provider oficial do WhatsApp not e conectado.',
+        providerDecision: 'Stub local mantido enquanto o provider oficial do WhatsApp not e connected.',
         lastError: null,
       }),
       'utf8',

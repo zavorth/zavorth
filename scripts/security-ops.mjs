@@ -1534,7 +1534,7 @@ function printDoctorReport(report) {
   console.log(`[security] gap report json: ${report.gapReport.file}`);
   console.log(`[security] gap report md: ${report.gapReport.markdownFile}`);
   if (report.nextSteps.length > 0) {
-    console.log('[security] proximos passos:');
+    console.log('[security] next steps:');
     for (const step of report.nextSteps) {
       console.log(`- ${step.priority} ${step.title}`);
       if (step.remediation) {

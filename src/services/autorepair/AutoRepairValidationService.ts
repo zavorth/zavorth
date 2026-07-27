@@ -372,7 +372,7 @@ export class AutoRepairValidationService {
           this.readFileSync(absolutePath, 'utf8'),
         );
         if (!validation.passes) {
-          throw new Error(validation.output || `Failure ao validate ${targetFile}.`);
+          throw new Error(validation.output || `Failed to validate ${targetFile}.`);
         }
 
         return validation.output || `PowerShell script ${targetFile} validated successfully.`;

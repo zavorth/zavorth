@@ -228,7 +228,7 @@ export class ComposerActionService {
       logger.warn('[Composer Action] load operation failed', error);
     return this.finishWithError(
         sessionId,
-        error instanceof Error ? err.message : 'Failure ao resume o workflow selecionado.',
+        error instanceof Error ? err.message : 'Failed to resume o workflow selecionado.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
@@ -273,7 +273,7 @@ export class ComposerActionService {
       logger.warn('[Composer Action] lifecycle operation failed', error);
     return this.finishWithError(
         sessionId,
-        error instanceof Error ? err.message : 'Failure ao reiniciar a stage do workflow selecionado.',
+        error instanceof Error ? err.message : 'Failed to restart a stage do workflow selecionado.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
@@ -317,7 +317,7 @@ export class ComposerActionService {
       logger.warn('[Composer Action] resource cleanup failed', error);
     return this.finishWithError(
         sessionId,
-        error instanceof Error ? err.message : 'Failure ao encerrar o workflow selecionado.',
+        error instanceof Error ? err.message : 'Failed to stop o workflow selecionado.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
@@ -440,7 +440,7 @@ export class ComposerActionService {
   ): Promise<ComposerActionResult> {
     this.realtime.recordAssistantMessage(
       sessionId,
-      String(message || 'Failure ao run a action selecionada.'),
+      String(message || 'Failed to run a action selecionada.'),
       taskId,
       'composer-action-error',
       [actionMention],

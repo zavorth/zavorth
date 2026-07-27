@@ -8,7 +8,7 @@ describe('ZavorthHubControlPlaneService', () => {
         buildCatalogSnapshot: jest.fn(() => ({
           entries: [
             { manifest: { id: 'openrouter', label: 'OpenRouter', summary: 'Router multi-provider.' }, readiness: 'configure' },
-            { manifest: { id: 'discord', label: 'Discord', summary: 'Canal Discord.' }, readiness: 'ready' },
+            { manifest: { id: 'discord', label: 'Discord', summary: 'Channel Discord.' }, readiness: 'ready' },
           ],
           featuredIds: ['openrouter'],
           selected: null,
@@ -260,7 +260,7 @@ describe('ZavorthHubControlPlaneService', () => {
               id: 'skills-library',
               label: 'Abrir biblioteca',
               command: '/skills library',
-              rationale: 'Biblioteca operacional pronta.',
+              rationale: 'Operational library ready.',
             },
           ],
           narrative: {
@@ -291,7 +291,7 @@ describe('ZavorthHubControlPlaneService', () => {
           ],
           recommendations: ['Runtime MCP coerente com o manifesto there isbilitado.'],
           narrative: {
-            operatorSummary: 'Somente o MCP there isbilitado esta conectado; o resto ficou desligado por policy.',
+            operatorSummary: 'Somente o MCP there isbilitado esta connected; o resto ficou desligado por policy.',
           },
         })),
       } as any,

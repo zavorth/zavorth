@@ -240,7 +240,7 @@ export class LocalJailSandboxRuntime implements ISandboxRuntime {
         clearTimeout(timeout);
         resolve({
           stdout,
-          stderr: `${stderr}\n[LocalJail] Failure ao iniciar process: ${error.message}`,
+          stderr: `${stderr}\n[LocalJail] Failed to start process: ${error.message}`,
           exitCode: -1,
         });
       });

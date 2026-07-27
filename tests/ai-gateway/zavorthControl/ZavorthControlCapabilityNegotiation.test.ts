@@ -89,7 +89,7 @@ describe('ZavorthControl Capability Negotiation Capability Negotiation', () => {
       }),
     }));
     expect(projection.approvals[0]).toEqual(expect.objectContaining({
-      title: 'Aprovar escopo de capabilities',
+      title: 'Approve capability scope',
       status: 'pending',
     }));
   });

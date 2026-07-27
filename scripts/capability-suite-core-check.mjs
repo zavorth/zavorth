@@ -81,7 +81,7 @@ for (const step of steps) {
     )
     : spawnSync(step.command, step.args, { stdio: 'inherit' });
   if (result.error) {
-    console.error(`[gates-core-check] Failure ao run ${step.label}:`, result.error.message);
+    console.error(`[gates-core-check] Failed to run ${step.label}:`, result.error.message);
     process.exit(1);
   }
   if (result.status !== 0) {

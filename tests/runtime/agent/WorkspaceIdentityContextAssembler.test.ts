@@ -127,7 +127,7 @@ describe('WorkspaceIdentityContextAssembler', () => {
       workspace: workspaceContext.workspace,
       profile: 'warm',
       hot: {
-        canonicalSessionPrompt: 'Session pronta.',
+        canonicalSessionPrompt: 'Session ready.',
       },
       warm: workspaceContext.warm,
       cold: {

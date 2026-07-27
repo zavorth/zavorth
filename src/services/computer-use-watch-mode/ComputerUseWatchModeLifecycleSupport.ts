@@ -357,10 +357,10 @@ export class ComputerUseWatchModeLifecycleSupport {
         run.status = 'failed';
         run.finishedAt = new Date().toISOString();
         run.updatedAt = run.finishedAt;
-        run.lastError = errorMessage(error, 'Failure ao run Watch Mode.');
+        run.lastError = errorMessage(error, 'Failed to run Watch Mode.');
         this.pushTimeline(run, {
           type: 'failed',
-          summary: run.lastError || 'Failure ao run Watch Mode.',
+          summary: run.lastError || 'Failed to run Watch Mode.',
           iteration: null,
           riskLevel: 'high',
           action: null,

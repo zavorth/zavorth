@@ -55,6 +55,6 @@ child.on('exit', (code, signal) => {
 });
 
 child.on('error', (error) => {
-  console.error(`Failure ao iniciar o host supervised: ${error.message}`);
+  console.error(`Failed to start o host supervised: ${error.message}`);
   process.exit(1);
 });

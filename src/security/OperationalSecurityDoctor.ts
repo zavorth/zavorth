@@ -127,7 +127,7 @@ const DANGEROUS_ENV_OVERRIDES: DangerousEnvOverride[] = [
     name: 'ZAVORTH_REMOTE_SHELL_ALLOW_HOST_CODE_BINARIES',
     values: ['1', 'true'],
     severity: 'critical',
-    summary: 'Libera binarios de code no shell remote do host.',
+    summary: 'Libera binarys de code no shell remote do host.',
   },
   {
     name: 'ZAVORTH_NODE_HOST_SYSTEM_RUN_ALLOW_CODE',

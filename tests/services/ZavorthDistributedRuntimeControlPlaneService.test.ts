@@ -85,7 +85,7 @@ describe('ZavorthDistributedRuntimeControlPlaneService', () => {
     expect(snapshot.summary.advancedCapabilityCoverage).toBe(8);
     expect(snapshot.cards.find((entry) => entry.id === 'fleet')?.posture).toBe('healthy');
     expect(await service.renderReport({ selectedId: 'signal' })).toContain(
-      'Distributed runtime: Runtime distribuido e superficies avancadas',
+      'Distributed runtime: Runtime distribuido e surfaces avancadas',
     );
   });
 
@@ -185,7 +185,7 @@ describe('ZavorthDistributedRuntimeControlPlaneService', () => {
     expect(snapshot.cards.find((entry) => entry.id === 'fleet')?.posture).toBe('attention');
     expect(snapshot.actions).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ id: 'advanced-channel-prepare', label: 'Preparar Slack', command: '/channels prepare slack' }),
+        expect.objectContaining({ id: 'advanced-channel-prepare', label: 'Prepare Slack', command: '/channels prepare slack' }),
         expect.objectContaining({ id: 'repair-node-queue' }),
         expect.objectContaining({ id: 'transport-attention' }),
         expect.objectContaining({ id: 'remote-rollout' }),

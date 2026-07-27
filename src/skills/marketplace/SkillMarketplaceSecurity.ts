@@ -59,14 +59,6 @@ const PROMPT_INJECTION_PATTERNS = [
 
 const DEFAULT_PERMISSIONS: SkillPermission[] = ['read'];
 
-const PERMISSION_PATTERNS: Array<{ pattern: RegExp; permission: SkillPermission }> = [
-  { pattern: /\b(write|create|patch|save|store)\b/i, permission: 'write' },
-  { pattern: /\b(exec|run|execute|spawn|terminal|shell)\b/i, permission: 'execute' },
-  { pattern: /\b(fetch|http|url|api|request|web_search|web_extract)\b/i, permission: 'network' },
-  { pattern: /\b(file|directory|folder|path|read_file|write_file|list_directory)\b/i, permission: 'filesystem' },
-  { pattern: /\b(sudo|chmod|chown|kill|mount|systemctl)\b/i, permission: 'system' },
-];
-
 export function scanSkillForSecurity(skillDir: string): SecurityScanResult {
   const issues: SecurityIssue[] = [];
   const recommendations: string[] = [];
@@ -157,13 +149,8 @@ export function scanSkillForSecurity(skillDir: string): SecurityScanResult {
 }
 
 function inferPermissions(content: string): SkillPermission[] {
-  const permissions = new Set<SkillPermission>(DEFAULT_PERMISSIONS);
-  for (const { pattern, permission } of PERMISSION_PATTERNS) {
-    if (pattern.test(content)) {
-      permissions.add(permission);
-    }
-  }
-  return Array.from(permissions);
+  void content;
+  return [...DEFAULT_PERMISSIONS];
 }
 
 function timingSafeEqualHex(a: string, b: string): boolean {

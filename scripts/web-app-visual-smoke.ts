@@ -216,7 +216,7 @@ async function launchBrowserRuntime(baseUrl: string, waitMs: number): Promise<Br
 
   const openPromise = new Promise<void>((resolve, reject) => {
     socket.addEventListener('open', () => resolve());
-    socket.addEventListener('error', () => reject(new Error('Failure ao conectar no DevTools do navegador.')));
+    socket.addEventListener('error', () => reject(new Error('Failed to connect no DevTools do navegador.')));
   });
 
   socket.addEventListener('message', (event) => {
@@ -294,7 +294,7 @@ async function launchBrowserRuntime(baseUrl: string, waitMs: number): Promise<Br
       if (details?.value !== undefined) {
         return details.value;
       }
-      throw new Error(details?.description || 'Failure ao avaliar expressure no navegador.');
+      throw new Error(details?.description || 'Failed to evaluate expressure no navegador.');
     },
   };
 }

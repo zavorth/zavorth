@@ -58,11 +58,11 @@ export class SupervisedRuntimeNotificationService {
       await sendMessage(pending.chatId, pending.message);
       this.clearPending();
       return { delivered: true, skipped: false, notification: pending };
-    } catch (error: unknown) {this.persistFailure(pending, errorMessage(error) || String(error || 'Failure ao enviar notificaction pending.'));
+    } catch (error: unknown) {this.persistFailure(pending, errorMessage(error) || String(error || 'Failed to enviar notificaction pending.'));
       return {
         delivered: false,
         skipped: false,
-        error: errorMessage(error) || String(error || 'Failure ao enviar notificaction pending.'),
+        error: errorMessage(error) || String(error || 'Failed to enviar notificaction pending.'),
         notification: pending,
       };
     }

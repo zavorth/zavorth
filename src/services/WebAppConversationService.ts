@@ -923,7 +923,7 @@ export class WebAppConversationService {
       return {
         status: task.taskId ? 'running' : 'completed',
         summary: task.taskId ? 'Request forwarded by the universal engine for supervised execution.'
-          : 'request processado pelo motor universal.',
+          : 'request processed by the universal engine.',
         replyText: task.taskId ? 'Received. I forwarded it for supervised execution and will show the result here.'
           : 'Received. The universal engine processed the request.',
         events: [

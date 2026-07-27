@@ -119,13 +119,13 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
               '</div>',
           )
           .join('')
-      : '<div class="muted">No capacidade verificada foi exposta ainda.</div>';
+      : '<div class="muted">No verified capability foi exposta ainda.</div>';
 
     node.innerHTML =
       '<div class="cockpit-status">' +
       '<div>' +
       '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
-      '<strong>Catalog de capacidades</strong>' +
+      '<strong>Capability catalog</strong>' +
       '<span class="badge ' +
       (summary.plugin ? 'badge-info' : 'badge-allowed') +
       '">' +

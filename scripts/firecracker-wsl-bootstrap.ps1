@@ -33,7 +33,7 @@ function Invoke-WslRoot {
 
   & wsl.exe -d $Distro -u root -- bash -lc $Command
   if ($LASTEXITCODE -ne 0) {
-    throw "Failure ao run no WSL ($Distro): $Command"
+    throw "Failed to run no WSL ($Distro): $Command"
   }
 }
 

@@ -369,7 +369,7 @@ export class IntegrationHealthService {
     if (manifest.id === 'ollama' && installed && !runtimeReady) {
       steps.push({
         id: 'ollama-host',
-        label: 'Preparar host local do Ollama',
+        label: 'Prepare local Ollama host',
         detail: 'The draft exists, but the runtime does not know which local endpoint to use to talk to Ollama yet.',
         kind: 'automatic',
         status: 'next',

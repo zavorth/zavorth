@@ -473,7 +473,7 @@ export class PersonalOpsAutopilotService {
         title: 'Resolve security block',
         cause: redactText(safety.summary || safety.userMessage, 'Safety Narrative published a block or pending approval.'),
         impact: 'Run must not proceed with sensitive action until there is a safe alternative.',
-        nextStep: 'Escolher alternactive safe ou approve escopo minimo after de preview.',
+        nextStep: 'Escolher safe alternative ou approve minimum scope after preview.',
         severity: status === 'blocked' ? 'danger' : 'warning',
         confidence: 0.9,
         requiresApproval: true,

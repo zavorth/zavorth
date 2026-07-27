@@ -80,7 +80,7 @@ async function main() {
     }
 
     console.log('[channels:install] scaffold aplicado');
-    console.log(`[channels:install] canal: ${report.channelId}`);
+    console.log(`[channels:install] channel: ${report.channelId}`);
     console.log(`[channels:install] modo: ${report.mode}`);
     console.log(`[channels:install] .env: ${report.env.filePath}`);
     console.log(`[channels:install] written keys: ${report.env.writtenKeys.join(', ') || 'none'}`);
@@ -94,7 +94,7 @@ async function main() {
       }
     }
     if (report.nextSteps.length > 0) {
-      console.log('[channels:install] proximos passos:');
+      console.log('[channels:install] next steps:');
       for (const step of report.nextSteps) {
         console.log(`- ${step}`);
       }

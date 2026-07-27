@@ -322,7 +322,7 @@ try {
 
       $clicked = Click-AtElement $element
       if (-not $clicked) {
-        throw "Failure ao clicar no elemento '$TargetText'."
+        throw "Failed to click element '$TargetText'."
       }
 
       $result.ok = $true
@@ -384,7 +384,7 @@ try {
       $elements = Get-VisibleElements $root
 
       $result.ok = $true
-      $result.message = "$($elements.Count) elementos visiveis encontrados."
+      $result.message = "$($elements.Count) elementos visible encontrados."
       $result.details = @{
         elementCount = $elements.Count
         elements = @($elements | Select-Object -First 60 | ForEach-Object {

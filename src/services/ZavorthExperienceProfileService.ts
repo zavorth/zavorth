@@ -73,7 +73,7 @@ const PROFILE_CATALOG: ZavorthExperienceProfile[] = [
       'script',
       'criador',
       'content',
-      'pesquisa',
+      'research',
       'roteiro',
     ],
   },

@@ -23,14 +23,7 @@ export type ZavorthUserResponseRenderResult = {
 };
 
 function normalizeReply(value: unknown): string {
-  return String(value ?? '').trim() || 'request processado pelo Zavorth.';
-}
-
-function normalizeSearchText(value: unknown): string {
-  return String(value ?? '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
+  return String(value ?? '').trim() || 'Zavorth processed the request.';
 }
 
 function pendingApproval(run: UniversalAgentRun | null | undefined): UniversalAgentRun['approvals'][number] | null {
@@ -103,27 +96,11 @@ export class ZavorthUserResponseRendererService {
       run: UniversalAgentRun | null;
     },
   ): string {
-    const normalized = normalizeSearchText(text);
     if (input.hasApproval || input.run?.status === 'waiting_approval') {
-      if (
-        normalized.includes('capability negotiation') ||
-        normalized.includes('approve escopo de capabilities') ||
-        normalized.includes('preciso negociar o escopo') ||
-        normalized.includes('approval requerido')
-      ) {
-        return [
-          'I need your confirmation to continue safely.',
-          'Nothing has been executed yet. Review the request and approve if you want to proceed.',
-        ].join('\n');
-      }
-    }
-
-    if (normalized.includes('request processado pelo runtime universal')) {
-      return 'Received. Zavorth registered the request and will continue through the safe flow.';
-    }
-
-    if (normalized.includes('runtime universal registrou a conversation')) {
-      return 'Received. I will answer here and only ask for confirmation if a real action is necessary.';
+      return [
+        'I need your confirmation to continue safely.',
+        'Nothing has been executed yet. Review the request and approve if you want to proceed.',
+      ].join('\n');
     }
 
     return text;

@@ -324,7 +324,7 @@ describe('RuntimeAccessReadinessService', () => {
         stale: expect.any(Boolean),
       }),
     );
-    expect(report.summary).toBe('Zavorth ready para uso local e remoto.');
+    expect(report.summary).toBe('Zavorth is ready for local and remote use.');
     expect(report.recommendations).toContain(
       'O gateway nactive do Discord esta ready para receber mensagens diretamente.',
     );
@@ -421,7 +421,7 @@ describe('RuntimeAccessReadinessService', () => {
         },
         catalogSyncSummary: 'Remote registry sincronizado.',
         narrative: {
-          headline: 'Governanca do platform plane ativa.',
+          headline: 'Platform plane governance active.',
           operatorSummary: '2 under review e 1 quarantined.',
         },
       },
@@ -1300,7 +1300,7 @@ describe('RuntimeAccessReadinessService', () => {
       expect.objectContaining({ method: 'GET' }),
     );
     expect(report.local.ready).toBe(true);
-    expect(report.summary).toBe('Zavorth ready para uso local e remoto.');
+    expect(report.summary).toBe('Zavorth is ready for local and remote use.');
   });
 
   it('trusts the live app shell even when supervisor locks look stale', async () => {
@@ -1429,11 +1429,11 @@ describe('RuntimeAccessReadinessService', () => {
     expect(report.remote.ready).toBe(false);
     expect(report.local.issues).toEqual(
       expect.arrayContaining([
-        expect.stringContaining(`A superficie web do Zavorth not respondeu em http://127.0.0.1:${unavailablePort}/api/auth/status`),
+        expect.stringContaining(`A surface web do Zavorth not respondeu em http://127.0.0.1:${unavailablePort}/api/auth/status`),
       ]),
     );
     expect(report.nextSteps.map((step) => step.id)).toContain('recover-web-surface');
-    expect(report.summary).toContain('Zavorth ainda not esta ready para uso consistente');
+    expect(report.summary).toContain('Zavorth is not ready for consistent use yet');
   });
 
   it('falls back to the Node HTTP probe when fetch fails but the local app responds', async () => {
@@ -1502,7 +1502,7 @@ describe('RuntimeAccessReadinessService', () => {
       });
 
       expect(report.local.ready).toBe(true);
-      expect(report.summary).toBe('Zavorth ready para uso local e remoto.');
+      expect(report.summary).toBe('Zavorth is ready for local and remote use.');
     } finally {
       await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
     }
@@ -1576,7 +1576,7 @@ describe('RuntimeAccessReadinessService', () => {
 
       expect(report.local.ready).toBe(true);
       expect(report.local.issues).toEqual([]);
-      expect(report.summary).toBe('Zavorth ready para uso local e remoto.');
+      expect(report.summary).toBe('Zavorth is ready for local and remote use.');
     } finally {
       await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
     }
@@ -1685,7 +1685,7 @@ describe('RuntimeAccessReadinessService', () => {
     expect(report.runtime.mcp.summary.enabled).toBe(0);
     expect(report.recommendations).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('O provider plane tem 1 rota(s) pronta(s)'),
+        expect.stringContaining('O provider plane has 1 ready route(s)'),
       ]),
     );
   });

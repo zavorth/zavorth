@@ -58,7 +58,7 @@ function buildRemoteTransportSnapshot(selectedId: string | null = 'node-host') {
     suggestedActions: [
       {
         id: 'node-host-pair',
-        label: 'Preparar node host',
+        label: 'Prepare node host',
         command: '/nodepair headless',
         severity: 'warn',
         reason: 'Node pareado waiting for heartbeat.',

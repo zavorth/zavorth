@@ -26,7 +26,7 @@ describe('ZavorthPluginRegistryService', () => {
               },
               doctor: {
                 nextAction: {
-                  reason: 'Ja esta ready para uso.',
+                  reason: 'Already ready for use.',
                 },
               },
               readiness: 'ready',
@@ -266,7 +266,7 @@ describe('ZavorthPluginRegistryService', () => {
         },
         doctor: {
           nextAction: {
-            reason: 'Ja esta ready para uso.',
+            reason: 'Already ready for use.',
           },
         },
         readiness: 'ready',

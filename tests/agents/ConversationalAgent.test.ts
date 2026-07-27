@@ -161,7 +161,7 @@ describe('ConversationalAgent', () => {
       isProviderAvailable: jest.fn((name: string) => ['openrouter', 'aigateway', 'gemini', 'openai'].includes(name)),
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'openrouter',
-        response: { content: 'Comparaction pronta.' },
+        response: { content: 'Comparison ready.' },
       }),
     } as any;
     const agent = new ConversationalAgent(llmRuntime);

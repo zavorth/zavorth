@@ -16,7 +16,7 @@ async function main(): Promise<void> {
 
   const result = await service.executeModuleInWasm(ADD_WASM_BASE64, 'add', [20, 22], 5000);
   if (result.exitCode !== 0 || result.returnValue !== '42') {
-    console.error('[sandbox:wasm:smoke] Failure ao run modulo Wasm de smoke.');
+    console.error('[sandbox:wasm:smoke] Failed to run modulo Wasm de smoke.');
     console.error(`[sandbox:wasm:smoke] Exit: ${result.exitCode}`);
     console.error(`[sandbox:wasm:smoke] STDERR: ${result.stderr || '(vazio)'}`);
     console.error(`[sandbox:wasm:smoke] Return: ${result.returnValue || '(vazio)'}`);

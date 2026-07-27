@@ -58,8 +58,8 @@ const BUILTIN_EVENTS = [
   { name: 'agent.after_turn', label: 'Depois do turn do agente', scope: 'runtime' as const },
   { name: 'memory.before_write', label: 'Before writing memory', scope: 'runtime' as const },
   { name: 'memory.after_write', label: 'After writing memory', scope: 'runtime' as const },
-  { name: 'channel.before_send', label: 'Antes de enviar no canal', scope: 'session' as const },
-  { name: 'channel.after_send', label: 'Depois de enviar no canal', scope: 'session' as const },
+  { name: 'channel.before_send', label: 'Before sending to the channel', scope: 'session' as const },
+  { name: 'channel.after_send', label: 'After sending to the channel', scope: 'session' as const },
   { name: 'shutdown.before', label: 'Antes do shutdown', scope: 'runtime' as const },
   { name: 'shutdown.after', label: 'Depois do shutdown', scope: 'runtime' as const },
 ] as const;

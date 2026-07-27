@@ -106,7 +106,7 @@ describe('Zavorth CLI model picker helpers', () => {
               modalities: ['text'],
               capabilities: ['chat', 'streaming'],
             }],
-            explanation: ['Rota OpenAI.', 'Catalogo veio de live_api.'],
+            explanation: ['OpenAI route.', 'Catalog came from live_api.'],
           }],
         }],
         selected: {

@@ -149,7 +149,7 @@ export class ProjectDigitalTwinService {
 
   private roleFor(relative: string): string {
     if (relative.includes('runtime')) return 'execution and orchestration';
-    if (relative.includes('services')) return 'capacidades e policys';
+    if (relative.includes('services')) return 'capabilities and policies';
     if (relative.includes('contracts')) return 'public contracts';
     if (relative.includes('security')) return 'security boundary';
     if (relative.includes('tools')) return 'tools governadas';

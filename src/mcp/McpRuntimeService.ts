@@ -250,7 +250,7 @@ export class McpRuntimeService {
         });
         this.logRepo.log(
           'warn', 'MCP',
-          `Failure ao conectar server MCP ${server.id}: ${getErrorMessage(error)}`,
+          `Failed to connect server MCP ${server.id}: ${getErrorMessage(error)}`,
         );
         this.writeSnapshot();
         continue;
@@ -279,7 +279,7 @@ export class McpRuntimeService {
       });
       this.logRepo.log(
         'info', 'MCP',
-        `server MCP ${server.id} conectado${server.capability ? ` (${server.capability})` : ''}.`,
+        `server MCP ${server.id} connected${server.capability ? ` (${server.capability})` : ''}.`,
       );
       this.writeSnapshot();
     }
@@ -299,7 +299,7 @@ export class McpRuntimeService {
       } catch (error: unknown) {this.logRepo.log(
           'warn',
           'MCP',
-          `Failure ao desconectar server MCP ${manager.name}: ${getErrorMessage(error)}`,
+          `Failed to desconectar server MCP ${manager.name}: ${getErrorMessage(error)}`,
         );
       }
 
@@ -330,7 +330,7 @@ export class McpRuntimeService {
     } catch (error: unknown) {this.logRepo.log(
         'warn',
         'MCP',
-        `Failure ao desconectar server MCP ${manager.name}: ${getErrorMessage(error)}`,
+        `Failed to desconectar server MCP ${manager.name}: ${getErrorMessage(error)}`,
       );
     }
 
@@ -434,7 +434,7 @@ export class McpRuntimeService {
       this.logRepo.log(
         'warn',
         'MCP',
-        `Failure ao (re)carregar server MCP ${serverId}: ${getErrorMessage(error)}`,
+        `Failed to (re)carregar server MCP ${serverId}: ${getErrorMessage(error)}`,
       );
 
       return { ok: false, toolCount: 0, toolNames: [], error: getErrorMessage(error) };

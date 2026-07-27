@@ -629,19 +629,7 @@ function explainModelNeed(input: IntelligenceModelRoutingInput): string[] {
 }
 
 function extractCapabilityTarget(text: string): string | null {
-  const normalized = text.replace(/\[redacted-secret\]/g, '').trim();
-  const patterns = [
-    /\b(?:canal|channel|mcp|plugin|skill|capacidade|capability)\s+([a-z0-9_.:-][a-z0-9_.:\-\s]{1,48})/i,
-    /\b(?:pelo|pela|via|atraves do|atraves da|atraves de)\s+([a-z0-9_.:-][a-z0-9_.:\-\s]{1,48})/i,
-    /\b(?:setup|conectar|integrar|instalar|usar)\s+(?:meu|minha|o|a|um|uma)...\s*([a-z0-9_.:-][a-z0-9_.:\-\s]{1,48})/i,
-  ];
-  for (const pattern of patterns) {
-    const match = pattern.exec(normalized);
-    const value = match?.[1]?.replace(/[....!,;]+$/g, '').trim();
-    if (value && !/\b(you|zavorth|mim|para|atraves|pelo|pela)\b/i.test(value)) {
-      return value;
-    }
-  }
+  void text;
   return null;
 }
 

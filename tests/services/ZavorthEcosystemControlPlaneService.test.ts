@@ -73,7 +73,7 @@ describe('ZavorthEcosystemControlPlaneService', () => {
           generatedAt: '2026-04-12T18:00:00.000Z',
           catalogSync: {
             status: 'ready',
-            summary: 'Catalogo sincronizado.',
+            summary: 'Catalog synced.',
           },
           summary: {
             total: 2,
@@ -121,7 +121,7 @@ describe('ZavorthEcosystemControlPlaneService', () => {
           generatedAt: '2026-04-12T18:55:00.000Z',
           catalogSync: {
             status: 'stale',
-            summary: 'Catalogo remoto ficou stale.',
+            summary: 'Remote catalog became stale.',
           },
           summary: {
             total: 1,

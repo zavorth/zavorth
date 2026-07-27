@@ -405,7 +405,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
           id: 'agent-event-approved-write',
           runId: 'agent-run-approved-tools',
           kind: 'approval',
-          title: 'Aprovar Write',
+          title: 'Approve Write',
           detail: 'Write can change files and requires approval.',
           status: 'done',
           createdAt: '2026-05-05T05:31:00.000Z',
@@ -443,7 +443,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
         {
           id: 'approval-write',
           runId: 'agent-run-approved-tools',
-          title: 'Aprovar Write',
+          title: 'Approve Write',
           reason: 'Write can change files and requires approval.',
           risk: 'danger',
           status: 'approved',

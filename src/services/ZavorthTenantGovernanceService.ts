@@ -120,7 +120,7 @@ export class ZavorthTenantGovernanceService {
       pendingOnboarding: pendingEntries,
       featuredRecipes,
       narrative: {
-        headline: `Governanca de tenants com ${summary.totalCount} tenant(s) observado(s).`,
+        headline: `Tenant governance with ${summary.totalCount} tenant(s) observado(s).`,
         operatorSummary: this.buildOperatorSummary({
           summary,
           readyShared,

@@ -205,10 +205,10 @@ export class ZavorthHostLiveCertificationService {
     return [
       this.requirement({
         id: 'contract-ready',
-        label: 'Contrato de canal certificado',
+        label: 'Contrato de channel certificado',
         passed: contractReady,
         requiredForLive: true,
-        detail: contractReady ? 'O contrato de UX/canal passou.'
+        detail: contractReady ? 'O contrato de UX/channel passou.'
           : 'Without certified contract, host cannot be declared live.',
         evidence: [`contractStatus=${contractEntry?.status || 'missing'}`],
       }),
@@ -269,7 +269,7 @@ export class ZavorthHostLiveCertificationService {
         label: 'Recipients/allowlist delimitados',
         passed: boundedRecipients,
         requiredForLive: true,
-        detail: boundedRecipients ? 'Envio is delimitado por allowlist or canal local.'
+        detail: boundedRecipients ? 'Envio is delimitado por allowlist or local channel.'
           : 'Without allowed recipients, channel must not send live.',
         evidence: [
           `policy=${meshEntry?.policy?.state || 'n/d'}`,

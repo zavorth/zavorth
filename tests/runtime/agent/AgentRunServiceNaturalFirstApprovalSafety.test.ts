@@ -61,7 +61,7 @@ describe('AgentRunService Natural First Approval Safety Surface controls', () =>
     expect(result.run.status).toBe('waiting_approval');
     expect(result.run.approvals[0]).toEqual(
       expect.objectContaining({
-        title: 'Aprovar escopo de capabilities',
+        title: 'Approve capability scope',
         risk: 'danger',
         status: 'pending',
       }),

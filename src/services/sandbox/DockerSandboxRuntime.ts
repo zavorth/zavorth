@@ -631,7 +631,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         clearTimeout(timeout);
         resolve({
           stdout,
-          stderr: `${stderr}\n[DockerSandbox] Failure ao iniciar process Docker: ${error.message}`,
+          stderr: `${stderr}\n[DockerSandbox] Failed to start process Docker: ${error.message}`,
           exitCode: -1,
         });
       });

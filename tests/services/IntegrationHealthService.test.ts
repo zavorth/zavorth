@@ -310,7 +310,7 @@ describe('IntegrationHealthService', () => {
     const snapshot = service.buildDoctorSnapshot('ollama');
 
     expect(snapshot.status).toBe('warn');
-    expect(snapshot.nextAction.label).toBe('Preparar host local do Ollama');
+    expect(snapshot.nextAction.label).toBe('Prepare local Ollama host');
     expect(snapshot.playbook?.steps.some((entry) => entry.actionId === 'recipe:ollama:prepare-host')).toBe(true);
   });
 

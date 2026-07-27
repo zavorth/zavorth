@@ -102,7 +102,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
           {
             id: 'preview-write',
             kind: 'write',
-            label: 'Preparar patch',
+            label: 'Prepare patch',
             toolId: 'write_file',
             risk: 'danger',
             requiresApproval: true,
@@ -171,7 +171,7 @@ describe('CapabilityNegotiationService Capability Negotiation', () => {
         {
           id: 'approval-capability-scope',
           runId: 'run-capability-negotiation-1',
-          title: 'Aprovar escopo de capabilities',
+          title: 'Approve capability scope',
           reason: 'Escopo sensitive.',
           risk: 'danger',
           status: 'approved',

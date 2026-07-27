@@ -378,7 +378,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     if (pendingAdvancedChannel) {
       actions.push({
         id: 'advanced-channel-prepare',
-        label: `Preparar ${this.text(pendingAdvancedChannel?.label, pendingAdvancedChannel?.id || 'channel')}`,
+        label: `Prepare ${this.text(pendingAdvancedChannel?.label, pendingAdvancedChannel?.id || 'channel')}`,
         severity: 'warn',
         command: this.firstActionCommand(pendingAdvancedChannel, 'prepare') || `/channels prepare ${pendingAdvancedChannel.id}`,
         reason: this.text(

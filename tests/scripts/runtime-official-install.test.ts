@@ -4,10 +4,10 @@ describe('runtime-official-install presentation', () => {
   it('renders the official go flow without leaking legacy trust commands', () => {
     const report: any = {
       generatedAt: '2026-04-23T00:00:00.000Z',
-      summary: 'O caminho oficial ainda needs preparar o runtime antes de abrir a melhor superficie.',
+      summary: 'O caminho oficial ainda needs preparar o runtime antes de abrir a melhor surface.',
       tokenSource: 'file',
       journey: {
-        summary: 'Zavorth ainda not esta ready para uso consistente: O host supervisor not esta active.',
+        summary: 'Zavorth is not ready for consistent use yet: O host supervisor not esta active.',
       },
       manifest: {
         commands: {
@@ -54,6 +54,6 @@ describe('runtime-official-install presentation', () => {
     expect(output).not.toContain('/hostauth trust');
     expect(output).not.toContain('Rode zavorth go');
     expect(output).not.toContain('Siga pelo atalho oficial com zavorth go');
-    expect(output).not.toContain('melhor superficie');
+    expect(output).not.toContain('melhor surface');
   });
 });

@@ -386,7 +386,7 @@ export class IntegrationProbeService {
         status: 'failed',
         transport: 'cli',
         summary: 'Probe real do external runner failed',
-        detail: `Failure ao verificar a CLI do external runner: ${errorMessage(error)}`,
+        detail: `Failed to verificar a CLI do external runner: ${errorMessage(error)}`,
         checkedTarget: this.resolveExternalExecutorTarget(),
         httpStatus: null,
         latencyMs: Math.max(1, Date.now() - startedAt),
@@ -545,7 +545,7 @@ export class IntegrationProbeService {
         transport: input.transport,
         summary: aborted ? 'Real probe timed out' : 'Probe real failed',
         detail: aborted ? `The endpoint did not respond within ${this.timeoutMs} ms.`
-          : `Failure ao contactar o endpoint: ${errorMessage(error)}`,
+          : `Failed to contactar o endpoint: ${errorMessage(error)}`,
         checkedTarget: input.checkedTarget,
         httpStatus: null,
         latencyMs: Math.max(1, Date.now() - startedAt),

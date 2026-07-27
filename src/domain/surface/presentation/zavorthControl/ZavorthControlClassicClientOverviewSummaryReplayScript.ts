@@ -359,7 +359,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         '<div class="cockpit-mini-card"><strong>Critical</strong><div>' +
         escapeHtml(String(summary.criticalFamilies || 0)) +
         '</div><small>Critical families</small></div>',
-      '<div class="sidecar-card"><strong>Posturas canonicas</strong><small>Operational: ' +
+      '<div class="sidecar-card"><strong>Posturas canonicals</strong><small>Operational: ' +
         escapeHtml(summary.operationalPosture || 'attention') +
         ' | Trust: ' +
         escapeHtml(summary.trustPosture || 'attention') +
@@ -621,7 +621,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       '<div class="cockpit-stack">' +
       '<div class="cockpit-mini-grid">' +
       '<div class="cockpit-mini-card"><strong>Destino</strong><div>' +
-      escapeHtml(handoff.canonicalTarget?.label || 'novthe session') +
+      escapeHtml(handoff.canonicalTarget?.label || 'new session') +
       '</div><small>Contexto principal</small></div>' +
       '<div class="cockpit-mini-card"><strong>Tarefas</strong><div>' +
       escapeHtml(String(handoff.checkpoints?.tasks || 0)) +

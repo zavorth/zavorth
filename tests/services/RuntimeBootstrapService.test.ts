@@ -45,7 +45,7 @@ describe('RuntimeBootstrapService', () => {
             remote: { baseUrl: 'https://zavorth.example.com', appUrl: 'https://zavorth.example.com/app', ready: true, issues: [] },
             recommendations: ['O frontend remoto ja pode apontar para a URL public do Zavorth com token web dedicado.'],
             nextSteps: [{ id: 'connect-remote-frontend', title: 'Conectar o frontend remoto', description: 'Abra o app publicdo.', blocking: false }],
-            summary: 'Zavorth ready para uso local e remoto.',
+            summary: 'Zavorth is ready for local and remote use.',
           },
           lastReloadReport: null,
         }),
@@ -90,7 +90,7 @@ describe('RuntimeBootstrapService', () => {
 
     const report = service.inspect();
 
-    expect(report.summary).toBe('Bootstrap closed: Zavorth ready para uso local e remoto.');
+    expect(report.summary).toBe('Bootstrap closed: Zavorth is ready for local and remote use.');
     expect(report.actions).toHaveLength(0);
     expect(report.env.issues).toHaveLength(0);
     expect(report.env.selectedModel).toMatchObject({
@@ -190,7 +190,7 @@ describe('RuntimeBootstrapService', () => {
               { id: 'configure-public-base-url', title: 'Definir URL public', description: 'Configure ZAVORTH_PUBLIC_BASE_URL.', blocking: false },
               { id: 'configure-web-token', title: 'Configure web token', description: 'Defina ZAVORTH_WEB_AUTH_TOKEN.', blocking: true },
             ],
-            summary: 'Zavorth ainda not esta ready para uso consistente.',
+            summary: 'Zavorth is not ready for consistent use yet.',
           },
           lastReloadReport: null,
         }),
@@ -301,7 +301,7 @@ describe('RuntimeBootstrapService', () => {
         remote: { baseUrl: 'https://zavorth.example.com', appUrl: 'https://zavorth.example.com/app', ready: true, issues: [] },
         recommendations: [],
         nextSteps: [],
-        summary: 'Zavorth ready para uso local e remoto.',
+        summary: 'Zavorth is ready for local and remote use.',
       },
       lastReloadReport: null,
     });
@@ -332,6 +332,6 @@ describe('RuntimeBootstrapService', () => {
     const report = await service.inspectLive();
 
     expect(inspectLive).toHaveBeenCalled();
-    expect(report.summary).toBe('Bootstrap closed: Zavorth ready para uso local e remoto.');
+    expect(report.summary).toBe('Bootstrap closed: Zavorth is ready for local and remote use.');
   });
 });

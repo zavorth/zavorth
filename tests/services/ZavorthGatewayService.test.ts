@@ -14,7 +14,7 @@ describe('ZavorthGatewayService', () => {
       teams: [],
       narrative: {
         headline: '3 composed teams.',
-        operatorSummary: '1 resumption pronta.',
+        operatorSummary: '1 resume ready.',
       },
     }));
 

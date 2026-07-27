@@ -318,7 +318,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
         sse=new EventSource(BASE+'/api/web/mobile/stream...ticket='+encodeURIComponent(d.ticket));
         sse.onopen=function(){
           banner.className='conn-banner connected';
-          banner.textContent='Conectado - stream active';
+          banner.textContent='Connected - stream active';
         };
         sse.addEventListener('agent-log',onSSE);
         sse.addEventListener('receipt',onSSE);
@@ -328,7 +328,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
         sse.addEventListener('provider-switch',onSSE);
         sse.onerror=function(){
           banner.className='conn-banner disconnected';
-          banner.textContent='Desconectado - reconectando...';
+          banner.textContent='Disconnected - reconnecting...';
           if(sse){sse.close();sse=null;}
           reconnectTimer=setTimeout(connectSSE,3000);
         };

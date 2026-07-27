@@ -46,7 +46,7 @@ describe('UserFacingResponseService', () => {
       { presentationMode: true },
     );
 
-    expect(text).toContain('A interface ficou pronta.');
+    expect(text).toContain('The interface is ready.');
     expect(text).toContain('O que foi gerado:');
     expect(text).toContain('Preview em imagem: 1');
     expect(text).toContain('HTML exportado: 1');

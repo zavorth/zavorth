@@ -106,7 +106,7 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
             ],
           },
           workspace: {
-            summary: 'Workspace com continuidade pronta.',
+            summary: 'Workspace continuity ready.',
             continuityRecommendations: [{ id: 'resume-1' }],
             workflowRecommendations: [{ id: 'workflow-1' }],
           },
@@ -118,7 +118,7 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
             total: 4,
           },
           narrative: {
-            operatorSummary: 'Memory em camadas pronta.',
+            operatorSummary: 'Layered memory ready.',
           },
         })),
         readMetrics: jest.fn(async () => ({

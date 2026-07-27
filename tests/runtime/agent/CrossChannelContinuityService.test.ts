@@ -31,7 +31,7 @@ describe('CrossChannelContinuityService Channel mesh1', () => {
         nodeMesh: {
           nodeId: 'node-control',
           status: 'available',
-          summary: 'node mesh conectado',
+          summary: 'node mesh connected',
         },
         crossChannelHandoffs: [
           {

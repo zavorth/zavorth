@@ -302,7 +302,7 @@ export class ZavorthChannelMeshService {
     const doctorLabel = entry.features.doctor ? 'doctor available' : 'without doctor';
     const riskLabel = entry.riskLevel ? `risk ${entry.riskLevel}` : 'risk n/d';
     const accessLabel = policy ? `access ${policy.state}` : 'access n/d';
-    const connectionLabel = entry.connection?.connected ? 'conectado'
+    const connectionLabel = entry.connection?.connected ? 'connected'
       : entry.connection?.running ? 'runtime rodando'
         : 'connection n/a';
     const qrLabel = entry.features.qrLogin ? `QR ${entry.loginQr?.state || 'pending'}`
@@ -336,7 +336,7 @@ export class ZavorthChannelMeshService {
         }
         return `${entry.readiness === 'ready'
           ? 'Use /channels broadcast-test instagram to validate the supervised local Instagram outbox.'
-          : 'Preparar Meta Instagram Messaging API ou recipients permitidos before prometer DM real.'}${suffix}`;
+          : 'Prepare Meta Instagram Messaging API ou recipients permitidos before prometer DM real.'}${suffix}`;
       case 'slack':
         if (entry.transport === 'native') {
           return `${entry.readiness === 'ready'
@@ -355,7 +355,7 @@ export class ZavorthChannelMeshService {
       case 'email':
         return `Configure EMAIL_ALLOWED_RECIPIENTS for supervised local outbox; SMTP/IMAP can be added later for outbound delivery and approvals by reply.${suffix}`;
       default:
-        return `review a readiness do canal e o adapter correspondente.${suffix}`;
+        return `review a readiness do channel e o adapter correspondente.${suffix}`;
     }
   }
 
@@ -378,7 +378,7 @@ export class ZavorthChannelMeshService {
   private buildNotes(entry: ChannelAdapterStatus, policy: ChannelPolicySummary | null): string[] {
     const notes = Array.isArray(entry.notes) ? entry.notes.slice() : [];
     if (policy) {
-      notes.push(`Policy do canal: ${policy.summary}`);
+      notes.push(`Policy do channel: ${policy.summary}`);
     }
     return Array.from(new Set(notes.map((note) => String(note || '').trim()).filter(Boolean)));
   }
@@ -391,7 +391,7 @@ export class ZavorthChannelMeshService {
       case 'open':
         return ' Revise se open access ainda faz sentido before expanding rollout.';
       case 'allowlist':
-        return ' A allowlist already is fechada; mantenha os IDs permitidos sincronizados with o canal real.';
+        return ' A allowlist already is fechada; mantenha os IDs permitidos sincronizados with o real channel.';
       case 'mixed':
         return ' A policy mistura allowlist e blocklist; revise ambos os lados before do rollout.';
       case 'blocked-only':
@@ -443,7 +443,7 @@ export class ZavorthChannelMeshService {
     if (entry.readiness !== 'ready') {
       actions.push({
         id: `${channelId}:prepare`,
-        label: channelId === 'slack' ? 'Preparar onboarding' : 'Preparar canal',
+        label: channelId === 'slack' ? 'Prepare onboarding' : 'Prepare channel',
         kind: 'prepare',
         command: `/channels prepare ${channelId}`,
       });

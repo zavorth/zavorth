@@ -185,7 +185,7 @@ export function useZavorthControlSalesPackBusinessMode(
       setMessage("Exemplo local created without envio external.");
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      setMessage(error instanceof Error ? err.message : "Failure ao criar exemplo local.");
+      setMessage(error instanceof Error ? err.message : "Failed to criar exemplo local.");
     } finally {
       setBusyActionId(null);
     }

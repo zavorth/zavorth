@@ -62,7 +62,7 @@ function ruleMarkers() {
 
 function runSubagentRouteFixture() {
   const result = runTs('scripts/zavorth-natural-invocation.ts', [
-    '--text', 'mande um agente pesquisar e outro review localmente',
+    '--text', 'ask one agent to research and another to review locally',
     '--execute',
     '--dry-live',
     '--json',

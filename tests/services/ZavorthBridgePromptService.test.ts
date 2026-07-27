@@ -104,7 +104,7 @@ describe('ZavorthBridgePromptService', () => {
         modelKey: null,
         processId: null,
         windowTitle: null,
-        message: 'Failure ao trocar modelo.',
+        message: 'Failed to switch modelo.',
         errorCode: 'model_switch_failed',
         errorMessage: 'Troca recusada.',
         logFile: 'ag.log',

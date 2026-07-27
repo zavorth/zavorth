@@ -216,7 +216,7 @@ export class IntegrationShowcaseService {
         issues.push(`${item.id}: must run in fixture mode`);
       }
       if (item.capabilities.length < 2) {
-        issues.push(`${item.id}: capacidades insuficientes`);
+        issues.push(`${item.id}: insufficient capabilities`);
       }
       if (item.requirements.length === 0) {
         issues.push(`${item.id}: public requirement missing`);
@@ -260,7 +260,7 @@ export class IntegrationShowcaseService {
     }
     for (const entry of INTEGRATION_CAPABILITY_MATRIX) {
       if (entry.capabilities.length < 2) {
-        issues.push(`${entry.id}: capacidades insuficientes na matriz`);
+        issues.push(`${entry.id}: insufficient capabilities in the matrix`);
       }
       if (entry.credentialRequiredForLive && !entry.degradation.trim()) {
         issues.push(`${entry.id}: credentialed live mode needs clear degradation`);
@@ -268,11 +268,11 @@ export class IntegrationShowcaseService {
     }
     return this.check(
       'integration-showcase:capability-matrix',
-      'matriz de capacidades por integration',
+      'capability matrix by integration',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
         ? 'matriz diferencia fixture, local e credential real with degradaction por vendor.'
-        : 'matriz de capacidades is incompleta.',
+        : 'capability matrix is incomplete.',
       'src/contracts/IntegrationShowcaseContract.ts',
       issues,
     );
@@ -426,7 +426,7 @@ export class IntegrationShowcaseService {
     if (!artifact) {
       return this.check(
         'integration-showcase:matrix-artifact',
-        'artifact da matriz de capacidades',
+        'capability matrix artifact',
         this.requireArtifacts ? 'fail' : 'warn',
         this.requireArtifacts ? 'capability-matrix.json must exist for qa:integration-showcase.'
           : 'matriz not exigida neste snapshot; qa:integration-showcase gera e valida o artifact.',
@@ -448,7 +448,7 @@ export class IntegrationShowcaseService {
     }
     return this.check(
       'integration-showcase:matrix-artifact',
-      'artifact da matriz de capacidades',
+      'capability matrix artifact',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
         ? 'capability-matrix.json lists every public integration.'
@@ -535,7 +535,7 @@ export class IntegrationShowcaseService {
       'recommendation for readiness gate',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'readiness gate aponta explicitmente para release train v1.x e LTS.'
+        ? 'readiness gate aponta explicitmente to release train v1.x e LTS.'
         : 'the readiness gate must leave the next readiness gate as the next action.',
       'docs/product-direction.md',
       missing,

@@ -38,8 +38,7 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
   }
 
   private localClassify(input: ZavorthAdaptiveSemanticClassifierInput): ZavorthAdaptiveSemanticClassification {
-    const text = this.normalize(input.redactedText || input.text);
-    const language = this.detectLanguage(input.text);
+    const language = 'unknown';
     const sensitiveTechnical = input.technicalFindings.includes('sensitive-user-state');
     if (sensitiveTechnical) {
       return this.classification({
@@ -55,43 +54,13 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
       });
     }
 
-    if (this.looksLikeStylePreference(text)) {
-      return this.classification({
-        language,
-        confidence: 0.84,
-        recommendedLane: 'green',
-        sensitivity: 'normal',
-        risk: 'low',
-        reasons: ['local-style-preference'],
-        usedFor: ['response_style', 'planning_depth', 'memory_recall'],
-        claim: 'The user prefers direct answers with evidence and concise tradeoffs.',
-        evidence: ['semantic-local:style-preference'],
-      });
-    }
-
-    if (this.looksLikeSkillOrProcedure(text)) {
-      return this.classification({
-        language,
-        confidence: 0.8,
-        recommendedLane: 'green',
-        sensitivity: 'normal',
-        risk: 'low',
-        reasons: ['local-reusable-workflow'],
-        usedFor: ['skill_recommendation', 'tool_routing', 'memory_recall'],
-        claim: 'The user benefits from reusable workflow drafts when a successful task pattern repeats.',
-        evidence: ['semantic-local:reusable-workflow'],
-      });
-    }
-
     return this.classification({
       language,
       confidence: 0.58,
-      recommendedLane: language === 'en' ? 'green' : 'yellow',
+      recommendedLane: 'yellow',
       sensitivity: 'normal',
       risk: 'low',
-      reasons: language === 'en'
-        ? ['local-low-risk-observation']
-        : ['unknown-language-needs-digest-or-semantic-provider'],
+      reasons: ['semantic-provider-needed'],
       usedFor: ['memory_recall'],
       claim: null,
       evidence: ['semantic-local:low-confidence-observation'],
@@ -201,21 +170,6 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
     };
   }
 
-  private looksLikeStylePreference(text: string): boolean {
-    void text;
-    return false;
-  }
-
-  private looksLikeSkillOrProcedure(text: string): boolean {
-    void text;
-    return false;
-  }
-
-  private detectLanguage(value: string): string {
-    void value;
-    return 'unknown';
-  }
-
   private shouldUseLlmGate(
     local: ZavorthAdaptiveSemanticClassification,
     input: ZavorthAdaptiveSemanticClassifierInput,
@@ -279,17 +233,6 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
   private cleanScalar(value: unknown, fallback: string, maxChars: number): string {
     const text = String(value ?? '').trim();
     return (text || fallback).replace(/\s+/g, '-').slice(0, maxChars) || fallback;
-  }
-
-  private normalize(value: unknown): string {
-    return String(value ?? '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[_-]+/g, ' ')
-      .replace(/[^\p{L}\p{N}\s]+/gu, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .toLowerCase();
   }
 
   private redact(value: unknown, maxChars = 1200): string {

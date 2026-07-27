@@ -376,7 +376,7 @@ export class NexusFacadeService {
         ? `${input.pendingCount} confirmation(s) await your decision.`
         : !input.providerOnline ? 'Primary provider did not respond; Echo keeps exposing state safely.'
           : !input.agentGatewayAvailable ? 'Agent Gateway unavailable; Nexus is usando fallback Echo without esconder isso.'
-            : capabilityNextStep ? 'Nexus is ready, mas ha uma capacidade provisionada que merece attention.'
+            : capabilityNextStep ? 'Nexus is ready, mas ha uma provisioned capability que merece attention.'
               : 'Nexus is ready to operate as Zavorth convergent panel.';
     const nextStep =
       input.pendingCount > 0
@@ -516,7 +516,7 @@ export class NexusFacadeService {
         kind: 'api',
         status: 'available',
         primary: true,
-        description: 'Surface Nexus convergida para o Zavorth Agent Gateway.',
+        description: 'Surface Nexus convergida to o Zavorth Agent Gateway.',
       },
       metadata: {
         ...(request.metadata || {}),

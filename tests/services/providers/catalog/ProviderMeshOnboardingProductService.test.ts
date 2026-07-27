@@ -69,7 +69,7 @@ function route(overrides: Partial<AccessRouteCatalogEntry>): AccessRouteCatalogE
       message: 'ok',
       checkedAt: '2026-05-03T12:00:00.000Z',
     },
-    explanation: ['OpenAI usa rota official.', 'credencial configurada; health healthy.', 'Rota pronta.'],
+    explanation: ['OpenAI usa rota official.', 'credential configured; health healthy.', 'Route ready.'],
     capabilities: ['chat', 'coding', 'tool_use'],
     modalities: ['text'],
     limitations: ['Custo faturado pelo provider.'],

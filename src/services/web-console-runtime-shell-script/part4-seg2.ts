@@ -174,7 +174,7 @@ export const runtimeShellScriptPart4Seg2: string = [
     "        String(plugins.trusted || summary.trustedPlugins || 0)",
     "        + ' trusted / '",
     "        + String(plugins.installed || summary.installedPlugins || 0)",
-    "        + ' instalado(s)',",
+    "        + ' installed',",
     "      ),",
     "      '<strong>Nodes:</strong> ' + escapeHtml(",
     "        String(nodes.paired || summary.pairedNodes || 0)",

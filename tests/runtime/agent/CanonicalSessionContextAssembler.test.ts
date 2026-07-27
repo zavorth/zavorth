@@ -65,7 +65,7 @@ describe('CanonicalSessionContextAssembler', () => {
       workspace: '<repo>',
       profile: 'warm',
       hot: {
-        canonicalSessionPrompt: 'Session canonica pronta.',
+        canonicalSessionPrompt: 'Canonical session ready.',
       },
       warm: {
         workspacePrompt: 'Workspace Zavorth com instrucoes locais.',

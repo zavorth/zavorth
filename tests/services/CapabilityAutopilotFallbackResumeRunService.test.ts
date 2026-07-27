@@ -362,7 +362,7 @@ describe('CapabilityAutopilotFallbackResumeRunService', () => {
 
     expect(result).toMatchObject({
       status: 'blocked',
-      summary: "Retomada via 'Tentar ExternalExecutor' bloqueada: Blocked by security policy.",
+      summary: "Resume through 'Tentar ExternalExecutor' bloqueada: Blocked by security policy.",
       executionResult: null,
     });
     expect(result.receipt?.timeline.at(-1)).toMatchObject({

@@ -18,7 +18,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceCodexRemot
       buildSnapshot: jest.fn(async () => ({
         narrative: {
           headline: 'Codex Remote active.',
-          operatorSummary: 'Session remota pronta.',
+          operatorSummary: 'Remote session ready.',
           nextAction: 'Abrir ou resume uma session.',
         },
         activeProfile: { id: 'default', label: 'Default Codex' },

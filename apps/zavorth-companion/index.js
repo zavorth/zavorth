@@ -24,7 +24,7 @@ function ensureBuild() {
 function run() {
   ensureBuild();
   console.log('--- Zavorth Desktop Companion ---');
-  console.log('Iniciando daemon real do companion e conectando ao Node Mesh...');
+  console.log('Starting the companion daemon and connecting to Node Mesh...');
 
   const child = spawn(process.execPath, [distEntry, ...process.argv.slice(2)], {
     cwd: repoRoot,

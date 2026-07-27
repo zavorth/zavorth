@@ -56,7 +56,7 @@ describe('Agent surface UX', () => {
         expect.objectContaining({ label: 'Agentes' }),
       ]),
     );
-    expect(signal.text).toContain('/invoke "mande um agente pesquisar');
+    expect(signal.text).toContain('/invoke "ask one agent to research');
     expect(signal.text).toContain('/agents status');
   });
 });
@@ -152,7 +152,7 @@ function buildPlan() {
     status: 'ready',
     channel: 'telegram',
     actorId: 'user-1',
-    requestText: 'mande um agente pesquisar e outro validar canais',
+    requestText: 'ask one agent to research and another to validate channels',
     primaryAction: 'spawn_team',
     actions: ['spawn_team'],
     confidence: 0.94,

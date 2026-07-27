@@ -233,7 +233,7 @@ export class DistributionHardeningService {
     const missingStableGates = stableRequired.filter((gate) => !stablePolicy?.requiredGates.includes(gate));
     const missingScripts = stableRequired.filter((gate) => !String(scripts[gate] || '').trim());
     const issues = [
-      ...missingChannels.map((channel) => `canal missing: ${channel}`),
+      ...missingChannels.map((channel) => `channel missing: ${channel}`),
       ...missingStableGates.map((gate) => `stable without gate: ${gate}`),
       ...missingScripts.map((gate) => `script missing for stable: ${gate}`),
     ];
@@ -311,7 +311,7 @@ export class DistributionHardeningService {
     }
     for (const channel of ['alpha', 'beta', 'stable']) {
       if (!channels.some((item) => item.channel === channel)) {
-        issues.push(`canal missing no artifact: ${channel}`);
+        issues.push(`channel missing no artifact: ${channel}`);
       }
     }
     const stable = channels.find((item) => item.channel === 'stable');

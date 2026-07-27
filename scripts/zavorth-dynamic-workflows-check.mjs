@@ -93,7 +93,7 @@ function jsonFixture() {
 
 function blockedFixture() {
   const storageDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-dynamic-workflows-check-'));
-  const result = runTs(['scripts/zavorth-dynamic-workflows.ts', '--objective', 'pesquisa without limite', '--fanout', '500', '--max-concurrency', '60', '--max-cents', '1', '--worker-model', 'premium', '--synthesis-model', 'premium', '--storage-dir', storageDir, '--json']);
+  const result = runTs(['scripts/zavorth-dynamic-workflows.ts', '--objective', 'research without limit', '--fanout', '500', '--max-concurrency', '60', '--max-cents', '1', '--worker-model', 'premium', '--synthesis-model', 'premium', '--storage-dir', storageDir, '--json']);
   return jsonRule('blocked-fixture', 'Dynamic workflow blocks excessive fanout and budget', result, (snapshot) =>
     snapshot.status === 'blocked'
     && snapshot.blockedReasons.includes('requested fanout exceeds hard cap')

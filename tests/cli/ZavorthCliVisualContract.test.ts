@@ -403,7 +403,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     const output = [status, doctor, brief, ops].join('\n\n');
 
     expect(status).toMatch(
-      /- A conversa esta pronta para continue\.|- Conversation is ready to continue\.|Agent state: Ready to use|Ready to use|ready to continue/i,
+      /- A conversa esta ready para continue\.|- Conversation is ready to continue\.|Agent state: Ready to use|Ready to use|ready to continue/i,
     );
     expect(status).toContain('> zavorth doctor');
     expect(doctor).toContain('Diagnostico do Zavorth');

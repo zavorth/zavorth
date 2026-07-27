@@ -41,7 +41,7 @@ describe('TelegramChainController', () => {
     const artifacts = [
       {
         index: 1,
-        alias: 'pesquisa',
+        alias: 'research',
         command: '/research zavorth',
         output: 'Resumo detailed do Zavorth',
         summary: 'Resumo curto do Zavorth',
@@ -49,7 +49,7 @@ describe('TelegramChainController', () => {
     ];
 
     const resolved = await controller.resolveChainTemplates(
-      '/snippet save contexto {{var:pesquisa}} | {{memory:workspace_preferido}} | {{snippet:saudaction}} | {{step1.summary}}',
+      '/snippet save contexto {{var:research}} | {{memory:workspace_preferido}} | {{snippet:saudaction}} | {{step1.summary}}',
       artifacts,
       '42',
     );
@@ -63,9 +63,9 @@ describe('TelegramChainController', () => {
   it('parses aliases declared with =>', () => {
     const controller = createController();
 
-    expect(controller.parseChainSegment('/research zavorth => pesquisa')).toEqual({
+    expect(controller.parseChainSegment('/research zavorth => research')).toEqual({
       command: '/research zavorth',
-      alias: 'pesquisa',
+      alias: 'research',
     });
   });
 });

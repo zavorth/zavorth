@@ -187,7 +187,7 @@ export class WslControlService {
         ok: false,
         action: 'shutdown',
         distros: [],
-        message: `Failure ao desligar WSL: ${err.message}`,
+        message: `Failed to stop WSL: ${err.message}`,
         warnings: [],
       };
   }

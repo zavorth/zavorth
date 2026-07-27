@@ -119,7 +119,7 @@ describe('McpCapabilityControlPlaneService', () => {
       ]),
     );
     expect(snapshot.recommendations[0]).toContain('failurendo');
-    expect(snapshot.narrative.operatorSummary).toContain('1/2 servidor(es) MCP conectado(s)');
+    expect(snapshot.narrative.operatorSummary).toContain('1/2 servidor(es) MCP connected(s)');
   });
 
   it('lets a disabled manifest entry override stale failed runtime state', () => {

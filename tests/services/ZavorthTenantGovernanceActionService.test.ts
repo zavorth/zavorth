@@ -36,7 +36,7 @@ describe('ZavorthTenantGovernanceActionService', () => {
           {
             id: 'review-teams',
             label: 'Revisar /teams',
-            description: 'Confere quais workflows compostos podem operar nesta superficie.',
+            description: 'Confere quais workflows compostos podem operar nesta surface.',
             command: '/teams',
             actionKind: 'guided',
             emphasis: 'primary',
@@ -71,7 +71,7 @@ describe('ZavorthTenantGovernanceActionService', () => {
     pendingOnboarding: [],
     featuredRecipes: [],
     narrative: {
-      headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
+      headline: 'Tenant governance with 1 tenant(s) observado(s).',
       operatorSummary: '1 pending onboarding.',
       nextAction: 'Revisar teams.',
     },
@@ -157,7 +157,7 @@ describe('ZavorthTenantGovernanceActionService', () => {
   it('reviews the memory plane for a tenant and returns a workspace-focused payload', async () => {
     const buildSnapshot = jest.fn(async () => ({
       summary: { persistedMemories: 3 },
-      narrative: { headline: 'Retomada pronta.' },
+      narrative: { headline: 'Resume ready.' },
     }));
     const service = new ZavorthTenantGovernanceActionService({
       tenantGovernanceService: {

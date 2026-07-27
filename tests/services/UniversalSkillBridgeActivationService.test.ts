@@ -57,7 +57,7 @@ function buildRegistrySnapshot(overrides: Record<string, any> = {}) {
     actions: selected?.actions || [],
     narrative: {
       headline: 'Universal Skill Bridge Registry',
-      operatorSummary: '1/1 skill(s) visiveis, 0 pronta(s), 1 exigem approval live e 0 bloqueada(s).',
+      operatorSummary: '1/1 skill(s) visible, 0 ready(s), 1 exigem approval live e 0 blocked.',
       nextAction: '/skills run research-pack',
     },
     policy: {

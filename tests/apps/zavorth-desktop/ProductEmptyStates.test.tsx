@@ -68,11 +68,11 @@ describe('ProductEmptyStates UX Tests', () => {
     const { container } = render(
       <InlineAlert
         type="error"
-        title="Chave de API missing"
+        title="API key missing"
         message="The selected provider has no configured API key. Open Settings > Providers."
       />
     );
-    expect(container.textContent).toContain('Chave de API missing');
+    expect(container.textContent).toContain('API key missing');
     expect(container.textContent).not.toContain('undefined');
   });
 

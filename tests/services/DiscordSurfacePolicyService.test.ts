@@ -198,7 +198,7 @@ describe('DiscordSurfacePolicyService', () => {
       }),
     ).toEqual({
       valid: false,
-      reason: 'you atingiu o limite temporario deste canal do Discord. Aguarde um pouco antes de tentar de novo.',
+      reason: 'you atingiu o limite temporary deste channel do Discord. Aguarde um pouco antes de tentar de novo.',
     });
 
     currentTime += 1_000;

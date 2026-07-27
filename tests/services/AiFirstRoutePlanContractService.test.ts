@@ -27,7 +27,7 @@ describe('AiFirstRoutePlanContractService', () => {
         },
         goal: {
           userFacing: 'Configure the user account.',
-          internalSummary: 'Preparar configuraction assistida e validar acesso.',
+          internalSummary: 'Prepare assisted configuration e validate access.',
         },
         proposedActions: [
           {

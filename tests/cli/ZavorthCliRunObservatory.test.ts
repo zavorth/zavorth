@@ -98,7 +98,7 @@ describe('Zavorth CLI Run Observatory', () => {
       idFactory: createIdFactory(),
       executor: () => ({
         status: 'completed',
-        summary: 'Run humana pronta.',
+        summary: 'Human run ready.',
         replyText: 'ok',
         events: [
           {

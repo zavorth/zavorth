@@ -171,7 +171,7 @@ describe('ZavorthChannelMessagingBridgeService Credential vault', () => {
       channelId: 'zavorth.channel.telegram.main',
       sessionId: 'zavorth.session.main',
       targetRef: 'operator',
-      text: 'Resposta pronta',
+      text: 'Response ready',
       risk: 'low',
     });
 
