@@ -50,7 +50,7 @@ describe('ChannelProgressRuntimeBridgeService', () => {
       }),
       expect.objectContaining({
         stage: 'final',
-        finalText: expect.stringContaining('Resposta pronta'),
+        finalText: expect.stringContaining('Response ready'),
       }),
     ]);
   });

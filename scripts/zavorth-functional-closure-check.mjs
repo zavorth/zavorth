@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'zavorth-functional-closure-checkpoint-9-files',
+    id: 'zavorth-functional-closure-gate-9-files',
     label: 'Certification matrix files exist',
     target: 'contract, zavorthControl, ledger updater, release gate, closure service, command, SDK export and tests are present',
     files: [
@@ -54,9 +54,9 @@ const rules = [
       'neverUpdateWithoutReceipt',
       'p0MustBeReceiptBacked',
       'releaseAllowed',
-      'checkpoint-0-ledger-governance',
-      'checkpoint-8-skill-ecosystem',
-      'checkpoint-9-baseline-worker-chain',
+      'gate-0-ledger-governance',
+      'gate-8-skill-ecosystem',
+      'gate-9-baseline-worker-chain',
     ],
   }),
   ruleContainsAll({

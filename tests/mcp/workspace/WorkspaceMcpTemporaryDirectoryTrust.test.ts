@@ -19,7 +19,7 @@ describe('WorkspaceMcpTemporaryDirectoryTrust', () => {
     mockTrustService = TemporaryDirectoryTrustService.getInstance() as jest.Mocked<TemporaryDirectoryTrustService>;
   });
 
-  it('deve validar se a acao de ler/escrever arquivos via MCP valida o trust do workspaceId correto', () => {
+  it('deve validar se a action de ler/escrever files via MCP valida o trust do workspaceId correto', () => {
     const workspaceId = 'my-workspace-id';
     const workspaceRoot = 'C:/workspaces/zavorth';
     const filePath = 'C:/some/external/temp/file.txt';
@@ -30,7 +30,7 @@ describe('WorkspaceMcpTemporaryDirectoryTrust', () => {
       mandateViolation: false,
     });
 
-    // Simular a chamada que o MCP faria
+    // Simular a call que o MCP faria
     const result = mockTrustService.checkPathAccess(
       workspaceId,
       workspaceRoot,

@@ -57,7 +57,7 @@ try {
 const pack = runNpmPackDryRun(root);
 if (pack.status === 0) {
   const lines = String(pack.stdout || '')
-    .split(/\r?\n/)
+    .split(/\r...\n/)
     .map((l) => l.trim())
     .filter(Boolean)
     .slice(-5);

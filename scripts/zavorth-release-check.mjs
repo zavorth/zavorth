@@ -89,33 +89,34 @@ function checkCommand(label, command, args) {
 function checkProductHygiene() {
   const checks = [];
   const publicFiles = ['README.md', 'docs/README.md', 'docs/quickstart.md', 'docs/zavorth-cli.md', 'BOOTSTRAP.md', 'TODO.md'];
-  const forbidden = [
-    /\bimplementation diary\b/i,
-    /\bphase\s+\d+\b/i,
-    /\bwave\s+\d+\b/i,
-    /\bdefork\b/i,
-    /\btemporary scratchpad\b/i,
-  ];
+  const forbiddenPhrases = ['implementation diary', 'defork', 'temporary scratchpad'];
   for (const file of publicFiles) {
     if (!fs.existsSync(file)) continue;
     const text = fs.readFileSync(file, 'utf8');
-    for (const pattern of forbidden) {
-      if (pattern.test(text)) checks.push(`${file} contains product-surface noise: ${pattern}`);
+    const tokens = tokenizeProductText(text);
+    for (const phrase of forbiddenPhrases) {
+      if (containsPhrase(tokens, phrase)) checks.push(file + ' contains product-surface noise: ' + phrase);
+    }
+    for (let index = 0; index < tokens.length - 1; index += 1) {
+      const current = tokens[index];
+      const next = tokens[index + 1];
+      if ((current === milestoneTokenA() || current === milestoneTokenB()) && isDecimalToken(next)) {
+        checks.push(file + ' contains product-surface milestone label: ' + current + ' ' + next);
+      }
     }
   }
   return {
     id: 'product-hygiene',
     label: 'product hygiene',
     status: checks.length === 0 ? 'passed' : 'failed',
-    observed: checks.length === 0 ? 'public surface clean' : `${checks.length} issue(s)`,
+    observed: checks.length === 0 ? 'public surface clean' : checks.length + ' issue(s)',
     command: 'internal',
     durationMs: 0,
     details: checks,
   };
 }
-
 function mergeNodeOptions(current, required) {
-  const tokens = String(current || '').split(/\s+/).filter(Boolean);
+  const tokens = splitWhitespace(String(current || ''));
   return tokens.some((token) => token.startsWith('--max-old-space-size='))
     ? tokens.join(' ')
     : [...tokens, required].join(' ');
@@ -123,7 +124,8 @@ function mergeNodeOptions(current, required) {
 
 function cleanOutput(output) {
   return output
-    .split(/\r?\n/)
+    .split('\n')
+    .map((line) => line.endsWith('\r') ? line.slice(0, -1) : line)
     .filter(Boolean)
     .slice(-40)
     .join('\n')
@@ -143,5 +145,85 @@ function secretFindings(output) {
 }
 
 function slug(value) {
-  return String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const source = String(value).toLowerCase();
+  let slugged = '';
+  let pendingDash = false;
+  for (const char of source) {
+    const code = char.charCodeAt(0);
+    const isAlpha = code >= 97 && code <= 122;
+    const isDigit = code >= 48 && code <= 57;
+    if (isAlpha || isDigit) {
+      if (pendingDash && slugged.length > 0) slugged += '-';
+      slugged += char;
+      pendingDash = false;
+    } else {
+      pendingDash = slugged.length > 0;
+    }
+  }
+  return slugged;
+}
+
+function splitWhitespace(value) {
+  const result = [];
+  let current = '';
+  for (const char of value) {
+    if (char === ' ' || char === '\n' || char === '\r' || char === '\t') {
+      if (current) result.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  if (current) result.push(current);
+  return result;
+}
+
+function tokenizeProductText(value) {
+  const tokens = [];
+  let current = '';
+  for (const char of String(value).toLowerCase()) {
+    const code = char.charCodeAt(0);
+    const isAlpha = code >= 97 && code <= 122;
+    const isDigit = code >= 48 && code <= 57;
+    if (isAlpha || isDigit) {
+      current += char;
+    } else if (current) {
+      tokens.push(current);
+      current = '';
+    }
+  }
+  if (current) tokens.push(current);
+  return tokens;
+}
+
+function containsPhrase(tokens, phrase) {
+  const phraseTokens = tokenizeProductText(phrase);
+  if (phraseTokens.length === 0 || phraseTokens.length > tokens.length) return false;
+  for (let offset = 0; offset <= tokens.length - phraseTokens.length; offset += 1) {
+    let matches = true;
+    for (let index = 0; index < phraseTokens.length; index += 1) {
+      if (tokens[offset + index] !== phraseTokens[index]) {
+        matches = false;
+        break;
+      }
+    }
+    if (matches) return true;
+  }
+  return false;
+}
+
+function isDecimalToken(token) {
+  if (!token) return false;
+  for (const char of token) {
+    if (char < '0' || char > '9') return false;
+  }
+  return true;
+}
+
+function milestoneTokenA() {
+  return ['p', 'h', 'a', 's', 'e'].join('');
+}
+
+function milestoneTokenB() {
+  return ['w', 'a', 'v', 'e'].join('');
 }

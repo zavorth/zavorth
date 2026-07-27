@@ -18,13 +18,13 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     status: 'waiting_approval',
     createdAt: now,
     updatedAt: now,
-    summary: 'Aguardando approval.',
+    summary: 'Waiting for approval.',
     events: [
       {
         id: 'event-echo',
         runId: 'agent-run-c5',
         kind: 'approval',
-        title: 'Aprovar Echo hands',
+        title: 'Approve Echo hands',
         detail: 'Echo exige approval.',
         status: 'pending',
         createdAt: now,
@@ -32,7 +32,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     ],
     toolExposure: {
       mode: 'restricted',
-      summary: '1 ferramenta exposta com policy restricted.',
+      summary: '1 exposed tool com policy restricted.',
       tools: [
         {
           id: 'echo_hands',
@@ -126,7 +126,7 @@ describe('CapabilityLoopGovernanceService', () => {
       expect.objectContaining({ kind: 'request' }),
       expect.objectContaining({ kind: 'approval' }),
     ]));
-    expect(echo?.observability.eventTitles).toContain('Aprovar Echo hands');
+    expect(echo?.observability.eventTitles).toContain('Approve Echo hands');
   });
 
   it('marks skill and MCP snapshots degraded when quarantine appears in cold context', () => {

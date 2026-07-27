@@ -48,7 +48,7 @@ describe('InternalBetaDiagnosticsPanel UI Tests', () => {
     expect(panel).toBeInTheDocument();
 
     // Check readiness header
-    expect(screen.getByTestId('overall-readiness')).toHaveTextContent('Pronto para Beta Interno');
+    expect(screen.getByTestId('overall-readiness')).toHaveTextContent('Ready for Internal Beta');
 
     // Check checks list
     expect(await screen.findByText('SQLite connected')).toBeInTheDocument();
@@ -100,6 +100,6 @@ describe('InternalBetaDiagnosticsPanel UI Tests', () => {
 
     const errorContainer = await screen.findByTestId('diagnostics-error');
     expect(errorContainer).toBeInTheDocument();
-    expect(errorContainer).toHaveTextContent('Falha ao consultar diagnósticos locais.');
+    expect(errorContainer).toHaveTextContent('Failed to query local diagnostics.');
   });
 });

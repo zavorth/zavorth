@@ -12,7 +12,7 @@ import {
   resetVoicePreferenceServiceForTests,
 } from '../../src/services/voice/VoicePreferenceService.js';
 
-describe('VoiceDictationIngress (Phase 2)', () => {
+describe('VoiceDictationIngress', () => {
   let tmpDir: string;
   let preferencePath: string;
   let prefs: VoicePreferenceService;
@@ -38,7 +38,7 @@ describe('VoiceDictationIngress (Phase 2)', () => {
   });
 
   it('strips legacy media placeholders', () => {
-    expect(normalizeDictationTranscript('[Audio enviado para analise direta] open the browser')).toBe(
+    expect(normalizeDictationTranscript('[Audio sent for direct analysis] open the browser')).toBe(
       'open the browser',
     );
     expect(normalizeDictationTranscript('[Automatically transcribed audio] list files')).toBe(
@@ -92,7 +92,7 @@ describe('VoiceDictationIngress (Phase 2)', () => {
 
   it('never invents placeholder agent text for empty garbage after strip', () => {
     prefs.set({ stt: { provider: 'openai' }, mode: 'dictation' });
-    const result = ingress.prepare({ transcript: '[Audio enviado para analise direta]' });
+    const result = ingress.prepare({ transcript: '[Audio sent for direct analysis]' });
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.code).toBe('empty_transcript');

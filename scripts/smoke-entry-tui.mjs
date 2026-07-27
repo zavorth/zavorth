@@ -5,7 +5,7 @@
  *   node scripts/smoke-entry-tui.mjs
  *   npm run code:entry:smoke
  *
- * Prefer pure routing + ZAVORTH_CODE_BIN stub (no Bun cold start).
+ * Prefer pure routing + ZAVORTH_CODE_BIN local (no Bun cold start).
  * Optional real monorepo --version is soft (120s timeout).
  */
 import { spawnSync } from 'node:child_process';
@@ -35,9 +35,9 @@ function assert(cond, msg) {
 
 function writeTuiStub() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-entry-smoke-'));
-  const stubPath = path.join(dir, 'stub-tui.js');
+  const localPath = path.join(dir, 'local-tui.js');
   fs.writeFileSync(
-    stubPath,
+    localPath,
     [
       '#!/usr/bin/env node',
       "process.stdout.write(['TUI_OK', ...process.argv.slice(2)].join(' ') + '\\n');",
@@ -47,27 +47,27 @@ function writeTuiStub() {
     'utf8',
   );
 
-  let command = stubPath;
+  let command = localPath;
   if (process.platform === 'win32') {
-    const cmdPath = path.join(dir, 'stub-tui.cmd');
+    const cmdPath = path.join(dir, 'local-tui.cmd');
     fs.writeFileSync(
       cmdPath,
-      `@echo off\r\n"${process.execPath}" "${stubPath}" %*\r\n`,
+      `@echo off\r\n"${process.execPath}" "${localPath}" %*\r\n`,
       'utf8',
     );
     command = cmdPath;
   } else {
-    const shPath = path.join(dir, 'stub-tui.sh');
+    const shPath = path.join(dir, 'local-tui.sh');
     fs.writeFileSync(
       shPath,
-      `#!/usr/bin/env bash\nexec "${process.execPath}" "${stubPath}" "$@"\n`,
+      `#!/usr/bin/env bash\nexec "${process.execPath}" "${localPath}" "$@"\n`,
       'utf8',
     );
     fs.chmodSync(shPath, 0o755);
     command = shPath;
   }
 
-  return { dir, stubPath, command };
+  return { dir, localPath, command };
 }
 
 function spawnCaptured(scriptRel, args, envExtra) {
@@ -235,11 +235,11 @@ function main() {
     pass('buildHostedTuiEnv injects monorepo runtime placeholders');
   }
 
-  const { dir: stubDir, command: stubCmd } = writeTuiStub();
+  const { dir: localDir, command: localCmd } = writeTuiStub();
   try {
     // 1) Default path → product home (offline; Code TUI is explicit via `zavorth code`)
     const defaultRun = spawnCaptured('bin/zavorth.js', [], {
-      ZAVORTH_CODE_BIN: stubCmd,
+      ZAVORTH_CODE_BIN: localCmd,
     });
     assert(
       defaultRun.status === 0,
@@ -252,13 +252,13 @@ function main() {
     );
     assert(
       !defaultOut.includes('TUI_OK'),
-      `default path must not auto-launch Code TUI (got TUI stub): ${defaultOut}`,
+      `default path must not auto-launch Code TUI (got TUI local): ${defaultOut}`,
     );
     pass('node bin/zavorth.js defaults to product home (Code TUI is explicit)');
 
     // 2) `code` alias → TUI with remaining args
     const codeAlias = spawnCaptured('bin/zavorth.js', ['code', '--version'], {
-      ZAVORTH_CODE_BIN: stubCmd,
+      ZAVORTH_CODE_BIN: localCmd,
     });
     assert(
       codeAlias.status === 0,
@@ -282,7 +282,7 @@ function main() {
     // Routing only — we assert it does NOT hit TUI when hatch is forced and dist missing path errors.
   } finally {
     try {
-      fs.rmSync(stubDir, { recursive: true, force: true });
+      fs.rmSync(localDir, { recursive: true, force: true });
     } catch {
       // ignore
     }
@@ -298,7 +298,7 @@ function main() {
       ['--version'],
       {
         ZAVORTH_LEGACY_CLI: '1',
-        // Even if a TUI stub were set, agent hatch must win — prove by setting a failing TUI bin.
+        // Even if a TUI local were set, agent hatch must win — prove by setting a failing TUI bin.
         ZAVORTH_CODE_BIN: path.join(root, 'bin', 'definitely-missing-tui-bin-xyz'),
       },
     );

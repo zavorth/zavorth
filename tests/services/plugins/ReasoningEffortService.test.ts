@@ -92,7 +92,7 @@ describe('ReasoningEffortService', () => {
     it('suggests low for quick/simple tasks', () => {
       expect(service.suggestEffort('Quick question')).toBe('low');
       expect(service.suggestEffort('Simple hello')).toBe('low');
-      expect(service.suggestEffort('Yes or no?')).toBe('low');
+      expect(service.suggestEffort('Yes or no-')).toBe('low');
     });
 
     it('suggests high for write/create tasks', () => {
@@ -116,7 +116,7 @@ describe('ReasoningEffortService', () => {
     it('suggests low for summarize/list tasks', () => {
       expect(service.suggestEffort('Summarize this')).toBe('low');
       expect(service.suggestEffort('List all items')).toBe('low');
-      expect(service.suggestEffort('What time is it?')).toBe('low');
+      expect(service.suggestEffort('What time is it-')).toBe('low');
     });
 
     it('falls back to global effort for unmatched descriptions', () => {

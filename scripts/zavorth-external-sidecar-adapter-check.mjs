@@ -49,7 +49,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'checkpoint-3-files',
+    id: 'gate-3-files',
     label: 'Approval gate sidecar adapter files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
@@ -77,7 +77,7 @@ function ruleContainsMarkers() {
     ]],
     ['docs/README.md', [
       'sidecar-adapter-ready',
-      '291 Connector registry - Capability Providers',
+      'Connector registry - Capability Providers',
       'Zavorth External Sidecar Adapter',
     ]],
     ['docs/README.md', [
@@ -85,7 +85,7 @@ function ruleContainsMarkers() {
       'Zavorth External Sidecar Adapter',
       'read-only',
       'dry-run',
-      '291 Connector registry - Capability Providers',
+      'Connector registry - Capability Providers',
     ]],
     ['package.json', [
       'zavorth:external-sidecar-adapter',
@@ -104,7 +104,7 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'checkpoint-3-markers',
+    id: 'gate-3-markers',
     label: 'Approval gate sidecar adapter markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
@@ -177,7 +177,7 @@ function runSidecarAdapterLiveReadOnlyFixture() {
     && snapshot.readOnlyProbe?.safety?.noSourceRuntimeCodeExecuted === true
     && snapshot.readOnlyProbe?.safety?.noOutboundIo === true;
   return {
-    id: 'checkpoint-3-live-readonly-fixture',
+    id: 'gate-3-live-readonly-fixture',
     label: 'Live-readonly probe mode stays non-executing',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.readOnlyProbe.mode}, sourceCodeExecuted=${snapshot.readOnlyProbe.safety.noSourceRuntimeCodeExecuted}` : `exit ${result.status}`,
@@ -203,7 +203,7 @@ function runSidecarAdapterBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousNativeEngineStatus === 'blocked';
   return {
-    id: 'checkpoint-3-blocked-fixture',
+    id: 'gate-3-blocked-fixture',
     label: 'Sidecar adapter blocks without Preview engine readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, nativeEngine=${snapshot.previousNativeEngineStatus}` : `exit ${result.status}`,

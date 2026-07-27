@@ -108,7 +108,7 @@ async function liveHttpSmoke(baseUrl: string, token: string | null): Promise<str
 
   // Metrics
   try {
-    const metrics = await get('/api/experience/voice/metrics?limit=5');
+    const metrics = await get('/api/experience/voice/metrics...limit=5');
     if (metrics.status >= 200 && metrics.status < 300) {
       console.log(`  ✓ live GET metrics (${metrics.status})`);
     } else if (metrics.status === 401 || metrics.status === 403) {
@@ -197,8 +197,8 @@ async function main(): Promise<number> {
   console.log(`  features: ${JSON.stringify(plane.features)}`);
   console.log('');
 
-  // 3) Local WebRTC auto-answer quick check
-  console.log('3) Local signaling');
+  // 3) local WebRTC auto-answer quick check
+  console.log('3) local signaling');
   resetVoiceWebRtcSignalingForTests();
   const rtc = getVoiceWebRtcSignalingService();
   const sig = rtc.create({ surface: 'live-smoke' });

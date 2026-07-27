@@ -13,8 +13,7 @@ if (asJson) {
   console.log(`Essentials: ${snapshot.essentialCoverage.present}/${snapshot.essentialCoverage.required} present, ${snapshot.essentialCoverage.ready} ready`);
   console.log(`Power users: ${snapshot.powerUserCoverage.present}/${snapshot.powerUserCoverage.tracked} present, ${snapshot.powerUserCoverage.ready} ready`);
   for (const category of snapshot.categories) {
-    const primary = category.primary
-      ? `${category.primary.label} (${category.primary.modelLabel})`
+    const primary = category.primary ? `${category.primary.label} (${category.primary.modelLabel})`
       : category.emptyHint;
     console.log(`- ${category.label}: ${primary}`);
   }

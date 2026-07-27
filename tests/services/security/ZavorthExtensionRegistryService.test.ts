@@ -1,0 +1,1 @@
+import '../ZavorthExtensionRegistryService.test.js';

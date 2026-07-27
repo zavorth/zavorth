@@ -33,7 +33,7 @@ describe('AgentRunService productization evidence Channel mesh6', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-agent-productization-evidence',
-      text: 'prepare readiness de produto',
+      text: 'prepare readiness de product',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

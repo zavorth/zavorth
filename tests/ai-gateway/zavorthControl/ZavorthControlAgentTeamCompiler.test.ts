@@ -21,7 +21,7 @@ describe('ZavorthControl Agent Team Compiler Channel mesh0', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-agent-team',
-      text: 'compile equipe de agentes para revisar e implementar',
+      text: 'compile an agent team to review and implement',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {
@@ -108,7 +108,7 @@ describe('ZavorthControl Agent Team Compiler Channel mesh0', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-agent-team-live',
-      text: 'compile uma equipe de agentes para validar esta entrega',
+      text: 'compile an agent team to validate this delivery',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

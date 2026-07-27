@@ -66,7 +66,7 @@ function walk(currentPath) {
     const index = contents.toLowerCase().indexOf(externalRootMarker);
     if (index !== -1) {
       const relativePath = path.relative(projectRoot, absolutePath);
-      const line = contents.slice(0, index).split(/\r?\n/u).length;
+      const line = contents.slice(0, index).split(/\r...\n/u).length;
       findings.push({ file: relativePath, line });
     }
   }

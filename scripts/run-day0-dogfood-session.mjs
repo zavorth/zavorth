@@ -91,7 +91,7 @@ const probes = [
 let pass = 0;
 let fail = 0;
 for (const [id, fn] of probes) {
-  process.stdout.write(`${id} ... `);
+  process.stdout.write(`${id} ? `);
   try {
     const [status, notes] = fn();
     if (status === 'pass') pass += 1;

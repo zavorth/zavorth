@@ -56,7 +56,7 @@ try {
   );
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
-    'zavorth-transaction-sandbox-adapter-certification/checkpoint-12',
+    'zavorth-transaction-sandbox-adapter-certification/gate-12',
     'sandbox-certification-ready',
     'endpoint-allowlist-ready',
     'separate-sandbox-executor-required',
@@ -146,7 +146,7 @@ try {
     '--adapter-environment',
     'paper',
     '--adapter-endpoint',
-    'https://paper.exchange.zavorth.local?api_key=sk-super-secret-value-123456',
+    'https://paper.exchange.zavorth.local...api_key=sk-super-secret-value-123456',
     '--adapter-allow-host',
     'paper.exchange.zavorth.local',
     '--adapter-credential-ref',
@@ -243,7 +243,7 @@ function rollbackArgs() {
     '--rollback-drill-performed',
     '--rollback-drill-successful',
     '--rollback-summary',
-    'Replay and rollback completed against the simulated transaction ledger.',
+    'Replay and rollback completed against the dry-run transaction ledger.',
     '--replay-command',
     'npm run zavorth:transaction-live-candidate:json -- --replay intent-model0',
     '--rollback-command',

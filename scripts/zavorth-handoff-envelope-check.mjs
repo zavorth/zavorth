@@ -27,7 +27,7 @@ const requiredSections = [
   'security-approvals-granted',
   'verbatim-user-directives',
   'remaining-todo-checklist',
-  'simulated-state-preview',
+  'dry-run-state-preview',
   'next-prescribed-action',
 ];
 

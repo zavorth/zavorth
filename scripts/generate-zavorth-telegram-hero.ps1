@@ -52,7 +52,7 @@ $chipTextBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::F
 
 $graphics.DrawString('ZAVORTH CONTROL', $titleFont, $titleBrush, 118, 184)
 $graphics.DrawString(
-  'Assistente local para codigo, WSL, automacao visual e permissoes com contencao.',
+  'local assistant for code, WSL, visual automation, and contained permissions.',
   $subtitleFont,
   $mutedBrush,
   122,
@@ -61,7 +61,7 @@ $graphics.DrawString(
 
 $chipRects = @(
   @{ X = 122; Y = 334; W = 232; H = 58; Text = 'Codex local' },
-  @{ X = 372; Y = 334; W = 262; H = 58; Text = 'Executor externo' },
+  @{ X = 372; Y = 334; W = 262; H = 58; Text = 'Executor external' },
   @{ X = 652; Y = 334; W = 292; H = 58; Text = 'ZavorthBridge assistido' }
 )
 
@@ -72,10 +72,10 @@ foreach ($chip in $chipRects) {
 }
 
 $bodyLines = @(
-  '- Planeja antes de agir',
-  '- Mostra riscos e pede aprovacao',
-  '- Divide comandos por rota certa',
-  '- Mantem visual e operacao no mesmo hub'
+  '- Planeja before agir',
+  '- Shows risks and requests approval',
+  '- Divide commands por rota certa',
+  '- Keeps visual and operation in the same hub'
 )
 
 $lineY = 446
@@ -84,7 +84,7 @@ foreach ($line in $bodyLines) {
   $lineY += 54
 }
 
-$graphics.DrawString('Hub bonito, texto objetivo, botoes claros e receitas prontas.', $subtitleFont, $accentBrush, 124, 688)
+$graphics.DrawString('Clean hub, direct text, clear buttons, and ready recipes.', $subtitleFont, $accentBrush, 124, 688)
 $graphics.DrawString('Telegram | Zavorth | 2026 redesign', $smallFont, $mutedBrush, 124, 736)
 
 $bitmap.Save($outputPath, [System.Drawing.Imaging.ImageFormat]::Png)

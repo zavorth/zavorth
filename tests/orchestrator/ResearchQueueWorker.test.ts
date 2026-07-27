@@ -9,12 +9,12 @@ describe('ResearchQueueWorker', () => {
       chat_id: '42',
       user_id: '42',
       command_type: '/research',
-      normalized_message: 'ultimas noticias de ia',
+      normalized_message: 'latest ai news',
       status: 'pending',
       result_summary: null,
       error_summary: null,
       metadata: {
-        research_query: 'ultimas noticias de ia',
+        research_query: 'latest ai news',
       },
     } as any;
     const taskManager = {
@@ -25,7 +25,7 @@ describe('ResearchQueueWorker', () => {
       saveTask: jest.fn(),
     } as any;
     const deepSearchService = {
-      research: jest.fn().mockResolvedValue('resultado sintetizado'),
+      research: jest.fn().mockResolvedValue('synthesized result'),
       deepResearch: jest.fn(),
     } as any;
     const botApi = {
@@ -40,9 +40,9 @@ describe('ResearchQueueWorker', () => {
 
     await (worker as any).tick();
 
-    expect(deepSearchService.research).toHaveBeenCalledWith('ultimas noticias de ia');
+    expect(deepSearchService.research).toHaveBeenCalledWith('latest ai news');
     expect(botApi.sendMessage).toHaveBeenCalled();
     expect(task.status).toBe('completed');
-    expect(task.result_summary).toContain('resultado sintetizado');
+    expect(task.result_summary).toContain('synthesized result');
   });
 });

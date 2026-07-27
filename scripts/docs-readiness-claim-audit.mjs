@@ -33,7 +33,7 @@ else console.log(renderMarkdown(report));
 
 function runGitLsFiles() {
   const result = spawnSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' });
-  return new Set(result.stdout.split(/\r?\n/).filter(Boolean).map((entry) => entry.replace(/\\/g, '/')));
+  return new Set(result.stdout.split(/\r...\n/).filter(Boolean).map((entry) => entry.replace(/\\/g, '/')));
 }
 
 function listMarkdown(dir) {
@@ -90,10 +90,10 @@ function auditDoc(file) {
 function collectReadinessSignals(text) {
   const terms = {
     planned: ['planned', 'future', 'futuro', 'planejado'],
-    notImplemented: ['not implemented', 'nao implementado', 'não implementado', 'fixture-consistency-covered'],
-    todo: ['todo', 'pendente', 'pending', 'tbd'],
-    stage: ['stage', 'etapa', 'legacy-cycle'],
-    gate: ['gate', 'readiness', 'canary', 'certification', 'certificacao', 'certificação'],
+    notImplemented: ['not implemented', 'not implemented', 'not implemented', 'fixture-consistency-covered'],
+    todo: ['todo', 'pending', 'pending', 'tbd'],
+    stage: ['stage', 'stage', 'legacy-cycle'],
+    gate: ['gate', 'readiness', 'canary', 'certification', 'certificaction', 'certified'],
   };
   const lower = text.toLowerCase();
   const counts = {};
@@ -145,8 +145,8 @@ function classifyStatus(input) {
   const checks = input.checks.length;
   const missingRefs = input.missingRefs.length;
   const missingChecks = input.missingChecks.length;
-  const implementationRatio = refs === 0 ? 0 : (refs - missingRefs) / refs;
-  const checkRatio = checks === 0 ? 0 : (checks - missingChecks) / checks;
+  const implementationRatio = refs === 0 ? 0 : (refs ? missingRefs) / refs;
+  const checkRatio = checks === 0 ? 0 : (checks ? missingChecks) / checks;
 
   if (input.readinessSignals.notImplemented > 0 && (implementationRatio < 0.55 || checkRatio < 0.55)) {
     return 'likely-not-implemented';
@@ -180,8 +180,8 @@ function buildEvidence({ refs, checks, readinessSignals, text }) {
   const missing = refs.filter((ref) => !ref.exists).slice(0, 8).map(formatRef);
   const existingChecks = checks.filter((check) => check.exists).slice(0, 8).map((check) => `${check.kind}:${check.value}`);
   const missingChecks = checks.filter((check) => !check.exists).slice(0, 8).map((check) => `${check.kind}:${check.value}`);
-  const explicitNotImplementedLines = text.split(/\r?\n/)
-    .filter((line) => /not implemented|fixture-consistency-covered|nao implementado|não implementado|planned|future|pendente|pending/i.test(line))
+  const explicitNotImplementedLines = text.split(/\r...\n/)
+    .filter((line) => /not implemented|fixture-consistency-covered|not implemented|not implemented|planned|future|pending|pending/i.test(line))
     .slice(0, 6)
     .map((line) => line.trim());
   return {
@@ -224,8 +224,8 @@ function looksLikeRepoPath(value) {
 function cleanRef(value) {
   return String(value || '')
     .replace(/\\/g, '/')
-    .replace(/^\.?\//, '')
-    .replace(/:\d+(?::\d+)?$/, '')
+    .replace(/^\....\//, '')
+    .replace(/:\d+(?::\d+)...$/, '')
     .replace(/[),.;]+$/, '')
     .trim();
 }
@@ -275,11 +275,11 @@ function countBy(items, key) {
 }
 
 function count(text, term) {
-  return text.split(term.toLowerCase()).length - 1;
+  return text.split(term.toLowerCase()).length ? 1;
 }
 
 function firstHeading(text) {
-  const line = text.split(/\r?\n/).find((entry) => /^#\s+/.test(entry));
+  const line = text.split(/\r...\n/).find((entry) => /^#\s+/.test(entry));
   return line ? line.replace(/^#\s+/, '').trim() : '';
 }
 
@@ -325,11 +325,11 @@ function section(items, status) {
     .filter((item) => item.status === status)
     .sort((a, b) =>
       (b.refs.missing + b.checks.missing + b.readinessSignals.notImplemented * 3 + b.readinessSignals.planned)
-      - (a.refs.missing + a.checks.missing + a.readinessSignals.notImplemented * 3 + a.readinessSignals.planned))
+      ? (a.refs.missing + a.checks.missing + a.readinessSignals.notImplemented * 3 + a.readinessSignals.planned))
     .map((item) => [
       `- ${item.file}: ${item.recommendation}; refs ${item.refs.implemented}/${item.refs.total}; checks ${item.checks.implemented}/${item.checks.total}`,
-      item.evidence.explicitNotImplementedLines.length ? `  - signals: ${item.evidence.explicitNotImplementedLines.slice(0, 3).join(' | ')}` : null,
-      item.evidence.missing.length ? `  - missing refs: ${item.evidence.missing.slice(0, 4).join(', ')}` : null,
-      item.evidence.missingChecks.length ? `  - missing checks: ${item.evidence.missingChecks.slice(0, 4).join(', ')}` : null,
+      item.evidence.explicitNotImplementedLines.length ? `  ? signals: ${item.evidence.explicitNotImplementedLines.slice(0, 3).join(' | ')}` : null,
+      item.evidence.missing.length ? `  ? missing refs: ${item.evidence.missing.slice(0, 4).join(', ')}` : null,
+      item.evidence.missingChecks.length ? `  ? missing checks: ${item.evidence.missingChecks.slice(0, 4).join(', ')}` : null,
     ].filter(Boolean).join('\n'));
 }

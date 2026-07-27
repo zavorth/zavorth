@@ -150,7 +150,7 @@ const rules = [
       'Worker 4',
       'Module SDK Export Closure',
       'zavorth-native-sdk',
-      'nao fornece shim de import path',
+      'does not provide an import path shim',
       './sdk/runtime/codex',
       './sdk/runtime/openshell',
       'Worker 5',

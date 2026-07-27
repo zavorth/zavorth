@@ -9,7 +9,7 @@ function createImpact(overrides: Partial<TaskResourceImpact> = {}): TaskResource
   return {
     generatedAt: '2026-04-14T18:00:00.000Z',
     taskKind: 'chat',
-    intent: 'editar codigo',
+    intent: 'edit code',
     heavy: false,
     approvalRequired: false,
     summary: 'Sem impacto pesado.',
@@ -64,7 +64,7 @@ describe('ModeEscalationService', () => {
 
     const result = service.evaluateChatRequest({
       sessionId: 'session-chat-1',
-      message: 'edite esse codigo e me mostre o diff',
+      message: 'edit this code and show me the diff',
       resourceImpact: createImpact(),
       requestedBy: 'web-user',
     });
@@ -93,7 +93,7 @@ describe('ModeEscalationService', () => {
 
     const firstPass = service.evaluateChatRequest({
       sessionId: 'session-chat-2',
-      message: 'edite esse codigo e rode os testes',
+      message: 'edit this code and run the tests',
       resourceImpact: createImpact(),
       requestedBy: 'web-user',
     });
@@ -116,7 +116,7 @@ describe('ModeEscalationService', () => {
 
     const secondPass = service.evaluateChatRequest({
       sessionId: 'session-chat-2',
-      message: 'edite esse codigo e rode os testes',
+      message: 'edit this code and run the tests',
       resourceImpact: createImpact(),
       requestedBy: 'web-user',
     });
@@ -139,7 +139,7 @@ describe('ModeEscalationService', () => {
 
     const request = service.evaluateChatRequest({
       sessionId: 'session-chat-3',
-      message: 'edite esse codigo',
+      message: 'edit this code',
       resourceImpact: createImpact(),
       requestedBy: 'web-user',
     }).request;
@@ -153,7 +153,7 @@ describe('ModeEscalationService', () => {
 
     const firstUse = service.evaluateChatRequest({
       sessionId: 'session-chat-3',
-      message: 'edite esse codigo',
+      message: 'edit this code',
       resourceImpact: createImpact(),
       requestedBy: 'web-user',
     });
@@ -161,7 +161,7 @@ describe('ModeEscalationService', () => {
 
     const secondUse = service.evaluateChatRequest({
       sessionId: 'session-chat-3',
-      message: 'edite esse codigo',
+      message: 'edit this code',
       resourceImpact: createImpact(),
       requestedBy: 'web-user',
     });

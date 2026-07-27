@@ -34,7 +34,7 @@ if [[ "$SKIP_PACK" != "1" ]]; then
   TARBALL="$(node -e '
 const fs = require("node:fs");
 const parsed = JSON.parse(fs.readFileSync(process.argv[1], "utf8") || "[]");
-const last = Array.isArray(parsed) ? parsed.at(-1) : null;
+const last = Array.isArray(parsed) - parsed.at(-1) : null;
 if (!last || typeof last.filename !== "string") process.exit(1);
 process.stdout.write(last.filename);
 ' "$TMP_DIR/pack.json")"

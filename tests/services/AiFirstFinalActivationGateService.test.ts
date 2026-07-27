@@ -54,7 +54,7 @@ function conversationSample(sampleId: string, text: string): AiFirstShadowBatchR
       proposedActions: [
         {
           kind: 'answer',
-          summary: 'Responder em conversa.',
+          summary: 'Respond in conversation.',
         },
       ],
     },
@@ -85,7 +85,7 @@ function createCleanInputs(): Parameters<AiFirstFinalActivationGateService['buil
     samples: [
       conversationSample('conversation-a', 'Oi, me explique uma ideia.'),
       conversationSample('conversation-b', 'Me ajude a pensar num nome melhor.'),
-      conversationSample('conversation-c', 'Resuma minha ideia em uma frase.'),
+      conversationSample('conversation-c', 'Summarize my idea in one sentence.'),
     ],
   });
   const registrySnapshot = registryService.buildRegistry({

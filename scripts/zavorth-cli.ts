@@ -8,6 +8,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error(`[zavorth-cli] erro: ${error?.message || String(error)}`);
+  console.error(`[zavorth-cli] error: ${error?.message || String(error)}`);
   process.exitCode = 1;
 });

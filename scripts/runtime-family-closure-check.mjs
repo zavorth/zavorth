@@ -138,7 +138,7 @@ const rules = [
       'C7-voice',
       'C8-web',
       'C9-docs-diagnostics-migration',
-      'sem chamadas externas reais',
+      'without chamadas externas reais',
       'Worker 7',
     ],
   }),

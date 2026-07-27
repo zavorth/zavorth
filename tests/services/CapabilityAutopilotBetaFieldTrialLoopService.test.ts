@@ -212,6 +212,6 @@ describe('CapabilityAutopilotBetaFieldTrialLoopService', () => {
     const snapshot = service.buildFieldTrialSnapshot(createSource(), readyOptions);
 
     expect(service.renderReport(snapshot)).toContain('Gate capability-autopilot-beta-field-trial - Capability Autopilot Beta Field Trial Loop');
-    expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 80 - Capability Autopilot Release Candidate Gate');
+    expect(service.renderReport(snapshot)).toContain('next step recomendada: 80 - Capability Autopilot Release Candidate Gate');
   });
 });

@@ -88,7 +88,7 @@ describe('MultiAgentPipeline', () => {
       expect.stringContaining('O que vai acontecer:'),
     );
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Workflow concluido com todas as etapas finalizadas.'),
+      expect.stringContaining('Workflow completed with all stages finished.'),
     );
     expect(ctx.reply).toHaveBeenCalledWith(
       expect.stringContaining('Entregas agregadas: 2'),
@@ -206,7 +206,7 @@ describe('MultiAgentPipeline', () => {
 
     const inspect = jest.fn(() => ({
       featureId: 'multisurface/shared-command-contract',
-      title: 'Contrato oficial de comandos compartilhados',
+      title: 'Contrato oficial de comandos shareds',
       lifecycle: 'active',
       nextRole: 'execution',
       currentTask: 'Integrar o core ao contrato',
@@ -230,26 +230,26 @@ describe('MultiAgentPipeline', () => {
           'C:\\workspace\\zavorth-core\\Zavorth\\src\\services\\SharedSurfaceCommandContract.ts',
         ],
         checklist: [
-          'Executar a task ativa.',
+          'Run the active task.',
           'Respeitar o spec e o plan.',
         ],
         prompt: 'Papel: Execution Agent\nTask ativa: Integrar o core ao contrato',
       },
       runState: {
         featureId: 'multisurface/shared-command-contract',
-        title: 'Contrato oficial de comandos compartilhados',
+        title: 'Contrato oficial de comandos shareds',
         lifecycle: 'active',
         currentRole: 'execution',
         currentTask: 'Integrar o core ao contrato',
         updatedAt: '2026-04-03T05:00:00.000Z',
         startedAt: '2026-04-03T04:59:00.000Z',
         lastActor: 'system',
-        note: 'Proxima execucao sugerida: Integrar o core ao contrato',
+        note: 'Suggested next execution: Integrar o core ao contrato',
       },
     }));
     const handoff = jest.fn(() => ({
       featureId: 'multisurface/shared-command-contract',
-      title: 'Contrato oficial de comandos compartilhados',
+      title: 'Contrato oficial de comandos shareds',
       lifecycle: 'in_review',
       nextRole: 'review',
       currentTask: null,
@@ -274,7 +274,7 @@ describe('MultiAgentPipeline', () => {
       },
       runState: {
         featureId: 'multisurface/shared-command-contract',
-        title: 'Contrato oficial de comandos compartilhados',
+        title: 'Contrato oficial de comandos shareds',
         lifecycle: 'in_review',
         currentRole: 'review',
         currentTask: null,
@@ -337,7 +337,7 @@ describe('MultiAgentPipeline', () => {
     expect(submit.mock.calls[0][1]).toEqual(
       expect.objectContaining({
         executor_recommendation: 'codex',
-        objective: expect.stringContaining('Voce esta operando o loop SDD da feature multisurface/shared-command-contract.'),
+        objective: expect.stringContaining('you esta operando o loop SDD da feature multisurface/shared-command-contract.'),
         steps: [
           expect.objectContaining({
             file_targets: [
@@ -386,7 +386,7 @@ describe('MultiAgentPipeline', () => {
 
     expect(submit).not.toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('ainda nao existe no workspace SDD oficial'),
+      expect.stringContaining('ainda not existe no workspace SDD oficial'),
     );
   });
 
@@ -394,7 +394,7 @@ describe('MultiAgentPipeline', () => {
     const submit = jest.fn().mockResolvedValue({
       requires_confirmation: false,
       allowed: false,
-      reason: "Executor 'external_executor' indisponivel neste host.",
+      reason: "Executor 'external_executor' unavailable neste host.",
       execution_result: null,
     });
 
@@ -406,10 +406,10 @@ describe('MultiAgentPipeline', () => {
     await pipeline.runReviewPipeline(ctx, 'Revisar modulo', 'C:/repo');
 
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining("A etapa ExternalExecutor Maker foi bloqueada antes de executar."),
+      expect.stringContaining("The ExternalExecutor Maker stage was blocked before execution."),
     );
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Workflow interrompido antes do fechamento completo.'),
+      expect.stringContaining('Workflow interrupted before full closure.'),
     );
   });
 
@@ -417,7 +417,7 @@ describe('MultiAgentPipeline', () => {
     const submit = jest.fn().mockResolvedValue({
       requires_confirmation: false,
       allowed: true,
-      reason: 'Execucao falhou',
+      reason: 'Execution failed',
       execution_result: {
         success: false,
         error_code: 'EXTERNAL_EXECUTOR_WORKSPACE_MISMATCH',
@@ -457,7 +457,7 @@ describe('MultiAgentPipeline', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'briefing final pronto',
+          stdout: 'briefing final ready',
           stderr: '',
         },
       });
@@ -474,9 +474,9 @@ describe('MultiAgentPipeline', () => {
       'C:/repo',
       {
         profile_summary: 'Workspace Zavorth com stack TypeScript e foco em runtime',
-        operational_summary: 'Executor recente mais confiavel: codex',
+        operational_summary: 'Most reliable recent executor: codex',
         profile_notes: ['Perfis do workspace priorizam artefatos curtos.'],
-        operational_notes: ['Memoria operacional sugere continuar o briefing aberto.'],
+        operational_notes: ['Operational memory suggests continuing the open briefing.'],
         active_focus: {
           summary: 'Concluir briefing de posicionamento',
           executor: 'codex',
@@ -489,7 +489,7 @@ describe('MultiAgentPipeline', () => {
         },
         continuity_recommendation: {
           label: 'Retomar briefing final',
-          reason: 'Ja existe um briefing recente e uma aprovacao pendente.',
+          reason: 'Ja existe um briefing recente e uma approval pendente.',
           executor: 'codex',
         },
       },
@@ -499,7 +499,7 @@ describe('MultiAgentPipeline', () => {
       expect.stringContaining('Contexto aproveitado:'),
     );
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Foco ativo: Concluir briefing de posicionamento'),
+      expect.stringContaining('Foco active: Concluir briefing de posicionamento'),
     );
     expect(submit.mock.calls[0][0]).toEqual(
       expect.objectContaining({
@@ -532,7 +532,7 @@ describe('MultiAgentPipeline', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'implementacao concluida',
+          stdout: 'implementaction concluida',
           stderr: '',
         },
       })
@@ -542,7 +542,7 @@ describe('MultiAgentPipeline', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'revisao concluida',
+          stdout: 'review concluida',
           stderr: '',
         },
       });
@@ -559,7 +559,7 @@ describe('MultiAgentPipeline', () => {
       'C:/repo',
       {
         profile_summary: 'Workspace Zavorth focado em entrega controlada',
-        operational_summary: 'Ultimas entregas fecharam melhor com ExternalExecutor no papel de maker',
+        operational_summary: 'Ultimas entregas closeam melhor com ExternalExecutor no papel de maker',
         profile_notes: [],
         operational_notes: [],
         active_focus: {
@@ -573,7 +573,7 @@ describe('MultiAgentPipeline', () => {
           summary: 'Checklist final da entrega',
         },
         continuity_recommendation: {
-          label: 'Fechar entrega final',
+          label: 'Close entrega final',
           reason: 'Ja existe checklist recente e um foco claro de conclusao.',
           executor: 'external_executor',
         },
@@ -590,7 +590,7 @@ describe('MultiAgentPipeline', () => {
     expect(submit.mock.calls[1][1]).toEqual(
       expect.objectContaining({
         executor_recommendation: 'codex',
-        objective: expect.stringContaining('Confirme se o resultado continua coerente com release-checklist.md.'),
+        objective: expect.stringContaining('Confirm that the result remains coherent with release-checklist.md.'),
       }),
     );
     expect(ctx.reply).toHaveBeenCalledWith(
@@ -615,7 +615,7 @@ describe('MultiAgentPipeline', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'implementacao pronta',
+          stdout: 'implementaction pronta',
           stderr: '',
           artifacts: [],
         },
@@ -623,7 +623,7 @@ describe('MultiAgentPipeline', () => {
       .mockResolvedValueOnce({
         requires_confirmation: false,
         allowed: false,
-        reason: 'Reviewer aguardando liberacao de acesso.',
+        reason: 'Reviewer waiting for liberaction de acesso.',
         execution_result: null,
       })
       .mockResolvedValueOnce({
@@ -632,7 +632,7 @@ describe('MultiAgentPipeline', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'revisao final concluida',
+          stdout: 'review final concluida',
           stderr: '',
           artifacts: [],
         },
@@ -669,7 +669,7 @@ describe('MultiAgentPipeline', () => {
       expect.stringContaining(`Retomando workflow ${workflowRunId}.`),
     );
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Workflow concluido com todas as etapas finalizadas.'),
+      expect.stringContaining('Workflow completed with all stages finished.'),
     );
     expect(workflowRuns.getRun(workflowRunId)?.status).toBe('completed');
   });
@@ -683,7 +683,7 @@ describe('MultiAgentPipeline', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'implementacao concluida',
+          stdout: 'implementaction concluida',
           stderr: '',
           artifacts: [],
         },
@@ -691,7 +691,7 @@ describe('MultiAgentPipeline', () => {
       .mockResolvedValueOnce({
         requires_confirmation: false,
         allowed: false,
-        reason: 'Reviewer aguardando liberacao de acesso.',
+        reason: 'Reviewer waiting for liberaction de acesso.',
         execution_result: null,
       })
       .mockResolvedValueOnce({
@@ -700,7 +700,7 @@ describe('MultiAgentPipeline', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'revisao final concluida',
+          stdout: 'review final concluida',
           stderr: '',
           artifacts: [],
         },
@@ -719,14 +719,14 @@ describe('MultiAgentPipeline', () => {
       expect.objectContaining({
         id: 'reviewer',
         executor: 'external_executor',
-        strategy_note: 'Mantendo contraste entre etapas para revisar com outro executor.',
+        strategy_note: 'Keeping contrast between stages for review with another executor.',
       }),
     );
 
     await pipeline.resumeWorkflow(ctx, workflowRunId, {
       workspaceContext: {
         profile_summary: 'Workspace mudou de contexto desde a primeira tentativa',
-        operational_summary: 'Agora o workspace prefere Codex para revisao',
+        operational_summary: 'Agora o workspace prefere Codex para review',
         profile_notes: [],
         operational_notes: [],
         active_focus: null,
@@ -740,7 +740,7 @@ describe('MultiAgentPipeline', () => {
             pending_count: 0,
             failed_count: 0,
             confidence: 'high',
-            rationale: 'Codex fechou bem as ultimas entregas.',
+            rationale: 'Codex handled recent deliveries well.',
           },
         ],
         workflow_stage_executor_recommendations: [
@@ -770,7 +770,7 @@ describe('MultiAgentPipeline', () => {
       expect.objectContaining({
         metadata: expect.objectContaining({
           workflow_stage_id: 'reviewer',
-          workflow_stage_strategy_note: 'Mantendo contraste entre etapas para revisar com outro executor.',
+          workflow_stage_strategy_note: 'Keeping contrast between stages for review with another executor.',
         }),
       }),
     );
@@ -813,7 +813,7 @@ describe('MultiAgentPipeline', () => {
       'C:/repo',
       {
         profile_summary: 'Workspace Zavorth orientado a briefing executivo',
-        operational_summary: 'A sintese final costuma travar quando o fluxo fica preso no mesmo executor.',
+        operational_summary: 'A final synthesis costuma travar quando o fluxo fica preso no mesmo executor.',
         profile_notes: [],
         operational_notes: [],
         active_focus: {
@@ -824,11 +824,11 @@ describe('MultiAgentPipeline', () => {
         recent_artifact: {
           name: 'briefing-final.md',
           kind: 'doc',
-          summary: 'Ultima entrega em andamento',
+          summary: 'Latest delivery in progress',
         },
         continuity_recommendation: {
           label: 'Retomar briefing final',
-          reason: 'Ja existe um briefing recente aguardando consolidacao.',
+          reason: 'Ja existe um briefing recente waiting for consolidaction.',
           executor: 'external_executor',
         },
         workflow_executor_recommendations: [
@@ -839,7 +839,7 @@ describe('MultiAgentPipeline', () => {
             pending_count: 2,
             failed_count: 1,
             confidence: 'high',
-            rationale: 'ExternalExecutor costuma sintetizar bem quando o fluxo nao pausa.',
+            rationale: 'ExternalExecutor costuma sintetizar bem quando o fluxo not pausa.',
           },
           {
             workflow: 'research',
@@ -848,7 +848,7 @@ describe('MultiAgentPipeline', () => {
             pending_count: 0,
             failed_count: 0,
             confidence: 'medium',
-            rationale: 'Codex fecha melhor quando a sintese precisa de uma rota mais estavel.',
+            rationale: 'Codex performs better when synthesis needs a more stable route.',
           },
         ],
         workflow_friction_recommendations: [
@@ -859,7 +859,7 @@ describe('MultiAgentPipeline', () => {
             failed_count: 0,
             last_resume_stage_label: 'ExternalExecutor Synthesizer',
             confidence: 'high',
-            rationale: 'A sintese recente costuma pausar por aprovacao nessa etapa.',
+            rationale: 'Recent synthesis often pauses for approval at this stage.',
           },
         ],
         approval_friction_recommendations: [
@@ -872,7 +872,7 @@ describe('MultiAgentPipeline', () => {
             high_risk_count: 0,
             permission_count: 1,
             confidence: 'high',
-            rationale: 'ExternalExecutor encontrou gates extras na consolidacao final.',
+            rationale: 'ExternalExecutor encontrou gates extras na consolidaction final.',
           },
           {
             executor: 'codex',
@@ -883,7 +883,7 @@ describe('MultiAgentPipeline', () => {
             high_risk_count: 0,
             permission_count: 0,
             confidence: 'medium',
-            rationale: 'Codex segue sem gates recentes nessa etapa.',
+            rationale: 'Codex continues without recent gates at this stage.',
           },
         ],
       },
@@ -903,7 +903,7 @@ describe('MultiAgentPipeline', () => {
       }),
     );
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Estrategia: Workflow recente travou em ExternalExecutor Synthesizer'),
+      expect.stringContaining('Strategy: recent workflow stalled at ExternalExecutor Synthesizer'),
     );
   });
 
@@ -926,7 +926,7 @@ describe('MultiAgentPipeline', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'revisao concluida',
+          stdout: 'review concluida',
           stderr: '',
         },
       });
@@ -939,7 +939,7 @@ describe('MultiAgentPipeline', () => {
     await pipeline.runWorkflow(
       ctx,
       'ship',
-      'Feche a entrega final do runtime e deixe pronto para publicar',
+      'Close the final runtime delivery and make it ready to publish',
       'C:/repo',
       {
         profile_summary: 'Workspace Zavorth com foco em entrega segura',
@@ -969,7 +969,7 @@ describe('MultiAgentPipeline', () => {
             pending_count: 2,
             failed_count: 2,
             confidence: 'high',
-            rationale: 'Codex vinha sendo o favorito recente, mas passou a travar a entrega.',
+            rationale: 'Codex vinthere is sendo o favorito recente, mas passou a travar a entrega.',
           },
           {
             workflow: 'ship',
@@ -978,7 +978,7 @@ describe('MultiAgentPipeline', () => {
             pending_count: 0,
             failed_count: 0,
             confidence: 'high',
-            rationale: 'ExternalExecutor fecha melhor quando a entrega precisa de menos friccao.',
+            rationale: 'ExternalExecutor performs better when delivery needs less friction.',
           },
         ],
         workflow_friction_recommendations: [
@@ -989,7 +989,7 @@ describe('MultiAgentPipeline', () => {
             failed_count: 1,
             last_resume_stage_label: 'Codex Maker',
             confidence: 'medium',
-            rationale: 'A maker stage recente precisou de retomada manual.',
+            rationale: 'A maker stage recente precisou de resumption manual.',
           },
         ],
         approval_friction_recommendations: [
@@ -1071,7 +1071,7 @@ describe('MultiAgentPipeline', () => {
       'C:/repo',
       {
         profile_summary: 'Workspace Zavorth com foco em briefing final',
-        operational_summary: 'A sintese final vai melhor com um executor diferente do fluxo medio.',
+        operational_summary: 'A final synthesis vai melhor com um executor diferente do fluxo medio.',
         profile_notes: [],
         operational_notes: [],
         active_focus: null,
@@ -1097,7 +1097,7 @@ describe('MultiAgentPipeline', () => {
             pending_count: 0,
             failed_count: 0,
             confidence: 'high',
-            rationale: 'Codex fecha melhor a etapa de sintese final.',
+            rationale: 'Codex closes the final synthesis stage better.',
           },
         ],
         workflow_friction_recommendations: [],
@@ -1114,7 +1114,7 @@ describe('MultiAgentPipeline', () => {
     expect(submit.mock.calls[1][0]).toEqual(
       expect.objectContaining({
         metadata: expect.objectContaining({
-          workflow_stage_strategy_note: expect.stringContaining('Historico desta etapa favorece Codex para synthesizer'),
+          workflow_stage_strategy_note: expect.stringContaining('History for this stage favors Codex for synthesizer'),
         }),
       }),
     );

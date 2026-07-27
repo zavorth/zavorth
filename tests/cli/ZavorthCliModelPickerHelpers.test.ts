@@ -62,7 +62,7 @@ describe('Zavorth CLI model picker helpers', () => {
               credentialKind: 'api_key',
               catalogSource: 'live_api',
             },
-            explanation: ['Configuracao atual seleciona openai/gpt-4o.'],
+            explanation: ['Configuraction atual seleciona openai/gpt-4o.'],
           },
         },
         families: [{

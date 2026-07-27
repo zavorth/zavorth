@@ -300,7 +300,7 @@ async function main(): Promise<void> {
     process.stdout.write(`  Endpoint: ${best.endpoint || 'N/A'}\n`);
     process.stdout.write(`  Confidence: ${best.confidence}\n`);
     process.stdout.write(`  Evidence: ${best.evidence.join(', ')}\n`);
-    process.stdout.write(`\nRegister this agent? [Y/n] `);
+    process.stdout.write(`\nRegister this agent... [Y/n] `);
 
     const readline = await import('readline');
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });

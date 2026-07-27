@@ -11,7 +11,7 @@ describe('Mem0MemoryBackend', () => {
 
   it('loads the client dynamically when the SDK is available', async () => {
     const add = jest.fn().mockResolvedValue({ id: 'mem-1' });
-    const search = jest.fn().mockResolvedValue([{ memory: 'usuario prefere respostas curtas' }]);
+    const search = jest.fn().mockResolvedValue([{ memory: 'user prefers short answers' }]);
     const importer = jest.fn().mockResolvedValue({
       MemoryClient: class {
         public add = add;
@@ -23,7 +23,7 @@ describe('Mem0MemoryBackend', () => {
     await expect(backend.isAvailable()).resolves.toBe(true);
     await backend.addMemory('u1', 'fato importante');
     await expect(backend.searchMemory('u1', 'respostas')).resolves.toEqual([
-      'usuario prefere respostas curtas',
+      'user prefers short answers',
     ]);
     expect(add).toHaveBeenCalledWith(
       'fato importante',

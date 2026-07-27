@@ -26,8 +26,8 @@ describe('ZavorthControl profile language projection', () => {
     }));
     expect(business.profileLanguage).toEqual(expect.objectContaining({
       profile: 'business',
-      approvalLabel: 'Revisao com evidencia',
-      emptyGreeting: expect.stringContaining('evidencias'),
+      approvalLabel: 'Review com evidence',
+      emptyGreeting: expect.stringContaining('evidence'),
     }));
   });
 });

@@ -60,7 +60,7 @@ rules.push(
       'Queue',
       'View receipt',
     ].every((needle) => chat.includes(needle)) &&
-      !/falta conectar/i.test(chat) &&
+      !/missing conectar/i.test(chat) &&
       !/provider mesh|policy broker|transaction plane/i.test(chat) ? 'passed' : 'failed',
     summary: 'Chat surface owns natural empty greeting, stop, queue and receipt controls without setup nagging.',
   },
@@ -76,11 +76,11 @@ rules.push(
       'Esquecer',
       'Nunca aprender isso',
       'Testar skill',
-      'Promover',
-      'Abrir configuracao',
+      'Promote',
+      'Open configuration',
     ].every((needle) => contextRail.includes(needle)) &&
       !contextRail.includes('fetch(') &&
-      !/falta conectar/i.test(contextRail) ? 'passed' : 'failed',
+      !/missing conectar/i.test(contextRail) ? 'passed' : 'failed',
     summary: 'Memory, skills, setup and timeline are reviewable from a discrete projection-only rail.',
   },
   {
@@ -89,7 +89,7 @@ rules.push(
       'onSelectSector',
       'aria-pressed={activeSectorId === sector.id}',
       'Chat',
-      'Memoria',
+      'Memory',
       'Skills',
       'Setup',
       'Workspace',
@@ -105,7 +105,7 @@ rules.push(
       'profileLanguageFrom',
       'emptyGreeting',
       'Preview de diff e comando',
-      'Revisao com evidencia',
+      'Review com evidence',
       'profileLanguage',
     ].every((needle) => adapter.includes(needle)) &&
       chat.includes('viewModel.profileLanguage?.emptyGreeting') ? 'passed' : 'failed',

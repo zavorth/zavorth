@@ -10,7 +10,7 @@ async function main() {
   if (asJson) {
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[architecture] baseline e scorecard da refatoracao incremental');
+    console.log('[architecture] baseline e scorecard da refatoraction incremental');
     console.log(service.renderReport());
   }
 
@@ -20,6 +20,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[architecture] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[architecture] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

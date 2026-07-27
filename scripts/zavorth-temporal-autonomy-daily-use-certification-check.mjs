@@ -38,12 +38,12 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('checkpoint-8-files', 'ZavorthControl controls files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('gate-8-files', 'ZavorthControl controls files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthTemporalAutonomyDailyUseCertificationContract.ts', ['temporal-autonomy-daily-use-certification-checkpoint-8', 'scheduled_tasks', 'acp_bridge', 'channel_without_button_fallback']],
+    ['src/contracts/ZavorthTemporalAutonomyDailyUseCertificationContract.ts', ['temporal-autonomy-daily-use-certification-gate-8', 'scheduled_tasks', 'acp_bridge', 'channel_without_button_fallback']],
     ['src/services/ZavorthTemporalAutonomyDailyUseCertificationService.ts', ['ZavorthScheduledTaskDailyOpsReadinessService', 'ZavorthChannelCapabilityAwarenessService', 'ZavorthContextRecoveryAssimilationService', 'cron_permission_escalation']],
     ['scripts/zavorth-temporal-autonomy-daily-use-certification.ts', ['--task=', 'ZavorthTemporalAutonomyDailyUseCertificationService']],
     ['src/sdk/contracts.ts', ['ZavorthTemporalAutonomyDailyUseCertificationContract']],
@@ -56,12 +56,12 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('checkpoint-8-markers', 'ZavorthControl controls markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, CLI and SDK markers exist', missing);
+  return rule('gate-8-markers', 'ZavorthControl controls markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, CLI and SDK markers exist', missing);
 }
 
 function runFixture() {
   const result = runTs(['--json', '--now=2026-05-12T10:00:00.000Z']);
-  return jsonRule('checkpoint-8-fixture', 'Daily-use certification passes all matrix and abuse gates', result, (snapshot) =>
+  return jsonRule('gate-8-fixture', 'Daily-use certification passes all matrix and abuse gates', result, (snapshot) =>
     snapshot.status === 'certified'
     && snapshot.summary.dailyUseCertified === true
     && snapshot.summary.matrixAreas === 7
@@ -76,7 +76,7 @@ function runFixture() {
 
 function ruleAbuseCoverage() {
   const result = runTs(['--json', '--now=2026-05-12T10:00:00.000Z']);
-  if (!result.stdout.trim()) return rule('checkpoint-8-abuse-coverage', 'Abuse scenarios are represented', false, `exit ${result.status ?? 'unknown'}`, 'valid JSON fixture', compact(result.stderr));
+  if (!result.stdout.trim()) return rule('gate-8-abuse-coverage', 'Abuse scenarios are represented', false, `exit ${result.status ?? 'unknown'}`, 'valid JSON fixture', compact(result.stderr));
   try {
     const snapshot = JSON.parse(result.stdout);
     const expected = [
@@ -89,9 +89,9 @@ function ruleAbuseCoverage() {
     const ids = snapshot.abuseScenarios.map((entry) => entry.id);
     const missing = expected.filter((id) => !ids.includes(id));
     const unsafe = snapshot.abuseScenarios.filter((entry) => entry.status === 'failed' || entry.executionPerformed === true);
-    return rule('checkpoint-8-abuse-coverage', 'Abuse scenarios are represented', missing.length === 0 && unsafe.length === 0, `${ids.length}/${expected.length}; unsafe=${unsafe.length}`, 'all ZavorthControl controls abuse scenarios present and safe', [...missing, ...unsafe.map((entry) => JSON.stringify(entry))]);
+    return rule('gate-8-abuse-coverage', 'Abuse scenarios are represented', missing.length === 0 && unsafe.length === 0, `${ids.length}/${expected.length}; unsafe=${unsafe.length}`, 'all ZavorthControl controls abuse scenarios present and safe', [...missing, ...unsafe.map((entry) => JSON.stringify(entry))]);
   } catch (error) {
-    return rule('checkpoint-8-abuse-coverage', 'Abuse scenarios are represented', false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
+    return rule('gate-8-abuse-coverage', 'Abuse scenarios are represented', false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }
 }
 
@@ -155,5 +155,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

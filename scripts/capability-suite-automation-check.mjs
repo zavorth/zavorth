@@ -45,7 +45,7 @@ const gates = selectedGate
 for (const gate of gates) {
   const checks = gateChecks[gate];
   if (!checks) {
-    console.error(`[gate-check] etapa invalido: ${gate}`);
+    console.error(`[gate-check] stage invalid: ${gate}`);
     process.exit(1);
   }
   console.log(`\n[gate-check] gate ${gate}`);
@@ -64,7 +64,7 @@ for (const gate of gates) {
       },
     });
     if (result.error) {
-      console.error(`[gate-check] falha ao executar ${label}: ${result.error.message}`);
+      console.error(`[gate-check] failure ao run ${label}: ${result.error.message}`);
       process.exit(1);
     }
     if (typeof result.status === 'number' && result.status !== 0) {
@@ -73,14 +73,14 @@ for (const gate of gates) {
           const parsed = parseJsonFromOutput(String(result.stdout || '{}'));
           const posture = parsed.summary?.posture || parsed.status || 'warning';
           const generatedAt = parsed.generatedAt ? ` generatedAt=${parsed.generatedAt}` : '';
-          console.warn(`[gate-check] ${label} retornou codigo ${result.status}, mas publicou JSON valido (${posture}${generatedAt}).`);
+          console.warn(`[gate-check] ${label} returned code ${result.status}, but published valid JSON (${posture}${generatedAt}).`);
           continue;
         } catch {
           process.stdout.write(String(result.stdout || '').slice(0, 4000));
           process.stderr.write(String(result.stderr || '').slice(0, 4000));
         }
       }
-      console.error(`[gate-check] ${label} saiu com codigo ${result.status}`);
+      console.error(`[gate-check] ${label} saiu with code ${result.status}`);
       process.exit(result.status);
     }
     if (result.signal) {
@@ -96,14 +96,14 @@ for (const gate of gates) {
       } catch (error) {
         process.stdout.write(String(result.stdout || '').slice(0, 4000));
         process.stderr.write(String(result.stderr || '').slice(0, 4000));
-        console.error(`[gate-check] ${label} nao retornou JSON valido: ${error?.message || error}`);
+        console.error(`[gate-check] ${label} did not return valid JSON: ${error?.message || error}`);
         process.exit(1);
       }
     }
   }
 }
 
-console.log('\n[gate-check] gates de automacao concluidos com sucesso.');
+console.log('\n[gate-check] automation gates completed successfully.');
 
 function buildSpawnCommand(command, args) {
   if (process.platform === 'win32' && npmCliPath && (command === 'npx' || command === 'npx.cmd')) {
@@ -125,6 +125,6 @@ function parseJsonFromOutput(output) {
     if (firstBrace >= 0 && lastBrace > firstBrace) {
       return JSON.parse(text.slice(firstBrace, lastBrace + 1));
     }
-    throw new Error('nenhum objeto JSON encontrado no output');
+    throw new Error('no JSON object found in output');
   }
 }

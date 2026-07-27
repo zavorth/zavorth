@@ -29,7 +29,7 @@ describe('HybridMemoryService', () => {
             {
               id: 'session:approval-ledger',
               label: 'Approval ledger',
-              summary: 'Capability pesada precisa de approval antes de ativar.',
+              summary: 'Capability pesada needs de approval antes de ativar.',
               memoryLayer: 'episodic',
               source: 'memory-plane',
               confidence: 0.92,
@@ -104,7 +104,7 @@ describe('HybridMemoryService', () => {
             {
               id: 'artifact:diff',
               label: 'Diff artifact',
-              summary: 'Patch consolidado ficou visivel no artifact plane.',
+              summary: 'Consolidated patch became visible in the artifact plane.',
               memoryLayer: 'episodic',
               source: 'artifact-plane',
               confidence: 0.81,
@@ -118,7 +118,7 @@ describe('HybridMemoryService', () => {
       memoryPlane: null,
       embeddingService: {
         generate: jest.fn(async () => {
-          throw new Error('gemini key ausente');
+          throw new Error('gemini key missing');
         }),
       },
       createVectorStore: null,
@@ -162,7 +162,7 @@ describe('HybridMemoryService', () => {
       memoryPlane: null,
       embeddingService: {
         generate: jest.fn(async () => {
-          throw new Error('gemini indisponivel');
+          throw new Error('gemini unavailable');
         }),
       },
       vectorStore,

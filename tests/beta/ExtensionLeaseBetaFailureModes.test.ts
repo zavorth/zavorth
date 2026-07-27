@@ -56,7 +56,7 @@ describe('ExtensionLeaseBetaFailureModes', () => {
     InMemoryApprovalLeaseStore.clearForTests();
   });
 
-  function makeDescriptor(overrides?: Partial<CustomToolDescriptor>): CustomToolDescriptor {
+  function makeDescriptor(overrides-: Partial<CustomToolDescriptor>): CustomToolDescriptor {
     return {
       namespace: 'local',
       name: 'failure_tool',
@@ -81,8 +81,8 @@ describe('ExtensionLeaseBetaFailureModes', () => {
   function baseDecisionContext(
     qualifiedName: string,
     fingerprint: string,
-    receipt?: ApprovalLeaseGateReceipt,
-    overrides?: Partial<ApprovalLeaseDecisionContext>,
+    receipt-: ApprovalLeaseGateReceipt,
+    overrides-: Partial<ApprovalLeaseDecisionContext>,
   ): ApprovalLeaseDecisionContext {
     return {
       subjectId: 'user-beta',

@@ -44,8 +44,8 @@ function readCliValue(name: string): string {
 function readEnvTokenFromFile(filePath: string): string {
   if (!fs.existsSync(filePath)) return "";
   const raw = fs.readFileSync(filePath, "utf8");
-  for (const line of raw.split(/\r?\n/)) {
-    const match = line.match(/^\s*ZAVORTH_WEB_AUTH_TOKEN\s*=\s*(.+?)\s*$/);
+  for (const line of raw.split(/\r...\n/)) {
+    const match = line.match(/^\s*ZAVORTH_WEB_AUTH_TOKEN\s*=\s*(.+...)\s*$/);
     if (match) {
       return match[1].trim().replace(/^["']|["']$/g, "");
     }
@@ -157,7 +157,7 @@ async function runQa(options: CliOptions): Promise<LiveChatQaReport> {
 
   if (!options.token) {
     report.skipped = true;
-    pushSkip(report, "token-required", "Nenhum token local encontrado. Use zavorth zavorthControl token ou passe --token=...");
+    pushSkip(report, "token-required", "No token local encontrado. Use zavorth zavorthControl token ou passe --token=...");
     return report;
   }
 
@@ -179,9 +179,9 @@ async function runQa(options: CliOptions): Promise<LiveChatQaReport> {
     } catch (error: unknown) {
       report.skipped = !options.requireLive;
       if (options.requireLive) {
-        pushCheck(report, "live-server-reachable", false, `Nao consegui abrir o ZavorthControl real: ${String(error?.message || error)}`);
+        pushCheck(report, "live-server-reachable", false, `Could not open the real ZavorthControl: ${String(error?.message || error)}`);
       } else {
-        pushSkip(report, "live-server-reachable", "Servidor local nao respondeu. Inicie com npm run start:zavorth-control ou npm run go.");
+        pushSkip(report, "live-server-reachable", "local server did not respond. Start with npm run start:zavorth-control or npm run go.");
       }
       return report;
     }
@@ -201,12 +201,12 @@ async function runQa(options: CliOptions): Promise<LiveChatQaReport> {
       modelLabels: Array.from(document.querySelectorAll(".echo-meta__model")).map((node) => node.textContent?.trim() || "").filter(Boolean),
     }));
     report.metrics.shellState = shellState;
-    pushCheck(report, "preserves-user-zavorthControl-shell", shellState.hasCoreFrame && shellState.hasComposer && shellState.hasSendButton, "ZavorthControl bonito original carregou como shell real.");
+    pushCheck(report, "preserves-user-zavorthControl-shell", shellState.hasCoreFrame && shellState.hasComposer && shellState.hasSendButton, "Original polished ZavorthControl loaded as the real shell.");
     pushCheck(report, "runtime-token-unlocked", shellState.authState === "unlocked" || /\bready\b/i.test(shellState.pulseLabel), `Estado de token no topo: ${shellState.authState || shellState.pulseLabel || "indefinido"}.`);
 
     if (!options.allowSend) {
       report.skipped = true;
-      pushSkip(report, "chat-send-skipped", "Nao enviei mensagem real. Rode com --allow-send para testar o caminho feliz do chat.");
+      pushSkip(report, "chat-send-skipped", "No real message was sent. Run with --allow-send to test the chat happy path.");
       return report;
     }
 
@@ -272,30 +272,30 @@ async function runQa(options: CliOptions): Promise<LiveChatQaReport> {
 
     report.metrics.beforeSimple = beforeSimple;
     report.metrics.simpleState = simpleState;
-    pushCheck(report, "simple-oi-gets-core-reply", gotCoreReply, "Um 'oi' real recebe resposta do Zavorth.");
-    pushCheck(report, "simple-chat-has-no-artifact-card", simpleState.artifactCards === 0, "Saudacao nao mostra card de artefato no zavorthControl real.");
-    pushCheck(report, "simple-chat-has-no-approval-card", simpleState.approvalCards === 0, "Saudacao nao pede aprovacao nem acorda ferramenta perigosa.");
-    pushCheck(report, "no-message-sent-toast", !simpleState.toasts.some((toast: string) => /mensagem enviada/i.test(toast)), "Enviar mensagem nao cria popup 'mensagem enviada'.");
+    pushCheck(report, "simple-oi-gets-core-reply", gotCoreReply, "A real greeting receives a Zavorth response.");
+    pushCheck(report, "simple-chat-has-no-artifact-card", simpleState.artifactCards === 0, "Greeting does not show an artifact card in the real zavorthControl.");
+    pushCheck(report, "simple-chat-has-no-approval-card", simpleState.approvalCards === 0, "Greeting does not ask for approval or wake dangerous tools.");
+    pushCheck(report, "no-message-sent-toast", !simpleState.toasts.some((toast: string) => /message sent/i.test(toast)), "Sending a message does not create a message-sent popup.");
     pushCheck(
       report,
       "no-scroll-jump-after-send",
-      Number(simpleState.minTop) >= Math.max(0, Number(beforeSimple.top) - 160)
+      Number(simpleState.minTop) >= Math.max(0, Number(beforeSimple.top) ? 160)
         && Number(simpleState.maxBottomGap) <= Number(beforeSimple.bottomGap || 0) + 260,
-      "Chat nao salta para o topo antes de voltar ao fim.",
+      "Chat does not jump to the top before returning to the end.",
     );
-    pushCheck(report, "current-model-label-is-real", simpleState.modelLabels.some((label: string) => !/^Gemini\s*$/i.test(label) && label.length > 0), "Modelo exibido no chat vem do runtime, nao texto fixo genérico.");
+    pushCheck(report, "current-model-label-is-real", simpleState.modelLabels.some((label: string) => !/^Gemini\s*$/i.test(label) && label.length > 0), "Model displayed in chat comes from runtime, not fixed generic text.");
 
     const simpleScreenshot = path.join(options.outDir, "02-live-simple-chat.png");
     await page.screenshot({ path: simpleScreenshot, fullPage: true });
     report.screenshots.push(simpleScreenshot);
 
     if (!options.allowOperationalSend) {
-      pushSkip(report, "operational-send-skipped", "Nao enviei comando operacional real. Use --allow-operational-send para testar approval sem clicar em aprovar.");
+      pushSkip(report, "operational-send-skipped", "No real operational command was sent. Use --allow-operational-send to test approval without clicking approve.");
       return report;
     }
 
     const beforeOperationalArtifactCards = await page.evaluate(() => document.querySelectorAll(".zavorth-artifact-card").length);
-    await sendComposerMessage(page, "rode npm test no terminal");
+    await sendComposerMessage(page, "run npm test no terminal");
     await page.waitForFunction(() => document.querySelectorAll(".zavorth-approval-card").length > 0, null, { timeout: 30_000 }).catch(() => undefined);
     await page.waitForTimeout(600);
     const approvalState = await page.evaluate(() => ({
@@ -304,8 +304,8 @@ async function runQa(options: CliOptions): Promise<LiveChatQaReport> {
       text: document.querySelector(".zavorth-approval-card")?.textContent || "",
     }));
     report.metrics.approvalState = approvalState;
-    pushCheck(report, "approval-card-appears-for-risky-command", approvalState.approvalCards > 0, "Comando de terminal real para em approval; o QA nunca clica em aprovar.");
-    pushCheck(report, "approval-does-not-create-artifact", approvalState.artifactCards === beforeOperationalArtifactCards, "Comando aguardando aprovacao nao cria artefato falso.");
+    pushCheck(report, "approval-card-appears-for-risky-command", approvalState.approvalCards > 0, "Comando de terminal real para em approval; QA never clicks approve.");
+    pushCheck(report, "approval-does-not-create-artifact", approvalState.artifactCards === beforeOperationalArtifactCards, "Command waiting for approval does not create a synthetic artifact.");
 
     const approvalScreenshot = path.join(options.outDir, "03-live-approval-card.png");
     await page.screenshot({ path: approvalScreenshot, fullPage: true });

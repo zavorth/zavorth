@@ -17,7 +17,7 @@ const acknowledgedRisk = args.includes('--acknowledge-risk') || process.env.ZAVO
 const acceptRelayRoute = args.includes('--accept-relay') || process.env.ZAVORTH_REMOTE_MESH_ACCEPT_RELAY === '1';
 const armLiveProbe = args.includes('--arm-live-probe') || process.env.ZAVORTH_REMOTE_MESH_ARM_LIVE_PROBE === '1';
 const executeLiveProbe = args.includes('--execute-live-probe') || process.env.ZAVORTH_REMOTE_MESH_EXECUTE_LIVE_PROBE === '1';
-const useMockTransport = args.includes('--mock-transport') || process.env.ZAVORTH_REMOTE_MESH_MOCK_LIVE_PROBE === '1';
+const useLocalTransport = args.includes('--local-transport') || process.env.ZAVORTH_REMOTE_MESH_LOCAL_LIVE_PROBE === '1';
 
 main().catch((error) => {
   process.stderr.write(`${error instanceof Error ? error.stack || error.message : String(error)}\n`);
@@ -26,7 +26,7 @@ main().catch((error) => {
 
 async function main(): Promise<void> {
   const liveProbeService = new RemoteMeshSandboxLiveProbeExecutorService({
-    transport: useMockTransport ? new MockRemoteMeshLiveProbeTransport() : undefined,
+    transport: useLocalTransport ? new MockRemoteMeshLiveProbeTransport() : undefined,
   });
   const snapshot = await new RemoteMeshSandboxAuditTimelineService({
     liveProbeService,

@@ -48,7 +48,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'checkpoint-6-files',
+    id: 'gate-6-files',
     label: 'Runtime gateway session memory files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
@@ -79,7 +79,7 @@ function ruleContainsMarkers() {
     ]],
     ['docs/README.md', [
       'sessions-memory-continuation-ready',
-      '291 Surface controls - Delegated Workers',
+      'Surface controls - Delegated Workers',
       'Zavorth Session Memory Continuation',
     ]],
     ['docs/README.md', [
@@ -88,7 +88,7 @@ function ruleContainsMarkers() {
       'privateFilteredBeforeContext',
       'ZavorthAgentGateway',
       'provenance',
-      '291 Surface controls - Delegated Workers',
+      'Surface controls - Delegated Workers',
     ]],
     ['package.json', [
       'zavorth:session-memory-continuation',
@@ -107,7 +107,7 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'checkpoint-6-markers',
+    id: 'gate-6-markers',
     label: 'Runtime gateway session memory markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
@@ -128,7 +128,7 @@ function runSessionMemoryFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'checkpoint-6-session-memory-fixture',
+      id: 'gate-6-session-memory-fixture',
       label: 'Session memory continuation fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -152,7 +152,7 @@ function runSessionMemoryFixture() {
     && snapshot.safety?.continuationThroughGateway === true
     && snapshot.safety?.noPrivateContextLeak === true;
   return {
-    id: 'checkpoint-6-session-memory-fixture',
+    id: 'gate-6-session-memory-fixture',
     label: 'Session memory continuation fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, ${snapshot.summary.memorySignals} signal(s), ${snapshot.summary.privateRestrictedSecretItemsFiltered} filtered item(s)` : 'invalid session memory snapshot',
@@ -178,7 +178,7 @@ function runSessionMemoryBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousChannelMessagingStatus === 'blocked';
   return {
-    id: 'checkpoint-6-blocked-fixture',
+    id: 'gate-6-blocked-fixture',
     label: 'Session memory continuation blocks without Credential vault readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, channelMessaging=${snapshot.previousChannelMessagingStatus}` : `exit ${result.status}`,

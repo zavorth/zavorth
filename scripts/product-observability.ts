@@ -55,14 +55,14 @@ function buildSnapshotSummary(snapshot: Awaited<ReturnType<ProductObservabilityS
   }
 
   if (snapshot.totals.tasks === 0 && snapshot.totals.workflowRuns === 0) {
-    return 'Nenhum evento recente encontrado para o recorte atual.';
+    return 'No evento recente encontrado para o recorte current.';
   }
 
   if (snapshot.totals.workflowRuns > 0) {
-    return `Foram observados ${snapshot.totals.workflowRuns} workflow(s) e ${snapshot.totals.tasks} task(s) na janela atual.`;
+    return `Foram observados ${snapshot.totals.workflowRuns} workflow(s) e ${snapshot.totals.tasks} task(s) na window current.`;
   }
 
-  return `Foram observadas ${snapshot.totals.tasks} task(s) e ${snapshot.totals.artifacts} entrega(s) na janela atual.`;
+  return `Foram observadas ${snapshot.totals.tasks} task(s) e ${snapshot.totals.artifacts} delivery item(s) na window current.`;
 }
 
 async function main() {
@@ -96,37 +96,37 @@ async function main() {
   const recentArtifact = snapshot.artifacts.recent[0] || null;
   const summary = buildSnapshotSummary(snapshot);
 
-  console.log('[zavorth-observability] leitura de produto');
+  console.log('[zavorth-observability] read de produto');
   console.log(`[zavorth-observability] escopo: ${formatScope(scope)}`);
-  console.log(`[zavorth-observability] resumo: ${summary}`);
+  console.log(`[zavorth-observability] summary: ${summary}`);
   console.log(
-    `[zavorth-observability] janela: ${snapshot.windowHours}h | tasks=${snapshot.totals.tasks} | workflows=${snapshot.totals.workflowRuns} | artefatos=${snapshot.totals.artifacts}`,
+    `[zavorth-observability] window: ${snapshot.windowHours}h | tasks=${snapshot.totals.tasks} | workflows=${snapshot.totals.workflowRuns} | artifacts=${snapshot.totals.artifacts}`,
   );
   console.log(
-    `[zavorth-observability] approvals: pendentes=${snapshot.approvals.pending} | aprovadas=${snapshot.approvals.approved} | rejeitadas=${snapshot.approvals.rejected}`,
+    `[zavorth-observability] approvals: pending=${snapshot.approvals.pending} | approved=${snapshot.approvals.approved} | rejected=${snapshot.approvals.rejected}`,
   );
 
   if (topExecutor) {
     console.log(
-      `[zavorth-observability] executor lider: ${topExecutor.executor} | ${topExecutor.completed}/${topExecutor.total} concluida(s)`,
+      `[zavorth-observability] executor lider: ${topExecutor.executor} | ${topExecutor.completed}/${topExecutor.total} completed(s)`,
     );
   }
 
   if (topRoute) {
     console.log(
-      `[zavorth-observability] melhor rota: ${topRoute.executor} em ${topRoute.kind}/${topRoute.subtype} | ${topRoute.completed}/${topRoute.total} concluida(s)`,
+      `[zavorth-observability] melhor rota: ${topRoute.executor} em ${topRoute.kind}/${topRoute.subtype} | ${topRoute.completed}/${topRoute.total} completed(s)`,
     );
   }
 
   if (topFriction) {
     console.log(
-      `[zavorth-observability] maior friccao: ${topFriction.executor} em ${topFriction.kind}/${topFriction.subtype} | falhas=${topFriction.failed} | aguardando aprovacao=${topFriction.waitingApproval}`,
+      `[zavorth-observability] highest friction: ${topFriction.executor} em ${topFriction.kind}/${topFriction.subtype} | failures=${topFriction.failed} | waitingApproval=${topFriction.waitingApproval}`,
     );
   }
 
   if (topWorkflow) {
     console.log(
-      `[zavorth-observability] workflow em foco: ${topWorkflow.workflow} | status=${topWorkflow.status}${topWorkflow.resume_stage_label ? ` | retomar em ${topWorkflow.resume_stage_label}` : ''}`,
+      `[zavorth-observability] workflow em foco: ${topWorkflow.workflow} | status=${topWorkflow.status}${topWorkflow.resume_stage_label ? ` | resume em ${topWorkflow.resume_stage_label}` : ''}`,
     );
   }
 
@@ -145,7 +145,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-observability] falha ao montar a leitura de produto.');
+  console.error('[zavorth-observability] failure ao montar a read de produto.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

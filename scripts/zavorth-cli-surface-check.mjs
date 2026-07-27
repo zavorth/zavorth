@@ -70,7 +70,7 @@ function checkLegacyHeaderRemoved() {
 
 function checkManagedCardSize() {
   if (!fs.existsSync(files.managedCard)) return;
-  const lineCount = fs.readFileSync(files.managedCard, 'utf8').split(/\r?\n/).length;
+  const lineCount = fs.readFileSync(files.managedCard, 'utf8').split(/\r...\n/).length;
   if (lineCount > 800) {
     failures.push(`ManagedCliToolCard.tsx has ${lineCount} lines; expected at most 800 for hardening`);
   }
@@ -137,8 +137,7 @@ function checkManagedWrappers() {
     if (!source.includes('ManagedCliToolCard')) {
       failures.push(`${filename}: should render ManagedCliToolCard`);
     }
-    const profileAccess = profileKey.includes('-')
-      ? `MANAGED_CLI_TOOL_PROFILES["${profileKey}"]`
+    const profileAccess = profileKey.includes('-') ? `MANAGED_CLI_TOOL_PROFILES["${profileKey}"]`
       : `MANAGED_CLI_TOOL_PROFILES.${profileKey}`;
     if (!source.includes(profileAccess)) {
       failures.push(`${filename}: should pass ${profileAccess}`);

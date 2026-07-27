@@ -16,16 +16,16 @@ describe('Desktop P2 state surfaces', () => {
 
     render(
       <EmptyState
-        title="Nenhum provider ativo"
-        description="Conecte um provider para liberar o agente local."
+        title="No provider active"
+        description="Connect a provider to unlock the local agent."
         actionLabel="Conectar provider"
         onAction={onAction}
       />,
     );
 
-    expect(screen.getByText('Nenhum provider ativo')).toBeInTheDocument();
+    expect(screen.getByText('No provider active')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Conectar provider' })).toHaveClass('zvd-state-action');
-    expect(screen.getByText('Nenhum provider ativo').closest('.zvd-premium-empty-state')).toBeInTheDocument();
+    expect(screen.getByText('No provider active').closest('.zvd-premium-empty-state')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Conectar provider' }));
     expect(onAction).toHaveBeenCalledTimes(1);
   });
@@ -34,7 +34,7 @@ describe('Desktop P2 state surfaces', () => {
     const { container } = render(
       <>
         <StatusBadge status="neutral">Carregando</StatusBadge>
-        <InlineAlert type="warning" title="Workspace sem confiança" message="Revise antes de permitir escrita." />
+        <InlineAlert type="warning" title="Untrusted workspace" message="Review before allowing writes." />
       </>,
     );
 
@@ -50,7 +50,7 @@ describe('Desktop P2 state surfaces', () => {
 
     render(
       <RecoveryOverlay
-        title="Runtime indisponivel"
+        title="Runtime unavailable"
         message="O runtime local parou de responder."
         retryLabel="Tentar novamente"
         settingsLabel="Abrir diagnosticos"

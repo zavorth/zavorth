@@ -103,6 +103,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error(`[zavorth-integration-connectors] falha: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`[zavorth-integration-connectors] failure: ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });

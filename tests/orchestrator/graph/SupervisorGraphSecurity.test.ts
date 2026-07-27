@@ -17,7 +17,7 @@ describe('SupervisorGraph security propagation', () => {
           finishReason: 'tool_calls',
         })
         .mockResolvedValueOnce({
-          content: 'Arquivo analisado com seguranca.',
+          content: 'File analisado com security.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -31,20 +31,20 @@ describe('SupervisorGraph security propagation', () => {
       getToolDefinitions: jest.fn().mockReturnValue([
         {
           name: 'read_file',
-          description: 'Le um arquivo local.',
+          description: 'Le um file local.',
           parameters: {
             type: 'object',
             properties: {
               path: {
                 type: 'string',
-                description: 'Caminho do arquivo.',
+                description: 'Caminho do file.',
               },
             },
             required: ['path'],
           },
         },
       ]),
-      executeTool: jest.fn().mockResolvedValue('conteudo do arquivo'),
+      executeTool: jest.fn().mockResolvedValue('content do file'),
     };
     const graph = buildSupervisorGraph({
       llmRuntime,

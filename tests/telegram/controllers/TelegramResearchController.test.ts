@@ -17,10 +17,10 @@ describe('TelegramResearchController', () => {
       reply: jest.fn().mockResolvedValue(undefined),
     } as any;
 
-    await controller.handleResearch(ctx, 'ultimas noticias');
+    await controller.handleResearch(ctx, 'latest news');
 
     expect(taskManager.createPendingTask).toHaveBeenCalled();
     expect(taskManager.saveTask).toHaveBeenCalledWith(task);
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Referencia curta: abcd1234');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Short reference: abcd1234');
   });
 });

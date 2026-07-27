@@ -18,16 +18,16 @@ describe('UserFacingResponseService', () => {
 
   it('formats structured research success with question and answer blocks', () => {
     const text = UserFacingResponseService.formatStructuredResearchSuccess(
-      'deixar a tampa do notebook quase fechada faz mal?',
+      'is it harmful to leave the laptop lid almost closed-',
       [
-        'Nao costuma causar dano so por causa do angulo, mas pode piorar a ventilacao.',
+        'Not costuma causar dano so por causa do angulo, mas pode piorar a ventilaction.',
         'Se o notebook depende das entradas de ar na base, o calor pode aumentar.',
         'Em uso leve, isso tende a ser menos problematico.',
       ].join('\n'),
     );
 
     expect(text).toContain('Pesquisa concluida.');
-    expect(text).toContain('Pergunta: deixar a tampa do notebook quase fechada faz mal?');
+    expect(text).toContain('Pergunta: is it harmful to leave the laptop lid almost closed-');
     expect(text).toContain('Resposta direta:');
     expect(text).toContain('Detalhes uteis:');
     expect(text).toContain('Se quiser, eu posso resumir mais ou aprofundar a resposta.');
@@ -50,7 +50,7 @@ describe('UserFacingResponseService', () => {
     expect(text).toContain('O que foi gerado:');
     expect(text).toContain('Preview em imagem: 1');
     expect(text).toContain('HTML exportado: 1');
-    expect(text).toContain('Como isso chega para voce:');
+    expect(text).toContain('Como isso chega para you:');
     expect(text).toContain('Ideal para mostrar:');
   });
 });

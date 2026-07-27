@@ -279,7 +279,7 @@ describe('SettingsPanel and MemoryPanel Read-Only Rewrite', () => {
     const settingsContainer = container!.querySelector('.zavorth-settings-panel');
     expect(settingsContainer).not.toBeNull();
     const htmlOutput = container!.innerHTML;
-    expect(htmlOutput).toContain('Configuracoes');
+    expect(htmlOutput).toContain('Configuractions');
     expect(htmlOutput).toContain('Runtime reachable');
     expect(htmlOutput).not.toContain('C:\\workspace'); // Should be sanitized/truncated/replaced
 
@@ -298,7 +298,7 @@ describe('SettingsPanel and MemoryPanel Read-Only Rewrite', () => {
     expect(memoryContainer).not.toBeNull();
     const memoryHtml = container!.innerHTML;
     expect(memoryHtml).toContain('User preferences');
-    expect(memoryHtml).toContain('Governed context memory.');
+    expect(memoryHtml).toContain('Learned context, candidates, and local memory protection.');
   });
 
   it('does not render forbidden mutation buttons', () => {

@@ -66,7 +66,7 @@ describe('SalesPackChannelIoService', () => {
                 id: 'wamid-1',
                 from: '5511999999999',
                 timestamp: '1778241600',
-                text: { body: 'Ainda tem vaga?' },
+                text: { body: 'Ainda tem vaga-' },
               }],
             },
           }],

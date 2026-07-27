@@ -73,22 +73,22 @@ function main(): void {
       autoExecuteEnabled,
       globalRolloutEnabled,
       skipCanaryEnabled,
-      actorId: 'checkpoint-82-gate',
-      executionGateReceiptId: 'checkpoint-82-release-execution',
-      versionManifestId: versionManifestReady ? 'checkpoint-82-version-manifest' : null,
-      tagApprovalReceiptId: tagCreationApproved ? 'checkpoint-82-tag-approval' : null,
-      publishApprovalReceiptId: publishApproved ? 'checkpoint-82-publish-approval' : null,
-      artifactVerificationReceiptId: releaseBundleVerified ? 'checkpoint-82-artifact-verification' : null,
-      provenanceReceiptId: provenanceReady ? 'checkpoint-82-provenance' : null,
-      canaryLaunchReceiptId: canaryLaunchApproved ? 'checkpoint-82-canary-launch' : null,
-      smokeReceiptId: smokeBeforeCanaryPassed ? 'checkpoint-82-pre-canary-smoke' : null,
-      rollbackCheckpointId: rollbackCheckpointReady ? 'checkpoint-82-rollback-checkpoint' : null,
-      rollbackDryRunReceiptId: rollbackDryRunPassed ? 'checkpoint-82-rollback-dry-run' : null,
-      observabilityZavorthControlId: observabilityLive ? 'checkpoint-82-observability' : null,
-      incidentCommanderId: incidentCommanderAssigned ? 'checkpoint-82-incident-commander' : null,
-      supportBridgeId: supportBridgeReady ? 'checkpoint-82-support-bridge' : null,
-      auditReceiptId: auditSinkReady ? 'checkpoint-82-audit' : null,
-      reason: 'checkpoint-82-release-execution-gate',
+      actorId: 'gate-82-gate',
+      executionGateReceiptId: 'gate-82-release-execution',
+      versionManifestId: versionManifestReady ? 'gate-82-version-manifest' : null,
+      tagApprovalReceiptId: tagCreationApproved ? 'gate-82-tag-approval' : null,
+      publishApprovalReceiptId: publishApproved ? 'gate-82-publish-approval' : null,
+      artifactVerificationReceiptId: releaseBundleVerified ? 'gate-82-artifact-verification' : null,
+      provenanceReceiptId: provenanceReady ? 'gate-82-provenance' : null,
+      canaryLaunchReceiptId: canaryLaunchApproved ? 'gate-82-canary-launch' : null,
+      smokeReceiptId: smokeBeforeCanaryPassed ? 'gate-82-pre-canary-smoke' : null,
+      rollbackCheckpointId: rollbackCheckpointReady ? 'gate-82-rollback-checkpoint' : null,
+      rollbackDryRunReceiptId: rollbackDryRunPassed ? 'gate-82-rollback-dry-run' : null,
+      observabilityZavorthControlId: observabilityLive ? 'gate-82-observability' : null,
+      incidentCommanderId: incidentCommanderAssigned ? 'gate-82-incident-commander' : null,
+      supportBridgeId: supportBridgeReady ? 'gate-82-support-bridge' : null,
+      auditReceiptId: auditSinkReady ? 'gate-82-audit' : null,
+      reason: 'gate-82-release-execution-gate',
     });
 
     if (asJson) {
@@ -103,7 +103,7 @@ function main(): void {
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
-    process.stderr.write(`[capability-autopilot-release-execution] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.stderr.write(`[capability-autopilot-release-execution] failure: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   }
 }

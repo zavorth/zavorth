@@ -6,7 +6,7 @@ describe('OperationsReportService', () => {
       {
         readSnapshot: jest.fn(() => ({
           generatedAt: '2026-03-29T12:00:00.000Z',
-          headline: 'Runtime estavel.',
+          headline: 'Runtime stable.',
           summary: {
             enabledSidecars: 2,
             readySidecars: 2,
@@ -24,9 +24,9 @@ describe('OperationsReportService', () => {
           actions: [
             {
               id: 'maintenance',
-              label: 'Rodar manutencao operacional',
+              label: 'Rodar operational maintenance',
               command: 'npm run ops:maintain',
-              reason: 'Fluxo padrao.',
+              reason: 'Fluxo pattern.',
               priority: 'normal',
             },
           ],
@@ -34,8 +34,8 @@ describe('OperationsReportService', () => {
             {
               level: 'warn',
               source: 'sidecar',
-              title: 'Acompanhamento leve',
-              detail: 'Sem impacto critico.',
+              title: 'Light tracking',
+              detail: 'Sem impacto critical.',
               timestamp: '2026-03-29T11:50:00.000Z',
             },
           ],
@@ -54,7 +54,7 @@ describe('OperationsReportService', () => {
               available: true,
               status: 'passed',
               checkedAt: '2026-03-29T11:56:30.000Z',
-              summary: 'Doctor dos canais nativos validou os providers configurados.',
+              summary: 'Doctor dos canais nactives validou os providers configurados.',
               command: 'npm run test:channels:smoke',
               file: 'C:/runtime/channel-provider-doctor-last.json',
               stale: false,
@@ -67,7 +67,7 @@ describe('OperationsReportService', () => {
                   mode: 'native',
                   status: 'passed',
                   configured: true,
-                  summary: 'Slack native validado.',
+                  summary: 'Slack native validated.',
                   error: null,
                 },
                 {
@@ -97,7 +97,7 @@ describe('OperationsReportService', () => {
                   mode: 'remote',
                   status: 'passed',
                   configured: true,
-                  summary: 'AIGateway remoto validado.',
+                  summary: 'Remote AIGateway validated.',
                   error: null,
                 },
                 {
@@ -105,7 +105,7 @@ describe('OperationsReportService', () => {
                   mode: 'local',
                   status: 'passed',
                   configured: true,
-                  summary: 'Node host pareado validado.',
+                  summary: 'Paired node host validated.',
                   error: null,
                 },
               ],
@@ -148,7 +148,7 @@ describe('OperationsReportService', () => {
             maintenanceAutomation: {
               enabled: true,
               lastTriggerSource: 'priority',
-              lastPriorityReason: 'Prioridade operacional: renovar o Node Mesh smoke vencido.',
+              lastPriorityReason: 'Operational priority: renew o Node Mesh smoke vencido.',
               nextPlannedAt: '2026-03-30T04:30:00.000Z',
             },
           },
@@ -191,7 +191,7 @@ describe('OperationsReportService', () => {
           {
             executor: 'external_executor',
             kind: 'workspace_access',
-            reason: 'Precisa acessar uma pasta protegida.',
+            reason: 'Needs access to a protected folder.',
           },
         ]),
       } as any,
@@ -199,8 +199,8 @@ describe('OperationsReportService', () => {
         readSnapshot: jest.fn(() => ({
           generatedAt: '2026-03-29T12:00:00.000Z',
           posture: 'watch',
-          headline: 'Zavorth operavel, mas com atencao em remote_mode_inactive.',
-          highlights: ['2/2 sidecars prontos.'],
+          headline: 'Zavorth is operable, but has attention on remote_mode_inactive.',
+          highlights: ['2/2 sidecars readys.'],
           nextAction: {
             label: 'Rodar doctor do remoto',
             command: 'npm run zavorthBridge:remote:doctor',
@@ -296,7 +296,7 @@ describe('OperationsReportService', () => {
                 status: 'approval_pending',
                 completed_stages: 1,
                 total_stages: 2,
-                resume_stage_label: 'Aguardar aprovacao',
+                resume_stage_label: 'Aguardar approval',
                 primary_artifact_name: 'briefing-final.md',
                 updated_at: '2026-03-29T11:52:00.000Z',
               },
@@ -331,7 +331,7 @@ describe('OperationsReportService', () => {
           },
           insights: [
             'Rota dominante da janela: workspace_learning (4 pedido(s)).',
-            'Workflow com retomada pronta: workflow:ship em Aguardar aprovacao.',
+            'Workflow com resumption pronta: workflow:ship em Aguardar approval.',
           ],
         }),
       } as any,
@@ -340,7 +340,7 @@ describe('OperationsReportService', () => {
     const snapshot = await service.buildSnapshot(new Date('2026-03-29T12:00:00.000Z'));
     const text = await service.buildTextReport(new Date('2026-03-29T12:00:00.000Z'));
 
-    expect(snapshot.headline).toBe('Runtime estavel.');
+    expect(snapshot.headline).toBe('Runtime stable.');
     expect(snapshot.operatorBrief).toEqual(
       expect.objectContaining({
         posture: 'watch',
@@ -378,36 +378,36 @@ describe('OperationsReportService', () => {
     expect(snapshot.productObservability).toEqual(
       expect.objectContaining({
         routeHeadline: 'workspace_learning lidera com 4 pedido(s) recentes',
-        workflowHeadline: 'workflow:ship approval_pending | retomar em Aguardar aprovacao',
+        workflowHeadline: 'workflow:ship approval_pending | resume em Aguardar approval',
       }),
     );
     expect(snapshot.executiveSummary.join(' ')).toContain('Ultimo autodisparo prioritario');
-    expect(snapshot.executiveSummary.join(' ')).toContain('Doctor dos canais nativos validou');
-    expect(snapshot.operations.channelProviderDoctorLabel).toContain('validado');
-    expect(snapshot.operations.remoteTransportDoctorLabel).toContain('validado');
-    expect(snapshot.operations.nodeMeshSmokeLabel).toContain('validado');
+    expect(snapshot.executiveSummary.join(' ')).toContain('Doctor dos canais nactives validou');
+    expect(snapshot.operations.channelProviderDoctorLabel).toContain('validated');
+    expect(snapshot.operations.remoteTransportDoctorLabel).toContain('validated');
+    expect(snapshot.operations.nodeMeshSmokeLabel).toContain('validated');
     expect(snapshot.operations.automationLabel).toContain('priorizada');
-    expect(text).toContain('Relatorio consolidado do Zavorth');
+    expect(text).toContain('Report consolidado do Zavorth');
     expect(text).toContain('Briefing do operador:');
     expect(text).toContain('Continuidade entre superficies:');
     expect(text).toContain('A ultima tarefa conhecida veio de telegram.');
-    expect(text).toContain('Observabilidade de produto:');
+    expect(text).toContain('Observabilidade de product:');
     expect(text).toContain('Rotas: workspace_learning lidera com 4 pedido(s) recentes');
-    expect(text).toContain('Insights de produto:');
-    expect(text).toContain('Gateway nativo do Discord ativo; 2 envios recentes registrados.');
-    expect(text).toContain('Canais nativos: validado');
-    expect(text).toContain('Transportes remotos: validado');
+    expect(text).toContain('Insights de product:');
+    expect(text).toContain('Gateway nactive do Discord active; 2 envios recentes registrados.');
+    expect(text).toContain('Native channels: validated');
+    expect(text).toContain('Remote transports: validated');
     expect(text).toContain('Slack native');
     expect(text).toContain('WhatsApp Cloud API');
-    expect(text).toContain('Node Mesh validado por smoke real');
-    expect(text).toContain('Canais: discord pronto');
+    expect(text).toContain('Node Mesh validated by real smoke test');
+    expect(text).toContain('Canais: discord ready');
     expect(text).toContain('Tenants: 2 observados | onboarding pendente 1');
-    expect(text).toContain('Node Mesh: validado');
-    expect(text).toContain('Prioridade operacional: renovar o Node Mesh smoke vencido.');
+    expect(text).toContain('Node Mesh: validated');
+    expect(text).toContain('Operational priority: renew o Node Mesh smoke vencido.');
     expect(text).toContain('Publicos: 1 | onboarding pendente 1');
     expect(text).toContain('npm run zavorthBridge:remote:doctor');
-    expect(text).toContain('Permissoes pendentes:');
-    expect(text).toContain('Proximas acoes recomendadas:');
+    expect(text).toContain('permissions pendentes:');
+    expect(text).toContain('Proximas actions recomendadas:');
   });
 
   it('surfaces stale Node Mesh validation in the executive report', async () => {
@@ -416,13 +416,13 @@ describe('OperationsReportService', () => {
         readSnapshot: jest.fn(() => ({
           generatedAt: '2026-03-30T12:00:00.000Z',
           status: 'attention',
-          headline: 'Runtime operavel com pontos de acompanhamento.',
+          headline: 'Runtime operable com pontos de follow-up.',
           summary: {
             enabledSidecars: 1,
             readySidecars: 1,
             recentErrorCount: 0,
             freeDiskPercent: 70,
-            publishAgeLabel: 'ha 1 h',
+            publishAgeLabel: 'there is 1 h',
           },
           runtime: {
             uptimeLabel: '1h 30m',
@@ -436,7 +436,7 @@ describe('OperationsReportService', () => {
               id: 'validate-node-mesh-smoke',
               label: 'Validar Node Mesh',
               command: 'npm run test:nodes:smoke',
-              reason: 'O ultimo smoke real ficou velho e precisa ser renovado.',
+              reason: 'O ultimo smoke real ficou velho e needs ser renovado.',
               priority: 'normal',
             },
           ],
@@ -456,7 +456,7 @@ describe('OperationsReportService', () => {
               available: true,
               status: 'passed',
               checkedAt: '2026-03-28T12:00:00.000Z',
-              summary: 'Smoke real antigo, mas concluido com sucesso.',
+              summary: 'Smoke real antigo, mas completed com sucesso.',
               command: 'npm run test:nodes:smoke',
               file: 'C:/runtime/node-mesh-smoke-last.json',
               nodeId: 'node-report-stale',
@@ -512,13 +512,13 @@ describe('OperationsReportService', () => {
         readSnapshot: jest.fn(() => ({
           generatedAt: '2026-03-30T12:00:00.000Z',
           status: 'attention',
-          headline: 'Runtime operavel com canais locais em rollout.',
+          headline: 'Runtime operable com canais locais em rollout.',
           summary: {
             enabledSidecars: 1,
             readySidecars: 1,
             recentErrorCount: 0,
             freeDiskPercent: 70,
-            publishAgeLabel: 'ha 1 h',
+            publishAgeLabel: 'there is 1 h',
           },
           runtime: {
             uptimeLabel: '1h 30m',
@@ -612,12 +612,12 @@ describe('OperationsReportService', () => {
 
     const snapshot = await service.buildSnapshot(new Date('2026-03-30T12:00:00.000Z'));
 
-    expect(snapshot.executiveSummary.join(' ')).toContain('WhatsApp ativo em modo local supervisionado');
-    expect(snapshot.executiveSummary.join(' ')).toContain('Slack habilitado, mas ainda nao entrou em estado pronto.');
-    expect(snapshot.operations.channelsLabel).toContain('whatsapp pronto | local supervisionado | chats 2');
+    expect(snapshot.executiveSummary.join(' ')).toContain('WhatsApp active em modo local supervisionado');
+    expect(snapshot.executiveSummary.join(' ')).toContain('Slack there isbilitado, mas ainda not entrou em estado ready.');
+    expect(snapshot.operations.channelsLabel).toContain('whatsapp ready | local supervisionado | chats 2');
     expect(snapshot.operations.channelsLabel).toContain('slack pendente');
-    expect(snapshot.text).toContain('WhatsApp ativo em modo local supervisionado; 2 chat(s) permitidos.');
-    expect(snapshot.text).toContain('Slack habilitado, mas ainda nao entrou em estado pronto.');
+    expect(snapshot.text).toContain('WhatsApp active em modo local supervisionado; 2 chat(s) permitidos.');
+    expect(snapshot.text).toContain('Slack there isbilitado, mas ainda not entrou em estado ready.');
   });
 
   it('describes native Slack and WhatsApp providers honestly in the channel narrative', async () => {
@@ -626,13 +626,13 @@ describe('OperationsReportService', () => {
         readSnapshot: jest.fn(() => ({
           generatedAt: '2026-03-30T12:00:00.000Z',
           status: 'healthy',
-          headline: 'Runtime operavel com canais nativos validados.',
+          headline: 'Runtime operable com canais nactives validateds.',
           summary: {
             enabledSidecars: 1,
             readySidecars: 1,
             recentErrorCount: 0,
             freeDiskPercent: 76,
-            publishAgeLabel: 'ha 20 min',
+            publishAgeLabel: 'there is 20 min',
           },
           runtime: {
             uptimeLabel: '4h 0m',
@@ -692,7 +692,7 @@ describe('OperationsReportService', () => {
               available: true,
               status: 'passed',
               checkedAt: '2026-03-30T11:57:00.000Z',
-              summary: 'Doctor dos canais nativos validou os providers configurados.',
+              summary: 'Doctor dos canais nactives validou os providers configurados.',
               command: 'npm run test:channels:smoke',
               file: 'C:/runtime/channel-provider-doctor-last.json',
               stale: false,
@@ -705,7 +705,7 @@ describe('OperationsReportService', () => {
                   mode: 'native',
                   status: 'passed',
                   configured: true,
-                  summary: 'Slack native validado.',
+                  summary: 'Slack native validated.',
                   error: null,
                 },
                 {
@@ -735,7 +735,7 @@ describe('OperationsReportService', () => {
                   mode: 'remote',
                   status: 'passed',
                   configured: true,
-                  summary: 'AIGateway remoto validado.',
+                  summary: 'Remote AIGateway validated.',
                   error: null,
                 },
                 {
@@ -743,7 +743,7 @@ describe('OperationsReportService', () => {
                   mode: 'local',
                   status: 'passed',
                   configured: true,
-                  summary: 'Node host pareado validado.',
+                  summary: 'Paired node host validated.',
                   error: null,
                 },
               ],
@@ -794,17 +794,17 @@ describe('OperationsReportService', () => {
 
     const snapshot = await service.buildSnapshot(new Date('2026-03-30T12:00:00.000Z'));
 
-    expect(snapshot.executiveSummary.join(' ')).toContain('WhatsApp Cloud API ativo');
-    expect(snapshot.executiveSummary.join(' ')).toContain('Slack nativo ativo');
-    expect(snapshot.executiveSummary.join(' ')).toContain('Doctor dos canais nativos validou');
-    expect(snapshot.operations.channelsLabel).toContain('whatsapp pronto | Cloud API | chats 1');
-    expect(snapshot.operations.channelsLabel).toContain('slack pronto | nativo | canais 2');
-    expect(snapshot.operations.channelProviderDoctorLabel).toContain('validado');
-    expect(snapshot.operations.remoteTransportDoctorLabel).toContain('validado');
-    expect(snapshot.text).toContain('WhatsApp Cloud API ativo; 1 chat(s) permitidos.');
-    expect(snapshot.text).toContain('Slack nativo ativo; 2 canal(is) permitidos.');
-    expect(snapshot.text).toContain('Canais nativos: validado');
-    expect(snapshot.text).toContain('Transportes remotos: validado');
+    expect(snapshot.executiveSummary.join(' ')).toContain('WhatsApp Cloud API active');
+    expect(snapshot.executiveSummary.join(' ')).toContain('Slack nactive active');
+    expect(snapshot.executiveSummary.join(' ')).toContain('Doctor dos canais nactives validou');
+    expect(snapshot.operations.channelsLabel).toContain('whatsapp ready | Cloud API | chats 1');
+    expect(snapshot.operations.channelsLabel).toContain('slack ready | nactive | canais 2');
+    expect(snapshot.operations.channelProviderDoctorLabel).toContain('validated');
+    expect(snapshot.operations.remoteTransportDoctorLabel).toContain('validated');
+    expect(snapshot.text).toContain('WhatsApp Cloud API active; 1 chat(s) permitidos.');
+    expect(snapshot.text).toContain('Slack nactive active; 2 canal(is) permitidos.');
+    expect(snapshot.text).toContain('Native channels: validated');
+    expect(snapshot.text).toContain('Remote transports: validated');
   });
 
   it('embeds canonical overview sections when overview readers are provided', async () => {
@@ -812,7 +812,7 @@ describe('OperationsReportService', () => {
       {
         readSnapshot: jest.fn(() => ({
           generatedAt: '2026-03-30T16:00:00.000Z',
-          headline: 'Runtime estavel com sinais canonicamente agregados.',
+          headline: 'Runtime stable com sinais canonicamente agregados.',
           summary: {
             enabledSidecars: 1,
             readySidecars: 1,
@@ -830,9 +830,9 @@ describe('OperationsReportService', () => {
           actions: [
             {
               id: 'maintenance',
-              label: 'Rodar manutencao operacional',
+              label: 'Rodar operational maintenance',
               command: 'npm run ops:maintain',
-              reason: 'Fluxo padrao.',
+              reason: 'Fluxo pattern.',
               priority: 'normal',
             },
           ],
@@ -900,7 +900,7 @@ describe('OperationsReportService', () => {
         summary: { posture: 'healthy' },
         narrative: {
           headline: 'Operational Overview',
-          operatorSummary: '1 canal pronto, 1 node online e replay sem pendencias.',
+          operatorSummary: '1 canal ready, 1 node online e replay sem pending items.',
           nextAction: 'Revisar runtime distribuido apenas se o volume subir.',
         },
         actions: [
@@ -917,15 +917,15 @@ describe('OperationsReportService', () => {
         summary: { posture: 'attention' },
         narrative: {
           headline: 'Trust Overview',
-          operatorSummary: '1 tenant observado e nenhuma aprovacao pendente.',
-          nextAction: 'Revisar tenancy compartilhada antes do proximo rollout.',
+          operatorSummary: '1 tenant observado e nenhuma approval pendente.',
+          nextAction: 'Revisar tenancy shared antes do next rollout.',
         },
         actions: [
           {
             source: 'tenants',
             label: 'Abrir tenants',
             command: '/tenants',
-            reason: 'Conferir o boundary compartilhado.',
+            reason: 'Conferir o boundary shared.',
           },
         ],
       }),
@@ -969,14 +969,14 @@ describe('OperationsReportService', () => {
         posture: 'healthy',
       }),
     );
-    expect(snapshot.executiveSummary.join(' ')).toContain('Overview operacional: 1 canal pronto, 1 node online e replay sem pendencias.');
-    expect(snapshot.executiveSummary.join(' ')).toContain('Overview de trust: 1 tenant observado e nenhuma aprovacao pendente.');
-    expect(snapshot.executiveSummary.join(' ')).toContain('Overview de produto: Hub e ecosystem estaveis, sem regressions relevantes.');
-    expect(text).toContain('Overview operacional canonico:');
-    expect(text).toContain('Overview de trust canonico:');
-    expect(text).toContain('Overview de produto canonico:');
+    expect(snapshot.executiveSummary.join(' ')).toContain('Overview operacional: 1 canal ready, 1 node online e replay sem pending items.');
+    expect(snapshot.executiveSummary.join(' ')).toContain('Overview de trust: 1 tenant observado e nenhuma approval pendente.');
+    expect(snapshot.executiveSummary.join(' ')).toContain('Overview de product: Hub e ecosystem estaveis, sem regressions relevantes.');
+    expect(text).toContain('Canonical operational overview:');
+    expect(text).toContain('Canonical trust overview:');
+    expect(text).toContain('Canonical product overview:');
     expect(text).toContain('Inspecionar replay | /api/operations/replay | Checar os ultimos artifacts reutilizaveis.');
-    expect(text).toContain('Abrir tenants | /tenants | Conferir o boundary compartilhado.');
+    expect(text).toContain('Abrir tenants | /tenants | Conferir o boundary shared.');
     expect(text).toContain('Checar rollout | npm run qa:phases:7-10 | Garantir gate verde antes da promocao.');
   });
 });

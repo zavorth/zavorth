@@ -37,13 +37,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('perception-certification-files', 'Perception certification files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Runtime gateway files present', missing);
+  return rule('perception-certification-files', 'Perception certification files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all Runtime gateway files present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthPerceptionCrossSurfaceCertificationContract.ts', ['pc-screenshot', 'browser-dom', 'adb-ui-dump', 'ZavorthPerceptionZavorthControlProjection', 'visualMutationApplied: false']],
-    ['src/services/ZavorthPerceptionCrossSurfaceCertificationService.ts', ['ZavorthPerceptionCrossSurfaceCertificationService', 'ZavorthControl projection carries read-only targets', 'live canary exige flag', 'REQUIRED_COMMANDS']],
+    ['src/services/ZavorthPerceptionCrossSurfaceCertificationService.ts', ['ZavorthPerceptionCrossSurfaceCertificationService', 'ZavorthControl projection carries read-only targets', 'live canary requires flag', 'REQUIRED_COMMANDS']],
     ['scripts/zavorth-perception-certification.ts', ['--json', 'formatSnapshotText']],
     ['src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthControlRuntimeProjection.ts', ['perceptionControl']],
     ['src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.ts', ['mapPerceptionControlProjection', 'perceptionControl']],
@@ -61,7 +61,7 @@ function ruleMarkers() {
 
 function runCertificationFixture() {
   const result = runTs('scripts/zavorth-perception-certification.ts', ['--json']);
-  return jsonRule('perception-certification-fixture', 'Certification matrix passes all mock-safe scenarios', result, (snapshot) => {
+  return jsonRule('perception-certification-fixture', 'Certification matrix passes all local-safe scenarios', result, (snapshot) => {
     const ids = snapshot.certificationMatrix?.map((row) => row.id) || [];
     return snapshot.status === 'passed'
       && ids.includes('pc-screenshot')
@@ -94,7 +94,7 @@ function runTextFixture() {
   const result = runTs('scripts/zavorth-perception-certification.ts', []);
   const output = `${result.stdout}\n${result.stderr}`;
   const passed = result.status === 0
-    && output.includes('Zavorth Perception Cross-Surface Certification - Runtime gateway')
+    && output.includes('Zavorth Perception Cross-Surface Certification ? Runtime gateway')
     && output.includes('/vision status')
     && output.includes('/computer approve <plan>')
     && output.includes('/device screenshot');
@@ -136,5 +136,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

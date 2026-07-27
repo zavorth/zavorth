@@ -12,7 +12,7 @@ describe('AgentRunService Capability Negotiation Capability Negotiation', () => 
   it('creates a negotiated scope approval before executing sensitive tools', async () => {
     const executor = jest.fn(({ run }) => ({
       status: 'completed' as const,
-      summary: 'Execucao realizada dentro do escopo aprovado.',
+      summary: 'Execution completed within the approved scope.',
       replyText: 'ok',
       metadata: {
         executorSawNegotiation: Boolean(run.metadata.capabilityNegotiation),

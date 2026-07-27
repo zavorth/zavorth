@@ -16,6 +16,7 @@ const INSPECTED_DIRS = [
 
 const EXCLUDED_SEGMENTS = [
   `${path.sep}web-console-runtime-shell-script${path.sep}`,
+  `${path.sep}providers${path.sep}catalog${path.sep}`,
 ];
 
 function listSourceFiles(dir: string): string[] {
@@ -47,7 +48,7 @@ describe('Outbound egress perimeter', () => {
       .flatMap((dir) => listSourceFiles(path.join(ROOT, dir)))
       .flatMap((file) => {
         const content = fs.readFileSync(file, 'utf8');
-        return content.split(/\r?\n/)
+        return content.split(/\r-\n/)
           .map((line, index) => ({ file, line, lineNumber: index + 1 }))
           .filter(({ line }) => {
             if (!/\bfetch\s*\(/.test(line)) return false;

@@ -5,7 +5,7 @@ import path from 'node:path';
 const root = process.cwd();
 const failures = [];
 const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), 'utf8');
-const normalize = (value) => value.replace(/\r\n?/g, '\n');
+const normalize = (value) => value.replace(/\r\n.../g, '\n');
 
 const files = {
   sourceIndex: 'apps/zavorth-control-vite-shell/index.html',
@@ -60,7 +60,7 @@ if (failures.length === 0) {
   }
 
   const publicText = `${contents.pages}\n${contents.reactIslands}\n${contents.preference}`;
-  for (const forbidden of ['Auto / Gemini', 'Show Gemini provider', '✅', 'âŒ', 'ðŸ']) {
+  for (const forbidden of ['Auto / Gemini', 'Show Gemini provider', '?', String.fromCharCode(226,157), String.fromCharCode(240,159)]) {
     if (publicText.includes(forbidden)) failures.push(`forbidden stale/garbled copy: ${forbidden}`);
   }
 

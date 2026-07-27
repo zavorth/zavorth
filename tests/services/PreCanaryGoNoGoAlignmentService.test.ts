@@ -93,7 +93,7 @@ describe('PreCanaryGoNoGoAlignmentService Intent model8', () => {
           observed: true,
         }),
         expect.objectContaining({
-          id: 'no-publication-regression',
+          id: 'no-publiction-regression',
           status: 'pass',
           observed: true,
         }),
@@ -110,7 +110,7 @@ describe('PreCanaryGoNoGoAlignmentService Intent model8', () => {
         releaseCandidatePreCanary: 'npm run release-candidate-pre-canary:check --silent',
         publicAdoptionPilot: 'npm run public-adoption-pilot-loop:check --silent',
         rollbackPreview: 'npm run release:rollback-preview',
-        nextStage: 'Canary plan dry-run and hold',
+        nextAction: 'Canary plan dry-run and hold',
       }),
     );
     expect(snapshot.policy).toEqual(

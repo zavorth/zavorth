@@ -36,7 +36,7 @@ describe('AutoRepairValidationService', () => {
           startedAt: '2026-04-16T12:00:00.000Z',
           finishedAt: '2026-04-16T12:00:01.000Z',
           durationMs: 1000,
-          output: 'AIGateway respondeu com HTTP 200.',
+          output: 'AIGateway responded with HTTP 200.',
         },
       ]),
     };
@@ -104,7 +104,7 @@ describe('AutoRepairValidationService', () => {
       }),
     );
     expect(service.collectCandidateFiles([
-      'Falha em src/services/FixService.ts e em C:/tmp/unsafe.ts.',
+      'Failure in src/services/FixService.ts and in C:/tmp/unsafe.ts.',
       'Tambem verificar tests/services/FixService.test.ts.',
     ])).toEqual([
       'src/services/FixService.ts',

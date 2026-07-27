@@ -54,7 +54,7 @@ describe('WebApp memory plane endpoints', () => {
           latestHistoricalAt: null,
         },
         replay: {
-          headline: 'Replay pronto.',
+          headline: 'Replay ready.',
         },
         artifacts: {
           recent: [],
@@ -64,14 +64,14 @@ describe('WebApp memory plane endpoints', () => {
         },
         workspace: {
           workspace: 'C:/repo',
-          summary: 'Workspace pronto para entrega.',
+          summary: 'Workspace ready para entrega.',
           recentArtifacts: [],
           continuityRecommendations: [],
           workflowRecommendations: [],
         },
         suggestedActions: [],
         narrative: {
-          headline: 'Retomada e entregas prontas.',
+          headline: 'Resume and deliveries ready.',
           operatorSummary: 'Snapshot oficial do memory plane via web.',
         },
       })),
@@ -116,7 +116,7 @@ describe('WebApp memory plane endpoints', () => {
     await service.start();
     const { status, payload } = await fetchDashboardJson(
       service.getUrl(),
-      '/api/web/memory-plane?sessionId=session-web-1',
+      '/api/web/memory-plane-sessionId=session-web-1',
       { token: 'web-secret' },
     );
     await service.stopAsync();
@@ -127,7 +127,7 @@ describe('WebApp memory plane endpoints', () => {
         ok: true,
         memoryPlane: expect.objectContaining({
           narrative: expect.objectContaining({
-            headline: 'Retomada e entregas prontas.',
+            headline: 'Resume and deliveries ready.',
             operatorSummary: 'Snapshot oficial do memory plane via web.',
           }),
           summary: expect.objectContaining({

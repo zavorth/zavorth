@@ -48,7 +48,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'checkpoint-10-files',
+    id: 'gate-10-files',
     label: 'Intent model0 bridge files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
@@ -75,7 +75,7 @@ function ruleContainsMarkers() {
       'safe-tool-parallelism',
       'skill-curator',
       'delegated-workers',
-      'checkpoint-9-complete',
+      'gate-9-complete',
     ]],
     ['package.json', [
       'zavorth:external-runtime-bridge',
@@ -94,7 +94,7 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'checkpoint-10-markers',
+    id: 'gate-10-markers',
     label: 'Intent model0 bridge markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
@@ -110,7 +110,7 @@ function runBridgeFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'checkpoint-10-bridge-fixture',
+      id: 'gate-10-bridge-fixture',
       label: 'Bridge fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -130,7 +130,7 @@ function runBridgeFixture() {
     && Array.isArray(snapshot.candidates)
     && snapshot.candidates.length >= 9;
   return {
-    id: 'checkpoint-10-bridge-fixture',
+    id: 'gate-10-bridge-fixture',
     label: 'Bridge fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.candidates.length} candidate(s), ${snapshot.status}` : 'invalid bridge snapshot',
@@ -145,7 +145,7 @@ function runBridgeBlockedFixture() {
     'scripts/zavorth-external-runtime-bridge.ts',
     '--json',
     '--natural-first-status',
-    'checkpoint-8-complete',
+    'gate-8-complete',
   ], {
     cwd: root,
     encoding: 'utf8',
@@ -156,11 +156,11 @@ function runBridgeBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.gatewayPolicy?.naturalFirstClosed === false;
   return {
-    id: 'checkpoint-10-blocked-fixture',
+    id: 'gate-10-blocked-fixture',
     label: 'Bridge blocks before Natural First closure',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, naturalFirstClosed=${snapshot.gatewayPolicy.naturalFirstClosed}` : `exit ${result.status}`,
-    target: 'bridge is blocked if Natural First is not checkpoint-9 or checkpoint-10 complete',
+    target: 'bridge is blocked if Natural First is not gate-9 or gate-10 complete',
     details: ok ? [] : [result.error?.message || result.stderr || result.stdout || 'no output'],
   };
 }

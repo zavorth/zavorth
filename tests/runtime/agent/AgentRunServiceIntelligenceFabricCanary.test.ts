@@ -71,8 +71,8 @@ describe('AgentRunService Intelligence Fabric canary', () => {
   it('uses Intelligence Fabric as the default orchestrator while retaining current runtime fallback', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Executor atual respondeu.',
-      replyText: 'Resposta pelo runtime atual.',
+      summary: 'Current executor responded.',
+      replyText: 'Response from the current runtime.',
     }));
     const service = new AgentRunService({
       now: () => new Date('2026-05-08T14:00:00.000Z'),
@@ -132,8 +132,8 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     };
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Executor atual respondeu.',
-      replyText: 'Resposta pelo runtime atual.',
+      summary: 'Current executor responded.',
+      replyText: 'Response from the current runtime.',
     }));
     const service = new AgentRunService({
       now: () => new Date('2026-05-08T14:00:00.000Z'),
@@ -157,7 +157,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     const metadata = result.run.metadata.intelligenceFabricCanary as Record<string, unknown>;
 
     expect(executor).toHaveBeenCalledTimes(1);
-    expect(result.replies[0].text).toBe('Resposta pelo runtime atual.');
+    expect(result.replies[0].text).toBe('Response from the current runtime.');
     expect(metadata).toEqual(
       expect.objectContaining({
         source: 'AgentRunIntelligenceFabricCanary',
@@ -220,7 +220,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
         providerName: 'zavorth-test-provider',
         modelName: 'zavorth-test-model',
         response: {
-          content: 'Resposta orientada pelo Fabric.',
+          content: 'Fabric-guided response.',
           finishReason: 'stop',
         },
         metadata: {
@@ -273,7 +273,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     const options = chatCall[2] as Record<string, unknown>;
     const metadata = result.run.metadata.intelligenceFabricCanary as Record<string, unknown>;
 
-    expect(result.replies[0].text).toBe('Resposta orientada pelo Fabric.');
+    expect(result.replies[0].text).toBe('Fabric-guided response.');
     expect(options).toEqual(
       expect.objectContaining({
         allowFallback: true,
@@ -301,7 +301,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
         providerName: 'current-provider',
         modelName: 'current-model',
         response: {
-          content: 'Resposta com fallback de modelo.',
+          content: 'Response with model fallback.',
           finishReason: 'stop',
         },
         metadata: {
@@ -391,7 +391,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
       summary: 'Runtime atual manteve controle.',
-      replyText: 'Sem orientacao para risco alto.',
+      replyText: 'No guidance for high risk.',
     }));
     const service = new AgentRunService({
       now: () => new Date('2026-05-08T14:00:00.000Z'),
@@ -435,8 +435,8 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     const mutationPlane = createMutationPlaneMock();
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Runtime atual recebeu o rascunho.',
-      replyText: 'Rascunho preparado sem aplicar nada.',
+      summary: 'Runtime atual recebeu o draft.',
+      replyText: 'Draft prepared without applying anything.',
     }));
     const service = new AgentRunService({
       now: () => new Date('2026-05-08T14:00:00.000Z'),
@@ -450,7 +450,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-risk3-draft',
-      text: 'escreva um arquivo de notas no workspace como patch reversivel',
+      text: 'escreva um file de notas no workspace como patch reversivel',
       workspace: 'C:/repo/Zavorth',
       requestedTools: [],
       metadata: {
@@ -497,7 +497,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
           status: 'draft',
           approvalRequired: false,
           approvalStatus: 'not_required',
-          approvalReason: 'Policy allow explicito permite aplicar somente apos pedido do usuario.',
+          approvalReason: 'Explicit allow policy permits apply only after user request.',
           policyAllowExplicit: true,
           applyRequiresRequest: true,
         }),
@@ -508,7 +508,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
           mutationPlaneStatus: 'draft',
           mutationPlaneApprovalStatus: 'not_required',
           approvalPath: 'policy_allow_explicit',
-          approvalReason: 'Policy allow explicito permite aplicar somente apos pedido do usuario.',
+          approvalReason: 'Explicit allow policy permits apply only after user request.',
           riskGateDecision: 'allow',
           riskGateCanExecuteNow: true,
           applyState: 'not_requested',
@@ -553,7 +553,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
           }),
         }),
       );
-      expect(String(previewEvent.title || '')).toMatch(/Previa de alteracao|Change preview|draft/i);
+      expect(String(previewEvent.title || '')).toMatch(/Previa de change|Change preview|draft/i);
     } else {
       expect(previewEvent).toBeUndefined();
     }
@@ -572,8 +572,8 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       idFactory: createIdFactory(),
       executor: jest.fn(() => ({
         status: 'completed',
-        summary: 'Executor nao deve aplicar draft.',
-        replyText: 'Executor nao deve aplicar draft.',
+        summary: 'Executor not deve aplicar draft.',
+        replyText: 'Executor not deve aplicar draft.',
       })),
       intelligenceFabricMode: 'canary',
       mutationPlaneService: mutationPlane,
@@ -583,7 +583,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-risk3-create',
-      text: 'escreva um arquivo de notas no workspace como patch reversivel',
+      text: 'escreva um file de notas no workspace como patch reversivel',
       workspace: workspaceRoot,
       requestedTools: [],
       metadata: {
@@ -593,7 +593,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
           {
             path: 'notes/fabric-risk3.txt',
             content: 'draft aplicado com rollback\n',
-            description: 'Arquivo de teste do executor reversivel Risk 3.',
+            description: 'File de teste do executor reversivel Risk 3.',
           },
         ],
       },
@@ -604,7 +604,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-risk3-apply',
-      text: 'aplicar este rascunho',
+      text: 'aplicar este draft',
       requestedTools: [],
       metadata: {
         capabilityNegotiationApproved: true,
@@ -645,8 +645,8 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       idFactory: createIdFactory(),
       executor: jest.fn(() => ({
         status: 'completed',
-        summary: 'Executor nao deve aplicar draft.',
-        replyText: 'Executor nao deve aplicar draft.',
+        summary: 'Executor not deve aplicar draft.',
+        replyText: 'Executor not deve aplicar draft.',
       })),
       intelligenceFabricMode: 'canary',
       mutationPlaneService: mutationPlane,
@@ -656,7 +656,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-risk3-no-payload-create',
-      text: 'modifique arquivo no workspace como patch reversivel',
+      text: 'modifique file no workspace como patch reversivel',
       workspace: fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-fabric-no-payload-')),
       requestedTools: [],
       metadata: {
@@ -670,7 +670,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-risk3-no-payload-apply',
-      text: 'aplicar este rascunho',
+      text: 'aplicar este draft',
       requestedTools: [],
       metadata: {
         capabilityNegotiationApproved: true,
@@ -691,7 +691,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
         }),
       }),
     );
-    expect(blocked.replies[0].text).toContain('Nenhuma workspaceWrites explicita');
+    expect(blocked.replies[0].text).toContain('Noa workspaceWrites explicita');
   });
 
   it('uses structured workspaceWrites metadata before governed apply (free-text never plans writes)', async () => {
@@ -704,12 +704,12 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       mutationPlaneService: mutationPlane,
     });
 
-    const draftContent = 'Pedido original: escreva um arquivo de notas\n';
+    const draftContent = 'Pedido original: escreva um file de notas\n';
     const drafted = await service.run({
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-llm-writes-draft',
-      text: 'escreva um arquivo de notas no workspace como patch reversivel',
+      text: 'escreva um file de notas no workspace como patch reversivel',
       workspace: workspaceRoot,
       requestedTools: [],
       metadata: {
@@ -739,7 +739,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     expect(latestPayload.workspaceWrites).toEqual([
       expect.objectContaining({
         path: 'notes/intelligence-fabric-draft.txt',
-        content: expect.stringContaining('Pedido original: escreva um arquivo de notas'),
+        content: expect.stringContaining('Pedido original: escreva um file de notas'),
       }),
     ]);
     expect(mutationPlan).toEqual(
@@ -753,7 +753,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-llm-writes-apply',
-      text: 'aplicar este rascunho',
+      text: 'aplicar este draft',
       requestedTools: [],
       metadata: {
         capabilityNegotiationApproved: true,
@@ -763,7 +763,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     });
 
     expect(fs.readFileSync(path.join(workspaceRoot, 'notes', 'intelligence-fabric-draft.txt'), 'utf8')).toContain(
-      'Pedido original: escreva um arquivo de notas',
+      'Pedido original: escreva um file de notas',
     );
     expect(applied.run.status).toBe('completed');
     expect(applied.run.metadata.intelligenceFabricDraftApply).toEqual(
@@ -793,7 +793,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-patch-draft',
-      text: 'modifique arquivo no workspace como patch reversivel: substitua "alpha" por "beta" em docs/sample.md',
+      text: 'modify a file in the workspace with a reversible patch: replace "alpha" with "beta" in docs/sample.md',
       workspace: workspaceRoot,
       requestedTools: [],
       metadata: {
@@ -874,7 +874,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-patch-apply',
-      text: 'aplicar este rascunho',
+      text: 'aplicar este draft',
       requestedTools: [],
       metadata: {
         capabilityNegotiationApproved: true,
@@ -915,7 +915,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-multi-hunk-draft',
-      text: 'modifique arquivo no workspace como patch reversivel',
+      text: 'modifique file no workspace como patch reversivel',
       workspace: workspaceRoot,
       requestedTools: [],
       metadata: {
@@ -957,7 +957,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     ]);
     expect(planPayload.workspaceDiffReceipt).toEqual(
       expect.objectContaining({
-        summary: expect.stringContaining('1 arquivo(s), 2 hunk(s)'),
+        summary: expect.stringContaining('1 file(s), 2 hunk(s)'),
         files: [
           expect.objectContaining({
             path: 'src/config.txt',
@@ -990,7 +990,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-multi-hunk-apply',
-      text: 'aplicar este rascunho',
+      text: 'aplicar este draft',
       requestedTools: [],
       metadata: {
         capabilityNegotiationApproved: true,
@@ -1017,13 +1017,13 @@ describe('AgentRunService Intelligence Fabric canary', () => {
             }),
           ],
         }),
-        diffReceiptText: expect.stringContaining('Previa de alteracao'),
+        diffReceiptText: expect.stringContaining('Previa de change'),
         execution: expect.objectContaining({
           touchedFiles: ['src/config.txt'],
         }),
       }),
     );
-    expect(applied.replies[0].text).toContain('Previa de alteracao');
+    expect(applied.replies[0].text).toContain('Previa de change');
     expect(applied.replies[0].text).toContain('- src/config.txt: patch, 2 hunk(s), passed');
     expect(applied.replies[0].text).toContain('"title=old" -> "title=new"');
   });
@@ -1044,7 +1044,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-ambiguous-hunk-draft',
-      text: 'modifique arquivo no workspace como patch reversivel',
+      text: 'modifique file no workspace como patch reversivel',
       workspace: workspaceRoot,
       requestedTools: [],
       metadata: {
@@ -1091,7 +1091,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-ambiguous-hunk-apply',
-      text: 'aplicar este rascunho',
+      text: 'aplicar este draft',
       requestedTools: [],
       metadata: {
         capabilityNegotiationApproved: true,
@@ -1111,14 +1111,14 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       }),
     );
     expect(blocked.replies[0].text).toContain('preview de patch multi-hunk');
-    expect(blocked.replies[0].text).toContain('Previa de alteracao');
-    expect(blocked.replies[0].text).toContain('bloqueio: Patch bloqueado');
+    expect(blocked.replies[0].text).toContain('Previa de change');
+    expect(blocked.replies[0].text).toContain('block: Patch blocked');
   });
 
   it('falls back to current runtime when the Fabric canary fails', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Fallback respondeu.',
+      summary: 'Fallback responded.',
       replyText: 'Fallback atual intacto.',
     }));
     const service = new AgentRunService({
@@ -1137,7 +1137,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-fallback',
-      text: 'responda mesmo se o canary falhar',
+      text: 'responda mesmo se o canary failurer',
       requestedTools: [],
       metadata: {
         capabilityNegotiationApproved: true,
@@ -1171,7 +1171,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
   it('can be disabled per request without changing executor behavior', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Disabled respondeu.',
+      summary: 'Disabled responded.',
       replyText: 'Canary desligado.',
     }));
     const service = new AgentRunService({

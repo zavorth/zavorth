@@ -23,8 +23,7 @@ const output = {
   liveIoPerformed: false,
   confirmLiveIo,
   status: profile === 'staging-live' && !confirmLiveIo ? 'blocked-until-confirmed' : 'ready-for-operator',
-  reason: profile === 'staging-live' && !confirmLiveIo
-    ? 'staging-live smoke requires --confirm-live-io and real operator credentials.'
+  reason: profile === 'staging-live' && !confirmLiveIo ? 'staging-live smoke requires --confirm-live-io and real operator credentials.'
     : 'Preview engine exposes the gated command and redacted activation receipts; provider-specific live IO stays opt-in.',
   entries: selected.map((entry) => ({
     channelId: entry.channelId,

@@ -44,8 +44,8 @@ describe('ZavorthHumanReachService', () => {
 
   it('does not match free-text reach NLU (agent-first) and still guides telegram setup via API', () => {
     const service = new ZavorthHumanReachService({ projectRoot: tempDir, env: {} });
-    expect(service.matchNaturalCommand('onde te acho?')).toBeNull();
-    expect(service.matchNaturalCommand('como configurar telegram')).toBeNull();
+    expect(service.matchNaturalCommand('onde te acho-')).toBeNull();
+    expect(service.matchNaturalCommand('how to configure telegram')).toBeNull();
     const guide = service.formatPathGuide('telegram').join('\n');
     expect(guide).toMatch(/BotFather|TELEGRAM_BOT_TOKEN/i);
   });

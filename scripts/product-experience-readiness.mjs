@@ -14,7 +14,7 @@ const readinessChecks = [
     covers: [
       'ZavorthProductMode chat|assistant|builder|operator',
       'runtime.mode.get/set por HTTP e WS',
-      'payload canonico com productMode',
+      'payload canonical com productMode',
     ],
   },
   {
@@ -33,7 +33,7 @@ const readinessChecks = [
     suite: 'control-ui',
     covers: [
       '/zavorthControl como entrada principal',
-      'sessao via gateway WS/API',
+      'session via gateway WS/API',
       'mode, memory, approvals, tool cards e legacy banners',
     ],
   },
@@ -49,12 +49,12 @@ const readinessChecks = [
   },
   {
     id: 'memory-hybrid',
-    label: 'memoria hibrida',
+    label: 'hybrid memory',
     suite: 'memory-hybrid',
     covers: [
-      'ledger autoritativo',
+      'ledger autoritactive',
       'MemoryVectorStore como recall de apoio',
-      'fallback ledger-only sem embeddings',
+      'fallback ledger-only without embeddings',
     ],
   },
 ];
@@ -103,7 +103,7 @@ results.push({
   exitCode: legacy.status,
   suite: 'legacy-compat',
   covers: [
-    '/app e /classic removidos da superficie publica',
+    '/app e /classic removidos da surface public',
     'links principais apontando para /zavorthControl',
     'docs e launchers alinhados',
   ],
@@ -135,7 +135,7 @@ function run(id, command, commandArgs) {
     });
   if (result.error) {
     if (!json) {
-      console.error(`[product-experience] falha ao executar ${id}: ${result.error.message}`);
+      console.error(`[product-experience] failure ao run ${id}: ${result.error.message}`);
     }
     return { status: 1 };
   }
@@ -177,9 +177,9 @@ function finish(results, startedAt) {
   if (json) {
     process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
   } else if (payload.ok) {
-    console.log('\n[product-experience] pronto: modos, escalation, ZavorthControl, Telegram/web, memoria hibrida e legado passaram.');
+    console.log('\n[product-experience] ready: modos, escalation, ZavorthControl, Telegram/web, hybrid memory e legado passaram.');
   } else {
-    console.error('\n[product-experience] bloqueado: algum gate falhou.');
+    console.error('\n[product-experience] blocked: algum gate failed.');
   }
   process.exit(payload.ok ? 0 : 1);
 }

@@ -48,7 +48,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'checkpoint-8-files',
+    id: 'gate-8-files',
     label: 'ZavorthControl controls native replacement files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
@@ -81,7 +81,7 @@ function ruleContainsMarkers() {
     ['docs/README.md', [
       'native-replacement-decommission-ready',
       'Zavorth Native Replacement Decommission',
-      '291 plan complete',
+      'plan complete',
     ]],
     ['docs/README.md', [
       'native-replacement-decommission-complete',
@@ -91,7 +91,7 @@ function ruleContainsMarkers() {
       'adapter dependency reduction',
       'decommission gates',
       'optional compatibility boundaries',
-      '291 plan complete',
+      'plan complete',
     ]],
     ['package.json', [
       'zavorth:native-replacement-decommission',
@@ -110,7 +110,7 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'checkpoint-8-markers',
+    id: 'gate-8-markers',
     label: 'ZavorthControl controls native replacement markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
@@ -152,7 +152,7 @@ function runNativeReplacementFixture() {
     && snapshot.summary?.hardAdapterDependenciesForPromotedCapabilities === 0
     && snapshot.safety?.zavorthNativeWithoutSourceRuntime === true
     && snapshot.safety?.adaptersOptionalCompatibilityOnly === true
-    && snapshot.commands?.planStatus === '291 plan complete';
+    && snapshot.commands?.planStatus === 'plan complete';
   return {
     id: 'native-replacement-fixture',
     label: 'Native replacement fixture passes',
@@ -180,7 +180,7 @@ function runNativeReplacementBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousDelegatedWorkerStatus === 'blocked';
   return {
-    id: 'checkpoint-8-blocked-fixture',
+    id: 'gate-8-blocked-fixture',
     label: 'Native replacement blocks without Surface controls readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, delegatedWorker=${snapshot.previousDelegatedWorkerStatus}` : `exit ${result.status}`,

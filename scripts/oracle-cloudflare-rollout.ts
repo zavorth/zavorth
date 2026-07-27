@@ -17,7 +17,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[oracle-cloudflare-rollout] falha ao inspecionar o rollout.');
+  console.error('[oracle-cloudflare-rollout] failure ao inspecionar o rollout.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

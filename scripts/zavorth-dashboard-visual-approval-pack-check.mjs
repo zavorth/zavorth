@@ -24,7 +24,7 @@ for (const file of requiredFiles) {
 const pack = runPack(['--json', '--provider', 'openai', '--details-drawer']);
 
 if (pack) {
-  assertRule('contract:version', pack.contractVersion === '2026-05-13.checkpoint-7', 'Visual approval pack contract is current');
+  assertRule('contract:version', pack.contractVersion === '2026-05-13.gate-7', 'Visual approval pack contract is current');
   assertRule('surface:pack', pack.surface === 'zavorthControl-visual-approval-pack', 'Visual approval surface is exposed');
   assertRule('approval:required', pack.approvalRequired === true && pack.approved === false, 'Owner approval is required and not auto-granted');
   assertRule('policy:no-visual-mutation', pack.visualMutationApplied === false, 'No zavorthControl visual mutation is applied');

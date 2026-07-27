@@ -33,7 +33,7 @@ const rules = [
       'OperationalReadinessGap',
       'OperationalReadinessPluginInventoryItem',
       'OperationalReadinessSnapshot',
-      'checkpoint-8-operational-tooling',
+      'gate-8-operational-tooling',
       'liveExternalCallRequired: false',
       'liveChannelSendRequired: false',
       'liveDeviceRequired: false',

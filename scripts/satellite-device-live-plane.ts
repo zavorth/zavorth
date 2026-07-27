@@ -40,8 +40,7 @@ async function main(): Promise<void> {
     liveIoPerformed: [...liveReceiptByTarget.values()].some(receiptHasLiveIo),
     confirmLiveIo,
     status: profile === 'staging-live' && !confirmLiveIo ? 'blocked-until-confirmed' : 'ready-for-operator',
-    reason: profile === 'staging-live' && !confirmLiveIo
-      ? 'staging-live Satellite/device proof requires --confirm-live-io before local device state is touched.'
+    reason: profile === 'staging-live' && !confirmLiveIo ? 'staging-live Satellite/device proof requires --confirm-live-io before local device state is touched.'
       : 'Intent model1 exposes governed Satellite/device pairing, heartbeat, invoke, approval and unsupported-native receipts.',
     entries: selected.map((entry) => ({
       targetId: entry.targetId,

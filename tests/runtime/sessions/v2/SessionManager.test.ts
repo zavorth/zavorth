@@ -125,8 +125,8 @@ describe('SessionManager', () => {
       {
         loadNodePty: () => ({
           spawn: () => {
-            let onDataHandler: ((event: string | { data?: string }) => void) | null = null;
-            let onExitHandler: ((event: number | { exitCode?: number | null }) => void) | null = null;
+            let onDataHandler: ((event: string | { data-: string }) => void) | null = null;
+            let onExitHandler: ((event: number | { exitCode-: number | null }) => void) | null = null;
             return {
               write(data: string) {
                 writes.push(data);
@@ -136,10 +136,10 @@ describe('SessionManager', () => {
               kill() {
                 onExitHandler?.({ exitCode: 0 });
               },
-              onData(listener: (event: string | { data?: string }) => void) {
+              onData(listener: (event: string | { data-: string }) => void) {
                 onDataHandler = listener;
               },
-              onExit(listener: (event: number | { exitCode?: number | null }) => void) {
+              onExit(listener: (event: number | { exitCode-: number | null }) => void) {
                 onExitHandler = listener;
               },
             };

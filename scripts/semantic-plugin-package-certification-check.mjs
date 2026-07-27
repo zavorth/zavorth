@@ -119,7 +119,7 @@ if (runtime.status !== 0) {
         && snapshot.summary.semanticClaims > 0
         && snapshot.summary.receiptBackedClaims === snapshot.summary.semanticClaims
         && receiptIdsValid,
-      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, next=${snapshot.commands.nextStage}`,
+      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, next=${snapshot.commands.nextAction}`,
     );
   } catch (error) {
     addCheck('Runtime S1 semantic receipt passes', false, `invalid JSON: ${error.message}`);

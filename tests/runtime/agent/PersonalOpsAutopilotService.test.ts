@@ -79,7 +79,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
         entries: [
           {
             artifactId: 'artifact-plan',
-            title: 'Plano reutilizavel',
+            title: 'Reusable plan',
           },
         ],
       },

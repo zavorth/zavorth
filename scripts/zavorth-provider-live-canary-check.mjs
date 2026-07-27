@@ -31,7 +31,7 @@ function ruleFilesExist() {
     'tests/services/ZavorthProviderLiveCanaryService.test.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('provider-live-canary-files', 'Provider live canary files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, script and tests', missing);
+  return rule('provider-live-canary-files', 'Provider live canary files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, script and tests', missing);
 }
 
 function ruleMarkers() {
@@ -76,5 +76,5 @@ function rule(id, label, passed, observed, target, details = []) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 10);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 10);
 }

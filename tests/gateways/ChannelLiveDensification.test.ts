@@ -23,7 +23,7 @@ describe('Priority channel live densification', () => {
     return policyManager;
   }
 
-  function baseOptions(fetchImpl?: typeof fetch) {
+  function baseOptions(fetchImpl-: typeof fetch) {
     return {
       eventBus: new GatewayEventBus(),
       policyManager: openPolicy(),
@@ -32,7 +32,7 @@ describe('Priority channel live densification', () => {
   }
 
   it('Discord parses interaction/message shapes and posts via Bot API when configured', async () => {
-    const fetchImpl = jest.fn(async (url: any, init?: any) => {
+    const fetchImpl = jest.fn(async (url: any, init-: any) => {
       expect(String(url)).toContain('/channels/chan-1/messages');
       const headers = init?.headers || {};
       const auth = headers.authorization || headers.Authorization || '';

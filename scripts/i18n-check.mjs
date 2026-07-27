@@ -199,7 +199,7 @@ function main() {
       console.log('\nKeys present in en-US but missing in pt-BR:');
       for (const k of missingInPtBr.slice(0, 50)) console.log(`  - ${k}`);
       if (missingInPtBr.length > 50) {
-        console.log(`  ... and ${missingInPtBr.length - 50} more`);
+        console.log(`  ? and ${missingInPtBr.length - 50} more`);
       }
     }
 

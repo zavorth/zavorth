@@ -16,7 +16,7 @@ const artifact: ArtifactRecord = {
   path: 'C:/repo/report.md',
   url: null,
   mimeType: 'text/markdown',
-  summary: 'Relatorio gerado',
+  summary: 'Report gerado',
   description: null,
   previewText: '# Report',
   sizeBytes: 128,

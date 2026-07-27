@@ -12,7 +12,7 @@ describe('UniversalIntentTrustEnforcementService Channel mesh4', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-uni-trust',
-      text: 'aplique um patch em src/app.ts',
+      text: 'apply a patch to src/app.ts',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['write_file'],
       metadata: {

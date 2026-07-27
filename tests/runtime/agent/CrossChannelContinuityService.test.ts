@@ -12,7 +12,7 @@ describe('CrossChannelContinuityService Channel mesh1', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cross-channel',
-      text: 'continue esta sessao no telegram',
+      text: 'continue esta session no telegram',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {
@@ -38,7 +38,7 @@ describe('CrossChannelContinuityService Channel mesh1', () => {
             id: 'handoff:web-to-telegram',
             fromChannel: 'web',
             toChannel: 'telegram',
-            reason: 'Operador quer acompanhar pelo Telegram.',
+            reason: 'Operador quer track pelo Telegram.',
             requiresApproval: true,
           },
         ],

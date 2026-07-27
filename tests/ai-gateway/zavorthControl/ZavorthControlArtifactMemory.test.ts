@@ -31,7 +31,7 @@ describe('ZavorthControl Artifact Memory Artifact Memory', () => {
     run.artifacts = [
       {
         id: 'artifact-cc-plan',
-        title: 'Plano ZavorthControl',
+        title: 'ZavorthControl plan',
         kind: 'plan',
         createdAt: run.updatedAt,
         status: 'ready',
@@ -83,7 +83,7 @@ describe('ZavorthControl Artifact Memory Artifact Memory', () => {
         artifacts: [
           {
             id: 'artifact-projection-report',
-            title: 'Relatorio projetado',
+            title: 'Report projetado',
             kind: 'report',
             createdAt: '2026-05-04T00:39:00.000Z',
             status: 'ready',

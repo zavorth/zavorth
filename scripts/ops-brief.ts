@@ -24,6 +24,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(`[ops-brief] falha: ${error.message || error}`);
+  console.error(`[ops-brief] failure: ${error.message || error}`);
   process.exitCode = 1;
 });

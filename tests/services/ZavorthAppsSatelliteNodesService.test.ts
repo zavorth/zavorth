@@ -49,7 +49,7 @@ describe('ZavorthAppsSatelliteNodesService', () => {
     expect(snapshot.pairing.status).toBe('preview');
     expect(snapshot.pairing.materialized).toBe(false);
     expect(snapshot.pairing.setupCode).toMatch(/^ZA-[A-Z0-9_-]{12}$/);
-    expect(snapshot.pairing.qrPayload).toContain('zavorth://pair?code=');
+    expect(snapshot.pairing.qrPayload).toContain('zavorth://pair-code=');
     expect(snapshot.pairing.noRawTokenSerialized).toBe(true);
     expect(snapshot.pairing.ttlSeconds).toBe(120);
   });

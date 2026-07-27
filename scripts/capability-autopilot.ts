@@ -46,7 +46,7 @@ const requirePass = argv.includes('--require-pass') || argv.includes('--gate');
 const capabilityId = (() => { try { return requireAutopilotCapabilityId(typeof argv !== 'undefined' ? argv : process.argv.slice(2)); } catch (error) { process.stderr.write('[' + 'capability-autopilot' + '] ' + (error instanceof Error ? error.message : String(error)) + '\n'); process.exit(1); return ''; } })();
 
 main().catch((error) => {
-  process.stderr.write(`[capability-autopilot] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(`[capability-autopilot] failure: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 });
 
@@ -121,7 +121,7 @@ function buildSnapshot(
       stage: '61',
       title: 'Capability Autopilot Approved Repair Runner',
       reason:
-        'Depois do preflight, diagnostico, plano, receipt e mapeamento de permissao, o proximo passo e executar reparos somente apos aprovacao explicita.',
+        'After preflight, diagnosis, plan, receipt and permission mapping, the next step is to execute repairs only after explicit approval.',
     },
   };
 }
@@ -135,49 +135,46 @@ function buildChecks(
 
   checks.push(check(
     'capability-autopilot:descriptor',
-    'capability reconhecida',
+    'capability recognized',
     receipt.capabilityId !== 'unknown' ? 'pass' : 'fail',
     receipt.capabilityId !== 'unknown'
-      ? 'O autopilot conseguiu resolver a capability solicitada.'
-      : 'O autopilot precisa receber uma capability conhecida.',
+      ? 'The autopilot was able to resolve the requested capability.'
+      : 'The autopilot needs to receive a known capability.',
     [`capability=${receipt.capabilityId}`, `label=${receipt.capabilityLabel}`],
   ));
 
   checks.push(check(
     'capability-autopilot:readiness',
-    'readiness gerado',
+    'readiness generated',
     receipt.readiness ? 'pass' : 'fail',
-    receipt.readiness
-      ? 'O preflight produziu snapshot de readiness sem executar reparo.'
-      : 'O preflight precisa produzir readiness antes de diagnosticar.',
+    receipt.readiness ? 'The preflight produced a readiness snapshot without executing repair.'
+      : 'The preflight needs to produce readiness before diagnosing.',
     [
-      `status=${receipt.readiness?.status || '<ausente>'}`,
-      `safeToRun=${String(receipt.readiness?.safeToRun ?? '<ausente>')}`,
+      `status=${receipt.readiness?.status || '<absent>'}`,
+      `safeToRun=${String(receipt.readiness?.safeToRun ?? '<absent>')}`,
     ],
   ));
 
   checks.push(check(
     'capability-autopilot:diagnosis',
-    'diagnostico classificado',
+    'diagnosis classified',
     receipt.diagnosis ? 'pass' : 'fail',
-    receipt.diagnosis
-      ? 'O readiness foi traduzido em causa operacional e narrativa.'
-      : 'O autopilot precisa diagnosticar readiness antes de propor reparo.',
+    receipt.diagnosis ? 'The readiness was translated into operational cause and narrative.'
+      : 'The autopilot needs to diagnose readiness before proposing repair.',
     [
-      `failure=${receipt.diagnosis?.failureKind || '<ausente>'}`,
-      `confidence=${String(receipt.diagnosis?.confidence ?? '<ausente>')}`,
+      `failure=${receipt.diagnosis?.failureKind || '<absent>'}`,
+      `confidence=${String(receipt.diagnosis?.confidence ?? '<absent>')}`,
     ],
   ));
 
   checks.push(check(
     'capability-autopilot:repair-plan',
-    'plano preview-first',
+    'preview-first plan',
     repairPlan ? 'pass' : 'fail',
-    repairPlan
-      ? 'O autopilot gerou plano de reparo em modo declarativo.'
-      : 'O autopilot precisa gerar repair plan antes de pedir permissao.',
+    repairPlan ? 'The autopilot generated a repair plan in declarative mode.'
+      : 'The autopilot needs to generate a repair plan before requesting permission.',
     [
-      `status=${repairPlan?.status || '<ausente>'}`,
+      `status=${repairPlan?.status || '<absent>'}`,
       `steps=${String(repairPlan?.steps.length ?? 0)}`,
       `permissions=${String(repairPlan?.permissionRequirements.length ?? 0)}`,
     ],
@@ -186,11 +183,11 @@ function buildChecks(
   const executableSteps = repairPlan?.steps.filter((step) => Boolean(step.command)) || [];
   checks.push(check(
     'capability-autopilot:preview-only',
-    'sem comando invisivel',
+    'no hidden command',
     executableSteps.length === 0 ? 'pass' : 'fail',
     executableSteps.length === 0
-      ? 'O gate de preflight diagnosis so propõe plano/receipt; nenhum comando de reparo fica armado para execucao.'
-      : 'Repair steps deste gate nao devem carregar comandos executaveis.',
+      ? 'The preflight diagnosis gate only proposes plan/receipt; no repair command is armed for execution.'
+      : 'Repair steps of this gate should not carry executable commands.',
     executableSteps.map((step) => step.id),
   ));
 
@@ -198,13 +195,11 @@ function buildChecks(
   const hasPermissionRequirements = Boolean(repairPlan?.permissionRequirements.length);
   checks.push(check(
     'capability-autopilot:permission-mapping',
-    'permissao contextual mapeada',
-    approvalRequired === hasPermissionRequirements && mappings.length === (repairPlan?.permissionRequirements.length || 0)
-      ? 'pass'
+    'contextual permission mapped',
+    approvalRequired === hasPermissionRequirements && mappings.length === (repairPlan?.permissionRequirements.length || 0) ? 'pass'
       : 'fail',
-    approvalRequired
-      ? 'Planos que exigem aprovacao carregam requirements mapeados para o ledger existente.'
-      : 'Planos sem aprovacao obrigatoria nao criam pedido de permissao artificial.',
+    approvalRequired ? 'Plans that require approval carry requirements mapped to the existing ledger.'
+      : 'Plans without mandatory approval do not create artificial permission requests.',
     [
       `approvalRequired=${String(approvalRequired)}`,
       `requirements=${String(repairPlan?.permissionRequirements.length || 0)}`,
@@ -214,11 +209,10 @@ function buildChecks(
 
   checks.push(check(
     'capability-autopilot:receipt',
-    'receipt auditavel',
+    'auditable receipt',
     receipt.metadata?.readOnly === true && Boolean(receipt.timeline.length) ? 'pass' : 'fail',
-    receipt.metadata?.readOnly === true
-      ? 'O receipt preserva trilha auditavel e declara modo read-only.'
-      : 'O receipt precisa ser auditavel e read-only nesta etapa.',
+    receipt.metadata?.readOnly === true ? 'The receipt preserves an auditable trail and declares read-only mode.'
+      : 'The receipt needs to be auditable and read-only at this stage.',
     [
       `stage=${receipt.stage}`,
       `timeline=${String(receipt.timeline.length)}`,
@@ -262,7 +256,7 @@ function renderReport(snapshot: CapabilityAutopilotGateSnapshot): string {
     }
   }
   lines.push('');
-  lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
+  lines.push(`recommended next step: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
   lines.push(snapshot.nextRecommendedStage.reason);
   return lines.join('\n');
 }

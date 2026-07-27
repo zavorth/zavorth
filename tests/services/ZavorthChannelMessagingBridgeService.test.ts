@@ -29,7 +29,7 @@ describe('ZavorthChannelMessagingBridgeService Credential vault', () => {
       sourceRuntimeCodeExecuted: false,
       liveOutboundSendPerformed: false,
     }));
-    expect(snapshot.commands.nextStage).toBe('291 Runtime gateway - Sessions, Memory, And Continuation');
+    expect(snapshot.commands.nextAction).toBe('Runtime gateway - Sessions, Memory, And Continuation');
   });
 
   it('normalizes channel descriptors without adopting source identity', () => {
@@ -198,7 +198,7 @@ describe('ZavorthChannelMessagingBridgeService Credential vault', () => {
       channelId: 'zavorth.channel.telegram.main',
       sessionId: 'zavorth.session.main',
       targetRef: 'operator',
-      text: 'Mensagem arriscada',
+      text: 'Risky message',
       risk: 'high',
       approvalGranted: false,
     });
@@ -261,7 +261,7 @@ describe('ZavorthChannelMessagingBridgeService Credential vault', () => {
     expect(text).toContain('Reply packets built: 1');
     expect(text).toContain('Raw credentials stored: 0');
     expect(text).toContain('Direct channel sends: 0');
-    expect(text).toContain('Next: 291 Runtime gateway - Sessions, Memory, And Continuation');
+    expect(text).toContain('Next: Runtime gateway - Sessions, Memory, And Continuation');
   });
 });
 

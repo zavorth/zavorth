@@ -3,7 +3,7 @@ import { spawnSync } from 'child_process';
 import { config } from '../src/config/index.js';
 import { asErrorLike } from '../src/utils/errorLike';
 
-type SmokeStatus = 'PASSOU' | 'FALHOU' | 'PULADO' | 'AVISO';
+type SmokeStatus = 'PASSED' | 'failed' | 'SKIPPED' | 'WARNING';
 
 type SmokeResult = {
   name: string;
@@ -140,13 +140,13 @@ function ensureHostStarted(): void {
       windowsHide: true,
     });
   if (result.error) {
-    throw new Error(`ops:up nao concluiu: ${result.error.message}`);
+    throw new Error(`ops:up did not complete: ${result.error.message}`);
   }
   if (typeof result.status === 'number' && result.status !== 0) {
-    throw new Error(`ops:up falhou com codigo ${result.status}.`);
+    throw new Error(`ops:up failed with code ${result.status}.`);
   }
   if (result.status === null) {
-    throw new Error('ops:up nao retornou status dentro do timeout de 90s.');
+    throw new Error('ops:up did not return status within the 90s timeout.');
   }
 }
 
@@ -207,7 +207,7 @@ async function smokeHtmlShell(baseUrl: string): Promise<SmokeResult> {
       {
         label: 'dashboard gateway',
         markers: [
-          'Local gateway ready',
+          'local gateway ready',
           'Ask normally. Zavorth will answer, preview risky work, and ask before acting.',
           'Review this workspace safely',
           'Inbox',
@@ -222,20 +222,20 @@ async function smokeHtmlShell(baseUrl: string): Promise<SmokeResult> {
       const missingByShell = acceptedShells
         .map((shell) => `${shell.label}: ${shell.markers.filter((marker) => !html.includes(marker)).join(', ')}`)
         .join(' | ');
-      throw new Error(`HTML sem elementos esperados (${missingByShell})`);
+      throw new Error(`HTML without elementos esperados (${missingByShell})`);
     }
 
-    return makeResult('Dashboard shell', 'PASSOU', `HTML principal do /dashboard carregou o shell ${matchedShell.label}.`);
+    return makeResult('Dashboard shell', 'PASSED', `Main /dashboard HTML loaded the ${matchedShell.label} shell.`);
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
-    return makeResult('Dashboard shell', 'FALHOU', error?.message || String(error));
+    return makeResult('Dashboard shell', 'failed', error?.message || String(error));
   }
 }
 
 async function smokeAuth(baseUrl: string, token: string): Promise<SmokeResult> {
   if (!token) {
-    return makeResult('Auth web', 'PULADO', 'Sem token resolvido para validar autenticacao.', false);
+    return makeResult('Auth web', 'SKIPPED', 'without token resolved for authentication validation.', false);
   }
 
   try {
@@ -249,11 +249,11 @@ async function smokeAuth(baseUrl: string, token: string): Promise<SmokeResult> {
       throw new Error(payload.error || `status ${response.status}`);
     }
 
-    return makeResult('Auth web', 'PASSOU', 'Token validado com sucesso.');
+    return makeResult('Auth web', 'PASSED', 'Token validated successfully.');
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
-    return makeResult('Auth web', 'FALHOU', error?.message || String(error));
+    return makeResult('Auth web', 'failed', error?.message || String(error));
   }
 }
 
@@ -269,16 +269,16 @@ async function smokeHostStatus(baseUrl: string, token: string): Promise<SmokeRes
 
     const localReady = Boolean(payload?.readiness?.local?.ready);
     const remoteReady = Boolean(payload?.readiness?.remote?.ready);
-    const authorization = String(payload?.authorization?.status || 'desconhecida');
+    const authorization = String(payload?.authorization?.status || 'unknown');
     return makeResult(
       'Host status',
-      'PASSOU',
-      `Host respondeu; autorizacao ${authorization}; local ${localReady ? 'pronto' : 'pendente'}; remoto ${remoteReady ? 'pronto' : 'pendente'}.`,
+      'PASSED',
+      `Host responded; authorization ${authorization}; local ${localReady ? 'ready' : 'pending'}; remote ${remoteReady ? 'ready' : 'pending'}.`,
     );
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
-    return makeResult('Host status', 'FALHOU', error?.message || String(error));
+    return makeResult('Host status', 'failed', error?.message || String(error));
   }
 }
 
@@ -293,7 +293,7 @@ async function smokeSession(baseUrl: string, token: string): Promise<{ result: S
     }
 
     return {
-      result: makeResult('Sessao web', 'PASSOU', `Sessao ${String(payload.sessionId).slice(0, 8)} aberta com continuidade carregada.`),
+      result: makeResult('Session web', 'PASSED', `Session ${String(payload.sessionId).slice(0, 8)} opened with loaded continuity.`),
       sessionId: String(payload.sessionId),
       tasks: [],
       continuity: payload.continuity || null,
@@ -302,7 +302,7 @@ async function smokeSession(baseUrl: string, token: string): Promise<{ result: S
     const err = asErrorLike(error);
 
     return {
-      result: makeResult('Sessao web', 'FALHOU', error?.message || String(error)),
+      result: makeResult('Session web', 'failed', error?.message || String(error)),
       sessionId: '',
       tasks: [],
       continuity: null,
@@ -324,14 +324,14 @@ async function smokeState(baseUrl: string, token: string, sessionId: string): Pr
     const tasks = Array.isArray(snapshot.tasks) ? snapshot.tasks : [];
     const messages = Array.isArray(snapshot.messages) ? snapshot.messages : [];
     return {
-      result: makeResult('Estado web', 'PASSOU', `${messages.length} mensagem(ns), ${tasks.length} task(s) e snapshot valido.`),
+      result: makeResult('Web state', 'PASSED', `${messages.length} message(s), ${tasks.length} task(s), and valid snapshot.`),
       tasks,
     };
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
     return {
-      result: makeResult('Estado web', 'FALHOU', error?.message || String(error)),
+      result: makeResult('Estado web', 'failed', error?.message || String(error)),
       tasks: [],
     };
   }
@@ -350,11 +350,11 @@ async function smokeCatalog(baseUrl: string, token: string, sessionId: string): 
 
     const commands = Array.isArray(catalog.commands) ? catalog.commands.length : 0;
     const suggestions = Array.isArray(catalog.suggestedActions) ? catalog.suggestedActions.length : 0;
-    return makeResult('Catalogo', 'PASSOU', `${commands} comando(s) e ${suggestions} sugestao(oes) disponiveis.`);
+    return makeResult('catalog', 'PASSED', `${commands} command(s) and ${suggestions} suggestion(s) available.`);
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
-    return makeResult('Catalogo', 'FALHOU', error?.message || String(error));
+    return makeResult('catalog', 'failed', error?.message || String(error));
   }
 }
 
@@ -386,12 +386,12 @@ function collectPreviewCandidate(tasks: any[]): PreviewCandidate | null {
 async function smokePreview(baseUrl: string, token: string, tasks: any[]): Promise<SmokeResult> {
   const candidate = collectPreviewCandidate(tasks);
   if (!candidate) {
-    return makeResult('Preview arquivo', 'PULADO', 'Nenhum arquivo com caminho disponivel para preview.', false);
+    return makeResult('File preview', 'SKIPPED', 'No file with available path for preview.', false);
   }
 
   try {
     const response = await fetchWithTimeout(
-      `${baseUrl}/api/web/file-preview?path=${encodeURIComponent(candidate.path)}`,
+      `${baseUrl}/api/web/file-preview...path=${encodeURIComponent(candidate.path)}`,
       { headers: authHeaders(token) },
       8000,
     );
@@ -402,16 +402,15 @@ async function smokePreview(baseUrl: string, token: string, tasks: any[]): Promi
 
     const previewText = String(payload.preview.text || payload.preview.previewText || '').trim();
     return makeResult(
-      'Preview arquivo',
-      'PASSOU',
-      previewText
-        ? `Preview carregado para ${candidate.label}.`
-        : `Preview respondeu para ${candidate.label}.`,
+      'File preview',
+      'PASSED',
+      previewText ? `Preview loaded para ${candidate.label}.`
+        : `Preview responded for ${candidate.label}.`,
     );
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
-    return makeResult('Preview arquivo', 'AVISO', error?.message || String(error), false);
+    return makeResult('File preview', 'WARNING', error?.message || String(error), false);
   }
 }
 
@@ -430,11 +429,11 @@ async function smokeEvents(baseUrl: string, token: string, sessionId: string): P
       throw new Error(`content-type inesperado: ${contentType || 'vazio'}`);
     }
 
-    return makeResult('Stream SSE', 'PASSOU', 'Endpoint SSE respondeu com content-type correto.');
+    return makeResult('Stream SSE', 'PASSED', 'SSE endpoint responded with the correct content-type.');
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
-    return makeResult('Stream SSE', 'AVISO', error?.message || String(error), false);
+    return makeResult('Stream SSE', 'WARNING', error?.message || String(error), false);
   }
 }
 
@@ -448,13 +447,13 @@ async function run(): Promise<void> {
 
   let ready = await waitForAppShell(baseUrl, waitMs);
   if (!ready) {
-    console.log('Host ainda nao respondeu; tentando subir pelo caminho oficial.\n');
+    console.log('Host has not responded yet; trying the official startup path.\n');
     ensureHostStarted();
     baseUrl = await resolveBaseUrl(args.baseUrl || '');
     ready = await waitForAppShell(baseUrl, Math.max(waitMs, 60_000));
   }
   if (!ready) {
-    console.log(`Host nao respondeu em ${baseUrl}/dashboard dentro de ${waitMs}ms.\n`);
+    console.log(`Host did not respond at ${baseUrl}/dashboard within ${waitMs}ms.\n`);
   }
 
   const results: SmokeResult[] = [];
@@ -482,16 +481,16 @@ async function run(): Promise<void> {
     console.log(`${result.name.padEnd(18, ' ')} ${result.status.padEnd(6, ' ')} ${result.detail}`);
   }
 
-  const blockingFailures = results.filter((entry) => entry.required && entry.status === 'FALHOU');
+  const blockingFailures = results.filter((entry) => entry.required && entry.status === 'failed');
   if (blockingFailures.length) {
-    console.log('\nSmoke do app web terminou com falhas bloqueantes.');
+    console.log('\nWeb app smoke finished with blocking failures.');
     process.exit(1);
   }
 
-  console.log('\nSmoke do app web finalizado sem falhas bloqueantes.');
+  console.log('\nWeb app smoke finished without blocking failures.');
 }
 
 run().catch((error) => {
-  console.error('Falha inesperada no smoke do app web:', error);
+  console.error('Unexpected failure in web app smoke:', error);
   process.exit(1);
 });

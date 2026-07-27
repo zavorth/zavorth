@@ -94,7 +94,7 @@ describe('WorkspaceTaskMandateService', () => {
     expect(revLogs.length).toBeGreaterThan(0);
   });
 
-  it('mandato ativo impede fallback automático para Session Grant/Trusted Workspace quando ação viola targetDirectories', () => {
+  it('active mandate prevents automatic fallback to Session Grant/Trusted Workspace when action violates targetDirectories', () => {
     service.proposeMandate(workspaceId, {
       description: 'Test mandate',
       targetDirectories: [path.join(tempDir, 'src/components')],
@@ -120,7 +120,7 @@ describe('WorkspaceTaskMandateService', () => {
     expect(checkResult.reason).toContain('Cwd is outside mandate target directories');
   });
 
-  it('mandato ativo permite autoexecução quando dentro do escopo', () => {
+  it('active mandate allows auto-execution when within scope', () => {
     service.proposeMandate(workspaceId, {
       description: 'Test mandate',
       targetDirectories: [path.join(tempDir, 'src/components')],
@@ -144,7 +144,7 @@ describe('WorkspaceTaskMandateService', () => {
     expect(checkResult.blockFallback).toBe(true);
   });
 
-  it('mandato ativo impede fallback automático quando binary não está em allowedBinaries', () => {
+  it('active mandate prevents automatic fallback when binary is not in allowedBinaries', () => {
     service.proposeMandate(workspaceId, {
       description: 'Test mandate',
       targetDirectories: [path.join(tempDir, 'src')],
@@ -169,7 +169,7 @@ describe('WorkspaceTaskMandateService', () => {
     expect(checkResult.reason).toContain('not allowed by mandate');
   });
 
-  it('mandato ativo impede fallback automático quando operação não está em allowedOperations', () => {
+  it('active mandate prevents automatic fallback when operation is not in allowedOperations', () => {
     service.proposeMandate(workspaceId, {
       description: 'Test mandate',
       targetDirectories: [path.join(tempDir, 'src')],
@@ -193,7 +193,7 @@ describe('WorkspaceTaskMandateService', () => {
     expect(checkResult.blockFallback).toBe(true);
   });
 
-  it('filesystem.move não autoexecuta se não houver implementação segura', () => {
+  it('filesystem.move does not auto-execute if no safe implementation exists', () => {
     service.proposeMandate(workspaceId, {
       description: 'Test mandate',
       targetDirectories: [path.join(tempDir, 'src')],
@@ -217,7 +217,7 @@ describe('WorkspaceTaskMandateService', () => {
     expect(checkResult.reason).toContain('reserved but inactive');
   });
 
-  it('Date.now/Date.parse usado para expiração', () => {
+  it('Date.now/Date.parse used for expiration', () => {
     const active = service.proposeMandate(workspaceId, {
       description: 'Test mandate',
       targetDirectories: [path.join(tempDir, 'src')],
@@ -238,7 +238,7 @@ describe('WorkspaceTaskMandateService', () => {
     expect(parsedTime).toBeGreaterThan(Date.now());
   });
 
-  it('mandato não é reaproveitado por workspace diferente', () => {
+  it('mandate is not reused by a different workspace', () => {
     service.proposeMandate(workspaceId, {
       description: 'Test mandate',
       targetDirectories: [path.join(tempDir, 'src')],
@@ -254,7 +254,7 @@ describe('WorkspaceTaskMandateService', () => {
     expect(service.getActiveMandate('other-workspace')).toBeNull();
   });
 
-  it('revogar Trusted Workspace revoga mandato ativo', async () => {
+  it('revoking Trusted Workspace revokes active mandate', async () => {
     await trustService.grantTrust(workspaceId, tempDir, {
       allowRiskUpTo: 'MEDIUM',
       allowPackageInstall: true,

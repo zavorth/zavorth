@@ -48,7 +48,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'checkpoint-2-files',
+    id: 'gate-2-files',
     label: 'Preview engine native engine files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
@@ -79,14 +79,14 @@ function ruleContainsMarkers() {
     ]],
     ['docs/README.md', [
       'native-engine-ready',
-      '291 Approval gate - Sidecar Adapter',
+      'Approval gate - Sidecar Adapter',
       'Zavorth Native Engine Absorption',
     ]],
     ['docs/README.md', [
       'native-engine-absorption-complete',
       'Zavorth Native Engine Absorption',
       'no source runtime dependency',
-      '291 Approval gate - Sidecar Adapter',
+      'Approval gate - Sidecar Adapter',
     ]],
     ['package.json', [
       'zavorth:native-engine-absorption',
@@ -105,7 +105,7 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'checkpoint-2-markers',
+    id: 'gate-2-markers',
     label: 'Preview engine native engine markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
@@ -166,7 +166,7 @@ function runNativeEngineBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousContractLayerStatus === 'blocked';
   return {
-    id: 'checkpoint-2-blocked-fixture',
+    id: 'gate-2-blocked-fixture',
     label: 'Native engine blocks without Intent model readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, contractLayer=${snapshot.previousContractLayerStatus}` : `exit ${result.status}`,

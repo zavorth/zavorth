@@ -1,0 +1,193 @@
+import { readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+
+const root = process.cwd();
+
+function read(rel: string): string {
+  return readFileSync(join(root, rel), 'utf8');
+}
+
+describe('Dashboard React surfaces', () => {
+  it('ships React islands for Work / Review / Proof in the Vite shell', () => {
+    const islands = read('apps/zavorth-control-vite-shell/src/react/DashboardReactIslands.tsx');
+    const mount = read('apps/zavorth-control-vite-shell/src/react/mountDashboardReactIslands.ts');
+    const pages = read('apps/zavorth-control-vite-shell/src/pages.ts');
+    const registry = read('apps/zavorth-control-vite-shell/src/dashboard-surface-registry.ts');
+
+    expect(islands).toContain('WorkOverviewIsland');
+    expect(islands).toContain('ReviewApprovalsIsland');
+    expect(islands).toContain('ProofReceiptsIsland');
+    expect(islands).toContain('data-react-dashboard-island');
+    expect(islands).toContain('data-dashboard-runtime-title');
+    expect(islands).toContain('data-sales-os-metric="approvals"');
+    expect(islands).toContain('data-receipts-list');
+
+    expect(mount).toContain('mountDashboardReactIslands');
+    expect(mount).toContain('renderToStaticMarkup');
+
+    expect(pages).toContain("from './react/mountDashboardReactIslands'");
+    expect(pages).toContain('mountDashboardReactIslands()');
+    // HTML string populate for those three should be gone
+    expect(pages).not.toMatch(/populate\('sector-overview'/);
+    expect(pages).not.toMatch(/populate\('sector-sales-os'/);
+    expect(pages).not.toMatch(/populate\('sector-instances'/);
+
+    expect(registry).toContain('DASHBOARD_REACT_ISLAND_SECTOR_IDS');
+    expect(registry).toContain('overview');
+    expect(registry).toContain('sales-os');
+    expect(registry).toContain('instances');
+  });
+
+  it('exposes Channels, Sessions, and Cron islands', () => {
+    const islands = read('apps/zavorth-control-vite-shell/src/react/DashboardReactIslands.tsx');
+    const pages = read('apps/zavorth-control-vite-shell/src/pages.ts');
+    const registry = read('apps/zavorth-control-vite-shell/src/dashboard-surface-registry.ts');
+
+    expect(islands).toContain('ChannelsIsland');
+    expect(islands).toContain('SessionsIsland');
+    expect(islands).toContain('CronIsland');
+    expect(islands).toContain('data-react-dashboard-island="channels"');
+    expect(islands).toContain('data-react-dashboard-island="sessions"');
+    expect(islands).toContain('data-react-dashboard-island="cron"');
+    expect(islands).toContain('sector-channels');
+    expect(islands).toContain('sector-sessions');
+    expect(islands).toContain('sector-cron');
+    // Runtime-bridge / live-view hooks preserved
+    expect(islands).toContain('data-session-search');
+    expect(islands).toContain('data-sessions-table');
+    expect(islands).toContain('data-dashboard-prompt');
+    expect(islands).not.toContain('data-zavorthControl-prompt');
+    expect(islands).toContain('data-dashboard-sector');
+    expect(islands).not.toContain('data-zavorthControl-sector');
+    expect(islands).toContain('card-grid');
+
+    // HTML string populate removed for the three new sectors
+    expect(pages).not.toMatch(/populate\('sector-channels'/);
+    expect(pages).not.toMatch(/populate\('sector-sessions'/);
+    expect(pages).not.toMatch(/populate\('sector-cron'/);
+
+    expect(registry).toContain("'channels'");
+    expect(registry).toContain("'sessions'");
+    expect(registry).toContain("'cron'");
+  });
+
+  it('exposes Agents, Skills, and Config islands', () => {
+    const islands = read('apps/zavorth-control-vite-shell/src/react/DashboardReactIslands.tsx');
+    const pages = read('apps/zavorth-control-vite-shell/src/pages.ts');
+    const registry = read('apps/zavorth-control-vite-shell/src/dashboard-surface-registry.ts');
+
+    expect(islands).toContain('AgentsIsland');
+    expect(islands).toContain('SkillsIsland');
+    expect(islands).toContain('ConfigIsland');
+    expect(islands).toContain('data-react-dashboard-island="agents"');
+    expect(islands).toContain('data-react-dashboard-island="skills"');
+    expect(islands).toContain('data-react-dashboard-island="config"');
+    expect(islands).toContain('sector-agents');
+    expect(islands).toContain('sector-skills');
+    expect(islands).toContain('sector-config');
+
+    // Agents runtime-adapter hooks
+    expect(islands).toContain('data-runtime-adapter-action');
+    expect(islands).toContain('data-runtime-adapter-metric');
+    expect(islands).toContain('data-runtime-adapter-register-form');
+    expect(islands).toContain('data-runtime-adapter-profile-select');
+    expect(islands).toContain('data-runtime-adapter-prompt');
+    expect(islands).not.toContain('data-runtime-adapter-approve-execution');
+    expect(islands).toContain('data-runtime-adapter-receipt-status');
+    expect(islands).toContain('data-runtime-adapter-grid');
+
+    // Skills hooks
+    expect(islands).toContain('data-skill-search');
+    expect(islands).toContain('data-skill-filter');
+    expect(islands).not.toContain('data-skill-row');
+    expect(islands).toContain('data-tools-live-ready');
+    expect(islands).toContain('premium-skill-list');
+    expect(read('apps/zavorth-control-vite-shell/src/runtime-bridge.ts')).toContain('data-skill-row');
+
+    // Config / settings hooks
+    expect(islands).toContain('data-zavorth-locale-select');
+    expect(islands).toContain('data-zavorth-locale-apply');
+    expect(islands).toContain('data-runtime-engine-active');
+    expect(islands).toContain('data-runtime-engine-cards');
+    expect(islands).toContain('data-trusted-workspace-form');
+    expect(islands).toContain('data-trusted-workspaces-list');
+    expect(islands).toContain('model-preference-form');
+    expect(islands).toContain('data-provider-model-catalog-summary');
+    expect(islands).not.toContain('zavorth-config-editor-textarea');
+    expect(islands).not.toContain('SettingsLinkRow');
+    expect(islands).not.toContain('Configured route');
+
+    // Dual nav hooks on sector/prompt buttons
+    expect(islands).toContain('data-dashboard-sector');
+    expect(islands).not.toContain('data-zavorthControl-sector');
+    expect(islands).toContain('data-dashboard-prompt');
+    expect(islands).not.toContain('data-zavorthControl-prompt');
+
+    // HTML string populate removed for the three new sectors
+    expect(pages).not.toMatch(/populate\('sector-agents'/);
+    expect(pages).not.toMatch(/populate\('sector-skills'/);
+    expect(pages).not.toMatch(/populate\('sector-config'/);
+
+    expect(registry).toContain("'agents'");
+    expect(registry).toContain("'skills'");
+    expect(registry).toContain("'config'");
+  });
+
+  it('expands Next control shell inactive sectors to React surfaces', () => {
+    const shell = read('src/ai-gateway/app/(zavorthControl)/control/LegacyZavorthControlShell.tsx');
+    const surfaces = read('src/ai-gateway/app/(zavorthControl)/control/ZavorthControlSurfaces.tsx');
+
+    for (const name of [
+      'ReviewSurface',
+      'ProofSurface',
+      'ChannelsSurface',
+      'SessionsSurface',
+      'CronSurface',
+      'AgentsSurface',
+      'DocsSurface',
+      'WorkSurface',
+    ]) {
+      expect(shell).toContain(name);
+      expect(surfaces).toContain(`export function ${name}`);
+    }
+
+    // No longer injects HTML fragments for primary product sectors
+    expect(shell).not.toContain('sectors.salesOs');
+    expect(shell).not.toContain('sectors.instances');
+    expect(shell).not.toContain('sectors.channels');
+    expect(shell).not.toContain('sectors.sessions');
+    expect(shell).not.toContain('sectors.agents');
+    expect(shell).not.toContain('sectors.cron');
+    expect(shell).not.toContain('sectors.docs');
+
+    expect(surfaces).toContain('data-react-dashboard-island="overview"');
+    expect(surfaces).toContain('data-dashboard-runtime-title');
+    expect(surfaces).toContain('data-approvals-queue');
+    expect(surfaces).toContain('data-receipts-list');
+  });
+
+  it('keeps island source files present', () => {
+    expect(existsSync(join(root, 'apps/zavorth-control-vite-shell/src/react/DashboardReactIslands.tsx'))).toBe(true);
+    expect(existsSync(join(root, 'apps/zavorth-control-vite-shell/src/react/mountDashboardReactIslands.ts'))).toBe(true);
+  });
+
+  it('shows only runtime-backed operational state', () => {
+    const islands = read('apps/zavorth-control-vite-shell/src/react/DashboardReactIslands.tsx');
+    const bridge = read('apps/zavorth-control-vite-shell/src/runtime-bridge.ts');
+    const operations = read('apps/zavorth-control-vite-shell/src/runtime-operations-panels.ts');
+    const pages = read('apps/zavorth-control-vite-shell/src/pages.ts');
+
+    expect(islands).not.toContain('data-policy-simulator');
+    expect(pages).not.toContain('initPolicySimulatorUi');
+    expect(islands).not.toContain('>Configured route<');
+    expect(islands).not.toContain('>Lite<');
+    expect(islands).toContain('No receipts reported by the runtime.');
+    expect(islands).toContain('No sessions reported by the runtime.');
+    expect(bridge).not.toContain("title: 'Review workspace'");
+    expect(bridge).toContain('No skills or tools were reported by the runtime.');
+    expect(operations).not.toContain('<td class="mono">workflow queue</td>');
+    expect(operations).toContain('data-cron-live-jobs');
+    expect(bridge).toContain('/api/web/zavorth-runtime-adapters/challenges');
+    expect(bridge).not.toContain('approvalGranted: !preview');
+  });
+});

@@ -63,7 +63,7 @@ async function main(): Promise<void> {
 
     const db = await Database.getInstance();
     const telemetry = db.get<{ status: string; use_count: number; pinned: number }>(
-      `SELECT status, use_count, pinned FROM zavorth_skills_telemetry WHERE skill_id = ?`,
+      `SELECT status, use_count, pinned FROM zavorth_skills_telemetry WHERE skill_id = ...`,
       [skillId],
     );
     if (!telemetry || telemetry.status !== 'active') {
@@ -90,7 +90,7 @@ async function cleanup(): Promise<void> {
     const dbPath = path.dirname(config.dbPath);
     if (fs.existsSync(dbPath)) {
       const db = await Database.getInstance();
-      db.run(`DELETE FROM zavorth_skills_telemetry WHERE skill_id = ?`, [skillId]);
+      db.run(`DELETE FROM zavorth_skills_telemetry WHERE skill_id = ...`, [skillId]);
     }
   } catch {
     // Best-effort cleanup only.

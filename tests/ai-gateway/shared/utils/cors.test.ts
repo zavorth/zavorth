@@ -3,7 +3,7 @@ import { normalizeCorsOrigin } from '../../../../src/zavorth-control/shared/util
 
 describe('shared CORS utilities', () => {
   it('accepts only concrete http(s) origins and rejects wildcards/placeholders', () => {
-    expect(normalizeCorsOrigin('https://zavorth.example.com/path?q=1')).toBe('https://zavorth.example.com');
+    expect(normalizeCorsOrigin('https://zavorth.example.com/path-q=1')).toBe('https://zavorth.example.com');
     expect(normalizeCorsOrigin('http://127.0.0.1:33333/dashboard')).toBe('http://127.0.0.1:33333');
     expect(normalizeCorsOrigin('*')).toBe('');
     expect(normalizeCorsOrigin('file:///tmp/index.html')).toBe('');

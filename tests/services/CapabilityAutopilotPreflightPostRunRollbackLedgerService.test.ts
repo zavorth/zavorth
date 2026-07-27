@@ -28,8 +28,8 @@ const readiness: CapabilityReadinessSnapshot = {
   severity: 'error',
   ready: false,
   safeToRun: false,
-  summary: 'Gemini CLI ainda nao esta pronto.',
-  detail: 'Autenticacao ausente.',
+  summary: 'Gemini CLI ainda not esta ready.',
+  detail: 'Autenticaction missing.',
   checkedTargets: [],
   missingRequirements: [],
   blockingReason: 'missing_auth',
@@ -78,14 +78,13 @@ function createHint(
     capabilityId: 'executor-gemini-cli',
     status: 'hint_available',
     hintKind,
-    readiness: hintKind === 'ready'
-      ? {
+    readiness: hintKind === 'ready' ? {
         ...readiness,
         status: 'ready',
         severity: 'info',
         ready: true,
         safeToRun: true,
-        summary: 'Gemini CLI esta pronto.',
+        summary: 'Gemini CLI esta ready.',
         blockingReason: null,
       }
       : readiness,
@@ -102,13 +101,13 @@ function createHint(
       bestMatch: null,
       shouldPreloadHint: true,
       recommendedNextAction,
-      safeSummary: 'Memoria procedural redigida. Nada deve ser executado automaticamente.',
+      safeSummary: 'Procedural memory redacted. Nothing should run automatically.',
       metadata: {
         autoExecute: false,
       },
     },
     headline: 'Preflight conhecido.',
-    userSummary: 'Existe uma dica de preflight, mas nada sera executado automaticamente.',
+    userSummary: 'There is a preflight hint, but nothing will execute automatically.',
     technicalSummary: `preflightHint=hint_available; hintKind=${hintKind}; autoExecute=false`,
     recommendedNextAction,
     shouldAskPermission: hintKind === 'permission' || hintKind === 'fallback' || hintKind === 'repair',
@@ -156,11 +155,11 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
 async function createControlledSnapshot(
   hint: CapabilityPreflightHintResult,
   options: {
-    adapter?: CapabilityPreflightControlledRealApplyAdapter | null;
-    controlledExecutionConfirmed?: boolean;
-    budgetLocked?: boolean;
-    rollbackPlanApproved?: boolean;
-    auditSinkReady?: boolean;
+    adapter-: CapabilityPreflightControlledRealApplyAdapter | null;
+    controlledExecutionConfirmed-: boolean;
+    budgetLocked-: boolean;
+    rollbackPlanApproved-: boolean;
+    auditSinkReady-: boolean;
   } = {},
 ) {
   const actionHandlerService = new CapabilityAutopilotPreflightActionHandlerService({
@@ -393,6 +392,6 @@ describe('CapabilityAutopilotPreflightPostRunRollbackLedgerService', () => {
       },
     });
     expect(service.renderReport(postRun)).toContain('Gate capability-autopilot-preflight-post-run-rollback - Real Apply Post-Run Verification And Rollback Ledger');
-    expect(service.renderReport(postRun)).toContain('proximo passo recomendada: 78 - Capability Autopilot v1.1 Beta Readiness Gate');
+    expect(service.renderReport(postRun)).toContain('next step recomendada: 78 - Capability Autopilot v1.1 Beta Readiness Gate');
   });
 });

@@ -152,7 +152,7 @@ class ZavorthFirstRunSetupWizard {
     }), 'First Light review');
 
     const confirmed = await p.confirm({
-      message: 'Apply this First Light setup now?',
+      message: 'Apply this First Light setup now...',
       initialValue: false,
     });
     if (p.isCancel(confirmed) || !confirmed) {
@@ -189,19 +189,19 @@ class ZavorthFirstRunSetupWizard {
 
   private async collectAnswers(): Promise<SetupStudioAnswers> {
     const preferredAddress = await this.text({
-      message: 'What should Zavorth call you?',
+      message: 'What should Zavorth call you...',
       initialValue: '',
       validate: (input) => String(input || '').trim() ? undefined : 'Enter the name Zavorth should use for you.',
     });
 
     const agentDisplayName = await this.text({
-      message: 'What should this workspace agent be called?',
+      message: 'What should this workspace agent be called...',
       initialValue: 'Zavorth',
       validate: (input) => String(input || '').trim() ? undefined : 'Enter a name for this agent.',
     });
 
     const tonePreference = await this.select<ZavorthFirstRunTonePreference>({
-      message: 'Which response style should Zavorth start with?',
+      message: 'Which response style should Zavorth start with...',
       options: [
         { value: 'conciso', label: 'Concise', hint: 'Short, direct, minimal extra detail.' },
         { value: 'equilibrado', label: 'Balanced', hint: 'Recommended default.' },
@@ -211,13 +211,13 @@ class ZavorthFirstRunSetupWizard {
     });
 
     const workspaceRoot = await this.text({
-      message: 'What is the main workspace?',
+      message: 'What is the main workspace...',
       initialValue: WORKSPACE_ROOT,
       validate: (input) => String(input || '').trim() ? undefined : 'Enter a workspace path.',
     });
 
     const providerId = await this.select<string>({
-      message: 'Which model provider should be prepared?',
+      message: 'Which model provider should be prepared...',
       options: ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS.map((provider) => ({
         value: provider.id,
         label: provider.label,
@@ -230,7 +230,7 @@ class ZavorthFirstRunSetupWizard {
     let modelId = provider.defaultModel;
     if (providerId !== 'deferred') {
       modelId = await this.text({
-        message: 'Which model should be the default for this provider?',
+        message: 'Which model should be the default for this provider...',
         initialValue: provider.defaultModel,
         validate: (input) => String(input || '').trim() ? undefined : 'Enter a model, or use model-not-selected.',
       });
@@ -239,7 +239,7 @@ class ZavorthFirstRunSetupWizard {
     let providerSecret: string | null = null;
     if (provider.needsSecret) {
       const shouldCaptureSecret = await p.confirm({
-        message: `Enter the ${provider.label} key now?`,
+        message: `Enter the ${provider.label} key now...`,
         initialValue: false,
       });
       if (p.isCancel(shouldCaptureSecret)) {
@@ -261,17 +261,17 @@ class ZavorthFirstRunSetupWizard {
     });
 
     const memoryMode = await this.select<ZavorthFirstRunMemoryMode>({
-      message: 'How should Mnemos local continuity work?',
+      message: 'How should Mnemos local continuity work...',
       options: [
         { value: 'off', label: 'Off', hint: 'Do not record continuity.' },
-        { value: 'local-metadata', label: 'Local metadata', hint: 'Conservative default.' },
-        { value: 'local-summary', label: 'Local summary', hint: 'Keeps compact continuity notes.' },
+        { value: 'local-metadata', label: 'local metadata', hint: 'Conservative default.' },
+        { value: 'local-summary', label: 'local summary', hint: 'Keeps compact continuity notes.' },
       ],
       initialValue: 'local-metadata',
     });
 
     const vaultScope = await this.select<SetupStudioAnswers['vaultScope']>({
-      message: 'Where may Mnemos look for documents?',
+      message: 'Where may Mnemos look for documents...',
       options: [
         { value: 'skip', label: 'Configure later', hint: 'No vault scope yet.' },
         { value: 'documents', label: 'Documents', hint: 'Your Documents folder.' },
@@ -284,17 +284,17 @@ class ZavorthFirstRunSetupWizard {
     const scanDirs = await this.collectMnemosScanDirs(vaultScope);
 
     const safetyPosture = await this.select<ZavorthFirstRunSafetyPosture>({
-      message: 'Which safety posture should be the default?',
+      message: 'Which safety posture should be the default...',
       options: [
         { value: 'preview-first', label: 'Preview first', hint: 'Shows a plan before acting.' },
         { value: 'approval-required', label: 'Approval required', hint: 'Asks for approval more often.' },
-        { value: 'local-only', label: 'Local only', hint: 'Avoids external surfaces by default.' },
+        { value: 'local-only', label: 'local only', hint: 'Avoids external surfaces by default.' },
       ],
       initialValue: 'preview-first',
     });
 
     const configureTelegram = await p.confirm({
-      message: 'Configure Telegram now?',
+      message: 'Configure Telegram now...',
       initialValue: false,
     });
     if (p.isCancel(configureTelegram)) {
@@ -309,7 +309,7 @@ class ZavorthFirstRunSetupWizard {
         validate: (input) => String(input || '').trim() ? undefined : 'Paste the token, or cancel to skip.',
       });
       telegramAllowedUserIds = await this.text({
-        message: 'Which user IDs may use the bot? Separate with commas.',
+        message: 'Which user IDs may use the bot... Separate with commas.',
         initialValue: '',
       });
     }
@@ -366,11 +366,11 @@ class ZavorthFirstRunSetupWizard {
         'Zavorth records this scope explicitly so you can review and revoke it later.',
       ].join('\n'), 'Broad Mnemos scope');
       const first = await p.confirm({
-        message: 'Allow broad Mnemos scanning?',
+        message: 'Allow broad Mnemos scanning...',
         initialValue: false,
       });
       const second = !p.isCancel(first) && first ? await p.confirm({
-        message: 'Final confirmation: register the whole PC as Mnemos scope?',
+        message: 'Final confirmation: register the whole PC as Mnemos scope...',
         initialValue: false,
       }) : false;
       if (p.isCancel(first) || p.isCancel(second) || !first || !second) {
@@ -399,7 +399,7 @@ class ZavorthFirstRunSetupWizard {
       return null;
     }
     const shouldTest = await p.confirm({
-      message: 'Run a small live provider test now?',
+      message: 'Run a small live provider test now...',
       initialValue: false,
     });
     if (p.isCancel(shouldTest) || !shouldTest) {
@@ -413,7 +413,7 @@ class ZavorthFirstRunSetupWizard {
         return validation;
       }
       const next = await p.select({
-        message: 'The live test failed. How should First Light continue?',
+        message: 'The live test failed. How should First Light continue...',
         options: [
           { value: 'retry', label: 'Retry', hint: 'Repeats the ping with the same key/model.' },
           { value: 'save', label: 'Save anyway', hint: 'Writes config and stores sanitized failure proof.' },

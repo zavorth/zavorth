@@ -111,7 +111,7 @@ describe('FinalCanaryReleaseClosureService Preview engine4', () => {
           observed: true,
         }),
         expect.objectContaining({
-          id: 'publication-and-promotion-held',
+          id: 'publiction-and-promotion-held',
           status: 'pass',
           observed: true,
         }),

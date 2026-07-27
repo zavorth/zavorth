@@ -52,7 +52,7 @@ describe('OperationalSecurityService', () => {
         return JSON.stringify({
           generatedAt: '2026-03-29T07:00:00.000Z',
           ok: true,
-          summary: 'Nenhum problema relevante detectado.',
+          summary: 'No problema relevante detectado.',
         });
       }
 
@@ -92,7 +92,7 @@ describe('OperationalSecurityService', () => {
         return JSON.stringify({
           generatedAt: '2026-03-29T08:00:00.000Z',
           ok: false,
-          summary: '1 bloqueio(s) e 0 aviso(s) detectados.',
+          summary: '1 block(s) e 0 aviso(s) detectados.',
         });
       }
 
@@ -167,7 +167,7 @@ describe('OperationalSecurityService', () => {
       return JSON.stringify({
         generatedAt: '2026-03-29T09:00:00.000Z',
         ok: true,
-        summary: 'Nenhum problema relevante detectado.',
+        summary: 'No problema relevante detectado.',
       });
     });
 

@@ -25,14 +25,14 @@ describe('OperationsHealthService', () => {
       autoPullEnabled: false,
       sandboxRuntime: 'runc',
       canRun: false,
-      detail: 'docker sandbox desabilitado por configuracao.',
+      detail: 'docker sandbox desabilitado por configuraction.',
     })) as any);
     jest.spyOn(SandboxExecutionService.prototype, 'isDockerAvailable').mockReturnValue(false);
     jest.spyOn(SandboxExecutionService.prototype, 'getFirecrackerStatus').mockReturnValue({
       enabled: false,
       available: false,
       canRun: false,
-      detail: 'firecracker desabilitado por configuracao.',
+      detail: 'firecracker desabilitado por configuraction.',
       kvmAvailable: false,
       kernelPresent: false,
       rootfsPresent: false,
@@ -81,7 +81,7 @@ describe('OperationsHealthService', () => {
         enabled: true,
         ready: true,
         running: true,
-        message: 'Pronto.',
+        message: 'Ready.',
         checkedAt: '2026-04-01T12:00:00.000Z',
       },
       ZavorthTerminal: {
@@ -220,7 +220,7 @@ describe('OperationsHealthService', () => {
       JSON.stringify({
         checkedAt: '2026-04-01T12:02:30.000Z',
         status: 'passed',
-        summary: 'Doctor dos canais nativos validou os providers configurados.',
+        summary: 'Doctor dos canais nactives validou os providers configurados.',
         command: 'npm run test:channels:smoke',
         items: [
           {
@@ -228,7 +228,7 @@ describe('OperationsHealthService', () => {
             mode: 'native',
             status: 'passed',
             configured: true,
-            summary: 'Slack nativo validado.',
+            summary: 'Slack native validated.',
             error: null,
           },
           {
@@ -256,7 +256,7 @@ describe('OperationsHealthService', () => {
             mode: 'remote',
             status: 'passed',
             configured: true,
-            summary: 'AIGateway remoto validado.',
+            summary: 'Remote AIGateway validated.',
             error: null,
           },
           {
@@ -264,7 +264,7 @@ describe('OperationsHealthService', () => {
             mode: 'local',
             status: 'passed',
             configured: true,
-            summary: 'Node host pareado validado.',
+            summary: 'Paired node host validated.',
             error: null,
           },
         ],
@@ -300,12 +300,12 @@ describe('OperationsHealthService', () => {
         lastTriggeredAt: '2026-04-01T12:04:00.000Z',
         lastTriggeredDateKey: '2026-04-01',
         lastTriggerSource: 'priority',
-        lastPriorityReason: 'Prioridade operacional: renovar o Node Mesh smoke vencido.',
+        lastPriorityReason: 'Operational priority: renew o Node Mesh smoke vencido.',
         lastActionId: 'validate-node-mesh-smoke',
         lastActionLogFile: path.join(root, 'validate-node-mesh-smoke.log'),
         updatedAt: '2026-04-01T12:04:00.000Z',
         updatedBy: null,
-        note: 'Prioridade operacional: renovar o Node Mesh smoke vencido.',
+        note: 'Operational priority: renew o Node Mesh smoke vencido.',
       }),
       'utf8',
     );
@@ -429,7 +429,7 @@ describe('OperationsHealthService', () => {
       expect.objectContaining({
         enabled: true,
         lastTriggerSource: 'priority',
-        lastPriorityReason: 'Prioridade operacional: renovar o Node Mesh smoke vencido.',
+        lastPriorityReason: 'Operational priority: renew o Node Mesh smoke vencido.',
         lastActionId: 'validate-node-mesh-smoke',
         lastReportStepCount: 1,
       }),

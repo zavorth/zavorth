@@ -17,7 +17,7 @@ $projectRoot = Split-Path -Parent $scriptDir
 $windowsPath = $projectRoot -replace '\\', '/'
 
 if ($windowsPath -notmatch '^([A-Za-z]):/(.*)$') {
-  throw "Nao foi possivel converter o caminho do projeto para WSL: $projectRoot"
+  throw "Could not convert the project path to WSL: $projectRoot"
 }
 
 $drive = $Matches[1].ToLower()
@@ -33,14 +33,14 @@ function Invoke-WslRoot {
 
   & wsl.exe -d $Distro -u root -- bash -lc $Command
   if ($LASTEXITCODE -ne 0) {
-    throw "Falha ao executar no WSL ($Distro): $Command"
+    throw "Failure ao run no WSL ($Distro): $Command"
   }
 }
 
 Write-Host 'Preparando Firecracker no WSL...'
 Invoke-WslRoot "cd '$wslProjectRoot' && ZAVORTH_FIRECRACKER_ROOTFS_SIZE_MB=2048 bash scripts/firecracker-host-bootstrap.sh --with-rootfs"
 
-Write-Host 'Instalando kernel Linux virtual para extracao do vmlinux...'
+Write-Host 'Instalando kernel Linux virtual para extraction do vmlinux...'
 Invoke-WslRoot 'DEBIAN_FRONTEND=noninteractive apt-get install -y linux-image-virtual linux-tools-common >/dev/null'
 
 Write-Host 'Extraindo vmlinux para o diretorio do Zavorth...'
@@ -59,5 +59,5 @@ if (-not $SkipSmoke) {
 }
 
 Write-Host ''
-Write-Host 'Firecracker WSL preparado com sucesso.'
+Write-Host 'Firecracker WSL prepared com success.'
 Write-Host "Assets: $projectRoot\data\firecracker"

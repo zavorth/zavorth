@@ -145,7 +145,7 @@ describe('TelegramOpsInsightPresentationService', () => {
               success_rate: 0.833,
               friction_rate: 0.167,
               last_seen_at: '2026-04-05T09:00:00.000Z',
-              rationale: 'external_executor esta fechando melhor research/competitive neste workspace.',
+              rationale: 'external_executor is currently better for research and competitive analysis in this workspace.',
             }],
             highestFriction: [{
               executor: 'zavorthBridge',
@@ -178,7 +178,7 @@ describe('TelegramOpsInsightPresentationService', () => {
             scope: 'workspace',
             count: 2,
             last_seen_at: '2026-04-05T09:00:00.000Z',
-            rationale: 'workspace_access foi reaproveitada com sucesso nas ultimas entregas.',
+            rationale: 'workspace_access was reused successfully in recent deliveries.',
           }],
           workflowResumeStages: [{
             workflow: 'workflow:ship',
@@ -192,17 +192,17 @@ describe('TelegramOpsInsightPresentationService', () => {
           }],
         },
         insights: [
-          'Leitura filtrada para workspace zavorth | superficie telegram | workflow workflow:ship.',
+          'Filtered read for workspace zavorth | surface telegram | workflow workflow:ship.',
         ],
       },
     );
 
     expect(reply).toMatch(/Produto|Product/);
     expect(reply).toContain('Best recent route: external_executor in research/competitive');
-    expect(reply).toMatch(/Workflow (para retomar|to resume): workflow:ship - approval_gate/);
+    expect(reply).toMatch(/Workflow (to resume|to resume): workflow:ship - approval_gate/);
     expect(reply).toContain('/workflow resume run-1');
     expect(reply).toMatch(/Superficies|Surfaces/);
-    expect(reply).toMatch(/Web: pronto|Web: ready/);
+    expect(reply).toMatch(/Web: ready|Web: ready/);
     expect(reply).toMatch(/Telegram: pendente|Telegram: pending/);
     expect(reply).toContain('/task');
   });

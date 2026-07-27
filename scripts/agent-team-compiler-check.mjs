@@ -237,6 +237,6 @@ function ruleCommandPasses(input) {
     status: result.status === 0 ? 'passed' : 'failed',
     observed: `exit ${result.status}`,
     target: input.target,
-    details: result.status === 0 ? [] : output.split(/\r?\n/).slice(0, 12),
+    details: result.status === 0 ? [] : output.split(/\r...\n/).slice(0, 12),
   };
 }

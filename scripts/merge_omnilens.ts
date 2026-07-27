@@ -10,7 +10,7 @@ try {
   let content1 = fs.readFileSync(file1, 'utf8');
   let content2 = fs.readFileSync(file2, 'utf8');
 
-  // Extrair o conteúdo dentro dos blocos ```html
+  // Extract content inside ```html blocks
   const extract = (text: string) => {
     const match = text.match(/```html([\s\S]*?)```/);
     return match ? match[1] : text;
@@ -19,10 +19,10 @@ try {
   let html1 = extract(content1);
   let html2 = extract(content2);
 
-  // Limpar a junção (remover o final cortado da parte 1)
+  // Clean the join and remove the truncated ending of part 1
   html1 = html1.substring(0, html1.lastIndexOf('.form-select {'));
 
-  // Combinar (a parte 2 já começa do .form-select)
+  // Combine because part 2 already starts at .form-select
   let fullHtml = html1 + html2;
 
   // Fechar o que ficou aberto (o part2 parou no footer grid)

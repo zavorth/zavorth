@@ -93,6 +93,6 @@ function readMany(tokens: string[], names: string[]): string[] {
 }
 
 main().catch((error) => {
-  console.error(`[zavorth-connectors] falha: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`[zavorth-connectors] failure: ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });

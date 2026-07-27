@@ -176,7 +176,7 @@ describe('ZavorthControlRuntimeFixtures', () => {
     expect(policyFixture.runtime.status).toBe('blocked');
     expect(policyFixture.agentRun).toEqual(expect.objectContaining({
       status: 'failed',
-      summary: 'Execucao bloqueada pela policy de rede.',
+      summary: 'Execution blocked by network policy.',
     }));
     expect(policyFixture.toolExposure.tools).toEqual([
       expect.objectContaining({
@@ -202,7 +202,7 @@ describe('ZavorthControlRuntimeFixtures', () => {
 
     expect(firstRun.identity).toEqual(expect.objectContaining({
       firstRunStatus: 'pending',
-      summary: 'Falta nome, tom e preferencias iniciais.',
+      summary: 'Falta nome, tom e preferences iniciais.',
     }));
     expect(firstRun.runtime.status).toBe('degraded');
     expect(doctor.health).toEqual(expect.objectContaining({

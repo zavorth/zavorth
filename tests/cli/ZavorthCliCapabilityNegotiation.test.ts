@@ -22,7 +22,7 @@ function createFlags(json: boolean) {
 
 describe('Zavorth CLI Capability Negotiation', () => {
   it('parses negotiated task text after subcommands', () => {
-    expect(resolveCapabilityNegotiationCliText('scope "corrigir e testar"')).toBe('corrigir e testar');
+    expect(resolveCapabilityNegotiationCliText('scope "fix and test"')).toBe('fix and test');
   });
 
   it('renders negotiation JSON through the registry command', async () => {
@@ -33,7 +33,7 @@ describe('Zavorth CLI Capability Negotiation', () => {
       effectiveFlags: createFlags(true),
       commandName: 'negotiate',
       normalized: 'negotiate',
-      args: 'scope "corrigir e testar"',
+      args: 'scope "fix and test"',
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -63,7 +63,7 @@ describe('Zavorth CLI Capability Negotiation', () => {
 
   it('formats a compact human summary', () => {
     const snapshot = buildCapabilityNegotiationCliSnapshot({
-      text: 'corrigir e testar',
+      text: 'fix and test',
       userId: 'grey',
       sessionId: 'session-cli-capability-negotiation-human',
     });
@@ -72,7 +72,7 @@ describe('Zavorth CLI Capability Negotiation', () => {
 
     expect(text).toContain('Capability Negotiation - Capability Negotiation');
     expect(text).toContain('Escopo');
-    expect(text).toContain('negotiation nao executa tools');
-    expect(text).toContain('Dashboard: /zavorthControl?sector=skills');
+    expect(text).toContain('negotiation does not execute tools');
+    expect(text).toContain('Dashboard: /zavorthControl-sector=skills');
   });
 });

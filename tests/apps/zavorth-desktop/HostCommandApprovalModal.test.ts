@@ -27,6 +27,8 @@ describe('HostCommandApproval Integration Tests', () => {
     process.env.ZAVORTH_HOME = tempDir;
     process.env.ZAVORTH_AUDIT_HASH_KEY = 'test-hash-key-123';
     process.env.ZAVORTH_WORKSPACE_ROOT = tempDir;
+    fs.mkdirSync(path.join(tempDir, 'data'), { recursive: true });
+    config.dbPath = path.join(tempDir, 'data', 'zavorth.db');
 
     (config as any).workspaceRoot = tempDir;
     (config as any).defaultWorkspace = tempDir;
@@ -97,7 +99,7 @@ describe('HostCommandApproval Integration Tests', () => {
     // 1. Check status (default = disabled)
     const { deps: depsGet, jsonCalls: jsonCallsGet } = buildMockDeps();
     const reqGet = { method: 'GET' } as http.IncomingMessage;
-    const urlGet = new URL(`http://localhost/api/v2/workspace/host-power/status?workspaceId=${workspaceId}`);
+    const urlGet = new URL(`http://localhost/api/v2/workspace/host-power/status-workspaceId=${workspaceId}`);
     let handled = await routeService.handleRequest(reqGet, res, urlGet, urlGet.pathname, depsGet as any);
     expect(handled).toBe(true);
     expect(jsonCallsGet[0].status).toBe(200);
@@ -152,7 +154,7 @@ describe('HostCommandApproval Integration Tests', () => {
     const { deps: depsPending, jsonCalls: jsonCallsPending } = buildMockDeps();
     const reqGet = { method: 'GET' } as http.IncomingMessage;
     const res = {} as http.ServerResponse;
-    const urlPending = new URL(`http://localhost/api/v2/workspace/host-commands/pending?workspaceId=${workspaceId}`);
+    const urlPending = new URL(`http://localhost/api/v2/workspace/host-commands/pending-workspaceId=${workspaceId}`);
     let handled = await routeService.handleRequest(reqGet, res, urlPending, urlPending.pathname, depsPending as any);
     expect(handled).toBe(true);
     expect(jsonCallsPending[0].status).toBe(200);

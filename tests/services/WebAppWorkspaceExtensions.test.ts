@@ -48,8 +48,7 @@ describe('WebApp workspace extension plane endpoint', () => {
             lastRefreshed: '2026-04-05T09:30:00.000Z',
           },
         ],
-        selected: selectedId === 'repo-beta'
-          ? {
+        selected: selectedId === 'repo-beta' ? {
               workspace: 'C:/repo-beta',
               workspaceName: 'Repo Beta',
               slug: 'repo-beta',
@@ -63,7 +62,7 @@ describe('WebApp workspace extension plane endpoint', () => {
             }
           : null,
         narrative: {
-          headline: 'Workspace plane com 2 workspace(s) perfilado(s).',
+          headline: 'Workspace plane com 2 workspace(s) profileado(s).',
           operatorSummary: '5 comando(s), 3 hook(s) e 2 workspace(s) com instrucoes visiveis.',
         },
       })),
@@ -75,7 +74,7 @@ describe('WebApp workspace extension plane endpoint', () => {
     await service.start();
     const { status, payload } = await fetchDashboardJson(
       service.getUrl(),
-      '/api/web/workspace/extensions?selectedId=repo-beta',
+      '/api/web/workspace/extensions-selectedId=repo-beta',
       { token: 'workspace-secret' },
     );
     await service.stopAsync();

@@ -30,7 +30,7 @@ const rules = [
     files: ['src/contracts/ProviderRuntimeActivationContract.ts'],
     needles: [
       'ZAVORTH_PROVIDER_RUNTIME_ACTIVATION_CONTRACT_VERSION',
-      '2026-05-04.live-checkpoint-4',
+      '2026-05-04.live-gate-4',
       'ProviderRuntimeActivationP0Id',
       'vercel-ai-gateway',
       'generatedProviderManifestsRemainingP0: false',

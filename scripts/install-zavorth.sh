@@ -49,7 +49,7 @@ run_with_spinner() {
   # Execute command in background
   "$@" >/dev/null 2>&1 &
   pid=$!
-  
+
   local spinchars=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
   local delay=0.08
   while kill -0 "$pid" 2>/dev/null; do
@@ -59,7 +59,7 @@ run_with_spinner() {
     done
   done
   wait "$pid"
-  local exit_code=$?
+  local exit_code=$...
   if [ $exit_code -ne 0 ]; then
     printf "\r ${CLR_ERROR}✗${CLR_RESET} %s (Failed)\n" "$message"
     return $exit_code
@@ -96,7 +96,7 @@ fi
 
 clear 2>/dev/null || true
 echo -e "${CLR_PRIMARY} ✨  Z A V O R T H  |  I N S T A L L E R${CLR_RESET}"
-echo -e "${CLR_MUTED}  Local-first intelligence. Governed execution. Clear evidence.${CLR_RESET}"
+echo -e "${CLR_MUTED}  local-first intelligence. Governed execution. Clear evidence.${CLR_RESET}"
 echo -e "${CLR_MUTED} ─────────────────────────────────────────────────────────────${CLR_RESET}"
 echo ""
 

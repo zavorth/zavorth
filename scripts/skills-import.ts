@@ -71,7 +71,7 @@ function resolveAllowlistedSkills(sourceId: string): string[] {
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   if (!options.sourceId) {
-    throw new Error('Informe --source-id explicitamente. Imports externos sem fonte declarada ficam bloqueados.');
+    throw new Error('Provide --source-id explicitly. External imports without declared source stay blocked.');
   }
 
   const skillNames = options.skillNames.length > 0

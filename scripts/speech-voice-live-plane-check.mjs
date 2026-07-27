@@ -30,7 +30,7 @@ const rules = [
     files: ['src/contracts/SpeechVoiceLivePlaneContract.ts'],
     needles: [
       'ZAVORTH_SPEECH_VOICE_LIVE_PLANE_CONTRACT_VERSION',
-      '2026-05-04.live-checkpoint-7',
+      '2026-05-04.live-gate-7',
       'azure-speech',
       'deepgram',
       'elevenlabs',

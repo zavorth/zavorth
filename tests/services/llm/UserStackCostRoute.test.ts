@@ -1,7 +1,7 @@
 import { resolveCheapUserStackHop } from '../../../src/services/llm/UserStackCostRoute.js';
 import type { UserProviderSelection } from '../../../src/services/UserSelectionResolver.js';
 
-describe('UserStackCostRoute (Phase 2)', () => {
+describe('UserStackCostRoute (Review path)', () => {
   const baseSelection: UserProviderSelection = {
     providerId: 'openai',
     modelId: 'gpt-4o',

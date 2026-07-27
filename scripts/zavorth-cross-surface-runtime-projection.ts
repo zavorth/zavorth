@@ -35,7 +35,7 @@ type Args = {
 const args = parseArgs(process.argv.slice(2));
 const service = new ZavorthCrossSurfaceRuntimeProjectionService();
 const snapshot = service.buildSnapshot({
-  text: args.text || 'projete a resposta operacional',
+  text: args.text || 'project the operational response',
   surface: args.surface,
   actorId: args.actorId,
   sessionId: args.sessionId,

@@ -10,11 +10,11 @@ import type { PermissionRequest } from '../../../src/contracts/PermissionRequest
 import type { Task } from '../../../src/contracts/TaskContract';
 
 export const STAGE33_FLOW_FIXTURES = {
-  telegramCommand: '/task gerar resumo operacional',
+  telegramCommand: '/task gerar summary operacional',
   permissionRequest: '/task deploy production --needs-approval',
   externalExecutorWorkspaceMismatch: '/task external_executor aplicar patch no workspace errado',
-  zavorthBridgeTimeout: '/task zavorthBridge revisar tela de checkout',
-  webApproval: '/task publicar release web --needs-approval',
+  zavorthBridgeTimeout: '/task zavorthBridge review checkout screen',
+  webApproval: '/task publish web release --needs-approval',
 };
 
 type FlowReply = {
@@ -42,7 +42,7 @@ type ExecutorCall = {
 type WebSessionState = {
   sessionId: string;
   chatId: string;
-  messages: Array<{ role: 'user' | 'assistant'; content: string; traceId?: string | null }>;
+  messages: Array<{ role: 'user' | 'assistant'; content: string; traceId-: string | null }>;
   approvals: string[];
 };
 
@@ -67,10 +67,10 @@ export class ZavorthEndToEndFlowHarness {
       permissionController: {
         handlePermissionCommand: async (ctx, args) => this.replyWithPendingPermissions(ctx, args),
         handlePermissionAllowCommand: async (ctx, args) => {
-          await ctx.reply(`Politica persistente simulada para ${args || 'entrada vazia'}.`);
+          await ctx.reply(`Simulated persistent policy for ${args || 'empty input'}.`);
         },
         handlePermissionRevokeCommand: async (ctx, args) => {
-          await ctx.reply(`Politica simulada revogada para ${args || 'entrada vazia'}.`);
+          await ctx.reply(`Simulated policy revoked for ${args || 'empty input'}.`);
         },
         handleApproval: async (ctx, args) => this.resolvePermission(ctx, args, 'approved', 'telegram-operator'),
         handleRejection: async (ctx, args) => this.resolvePermission(ctx, args, 'rejected', 'telegram-operator'),
@@ -95,7 +95,7 @@ export class ZavorthEndToEndFlowHarness {
     });
   }
 
-  public async sendTelegram(text: string, options: { chatId?: string; userId?: string } = {}) {
+  public async sendTelegram(text: string, options: { chatId-: string; userId-: string } = {}) {
     const ctx = this.createTelegramContext(options.chatId || 'telegram-chat-1', options.userId || '42');
     const beforeReplyCount = this.replies.length;
     const beforeTaskCount = this.tasks.size;
@@ -215,13 +215,13 @@ export class ZavorthEndToEndFlowHarness {
         handleCommandChain: async () => undefined,
       },
       hubController: {
-        handleStartCommand: async (ctx: any) => ctx.reply('Zavorth pronto.'),
+        handleStartCommand: async (ctx: any) => ctx.reply('Zavorth ready.'),
       },
       opsController: {
         handleStatus: async (ctx: any) => ctx.reply('Status operacional: ok.'),
-        handleReadiness: async (ctx: any) => ctx.reply('Readiness: pronto.'),
+        handleReadiness: async (ctx: any) => ctx.reply('Readiness: ready.'),
         handleReadinessFixes: async (ctx: any) => ctx.reply('Fixes: nenhum pendente.'),
-        handleReadyToGo: async (ctx: any) => ctx.reply('Ready To Go: pronto.'),
+        handleReadyToGo: async (ctx: any) => ctx.reply('Ready To Go: ready.'),
         handleStayOnline: async (ctx: any) => ctx.reply('Stay Online: monitorando.'),
       },
       capabilityController: {
@@ -324,7 +324,7 @@ export class ZavorthEndToEndFlowHarness {
     task.result_summary = summary;
     task.actions_executed.push(summary);
     this.recordTaskEvent(task, 'task.completed', 'completed', { executor, summary });
-    await ctx.reply(`Concluido: ${summary} [trace:${task.metadata.correlation.traceId}]`);
+    await ctx.reply(`Completed: ${summary} [trace:${task.metadata.correlation.traceId}]`);
     return task;
   }
 
@@ -340,7 +340,7 @@ export class ZavorthEndToEndFlowHarness {
     });
     this.attachPermissionToWebSession(task, permission);
     await ctx.reply(
-      `Aprovacao necessaria: ${permission.permission_id}. Use /approve ${permission.permission_id} ou /reject ${permission.permission_id}.`,
+      `Approval required: ${permission.permission_id}. Use /approve ${permission.permission_id} ou /reject ${permission.permission_id}.`,
     );
     return task;
   }
@@ -353,7 +353,7 @@ export class ZavorthEndToEndFlowHarness {
   ): Promise<PermissionRequest> {
     const permission = this.findPermission(ref);
     if (!permission) {
-      await ctx.reply(`Permissao nao encontrada: ${ref || 'vazia'}.`);
+      await ctx.reply(`Permission not encontrada: ${ref || 'vazia'}.`);
       throw new Error(`Permission not found: ${ref}`);
     }
 
@@ -363,7 +363,7 @@ export class ZavorthEndToEndFlowHarness {
     permission.decision_note = status === 'approved' ? 'Approved by flow harness.' : 'Rejected by flow harness.';
     const task = permission.task_id ? this.tasks.get(permission.task_id) || null : null;
     if (!task) {
-      await ctx.reply(`Permissao ${permission.permission_id} resolvida sem task vinculada.`);
+      await ctx.reply(`Permission ${permission.permission_id} resolvida sem task vinculada.`);
       return permission;
     }
 
@@ -375,8 +375,8 @@ export class ZavorthEndToEndFlowHarness {
 
     if (status === 'rejected') {
       task.status = 'rejected';
-      task.error_summary = 'Operador rejeitou a permissao solicitada.';
-      await ctx.reply(`Permissao rejeitada: ${permission.permission_id}. Tarefa ${task.task_id} parada.`);
+      task.error_summary = 'The operator rejected the requested permission.';
+      await ctx.reply(`Permission rejected: ${permission.permission_id}. Tarefa ${task.task_id} parada.`);
       return permission;
     }
 
@@ -386,7 +386,7 @@ export class ZavorthEndToEndFlowHarness {
       taskCtx,
       task,
       'approved_executor',
-      `Permissao ${permission.permission_id} aprovada; execucao retomada.`,
+      `Permission ${permission.permission_id} approved; execution resumed.`,
     );
     return permission;
   }
@@ -405,7 +405,7 @@ export class ZavorthEndToEndFlowHarness {
       to: task.workspace,
       firstAttemptStatus: mismatch.status,
     };
-    task.actions_executed.push(`Workspace ExternalExecutor ajustado para ${task.workspace}.`);
+    task.actions_executed.push(`Workspace ExternalExecutor adjusted for ${task.workspace}.`);
 
     const repaired = this.runExecutor(task, 'external_executor', 'completed');
     task.status = 'completed';
@@ -415,7 +415,7 @@ export class ZavorthEndToEndFlowHarness {
       executor: 'external_executor',
       repairedWorkspace: task.workspace,
     });
-    await ctx.reply(`Workspace corrigido e ExternalExecutor reexecutado. [trace:${task.metadata.correlation.traceId}]`);
+    await ctx.reply(`Workspace fixed and ExternalExecutor rerun. [trace:${task.metadata.correlation.traceId}]`);
     return task;
   }
 
@@ -433,14 +433,14 @@ export class ZavorthEndToEndFlowHarness {
     const fallback = this.runExecutor(task, 'local_executor', 'completed');
     task.status = 'completed';
     task.stdout_summary = fallback.status;
-    task.result_summary = 'Fallback local concluiu a tarefa apos timeout do ZavorthBridge.';
-    task.actions_executed.push('Retry ZavorthBridge executado em dry-run.');
+    task.result_summary = 'Fallback local concluiu a tarefa after timeout do ZavorthBridge.';
+    task.actions_executed.push('ZavorthBridge retry executed in dry-run.');
     task.actions_executed.push('Fallback local aplicado sem host externo.');
     this.recordTaskEvent(task, 'task.completed', 'completed', {
       executor: 'local_executor',
       fallbackUsed: true,
     });
-    await ctx.reply(`ZavorthBridge sem resposta; fallback local concluido. [trace:${task.metadata.correlation.traceId}]`);
+    await ctx.reply(`ZavorthBridge did not respond; local fallback completed. [trace:${task.metadata.correlation.traceId}]`);
     return task;
   }
 
@@ -473,7 +473,7 @@ export class ZavorthEndToEndFlowHarness {
       workspace: task.workspace,
       requested_value: task.raw_message,
       resolved_value: null,
-      reason: 'Fluxo sensivel exige aprovacao do operador.',
+      reason: 'Fluxo sensitive exige approval do operador.',
       requested_by: task.user_id,
       decided_by: null,
       decision_note: null,
@@ -498,8 +498,8 @@ export class ZavorthEndToEndFlowHarness {
     const pending = [...this.permissions.values()].filter((permission) => permission.status === 'pending');
     const summary = pending.length
       ? pending.map((permission) => permission.permission_id).join(', ')
-      : 'nenhuma permissao pendente';
-    await ctx.reply(`Permissoes pendentes: ${summary}.`);
+      : 'nenhuma permission pendente';
+    await ctx.reply(`permissions pendentes: ${summary}.`);
   }
 
   private findPermission(ref: string): PermissionRequest | null {
@@ -581,7 +581,7 @@ export class ZavorthEndToEndFlowHarness {
 
   private latestTaskAfter(previousSize: number): Task | null {
     const values = [...this.tasks.values()];
-    return values.length > previousSize ? values[values.length - 1] : null;
+    return values.length > previousSize ? values[values.length ? 1] : null;
   }
 
   private extractTrace(text: string): string | null {

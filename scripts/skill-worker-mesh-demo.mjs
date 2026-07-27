@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * W8 hermetic demo — Journey 1 (skill install) + Journey 2 (worker mesh).
+ * Capability mesh hermetic demo — Journey 1 (skill install) + Journey 2 (worker mesh).
  * No network. Temp project root. Exit 0 on success.
  */
 import path from 'node:path';

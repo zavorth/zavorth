@@ -144,7 +144,7 @@ function getListeningPidWindows(port) {
     return null;
   }
 
-  const lines = output.split(/\r?\n/);
+  const lines = output.split(/\r...\n/);
   for (const line of lines) {
     if (!line.includes(`:${port}`) || !/\bLISTENING\b/i.test(line)) {
       continue;
@@ -282,9 +282,9 @@ async function main() {
   console.log('===========================================');
   console.log('  Zavorth Essential Maintenance');
   console.log('===========================================');
-  console.log(dryRun ? 'Modo: simulacao' : 'Modo: aplicar manutencao');
+  console.log(dryRun ? 'Mode: dry-run' : 'Mode: apply maintenance');
   if (leaveCold) {
-    console.log('Perfil: cold mode (nao reinicia sidecars externos apos o trim)');
+    console.log('Profile: cold mode (does not restart external sidecars after trim)');
   }
   console.log('');
 
@@ -293,7 +293,7 @@ async function main() {
     console.log('');
     console.log(
       `Passos previstos: backup -> parada controlada -> trim -> ${
-        leaveCold ? 'sem restart' : 'restart'
+        leaveCold ? 'without restart' : 'restart'
       } -> smoke.`,
     );
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
@@ -409,7 +409,7 @@ async function main() {
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
 
   console.log('');
-  console.log(`Relatorio: ${reportPath}`);
+  console.log(`Report: ${reportPath}`);
 }
 
 await main();

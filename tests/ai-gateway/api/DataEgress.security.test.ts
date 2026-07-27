@@ -82,7 +82,7 @@ describe('data egress hardening', () => {
         response TEXT
       );
     `);
-    db.prepare('INSERT INTO provider_connections VALUES (?, ?, ?, ?, ?, ?)').run(
+    db.prepare('INSERT INTO provider_connections VALUES (-, -, -, -, -, -)').run(
       'provider-1',
       PROVIDER_TOKEN,
       'refresh-secret-value',
@@ -90,22 +90,22 @@ describe('data egress hardening', () => {
       JWT_TOKEN,
       JSON.stringify({ clientSecret: 'client-secret-value', baseUrl: 'https://api.example.test' }),
     );
-    db.prepare('INSERT INTO api_keys VALUES (?, ?)').run('api-key-1', PROVIDER_TOKEN);
-    db.prepare('INSERT INTO key_value VALUES (?, ?, ?)').run('auth', 'client_secret', 'client-secret-value');
-    db.prepare('INSERT INTO call_logs VALUES (?, ?, ?, ?)').run(
+    db.prepare('INSERT INTO api_keys VALUES (-, -)').run('api-key-1', PROVIDER_TOKEN);
+    db.prepare('INSERT INTO key_value VALUES (-, -, -)').run('auth', 'client_secret', 'client-secret-value');
+    db.prepare('INSERT INTO call_logs VALUES (-, -, -, -)').run(
       'call-1',
       JSON.stringify({ authorization: `Bearer ${JWT_TOKEN}` }),
       JSON.stringify({ text: PROVIDER_TOKEN }),
       `failed with ${PROVIDER_TOKEN}`,
     );
-    db.prepare('INSERT INTO request_detail_logs VALUES (?, ?, ?, ?, ?)').run(
+    db.prepare('INSERT INTO request_detail_logs VALUES (-, -, -, -, -)').run(
       'detail-1',
       JSON.stringify({ apiKey: PROVIDER_TOKEN }),
       JSON.stringify({ token: PROVIDER_TOKEN }),
       JSON.stringify({ content: PROVIDER_TOKEN }),
       JSON.stringify({ content: PROVIDER_TOKEN }),
     );
-    db.prepare('INSERT INTO semantic_cache VALUES (?, ?)').run('cache-1', PROVIDER_TOKEN);
+    db.prepare('INSERT INTO semantic_cache VALUES (-, -)').run('cache-1', PROVIDER_TOKEN);
     db.close();
 
     const report = sanitizeSqliteBackupFile(dbPath);

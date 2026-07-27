@@ -17,7 +17,7 @@ describe('ZavorthScheduledTaskExecutionGatewayRuntimeService', () => {
     });
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_SCHEDULED_TASK_RUNTIME_CONTRACT_VERSION);
-    expect(snapshot.gate).toBe('checkpoint-2-scheduled-task-execution-gateway');
+    expect(snapshot.gate).toBe('scheduled-task-execution-gateway');
     expect(snapshot.status).toBe('needs_reapproval');
     expect(snapshot.summary.gatewayCalled).toBe(false);
     expect(snapshot.summary.executionPerformed).toBe(false);
@@ -181,8 +181,8 @@ describe('ZavorthScheduledTaskExecutionGatewayRuntimeService', () => {
 function approvedInput() {
   return {
     scheduledTask: {
-      intent: 'Enviar resumo operacional do workspace',
-      schedule: 'every 15m',
+      intent: 'Enviar summary operacional do workspace',
+      schedule: '{"kind":"interval","intervalMs":900000}',
       surface: 'telegram' as const,
       allowedTools: ['web_search'],
       approval: {

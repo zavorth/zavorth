@@ -32,9 +32,9 @@ describe('ZavorthHumanSuperpowersService', () => {
 
   it('does not match free-text NLU (agent-first) but still finds powers by need', () => {
     const service = new ZavorthHumanSuperpowersService({ projectRoot: tempDir, env: {} });
-    expect(service.matchNaturalCommand('o que voce sabe fazer?')).toBeNull();
-    expect(service.matchNaturalCommand('me ajude com arquivos')).toBeNull();
-    const found = service.findByNeed('arquivos e pastas');
+    expect(service.matchNaturalCommand('o que you sabe fazer-')).toBeNull();
+    expect(service.matchNaturalCommand('me ajude com files')).toBeNull();
+    const found = service.findByNeed('files e pastas');
     expect(found.some((power) => power.id === 'files-safe')).toBe(true);
   });
 });

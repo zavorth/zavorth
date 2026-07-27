@@ -24,7 +24,7 @@ function createInstallJourneyFixture() {
   const now = new Date().toISOString();
   const readiness = {
     generatedAt: now,
-    summary: 'Zavorth pronto para uso local e remoto',
+    summary: 'Zavorth ready for local and remote use',
     local: {
       ready: true,
       baseUrl: 'http://127.0.0.1:33333',
@@ -81,11 +81,11 @@ function createInstallJourneyFixture() {
       initial: bootstrapReport,
       steps: [],
       final: bootstrapReport,
-      summary: 'Nenhuma correcao segura disponivel.',
+      summary: 'No safe correction available.',
     },
     startup: null,
     manifest: {
-      summary: 'Zavorth pronto para uso local e remoto',
+      summary: 'Zavorth ready for local and remote use',
       local: {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
@@ -114,7 +114,7 @@ function createInstallJourneyFixture() {
       journey: [
         {
           id: 'install',
-          title: 'Instalacao',
+          title: 'Instalaction',
           description: 'Instale o runtime supervisionado.',
         },
       ],
@@ -127,14 +127,14 @@ function createInstallJourneyFixture() {
     phases: [
       {
         id: 'bootstrap',
-        title: 'Plano de bootstrap',
+        title: 'Bootstrap plan',
         status: 'ready',
         summary: 'Bootstrap ok.',
         command: null,
         details: [],
       },
     ],
-    summary: 'Zavorth pronto para uso local e remoto',
+    summary: 'Zavorth ready for local and remote use',
   } as any;
 }
 
@@ -142,10 +142,10 @@ function createOfficialRemoteAccessFixture() {
   const now = new Date().toISOString();
   return {
     generatedAt: now,
-    summary: 'Acesso remoto oficial pronto.',
+    summary: 'Acesso remoto oficial ready.',
     official: {
       generatedAt: now,
-      summary: 'Zavorth pronto para uso local e remoto',
+      summary: 'Zavorth ready for local and remote use',
       tokenSource: 'env',
       journey: {} as any,
       manifest: {} as any,
@@ -171,13 +171,13 @@ function createOfficialRemoteAccessFixture() {
       nextSteps: [],
     },
     recommendedPathId: 'official',
-    recommendedPathReason: 'O caminho oficial ja esta validado.',
+    recommendedPathReason: 'The official path is already validated.',
     paths: [
       {
         id: 'official',
         label: 'Caminho oficial do app remoto',
         status: 'ready',
-        summary: 'App remoto validado.',
+        summary: 'Remote app validated.',
         command: 'npm run ops:remote:official',
         steps: [],
       },
@@ -204,7 +204,7 @@ function createOfficialRemoteAccessFixture() {
       appUrl: 'https://zavorth.example.com/zavorthControl',
       baseUrl: 'https://zavorth.example.com',
       issues: [],
-      summary: 'Acesso remoto oficial validado.',
+      summary: 'Official remote access validated.',
     },
     actions: {
       canApply: true,
@@ -221,16 +221,16 @@ function createRemoteAccessFixture() {
   const now = new Date().toISOString();
   return {
     generatedAt: now,
-    summary: 'Acesso remoto oficial pronto.',
+    summary: 'Acesso remoto oficial ready.',
     official: {} as any,
     recommendedPathId: 'official',
-    recommendedPathReason: 'O caminho oficial ja esta validado.',
+    recommendedPathReason: 'The official path is already validated.',
     paths: [
       {
         id: 'official',
         label: 'Caminho oficial do app remoto',
         status: 'ready',
-        summary: 'App remoto validado.',
+        summary: 'Remote app validated.',
         command: 'npm run ops:remote:official',
         steps: [],
       },
@@ -344,7 +344,7 @@ describe('ZavorthControlService', () => {
         approval_status: 'not_required',
         executor_used: 'codex',
         workspace: 'core',
-        result_summary: 'Loop SDD pronto para a proxima iteracao.',
+        result_summary: 'SDD loop ready for the next iteration.',
         error_summary: null,
         updated_at: new Date().toISOString(),
         metadata: {
@@ -375,7 +375,7 @@ describe('ZavorthControlService', () => {
         resolvePermissionReference: jest.fn(),
         shortPermissionId: jest.fn(),
         handlePermissionCallback: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
       } as any,
       webUserId: '1',
     });
@@ -394,7 +394,7 @@ describe('ZavorthControlService', () => {
     );
     const { status: catalogStatus, payload: catalogPayload } = await fetchZavorthControlJson(
       baseUrl,
-      `/api/web/catalog?sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
+      `/api/web/catalog-sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
       { token },
     );
     const { status: teamsStatus, payload: teamsPayload } = await fetchZavorthControlJson(
@@ -457,7 +457,7 @@ describe('ZavorthControlService', () => {
         approval_status: 'pending',
         executor_used: 'local',
         workspace: 'C:/repo',
-        result_summary: 'Aguardando approval humano para retomar a execucao.',
+        result_summary: 'Waiting for human approval to resume execution.',
         error_summary: null,
         updated_at: createdAt,
         created_at: createdAt,
@@ -477,7 +477,7 @@ describe('ZavorthControlService', () => {
         approval_status: 'pending',
         executor_used: 'local',
         workspace: 'C:/repo',
-        result_summary: 'Aguardando approval humano para retomar a execucao.',
+        result_summary: 'Waiting for human approval to resume execution.',
         error_summary: null,
         updated_at: createdAt,
         created_at: createdAt,
@@ -497,18 +497,18 @@ describe('ZavorthControlService', () => {
         task.status = 'completed';
         task.approval_status = 'approved';
         task.updated_at = new Date().toISOString();
-        task.result_summary = 'Approval registrado e run retomada.';
-        await ctx.reply('Aprovacao da tarefa registrada.');
+        task.result_summary = 'Approval registrado e run resumption.';
+        await ctx.reply('Task approval recorded.');
       }),
       handleRejection: jest.fn(async (ctx: any, taskId: string) => {
         const task = tasks.find((entry) => entry.task_id === taskId);
         task.status = 'rejected';
         task.approval_status = 'rejected';
         task.updated_at = new Date().toISOString();
-        task.error_summary = 'Approval rejeitado pelo operador.';
-        await ctx.reply('Tudo certo. A tarefa foi rejeitada.');
+        task.error_summary = 'Approval rejected pelo operador.';
+        await ctx.reply('Tudo certo. A tarefa foi rejected.');
       }),
-      formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+      formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
     };
 
     const service = new ZavorthControlService(logRepo);
@@ -542,7 +542,7 @@ describe('ZavorthControlService', () => {
       task.chat_id = `web:${sessionPayload.sessionId}`;
     });
 
-    const { status: approveStatus, payload: approvePayload } = await fetchZavorthControlJson(
+              reason: 'The approval was recorded and the final file is ready.',
       baseUrl,
       '/api/web/tasks/approve',
       {
@@ -580,7 +580,7 @@ describe('ZavorthControlService', () => {
     await service.stopAsync();
 
     expect(sessionStatus).toBe(200);
-    expect(approveStatus).toBe(200);
+              reason: 'The approval was recorded and the final file is ready.',
     expect(rejectStatus).toBe(200);
     expect(permissionController.handleApproval).toHaveBeenCalledWith(
       expect.any(Object),
@@ -603,7 +603,7 @@ describe('ZavorthControlService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           role: 'assistant',
-          content: expect.stringContaining('Aprovacao da tarefa registrada'),
+          content: expect.stringContaining('Task approval recorded'),
         }),
       ]),
     );
@@ -620,7 +620,7 @@ describe('ZavorthControlService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           role: 'assistant',
-          content: expect.stringContaining('A tarefa foi rejeitada'),
+          content: expect.stringContaining('A tarefa foi rejected'),
         }),
       ]),
     );
@@ -635,18 +635,18 @@ describe('ZavorthControlService', () => {
     const finalArtifactPath = path.join(process.cwd(), `zavorthControl-final-delivery-${Date.now()}.md`);
     fs.writeFileSync(
       finalArtifactPath,
-      '# Briefing final\n\nEntrega final pronta para revisao e publicacao.\n',
+              reason: 'The briefing is ready for final review and release.',
       'utf8',
     );
 
     const workflowRuns = new WorkflowRunService({ storageDir: workflowRoot, persist: true });
-    const persistedRun = workflowRuns.createRun('ship', 'Concluir briefing final', workflowRoot, [
+              reason: 'The briefing is ready for final review and release.',
       {
         id: 'maker',
         executor: 'codex',
         role: 'maker',
         label: 'Codex Maker',
-        intro: 'Implementacao.',
+        intro: 'Implementaction.',
         buildObjective: ({ originalObjective }) => originalObjective,
       },
       {
@@ -654,11 +654,11 @@ describe('ZavorthControlService', () => {
         executor: 'external_executor',
         role: 'reviewer',
         label: 'ExternalExecutor Reviewer',
-        intro: 'Revisao.',
+        intro: 'Review.',
         buildObjective: ({ originalObjective }) => originalObjective,
       },
     ]);
-    workflowRuns.markStageStarted(persistedRun, 'maker', 'Concluir briefing final', null);
+              reason: 'The briefing is ready for final review and release.',
     workflowRuns.markStageCompleted(persistedRun, 'maker', {
       execution_id: 'exec-maker-approval',
       task_id: 'task-maker-approval',
@@ -671,7 +671,7 @@ describe('ZavorthControlService', () => {
       files_written: [],
       files_deleted: [],
       commands_executed: [],
-      stdout: 'Briefing consolidado.',
+              reason: 'The briefing is ready for final review and release.',
       stderr: null,
       diff_summary: null,
       artifacts: [],
@@ -679,18 +679,18 @@ describe('ZavorthControlService', () => {
       error_code: null,
       error_message: null,
       metadata: {},
-    }, 'Briefing consolidado.');
+              reason: 'The briefing is ready for final review and release.',
     workflowRuns.markStageStarted(
       persistedRun,
       'reviewer',
-      'Revisar briefing final antes da liberacao',
-      'Aguardando approval humano para retomar a execucao.',
+              reason: 'The briefing is ready for final review and release.',
+      'Waiting for human approval to resume execution.',
     );
     workflowRuns.markStageInterrupted(
       persistedRun,
       'reviewer',
       'approval_pending',
-      'Aguardando approval humano para retomar a execucao.',
+      'Waiting for human approval to resume execution.',
     );
 
     const createdAt = new Date().toISOString();
@@ -698,8 +698,8 @@ describe('ZavorthControlService', () => {
       task_id: 'telegram-workflow-task-1',
       chat_id: 'telegram:chat-approval-1',
       source: 'telegram',
-      raw_message: 'continue o briefing final',
-      normalized_message: 'continue o briefing final',
+              reason: 'The briefing is ready for final review and release.',
+              reason: 'The briefing is ready for final review and release.',
       command_type: '/workflow',
       status: 'waiting_approval',
       risk_level: 7,
@@ -707,7 +707,7 @@ describe('ZavorthControlService', () => {
       approval_status: 'pending',
       executor_used: 'external_executor',
       workspace: workflowRoot,
-      result_summary: 'Workflow pausado aguardando sua confirmacao.',
+      result_summary: 'Workflow pausado waiting for sua confirmation.',
       error_summary: null,
       updated_at: createdAt,
       created_at: createdAt,
@@ -717,39 +717,39 @@ describe('ZavorthControlService', () => {
         workflow_resume_stage_label: 'ExternalExecutor Reviewer',
         workflow_stage_id: 'reviewer',
         telegram_surface_summary: {
-          titleHint: 'Briefing final',
-          summary: 'Retomando briefing final aguardando sua confirmacao para seguir.',
-          followupPrompt: 'Retome a conversa que veio do Telegram sobre Briefing final. Revise o briefing e siga para a liberacao final.',
+              reason: 'The briefing is ready for final review and release.',
+              reason: 'The briefing is ready for final review and release.',
+              reason: 'The briefing is ready for final review and release.',
           workflowLabel: 'Workflow de entrega',
-          recentArtifact: 'briefing-checklist-draft.md',
-          activeFocus: 'Briefing final em andamento',
+              reason: 'The briefing is ready for final review and release.',
+              reason: 'The briefing is ready for final review and release.',
           isContinuationRequest: true,
         },
-        workspace_operational_memory_summary: 'Briefing final em andamento com revisao pendente.',
+              reason: 'The briefing is ready for final review and release.',
         workspace_response_style: 'implementation_ready',
         workspace_workflow_recommendation: {
           workflow: 'ship',
-          reason: 'O briefing final precisa apenas de revisao e liberacao.',
+              reason: 'The briefing is ready for final review and release.',
         },
         workspace_operational_memory: {
           active_focuses: [
             {
               task_id: 'telegram-workflow-task-1',
-              summary: 'Briefing final em andamento',
+              reason: 'The briefing is ready for final review and release.',
             },
           ],
           recent_artifacts: [
             {
               task_id: 'telegram-workflow-task-1',
-              name: 'briefing-checklist-draft.md',
+              reason: 'The briefing is ready for final review and release.',
               kind: 'report',
-              path: path.join(workflowRoot, 'briefing-checklist-draft.md'),
+              reason: 'The briefing is ready for final review and release.',
             },
           ],
           continuity_recommendations: [
             {
-              label: 'Retomar briefing final',
-              reason: 'O briefing estÃ¡ pronto para revisao final e liberacao.',
+              reason: 'The briefing is ready for final review and release.',
+              reason: 'The briefing is ready for final review and release.',
             },
           ],
         },
@@ -761,8 +761,8 @@ describe('ZavorthControlService', () => {
       task_id: 'web-workflow-task-1',
       chat_id: '',
       source: 'web',
-      raw_message: '/task revisar briefing final',
-      normalized_message: '/task revisar briefing final',
+              reason: 'The briefing is ready for final review and release.',
+              reason: 'The briefing is ready for final review and release.',
       command_type: '/task',
       status: 'completed',
       risk_level: 0,
@@ -770,7 +770,7 @@ describe('ZavorthControlService', () => {
       approval_status: 'not_required',
       executor_used: 'local',
       workspace: workflowRoot,
-      result_summary: 'Revisao anterior concluida.',
+      result_summary: 'Previous review completed.',
       error_summary: null,
       updated_at: createdAt,
       created_at: createdAt,
@@ -790,23 +790,23 @@ describe('ZavorthControlService', () => {
         task.status = 'completed';
         task.approval_status = 'approved';
         task.updated_at = new Date().toISOString();
-        task.result_summary = 'Approval registrado e workflow retomado.';
+        task.result_summary = 'Approval registrado e workflow resumed.';
         task.metadata.workflow_resume_stage_id = null;
         task.metadata.workflow_resume_stage_label = null;
         task.metadata.workflow_stage_id = null;
         task.metadata.telegram_surface_summary = {
           ...task.metadata.telegram_surface_summary,
-          summary: 'Briefing final aprovado e pronto para entrega.',
+              reason: 'The briefing is ready for final review and release.',
           followupPrompt:
-            'A entrega final briefing-final.md ja foi aprovada. Abra a ultima entrega ou siga para a publicacao final.',
-          recentArtifact: 'Briefing final',
+              reason: 'The briefing is ready for final review and release.',
+              reason: 'The briefing is ready for final review and release.',
         };
         task.metadata.workspace_operational_memory = {
           ...task.metadata.workspace_operational_memory,
           recent_artifacts: [
             {
               task_id: task.task_id,
-              name: 'briefing-final.md',
+              reason: 'The briefing is ready for final review and release.',
               kind: 'report',
               path: finalArtifactPath,
             },
@@ -814,22 +814,22 @@ describe('ZavorthControlService', () => {
           continuity_recommendations: [
             {
               label: 'Abrir entrega final',
-              reason: 'A aprovaÃ§Ã£o foi registrada e o arquivo final jÃ¡ estÃ¡ pronto.',
+              reason: 'The approval was recorded and the final file is ready.',
             },
           ],
         };
         task.artifacts = [
           {
             id: 'artifact-final-1',
-            key: 'briefing-final',
+              reason: 'The briefing is ready for final review and release.',
             type: 'document',
             kind: 'report',
-            name: 'briefing-final.md',
+              reason: 'The briefing is ready for final review and release.',
             source: 'web',
             path: finalArtifactPath,
             url: null,
             mimeType: 'text/markdown',
-            summary: 'Briefing final pronto para revisao.',
+              reason: 'The briefing is ready for final review and release.',
             description: null,
             previewText: null,
             sizeBytes: fs.statSync(finalArtifactPath).size,
@@ -850,7 +850,7 @@ describe('ZavorthControlService', () => {
           files_written: [finalArtifactPath],
           files_deleted: [],
           commands_executed: [],
-          stdout: 'Briefing final entregue.',
+              reason: 'The briefing is ready for final review and release.',
           stderr: null,
           diff_summary: null,
           artifacts: task.artifacts,
@@ -858,11 +858,11 @@ describe('ZavorthControlService', () => {
           error_code: null,
           error_message: null,
           metadata: {},
-        }, 'Briefing final entregue.');
-        await ctx.reply('Aprovacao da tarefa registrada.');
+              reason: 'The briefing is ready for final review and release.',
+        await ctx.reply('Task approval recorded.');
       }),
       handleRejection: jest.fn(),
-      formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+      formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
     };
 
     const service = new ZavorthControlService(logRepo);
@@ -906,10 +906,10 @@ describe('ZavorthControlService', () => {
 
     const { status: beforeStatus, payload: beforePayload } = await fetchZavorthControlJson(
       baseUrl,
-      `/api/web/state?sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
+      `/api/web/state-sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
       { token },
     );
-    const { status: approveStatus, payload: approvePayload } = await fetchZavorthControlJson(
+              reason: 'The approval was recorded and the final file is ready.',
       baseUrl,
       '/api/web/tasks/approve',
       {
@@ -928,12 +928,12 @@ describe('ZavorthControlService', () => {
     );
     const { status: afterStatus, payload: afterPayload } = await fetchZavorthControlJson(
       baseUrl,
-      `/api/web/state?sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
+      `/api/web/state-sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
       { token },
     );
     const { status: previewStatus, payload: previewPayload } = await fetchZavorthControlJson(
       baseUrl,
-      `/api/web/file-preview?path=${encodeURIComponent(finalArtifactPath)}`,
+      `/api/web/file-preview-path=${encodeURIComponent(finalArtifactPath)}`,
       { token },
     );
     if (fs.existsSync(finalArtifactPath)) {
@@ -944,7 +944,7 @@ describe('ZavorthControlService', () => {
     expect(sessionStatus).toBe(200);
     if (beforeStatus !== 200) console.log("State Error:", beforePayload);
     expect(beforeStatus).toBe(200);
-    expect(approveStatus).toBe(200);
+              reason: 'The approval was recorded and the final file is ready.',
     expect(afterStatus).toBe(200);
     expect(previewStatus).toBe(200);
     expect(beforePayload.snapshot.continuity).toEqual(
@@ -954,7 +954,7 @@ describe('ZavorthControlService', () => {
           status: 'waiting_approval',
         }),
         workspaceContext: expect.objectContaining({
-          titleHint: 'Briefing final',
+              reason: 'The briefing is ready for final review and release.',
           workflowRun: expect.objectContaining({
             workflow: 'ship',
             status: 'approval_pending',
@@ -988,7 +988,7 @@ describe('ZavorthControlService', () => {
           status: 'completed',
           artifacts: expect.arrayContaining([
             expect.objectContaining({
-              name: 'briefing-final.md',
+              reason: 'The briefing is ready for final review and release.',
             }),
           ]),
         }),
@@ -1001,9 +1001,9 @@ describe('ZavorthControlService', () => {
           status: 'completed',
         }),
         workspaceContext: expect.objectContaining({
-          titleHint: 'Briefing final',
+              reason: 'The briefing is ready for final review and release.',
           recentArtifact: expect.objectContaining({
-            name: 'Briefing final',
+              reason: 'The briefing is ready for final review and release.',
             path: finalArtifactPath,
           }),
           workflowRun: expect.objectContaining({
@@ -1018,7 +1018,7 @@ describe('ZavorthControlService', () => {
           ]),
         }),
         suggestedAction: expect.objectContaining({
-          prompt: expect.stringContaining('briefing-final.md'),
+              reason: 'The briefing is ready for final review and release.',
         }),
       }),
     );
@@ -1029,7 +1029,7 @@ describe('ZavorthControlService', () => {
           status: 'completed',
           artifacts: expect.arrayContaining([
             expect.objectContaining({
-              name: 'briefing-final.md',
+              reason: 'The briefing is ready for final review and release.',
             }),
           ]),
         }),
@@ -1038,7 +1038,7 @@ describe('ZavorthControlService', () => {
     expect(previewPayload.preview).toEqual(
       expect.objectContaining({
         path: finalArtifactPath,
-        content: expect.stringContaining('Briefing final'),
+              reason: 'The briefing is ready for final review and release.',
       }),
     );
   }, 180000);

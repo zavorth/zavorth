@@ -34,7 +34,7 @@ describe('MediaAnalysisTool', () => {
     await tool.execute({
       artifact_id: 'artifact-123',
       analysis_type: 'qa',
-      prompt: 'What is shown?',
+      prompt: 'What is shown-',
     });
 
     expect(analyze).toHaveBeenCalledWith({
@@ -43,7 +43,7 @@ describe('MediaAnalysisTool', () => {
         artifactId: 'artifact-123',
       },
       analysisType: 'qa',
-      prompt: 'What is shown?',
+      prompt: 'What is shown-',
     });
   });
 });

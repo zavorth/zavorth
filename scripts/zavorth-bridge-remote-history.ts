@@ -31,18 +31,18 @@ function main() {
     `[zavorth-bridge-remote] total=${summary.totalRuns} | repaired=${summary.repairedRuns} | ready=${summary.readyRuns} | degraded=${summary.degradedRuns}`,
   );
   console.log(
-    `[zavorth-bridge-remote] stability: flapping=${summary.stability.flappingLikely ? 'sim' : 'nao'} | dominant=${summary.stability.dominantIncidentCode || 'n/d'} | matchingRecentFailures=${summary.stability.matchingRecentFailures}`,
+    `[zavorth-bridge-remote] stability: flapping=${summary.stability.flappingLikely ? 'yes' : 'no'} | dominant=${summary.stability.dominantIncidentCode || 'n/d'} | matchingRecentFailures=${summary.stability.matchingRecentFailures}`,
   );
 
   if (!summary.latest) {
-    console.log('[zavorth-bridge-remote] sem execucoes registradas.');
+    console.log('[zavorth-bridge-remote] without execucoes registradas.');
     return;
   }
 
   console.log('[zavorth-bridge-remote] recentes:');
   for (const entry of summary.recent) {
     console.log(
-      `- ${entry.checkedAt} | ready=${entry.readyAfter ? 'sim' : 'nao'} | repaired=${entry.repaired ? 'sim' : 'nao'} | incident=${entry.primaryIncidentCode}/${entry.incidentSeverity} | summary=${entry.summary}`,
+      `- ${entry.checkedAt} | ready=${entry.readyAfter ? 'yes' : 'no'} | repaired=${entry.repaired ? 'yes' : 'no'} | incident=${entry.primaryIncidentCode}/${entry.incidentSeverity} | summary=${entry.summary}`,
     );
   }
 }

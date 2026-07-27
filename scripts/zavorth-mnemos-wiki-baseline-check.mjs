@@ -49,7 +49,7 @@ if (!failures.length) {
     for (const section of requiredSections) {
       if (!body.includes(section)) failures.push(`missing ${section} in ${pagePath}`);
     }
-    if (/\b(sk-|hf_|AIza|api[_-]?key\s*[:=]|token\s*[:=]|password\s*[:=]|secret\s*[:=])/i.test(body)) {
+    if (/\b(sk-|hf_|AIza|api[_-]...key\s*[:=]|token\s*[:=]|password\s*[:=]|secret\s*[:=])/i.test(body)) {
       failures.push(`secret-like marker in ${pagePath}`);
     }
   }

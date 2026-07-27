@@ -82,7 +82,7 @@ describe('BatchTrajectoryTool', () => {
       trajectories: JSON.stringify([{ prompt: 'Hello world' }]),
     });
 
-    expect(result).toMatch(/live batch|execucao real|real providers/i);
+    expect(result).toMatch(/live batch|real execution|real providers/i);
     expect(result).not.toContain('[Simulated]');
     expect(ProviderFactory.create).not.toHaveBeenCalled();
   });
@@ -95,7 +95,7 @@ describe('BatchTrajectoryTool', () => {
 
     expect(result).toContain('Comparison of 1 trajectories');
     expect(result).toContain('OK');
-    expect(result).toContain('Melhor resultado');
+    expect(result).toContain('Best result');
     expect(ProviderFactory.create).toHaveBeenCalledWith('openai');
   });
 
@@ -103,8 +103,8 @@ describe('BatchTrajectoryTool', () => {
     process.env.ZAVORTH_BATCH_TRAJECTORY_ALLOW_LIVE = 'true';
     const result = await tool.execute({
       trajectories: JSON.stringify([
-        { prompt: 'What is AI?', provider: 'openai', model: 'gpt-4' },
-        { prompt: 'What is AI?', provider: 'anthropic', model: 'claude-3' },
+        { prompt: 'What is AI-', provider: 'openai', model: 'gpt-4' },
+        { prompt: 'What is AI-', provider: 'anthropic', model: 'claude-3' },
       ]),
       comparison_metric: 'length',
     });

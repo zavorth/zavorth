@@ -44,14 +44,14 @@ async function main() {
     }
     console.log('[zavorth-hub] action plane oficial');
     console.log(`[zavorth-hub] action=${execution.actionId} | status=${execution.status}`);
-    console.log(`[zavorth-hub] resumo: ${execution.summary}`);
+    console.log(`[zavorth-hub] summary: ${execution.summary}`);
     if (execution.details.length > 0) {
       console.log('[zavorth-hub] detalhes:');
       for (const detail of execution.details.slice(0, 6)) {
         console.log(`- ${detail}`);
       }
     }
-    console.log(`[zavorth-hub] proximo passo: ${execution.hub.narrative.nextAction}`);
+    console.log(`[zavorth-hub] next passo: ${execution.hub.narrative.nextAction}`);
     return;
   }
 
@@ -60,16 +60,16 @@ async function main() {
     return;
   }
 
-  console.log('[zavorth-hub] leitura consolidada do hub');
+  console.log('[zavorth-hub] read consolidada do hub');
   console.log(`[zavorth-hub] postura: ${snapshot.summary.posture}`);
-  console.log(`[zavorth-hub] resumo: ${snapshot.narrative.operatorSummary}`);
+  console.log(`[zavorth-hub] summary: ${snapshot.narrative.operatorSummary}`);
   console.log(
     `[zavorth-hub] integrations=${snapshot.summary.integrations} | plugins=${snapshot.summary.plugins} | skills=${snapshot.summary.skillsVisible} | mcp=${snapshot.summary.mcpConnected}/${snapshot.summary.mcpServers}`,
   );
   console.log(`[zavorth-hub] registry: ${snapshot.sync.status} | ${snapshot.sync.summary}`);
 
   if (snapshot.actions.length > 0) {
-    console.log('[zavorth-hub] acoes sugeridas:');
+    console.log('[zavorth-hub] actions sugeridas:');
     for (const action of snapshot.actions.slice(0, 5)) {
       console.log(`- ${action.label}: ${action.command || action.rationale}`);
     }
@@ -84,7 +84,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-hub] falha ao montar a leitura consolidada.');
+  console.error('[zavorth-hub] failure ao montar a read consolidada.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

@@ -21,11 +21,11 @@ const capabilityId = (() => { try { return requireAutopilotCapabilityId(typeof a
 const audience = (readArg('--audience=') || (asJson ? 'technical_operator' : 'everyday_user')) as CapabilityAutopilotAudience;
 const surfaces = readSurfaces('--surfaces=') || ['cli', 'web', 'chat', 'telegram', 'api'];
 const expectedSurfaces = readSurfaces('--expected-surfaces=') || surfaces;
-const rawIntentProbe = 'STAGE73-RAW-INTENT-MUST-NOT-LEAK';
-const rawWorkspaceProbe = 'C:/private/STAGE73-RAW-WORKSPACE-MUST-NOT-LEAK';
+const rawIntentProbe = 'GATE73-RAW-INTENT-MUST-NOT-LEAK';
+const rawWorkspaceProbe = 'C:/private/GATE73-RAW-WORKSPACE-MUST-NOT-LEAK';
 
 main().catch((error) => {
-  process.stderr.write(`[capability-autopilot-preflight-apply] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(`[capability-autopilot-preflight-apply] failure: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 });
 
@@ -42,9 +42,9 @@ async function main(): Promise<void> {
   const receiptService = new CapabilityAutopilotPreflightDispatchReceiptService();
   const receiptSnapshot = receiptService.buildReceiptSnapshot(sourceSnapshot, {
     explicitlyConfirmed,
-    actorId: 'checkpoint-73-gate',
-    confirmationId: explicitlyConfirmed ? 'checkpoint-73-explicit-confirmation' : null,
-    reason: 'checkpoint-73-apply-adapter-gate',
+    actorId: 'gate-73-gate',
+    confirmationId: explicitlyConfirmed ? 'gate-73-explicit-confirmation' : null,
+    reason: 'gate-73-apply-adapter-gate',
   });
   const adapterService = new CapabilityAutopilotPreflightDispatchAdapterService();
   const adapterSnapshot = adapterService.buildAdapterSnapshot(receiptSnapshot);
@@ -52,17 +52,17 @@ async function main(): Promise<void> {
   const sideEffectSnapshot = sideEffectGateService.buildGateSnapshot(adapterSnapshot, {
     approvalGranted,
     validationPassed,
-    actorId: 'checkpoint-73-gate',
-    approvalReceiptId: approvalGranted ? 'checkpoint-73-approval' : null,
-    validationReceiptId: validationPassed ? 'checkpoint-73-validation' : null,
-    reason: 'checkpoint-73-apply-adapter-gate',
+    actorId: 'gate-73-gate',
+    approvalReceiptId: approvalGranted ? 'gate-73-approval' : null,
+    validationReceiptId: validationPassed ? 'gate-73-validation' : null,
+    reason: 'gate-73-apply-adapter-gate',
   });
   const applyService = new CapabilityAutopilotPreflightApplyAdapterService();
   const snapshot = applyService.buildApplySnapshot(sideEffectSnapshot, {
     explicitApplyConfirmed,
-    actorId: 'checkpoint-73-gate',
-    applyConfirmationId: explicitApplyConfirmed ? 'checkpoint-73-apply-confirmation' : null,
-    reason: 'checkpoint-73-apply-adapter-gate',
+    actorId: 'gate-73-gate',
+    applyConfirmationId: explicitApplyConfirmed ? 'gate-73-apply-confirmation' : null,
+    reason: 'gate-73-apply-adapter-gate',
   });
 
   if (asJson) {

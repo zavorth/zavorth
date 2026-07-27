@@ -20,7 +20,7 @@ const token = process.env.PUTER_AUTH_TOKEN || '';
 const model = process.env.QWEN_MODEL || 'openrouter:qwen/qwen-plus';
 
 if (!token) {
-  console.error('PUTER_AUTH_TOKEN nao esta preenchido no .env.');
+  console.error('PUTER_AUTH_TOKEN is not filled in .env.');
   process.exit(1);
 }
 
@@ -37,7 +37,7 @@ try {
     body: JSON.stringify({
       model,
       messages: [
-        { role: 'user', content: 'Responda apenas com: TESTE QWEN OK' },
+        { role: 'user', content: 'Reply only with: TESTE QWEN OK' },
       ],
       max_tokens: 20,
     }),
@@ -56,6 +56,6 @@ try {
 } catch (error) {
   clearTimeout(timeout);
   const message = error instanceof Error ? error.message : String(error);
-  console.error(`Falha ao validar token Puter: ${message}`);
+  console.error(`Failure ao validate token Puter: ${message}`);
   process.exit(1);
 }

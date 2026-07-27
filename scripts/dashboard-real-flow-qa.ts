@@ -87,7 +87,7 @@ function writeReport(report: QaReport): void {
     [
       "# ZavorthControl Visual Real QA",
       "",
-      `Gerado em: ${report.generatedAt}`,
+      `Generated at: ${report.generatedAt}`,
       `Status: ${report.ok ? "PASS" : "FAIL"}`,
       `Run: ${report.runId || "-"}`,
       `Approval: ${report.approvalId || "-"}`,
@@ -97,7 +97,7 @@ function writeReport(report: QaReport): void {
       "",
       ...report.visualChecklist.map((entry) => `- **${entry.area}:** ${entry.expected}`),
       "",
-      "## Etapas automatizadas",
+      "## Automated steps",
       "",
       ...report.steps.map((step) => `- [${step.status === "pass" ? "x" : " "}] ${step.id}: ${step.detail}`),
       "",
@@ -117,55 +117,55 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     visualChecklist: [
       {
         area: "Topo",
-        expected: "O chip mostra Core Desbloqueado/Core Ao Vivo depois do token.",
+        expected: "The chip shows Core Unlocked/Core Live after the token.",
       },
       {
         area: "Approvals",
-        expected: "A run perigosa aparece como approval pendente antes da execução.",
+        expected: "A dangerous run appears as pending approval before execution.",
       },
       {
         area: "Chat",
-        expected: "O histórico mostra pedido do usuário e resposta do Zavorth.",
+        expected: "History shows the user request and Zavorth response.",
       },
       {
         area: "Artifacts",
-        expected: "O relatório gerado aparece como artifact pronto.",
+        expected: "The generated report appears as a ready artifact.",
       },
       {
-        area: "Replay/Histórico",
-        expected: "A run concluída aparece na lista de sessões/runs com replay disponível.",
+        area: "Replay/History",
+        expected: "The completed run appears in the sessions/runs list with replay available.",
       },
     ],
   };
 
   const executor: UniversalAgentExecutor = ({ run }) => ({
     status: "completed",
-    summary: "QA visual real concluído: approval aprovado, artifact gerado e replay disponível.",
-    replyText: "Relatório de QA visual real pronto.",
+    summary: "Real visual QA completed: approval approved, artifact generated, and replay available.",
+    replyText: "Real visual QA report ready.",
     events: [
       {
         kind: "tool",
-        title: "Ferramenta executada",
+        title: "Tool executed",
         detail: "shell.exec foi liberado pelo approval universal.",
         status: "done",
       },
       {
         kind: "artifact",
-        title: "Artifact gerado",
-        detail: "Relatório real de QA visual anexado à run.",
+        title: "Generated artifact",
+        detail: "Real visual QA report attached to the run.",
         status: "done",
       },
       {
         kind: "reply",
-        title: "Resposta enviada",
-        detail: "ZavorthControl recebeu a conclusão da run.",
+        title: "Response sent",
+        detail: "ZavorthControl received the run completion.",
         status: "done",
       },
     ],
     artifacts: [
       {
         id: "qa-visual-real-report",
-        title: "Relatório de QA Visual Real",
+        title: "Real Visual QA Report",
         kind: "report",
         createdAt: run.updatedAt,
         sessionId: run.sessionId,
@@ -175,9 +175,9 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     memorySignals: [
       {
         id: "qa-visual-real-memory",
-        title: "ZavorthControl validado",
+        title: "ZavorthControl validated",
         layer: "episodic",
-        summary: "Approval, artifact, replay e histórico passaram no fluxo real do gateway.",
+        summary: "Approval, artifact, replay, and history passed in the real gateway flow.",
         confidence: 0.99,
       },
     ],
@@ -194,7 +194,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     userId: "grey",
     channel: "web",
     sessionId: "session-zavorthControl-real-qa",
-    text: "gere um relatório em PDF e rode um comando local para validar o painel",
+    text: "generate a PDF report and run a local command to validate the panel",
     requestedTools: ["shell.exec", "pdf.generate"],
     modelProfile: {
       providerLabel: "OpenAI",
@@ -225,7 +225,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       && pendingViewModel.agentRun?.status === "waiting_approval"
       && pendingViewModel.counts.approvals === 1
       && pendingViewModel.toolExposure.mode === "restricted",
-    "ViewModel mostra estado degradado, approval pendente e ferramentas restritas.",
+    "ViewModel mostra estado degradado, approval pending e tools restritas.",
   );
 
   const approvalId = pending.run.approvals[0]?.id || "";
@@ -248,7 +248,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     report,
     "artifact-generated",
     completedViewModel.artifacts.some((artifact) => artifact.id === "qa-visual-real-report" && artifact.status === "ready"),
-    "Artifact real fica disponível no ViewModel do ZavorthControl.",
+    "Artifact real fica available no ViewModel do ZavorthControl.",
   );
   pushStep(
     report,
@@ -256,7 +256,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     completedViewModel.sessions.some((session) => session.id === "session-zavorthControl-real-qa")
       && completedViewModel.replay.status === "available"
       && completedViewModel.messages.length >= 2,
-    "Histórico, replay e transcript ficam representáveis depois da conclusão.",
+    "History, replay, and transcript remain representable after completion.",
   );
   pushStep(
     report,
@@ -264,7 +264,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     completedViewModel.runtime.status === "ready"
       && completedViewModel.counts.approvals === 0
       && completedViewModel.runtime.blockers.every((blocker) => blocker.id !== "pending-approvals"),
-    "Approval aprovado não continua poluindo o painel como bloqueio pendente.",
+    "Approved approval no longer pollutes the panel as a pending block.",
   );
 
   return report;

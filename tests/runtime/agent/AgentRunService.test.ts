@@ -44,7 +44,7 @@ function createModelPickerContract(overrides: Record<string, any> = {}) {
       ready: true,
       fallbackOrder: ['gemini', 'openai'],
       limitations: [],
-      explanation: ['Configuracao atual seleciona gemini/gemini-2.5-flash.'],
+      explanation: ['Configuraction atual seleciona gemini/gemini-2.5-flash.'],
       ...overrides,
     },
   };
@@ -413,7 +413,7 @@ describe('AgentRunService', () => {
   });
 
   it('publishes runtime lifecycle events without changing executor behavior', async () => {
-    const emitted: Array<{ type: string; payload?: Record<string, unknown> }> = [];
+    const emitted: Array<{ type: string; payload-: Record<string, unknown> }> = [];
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(({ run }) => ({
       status: 'completed',
       summary: `Run ${run.id} processed.`,
@@ -522,7 +522,7 @@ describe('AgentRunService', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-native-spine',
-      text: 'Sempre use 3 bullets nos resumos. token=secret-token sk-test-123',
+      text: 'Sempre use 3 bullets nos summarys. token=secret-token sk-test-123',
       requestedTools: [],
       metadata: {
         capabilityNegotiationApproved: true,
@@ -545,8 +545,8 @@ describe('AgentRunService', () => {
   });
 
   it('fans runtime lifecycle events out to subscribed buses', async () => {
-    const primary: Array<{ type: string; payload?: Record<string, unknown> }> = [];
-    const subscriber: Array<{ type: string; payload?: Record<string, unknown> }> = [];
+    const primary: Array<{ type: string; payload-: Record<string, unknown> }> = [];
+    const subscriber: Array<{ type: string; payload-: Record<string, unknown> }> = [];
     const service = new AgentRunService({
       now: () => new Date('2026-04-27T12:00:00.000Z'),
       idFactory: createIdFactory(),
@@ -771,7 +771,7 @@ describe('AgentRunService', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-provider-tools',
-      text: 'que horas sao agora?',
+      text: 'que horas sao agora-',
       requestedTools: [],
       metadata: {
         capabilityNegotiationApproved: true,
@@ -813,7 +813,7 @@ describe('AgentRunService', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-no-provider',
-      text: 'qual a melhor forma de pensar sobre esse produto?',
+      text: 'qual a melhor forma de pensar sobre esse product-',
       requestedTools: [],
     });
 
@@ -912,7 +912,7 @@ describe('AgentRunService', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-model-picker-runtime',
-      text: 'responda pelo picker compartilhado',
+      text: 'responda pelo picker shared',
       requestedTools: [],
       metadata: {
         capabilityNegotiationApproved: true,
@@ -992,7 +992,7 @@ describe('AgentRunService', () => {
         providerName: 'openai',
         modelName: 'gpt-4o',
         response: {
-          content: 'Resposta com contexto canonico.',
+          content: 'Response with canonical context.',
           toolCalls: [],
           finishReason: 'stop',
         },
@@ -1136,7 +1136,7 @@ describe('AgentRunService', () => {
     };
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'LLM respondeu via fallback.',
+      summary: 'LLM responded through fallback.',
       replyText: 'Resposta com rota observavel.',
       metadata: {
         llmRuntimeRoute: routeReceipt,
@@ -1363,7 +1363,7 @@ describe('AgentRunService', () => {
         JSON.stringify({
           ok: true,
           action: 'browser_search',
-          message: 'Busca enviada para youtube.',
+          message: 'Search sent to YouTube.',
           approvalRequired: false,
         }),
       ),
@@ -1515,7 +1515,7 @@ describe('AgentRunService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           kind: 'error',
-          title: 'Falha estruturada do executor',
+          title: 'Failure estruturada do executor',
           status: 'failed',
         }),
         expect.objectContaining({
@@ -1707,7 +1707,7 @@ describe('AgentRunService', () => {
     });
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(({ run }) => ({
       status: 'completed',
-      summary: `Tools permitidas: ${run.toolExposure.tools.map((tool) => tool.id).join(', ')}.`,
+      summary: `Tools alloweds: ${run.toolExposure.tools.map((tool) => tool.id).join(', ')}.`,
       replyText: 'Tools filtradas pela policy.',
     }));
     const service = new AgentRunService({
@@ -1761,7 +1761,7 @@ describe('AgentRunService', () => {
         toolExposureGatedByImportedCapabilityTrust: true,
       }),
     );
-    expect(result.run.summary).toBe('Tools permitidas: read_file, list_directory.');
+    expect(result.run.summary).toBe('Tools alloweds: read_file, list_directory.');
   });
 
   it('degrades oversized runs with an honest reply before calling the executor', async () => {
@@ -1856,7 +1856,7 @@ describe('AgentRunService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           kind: 'error',
-          title: 'Falha estruturada do executor',
+          title: 'Failure estruturada do executor',
           status: 'failed',
           metadata: expect.objectContaining({
             failureSemantics: expect.objectContaining({
@@ -1868,7 +1868,7 @@ describe('AgentRunService', () => {
     );
     expect(result.replies[0]).toEqual(
       expect.objectContaining({
-        text: 'Falha estruturada no executor: provider timeout. Pode ser tentado novamente.',
+        text: 'Failure estruturada no executor: provider timeout. Pode ser tentado novamente.',
       }),
     );
   });

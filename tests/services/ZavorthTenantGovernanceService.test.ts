@@ -119,7 +119,7 @@ describe('ZavorthTenantGovernanceService', () => {
           scopeLabel: 'guild:1489',
           nextAction: expect.stringContaining('canais permitidos'),
           recipe: expect.objectContaining({
-            label: 'Fechar onboarding do tenant publico',
+            label: 'Close public tenant onboarding',
             actions: expect.arrayContaining([
               expect.objectContaining({
                 command: '/channels',
@@ -176,7 +176,7 @@ describe('ZavorthTenantGovernanceService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           tenantId: 'discord-public',
-          label: 'Fechar onboarding do tenant publico',
+          label: 'Close public tenant onboarding',
         }),
       ]),
     );

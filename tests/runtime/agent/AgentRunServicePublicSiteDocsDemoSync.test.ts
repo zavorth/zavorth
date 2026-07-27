@@ -30,7 +30,7 @@ function productEntryRuntime() {
         },
         questions: [],
         writes: [],
-        summary: ['Profile pronto.'],
+        summary: ['Profile ready.'],
       } as any),
       buildWorkspaceIdentitySnapshot: () => ({
         nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
@@ -147,7 +147,7 @@ describe('AgentRunService Public Site Docs Demo Sync Channel mesh9', () => {
       productEntryRuntime: productEntryRuntime(),
       executor: () => ({
         status: 'completed' as const,
-        summary: 'Public sync pronto.',
+        summary: 'Public sync ready.',
         replyText: 'ok',
       }),
     });

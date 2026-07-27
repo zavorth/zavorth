@@ -128,7 +128,7 @@ async function main() {
       trustPlane: snapshot,
     }, null, 2)}\n`);
   } else {
-    console.log('[trust-plane] leitura oficial de perfis, allowlists e superficies sensiveis');
+    console.log('[trust-plane] read oficial de profiles, allowlists e surfaces sensitive');
     if (actionResult) {
       console.log(actionResult.summary);
       for (const detail of actionResult.details || []) {
@@ -155,6 +155,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[trust-plane] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[trust-plane] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

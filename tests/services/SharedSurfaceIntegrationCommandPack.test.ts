@@ -5,7 +5,7 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
     const pluginActionService = {
       execute: jest.fn(async () => ({
         summary: 'OpenRouter marcado como trusted.',
-        details: ['Nenhum segredo foi alterado.'],
+        details: ['No segredo foi alterado.'],
         snapshot: {
           narrative: {
             operatorSummary: '1 registrado e 1 trusted.',
@@ -53,11 +53,11 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
     };
     const reboundChannelActionService = {
       execute: jest.fn(async () => ({
-        summary: 'Teste de broadcast enviado para Discord.',
+        summary: 'Teste de broadcast sent para Discord.',
         details: ['Recipientes previstos: 1.'],
         snapshot: {
           narrative: {
-            operatorSummary: '1 canal pronto.',
+            operatorSummary: '1 canal ready.',
           },
         },
       })),
@@ -91,17 +91,17 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
         actionId: 'broadcast-test',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Teste de broadcast enviado para Discord.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Teste de broadcast sent para Discord.'));
   });
 
   it('routes /channels policy-reload through the existing channel action service', async () => {
     const channelActionService = {
       execute: jest.fn(async () => ({
-        summary: 'Policy de Telegram recarregada sem reiniciar gateways ativos.',
+        summary: 'Policy de Telegram recarregada sem reiniciar gateways actives.',
         details: ['Canais alterados: telegram.'],
         snapshot: {
           narrative: {
-            operatorSummary: '1 canal pronto.',
+            operatorSummary: '1 canal ready.',
           },
         },
       })),
@@ -133,7 +133,7 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
         actionId: 'policy-reload',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('sem reiniciar gateways ativos'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('sem reiniciar gateways actives'));
   });
 
   it('renders the transport report through the extracted pack', async () => {
@@ -156,12 +156,12 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
           transport: 'node-mesh-heartbeat',
           readiness: 'partial',
           endpoint: null,
-          operatorSummary: 'Node pareado aguardando heartbeat.',
+          operatorSummary: 'Node pareado waiting for heartbeat.',
           telemetry: {
             updatedAt: '2026-04-02T11:59:00.000Z',
             pendingWork: 2,
             lastError: null,
-            statusLine: 'Node offline aguardando heartbeat.',
+            statusLine: 'Node offline waiting for heartbeat.',
           },
           details: ['Pareados: 1.'],
         },
@@ -172,8 +172,8 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
           },
         ],
         narrative: {
-          headline: 'Zavorth expoe 4 transporte(s) remoto(s) no plano atual.',
-          operatorSummary: '2 pronto(s), 1 em preparo e 0 desativado(s).',
+          headline: 'Zavorth exposes 4 remote transport(s) on the current plane.',
+          operatorSummary: '2 ready(s), 1 em preparo e 0 desativado(s).',
         },
       })),
     };

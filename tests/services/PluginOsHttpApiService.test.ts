@@ -100,8 +100,8 @@ describe('PluginOsHttpApiService', () => {
     );
     expect(result.ok).toBe(true);
     const rec = result.result.recommendations as {
-      autoEnable?: boolean;
-      recommendations?: Array<{ pluginId: string }>;
+      autoEnable-: boolean;
+      recommendations-: Array<{ pluginId: string }>;
     };
     expect(rec.autoEnable).toBe(false);
     expect(rec.recommendations?.[0]?.pluginId).toBe('web-search');
@@ -216,10 +216,10 @@ describe('PluginOsHttpApiService', () => {
     );
     expect(preview.ok).toBe(true);
     const permissionPreview = preview.result.permissionPreview as {
-      pluginId?: string;
-      permissions?: unknown[];
-      risks?: string[];
-      text?: string;
+      pluginId-: string;
+      permissions-: unknown[];
+      risks-: string[];
+      text-: string;
     };
     expect(permissionPreview?.pluginId).toBe('web-search');
     expect((permissionPreview?.permissions || []).length).toBeGreaterThan(0);
@@ -247,7 +247,7 @@ describe('PluginOsHttpApiService', () => {
       root,
     );
     expect(undone.ok).toBe(true);
-    const onboard = undone.result.onboarding as { disabled?: string[] };
+    const onboard = undone.result.onboarding as { disabled-: string[] };
     expect((onboard?.disabled || []).length).toBeGreaterThan(0);
     expect(bridge.resolve('web-search').enabled).toBe(false);
   });
@@ -319,7 +319,7 @@ describe('PluginOsHttpApiService', () => {
     );
     expect(handledGet).toBe(true);
     expect(writes[0]?.status).toBe(200);
-    expect((writes[0]?.body as { ok?: boolean }).ok).toBe(true);
+    expect((writes[0]?.body as { ok-: boolean }).ok).toBe(true);
 
     const reqPost = { method: 'POST' } as http.IncomingMessage;
     const handledPost = await api.handleRequest(
@@ -331,7 +331,7 @@ describe('PluginOsHttpApiService', () => {
     );
     expect(handledPost).toBe(true);
     const last = writes[writes.length - 1];
-    expect((last?.body as { ok?: boolean }).ok).toBe(true);
+    expect((last?.body as { ok-: boolean }).ok).toBe(true);
     expect(bridge.resolve('http-demo').enabled).toBe(true);
   });
 

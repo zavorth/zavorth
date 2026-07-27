@@ -16,18 +16,18 @@ describe('AudioHandler transcription normalization', () => {
     const normalized = (handler as any).normalizeTranscriptionText([
       'Aqui esta a transcricao do audio:',
       '# Transcricao de audio do Telegram',
-      '[00:00] Ola, tudo bem?',
+      '[00:00] Ola, tudo bem-',
       '---',
     ].join('\n'));
 
-    expect(normalized).toBe('Ola, tudo bem?');
+    expect(normalized).toBe('Ola, tudo bem-');
   });
 
   it('falls back across STT providers when the first successful transcript is rejected by validation', async () => {
     const mockTranscribe = jest.fn()
       .mockResolvedValueOnce({
         ok: true,
-        text: 'dica concurso policia civil investigacao prova carreira salario beneficios edital',
+        text: 'dica concurso policia civil investigaction prova carreira salario beneficios edital',
         provider: 'gemini',
         model: 'gemini-2.5-flash',
         languageCode: 'en-US',
@@ -39,7 +39,7 @@ describe('AudioHandler transcription normalization', () => {
       })
       .mockResolvedValueOnce({
         ok: true,
-        text: 'voce consegue me ouvir?',
+        text: 'you consegue me ouvir-',
         provider: 'openai',
         model: 'whisper-1',
         languageCode: 'en-US',
@@ -69,11 +69,11 @@ describe('AudioHandler transcription normalization', () => {
       await expect(
         handler.transcribeDetailed(audioPath, {
           validator: (candidate) => ({
-            accepted: candidate.text === 'voce consegue me ouvir?',
-            reason: candidate.text === 'voce consegue me ouvir?' ? undefined : 'transcricao impossivel para audio curto',
+            accepted: candidate.text === 'you consegue me ouvir-',
+            reason: candidate.text === 'you consegue me ouvir-' ? undefined : 'transcription impossible for short audio',
           }),
         }),
-      ).rejects.toThrow('transcricao impossivel para audio curto');
+      ).rejects.toThrow('transcription impossible for short audio');
     } finally {
       fs.rmSync(audioPath, { force: true });
     }

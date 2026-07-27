@@ -30,8 +30,8 @@ describe('ZavorthTeamCatalogService', () => {
               task_id: 'task-ship-1',
               objective: 'Revise as mudancas',
               handoff_summary: 'Resumo parcial',
-              result_summary: 'Aguardando aprovacao',
-              reason: 'Falta sua confirmacao para continuar.',
+              result_summary: 'Waiting for approval',
+              reason: 'Your confirmation is missing to continue.',
             },
             stages: [],
             artifacts: [],
@@ -51,7 +51,7 @@ describe('ZavorthTeamCatalogService', () => {
               recent_checkpoints: [],
             },
             created_at: '2026-04-02T14:40:00.000Z',
-            resume_prompt: 'Retome o ship.',
+            resume_prompt: 'Resume o ship.',
           },
           {
             workflow_run_id: 'wf-research-001',
@@ -146,6 +146,6 @@ describe('ZavorthTeamCatalogService', () => {
       ]),
     );
     expect(snapshot.narrative.headline).toContain('4 team(s)');
-    expect(snapshot.narrative.operatorSummary).toContain('1 com retomada pronta');
+    expect(snapshot.narrative.operatorSummary).toContain('1 com resumption pronta');
   });
 });

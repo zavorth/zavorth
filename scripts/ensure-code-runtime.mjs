@@ -47,12 +47,9 @@ function envOff(name) {
 
 function platformFolder() {
   const osName =
-    process.platform === "win32"
-      ? "windows"
-      : process.platform === "darwin"
-        ? "darwin"
-        : process.platform === "linux"
-          ? "linux"
+    process.platform === "win32" ? "windows"
+      : process.platform === "darwin" ? "darwin"
+        : process.platform === "linux" ? "linux"
           : process.platform
   const arch = process.arch === "arm64" ? "arm64" : "x64"
   return `zavorth-${osName}-${arch}`
@@ -134,8 +131,7 @@ function listGithubReleaseAssetUrls(repo, tag, plat, shortPlat, folder) {
       Accept: "application/vnd.github+json",
     }
     if (token) headers.Authorization = `Bearer ${token}`
-    const apiPath = tag.startsWith("latest")
-      ? `/repos/${repo}/releases/latest`
+    const apiPath = tag.startsWith("latest") ? `/repos/${repo}/releases/latest`
       : `/repos/${repo}/releases/tags/${encodeURIComponent(tag)}`
     const req = https.get(
       {
@@ -311,11 +307,9 @@ async function tryDownload() {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "zavorth-code-bin-"))
   try {
     for (const url of urls) {
-      const lowerUrl = String(url).split("?")[0].toLowerCase()
-      const ext = lowerUrl.endsWith(".zip")
-        ? ".zip"
-        : lowerUrl.endsWith(".tgz")
-          ? ".tgz"
+      const lowerUrl = String(url).split("...")[0].toLowerCase()
+      const ext = lowerUrl.endsWith(".zip") ? ".zip"
+        : lowerUrl.endsWith(".tgz") ? ".tgz"
           : ".tar.gz"
       const archive = path.join(tmp, `payload${ext}`)
       try {

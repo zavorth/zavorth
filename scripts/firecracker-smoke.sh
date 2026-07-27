@@ -3,8 +3,8 @@
 # Zavorth - Firecracker Smoke Test
 # =============================================================================
 # Roda um smoke test de ponta a ponta usando a engine do Zavorth.
-# Esse script deve rodar em um host Linux real onde KVM esta configurado
-# e o rootfs.ext4/vmlinux estao preparados.
+# Esse script deve run em um host Linux real onde KVM is configured
+# e o rootfs.ext4/vmlinux are preparados.
 # =============================================================================
 
 set -euo pipefail
@@ -18,13 +18,13 @@ echo "======================================="
 echo ""
 
 if [ "${ZAVORTH_FIRECRACKER_ENABLED:-}" != "true" ] && ! grep -q "ZAVORTH_FIRECRACKER_ENABLED=true" "${PROJECT_ROOT}/.env" 2>/dev/null; then
-  echo "ERRO: habilite ZAVORTH_FIRECRACKER_ENABLED=true no ambiente ou no .env"
+  echo "error: enable ZAVORTH_FIRECRACKER_ENABLED=true no ambiente ou no .env"
   exit 1
 fi
 
 echo "-> Verificando KVM"
 if [ ! -w /dev/kvm ]; then
-  echo "ERRO: /dev/kvm nao esta acessivel em modo de escrita."
+  echo "ERROR: /dev/kvm is not writable."
   exit 1
 fi
 
@@ -39,7 +39,7 @@ async function run() {
 
   const status = fc.getStatus();
   if (!status.canRun) {
-    console.error('Status indica que FC nao pode rodar:', status.detail);
+    console.error('Status indicates FC cannot run:', status.detail);
     process.exit(1);
   }
 
@@ -52,7 +52,7 @@ async function run() {
     console.log('---------------------------');
   `;
 
-  console.log('\nDisparando execucao...');
+  console.log('\nTriggering execution...');
   const start = Date.now();
 
   try {
@@ -62,14 +62,14 @@ async function run() {
       timeoutMs: 15000,
     });
 
-    console.log('\nExecucao concluida em ' + (Date.now() - start) + 'ms');
+    console.log('\nExecution completed in ' + (Date.now() - start) + 'ms');
     console.log('Exit Code:', result.exitCode);
     console.log('STDOUT:\n', result.stdout);
     if (result.stderr) {
       console.log('STDERR:\n', result.stderr);
     }
   } catch (err) {
-    console.error('Falha na execucao:', err?.message || err);
+    console.error('Execution failure:', err....message || err);
     process.exit(1);
   }
 }
@@ -79,14 +79,14 @@ EOF
 
 cd "${PROJECT_ROOT}"
 node smoke.mjs
-TS_EXIT=$?
+TS_EXIT=$...
 rm -f smoke.mjs
 
 if [ $TS_EXIT -eq 0 ]; then
   echo ""
-  echo "Smoke test finalizado com sucesso."
+  echo "Smoke test finished com success."
 else
   echo ""
-  echo "Smoke test finalizou com erro (codigo $TS_EXIT)."
+  echo "Smoke test finalizou com error (code $TS_EXIT)."
 fi
 exit $TS_EXIT

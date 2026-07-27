@@ -75,8 +75,7 @@ function normalizePlatformFolder(name) {
 }
 
 function placeBinary(platformFolder, binaryPath) {
-  const binName = path.basename(binaryPath).toLowerCase().endsWith(".exe")
-    ? "zavorth.exe"
+  const binName = path.basename(binaryPath).toLowerCase().endsWith(".exe") ? "zavorth.exe"
     : "zavorth"
   const dest = path.join(destRoot, platformFolder, "bin", binName)
   copyFile(binaryPath, dest)
@@ -167,13 +166,13 @@ function main() {
     }
   }
 
-  // Local already-built platforms
+  // local already-built platforms
   if (fs.existsSync(destRoot)) {
     for (const name of fs.readdirSync(destRoot)) {
       if (!name.startsWith("zavorth-")) continue
       const binDir = path.join(destRoot, name, "bin")
       if (!fs.existsSync(binDir)) continue
-      const has = fs.readdirSync(binDir).some((n) => /^zavorth(\.exe)?$/i.test(n))
+      const has = fs.readdirSync(binDir).some((n) => /^zavorth(\.exe)...$/i.test(n))
       if (has) {
         log(`present ${name}`)
         placed += 1

@@ -68,14 +68,14 @@ async function main() {
     } else {
       console.log('[automations] action plane oficial');
       console.log(`[automations] action=${execution.actionId} | status=${execution.status}`);
-      console.log(`[automations] resumo: ${execution.summary}`);
+      console.log(`[automations] summary: ${execution.summary}`);
       if (execution.details.length > 0) {
         console.log('[automations] detalhes:');
         for (const detail of execution.details) {
           console.log(`- ${detail}`);
         }
       }
-      console.log(`[automations] proximo passo: ${execution.snapshot.narrative.nextAction}`);
+      console.log(`[automations] next passo: ${execution.snapshot.narrative.nextAction}`);
     }
 
     if (!execution.ok) {
@@ -90,7 +90,7 @@ async function main() {
     console.info = originalConsole.info;
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[automations] leitura oficial das automacoes e scheduled runs');
+    console.log('[automations] read oficial das automations e scheduled runs');
     console.log(await controlPlane.renderReport());
   }
   if (requirePass && snapshot.summary.posture === 'critical') {
@@ -99,6 +99,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[automations] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[automations] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

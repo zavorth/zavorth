@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 
 const fileRules = [
   ruleFilesExist({
-    id: 'source-surface-ledger-checkpoint-0-files',
+    id: 'source-surface-ledger-gate-0-files',
     label: 'Security contract files exist',
     target: 'contract, scanner, diff, planner, ledger service, command, tests and package scripts are present',
     files: [
@@ -209,7 +209,7 @@ function read(relativePath) {
 
 function compactDetails(...values) {
   return values
-    .flatMap((value) => String(value || '').split(/\r?\n/g))
+    .flatMap((value) => String(value || '').split(/\r...\n/g))
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 12);

@@ -94,7 +94,7 @@ function runCommand(args: string[], timeoutMs: number): void {
     throw new Error((result.stderr || result.stdout || `exit ${result.status}`).slice(0, 500));
   }
   if (result.status === null) {
-    throw new Error(`timeout depois de ${timeoutMs}ms`);
+    throw new Error(`timeout after de ${timeoutMs}ms`);
   }
 }
 
@@ -129,13 +129,13 @@ async function main() {
     await runTest('gateway-public-api', 'Public API exposes GUI readiness.', 'public-api', async () => {
       const payload: any = await fetchJson('/api/v1/ops/quality?sessionId=qa-regression');
       if (payload?.ok === false) {
-        throw new Error('readiness retornou ok=false');
+        throw new Error('readiness returned ok=false');
       }
     }),
     await runTest('quality-metrics-api', 'Web quality metrics endpoint responds.', 'web-api', async () => {
       const payload: any = await fetchJson('/api/web/ops/quality?sessionId=qa-regression');
       if (payload?.ok === false) {
-        throw new Error('quality retornou ok=false');
+        throw new Error('quality returned ok=false');
       }
     }),
     await runTest('cli-status-json', 'CLI status/readiness command runs.', 'cli', () => {
@@ -147,11 +147,11 @@ async function main() {
     await runTest('node-mesh-doctor', 'Node Mesh smoke report exists and passed.', 'node-mesh', () => {
       const reportPath = path.join(config.projectRoot, 'data', 'runtime', 'node-mesh-smoke-last.json');
       if (!fs.existsSync(reportPath)) {
-        throw new Error('node-mesh-smoke.json ausente; rode npm run test:nodes:smoke');
+        throw new Error('node-mesh-smoke.json missing; run npm run test:nodes:smoke');
       }
       const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
       if (report.ok !== true && report.status !== 'passed') {
-        throw new Error(`node mesh smoke nao passou: ${report.status || 'unknown'}`);
+        throw new Error(`node mesh smoke did not pass: ${report.status || 'unknown'}`);
       }
     }),
     await runTest('remote-transport-doctor', 'Remote transport doctor runs.', 'transports', () => {
@@ -160,7 +160,7 @@ async function main() {
     await runTest('web-app-shell', 'Dashboard shell responds.', 'web', async () => {
       const html = await fetchText('/dashboard');
       if (!html.includes('Ask Zavorth')) {
-        throw new Error('dashboard shell nao contem marcador Ask Zavorth');
+        throw new Error('dashboard shell does not contain Ask Zavorth marker');
       }
     }),
   ];

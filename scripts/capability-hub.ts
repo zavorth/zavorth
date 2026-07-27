@@ -24,7 +24,7 @@ if (inspectId) {
   if (asJson) {
     console.log(JSON.stringify(result, null, 2));
   } else if (!result.found) {
-    console.log(`Capability Hub: nao encontrei "${inspectId}".`);
+    console.log(`Capability Hub: could not find "${inspectId}".`);
   } else {
     const item = result.item;
     console.log('Zavorth Capability Hub');

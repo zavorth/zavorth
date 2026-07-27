@@ -34,7 +34,7 @@ const rules = [
     files: ['src/contracts/DiagnosticsQaMigrationLivePlaneContract.ts'],
     needles: [
       'ZAVORTH_DIAGNOSTICS_QA_MIGRATION_LIVE_PLANE_CONTRACT_VERSION',
-      '2026-05-05.live-checkpoint-10',
+      '2026-05-05.live-gate-10',
       'diagnostics-otel',
       'diagnostics-prometheus',
       'qa-channel',

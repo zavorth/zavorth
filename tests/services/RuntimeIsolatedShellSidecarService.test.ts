@@ -72,7 +72,7 @@ describe('RuntimeIsolatedShellSidecarService', () => {
       command: 'echo hello',
       timeoutMs: 5000,
       requiredLevel: 'container',
-    })).rejects.toThrow('container obrigatorio');
+    })).rejects.toThrow('container required');
   });
 
   it('requires Firecracker when policy resolves to microvm', async () => {

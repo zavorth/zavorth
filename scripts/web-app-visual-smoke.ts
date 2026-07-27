@@ -11,7 +11,7 @@ type ConfigLike = {
   visualSmokeTtlMs: number;
 };
 
-type VisualStatus = 'PASSOU' | 'FALHOU' | 'PULADO';
+type VisualStatus = 'PASSOU' | 'failed' | 'PULADO';
 
 type VisualResult = {
   name: string;
@@ -82,7 +82,7 @@ function resolveBrowserPath(): string {
   ];
   const available = candidates.find((candidate) => fs.existsSync(candidate));
   if (!available) {
-    throw new Error('Nenhum navegador Chromium local disponivel para o smoke visual.');
+    throw new Error('No navegador Chromium local available para o smoke visual.');
   }
   return available;
 }
@@ -182,7 +182,7 @@ async function waitForDebugger(port: number, timeoutMs: number): Promise<{ webSo
     }
     await sleep(300);
   }
-  throw new Error('Nao consegui abrir o DevTools protocol do navegador local.');
+  throw new Error('Could not open the local browser DevTools protocol.');
 }
 
 async function launchBrowserRuntime(baseUrl: string, waitMs: number): Promise<BrowserRuntime> {
@@ -216,7 +216,7 @@ async function launchBrowserRuntime(baseUrl: string, waitMs: number): Promise<Br
 
   const openPromise = new Promise<void>((resolve, reject) => {
     socket.addEventListener('open', () => resolve());
-    socket.addEventListener('error', () => reject(new Error('Falha ao conectar no DevTools do navegador.')));
+    socket.addEventListener('error', () => reject(new Error('Failure ao conectar no DevTools do navegador.')));
   });
 
   socket.addEventListener('message', (event) => {
@@ -225,7 +225,7 @@ async function launchBrowserRuntime(baseUrl: string, waitMs: number): Promise<Br
       const callback = pending.get(message.id)!;
       pending.delete(message.id);
       if (message.error) {
-        callback.reject(new Error(message.error.message || 'Erro desconhecido no DevTools.'));
+        callback.reject(new Error(message.error.message || 'unknown DevTools error.'));
       } else {
         callback.resolve(message.result || {});
       }
@@ -248,7 +248,7 @@ async function launchBrowserRuntime(baseUrl: string, waitMs: number): Promise<Br
 
   async function sessionSend(method: string, params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
     if (!currentSessionId) {
-      throw new Error('Sessao DevTools ainda nao foi anexada.');
+      throw new Error('DevTools session has not been attached yet.');
     }
     const id = nextId += 1;
     return new Promise((resolve, reject) => {
@@ -294,7 +294,7 @@ async function launchBrowserRuntime(baseUrl: string, waitMs: number): Promise<Br
       if (details?.value !== undefined) {
         return details.value;
       }
-      throw new Error(details?.description || 'Falha ao avaliar expressao no navegador.');
+      throw new Error(details?.description || 'Failure ao avaliar expressure no navegador.');
     },
   };
 }
@@ -327,20 +327,18 @@ async function smokeVisual(baseUrl: string, waitMs: number): Promise<VisualResul
     results.push(
       makeResult(
         'Shell visual',
-        shell.hasRoot && shell.heading.includes('Inbox')
-          ? 'PASSOU'
-          : 'FALHOU',
-        shell.hasRoot
-          ? `Shell carregado com heading "${shell.heading}".`
-          : 'O elemento #core-frame nao apareceu na pagina.',
+        shell.hasRoot && shell.heading.includes('Inbox') ? 'PASSOU'
+          : 'failed',
+        shell.hasRoot ? `Shell loaded com heading "${shell.heading}".`
+          : 'The #core-frame element did not appear on the page.',
       ),
     );
 
     results.push(
       makeResult(
-        'Acao principal',
-        shell.primaryButton === 'Ask Zavorth' ? 'PASSOU' : 'FALHOU',
-        shell.primaryButton ? `Composer placeholder: "${shell.primaryButton}".` : 'Composer placeholder nao apareceu.',
+        'Action principal',
+        shell.primaryButton === 'Ask Zavorth' ? 'PASSOU' : 'failed',
+        shell.primaryButton ? `Composer placeholder: "${shell.primaryButton}".` : 'Composer placeholder did not appear.',
       ),
     );
 
@@ -349,7 +347,7 @@ async function smokeVisual(baseUrl: string, waitMs: number): Promise<VisualResul
         'Status do shell',
         shell.heading.length > 0
           ? 'PASSOU'
-          : 'FALHOU',
+          : 'failed',
         `heading=${shell.heading || 'vazio'}`,
       ),
     );
@@ -381,13 +379,13 @@ async function run(): Promise<void> {
       makeResult(
         'Smoke visual',
         'PULADO',
-        `Nao foi possivel abrir o navegador headless neste ambiente: ${error?.message || String(error)}`,
+        `Could not open the headless browser in this environment: ${error?.message || String(error)}`,
         false,
       ),
     ];
   }
 
-  const blockingFailures = results.filter((entry) => entry.required && entry.status === 'FALHOU').length;
+  const blockingFailures = results.filter((entry) => entry.required && entry.status === 'failed').length;
   if (args.json) {
     console.log(JSON.stringify({
       generatedAt: new Date().toISOString(),

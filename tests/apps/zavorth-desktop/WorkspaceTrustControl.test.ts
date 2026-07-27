@@ -93,7 +93,7 @@ describe('WorkspaceTrustControl Endpoint Integration Tests', () => {
     const { deps, jsonCalls } = buildMockDeps(async () => ({}), false);
     const req = { method: 'GET' } as http.IncomingMessage;
     const res = {} as http.ServerResponse;
-    const url = new URL(`http://localhost/api/v2/workspace/trust/status?workspaceId=${workspaceId}`);
+    const url = new URL(`http://localhost/api/v2/workspace/trust/status-workspaceId=${workspaceId}`);
 
     const handled = await routeService.handleRequest(req, res, url, url.pathname, deps as any);
     expect(handled).toBe(true);
@@ -104,7 +104,7 @@ describe('WorkspaceTrustControl Endpoint Integration Tests', () => {
     const { deps, jsonCalls } = buildMockDeps();
     const req = { method: 'GET' } as http.IncomingMessage;
     const res = {} as http.ServerResponse;
-    const url = new URL(`http://localhost/api/v2/workspace/trust/status?workspaceId=different-workspace`);
+    const url = new URL(`http://localhost/api/v2/workspace/trust/status-workspaceId=different-workspace`);
 
     const handled = await routeService.handleRequest(req, res, url, url.pathname, deps as any);
     expect(handled).toBe(true);
@@ -140,7 +140,7 @@ describe('WorkspaceTrustControl Endpoint Integration Tests', () => {
     // Verify GET status returns trusted
     const { deps: depsGet, jsonCalls: jsonCallsGet } = buildMockDeps();
     const reqGet = { method: 'GET' } as http.IncomingMessage;
-    const urlGet = new URL(`http://localhost/api/v2/workspace/trust/status?workspaceId=${workspaceId}`);
+    const urlGet = new URL(`http://localhost/api/v2/workspace/trust/status-workspaceId=${workspaceId}`);
     const handledGet = await routeService.handleRequest(reqGet, res, urlGet, urlGet.pathname, depsGet as any);
     expect(handledGet).toBe(true);
     expect(jsonCallsGet[0].status).toBe(200);
@@ -170,7 +170,7 @@ describe('WorkspaceTrustControl Endpoint Integration Tests', () => {
     // Grant trust first directly via cache & DB to set up revocation state
     db.run(
       `INSERT INTO workspace_trust_entries (workspace_id, root_hash, root_suffix, trusted, allow_risk_up_to, allow_package_install, allow_network, created_at, updated_at)
-       VALUES (?, 'hash', 'suffix', 1, 'LOW', 0, 0, '2026-06-13', '2026-06-13')`,
+       VALUES (-, 'hash', 'suffix', 1, 'LOW', 0, 0, '2026-06-13', '2026-06-13')`,
       [workspaceId]
     );
     cache.setDeveloperMode(workspaceId, true);
@@ -193,7 +193,7 @@ describe('WorkspaceTrustControl Endpoint Integration Tests', () => {
     // Verify cache is cleared
     expect(cache.isDeveloperModeActive(workspaceId)).toBe(false);
     // Verify DB entry is deleted
-    const row = db.get('SELECT * FROM workspace_trust_entries WHERE workspace_id = ?', [workspaceId]);
+    const row = db.get('SELECT * FROM workspace_trust_entries WHERE workspace_id = -', [workspaceId]);
     expect(row).toBeUndefined();
   });
 });

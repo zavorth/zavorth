@@ -27,7 +27,7 @@ describe('ZavorthExternalSidecarAdapterService Approval gate', () => {
       sidecarsStarted: false,
       liveIoPerformed: false,
     }));
-    expect(snapshot.commands.nextStage).toBe('291 Connector registry - Capability Providers');
+    expect(snapshot.commands.nextAction).toBe('Connector registry - Capability Providers');
   });
 
   it('lists external surfaces through a read-only probe without starting sidecars', () => {
@@ -147,7 +147,7 @@ describe('ZavorthExternalSidecarAdapterService Approval gate', () => {
         'approval-gated risk',
         'no sidecar execution',
       ]),
-      nextSafeAction: 'Proceed to 291 Connector registry - Capability Providers.',
+      nextSafeAction: 'Proceed to Connector registry - Capability Providers.',
     }));
     expect(snapshot.dashboardProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'health',
@@ -180,7 +180,7 @@ describe('ZavorthExternalSidecarAdapterService Approval gate', () => {
     expect(text).toContain('Inbound routed to gateway: 1');
     expect(text).toContain('Risky outbound blocked: 1');
     expect(text).toContain('Sidecars started: false');
-    expect(text).toContain('Next: 291 Connector registry - Capability Providers');
+    expect(text).toContain('Next: Connector registry - Capability Providers');
   });
 });
 

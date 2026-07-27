@@ -232,7 +232,7 @@ describe('ZavorthSkillEvolutionService', () => {
     const { service, mutationPlane } = buildService(root);
 
     const preview = await service.preview({
-      intentText: 'aprenda validar release local antes de publicar',
+      intentText: 'learn to validate local release before publishing',
       demonstration: 'contato do exemplo: owner@example.com',
       requestedBy: 'tester',
       sourceSurface: 'cli',
@@ -252,7 +252,7 @@ describe('ZavorthSkillEvolutionService', () => {
         expect.objectContaining({ id: 'skill-evolution-regression-gate', canProceed: true }),
       ]),
       validationPlan: expect.arrayContaining([
-        expect.stringContaining('auto-instalacao silenciosa'),
+        expect.stringContaining('auto-installation silenciosa'),
       ]),
       payload: expect.objectContaining({
         draftId: preview.record.id,
@@ -295,7 +295,7 @@ describe('ZavorthSkillEvolutionService', () => {
         score: 0.4,
         minScore: 0.8,
         summary: 'Regression gate falhou.',
-        blockers: ['Regressao critica em fluxo de skill.'],
+        blockers: ['Critical regression in skill flow.'],
         warnings: [],
         evidence: [{ id: 'eval-1', status: 'failed', summary: 'critical' }],
       })),
@@ -311,7 +311,7 @@ describe('ZavorthSkillEvolutionService', () => {
     expect(preview.status).toBe('blocked');
     expect(preview.record.status).toBe('blocked');
     expect(preview.details).toEqual(expect.arrayContaining([
-      'Regressao critica em fluxo de skill.',
+      'Critical regression in skill flow.',
     ]));
     expect(mutationPlane.createPlan).not.toHaveBeenCalled();
   });
@@ -363,7 +363,7 @@ describe('ZavorthSkillEvolutionService', () => {
     expect(blocked.summary).toContain('aguarda approval');
     expect(blocked.details).toEqual(expect.arrayContaining([
       'silentInstallBlocked=true',
-      'Nenhum arquivo foi instalado.',
+      'No file foi instalado.',
     ]));
     expect(fs.existsSync(preview.record.targetDirPath!)).toBe(false);
   });

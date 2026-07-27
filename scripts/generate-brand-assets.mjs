@@ -77,7 +77,7 @@ function html({ kind }) {
     transform: perspective(1200px) rotateY(${isSocial ? '-10deg' : '-8deg'}) rotateX(2deg);
     z-index: 1;
   }
-  .mock {
+  .preview {
     width: 100%;
     height: 100%;
     border-radius: 24px;
@@ -88,9 +88,9 @@ function html({ kind }) {
     overflow: hidden;
     font-family: Inter, "Segoe UI", Arial, sans-serif;
   }
-  .mockTop { display:flex; justify-content:space-between; align-items:center; height:34px; padding:0 10px 10px; border-bottom:1px solid #d8e4df; color:#567168; font-size:13px; }
-  .mockTitle { margin: 22px 8px 8px; color:#07110f; font-size:28px; line-height:1.05; font-weight:850; letter-spacing:0; }
-  .mockText { margin: 0 8px 18px; color:#49645b; font-size:14px; line-height:1.45; max-width:560px; }
+  .previewTop { display:flex; justify-content:space-between; align-items:center; height:34px; padding:0 10px 10px; border-bottom:1px solid #d8e4df; color:#567168; font-size:13px; }
+  .previewTitle { margin: 22px 8px 8px; color:#07110f; font-size:28px; line-height:1.05; font-weight:850; letter-spacing:0; }
+  .previewText { margin: 0 8px 18px; color:#49645b; font-size:14px; line-height:1.45; max-width:560px; }
   .cards { display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin: 0 8px 18px; }
   .card { min-height:68px; border:1px solid #b8dcd1; background:#e1f4ee; border-radius:14px; padding:13px; }
   .label { color:#47655c; font-size:12px; margin-bottom:8px; }
@@ -130,7 +130,7 @@ function html({ kind }) {
       </div>
     </div>
     <div class="shotWrap">
-      <div class="mock">
+      <div class="preview">
         <div class="mockTop"><strong>ZavorthControl</strong><span>/zavorthControl</span></div>
         <div class="mockTitle">Runtime, terminal and API live here.</div>
         <div class="mockText">One governed surface for requests, status, approvals, sessions, artifacts and channel readiness.</div>

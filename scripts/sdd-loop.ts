@@ -8,7 +8,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[sdd-loop] falha ao operar o loop SDD.');
+  console.error('[sdd-loop] failure ao operar o loop SDD.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

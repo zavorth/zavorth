@@ -25,15 +25,15 @@ async function main() {
   if (asJson) {
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[zavorth-qa] leitura consolidada do QA');
-    console.log(`[zavorth-qa] perfil: ${snapshot.profile}`);
+    console.log('[zavorth-qa] read consolidada do QA');
+    console.log(`[zavorth-qa] profile: ${snapshot.profile}`);
     console.log(`[zavorth-qa] postura: ${snapshot.summary.posture}`);
     console.log(`[zavorth-qa] arquitetura: ${snapshot.architecture.gate}`);
-    console.log(`[zavorth-qa] resumo: ${snapshot.narrative.operatorSummary}`);
-    console.log(`[zavorth-qa] release pronto: ${snapshot.summary.releaseReady ? 'sim' : 'nao'}`);
-    console.log(`[zavorth-qa] proximo passo: ${snapshot.narrative.nextAction}`);
+    console.log(`[zavorth-qa] summary: ${snapshot.narrative.operatorSummary}`);
+    console.log(`[zavorth-qa] release ready: ${snapshot.summary.releaseReady ? 'yes' : 'no'}`);
+    console.log(`[zavorth-qa] next passo: ${snapshot.narrative.nextAction}`);
     if (snapshot.actions.length > 0) {
-      console.log('[zavorth-qa] acoes sugeridas:');
+      console.log('[zavorth-qa] actions sugeridas:');
       for (const action of snapshot.actions) {
         console.log(`- ${action.label}${action.command ? ` | ${action.command}` : ''}`);
       }
@@ -46,6 +46,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-qa] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[zavorth-qa] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

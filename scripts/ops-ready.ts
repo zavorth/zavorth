@@ -21,15 +21,13 @@ async function main() {
   }
 
   printOfficialInstallReport(report, '[zavorth-ready]');
-  console.log(`[zavorth-ready] atalho oficial: ${canonicalCommand}`);
+  console.log(`[zavorth-ready] shortcut oficial: ${canonicalCommand}`);
   if (args.launcher) {
     console.log(
       `[zavorth-ready] launcher startup: ${
-        launcher.applied
-          ? 'instalado'
-          : (launcher.skipped
-            ? 'ignorado'
-            : `falhou${launcher.error ? ` (${launcher.error})` : ''}`)
+        launcher.applied ? 'installed'
+          : (launcher.skipped ? 'ignorado'
+            : `failed${launcher.error ? ` (${launcher.error})` : ''}`)
       }`,
     );
   }
@@ -37,23 +35,22 @@ async function main() {
   if (!appOpen.skipped) {
     console.log(
       `[zavorth-ready] abrir app: ${
-        appOpen.opened
-          ? `ok (${appOpen.targetUrl})`
-          : `falhou${appOpen.error ? ` (${appOpen.error})` : ''}`
+        appOpen.opened ? `ok (${appOpen.targetUrl})`
+          : `failed${appOpen.error ? ` (${appOpen.error})` : ''}`
       }`,
     );
   }
 
   if (report.remote.appProbe) {
-    console.log(`[zavorth-ready] probe app remoto: ${report.remote.appProbe.ok ? 'ok' : 'falhou'} -> ${report.remote.appProbe.targetUrl}`);
+    console.log(`[zavorth-ready] probe app remote: ${report.remote.appProbe.ok ? 'ok' : 'failed'} -> ${report.remote.appProbe.targetUrl}`);
   }
   if (report.remote.authProbe) {
-    console.log(`[zavorth-ready] probe auth remoto: ${report.remote.authProbe.ok ? 'ok' : 'falhou'} -> ${report.remote.authProbe.targetUrl}`);
+    console.log(`[zavorth-ready] probe auth remote: ${report.remote.authProbe.ok ? 'ok' : 'failed'} -> ${report.remote.authProbe.targetUrl}`);
   }
 }
 
 main().catch((error) => {
-  console.error('[zavorth-ready] falha ao preparar o acesso oficial do Zavorth.');
+  console.error('[zavorth-ready] failure ao preparar o access oficial do Zavorth.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

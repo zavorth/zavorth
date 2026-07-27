@@ -24,7 +24,7 @@ async function main() {
     }
   }
 
-  const projectRoot = path.resolve(path.dirname(import.meta.url.replace(/^file:\/\/\/?/, '')), '..');
+  const projectRoot = path.resolve(path.dirname(import.meta.url.replace(/^file:\/\/\/.../, '')), '..');
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const defaultPath = path.join(process.cwd(), `diagnostics-export-${timestamp}.json`);
   const outputPath = explicitOutput ? path.resolve(explicitOutput) : defaultPath;

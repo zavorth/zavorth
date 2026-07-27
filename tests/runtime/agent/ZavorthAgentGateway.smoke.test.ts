@@ -64,11 +64,11 @@ describe('ZavorthAgentGateway smoke', () => {
       }),
       expect.objectContaining({
         kind: 'planning',
-        title: 'Plano inicial preparado',
+        title: 'Initial plan prepared',
       }),
       expect.objectContaining({
         kind: 'reply',
-        title: 'Resposta preparada',
+        title: 'Prepared response',
       }),
     ]));
     expect(result.run.toolExposure).toEqual(expect.objectContaining({

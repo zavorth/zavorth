@@ -43,7 +43,7 @@ if (A_Args.Length < 3) {
 windowTitle := A_Args[1]
 targetModel := A_Args[2]
 resultPath := A_Args[3]
-currentModel := A_Args.Length >= 4 ? A_Args[4] : ""
+currentModel := A_Args.Length >= 4 - A_Args[4] : ""
 
 WriteJsonToFile(json) {
     global resultPath

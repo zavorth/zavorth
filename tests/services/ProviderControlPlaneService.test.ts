@@ -194,7 +194,7 @@ describe('ProviderControlPlaneService', () => {
         localOnly: true,
         overlayFile: 'C:/repo/config/AIGateway-overlay.json',
         checkedAt: '2026-04-04T16:00:00.000Z',
-        message: 'Gateway proprio do AIGateway ativo.',
+        message: 'Gateway own do AIGateway active.',
       }),
       'utf8',
     );

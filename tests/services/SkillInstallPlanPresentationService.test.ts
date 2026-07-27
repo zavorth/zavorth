@@ -11,7 +11,7 @@ describe('SkillInstallPlanPresentationService', () => {
             selected: null,
             selectedRecipe: {
               id: 'security-hardening',
-              label: 'Hardening e auditoria de seguranca',
+              label: 'Hardening e audit de security',
               summary: 'Hardening antes de release.',
               rationale: 'Boa antes de abrir superficies.',
               actionHint: 'Use em release.',
@@ -98,7 +98,7 @@ describe('SkillInstallPlanPresentationService', () => {
                 allowVendorSync: true,
                 allowCoreCopy: false,
                 rationale: 'Vendor GPL isolado.',
-                recommendedAction: 'Copiar ideias, nao codigo.',
+                recommendedAction: 'Copy ideas, not code.',
                 summary: 'Vendor isolado por licenca.',
               },
             },
@@ -128,10 +128,10 @@ describe('SkillInstallPlanPresentationService', () => {
     }));
     expect(snapshot.steps).toEqual(expect.arrayContaining([
       expect.objectContaining({ label: 'Abrir recipe', command: '/skills recipe security-hardening' }),
-      expect.objectContaining({ label: 'Passo 1', detail: 'Modele ameacas.' }),
+      expect.objectContaining({ label: 'Step 1', detail: 'Modele ameacas.' }),
       expect.objectContaining({ label: 'Preparar Zavorth Bridge Remote Chat', optional: true }),
     ]));
     expect(snapshot.narrative.caution).toContain('permanece isolado por licenca');
-    expect(service.renderReport({ recipeId: 'security-hardening' })).toContain('Plano de instalacao de skills');
+    expect(service.renderReport({ recipeId: 'security-hardening' })).toContain('Plan de installation de skills');
   });
 });

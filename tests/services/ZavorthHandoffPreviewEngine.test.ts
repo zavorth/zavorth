@@ -94,10 +94,10 @@ title: Architecture
 ## Purpose
 Decisions purpose
 ## Decisions
-- Keep identity, governance, memory, and approval logic Zavorth-native.
-- Treat external providers, channels, sandboxes, and agents as capabilities.
+? Keep identity, governance, memory, and approval logic Zavorth-native.
+? Treat external providers, channels, sandboxes, and agents as capabilities.
 ## Open Questions
-- None
+? None
 `,
       'utf8',
     );

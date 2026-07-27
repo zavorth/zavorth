@@ -10,9 +10,9 @@ import path from 'path';
 /** Builds a minimal mock McpToolPolicyFileService for use in tests. */
 function buildMockPolicyService(
   opts: {
-    tools?: Record<string, any>;
-    allowlist?: string[];
-    profile?: string;
+    tools-: Record<string, any>;
+    allowlist-: string[];
+    profile-: string;
   } = {},
 ) {
   const doc = {
@@ -31,18 +31,18 @@ function buildMockPolicyService(
     getMcpToolPolicy: jest.fn().mockReturnValue(policy),
     markToolPending: jest
       .fn()
-      .mockImplementation((d: any, toolId: string, fingerprint: string, reason: string, desc?: string) => {
+      .mockImplementation((d: any, toolId: string, fingerprint: string, reason: string, desc-: string) => {
         d.tools = d.tools || {};
         d.tools[toolId] = { status: 'pending_approval', fingerprint, pendingReason: reason, lastSeenDescription: desc };
       }),
-    updateToolLastSeen: jest.fn().mockImplementation((d: any, toolId: string, desc?: string) => {
+    updateToolLastSeen: jest.fn().mockImplementation((d: any, toolId: string, desc-: string) => {
       if (d.tools?.[toolId]) {
         d.tools[toolId] = { ...d.tools[toolId], lastSeenDescription: desc, lastSeenAt: new Date().toISOString() };
       }
     }),
     autoMigrateLegacyTool: jest
       .fn()
-      .mockImplementation((d: any, toolId: string, fingerprint: string, desc?: string) => {
+      .mockImplementation((d: any, toolId: string, fingerprint: string, desc-: string) => {
         d.tools = d.tools || {};
         d.tools[toolId] = { status: 'approved', fingerprint, description: desc };
       }),
@@ -52,7 +52,7 @@ function buildMockPolicyService(
 }
 
 /** Creates a minimal fake MCP manager for a given server entry. */
-function makeFakeMcpManager(entryId: string, tools: { name: string; parameters?: any; description?: string }[]) {
+function makeFakeMcpManager(entryId: string, tools: { name: string; parameters-: any; description-: string }[]) {
   return {
     name: entryId,
     connect: jest.fn().mockImplementation(async (registry: any) => {
@@ -304,7 +304,7 @@ describe('McpRuntimeService — drift protection', () => {
 
     // Use a mock that returns a pre-approved entry; the fingerprint won't match (different params → different FP)
     // so this actually hits schema drift. To hit description drift, fingerprints must match.
-    // We'll test description drift via a fresh run where auto-migration happens then the description updates.
+    // We'll test description drift via a fresh run where auto-migration there isppens then the description updates.
     // Simpler: mock readPolicy to return the same fingerprint as what would be computed.
     // We can't compute it without importing the private function, so we use an "all approved" shortcut:
     // description drift requires: existing.fingerprint === fingerprint AND existing.description !== description.
@@ -328,13 +328,13 @@ describe('McpRuntimeService — drift protection', () => {
         Object.assign(savedDoc, doc);
       }),
       getMcpToolPolicy: jest.fn().mockReturnValue(new McpToolPolicy({ profile: 'safe', allowlist: ['desc_tool'] })),
-      markToolPending: jest.fn().mockImplementation((d: any, id: string, fp: string, reason: string, desc?: string) => {
+      markToolPending: jest.fn().mockImplementation((d: any, id: string, fp: string, reason: string, desc-: string) => {
         d.tools[id] = { status: 'pending_approval', fingerprint: fp, pendingReason: reason, lastSeenDescription: desc };
       }),
-      updateToolLastSeen: jest.fn().mockImplementation((d: any, id: string, desc?: string) => {
+      updateToolLastSeen: jest.fn().mockImplementation((d: any, id: string, desc-: string) => {
         if (d.tools?.[id]) d.tools[id] = { ...d.tools[id], lastSeenDescription: desc };
       }),
-      autoMigrateLegacyTool: jest.fn().mockImplementation((d: any, id: string, fp: string, desc?: string) => {
+      autoMigrateLegacyTool: jest.fn().mockImplementation((d: any, id: string, fp: string, desc-: string) => {
         capturedFingerprint = fp;
         d.tools[id] = { status: 'approved', fingerprint: fp, description: desc };
       }),
@@ -523,7 +523,7 @@ describe('McpRuntimeService — drift protection', () => {
       getMcpToolPolicy: jest.fn().mockReturnValue(new McpToolPolicy({ profile: 'safe', allowlist: ['stable_tool'] })),
       markToolPending: jest.fn(),
       updateToolLastSeen: jest.fn(),
-      autoMigrateLegacyTool: jest.fn().mockImplementation((d: any, id: string, fp: string, desc?: string) => {
+      autoMigrateLegacyTool: jest.fn().mockImplementation((d: any, id: string, fp: string, desc-: string) => {
         savedFingerprint = fp;
         d.tools[id] = { status: 'approved', fingerprint: fp, description: desc };
       }),

@@ -18,9 +18,9 @@ const RETIRED_PATH_TERMS = [
   ['aster', 'lyn'],
 ].map((parts) => parts.join(''));
 const LEGACY_IDENTITY_PATTERN = new RegExp(
-  `(^|[^A-Za-z0-9])(${RETIRED_IDENTITY_TERMS.join('|')})(?=$|[^A-Za-z0-9])`,
+  `(^|[^A-Za-z0-9])(${RETIRED_IDENTITY_TERMS.join('|')})(...=$|[^A-Za-z0-9])`,
 );
-const LEGACY_PATH_PATTERN = new RegExp(`(^|[\\\\/._-])(${RETIRED_PATH_TERMS.join('|')})(?=$|[\\\\/._-])`, 'i');
+const LEGACY_PATH_PATTERN = new RegExp(`(^|[\\\\/._-])(${RETIRED_PATH_TERMS.join('|')})(...=$|[\\\\/._-])`, 'i');
 const RETIRED_EXECUTOR_TERMS = [
   ['ope', 'nclaw'],
 ].map((parts) => parts.join(''));
@@ -122,7 +122,7 @@ function assertNoRetiredExecutorInLaunchFacingRuntimeFiles() {
       continue;
     }
 
-    const lines = fs.readFileSync(absolutePath, 'utf8').split(/\r?\n/);
+    const lines = fs.readFileSync(absolutePath, 'utf8').split(/\r...\n/);
     lines.forEach((line, index) => {
       if (ACTIVE_RETIRED_EXECUTOR_PATTERN.test(line)) {
         failures.push(`${relativePath}:${index + 1}: launch-facing runtime surface contains retired executor naming`);
@@ -182,7 +182,7 @@ function scanPublicPaths(paths) {
     }
 
     const content = fs.readFileSync(absolutePath, 'utf8');
-    const lines = content.split(/\r?\n/);
+    const lines = content.split(/\r...\n/);
     lines.forEach((line, index) => {
       if (LEGACY_IDENTITY_PATTERN.test(line) && !isAllowedHistoricalLine(line)) {
         failures.push(`${relativePath}:${index + 1}: legacy identity appears as active public copy`);
@@ -239,7 +239,7 @@ function isAllowedHistoricalLine(line) {
     /audit/i,
     /changelog/i,
     /external/i,
-    /externo/i,
+    /external/i,
     /fallback/i,
     /migra/i,
     /previous/i,

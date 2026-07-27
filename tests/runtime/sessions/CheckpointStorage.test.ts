@@ -41,7 +41,7 @@ function checksumFile(filePath: string): string {
   return crypto.createHash('sha256').update(content).digest('hex');
 }
 
-describe('CheckpointStorage', () => {
+describe('SessionSnapshotStorage', () => {
   let store: SessionPersistenceStore;
   let tempDir: string;
 
@@ -59,7 +59,7 @@ describe('CheckpointStorage', () => {
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
-  describe('save and load checkpoint', () => {
+  describe('save and load snapshot', () => {
     it('persists session state to disk and loads it back', async () => {
       await store.initialize();
       const state = makeSessionState({ id: 'ses_persist' });
@@ -73,7 +73,7 @@ describe('CheckpointStorage', () => {
       expect(loaded!.model).toBe('gpt-4o');
     });
 
-    it('overwrites existing checkpoint on re-save', async () => {
+    it('overwrites existing snapshot on re-save', async () => {
       await store.initialize();
       const state = makeSessionState({ id: 'ses_overwrite', messageCount: 5 });
       await store.saveSession(state);
@@ -87,7 +87,7 @@ describe('CheckpointStorage', () => {
       expect(loaded!.status).toBe('completed');
     });
 
-    it('returns null for non-existent checkpoint', async () => {
+    it('returns null for non-existent snapshot', async () => {
       const loaded = await store.loadSession('nonexistent');
       expect(loaded).toBeNull();
     });
@@ -133,7 +133,7 @@ describe('CheckpointStorage', () => {
       expect(sessions.map((s) => s.id).sort()).toEqual(['ses_a', 'ses_b', 'ses_c']);
     });
 
-    it('returns empty array when no checkpoints exist', async () => {
+    it('returns empty array when no snapshots exist', async () => {
       await store.initialize();
       const sessions = await store.listSessions();
       expect(sessions).toHaveLength(0);
@@ -163,7 +163,7 @@ describe('CheckpointStorage', () => {
       expect(sessions[2].id).toBe('ses_old');
     });
 
-    it('skips corrupted checkpoint files gracefully', async () => {
+    it('skips corrupted snapshot files gracefully', async () => {
       // Corrupt JSON is skipped during migration; good session still imports
       const migrateRoot = path.join(tempDir, 'migrate-corrupt');
       const sessionsDir = path.join(migrateRoot, 'sessions');
@@ -182,7 +182,7 @@ describe('CheckpointStorage', () => {
     });
   });
 
-  describe('delete checkpoint file', () => {
+  describe('delete snapshot file', () => {
     it('removes session from sqlite store', async () => {
       await store.initialize();
       await store.saveSession(makeSessionState({ id: 'ses_delete' }));
@@ -204,7 +204,7 @@ describe('CheckpointStorage', () => {
       expect(await store.loadMemoryChunks('ses_delmem')).toHaveLength(0);
     });
 
-    it('loading deleted checkpoint returns null', async () => {
+    it('loading deleted snapshot returns null', async () => {
       await store.initialize();
       await store.saveSession(makeSessionState({ id: 'ses_delload' }));
       await store.deleteSession('ses_delload');
@@ -213,13 +213,13 @@ describe('CheckpointStorage', () => {
       expect(loaded).toBeNull();
     });
 
-    it('deleting non-existent checkpoint does not throw', async () => {
+    it('deleting non-existent snapshot does not throw', async () => {
       await store.initialize();
       await expect(store.deleteSession('nonexistent')).resolves.toBeUndefined();
     });
   });
 
-  describe('cleanup old checkpoints', () => {
+  describe('cleanup old snapshots', () => {
     it('prunes oldest sessions when maxSessions is exceeded', async () => {
       const limitedStore = new SessionPersistenceStore({ dbPath: tempDir, maxSessions: 3 });
       await limitedStore.initialize();

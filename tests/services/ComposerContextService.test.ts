@@ -10,7 +10,7 @@ describe('ComposerContextService', () => {
         {
           id: 'action:file',
           type: 'action',
-          label: '#usar-arquivo:index.ts',
+          label: '#usar-file:index.ts',
           payload: {
             action: 'attach_file_context',
             fileName: 'index.ts',
@@ -22,7 +22,7 @@ describe('ComposerContextService', () => {
         {
           id: 'action:artifact',
           type: 'action',
-          label: '#usar-artefato:build-log',
+          label: '#use-artifact:build-log',
           payload: {
             action: 'attach_artifact_context',
             name: 'build.log',
@@ -66,7 +66,7 @@ describe('ComposerContextService', () => {
           {
             id: 'action:file',
             type: 'action',
-            label: '#usar-arquivo:index.ts',
+            label: '#usar-file:index.ts',
             payload: { action: 'attach_file_context' },
           },
         ] as any,
@@ -75,12 +75,12 @@ describe('ComposerContextService', () => {
 
     expect(
       service.hasPendingFollowupActionWithoutMessage(
-        'analise esse arquivo',
+        'analise esse file',
         [
           {
             id: 'action:file',
             type: 'action',
-            label: '#usar-arquivo:index.ts',
+            label: '#usar-file:index.ts',
             payload: { action: 'attach_file_context' },
           },
         ] as any,

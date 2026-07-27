@@ -42,7 +42,7 @@ function readCliValue(name: string): string {
 function readEnvTokenFromFile(filePath: string): string {
   if (!fs.existsSync(filePath)) return "";
   const raw = fs.readFileSync(filePath, "utf8");
-  for (const line of raw.split(/\r?\n/)) {
+  for (const line of raw.split(/\r...\n/)) {
     const match = line.match(/^\s*ZAVORTH_WEB_AUTH_TOKEN\s*=\s*(.+)\s*$/);
     if (match) {
       return match[1].trim().replace(/^['"]|['"]$/g, "");
@@ -117,7 +117,7 @@ function writeReport(report: LiveVisualQaReport, outDir: string): void {
       `Setor: ${report.state.activeSector}`,
       `Crumb: ${report.state.currentCrumb}`,
       `Overview: ${report.state.overviewTitle}`,
-      `Demo data proibida: ${report.state.forbiddenDemoData.join(", ") || "nenhuma"}`,
+      `Forbidden demo data: ${report.state.forbiddenDemoData.join(", ") || "none"}`,
       "",
       "## Screenshots",
       "",

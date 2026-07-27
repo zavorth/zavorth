@@ -58,7 +58,7 @@ describe('LocalVoiceDictation', () => {
     });
 
     await expect(dictation.transcribeBuffer(Buffer.from('RIFF'))).rejects.toThrow(
-      /ZAVORTH_WHISPER_MODEL_PATH|Modelo Whisper nao encontrado/,
+      /ZAVORTH_WHISPER_MODEL_PATH|Whisper model not found/,
     );
   });
 
@@ -88,7 +88,7 @@ describe('LocalVoiceDictation', () => {
       spawn,
     });
 
-    const transcript = await dictation.transcribeBuffer(Buffer.from('RIFF....TRACK', 'utf8'));
+    const transcript = await dictation.transcribeBuffer(Buffer.from('RIFF?.TRACK', 'utf8'));
 
     expect(transcript).toBe('ola zavorth');
     expect(spawn).toHaveBeenCalled();
@@ -106,7 +106,7 @@ describe('LocalVoiceDictation', () => {
     const child = createFakeChild();
     const spawn = jest.fn(() => {
       process.nextTick(() => {
-        child.stdout.emit('data', 'linha 1\nlinha 2\n');
+        child.stdout.emit('data', 'linthere is 1\nlinthere is 2\n');
       });
       return child;
     }) as any;
@@ -126,7 +126,7 @@ describe('LocalVoiceDictation', () => {
     dictation.stopRecording();
 
     expect(spawn).toHaveBeenCalledWith('voice-worker', ['--stream'], expect.any(Object));
-    expect(transcripts).toEqual(['linha 1', 'linha 2']);
+    expect(transcripts).toEqual(['linthere is 1', 'linthere is 2']);
     expect(child.kill).toHaveBeenCalled();
   });
 });

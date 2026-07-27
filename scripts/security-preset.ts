@@ -39,7 +39,7 @@ if (wantsStatus) {
 
 const preset = getSecurityOperationalPreset(presetArg);
 if (!preset) {
-  process.stderr.write(`[zavorth-security] preset desconhecido: ${String(presetArg || 'n/d')}\n`);
+  process.stderr.write(`[zavorth-security] unknown preset: ${String(presetArg || 'n/d')}\n`);
   process.stderr.write(formatSecurityOperationalPresetList());
   process.exit(1);
 }
@@ -51,10 +51,10 @@ if (!apply) {
     process.stdout.write([
       '[zavorth-security] preset preview',
       `[zavorth-security] ${preset.id}: ${preset.label}`,
-      `[zavorth-security] perfil: ${preset.securityProfile} | MCP: ${preset.mcpPolicy.profile} | skills: ${preset.skillPolicy.defaultPolicy}`,
+      `[zavorth-security] profile: ${preset.securityProfile} | MCP: ${preset.mcpPolicy.profile} | skills: ${preset.skillPolicy.defaultPolicy}`,
       `[zavorth-security] ${preset.summary}`,
       '',
-      `Aplicar: zavorth security preset ${preset.id} --apply`,
+      `Apply: zavorth security preset ${preset.id} --apply`,
     ].join('\n') + '\n');
   }
   process.exit(0);

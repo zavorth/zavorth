@@ -100,7 +100,7 @@ describe('SourceSurfaceLedgerService Security contract', () => {
         failOnUnclassifiedSurfaces: true,
       }),
     );
-    expect(receipt.commands.nextStage).toBe('Intent model - Plugin OS And Package SDK Absorption');
+    expect(receipt.commands.nextAction).toBe('Plugin OS And Package SDK Absorption');
   });
 
   it('fails the receipt when a new app or important runtime dependency is unclassified', () => {
@@ -139,7 +139,7 @@ describe('SourceSurfaceLedgerService Security contract', () => {
     expect(text).toContain('Zavorth Source Surface Ledger - Security contract');
     expect(text).toContain('Status: passed');
     expect(text).toContain('Entries: 20');
-    expect(text).toContain('Next: Intent model - Plugin OS And Package SDK Absorption');
+    expect(text).toContain('Next: Plugin OS And Package SDK Absorption');
   });
 });
 

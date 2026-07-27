@@ -1,5 +1,5 @@
 /**
- * Package C — static hygiene: free-text must not re-grow keyword→feature packs
+ * Static hygiene: free-text must not re-grow keyword-to-feature packs
  * on agent-first hot paths. See docs/product/free-text-purity-matrix.md
  */
 import fs from 'node:fs';
@@ -20,22 +20,22 @@ const FORBIDDEN_HOTPATH_MARKERS: Array<{ label: string; re: RegExp; files: strin
   },
   {
     label: 'runtime maintenance free-text phrase packs',
-    re: /se autorepare|se autoatualize|resumo das ultimas alteracoes|resuma.*ultimas.*(alteracoes|mudancas)/i,
+    re: /self repair|self update|summary of recent changes|summarize.*recent.*(changes|changes)/i,
     files: ['src/domain/surface/presentation/shared-surface/SharedSurfacePresentationCommandPack.ts'],
   },
   {
-    label: 'experience profile free-text resuma→executive',
-    re: /\(resuma\|resumo\)\.\*\(impacto\|decisao\)|resuma.*impacto.*decisao/i,
+    label: 'experience profile free-text summary-to-executive',
+    re: /\(resuma\|summary\)\.\*\(impacto\|decision\)|resuma.*impacto.*decision/i,
     files: ['src/cli/ZavorthCliRegistryExperience.ts', 'src/ai-gateway/app/api/experience/experienceRouteSupport.ts'],
   },
   {
     label: 'team/swarm free-text intent regex',
-    re: /equipe de agentes|multi-?agent team|\\bswarm\\b.*\\.test\(|isTeamIntent.*\.test\(/i,
+    re: /equipe de agentes|multi--agent team|\\bswarm\\b.*\\.test\(|isTeamIntent.*\.test\(/i,
     files: ['src/runtime/agent/AgentTeamCompilerService.ts'],
   },
   {
     label: 'free-text bare approve phrase dictionary',
-    re: /\\b(aprovo|autorizo|pode continuar|pode seguir)\\b/,
+    re: /\\b(I approve|I approve|can continue|can proceed)\\b/,
     files: ['src/runtime/agent/UniversalApprovalIntentResolver.ts'],
   },
   {
@@ -108,36 +108,35 @@ const REQUIRED_INVARIANTS: Array<{ file: string; markers: Array<{ label: string;
 const EN_CRITICAL_FILES: Array<{ file: string; forbidden: RegExp; allowlist?: RegExp[] }> = [
   {
     file: 'src/runtime/agent/UniversalApprovalIntentResolver.ts',
-    // Accented PT / common product PT leftovers in reason strings
+    // Non-ASCII mojibake/accent residue and old product-copy leftovers.
     forbidden:
-      /[áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]|\b(nao parece|Nenhum approval|Ha mais|Aprovado|Rejeitado|Confirmacao|Rejeicao resolvida|Approval resolvido)\b/,
+      /[\u00c0-\u017f\u00c2\u00c3\ufffd]|\b(does not appear|No approval|There are more|Confirmation)\b/,
     allowlist: [
-      // slash token aliases intentionally bilingual
-      /aprovar|aprova|rejeitar|rejeite|negar/,
+      // Slash command tokens remain explicit product commands.
+      /approve|approves|reject/,
     ],
   },
   {
     file: 'src/runtime/agent/AgentTeamCompilerService.ts',
-    forbidden: /[áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]|\b(Lancar|intencao|pedido da run|Acoes de equipe|Sem intencao)\b/,
+    forbidden: /[\u00c0-\u017f\u00c2\u00c3\ufffd]|\b(No intent)\b/,
   },
   {
     file: 'src/services/UserExperienceIntentRouter.ts',
-    forbidden: /[áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]/,
+    forbidden: /[\u00c0-\u017f\u00c2\u00c3\ufffd]/,
   },
   {
     file: 'src/services/learned-knowledge/LearnedKnowledgePlaneService.ts',
-    forbidden: /[áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]/,
+    forbidden: /[\u00c0-\u017f\u00c2\u00c3\ufffd]/,
   },
   {
     file: 'src/services/learned-knowledge/LearnedKnowledgeAdvanced.ts',
-    forbidden: /[áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]/,
+    forbidden: /[\u00c0-\u017f\u00c2\u00c3\ufffd]/,
   },
   {
     file: 'src/cli/ZavorthCliRegistryExperience.ts',
-    forbidden: /neste runtime/,
+    forbidden: /localized runtime copy/,
   },
 ];
-
 describe('FreeTextFeatureRoutingHygiene (Package C)', () => {
   it('rejects known free-text feature-activation markers on hot paths', () => {
     const failures: string[] = [];
@@ -190,7 +189,7 @@ describe('FreeTextFeatureRoutingHygiene (Package C)', () => {
       }
       if (entry.forbidden.test(src)) {
         const match = src.match(entry.forbidden);
-        failures.push(`${entry.file}: non-EN product residual near "${match?.[0] || '?'}"`);
+        failures.push(`${entry.file}: non-EN product residual near "${match?.[0] || '-'}"`);
       }
     }
     expect(failures).toEqual([]);

@@ -31,13 +31,13 @@ async function main() {
   const profile = await profileService.getProfile(workspace);
 
   if (!profile) {
-    throw new Error(`Nao foi possivel resolver o workspace: ${workspace}`);
+    throw new Error(`Could not resolve workspace: ${workspace}`);
   }
 
   if (listOnly) {
     const commands = commandService.listCommands(profile);
     if (commands.length === 0) {
-      console.log('[workspace-command] Nenhum comando reutilizavel encontrado.');
+      console.log('[workspace-command] No comando reutilizavel encontrado.');
       return;
     }
 
@@ -50,7 +50,7 @@ async function main() {
 
   const resolved = commandService.resolveInvocation(profile, commandName, argsText);
   if (!resolved) {
-    throw new Error(`Comando reutilizavel nao encontrado: ${commandName}`);
+    throw new Error(`Reusable command not found: ${commandName}`);
   }
 
   console.log(`[workspace-command] /${resolved.name}`);
@@ -59,6 +59,6 @@ async function main() {
 }
 
 main().catch((error: unknown) => {
-  console.error(`[workspace-command] erro: ${error?.message || String(error)}`);
+  console.error(`[workspace-command] error: ${error?.message || String(error)}`);
   process.exitCode = 1;
 });

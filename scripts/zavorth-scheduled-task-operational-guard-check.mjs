@@ -38,13 +38,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('scheduled-task-operational-guard-files', 'Credential vault files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('scheduled-task-operational-guard-files', 'Credential vault files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthScheduledTaskOperationalGuardContract.ts', ['ZAVORTH_SCHEDULED_TASK_OPERATIONAL_GUARD_CONTRACT_VERSION', 'approvalExpiredTasks', 'explicitApplyRequiredForAutoPause']],
-    ['src/services/ZavorthScheduledTaskOperationalGuardService.ts', ['checkpoint-5-renewal-expiry-auto-pause', 'approval_expired', 'auto_pause_recommended', 'noWorkloadExecution']],
+    ['src/services/ZavorthScheduledTaskOperationalGuardService.ts', ['gate-5-renewal-expiry-auto-pause', 'approval_expired', 'auto_pause_recommended', 'noWorkloadExecution']],
     ['src/services/ZavorthAutomationActionService.ts', ["'reapprove'", 'automation-reapprove']],
     ['src/domain/surface/presentation/shared-surface/SharedSurfaceOperationsCommandPack.ts', ['reapprove|renew']],
     ['src/telegram/controllers/TelegramSchedulerController.ts', ['reapprove|renew']],
@@ -132,5 +132,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

@@ -212,7 +212,7 @@ describe('ZavorthAutonomousEngineeringPartnerService', () => {
     const { service, mutationPlane, trustDecision, policyLedger } = buildService(root);
 
     const delegated = await service.delegateMission({
-      objective: 'corrigir bug de deploy, aplicar patch e validar testes',
+      objective: 'fix deploy bug, apply patch, and validate tests',
       autonomyLevel: 'supervised',
       riskLevel: 'medium',
       mutable: true,
@@ -287,7 +287,7 @@ describe('ZavorthAutonomousEngineeringPartnerService', () => {
   it('approves missions and tracks progress evidence inside budget', async () => {
     const { service } = buildService(root);
     const delegated = await service.delegateMission({
-      objective: 'corrigir bug de testes',
+      objective: 'fix test bug',
       autonomyLevel: 'supervised',
       mutable: true,
     });
@@ -362,7 +362,7 @@ describe('ZavorthAutonomousEngineeringPartnerService', () => {
       sources: {
         rollout: {
           summary: { posture: 'critical', gateStatus: 'blocked', canProceed: false },
-          narrative: { operatorSummary: 'Rollout bloqueado por regressao.' },
+          narrative: { operatorSummary: 'Rollout blocked by regression.' },
         },
       },
     });
@@ -387,7 +387,7 @@ describe('ZavorthAutonomousEngineeringPartnerService', () => {
   it('completes missions with tests, diffs, logs and rollback evidence', async () => {
     const { service, mutationPlane, policyLedger } = buildService(root);
     const delegated = await service.delegateMission({
-      objective: 'corrigir bug e validar release local',
+      objective: 'fix bug and validate local release',
       autonomyLevel: 'supervised',
       mutable: true,
     });

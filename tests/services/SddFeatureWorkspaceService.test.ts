@@ -17,7 +17,7 @@ describe('SddFeatureWorkspaceService', () => {
       'C:/tmp/zavorth/specs/features/multisurface/shared-command-contract/tasks.md': [
         '# Tasks',
         '',
-        '- [x] T1. Definir o contrato compartilhado',
+        '- [x] T1. Definir o contrato shared',
         '- [ ] T2. Integrar o core ao contrato',
       ].join('\n'),
     };

@@ -76,10 +76,10 @@ describe('ZavorthControl Skill/MCP Quarantine Skill MCP Quarantine', () => {
             },
             surface: {
               cliCommand: 'zavorth quarantine run run-quarantine --json',
-              zavorthControlPath: '/control?sector=skills',
-              reviewHint: 'Revise origem e risco.',
+              zavorthControlPath: '/control-sector=skills',
+              reviewHint: 'Review source and risk.',
             },
-            nextSafeAction: 'Manter tools importadas em quarentena.',
+            nextSafeAction: 'Manter tools importadas quarantined.',
           },
         },
       },

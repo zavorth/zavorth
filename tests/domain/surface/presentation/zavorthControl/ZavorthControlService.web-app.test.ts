@@ -24,7 +24,7 @@ function createInstallJourneyFixture() {
   const now = new Date().toISOString();
   const readiness = {
     generatedAt: now,
-    summary: 'Zavorth pronto para uso local e remoto',
+    summary: 'Zavorth ready for local and remote use',
     local: {
       ready: true,
       baseUrl: 'http://127.0.0.1:33333',
@@ -81,11 +81,11 @@ function createInstallJourneyFixture() {
       initial: bootstrapReport,
       steps: [],
       final: bootstrapReport,
-      summary: 'Nenhuma correcao segura disponivel.',
+      summary: 'No safe correction available.',
     },
     startup: null,
     manifest: {
-      summary: 'Zavorth pronto para uso local e remoto',
+      summary: 'Zavorth ready for local and remote use',
       local: {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
@@ -114,7 +114,7 @@ function createInstallJourneyFixture() {
       journey: [
         {
           id: 'install',
-          title: 'Instalacao',
+          title: 'Instalaction',
           description: 'Instale o runtime supervisionado.',
         },
       ],
@@ -127,14 +127,14 @@ function createInstallJourneyFixture() {
     phases: [
       {
         id: 'bootstrap',
-        title: 'Plano de bootstrap',
+        title: 'Bootstrap plan',
         status: 'ready',
         summary: 'Bootstrap ok.',
         command: null,
         details: [],
       },
     ],
-    summary: 'Zavorth pronto para uso local e remoto',
+    summary: 'Zavorth ready for local and remote use',
   } as any;
 }
 
@@ -142,10 +142,10 @@ function createOfficialRemoteAccessFixture() {
   const now = new Date().toISOString();
   return {
     generatedAt: now,
-    summary: 'Acesso remoto oficial pronto.',
+    summary: 'Acesso remoto oficial ready.',
     official: {
       generatedAt: now,
-      summary: 'Zavorth pronto para uso local e remoto',
+      summary: 'Zavorth ready for local and remote use',
       tokenSource: 'env',
       journey: {} as any,
       manifest: {} as any,
@@ -171,13 +171,13 @@ function createOfficialRemoteAccessFixture() {
       nextSteps: [],
     },
     recommendedPathId: 'official',
-    recommendedPathReason: 'O caminho oficial ja esta validado.',
+    recommendedPathReason: 'The official path is already validated.',
     paths: [
       {
         id: 'official',
         label: 'Caminho oficial do app remoto',
         status: 'ready',
-        summary: 'App remoto validado.',
+        summary: 'Remote app validated.',
         command: 'npm run ops:remote:official',
         steps: [],
       },
@@ -204,7 +204,7 @@ function createOfficialRemoteAccessFixture() {
       appUrl: 'https://zavorth.example.com/zavorthControl',
       baseUrl: 'https://zavorth.example.com',
       issues: [],
-      summary: 'Acesso remoto oficial validado.',
+      summary: 'Official remote access validated.',
     },
     actions: {
       canApply: true,
@@ -221,16 +221,16 @@ function createRemoteAccessFixture() {
   const now = new Date().toISOString();
   return {
     generatedAt: now,
-    summary: 'Acesso remoto oficial pronto.',
+    summary: 'Acesso remoto oficial ready.',
     official: {} as any,
     recommendedPathId: 'official',
-    recommendedPathReason: 'O caminho oficial ja esta validado.',
+    recommendedPathReason: 'The official path is already validated.',
     paths: [
       {
         id: 'official',
         label: 'Caminho oficial do app remoto',
         status: 'ready',
-        summary: 'App remoto validado.',
+        summary: 'Remote app validated.',
         command: 'npm run ops:remote:official',
         steps: [],
       },

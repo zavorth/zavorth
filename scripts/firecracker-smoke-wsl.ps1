@@ -16,7 +16,7 @@ $projectRoot = Split-Path -Parent $scriptDir
 $windowsPath = $projectRoot -replace '\\', '/'
 
 if ($windowsPath -notmatch '^([A-Za-z]):/(.*)$') {
-  throw "Nao foi possivel converter o caminho do projeto para WSL: $projectRoot"
+  throw "Could not convert the project path to WSL: $projectRoot"
 }
 
 $drive = $Matches[1].ToLower()

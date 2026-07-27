@@ -26,7 +26,7 @@ describe('ZavorthControl hook plane endpoint', () => {
             id: 'session.before_send',
             label: 'Antes do envio',
             stage: 'session',
-            description: 'Executa gates antes do envio de sessao.',
+            description: 'Runs gates before session submission.',
             status: 'ready',
             registeredHooks: 1,
             sampleCommand: 'npm run hooks:session:before-send',
@@ -41,7 +41,7 @@ describe('ZavorthControl hook plane endpoint', () => {
           },
         ],
         narrative: {
-          headline: 'Plano oficial de hooks.',
+          headline: 'Official hook plan.',
           operatorSummary: '3 hooks registrados.',
         },
       })),
@@ -90,7 +90,7 @@ describe('ZavorthControl hook plane endpoint', () => {
         events: [],
         registrations: [],
         narrative: {
-          headline: 'Plano oficial de hooks.',
+          headline: 'Official hook plan.',
           operatorSummary: '3 hooks registrados.',
         },
       })),
@@ -107,8 +107,8 @@ describe('ZavorthControl hook plane endpoint', () => {
         events: [],
         registered: [],
         narrative: {
-          headline: 'Pipeline ativo.',
-          operatorSummary: '1 hook visivel.',
+          headline: 'Pipeline active.',
+          operatorSummary: '1 hook visible.',
         },
       })),
       buildExecutionPlan: jest.fn(async ({ workspace, event }: any) => [
@@ -197,7 +197,7 @@ describe('ZavorthControl hook plane endpoint', () => {
         }),
         hooks: expect.objectContaining({
           narrative: expect.objectContaining({
-            headline: 'Plano oficial de hooks.',
+            headline: 'Official hook plan.',
           }),
         }),
       }),

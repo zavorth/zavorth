@@ -8,22 +8,22 @@ dotenv.config();
 
 async function updateMenu() {
   if (!config.telegramBotToken) {
-    console.error('❌ Erro: TELEGRAM_BOT_TOKEN não encontrado no .env');
+    console.error('❌ Error: TELEGRAM_BOT_TOKEN not found in .env');
     process.exit(1);
   }
 
-  console.log('🔄 Iniciando atualização do menu de comandos do Telegram...');
+  console.log('🔄 Updating Telegram command menu...');
   const bot = new Bot(config.telegramBotToken);
   const menuController = new TelegramMenuController(bot);
 
   try {
     await menuController.registerTelegramMenu();
-    console.log('✅ Menu do Telegram atualizado com sucesso!');
-    console.log('Nota: Pode levar alguns minutos para o cache do app do Telegram atualizar no seu celular.');
+    console.log('✅ Telegram menu updated successfully!');
+    console.log('Note: It may take a few minutes for the Telegram app cache to update on your phone.');
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
-    console.error('❌ Falha ao atualizar o menu:', error.message);
+    console.error('❌ Failed to update menu:', error.message);
   }
 }
 

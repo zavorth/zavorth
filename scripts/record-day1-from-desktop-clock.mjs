@@ -71,7 +71,7 @@ function summarizeClock(clock) {
   return { path: clock.path, summary: bits.join(' ') };
 }
 
-// Hard ban: this bridge must never green-light same-day fake R2.
+// Hard ban: this bridge must never green-light same-day synthetic R2.
 if (process.env.ZAVORTH_ALLOW_FAKE_DAY1 === '1') {
   console.error(
     '[day1-desktop] ZAVORTH_ALLOW_FAKE_DAY1 is set — refusing. Unset it for real calendar R2.',
@@ -161,7 +161,7 @@ const r = spawnSync(
     cwd: root,
     encoding: 'utf8',
     windowsHide: true,
-    // Explicitly strip fake override so child cannot inherit a flaky shell export.
+    // Explicitly strip synthetic override so child cannot inherit a flaky shell export.
     env: { ...process.env, ZAVORTH_ALLOW_FAKE_DAY1: '' },
   },
 );

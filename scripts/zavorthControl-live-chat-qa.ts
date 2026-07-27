@@ -16,7 +16,7 @@ const checks = [
   'no-message-sent-toast',
   'no-scroll-jump-after-send',
   'approval-card-appears-for-risky-command',
-  'o QA nunca clica em aprovar',
+  'QA never clicks approve',
   'current-model-label-is-real',
 ];
 

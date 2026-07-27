@@ -46,7 +46,7 @@ describe('GatewayCompatibilityDoctorService', () => {
           localOnly: true,
           overlayFile: config.AIGatewayOverlayFile,
           checkedAt: '2026-04-04T16:00:00.000Z',
-          message: 'Gateway proprio do AIGateway ativo.',
+          message: 'Gateway own do AIGateway active.',
         }),
       } as any,
       fetchImpl: jest.fn(async () => ({

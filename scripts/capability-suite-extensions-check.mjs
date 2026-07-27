@@ -63,7 +63,7 @@ function parseJsonFromOutput(stdout) {
   const text = String(stdout || '').trim();
   const firstBrace = text.indexOf('{');
   if (firstBrace < 0) {
-    throw new Error('Nao encontrei payload JSON na saida capturada.');
+    throw new Error('Could not find JSON payload in captured output.');
   }
   return JSON.parse(text.slice(firstBrace));
 }
@@ -71,7 +71,7 @@ function parseJsonFromOutput(stdout) {
 function assertFile(relativePath) {
   const absolutePath = path.resolve(projectRoot, relativePath);
   if (!fs.existsSync(absolutePath)) {
-    throw new Error(`Artefato esperado ausente: ${relativePath}`);
+    throw new Error(`Expected artifact missing: ${relativePath}`);
   }
 }
 
@@ -87,7 +87,7 @@ function checkArtifacts() {
     'docs/protocol/sdk-usage.md',
     'docs/platform/integrar-client.md',
     'docs/platform/registrar-node.md',
-    'docs/platform/publicar-plugin.md',
+    'docs/platform/publish-plugin.md',
     'docs/platform/usar-recipe.md',
     'examples/clients/simple-bot.ts',
     'examples/nodes/headless-node.ts',
@@ -112,7 +112,7 @@ const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const npxCommand = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 const powershellCommand = process.platform === 'win32' ? 'powershell' : 'pwsh';
 
-console.log('\n[gates-extensions-check] Artefatos de produto, protocolo e producao presentes');
+console.log('\n[gates-extensions-check] Product, protocol, and production artifacts present');
 checkArtifacts();
 
 runStep('Gateway smoke', npmCommand, ['run', 'qa:gateway:smoke']);
@@ -120,9 +120,9 @@ runStep('Benchmark de boot', npmCommand, ['run', 'qa:bench:boot']);
 runStep('Benchmark de runtime', npmCommand, ['run', 'qa:bench:runtime']);
 runStep('Benchmark de sidecars', npmCommand, ['run', 'qa:bench:sidecars']);
 runStep('Reliability compat', npmCommand, ['run', 'qa:compat']);
-runStep('Regressao critica', npmCommand, ['run', 'qa:regression']);
+runStep('Critical regression', npmCommand, ['run', 'qa:regression']);
 
-runStep('Etapas 8 a 10 - Testes dedicados', npxCommand, [
+runStep('Steps 8 to 10 - Dedicated tests', npxCommand, [
   'jest',
   'tests/apps/OnboardingCliGuide.test.ts',
   'tests/sdk/ZavorthTypeScriptSdk.test.ts',
@@ -165,11 +165,11 @@ runStep('Companion package', npmCommand, [
 ]);
 
 runStep('SDK check', npmCommand, ['run', 'sdk:check']);
-runStep('Publish sample preparado', npmCommand, ['run', 'platform:publish:sample']);
+runStep('Publish sample prepared', npmCommand, ['run', 'platform:publish:sample']);
 runStep('Ecosystem control plane', npmCommand, ['run', 'ops:ecosystem']);
 runStep('Runtime distribuido', npmCommand, ['run', 'ops:distributed']);
 
-const backupResult = runStep('Backup operacional', npmCommand, ['run', 'ops:backup', '--', '--json'], {
+const backupResult = runStep('Backup operational', npmCommand, ['run', 'ops:backup', '--', '--json'], {
   capture: true,
 });
 const backupPayload = parseJsonFromOutput(backupResult.stdout);
@@ -185,4 +185,4 @@ runStep('Restore dry-run', npmCommand, [
 ]);
 runStep('Production hardening check', npmCommand, ['run', 'ops:production:check', '--', '--json']);
 
-console.log('\n[gates-extensions-check] Os gates de extensao passaram na validacao oficial.');
+console.log('\n[gates-extensions-check] Os gates de extension passaram na validation oficial.');

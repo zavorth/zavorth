@@ -139,14 +139,14 @@ function Invoke-Probe {
     available = $true
     brokerReady = $true
     version = $version
-    note = 'Broker PowerShell ativo.'
+    note = 'Broker PowerShell active.'
   }
 }
 
 function Invoke-StartSession {
   param([pscustomobject]$Payload)
   if (-not (Test-Path $runnerScriptPath)) {
-    throw "Runner do Codex Remote ausente em $runnerScriptPath"
+    throw "Codex Remote runner missing at $runnerScriptPath"
   }
 
   $statusFilePath = [string]$Payload.statusFilePath
@@ -246,7 +246,7 @@ function Invoke-InspectSession {
     finishedAt = $now
     lastHeartbeatAt = $now
     lastOutput = $null
-    lastError = 'O broker nao encontrou o status da sessao.'
+    lastError = 'The broker could not find the session status.'
     exitCode = $null
   }
 }
@@ -278,7 +278,7 @@ function Invoke-StopSession {
     finishedAt = $finishedAt
     lastHeartbeatAt = $finishedAt
     lastOutput = $lastOutput
-    lastError = if ($lastError) { $lastError } else { 'Sessao interrompida pelo operador.' }
+    lastError = if ($lastError) { $lastError } else { 'Session interrupted by the operator.' }
     exitCode = if ($status) { $status.exitCode } else { $null }
   }
   return @{
@@ -286,7 +286,7 @@ function Invoke-StopSession {
     pid = $pid
     state = 'stopped'
     finishedAt = $finishedAt
-    lastError = if ($lastError) { $lastError } else { 'Sessao interrompida pelo operador.' }
+    lastError = if ($lastError) { $lastError } else { 'Session interrupted by the operator.' }
     lastOutput = $lastOutput
     exitCode = if ($status) { $status.exitCode } else { $null }
   }
@@ -301,7 +301,7 @@ try {
   if ($existingLock -and $existingLock.pid) {
     $existingPid = [int]$existingLock.pid
     if ($existingPid -gt 0 -and $existingPid -ne $PID -and (Test-PidAlive -Pid $existingPid)) {
-      throw "Ja existe outro broker PowerShell do Codex Remote ativo (PID $existingPid)."
+      throw "Another Codex Remote PowerShell broker is already active (PID $existingPid)."
     }
   }
 } catch {
@@ -321,7 +321,7 @@ try {
       try {
         $request = Read-JsonFile -Path $requestFile.FullName
         if (-not $request) {
-          throw "Pedido invalido em $($requestFile.FullName)"
+          throw "Pedido invalid em $($requestFile.FullName)"
         }
         $action = [string]$request.action
         $payload = $request.payload
@@ -330,7 +330,7 @@ try {
           'start-session' { Invoke-StartSession -Payload $payload }
           'inspect-session' { Invoke-InspectSession -Payload $payload }
           'stop-session' { Invoke-StopSession -Payload $payload }
-          default { throw "Acao desconhecida para o broker: $action" }
+          default { throw "Unknown broker action: $action" }
         }
         Write-Response -RequestId ([string]$request.requestId) -Action $action -Ok $true -Data $data -ErrorMessage $null
       } catch {

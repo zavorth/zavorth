@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'source-provider-mesh-checkpoint-3-files',
+    id: 'source-provider-mesh-gate-3-files',
     label: 'Approval gate files exist',
     target: 'contract, adapters, credential routes, expansion service, command, tests and package scripts are present',
     files: [
@@ -75,7 +75,7 @@ const rules = [
     ],
   }),
   ruleContainsAcross({
-    id: 'provider-factory-exposes-checkpoint-3-routes',
+    id: 'provider-factory-exposes-gate-3-routes',
     label: 'ProviderFactory exposes Approval gate routes',
     target: 'ProviderFactory and LlmRuntimeService know explicit Anthropic, Vertex, Bedrock, Google GenAI and local routes',
     files: [
@@ -183,7 +183,7 @@ function runRuntimeRule() {
         `packagesImplementedInZavorth=${receipt.summary?.packagesImplementedInZavorth}`,
         `enabledByDefault=${receipt.summary?.enabledByDefault}`,
         `liveIoPerformed=${receipt.summary?.liveIoPerformed}`,
-        `next=${receipt.commands?.nextStage}`,
+        `next=${receipt.commands?.nextAction}`,
       ],
     };
   } catch (error) {
@@ -270,7 +270,7 @@ function read(relativePath) {
 
 function compactDetails(...values) {
   return values
-    .flatMap((value) => String(value || '').split(/\r?\n/g))
+    .flatMap((value) => String(value || '').split(/\r...\n/g))
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 12);

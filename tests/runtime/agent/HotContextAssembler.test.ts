@@ -57,7 +57,7 @@ describe('HotContextAssembler', () => {
       hot: {
         continuityPrompt: 'Continuidade recente.',
         summaryPrompt: 'Resumo curto.',
-        canonicalSessionPrompt: 'Sessao canonica.',
+        canonicalSessionPrompt: 'Session canonica.',
         recentEvents: [
           {
             kind: 'input',

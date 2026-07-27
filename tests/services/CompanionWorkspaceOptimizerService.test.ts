@@ -51,7 +51,7 @@ describe('CompanionWorkspaceOptimizerService', () => {
           generatedAt: '2026-04-14T20:01:00.000Z',
           decision: 'allowed',
           ok: true,
-          reason: 'Approval host encontrado para o plano.',
+          reason: 'Approval host found for the plan.',
           permission: {
             permission_id: 'perm-workspace-1',
           },
@@ -78,7 +78,7 @@ describe('CompanionWorkspaceOptimizerService', () => {
           instruction_file: null,
           instruction_sources: ['ZAVORTH.md'],
           instruction_summary: 'Workspace focado no runtime Zavorth.',
-          instruction_notes: ['Evitar watchers em data/runtime.'],
+          instruction_notes: ['Avoid watchers in data/runtime.'],
           skill_directories: ['skills'],
           workspace_hooks: [],
           workspace_commands: [],

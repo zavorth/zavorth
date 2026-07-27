@@ -111,7 +111,7 @@ function ruleContainsMarkers() {
 }
 
 function runInternalSkillFixture() {
-  const result = runCli(['--json', '--request', 'faça uma revisão de segurança deste código']);
+  const result = runCli(['--json', '--request', 'review this code for security']);
   const snapshot = parseJson(result.stdout);
   const ok = result.status === 0
     && snapshot?.surface === 'capability-mesh'
@@ -195,7 +195,7 @@ function runExternalPreferenceFixture() {
     'scripts/zavorth-capability-mesh.ts',
     '--json',
     '--request',
-    'use o melhor agente externo para revisar Rust com segurança',
+    'use the best available external reviewer for Rust security',
     '--prefer-external',
   ], {
     cwd: root,

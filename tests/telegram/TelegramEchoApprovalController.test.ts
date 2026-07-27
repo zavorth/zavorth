@@ -96,9 +96,9 @@ describe('TelegramEchoApprovalController', () => {
 
     expect(resolvePermission).toHaveBeenCalledWith('approval-echo-1234567890', true);
     const answerText = String(ctx.answerCallbackQuery.mock.calls[0]?.[0]?.text ?? '');
-    expect(answerText).toMatch(/Approval Echo aprovado\.?|Echo approval approved\.?/i);
+    expect(answerText).toMatch(/Approval Echo approved\.-|Echo approval approved\.-/i);
     expect(ctx.editMessageText).toHaveBeenCalledWith(
-      expect.stringMatching(/Approval Echo aprovado\.?|Echo approval approved\.?/i),
+      expect.stringMatching(/Approval Echo approved\.-|Echo approval approved\.-/i),
     );
   });
 

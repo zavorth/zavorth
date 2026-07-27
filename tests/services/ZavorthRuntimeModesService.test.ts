@@ -26,7 +26,7 @@ describe('ZavorthRuntimeModesService', () => {
             required: false,
             available: true,
             canRun: true,
-            detail: 'Docker endurecido com gVisor ativo.',
+            detail: 'Docker endurecido com gVisor active.',
             sandboxRuntime: 'runsc',
             gvisorActive: true,
             hardeningActive: true,
@@ -41,7 +41,7 @@ describe('ZavorthRuntimeModesService', () => {
             enabled: true,
             available: true,
             canRun: true,
-            detail: 'Firecracker pronto via bridge WSL.',
+            detail: 'Firecracker ready via bridge WSL.',
             transport: 'wsl',
             bridgeReady: true,
             kvmAvailable: true,
@@ -53,7 +53,7 @@ describe('ZavorthRuntimeModesService', () => {
             enabled: true,
             available: true,
             canRun: true,
-            detail: 'Tier Wasm pronto para modulos WebAssembly literais e controlados.',
+            detail: 'Tier Wasm ready para modulos WebAssembly literais e controlados.',
             runtime: 'node-webassembly',
             supportedLanguages: ['wasm'],
             recommendedAction: null,
@@ -88,7 +88,7 @@ describe('ZavorthRuntimeModesService', () => {
               doctor: {
                 nextAction: {
                   command: '/connect AIGateway',
-                  reason: 'Ja esta pronto para uso.',
+                  reason: 'Ja esta ready para uso.',
                 },
               },
             },
@@ -96,7 +96,7 @@ describe('ZavorthRuntimeModesService', () => {
               manifest: {
                 id: 'external_executor',
                 label: 'ExternalExecutor',
-                summary: 'Executor remoto para codigo.',
+                summary: 'Remote code executor.',
                 description: 'Expande o Zavorth com um executor remoto dedicado.',
               },
               installed: null,
@@ -104,7 +104,7 @@ describe('ZavorthRuntimeModesService', () => {
               doctor: {
                 nextAction: {
                   command: '/connect external_executor',
-                  reason: 'Falta fechar o binding.',
+                  reason: 'Falta close o binding.',
                 },
               },
             },

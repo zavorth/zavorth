@@ -81,7 +81,7 @@ describe('SurfaceProjectionObservability F7 + pending approval index', () => {
     });
     expect(
       resolvePendingSurfaceApproval({ surface: 'telegram', chatId: '42', messageId: '99' })
-        ?.approvalId,
+        ....approvalId,
     ).toBe(TASK_ID);
     expect(
       resolvePendingSurfaceApproval({ surface: 'telegram', chatId: '42' })?.highRisk,

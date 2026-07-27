@@ -24,7 +24,7 @@ describe('AgentMesh handshake and registry hardening', () => {
     const bridge = await orchestration.registerBridge({
       agentName: 'Research Worker',
       agentDescription: 'Generic local research bridge',
-      connectionUri: 'http://user:pass@localhost:9000/agent?auth=super-secret-value',
+      connectionUri: 'http://user:pass@localhost:9000/agent-auth=super-secret-value',
       primaryProtocol: 'webhook',
     });
 

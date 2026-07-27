@@ -49,7 +49,7 @@ try {
   const contractText = readFileSync(join(root, 'src/contracts/ZavorthTransactionRuntimeContract.ts'), 'utf8');
   const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionRuntimeOrchestratorService.ts'), 'utf8');
   for (const marker of [
-    'zavorth-transaction-runtime/checkpoint-6',
+    'zavorth-transaction-runtime/gate-6',
     'externalSideEffects: false',
     'credential-validation',
     'typed-connector',
@@ -95,7 +95,7 @@ try {
     failures.push(`approval-required mismatch: ${needsApproval.status}`);
   }
 
-  const simulated = runRuntime([
+  const dryRun = runRuntime([
     '--json',
     '--ledger-file',
     ledgerFile,
@@ -113,18 +113,18 @@ try {
     '--credential-ref',
     ref,
   ]);
-  if (simulated.status !== 'simulated') {
-    failures.push(`simulated runtime mismatch: ${simulated.status}`);
+  if (dryRun.status !== 'dry-run') {
+    failures.push(`dry-run runtime mismatch: ${dryRun.status}`);
   }
-  if (simulated.credentialValidation?.status !== 'ready' || simulated.connectorRun?.status !== 'simulated') {
+  if (dryRun.credentialValidation?.status !== 'ready' || dryRun.connectorRun?.status !== 'dry-run') {
     failures.push('credential or connector stage did not complete');
   }
   if (
-    simulated.externalSideEffects !== false ||
-    simulated.liveActionApplied !== false ||
-    simulated.executableNow !== false
+    dryRun.externalSideEffects !== false ||
+    dryRun.liveActionApplied !== false ||
+    dryRun.executableNow !== false
   ) {
-    failures.push('runtime simulation must remain side-effect-free');
+    failures.push('runtime dry-run must remain side-effect-free');
   }
 
   const missingCredential = runRuntimeExpectFailure([
@@ -166,7 +166,7 @@ try {
     '--mode',
     'sandbox',
   ]);
-  if (monitor.status !== 'simulated' || monitor.connectorRun?.connector?.kind !== 'market-data') {
+  if (monitor.status !== 'dry-run' || monitor.connectorRun?.connector?.kind !== 'market-data') {
     failures.push(`monitor runtime mismatch: ${monitor.status}/${monitor.connectorRun?.connector?.kind}`);
   }
 
@@ -200,7 +200,7 @@ try {
   console.log('[transaction-runtime-runtime-gateway-check] ok');
   console.log('- contract, service, CLI, docs and tests are present');
   console.log(
-    '- natural transaction text runs through preview, approval, credential validation and typed connector simulation',
+    '- natural transaction text runs through preview, approval, credential validation and typed connector dry-run',
   );
   console.log('- approval and credential gates block incomplete runs');
   console.log('- runtime stays side-effect-free and live-disabled');

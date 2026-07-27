@@ -1,7 +1,7 @@
 import { ZavorthCli } from '../../src/cli/ZavorthCli';
 
 describe('PreTesterCliComprehension', () => {
-  it('deve validar descobrabilidade do help e status na CLI e acoes acionaveis', async () => {
+  it('deve validar descobrabilidade do help e status na CLI e actions acionaveis', async () => {
     const writes: string[] = [];
     const errors: string[] = [];
 

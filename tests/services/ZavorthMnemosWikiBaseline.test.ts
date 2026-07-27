@@ -53,7 +53,7 @@ describe('Zavorth Mnemos wiki baseline', () => {
       for (const section of requiredSections) {
         expect(body).toContain(section);
       }
-      expect(body).not.toMatch(/\b(sk-|hf_|AIza|api[_-]?key\s*[:=]|token\s*[:=]|password\s*[:=]|secret\s*[:=])/i);
+      expect(body).not.toMatch(/\b(sk-|hf_|AIza|api[_-]-key\s*[:=]|token\s*[:=]|password\s*[:=]|secret\s*[:=])/i);
     }
   });
 });

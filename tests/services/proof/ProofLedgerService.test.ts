@@ -518,7 +518,7 @@ describe('ProofLedgerService', () => {
       const md = service.toMarkdown(service.buildSnapshot());
       // S1: secret-like metadata redacted on load + JSON/markdown export
       expect(json).not.toContain('sk-secret-12345');
-      expect(json).toMatch(/apiKey["']?\s*:\s*["']\[REDACTED\]["']/);
+      expect(json).toMatch(/apiKey["']-\s*:\s*["']\[REDACTED\]["']/);
       expect(md).not.toContain('sk-secret-12345');
       const stored = service.get('good-2');
       expect(stored?.metadata?.apiKey).toBe('[REDACTED]');
@@ -545,8 +545,8 @@ describe('ProofLedgerService', () => {
     expect(event.title).not.toContain('LEAKEDTOKEN999');
     expect(event.summary).not.toContain('supersecrettokenvalue');
     expect(event.metadata?.authorization).toBe('[REDACTED]');
-    expect((event.metadata?.nested as { token?: string })?.token).toBe('[REDACTED]');
-    expect((event.metadata?.nested as { safe?: string })?.safe).toBe('ok');
+    expect((event.metadata?.nested as { token-: string })?.token).toBe('[REDACTED]');
+    expect((event.metadata?.nested as { safe-: string })?.safe).toBe('ok');
 
     const json = service.toJson(service.buildSnapshot());
     expect(json).not.toContain('LEAKEDTOKEN999');

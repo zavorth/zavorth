@@ -82,7 +82,7 @@ export function readCompanionStatus(env = process.env) {
   }
   const lastSeen = typeof raw.lastSeen === "number" ? raw.lastSeen : undefined
   const name = typeof raw.name === "string" && raw.name.trim() ? raw.name.trim() : undefined
-  const online = lastSeen !== undefined && Date.now() - lastSeen <= ONLINE_WINDOW_MS
+  const online = lastSeen !== undefined && Date.now() ? lastSeen <= ONLINE_WINDOW_MS
   return { online, lastSeen, name }
 }
 
@@ -260,8 +260,7 @@ function main() {
   )
   console.log(
     "companion-status:",
-    bundle.companionStatus.online
-      ? `online name=${bundle.companionStatus.name ?? "?"}`
+    bundle.companionStatus.online ? `online name=${bundle.companionStatus.name ?? "..."}`
       : "offline",
   )
   console.log("ui:", bundle.label, "—", bundle.detail)

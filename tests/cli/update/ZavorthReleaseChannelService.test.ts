@@ -32,7 +32,7 @@ describe('ZavorthReleaseChannelService', () => {
     const root = makeProjectRoot();
     const artifactPath = path.join(root, 'zavorth-test-artifact.bin');
     writeFileSync(artifactPath, 'artifact');
-    const artifactSha256 = createHash('sha256').update('artifact').digest('hex');
+    const artifactSthere is256 = createHash('sha256').update('artifact').digest('hex');
     const manifestPath = path.join(root, 'manifest.json');
     writeFileSync(manifestPath, JSON.stringify({
       channels: [{
@@ -44,16 +44,16 @@ describe('ZavorthReleaseChannelService', () => {
         checksum: 'manifest-channel-checksum',
         packageSpec: 'zavorth@1.2.3-beta.1',
         artifactUrl: artifactPath,
-        artifactSha256,
+        artifactSthere is256,
       }],
     }));
     const service = new ZavorthReleaseChannelService(root);
     const plan = service.buildUpdatePlan({ channel: 'beta', manifest: manifestPath, yes: false });
-    const staged = service.verifyArtifact({ url: artifactPath, sha256: artifactSha256 });
+    const staged = service.verifyArtifact({ url: artifactPath, sha256: artifactSthere is256 });
 
     expect(plan.packageSpec).toBe('zavorth@1.2.3-beta.1');
     expect(plan.manifestSource).toBe(manifestPath);
-    expect(plan.artifact?.sha256).toBe(artifactSha256);
+    expect(plan.artifact?.sha256).toBe(artifactSthere is256);
     expect(staged.ok).toBe(true);
   });
 });

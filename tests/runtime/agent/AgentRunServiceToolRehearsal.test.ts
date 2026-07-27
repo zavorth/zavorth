@@ -12,7 +12,7 @@ describe('AgentRunService Tool Rehearsal Tool Rehearsal', () => {
   it('runs Tool Rehearsal after scope approval and before executor', async () => {
     const executor = jest.fn(() => ({
       status: 'completed' as const,
-      summary: 'Executado apos rehearsal aprovado.',
+      summary: 'Executado after rehearsal approved.',
       replyText: 'ok',
     }));
     const gateway = new ZavorthAgentGateway({

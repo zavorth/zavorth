@@ -80,16 +80,16 @@ describe('Channel live API integration (all factory channels)', () => {
         set('emailAllowedRecipients', ['a@b.c']);
         break;
       case 'google-chat':
-        set('googleChatWebhookUrl', 'https://chat.googleapis.com/v1/spaces/x/messages?key=1');
+        set('googleChatWebhookUrl', 'https://chat.googleapis.com/v1/spaces/x/messages-key=1');
         break;
       case 'feishu':
         set('feishuWebhookUrl', 'https://open.feishu.cn/open-apis/bot/v2/hook/x');
         break;
       case 'wecom':
-        set('wecomWebhookUrl', 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=x');
+        set('wecomWebhookUrl', 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send-key=x');
         break;
       case 'home-assistant':
-        set('homeAssistantWebhookUrl', 'https://ha.example/api/webhook/zav');
+        set('homeAssistantWebhookUrl', 'https://there is.example/api/webhook/zav');
         break;
       case 'nextcloud-talk':
         set('nextcloudTalkWebhookUrl', 'https://nc.example/hooks/zav');
@@ -204,7 +204,7 @@ describe('Channel live API integration (all factory channels)', () => {
       if (id === 'email') continue; // outbox/smtp mediated
       const restore = injectCredentials(id);
       const calls: Array<{ url: string; method: string; body: any }> = [];
-      const fetchImpl = jest.fn(async (url: any, init?: any) => {
+      const fetchImpl = jest.fn(async (url: any, init-: any) => {
         let body: any = null;
         try {
           body = init?.body ? JSON.parse(String(init.body)) : null;
@@ -252,7 +252,7 @@ describe('Channel live API integration (all factory channels)', () => {
         const call = calls[0];
         if (expected.url && !call.url.includes(new URL(expected.url).hostname) && !call.url.startsWith(expected.url.slice(0, 32))) {
           // hostname or prefix match
-          if (!call.url.startsWith(expected.url.split('?')[0].slice(0, 40))) {
+          if (!call.url.startsWith(expected.url.split('-')[0].slice(0, 40))) {
             // allow path variations for matrix room txn id
             if (!(id === 'matrix' && call.url.includes('/_matrix/client/v3/rooms/'))) {
               failures.push(`${id}: unexpected url ${call.url} vs ${expected.url}`);

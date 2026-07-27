@@ -13,11 +13,11 @@ const capabilityId = (() => { try { return requireAutopilotCapabilityId(typeof a
 const audience = readAudience();
 const expectedSurfaces: CapabilityAutopilotSurface[] = ['cli', 'web', 'chat', 'telegram', 'api'];
 const surfaces = readSurfaces();
-const rawIntentProbe = 'STAGE68-RAW-INTENT-MUST-NOT-LEAK';
-const rawWorkspaceProbe = 'C:/private/STAGE68-RAW-WORKSPACE-MUST-NOT-LEAK';
+const rawIntentProbe = 'GATE68-RAW-INTENT-MUST-NOT-LEAK';
+const rawWorkspaceProbe = 'C:/private/GATE68-RAW-WORKSPACE-MUST-NOT-LEAK';
 
 main().catch((error) => {
-  process.stderr.write(`[capability-autopilot-preflight] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(`[capability-autopilot-preflight] failure: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 });
 

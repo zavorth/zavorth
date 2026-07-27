@@ -50,7 +50,7 @@ describe('ContextCompactionService', () => {
     const result = service.compact({
       messages,
       now,
-      lastActivityAt: new Date(now.getTime() - 61 * 60 * 1000),
+      lastActivityAt: new Date(now.getTime() ? 61 * 60 * 1000),
       usableContextTokens: 50000,
       recentVerbatimTurns: 2,
     });
@@ -104,7 +104,7 @@ describe('ContextCompactionService', () => {
     const service = new ContextCompactionService();
     const result = service.compact({
       messages: [
-        { role: 'user', content: 'Use token=super-secret-token-value for this test only.' },
+        { role: 'user', content: 'Use token=[redacted-secret] for this test only.' },
         { role: 'tool', toolName: 'shell', status: 'ok', content: bulkyToolOutput() },
       ],
       now: new Date('2026-05-18T12:00:00.000Z'),

@@ -7,6 +7,7 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const npmCli = process.env.npm_execpath;
 const npmCommand = npmCli && existsSync(npmCli) ? process.execPath : process.platform === "win32" ? "npm.cmd" : "npm";
 const npmArgs = npmCli && existsSync(npmCli) ? [npmCli] : [];
+const bunCommand = process.platform === "win32" ? "bun.exe" : "bun";
 const jestCli = resolve(root, "node_modules", "jest", "bin", "jest.js");
 const tsxCli = resolve(root, "node_modules", "tsx", "dist", "cli.cjs");
 const securityNodeOptions = mergeNodeOptions(process.env.NODE_OPTIONS, "--max-old-space-size=4096");
@@ -103,9 +104,12 @@ function assertRequiredSecurityTests() {
 function runDependencyAudits() {
   for (const workspace of auditWorkspaces) {
     const packageJson = resolve(workspace.cwd, "package.json");
-    const lockfile = resolve(workspace.cwd, "package-lock.json");
-    if (!existsSync(packageJson) || !existsSync(lockfile)) {
-      const message = `[security-ci] ${workspace.label}: package.json/package-lock.json not found`;
+    const npmLockfile = resolve(workspace.cwd, "package-lock.json");
+    const bunLockfile = resolve(workspace.cwd, "bun.lock");
+    const hasNpmLockfile = existsSync(npmLockfile);
+    const hasBunLockfile = existsSync(bunLockfile);
+    if (!existsSync(packageJson) || (!hasNpmLockfile && !hasBunLockfile)) {
+      const message = `[security-ci] ${workspace.label}: package.json plus package-lock.json or bun.lock not found`;
       if (workspace.required) {
         console.error(message);
         process.exit(1);
@@ -114,9 +118,15 @@ function runDependencyAudits() {
       continue;
     }
 
-    run(`${workspace.label} npm audit`, npmCommand, [...npmArgs, "audit", "--audit-level=moderate"], {
-      cwd: workspace.cwd,
-    });
+    if (hasBunLockfile && !hasNpmLockfile) {
+      run(`${workspace.label} bun audit`, bunCommand, ["audit", "--audit-level=moderate"], {
+        cwd: workspace.cwd,
+      });
+    } else {
+      run(`${workspace.label} npm audit`, npmCommand, [...npmArgs, "audit", "--audit-level=moderate"], {
+        cwd: workspace.cwd,
+      });
+    }
   }
 }
 

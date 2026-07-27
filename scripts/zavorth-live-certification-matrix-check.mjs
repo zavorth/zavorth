@@ -45,7 +45,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule(
-    'checkpoint-13-files',
+    'gate-13-files',
     'Intent model3 files exist',
     missing.length === 0,
     `${files.length - missing.length}/${files.length}`,
@@ -90,7 +90,7 @@ function ruleContainsMarkers() {
     }
   }
   return rule(
-    'checkpoint-13-markers',
+    'gate-13-markers',
     'Live matrix markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
@@ -151,7 +151,7 @@ function ruleSnapshot() {
   const data = parseJson(result.stdout);
   const statuses = new Set((data?.matrix || []).map((entry) => entry.status));
   const pass = data
-    && data.contractVersion === '2026-05-14.checkpoint-13-live-certification-matrix'
+    && data.contractVersion === '2026-05-14.gate-13-live-certification-matrix'
     && data.status === 'passed'
     && data.summary?.dashboardCertified === true
     && data.summary?.cliCertified === true

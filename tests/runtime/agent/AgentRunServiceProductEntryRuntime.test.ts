@@ -30,7 +30,7 @@ function productEntryRuntime() {
         },
         questions: [],
         writes: [],
-        summary: ['Profile pronto.'],
+        summary: ['Profile ready.'],
       } as any),
       buildWorkspaceIdentitySnapshot: () => ({
         nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
@@ -72,7 +72,7 @@ describe('AgentRunService Product Entry Runtime Channel mesh7', () => {
       productEntryRuntime: productEntryRuntime(),
       executor: () => ({
         status: 'completed' as const,
-        summary: 'Product Entry Runtime pronto.',
+        summary: 'Product Entry Runtime ready.',
         replyText: 'ok',
       }),
     });

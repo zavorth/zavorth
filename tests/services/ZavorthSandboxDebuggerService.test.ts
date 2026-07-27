@@ -35,7 +35,7 @@ describe('ZavorthSandboxDebuggerService', () => {
 
     // tsc --noEmit won't report errors since the new code compiles fine
     const result = ZavorthSandboxDebuggerService.validateAndApply(mockToolPath, validCode);
-    
+
     expect(result).toBe(true);
     expect(fs.readFileSync(mockToolPath, 'utf-8')).toBe(validCode);
   });

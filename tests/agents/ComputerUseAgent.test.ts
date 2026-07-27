@@ -25,7 +25,7 @@ describe('ComputerUseAgent', () => {
       if (args.action === 'screenshot') {
         return `Screenshot: ${screenshotPath} (10x10px)`;
       }
-      return 'Ação executada.';
+      return 'Action executed.';
     });
   });
 
@@ -83,13 +83,13 @@ describe('ComputerUseAgent', () => {
       targetWindow: 'Fake Window',
       objective: 'Should be blocked',
       maxIterations: 1,
-    })).rejects.toThrow(/Computer Use is blocked|Computer Use visual bloqueado/i);
+    })).rejects.toThrow(/Computer Use is blocked|Computer Use visually blocked/i);
   });
 
   it('emits hook callbacks for screenshot planning and execution so watch mode can supervise the run', async () => {
     const llmRuntime = {
       chat: jest.fn(async () => ({
-        content: '{"action":"click-element","targetText":"Entrar","reasoning":"o CTA principal esta visivel"}',
+        content: '{"action":"click-element","targetText":"Enter","reasoning":"the primary CTA is visible"}',
         toolCalls: [],
         finishReason: 'stop',
       })),
@@ -116,14 +116,14 @@ describe('ComputerUseAgent', () => {
     expect(hooks.onActionPlanned).toHaveBeenCalledWith(expect.objectContaining({
       action: expect.objectContaining({
         action: 'click-element',
-        targetText: 'Entrar',
+        targetText: 'Enter',
       }),
     }));
     expect(hooks.onActionExecuted).toHaveBeenCalledWith(expect.objectContaining({
       action: expect.objectContaining({
         action: 'click-element',
       }),
-      result: 'Ação executada.',
+      result: 'Action executed.',
     }));
   });
 });

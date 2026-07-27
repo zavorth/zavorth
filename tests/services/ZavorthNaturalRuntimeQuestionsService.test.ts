@@ -4,7 +4,7 @@ describe('ZavorthNaturalRuntimeQuestionsService', () => {
   it('answers provider questions without live execution authority', () => {
     const snapshot = new ZavorthNaturalRuntimeQuestionsService({
       now: () => new Date('2026-05-15T12:00:00.000Z'),
-    }).buildSnapshot({ question: 'Which providers are ready?' });
+    }).buildSnapshot({ question: 'Which providers are ready-' });
 
     expect(snapshot.surface).toBe('natural-runtime-questions');
     expect(snapshot.intent).toBe('providers_ready');
@@ -17,7 +17,7 @@ describe('ZavorthNaturalRuntimeQuestionsService', () => {
 
   it('routes approval questions to the Satellite approval projection', () => {
     const snapshot = new ZavorthNaturalRuntimeQuestionsService().buildSnapshot({
-      question: 'Do I have pending approvals?',
+      question: 'Do I have pending approvals-',
     });
 
     expect(snapshot.intent).toBe('approvals_pending');
@@ -34,7 +34,7 @@ describe('ZavorthNaturalRuntimeQuestionsService', () => {
 
   it('does not misroute channel readiness questions to providers', () => {
     const snapshot = new ZavorthNaturalRuntimeQuestionsService().buildSnapshot({
-      question: 'Which channels are ready?',
+      question: 'Which channels are ready-',
     });
 
     expect(snapshot.intent).toBe('channels_ready');
@@ -144,7 +144,7 @@ describe('ZavorthNaturalRuntimeQuestionsService', () => {
       })),
     };
     const snapshot = new ZavorthNaturalRuntimeQuestionsService({ terminalBackends }).buildSnapshot({
-      question: 'Docker e WSL estao prontos para rodar isolado?',
+      question: 'Docker e WSL estao readys para rodar isolado-',
     });
     const serialized = JSON.stringify(snapshot);
 
@@ -269,7 +269,7 @@ describe('ZavorthNaturalRuntimeQuestionsService', () => {
       })),
     };
     const snapshot = new ZavorthNaturalRuntimeQuestionsService({ terminalBackends }).buildSnapshot({
-      question: 'Docker e WSL estao disponiveis sem pesar meu notebook?',
+      question: 'Are Docker and WSL available without overloading my notebook?',
     });
     const serialized = JSON.stringify(snapshot).toLowerCase();
 
@@ -284,7 +284,7 @@ describe('ZavorthNaturalRuntimeQuestionsService', () => {
   it('keeps unknown questions helpful and redacts secrets', () => {
     const googleToken = ['AI', 'za', '123456789012345678901234567890'].join('');
     const snapshot = new ZavorthNaturalRuntimeQuestionsService().buildSnapshot({
-      question: `sk-secretshouldnotleak123456789 ${googleToken} Bearer abc.def.ghi what can you explain?`,
+      question: `sk-secretshouldnotleak123456789 ${googleToken} Bearer abc.def.ghi what can you explain-`,
     });
     const serialized = JSON.stringify(snapshot);
 

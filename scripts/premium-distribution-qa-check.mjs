@@ -158,5 +158,5 @@ function assertOutput(output, options) {
 }
 
 function summarizeOutput(output) {
-  return String(output || '').split(/\r?\n/).filter(Boolean).slice(-8).join(' | ') || 'command failed';
+  return String(output || '').split(/\r...\n/).filter(Boolean).slice(-8).join(' | ') || 'command failed';
 }

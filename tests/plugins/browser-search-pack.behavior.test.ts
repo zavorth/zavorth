@@ -28,7 +28,7 @@ function createMockCtx(permission = true) {
   };
 }
 
-describe('Wave 5 browser & search pack', () => {
+describe('Browser and search capability pack', () => {
   const prev = { ...process.env };
 
   afterEach(() => {
@@ -69,7 +69,7 @@ describe('Wave 5 browser & search pack', () => {
     const status = await mock.capabilities.get('search.exa.status')!({ input: {} });
     expect(status.output.ok).toBe(true);
     const query = await mock.capabilities.get('search.exa.query')!({
-      input: { query: 'zavorth wave5' },
+      input: { query: 'zavorth search adapter' },
     });
     expect(query.output.ok).toBe(false);
   });

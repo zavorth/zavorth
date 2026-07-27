@@ -35,7 +35,7 @@ function looksLike429(text) {
     /\b429\b/.test(s)
     || /too many requests/i.test(s)
     || /RESOURCE_EXHAUSTED/i.test(s)
-    || /rate[- ]?limit/i.test(s)
+    || /rate[- ]...limit/i.test(s)
     || /quota exceeded/i.test(s)
     || /exceeded your current quota/i.test(s)
   );

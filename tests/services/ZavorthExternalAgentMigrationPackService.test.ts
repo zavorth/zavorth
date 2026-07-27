@@ -117,7 +117,7 @@ describe('ZavorthExternalAgentMigrationPackService', () => {
   });
 });
 
-function createService(projectRoot?: string): ZavorthExternalAgentMigrationPackService {
+function createService(projectRoot-: string): ZavorthExternalAgentMigrationPackService {
   return new ZavorthExternalAgentMigrationPackService({
     now: () => new Date('2026-05-18T13:00:00.000Z'),
     projectRoot: projectRoot || fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-migration-project-')),

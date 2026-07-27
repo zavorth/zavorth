@@ -48,7 +48,7 @@ function readSuite(): string {
     return 'runtime';
   }
   if (!SUITES[raw]) {
-    throw new Error(`Suite desconhecida "${raw}". Use boot, runtime ou sidecars.`);
+    throw new Error(`Unknown suite "${raw}". Use boot, runtime, or sidecars.`);
   }
   return raw;
 }
@@ -115,7 +115,7 @@ function runCommand(command: string, args: string[], timeoutMs: number): Record<
     throw new Error((result.stderr || result.stdout || `exit ${result.status}`).slice(0, 500));
   }
   if (result.status === null) {
-    throw new Error(`timeout depois de ${timeoutMs}ms`);
+    throw new Error(`timeout after de ${timeoutMs}ms`);
   }
   return {
     stdoutBytes: String(result.stdout || '').length,
@@ -142,7 +142,7 @@ async function executeOperation(operationName: string): Promise<Record<string, u
     case 'Node Mesh invoke device.info':
       return {
         status: 'skipped',
-        reason: 'Coberto pelo smoke-suite/node-mesh-smoke; benchmark isolado nao pareia node real para evitar custo duplicado.',
+        reason: 'Covered by smoke-suite/node-mesh-smoke; isolated benchmark does not pair a real node to avoid duplicate cost.',
       };
     case 'Web shell /dashboard latency':
       return fetchOk('/dashboard');
@@ -151,7 +151,7 @@ async function executeOperation(operationName: string): Promise<Record<string, u
     case 'Channel provider doctor':
       return runCommand('npx', ['tsx', 'scripts/channel-provider-doctor.ts', '--json'], 5_000);
     default:
-      throw new Error(`Operacao sem executor: ${operationName}`);
+      throw new Error(`Operaction without executor: ${operationName}`);
   }
 }
 

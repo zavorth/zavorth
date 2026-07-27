@@ -16,10 +16,10 @@ describe('ZavorthHubControlPlaneService', () => {
             ready: [{ id: 'openai' }],
             needsConfiguration: [{ id: 'openrouter' }],
             needsProbe: [],
-            recommendations: ['OpenRouter ainda pede configuracao real antes de ficar pronto.'],
+            recommendations: ['OpenRouter ainda pede configuraction real antes de ficar ready.'],
           },
           narrative: {
-            operatorSummary: 'Hub pronto com um provider pendente.',
+            operatorSummary: 'Hub ready com um provider pendente.',
           },
         })),
       } as any,
@@ -33,7 +33,7 @@ describe('ZavorthHubControlPlaneService', () => {
           },
           selected: null,
           narrative: {
-            operatorSummary: 'Plugin plane com um item em review.',
+            operatorSummary: 'Plugin plane com um item under review.',
           },
           entries: [
             {
@@ -57,7 +57,7 @@ describe('ZavorthHubControlPlaneService', () => {
           },
           catalogSync: {
             status: 'stale',
-            summary: 'Registry remoto sincronizado, mas o cache venceu.',
+            summary: 'Remote registry sincronizado, mas o cache venceu.',
             command: '/platform sync',
             sourceTrusted: true,
             stale: true,
@@ -93,11 +93,11 @@ describe('ZavorthHubControlPlaneService', () => {
               id: 'skills-library',
               label: 'Abrir biblioteca de skills',
               command: '/skills library',
-              rationale: 'A biblioteca ja indica o proximo passo.',
+              rationale: 'A biblioteca ja indica o next step.',
             },
           ],
           narrative: {
-            operatorSummary: 'Skill plane com recipes prontas.',
+            operatorSummary: 'Skill plane com ready recipes.',
             nextAction: 'Abrir a biblioteca de skills para revisar recipes.',
           },
         })),
@@ -105,7 +105,7 @@ describe('ZavorthHubControlPlaneService', () => {
       skillInstallPlanPresentationService: {
         buildSnapshot: jest.fn(() => ({
           focus: { id: 'playwright-interactive' },
-          narrative: { headline: 'Plano da skill', operatorSummary: 'Plano pronto.' },
+          narrative: { headline: 'Plan da skill', operatorSummary: 'Plan ready.' },
         })),
       } as any,
       mcpCapabilityControlPlaneService: {
@@ -187,7 +187,7 @@ describe('ZavorthHubControlPlaneService', () => {
             recommendations: ['MiniMax ainda pode ser configurado depois sem bloquear o host atual.'],
           },
           narrative: {
-            operatorSummary: 'Ha provider pronto e backlog opcional separado.',
+            operatorSummary: 'Ha provider ready e backlog opcional separado.',
           },
         })),
       } as any,
@@ -201,7 +201,7 @@ describe('ZavorthHubControlPlaneService', () => {
           },
           selected: null,
           narrative: {
-            operatorSummary: 'Plugin plane ativo com um item aguardando review opcional.',
+            operatorSummary: 'Plugin plane active com um item waiting for review opcional.',
           },
           entries: [
             {
@@ -224,7 +224,7 @@ describe('ZavorthHubControlPlaneService', () => {
           },
           catalogSync: {
             status: 'disabled',
-            summary: 'Registry remoto bloqueado por policy de origem ou transporte inseguro.',
+            summary: 'Remote registry bloqueado por policy de origem ou transporte inseguro.',
             command: '/platform sync',
             sourceTrusted: false,
             stale: false,
@@ -233,7 +233,7 @@ describe('ZavorthHubControlPlaneService', () => {
             recipeCount: 3,
           },
           narrative: {
-            operatorSummary: 'Platform plane local pronto sem depender do registry remoto.',
+            operatorSummary: 'Platform plane local ready sem depender do registry remoto.',
           },
         })),
       } as any,
@@ -264,7 +264,7 @@ describe('ZavorthHubControlPlaneService', () => {
             },
           ],
           narrative: {
-            operatorSummary: 'Skill plane pronto.',
+            operatorSummary: 'Skill plane ready.',
             nextAction: 'Abrir biblioteca.',
           },
         })),
@@ -272,7 +272,7 @@ describe('ZavorthHubControlPlaneService', () => {
       skillInstallPlanPresentationService: {
         buildSnapshot: jest.fn(() => ({
           focus: { id: 'filesystem' },
-          narrative: { headline: 'Plano pronto', operatorSummary: 'Sem bloqueios.' },
+          narrative: { headline: 'Plan ready', operatorSummary: 'Sem bloqueios.' },
         })),
       } as any,
       mcpCapabilityControlPlaneService: {
@@ -285,13 +285,13 @@ describe('ZavorthHubControlPlaneService', () => {
             toolCount: 12,
           },
           entries: [
-            { id: 'filesystem', enabled: true, status: 'connected', summary: 'Filesystem MCP ativo.' },
+            { id: 'filesystem', enabled: true, status: 'connected', summary: 'Filesystem MCP active.' },
             { id: 'sequential-thinking', enabled: false, status: 'disabled', summary: 'Disabled by policy.' },
             { id: 'stitch', enabled: false, status: 'disabled', summary: 'Disabled by policy.' },
           ],
-          recommendations: ['Runtime MCP coerente com o manifesto habilitado.'],
+          recommendations: ['Runtime MCP coerente com o manifesto there isbilitado.'],
           narrative: {
-            operatorSummary: 'Somente o MCP habilitado esta conectado; o resto ficou desligado por policy.',
+            operatorSummary: 'Somente o MCP there isbilitado esta conectado; o resto ficou desligado por policy.',
           },
         })),
       } as any,
@@ -314,6 +314,6 @@ describe('ZavorthHubControlPlaneService', () => {
     expect(snapshot.surfaces.find((entry) => entry.id === 'platform')?.posture).toBe('healthy');
     expect(snapshot.surfaces.find((entry) => entry.id === 'skills')?.posture).toBe('healthy');
     expect(snapshot.surfaces.find((entry) => entry.id === 'mcp')?.posture).toBe('healthy');
-    expect(service.renderReport()).toContain('MCP: 1/1 habilitado(s) | total manifesto: 3');
+    expect(service.renderReport()).toContain('MCP: 1/1 there isbilitado(s) | total manifesto: 3');
   });
 });

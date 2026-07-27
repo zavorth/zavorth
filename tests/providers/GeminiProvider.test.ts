@@ -247,7 +247,7 @@ describe('GeminiProvider', () => {
     ], [
       {
         name: 'read_file',
-        description: 'Le arquivo',
+        description: 'Le file',
         parameters: {
           type: 'object',
           properties: {

@@ -55,7 +55,7 @@ function contains(file, needles) {
 function noMojibake(file) {
   const target = join(root, file);
   const content = existsSync(target) ? readFileSync(target, 'utf8') : '';
-  const suspicious = ['Ã', 'Â', 'âœ', 'âš', 'â„', 'â'];
+  const suspicious = [String.fromCharCode(195), String.fromCharCode(194), String.fromCharCode(226,156), String.fromCharCode(226,154), String.fromCharCode(226,132), String.fromCharCode(226,157)];
   const found = suspicious.filter((needle) => content.includes(needle));
   return {
     name: `encoding:${file}`,

@@ -49,7 +49,7 @@ const rules = [
       'CapabilityNegotiationService',
       'capabilityNegotiation',
       'createCapabilityNegotiationProposalIfNeeded',
-      'Aprovar escopo de capabilities',
+      'approve escopo de capabilities',
       'CAPABILITY_NEGOTIATION_CONTRACT_VERSION',
     ],
   }),

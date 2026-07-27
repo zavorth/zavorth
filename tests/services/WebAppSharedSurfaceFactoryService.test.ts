@@ -18,8 +18,8 @@ describe('WebAppSharedSurfaceFactoryService', () => {
         workflowController: { id: 'workflowController' },
       },
       operations: {
-        channelActions: { id: 'channelActions' },
-        channelMesh: { id: 'channelMesh' },
+        cchannelActions: { id: 'cchannelActions' },
+        cchannelMesh: { id: 'cchannelMesh' },
         securityMesh: null,
         integrationHub: null,
         mcpCapabilityControlPlane: null,
@@ -59,7 +59,7 @@ describe('WebAppSharedSurfaceFactoryService', () => {
         sessionPlane: null,
         toolSurface: null,
       },
-      channelSetupAssistant: { id: 'assistant' },
+      cchannelSetupAssistant: { id: 'assistant' },
       computerUseWatchModePolicy: { id: 'policy' },
       computerUseWatchModeState: { id: 'state' },
       computerUseWatchMode: { id: 'watchMode' },
@@ -85,7 +85,7 @@ describe('WebAppSharedSurfaceFactoryService', () => {
     const deps = (service as any).deps;
 
     expect(service).toBeInstanceOf(SharedSurfaceCommandService);
-    expect(deps.channelActionService).toBe(source.operations.channelActions);
+    expect(deps.cchannelActionService).toBe(source.operations.cchannelActions);
     expect(deps.naturalChannelSetupTurnService).toBeDefined();
     expect(deps.trustPlaneService).toBeDefined();
     expect(deps.hubControlPlaneService).toBeDefined();

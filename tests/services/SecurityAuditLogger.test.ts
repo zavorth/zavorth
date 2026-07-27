@@ -299,7 +299,7 @@ describe('SecurityAuditLogger', () => {
     it('should log workspace events and handle raw paths (>128 chars) safely', () => {
       const longRootPath = 'C:\\very\\long\\directory\\path\\that\\exceeds\\one\\hundred\\and\\twenty\\eight\\characters\\to\\test\\safe\\validation\\limits\\and\\avoid\\throwing\\errors';
       const longFilePath = 'C:\\very\\long\\directory\\path\\that\\exceeds\\one\\hundred\\and\\twenty\\eight\\characters\\to\\test\\safe\\validation\\limits\\and\\avoid\\throwing\\errors\\somefile.txt';
-      
+
       logger.logWorkspaceEvent({
         event: 'workspace_git_read',
         workspaceId: 'my-ws-session',

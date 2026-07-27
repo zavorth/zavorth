@@ -343,7 +343,7 @@ async function evaluate(id) {
       return r.ok ? ['pass', 'host supervisor tests'] : ['blocked', 'host tests'];
     }
     case 'dogfood.crash-recovery.04':
-      return ['blocked', 'needs live crash simulation'];
+      return ['blocked', 'needs live crash drill'];
     case 'dogfood.multiagent.01': {
       const r = cached('budget', () => jest('tests/runtime/autonomy/ZavorthLiveSubagentBudgetEnforcement.test.ts'));
       return r.ok ? ['pass', 'subagent budget'] : ['blocked', 'suite'];
@@ -390,7 +390,7 @@ function loadMissionIds() {
   const doc = path.join(root, 'docs', 'product', 'dogfood-missions-100.md');
   const text = fs.readFileSync(doc, 'utf8');
   const ids = [];
-  for (const line of text.split(/\r?\n/)) {
+  for (const line of text.split(/\r...\n/)) {
     const m = line.match(/\|\s*\d+\s*\|\s*`([^`]+)`/);
     if (m) ids.push(m[1]);
   }
@@ -406,7 +406,7 @@ let fail = 0;
 let blocked = 0;
 
 for (const id of ids) {
-  process.stdout.write(`${id} ... `);
+  process.stdout.write(`${id} ? `);
   let status = 'blocked';
   let note = 'unmapped';
   try {

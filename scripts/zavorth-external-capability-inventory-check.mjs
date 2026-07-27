@@ -48,7 +48,7 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'checkpoint-0-files',
+    id: 'gate-0-files',
     label: 'Security contract inventory files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
@@ -91,7 +91,7 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'checkpoint-0-markers',
+    id: 'gate-0-markers',
     label: 'Security contract inventory markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
@@ -150,9 +150,9 @@ function runInventoryBlockedFixture() {
     && snapshot
     && snapshot.status === 'blocked'
     && snapshot.bridgeStatus === 'blocked'
-    && snapshot.freezePolicy?.nextStageRequiresContractLayer === true;
+    && snapshot.freezePolicy?.nextActionRequiresContractLayer === true;
   return {
-    id: 'checkpoint-0-blocked-fixture',
+    id: 'gate-0-blocked-fixture',
     label: 'Inventory blocks when bridge is blocked',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, bridge=${snapshot.bridgeStatus}` : `exit ${result.status}`,

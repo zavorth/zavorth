@@ -38,7 +38,7 @@ function filesExist() {
     'scripts/zavorth-sandbox-lifecycle-check.mjs',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', 'Lifecycle files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all files present', missing);
+  return rule('files', 'Lifecycle files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all files present', missing);
 }
 
 function markersExist() {
@@ -128,7 +128,7 @@ function fixtureStopSpecificResource() {
 }
 
 function fixtureInspectDoesNotStart() {
-  const result = runLifecycle(['--json', '--text', 'verifique se docker firecracker e gvisor estao prontos']);
+  const result = runLifecycle(['--json', '--text', 'verifique se docker firecracker e gvisor are ready']);
   return jsonRule('inspect', 'Readiness inspection does not start heavy runtimes', result, (plan) =>
     plan.intent === 'inspect'
     && plan.status === 'ready'
@@ -166,5 +166,5 @@ function rule(id, label, passed, observed, target, details = []) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

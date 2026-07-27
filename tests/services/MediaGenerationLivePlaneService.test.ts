@@ -10,7 +10,7 @@ import {
 
 import { MediaGenerationLivePlaneService } from '../../src/services/MediaGenerationLivePlaneService.js';
 
-const response = (payload: Record<string, unknown>, init: { status?: number } = {}) =>
+const response = (payload: Record<string, unknown>, init: { status-: number } = {}) =>
   new Response(JSON.stringify(payload), {
     status: init.status || 200,
     headers: {

@@ -4,7 +4,7 @@ import path from 'path';
 import { TelegramOutputHandler } from '../../src/telegram/TelegramOutputHandler';
 
 describe('TelegramOutputHandler', () => {
-  it('envia wav como audio no Telegram em vez de voice note', async () => {
+  it('sends wav as audio in Telegram instead of a voice note', async () => {
     const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-telegram-output-'));
     const wavPath = path.join(tempDir, 'reply.wav');
     await fs.promises.writeFile(wavPath, 'wav');
@@ -25,11 +25,11 @@ describe('TelegramOutputHandler', () => {
       reply: jest.fn().mockResolvedValue(undefined),
     } as any;
 
-    await handler.sendAudio(ctx, 'Resposta em audio.');
+    await handler.sendAudio(ctx, 'Audio response.');
 
     expect(ctx.api.sendChatAction).toHaveBeenCalledWith(42, 'record_voice');
     expect(ctx.replyWithAudio).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
-      caption: 'Resposta em audio',
+      caption: 'Audio response',
     }));
     expect(ctx.replyWithVoice).not.toHaveBeenCalled();
     expect(audioHandler.cleanup).toHaveBeenCalledWith(wavPath);

@@ -88,7 +88,7 @@ describe('NodeHeartbeatService', () => {
       results: beat?.assignments.map((assignment) => ({
         invocationId: assignment.id,
         ok: true,
-        resultSummary: 'Executado no node host.',
+        resultSummary: 'Executed on node host.',
         stdout: 'NODE_OK',
         exitCode: 0,
       })) || [],

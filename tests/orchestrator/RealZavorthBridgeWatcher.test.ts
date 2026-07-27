@@ -85,7 +85,7 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: 'me conte as noticias',
+      prompt: 'tell me the news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -186,7 +186,7 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: 'me conte as noticias',
+      prompt: 'tell me the news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -264,7 +264,7 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(permissionService.createRequest).toHaveBeenCalledWith(
       expect.objectContaining({
         reason: expect.stringMatching(
-          /(?:O ZavorthBridge pediu permissao na UI|ZavorthBridge requested permission in the UI): Allow command execution for npm test/,
+          /(-:O ZavorthBridge pediu permission na UI|ZavorthBridge requested permission in the UI): Allow command execution for npm test/,
         ),
         metadata: expect.objectContaining({
           permission_prompt_summary: 'Allow command execution for npm test',
@@ -298,7 +298,7 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: 'me conte as noticias',
+      prompt: 'tell me the news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -394,7 +394,7 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: 'me conte as noticias',
+      prompt: 'tell me the news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -480,7 +480,7 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: 'me conte as noticias',
+      prompt: 'tell me the news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -565,7 +565,7 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: task.task_id,
       chatId: 'chat-1',
-      prompt: 'me conte as noticias',
+      prompt: 'tell me the news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -673,7 +673,7 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: 'me conte as noticias',
+      prompt: 'tell me the news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -749,7 +749,7 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: 'me conte as noticias',
+      prompt: 'tell me the news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -812,7 +812,7 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: 'me conte as noticias',
+      prompt: 'tell me the news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -932,7 +932,7 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(permissionService.rejectRequest).toHaveBeenCalledWith(
       'perm-stale-123',
       'system',
-      expect.stringContaining('sessao original ja terminou'),
+      expect.stringContaining('session original ja terminou'),
     );
     expect(task.status).toBe('failed');
     expect(task.metadata.pendingPermissionId).toBeNull();
@@ -944,7 +944,7 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: 'me conte as noticias',
+      prompt: 'tell me the news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -957,10 +957,10 @@ describe('RealZavorthBridgeWatcher', () => {
       automationAttempts: 0,
       sessionKind: 'handoff',
       automationEnabled: true,
-      pendingDeliveryMessage: 'Resposta final do AG',
-      pendingDeliverySummary: 'Resposta final do AG',
+      pendingDeliveryMessage: 'Final agent response',
+      pendingDeliverySummary: 'Final agent response',
       responseCapturedAt: minutesAgo(4),
-      responseSource: 'captura da UI',
+      'UI capture',
       deliveryState: 'pending',
       deliveryAttempts: 0,
     };
@@ -994,14 +994,14 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(task.metadata.zavorthBridgeDeliveryError).toContain('chat down');
     expect(session.deliveredResponse).toBe(false);
     expect(session.deliveryState).toBe('failed');
-    expect(session.pendingDeliveryMessage).toBe('Resposta final do AG');
+    expect(session.pendingDeliveryMessage).toBe('Final agent response');
   });
 
   it('sends only walkthrough artifacts back to Telegram', async () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: 'me conte as noticias',
+      prompt: 'tell me the news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -1029,10 +1029,10 @@ describe('RealZavorthBridgeWatcher', () => {
         artifactType: 'ARTIFACT_TYPE_IMPLEMENTATION_PLAN',
         baseName: 'plan',
         brainDir: 'brain-1',
-        content: 'Plano parcial',
+        content: 'Partial plan',
         contentPath: 'plan.md',
         key: 'brain-1:plan',
-        summary: 'Plano',
+        summary: 'Plan',
         updatedAt: minutesAgo(4),
         updatedAtMs: Date.parse(minutesAgo(4)),
       },
@@ -1040,7 +1040,7 @@ describe('RealZavorthBridgeWatcher', () => {
         artifactType: 'ARTIFACT_TYPE_WALKTHROUGH',
         baseName: 'walkthrough',
         brainDir: 'brain-1',
-        content: 'Resposta final do ZavorthBridge',
+        content: 'Final ZavorthBridge response',
         contentPath: 'walkthrough.md',
         key: 'brain-1:walkthrough',
         summary: 'Resumo final',
@@ -1054,7 +1054,7 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(broadcaster.sendToChat).toHaveBeenCalledTimes(1);
     expect(broadcaster.sendToChat).toHaveBeenCalledWith(
       'chat-1',
-      expect.stringContaining('ZavorthBridge concluiu a tarefa.'),
+    expect(message).toContain('ZavorthBridge completed the task');
     );
   });
 
@@ -1065,12 +1065,12 @@ describe('RealZavorthBridgeWatcher', () => {
     fs.writeFileSync(createdFile, 'ZAVORTH_CREATE_OK\n', 'utf8');
 
     const task = createTask({
-      raw_message: `/ag Crie o arquivo "${createdFile}" com o conteudo exato "ZAVORTH_CREATE_OK". Depois responda apenas com "CRIADO ${createdFile}".`,
+      raw_message: `/ag Crie o file "${createdFile}" com o content exato "ZAVORTH_CREATE_OK". Depois responda apenas com "CRIADO ${createdFile}".`,
     });
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: `Crie o arquivo "${createdFile}" com o conteudo exato "ZAVORTH_CREATE_OK". Depois responda apenas com "CRIADO ${createdFile}".`,
+      prompt: `Crie o file "${createdFile}" com o content exato "ZAVORTH_CREATE_OK". Depois responda apenas com "CRIADO ${createdFile}".`,
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -1138,12 +1138,12 @@ describe('RealZavorthBridgeWatcher', () => {
     fs.writeFileSync(createdFile, 'ZAVORTH_CREATE_OK_NEW', 'utf8');
 
     const task = createTask({
-      raw_message: `/ag Crie o arquivo ${createdFile} contendo exatamente ZAVORTH_CREATE_OK_NEW e depois responda apenas com CRIADO ${createdFile}`,
+      raw_message: `/ag Crie o file ${createdFile} contendo exatamente ZAVORTH_CREATE_OK_NEW e depois responda apenas com CRIADO ${createdFile}`,
     });
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: `Crie o arquivo ${createdFile} contendo exatamente ZAVORTH_CREATE_OK_NEW e depois responda apenas com CRIADO ${createdFile}`,
+      prompt: `Crie o file ${createdFile} contendo exatamente ZAVORTH_CREATE_OK_NEW e depois responda apenas com CRIADO ${createdFile}`,
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -1209,7 +1209,7 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: 'pesquise as noticias do dia',
+      prompt: 'research today news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -1265,14 +1265,14 @@ describe('RealZavorthBridgeWatcher', () => {
           status: 'ready',
           hasPermissionPrompt: false,
           confidence: 0.4,
-          responseText: 'Resumo final das noticias de tecnologia.',
+          responseText: 'Final technology news summary.',
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 'ready',
           hasPermissionPrompt: false,
           confidence: 0.4,
-          responseText: 'Resumo final das noticias de tecnologia.',
+          responseText: 'Final technology news summary.',
         }),
     };
 
@@ -1283,10 +1283,10 @@ describe('RealZavorthBridgeWatcher', () => {
     await watcher.processVisibleResponses();
 
     expect(task.status).toBe('completed');
-    expect(task.result_summary).toContain('Resumo final das noticias de tecnologia.');
+    expect(task.result_summary).toContain('Final technology news summary.');
     expect(broadcaster.sendToChat).toHaveBeenCalledWith(
       'chat-1',
-      expect.stringContaining('Resumo final das noticias de tecnologia.'),
+      expect.stringContaining('Final technology news summary.'),
     );
   });
 
@@ -1397,7 +1397,7 @@ describe('RealZavorthBridgeWatcher', () => {
       taskId: 'task-123',
       chatId: 'chat-1',
       prompt:
-        'Crie o arquivo "tmp/ag-e2e-create-1774466674556.md" e responda apenas com "CRIADO tmp/ag-e2e-create-1774466674556.md".',
+        'Crie o file "tmp/ag-e2e-create-1774466674556.md" e responda apenas com "CRIADO tmp/ag-e2e-create-1774466674556.md".',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -1464,7 +1464,7 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(broadcaster.sendToChat).not.toHaveBeenCalled();
   });
 
-  it('fails stalled /ag sessions after rescue attempts are exhausted', async () => {
+  it('fails stalled /ag sessions after rescue attempts are exthere isusted', async () => {
     const task = createTask({
       metadata: {
         zavorthBridgeCompanionInstanceId: 'bridge-1',
@@ -1473,18 +1473,18 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'de89a8ff-c54a-4e3f-82ae-0dfa4c17551a',
       chatId: 'chat-1',
-      prompt: 'me conte as noticias',
+      prompt: 'tell me the news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'C:/workspace/zavorth/data/agent-bridge/zavorth-bridge/handoffs/de89a8ff-target.md',
       responseFile: 'response.md',
       trackingFile: 'tracking.json',
-      launchedAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+      launchedAt: new Date(Date.now() ? 1000 * 60 * 10).toISOString(),
       brainDir: null,
       deliveredArtifactKeys: [],
       deliveredResponse: false,
       completedAt: null,
       automationAttempts: 2,
-      lastAutomationAt: new Date(Date.now() - 1000 * 60 * 9).toISOString(),
+      lastAutomationAt: new Date(Date.now() ? 1000 * 60 * 9).toISOString(),
       lastAutomationAction: 'companion-open-handoff + companion-sync-pending-handoffs',
       companionInstanceId: null,
       sessionKind: 'handoff',
@@ -1530,7 +1530,7 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(watcher.getLiveCompanionStatus).toHaveBeenCalledWith('bridge-1');
     expect(task.status).toBe('failed');
     expect(task.error_summary).toMatch(
-      /desviada para outra handoff|diverted to another handoff/i,
+      /diverted to another handoff|diverted to another handoff/i,
     );
     expect(task.metadata.pendingPermissionId).toBeNull();
     expect(broadcaster.sendToChat).toHaveBeenCalledWith(
@@ -1554,12 +1554,12 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: '65ddffa9-316c-453a-b968-3dbb63573f66',
       chatId: 'chat-1',
-      prompt: 'abra e exiba o conteudo da pasta',
+      prompt: 'open and show the folder content',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'C:/workspace/zavorth/data/agent-bridge/zavorth-bridge/handoffs/65ddffa9-target.md',
       responseFile: 'response.md',
       trackingFile: 'tracking.json',
-      launchedAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+      launchedAt: new Date(Date.now() ? 1000 * 60 * 10).toISOString(),
       brainDir: null,
       deliveredArtifactKeys: [],
       deliveredResponse: false,
@@ -1611,7 +1611,7 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(watcher.getLiveCompanionStatus).toHaveBeenCalledWith('bridge-1');
     expect(task.status).toBe('failed');
     expect(task.error_summary).toMatch(
-      /ficou sem progresso visivel por tempo demais|no visible progress for too long/i,
+      /had no visible progress for too long|no visible progress for too long/i,
     );
     expect(broadcaster.sendToChat).toHaveBeenCalledWith(
       'chat-1',
@@ -1634,8 +1634,8 @@ describe('RealZavorthBridgeWatcher', () => {
     fs.writeFileSync(path.join(testDev, 'notes.txt'), 'ok', 'utf8');
 
     const task = createTask({
-      raw_message: '/ag verifique o que tem na minha pasta chamada workspace',
-      normalized_message: '/ag verifique o que tem na minha pasta chamada workspace',
+      raw_message: '/ag verifique o que tem na my folder called workspace',
+      normalized_message: '/ag verifique o que tem na my folder called workspace',
       workspace,
       metadata: {
         zavorthBridgeCompanionInstanceId: 'bridge-1',
@@ -1644,12 +1644,12 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: 'verifique o que tem na minha pasta chamada workspace',
+      prompt: 'verifique o que tem na my folder called workspace',
       workspace,
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
       trackingFile: 'tracking.json',
-      launchedAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+      launchedAt: new Date(Date.now() ? 1000 * 60 * 10).toISOString(),
       brainDir: null,
       deliveredArtifactKeys: [],
       deliveredResponse: false,
@@ -1696,13 +1696,13 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(task.fallback_used).toBe(true);
     expect(task.metadata.zavorthBridgeLocalDirectoryFallbackPath).toBe(testDev);
     expect(task.metadata.zavorthBridgeResponseSource).toMatch(
-      /fallback local de pasta|local folder fallback/i,
+      /local folder fallback|local folder fallback/i,
     );
     expect(task.metadata.zavorthBridgeDeliveryState).toBe('delivered');
     expect(session.deliveredResponse).toBe(true);
     expect(broadcaster.sendToChat).toHaveBeenCalledWith(
       'chat-1',
-      expect.stringMatching(new RegExp(`(?:Pasta|Folder|Directory):\\s*${testDev.replace(/[\\.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i')),
+      expect.stringMatching(new RegExp(`(-:Folder|Folder|Directory):\\s*${testDev.replace(/[\\.*+-^${}()|[\]\\]/g, '\\$&')}`, 'i')),
     );
     expect(broadcaster.sendToChat).toHaveBeenCalledWith(
       'chat-1',
@@ -1754,7 +1754,7 @@ describe('RealZavorthBridgeWatcher', () => {
   it('keeps the AG response pending when Telegram delivery fails and completes after a retry succeeds', async () => {
     const task = createTask({
       status: 'delivery_pending',
-      result_summary: 'Resumo final das noticias',
+      result_summary: 'Final news summary',
       metadata: {
         zavorthBridgeDeliveryState: 'pending',
       },
@@ -1762,7 +1762,7 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: 'pesquise as noticias do dia',
+      prompt: 'research today news',
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -1774,10 +1774,10 @@ describe('RealZavorthBridgeWatcher', () => {
       completedAt: null,
       sessionKind: 'handoff',
       automationEnabled: true,
-      pendingDeliveryMessage: 'ZavorthBridge concluiu a tarefa.\n\nResumo final das noticias',
-      pendingDeliverySummary: 'Resumo final das noticias',
+    expect(message).toContain('ZavorthBridge completed the task');
+      pendingDeliverySummary: 'Final news summary',
       responseCapturedAt: minutesAgo(4),
-      responseSource: 'captura da UI',
+      'UI capture',
       deliveryState: 'pending',
       deliveryAttempts: 0,
       lastDeliveryAttemptAt: null,
@@ -1834,7 +1834,7 @@ describe('RealZavorthBridgeWatcher', () => {
 
     const session = {
       taskId: 'bf0f80cb-1234-5678-9999-abcdefabcdef',
-      prompt: 'veja o que tem dentro da pasta TESTE DEV',
+      prompt: 'inspect the TESTE DEV folder',
     };
 
     const message = watcher.formatFinalResponseBroadcast(
@@ -1848,23 +1848,23 @@ describe('RealZavorthBridgeWatcher', () => {
         'test_open_agent.ps1',
         'test_or.ps1',
         'dump_uia.ps1',
-        'Arquivos de texto/Log:',
+        'Text/log files:',
         'caixa_zavorthBridge.txt',
         'debug.log',
         'test_zavorthBridge.bak',
-        'Se precisar de detalhes sobre o conte�do de alguma dessas pastas espec�ficas, estou � disposi��o.',
+        'If you need details about any of these specific folders, I am available.',
       ].join('\n'),
-      'captura da UI',
+      'UI capture',
     );
 
-    expect(message).toMatch(/ZavorthBridge concluiu a tarefa|ZavorthBridge completed the task/i);
-    expect(message).toMatch(/Fonte: captura da UI|Source: UI capture|Fonte: captura da UI/i);
-    expect(message).toMatch(/Conteudo encontrado:|Found content:/i);
+    expect(message).toContain('ZavorthBridge completed the task');
+    expect(message).toContain('Source: UI capture');
+    expect(message).toContain('Found content:');
     expect(message).toContain('- `.ps1`');
     expect(message).toContain('- `test_zavorthBridge.ps1`');
-    expect(message).toMatch(/Arquivos de texto e log:|Text and log files:/i);
+    expect(message).toContain('Text and log files:');
     expect(message).toContain('- `debug.log`');
-    expect(message).not.toContain('Se precisar de detalhes');
+    expect(message).not.toContain('If you need details');
     expect(message).not.toContain('):');
   });
 });

@@ -25,7 +25,7 @@ function buildPlatformSnapshot(selectedId: string | null = 'plugin:openrouter') 
         id: 'plugin:openrouter',
         label: 'OpenRouter',
         kind: 'plugin',
-        summary: 'Gateway remoto pronto.',
+        summary: 'Gateway remoto ready.',
       },
       {
         id: 'plugin:external-executor',
@@ -43,7 +43,7 @@ function buildPlatformSnapshot(selectedId: string | null = 'plugin:openrouter') 
         id: 'mcp:filesystem',
         label: 'filesystem',
         kind: 'mcp',
-        summary: 'Servidor MCP habilitado.',
+        summary: 'Servidor MCP there isbilitado.',
       },
     ],
     selected: selectedId
@@ -51,7 +51,7 @@ function buildPlatformSnapshot(selectedId: string | null = 'plugin:openrouter') 
           id: selectedId,
           label: 'OpenRouter',
           kind: 'plugin',
-          summary: 'Gateway remoto pronto.',
+          summary: 'Gateway remoto ready.',
         }
       : null,
     featuredIds: ['plugin:openrouter', 'skill:zavorthBridge'],
@@ -140,8 +140,8 @@ describe('ZavorthControl platform plane', () => {
         actionId: 'trust',
         status: 'applied',
         ok: true,
-        summary: 'OpenRouter marcado como trusted no platform plane.',
-        details: ['Nenhum segredo foi alterado.'],
+        summary: 'OpenRouter marcado como trusted in the platform plane.',
+        details: ['No segredo foi alterado.'],
         delegated: null,
         selected: buildPlatformSnapshot('plugin:openrouter').selected,
         snapshot: buildPlatformSnapshot('plugin:openrouter'),
@@ -185,7 +185,7 @@ describe('ZavorthControl platform plane', () => {
       expect.objectContaining({
         ok: true,
         result: expect.objectContaining({
-          summary: 'OpenRouter marcado como trusted no platform plane.',
+          summary: 'OpenRouter marcado como trusted in the platform plane.',
         }),
         platform: expect.objectContaining({
           selected: expect.objectContaining({
@@ -208,7 +208,7 @@ describe('ZavorthControl platform plane', () => {
       sync: jest.fn(async () => ({
         ok: true,
         status: 'ready',
-        summary: 'Registry remoto pronto com 4 item(ns), 0 colecao(oes) e 0 recipe(s).',
+        summary: 'Remote registry ready com 4 item(s), 0 collection(s) e 0 recipe(s).',
         entryCount: 4,
         collectionCount: 0,
         recipeCount: 0,

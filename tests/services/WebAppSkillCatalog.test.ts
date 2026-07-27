@@ -20,8 +20,8 @@ describe('WebApp skill catalog routes', () => {
       realtime: null,
       buildMemoryPlaneSnapshot: jest.fn(async () => null),
       resolveSessionId: jest.fn(() => 'session-web-1'),
-      channelMesh: null,
-      channelActions: null,
+      cchannelMesh: null,
+      cchannelActions: null,
       remoteTransports: null,
       remoteTransportActions: null,
       remoteTransportDoctor: null,
@@ -75,10 +75,10 @@ describe('WebApp skill catalog routes', () => {
         buildSnapshot: jest.fn(() => ({
           summary: { total: 7, visible: 2, imported: 7, local: 0, recipes: 3, readyRecipes: 3, recommendations: 1 },
           entries: [{ id: 'skill:chrome-devtools', name: 'chrome-devtools' }],
-          recipes: [{ id: 'security-hardening', label: 'Hardening e auditoria de seguranca' }],
+          recipes: [{ id: 'security-hardening', label: 'Hardening e audit de security' }],
           selected: null,
           selectedRecipe: null,
-          recommendations: [{ id: 'security-hardening', kind: 'recipe', label: 'Hardening e auditoria de seguranca' }],
+          recommendations: [{ id: 'security-hardening', kind: 'recipe', label: 'Hardening e audit de security' }],
         })),
       } as any,
     });
@@ -86,7 +86,7 @@ describe('WebApp skill catalog routes', () => {
     const handled = await routeService.handleRequest(
       req,
       res,
-      new URL('http://localhost/api/web/skills?q=security'),
+      new URL('http://localhost/api/web/skills-q=security'),
       '/api/web/skills',
       deps,
     );
@@ -163,7 +163,7 @@ describe('WebApp skill catalog routes', () => {
     const handled = await routeService.handleRequest(
       req,
       res,
-      new URL('http://localhost/api/web/skills/library?q=security'),
+      new URL('http://localhost/api/web/skills/library-q=security'),
       '/api/web/skills/library',
       deps,
     );
@@ -199,7 +199,7 @@ describe('WebApp skill catalog routes', () => {
     const handled = await routeService.handleRequest(
       req,
       res,
-      new URL('http://localhost/api/web/skills/install-plan?recipe=security-hardening'),
+      new URL('http://localhost/api/web/skills/install-plan-recipe=security-hardening'),
       '/api/web/skills/install-plan',
       deps,
     );

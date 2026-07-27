@@ -10,7 +10,7 @@ describe('ZavorthCapabilityCatalogService', () => {
             id: 'executor-codex',
             label: 'Codex CLI',
             type: 'executor',
-            description: 'Executor de codigo.',
+            description: 'Code executor.',
             intent: 'code_execution',
             executor_preference: 'codex',
             dispatch_mode: 'execution',
@@ -25,13 +25,13 @@ describe('ZavorthCapabilityCatalogService', () => {
           },
           {
             id: 'route-external-executor-auto',
-            label: 'Investigacao ampla',
+            label: 'Broad investigation',
             type: 'executor',
-            description: 'Rota automatica para investigacao.',
+            description: 'Rota automatica para investigaction.',
             intent: 'code_execution',
             executor_preference: 'external_executor',
             dispatch_mode: 'execution',
-            routing_reason: 'Pedido amplo de investigacao de codigo.',
+            routing_reason: 'Broad code investigation request.',
             routing_confidence: 0.82,
             priority: 82,
             matchers: [{ patterns: ['investigue'] }],
@@ -262,7 +262,7 @@ describe('ZavorthCapabilityCatalogService', () => {
               fallbackOrder: ['openrouter', 'gemini'],
             },
           },
-          recommendations: ['Mantenha Gemini como fallback seguro.'],
+          recommendations: ['Mantenthere is Gemini como fallback seguro.'],
         }),
       } as any,
       agentOperatingSystemService: {
@@ -298,7 +298,7 @@ describe('ZavorthCapabilityCatalogService', () => {
           ],
           narrative: {
             headline: 'Agent OS limitado',
-            operatorSummary: '1 loop ativo e 1 com retomada.',
+            operatorSummary: '1 loop active e 1 com resumption.',
           },
         }),
       } as any,
@@ -423,8 +423,8 @@ describe('ZavorthCapabilityCatalogService', () => {
     );
     expect(snapshot.narrative.headline).toContain('3 capacidades');
     expect(snapshot.narrative.operatorSummary).toContain('2 comandos diretos');
-    expect(snapshot.narrative.operatorSummary).toContain('1 provider(s) pronto(s)');
+    expect(snapshot.narrative.operatorSummary).toContain('1 provider(s) ready(s)');
     expect(snapshot.narrative.operatorSummary).toContain('1/1 capability(ies) MCP conectada(s)');
-    expect(snapshot.narrative.operatorSummary).toContain('1 loop(s) ativos');
+    expect(snapshot.narrative.operatorSummary).toContain('1 loop(s) actives');
   });
 });

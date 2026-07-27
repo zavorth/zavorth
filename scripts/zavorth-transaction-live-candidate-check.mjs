@@ -53,7 +53,7 @@ try {
   );
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
-    'zavorth-transaction-live-candidate/checkpoint-10',
+    'zavorth-transaction-live-candidate/gate-10',
     'ZAVORTH LIVE CANDIDATE ONLY',
     'candidateDoesNotAuthorizeLiveExecution',
     'owner-confirmation',

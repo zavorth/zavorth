@@ -15,7 +15,7 @@ const PROJECTION = 'src/zavorth-control/app/(zavorthControl)/control/zavorth-con
 const PROJECTION_INDEX = 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/index.ts';
 const ZAVORTH_CONTROL_INDEX = 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/index.ts';
 const RAW_GATEWAY_TOKEN_ASSIGNMENT_PATTERN = new RegExp(
-  'EXTERNAL_EXECUTOR_GATEWAY_TOKEN' + '=(?!present-redacted|<redacted-local-secret>)[^\\s`]+',
+  'EXTERNAL_EXECUTOR_GATEWAY_TOKEN' + '=(-!present-redacted|<redacted-local-secret>)[^\\s`]+',
 );
 
 function read(relativePath: string): string {

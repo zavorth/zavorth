@@ -97,7 +97,7 @@ function runtimeRule() {
   try {
     const receipt = JSON.parse(result.stdout);
     const safe = receipt.surface === 'acp-live-session'
-      && receipt.session?.transport === 'mock-jsonrpc'
+      && receipt.session?.transport === 'local-jsonrpc'
       && receipt.session?.liveToolExecutionPerformed === false
       && receipt.governance?.rawSecretsSerialized === false
       && receipt.toolDecisions?.some((decision) => decision.decision === 'approval_required');

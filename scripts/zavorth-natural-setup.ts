@@ -51,10 +51,10 @@ async function main() {
     if (asJson) {
       process.stdout.write(`${JSON.stringify(applied, null, 2)}\n`);
     } else {
-      console.log('[natural-setup] apply supervisionado de mutation plan');
+      console.log('[natural-setup] apply supervised de mutation plan');
       console.log(applied.summary);
       console.log(`Status: ${applied.status}.`);
-      console.log(`Plano: ${applied.mutationPlan?.id || applyPlanId}.`);
+      console.log(`Plan: ${applied.mutationPlan?.id || applyPlanId}.`);
     }
     if (!applied.ok) {
       process.exitCode = applied.status === 'waiting_approval' ? 0 : 1;
@@ -83,10 +83,10 @@ async function main() {
     } else {
       console.log('[natural-setup] preview-first de mutation plan');
       console.log(preview.snapshot.narrative.operatorSummary);
-      console.log(`Plano: ${preview.mutationPlan.id}`);
+      console.log(`Plan: ${preview.mutationPlan.id}`);
       console.log(`Status: ${preview.mutationPlan.status}`);
       console.log(`Trust: ${preview.trustDecision.decision} | ${preview.trustDecision.reason}`);
-      console.log('Para aplicar depois de aprovado: npm run ops:natural-setup -- --apply-plan <planId>');
+      console.log('To apply after approval: npm run ops:natural-setup -- --apply-plan <planId>');
     }
     if (preview.trustDecision.decision === 'blocked') {
       process.exitCode = 1;
@@ -108,7 +108,7 @@ async function main() {
   if (asJson) {
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[natural-setup] leitura natural-first do setup de canais');
+    console.log('[natural-setup] read natural-first do setup de channels');
     console.log(await service.renderReport({
       intentText,
       channelId,
@@ -126,6 +126,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[natural-setup] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[natural-setup] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

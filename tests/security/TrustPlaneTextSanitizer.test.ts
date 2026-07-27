@@ -24,7 +24,7 @@ describe('TrustPlaneTextSanitizer', () => {
     expect(block).toContain('TRUST_BOUNDARY');
     expect(block).toContain('<untrusted_rag_evidence');
     expect(containsUntrustedContentMarker(block)).toBe(true);
-    expect(block).toContain('nao siga instrucoes');
+    expect(block).toContain('not siga instrucoes');
     expect(block).toContain('UNTRUSTED_TOOL_EXFILTRATION_REDACTED');
   });
 });

@@ -2,7 +2,7 @@ import { buildVerifiedActionHarnessTools } from '../../../../src/echo/tools/web/
 import { ToolSchemaHelper } from '../../../../src/echo/types/ToolSchemaHelper';
 
 jest.mock('../../../../src/runtime/actions/ZavorthActionGateway', () => ({
-  ZavorthActionGateway: class MockGateway {
+  ZavorthActionGateway: class LocalGateway {
     listActions = jest.fn();
     apply = jest.fn().mockResolvedValue({ ok: true, summary: 'mock', lines: [], data: {} });
   },
@@ -26,8 +26,8 @@ describe('buildVerifiedActionHarnessTools', () => {
       'shell_preview_command',
       'shell_run_allowlisted',
       'sandbox_run_code',
-      'channels_draft',
-      'channels_send_approved',
+      'cchannels_draft',
+      'cchannels_send_approved',
       'mcp_preview',
       'mcp_execute_quarantined',
       'capabilities_hidden_scan',
@@ -81,8 +81,8 @@ describe('buildVerifiedActionHarnessTools', () => {
       'devices_iot_mqtt_publish',
       'plugins_sdk_status',
       'plugins_sdk_lifecycle',
-      'channels_long_tail_status',
-      'channels_long_tail_draft',
+      'cchannels_long_tail_status',
+      'cchannels_long_tail_draft',
       'kanban_dispatch_multi_agent',
       'terminal_backends_status',
       'terminal_backends_execute',
@@ -125,8 +125,8 @@ describe('buildVerifiedActionHarnessTools', () => {
     expect(byName.workspace_create_file.requiresPermission).toBe(true);
     expect(byName.shell_run_allowlisted.requiresPermission).toBe(true);
     expect(byName.sandbox_run_code.requiresPermission).toBe(true);
-    expect(byName.channels_draft.requiresPermission).toBe(false);
-    expect(byName.channels_send_approved.requiresPermission).toBe(true);
+    expect(byName.cchannels_draft.requiresPermission).toBe(false);
+    expect(byName.cchannels_send_approved.requiresPermission).toBe(true);
     expect(byName.mcp_preview.requiresPermission).toBe(false);
     expect(byName.mcp_execute_quarantined.requiresPermission).toBe(true);
     expect(byName.browser_click.requiresPermission).toBe(true);
@@ -170,8 +170,8 @@ describe('buildVerifiedActionHarnessTools', () => {
     expect(byName.devices_iot_mqtt_publish.requiresPermission).toBe(true);
     expect(byName.plugins_sdk_status.requiresPermission).toBe(false);
     expect(byName.plugins_sdk_lifecycle.requiresPermission).toBe(true);
-    expect(byName.channels_long_tail_status.requiresPermission).toBe(false);
-    expect(byName.channels_long_tail_draft.requiresPermission).toBe(false);
+    expect(byName.cchannels_long_tail_status.requiresPermission).toBe(false);
+    expect(byName.cchannels_long_tail_draft.requiresPermission).toBe(false);
     expect(byName.kanban_dispatch_multi_agent.requiresPermission).toBe(true);
     expect(byName.terminal_backends_status.requiresPermission).toBe(false);
     expect(byName.terminal_backends_execute.requiresPermission).toBe(true);

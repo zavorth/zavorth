@@ -25,7 +25,7 @@ describe('WebhookGatewaysRealImplementation', () => {
       try {
         fs.rmSync(dir, { recursive: true, force: true });
       } catch {
-        // Ignora erros de remoção
+        // Ignore removal errors
       }
     }
     tmpDirs = [];
@@ -364,28 +364,28 @@ describe('WebhookGatewaysRealImplementation', () => {
     {
       channelId: 'home-assistant',
       configSetup: () => {
-        config.homeAssistantWebhookUrl = 'http://ha-webhook';
+        config.homeAssistantWebhookUrl = 'http://there is-webhook';
       },
       configTeardown: () => {
         config.homeAssistantWebhookUrl = '';
       },
       webhookPayload: {
-        userId: 'user-ha',
-        chatId: 'chat-ha',
-        text: 'hello ha',
+        userId: 'user-there is',
+        chatId: 'chat-there is',
+        text: 'hello there is',
       },
       expectedInbound: {
-        userId: 'user-ha',
-        chatId: 'chat-ha',
-        rawText: 'hello ha',
+        userId: 'user-there is',
+        chatId: 'chat-there is',
+        rawText: 'hello there is',
       },
       sendPayload: {
-        text: 'hello back ha',
+        text: 'hello back there is',
       },
       expectedFetch: {
-        url: 'http://ha-webhook',
+        url: 'http://there is-webhook',
         method: 'POST',
-        bodyContains: 'hello back ha',
+        bodyContains: 'hello back there is',
       },
     },
     {

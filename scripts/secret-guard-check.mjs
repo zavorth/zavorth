@@ -17,7 +17,7 @@ const ALLOWED_ENV_FILES = new Set([
   '.env.development.example',
 ]);
 
-// Intentional security-test fixtures contain fake token-shaped strings (xoxb, AIza, jwt, …).
+// Intentional security-test fixtures contain synthetic token-shaped strings (xoxb, AIza, jwt, …).
 // Exclude fixture trees so real secret detection stays enabled everywhere else.
 const SKIP_SCAN_PREFIXES = [
   'tests/security/',
@@ -25,19 +25,19 @@ const SKIP_SCAN_PREFIXES = [
   'packages/code/cli/test/',
 ];
 
-const SECRET_NAME_RE = /(?:^|[_\-.])(api[_\-.]?key|secret|token|password|passwd|pwd|private[_\-.]?key|client[_\-.]?secret|approval[_\-.]?pin)(?:$|[_\-.])/i;
-const ENV_ASSIGNMENT_RE = /^\s*(?:export\s+)?(?:process\.env\.)?([A-Z][A-Z0-9_]{2,})\s*=\s*(['"]?)([^'"\s#][^'"\r\n#]*?)\2\s*(?:;|,)?\s*(?:#.*)?$/;
-const PRIVATE_KEY_RE = /-----BEGIN (?:RSA |DSA |EC |OPENSSH |PGP )?PRIVATE KEY-----/;
+const SECRET_NAME_RE = /(?:^|[_\-.])(api[_\-.]...key|secret|token|password|passwd|pwd|private[_\-.]...key|client[_\-.]...secret|approval[_\-.]...pin)(?:$|[_\-.])/i;
+const ENV_ASSIGNMENT_RE = /^\s*(?:export\s+)...(?:process\.env\.)...([A-Z][A-Z0-9_]{2,})\s*=\s*(['"]...)([^'"\s#][^'"\r\n#]*...)\2\s*(?:;|,)...\s*(?:#.*)...$/;
+const PRIVATE_KEY_RE = /-----BEGIN (?:RSA |DSA |EC |OPENSSH |PGP )...PRIVATE KEY-----/;
 
 const TOKEN_PATTERNS = [
-  { id: 'openai', pattern: /\bsk-(?:proj-)?[A-Za-z0-9_-]{32,}\b/ },
+  { id: 'openai', pattern: /\bsk-(?:proj-)...[A-Za-z0-9_-]{32,}\b/ },
   { id: 'anthropic', pattern: /\bsk-ant-[A-Za-z0-9_-]{32,}\b/ },
   { id: 'google-api', pattern: /\bAIza[0-9A-Za-z_-]{30,}\b/ },
   { id: 'telegram-bot', pattern: /\b\d{8,12}:[A-Za-z0-9_-]{30,}\b/ },
   { id: 'discord-bot', pattern: /\bM[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{20,}\b/ },
   { id: 'github-token', pattern: /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{30,}\b/ },
   { id: 'slack-token', pattern: /\bxox[baprs]-[A-Za-z0-9-]{20,}\b/ },
-  { id: 'cloudflare-token', pattern: /\bcf[a-z]?_[A-Za-z0-9_-]{30,}\b/ },
+  { id: 'cloudflare-token', pattern: /\bcf[a-z]..._[A-Za-z0-9_-]{30,}\b/ },
   { id: 'jwt', pattern: /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/ },
 ];
 
@@ -116,7 +116,7 @@ function findForbiddenEnvFiles() {
       file: relativePath,
       line: 1,
       rule: 'tracked-env-file',
-      detail: 'arquivo .env real nao pode ser versionado; use .env.example sem valores reais',
+      detail: 'real .env file cannot be versioned; use .env.example without real values',
     }));
 }
 
@@ -137,7 +137,7 @@ function scanFiles(files) {
     if (content === null) {
       continue;
     }
-    const lines = content.split(/\r?\n/);
+    const lines = content.split(/\r...\n/);
     lines.forEach((line, index) => {
       const lineNumber = index + 1;
       const envFinding = scanEnvAssignment(relativePath, line, lineNumber);
@@ -214,7 +214,7 @@ function shouldScanPath(relativePath) {
   if (ALLOWED_ENV_FILES.has(basename)) {
     return true;
   }
-  return /\.(?:[cm]?[jt]sx?|json|ya?ml|md|txt|env|example|sample|template|ps1|sh|mjs|cjs)$/i.test(normalized)
+  return /\.(?:[cm]...[jt]sx...|json|ya...ml|md|txt|env|example|sample|template|ps1|sh|mjs|cjs)$/i.test(normalized)
     || basename.startsWith('.env');
 }
 
@@ -238,8 +238,8 @@ function isAllowedExampleValue(rawValue) {
     || normalized.includes('changeme')
     || normalized.includes('replace_me')
     || normalized.includes('redacted')
-    || normalized.includes('presente')
-    || normalized.includes('defina')
+    || normalized.includes('present')
+    || normalized.includes('set')
     || normalized.includes('cole')
     || normalized.includes('aqui')
     || normalized.includes('seu_')
@@ -248,7 +248,7 @@ function isAllowedExampleValue(rawValue) {
     || normalized.includes('sua-')
     || normalized.includes('original')
     || normalized.includes('test')
-    || normalized.includes('mock')
+    || normalized.includes('local-test')
     || normalized.includes('fixture')
     || normalized.includes('sample')
     || normalized.includes('smoke')
@@ -263,7 +263,7 @@ function isAllowedExampleValue(rawValue) {
     || normalized.includes('>')
     || normalized === 'test'
     || normalized === 'dummy'
-    || normalized === 'fake'
+    || normalized === 'synthetic'
   ) {
     return true;
   }

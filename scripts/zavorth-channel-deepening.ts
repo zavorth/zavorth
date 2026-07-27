@@ -93,7 +93,7 @@ function formatChannelAction(
     ...commands.map((line) => `- ${line}`),
     '',
     `Next safe action: ${item.nextAction}`,
-    `Default route: ${item.safeDefaultRoute ? 'allowed' : `blocked - ${item.defaultBlockReason}`}`,
+    `Default route: ${item.safeDefaultRoute ? 'allowed' : `blocked ? ${item.defaultBlockReason}`}`,
   ].join('\n');
 }
 
@@ -121,8 +121,7 @@ function guidanceForAction(
     return `Live proof is allowed only after credentials and allowlists are present. Proof must leave a redacted receipt before default routing is enabled.`;
   }
   if (action === 'outbox') {
-    return item.commands.safeOutbox
-      ? `Safe outbox stores governed drafts locally at data/channel-outbox/${item.id} instead of pretending a live message was delivered.`
+    return item.commands.safeOutbox ? `Safe outbox stores governed drafts locally at data/channel-outbox/${item.id} instead of pretending a live message was delivered.`
       : `${item.label} is internal and does not use an external outbox.`;
   }
   if (action === 'send' || action === 'read') {

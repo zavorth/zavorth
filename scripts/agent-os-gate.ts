@@ -48,7 +48,7 @@ try {
     now: () => new Date('2026-05-08T16:00:00.000Z'),
     transactionRuntime,
   }).buildSnapshot({
-    text: 'crie um patch reversivel no workspace e nao leia token=fixture_user_secret_value',
+    text: 'create a reversible workspace patch and do not read token=fixture_user_secret_value',
     surface: 'web',
     userRole: 'owner',
     workspaceRoot,
@@ -64,7 +64,7 @@ try {
     now: () => new Date('2026-05-08T16:00:01.000Z'),
     transactionRuntime,
   }).buildSnapshot({
-    text: 'crie um patch reversivel no workspace',
+    text: 'crie um patch reversible no workspace',
     surface: 'web',
     userRole: 'owner',
     workspaceRoot,
@@ -89,7 +89,7 @@ try {
   const rules: Rule[] = [
     rule('contract-version', snapshot.contractVersion === 'zavorth-agent-os/v1', snapshot.contractVersion),
     rule('project-twin-redacts-secrets', !serialized.includes('fixture_redaction_value_should_not_leak') && !serialized.includes('fixture_user_secret_value'), 'raw secrets absent'),
-    rule('simulation-no-side-effects', snapshot.transaction.simulation.sideEffectsApplied === false, String(snapshot.transaction.simulation.sideEffectsApplied)),
+    rule('dryRun-no-side-effects', snapshot.transaction.dryRun.sideEffectsApplied === false, String(snapshot.transaction.dryRun.sideEffectsApplied)),
     rule('transaction-no-live-apply', snapshot.transaction.liveActionApplied === false && snapshot.transaction.commitRequiresRiskGate === true, snapshot.transaction.status),
     rule('permission-lease-hard-blocks', snapshot.transaction.permissionLease.hardBlocksPreserved === true, snapshot.transaction.permissionLease.status),
     rule('immune-system-does-not-block-thinking', snapshot.immuneSystem.thinkingBlocked === false, snapshot.immuneSystem.cautionLevel),

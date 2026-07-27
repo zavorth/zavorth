@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'zavorth-native-companion-device-checkpoint-6-files',
+    id: 'zavorth-native-companion-device-gate-6-files',
     label: 'Runtime gateway files exist',
     target: 'contract, Satellite bridge, desktop bridge, MLX TTS adapter, pack service, command, tests and package scripts are present',
     files: [
@@ -161,7 +161,7 @@ function runRuntimeRule() {
         `nativeWrappersOwnerGated=${receipt.summary?.nativeWrappersOwnerGated}`,
         `liveExternalIoPerformed=${receipt.summary?.liveExternalIoPerformed}`,
         `enabledByDefault=${receipt.summary?.enabledByDefault}`,
-        `next=${receipt.commands?.nextStage}`,
+        `next=${receipt.commands?.nextAction}`,
       ],
     };
   } catch (error) {

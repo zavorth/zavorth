@@ -66,8 +66,8 @@ async function main() {
       await printJson(result);
     } else {
       console.log('[hardware] device registrado');
-      console.log(`[hardware] id=${result.id} | provider=${result.providerId} | allowlisted=${result.allowlisted ? 'sim' : 'nao'}`);
-      console.log(`[hardware] acoes=${result.allowedActions.join(', ') || 'n/d'}`);
+      console.log(`[hardware] id=${result.id} | provider=${result.providerId} | allowlisted=${result.allowlisted ? 'yes' : 'no'}`);
+      console.log(`[hardware] actions=${result.allowedActions.join(', ') || 'n/d'}`);
     }
     return;
   }
@@ -86,9 +86,9 @@ async function main() {
     if (asJson) {
       await printJson(result);
     } else {
-      console.log('[hardware] plano de acao fisica');
-      console.log(`[hardware] status=${result.status} | ok=${result.ok ? 'sim' : 'nao'} | plan=${result.mutationPlan?.id || 'n/d'}`);
-      console.log(`[hardware] resumo: ${result.summary}`);
+      console.log('[hardware] physical action plan');
+      console.log(`[hardware] status=${result.status} | ok=${result.ok ? 'yes' : 'no'} | plan=${result.mutationPlan?.id || 'n/d'}`);
+      console.log(`[hardware] summary: ${result.summary}`);
       for (const blocker of result.blockers) {
         console.log(`- ${blocker}`);
       }
@@ -109,7 +109,7 @@ async function main() {
     if (asJson) {
       await printJson(result);
     } else {
-      console.log('[hardware] plano aprovado');
+      console.log('[hardware] approved plan');
       console.log(`[hardware] id=${result.id} | status=${result.status}`);
     }
     return;
@@ -125,11 +125,11 @@ async function main() {
     if (asJson) {
       await printJson(result);
     } else {
-      console.log('[hardware] apply de acao fisica');
-      console.log(`[hardware] status=${result.status} | ok=${result.ok ? 'sim' : 'nao'} | plan=${result.mutationPlan?.id || applyPlan}`);
-      console.log(`[hardware] resumo: ${result.summary}`);
+      console.log('[hardware] apply de action physical');
+      console.log(`[hardware] status=${result.status} | ok=${result.ok ? 'yes' : 'no'} | plan=${result.mutationPlan?.id || applyPlan}`);
+      console.log(`[hardware] summary: ${result.summary}`);
       if (!argv.includes('--execute')) {
-        console.log('[hardware] dry-run: use --execute para chamar provider real apos approval.');
+        console.log('[hardware] dry-run: use --execute para chamar provider real after approval.');
       }
       for (const blocker of result.blockers) {
         console.log(`- ${blocker}`);
@@ -164,7 +164,7 @@ async function main() {
       await printJson(result);
     } else {
       console.log('[hardware] emergency stop limpo');
-      console.log(`[hardware] active=${result.active ? 'sim' : 'nao'}`);
+      console.log(`[hardware] active=${result.active ? 'yes' : 'no'}`);
     }
     return;
   }
@@ -180,8 +180,8 @@ async function main() {
     if (asJson) {
       await printJson(result);
     } else {
-      console.log('[hardware] falha de automacao fisica registrada');
-      console.log(`[hardware] automation=${result.automationId} | failures=${result.failures}/${result.threshold} | autoPaused=${result.autoPaused ? 'sim' : 'nao'}`);
+      console.log('[hardware] physical automation failure registered');
+      console.log(`[hardware] automation=${result.automationId} | failures=${result.failures}/${result.threshold} | autoPaused=${result.autoPaused ? 'yes' : 'no'}`);
     }
     return;
   }
@@ -192,14 +192,14 @@ async function main() {
   if (asJson) {
     await printJson(snapshot);
   } else {
-    console.log('[hardware] leitura oficial do hardware action plane');
+    console.log('[hardware] read oficial do hardware action plane');
     console.log(`[hardware] postura=${snapshot.summary.posture} | providers=${snapshot.summary.configuredProviders}/${snapshot.summary.providers} configurados | devices=${snapshot.summary.devices}`);
     console.log(`[hardware] allowlisted=${snapshot.summary.allowlistedDevices} | read-only=${snapshot.summary.readOnlyDevices} | hidden=${snapshot.summary.hiddenDevices}`);
-    console.log(`[hardware] emergencyStop=${snapshot.summary.emergencyStopActive ? 'ativo' : 'inativo'} | autoPaused=${snapshot.summary.autoPausedAutomations}`);
-    console.log(`[hardware] runtime pesado iniciado=${snapshot.summary.heavyRuntimesStarted ? 'sim' : 'nao'}`);
-    console.log(`[hardware] resumo: ${snapshot.narrative.operatorSummary}`);
+    console.log(`[hardware] emergencyStop=${snapshot.summary.emergencyStopActive ? 'active' : 'inactive'} | autoPaused=${snapshot.summary.autoPausedAutomations}`);
+    console.log(`[hardware] heavy runtime started=${snapshot.summary.heavyRuntimesStarted ? 'yes' : 'no'}`);
+    console.log(`[hardware] summary: ${snapshot.narrative.operatorSummary}`);
     if (snapshot.actions.length > 0) {
-      console.log('[hardware] acoes sugeridas:');
+      console.log('[hardware] actions sugeridas:');
       for (const action of snapshot.actions) {
         console.log(`- ${action.label}: ${action.command}`);
       }
@@ -208,6 +208,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[hardware] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[hardware] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

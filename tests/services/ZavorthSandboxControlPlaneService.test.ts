@@ -10,7 +10,7 @@ const dockerStatus = (overrides: Record<string, unknown> = {}) => ({
   autoPullEnabled: false,
   sandboxRuntime: 'runc',
   canRun: true,
-  detail: 'Docker pronto.',
+  detail: 'Docker ready.',
   ...overrides,
 });
 
@@ -82,7 +82,7 @@ describe('ZavorthSandboxControlPlaneService', () => {
           kernelPresent: true,
           rootfsPresent: true,
           canRun: true,
-          detail: 'Firecracker pronto.',
+          detail: 'Firecracker ready.',
         })),
       } as any,
       wasmCapabilityService: {
@@ -131,13 +131,13 @@ describe('ZavorthSandboxControlPlaneService', () => {
           daemonReachable: false,
           imagePresent: false,
           canRun: false,
-          detail: 'Docker CLI nao encontrado.',
+          detail: 'Docker CLI not encontrado.',
         })),
       } as any,
       firecrackerRuntime: {
         getStatus: jest.fn(() => firecrackerStatus({
           enabled: true,
-          detail: 'Plataforma atual win32 nao suporta Firecracker direto.',
+          detail: 'Plataforma atual win32 not suporta Firecracker direto.',
         })),
       } as any,
       wasmCapabilityService: {

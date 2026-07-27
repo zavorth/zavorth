@@ -56,8 +56,8 @@ function runHostedRoutingAsserts() {
   const scriptPath = path.join(tmpDir, 'assert-routing.mjs');
   // Pure Node reimplementation of the env flags (keeps smoke free of Bun path issues)
   const logic = `
-function envFlagTrue(v){const s=String(v??'').trim().toLowerCase();return s==='1'||s==='true'||s==='yes'||s==='on'}
-function envFlagFalse(v){const s=String(v??'').trim().toLowerCase();return s==='0'||s==='false'||s==='no'||s==='off'}
+function envFlagTrue(v){const s=String(v......'').trim().toLowerCase();return s==='1'||s==='true'||s==='yes'||s==='on'}
+function envFlagFalse(v){const s=String(v......'').trim().toLowerCase();return s==='0'||s==='false'||s==='no'||s==='off'}
 function isProductHosted(env){const s=String(env.ZAVORTH_RUNTIME_SOURCE||'').toLowerCase();return s==='workspace'||s==='zavorth'||s==='monorepo'||s==='product'||env.ZAVORTH_CODE_FROM_WORKSPACE==='1'}
 function isAnthropicProductRouteEnabled(env){
   if(envFlagFalse(env.ZAVORTH_ROUTE_ANTHROPIC)||envFlagTrue(env.ZAVORTH_ANTHROPIC_DIRECT)) return false

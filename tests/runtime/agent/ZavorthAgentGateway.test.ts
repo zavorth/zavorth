@@ -24,13 +24,13 @@ describe('ZavorthAgentGateway', () => {
   it('runs a channel-neutral agent execution and replies through the origin port', async () => {
     const executor: UniversalAgentExecutor = ({ run }) => ({
       status: 'completed',
-      summary: 'Comparei o workspace e preparei um resumo.',
-      replyText: 'Resumo pronto no Dashboard.',
+      summary: 'Comparei o workspace e preparei um summary.',
+      replyText: 'Resumo ready no Dashboard.',
       events: [
         {
           kind: 'tool',
           title: 'workspace_compare',
-          detail: 'Comparacao executada em modo leitura.',
+          detail: 'Comparison executed in read-only mode.',
           status: 'done',
         },
       ],
@@ -57,7 +57,7 @@ describe('ZavorthAgentGateway', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-1',
-      text: 'compare o que mudou nessa pasta',
+      text: 'compare what changed in this folder',
       requestedTools: ['read_file'],
       modelProfile: {
         routingPolicy: 'gateway',
@@ -71,7 +71,7 @@ describe('ZavorthAgentGateway', () => {
         status: 'completed',
         sessionId: 'session-1',
         channel: 'web',
-        summary: 'Comparei o workspace e preparei um resumo.',
+        summary: 'Comparei o workspace e preparei um summary.',
       }),
     );
     expect(result.run.toolExposure).toEqual(
@@ -107,7 +107,7 @@ describe('ZavorthAgentGateway', () => {
     expect(result.replies).toEqual([
       expect.objectContaining({
         runId: result.run.id,
-        text: 'Resumo pronto no Dashboard.',
+        text: 'Resumo ready no Dashboard.',
         port: expect.objectContaining({
           kind: 'web',
           label: 'ZavorthControl',
@@ -222,11 +222,11 @@ describe('ZavorthAgentGateway', () => {
       userId: 'operator',
       channel: 'telegram',
       sessionId: 'telegram:4242',
-      text: 'proponha uma auto melhoria segura no boot',
+      text: 'proponthere is uma auto melhoria segura no boot',
       requestedTools: ['selfmod.preview'],
     });
 
-    expect(createGoalPreview).toHaveBeenCalledWith('proponha uma auto melhoria segura no boot', 'operator');
+    expect(createGoalPreview).toHaveBeenCalledWith('proponthere is uma auto melhoria segura no boot', 'operator');
     expect(result.run.status).toBe('completed');
     expect(result.run.summary).toBe('Preview de bootstrap preparado.');
     expect(result.run.metadata).toEqual(
@@ -239,7 +239,7 @@ describe('ZavorthAgentGateway', () => {
         }),
       }),
     );
-    expect(result.replies[0].text).toContain('Apply nao foi executado.');
+    expect(result.replies[0].text).toContain('Apply was not executed.');
   });
 
   it('keeps run, trace and session identity on gateway replies delivered by MemoryReplyPort', async () => {
@@ -249,7 +249,7 @@ describe('ZavorthAgentGateway', () => {
       executor: () => ({
         status: 'completed',
         summary: 'Identidade de run preservada.',
-        replyText: 'Pacote pronto para entrega em memoria.',
+        replyText: 'Package ready for memory delivery.',
       }),
     });
 
@@ -466,12 +466,12 @@ describe('ZavorthAgentGateway', () => {
   it('suppresses executor artifacts when the response decision says artifacts are not allowed', async () => {
     const executor: UniversalAgentExecutor = ({ run }) => ({
       status: 'completed',
-      summary: 'Resposta simples processada.',
+      summary: 'Simple response processed.',
       replyText: 'Oi! Estou aqui.',
       artifacts: [
         {
           id: 'artifact-should-not-exist',
-          title: 'Artefato indevido',
+          title: 'Invalid artifact',
           kind: 'report',
           createdAt: run.createdAt,
           sessionId: run.sessionId,
@@ -524,7 +524,7 @@ describe('ZavorthAgentGateway', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-risky',
-      text: 'rode um comando para corrigir tudo',
+      text: 'run a command to fix everything',
       requestedTools: ['shell.exec'],
     });
 
@@ -561,8 +561,8 @@ describe('ZavorthAgentGateway', () => {
   it('approves a pending universal run and resumes the original executor', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(({ run }) => ({
       status: 'completed',
-      summary: 'Comando executado apos aprovacao.',
-      replyText: 'Aprovado. Continuei a execucao com seguranca.',
+      summary: 'Command executed after approval.',
+      replyText: 'Approved. Continued execution with security.',
       events: [
         {
           kind: 'tool',
@@ -601,7 +601,7 @@ describe('ZavorthAgentGateway', () => {
     expect(approved?.run.approvals[0].status).toBe('approved');
     expect(approved?.replies[0]).toEqual(
       expect.objectContaining({
-        text: 'Aprovado. Continuei a execucao com seguranca.',
+        text: 'Approved. Continued execution with security.',
       }),
     );
   });
@@ -614,7 +614,7 @@ describe('ZavorthAgentGateway', () => {
         JSON.stringify({
           ok: true,
           action: 'open_app',
-          message: 'App iniciado: notepad.',
+          message: 'App started: notepad.',
           approvalRequired: false,
         }),
       ),
@@ -701,7 +701,7 @@ describe('ZavorthAgentGateway', () => {
         roles: [],
         startedAt: '2026-04-26T13:18:00.000Z',
         finishedAt: '2026-04-26T13:18:01.000Z',
-        synthesizedOutput: 'Swarm finalizou a revisao.',
+        synthesizedOutput: 'Swarm finalizou a review.',
         execution_lifecycle: [],
         subagentReceipts: [{ roleId: 'planner', status: 'completed' }],
       },
@@ -717,7 +717,7 @@ describe('ZavorthAgentGateway', () => {
       userId: 'grey',
       channel: 'telegram',
       sessionId: 'session-natural-swarm',
-      text: 'monte uma equipe de agentes para revisar esta arquitetura',
+      text: 'assemble an agent team to review this architecture',
       requestedTools: ['swarm.run'],
     });
     const approved = await gateway.approve(pending.run.approvals[0].id);
@@ -726,7 +726,7 @@ describe('ZavorthAgentGateway', () => {
     expect(launchHierarchyAndWait).toHaveBeenCalledWith(
       expect.objectContaining({
         hierarchyId: pending.run.id,
-        objective: 'monte uma equipe de agentes para revisar esta arquitetura',
+        objective: 'assemble an agent team to review this architecture',
         requestedBy: 'grey',
         surface: 'telegram',
       }),
@@ -749,7 +749,7 @@ describe('ZavorthAgentGateway', () => {
         asyncCompletionReturned: true,
       }),
     );
-    expect(approved?.replies[0].text).toContain('Swarm finalizou a revisao.');
+    expect(approved?.replies[0].text).toContain('Swarm finalizou a review.');
     expect(approved?.workflowJob).toEqual(
       expect.objectContaining({
         status: 'completed',
@@ -770,7 +770,7 @@ describe('ZavorthAgentGateway', () => {
       userId: 'grey',
       channel: 'telegram',
       sessionId: 'session-reject',
-      text: 'edite o arquivo principal',
+      text: 'edite o file principal',
       requestedTools: ['write_file'],
     });
 
@@ -870,11 +870,11 @@ describe('ZavorthAgentGateway', () => {
               status: 'completed',
               createdAt: '2026-04-26T13:35:00.000Z',
               updatedAt: '2026-04-26T13:35:00.000Z',
-              summary: 'Run salvo antes de traceId ser canonico.',
+              summary: 'Run saved before traceId became canonical.',
               events: [],
               toolExposure: {
                 mode: 'unknown',
-                summary: 'Sem ferramentas registradas.',
+                summary: 'Sem tools registradas.',
                 tools: [],
               },
               replyPorts: [],
@@ -928,18 +928,18 @@ describe('ZavorthAgentGateway', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-durable-approval',
-      text: 'rode npm test depois da aprovacao',
+      text: 'rode npm test depois da approval',
       requestedTools: ['shell.exec'],
       metadata: {
-        originalInput: 'rode npm test depois da aprovacao',
+        originalInput: 'rode npm test depois da approval',
       },
     });
     const approvalId = pending.run.approvals[0].id;
     const resumedExecutor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(
       ({ request, run }) => ({
         status: 'completed',
-        summary: `Workflow duravel retomado para ${request.text}.`,
-        replyText: 'Retomei a execucao depois do restart.',
+        summary: `Durable workflow resumed for ${request.text}.`,
+        replyText: 'Resumed execution after restart.',
         events: [
           {
             kind: 'tool',
@@ -980,7 +980,7 @@ describe('ZavorthAgentGateway', () => {
     );
     expect(approved?.replies[0]).toEqual(
       expect.objectContaining({
-        text: 'Retomei a execucao depois do restart.',
+        text: 'Resumed execution after restart.',
       }),
     );
 
@@ -1002,7 +1002,7 @@ describe('ZavorthAgentGateway', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-durable-queue',
-      text: 'edite um arquivo depois',
+      text: 'edite um file depois',
       requestedTools: ['write_file'],
     });
     const approvalId = pending.run.approvals[0].id;
@@ -1033,7 +1033,7 @@ describe('ZavorthAgentGateway', () => {
 
     const workerExecutor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Worker processou a fila duravel.',
+      summary: 'Worker processou a queue duravel.',
       replyText: 'Fila duravel processada.',
     }));
     const workerGateway = new ZavorthAgentGateway({
@@ -1099,8 +1099,8 @@ describe('ZavorthAgentGateway', () => {
     );
     const workerBExecutor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Worker B nao deveria executar.',
-      replyText: 'Worker B nao deveria executar.',
+      summary: 'Worker B should not execute.',
+      replyText: 'Worker B should not execute.',
     }));
     const workerA = new ZavorthAgentGateway({
       now: () => new Date('2026-04-26T14:10:01.000Z'),
@@ -1165,7 +1165,7 @@ describe('ZavorthAgentGateway', () => {
       workflowBackoffMs: 1000,
       workflowMaxAttempts: 2,
       executor: jest.fn(() => {
-        throw new Error('falha transiente');
+        throw new Error('failure transiente');
       }),
     });
 
@@ -1177,7 +1177,7 @@ describe('ZavorthAgentGateway', () => {
         status: 'queued',
         attempts: 1,
         backoffMs: 1000,
-        lastError: 'falha transiente',
+        lastError: 'failure transiente',
       }),
     );
 
@@ -1241,7 +1241,7 @@ describe('ZavorthAgentGateway', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-expired-lease',
-      text: 'retome lease expirado',
+      text: 'resume expired lease',
       requestedTools: ['write_file'],
     });
     await gateway.approve(pending.run.approvals[0].id);

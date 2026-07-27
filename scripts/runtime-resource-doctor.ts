@@ -5,11 +5,11 @@ import { RuntimeResourceBudgetService } from '../src/services/RuntimeResourceBud
 function formatReport(report: ReturnType<RuntimeResourceBudgetService['buildBudgetReport']>): string {
   const lines = [
     '[zavorth-ops] runtime resource doctor',
-    `[zavorth-ops] perfil: ${report.profile} | budget: ${report.ok ? 'ok' : 'violado'}`,
-    `[zavorth-ops] processo: pid ${report.snapshot.process.pid} | node ${report.snapshot.process.nodeVersion} | uptime ${report.snapshot.process.uptimeSeconds}s`,
-    `[zavorth-ops] memoria: rss ${report.snapshot.runtime.rssMb}/${report.thresholds.rssMb} MB | heap ${report.snapshot.runtime.heapUsedMb}/${report.thresholds.heapUsedMb} MB`,
+    `[zavorth-ops] profile: ${report.profile} | budget: ${report.ok ? 'ok' : 'violado'}`,
+    `[zavorth-ops] process: pid ${report.snapshot.process.pid} | node ${report.snapshot.process.nodeVersion} | uptime ${report.snapshot.process.uptimeSeconds}s`,
+    `[zavorth-ops] memory: rss ${report.snapshot.runtime.rssMb}/${report.thresholds.rssMb} MB | heap ${report.snapshot.runtime.heapUsedMb}/${report.thresholds.heapUsedMb} MB`,
     `[zavorth-ops] runtime: handles ${report.snapshot.runtime.activeHandles}/${report.thresholds.activeHandles} | requests ${report.snapshot.runtime.activeRequests}/${report.thresholds.activeRequests} | cjs modules ${report.snapshot.runtime.loadedCommonJsModules}/${report.thresholds.loadedCommonJsModules}`,
-    `[zavorth-ops] host: memoria ${report.snapshot.host.memoryLoadPercent}% | livre ${report.snapshot.host.freeMemoryMb}/${report.snapshot.host.totalMemoryMb} MB | cpus ${report.snapshot.host.cpuCount}`,
+    `[zavorth-ops] host: memory ${report.snapshot.host.memoryLoadPercent}% | free ${report.snapshot.host.freeMemoryMb}/${report.snapshot.host.totalMemoryMb} MB | cpus ${report.snapshot.host.cpuCount}`,
   ];
 
   const failedChecks = report.checks.filter((check) => !check.ok);
@@ -26,7 +26,7 @@ function formatReport(report: ReturnType<RuntimeResourceBudgetService['buildBudg
   }
 
   if (report.recommendations.length > 0) {
-    lines.push('[zavorth-ops] recomendacoes:');
+    lines.push('[zavorth-ops] recommendations:');
     for (const recommendation of report.recommendations) {
       lines.push(`- ${recommendation}`);
     }
@@ -73,7 +73,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-ops] runtime resource doctor falhou.');
+  console.error('[zavorth-ops] runtime resource doctor failed.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

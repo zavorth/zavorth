@@ -32,7 +32,7 @@ describe('TelegramInspectionController', () => {
     expect(ctx.reply.mock.calls[0][0]).toContain('Recent tasks');
     expect(ctx.reply.mock.calls[0][0]).toContain('abcdef12');
     expect(ctx.reply.mock.calls[0][0]).toContain('build ok');
-    expect(ctx.reply.mock.calls[0][0]).toMatch(/Next|next step|Proximo|próximo/i);
+    expect(ctx.reply.mock.calls[0][0]).toMatch(/Next|next step|Next|next/i);
     expect(ctx.reply.mock.calls[0][0]).toMatch(/Agora:|Now:/);
   });
 
@@ -169,7 +169,7 @@ describe('TelegramInspectionController', () => {
 
       expect(ctx.reply.mock.calls[0][0]).toContain('src/app.ts');
       expect(ctx.reply.mock.calls[0][0]).toContain('report.md');
-      expect(ctx.reply.mock.calls[0][0]).toMatch(/Total: 1|images: 0|arquivos: 1|files: 1/);
+      expect(ctx.reply.mock.calls[0][0]).toMatch(/Total: 1|images: 0|files: 1|files: 1/);
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
@@ -183,7 +183,7 @@ describe('TelegramInspectionController', () => {
       shouldHandleNaturalQuery: jest.fn().mockReturnValue(true),
       prepare: jest.fn().mockResolvedValue({
         kind: 'result',
-        text: 'Comparacao entre index.html e old-index.html',
+        text: 'Comparaction entre index.html e old-index.html',
       }),
     } as any;
     const controller = new TelegramInspectionController(
@@ -199,7 +199,7 @@ describe('TelegramInspectionController', () => {
     await controller.handleTaskFiles(ctx, 'compare "index.html" e "old-index.html"', '42');
 
     expect(inspectionService.prepare).toHaveBeenCalled();
-    expect(ctx.reply.mock.calls[0][0]).toContain('Comparacao entre index.html e old-index.html');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Comparaction entre index.html e old-index.html');
   });
 
   it('creates a scoped permission request for natural inspection outside allowed roots', async () => {
@@ -225,7 +225,7 @@ describe('TelegramInspectionController', () => {
         requestedPath: 'C:/fora',
         previewPath: 'C:/fora',
         originalRequest: 'compare "C:/fora/a.txt" e "C:/fora/b.txt"',
-        reason: 'Esse caminho existe, mas ainda nao esta liberado para inspecao local do Zavorth.',
+        reason: 'This path exists, but is not allowed for local Zavorth inspection yet.',
       }),
     } as any;
     const controller = new TelegramInspectionController(
@@ -240,7 +240,7 @@ describe('TelegramInspectionController', () => {
           listApprovedRequests: jest.fn().mockResolvedValue([]),
         } as any,
         buildPermissionKeyboard: jest.fn().mockReturnValue(undefined),
-        formatPermissionCreatedMessage: jest.fn().mockReturnValue('Permissao de inspecao'),
+        formatPermissionCreatedMessage: jest.fn().mockReturnValue('Permission de inspecao'),
       },
       inspectionService,
     );
@@ -257,7 +257,7 @@ describe('TelegramInspectionController', () => {
         }),
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith('Permissao de inspecao', undefined);
+    expect(ctx.reply).toHaveBeenCalledWith('Permission de inspecao', undefined);
   });
 
   it('resumes a natural inspection after a read-only folder approval', async () => {
@@ -267,7 +267,7 @@ describe('TelegramInspectionController', () => {
     const inspectionService = {
       prepare: jest.fn().mockResolvedValue({
         kind: 'result',
-        text: 'Arquivos alterados de hoje em fora',
+        text: 'Files changed today outside',
       }),
     } as any;
     const controller = new TelegramInspectionController({} as any, {} as any, {}, inspectionService);
@@ -279,14 +279,14 @@ describe('TelegramInspectionController', () => {
       resolved_value: 'C:/fora',
       metadata: {
         permission_source: 'file_inspection',
-        original_request: 'o que mudou hoje em "C:/fora"',
+        original_request: 'what changed today in "C:/outside"',
       },
     } as any);
 
     expect(resumed).toBe(true);
-    expect(inspectionService.prepare).toHaveBeenCalledWith('o que mudou hoje em "C:/fora"', {
+    expect(inspectionService.prepare).toHaveBeenCalledWith('what changed today in "C:/outside"', {
       extraAllowedPaths: ['C:/fora'],
     });
-    expect(ctx.reply.mock.calls[0][0]).toContain('Arquivos alterados de hoje em fora');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Files changed today outside');
   });
 });

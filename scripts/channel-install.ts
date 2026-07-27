@@ -6,7 +6,7 @@ import { normalizePlatformKey, type PlatformKey } from '../src/contracts/Platfor
 const CHANNEL_INSTALL_MODES = [
   'native',
   'bridge',
-  'stub',
+  'local',
   'cloud-api',
   'baileys',
   'signal-cli',
@@ -66,7 +66,7 @@ async function main() {
 
   if (args.apply) {
     if (!args.channelId || !args.mode) {
-      throw new Error('Use --channel <telegram|discord|slack|whatsapp|signal|imessage|teams|email> e --mode <native|bridge|stub|cloud-api|baileys|signal-cli|mac-bridge|graph-bot|smtp-imap> junto com --apply.');
+      throw new Error('Use --channel <telegram|discord|slack|whatsapp|signal|imessage|teams|email> and --mode <native|bridge|local|cloud-api|baileys|signal-cli|mac-bridge|graph-bot|smtp-imap> with --apply.');
     }
 
     const report = service.applyScaffold({
@@ -83,7 +83,7 @@ async function main() {
     console.log(`[channels:install] canal: ${report.channelId}`);
     console.log(`[channels:install] modo: ${report.mode}`);
     console.log(`[channels:install] .env: ${report.env.filePath}`);
-    console.log(`[channels:install] chaves escritas: ${report.env.writtenKeys.join(', ') || 'nenhuma'}`);
+    console.log(`[channels:install] written keys: ${report.env.writtenKeys.join(', ') || 'none'}`);
     if (report.env.preservedKeys.length > 0) {
       console.log(`[channels:install] chaves preservadas: ${report.env.preservedKeys.join(', ')}`);
     }
@@ -122,13 +122,13 @@ async function main() {
       console.log(`- webhook local: ${channel.localWebhookUrl}`);
     }
     if (channel.publicWebhookUrl) {
-      console.log(`- webhook publico: ${channel.publicWebhookUrl}`);
+      console.log(`- public webhook: ${channel.publicWebhookUrl}`);
     }
     if (channel.missingEnvKeys.length > 0) {
       console.log(`- faltando: ${channel.missingEnvKeys.join(', ')}`);
     }
     if (Array.isArray(channel.notes) && channel.notes.length > 0) {
-      console.log(`- proximo passo: ${channel.notes[0]}`);
+      console.log(`- next passo: ${channel.notes[0]}`);
     }
     console.log(`- aplicar: ${channel.commands.apply}`);
   }

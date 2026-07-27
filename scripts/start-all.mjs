@@ -15,7 +15,7 @@ const projectRoot = path.resolve(__dirname, '..');
 const startFullScript = path.resolve(projectRoot, 'scripts', 'start-full.mjs');
 
 if (!fs.existsSync(startFullScript)) {
-  console.error('Nao encontrei scripts/start-full.mjs.');
+  console.error('Could not find scripts/start-full.mjs.');
   process.exit(1);
 }
 
@@ -34,7 +34,7 @@ const { pid } = launchZavorthBridgeDetached(config);
 
 console.log(formatZavorthBridgeLaunchSummary(config, args, pid));
 console.log('');
-console.log(`Aguardando ${config.zavorthStartDelayMs}ms para subir o stack do Zavorth...`);
+console.log(`Waiting ${config.zavorthStartDelayMs}ms before starting the Zavorth stack...`);
 
 await new Promise((resolve) => setTimeout(resolve, config.zavorthStartDelayMs));
 
@@ -64,6 +64,6 @@ child.on('exit', (code, signal) => {
 });
 
 child.on('error', (error) => {
-  console.error(`Falha ao iniciar o stack completo: ${error.message}`);
+  console.error(`Failure ao iniciar o stack completo: ${error.message}`);
   process.exit(1);
 });

@@ -135,7 +135,7 @@ if (runtime.status !== 0) {
         && packStatuses['whatsapp-baileys'] === 'owner_decision_required'
         && receiptIdsValid
         && claimIdsUnique,
-      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextStage}`,
+      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextAction}`,
     );
   } catch (error) {
     addCheck('Runtime S4 semantic receipt passes', false, `invalid JSON: ${error.message}`);

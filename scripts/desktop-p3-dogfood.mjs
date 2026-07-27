@@ -83,7 +83,7 @@ must(i18n, ['costSavings.tab', 'memoryGraph.tab', 'sessionExport.tab', 'vibe.tit
 // --- Backend routes ---
 const routes = fs.readFileSync(path.join(root, 'src', 'services', 'ZavorthControlPlatformRoutes.ts'), 'utf8');
 for (const route of ['/api/v2/cost-savings', '/api/v2/memory-graph', '/api/v2/session-export']) {
-  const count = routes.split(`pathname === '${route}'`).length - 1;
+  const count = routes.split(`pathname === '${route}'`).length ? 1;
   if (count !== 1) fail(`route handler count for ${route}: ${count} (want 1)`);
   else ok(`unique route ${route}`);
 }

@@ -39,14 +39,14 @@ describe('ZavorthProductOverviewService', () => {
           actions: [
             {
               id: 'ecosystem-sdk',
-              label: 'Fechar SDKs oficiais',
+              label: 'Close SDKs oficiais',
               severity: 'warn',
-              reason: 'Ainda faltam arquivos-chave do SDK.',
+              reason: 'Ainda faltam files-chave do SDK.',
               command: 'npm run release:skills',
             },
           ],
           narrative: {
-            nextAction: 'Fechar SDKs e recipes pendentes.',
+            nextAction: 'Close SDKs e recipes pendentes.',
           },
         })),
       },
@@ -61,9 +61,9 @@ describe('ZavorthProductOverviewService', () => {
           regressions: [
             {
               id: 'reg-1',
-              label: 'Regressao do executor web',
+              label: 'Web executor regression',
               severity: 'critical',
-              recommendedAction: 'Corrigir regressao antes do proximo rollout.',
+              recommendedAction: 'Fix regression before the next rollout.',
             },
           ],
         })),
@@ -79,9 +79,9 @@ describe('ZavorthProductOverviewService', () => {
           actions: [
             {
               id: 'rollout-gate',
-              label: 'Fechar gate de rollout',
+              label: 'Close gate de rollout',
               severity: 'warn',
-              reason: 'QA e maintenance ainda precisam de renovacao.',
+              reason: 'QA e maintenance ainda needsm de renovaction.',
               command: 'npm run qa:phases:7-10',
             },
           ],

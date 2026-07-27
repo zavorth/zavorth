@@ -19,11 +19,11 @@ const capabilityId = (() => { try { return requireAutopilotCapabilityId(typeof a
 const audience = (readArg('--audience=') || (asJson ? 'technical_operator' : 'everyday_user')) as CapabilityAutopilotAudience;
 const surfaces = readSurfaces('--surfaces=') || ['cli', 'web', 'chat', 'telegram', 'api'];
 const expectedSurfaces = readSurfaces('--expected-surfaces=') || surfaces;
-const rawIntentProbe = 'STAGE72-RAW-INTENT-MUST-NOT-LEAK';
-const rawWorkspaceProbe = 'C:/private/STAGE72-RAW-WORKSPACE-MUST-NOT-LEAK';
+const rawIntentProbe = 'GATE72-RAW-INTENT-MUST-NOT-LEAK';
+const rawWorkspaceProbe = 'C:/private/GATE72-RAW-WORKSPACE-MUST-NOT-LEAK';
 
 main().catch((error) => {
-  process.stderr.write(`[capability-autopilot-preflight-side-effect] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(`[capability-autopilot-preflight-side-effect] failure: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 });
 
@@ -40,9 +40,9 @@ async function main(): Promise<void> {
   const receiptService = new CapabilityAutopilotPreflightDispatchReceiptService();
   const receiptSnapshot = receiptService.buildReceiptSnapshot(sourceSnapshot, {
     explicitlyConfirmed,
-    actorId: 'checkpoint-72-gate',
-    confirmationId: explicitlyConfirmed ? 'checkpoint-72-explicit-confirmation' : null,
-    reason: 'checkpoint-72-side-effect-gate',
+    actorId: 'gate-72-gate',
+    confirmationId: explicitlyConfirmed ? 'gate-72-explicit-confirmation' : null,
+    reason: 'gate-72-side-effect-gate',
   });
   const adapterService = new CapabilityAutopilotPreflightDispatchAdapterService();
   const adapterSnapshot = adapterService.buildAdapterSnapshot(receiptSnapshot);
@@ -50,10 +50,10 @@ async function main(): Promise<void> {
   const snapshot = sideEffectGateService.buildGateSnapshot(adapterSnapshot, {
     approvalGranted,
     validationPassed,
-    actorId: 'checkpoint-72-gate',
-    approvalReceiptId: approvalGranted ? 'checkpoint-72-approval' : null,
-    validationReceiptId: validationPassed ? 'checkpoint-72-validation' : null,
-    reason: 'checkpoint-72-side-effect-gate',
+    actorId: 'gate-72-gate',
+    approvalReceiptId: approvalGranted ? 'gate-72-approval' : null,
+    validationReceiptId: validationPassed ? 'gate-72-validation' : null,
+    reason: 'gate-72-side-effect-gate',
   });
 
   if (asJson) {

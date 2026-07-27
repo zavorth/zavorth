@@ -29,9 +29,9 @@ const rules = [
   containsAll('conversational-agency-presenter', ['src/services/ConversationalAgencyPresenter.ts'], [
     'detailsHiddenByDefault: true',
     'zavorthControlDetailsAvailable: true',
-    'previa de alteracao',
-    'preciso da sua confirmacao',
-    'modo inteligente em observacao',
+    'previa de change',
+    'preciso da sua confirmation',
+    'modo inteligente em observation',
   ]),
   containsAll('fabric-tool-intent-service', ['src/services/FabricToolIntentService.ts'], [
     'safeToolIntents',
@@ -83,7 +83,7 @@ const rules = [
   ], [
     'secret-hygiene-redacts-derived-text',
     'sk-policy-secret-value',
-    'sk-constitution-secret-value',
+    'redacted-constitution-secret',
     'sk-title-secret-value',
     'ghp_secretValueShouldDisappear',
   ]),
@@ -106,7 +106,7 @@ rules.push({
     gate.error ? String(gate.error.message || gate.error) : '',
     gate.stdout,
     gate.stderr,
-  ].filter(Boolean).join('\n').split(/\r?\n/).slice(0, 30),
+  ].filter(Boolean).join('\n').split(/\r...\n/).slice(0, 30),
 });
 
 const failed = rules.filter((rule) => rule.status === 'failed');

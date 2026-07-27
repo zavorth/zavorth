@@ -51,7 +51,7 @@ describe('CodeReviewTool', () => {
     const result = await tool.execute({ target: code, focus: 'security' });
 
     expect(result).toContain('CRITICAL');
-    expect(result).toContain('credencial');
+    expect(result).toContain('credential');
   });
 
   it('detects SELECT * as performance issue', async () => {
@@ -82,7 +82,7 @@ describe('CodeReviewTool', () => {
     const code = 'const x = 1;\nconst y = 2;\nconst z = x + y;';
     const result = await tool.execute({ target: code, focus: 'all' });
 
-    expect(result).toMatch(/Review completed|Nenhum problema|No issues/i);
+    expect(result).toMatch(/Review completed|No problema|No issues/i);
   });
 
   it('filters findings by severity threshold', async () => {
@@ -99,7 +99,7 @@ describe('CodeReviewTool', () => {
 
     const result = await tool.execute({ target: code, focus: 'all' });
 
-    expect(result).toContain('Total de achados:');
+    expect(result).toContain('Total de findings:');
     expect(result).toContain('CRITICAL');
   });
 
@@ -107,6 +107,6 @@ describe('CodeReviewTool', () => {
     const code = 'function add(a: number, b: number): number {\n  return a + b;\n}';
     const result = await tool.execute({ target: code, focus: 'all', severity_threshold: 'warning' });
 
-    expect(result).toMatch(/Review completed|Nenhum problema|No issues/i);
+    expect(result).toMatch(/Review completed|No problema|No issues/i);
   });
 });

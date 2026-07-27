@@ -15,19 +15,19 @@ describe('AgentRunService Artifact Memory Artifact Memory', () => {
       idFactory: createIdFactory(),
       executor: () => ({
         status: 'completed' as const,
-        summary: 'Artifacts prontos para memoria com origem.',
+        summary: 'Artifacts ready for memory with provenance.',
         replyText: 'ok',
         artifacts: [
           {
             id: 'artifact-agent-plan',
-            title: 'Plano do executor',
+            title: 'Executor plan',
             kind: 'plan' as const,
             createdAt: '2026-05-04T00:38:00.000Z',
             status: 'ready' as const,
           },
           {
             id: 'artifact-agent-report',
-            title: 'Relatorio do executor',
+            title: 'Report do executor',
             kind: 'report' as const,
             createdAt: '2026-05-04T00:38:00.000Z',
             status: 'ready' as const,
@@ -37,7 +37,7 @@ describe('AgentRunService Artifact Memory Artifact Memory', () => {
           taskId: 'agent-run-artifact-memory',
           artifactSummaries: {
             'artifact-agent-plan': {
-              summary: 'Plano criado pelo executor e indexado sem ler arquivo.',
+              summary: 'Plan created by the executor and indexed without reading file.',
             },
           },
         },

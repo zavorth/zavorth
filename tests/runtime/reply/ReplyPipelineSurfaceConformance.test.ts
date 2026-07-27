@@ -13,7 +13,7 @@ function createRun(replyPorts: UniversalReplyPort[]): UniversalAgentRun {
     userId: 'grey',
     channel: 'web',
     title: 'Reply conformance',
-    input: 'confirme saida',
+    input: 'confirm output',
     workspace: null,
     status: 'completed',
     createdAt: '2026-04-27T16:40:00.000Z',
@@ -22,7 +22,7 @@ function createRun(replyPorts: UniversalReplyPort[]): UniversalAgentRun {
     events: [],
     toolExposure: {
       mode: 'safe',
-      summary: 'Sem ferramentas.',
+      summary: 'Sem tools.',
       tools: [],
     },
     replyPorts,
@@ -50,7 +50,7 @@ describe('ReplyPipeline surface conformance', () => {
 
     const replies = pipeline.buildReplies({
       run: createRun(ports),
-      text: 'Resposta Zavorth-native para todas as surfaces.',
+      text: 'Zavorth-native response for every surface.',
       now: new Date('2026-04-27T16:41:00.000Z'),
     });
 

@@ -37,13 +37,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('scheduled-task-daily-ops-files', 'Surface controls files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('scheduled-task-daily-ops-files', 'Surface controls files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthScheduledTaskDailyOpsReadinessContract.ts', ['ZAVORTH_SCHEDULED_TASK_DAILY_OPS_READINESS_CONTRACT_VERSION', 'dailyUseReady', 'noZavorthControlVisualMutation']],
-    ['src/services/ZavorthScheduledTaskDailyOpsReadinessService.ts', ['checkpoint-7-scheduled-task-daily-ops-readiness', 'ZavorthScheduledTaskLiveTickCertificationService', 'allUserActionsGoThroughGovernedSurfaces']],
+    ['src/services/ZavorthScheduledTaskDailyOpsReadinessService.ts', ['gate-7-scheduled-task-daily-ops-readiness', 'ZavorthScheduledTaskLiveTickCertificationService', 'allUserActionsGoThroughGovernedSurfaces']],
     ['scripts/zavorth-scheduled-task-daily-ops-readiness.ts', ['--task=', 'ZavorthScheduledTaskDailyOpsReadinessService']],
     ['src/sdk/contracts.ts', ['ZavorthScheduledTaskDailyOpsReadinessContract']],
     ['src/sdk/index.ts', ['ZavorthScheduledTaskDailyOpsReadinessService']],
@@ -130,5 +130,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

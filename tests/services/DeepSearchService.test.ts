@@ -52,7 +52,7 @@ describe('DeepSearchService', () => {
     const service = new DeepSearchService({ log: jest.fn() } as any);
     const result = await service.research('external_executor');
 
-    expect(result).toContain('Resultados brutos para "external_executor"');
+    expect(result).toContain('Raw results for "external_executor"');
     expect(result).toContain('https://example.com/external_executor');
   });
 });

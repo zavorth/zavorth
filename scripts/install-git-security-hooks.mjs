@@ -26,19 +26,19 @@ if (repoCheck.status !== 0 || repoCheck.stdout.trim() !== "true") {
 if (mode === "--install") {
   const result = git(["config", "core.hooksPath", ".githooks"]);
   if (result.status !== 0) {
-    fail(result.stderr.trim() || "falha ao configurar core.hooksPath.");
+    fail(result.stderr.trim() || "failure configuring core.hooksPath.");
   }
-  console.log("[security-hooks] hooks instalados: core.hooksPath=.githooks");
+  console.log("[security-hooks] hooks installed: core.hooksPath=.githooks");
   process.exit(0);
 }
 
 if (mode === "--uninstall") {
   const result = git(["config", "--unset", "core.hooksPath"]);
   if (result.status !== 0 && result.status !== 5) {
-    fail(result.stderr.trim() || "falha ao remover core.hooksPath.");
+    fail(result.stderr.trim() || "failure ao remover core.hooksPath.");
   }
   console.log("[security-hooks] hooks removidos.");
   process.exit(0);
 }
 
-fail("modo invalido. Use --install ou --uninstall.");
+fail("modo invalid. Use --install ou --uninstall.");

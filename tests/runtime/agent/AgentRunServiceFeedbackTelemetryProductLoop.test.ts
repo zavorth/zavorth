@@ -30,7 +30,7 @@ function productEntryRuntime() {
         },
         questions: [],
         writes: [],
-        summary: ['Profile pronto.'],
+        summary: ['Profile ready.'],
       } as any),
       buildWorkspaceIdentitySnapshot: () => ({
         nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
@@ -173,7 +173,7 @@ describe('AgentRunService Feedback Telemetry Product Loop Feedback Telemetry', (
       productEntryRuntime: productEntryRuntime(),
       executor: () => ({
         status: 'completed' as const,
-        summary: 'Feedback product loop pronto.',
+        summary: 'Feedback product loop ready.',
         replyText: 'ok',
       }),
     });

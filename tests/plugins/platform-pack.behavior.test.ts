@@ -39,7 +39,7 @@ function createMockCtx(permission = true) {
   };
 }
 
-describe('Wave 2 platform pack', () => {
+describe('Platform capability pack', () => {
   const prevEnv = { ...process.env };
 
   afterEach(() => {

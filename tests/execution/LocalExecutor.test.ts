@@ -211,7 +211,7 @@ describe('LocalExecutor', () => {
 
     expect(result.success).toBe(false);
     expect(result.error_code).toBe('SANDBOX_REQUIRED_MICROVM_UNAVAILABLE');
-    expect(result.error_message).toContain('codigo de alto risco requer MicroVM');
+    expect(result.error_message).toContain('high-risk code requires MicroVM');
     expect(shellRunner).not.toHaveBeenCalled();
   });
 

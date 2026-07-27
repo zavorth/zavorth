@@ -18,5 +18,5 @@ const { pid } = launchZavorthBridgeDetached(config);
 
 console.log(formatZavorthBridgeLaunchSummary(config, args, pid));
 console.log('');
-console.log('ZavorthBridge enviado para background no modo de depuracao remota.');
-console.log('Depois disso, voce pode subir o stack completo com: npm run start:full');
+console.log('ZavorthBridge sent to the background in remote debugging mode.');
+console.log('Depois disso, you pode subir o stack completo com: npm run start:full');

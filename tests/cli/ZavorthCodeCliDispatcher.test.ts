@@ -128,8 +128,7 @@ describe('ZavorthCodeCliDispatcher', () => {
           args: ['status'],
           env: {},
           whichCommand: (name) =>
-            name === 'zavorth-code' || name.startsWith('zavorth-code')
-              ? '/opt/bin/zavorth-code'
+            name === 'zavorth-code' || name.startsWith('zavorth-code') ? '/opt/bin/zavorth-code'
               : null,
           platform: 'linux',
           cwd: tempRoot,

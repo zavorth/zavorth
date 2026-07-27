@@ -35,6 +35,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error('[artifact-workbench] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[artifact-workbench] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

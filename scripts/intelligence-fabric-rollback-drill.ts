@@ -80,7 +80,7 @@ async function buildScenarios(): Promise<DrillScenario[]> {
       idFactory,
       executor: executorFor('request-disabled'),
     }),
-    text: 'responda sem usar o fabric nesta execucao',
+    text: 'respond without using fabric in this execution',
     metadata: {
       capabilityNegotiationApproved: true,
       intelligenceFabricMode: 'disabled',
@@ -96,7 +96,7 @@ async function buildScenarios(): Promise<DrillScenario[]> {
       executor: executorFor('runtime-disabled'),
       intelligenceFabricMode: 'disabled',
     }),
-    text: 'responda com fabric desligado no runtime',
+    text: 'reply com fabric desligado no runtime',
     metadata: {
       capabilityNegotiationApproved: true,
     },
@@ -115,7 +115,7 @@ async function buildScenarios(): Promise<DrillScenario[]> {
         },
       },
     }),
-    text: 'responda mesmo se o fabric falhar',
+    text: 'reply mesmo se o fabric falhar',
     metadata: {
       capabilityNegotiationApproved: true,
     },
@@ -128,8 +128,8 @@ async function buildScenarios(): Promise<DrillScenario[]> {
 function executorFor(label: string): UniversalAgentExecutor {
   const executor: UniversalAgentExecutor = () => ({
     status: 'completed',
-    summary: `Runtime atual respondeu no drill ${label}.`,
-    replyText: `Runtime atual respondeu no drill ${label}.`,
+    summary: `Current runtime responded in drill ${label}.`,
+    replyText: `Current runtime responded in drill ${label}.`,
   });
   return executor;
 }

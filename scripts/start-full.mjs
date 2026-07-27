@@ -9,7 +9,7 @@ const projectRoot = path.resolve(__dirname, '..');
 const hostScript = path.resolve(projectRoot, 'dist', 'host.js');
 
 if (!fs.existsSync(hostScript)) {
-  console.error('Nao encontrei dist/host.js. Rode "npm run build" antes de usar "npm run start:full".');
+  console.error('Could not find dist/host.js. Run "npm run build" before using "npm run start:full".');
   process.exit(1);
 }
 
@@ -27,7 +27,7 @@ console.log(`Provider principal: ${env.LLM_PROVIDER}`);
 console.log(`AIGateway sidecar: ${env.AIGateway_SIDECAR_ENABLED}`);
 console.log(`ZavorthBridge remote sidecar: ${env.ZAVORTH_BRIDGE_REMOTE_SIDECAR_ENABLED}`);
 if (!process.env.ZAVORTH_BRIDGE_REMOTE_APP_PASSWORD) {
-  console.log('Aviso: ZAVORTH_BRIDGE_REMOTE_APP_PASSWORD nao definido; o valor padrao local sera usado.');
+  console.log('Warning: ZAVORTH_BRIDGE_REMOTE_APP_PASSWORD is not set; the local default will be used.');
 }
 console.log('');
 
@@ -55,6 +55,6 @@ child.on('exit', (code, signal) => {
 });
 
 child.on('error', (error) => {
-  console.error(`Falha ao iniciar o host supervisionado: ${error.message}`);
+  console.error(`Failure ao iniciar o host supervised: ${error.message}`);
   process.exit(1);
 });

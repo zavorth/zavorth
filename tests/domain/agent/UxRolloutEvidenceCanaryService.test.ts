@@ -13,14 +13,14 @@ describe('ZavorthUxRolloutEvidenceCanaryService', () => {
     const snapshot = service.buildSnapshot();
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_UX_ROLLOUT_EVIDENCE_CANARY_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('checkpoint-7-ux-rollout-evidence-canary');
+    expect(snapshot.gate).toBe('ux-rollout-evidence-canary');
     expect(snapshot.status).toBe('needs-evidence');
     expect(snapshot.canaryPlan.dryRunReady).toBe(false);
     expect(snapshot.summary.evidenceItems).toBe(0);
     expect(snapshot.safety).toMatchObject({
       evidenceOnly: true,
       noLiveActionExecuted: true,
-      noDashboardVisualMutation: true,
+      noZavorthControlVisualMutation: true,
       liveCanaryRequiresOwnerApproval: true,
       evidenceMustBeRedacted: true,
       evidenceNotPersistedByDefault: true,

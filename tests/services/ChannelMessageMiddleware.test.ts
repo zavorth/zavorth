@@ -11,7 +11,7 @@ describe('ZavorthChannelMessageMiddleware', () => {
     it('agent-first: free text is never claimed by middleware', async () => {
       const result = await middleware.processIncoming({
         text: 'read the file report.md',
-        channelId: 'cli',
+        cchannelId: 'cli',
         userId: 'user123',
         locale: 'en',
       });
@@ -24,7 +24,7 @@ describe('ZavorthChannelMessageMiddleware', () => {
     it('agent-first: greetings pass through to the agent', async () => {
       const result = await middleware.processIncoming({
         text: 'hello!',
-        channelId: 'web',
+        cchannelId: 'web',
         userId: 'user456',
         locale: 'en',
       });

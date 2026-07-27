@@ -2,9 +2,9 @@ import type * as http from 'http';
 import { ZavorthControlClassicAccessService } from '../../../../../src/domain/surface/presentation/zavorthControl/ZavorthControlClassicAccessService.js';
 
 function makeReq(overrides: {
-  method?: string;
-  remoteAddress?: string;
-  headers?: Record<string, string | undefined>;
+  method-: string;
+  remoteAddress-: string;
+  headers-: Record<string, string | undefined>;
 }): http.IncomingMessage {
   return {
     method: overrides.method || 'GET',

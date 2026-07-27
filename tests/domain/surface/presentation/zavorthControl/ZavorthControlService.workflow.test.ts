@@ -24,7 +24,7 @@ function createInstallJourneyFixture() {
   const now = new Date().toISOString();
   const readiness = {
     generatedAt: now,
-    summary: 'Zavorth pronto para uso local e remoto',
+    summary: 'Zavorth ready for local and remote use',
     local: {
       ready: true,
       baseUrl: 'http://127.0.0.1:33333',
@@ -81,11 +81,11 @@ function createInstallJourneyFixture() {
       initial: bootstrapReport,
       steps: [],
       final: bootstrapReport,
-      summary: 'Nenhuma correcao segura disponivel.',
+      summary: 'No safe correction available.',
     },
     startup: null,
     manifest: {
-      summary: 'Zavorth pronto para uso local e remoto',
+      summary: 'Zavorth ready for local and remote use',
       local: {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
@@ -114,7 +114,7 @@ function createInstallJourneyFixture() {
       journey: [
         {
           id: 'install',
-          title: 'Instalacao',
+          title: 'Instalaction',
           description: 'Instale o runtime supervisionado.',
         },
       ],
@@ -127,14 +127,14 @@ function createInstallJourneyFixture() {
     phases: [
       {
         id: 'bootstrap',
-        title: 'Plano de bootstrap',
+        title: 'Bootstrap plan',
         status: 'ready',
         summary: 'Bootstrap ok.',
         command: null,
         details: [],
       },
     ],
-    summary: 'Zavorth pronto para uso local e remoto',
+    summary: 'Zavorth ready for local and remote use',
   } as any;
 }
 
@@ -142,10 +142,10 @@ function createOfficialRemoteAccessFixture() {
   const now = new Date().toISOString();
   return {
     generatedAt: now,
-    summary: 'Acesso remoto oficial pronto.',
+    summary: 'Acesso remoto oficial ready.',
     official: {
       generatedAt: now,
-      summary: 'Zavorth pronto para uso local e remoto',
+      summary: 'Zavorth ready for local and remote use',
       tokenSource: 'env',
       journey: {} as any,
       manifest: {} as any,
@@ -171,13 +171,13 @@ function createOfficialRemoteAccessFixture() {
       nextSteps: [],
     },
     recommendedPathId: 'official',
-    recommendedPathReason: 'O caminho oficial ja esta validado.',
+    recommendedPathReason: 'The official path is already validated.',
     paths: [
       {
         id: 'official',
         label: 'Caminho oficial do app remoto',
         status: 'ready',
-        summary: 'App remoto validado.',
+        summary: 'Remote app validated.',
         command: 'npm run ops:remote:official',
         steps: [],
       },
@@ -204,7 +204,7 @@ function createOfficialRemoteAccessFixture() {
       appUrl: 'https://zavorth.example.com/zavorthControl',
       baseUrl: 'https://zavorth.example.com',
       issues: [],
-      summary: 'Acesso remoto oficial validado.',
+      summary: 'Official remote access validated.',
     },
     actions: {
       canApply: true,
@@ -221,16 +221,16 @@ function createRemoteAccessFixture() {
   const now = new Date().toISOString();
   return {
     generatedAt: now,
-    summary: 'Acesso remoto oficial pronto.',
+    summary: 'Acesso remoto oficial ready.',
     official: {} as any,
     recommendedPathId: 'official',
-    recommendedPathReason: 'O caminho oficial ja esta validado.',
+    recommendedPathReason: 'The official path is already validated.',
     paths: [
       {
         id: 'official',
         label: 'Caminho oficial do app remoto',
         status: 'ready',
-        summary: 'App remoto validado.',
+        summary: 'Remote app validated.',
         command: 'npm run ops:remote:official',
         steps: [],
       },
@@ -330,7 +330,7 @@ describe('ZavorthControlService', () => {
         approval_status: 'not_required',
         executor_used: 'local',
         workspace: process.cwd(),
-        result_summary: 'Arquivo do workspace entregue.',
+        result_summary: 'File do workspace entregue.',
         error_summary: null,
         updated_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
@@ -347,7 +347,7 @@ describe('ZavorthControlService', () => {
             path: packagePreviewPath,
             url: null,
             mimeType: 'application/json',
-            summary: 'Arquivo principal do workspace.',
+            summary: 'File principal do workspace.',
             description: null,
             previewText: null,
             sizeBytes: 512,
@@ -381,7 +381,7 @@ describe('ZavorthControlService', () => {
         handlePermissionCallback: jest.fn(),
         handleApproval: jest.fn(),
         handleRejection: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
       } as any,
       hostIdentityService: {
         getStatus: jest.fn(() => ({
@@ -396,7 +396,7 @@ describe('ZavorthControlService', () => {
     jest.spyOn(require('../../../../../src/skills/SkillLoader').SkillLoader.prototype, 'loadAll').mockReturnValue([
       {
         name: 'debugging',
-        description: 'Investiga bugs e falhas.',
+        description: 'Investiga bugs e failures.',
         dirPath: 'C:/skills/debugging',
         skillFilePath: 'C:/skills/debugging/SKILL.md',
         supportFilePaths: [],
@@ -418,12 +418,12 @@ describe('ZavorthControlService', () => {
     tasks[0].chat_id = `web:${sessionPayload.sessionId}`;
     const { response: stateResponse, payload: statePayload } = await fetchZavorthControlJson(
       baseUrl,
-      `/api/web/state?sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
+      `/api/web/state-sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
       { token },
     );
     const { response: hostStatusResponse, payload: hostStatusPayload } = await fetchZavorthControlJson(
       baseUrl,
-      '/api/web/host/status?detail=full',
+      '/api/web/host/status-detail=full',
       { token },
     );
     const { response: officialRemoteAccessResponse, payload: officialRemoteAccessPayload } = await fetchZavorthControlJson(
@@ -438,21 +438,21 @@ describe('ZavorthControlService', () => {
     );
     const { response: catalogResponse, payload: catalogPayload } = await fetchZavorthControlJson(
       baseUrl,
-      `/api/web/catalog?sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
+      `/api/web/catalog-sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
       { token },
     );
     const { response: previewResponse, payload: previewPayload } = await fetchZavorthControlJson(
       baseUrl,
-      `/api/web/file-preview?path=${encodeURIComponent(packagePreviewPath)}`,
+      `/api/web/file-preview-path=${encodeURIComponent(packagePreviewPath)}`,
       { token },
     );
     const { response: blockedPreviewResponse, payload: blockedPreviewPayload } = await fetchZavorthControlJson(
       baseUrl,
-      `/api/web/file-preview?path=${encodeURIComponent(outsidePreviewPath)}`,
+      `/api/web/file-preview-path=${encodeURIComponent(outsidePreviewPath)}`,
       { token },
     );
     const eventsResponse = await openEventStreamProbe(
-      `${baseUrl}/api/web/events?sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
+      `${baseUrl}/api/web/events-sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
       token,
     );
 
@@ -687,7 +687,7 @@ describe('ZavorthControlService', () => {
         resolvePermissionReference: jest.fn(),
         shortPermissionId: jest.fn(),
         handlePermissionCallback: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
       } as any,
       workflowController: workflowController as any,
       webUserId: '1',
@@ -754,7 +754,7 @@ describe('ZavorthControlService', () => {
         executor: 'codex',
         role: 'maker',
         label: 'Codex Maker',
-        intro: 'Implementacao.',
+        intro: 'Implementaction.',
         buildObjective: ({ originalObjective }) => originalObjective,
       },
       {
@@ -762,7 +762,7 @@ describe('ZavorthControlService', () => {
         executor: 'external_executor',
         role: 'reviewer',
         label: 'ExternalExecutor Reviewer',
-        intro: 'Revisao.',
+        intro: 'Review.',
         buildObjective: ({ originalObjective }) => originalObjective,
       },
     ]);
@@ -788,7 +788,7 @@ describe('ZavorthControlService', () => {
       error_message: null,
       metadata: {},
     }, 'Deploy consolidado.');
-    workflowRuns.markStageInterrupted(persistedRun, 'reviewer', 'approval_pending', 'Aguardando sua confirmacao.');
+    workflowRuns.markStageInterrupted(persistedRun, 'reviewer', 'approval_pending', 'Aguardando sua confirmation.');
 
     const tasks: any[] = [
       {
@@ -808,24 +808,24 @@ describe('ZavorthControlService', () => {
           workflow_run_id: persistedRun.workflow_run_id,
           telegram_surface_summary: {
             titleHint: 'Deploy final',
-            summary: 'Retomando deploy final com foco em revisar os ultimos ajustes antes da liberacao.',
-            followupPrompt: 'Retome a conversa que veio do Telegram sobre Deploy final. Revise os ultimos ajustes e siga para a liberacao final.',
+            summary: 'Resuming final deploy with focus on reviewing the latest adjustments before release.',
+            followupPrompt: 'Resume the conversation from Telegram about Deploy final. Review the latest adjustments and continue to the final release.',
             workflowLabel: 'Workflow de entrega',
             recentArtifact: 'deploy-checklist.md',
-            activeFocus: 'Liberacao final em andamento',
+            activeFocus: 'Final release in progress',
             isContinuationRequest: true,
           },
-          workspace_operational_memory_summary: 'Liberacao final em andamento com checklist recente pronto para revisao.',
+          workspace_operational_memory_summary: 'Final release in progress with recent checklist ready for review.',
           workspace_response_style: 'implementation_ready',
           workspace_workflow_recommendation: {
             workflow: 'ship',
-            reason: 'Ja existe contexto suficiente para concluir a liberacao.',
+            reason: 'There is enough context to complete the release.',
           },
           workspace_operational_memory: {
             active_focuses: [
               {
                 task_id: 'telegram-task-continuity-1',
-                summary: 'Liberacao final em andamento',
+                summary: 'Final release in progress',
               },
             ],
             recent_artifacts: [
@@ -884,7 +884,7 @@ describe('ZavorthControlService', () => {
         handlePermissionCallback: jest.fn(),
         handleApproval: jest.fn(),
         handleRejection: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
       } as any,
       hostIdentityService: {
         getStatus: jest.fn(() => ({
@@ -909,7 +909,7 @@ describe('ZavorthControlService', () => {
 
     const { status: stateStatus, payload: statePayload } = await fetchZavorthControlJson(
       baseUrl,
-      `/api/web/state?sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
+      `/api/web/state-sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
       { token },
     );
     await service.stopAsync();
@@ -928,7 +928,7 @@ describe('ZavorthControlService', () => {
         }),
         workspaceContext: expect.objectContaining({
           titleHint: 'Deploy final',
-          followupPrompt: expect.stringContaining('Retome a conversa que veio do Telegram sobre Deploy final.'),
+          followupPrompt: expect.stringContaining('Resume the conversation from Telegram about Deploy final.'),
           workflowRecommendation: expect.objectContaining({
             workflow: 'ship',
             label: 'Workflow de entrega',
@@ -936,7 +936,7 @@ describe('ZavorthControlService', () => {
         }),
         suggestedAction: expect.objectContaining({
           kind: 'resume-active',
-          prompt: expect.stringContaining('Retome a conversa que veio do Telegram sobre Deploy final.'),
+          prompt: expect.stringContaining('Resume the conversation from Telegram about Deploy final.'),
         }),
       }),
     );

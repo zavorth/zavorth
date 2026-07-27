@@ -24,7 +24,7 @@ function createInstallJourneyFixture() {
   const now = new Date().toISOString();
   const readiness = {
     generatedAt: now,
-    summary: 'Zavorth pronto para uso local e remoto',
+    summary: 'Zavorth ready for local and remote use',
     local: {
       ready: true,
       baseUrl: 'http://127.0.0.1:33333',
@@ -81,11 +81,11 @@ function createInstallJourneyFixture() {
       initial: bootstrapReport,
       steps: [],
       final: bootstrapReport,
-      summary: 'Nenhuma correcao segura disponivel.',
+      summary: 'No safe correction available.',
     },
     startup: null,
     manifest: {
-      summary: 'Zavorth pronto para uso local e remoto',
+      summary: 'Zavorth ready for local and remote use',
       local: {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
@@ -114,7 +114,7 @@ function createInstallJourneyFixture() {
       journey: [
         {
           id: 'install',
-          title: 'Instalacao',
+          title: 'Instalaction',
           description: 'Instale o runtime supervisionado.',
         },
       ],
@@ -127,14 +127,14 @@ function createInstallJourneyFixture() {
     phases: [
       {
         id: 'bootstrap',
-        title: 'Plano de bootstrap',
+        title: 'Bootstrap plan',
         status: 'ready',
         summary: 'Bootstrap ok.',
         command: null,
         details: [],
       },
     ],
-    summary: 'Zavorth pronto para uso local e remoto',
+    summary: 'Zavorth ready for local and remote use',
   } as any;
 }
 
@@ -142,10 +142,10 @@ function createOfficialRemoteAccessFixture() {
   const now = new Date().toISOString();
   return {
     generatedAt: now,
-    summary: 'Acesso remoto oficial pronto.',
+    summary: 'Acesso remoto oficial ready.',
     official: {
       generatedAt: now,
-      summary: 'Zavorth pronto para uso local e remoto',
+      summary: 'Zavorth ready for local and remote use',
       tokenSource: 'env',
       journey: {} as any,
       manifest: {} as any,
@@ -171,13 +171,13 @@ function createOfficialRemoteAccessFixture() {
       nextSteps: [],
     },
     recommendedPathId: 'official',
-    recommendedPathReason: 'O caminho oficial ja esta validado.',
+    recommendedPathReason: 'The official path is already validated.',
     paths: [
       {
         id: 'official',
         label: 'Caminho oficial do app remoto',
         status: 'ready',
-        summary: 'App remoto validado.',
+        summary: 'Remote app validated.',
         command: 'npm run ops:remote:official',
         steps: [],
       },
@@ -204,7 +204,7 @@ function createOfficialRemoteAccessFixture() {
       appUrl: 'https://zavorth.example.com/zavorthControl',
       baseUrl: 'https://zavorth.example.com',
       issues: [],
-      summary: 'Acesso remoto oficial validado.',
+      summary: 'Official remote access validated.',
     },
     actions: {
       canApply: true,
@@ -221,16 +221,16 @@ function createRemoteAccessFixture() {
   const now = new Date().toISOString();
   return {
     generatedAt: now,
-    summary: 'Acesso remoto oficial pronto.',
+    summary: 'Acesso remoto oficial ready.',
     official: {} as any,
     recommendedPathId: 'official',
-    recommendedPathReason: 'O caminho oficial ja esta validado.',
+    recommendedPathReason: 'The official path is already validated.',
     paths: [
       {
         id: 'official',
         label: 'Caminho oficial do app remoto',
         status: 'ready',
-        summary: 'App remoto validado.',
+        summary: 'Remote app validated.',
         command: 'npm run ops:remote:official',
         steps: [],
       },
@@ -323,7 +323,7 @@ describe('ZavorthControlService', () => {
         approval_status: 'not_required',
         executor_used: 'codex',
         workspace: 'core',
-        result_summary: 'Planejamento pronto.',
+        result_summary: 'Planejamento ready.',
         error_summary: null,
         updated_at: new Date().toISOString(),
         metadata: {},
@@ -352,7 +352,7 @@ describe('ZavorthControlService', () => {
         resolvePermissionReference: jest.fn(),
         shortPermissionId: jest.fn(),
         handlePermissionCallback: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
       } as any,
       webUserId: '1',
     });
@@ -382,7 +382,7 @@ describe('ZavorthControlService', () => {
               {
                 id: 'action:resume:task-123456789',
                 type: 'action',
-                label: '#retomar:task-123',
+                label: '#resume:task-123',
                 trigger: '#',
                 payload: {
                   action: 'resume_task',
@@ -403,7 +403,7 @@ describe('ZavorthControlService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           role: 'user',
-          content: '#retomar:task-123',
+          content: '#resume:task-123',
           mentions: expect.arrayContaining([
             expect.objectContaining({ type: 'action' }),
           ]),
@@ -423,8 +423,8 @@ describe('ZavorthControlService', () => {
     const tasks: any[] = [
       {
         task_id: 'task-123456789',
-        raw_message: '/workflow ship fechar release',
-        normalized_message: '/workflow ship fechar release',
+        raw_message: '/workflow ship close release',
+        normalized_message: '/workflow ship close release',
         command_type: '/workflow',
         status: 'waiting_approval',
         risk_level: 0,
@@ -432,7 +432,7 @@ describe('ZavorthControlService', () => {
         approval_status: 'pending',
         executor_used: 'external_executor',
         workspace: 'core',
-        result_summary: 'Workflow aguardando confirmacao na revisao final.',
+        result_summary: 'Workflow waiting for confirmation na review final.',
         error_summary: null,
         updated_at: new Date().toISOString(),
         metadata: {
@@ -467,7 +467,7 @@ describe('ZavorthControlService', () => {
         resolvePermissionReference: jest.fn(),
         shortPermissionId: jest.fn(),
         handlePermissionCallback: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
       } as any,
       webUserId: '1',
     });
@@ -497,7 +497,7 @@ describe('ZavorthControlService', () => {
               {
                 id: 'action:resume-workflow-stage:wf-ship-demo-001:review',
                 type: 'action',
-                label: '#retomar-etapa:revisao-final',
+                label: '#resume-stage:review-final',
                 trigger: '#',
                 payload: {
                   action: 'resume_workflow',
@@ -524,7 +524,7 @@ describe('ZavorthControlService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           role: 'user',
-          content: '#retomar-etapa:revisao-final',
+          content: '#resume-stage:review-final',
           mentions: expect.arrayContaining([
             expect.objectContaining({ type: 'action' }),
           ]),
@@ -539,8 +539,8 @@ describe('ZavorthControlService', () => {
     const tasks: any[] = [
       {
         task_id: 'task-draft-123456789',
-        raw_message: '/workflow ship fechar release',
-        normalized_message: '/workflow ship fechar release',
+        raw_message: '/workflow ship close release',
+        normalized_message: '/workflow ship close release',
         command_type: '/workflow',
         status: 'completed',
         risk_level: 0,
@@ -548,7 +548,7 @@ describe('ZavorthControlService', () => {
         approval_status: 'not_required',
         executor_used: 'codex',
         workspace: 'core',
-        result_summary: 'Etapa de rascunho concluida.',
+        result_summary: 'Draft stage completed.',
         error_summary: null,
         updated_at: new Date().toISOString(),
         metadata: {
@@ -583,7 +583,7 @@ describe('ZavorthControlService', () => {
         resolvePermissionReference: jest.fn(),
         shortPermissionId: jest.fn(),
         handlePermissionCallback: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
       } as any,
       webUserId: '1',
     });
@@ -613,7 +613,7 @@ describe('ZavorthControlService', () => {
               {
                 id: 'action:resume-workflow-stage:wf-ship-demo-001:draft',
                 type: 'action',
-                label: '#reiniciar-etapa:rascunho',
+                label: '#restart-stage:draft',
                 trigger: '#',
                 payload: {
                   action: 'restart_workflow_stage',
@@ -640,7 +640,7 @@ describe('ZavorthControlService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           role: 'user',
-          content: '#reiniciar-etapa:rascunho',
+          content: '#restart-stage:draft',
           mentions: expect.arrayContaining([
             expect.objectContaining({ type: 'action' }),
           ]),
@@ -664,7 +664,7 @@ describe('ZavorthControlService', () => {
         approval_status: 'not_required',
         executor_used: 'codex',
         workspace: 'C:/repo',
-        result_summary: 'Planejamento pronto.',
+        result_summary: 'Planejamento ready.',
         error_summary: null,
         updated_at: new Date().toISOString(),
         metadata: {},
@@ -686,7 +686,7 @@ describe('ZavorthControlService', () => {
         approval_status: 'not_required',
         executor_used: 'local',
         workspace: 'core',
-        result_summary: 'Resposta com contexto.',
+        result_summary: 'Context-aware response.',
         error_summary: null,
         updated_at: new Date().toISOString(),
         metadata: {},
@@ -720,7 +720,7 @@ describe('ZavorthControlService', () => {
         resolvePermissionReference: jest.fn(),
         shortPermissionId: jest.fn(),
         handlePermissionCallback: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
       } as any,
       webUserId: '1',
     });
@@ -745,12 +745,12 @@ describe('ZavorthControlService', () => {
           },
           body: JSON.stringify({
             sessionId: sessionPayload.sessionId,
-            message: 'analise esse arquivo',
+            message: 'analise esse file',
             mentions: [
               {
                 id: 'action:attach-file:file:C:/repo/src/index.ts',
                 type: 'action',
-                label: '#usar-arquivo:index.ts',
+                label: '#usar-file:index.ts',
                 trigger: '#',
                 payload: {
                   action: 'attach_file_context',
@@ -785,7 +785,7 @@ describe('ZavorthControlService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           role: 'user',
-          content: 'analise esse arquivo',
+          content: 'analise esse file',
         }),
       ]),
     );
@@ -812,7 +812,7 @@ describe('ZavorthControlService', () => {
         resolvePermissionReference: jest.fn(),
         shortPermissionId: jest.fn(),
         handlePermissionCallback: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
       } as any,
       webUserId: '1',
     });
@@ -842,7 +842,7 @@ describe('ZavorthControlService', () => {
               {
                 id: 'action:attach-file:file:C:/repo/src/index.ts',
                 type: 'action',
-                label: '#usar-arquivo:index.ts',
+                label: '#usar-file:index.ts',
                 payload: {
                   action: 'attach_file_context',
                   path: 'C:/repo/src/index.ts',
@@ -857,6 +857,6 @@ describe('ZavorthControlService', () => {
 
     expect(sessionStatus).toBe(200);
     expect(sendStatus).toBe(400);
-    expect(sendPayload.error).toContain('Essa action precisa ir junto com o proximo pedido');
+    expect(sendPayload.error).toContain('This action must be sent with the next request');
   });
 });

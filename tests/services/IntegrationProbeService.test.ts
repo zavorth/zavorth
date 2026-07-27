@@ -121,7 +121,7 @@ describe('IntegrationProbeService', () => {
 
     expect(snapshot.status).toBe('failed');
     expect(snapshot.httpStatus).toBe(401);
-    expect(snapshot.summary).toContain('autenticacao');
+    expect(snapshot.summary).toContain('autenticaction');
     expect(snapshot.detail).toContain('invalid api key');
   });
 
@@ -300,7 +300,7 @@ describe('IntegrationProbeService', () => {
     const snapshot = await service.runProbe('custom-api');
 
     expect(snapshot.status).toBe('unsupported');
-    expect(snapshot.summary).toContain('ainda nao disponivel');
+    expect(snapshot.summary).toContain('ainda not disponivel');
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
@@ -323,7 +323,7 @@ describe('IntegrationProbeService', () => {
               status: 'passed',
               configured: true,
               mode: 'stub',
-              summary: 'Slack pronto em modo stub.',
+              summary: 'Slack ready em modo stub.',
               details: ['Doctor honesto no runtime local.'],
               error: null,
             },

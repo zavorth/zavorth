@@ -109,8 +109,7 @@ function readinessWithDocker(dockerReady: boolean) {
           'channel-send',
           'live-skill-apply',
         ],
-        explanation: dockerReady
-          ? 'Strong sandbox is ready; mutable execution still requires approval.'
+        explanation: dockerReady ? 'Strong sandbox is ready; mutable execution still requires approval.'
           : 'Only lightweight fallback is ready; live mutations remain dry-run.',
       },
       tiers: [

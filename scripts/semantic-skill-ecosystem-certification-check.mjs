@@ -142,7 +142,7 @@ if (runtime.status !== 0) {
         && snapshot.summary.secretValuesSerialized === false
         && receiptIdsValid
         && claimIdsUnique,
-      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextStage}`,
+      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextAction}`,
     );
   } catch (error) {
     addCheck('Runtime S8 semantic receipt passes', false, `invalid JSON: ${error.message}`);

@@ -92,14 +92,14 @@ async function main() {
       startedAt: report.startedAt,
       finishedAt: report.startedAt,
       status: 'skipped',
-      reason: 'Relatorio recente do Node Mesh smoke ainda esta valido.',
+      reason: 'Recent Node Mesh smoke report is still valid.',
     });
   }
 
   console.log('===========================================');
   console.log('  Zavorth Recurring Maintenance');
   console.log('===========================================');
-  console.log(dryRun ? 'Modo: simulacao' : 'Modo: aplicar perfil leve');
+  console.log(dryRun ? 'Mode: dry-run' : 'Mode: apply lightweight profile');
   console.log('');
 
   for (const [label, args] of plan) {
@@ -122,14 +122,14 @@ async function main() {
       startedAt,
       finishedAt: new Date().toISOString(),
       status: 'completed',
-      outputPreview: output.split(/\r?\n/).slice(-8),
+      outputPreview: output.split(/\r...\n/).slice(-8),
     });
   }
 
   report.finishedAt = new Date().toISOString();
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
   console.log('');
-  console.log(`Relatorio: ${reportPath}`);
+  console.log(`Report: ${reportPath}`);
 }
 
 await main();

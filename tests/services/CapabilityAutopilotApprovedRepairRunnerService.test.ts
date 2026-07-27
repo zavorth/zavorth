@@ -45,7 +45,7 @@ function createRepairPlan(overrides: Partial<CapabilityRepairPlan> = {}): Capabi
     diagnosisId: 'diagnosis-1',
     createdAt: FIXED_NOW.toISOString(),
     status: 'approval_required',
-    summary: 'Gemini CLI precisa de reparo aprovado.',
+    summary: 'Gemini CLI needs de reparo approved.',
     riskLevel: 7,
     trustLevelRequired: 'collaborator',
     permissionRequirements: [
@@ -53,7 +53,7 @@ function createRepairPlan(overrides: Partial<CapabilityRepairPlan> = {}): Capabi
         id: 'install-binary',
         kind: 'install_binary',
         scope: 'host',
-        reason: 'Instalar binario exige permissao no host.',
+        reason: 'Instalar binario exige permission no host.',
         requestedValue: 'gemini_cli',
         resolvedValue: 'gemini_cli',
         riskLevel: 7,
@@ -69,7 +69,7 @@ function createRepairPlan(overrides: Partial<CapabilityRepairPlan> = {}): Capabi
         command: null,
         installStep: null,
         permissionIds: [],
-        expectedOutcome: 'Usuario entende.',
+        expectedOutcome: 'The user understands.',
       },
       commandStep,
       {
@@ -103,7 +103,7 @@ function createPermission(status: PermissionRequest['status']): PermissionReques
     workspace: 'C:/workspace',
     requested_value: 'gemini_cli',
     resolved_value: 'gemini_cli',
-    reason: 'Instalar binario exige permissao.',
+    reason: 'Instalar binario exige permission.',
     requested_by: 'maria',
     decided_by: status === 'approved' ? 'maria' : null,
     decision_note: null,
@@ -173,7 +173,7 @@ describe('CapabilityAutopilotApprovedRepairRunnerService', () => {
   it('executes approved command steps through the injected executor', async () => {
     const executor = jest.fn(async () => ({
       success: true,
-      summary: 'Comando executado em fixture.',
+      summary: 'Command executed in fixture.',
       detail: 'gemini --version ok',
       evidence: [
         {
@@ -208,7 +208,7 @@ describe('CapabilityAutopilotApprovedRepairRunnerService', () => {
         {
           stepId: 'prepare-binary',
           status: 'succeeded',
-          summary: 'Comando executado em fixture.',
+          summary: 'Command executed in fixture.',
         },
       ],
     });

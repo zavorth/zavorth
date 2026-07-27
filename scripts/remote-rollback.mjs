@@ -115,7 +115,7 @@ function main() {
       console.log('[remote-rollback] dry-run: nenhum publish anterior encontrado para rollback.');
       return;
     }
-    throw new Error('Nenhum publish anterior encontrado para rollback.');
+    throw new Error('No publish anterior encontrado para rollback.');
   }
 
   const target =
@@ -125,17 +125,17 @@ function main() {
 
   if (!target?.archive?.targets?.docs || !target?.archive?.targets?.remoteConsole) {
     if (dryRun) {
-      console.log('[remote-rollback] dry-run: o publish selecionado nao possui snapshot local utilizavel para rollback.');
+      console.log('[remote-rollback] dry-run: the selected publish has no usable local snapshot for rollback.');
       return;
     }
-    throw new Error('O publish selecionado nao possui snapshot local utilizavel para rollback.');
+    throw new Error('The selected publish has no usable local snapshot for rollback.');
   }
 
   const docsSource = path.resolve(projectRoot, target.archive.targets.docs);
   const remoteConsoleSource = path.resolve(projectRoot, target.archive.targets.remoteConsole);
 
   if (!fs.existsSync(docsSource) || !fs.existsSync(remoteConsoleSource)) {
-    throw new Error('Os arquivos arquivados do publish escolhido nao estao mais disponiveis.');
+    throw new Error('Archived files for the selected publish are no longer available.');
   }
 
   console.log(`[remote-rollback] alvo: ${target.archive.id}`);
@@ -150,20 +150,20 @@ function main() {
 
   try {
     if (!dryRun && fs.existsSync(path.join(remoteDistDir, 'docs')) && fs.existsSync(path.join(remoteDistDir, 'remote-console'))) {
-      console.log('[remote-rollback] comparando snapshot alvo com o remote-dist atual...');
+      console.log('[remote-rollback] comparando snapshot alvo com o remote-dist current...');
       const comparisonOutput = capture(process.platform === 'win32' ? 'npx.cmd' : 'npx', ['tsx', ...compareArgs], projectRoot);
       if (comparisonOutput) {
         process.stdout.write(`${comparisonOutput}\n`);
       }
     } else {
-      console.log('[remote-rollback] comparativo previo indisponivel ou sem remote-dist atual preparado.');
+      console.log('[remote-rollback] previous comparison unavailable ou without remote-dist current prepared.');
     }
   } catch (error) {
-    console.warn(`[remote-rollback] aviso: falha ao gerar comparativo previo (${error.message || error}).`);
+    console.warn(`[remote-rollback] aviso: failure ao gerar previous comparison (${error.message || error}).`);
   }
 
   if (dryRun) {
-    console.log('[remote-rollback] dry-run: nenhum arquivo nem deploy alterado.');
+    console.log('[remote-rollback] dry-run: no file or deployment changed.');
     return;
   }
 

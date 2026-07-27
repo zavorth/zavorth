@@ -159,7 +159,7 @@ describe('TenantTeamOpsService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Gate tenant-team-ops - Tenant/Team Ops');
-    expect(report).toContain('proximo passo recomendada: complete - Ciclo 39-45 fechado');
+    expect(report).toContain('next step recomendada: complete - Ciclo 39-45 closed');
   });
 });
 
@@ -211,7 +211,7 @@ function tenantFixture(id: 'discord-public' | 'telegram-shared' | 'web-session-a
     governanceStatus: id === 'discord-public' ? 'pending_onboarding' : id === 'web-session-a' ? 'personal' : 'ready',
     scopeLabel: id === 'discord-public' ? 'guild:guild-1' : id === 'telegram-shared' ? 'channel:telegram:ops' : 'session:session-a',
     operatorSummary: `${id} summary`,
-    nextAction: id === 'discord-public' ? 'Configurar owners e canais permitidos.' : null,
+    nextAction: id === 'discord-public' ? 'Configure owners and allowed channels.' : null,
     actions: [
       {
         id: 'inspect-tenant',
@@ -276,7 +276,7 @@ function governanceFixture(
         boundary: '2 shared / 1 personal',
         allowlistState: '1 public server(s), 0 restrito(s)',
         auditState: '2 recipe(s)',
-        nextAction: 'Fechar onboarding.',
+        nextAction: 'Close onboarding.',
         command: '/tenants',
       },
       {
@@ -294,7 +294,7 @@ function governanceFixture(
         label: 'Team surfaces',
         posture: 'healthy',
         boundary: '2 team(s)',
-        allowlistState: '1 ativo(s), 1 retomavel(is)',
+        allowlistState: '1 active(s), 1 retomavel(is)',
         auditState: 'Team catalog disponivel.',
         nextAction: 'Revisar workflows compostos.',
         command: '/teams',
@@ -328,8 +328,8 @@ function governanceFixture(
         featuredRecipes: [],
         narrative: {
           headline: 'Governanca de tenants com 3 tenant(s).',
-          operatorSummary: '2 compartilhados.',
-          nextAction: 'Fechar onboarding.',
+          operatorSummary: '2 shareds.',
+          nextAction: 'Close onboarding.',
         },
       },
       trust: {},
@@ -349,7 +349,7 @@ function governanceFixture(
     narrative: {
       headline: 'Governance: Tenancy, governance e policy',
       operatorSummary: 'Governance attention.',
-      nextAction: 'Fechar onboarding.',
+      nextAction: 'Close onboarding.',
     },
   };
 

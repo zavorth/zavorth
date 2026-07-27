@@ -94,9 +94,9 @@ describe('ZavorthControl Selfing ZavorthControl Selfing ZavorthControl', () => {
         memorySignals: [
           {
             id: 'projection-memory',
-            title: 'Memoria projetada',
+            title: 'Projected memory',
             layer: 'semantic',
-            summary: 'Selfing deve mostrar memoria com receipt.',
+            summary: 'Selfing should show memory with receipt.',
             confidence: 0.78,
           },
         ],

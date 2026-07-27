@@ -45,7 +45,7 @@ const audience = (readArg('--audience=') || (asJson ? 'technical_operator' : 'ev
 const surfaces = readSurfaces();
 
 main().catch((error) => {
-  process.stderr.write(`[capability-autopilot-surfaces] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(`[capability-autopilot-surfaces] failure: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 });
 
@@ -95,7 +95,7 @@ function buildSnapshot(payloads: CapabilitySurfaceUxPayload[]): CapabilityAutopi
     stage: '63',
     surface: 'capability-autopilot-surfaces',
     generatedAt: new Date().toISOString(),
-    capabilityId: first?.capabilityId || '<ausente>',
+    capabilityId: first?.capabilityId || '<absent>',
     status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
     summary: {
       ok: failed === 0,
@@ -109,7 +109,7 @@ function buildSnapshot(payloads: CapabilitySurfaceUxPayload[]): CapabilityAutopi
       stage: '64',
       title: 'Capability Memory And Replay Learning',
       reason:
-        'Depois de padronizar a experiencia cross-surface, o proximo passo e guardar aprendizados por workspace/capability sem payload sensivel.',
+        'After standardizing the cross-surface experience, the next step is to store learnings per workspace/capability without sensitive payload.',
     },
   };
 }
@@ -126,16 +126,16 @@ function buildChecks(payloads: CapabilitySurfaceUxPayload[]): CapabilityAutopilo
   return [
     check(
       'capability-autopilot-surfaces:coverage',
-      'superficies obrigatorias',
+      'mandatory surfaces',
       missingSurfaces.length === 0 ? 'pass' : 'fail',
-      'O gate precisa gerar payload para CLI, web, chat, Telegram e API.',
+      'The gate needs to generate payload for CLI, web, chat, Telegram and API.',
       [`surfaces=${Array.from(surfaces).join(',')}`, ...missingSurfaces.map((surface) => `missing=${surface}`)],
     ),
     check(
       'capability-autopilot-surfaces:canonical-decision',
-      'mesma decisao canonica',
+      'same canonical decision',
       stageSet.size === 1 && capabilitySet.size === 1 && permissionCounts.size === 1 ? 'pass' : 'fail',
-      'Todas as superficies precisam preservar capability, stage e contagem de permissoes do mesmo receipt.',
+      'All surfaces need to preserve capability, stage and permission count from the same receipt.',
       [
         `stages=${Array.from(stageSet).join(',')}`,
         `capabilities=${Array.from(capabilitySet).join(',')}`,
@@ -144,28 +144,28 @@ function buildChecks(payloads: CapabilitySurfaceUxPayload[]): CapabilityAutopilo
     ),
     check(
       'capability-autopilot-surfaces:approval-actions',
-      'acoes de aprovacao/rejeicao',
+      'approval/rejection actions',
       permissionPayloads.every((payload) =>
         payload.actions.some((action) => action.kind === 'approve_permission') &&
         payload.actions.some((action) => action.kind === 'reject_permission')
       ) ? 'pass' : 'fail',
-      'Quando o stage e permission, toda superficie precisa expor aprovar e rejeitar.',
+      'When the stage is permission, every surface needs to expose approve and reject.',
       permissionPayloads.map((payload) => `${payload.surface}:${payload.actions.map((action) => action.kind).join('|')}`),
     ),
     check(
       'capability-autopilot-surfaces:explicit-actions',
-      'sem acao implicita',
+      'no implicit action',
       payloads.every((payload) => payload.actions.every((action) => action.requiresExplicitUserAction)) ? 'pass' : 'fail',
-      'Actions cross-surface sao comandos/rotas/callbacks explicitos, nao automacao escondida.',
+      'Cross-surface actions are explicit commands/routes/callbacks, not hidden automation.',
       payloads.map((payload) => `${payload.surface}:actions=${payload.actions.length}`),
     ),
     check(
       'capability-autopilot-surfaces:compact-copy',
-      'copy compacto em mensageria',
+      'compact copy in messaging',
       payloads
         .filter((payload) => payload.surface === 'telegram' || payload.surface === 'mobile')
         .every((payload) => payload.body.length <= 420) ? 'pass' : 'fail',
-      'Superficies compactas precisam caber em mensagem curta.',
+      'Compact surfaces need to fit in short messages.',
       payloads
         .filter((payload) => payload.surface === 'telegram' || payload.surface === 'mobile')
         .map((payload) => `${payload.surface}:body=${payload.body.length}`),
@@ -205,7 +205,7 @@ function renderReport(snapshot: CapabilityAutopilotSurfacesSnapshot): string {
     }
   }
   lines.push('');
-  lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
+  lines.push(`recommended next step: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
   lines.push(snapshot.nextRecommendedStage.reason);
   return lines.join('\n');
 }

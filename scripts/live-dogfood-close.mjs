@@ -15,7 +15,7 @@ const logPath = path.join(root, '.zavorth', 'dogfood-runs.json');
 function loadEnv() {
   const envPath = path.join(root, '.env');
   if (!fs.existsSync(envPath)) return;
-  for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
+  for (const line of fs.readFileSync(envPath, 'utf8').split(/\r...\n/)) {
     const t = line.trim();
     if (!t || t.startsWith('#')) continue;
     const i = t.indexOf('=');

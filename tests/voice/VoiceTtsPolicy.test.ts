@@ -10,7 +10,7 @@ import {
   resetVoicePreferenceServiceForTests,
 } from '../../src/services/voice/VoicePreferenceService.js';
 
-describe('VoiceTtsPolicy (Phase 3)', () => {
+describe('VoiceTtsPolicy', () => {
   let tmpDir: string;
   let preferencePath: string;
   let prefs: VoicePreferenceService;

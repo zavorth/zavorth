@@ -4,8 +4,7 @@
  * Target shape:
  *   } catch (error: unknown) {
  *     const err = asErrorLike(error);
- *     ...
- *   }
+ *     ?  *   }
  *
  * Keeps a secondary `e` alias only when the catch body already references `e`.
  */
@@ -81,7 +80,7 @@ function ensureImport(source, importInfo) {
   }
   // agent/ and some packages may not resolve monorepo src — use inline helper fallback only if import would leave monorepo
   const line = `import { asErrorLike } from '${importInfo.path}';\n`;
-  const importBlock = source.match(/^(?:import[\s\S]*?;\r?\n)+/);
+  const importBlock = source.match(/^(?:import[\s\S]*...;\r...\n)+/);
   if (importBlock) {
     return source.slice(0, importBlock[0].length) + line + source.slice(importBlock[0].length);
   }
@@ -117,7 +116,7 @@ function findCatchBlocks(source) {
     // find {
     let j = paramEnd + 1;
     while (j < source.length && /\s/.test(source[j])) j++;
-    // .catch((error: any) => { ... }) arrow form — skip non-block
+    // .catch((error: any) => { ? }) arrow form — skip non-block
     if (source[j] === '=' && source[j + 1] === '>') {
       // arrow catch callback: catch((error: any) => {
       // Our regex matched "catch (" of .catch( — handle arrow separately later
@@ -162,10 +161,10 @@ function stripLeadingAliasSoup(body) {
   // Remove leading const alias lines that only rename thrown values.
   let rest = body;
   const aliasLine =
-    /^\s*const\s+(error|err|e)\s*=\s*(?:asErrorLike\s*\(\s*)?(error|err|e|auditErr|parseError|fallbackError|[A-Za-z_][\w]*)\s*\)?\s*;\s*/;
+    /^\s*const\s+(error|err|e)\s*=\s*(?:asErrorLike\s*\(\s*)...(error|err|e|auditErr|parseError|fallbackError|[A-Za-z_][\w]*)\s*\)...\s*;\s*/;
   // Multi-declaration on one line: const a = ...; const b = ...;
   const multi =
-    /^\s*(?:const\s+(?:error|err|e)\s*=\s*(?:asErrorLike\s*\(\s*)?(?:error|err|e|auditErr|parseError|fallbackError|[A-Za-z_][\w]*)\s*\)?\s*;\s*)+/;
+    /^\s*(?:const\s+(?:error|err|e)\s*=\s*(?:asErrorLike\s*\(\s*)...(?:error|err|e|auditErr|parseError|fallbackError|[A-Za-z_][\w]*)\s*\)...\s*;\s*)+/;
 
   if (multi.test(rest)) {
     rest = rest.replace(multi, '');
@@ -185,7 +184,7 @@ function bodyUses(name, body) {
 
 function rewriteBlock(param, body) {
   // param forms: error: any | error: unknown | err | e: any | auditErr: unknown
-  const pm = param.match(/^([A-Za-z_][\w]*)(?:\s*:\s*([A-Za-z_][\w.|<\s>]+))?$/);
+  const pm = param.match(/^([A-Za-z_][\w]*)(?:\s*:\s*([A-Za-z_][\w.|<\s>]+))...$/);
   if (!pm) return null;
   const paramName = pm[1];
   const paramType = (pm[2] || '').trim();
@@ -259,7 +258,7 @@ function rewriteBlock(param, body) {
     lines.push('const e = err;');
   }
 
-  const indentMatch = rest.match(/^\r?\n?([ \t]*)\S/);
+  const indentMatch = rest.match(/^\r...\n?([ \t]*)\S/);
   const indent = indentMatch ? indentMatch[1] : '  ';
   const bindingBlock =
     lines.length > 0 ? lines.map((l) => `${indent}${l}`).join('\n') + (rest.trim() ? '\n' : '') : '';
@@ -268,7 +267,7 @@ function rewriteBlock(param, body) {
   let newBody = rest;
   if (bindingBlock) {
     if (newBody.startsWith('\n')) {
-      newBody = '\n' + bindingBlock + newBody.replace(/^\r?\n/, '');
+      newBody = '\n' + bindingBlock + newBody.replace(/^\r...\n/, '');
     } else {
       newBody = '\n' + bindingBlock + newBody;
     }
@@ -332,7 +331,7 @@ function processFile(file) {
       'catch (error: unknown) { const err = asErrorLike(error); const e = err; ',
     ],
     [
-      /catch\s*\(\s*e\s*:\s*unknown\s*\)\s*\{\s*const\s+error\s*=\s*asErrorLike\s*\(\s*e\s*\)\s*;\s*const\s+err\s*=\s*error\s*;\s*(?:const\s+error\s*=\s*e\s*;\s*)?(?:const\s+err\s*=\s*e\s*;\s*)*/g,
+      /catch\s*\(\s*e\s*:\s*unknown\s*\)\s*\{\s*const\s+error\s*=\s*asErrorLike\s*\(\s*e\s*\)\s*;\s*const\s+err\s*=\s*error\s*;\s*(?:const\s+error\s*=\s*e\s*;\s*)...(?:const\s+err\s*=\s*e\s*;\s*)*/g,
       'catch (error: unknown) { const err = asErrorLike(error); const e = err; ',
     ],
     // broken redeclarations after asErrorLike
@@ -388,7 +387,7 @@ function processFile(file) {
   return { message: 'Unexpected error' };
 }\n`;
         if (!source.includes('function asErrorLike(')) {
-          const importBlock = source.match(/^(?:import[\s\S]*?;\r?\n)+/);
+          const importBlock = source.match(/^(?:import[\s\S]*...;\r...\n)+/);
           if (importBlock) {
             source = source.slice(0, importBlock[0].length) + helper + source.slice(importBlock[0].length);
           } else {

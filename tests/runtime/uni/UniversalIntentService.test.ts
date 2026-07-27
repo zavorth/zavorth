@@ -87,7 +87,7 @@ describe('UniversalIntentService', () => {
   it('treats external messages as approval-required side effects', () => {
     const decision = service.decide({
       surface: 'telegram',
-      text: 'envie o relatorio para o Slack',
+      text: 'send the report to Slack',
       contextHints: {
         activeArtifactId: 'artifact-1',
       },
@@ -134,7 +134,7 @@ describe('UniversalIntentService', () => {
   it('turns a common request to organize files into a plain permission narrative', () => {
     const decision = service.decide({
       surface: 'web',
-      text: 'organize minha pasta Downloads',
+      text: 'organize my Downloads folder',
       contextHints: {
         workspaceRoot: 'C:/Users/me/Downloads',
         targetPath: 'C:/Users/me/Downloads',
@@ -153,7 +153,7 @@ describe('UniversalIntentService', () => {
       scope: 'once',
       requestedTools: ['agent.runtime'],
     });
-    expect(decision.permissionNarrative.summary).toContain('permissao');
+    expect(decision.permissionNarrative.summary).toContain('permission');
     expect(decision.permissionNarrative.where).toBe('C:/Users/me/Downloads');
   });
 
@@ -167,7 +167,7 @@ describe('UniversalIntentService', () => {
     expect(decision.requiresClarification).toBe(true);
     expect(decision.nextSafeAction).toBe('ask_clarification');
     expect(decision.permissionRequest).toBeNull();
-    expect(decision.permissionNarrative.permission).toContain('Nenhuma permissao');
+    expect(decision.permissionNarrative.permission).toContain('Noa permission');
   });
 
   it('treats technical build and test requests as governed command execution', () => {

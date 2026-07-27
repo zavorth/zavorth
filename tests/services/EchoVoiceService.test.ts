@@ -6,21 +6,21 @@ describe('EchoVoiceService', () => {
       execute: jest.fn().mockResolvedValue({
         ok: true,
         action: 'open_app',
-        message: 'App iniciado: notepad.',
+        message: 'App started: notepad.',
         metadata: { app: 'notepad' },
         approvalRequired: false,
       }),
     };
     const service = new EchoVoiceService({ handsService });
 
-    const result = await service.handleTranscript('Echo, abra o bloco de notas');
+    const result = await service.handleTranscript('Echo, open notepad');
 
     expect(result.request).toEqual({
       action: 'open_app',
       args: { app: 'notepad' },
       risk: 'low',
     });
-    expect(result.responseText).toBe('App iniciado: notepad.');
+    expect(result.responseText).toBe('App started: notepad.');
   });
 
   it('can transcribe an audio buffer before routing the command', async () => {
@@ -28,13 +28,13 @@ describe('EchoVoiceService', () => {
       execute: jest.fn().mockResolvedValue({
         ok: true,
         action: 'open_app',
-        message: 'App iniciado: calculator.',
+        message: 'App started: calculator.',
         metadata: { app: 'calculator' },
         approvalRequired: false,
       }),
     };
     const dictation = {
-      transcribeBuffer: jest.fn().mockResolvedValue('abra a calculadora'),
+      transcribeBuffer: jest.fn().mockResolvedValue('open the calculator'),
     };
     const service = new EchoVoiceService({ handsService, dictation });
 

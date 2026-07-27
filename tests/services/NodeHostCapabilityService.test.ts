@@ -111,7 +111,7 @@ describe('NodeHostCapabilityService', () => {
 
     expect(commandRunner.run).not.toHaveBeenCalled();
     expect(result.ok).toBe(false);
-    expect(result.resultSummary).toContain('politica zero-trust');
+    expect(result.resultSummary).toContain('zero-trust policy');
     expect(result.stderr).toContain('metacaracteres de shell');
   });
 
@@ -161,7 +161,7 @@ describe('NodeHostCapabilityService', () => {
 
     expect(commandRunner.run).not.toHaveBeenCalled();
     expect(result.ok).toBe(false);
-    expect(result.stderr).toContain('pode executar codigo');
+    expect(result.stderr).toContain('can execute code');
   });
 
   it('reads text files locally through files.read', async () => {
@@ -187,7 +187,7 @@ describe('NodeHostCapabilityService', () => {
       expect.objectContaining({
         invocationId: 'invoke-2',
         ok: true,
-        resultSummary: 'Arquivo lido do node host.',
+        resultSummary: 'File lido do node host.',
         stdout: 'briefing Zavorth',
       }),
     );
@@ -259,7 +259,7 @@ describe('NodeHostCapabilityService', () => {
       expect.objectContaining({
         invocationId: 'invoke-2c',
         ok: false,
-        stderr: 'mode invalido: truncate-and-pray',
+        stderr: 'mode invalid: truncate-and-pray',
       }),
     );
     expect(fs.existsSync(targetFile)).toBe(false);
@@ -396,7 +396,7 @@ describe('NodeHostCapabilityService', () => {
       capabilityId: 'clipboard.write',
       action: 'write',
       payload: {
-        text: 'handoff pronto',
+        text: 'handoff ready',
       },
     });
 
@@ -404,7 +404,7 @@ describe('NodeHostCapabilityService', () => {
       expect.objectContaining({
         command: expect.stringContaining('pbcopy'),
         file: 'sh',
-        args: expect.arrayContaining(['-c', expect.stringContaining('pbcopy'), 'zavorth-clipboard', 'handoff pronto']),
+        args: expect.arrayContaining(['-c', expect.stringContaining('pbcopy'), 'zavorth-clipboard', 'handoff ready']),
       }),
       expect.any(Object),
     );
@@ -419,7 +419,7 @@ describe('NodeHostCapabilityService', () => {
     expect(result.data).toEqual(
       expect.objectContaining({
         method: 'pbcopy',
-        length: 'handoff pronto'.length,
+        length: 'handoff ready'.length,
       }),
     );
   });
@@ -460,7 +460,7 @@ describe('NodeHostCapabilityService', () => {
       expect.objectContaining({
         invocationId: 'invoke-5',
         ok: true,
-        resultSummary: 'Notificacao enviada pelo node host.',
+        resultSummary: 'Notificaction enviada pelo node host.',
       }),
     );
     expect(result.data).toEqual(
@@ -597,7 +597,7 @@ describe('NodeHostCapabilityService', () => {
       expect.objectContaining({
         invocationId: 'invoke-6c',
         ok: true,
-        resultSummary: expect.stringContaining('Mudanca observada'),
+        resultSummary: expect.stringContaining('Change observed'),
       }),
     );
     expect(result.data).toEqual(
@@ -777,7 +777,7 @@ describe('NodeHostCapabilityService', () => {
         ok: true,
       }),
     );
-    expect(result.resultSummary).toContain('pendencias locais');
+    expect(result.resultSummary).toContain('pending items locais');
     expect(result.data).toEqual(
       expect.objectContaining({
         status: 'attention',

@@ -54,7 +54,7 @@ function resolveHistoryDescriptor(entry: PublishHistoryEntry): PublishSnapshotDe
 
   return {
     id: archiveId,
-    label: `${archiveId} (${String(entry.commit || '').slice(0, 8) || 'sem-commit'})`,
+    label: `${archiveId} (${String(entry.commit || '').slice(0, 8) || 'without-commit'})`,
     commit: entry.commit || null,
     publishedAt: entry.publishedAt || null,
     docsPath: path.resolve(projectRoot, docsRelative),
@@ -94,7 +94,7 @@ function pickDescriptors(argv: string[]): { from: PublishSnapshotDescriptor; to:
       (toId === 'current-prepared' ? resolveCurrentPreparedDescriptor() : null)
       || historyDescriptors.find((entry) => entry.id === (toId || ''));
     if (!from || !to) {
-      throw new Error('Nao foi possivel resolver os publishes informados para comparacao.');
+      throw new Error('Could not resolve the provided publishes for comparison.');
     }
     return { from, to };
   }
@@ -102,7 +102,7 @@ function pickDescriptors(argv: string[]): { from: PublishSnapshotDescriptor; to:
   if (againstCurrent) {
     const currentPrepared = resolveCurrentPreparedDescriptor();
     if (!currentPrepared || historyDescriptors.length < 1) {
-      throw new Error('Nao ha snapshot preparado e publish historico suficientes para comparar.');
+      throw new Error('There is not enough prepared snapshot and publish history to compare.');
     }
     return {
       from: historyDescriptors[0],
@@ -136,7 +136,7 @@ function pickDescriptors(argv: string[]): { from: PublishSnapshotDescriptor; to:
     };
   }
 
-  throw new Error('Nao ha publishes suficientes para comparar ainda.');
+  throw new Error('There are not enough publishes to compare yet.');
 }
 
 function printReport(report: ReturnType<PublishComparisonService['compareSnapshots']>) {
@@ -147,7 +147,7 @@ function printReport(report: ReturnType<PublishComparisonService['compareSnapsho
   for (const target of ['docs', 'remoteConsole'] as const) {
     const section = report.targets[target];
     if (!section) {
-      console.log(`[remote-compare] ${target}: indisponivel`);
+      console.log(`[remote-compare] ${target}: unavailable`);
       continue;
     }
 

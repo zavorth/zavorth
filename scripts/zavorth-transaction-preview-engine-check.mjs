@@ -21,7 +21,7 @@ const requiredPackageScripts = [
 ];
 
 const requiredMarkers = [
-  'zavorth-transaction-preview/checkpoint-2',
+  'zavorth-transaction-preview/gate-2',
   'ready-for-review',
   'needs-clarification',
   'liveActionApplied',

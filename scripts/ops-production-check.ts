@@ -32,6 +32,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[ops-production-check] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[ops-production-check] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

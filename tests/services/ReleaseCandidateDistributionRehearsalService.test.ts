@@ -79,7 +79,7 @@ describe('ReleaseCandidateDistributionRehearsalService Intent model7', () => {
     expect(snapshot.gates).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 'no-publication-side-effects',
+          id: 'no-publiction-side-effects',
           status: 'pass',
           observed: true,
         }),
@@ -99,7 +99,7 @@ describe('ReleaseCandidateDistributionRehearsalService Intent model7', () => {
         freeze: 'npm run release-candidate-freeze --silent -- --require-frozen',
         packDryRun: 'npm pack --dry-run',
         npmPublishDryRun: 'npm publish --dry-run --tag rc',
-        nextStage: 'Pre-canary go/no-go alignment',
+        nextAction: 'Pre-canary go/no-go alignment',
       }),
     );
     expect(snapshot.policy).toEqual(

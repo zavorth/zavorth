@@ -72,7 +72,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-ops] workspace optimizer falhou.');
+  console.error('[zavorth-ops] workspace optimizer failed.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

@@ -7,7 +7,7 @@ describe('EchoHandsTool', () => {
       execute: jest.fn().mockResolvedValue({
         ok: true,
         action: 'open_app',
-        message: 'App iniciado: notepad.',
+        message: 'App started: notepad.',
         metadata: { app: 'notepad' },
         approvalRequired: false,
       }),

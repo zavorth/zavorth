@@ -19,7 +19,7 @@ for (const file of [
 
 const output = execFileSync(
   runner,
-  [...prefix, 'tsx', 'scripts/zavorth-natural-runtime-questions.ts', 'which providers are ready?', '--json'],
+  [...prefix, 'tsx', 'scripts/zavorth-natural-runtime-questions.ts', 'which providers are ready...', '--json'],
   { cwd: root, encoding: 'utf8' },
 );
 const snapshot = JSON.parse(output);
@@ -42,7 +42,7 @@ if (/\bsk-[A-Za-z0-9_-]{12,}\b/.test(output)) {
 
 const executionOutput = execFileSync(
   runner,
-  [...prefix, 'tsx', 'scripts/zavorth-natural-runtime-questions.ts', 'Docker e WSL estao prontos para rodar isolado?', '--json'],
+  [...prefix, 'tsx', 'scripts/zavorth-natural-runtime-questions.ts', 'Docker and WSL are ready for isolated run...', '--json'],
   { cwd: root, encoding: 'utf8' },
 );
 const executionSnapshot = JSON.parse(executionOutput);

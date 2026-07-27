@@ -54,7 +54,7 @@ if (!snapshot.gettingStarted.steps.some((entry) => entry.command === 'zavorth de
 if (!snapshot.gettingStarted.steps.some((entry) => entry.command === 'zavorth connectors doctor')) {
   throw new Error('zavorthControl home must point first-time users to connector doctor');
 }
-if (snapshot.permissionPanel?.title !== 'Permissoes') {
+  'Permissions',
   throw new Error('zavorthControl home must expose permission polish panel');
 }
 for (const item of ['permissions', 'auto-approvals', 'extreme-mode', 'revoke', 'receipts']) {
@@ -85,8 +85,8 @@ for (const marker of [
   'zavorth connectors doctor',
   'Receipts',
   'Connectors',
-  'Permissões',
-  'Auto-aprovações',
+  'Permissions',
+  'Auto-approvals',
   'Modo extremo',
   'Revogar',
   'home-profile-grid',

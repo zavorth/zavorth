@@ -7,9 +7,9 @@
 # O rootfs DEVE:
 #   1. Conter node, python3 e bash
 #   2. Ter um init que monta /dev/vdb e executa /mnt/payload/payload/run.sh
-#   3. Desligar a VM apos a execucao
+#   3. Shut down the VM after execution
 #
-# Uso:
+# usage:
 #   sudo bash scripts/firecracker-build-rootfs.sh
 #
 # Saida:
@@ -32,14 +32,14 @@ echo ""
 
 # Verificar root
 if [ "$(id -u)" -ne 0 ]; then
-  echo "ERRO: Este script precisa rodar como root (sudo)."
+  echo "ERROR: This script must run as root (sudo)."
   exit 1
 fi
 
-# Verificar dependencias
+# Verificar dependencies
 for cmd in debootstrap mkfs.ext4 mount umount chroot; do
   if ! command -v "$cmd" &>/dev/null; then
-    echo "ERRO: '$cmd' nao encontrado. Instale: apt install debootstrap e2fsprogs"
+    echo "ERROR: '$cmd' not found. Install: apt install debootstrap e2fsprogs"
     exit 1
   fi
 done
@@ -57,8 +57,8 @@ trap cleanup EXIT
 
 rm -f "${OUTPUT}" "${BUILD_IMAGE}"
 
-# 1. Criar imagem ext4
-echo "→ Criando imagem ext4 (${ROOTFS_SIZE_MB}MB)..."
+# 1. Criar image ext4
+echo "→ Criando image ext4 (${ROOTFS_SIZE_MB}MB)..."
 dd if=/dev/zero of="${BUILD_IMAGE}" bs=1M count=${ROOTFS_SIZE_MB} status=progress
 mkfs.ext4 -F -q "${BUILD_IMAGE}"
 
@@ -72,12 +72,12 @@ echo "→ Instalando Ubuntu minimal via debootstrap..."
 debootstrap --variant=minbase --include=bash,coreutils,util-linux jammy "${MOUNT_POINT}" http://archive.ubuntu.com/ubuntu
 
 # 4. Instalar node e python3 dentro do chroot
-echo "→ Instalando node, python3 e dependencias..."
+echo "→ Instalando node, python3 e dependencies..."
 chroot "${MOUNT_POINT}" /bin/bash <<'CHROOT_SCRIPT'
 set -e
 export DEBIAN_FRONTEND=noninteractive
 
-# Configurar repositorios
+# Configure repositories
 cat > /etc/apt/sources.list <<EOF
 deb http://archive.ubuntu.com/ubuntu jammy main universe
 deb http://archive.ubuntu.com/ubuntu jammy-updates main universe
@@ -87,7 +87,7 @@ apt-get update -qq
 apt-get install -y -qq --no-install-recommends \
   nodejs python3 bash ca-certificates
 
-# Limpar cache para reduzir tamanho
+# Clean cache to reduce size
 apt-get clean
 rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 CHROOT_SCRIPT
@@ -99,8 +99,8 @@ cat > "${MOUNT_POINT}/sbin/zavorth-init" <<'INIT_SCRIPT'
 # =============================================================================
 # Zavorth MicroVM Init
 # =============================================================================
-# Este script e chamado pelo kernel como processo init (PID 1).
-# Ele monta o payload drive (/dev/vdb), executa o codigo do usuario,
+# Este script e chamado pelo kernel como process init (PID 1).
+# It mounts the payload drive (/dev/vdb), executes user code,
 # e desliga a VM.
 # =============================================================================
 
@@ -123,12 +123,12 @@ done
 if [ -b /dev/vdb ]; then
   mount /dev/vdb "${PAYLOAD_MOUNT}"
 
-  # Executar o runner script do Zavorth
+  # run o runner script do Zavorth
   if [ -x "${PAYLOAD_MOUNT}/payload/run.sh" ]; then
     cd "${PAYLOAD_MOUNT}/payload"
     bash run.sh
   else
-    echo "ERRO: run.sh nao encontrado em ${PAYLOAD_MOUNT}/payload/" > "${PAYLOAD_MOUNT}/results/stderr.txt"
+    echo "ERROR: run.sh not found in ${PAYLOAD_MOUNT}/payload/" > "${PAYLOAD_MOUNT}/results/stderr.txt"
     echo "1" > "${PAYLOAD_MOUNT}/results/exitcode.txt"
   fi
 
@@ -136,7 +136,7 @@ if [ -b /dev/vdb ]; then
   sync
   umount "${PAYLOAD_MOUNT}" 2>/dev/null || true
 else
-  echo "ERRO: /dev/vdb nao apareceu" > /dev/console
+  echo "ERROR: /dev/vdb did not appear" > /dev/console
 fi
 
 # Desligar a VM
@@ -145,7 +145,7 @@ INIT_SCRIPT
 
 chmod 755 "${MOUNT_POINT}/sbin/zavorth-init"
 
-# 6. Configurar para o kernel usar zavorth-init como init
+# 6. Configure the kernel to use zavorth-init as init
 # O boot_args do Firecracker aponta para init=/sbin/zavorth-init
 echo "→ Configurando init..."
 ln -sf /sbin/zavorth-init "${MOUNT_POINT}/init" 2>/dev/null || true
@@ -159,16 +159,16 @@ rmdir "${MOUNT_POINT}" 2>/dev/null || true
 mv "${BUILD_IMAGE}" "${OUTPUT}"
 
 echo ""
-echo "✓ Rootfs criado com sucesso: ${OUTPUT}"
-echo "  Tamanho: $(du -h "${OUTPUT}" | cut -f1)"
+echo "✓ Rootfs created com success: ${OUTPUT}"
+echo "  Size: $(du -h "${OUTPUT}" | cut -f1)"
 echo ""
-echo "  Conteudo:"
+echo "  Content:"
 echo "    - Ubuntu 22.04 minimal"
 echo "    - Node.js + npm"
 echo "    - Python3 + pip"
 echo "    - Bash"
-echo "    - /sbin/zavorth-init (monta /dev/vdb e executa payload)"
+echo "    - /sbin/zavorth-init (mounts /dev/vdb and runs the payload)"
 echo ""
-echo "  Para usar:"
+echo "  Usage:"
 echo "    ZAVORTH_FIRECRACKER_ROOTFS_PATH=${OUTPUT}"
 echo ""

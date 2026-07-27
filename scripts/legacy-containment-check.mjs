@@ -16,7 +16,7 @@ const checks = [
     file: 'src/services/LegacySurfaceContainmentService.ts',
     includes: [
       'legacyRoutesRetired: true',
-      'P3-003',
+      'legacy-surface-containment',
       'decideFeatureDestination',
       'Use /dashboard como a unica entrada web',
       'Runtime API, Gateway Contract',
@@ -96,7 +96,7 @@ const checks = [
     includes: [
       'export class LegacyUnifiedGatewayAdapter',
       'fallback de compatibilidade',
-      'ZavorthAgentGateway canonico',
+      'ZavorthAgentGateway canonical',
     ],
   },
   {
@@ -133,7 +133,7 @@ const forbiddenGatewayReferences = [
     label: 'class UnifiedGateway',
   },
   {
-    pattern: /\bimport\s+(?:type\s+)?\{[^}]*\bUnifiedGateway\b[^}]*\}/,
+    pattern: /\bimport\s+(?:type\s+)...\{[^}]*\bUnifiedGateway\b[^}]*\}/,
     label: 'UnifiedGateway named import',
   },
 ];
@@ -184,14 +184,14 @@ for (const file of collectSourceFiles(['src', 'tests'])) {
 }
 
 if (failures.length > 0) {
-  console.error('[legacy-containment] falhou');
+  console.error('[legacy-containment] failed');
   for (const failure of failures) {
     console.error(`- ${failure}`);
   }
   process.exit(1);
 }
 
-console.log('[legacy-containment] ok: /dashboard canonico, /app e /classic removidos.');
+console.log('[legacy-containment] ok: /dashboard canonical, /app e /classic removidos.');
 
 function collectSourceFiles(directories) {
   const files = [];

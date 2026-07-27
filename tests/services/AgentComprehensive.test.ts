@@ -86,7 +86,7 @@ describe('UserModelDialecticReasoningService — Comprehensive', () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
     const s = await svc.synthesize([
       { user: 'Resumo direto e curto por favor', assistant: 'Ok.' },
-      { user: 'Quero respostas breves', assistant: 'Ok.' },
+      { user: 'I want brief responses', assistant: 'Ok.' },
     ]);
     const hasCommStyle = s.insights.some(i => i.category === 'communication_style');
     expect(hasCommStyle).toBe(true);
@@ -96,7 +96,7 @@ describe('UserModelDialecticReasoningService — Comprehensive', () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
     const s = await svc.synthesize([
       { user: 'Preciso de ajuda com TypeScript e JavaScript', assistant: 'Claro!' },
-      { user: 'Como fazer deploy com Docker?', assistant: 'Use docker-compose.' },
+      { user: 'Como fazer deploy com Docker-', assistant: 'Use docker-compose.' },
     ]);
     const hasDomain = s.insights.some(i => i.category === 'domain_expertise');
     expect(hasDomain).toBe(true);
@@ -105,8 +105,8 @@ describe('UserModelDialecticReasoningService — Comprehensive', () => {
   it('should detect tool_preferences traits', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
     const s = await svc.synthesize([
-      { user: 'Preciso revisar este código', assistant: 'Vou analisar.' },
-      { user: 'Quero criar uma nova feature', assistant: 'Vou implementar.' },
+      { user: 'I need to review this code', assistant: 'I will analyze it.' },
+      { user: 'I want to create a new feature', assistant: 'I will implement it.' },
     ]);
     const hasTool = s.insights.some(i => i.category === 'tool_preferences');
     expect(hasTool).toBe(true);
@@ -115,8 +115,8 @@ describe('UserModelDialecticReasoningService — Comprehensive', () => {
   it('should detect personality traits', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
     const s = await svc.synthesize([
-      { user: 'Seja sério e profissional', assistant: 'Entendido.' },
-      { user: 'Prefiro tom formal', assistant: 'Ok.' },
+      { user: 'Be serious and professional', assistant: 'Understood.' },
+      { user: 'I prefer a formal tone', assistant: 'Ok.' },
     ]);
     const hasPersonality = s.insights.some(i => i.category === 'personality');
     expect(hasPersonality).toBe(true);
@@ -125,8 +125,8 @@ describe('UserModelDialecticReasoningService — Comprehensive', () => {
   it('should detect schedule traits', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
     const s = await svc.synthesize([
-      { user: 'Trabalho de manhã cedo', assistant: 'Ok.' },
-      { user: 'Costumo programar de noite', assistant: 'Entendido.' },
+      { user: 'I work early in the morning', assistant: 'Ok.' },
+      { user: 'I usually code at night', assistant: 'Understood.' },
     ]);
     const hasSchedule = s.insights.some(i => i.category === 'schedule');
     expect(hasSchedule).toBe(true);
@@ -135,10 +135,10 @@ describe('UserModelDialecticReasoningService — Comprehensive', () => {
   it('should detect inquiry patterns at depth >= 2', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir, config: { depth: 2 } });
     const s = await svc.synthesize([
-      { user: 'Como fazer X?', assistant: '...' },
-      { user: 'Como fazer Y?', assistant: '...' },
-      { user: 'Como fazer Z?', assistant: '...' },
-      { user: 'Preciso de ajuda com W', assistant: '...' },
+      { user: 'How to do X-', assistant: '...' },
+      { user: 'How to do Y-', assistant: '...' },
+      { user: 'How to do Z-', assistant: '...' },
+      { user: 'I need help with W', assistant: '...' },
     ]);
     expect(s.patterns.some(p => p.includes('inquiry-heavy'))).toBe(true);
   });
@@ -146,10 +146,10 @@ describe('UserModelDialecticReasoningService — Comprehensive', () => {
   it('should detect command patterns', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir, config: { depth: 2 } });
     const s = await svc.synthesize([
-      { user: 'Faça um resumo', assistant: 'Ok.' },
-      { user: 'Execute o script', assistant: 'Ok.' },
-      { user: 'Rode os testes', assistant: 'Ok.' },
-      { user: 'Crie um arquivo novo', assistant: 'Ok.' },
+      { user: 'Give me a summary', assistant: 'Ok.' },
+      { user: 'Run the script', assistant: 'Ok.' },
+      { user: 'Run the tests', assistant: 'Ok.' },
+      { user: 'Create a new file', assistant: 'Ok.' },
     ]);
     expect(s.patterns.some(p => p.includes('command-heavy'))).toBe(true);
   });
@@ -157,11 +157,11 @@ describe('UserModelDialecticReasoningService — Comprehensive', () => {
   it('should generate recommendations based on traits', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
     const s = await svc.synthesize([
-      { user: 'Faça isso rapidamente por favor', assistant: 'Ok.' },
-      { user: 'Execute o teste agora', assistant: 'Ok.' },
-      { user: 'Rode o build completo', assistant: 'Ok.' },
-      { user: 'Crie o arquivo de config', assistant: 'Ok.' },
-      { user: 'Trabalho de manhã cedo', assistant: 'Ok.' },
+      { user: 'Do this quickly please', assistant: 'Ok.' },
+      { user: 'Run the test now', assistant: 'Ok.' },
+      { user: 'Run the full build', assistant: 'Ok.' },
+      { user: 'Create the config file', assistant: 'Ok.' },
+      { user: 'I work early in the morning', assistant: 'Ok.' },
     ]);
     expect(s.recommendations.length).toBeGreaterThan(0);
   });
@@ -239,8 +239,8 @@ describe('UserModelDialecticReasoningService — Comprehensive', () => {
   it('should handle depth 3 (trait inference)', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir, config: { depth: 3 } });
     const s = await svc.synthesize([
-      { user: 'como fazer x?', assistant: '...' },
-      { user: 'como fazer y?', assistant: '...' },
+      { user: 'como fazer x-', assistant: '...' },
+      { user: 'como fazer y-', assistant: '...' },
     ]);
     expect(s.depth).toBe(3);
   });
@@ -256,7 +256,7 @@ describe('UserModelDialecticReasoningService — Comprehensive', () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
     const s = await svc.synthesize([
       { user: 'Python and Docker and JavaScript', assistant: 'Ok' },
-      { user: 'Revisar código e implementar', assistant: 'Ok' },
+      { user: 'Review code and implement', assistant: 'Ok' },
     ]);
     const ids = s.insights.map(i => i.id);
     expect(new Set(ids).size).toBe(ids.length);
@@ -264,14 +264,14 @@ describe('UserModelDialecticReasoningService — Comprehensive', () => {
 
   it('should set insight source to conversation for user messages', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([{ user: 'Trabalho com Python', assistant: 'Ok' }]);
+    const s = await svc.synthesize([{ user: 'I work with Python', assistant: 'Ok' }]);
     const conversationInsights = s.insights.filter(i => i.source === 'conversation');
     expect(conversationInsights.length).toBeGreaterThan(0);
   });
 
   it('should include evidence in insights', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    const s = await svc.synthesize([{ user: 'Trabalho com Python', assistant: 'Ok' }]);
+    const s = await svc.synthesize([{ user: 'I work with Python', assistant: 'Ok' }]);
     for (const insight of s.insights) {
       expect(Array.isArray(insight.evidence)).toBe(true);
       expect(insight.evidence.length).toBeGreaterThan(0);
@@ -556,11 +556,11 @@ describe('UserModelReviewDaemonService — Comprehensive', () => {
   it('should run full review cycle with enough turns', async () => {
     const turnCapture = new UserModelTurnCaptureService({ homeRoot: tmpDir });
     const msgs = [
-      { user: 'Prefiro respostas diretas e curtas', assistant: 'Entendido.' },
-      { user: 'Trabalho com Python e Docker', assistant: 'Legal!' },
-      { user: 'Quero revisar o código', assistant: 'Vou analisar.' },
-      { user: 'Preciso criar algo novo', assistant: 'Vou implementar.' },
-      { user: 'Como fazer deploy?', assistant: 'Use Docker Compose.' },
+      { user: 'I prefer direct and short answers', assistant: 'Understood.' },
+      { user: 'I work with Python and Docker', assistant: 'Nice!' },
+      { user: 'I want to review the code', assistant: 'I will analyze it.' },
+      { user: 'I need to create something new', assistant: 'I will implement it.' },
+      { user: 'How to deploy-', assistant: 'Use Docker Compose.' },
     ];
     for (const m of msgs) turnCapture.captureConversation(m.user, m.assistant);
 

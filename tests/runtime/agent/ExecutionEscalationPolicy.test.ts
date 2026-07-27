@@ -34,7 +34,7 @@ describe('ExecutionEscalationPolicy', () => {
     const policy = new ExecutionEscalationPolicy();
 
     const decision = policy.resolve({
-      responseText: 'marcador legado\nrevise o arquivo atual e aplique um patch minimo',
+      responseText: 'marcador legado\nrevise o file atual e aplique um patch minimo',
       mode: 'default',
     });
 
@@ -61,7 +61,7 @@ describe('ExecutionEscalationPolicy', () => {
 
     const decision = policy.resolve({
       target: 'graph_runtime',
-      taskGoal: 'rode a validacao focada e resuma o resultado',
+      taskGoal: 'run focused validation and summarize the result',
     });
 
     expect(decision).toEqual(expect.objectContaining({
@@ -69,7 +69,7 @@ describe('ExecutionEscalationPolicy', () => {
       target: 'graph_runtime',
       source: 'structured',
       reason: 'graph-runtime-required',
-      taskGoal: 'rode a validacao focada e resuma o resultado',
+      taskGoal: 'run focused validation and summarize the result',
       requiresApproval: false,
       policyTags: expect.arrayContaining([
         'escalation:graph_runtime',
@@ -88,7 +88,7 @@ describe('ExecutionEscalationPolicy', () => {
 
     const decision = policy.resolve({
       complexObjective: true,
-      taskGoal: 'investigar regressao, propor patch e validar riscos',
+      taskGoal: 'investigate regression, propose patch, and validate risks',
       suggestedSubagents: ['planner', 'reviewer'],
     });
 
@@ -97,7 +97,7 @@ describe('ExecutionEscalationPolicy', () => {
       target: 'swarm',
       source: 'complex_objective',
       reason: 'complex-objective-swarm',
-      taskGoal: 'investigar regressao, propor patch e validar riscos',
+      taskGoal: 'investigate regression, propose patch, and validate risks',
       requiresApproval: true,
       policyTags: expect.arrayContaining([
         'escalation:swarm',
@@ -135,7 +135,7 @@ describe('ExecutionEscalationPolicy', () => {
 
     const decision = policy.resolve({
       target: 'swarm',
-      taskGoal: 'dividir a tarefa entre subagentes',
+      taskGoal: 'dividir a tarefa entre delegated review',
       requiresApproval: false,
     });
 
@@ -160,7 +160,7 @@ describe('ExecutionEscalationPolicy', () => {
     const decision = policy.resolve({
       action: {
         type: 'legacy_agent_action',
-        payload: 'rode a validacao focada',
+        payload: 'rode a validaction focada',
       },
     });
 
@@ -185,7 +185,7 @@ describe('ExecutionEscalationPolicy', () => {
         id: 'mode-escalation-builder-1',
         requiredMode: 'operator',
         reason: 'a tarefa pede controle operacional',
-        summary: 'Preciso subir para operator antes de continuar.',
+        summary: 'I need to escalate to operator before continuing.',
       },
       metadata: {
         sessionId: 'session-web-1',
@@ -197,7 +197,7 @@ describe('ExecutionEscalationPolicy', () => {
       target: 'mode_escalation',
       source: 'mode_escalation_request',
       reason: 'mode-escalation-pending',
-      taskGoal: 'Preciso subir para operator antes de continuar.',
+      taskGoal: 'I need to escalate to operator before continuing.',
       requiresApproval: true,
       policyTags: expect.arrayContaining([
         'escalation:mode_escalation',

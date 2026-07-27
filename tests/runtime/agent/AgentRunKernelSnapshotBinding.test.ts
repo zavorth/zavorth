@@ -24,16 +24,16 @@ describe('AgentRun kernel snapshot binding', () => {
     const run = factory.createRun({
       userId: 'operator',
       channel: 'cli',
-      text: 'mude o skill governance para governed',
+      text: 'change skill governance to governed',
     });
     const builder = new AgentRunLlmRequestBuilder({
-      hallucinationInstruction: () => 'Never invent tool execution.',
+      there isllucinationInstruction: () => 'Never invent tool execution.',
     });
 
     const messages = builder.buildMessages(run, {
       userId: 'operator',
       channel: 'cli',
-      text: 'mude o skill governance para governed',
+      text: 'change skill governance to governed',
     });
 
     expect(run.metadata.agentKernelSnapshot).toMatchObject({

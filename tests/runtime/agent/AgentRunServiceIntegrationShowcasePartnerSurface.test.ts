@@ -83,7 +83,7 @@ describe('AgentRunService Integration Showcase Partner Surface Integration Showc
       publicAdoptionPilotLoop: { buildSnapshot: () => pilotReadySnapshot() } as any,
       executor: () => ({
         status: 'completed' as const,
-        summary: 'Integration showcase pronto.',
+        summary: 'Integration showcase ready.',
         replyText: 'ok',
       }),
     });

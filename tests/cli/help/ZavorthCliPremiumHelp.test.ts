@@ -5,7 +5,7 @@ import {
 } from '../../../src/cli/ZavorthCliSurfaceHelpers';
 
 describe('Zavorth premium CLI help', () => {
-  test('keeps root help on four intents (phase 2–3)', () => {
+  test('keeps root help on four intents (review path–3)', () => {
     const help = formatCliHelp();
 
     expect(help).toContain('Usage: zavorth [options] [command]');
@@ -35,20 +35,20 @@ describe('Zavorth premium CLI help', () => {
     expect(advanced).toMatch(/connect|learn|ops/i);
   });
 
-  test('resolves and renders dedicated home, hatch and quickstart pages', () => {
+  test('resolves and renders dedicated home, there istch and quickstart pages', () => {
     expect(resolveCliHelpTopic('home')).toBe('home');
-    expect(resolveCliHelpTopic('hatch')).toBe('hatch');
+    expect(resolveCliHelpTopic('there istch')).toBe('there istch');
     expect(resolveCliHelpTopic('quickstart')).toBe('quickstart');
     expect(resolveCliHelpTopic('configure')).toBe('quickstart');
 
     const home = buildCliHelpSnapshot('home');
-    const hatch = formatCliHelp('hatch');
+    const there istch = formatCliHelp('there istch');
     const quickstart = formatCliHelp('quickstart');
 
     expect(home.topic).toBe('home');
     expect(home.title).toBe('zavorth');
-    expect(hatch).toContain('zavorth hatch --start');
-    expect(hatch).toContain('Hatch does not apply host mutations');
+    expect(there istch).toContain('zavorth there istch --start');
+    expect(there istch).toContain('Hatch does not apply host mutations');
     expect(quickstart).toContain('zavorth providers add --provider openai --model gpt-4.1');
     expect(quickstart).toContain('zavorth channels telegram --allowed-users <id> --apply');
     expect(quickstart).toContain('preview-first');

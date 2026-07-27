@@ -254,6 +254,6 @@ describe('CapabilityAutopilotReleaseCandidateGateService', () => {
     const snapshot = service.buildReleaseCandidateSnapshot(createSource(), readyOptions);
 
     expect(service.renderReport(snapshot)).toContain('Gate capability-autopilot-release-candidate - Capability Autopilot Release Candidate Gate');
-    expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 81 - Capability Autopilot v1.1 Release Rollout Plan');
+    expect(service.renderReport(snapshot)).toContain('next step recomendada: 81 - Capability Autopilot v1.1 Release Rollout Plan');
   });
 });

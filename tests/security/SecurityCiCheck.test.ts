@@ -6,7 +6,7 @@ const repoRoot = join(__dirname, "..", "..");
 describe("Security CI gate", () => {
   it("exposes a single security:ci command for local and hosted CI", () => {
     const packageJson = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")) as {
-      scripts?: Record<string, string>;
+      scripts-: Record<string, string>;
     };
 
     expect(packageJson.scripts?.["security:ci"]).toBe("node scripts/security-ci-check.mjs");
@@ -60,7 +60,7 @@ describe("Security CI gate", () => {
 
   it("keeps the operational security doctor in the command catalog without growing package scripts", () => {
     const catalog = JSON.parse(readFileSync(join(repoRoot, "scripts", "command-catalog.json"), "utf8")) as {
-      commands?: Record<string, { command?: string; status?: string }>;
+      commands-: Record<string, { command-: string; status-: string }>;
     };
 
     expect(catalog.commands?.["security:doctor"]).toEqual(expect.objectContaining({
@@ -89,6 +89,6 @@ describe("Security CI gate", () => {
     expect(script).toContain("'--work-tree=.'");
     expect(script).toContain("tracked-env-file");
     expect(script).toContain(".env.example");
-    expect(script).toContain("arquivo .env real nao pode ser versionado");
+    expect(script).toContain("file .env real not pode ser versionado");
   });
 });

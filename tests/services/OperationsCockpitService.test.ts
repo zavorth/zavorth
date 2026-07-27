@@ -41,7 +41,7 @@ describe('OperationsCockpitService', () => {
           enabled: true,
           ready: true,
           running: true,
-          message: 'Pronto.',
+          message: 'Ready.',
           updatedAt: '2026-03-29T11:58:00.000Z',
         },
         ZavorthTerminal: {
@@ -129,7 +129,7 @@ describe('OperationsCockpitService', () => {
         enabled: true,
         available: true,
         canRun: true,
-        detail: 'Tier Wasm pronto.',
+        detail: 'Tier Wasm ready.',
         runtime: 'node-webassembly',
         supportedLanguages: ['wasm'],
         recommendedAction: 'npm run sandbox:wasm:smoke',
@@ -152,7 +152,7 @@ describe('OperationsCockpitService', () => {
         available: true,
         status: 'passed',
         checkedAt: '2026-03-29T11:56:30.000Z',
-        summary: 'Doctor dos canais nativos validou os providers configurados.',
+        summary: 'Doctor dos canais nactives validou os providers configurados.',
         command: 'npm run test:channels:smoke',
         file: 'C:/runtime/channel-provider-doctor-last.json',
         stale: false,
@@ -165,7 +165,7 @@ describe('OperationsCockpitService', () => {
             mode: 'native',
             status: 'passed',
             configured: true,
-            summary: 'Slack nativo validado.',
+            summary: 'Slack native validated.',
             error: null,
           },
           {
@@ -195,7 +195,7 @@ describe('OperationsCockpitService', () => {
             mode: 'remote',
             status: 'passed',
             configured: true,
-            summary: 'AIGateway remoto validado.',
+            summary: 'Remote AIGateway validated.',
             error: null,
           },
           {
@@ -203,7 +203,7 @@ describe('OperationsCockpitService', () => {
             mode: 'local',
             status: 'passed',
             configured: true,
-            summary: 'Node host pareado validado.',
+            summary: 'Paired node host validated.',
             error: null,
           },
         ],
@@ -342,7 +342,7 @@ describe('OperationsCockpitService', () => {
     const snapshot = service.readSnapshot();
 
     expect(snapshot.status).toBe('healthy');
-    expect(snapshot.headline).toContain('Runtime estavel');
+    expect(snapshot.headline).toContain('Runtime stable');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
         enabledSidecars: 1,
@@ -350,10 +350,10 @@ describe('OperationsCockpitService', () => {
         freeDiskPercent: 80,
       }),
     );
-    expect(snapshot.highlights.join(' ')).toContain('Automacao recorrente ativa');
-    expect(snapshot.highlights.join(' ')).toContain('Trilha de auditoria com 3 evento(s)');
-    expect(snapshot.highlights.join(' ')).toContain('Node Mesh validado por smoke real');
-    expect(snapshot.highlights.join(' ')).toContain('Canais nativos validados por doctor');
+    expect(snapshot.highlights.join(' ')).toContain('Recurring automation active');
+    expect(snapshot.highlights.join(' ')).toContain('Trilthere is de audit com 3 evento(s)');
+    expect(snapshot.highlights.join(' ')).toContain('Node Mesh validated by real smoke test');
+    expect(snapshot.highlights.join(' ')).toContain('Canais nactives validateds por doctor');
     expect(snapshot.actions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -437,7 +437,7 @@ describe('OperationsCockpitService', () => {
           available: true,
           generatedAt: '2026-03-29T11:57:00.000Z',
           ok: false,
-          summary: 'Token web ausente.',
+          summary: 'Token web missing.',
         },
       },
       errors: {
@@ -509,7 +509,7 @@ describe('OperationsCockpitService', () => {
               enabled: true,
               available: true,
               canRun: false,
-              detail: 'Tier Wasm indisponivel neste host.',
+              detail: 'Tier Wasm unavailable neste host.',
               runtime: 'node-webassembly',
               supportedLanguages: ['wasm'],
               recommendedAction: 'npm run sandbox:wasm:smoke',
@@ -537,7 +537,7 @@ describe('OperationsCockpitService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           source: 'wasm-sandbox',
-          title: 'Tier Wasm pede validacao',
+          title: 'Tier Wasm pede validaction',
         }),
       ]),
     );
@@ -597,11 +597,11 @@ describe('OperationsCockpitService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           source: 'discord-bridge',
-          title: 'Gateway nativo do Discord requer intervencao',
+          title: 'Gateway nactive do Discord requer intervencao',
         }),
       ]),
     );
-    expect(snapshot.highlights.join(' ')).toContain('Gateway nativo do Discord habilitado, mas fora do estado pronto.');
+    expect(snapshot.highlights.join(' ')).toContain('Gateway nactive do Discord there isbilitado, mas fora do estado ready.');
     expect(snapshot.actions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -683,11 +683,11 @@ describe('OperationsCockpitService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           source: 'whatsapp-channel',
-          title: 'WhatsApp requer preparacao',
+          title: 'WhatsApp requer preparaction',
         }),
         expect.objectContaining({
           source: 'slack-channel',
-          title: 'Slack requer preparacao',
+          title: 'Slack requer preparaction',
         }),
       ]),
     );
@@ -703,8 +703,8 @@ describe('OperationsCockpitService', () => {
         }),
       ]),
     );
-    expect(snapshot.highlights.join(' ')).toContain('WhatsApp habilitado em modo local supervisionado');
-    expect(snapshot.highlights.join(' ')).toContain('Slack habilitado em modo local supervisionado');
+    expect(snapshot.highlights.join(' ')).toContain('WhatsApp there isbilitado em modo local supervisionado');
+    expect(snapshot.highlights.join(' ')).toContain('Slack there isbilitado em modo local supervisionado');
   });
 
   it('surfaces Node Mesh smoke failure as a degraded operational signal', () => {
@@ -724,7 +724,7 @@ describe('OperationsCockpitService', () => {
                 nodeId: 'node-cockpit-err',
                 finalNodeStatus: 'offline',
                 recentCapabilityId: 'system.run',
-                error: 'system.run nao retornou o marcador esperado no smoke real.',
+                error: 'system.run not retornou o marcador esperado no smoke real.',
                 stale: false,
                 recommendedAction: 'npm run test:nodes:smoke',
               },
@@ -765,7 +765,7 @@ describe('OperationsCockpitService', () => {
         }),
       ]),
     );
-    expect(snapshot.highlights.join(' ')).toContain('Node Mesh com falha no ultimo smoke real');
+    expect(snapshot.highlights.join(' ')).toContain('Node Mesh com failure no ultimo smoke real');
   });
 
   it('surfaces stale Node Mesh smoke as an attention signal with revalidation action', () => {
@@ -779,7 +779,7 @@ describe('OperationsCockpitService', () => {
                 available: true,
                 status: 'passed',
                 checkedAt: '2026-03-28T00:00:00.000Z',
-                summary: 'Smoke real do Node Mesh passou, mas ja esta antigo.',
+                summary: 'Smoke real do Node Mesh passou, mas already is antigo.',
                 command: 'npm run test:nodes:smoke',
                 file: 'C:/runtime/node-mesh-smoke-last.json',
                 nodeId: 'node-cockpit-stale',
@@ -825,7 +825,7 @@ describe('OperationsCockpitService', () => {
         }),
       ]),
     );
-    expect(snapshot.highlights.join(' ')).toContain('relatorio ficou velho');
+    expect(snapshot.highlights.join(' ')).toContain('report became stale');
   });
 
   it('shows when maintenance automation was prioritized by Node Mesh smoke', () => {
@@ -840,11 +840,11 @@ describe('OperationsCockpitService', () => {
                 running: false,
                 lastTriggeredAt: '2026-03-29T11:58:00.000Z',
                 lastTriggerSource: 'priority',
-                lastPriorityReason: 'Prioridade operacional: renovar o Node Mesh smoke vencido.',
+                lastPriorityReason: 'Operational priority: renew o Node Mesh smoke vencido.',
                 nextPlannedAt: '2026-03-30T04:30:00.000Z',
                 updatedAt: '2026-03-29T11:58:00.000Z',
                 updatedBy: null,
-                note: 'Prioridade operacional: renovar o Node Mesh smoke vencido.',
+                note: 'Operational priority: renew o Node Mesh smoke vencido.',
                 lastActionId: 'validate-node-mesh-smoke',
                 lastActionLogFile: 'C:/runtime/actions/node-mesh.log',
                 lastReportFinishedAt: '2026-03-29T11:59:00.000Z',
@@ -873,7 +873,7 @@ describe('OperationsCockpitService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           source: 'maintenance-automation',
-          title: 'Automacao prioritaria executada',
+          title: 'Priority automation executed',
         }),
       ]),
     );
@@ -932,7 +932,7 @@ describe('OperationsCockpitService', () => {
     const snapshot = service.readSnapshot();
 
     expect(snapshot.highlights.join(' ')).toContain('WhatsApp Cloud API ativa');
-    expect(snapshot.highlights.join(' ')).toContain('Slack nativo ativo');
+    expect(snapshot.highlights.join(' ')).toContain('Slack nactive active');
     expect(snapshot.actions.find((entry) => entry.id === 'prepare-whatsapp-channel')).toBeUndefined();
     expect(snapshot.actions.find((entry) => entry.id === 'prepare-slack-channel')).toBeUndefined();
   });
@@ -947,7 +947,7 @@ describe('OperationsCockpitService', () => {
               available: true,
               status: 'failed',
               checkedAt: '2026-03-29T11:58:45.000Z',
-              summary: 'Doctor dos canais nativos encontrou pendencias operacionais.',
+              summary: 'Doctor dos canais nactives encontrou pending items operacionais.',
               command: 'npm run test:channels:smoke',
               file: 'C:/runtime/channel-provider-doctor-last.json',
               stale: false,
@@ -960,8 +960,8 @@ describe('OperationsCockpitService', () => {
                   mode: 'native',
                   status: 'failed',
                   configured: false,
-                  summary: 'Slack nativo esta habilitado, mas ainda faltam prerequisitos operacionais.',
-                  error: 'Campos ausentes: SLACK_SIGNING_SECRET.',
+                  summary: 'Slack nactive esta there isbilitado, mas ainda faltam prerequisitos operacionais.',
+                  error: 'Campos missings: SLACK_SIGNING_SECRET.',
                 },
               ],
             },
@@ -1010,14 +1010,14 @@ describe('OperationsCockpitService', () => {
     const snapshot = service.readSnapshot();
 
     expect(snapshot.alerts).toEqual(expect.arrayContaining([
-      expect.objectContaining({ title: 'Doctor dos canais nativos falhou' }),
-      expect.objectContaining({ title: 'WhatsApp Cloud API requer validacao' }),
-      expect.objectContaining({ title: 'Slack nativo requer validacao' }),
+      expect.objectContaining({ title: 'Doctor dos canais nactives falhou' }),
+      expect.objectContaining({ title: 'WhatsApp Cloud API requer validaction' }),
+      expect.objectContaining({ title: 'Slack nactive requer validaction' }),
     ]));
     expect(snapshot.actions).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: 'validate-channel-providers', command: 'npm run test:channels:smoke' }),
       expect.objectContaining({ id: 'prepare-whatsapp-channel', label: 'Validar WhatsApp Cloud API' }),
-      expect.objectContaining({ id: 'prepare-slack-channel', label: 'Validar Slack nativo' }),
+      expect.objectContaining({ id: 'prepare-slack-channel', label: 'Validar Slack nactive' }),
     ]));
   });
 });

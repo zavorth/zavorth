@@ -12,7 +12,7 @@ describe('ProviderMeshConsolidationService Channel mesh3', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-provider-mesh',
-      text: 'escolha um modelo para coding',
+      text: 'choose a model for coding',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

@@ -163,7 +163,7 @@ describe('MaintenanceAutomationService', () => {
             nodeMeshSmoke: {
               status: 'failed',
               stale: false,
-              error: 'system.run nao retornou o marcador esperado.',
+              error: 'system.run not retornou o marcador esperado.',
             },
           })),
         } as any,
@@ -179,8 +179,8 @@ describe('MaintenanceAutomationService', () => {
       expect.objectContaining({
         lastActionId: 'validate-node-mesh-smoke',
         lastTriggerSource: 'priority',
-        lastPriorityReason: expect.stringContaining('falha no smoke real'),
-        note: expect.stringContaining('falha no smoke real'),
+        lastPriorityReason: expect.stringContaining('failure no smoke real'),
+        note: expect.stringContaining('failure no smoke real'),
       }),
     );
   });
@@ -213,7 +213,7 @@ describe('MaintenanceAutomationService', () => {
               status: 'passed',
               stale: true,
               checkedAt: '2026-03-28T00:00:00.000Z',
-              summary: 'Doctor dos canais nativos validou os providers configurados.',
+              summary: 'Doctor dos canais nactives validou os providers configurados.',
             },
           })),
         } as any,
@@ -229,8 +229,8 @@ describe('MaintenanceAutomationService', () => {
       expect.objectContaining({
         lastActionId: 'validate-channel-providers',
         lastTriggerSource: 'priority',
-        lastPriorityReason: expect.stringContaining('doctor dos canais nativos vencido'),
-        note: expect.stringContaining('doctor dos canais nativos vencido'),
+        lastPriorityReason: expect.stringContaining('doctor dos canais nactives vencido'),
+        note: expect.stringContaining('doctor dos canais nactives vencido'),
       }),
     );
   });

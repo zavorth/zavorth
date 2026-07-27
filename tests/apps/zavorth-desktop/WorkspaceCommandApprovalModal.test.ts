@@ -8,6 +8,7 @@ import { WorkspaceSessionGrantCache } from '../../../src/services/WorkspaceSessi
 import { ZavorthControlCoreRouteService } from '../../../src/services/ZavorthControlCoreRouteService.js';
 import { SecurityAuditLogger } from '../../../src/services/SecurityAuditLogger.js';
 import { LogRepository } from '../../../src/storage/LogRepository.js';
+import { config } from '../../../src/config/index.js';
 
 describe('WorkspaceCommandApproval Integration Tests', () => {
   let tempDir: string;
@@ -22,6 +23,8 @@ describe('WorkspaceCommandApproval Integration Tests', () => {
     process.env.ZAVORTH_HOME = tempDir;
     process.env.ZAVORTH_AUDIT_HASH_KEY = 'test-hash-key-123';
     process.env.ZAVORTH_WORKSPACE_ROOT = tempDir;
+    fs.mkdirSync(path.join(tempDir, 'data'), { recursive: true });
+    config.dbPath = path.join(tempDir, 'data', 'zavorth.db');
 
     db = await Database.getInstance();
     auditLogger = new SecurityAuditLogger(new LogRepository());
@@ -106,7 +109,7 @@ describe('WorkspaceCommandApproval Integration Tests', () => {
     // Query active grant status
     const { deps: depsGet, jsonCalls: jsonCallsGet } = buildMockDeps();
     const reqGet = { method: 'GET' } as http.IncomingMessage;
-    const urlGet = new URL(`http://localhost/api/v2/workspace/command-approvals/session-grant?workspaceId=${workspaceId}`);
+    const urlGet = new URL(`http://localhost/api/v2/workspace/command-approvals/session-grant-workspaceId=${workspaceId}`);
     const handledGet = await routeService.handleRequest(reqGet, res, urlGet, urlGet.pathname, depsGet as any);
     expect(handledGet).toBe(true);
     expect(jsonCallsGet[0].status).toBe(200);
@@ -128,7 +131,7 @@ describe('WorkspaceCommandApproval Integration Tests', () => {
   it('manages /pending and /resolve command approvals endpoints correctly', async () => {
     const workspaceId = 'ws-cmd-test';
     const command = 'npm install';
-    
+
     // Register approval manually via service
     const operationId = await service.requestApproval(workspaceId, command, false);
 
@@ -136,8 +139,8 @@ describe('WorkspaceCommandApproval Integration Tests', () => {
     const { deps: depsPending, jsonCalls: jsonCallsPending } = buildMockDeps();
     const reqPending = { method: 'GET' } as http.IncomingMessage;
     const resPending = {} as http.ServerResponse;
-    const urlPending = new URL(`http://localhost/api/v2/workspace/command-approvals/pending?workspaceId=${workspaceId}`);
-    
+    const urlPending = new URL(`http://localhost/api/v2/workspace/command-approvals/pending-workspaceId=${workspaceId}`);
+
     const handledPending = await routeService.handleRequest(reqPending, resPending, urlPending, urlPending.pathname, depsPending as any);
     expect(handledPending).toBe(true);
     expect(jsonCallsPending[0].status).toBe(200);
@@ -147,7 +150,7 @@ describe('WorkspaceCommandApproval Integration Tests', () => {
 
     // Fetch details of specific command payload
     const { deps: depsPayload, jsonCalls: jsonCallsPayload } = buildMockDeps();
-    const urlPayload = new URL(`http://localhost/api/v2/workspace/command-approvals/payload?operationId=${operationId}`);
+    const urlPayload = new URL(`http://localhost/api/v2/workspace/command-approvals/payload-operationId=${operationId}`);
     const handledPayload = await routeService.handleRequest(reqPending, resPending, urlPayload, urlPayload.pathname, depsPayload as any);
     expect(handledPayload).toBe(true);
     expect(jsonCallsPayload[0].status).toBe(200);
@@ -166,7 +169,7 @@ describe('WorkspaceCommandApproval Integration Tests', () => {
 
     // Check if approved in DB
     const row = db.get<{ approved: number }>(
-      'SELECT approved FROM workspace_command_approvals WHERE operation_id = ?',
+      'SELECT approved FROM workspace_command_approvals WHERE operation_id = -',
       [operationId]
     );
     expect(row?.approved).toBe(1);

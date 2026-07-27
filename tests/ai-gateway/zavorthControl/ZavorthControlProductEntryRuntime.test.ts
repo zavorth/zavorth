@@ -32,7 +32,7 @@ function productEntryRuntime() {
         },
         questions: [],
         writes: [{ path: 'data/runtime/first-run/profile.json', action: 'skip', reason: 'profile existente' }],
-        summary: ['Profile pronto.'],
+        summary: ['Profile ready.'],
       } as any),
       buildWorkspaceIdentitySnapshot: () => ({
         nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',

@@ -49,12 +49,12 @@ export async function publishSamplePackage(options: PublishSampleOptions = {}): 
 
 function renderResult(result: PublishResult): string {
   return [
-    '[platform-publish-sample] publish preparado concluido',
+    '[platform-publish-sample] publish prepared completed',
     `[platform-publish-sample] release: ${result.releaseId}`,
     `[platform-publish-sample] pacote: ${result.packageId}@${result.version}`,
-    `[platform-publish-sample] arquivos: ${result.fileCount}`,
+    `[platform-publish-sample] files: ${result.fileCount}`,
     `[platform-publish-sample] assinatura: ${result.signature}`,
-    `[platform-publish-sample] saida: ${result.outputFile}`,
+    `[platform-publish-sample] output: ${result.outputFile}`,
   ].join('\n');
 }
 
@@ -76,7 +76,7 @@ async function main() {
 if (path.basename(String(process.argv[1] || '')) === 'platform-publish-sample.ts') {
   main().catch((error) => {
     console.error(
-      '[platform-publish-sample] falhou:',
+      '[platform-publish-sample] failed:',
       error instanceof Error ? error.message : String(error),
     );
     process.exit(1);

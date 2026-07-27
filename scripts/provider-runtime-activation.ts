@@ -42,8 +42,7 @@ async function main(): Promise<void> {
     liveIoPerformed: liveReceiptByProvider.size > 0,
     confirmLiveIo,
     status: profile === 'staging-live' && !confirmLiveIo ? 'blocked-until-confirmed' : 'ready-for-operator',
-    reason: profile === 'staging-live' && !confirmLiveIo
-      ? 'staging-live smoke requires --confirm-live-io and real operator credentials.'
+    reason: profile === 'staging-live' && !confirmLiveIo ? 'staging-live smoke requires --confirm-live-io and real operator credentials.'
       : 'Connector registry exposes provider runtime routes, adapter families and redacted activation receipts.',
     entries: selected.map((entry) => ({
       providerId: entry.providerId,

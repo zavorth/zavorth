@@ -57,7 +57,7 @@ function resolveWebsiteRoot(): string {
 
 function runWebsiteBuild(root: string): void {
   if (!fs.existsSync(root)) {
-    throw new Error(`site publico nao encontrado em ${root}`);
+    throw new Error(`public site not found at ${root}`);
   }
   if (!fs.existsSync(path.join(root, 'node_modules')) && fs.existsSync(path.join(root, 'package-lock.json'))) {
     runNpm(root, ['install']);
@@ -72,7 +72,7 @@ function removeGeneratedBuildDir(root: string, dirName: '.next-zavorth-qa' | 'ou
   const target = path.resolve(resolvedRoot, dirName);
   const relative = path.relative(resolvedRoot, target);
   if (relative.startsWith('..') || path.isAbsolute(relative)) {
-    throw new Error(`recusando remover diretorio fora do site: ${target}`);
+    throw new Error(`recusando remover diretorio outside do site: ${target}`);
   }
   if (fs.existsSync(target)) {
     fs.rmSync(target, { recursive: true, force: true });
@@ -106,7 +106,7 @@ function runNpm(cwd: string, args: string[]): void {
     throw result.error;
   }
   if (typeof result.status === 'number' && result.status !== 0) {
-    throw new Error(`npm ${args.join(' ')} falhou com codigo ${result.status}`);
+    throw new Error(`npm ${args.join(' ')} failed with code ${result.status}`);
   }
   if (result.signal) {
     throw new Error(`npm ${args.join(' ')} encerrado por sinal ${result.signal}`);
@@ -128,7 +128,7 @@ function quoteWindowsArg(value: string): string {
 async function captureExternalDocsScreenshots(root: string, targetDir: string): Promise<void> {
   const outRoot = path.join(root, 'out');
   if (!fs.existsSync(outRoot)) {
-    throw new Error(`export estatico ausente em ${outRoot}; rode build antes dos screenshots`);
+    throw new Error(`static export missing at ${outRoot}; run build before screenshots`);
   }
 
   fs.mkdirSync(targetDir, { recursive: true });
@@ -197,7 +197,7 @@ async function startStaticServer(outRoot: string): Promise<{ url: string; close:
   });
   const address = server.address();
   if (!address || typeof address === 'string') {
-    throw new Error('nao foi possivel obter porta do servidor estatico');
+    throw new Error('could not obtain static server port');
   }
   return {
     url: `http://127.0.0.1:${address.port}/`,
@@ -251,6 +251,6 @@ function contentType(filePath: string): string {
 }
 
 main().catch((error) => {
-  console.error('[external-docs] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[external-docs] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

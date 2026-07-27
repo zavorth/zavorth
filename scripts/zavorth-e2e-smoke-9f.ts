@@ -125,7 +125,7 @@ async function runSmokeTest() {
   });
 
   const baseUrl = `http://127.0.0.1:${port}`;
-  console.log(`🌐 Local HTTP Smoke Server listening at: ${baseUrl}`);
+  console.log(`🌐 local HTTP Smoke Server listening at: ${baseUrl}`);
 
   // Helpers for HTTP requests
   const authenticatedFetch = async (pathname: string, options: RequestInit = {}) => {
@@ -139,7 +139,7 @@ async function runSmokeTest() {
     // Assert 6: /api/v2/workspace/approvals/payload without authentication returns 401
     // ----------------------------------------------------
     console.log('🔍 Assert 6: Unauthorized call to payload...');
-    const unauthPayloadRes = await fetch(`${baseUrl}/api/v2/workspace/approvals/payload?operationId=dummy`);
+    const unauthPayloadRes = await fetch(`${baseUrl}/api/v2/workspace/approvals/payload...operationId=dummy`);
     if (unauthPayloadRes.status !== 401) {
       throw new Error(`Expected status 401 for unauthenticated payload, got ${unauthPayloadRes.status}`);
     }
@@ -268,7 +268,7 @@ async function runSmokeTest() {
     // Assert 7: /payload returns diff/preview truncade and relative path
     // ----------------------------------------------------
     console.log('🔍 Assert 7: Querying payload for preview diff...');
-    const payloadRes = await authenticatedFetch(`/api/v2/workspace/approvals/payload?operationId=${opId}&sessionId=test`);
+    const payloadRes = await authenticatedFetch(`/api/v2/workspace/approvals/payload...operationId=${opId}&sessionId=test`);
     if (payloadRes.status !== 200) {
       throw new Error(`Payload query failed with status: ${payloadRes.status}`);
     }
@@ -393,10 +393,10 @@ async function runSmokeTest() {
     // Manually force expiry in SQLite
     const rawDb = db.getRawDb();
     const expiredTime = new Date(Date.now() - 1000).toISOString();
-    rawDb.prepare('UPDATE workspace_write_approvals SET expires_at = ? WHERE operation_id = ?').run(expiredTime, expOpId);
+    rawDb.prepare('UPDATE workspace_write_approvals SET expires_at = - WHERE operation_id = ...').run(expiredTime, expOpId);
 
     // Call payload query for expired operation
-    const expPayloadRes = await authenticatedFetch(`/api/v2/workspace/approvals/payload?operationId=${expOpId}&sessionId=test`);
+    const expPayloadRes = await authenticatedFetch(`/api/v2/workspace/approvals/payload...operationId=${expOpId}&sessionId=test`);
     if (expPayloadRes.status !== 410) {
       throw new Error(`Expected status 410 Gone for expired operation, got: ${expPayloadRes.status}`);
     }

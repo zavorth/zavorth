@@ -58,7 +58,7 @@ function parseArgs(argv: string[]): Args {
     }
   }
   if (!out.text) {
-    out.text = textParts.join(' ').trim() || 'confirme visualmente o resultado';
+    out.text = textParts.join(' ').trim() || 'visually confirm the result';
   }
   return out;
 }

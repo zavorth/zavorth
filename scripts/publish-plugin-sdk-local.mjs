@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Local publish ritual for @zavorth/plugin-sdk.
+ * local publish ritual for @zavorth/plugin-sdk.
  * Always runs build + check + dry-run. Real publish only when:
  *   ZAVORTH_NPM_PUBLISH=1 and npm whoami succeeds.
  */

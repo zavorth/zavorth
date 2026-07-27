@@ -174,10 +174,8 @@ const report = {
   copied,
   skipped,
   destDir: path.relative(root, DEST_DIR).replace(/\\/g, '/'),
-  notes: dryRun
-    ? 'Dry-run only — no files copied. Installers present under desktop outs.'
-    : copied.length
-      ? `Copied ${copied.length} installer(s) into dist-release/. Still not store-signed until cert verified.`
+  notes: dryRun ? 'Dry-run only — no files copied. Installers present under desktop outs.'
+    : copied.length ? `Copied ${copied.length} installer(s) into dist-release/. Still not store-signed until cert verified.`
       : 'Sources found but nothing new copied (may already be present).',
 };
 

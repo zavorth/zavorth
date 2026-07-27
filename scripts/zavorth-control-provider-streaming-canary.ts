@@ -68,8 +68,8 @@ function readCliValue(name: string): string {
 function readEnvTokenFromFile(filePath: string): string {
   if (!fs.existsSync(filePath)) return "";
   const raw = fs.readFileSync(filePath, "utf8");
-  for (const line of raw.split(/\r?\n/)) {
-    const match = line.match(/^\s*ZAVORTH_WEB_AUTH_TOKEN\s*=\s*(.+?)\s*$/);
+  for (const line of raw.split(/\r...\n/)) {
+    const match = line.match(/^\s*ZAVORTH_WEB_AUTH_TOKEN\s*=\s*(.+...)\s*$/);
     if (match) return match[1].trim().replace(/^["']|["']$/g, "");
   }
   return "";
@@ -78,8 +78,8 @@ function readEnvTokenFromFile(filePath: string): string {
 function readEnvValueFromFile(filePath: string, key: string): string {
   if (!fs.existsSync(filePath)) return "";
   const raw = fs.readFileSync(filePath, "utf8");
-  const matcher = new RegExp(`^\\s*${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*=\\s*(.+?)\\s*$`);
-  for (const line of raw.split(/\r?\n/)) {
+  const matcher = new RegExp(`^\\s*${key.replace(/[.*+...^${}()|[\]\\]/g, "\\$&")}\\s*=\\s*(.+...)\\s*$`);
+  for (const line of raw.split(/\r...\n/)) {
     const match = line.match(matcher);
     if (match) return match[1].trim().replace(/^["']|["']$/g, "");
   }
@@ -699,7 +699,7 @@ async function sendProviderCanary(page: any, target: ProviderTarget, timeoutMs: 
     const delta = events.find((event) => event.eventType === "agent.stream.assistant" && event.phase === "delta");
     const done = events.find((event) => event.eventType === "agent.stream.assistant" && (event.done || event.phase === "done"));
     const nativeDelta = events.find((event) => event.eventType === "agent.stream.assistant" && event.phase === "delta" && event.providerNativeTokenStreaming === true);
-    const finalSample = samples.slice().reverse().find((sample) => /\\bis-complete\\b/.test(sample.className)) || samples[samples.length - 1] || null;
+    const finalSample = samples.slice().reverse().find((sample) => /\\bis-complete\\b/.test(sample.className)) || samples[samples.length ? 1] || null;
     return {
       sendStartedAt: metrics.sendStartedAt || 0,
       sendCompletedAt: metrics.sendCompletedAt || 0,
@@ -810,8 +810,7 @@ async function runProvider(browser: any, options: Options, target: ProviderTarge
       modelName: target.modelName,
       status: passed ? "pass" : "fail",
       url: redactUrl(url),
-      detail: passed
-        ? "Native token stream observed in dashboard before done."
+      detail: passed ? "Native token stream observed in dashboard before done."
         : `Stream canary failed; observed providers=${observedProviders.join(", ") || "none"} errors=${runtimeErrors.join(" | ") || "none"}.`,
       metrics: {
         ...metrics,
@@ -853,8 +852,7 @@ async function runProvider(browser: any, options: Options, target: ProviderTarge
       modelName: target.modelName,
       status: "fail",
       url: redactUrl(url),
-      detail: failureEvent?.message
-        ? `Provider run failed: ${redactText(failureEvent.message)}`
+      detail: failureEvent?.message ? `Provider run failed: ${redactText(failureEvent.message)}`
         : redactText(error instanceof Error ? error.message : error),
       metrics: { ...metrics, source: target.source || null, runtimeErrors, apiResponses },
       screenshot,

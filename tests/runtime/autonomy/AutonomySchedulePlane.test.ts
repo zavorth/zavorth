@@ -38,11 +38,11 @@ describe('AutonomySchedulePlane', () => {
     return { plane, taskPlane, runtimeDir };
   }
 
-  it('resolves PT/EN natural schedules into interval + nextRun (Phase 5)', () => {
+  it('resolves canonical JSON schedules into interval/calendar nextRun', () => {
     const { plane } = makePlane();
     const created = plane.createRoutine({
-      name: 'NL every hour',
-      schedule: 'a cada 1 hora',
+      name: 'canonical interval schedule',
+      schedule: '{"kind":"interval","intervalMs":3600000}',
       taskDescription: 'check system health',
       riskLevel: 'low',
       actor: 'test',
@@ -50,18 +50,18 @@ describe('AutonomySchedulePlane', () => {
     expect(created.ok).toBe(true);
     expect(created.routine?.scheduleType).toBe('interval');
     expect(created.routine?.intervalMs).toBe(3_600_000);
-    expect(created.routine?.schedule).toBe('every 1h');
+    expect(created.routine?.schedule).toBe('{"kind":"interval","intervalMs":3600000}');
     expect(created.routine?.nextRunAt).toBeTruthy();
 
     const daily = plane.createRoutine({
-      name: 'NL daily',
-      schedule: 'todo dia as 9h',
+      name: 'canonical calendar schedule',
+      schedule: '{"kind":"calendar_day","targetHour":9,"targetMinute":0}',
       taskDescription: 'morning summary',
       riskLevel: 'low',
       actor: 'test',
     });
     expect(daily.ok).toBe(true);
-    expect(daily.routine?.schedule).toBe('daily 09:00');
+    expect(daily.routine?.schedule).toBe('{"kind":"calendar_day","targetHour":9,"targetMinute":0}');
     expect(daily.routine?.nextRunAt).toBeTruthy();
   });
 
@@ -143,7 +143,7 @@ describe('AutonomySchedulePlane', () => {
     // Force due by rewinding nextRunAt through update + freeze time.
     const storedPath = path.join(root, 'runtime', 'cron', 'due_job.json');
     const raw = JSON.parse(fs.readFileSync(storedPath, 'utf8'));
-    raw.nextRunAt = new Date(currentTime - 1_000).toISOString();
+    raw.nextRunAt = new Date(currentTime ? 1_000).toISOString();
     fs.writeFileSync(storedPath, JSON.stringify(raw, null, 2));
 
     const due = plane.processDue({ actor: 'test', maxItems: 5 });

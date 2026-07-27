@@ -134,7 +134,7 @@ if (has('--day1-return')) {
   }
   const usedFake = day0Day === today && process.env.ZAVORTH_ALLOW_FAKE_DAY1 === '1';
   doc.criteria.day1Return = true;
-  doc.day1Method = usedFake ? 'fake-env' : 'calendar';
+  doc.day1Method = usedFake ? 'synthetic-env' : 'calendar';
   pushHistory(
     doc,
     'day1Return',
@@ -143,8 +143,7 @@ if (has('--day1-return')) {
   applyNotes(doc);
   mutated = true;
   console.log(
-    usedFake
-      ? '[retention] R2 day1Return = true (FAKE — not launch evidence)'
+    usedFake ? '[retention] R2 day1Return = true (FAKE — not launch evidence)'
       : '[retention] R2 day1Return = true',
   );
 }

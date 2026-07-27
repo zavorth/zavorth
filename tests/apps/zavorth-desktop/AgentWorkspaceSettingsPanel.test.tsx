@@ -64,7 +64,7 @@ describe('AgentWorkspaceSettingsPanel', () => {
 
   it('renders the configuration with safe defaults', async () => {
     render(<AgentWorkspaceSettingsPanel workspaceId="test-ws" />);
-    
+
     await waitFor(() => {
       expect(screen.getByDisplayValue('provider-1')).toBeInTheDocument();
       expect(screen.getByDisplayValue('model-1')).toBeInTheDocument();
@@ -77,7 +77,7 @@ describe('AgentWorkspaceSettingsPanel', () => {
     const hpmCheckbox = screen.getByLabelText(/Permitir Host Power Mode/i) as HTMLInputElement;
     expect(hpmCheckbox.checked).toBe(false);
 
-    const ptyCheckbox = screen.getByLabelText(/Permitir Sessões PTY/i) as HTMLInputElement;
+    const ptyCheckbox = screen.getByLabelText(/Allow PTY sessions/i) as HTMLInputElement;
     expect(ptyCheckbox.checked).toBe(false);
 
     const tmpCheckbox = screen.getByLabelText(/Permitir Temporary Directory Trust/i) as HTMLInputElement;
@@ -93,7 +93,7 @@ describe('AgentWorkspaceSettingsPanel', () => {
   it('verifies that marker is strictly not leaked in rendering', async () => {
     // To ensure the marker does not leak from any API response or rendering text:
     const { container } = render(<AgentWorkspaceSettingsPanel workspaceId="test-ws" />);
-    
+
     await waitFor(() => {
       expect(screen.getByDisplayValue('provider-1')).toBeInTheDocument();
     });

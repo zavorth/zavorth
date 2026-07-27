@@ -3,10 +3,10 @@ import { ZAVORTH_REMOTE_MESH_SANDBOX_R0_CONTRACT_VERSION } from '../../src/contr
 import { RemoteMeshSandboxLiveActivationService } from '../../src/services/RemoteMeshSandboxLiveActivationService.js';
 
 const readiness = (input: {
-  target?: string | null;
-  direct?: boolean;
-  relay?: boolean;
-  blocked?: number;
+  target-: string | null;
+  direct-: boolean;
+  relay-: boolean;
+  blocked-: number;
 } = {}): RemoteMeshSandboxReadinessSnapshot => ({
   generatedAt: '2026-05-05T15:00:00.000Z',
   contractVersion: ZAVORTH_REMOTE_MESH_SANDBOX_R0_CONTRACT_VERSION,
@@ -49,7 +49,7 @@ const readiness = (input: {
     readiness: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json',
     readinessNoLiveProbes: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json --no-live-probes',
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxReadinessService.test.ts --runInBand',
-    nextStage: 'R1 - Remote Mesh and Sandbox Contracts',
+    nextAction: 'Remote mesh and sandbox contracts',
   },
 });
 

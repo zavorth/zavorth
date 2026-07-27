@@ -179,9 +179,9 @@ async function main() {
     console.log('===========================================');
     console.log('  Zavorth Essential Backup');
     console.log('===========================================');
-    console.log('Modo: simulacao');
-    console.log(`Arquivo alvo: ${archivePath}`);
-    console.log(`Arquivos estimados: ${report.files}`);
+    console.log('Mode: dry-run');
+    console.log(`Target file: ${archivePath}`);
+    console.log(`Estimated files: ${report.files}`);
     console.log(`Bytes estimados:    ${report.bytes}`);
     return;
   }
@@ -219,9 +219,9 @@ async function main() {
   console.log('===========================================');
   console.log('  Zavorth Essential Backup');
   console.log('===========================================');
-  console.log(`Arquivo criado: ${archivePath}`);
-  console.log(`Arquivos:       ${report.files}`);
-  console.log(`Tamanho zip:    ${buffer.length} bytes`);
+  console.log(`File created: ${archivePath}`);
+  console.log(`Files:       ${report.files}`);
+  console.log(`Zip size:    ${buffer.length} bytes`);
   console.log(`Manifesto:      ${manifestPath}`);
 }
 

@@ -41,7 +41,7 @@ describe('TelegramPermissionController telemetry', () => {
     };
   }
 
-  function createController(task: any, telemetryRuntime: any, auditLogger?: any) {
+  function createController(task: any, telemetryRuntime: any, auditLogger-: any) {
     const taskManager = {
       getTask: jest.fn().mockImplementation((taskId: string) => (taskId === task.task_id ? task : undefined)),
       advanceState: jest.fn().mockImplementation((targetTask: any, nextStatus: string) => {

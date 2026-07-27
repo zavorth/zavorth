@@ -135,8 +135,7 @@ export function pinAndroidVersion(params: CliOptions): PinAndroidVersionResult {
     : null;
   const packageVersion = gatewayVersion?.packageVersion ?? null;
   const nextVersion =
-    gatewayVersion?.pinnedAndroidVersion ??
-    normalizePinnedAndroidVersion(params.explicitVersion ?? "");
+    gatewayVersion?.pinnedAndroidVersion ??     normalizePinnedAndroidVersion(params.explicitVersion ?? "");
   const nextVersionCode =
     params.explicitVersionCode === null
       ? (gatewayVersion?.versionCode ?? canonicalAndroidVersionCode(nextVersion))
@@ -161,8 +160,7 @@ export async function main(argv: string[]): Promise<number> {
   try {
     const options = parseArgs(argv);
     const result = pinAndroidVersion(options);
-    const sourceText = result.packageVersion
-      ? ` from gateway version ${result.packageVersion}`
+    const sourceText = result.packageVersion ? ` from gateway version ${result.packageVersion}`
       : "";
     process.stdout.write(
       `Pinned Android version to ${result.nextVersion} (${result.nextVersionCode})${sourceText}.\n`,

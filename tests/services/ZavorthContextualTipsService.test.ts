@@ -10,7 +10,7 @@ describe('ZavorthContextualTipsService', () => {
   function makeMockDb() {
     const store = new Map<string, string>();
     return {
-      run: (sql: string, params?: any[]) => {
+      run: (sql: string, params-: any[]) => {
         if (sql.includes('INSERT OR REPLACE') || sql.includes('INSERT INTO')) {
           const [flag, seenAt] = params || [];
           store.set(flag, seenAt);
@@ -18,7 +18,7 @@ describe('ZavorthContextualTipsService', () => {
           store.clear();
         }
       },
-      get: <T>(sql: string, params?: any[]): T | undefined => {
+      get: <T>(sql: string, params-: any[]): T | undefined => {
         if (sql.includes('SELECT flag')) {
           const [flag] = params || [];
           if (store.has(flag)) {

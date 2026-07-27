@@ -1,6 +1,6 @@
 import { SchedulerService } from '../../../src/services/SchedulerService';
 
-describe('SchedulerService natural schedules (Phase 5)', () => {
+describe('SchedulerService canonical schedule boundary', () => {
   function makeService(): SchedulerService {
     return new SchedulerService({
       listActiveTasks: jest.fn(),
@@ -13,39 +13,42 @@ describe('SchedulerService natural schedules (Phase 5)', () => {
     } as any);
   }
 
-  it('parses canonical daily and exposes cron', () => {
+  it('parses calendar day JSON and exposes cron metadata', () => {
     const service = makeService();
-    expect(service.parseSchedule('daily 09:30')).toEqual({
-      kind: 'daily',
-      normalized: 'daily 09:30',
-      label: 'daily at 09:30 / todo dia as 09:30',
+    expect(service.parseSchedule('{"kind":"calendar_day","targetHour":9,"targetMinute":30}')).toEqual({
+      kind: 'calendar_day',
+      normalized: '{"kind":"calendar_day","targetHour":9,"targetMinute":30}',
+      label: 'calendar_day 09:30',
       cron: '30 9 * * *',
     });
   });
 
-  it('parses PT/EN natural phrases', () => {
+  it('parses interval, calendar week, and cron JSON', () => {
     const service = makeService();
-    expect(service.parseSchedule('todo dia as 9h')).toMatchObject({
-      kind: 'daily',
-      normalized: 'daily 09:00',
-    });
-    expect(service.parseSchedule('a cada 30 minutos')).toMatchObject({
+    expect(service.parseSchedule('{"kind":"interval","intervalMs":1800000}')).toMatchObject({
       kind: 'interval',
-      normalized: 'every 30m',
+      normalized: '{"kind":"interval","intervalMs":1800000}',
     });
-    expect(service.parseSchedule('toda sexta as 18h')).toMatchObject({
-      kind: 'weekly',
-      normalized: 'weekly 5 18:00',
+    expect(service.parseSchedule('{"kind":"calendar_week","targetWeekday":5,"targetHour":18,"targetMinute":0}')).toMatchObject({
+      kind: 'calendar_week',
+      normalized: '{"kind":"calendar_week","targetWeekday":5,"targetHour":18,"targetMinute":0}',
     });
-    expect(service.parseSchedule('every monday at 10am')).toMatchObject({
-      kind: 'weekly',
-      normalized: 'weekly 1 10:00',
+    expect(service.parseSchedule('{"kind":"cron","cron":"0 10 * * 1"}')).toMatchObject({
+      kind: 'cron',
+      normalized: '{"kind":"cron","cron":"0 10 * * 1"}',
     });
   });
 
-  it('describes schedules with bilingual labels', () => {
+  it('does not infer free-text language at the SchedulerService boundary', () => {
     const service = makeService();
-    expect(service.describeSchedule('every 15m')).toMatch(/every 15 minute/i);
-    expect(service.describeSchedule('daily 09:00')).toMatch(/todo dia/i);
+    expect(service.parseSchedule('every day at 9am')).toBeNull();
+    expect(service.parseSchedule('legacy calendar schedule text')).toBeNull();
+    expect(service.parseSchedule('legacy natural-language schedule text')).toBeNull();
+  });
+
+  it('describes canonical schedules with generated labels', () => {
+    const service = makeService();
+    expect(service.describeSchedule('{"kind":"interval","intervalMs":900000}')).toBe('interval 900000ms');
+    expect(service.describeSchedule('{"kind":"calendar_day","targetHour":9,"targetMinute":0}')).toBe('calendar_day 09:00');
   });
 });

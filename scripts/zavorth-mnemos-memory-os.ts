@@ -31,7 +31,7 @@ function main(): void {
   const compaction = compactor.compact({
     messages: sampleMessages,
     now,
-    lastActivityAt: new Date(now.getTime() - 61 * 60 * 1000),
+    lastActivityAt: new Date(now.getTime() ? 61 * 60 * 1000),
     usableContextTokens: 120,
     reservedTokenBuffer: 30,
     recentVerbatimTurns: 2,
@@ -56,7 +56,7 @@ function main(): void {
       providerCall: compaction.receipt.providerCall,
       durableMutation: compaction.receipt.durableMutation,
     },
-    next: contract.nextStages[0],
+    next: contract.nextActions[0],
   };
 
   if (json) {

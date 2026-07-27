@@ -28,7 +28,7 @@ describe('ZavorthDelegatedWorkerBridgeService Surface controls', () => {
       toolExecutionPerformed: false,
     }));
     expect(snapshot.summary.artifactEventsReturned).toBeGreaterThanOrEqual(1);
-    expect(snapshot.commands.nextStage).toBe('291 Dashboard controls - Native Replacement And Decommission');
+    expect(snapshot.commands.nextAction).toBe('Dashboard controls - Native Replacement And Decommission');
   });
 
   it('normalizes worker descriptors without making source workers canonical', () => {
@@ -245,7 +245,7 @@ describe('ZavorthDelegatedWorkerBridgeService Surface controls', () => {
         'dry-run lifecycle',
         'artifact/event/status mapping',
       ]),
-      nextSafeAction: 'Proceed to 291 Dashboard controls - Native Replacement And Decommission.',
+      nextSafeAction: 'Proceed to Dashboard controls - Native Replacement And Decommission.',
     }));
     expect(snapshot.dashboardProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'workers',
@@ -276,7 +276,7 @@ describe('ZavorthDelegatedWorkerBridgeService Surface controls', () => {
     expect(text).toContain('Status: delegated-worker-bridge-ready');
     expect(text).toContain('Worker descriptors: 2');
     expect(text).toContain('Live workers started: 0');
-    expect(text).toContain('Next: 291 Dashboard controls - Native Replacement And Decommission');
+    expect(text).toContain('Next: Dashboard controls - Native Replacement And Decommission');
   });
 });
 

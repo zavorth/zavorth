@@ -57,8 +57,7 @@ const canonicalStatus = readStatus(canonicalRoot);
 const snapshot = {
   contractVersion: 'zavorth-bridge-root-doctor/v1',
   generatedAt: new Date().toISOString(),
-  status: fs.existsSync(projectRoot) && fs.existsSync(path.join(projectRoot, 'zavorth.yml'))
-    ? 'passed'
+  status: fs.existsSync(projectRoot) && fs.existsSync(path.join(projectRoot, 'zavorth.yml')) ? 'passed'
     : 'failed',
   canonical: {
     root: canonicalRoot,
@@ -69,8 +68,7 @@ const snapshot = {
     canonicalCoreIsSourceOfTruth: true,
     deletesLegacyAutomatically: false,
   },
-  nextSafeAction: canonicalStatus.exists
-    ? 'Bridge can communicate through zavorth-core/Zavorth as the canonical root.'
+  nextSafeAction: canonicalStatus.exists ? 'Bridge can communicate through zavorth-core/Zavorth as the canonical root.'
     : 'Run npm run bridge:doctor -- --ensure, then restart the bridge extension.',
 };
 

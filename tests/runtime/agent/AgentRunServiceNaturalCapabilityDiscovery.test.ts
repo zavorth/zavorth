@@ -19,7 +19,7 @@ describe('AgentRunService Natural Capability Discovery', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-discovery-danger',
-      text: 'corrija o arquivo e rode os testes',
+      text: 'corrija o file e rode os testes',
       requestedTools: ['write_file', 'shell.exec'],
     });
 
@@ -68,7 +68,7 @@ describe('AgentRunService Natural Capability Discovery', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-discovery-read',
-      text: 'analise o repositorio e resuma os arquivos principais',
+      text: 'analise o repositorio e resuma os files principais',
       requestedTools: ['read_file'],
     });
 

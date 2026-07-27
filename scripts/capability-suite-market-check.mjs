@@ -123,7 +123,7 @@ const gates = selectedGate ? [selectedGate] : Object.keys(gateChecks);
 for (const gate of gates) {
   const checks = gateChecks[gate];
   if (!checks) {
-    console.error(`[gate-check] etapa invalido: ${gate}`);
+    console.error(`[gate-check] stage invalid: ${gate}`);
     process.exit(1);
   }
 
@@ -142,11 +142,11 @@ for (const gate of gates) {
     });
 
     if (result.error) {
-      console.error(`[gate-check] falha ao executar ${label}: ${result.error.message}`);
+      console.error(`[gate-check] failure ao run ${label}: ${result.error.message}`);
       process.exit(1);
     }
     if (typeof result.status === 'number' && result.status !== 0) {
-      console.error(`[gate-check] ${label} saiu com codigo ${result.status}`);
+      console.error(`[gate-check] ${label} saiu with code ${result.status}`);
       process.exit(result.status);
     }
     if (result.signal) {
@@ -156,7 +156,7 @@ for (const gate of gates) {
   }
 }
 
-console.log('\n[gate-check] gate(s) solicitado(s) concluidas com sucesso.');
+console.log('\n[gate-check] requested gate(s) completed successfully.');
 
 function buildSpawnCommand(command, args) {
   if (process.platform === 'win32' && npmCliPath) {

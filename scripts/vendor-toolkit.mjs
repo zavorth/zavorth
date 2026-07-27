@@ -160,8 +160,8 @@ function runUpdate(asJson, dryRun) {
       action: dryRun ? 'preview' : 'manual-review-required',
     })),
     message: updates.length === 0
-      ? 'Nenhum vendor com update pendente.'
-      : 'Update automatico permanece bloqueado neste toolkit leve; revise o diff do vendor antes de aplicar.',
+      ? 'No vendor update is pending.'
+      : 'Automatic updates remain blocked in this lightweight toolkit; review the vendor diff before applying changes.',
   };
   if (asJson) {
     console.log(JSON.stringify(result, null, 2));
@@ -183,9 +183,8 @@ function runRollback(asJson, dryRun) {
     dryRun,
     ok: true,
     available: Boolean(lastRollbackSource),
-    message: lastRollbackSource
-      ? 'Rollback preview disponivel no historico; aplique manualmente apos revisar o lock.'
-      : 'Nenhum historico de update/rollback encontrado para restaurar.',
+    message: lastRollbackSource ? 'Rollback preview available in history; apply the lock manually after review.'
+      : 'No update/rollback history found to restore.',
   };
   if (asJson) {
     console.log(JSON.stringify(result, null, 2));

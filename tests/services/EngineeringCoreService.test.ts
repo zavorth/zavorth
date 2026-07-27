@@ -130,7 +130,7 @@ describe('EngineeringCoreService', () => {
         mode: 'file',
         previewId: 'preview-1',
         relativePath: 'src/app.ts',
-        summary: 'Preview pronto.',
+        summary: 'Preview ready.',
         diffSummary: 'diff --git a/src/app.ts b/src/app.ts',
       })),
       applyPreview: jest.fn(async () => ({
@@ -146,7 +146,7 @@ describe('EngineeringCoreService', () => {
         success: true,
         changeId: 'change-1',
         restoredFiles: 1,
-        summary: 'Rollback concluido.',
+        summary: 'Rollback completed.',
       })),
     };
 
@@ -165,7 +165,7 @@ describe('EngineeringCoreService', () => {
     });
 
     const run = await service.startRun({
-      rawText: 'corrija erro de TypeScript em src/app.ts',
+      rawText: 'fix TypeScript error in src/app.ts',
       scope: { platform: 'web', chatId: 'web:engineering', userId: 'web-user' },
     });
     const previewed = await service.proposePatch({
@@ -381,7 +381,7 @@ describe('EngineeringCoreService', () => {
     });
 
     const run = await service.startRun({
-      rawText: 'abra o navegador em https://example.com',
+      rawText: 'open the browser at https://example.com',
       scope: { platform: 'telegram', chatId: 'telegram:engineering', userId: 'web-user' },
     });
 
@@ -446,7 +446,7 @@ describe('EngineeringCoreService', () => {
     });
 
     const run = await service.startRun({
-      rawText: 'suba um tunel para http://127.0.0.1:3004',
+      rawText: 'start a tunnel to http://127.0.0.1:3004',
       scope: { platform: 'telegram', chatId: 'telegram:engineering', userId: 'web-user' },
     });
     const executed = await service.executeRun({

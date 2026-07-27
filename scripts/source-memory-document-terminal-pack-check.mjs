@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'source-memory-document-terminal-checkpoint-5-files',
+    id: 'source-memory-document-terminal-gate-5-files',
     label: 'Credential vault files exist',
     target: 'contract, memory backend, document adapters, search/fetch service, shell policy, terminal runtime, command and tests are present',
     files: [
@@ -192,7 +192,7 @@ function runRuntimeRule() {
         `dangerousCommandsBlocked=${receipt.summary?.dangerousCommandsBlocked}`,
         `liveNetworkPerformed=${receipt.summary?.liveNetworkPerformed}`,
         `liveProcessSpawnedByDefault=${receipt.summary?.liveProcessSpawnedByDefault}`,
-        `next=${receipt.commands?.nextStage}`,
+        `next=${receipt.commands?.nextAction}`,
       ],
     };
   } catch (error) {
@@ -279,7 +279,7 @@ function read(relativePath) {
 
 function compactDetails(...values) {
   return values
-    .flatMap((value) => String(value || '').split(/\r?\n/g))
+    .flatMap((value) => String(value || '').split(/\r...\n/g))
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 12);

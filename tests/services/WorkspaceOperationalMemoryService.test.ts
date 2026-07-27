@@ -96,7 +96,7 @@ describe('WorkspaceOperationalMemoryService', () => {
               status: 'rejected',
               approval_status: 'rejected',
               updated_at: '2026-03-28T05:30:00.000Z',
-              raw_message: '/task publique a versao final',
+              raw_message: '/task publish the final version',
               metadata: {
                 security_posture: {
                   high_risk_confirmation_required: true,
@@ -197,21 +197,21 @@ describe('WorkspaceOperationalMemoryService', () => {
               approval_status: 'approved',
               updated_at: '2026-03-28T07:30:00.000Z',
               raw_message: '/task publique o briefing final',
-              result_summary: 'Briefing final publicado com sucesso.',
+              result_summary: 'Briefing final publicdo com sucesso.',
               artifacts: [
                 {
                   id: 'artifact-2',
                   key: 'briefing-published',
                   type: 'file',
                   kind: 'report',
-                  name: 'briefing-publicado.md',
+                  name: 'briefing-publicdo.md',
                   source: 'workspace',
-                  path: 'C:/repo/artifacts/briefing-publicado.md',
+                  path: 'C:/repo/artifacts/briefing-publicdo.md',
                   url: null,
                   mimeType: 'text/markdown',
-                  summary: 'Versao final publicada.',
+                  summary: 'Versao final publicda.',
                   description: null,
-                  previewText: '# Briefing publicado',
+                  previewText: '# Briefing publicdo',
                   sizeBytes: 2048,
                   exists: true,
                   deliveryChannel: 'document',
@@ -289,7 +289,7 @@ describe('WorkspaceOperationalMemoryService', () => {
                   handoff_summary: null,
                   started_at: '2026-03-28T06:30:00.000Z',
                   finished_at: '2026-03-28T07:00:00.000Z',
-                  result_summary: 'Implementacao concluida.',
+                  result_summary: 'Implementaction concluida.',
                   artifact_count: 1,
                 },
                 {
@@ -300,10 +300,10 @@ describe('WorkspaceOperationalMemoryService', () => {
                   index: 1,
                   status: 'approval_pending',
                   objective: 'Revisar entrega final',
-                  handoff_summary: 'Implementacao concluida.',
+                  handoff_summary: 'Implementaction concluida.',
                   started_at: '2026-03-28T07:05:00.000Z',
                   finished_at: '2026-03-28T08:00:00.000Z',
-                  result_summary: 'Aguardando sua aprovacao.',
+                  result_summary: 'Aguardando sua approval.',
                   artifact_count: 0,
                 },
               ],
@@ -321,9 +321,9 @@ describe('WorkspaceOperationalMemoryService', () => {
                 attempt_count: 1,
                 task_id: 'task-active-1',
                 objective: 'Revisar entrega final',
-                handoff_summary: 'Implementacao concluida.',
-                result_summary: 'Aguardando sua aprovacao.',
-                reason: 'aguarda sua confirmacao para seguir',
+                handoff_summary: 'Implementaction concluida.',
+                result_summary: 'Aguardando sua approval.',
+                reason: 'waits for your confirmation before continuing',
               },
             },
           ]),
@@ -461,7 +461,7 @@ describe('WorkspaceOperationalMemoryService', () => {
         expect.arrayContaining([
           expect.objectContaining({
             task_id: 'task-approved-delivery-1',
-            name: 'briefing-publicado.md',
+            name: 'briefing-publicdo.md',
           }),
         ]),
       );
@@ -482,7 +482,7 @@ describe('WorkspaceOperationalMemoryService', () => {
           pending_count: 1,
         }),
       );
-      expect(memory?.workflow_recommendations[0]?.rationale).toContain('Etapa mais sensivel agora: ExternalExecutor Reviewer');
+      expect(memory?.workflow_recommendations[0]?.rationale).toContain('Most sensitive stage now: ExternalExecutor Reviewer');
       expect(memory?.workflow_executor_recommendations?.[0]).toEqual(
         expect.objectContaining({
           workflow: 'ship',
@@ -553,18 +553,18 @@ describe('WorkspaceOperationalMemoryService', () => {
         ]),
       );
       expect(memory?.summary).toContain('melhor executor recente codex');
-      expect(memory?.summary).toContain('falha recorrente external_executor');
-      expect(memory?.summary).toContain('preferencia code -> codex');
+      expect(memory?.summary).toContain('failure recorrente external_executor');
+      expect(memory?.summary).toContain('code preference -> codex');
       expect(memory?.summary).toContain('subtipo testing -> codex');
       expect(memory?.summary).toContain('llm testing -> openrouter/anthropic/claude-3.5-sonnet:beta');
-      expect(memory?.summary).toContain('foco ativo Finalizar briefing final com ajustes de posicionamento.');
-      expect(memory?.summary).toContain('entrega recente briefing-publicado.md');
+      expect(memory?.summary).toContain('foco active Finalizar briefing final com ajustes de posicionamento.');
+      expect(memory?.summary).toContain('entrega recente briefing-publicdo.md');
       expect(memory?.summary).toContain('workflow recente ship (approval_pending)');
       expect(memory?.summary).toContain('workflow sugerido ship');
       expect(memory?.summary).toContain('executor por workflow ship -> codex');
-      expect(memory?.summary).toContain('friccao workflow ship -> ExternalExecutor Reviewer');
-      expect(memory?.summary).toContain('friccao code');
-      expect(memory?.summary).toContain('proximo passo Resolver task-act');
+      expect(memory?.summary).toContain('workflow friction ship -> ExternalExecutor Reviewer');
+      expect(memory?.summary).toContain('code friction');
+      expect(memory?.summary).toContain('next step Resolver task-act');
       expect(memory?.summary).toContain('ultimo ciclo autonomo approved');
       expect(memory?.summary).toContain('modo sugerido review -> autonomous');
       expect(memory?.summary).toContain('formato direto testing -> findings_first');
@@ -585,7 +585,7 @@ describe('WorkspaceOperationalMemoryService', () => {
               executor_used: 'external_executor',
               status: 'completed',
               updated_at: '2026-03-29T10:05:00.000Z',
-              result_summary: 'Briefing final publicado com sucesso.',
+              result_summary: 'Briefing final publicdo com sucesso.',
               metadata: {
                 workflow_run_id: 'wf-ship-recovered-1',
                 workspace_route_outcome: {
@@ -647,7 +647,7 @@ describe('WorkspaceOperationalMemoryService', () => {
                   handoff_summary: null,
                   started_at: '2026-03-29T09:00:00.000Z',
                   finished_at: '2026-03-29T09:25:00.000Z',
-                  result_summary: 'Rascunho pronto.',
+                  result_summary: 'Draft ready.',
                   artifact_count: 1,
                 },
                 {
@@ -657,11 +657,11 @@ describe('WorkspaceOperationalMemoryService', () => {
                   role: 'reviewer',
                   index: 1,
                   status: 'completed',
-                  objective: 'Revisar e publicar briefing final',
-                  handoff_summary: 'Rascunho pronto.',
+                  objective: 'Review and publish final briefing',
+                  handoff_summary: 'Draft ready.',
                   started_at: '2026-03-29T09:30:00.000Z',
                   finished_at: '2026-03-29T10:05:00.000Z',
-                  result_summary: 'Briefing final publicado.',
+                  result_summary: 'Briefing final publicdo.',
                   artifact_count: 1,
                 },
               ],
@@ -741,7 +741,7 @@ describe('WorkspaceOperationalMemoryService', () => {
           last_recovered_stage_label: 'ExternalExecutor Reviewer',
         }),
       );
-      expect(memory?.workflow_recommendations[0]?.rationale).toContain('recuperacao(oes) recente(s) fecharam bem');
+      expect(memory?.workflow_recommendations[0]?.rationale).toContain('recuperaction(oes) recente(s) closeam bem');
       expect(memory?.route_outcomes).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -755,13 +755,13 @@ describe('WorkspaceOperationalMemoryService', () => {
           }),
         ]),
       );
-      expect(memory?.route_outcomes?.[0]?.rationale).toContain('retomada(s) concluida(s)');
-      expect(memory?.route_outcomes?.[0]?.rationale).toContain('entrega(s) finais');
+      expect(memory?.route_outcomes?.[0]?.rationale).toContain('resumption(s) concluida(s)');
+      expect(memory?.route_outcomes?.[0]?.rationale).toContain('final delivery item(s)');
       expect(memory?.continuity_recommendations).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             kind: 'continue_from_success',
-            label: 'Continuar apos ship em ExternalExecutor Reviewer',
+            label: 'Continuar after ship em ExternalExecutor Reviewer',
             artifact_name: 'briefing-final.md',
           }),
         ]),
@@ -805,7 +805,7 @@ describe('WorkspaceOperationalMemoryService', () => {
                   handoff_summary: null,
                   started_at: '2026-04-02T09:00:00.000Z',
                   finished_at: '2026-04-02T09:08:00.000Z',
-                  result_summary: 'Rascunho pronto.',
+                  result_summary: 'Draft ready.',
                   artifact_count: 1,
                 },
                 {
@@ -817,10 +817,10 @@ describe('WorkspaceOperationalMemoryService', () => {
                   status: 'completed',
                   attempt_count: 2,
                   objective: 'Revisar briefing final',
-                  handoff_summary: 'Rascunho pronto.',
+                  handoff_summary: 'Draft ready.',
                   started_at: '2026-04-02T09:10:00.000Z',
                   finished_at: '2026-04-02T09:20:00.000Z',
-                  result_summary: 'Briefing aprovado e publicado.',
+                  result_summary: 'Briefing approved e publicdo.',
                   artifact_count: 1,
                 },
               ],
@@ -889,7 +889,7 @@ describe('WorkspaceOperationalMemoryService', () => {
           recovered_count: 1,
         }),
       );
-      expect(memory?.workflow_recommendations[0]?.rationale).toContain('recuperacao(oes) recente(s)');
+      expect(memory?.workflow_recommendations[0]?.rationale).toContain('recuperaction(oes) recente(s)');
       expect(memory?.workflow_executor_recommendations).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -944,7 +944,7 @@ describe('WorkspaceOperationalMemoryService', () => {
               updated_at: '2026-04-02T09:20:00.000Z',
               status: 'blocked',
               operator_state: 'closed',
-              operator_close_reason: 'Operador preferiu encerrar a retomada.',
+              operator_close_reason: 'Operador preferiu encerrar a resumption.',
               phases: [
                 {
                   id: 'review',
@@ -957,10 +957,10 @@ describe('WorkspaceOperationalMemoryService', () => {
                   task_id: 'task-review-closed',
                   attempt_count: 1,
                   objective: 'Validar a entrega final.',
-                  handoff_summary: 'Checklist pronto para liberar.',
+                  handoff_summary: 'Checklist ready para liberar.',
                   started_at: '2026-04-02T09:05:00.000Z',
                   finished_at: '2026-04-02T09:10:00.000Z',
-                  result_summary: 'Bloqueado aguardando decisao do operador.',
+                  result_summary: 'Bloqueado waiting for decision do operador.',
                   artifact_count: 0,
                 },
               ],
@@ -981,7 +981,7 @@ describe('WorkspaceOperationalMemoryService', () => {
         expect.objectContaining({
           workflow_run_id: 'wf-ship-closed-1',
           operator_state: 'closed',
-          operator_close_reason: 'Operador preferiu encerrar a retomada.',
+          operator_close_reason: 'Operador preferiu encerrar a resumption.',
         }),
       );
       expect(memory?.continuity_recommendations.some((entry) => entry.kind === 'resume_workflow')).toBe(false);

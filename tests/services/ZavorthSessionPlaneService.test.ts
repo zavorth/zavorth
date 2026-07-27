@@ -14,8 +14,8 @@ describe('ZavorthSessionPlaneService', () => {
           },
           history: [{ id: 'task-1' }],
           narrative: {
-            headline: 'Session tools prontos.',
-            operatorSummary: 'Contexto pronto.',
+            headline: 'Session tools readys.',
+            operatorSummary: 'Contexto ready.',
           },
         })),
       } as any,
@@ -33,18 +33,18 @@ describe('ZavorthSessionPlaneService', () => {
             {
               id: 'web:session-1',
               label: 'web:session-1',
-              latestTaskLabel: 'Retomar sessao 1',
+              latestTaskLabel: 'Retomar session 1',
               updatedAt: '2026-04-02T11:58:00.000Z',
             },
           ],
         })),
         readHistory: jest.fn(async () => ({
           replay: {
-            headline: 'Replay pronto.',
+            headline: 'Replay ready.',
             timeline: [{ label: 'Task', detail: 'Retomar task-1' }],
           },
           handoff: {
-            operatorSummary: 'Handoff pronto.',
+            operatorSummary: 'Handoff ready.',
           },
           permissions: [{ status: 'pending' }],
         })),
@@ -98,7 +98,7 @@ describe('ZavorthSessionPlaneService', () => {
       expect.objectContaining({
         history: expect.objectContaining({
           handoff: expect.objectContaining({
-            operatorSummary: 'Handoff pronto.',
+            operatorSummary: 'Handoff ready.',
           }),
         }),
       }),
@@ -112,7 +112,7 @@ describe('ZavorthSessionPlaneService', () => {
           summary: { linkedSurfaces: 1 },
           history: [],
           narrative: {
-            headline: 'Session tools prontos.',
+            headline: 'Session tools readys.',
             operatorSummary: 'Operator summary.',
           },
         })),
@@ -127,16 +127,16 @@ describe('ZavorthSessionPlaneService', () => {
         })),
         readHistory: jest.fn(async () => ({
           replay: {
-            headline: 'Replay pronto.',
+            headline: 'Replay ready.',
             operatorSummary: 'Leitura consolidada.',
             recommendedEntry: {
               label: 'Retomar task-1',
               reason: 'Ainda e o melhor ponto de entrada.',
             },
-            timeline: [{ label: 'Task', detail: 'Passo importante' }],
+            timeline: [{ label: 'Task', detail: 'Step importante' }],
           },
           handoff: {
-            operatorSummary: 'Handoff pronto.',
+            operatorSummary: 'Handoff ready.',
           },
           tasks: [
             {
@@ -193,7 +193,7 @@ describe('ZavorthSessionPlaneService', () => {
 
     expect(overview).toContain('Session plane do Zavorth');
     expect(overview).toContain('/sessions');
-    expect(history).toContain('Historico oficial da sessao');
+    expect(history).toContain('Historico oficial da session');
     expect(history).toContain('Retomar task-1');
     expect(history).toContain('Resumo recente');
     expect(history).toContain('Transcript recente:');
@@ -205,17 +205,17 @@ describe('ZavorthSessionPlaneService', () => {
       summary: { linkedSurfaces: 1 },
       history: [{ id: 'task-1' }],
       narrative: {
-        headline: 'Session tools prontos.',
+        headline: 'Session tools readys.',
         operatorSummary: 'Operator summary.',
       },
     }));
     const readHistory = jest.fn(async () => ({
       replay: {
-        headline: 'Replay pronto.',
-        timeline: [{ label: 'Task', detail: 'Passo importante' }],
+        headline: 'Replay ready.',
+        timeline: [{ label: 'Task', detail: 'Step importante' }],
       },
       handoff: {
-        operatorSummary: 'Handoff pronto.',
+        operatorSummary: 'Handoff ready.',
       },
       permissions: [],
     }));
@@ -227,7 +227,7 @@ describe('ZavorthSessionPlaneService', () => {
         {
           id: 'web:session-1',
           label: 'web:session-1',
-          latestTaskLabel: 'Retomar sessao 1',
+          latestTaskLabel: 'Retomar session 1',
           updatedAt: '2026-04-02T11:58:00.000Z',
         },
       ],

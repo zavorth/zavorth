@@ -21,9 +21,9 @@ describe('ZavorthTrustOverviewService', () => {
           actions: [
             {
               id: 'governance-review',
-              label: 'Revisar aprovacoes pendentes',
+              label: 'Revisar approvescoes pendentes',
               severity: 'warn',
-              reason: 'Existem tres aprovacoes travando o runtime.',
+              reason: 'Existem tres approvescoes travando o runtime.',
               command: '/trust approvals',
             },
           ],
@@ -47,7 +47,7 @@ describe('ZavorthTrustOverviewService', () => {
               id: 'trust-killswitch',
               label: 'Auditar kill switch',
               severity: 'critical',
-              reason: 'Boundary sensivel ainda esta pedindo validacao.',
+              reason: 'Boundary sensitive ainda esta pedindo validaction.',
               command: '/trust',
             },
           ],
@@ -63,7 +63,7 @@ describe('ZavorthTrustOverviewService', () => {
           pendingOnboarding: [
             {
               tenantId: 'tenant-a',
-              operatorSummary: 'Tenant A ainda nao concluiu onboarding.',
+              operatorSummary: 'Tenant A ainda not concluiu onboarding.',
               actions: [
                 {
                   command: '/tenants tenant-a',
@@ -72,7 +72,7 @@ describe('ZavorthTrustOverviewService', () => {
             },
           ],
           narrative: {
-            nextAction: 'Fechar onboarding dos tenants compartilhados.',
+            nextAction: 'Close onboarding dos tenants shareds.',
           },
         })),
       },

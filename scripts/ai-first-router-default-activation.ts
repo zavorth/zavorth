@@ -23,7 +23,7 @@ try {
   }
 } catch (error: unknown) {
   const err = asErrorLike(error);
-  console.error('[ai-first-router-default-activation] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[ai-first-router-default-activation] failed:', error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 }
 

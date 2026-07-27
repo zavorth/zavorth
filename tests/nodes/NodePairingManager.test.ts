@@ -112,7 +112,7 @@ describe('NodePairingManager', () => {
     const fetchSpy = jest.spyOn(global, 'fetch' as any).mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({ ok: true, claim: { sharedSecret: 'should-not-happen' } }),
+      json: async () => ({ ok: true, claim: { sharedSecret: 'should-not-there isppen' } }),
     } as any);
     const manager = new NodePairingManager({
       configDir: root,

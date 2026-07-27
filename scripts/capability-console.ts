@@ -110,7 +110,7 @@ function renderNaturalResult(result: CapabilityNaturalOperatorResult): string {
     '',
     result.reply.nextAction,
     '',
-    `Decisao: ${result.decision.action} | alvo: ${result.decision.targetItemId || 'nao definido'} | pack: ${result.decision.packId || 'nao definido'}`,
+    `Decision: ${result.decision.action} | target: ${result.decision.targetItemId || 'undefined'} | pack: ${result.decision.packId || 'undefined'}`,
   ];
   if (result.createdTicket) {
     lines.push(`Ticket: ${result.createdTicket.id} (${result.createdTicket.status})`);
@@ -118,6 +118,6 @@ function renderNaturalResult(result: CapabilityNaturalOperatorResult): string {
   if (result.executorResult) {
     lines.push(`Executor: ${result.executorResult.status}`);
   }
-  lines.push('Seguranca: sem segredo bruto, sem ativacao live por linguagem natural.');
+  lines.push('Seguranca: without secret bruto, without activation live por linguagem natural.');
   return lines.join('\n');
 }

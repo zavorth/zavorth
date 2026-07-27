@@ -47,7 +47,7 @@ const surface = (readArg('--surface=') || 'cli') as CapabilityAutopilotSurface;
 const audience = (asJson ? 'technical_operator' : 'everyday_user') as CapabilityAutopilotAudience;
 
 main().catch((error) => {
-  process.stderr.write(`[capability-autopilot-resume] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(`[capability-autopilot-resume] failure: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 });
 
@@ -91,7 +91,7 @@ function buildFixtureApprovals(receipt: CapabilityReceipt): PermissionRequest[] 
   }
 
   return repairPlan.permissionRequirements.map((requirement, index) => ({
-    permission_id: `checkpoint-62-fixture-${index + 1}`,
+    permission_id: `gate-62-fixture-${index + 1}`,
     created_at: receipt.generatedAt,
     updated_at: receipt.generatedAt,
     task_id: receipt.resumeIntent?.taskId || null,
@@ -109,9 +109,9 @@ function buildFixtureApprovals(receipt: CapabilityReceipt): PermissionRequest[] 
     requested_value: requirement.requestedValue || null,
     resolved_value: requirement.resolvedValue || null,
     reason: requirement.reason,
-    requested_by: receipt.resumeIntent?.userId || 'checkpoint-62-gate',
-    decided_by: 'checkpoint-62-gate',
-    decision_note: 'Fixture local do gate Runtime gateway2; nao persiste no ledger.',
+    requested_by: receipt.resumeIntent?.userId || 'gate-62-gate',
+    decided_by: 'gate-62-gate',
+    decision_note: 'Local fixture of Runtime gateway2 gate; does not persist in ledger.',
     metadata: {
       capability_autopilot: true,
       stage: 'capability-autopilot-validation-resume',
@@ -149,7 +149,7 @@ function buildSnapshot(
       stage: '63',
       title: 'Cross-Surface Capability UX',
       reason:
-        'Depois de validar retomada com seguranca, o proximo passo e expor o mesmo receipt e estado em CLI, web, chat e mensageria.',
+        'After validating resume safely, the next step is to expose the same receipt and state across CLI, web, chat and messaging.',
     },
   };
 }
@@ -162,37 +162,37 @@ function buildChecks(
   return [
     check(
       'capability-autopilot-resume:permission-gate',
-      'permission gate antes de revalidar',
+      'permission gate before revalidation',
       ['approved', 'not_required'].includes(result.permissionStatus) ? 'pass' : 'fail',
-      'A retomada so pode recalcular readiness quando permissoes exigidas estao aprovadas ou nao sao necessarias.',
+      'Resume can only recalculate readiness when required permissions are approved or not required.',
       [`permissionStatus=${result.permissionStatus}`, `permissions=${String(result.permissions.length)}`],
     ),
     check(
       'capability-autopilot-resume:readiness-recomputed',
-      'readiness recalculado',
+      'readiness recalculated',
       result.readiness ? 'pass' : 'fail',
-      'Depois do gate de permissao, o gate de validation/resume recalcula readiness antes de retomar.',
-      [`readiness=${result.readiness?.status || '<ausente>'}`, `safeToRun=${String(result.readiness?.safeToRun ?? '<ausente>')}`],
+      'After the permission gate, the validation/resume gate recalculates readiness before resuming.',
+      [`readiness=${result.readiness?.status || '<absent>'}`, `safeToRun=${String(result.readiness?.safeToRun ?? '<absent>')}`],
     ),
     check(
       'capability-autopilot-resume:no-false-resume',
-      'sem retomada falsa',
+      'no false resume',
       readinessReady || result.status !== 'ready_to_resume' ? 'pass' : 'fail',
-      'Se readiness ainda falha, o Zavorth deve voltar para diagnostico/plano em vez de retomar o pedido.',
+      'If readiness still fails, Zavorth should return to diagnosis/planning instead of resuming the request.',
       [`ready=${String(readinessReady)}`, `status=${result.status}`],
     ),
     check(
       'capability-autopilot-resume:validation-result',
-      'validation result coerente',
+      'coherent validation result',
       result.validation.success === readinessReady ? 'pass' : 'fail',
-      'Validation success precisa refletir readiness.ready && safeToRun.',
+      'Validation success must reflect readiness.ready && safeToRun.',
       [`validation=${String(result.validation.success)}`, `ready=${String(readinessReady)}`],
     ),
     check(
       'capability-autopilot-resume:receipt',
-      'receipt final auditavel',
+      'final auditable receipt',
       Boolean(result.receipt.timeline.length) ? 'pass' : 'fail',
-      'A decisao de retomar ou voltar para reparo precisa gerar receipt com timeline.',
+      'The decision to resume or return to repair needs to generate a receipt with timeline.',
       [
         `initialStage=${initialReceipt.stage}`,
         `finalStage=${result.receipt.stage}`,
@@ -234,7 +234,7 @@ function renderReport(snapshot: CapabilityAutopilotResumeSnapshot): string {
     }
   }
   lines.push('');
-  lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
+  lines.push(`recommended next step: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
   lines.push(snapshot.nextRecommendedStage.reason);
   return lines.join('\n');
 }

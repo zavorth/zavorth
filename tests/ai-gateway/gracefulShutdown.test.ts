@@ -42,24 +42,24 @@ describe('gracefulShutdown', () => {
 
   it('should register process signal listeners on init', () => {
     const processOnSpy = jest.spyOn(process, 'on').mockImplementation((() => {}) as any);
-    
+
     initGracefulShutdown();
-    
+
     expect(processOnSpy).toHaveBeenCalledWith('SIGTERM', expect.any(Function));
     expect(processOnSpy).toHaveBeenCalledWith('SIGINT', expect.any(Function));
-    
+
     processOnSpy.mockRestore();
   });
 
   it('should not register listeners twice if already initialized', () => {
     const processOnSpy = jest.spyOn(process, 'on').mockImplementation((() => {}) as any);
-    
+
     initGracefulShutdown();
     const calls = processOnSpy.mock.calls.length;
-    
+
     initGracefulShutdown();
     expect(processOnSpy.mock.calls.length).toBe(calls);
-    
+
     processOnSpy.mockRestore();
   });
 });

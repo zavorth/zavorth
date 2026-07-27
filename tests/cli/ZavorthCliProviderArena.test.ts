@@ -22,7 +22,7 @@ function createFlags(json: boolean) {
 
 describe('Zavorth CLI Provider Arena', () => {
   it('parses arena text after subcommands', () => {
-    expect(resolveProviderArenaCliText('compare "provider para coding"')).toBe('provider para coding');
+    expect(resolveProviderArenaCliText('compare "provider for coding"')).toBe('provider for coding');
   });
 
   it('renders provider arena JSON through the registry command', async () => {
@@ -33,7 +33,7 @@ describe('Zavorth CLI Provider Arena', () => {
       effectiveFlags: createFlags(true),
       commandName: 'arena',
       normalized: 'arena',
-      args: 'compare "provider para coding"',
+      args: 'compare "provider for coding"',
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -62,7 +62,7 @@ describe('Zavorth CLI Provider Arena', () => {
 
   it('formats a compact human summary', () => {
     const snapshot = buildProviderArenaCliSnapshot({
-      text: 'provider para coding',
+      text: 'provider for coding',
       userId: 'grey',
       sessionId: 'session-cli-provider-arena-human',
     });
@@ -72,6 +72,6 @@ describe('Zavorth CLI Provider Arena', () => {
     expect(text).toContain('Provider Arena - Provider Arena');
     expect(text).toContain('Candidatos');
     expect(text).toMatch(/arena read-only|read-only arena/i);
-    expect(text).toMatch(/Dashboard: \/dashboard\?sector=config|ZavorthControl: \/zavorthControl\?sector=config/i);
+    expect(text).toMatch(/Dashboard: \/dashboard\-sector=config|ZavorthControl: \/zavorthControl\-sector=config/i);
   });
 });

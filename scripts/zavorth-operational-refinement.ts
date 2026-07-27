@@ -28,10 +28,8 @@ async function main(): Promise<void> {
   if (command === 'wake-setup') {
     const service = new VoiceWakeDetectorSetupService();
     const snapshot = service.buildPlan({
-      choice: args.includes('--disabled')
-        ? 'disabled'
-        : args.includes('--custom-command')
-          ? 'custom-command'
+      choice: args.includes('--disabled') ? 'disabled'
+        : args.includes('--custom-command') ? 'custom-command'
           : 'default-local',
       command: valueAfter('--command'),
       args: valueAfter('--args'),
@@ -66,10 +64,8 @@ async function main(): Promise<void> {
   const snapshot = await service.buildSnapshot({
     applyMemory: args.includes('--apply-memory'),
     applyWakeSetup: args.includes('--apply-wake-setup'),
-    wakeChoice: args.includes('--wake-disabled')
-      ? 'disabled'
-      : args.includes('--wake-custom-command')
-        ? 'custom-command'
+    wakeChoice: args.includes('--wake-disabled') ? 'disabled'
+      : args.includes('--wake-custom-command') ? 'custom-command'
         : 'default-local',
     wakeCommand: valueAfter('--wake-command'),
     wakeArgs: valueAfter('--wake-args'),

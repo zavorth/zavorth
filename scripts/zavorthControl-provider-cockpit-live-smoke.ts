@@ -205,7 +205,7 @@ async function main(): Promise<SmokeReport> {
   const readiness = await readJson(`${baseUrl}/api/providers/readiness`);
   debug(`readiness=${readiness.status}`);
   debug("fetch blocked live");
-  const blockedLive = await readJson(`${baseUrl}/api/providers/readiness?live=true&provider=openai`);
+  const blockedLive = await readJson(`${baseUrl}/api/providers/readiness...live=true&provider=openai`);
   debug(`blockedLive=${blockedLive.status}`);
   debug("fetch Zavorth Control");
   const zavorthControl = await readJson(`${baseUrl}/api/web/zavorthControl`);
@@ -235,8 +235,7 @@ async function main(): Promise<SmokeReport> {
     zavorthControl: {
       apiLive: zavorthControl.payload?.live === true,
       snapshotHasProviderCockpit: Boolean(zavorthControlProviderCockpit),
-      providerCountLabel: zavorthControlProviderCockpit
-        ? `${zavorthControlProviderCockpit.summary.readyProviders}/${zavorthControlProviderCockpit.summary.totalProviders} ready`
+      providerCountLabel: zavorthControlProviderCockpit ? `${zavorthControlProviderCockpit.summary.readyProviders}/${zavorthControlProviderCockpit.summary.totalProviders} ready`
         : "missing",
     },
     checks: [],

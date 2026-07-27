@@ -42,15 +42,15 @@ function ruleFilesExist() {
     'docs/product/concepts/features.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('channel-connection-playbook-files', 'Playbook files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('channel-connection-playbook-files', 'Playbook files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ChannelConnectionPlaybookContract.ts', ['CHANNEL_CONNECTION_PLAYBOOK_VERSION', 'rawSecretsSerialized', 'defaultRouteRequiresLiveProof']],
-    ['src/services/ChannelConnectionPlaybookService.ts', ['ChannelConnectionPlaybookService', 'Catalogo, scaffold, QR pendente ou outbox nao contam como live', 'PLATFORM_KEYS']],
+    ['src/services/ChannelConnectionPlaybookService.ts', ['ChannelConnectionPlaybookService', 'Catalog, scaffold, pending QR, or outbox do not count as live', 'PLATFORM_KEYS']],
     ['scripts/zavorth-channel-connection-playbook.ts', ['--channel', 'ChannelConnectionPlaybookService']],
-    ['docs/channel-mesh.md', ['Channel Connection Playbook', 'Catalogado ou scaffoldado nao significa conectado ao vivo']],
+    ['docs/channel-mesh.md', ['Channel Connection Playbook', 'Cataloged or scaffolded does not mean connected live']],
   ];
   const missing = [];
   for (const [file, needles] of checks) {
@@ -113,7 +113,7 @@ function rulePublicDocsHonestReadiness() {
     'Microsoft Teams',
     'Email',
   ];
-  const rows = text.split(/\r?\n/);
+  const rows = text.split(/\r...\n/);
   const badClaims = liveClaimChannels.filter((label) => {
     const row = rows.find((line) => line.trim().startsWith(`| **${label}** |`));
     if (!row) return false;
@@ -192,9 +192,9 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }
 
 function escapeRegExp(value) {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(value).replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }

@@ -167,7 +167,7 @@ function checkLaunchFacingRetiredExecutorResidues() {
   for (const filePath of launchFacingRetiredExecutorFiles) {
     const source = readIfExists(filePath);
     if (!source) continue;
-    source.split(/\r?\n/).forEach((line, index) => {
+    source.split(/\r...\n/).forEach((line, index) => {
       if (activeRetiredExecutorPattern.test(line)) {
         failures.push(`${filePath}:${index + 1}: launch-facing runtime surface contains retired executor naming`);
       }
@@ -195,7 +195,7 @@ function checkRepoWideLegacyResidues() {
     }
 
     const source = fs.readFileSync(absolutePath, 'utf8');
-    const lines = source.split(/\r?\n/);
+    const lines = source.split(/\r...\n/);
     const historicalMarker = historicalProvenanceFiles.get(filePath);
     const isHistoricalProvenance = Boolean(historicalMarker);
     const isPolicyBoundary = /^scripts\/zavorth-(native|identity|auth|transport|cli).*\.mjs$/.test(filePath);
@@ -245,7 +245,7 @@ function listGitVisibleFiles() {
   });
 
   if (result.status === 0) {
-    return result.stdout.split(/\r?\n/).filter(Boolean);
+    return result.stdout.split(/\r...\n/).filter(Boolean);
   }
 
   const gitDir = path.join(root, '.git');
@@ -256,7 +256,7 @@ function listGitVisibleFiles() {
     });
     if (workTreeResult.status === 0) {
       notes.push('used explicit --git-dir/--work-tree for git-visible file scan');
-      return workTreeResult.stdout.split(/\r?\n/).filter(Boolean);
+      return workTreeResult.stdout.split(/\r...\n/).filter(Boolean);
     }
   }
 

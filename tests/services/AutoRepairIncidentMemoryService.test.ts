@@ -21,7 +21,7 @@ describe('AutoRepairIncidentMemoryService', () => {
       startedAt: '2026-04-01T12:00:00.000Z',
       finishedAt: '2026-04-01T12:01:00.000Z',
       requestedBy: '42',
-      reason: 'Teste de memoria operacional.',
+      reason: 'Operational memory test.',
       goal: 'auto',
       dryRun: false,
       force: false,
@@ -39,7 +39,7 @@ describe('AutoRepairIncidentMemoryService', () => {
       planner: {
         needsCodeChange: true,
         targetFile: 'src/services/FixService.ts',
-        instruction: 'Corrigir o arquivo alvo.',
+        instruction: 'Corrigir o file alvo.',
         summary: 'Corrigir um unico servico.',
         confidence: 0.8,
         warnings: [],
@@ -50,7 +50,7 @@ describe('AutoRepairIncidentMemoryService', () => {
           attemptNumber: 1,
           plannedAt: '2026-04-01T12:00:10.000Z',
           targetFile: 'src/services/FixService.ts',
-          instruction: 'Corrigir o arquivo alvo.',
+          instruction: 'Corrigir o file alvo.',
           plannerSummary: 'Corrigir um unico servico.',
           plannerConfidence: 0.8,
           validation: [
@@ -65,12 +65,12 @@ describe('AutoRepairIncidentMemoryService', () => {
             },
           ],
           status: 'failed',
-          error: 'Falha no build.',
+          error: 'Failure no build.',
         },
       ],
       reloadRequest: null,
       warnings: [],
-      summary: 'Falha ao validar o reparo.',
+      summary: 'Failure ao validar o reparo.',
       ...overrides,
     };
   }
@@ -83,7 +83,7 @@ describe('AutoRepairIncidentMemoryService', () => {
     });
 
     expect(service.readEntries()).toEqual([]);
-    expect(service.summarizeForPlanner()).toContain('ainda nao existe memoria persistida');
+    expect(service.summarizeForPlanner()).toContain('persistent memory does not exist yet');
     expect(service.summarizeForStatus()).toContain('ainda sem incidentes persistidos');
   });
 
@@ -102,7 +102,7 @@ describe('AutoRepairIncidentMemoryService', () => {
             attemptNumber: 2,
             plannedAt: '2026-04-01T13:00:10.000Z',
             targetFile: 'src/services/FixService.ts',
-            instruction: 'Corrigir o arquivo alvo.',
+            instruction: 'Corrigir o file alvo.',
             plannerSummary: 'Corrigir um unico servico.',
             plannerConfidence: 0.85,
             validation: [
@@ -117,10 +117,10 @@ describe('AutoRepairIncidentMemoryService', () => {
               },
             ],
             status: 'failed',
-            error: 'Nova falha no build.',
+            error: 'Nova failure no build.',
           },
         ],
-        summary: 'Segunda falha ao validar o reparo.',
+        summary: 'Segunda failure ao validar o reparo.',
       }),
       ['autorepair'],
     );
@@ -132,8 +132,8 @@ describe('AutoRepairIncidentMemoryService', () => {
     expect(summary).toContain('Registros: 2.');
     expect(summary).toContain('src/services/FixService.ts (2)');
     expect(summary).toContain('build (2)');
-    expect(summary).toContain('Nova falha no build.');
-    expect(service.summarizeForStatus()).toContain('Memoria operacional: 2 registro(s).');
-    expect(service.summarizeForStatus()).toContain('Falha recorrente: build (2).');
+    expect(summary).toContain('Nova failure no build.');
+    expect(service.summarizeForStatus()).toContain('Operational memory: 2 record(s).');
+    expect(service.summarizeForStatus()).toContain('Failure recorrente: build (2).');
   });
 });

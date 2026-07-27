@@ -53,7 +53,7 @@ function conversationSample(sampleId: string, text: string): AiFirstShadowBatchR
     legacyDecision: currentDecision(),
     rawAiPlan: {
       intent: { primary: 'conversation', confidence: 0.9 },
-      proposedActions: [{ kind: 'answer', summary: 'Responder em conversa.' }],
+      proposedActions: [{ kind: 'answer', summary: 'Respond in conversation.' }],
     },
   };
 }
@@ -76,7 +76,7 @@ function cleanRegistry(): AiFirstPromotionCandidateRegistrySnapshot {
     samples: [
       conversationSample('conversation-a', 'Oi, me explique uma ideia.'),
       conversationSample('conversation-b', 'Me ajude a pensar num nome melhor.'),
-      conversationSample('conversation-c', 'Resuma minha ideia em uma frase.'),
+      conversationSample('conversation-c', 'Summarize my idea in one sentence.'),
     ],
   });
   let registryCounter = 0;
@@ -207,7 +207,7 @@ describe('AiFirstRuntimeEntrypointAdapterService', () => {
     const snapshot = service.adapt({
       requestId: 'probe-web',
       surface: 'web',
-      userMessage: 'Leia um arquivo.',
+      userMessage: 'Leia um file.',
       currentDecision: decision,
       switchboardSnapshot: switchboardWithProbes(),
     });
@@ -226,18 +226,18 @@ describe('AiFirstRuntimeEntrypointAdapterService', () => {
   it('redacts input text and never authorizes execution', () => {
     const service = createAdapterService();
     const snapshot = service.adapt({
-      adapterName: 'adapter token: xoxb-test-token-placeholder-123456',
+      adapterName: 'adapter token: redacted-slack-token-placeholder',
       requestId: 'probe-web',
       surface: 'web',
-      userMessage: 'Use token: xoxb-test-token-placeholder-123456.',
+      userMessage: 'Use token: redacted-slack-token-placeholder.',
       currentDecision: currentDecision({
-        reason: 'Use token: xoxb-test-token-placeholder-123456.',
+        reason: 'Use token: redacted-slack-token-placeholder.',
       }),
       switchboardSnapshot: switchboardWithProbes(),
     });
 
     const serialized = JSON.stringify(snapshot);
-    expect(serialized).not.toContain('xoxb-test-token-placeholder-123456');
+    expect(serialized).not.toContain('redacted-slack-token-placeholder');
     expect(serialized).toContain('[redacted-secret]');
     expect(snapshot.effective.adapterOnly).toBe(true);
     expect(snapshot.effective.canExecuteNow).toBe(false);

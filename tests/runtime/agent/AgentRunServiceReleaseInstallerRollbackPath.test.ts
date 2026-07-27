@@ -30,7 +30,7 @@ function productEntryRuntime() {
         },
         questions: [],
         writes: [{ path: 'data/runtime/first-run/profile.json', action: 'skip', reason: 'profile existente' }],
-        summary: ['Profile pronto.'],
+        summary: ['Profile ready.'],
       } as any),
       buildWorkspaceIdentitySnapshot: () => ({
         nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
@@ -80,7 +80,7 @@ function releaseBundle() {
     nextRecommendedGate: {
       stage: '52',
       title: 'Feedback, Telemetry Opt-In And Product Loop',
-      reason: 'proximo passo',
+      reason: 'next step',
     },
   };
 }
@@ -93,7 +93,7 @@ describe('AgentRunService Release Installer Rollback Path Channel mesh8', () => 
       productEntryRuntime: productEntryRuntime(),
       executor: () => ({
         status: 'completed' as const,
-        summary: 'Release path pronto.',
+        summary: 'Release path ready.',
         replyText: 'ok',
       }),
     });

@@ -26,7 +26,7 @@ describe('SkillLibraryPresentationService', () => {
       healthFile: 'C:/tmp/health.json',
       syncStatus: 'inspected',
       syncSummary: 'Update pendente do vendor.',
-      healthSummary: 'Gateway ainda nao esta pronto.',
+      healthSummary: 'Gateway ainda not esta ready.',
       lastAction: {
         type: 'update',
         createdAt: '2026-04-08T12:00:00.000Z',
@@ -125,10 +125,10 @@ describe('SkillLibraryPresentationService', () => {
           recipes: [
             {
               id: 'security-hardening',
-              label: 'Hardening e auditoria de seguranca',
+              label: 'Hardening e audit de security',
               summary: 'Hardening antes de release.',
               rationale: 'Boa antes de abrir superficies.',
-              actionHint: 'Use em releases publicos.',
+              actionHint: 'Use in public releases.',
               tags: ['security'],
               recommendedFor: ['release'],
               skillIds: ['security-threat-model', 'web-quality-audit'],
@@ -145,7 +145,7 @@ describe('SkillLibraryPresentationService', () => {
             {
               id: 'security-hardening',
               kind: 'recipe',
-              label: 'Hardening e auditoria de seguranca',
+              label: 'Hardening e audit de security',
               reason: 'Recipe pronta com as skills certas.',
               score: 5,
             },

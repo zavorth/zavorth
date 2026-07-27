@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'zavorth-skill-ecosystem-checkpoint-8-files',
+    id: 'zavorth-skill-ecosystem-gate-8-files',
     label: 'ZavorthControl controls files exist',
     target: 'contract, importer, permission profile, smoke runner, receipt emitter, pack service, command, SDK export and tests are present',
     files: [
@@ -174,7 +174,7 @@ function runRuntimeRule() {
         `liveSkillsRequireOwnerApproval=${receipt.summary?.liveSkillsRequireOwnerApproval}`,
         `liveSkillsRequireSecretRef=${receipt.summary?.liveSkillsRequireSecretRef}`,
         `nonDestructiveSmokeOnly=${receipt.summary?.nonDestructiveSmokeOnly}`,
-        `next=${receipt.commands?.nextStage}`,
+        `next=${receipt.commands?.nextAction}`,
       ],
     };
   } catch (error) {

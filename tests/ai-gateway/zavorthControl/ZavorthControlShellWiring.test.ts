@@ -113,7 +113,7 @@ describe('ZavorthControlShellWiring', () => {
     expect(operationsPanel).toContain('Revise antes de liberar');
     expect(operationsPanel).toContain('model.handleOpenDiff');
     expect(operationsPanel).toContain('Prepare doctor');
-    expect(commandPalette).toContain('Acoes seguras');
+    expect(commandPalette).toContain('Actions seguras');
     expect(commandPalette).toContain('onAction(action)');
     expect(commandPalette).not.toContain('handleApproval(');
     expect(commandPalette).not.toContain('handleOpenDiff(');
@@ -172,7 +172,7 @@ describe('ZavorthControlShellWiring', () => {
     expect(overview).toContain('humanNexusWorkbenchStatus');
     expect(overview).toContain('nexusWorkbench.operatorExperience.statusLabel');
     expect(overview).toContain('nexusWorkbench.operatorExperience.cards');
-    expect(overview).toContain('Proximo passo: {nexusWorkbench.capabilities.nextAction}');
+    expect(overview).toContain('Next passo: {nexusWorkbench.capabilities.nextAction}');
     expect(overview).toContain('onResolveNexusApproval');
     expect(overview).toContain('onRunNexusWorkbenchAction');
     expect(overview).toContain('Abrir readiness completo');
@@ -242,7 +242,7 @@ describe('ZavorthControlShellWiring', () => {
       '4821',
       'RTX 4090',
       'A100',
-      '••••7f3a',
+      '----7f3a',
       'docs.zavorth.dev',
       'gemini-3-flash',
       'claude-opus-4',

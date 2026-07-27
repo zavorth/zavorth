@@ -37,8 +37,8 @@ describe('DependencyNegotiationService', () => {
         id: 'gap-1',
         kind: 'missing_docker',
         blocking: true,
-        summary: 'Docker ainda nao esta pronto para execucao mutavel guardada.',
-        detail: 'O Zavorth nao encontrou Docker pronto no host.',
+        summary: 'Docker is not ready for guarded mutable execution yet.',
+        detail: 'O Zavorth not encontrou Docker ready no host.',
         operatorAction: 'enable_docker',
       },
     ];
@@ -52,14 +52,14 @@ describe('DependencyNegotiationService', () => {
 
     expect(reply).toContain('eng-1');
     expect(reply).toContain('Docker');
-    expect(reply).toContain('Proximo passo');
+    expect(reply).toContain('Next passo');
   });
 
   it('mentions the supervised overlord route when the intent targets runtime control', () => {
     const service = new DependencyNegotiationService();
     const intent: EngineeringIntent = {
       kind: 'system_overlord_operation',
-      objective: 'abra o navegador em https://example.com',
+      objective: 'open the browser at https://example.com',
       mutating: true,
       requiresSession: false,
       preferredProfile: 'dangerous',

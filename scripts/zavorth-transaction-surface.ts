@@ -78,7 +78,7 @@ if (options.json) {
   console.log(service.renderReport(projection));
 }
 
-process.exit(projection.status === 'simulated' || projection.status === 'preview-ready' ? 0 : 1);
+process.exit(projection.status === 'dry-run' || projection.status === 'preview-ready' ? 0 : 1);
 
 function parseArgs(args: string[]): CliOptions {
   const options: CliOptions = {

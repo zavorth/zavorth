@@ -96,7 +96,7 @@ describe('ChannelMessageContract', () => {
       idFactory: (prefix) => `${prefix}-channel-test`,
       executor: async ({ request }) => ({
         replyText: `Gateway recebeu ${request.metadata?.platform}: ${request.text}`,
-        summary: 'Canal nao-Telegram normalizado pelo Channel Mesh.',
+        summary: 'Canal not-Telegram normalizado pelo Channel Mesh.',
       }),
     });
 
@@ -117,7 +117,7 @@ describe('ChannelMessageContract', () => {
       channel: 'api',
       sessionId: 'whatsapp:+5511999999999',
       input: 'resuma o status',
-      summary: 'Canal nao-Telegram normalizado pelo Channel Mesh.',
+      summary: 'Canal not-Telegram normalizado pelo Channel Mesh.',
     }));
     expect(result.replies[0].text).toContain('Gateway recebeu whatsapp');
   });

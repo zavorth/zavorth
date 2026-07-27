@@ -161,7 +161,7 @@ function createPickerResult(): ModelPickerServiceResult {
     readiness: 'needs_config',
     readinessCode: 'missing_auth',
     ready: false,
-    issue: 'Falta configurar OPENROUTER_API_KEY.',
+    issue: 'OPENROUTER_API_KEY is missing.',
     authConfigured: false,
     health: {
       status: 'unknown',
@@ -169,7 +169,7 @@ function createPickerResult(): ModelPickerServiceResult {
       checkedAt: null,
     },
     capabilities: ['chat', 'research', 'long_context'],
-    limitations: ['Custo e latencia variam por modelo upstream.'],
+    limitations: ['Cost and latency vary by upstream model.'],
     fallbackRouteIds: ['openai'],
     catalogSource: 'fallback_catalog',
   });
@@ -209,9 +209,9 @@ function createPickerResult(): ModelPickerServiceResult {
       routeIds: ['openrouter'],
       readiness: 'needs_config',
       ready: false,
-      issue: 'Falta configurar OPENROUTER_API_KEY.',
+      issue: 'OPENROUTER_API_KEY is missing.',
       capabilities: ['chat', 'research', 'long_context'],
-      limitations: ['Custo e latencia variam por modelo upstream.'],
+      limitations: ['Cost and latency vary by upstream model.'],
       catalogSource: 'fallback_catalog',
     }),
     family({

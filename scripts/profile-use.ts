@@ -89,7 +89,7 @@ async function main(): Promise<void> {
       `[profile-use] Perfil persistido: ${persistedProfile}.`,
       `[profile-use] .env: ${envWriteReport.filePath}`,
       `[profile-use] lifecycle: ${options.stateFilePath || 'state file default do runtime'}`,
-      '[profile-use] Reinicie o Zavorth para reaplicar todos os gates de boot/preaquecimento.',
+      '[profile-use] Restart Zavorth to reapply all boot/prewarm gates.',
     ].join('\n'),
   );
 }

@@ -7,16 +7,16 @@ $iconGeneratorPath = Join-Path $projectRoot 'scripts\generate-zavorth-shortcut-i
 $iconPath = Join-Path $projectRoot 'assets\launcher\zavorth-shortcut.ico'
 
 if (-not (Test-Path $unifiedLauncherPath)) {
-  throw "Nao encontrei o launcher unificado em $unifiedLauncherPath"
+  throw "Could not find the unified launcher at $unifiedLauncherPath"
 }
 
 if (-not (Test-Path $unifiedLauncherScriptPath)) {
-  throw "Nao encontrei o script unificado em $unifiedLauncherScriptPath"
+  throw "Could not find the unified script at $unifiedLauncherScriptPath"
 }
 
 $powershellPath = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
 if (-not (Test-Path $powershellPath)) {
-  throw "Nao encontrei o PowerShell em $powershellPath"
+  throw "Could not find PowerShell at $powershellPath"
 }
 
 & $powershellPath -ExecutionPolicy Bypass -File $iconGeneratorPath
@@ -58,12 +58,12 @@ function New-LauncherShortcut {
 New-LauncherShortcut `
   -ShortcutFile $unifiedShortcutPath `
   -LauncherScriptPath $unifiedLauncherScriptPath `
-  -Description 'Inicia o Zavorth oficial em modo supervisionado; habilite perfil full por variavel quando precisar.'
+  -Description 'starts o Zavorth oficial em modo supervised; enable perfil full por variable when need.'
 
 New-LauncherShortcut `
   -ShortcutFile $unifiedStartMenuShortcutPath `
   -LauncherScriptPath $unifiedLauncherScriptPath `
-  -Description 'Inicia o Zavorth oficial em modo supervisionado; habilite perfil full por variavel quando precisar.'
+  -Description 'starts o Zavorth oficial em modo supervised; enable perfil full por variable when need.'
 
 $removedLegacy = @()
 foreach ($legacyShortcutPath in $legacyShortcutPaths) {
@@ -73,10 +73,10 @@ foreach ($legacyShortcutPath in $legacyShortcutPaths) {
   }
 }
 
-Write-Host 'Atalho criado com sucesso:'
+Write-Host 'shortcut created com success:'
 Write-Host $unifiedShortcutPath
 Write-Host $unifiedStartMenuShortcutPath
 if ($removedLegacy.Count -gt 0) {
-  Write-Host 'Atalhos antigos removidos:'
+  Write-Host 'shortcuts antigos removidos:'
   $removedLegacy | ForEach-Object { Write-Host $_ }
 }

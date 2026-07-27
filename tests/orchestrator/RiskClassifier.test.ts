@@ -3,12 +3,12 @@ import { RiskClassifier } from '../../src/orchestrator/RiskClassifier';
 describe('RiskClassifier', () => {
   const classifier = new RiskClassifier();
 
-  it('eleva risco de /task auto-roteada para Codex', () => {
+  it('raises risk for /task auto-routed to Codex', () => {
     const result = classifier.classify(
       {
         command_type: '/task',
-        command_args: 'corrija o bug no arquivo principal',
-        normalized_message: 'corrija o bug no arquivo principal',
+        command_args: 'corrija o bug no file principal',
+        normalized_message: 'corrija o bug no file principal',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -26,12 +26,12 @@ describe('RiskClassifier', () => {
     expect(result.reason).toContain('Codex');
   });
 
-  it('mantem risco leve para /task auto-roteada para AI Studio', () => {
+  it('keeps low risk for /task auto-routed to AI Studio', () => {
     const result = classifier.classify(
       {
         command_type: '/task',
-        command_args: 'pesquise as noticias de tecnologia de hoje',
-        normalized_message: 'pesquise as noticias de tecnologia de hoje',
+        command_args: 'research today technology news',
+        normalized_message: 'research today technology news',
         explicit_executor: null,
         references_last_task: false,
       },

@@ -4,7 +4,7 @@ import { FirstRunPersonalizationService } from '../../src/services/FirstRunPerso
 import { ZavorthConversationalSetupService } from '../../src/services/ZavorthConversationalSetupService.js';
 
 function createRealtimeMock() {
-  const messages: Array<{ role: string; content: string; kind?: string | null }> = [];
+  const messages: Array<{ role: string; content: string; kind-: string | null }> = [];
   return {
     messages,
     createSession: jest.fn(() => 'web-session-1'),
@@ -15,7 +15,7 @@ function createRealtimeMock() {
       return messages[messages.length - 1];
     }),
     recordAssistantMessage: jest.fn(
-      (_sessionId: string, content: string, _taskId?: string | null, kind?: string | null) => {
+      (_sessionId: string, content: string, _taskId-: string | null, kind-: string | null) => {
         messages.push({ role: 'assistant', content, kind });
         return messages[messages.length - 1];
       },
@@ -95,7 +95,7 @@ describe('WebAppConversationService natural-first routing', () => {
     const sendToSession = jest.fn();
     const sharedSurface = {
       maybeHandle: jest.fn(async (ctx: any) => {
-        await ctx.reply('Entendi que voce quer colocar o Zavorth no Discord.');
+        await ctx.reply('Entendi que you quer colocar o Zavorth no Discord.');
         return true;
       }),
     };
@@ -108,7 +108,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     const result = await service.processChatSend({
       sessionId: 'session-web-1',
-      message: 'Quero colocar voce no Discord',
+      message: 'Quero colocar you no Discord',
     });
 
     expect(sharedSurface.maybeHandle).toHaveBeenCalledWith(
@@ -116,13 +116,13 @@ describe('WebAppConversationService natural-first routing', () => {
         platform: 'web',
         userId: 'web-user',
         chatId: 'web:session-web-1',
-        rawText: 'Quero colocar voce no Discord',
+        rawText: 'Quero colocar you no Discord',
       }),
     );
     expect(sendToSession).not.toHaveBeenCalled();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-web-1',
-      'Entendi que voce quer colocar o Zavorth no Discord.',
+      'Entendi que you quer colocar o Zavorth no Discord.',
       null,
       'shared-surface',
     );
@@ -221,7 +221,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     const result = await service.processChatSend({
       sessionId: 'session-web-gateway',
-      message: 'me explique o plano atual',
+      message: 'me explique o current plane',
     });
 
     expect(legacyUnifiedGateway.handleEvent).toHaveBeenCalledWith(
@@ -229,7 +229,7 @@ describe('WebAppConversationService natural-first routing', () => {
         surface: 'web',
         userId: 'web-user',
         chatId: 'web:session-web-gateway',
-        text: 'me explique o plano atual',
+        text: 'me explique o current plane',
         metadata: expect.objectContaining({
           phase: 'legacy-unified-conversation-fallback-v1',
           sessionId: 'session-web-gateway',
@@ -239,7 +239,7 @@ describe('WebAppConversationService natural-first routing', () => {
     expect(sendToSession).not.toHaveBeenCalled();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-web-gateway',
-      'Gateway web: me explique o plano atual',
+      'Gateway web: me explique o current plane',
       null,
       'unified-gateway',
     );
@@ -316,7 +316,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     const result = await service.processChatSend({
       sessionId: 'session-web-2',
-      message: 'continue o plano anterior',
+      message: 'continue the plan anterior',
     });
 
     expect(sharedSurface.maybeHandle).toHaveBeenCalled();
@@ -325,7 +325,7 @@ describe('WebAppConversationService natural-first routing', () => {
         platform: 'web',
         chatId: 'web:session-web-2',
         sessionId: 'session-web-2',
-        text: 'continue o plano anterior',
+        text: 'continue the plan anterior',
       }),
     );
     expect(result.taskId).toBe('task-web-1');
@@ -343,7 +343,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     await service.processChatSend({
       sessionId: 'session-web-profile-string',
-      message: 'revise esse codigo TypeScript',
+      message: 'review this TypeScript code',
       experienceProfile: 'developer',
       composerSettings: { effort: 'high' },
     });
@@ -365,9 +365,9 @@ describe('WebAppConversationService natural-first routing', () => {
     const sendToSession = jest.fn(async () => ({ taskId: 'should-not-open' }));
     const legacyUnifiedGateway = {
       handleEvent: jest.fn(async (event: any) => {
-        await event.reply('Ol?! Como posso ajudar voc? hoje?');
+        await event.reply('Ol-! Como posso ajudar you- hoje-');
         return {
-          responseText: 'Ol?! Como posso ajudar voc? hoje?',
+          responseText: 'Ol-! Como posso ajudar you- hoje-',
           surface: event.surface,
           intentCategory: 'conversation',
           firewallStats: 'test',
@@ -395,7 +395,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     const result = await service.processChatSend({
       sessionId: 'session-dashboard-chat-only',
-      message: 'ol?',
+      message: 'ol-',
     });
 
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
@@ -412,7 +412,7 @@ describe('WebAppConversationService natural-first routing', () => {
       expect.objectContaining({
         channel: 'web',
         sessionId: 'session-dashboard-chat-only',
-        input: 'ol?',
+        input: 'ol-',
         metadata: expect.objectContaining({
           responseDecision: expect.objectContaining({
             responsePath: 'fast-chat',
@@ -447,7 +447,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     const result = await service.processChatSend({
       sessionId: 'session-dashboard-downloads',
-      message: 'analise o que tem dentro da minha pasta downloads',
+      message: 'analyze what is inside my downloads folder',
     });
 
     // Free text never keyword-routes to file-inspection feature; agent owns the turn.
@@ -500,7 +500,7 @@ describe('WebAppConversationService natural-first routing', () => {
     expect(snapshot.activeRun).toEqual(
       expect.objectContaining({
         status: 'waiting_approval',
-        summary: 'Capability Negotiation aguardando aprovacao de escopo.',
+        summary: 'Capability Negotiation waiting for approval de escopo.',
         approvals: [
           expect.objectContaining({
             status: 'pending',
@@ -532,15 +532,15 @@ describe('WebAppConversationService natural-first routing', () => {
     const sendToSession = jest.fn(async () => ({ taskId: 'should-not-run' }));
     const legacyUnifiedGateway = {
       handleEvent: jest.fn(async (event: any) => {
-        expect(event.text).toContain('Conteudo:');
+        expect(event.text).toContain('Content:');
         expect(event.text).toContain('QvSxjZLRMQHD');
-        expect(event.text).toContain('Classificacao estrutural');
+        expect(event.text).toContain('Classificaction estrutural');
         expect(event.text).toContain('URL encoding');
         expect(event.text).toContain('Base64');
-        expect(event.text).toContain('nao exponha, reescreva ou decodifique o valor completo');
-        await event.reply('Esse TXT parece conter um token/codigo de acesso codificado, nao uma mensagem comum.');
+        expect(event.text).toContain('not exponthere is, reescreva ou decodifique o value completo');
+        await event.reply('This TXT appears to contain an encoded token/access code, not a common message.');
         return {
-          responseText: 'Esse TXT parece conter um token/codigo de acesso codificado, nao uma mensagem comum.',
+          responseText: 'This TXT appears to contain an encoded token/access code, not a common message.',
           surface: event.surface,
           intentCategory: 'conversation',
           firewallStats: 'test',
@@ -562,7 +562,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     const result = await service.processChatSend({
       sessionId: 'session-dashboard-text-attachment',
-      message: 'me diga o que tem nesse arquivo',
+      message: 'me diga o que tem nesse file',
       attachments: [
         {
           name: 'token.txt',
@@ -580,10 +580,10 @@ describe('WebAppConversationService natural-first routing', () => {
     expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-text-attachment' }).activeRun).toEqual(
       expect.objectContaining({
         channel: 'web',
-        input: expect.stringContaining('O usuario enviou anexos textuais'),
+        input: expect.stringContaining('The user sent textual attachments'),
         metadata: expect.objectContaining({
           composerPayload: expect.objectContaining({
-            originalMessage: 'me diga o que tem nesse arquivo',
+            originalMessage: 'me diga o que tem nesse file',
             attachmentConversation: true,
             attachments: [
               expect.objectContaining({ name: 'token.txt', text: expect.stringContaining('QvSxjZLRMQHD') }),
@@ -597,7 +597,7 @@ describe('WebAppConversationService natural-first routing', () => {
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(realtime.recordUserMessage).toHaveBeenCalledWith(
       'session-dashboard-text-attachment',
-      'me diga o que tem nesse arquivo',
+      'me diga o que tem nesse file',
       null,
       [],
     );
@@ -624,7 +624,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     await service.processChatSend({
       sessionId: 'session-dashboard-text-attachment-fallback',
-      message: 'me diga o que tem nesse arquivo',
+      message: 'me diga o que tem nesse file',
       attachments: [
         {
           name: 'token.txt',
@@ -644,7 +644,7 @@ describe('WebAppConversationService natural-first routing', () => {
     );
     expect(realtime.messages[realtime.messages.length - 1]?.content).toContain('URL encoding');
     expect(realtime.messages[realtime.messages.length - 1]?.content).toContain('Base64');
-    expect(realtime.messages[realtime.messages.length - 1]?.content).toContain('nao vou despejar nem decodificar');
+    expect(realtime.messages[realtime.messages.length - 1]?.content).toContain('not vou despejar nem decodificar');
     expect(realtime.messages[realtime.messages.length - 1]?.content).not.toContain(encodedText);
   });
 
@@ -714,7 +714,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     const result = await service.processChatSend({
       sessionId: 'session-dashboard',
-      message: 'pesquise artigos recentes sobre agentes autonomos',
+      message: 'pesquise recent articles about autonomous agents',
     });
 
     expect(sendToSession).not.toHaveBeenCalled();
@@ -739,7 +739,7 @@ describe('WebAppConversationService natural-first routing', () => {
         sessionId: 'session-dashboard',
         channel: 'web',
         status: 'waiting_approval',
-        summary: 'Capability Negotiation aguardando aprovacao de escopo.',
+        summary: 'Capability Negotiation waiting for approval de escopo.',
         approvals: [
           expect.objectContaining({
             status: 'pending',
@@ -792,7 +792,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     await service.processChatSend({
       sessionId: 'session-dashboard-workflow-budget',
-      message: 'pesquise artigos recentes sobre agentes autonomos',
+      message: 'pesquise recent articles about autonomous agents',
       composerSettings: { effort: 'low' },
       workflowIntent: {
         source: 'slash-command',
@@ -877,7 +877,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     const result = await service.processChatSend({
       sessionId: 'session-dashboard-risk',
-      message: 'rode um comando no terminal para corrigir tudo',
+      message: 'run a terminal command to fix everything',
     });
 
     expect(sendToSession).not.toHaveBeenCalled();
@@ -913,11 +913,11 @@ describe('WebAppConversationService natural-first routing', () => {
         planChatTask: jest.fn(async () => ({
           generatedAt: '2026-04-14T16:00:00.000Z',
           taskKind: 'chat',
-          intent: 'Rode uma automacao visual em sandbox',
+          intent: 'Rode uma automaction visual em sandbox',
           heavy: true,
           approvalRequired: true,
           summary: 'Planner detectou trilhas pesadas.',
-          userFacingSummary: 'Para cumprir isso eu posso precisar de QA visual e Sandbox.',
+          userFacingSummary: 'Para cumprir isso eu posso need de QA visual e Sandbox.',
           budget: {
             ramMb: 352,
             cpuPercent: 42,
@@ -940,7 +940,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     const result = await service.processChatSend({
       sessionId: 'session-web-3',
-      message: 'Rode uma automacao visual em sandbox',
+      message: 'Rode uma automaction visual em sandbox',
     });
 
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
@@ -979,12 +979,12 @@ describe('WebAppConversationService natural-first routing', () => {
             updatedAt: '2026-04-14T18:00:00.000Z',
             sessionId: 'session-web-4',
             requestedBy: 'web-user',
-            intent: 'edite esse codigo',
+            intent: 'edit this code',
             currentMode: { id: 'chat' },
             effectiveMode: { id: 'chat' },
             requiredMode: { id: 'builder' },
-            reason: 'a tarefa pede trilha de construcao',
-            reasons: ['a tarefa pede trilha de construcao'],
+            reason: 'a tarefa pede trilthere is de construcao',
+            reasons: ['a tarefa pede trilthere is de construcao'],
             recommendedScope: 'once',
             supportedScopes: ['once', 'session', 'host'],
             fallback: 'Responder conceitualmente.',
@@ -1011,7 +1011,7 @@ describe('WebAppConversationService natural-first routing', () => {
               show: '/mode',
               approve: '/mode approve <requestId> [once|session|host]',
               reject: '/mode reject <requestId>',
-              inspect: '/api/web/runtime/mode-escalation?sessionId=:id',
+              inspect: '/api/web/runtime/mode-escalation-sessionId=:id',
               resolve: '/api/web/runtime/mode-escalation/resolve',
             },
           },
@@ -1022,7 +1022,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     const result = await service.processChatSend({
       sessionId: 'session-web-4',
-      message: 'edite esse codigo',
+      message: 'edit this code',
     });
 
     expect(sendToSession).not.toHaveBeenCalled();
@@ -1067,7 +1067,7 @@ describe('WebAppConversationService natural-first routing', () => {
       const intakeSpy = jest
         .spyOn(ZavorthConversationalSetupService.prototype, 'runFirstMessageIntake')
         .mockResolvedValue({
-          reply: 'Qual é o seu nome?',
+          reply: 'What is your name-',
           finished: false,
           status: 'awaiting_confirmation',
           confirmationToken: 'trusted-confirm-token',
@@ -1092,7 +1092,7 @@ describe('WebAppConversationService natural-first routing', () => {
         sessionId: 'session-web-onboard-1',
         deviceLocale: 'pt-BR',
         onboardingConfirmationToken: 'trusted-confirm-token',
-        message: 'Olá',
+        message: 'Hello',
       });
 
       expect(personalizationSpy).toHaveBeenCalled();
@@ -1103,7 +1103,7 @@ describe('WebAppConversationService natural-first routing', () => {
       });
       expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
         'session-web-onboard-1',
-        'Qual é o seu nome?',
+        'What is your name-',
         null,
         'conversational-setup-reply',
       );
@@ -1125,7 +1125,7 @@ function createImpact() {
   return {
     generatedAt: '2026-04-14T18:00:00.000Z',
     taskKind: 'chat',
-    intent: 'edite esse codigo',
+    intent: 'edit this code',
     heavy: false,
     approvalRequired: false,
     summary: 'Sem impacto pesado.',

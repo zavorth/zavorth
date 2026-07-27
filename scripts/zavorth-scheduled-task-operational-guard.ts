@@ -144,8 +144,8 @@ class FixtureScheduler {
 
 function governedMetadata(approvalId: string, expiresAt: string): SchedulerGovernedScheduledTaskMetadata {
   return {
-    contractVersion: '2026-05-12.persisted-scheduled-task-registration-checkpoint-3',
-    stage: 'checkpoint-3-persisted-scheduled-task-registration',
+    contractVersion: '2026-05-12.persisted-scheduled-task-registration-gate-3',
+    stage: 'gate-3-persisted-scheduled-task-registration',
     registryStatus: 'active',
     approvalId,
     approvalExpiresAt: expiresAt,

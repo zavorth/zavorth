@@ -77,7 +77,7 @@ const rules = [
       'src/zavorth-control/app/(zavorthControl)/control/providers/page.tsx',
     ],
     needles: [
-      '/api/onboarding/model-picker?includeAdvanced=true',
+      '/api/onboarding/model-picker...includeAdvanced=true',
       'pickerRoute=',
       'ProvidersModelPickerSummary',
     ],
@@ -284,7 +284,7 @@ function workspaceHardeningWarning() {
     surfaceAny: countAnyInTree('src/domain/surface', (file) => true),
     servicesRootAny: countAnyInTree('src/services', (file) => {
       const relative = toPosix(path.relative(path.join(root, 'src/services'), file));
-      return relative.split('/').length === 1 && /\.tsx?$/u.test(relative);
+      return relative.split('/').length === 1 && /\.tsx...$/u.test(relative);
     }),
   };
   const details = [];

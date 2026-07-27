@@ -10,7 +10,7 @@ describe('RuntimeCompositionService integration', () => {
       getToolDefinitions: jest.fn().mockReturnValue([
         {
           name: 'read_file',
-          description: 'Le um arquivo local.',
+          description: 'Le um file local.',
           parameters: {
             type: 'object',
             properties: {
@@ -23,7 +23,7 @@ describe('RuntimeCompositionService integration', () => {
         },
       ]),
       getTool: jest.fn().mockReturnValue({
-        execute: jest.fn().mockResolvedValue('conteudo integrado'),
+        execute: jest.fn().mockResolvedValue('content integrado'),
       }),
     } as any;
     const toolExecutor = new ToolExecutor(toolRegistry, { log: jest.fn() } as any, telemetryRuntime);

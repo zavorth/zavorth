@@ -16,11 +16,11 @@ const capabilityId = (() => { try { return requireAutopilotCapabilityId(typeof a
 const audience = (readArg('--audience=') || (asJson ? 'technical_operator' : 'everyday_user')) as CapabilityAutopilotAudience;
 const surfaces = readSurfaces('--surfaces=') || ['cli', 'web', 'chat', 'telegram', 'api'];
 const expectedSurfaces = readSurfaces('--expected-surfaces=') || surfaces;
-const rawIntentProbe = 'STAGE71-RAW-INTENT-MUST-NOT-LEAK';
-const rawWorkspaceProbe = 'C:/private/STAGE71-RAW-WORKSPACE-MUST-NOT-LEAK';
+const rawIntentProbe = 'GATE71-RAW-INTENT-MUST-NOT-LEAK';
+const rawWorkspaceProbe = 'C:/private/GATE71-RAW-WORKSPACE-MUST-NOT-LEAK';
 
 main().catch((error) => {
-  process.stderr.write(`[capability-autopilot-preflight-adapters] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(`[capability-autopilot-preflight-adapters] failure: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 });
 
@@ -37,9 +37,9 @@ async function main(): Promise<void> {
   const receiptService = new CapabilityAutopilotPreflightDispatchReceiptService();
   const receiptSnapshot = receiptService.buildReceiptSnapshot(sourceSnapshot, {
     explicitlyConfirmed,
-    actorId: 'checkpoint-71-gate',
-    confirmationId: explicitlyConfirmed ? 'checkpoint-71-explicit-confirmation' : null,
-    reason: 'checkpoint-71-dispatch-adapter-gate',
+    actorId: 'gate-71-gate',
+    confirmationId: explicitlyConfirmed ? 'gate-71-explicit-confirmation' : null,
+    reason: 'gate-71-dispatch-adapter-gate',
   });
   const adapterService = new CapabilityAutopilotPreflightDispatchAdapterService();
   const snapshot = adapterService.buildAdapterSnapshot(receiptSnapshot);

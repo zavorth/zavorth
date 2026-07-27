@@ -55,7 +55,7 @@ function verifyDoc(doc) {
   const explicitLines = collectExplicitLines(text);
   const publicLike = isPublicLike(doc.file);
   const historicalLike = isHistoricalLike(doc.file);
-  const notReadyLineCount = explicitLines.filter((line) => /not implemented|nao implementado|não implementado|fixture-consistency-covered|planned|future|futuro|planejado|pending|pendente|todo|tbd/i.test(line)).length;
+  const notReadyLineCount = explicitLines.filter((line) => /not implemented|not implemented|not implemented|fixture-consistency-covered|planned|future|future|planned|pending|pending|todo|tbd/i.test(line)).length;
 
   const implementedRefs = refs.filter((ref) => ref.exists).length;
   const implementedChecks = checks.filter((check) => check.exists).length;
@@ -134,9 +134,9 @@ function collectChecks(text) {
 }
 
 function collectExplicitLines(text) {
-  return text.split(/\r?\n/)
+  return text.split(/\r...\n/)
     .map((line) => line.trim())
-    .filter((line) => /not implemented|nao implementado|não implementado|fixture-consistency-covered|planned|future|futuro|planejado|pending|pendente|todo|tbd|next gate|future gate|futura|próxima etapa|proximo passo/i.test(line))
+    .filter((line) => /not implemented|not implemented|not implemented|fixture-consistency-covered|planned|future|future|planned|pending|pending|todo|tbd|next gate|future gate|future|next gate|next gate/i.test(line))
     .slice(0, 30);
 }
 
@@ -233,8 +233,8 @@ function summarize(items) {
     byAction: countBy(items, 'action'),
     publicLike: items.filter((item) => item.publicLike).length,
     historicalLike: items.filter((item) => item.historicalLike).length,
-    totalUnresolvedRefs: items.reduce((sum, item) => sum + (item.verification.refsTotal - item.verification.refsCurrent), 0),
-    totalUnresolvedChecks: items.reduce((sum, item) => sum + (item.verification.checksTotal - item.verification.checksCurrent), 0),
+    totalUnresolvedRefs: items.reduce((sum, item) => sum + (item.verification.refsTotal ? item.verification.refsCurrent), 0),
+    totalUnresolvedChecks: items.reduce((sum, item) => sum + (item.verification.checksTotal ? item.verification.checksCurrent), 0),
   };
 }
 
@@ -252,7 +252,7 @@ function countBy(items, key) {
 
 function runGitLsFiles() {
   const result = spawnSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' });
-  return new Set(result.stdout.split(/\r?\n/).filter(Boolean).map((entry) => entry.replace(/\\/g, '/')));
+  return new Set(result.stdout.split(/\r...\n/).filter(Boolean).map((entry) => entry.replace(/\\/g, '/')));
 }
 
 function buildSourceTextIndex() {
@@ -320,8 +320,8 @@ function looksLikePath(value) {
 function clean(value) {
   return String(value || '')
     .replace(/\\/g, '/')
-    .replace(/^\.?\//, '')
-    .replace(/:\d+(?::\d+)?$/, '')
+    .replace(/^\....\//, '')
+    .replace(/:\d+(?::\d+)...$/, '')
     .replace(/[),.;]+$/, '')
     .trim();
 }
@@ -336,5 +336,5 @@ function isHistoricalLike(file) {
 }
 
 function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }

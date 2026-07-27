@@ -24,7 +24,7 @@ for (const file of requiredFiles) {
 const projection = runCockpit(['--json']);
 
 if (projection) {
-  assertRule('contract:version', projection.contractVersion === '2026-05-13.checkpoint-6', 'ZavorthControl provider cockpit contract is current');
+  assertRule('contract:version', projection.contractVersion === '2026-05-13.gate-6', 'ZavorthControl provider cockpit contract is current');
   assertRule('surface:cockpit', projection.surface === 'zavorthControl-provider-cockpit', 'Provider cockpit projection surface is exposed');
   assertRule('policy:no-execution', projection.executionAuthority === false, 'ZavorthControl provider cockpit cannot execute provider calls');
   assertRule('policy:no-visual-mutation', projection.visualMutationApplied === false, 'Provider cockpit does not mutate zavorthControl visuals without approval');

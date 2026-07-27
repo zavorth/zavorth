@@ -15,11 +15,11 @@ async function main() {
     return;
   }
 
-  console.log('[zavorth-journey] jornada oficial de instalacao');
+  console.log('[zavorth-journey] jornada oficial de installation');
   console.log(`[zavorth-journey] modo: ${apply ? 'apply' : 'dry-run'}`);
-  console.log(`[zavorth-journey] resumo: ${report.summary}`);
+  console.log(`[zavorth-journey] summary: ${report.summary}`);
   if (report.manifest.recommendedPlan) {
-    console.log('[zavorth-journey] proximo passo oficial:');
+    console.log('[zavorth-journey] next passo oficial:');
     console.log(`- ${report.manifest.recommendedPlan.primaryLabel}: ${report.manifest.recommendedPlan.primarySummary}`);
     if (report.manifest.recommendedPlan.primaryCommand) {
       console.log(`  comando: ${report.manifest.recommendedPlan.primaryCommand}`);
@@ -41,17 +41,17 @@ async function main() {
   }
 
   console.log(`[zavorth-journey] app local: ${report.manifest.local.appUrl}`);
-  console.log(`[zavorth-journey] app remoto: ${report.manifest.remote.appUrl || 'nao configurado'}`);
+  console.log(`[zavorth-journey] remote app: ${report.manifest.remote.appUrl || 'not configured'}`);
 
   if (report.manifest.guides.local.length > 0) {
-    console.log('[zavorth-journey] uso local:');
+    console.log('[zavorth-journey] usage local:');
     for (const line of report.manifest.guides.local) {
       console.log(`- ${line}`);
     }
   }
 
   if (report.manifest.guides.remote.length > 0) {
-    console.log('[zavorth-journey] uso remoto:');
+    console.log('[zavorth-journey] usage remote:');
     for (const line of report.manifest.guides.remote) {
       console.log(`- ${line}`);
     }
@@ -59,7 +59,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-journey] falha ao montar a jornada oficial.');
+  console.error('[zavorth-journey] failure ao montar a jornada oficial.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

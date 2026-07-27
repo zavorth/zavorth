@@ -20,7 +20,7 @@ describe('ZavorthControl skill catalog routes', () => {
       getSkillCatalogSnapshot: jest.fn(() => ({
         summary: { total: 7, visible: 7, imported: 7, local: 0, recipes: 3, readyRecipes: 3, recommendations: 2 },
         entries: [{ id: 'skill:chrome-devtools', name: 'chrome-devtools' }],
-        recipes: [{ id: 'security-hardening', label: 'Hardening e auditoria de seguranca', skillIds: ['chrome-devtools'] }],
+        recipes: [{ id: 'security-hardening', label: 'Hardening e audit de security', skillIds: ['chrome-devtools'] }],
         selected: { id: 'skill:chrome-devtools', name: 'chrome-devtools' },
         selectedRecipe: null,
         recommendations: [],

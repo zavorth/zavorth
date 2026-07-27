@@ -141,7 +141,7 @@ const anyBudgets = [
     label: 'root services any budget',
     target: 'src/services/*.ts must stay at or below 1043 any occurrences during controlled migration',
     max: 1043,
-    include: (file: FileSnapshot) => /^src\/services\/[^/]+\.tsx?$/.test(file.relativePath),
+    include: (file: FileSnapshot) => /^src\/services\/[^/]+\.tsx...$/.test(file.relativePath),
   },
 ];
 
@@ -284,7 +284,7 @@ function buildBootstrapBarrelRule(files: FileSnapshot[]): RuleSnapshot {
   const barrel = files.find((file) => file.relativePath === 'src/bootstrap/bootstrapSurface.ts');
   const exportOnly = barrel
     ? fs.readFileSync(barrel.absolutePath, 'utf8')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .filter((line) => line.trim())
       .every((line) => line.startsWith('export '))
     : false;
@@ -321,7 +321,7 @@ function buildCompositionRootDependencyRule(files: FileSnapshot[]): RuleSnapshot
 
     const imports = fs
       .readFileSync(file.absolutePath, 'utf8')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .filter((line) => /^import\s/.test(line.trim())).length;
     if (imports > MAX_COMPOSITION_ROOT_IMPORTS) {
       violations.push(`${relativePath}: ${imports} direct imports; limit ${MAX_COMPOSITION_ROOT_IMPORTS}`);
@@ -409,10 +409,10 @@ function readNewWorkspacePaths(): Set<string> {
     });
     return new Set(
       output
-        .split(/\r?\n/)
+        .split(/\r...\n/)
         .map((line) => line.trimEnd())
         .filter(Boolean)
-        .filter((line) => line.startsWith('A ') || line.startsWith('?? '))
+        .filter((line) => line.startsWith('A ') || line.startsWith('...... '))
         .map((line) => line.slice(3).replace(/\\/g, '/'))
         .filter((relativePath) => /^(src|tests)\//.test(relativePath) && /\.(ts|tsx)$/.test(relativePath)),
     );
@@ -433,7 +433,7 @@ function readSnapshots(root: string, topLevel: string): FileSnapshot[] {
       return {
         absolutePath,
         relativePath,
-        lines: contents.split(/\r?\n/).length,
+        lines: contents.split(/\r...\n/).length,
         anyCount: (contents.match(/\bany\b/g) || []).length,
       };
     });

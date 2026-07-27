@@ -9,7 +9,7 @@ describe('ZavorthGovernedSubagentService Preview engine', () => {
       now: () => new Date('2026-05-10T12:00:00.000Z'),
     }).buildSnapshot({
       presetId: 'developer',
-      task: 'implementar Large Skill Absorption Pipeline com auditoria de seguranca e testes',
+      task: 'implementar Large Skill Absorption Pipeline com audit de security e testes',
       prepare: true,
     });
 

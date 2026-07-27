@@ -136,7 +136,7 @@ describe('ZavorthEvalControlPlaneService', () => {
                 success_rate: 0.833,
                 friction_rate: 0.05,
                 last_seen_at: '2026-04-12T12:00:00.000Z',
-                rationale: 'Fluxo principal estavel.',
+                rationale: 'Fluxo principal stable.',
               },
             ],
             highestFriction: [
@@ -171,7 +171,7 @@ describe('ZavorthEvalControlPlaneService', () => {
                 success_rate: 0.4,
                 friction_rate: 0.42,
                 last_seen_at: '2026-04-12T12:00:00.000Z',
-                rationale: 'Approvals mutaveis segurando o fluxo.',
+                rationale: 'Mutable approvals are holding the flow.',
               },
             ],
             highestOperatorCost: [],
@@ -186,11 +186,11 @@ describe('ZavorthEvalControlPlaneService', () => {
               blocked: 1,
               failed: 1,
               last_seen_at: '2026-04-12T12:00:00.000Z',
-              rationale: 'Doctor travando configuracao.',
+              rationale: 'Doctor travando configuraction.',
             },
           ],
         },
-        insights: ['A fila de approvals do watch mode subiu acima do baseline.'],
+        insights: ['A queue de approvals do watch mode subiu acima do baseline.'],
       })),
     };
 
@@ -273,7 +273,7 @@ describe('ZavorthEvalControlPlaneService', () => {
                 telemetrySignals: 4,
                 traceCount: 2,
                 failureEvents: 0,
-                headline: 'Channel mesh com pontos de atencao',
+                headline: 'Channel mesh com pontos de attention',
                 windowHours: 168,
                 manifestHash: 'baseline-a',
               },
@@ -286,7 +286,7 @@ describe('ZavorthEvalControlPlaneService', () => {
                 telemetrySignals: 5,
                 traceCount: 3,
                 failureEvents: 1,
-                headline: 'Channel mesh em modo de recuperacao',
+                headline: 'Channel mesh em modo de recuperaction',
                 windowHours: 168,
                 manifestHash: 'baseline-b',
               },
@@ -340,7 +340,7 @@ describe('ZavorthEvalControlPlaneService', () => {
       entries: 2,
       latestPosture: 'critical',
     }));
-    expect(snapshot.narrative.operatorSummary).toContain('Datasets ativos');
+    expect(snapshot.narrative.operatorSummary).toContain('Datasets actives');
   });
 
   it('treats routes without enough terminal evidence as insufficient data instead of critical regression', async () => {

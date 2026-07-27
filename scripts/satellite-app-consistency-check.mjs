@@ -25,7 +25,7 @@ const rules = [
   ruleContainsAll({
     id: 'satellite-app-consistency-contract',
     label: 'Contract defines Satellite/App consistency vocabulary',
-    target: 'Contract includes surfaces, statuses, primitives, dry simulations, Plugin OS manifests and no live secret serialization',
+    target: 'Contract includes surfaces, statuses, primitives, dry-runs, Plugin OS manifests and no live secret serialization',
     files: ['src/contracts/SatelliteAppConsistencyContract.ts'],
     needles: [
       'ZAVORTH_SATELLITE_APP_CONSISTENCY_CONTRACT_VERSION',

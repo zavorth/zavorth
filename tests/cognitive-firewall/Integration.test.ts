@@ -18,7 +18,7 @@ import {
 } from '../../src/cognitive-firewall';
 import type { ToolDefinition, CompactToolDefinition } from '../../src/providers/ILlmProvider';
 
-function buildTool(name: string, description?: string): ToolDefinition {
+function buildTool(name: string, description-: string): ToolDefinition {
   return {
     name,
     description: description || `Tool: ${name}. Does things.`,

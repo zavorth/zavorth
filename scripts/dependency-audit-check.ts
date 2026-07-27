@@ -96,12 +96,18 @@ function runNpmAudit(): { vulnerabilities: Vulnerability[]; totalDeps: number } 
     return { vulnerabilities, totalDeps };
   } catch {
     const lockPath = path.join(workspaceRoot, 'package-lock.json');
+    const bunLockPath = path.join(workspaceRoot, 'bun.lock');
     let totalDeps = 0;
     if (fs.existsSync(lockPath)) {
       const lock = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
       if (lock.packages) {
         totalDeps = Object.keys(lock.packages).filter((k) => k !== '').length;
       }
+    } else if (fs.existsSync(bunLockPath)) {
+      totalDeps = fs.readFileSync(bunLockPath, 'utf8')
+        .split('\n')
+        .filter((line) => line.trim().startsWith('"') || line.trim().startsWith("'"))
+        .length;
     }
     return { vulnerabilities: [], totalDeps };
   }
@@ -191,7 +197,7 @@ if (asJson) {
   if (criticalCount > 0 || highCount > 0) {
     console.log('\n[dependency-audit] CRITICAL/HIGH vulnerabilities:');
     for (const vuln of vulnerabilities.filter((v) => v.severity === 'critical' || v.severity === 'high')) {
-      console.log(`  - [${vuln.severity}] ${vuln.name}: ${vuln.via.join(', ')} (fix: ${vuln.fixAvailable ? 'available' : 'manual'})`);
+      console.log(`  ? [${vuln.severity}] ${vuln.name}: ${vuln.via.join(', ')} (fix: ${vuln.fixAvailable ? 'available' : 'manual'})`);
     }
   }
 
@@ -201,7 +207,7 @@ if (asJson) {
       console.log(`  - ${violation.name}@${violation.version}: ${violation.license}`);
     }
     if (licenseViolations.length > 15) {
-      console.log(`  ... and ${licenseViolations.length - 15} more`);
+      console.log(`  ? and ${licenseViolations.length - 15} more`);
     }
   }
 }

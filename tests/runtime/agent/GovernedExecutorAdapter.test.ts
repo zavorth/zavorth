@@ -16,7 +16,7 @@ describe('GovernedExecutorAdapter', () => {
   it('wraps legacy supervised execution behind AgentRunService and UniversalAgentExecutorResult', async () => {
     const legacyExecutor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Execucao supervisionada encapsulada.',
+      summary: 'Supervised execution wrapped.',
       replyText: 'Executor governado retornou pelo modelo universal.',
       metadata: {
         legacySupervisedExecutorCalled: true,
@@ -63,7 +63,7 @@ describe('GovernedExecutorAdapter', () => {
   it('keeps risky execution behind approval before invoking the governed executor', async () => {
     const legacyExecutor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Risco executado somente apos approval.',
+      summary: 'Risk executed only after approval.',
       replyText: 'Approval liberou o executor governado.',
     }));
     const adapter = createGovernedExecutorAdapter({
@@ -80,7 +80,7 @@ describe('GovernedExecutorAdapter', () => {
       userId: 'grey',
       channel: 'cli' as const,
       sessionId: 'cli:risky-governed-executor',
-      text: 'execute comando sensivel',
+      text: 'execute comando sensitive',
       requestedTools: ['shell.exec'],
     };
 

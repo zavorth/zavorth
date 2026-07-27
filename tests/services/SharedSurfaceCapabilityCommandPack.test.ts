@@ -49,7 +49,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceCapability
         heavy: true,
         approvalRequired: true,
         summary: 'Planner detectou sandbox pesada.',
-        userFacingSummary: 'Para cumprir isso eu posso precisar de Sandbox.',
+        userFacingSummary: 'Para cumprir isso eu posso need de Sandbox.',
         budget: {
           ramMb: 192,
           cpuPercent: 18,
@@ -103,7 +103,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceCapability
         {
           id: 'plugin-demo',
           label: 'Plugin Demo',
-          description: 'Plugin declarativo.',
+          description: 'Plugin declaractive.',
           source: 'plugin',
           plugin_name: 'demo',
           command: null,

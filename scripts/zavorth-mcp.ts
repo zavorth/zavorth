@@ -1,5 +1,6 @@
 import { ToolRegistry } from '../src/tools/ToolRegistry.js';
-import { WebSearchTool } from '../src/tools/WebSearchTool.js';
+import { UnifiedSearchTool } from '../src/tools/UnifiedSearchTool.js';
+import { DeepSearchTool } from '../src/tools/DeepSearchTool.js';
 import { CreateFileTool } from '../src/tools/CreateFileTool.js';
 import { ReadFileTool } from '../src/tools/ReadFileTool.js';
 import { ListDirectoryTool } from '../src/tools/ListDirectoryTool.js';
@@ -23,9 +24,9 @@ async function bootstrapMcpServer() {
   redirectConsoleToStderrForMcpStdio();
   console.error('[BOOT] Initializing Zavorth Universal MCP Server...');
 
-  // Initialize the Tool Registry with all available tools
   const toolRegistry = new ToolRegistry();
-  toolRegistry.register(new WebSearchTool());
+  toolRegistry.register(new UnifiedSearchTool());
+  toolRegistry.register(new DeepSearchTool());
   toolRegistry.register(new CreateFileTool());
   toolRegistry.register(new ReadFileTool());
   toolRegistry.register(new ListDirectoryTool());
@@ -38,7 +39,6 @@ async function bootstrapMcpServer() {
 
   console.error(`[BOOT] Registered ${toolRegistry.getAllTools().length} tools into the registry.`);
 
-  // Instantiate and run the MCP Server over Stdio
   const toolPolicy = McpToolPolicy.fromEnv();
   console.error(`[BOOT] MCP security profile: ${toolPolicy.profile}`);
   const logRepository = new LogRepository();
@@ -46,9 +46,9 @@ async function bootstrapMcpServer() {
   const toolExecutor = new ToolExecutor(toolRegistry, logRepository);
 
   const server = new ZavorthMcpServer(toolRegistry, { toolPolicy, toolExecutor });
-  
+
   await server.start();
-  
+
   console.error('[BOOT] Zavorth Universal MCP Server is now listening on stdio.');
 }
 

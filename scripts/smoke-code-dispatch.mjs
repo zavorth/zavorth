@@ -42,34 +42,34 @@ assert(
 );
 pass('entry + Code TUI sources present');
 
-const stubDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-single-bin-'));
-const stubJs = path.join(stubDir, 'stub.js');
+const localDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-single-bin-'));
+const localJs = path.join(localDir, 'local.js');
 fs.writeFileSync(
-  stubJs,
+  localJs,
   "process.stdout.write(['TUI_OK', ...process.argv.slice(2)].join(' ') + '\\n'); process.exit(0);\n",
   'utf8',
 );
-let stubCmd = stubJs;
+let localCmd = localJs;
 if (process.platform === 'win32') {
-  stubCmd = path.join(stubDir, 'stub.cmd');
-  fs.writeFileSync(stubCmd, `@echo off\r\n"${process.execPath}" "${stubJs}" %*\r\n`, 'utf8');
+  localCmd = path.join(localDir, 'local.cmd');
+  fs.writeFileSync(localCmd, `@echo off\r\n"${process.execPath}" "${localJs}" %*\r\n`, 'utf8');
 }
 
 try {
   const r = spawnSync(process.execPath, [path.join(root, 'bin', 'zavorth.js'), 'code', '--version'], {
     cwd: root,
-    env: { ...process.env, ZAVORTH_CODE_BIN: stubCmd, ZAVORTH_TAGLINE: 'off' },
+    env: { ...process.env, ZAVORTH_CODE_BIN: localCmd, ZAVORTH_TAGLINE: 'off' },
     encoding: 'utf8',
     timeout: 30_000,
     windowsHide: true,
   });
   assert(r.status === 0, `compat code strip failed: ${r.status} ${r.stderr}`);
-  assert(String(r.stdout || '').includes('TUI_OK'), 'expected TUI stub');
+  assert(String(r.stdout || '').includes('TUI_OK'), 'expected TUI local');
   assert(String(r.stdout || '').includes('--version'), 'forward --version');
   pass('zavorth code … strips to TUI (compat, not dual product)');
 } finally {
   try {
-    fs.rmSync(stubDir, { recursive: true, force: true });
+    fs.rmSync(localDir, { recursive: true, force: true });
   } catch {
     // ignore
   }

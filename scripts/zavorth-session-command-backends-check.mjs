@@ -35,7 +35,7 @@ function ruleFilesExist() {
     'apps/zavorth-control-vite-shell/src/app.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', 'Session command backend files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'service, tests, route and dashboard files are present', missing);
+  return rule('files', 'Session command backend files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'service, tests, route and dashboard files are present', missing);
   };
 }
 
@@ -171,5 +171,5 @@ function safeRule(fn) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(-20);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(-20);
 }

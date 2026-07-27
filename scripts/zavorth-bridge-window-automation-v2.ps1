@@ -596,7 +596,7 @@ function Get-PermissionPromptSummary($Elements) {
   }
 
   if ($hasDeny -and $hasAllowAction) {
-    return 'Prompt visivel com botoes Allow/Deny.'
+    return 'Prompt visible with Allow/Deny buttons.'
   }
 
   return $null
@@ -671,10 +671,10 @@ function Get-ConversationTextCandidates($Root, $Elements) {
         $name -like 'Correlation token:*' -or
         $name -like 'Workspace:*' -or
         $name -like 'Selected model:*' -or
-        $name -like 'Use o modelo ja ativo*' -or
-        $name -like 'Nao mencione estas linhas*' -or
-        $name -like 'Atualize seus artefatos*' -or
-        $name -like 'Pedido do usuario:*' -or
+        $name -like 'Use o modelo already active*' -or
+        $name -like 'Do not mention these lines*' -or
+        $name -like 'Refresh seus artefatos*' -or
+        $name -like 'User request:*' -or
         $name -like 'Ask anything,*' -or
         $name -like 'Record voice memo*' -or
         $name -like 'Thought for *' -or
@@ -1365,9 +1365,9 @@ switch ($Mode) {
         $message = 'Visible Manager conversation changed after reset.'
       }
     } elseif (-not $clickedStart) {
-      $message = 'Nao encontrei o botao visivel de Start new conversation no Agent Manager.'
+      $message = 'Could not find the visible Start new conversation button in Agent Manager.'
     } elseif (-not $diagnostics.hasInputBar) {
-      $message = 'O Agent Manager nao mostrou a barra de entrada depois da tentativa de reset.'
+      $message = 'Agent Manager did not show the input bar after the reset attempt.'
     } else {
       $message = 'Manager conversation still shows previous response after reset attempt.'
     }

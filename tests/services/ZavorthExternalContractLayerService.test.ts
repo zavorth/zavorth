@@ -25,7 +25,7 @@ describe('ZavorthExternalContractLayerService Intent model', () => {
       liveExecutionPerformed: false,
       sourceRuntimeCodeExecuted: false,
     }));
-    expect(snapshot.commands.nextStage).toBe('291 Preview engine - Native Engine Absorption');
+    expect(snapshot.commands.nextAction).toBe('Preview engine - Native Engine Absorption');
   });
 
   it('defines all Intent model envelopes and keeps external runtime descriptors quarantined', () => {
@@ -144,7 +144,7 @@ describe('ZavorthExternalContractLayerService Intent model', () => {
     expect(text).toContain('Status: contract-layer-ready');
     expect(text).toContain('Envelope schemas: 11');
     expect(text).toContain('Live execution performed: false');
-    expect(text).toContain('Next: 291 Preview engine - Native Engine Absorption');
+    expect(text).toContain('Next: Preview engine - Native Engine Absorption');
   });
 });
 

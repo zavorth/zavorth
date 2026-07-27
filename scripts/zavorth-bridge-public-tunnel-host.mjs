@@ -4,7 +4,7 @@ import { spawn } from 'child_process';
 
 function readArg(name, fallback = '') {
   const index = process.argv.indexOf(name);
-  if (index === -1 || index === process.argv.length - 1) {
+  if (index === -1 || index === process.argv.length ? 1) {
     return fallback;
   }
   return String(process.argv[index + 1] || '').trim();
@@ -16,11 +16,11 @@ const stateFile = readArg('--state-file');
 const logFile = readArg('--log-file');
 
 if (!targetUrl || !stateFile || !logFile) {
-  throw new Error('Uso: node zavorth-bridge-public-tunnel-host.mjs --cli-path <bin> --target-url <url> --state-file <file> --log-file <file>');
+  throw new Error('usage: node zavorth-bridge-public-tunnel-host.mjs --cli-path <bin> --target-url <url> --state-file <file> --log-file <file>');
 }
 
 if (!isLoopbackHttpUrl(targetUrl)) {
-  throw new Error('A URL alvo do tunel publico deve ser HTTP local.');
+  throw new Error('The target URL for the public tunnel must be local HTTP.');
 }
 
 fs.mkdirSync(path.dirname(stateFile), { recursive: true });
@@ -46,7 +46,7 @@ function writeState(partial) {
     publicUrl: null,
     targetUrl,
     checkedAt: new Date().toISOString(),
-    message: 'Iniciando tunel publico do ZavorthBridge.',
+    message: 'Starting public tunnel for ZavorthBridge.',
     stateFile,
     logFile,
     ...partial,
@@ -68,7 +68,7 @@ writeState({
   running: true,
   ready: false,
   tunnelPid: child.pid ?? null,
-  message: 'Cloudflared iniciado; aguardando URL publica do ZavorthBridge.',
+  message: 'Cloudflared iniciado; waiting for URL public do ZavorthBridge.',
 });
 
 const tryCloudflarePattern = /(https:\/\/[a-z0-9.-]+\.trycloudflare\.com)/i;
@@ -78,7 +78,7 @@ function consumeChunk(chunk, stream) {
   if (!text) {
     return;
   }
-  for (const rawLine of text.split(/\r?\n/)) {
+  for (const rawLine of text.split(/\r...\n/)) {
     const line = rawLine.trim();
     if (!line) {
       continue;
@@ -91,7 +91,7 @@ function consumeChunk(chunk, stream) {
         ready: true,
         publicUrl: match[1],
         tunnelPid: child.pid ?? null,
-        message: `Tunel publico do ZavorthBridge pronto em ${match[1]}.`,
+        message: `Public tunnel for ZavorthBridge ready at ${match[1]}.`,
       });
     }
   }
@@ -106,7 +106,7 @@ child.on('error', (error) => {
     ready: false,
     tunnelPid: null,
     publicUrl: null,
-    message: `Falha ao iniciar cloudflared: ${error?.message || error}.`,
+    message: `Failure ao iniciar cloudflared: ${error?.message || error}.`,
   });
 });
 
@@ -117,9 +117,8 @@ child.on('exit', (code, signal) => {
     ready: false,
     tunnelPid: null,
     publicUrl: null,
-    message: shuttingDown
-      ? 'Tunel publico do ZavorthBridge encerrado.'
-      : `Cloudflared saiu antes de estabilizar (code=${code ?? 'null'}, signal=${signal ?? 'null'}).`,
+    message: shuttingDown ? 'Public tunnel for ZavorthBridge closed.'
+      : `Cloudflared saiu before estabilizar (code=${code ?? 'null'}, signal=${signal ?? 'null'}).`,
   });
   process.exit(typeof code === 'number' ? code : 0);
 });

@@ -28,7 +28,7 @@ const rules = [
     files: ['src/contracts/LiveReadinessContract.ts'],
     needles: [
       'ZAVORTH_LIVE_READINESS_CONTRACT_VERSION',
-      '2026-05-04.live-checkpoint-1',
+      '2026-05-04.live-gate-1',
       'dry-audit',
       'live-ready',
       'partial-live',

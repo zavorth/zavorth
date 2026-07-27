@@ -174,8 +174,8 @@ function checkProductGovernanceDoc(root) {
  const text = fs.readFileSync(abs, 'utf8');
  const statusLineOk =
  /Status:\s*\*\*Phase\s*8\s*DONE\*\*/i.test(text) ||
- (/Phase\s*8\s*DONE/i.test(text) && /phases?\s*1\s*[–-]\s*8/i.test(text)) ||
- /maturity plan complete\s*\(phases?\s*1\s*[–-]\s*8\)/i.test(text);
+ (/Phase\s*8\s*DONE/i.test(text) && /phases...\s*1\s*[–-]\s*8/i.test(text)) ||
+ /maturity plan complete\s*\(phases...\s*1\s*[–-]\s*8\)/i.test(text);
 
  const tablePhasesDone = [1, 2, 3, 4, 5, 6, 7, 8].every((n) => {
  const re = new RegExp(`\\|\\s*\\*\\*${n}\\*\\*[^|]*\\|[^|]*\\|[^|]*\\|\\s*\\*\\*DONE\\*\\*`, 'i');
@@ -189,8 +189,7 @@ function checkProductGovernanceDoc(root) {
  id: 'product-governance-doc',
  required: true,
  status: ok ? 'pass' : 'fail',
- summary: ok
- ? 'Milestone doc reports complete'
+ summary: ok ? 'Milestone doc reports complete'
  : 'Phase doc does not clearly mark phases 1–8 as DONE',
  details: { path: rel, statusLineOk, tablePhasesDone },
  };
@@ -233,8 +232,7 @@ function checkSessionPersistenceSqlite(root) {
  id: 'session-persistence-sqlite',
  required: true,
  status: mentions ? 'pass' : 'fail',
- summary: mentions
- ? 'SessionPersistenceStore references better-sqlite3 / sqlite'
+ summary: mentions ? 'SessionPersistenceStore references better-sqlite3 / sqlite'
  : 'SessionPersistenceStore does not mention better-sqlite3 or sqlite',
  details: { path: rel },
  };
@@ -302,8 +300,7 @@ function checkViteShellArtifact(root) {
  id: 'vite-shell-artifact-react-island',
  required: false,
  status: found ? 'pass' : 'warn',
- summary: found
- ? 'Built Vite shell artifact contains data-react-dashboard-island'
+ summary: found ? 'Built Vite shell artifact contains data-react-dashboard-island'
  : 'Built Vite shell artifact lacks data-react-dashboard-island — run `npm run zavorth-control-vite:build`',
  details: { path: dirRel, found },
  };
@@ -454,8 +451,7 @@ function checkElectronUpdaterDependency(root) {
  id: 'electron-updater-dependency',
  required: false,
  status: present ? 'pass' : 'warn',
- summary: present
- ? `electron-updater listed in desktop package.json (${deps['electron-updater']})`
+ summary: present ? `electron-updater listed in desktop package.json (${deps['electron-updater']})`
  : 'electron-updater not listed in apps/zavorth-desktop/package.json dependencies',
  details: { present },
  };
@@ -472,8 +468,7 @@ function checkGhTokenPresent(env) {
  id: 'gh-token-present',
  required: false,
  status: present ? 'pass' : 'warn',
- summary: present
- ? 'GH_TOKEN or GITHUB_TOKEN is present in environment (value not shown)'
+ summary: present ? 'GH_TOKEN or GITHUB_TOKEN is present in environment (value not shown)'
  : 'GH_TOKEN / GITHUB_TOKEN not set — required for desktop publish to GitHub Releases (operator-owned)',
  details: { present },
  };

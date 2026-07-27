@@ -51,7 +51,7 @@ try {
   const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionSurfaceGatewayService.ts'), 'utf8');
   const classifierText = readFileSync(join(root, 'src/runtime/agent/NaturalFirstRunClassifier.ts'), 'utf8');
   for (const marker of [
-    'zavorth-transaction-surface/checkpoint-7',
+    'zavorth-transaction-surface/gate-7',
     'request-approval',
     'provide-credential-ref',
     'TRANSACTION_APPROVAL_PATTERNS',
@@ -102,7 +102,7 @@ try {
     failures.push('approval-required projection lacks enabled request-approval action');
   }
 
-  const simulated = runSurface([
+  const dryRun = runSurface([
     '--json',
     '--surface',
     'api',
@@ -122,17 +122,17 @@ try {
     '--credential-ref',
     ref,
   ]);
-  if (simulated.status !== 'simulated' || simulated.runtime.connectorRun?.status !== 'simulated') {
-    failures.push(`simulated projection mismatch: ${simulated.status}`);
+  if (dryRun.status !== 'dry-run' || dryRun.runtime.connectorRun?.status !== 'dry-run') {
+    failures.push(`dry-run projection mismatch: ${dryRun.status}`);
   }
   if (
-    simulated.externalSideEffects !== false ||
-    simulated.liveActionApplied !== false ||
-    simulated.executableNow !== false
+    dryRun.externalSideEffects !== false ||
+    dryRun.liveActionApplied !== false ||
+    dryRun.executableNow !== false
   ) {
     failures.push('surface projection must remain live-disabled');
   }
-  if (!simulated.cards.some((card) => card.kind === 'safety' && card.lines.includes('liveActionApplied=false'))) {
+  if (!dryRun.cards.some((card) => card.kind === 'safety' && card.lines.includes('liveActionApplied=false'))) {
     failures.push('surface projection lacks safety card');
   }
 
@@ -153,7 +153,7 @@ try {
     '--mode',
     'sandbox',
   ]);
-  if (monitor.status !== 'simulated' || monitor.naturalFirst.route !== 'tool-preview') {
+  if (monitor.status !== 'dry-run' || monitor.naturalFirst.route !== 'tool-preview') {
     failures.push(`monitor projection mismatch: ${monitor.status}/${monitor.naturalFirst.route}`);
   }
   if (!String(monitor.replyText).includes('Simulado')) {

@@ -113,7 +113,7 @@ describe('ZavorthControl gateway endpoints', () => {
     );
     const { payload: operationsDomainFullPayload } = await fetchZavorthControlJson(
       baseUrl,
-      '/api/operations/gateway/domains?detail=full',
+      '/api/operations/gateway/domains-detail=full',
     );
     const { payload: webControlPayload } = await fetchZavorthControlJson(baseUrl, '/api/web/control-plane', {
       token: 'gateway-secret',

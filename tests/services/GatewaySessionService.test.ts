@@ -17,11 +17,11 @@ describe('GatewaySessionService', () => {
         updated_at: '2026-04-02T12:00:00.000Z',
         created_at: '2026-04-02T11:59:00.000Z',
         status: 'waiting_approval',
-        raw_message: 'continuar gateway',
-        result_summary: 'Task aguardando aprovacao.',
+        raw_message: 'continue gateway',
+        result_summary: 'Task waiting for approval.',
         stdout_summary: 'tsc passou sem erros.',
         stderr_summary: null,
-        diff_summary: 'Alterou gateway.ts para expor o runtime.',
+        diff_summary: 'Changed gateway.ts to expose the runtime.',
         actions_executed: [
           {
             tool: 'apply_patch',
@@ -51,7 +51,7 @@ describe('GatewaySessionService', () => {
               approvalId: 'perm-1',
               artifactId: null,
               status: 'approval_required',
-              summary: 'Precisa aprovar a entrega final.',
+              summary: 'Precisa approve a entrega final.',
               source: 'approval-manager',
               surface: 'web',
               parentId: 'task-web-1',
@@ -86,14 +86,14 @@ describe('GatewaySessionService', () => {
         status: 'pending',
         executor: 'codex',
         kind: 'filesystem_write',
-        reason: 'Precisa gravar arquivo final.',
+        reason: 'Precisa gravar file final.',
         updated_at: '2026-04-02T12:00:01.000Z',
       },
     ];
     const workflowRun = {
       workflow_run_id: 'wf-1',
       workflow_name: 'ship',
-      objective: 'Fechar gateway',
+      objective: 'Close gateway',
       workspace: 'C:/repo',
       created_at: '2026-04-02T11:50:00.000Z',
       updated_at: '2026-04-02T12:00:00.000Z',
@@ -109,10 +109,10 @@ describe('GatewaySessionService', () => {
         task_id: 'task-web-1',
         objective: 'Revisar gateway',
         handoff_summary: 'Gateway consolidado.',
-        result_summary: 'Aguardando aprovacao.',
-        reason: 'Existe aprovacao pendente.',
+        result_summary: 'Waiting for approval.',
+        reason: 'Existe approval pendente.',
       },
-      resume_prompt: 'Retome a revisao final.',
+      resume_prompt: 'Resume a review final.',
       workspace_context: null,
       origin: {
         origin_task_id: null,
@@ -154,7 +154,7 @@ describe('GatewaySessionService', () => {
       {
         id: 'msg-1',
         role: 'user',
-        content: 'continuar gateway',
+        content: 'continue gateway',
         createdAt: '2026-04-02T11:58:30.000Z',
         taskId: 'task-web-1',
         kind: 'input',
@@ -228,7 +228,7 @@ describe('GatewaySessionService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: 'msg-1',
-          content: 'continuar gateway',
+          content: 'continue gateway',
         }),
       ]),
     );

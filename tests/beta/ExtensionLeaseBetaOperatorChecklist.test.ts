@@ -60,7 +60,7 @@ describe('ExtensionLeaseBetaOperatorChecklist', () => {
     InMemoryApprovalLeaseStore.clearForTests();
   });
 
-  function makeDescriptor(overrides?: Partial<CustomToolDescriptor>): CustomToolDescriptor {
+  function makeDescriptor(overrides-: Partial<CustomToolDescriptor>): CustomToolDescriptor {
     return {
       namespace: 'local',
       name: 'operator_tool',
@@ -85,8 +85,8 @@ describe('ExtensionLeaseBetaOperatorChecklist', () => {
   function baseDecisionContext(
     qualifiedName: string,
     fingerprint: string,
-    receipt?: ApprovalLeaseGateReceipt,
-    overrides?: Partial<ApprovalLeaseDecisionContext>,
+    receipt-: ApprovalLeaseGateReceipt,
+    overrides-: Partial<ApprovalLeaseDecisionContext>,
   ): ApprovalLeaseDecisionContext {
     return {
       subjectId: 'user-beta',

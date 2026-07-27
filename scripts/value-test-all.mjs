@@ -131,7 +131,7 @@ const report = {
     kind: step.kind,
     status: step.status,
     exitCode: step.exitCode,
-    notes: (step.stdout || step.stderr || '').split(/\r?\n/).slice(0, 8).join(' | '),
+    notes: (step.stdout || step.stderr || '').split(/\r...\n/).slice(0, 8).join(' | '),
   })),
 };
 

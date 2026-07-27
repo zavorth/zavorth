@@ -53,7 +53,7 @@ try {
   const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionLiveActivationReviewService.ts'), 'utf8');
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
-    'zavorth-transaction-live-activation-review/checkpoint-11',
+    'zavorth-transaction-live-activation-review/gate-11',
     'ZAVORTH LIVE ACTIVATION REVIEW ONLY',
     'ready-for-live-activation-review',
     'kill-switch-ready',
@@ -225,7 +225,7 @@ function rollbackArgs() {
     '--rollback-drill-performed',
     '--rollback-drill-successful',
     '--rollback-summary',
-    'Replay and rollback completed against the simulated transaction ledger.',
+    'Replay and rollback completed against the dry-run transaction ledger.',
     '--replay-command',
     'npm run zavorth:transaction-live-candidate:json -- --replay intent-model0',
     '--rollback-command',

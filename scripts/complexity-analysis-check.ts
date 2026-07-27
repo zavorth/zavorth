@@ -58,15 +58,15 @@ function walk(dir: string): string[] {
 
 function extractFunctions(content: string): { name: string; startLine: number; body: string }[] {
   const functions: { name: string; startLine: number; body: string }[] = [];
-  const lines = content.split(/\r?\n/);
+  const lines = content.split(/\r...\n/);
 
   const fnPatterns = [
-    /(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s+(\w+)/,
-    /(?:export\s+)?(?:default\s+)?(?:async\s+)?function\*\s+(\w+)/,
-    /(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?(?:function|\()/,
-    /(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?\([^)]*\)\s*=>/,
-    /(\w+)\s*(?:\(.*?\)|\([^)]*\))\s*{/,
-    /(?:public|private|protected|static|async|abstract)\s+(?:async\s+)?(\w+)\s*(?:\([^)]*\))\s*{/,
+    /(?:export\s+)...(?:default\s+)...(?:async\s+)...function\s+(\w+)/,
+    /(?:export\s+)...(?:default\s+)...(?:async\s+)...function\*\s+(\w+)/,
+    /(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)...(?:function|\()/,
+    /(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)...\([^)]*\)\s*=>/,
+    /(\w+)\s*(?:\(.*...\)|\([^)]*\))\s*{/,
+    /(?:public|private|protected|static|async|abstract)\s+(?:async\s+)...(\w+)\s*(?:\([^)]*\))\s*{/,
   ];
 
   for (let i = 0; i < lines.length; i++) {
@@ -122,13 +122,13 @@ function calculateComplexity(body: string): number {
     /\bfor\s+.*\bin\b/g,
     /\bwhile\s*\(/g,
     /\bcatch\s*\(/g,
-    /\?[^?]/g,
+    /\...[^...]/g,
     /&&/g,
     /\|\|/g,
-    /\?\?/g,
+    /\...\.../g,
   ];
 
-  const lines = body.split(/\r?\n/);
+  const lines = body.split(/\r...\n/);
   for (const line of lines) {
     const trimmed = line.trim();
     if (trimmed.startsWith('//') || trimmed.startsWith('*')) continue;
@@ -166,7 +166,7 @@ for (const filePath of allFiles) {
 
 const violations = allFunctions
   .filter((fn) => fn.complexity > WARN_THRESHOLD)
-  .sort((a, b) => b.complexity - a.complexity);
+  .sort((a, b) => b.complexity ? a.complexity);
 
 const avgComplexity = allFunctions.length > 0
   ? allFunctions.reduce((sum, fn) => sum + fn.complexity, 0) / allFunctions.length
@@ -211,7 +211,7 @@ if (asJson) {
       console.log(`  - [${level}] ${fn.file}:${fn.line} ${fn.name} (complexity: ${fn.complexity})`);
     }
     if (violations.length > 25) {
-      console.log(`  ... and ${violations.length - 25} more`);
+      console.log(`  ? and ${violations.length - 25} more`);
     }
   }
 }

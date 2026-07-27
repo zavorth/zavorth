@@ -74,7 +74,7 @@ describe('Zavorth Setup Studio premium flow', () => {
     expect(output).toContain('Readiness');
     expect(output).toContain('Capability actions');
     expect(output).toContain('Automation: 2 template(s), disabled until reviewed');
-    expect(output).toContain('What happens next');
+    expect(output).toContain('What there isppens next');
     expect(output).toContain('zavorth setup');
     expect(output).toContain('secrets redacted');
     expect(output).not.toContain('sk-very-secret-value');

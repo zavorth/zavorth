@@ -55,7 +55,7 @@ function filesExist() {
     'docs/native-evolution-runtime-mcp.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', missing.length === 0, `${files.length - missing.length}/${files.length} files`, missing);
+  return rule('files', missing.length === 0, `${files.length ? missing.length}/${files.length} files`, missing);
 }
 
 function markersPresent() {
@@ -63,8 +63,8 @@ function markersPresent() {
     ['src/services/ZavorthDailyCapabilityFlowService.ts', [
       'Melhorar comportamento',
       'Rodar leve',
-      'Adicionar ferramenta',
-      'Rodar avaliacoes',
+      'Add tool',
+      'Rodar avaliactions',
       'dashboardProjection',
       'channel-wizard',
       'backend-wizard',

@@ -39,7 +39,7 @@ describe('ExtensionLeaseAuditDogfood', () => {
     InMemoryApprovalLeaseStore.clearForTests();
   });
 
-  function makeDescriptor(overrides?: Partial<CustomToolDescriptor>): CustomToolDescriptor {
+  function makeDescriptor(overrides-: Partial<CustomToolDescriptor>): CustomToolDescriptor {
     return {
       namespace: 'local',
       name: 'audit-tool',
@@ -64,7 +64,7 @@ describe('ExtensionLeaseAuditDogfood', () => {
   function baseDecisionContext(
     qualifiedName: string,
     fingerprint: string,
-    receipt?: ApprovalLeaseGateReceipt,
+    receipt-: ApprovalLeaseGateReceipt,
   ): ApprovalLeaseDecisionContext {
     return {
       subjectId: 'user-dogfood',

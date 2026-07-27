@@ -5,7 +5,7 @@ describe('ZavorthSubagentAutoInvocationPolicyService', () => {
     const service = new ZavorthSubagentAutoInvocationPolicyService();
 
     const decision = service.decide({
-      text: 'use subagentes: um agente analisa a arquitetura e outro revisa os riscos',
+      text: 'use subagents: one agent analyzes architecture and another reviews risks',
       channel: 'telegram',
       mode: 'default',
     });
@@ -18,7 +18,7 @@ describe('ZavorthSubagentAutoInvocationPolicyService', () => {
     const service = new ZavorthSubagentAutoInvocationPolicyService();
 
     const decision = service.decide({
-      text: 'faca uma auditoria profunda em todo o Zavorth, procure falhas, compare riscos e valide os achados',
+      text: 'run a deep audit across Zavorth, find failures, compare risks, and validate findings',
       taskKind: 'security',
       taskSubtype: 'audit',
     });
@@ -26,7 +26,7 @@ describe('ZavorthSubagentAutoInvocationPolicyService', () => {
     expect(decision.explicitSubagentRequest).toBe(false);
     expect(decision.implicitComplexityMatch).toBe(true);
     // Free-text phrase scores were removed (purity). Structured taskKind alone may not
-    // reach the auto-live confidence bar — LLM/tools still own multi-agent choice.
+    // reach the auto-live confidence bar; LLM/tools still own multi-agent choice.
     expect(decision.triggers.some((t) => t.startsWith('task-kind:') || t.startsWith('task-subtype:'))).toBe(true);
   });
 
@@ -34,7 +34,7 @@ describe('ZavorthSubagentAutoInvocationPolicyService', () => {
     const service = new ZavorthSubagentAutoInvocationPolicyService();
 
     const decision = service.decide({
-      text: 'use subagentes para editar os arquivos e aplicar patch no projeto',
+      text: 'use structured delegation to edit files and apply a patch to the project',
     });
 
     // Risk signals and explicit request both empty without structured flags.
@@ -46,7 +46,7 @@ describe('ZavorthSubagentAutoInvocationPolicyService', () => {
     const service = new ZavorthSubagentAutoInvocationPolicyService();
 
     const decision = service.decide({
-      text: 'faca uma auditoria profunda em todo o Zavorth e valide os achados',
+      text: 'run a deep audit across all of Zavorth and validate the findings',
       mode: 'direct',
       taskKind: 'security',
       taskSubtype: 'audit',

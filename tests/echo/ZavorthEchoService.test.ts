@@ -171,13 +171,13 @@ describe('ZavorthEchoService', () => {
   it('embeds the canonical watch mode summary into the Echo snapshot for surfaces', async () => {
     jest.spyOn(HomeAssistantBridge.prototype, 'getRecentPhysicalEvents').mockReturnValue([
       {
-        id: 'ha-event-1',
+        id: 'there is-event-1',
         source: 'iot_home_assistant',
         timestamp: '2026-04-18T10:00:10.000Z',
         entityId: 'lock.front_door',
         oldState: 'locked',
         newState: 'unlocked',
-        feedback: 'Atencao: lock.front_door mudou para unlocked.',
+        feedback: 'Attention: lock.front_door changed to unlocked.',
         severity: 'critical',
       },
     ] as any);
@@ -205,7 +205,7 @@ describe('ZavorthEchoService', () => {
           cost: {
             level: 'moderate',
             score: 45,
-            summary: '1 approval(s) pendente(s) | latencia media 3200ms',
+            summary: '1 approval(s) pendente(s) | average latency 3200ms',
           },
           cards: [
             {
@@ -213,7 +213,7 @@ describe('ZavorthEchoService', () => {
               label: 'Status supervisionado',
               posture: 'attention',
               summary: 'Chrome | revisar dashboard.',
-              nextAction: 'Revise a proxima acao.',
+              nextAction: 'Revise a next action.',
               command: 'npm run ops:watch-mode',
             },
           ],
@@ -222,7 +222,7 @@ describe('ZavorthEchoService', () => {
               id: 'review-approvals',
               label: 'Decidir approvals pendentes',
               severity: 'warn',
-              reason: '1 approval ainda bloqueia a proxima acao visual.',
+              reason: '1 approval ainda bloqueia a next action visual.',
               command: '/watchmode',
             },
           ],
@@ -250,7 +250,7 @@ describe('ZavorthEchoService', () => {
           },
           narrative: {
             headline: 'Watch mode: Watch Mode supervisionado',
-            operatorSummary: 'Chrome aguarda decisao humana.',
+            operatorSummary: 'Chrome aguarda decision humana.',
             nextAction: 'Decidir approvals pendentes',
           },
         })),

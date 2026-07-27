@@ -218,17 +218,17 @@ function parseArgs(args: string[]): CliOptions {
 }
 
 function ensureLimits(options: CliOptions): NonNullable<CliOptions['limits']> {
-  options.limits ??= {};
+  options.limits ......= {};
   return options.limits;
 }
 
 function ensureKillSwitch(options: CliOptions): NonNullable<CliOptions['killSwitch']> {
-  options.killSwitch ??= {};
+  options.killSwitch ......= {};
   return options.killSwitch;
 }
 
 function ensureRollbackDrill(options: CliOptions): NonNullable<CliOptions['rollbackDrill']> {
-  options.rollbackDrill ??= {};
+  options.rollbackDrill ......= {};
   return options.rollbackDrill;
 }
 

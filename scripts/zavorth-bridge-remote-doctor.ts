@@ -16,34 +16,34 @@ async function main() {
   }
 
   console.log('[zavorth-bridge-remote] doctor');
-  console.log(`[zavorth-bridge-remote] resumo: ${report.summary}`);
+  console.log(`[zavorth-bridge-remote] summary: ${report.summary}`);
   console.log(
-    `[zavorth-bridge-remote] pronto antes=${report.readyBefore ? 'sim' : 'nao'} | depois=${report.readyAfter ? 'sim' : 'nao'} | reparo=${report.repaired ? 'sim' : 'nao'}`,
+    `[zavorth-bridge-remote] ready before=${report.readyBefore ? 'yes' : 'no'} | after=${report.readyAfter ? 'yes' : 'no'} | repair=${report.repaired ? 'yes' : 'no'}`,
   );
   console.log(
     `[zavorth-bridge-remote] incidente: inicial=${report.initialIncidents.primaryCode}/${report.initialIncidents.severity} | final=${report.finalIncidents.primaryCode}/${report.finalIncidents.severity}`,
   );
   console.log(
-    `[zavorth-bridge-remote] policy: cooldown=${report.repairPolicy.cooldownActive ? 'ativo' : 'nao'} | flapping=${report.repairPolicy.flappingLikely ? 'sim' : 'nao'} | recentFailures=${report.repairPolicy.matchingRecentFailures}`,
+    `[zavorth-bridge-remote] policy: cooldown=${report.repairPolicy.cooldownActive ? 'active' : 'no'} | flapping=${report.repairPolicy.flappingLikely ? 'yes' : 'no'} | recentFailures=${report.repairPolicy.matchingRecentFailures}`,
   );
   if (report.forceRepair) {
-    console.log('[zavorth-bridge-remote] policy override: force=sim');
+    console.log('[zavorth-bridge-remote] policy override: force=yes');
   }
   if (report.repairPolicy.reason) {
     console.log(`[zavorth-bridge-remote] policy note: ${report.repairPolicy.reason}`);
   }
 
   if (report.actions.length > 0) {
-    console.log('[zavorth-bridge-remote] acoes:');
+    console.log('[zavorth-bridge-remote] actions:');
     for (const action of report.actions) {
       console.log(
-        `- ${action.key}: ${action.ok ? 'ok' : 'falhou'} | changed=${action.changed ? 'sim' : 'nao'} | ${action.message}`,
+        `- ${action.key}: ${action.ok ? 'ok' : 'failed'} | changed=${action.changed ? 'yes' : 'no'} | ${action.message}`,
       );
     }
   }
 
   if (report.remainingRecommendations.length > 0) {
-    console.log('[zavorth-bridge-remote] pendencias restantes:');
+    console.log('[zavorth-bridge-remote] pending items restantes:');
     for (const recommendation of report.remainingRecommendations) {
       console.log(`- ${recommendation}`);
     }
@@ -69,6 +69,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(`[zavorth-bridge-remote] doctor falhou: ${error.message || error}`);
+  console.error(`[zavorth-bridge-remote] doctor failed: ${error.message || error}`);
   process.exitCode = 1;
 });

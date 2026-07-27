@@ -67,15 +67,15 @@ function main(): void {
       rcFlagDefaultOff,
       globalRolloutEnabled,
       autoPromoteEnabled,
-      actorId: 'checkpoint-80-gate',
-      releaseCandidateReceiptId: 'checkpoint-80-release-candidate',
-      trialReportId: 'checkpoint-80-trial-report',
-      incidentReviewId: 'checkpoint-80-incident-review',
-      rolloutPlanId: stagedRolloutPlanReady ? 'checkpoint-80-staged-rollout-plan' : null,
-      killSwitchReceiptId: killSwitchReady ? 'checkpoint-80-kill-switch' : null,
-      telemetryReviewId: telemetryReviewPassed ? 'checkpoint-80-telemetry-review' : null,
-      privacyReviewId: privacyReviewPassed ? 'checkpoint-80-privacy-review' : null,
-      reason: 'checkpoint-80-release-candidate-gate',
+      actorId: 'gate-80-gate',
+      releaseCandidateReceiptId: 'gate-80-release-candidate',
+      trialReportId: 'gate-80-trial-report',
+      incidentReviewId: 'gate-80-incident-review',
+      rolloutPlanId: stagedRolloutPlanReady ? 'gate-80-staged-rollout-plan' : null,
+      killSwitchReceiptId: killSwitchReady ? 'gate-80-kill-switch' : null,
+      telemetryReviewId: telemetryReviewPassed ? 'gate-80-telemetry-review' : null,
+      privacyReviewId: privacyReviewPassed ? 'gate-80-privacy-review' : null,
+      reason: 'gate-80-release-candidate-gate',
     });
 
     if (asJson) {
@@ -90,7 +90,7 @@ function main(): void {
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
-    process.stderr.write(`[capability-autopilot-release-candidate] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.stderr.write(`[capability-autopilot-release-candidate] failure: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   }
 }

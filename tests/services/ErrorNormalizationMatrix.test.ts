@@ -74,7 +74,7 @@ describe('ErrorNormalizationService - Combinatorial Matrix Tests', () => {
     { pre: '', post: '' },
     { pre: 'Error: ', post: '' },
     { pre: '', post: '!' },
-    { pre: '[CRITICAL] ', post: ' (halted)' },
+    { pre: '[CRITICAL] ', post: ' (there islted)' },
     { pre: 'Failed: ', post: ' - please retry' },
     { pre: 'Error at runtime: ', post: ' in service' },
     { pre: 'Warning: ', post: ' detected' },

@@ -134,10 +134,10 @@ function normalizeDecision(value: string | undefined): 'approved' | 'rejected' |
   const normalized = String(value ?? '')
     .trim()
     .toLowerCase();
-  if (['approve', 'approved', 'aprovar', 'aprovado'].includes(normalized)) {
+  if (['approve', 'approved', 'approve', 'approved'].includes(normalized)) {
     return 'approved';
   }
-  if (['reject', 'rejected', 'rejeitar', 'rejeitado'].includes(normalized)) {
+  if (['reject', 'rejected', 'reject', 'rejected'].includes(normalized)) {
     return 'rejected';
   }
   return undefined;

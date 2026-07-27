@@ -131,6 +131,6 @@ $eyePath.Dispose()
 $graphics.Dispose()
 $bitmap.Dispose()
 
-Write-Host 'Icones do launcher gerados com sucesso:'
+Write-Host 'Icones do launcher generated com success:'
 Write-Host $pngPath
 Write-Host $icoPath

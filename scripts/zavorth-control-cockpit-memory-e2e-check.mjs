@@ -104,7 +104,7 @@ async function main() {
   page.on("pageerror", (error) => consoleErrors.push(`pageerror: ${error.message}`));
 
   try {
-    await page.goto(`http://127.0.0.1:${port}/?qa=cockpit-memory-e2e`, {
+    await page.goto(`http://127.0.0.1:${port}/...qa=cockpit-memory-e2e`, {
       waitUntil: "domcontentloaded",
       timeout: 20_000,
     });

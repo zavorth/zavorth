@@ -20,12 +20,12 @@ describe('WorkspaceRuntimeReadinessService', () => {
         expect.objectContaining({ code: 'missing_default_model' })
       ])
     );
-    
+
     const stringified = JSON.stringify(result);
     expect(stringified).not.toMatch(/secretRef|API key|Authorization|Bearer/i);
     expect(stringified).toMatch(/missing_default_provider/);
   });
-  
+
   it('does not leak sk-zavorth-workspace-config-DO-NOT-LEAK-21J in readiness', async () => {
     const service = WorkspaceRuntimeReadinessService.getInstance();
     const result = await service.checkReadiness('test-ws');

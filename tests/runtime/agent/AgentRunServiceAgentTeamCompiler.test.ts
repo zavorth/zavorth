@@ -12,7 +12,7 @@ describe('AgentRunService Agent Team Compiler Channel mesh0', () => {
       idFactory: createIdFactory(),
       executor: () => ({
         status: 'completed' as const,
-        summary: 'Team compiler observou plano de equipe.',
+        summary: 'Team compiler observed team plan.',
         replyText: 'ok',
         metadata: {
           providerArena: {
@@ -30,7 +30,7 @@ describe('AgentRunService Agent Team Compiler Channel mesh0', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-agent-team',
-      text: 'compile uma equipe de agentes para implementar, revisar e validar esta entrega',
+      text: 'assemble an agent team to implement, review, and validate this delivery',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

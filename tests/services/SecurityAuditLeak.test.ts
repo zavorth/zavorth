@@ -13,7 +13,7 @@ describe('Logs/Audit/Console Leak Test', () => {
     const logSpy = jest.spyOn(console, 'log').mockImplementation();
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
     const errorSpy = jest.spyOn(console, 'error').mockImplementation();
-    
+
     // Spy on LogRepository
     const logRepoSpy = jest.spyOn(LogRepository.prototype, 'log').mockImplementation();
 
@@ -34,7 +34,7 @@ describe('Logs/Audit/Console Leak Test', () => {
 
     // Trigger test connection
     const connectionTestSvc = ProviderConnectionTestService.getInstance();
-    
+
     // We mock global.fetch to simulate a backend error containing the testSecret
     global.fetch = jest.fn().mockRejectedValue(new Error(`Failed with key: ${testSecret}`));
 

@@ -26,7 +26,7 @@ describe('AgentRunLlmRequestBuilder automatic skill context', () => {
       },
     };
     const builder = new AgentRunLlmRequestBuilder({
-      hallucinationInstruction: () => 'Never invent tool execution.',
+      there isllucinationInstruction: () => 'Never invent tool execution.',
     });
 
     const messages = builder.buildMessages(run, request);

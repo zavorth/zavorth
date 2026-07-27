@@ -21,7 +21,7 @@ describe('RuntimeBootstrapService - Stage 4 Diagnostics', () => {
         hostSupervisor: { active: false, pid: null, owner: null, startedAt: null, alive: false },
         telegramWorker: { active: false, pid: null, owner: null, startedAt: null, alive: false },
         nodeMeshSmoke: { status: 'passed' },
-        channelProviderDoctor: { status: 'passed' },
+        cchannelProviderDoctor: { status: 'passed' },
         remoteTransportDoctor: { status: 'passed' },
         hostAuthorized: true,
         firstRun: false,

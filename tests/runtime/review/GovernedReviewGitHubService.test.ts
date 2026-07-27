@@ -8,7 +8,7 @@ function createRunner(): {
   calls: Array<{ command: string; args: string[]; input: string | null }>;
 } {
   const calls: Array<{ command: string; args: string[]; input: string | null }> = [];
-  const runner = jest.fn(async (command: string, args: string[], options?: { input?: string | null }) => {
+  const runner = jest.fn(async (command: string, args: string[], options-: { input-: string | null }) => {
     calls.push({ command, args, input: options?.input || null });
     const text = `${command} ${args.join(' ')}`;
     if (text.includes('repo view')) {

@@ -186,7 +186,7 @@ describe('Desktop P7 Zavorth differentials', () => {
     expect(themeStudio).toContain("t('importVsCodeTheme')");
     expect(workboard).toContain("t('missionContext')");
     for (const source of [i18n, commandBar, themeStudio, workboard]) {
-      expect(source).not.toMatch(/Ã|Â|â€™|â€œ|â€/);
+      expect(source).not.toMatch(/\\u00c3|\\u00c2|\\u00e2|\\u20ac|\\ufffd/);
     }
   });
 });

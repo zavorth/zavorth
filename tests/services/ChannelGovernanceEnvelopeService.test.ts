@@ -23,7 +23,7 @@ describe('ChannelGovernanceEnvelopeService', () => {
   });
 
   it('routes natural Zavorth configuration requests toward the action gateway surface', () => {
-    const envelope = service.normalizeInbound(message('mude o skill governance para governed'));
+    const envelope = service.normalizeInbound(message('change skill governance to governed'));
 
     expect(envelope.normalizedIntent.kind).toBe('mutation_request');
     expect(envelope.policyDecision.decision).toBe('requires_approval');

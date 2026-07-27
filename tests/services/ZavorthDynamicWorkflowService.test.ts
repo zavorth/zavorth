@@ -10,7 +10,7 @@ describe('ZavorthDynamicWorkflowService', () => {
     const service = new ZavorthDynamicWorkflowService({ now });
 
     const snapshot = service.buildPreview({
-      objective: 'Analise 80 arquivos e sintetize os riscos principais usando token=secret-value',
+      objective: 'Analyze 80 files and synthesize the main risks using token=secret-value',
       requestedFanout: 80,
       maxConcurrency: 12,
       maxCents: 75,
@@ -42,7 +42,7 @@ describe('ZavorthDynamicWorkflowService', () => {
     const service = new ZavorthDynamicWorkflowService({ now });
 
     const snapshot = service.buildPreview({
-      objective: 'Faça pesquisa massiva sem limite',
+      objective: 'Do massive research without limit',
       requestedFanout: 500,
       maxConcurrency: 60,
       maxCents: 1,
@@ -90,7 +90,7 @@ describe('ZavorthDynamicWorkflowService', () => {
       },
     });
     const snapshot = service.buildPreview({
-      objective: 'Compare fornecedores e gere uma sintese final',
+      objective: 'Compare providers and generate a final synthesis',
       requestedFanout: 24,
       maxConcurrency: 6,
       maxCents: 50,
@@ -180,7 +180,7 @@ describe('ZavorthDynamicWorkflowService', () => {
       },
     });
     const snapshot = service.buildPreview({
-      objective: 'Audite 32 arquivos usando token=secret-value',
+      objective: 'Audite 32 files usando token=secret-value',
       requestedFanout: 32,
       maxConcurrency: 8,
       maxCents: 80,

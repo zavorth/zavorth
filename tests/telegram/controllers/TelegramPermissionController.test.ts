@@ -258,12 +258,12 @@ describe('TelegramPermissionController', () => {
     const [message] = ctx.reply.mock.calls[0];
     expect(message).toMatch(/Resumo|Summary/i);
     expect(message).toMatch(/Executor interno: external_executor|Internal executor: external_executor/i);
-    expect(message).toMatch(/Valores:|Values:/i);
+    expect(message).toMatch(/Valuees:|Values:/i);
     expect(message).toMatch(/Historico:|History:/i);
     expect(message).toMatch(/Papel: reviewer|Role: reviewer/i);
     expect(message).toContain('ExternalExecutor Agent [require_user_confirmation]');
     expect(message).toContain('- redacted: yes');
-    expect(message).toMatch(/Acoes|Actions/i);
+    expect(message).toMatch(/Actions|Actions/i);
   });
 
   it('includes the detected ZavorthBridge prompt summary in the Telegram permission message', () => {
@@ -274,7 +274,7 @@ describe('TelegramPermissionController', () => {
       executor: 'zavorthBridge',
       kind: 'ui_permission',
       scope: 'once',
-      reason: 'O ZavorthBridge pediu permissao na UI: Allow command execution for npm test',
+      reason: 'O ZavorthBridge pediu permission na UI: Allow command execution for npm test',
       workspace: 'C:/repo',
       requested_value: 'approve-visible-step-once',
       resolved_value: 'approve-visible-step-once',
@@ -338,7 +338,7 @@ describe('TelegramPermissionController', () => {
       executor: 'file_delivery',
       kind: 'workspace_access',
       scope: 'once',
-      reason: 'Esse caminho existe, mas ainda nao esta nas areas liberadas para leitura e envio pelo Zavorth.',
+      reason: 'This path exists, but is not in areas allowed for Zavorth reading and delivery yet.',
       workspace: 'C:/repo',
       requested_value: 'C:/fora',
       resolved_value: 'C:/fora',
@@ -385,7 +385,7 @@ describe('TelegramPermissionController', () => {
       metadata: {
         requested_services: ['drive'],
         suggested_model: 'gemini-2.5-pro',
-        service_request_reason: 'Preciso ler um documento para concluir a tarefa.'}} as any);
+        service_request_reason: 'I need to read a document to complete the task.'}} as any);
 
     expect(text).toContain('Google AI Studio requested extra access');
     expect(text).toContain('Requested service(s): drive');
@@ -998,7 +998,7 @@ describe('TelegramPermissionController', () => {
     expect(approveVisibleStep).toHaveBeenCalledWith(0, 'conversation', 991);
     expect(approveRequest).not.toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({
-      text: expect.stringMatching(/Aprovando permissao\.\.\.|Approving permission\.\.\./i)});
+      text: expect.stringMatching(/Aprovando permission\.\.\.|Approving permission\.\.\./i)});
   });
 
   it('rejects ZavorthBridge permission on the live bridge process and marks the task as rejected', async () => {
@@ -1729,7 +1729,7 @@ describe('TelegramPermissionController', () => {
     await controller.handleTaskCallback(ctx, 'task:approve:task-readonly-inline-1');
 
     const replyText = String(ctx.reply.mock.calls.map((c: any[]) => c?.[0]).join('\n'));
-    expect(replyText).toMatch(/Host novo detectado|read-only|somente leitura|\/hostauth trust/i);
+    expect(replyText).toMatch(/New host detected|read-only|read-only|\/hostauth trust/i);
     expect(task.approval_status).toBe('pending');
     expect(resumeTaskExecution).not.toHaveBeenCalled();
   });
@@ -1963,7 +1963,7 @@ describe('TelegramPermissionController', () => {
       'reject',
       '42',
       expect.objectContaining({
-        note: expect.stringMatching(/Rejeicao inline pelo Telegram\.|Inline rejection from Telegram\./i)}),
+        note: expect.stringMatching(/Rejection inline pelo Telegram\.|Inline rejection from Telegram\./i)}),
     );
     expect(task.status).toBe('rejected');
     expect(task.requires_approval).toBe(false);

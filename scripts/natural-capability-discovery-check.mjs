@@ -69,7 +69,7 @@ const rules = [
       'capability-discovery',
       'Natural Capability Discovery - Capability Discovery',
       'resolveCapabilityDiscoveryCliText',
-      'zavorth discover "<pedido>" [--json]',
+      'zavorth discover "<request>" [--json]',
     ],
   }),
   ruleContainsAcross({

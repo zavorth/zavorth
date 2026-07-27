@@ -40,8 +40,8 @@ function readCliValue(name: string): string {
 function readEnvTokenFromFile(filePath: string): string {
   if (!fs.existsSync(filePath)) return "";
   const raw = fs.readFileSync(filePath, "utf8");
-  for (const line of raw.split(/\r?\n/)) {
-    const match = line.match(/^\s*ZAVORTH_WEB_AUTH_TOKEN\s*=\s*(.+?)\s*$/);
+  for (const line of raw.split(/\r...\n/)) {
+    const match = line.match(/^\s*ZAVORTH_WEB_AUTH_TOKEN\s*=\s*(.+...)\s*$/);
     if (match) return match[1].trim().replace(/^["']|["']$/g, "");
   }
   return "";
@@ -120,7 +120,7 @@ async function installVoiceStub(page: any): Promise<void> {
   await page.addScriptTag({
     content: `
       (() => {
-        const spokenText = "analise este pedido por voz";
+        const spokenText = "analyze this voice request";
         function FakeSpeechRecognition() {
           this.lang = "en-US";
           this.interimResults = true;
@@ -153,7 +153,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
 
   if (!options.token) {
     report.skipped = true;
-    pushSkip(report, "token-required", "Nenhum token local encontrado. Use zavorth zavorthControl token ou passe --token=...");
+    pushSkip(report, "token-required", "No token local encontrado. Use zavorth zavorthControl token ou passe --token=...");
     return report;
   }
 
@@ -169,8 +169,8 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       await page.waitForLoadState("load", { timeout: 10_000 }).catch(() => undefined);
     } catch (error: unknown) {
       report.skipped = !options.requireLive;
-      if (options.requireLive) pushCheck(report, "live-server-reachable", false, `Nao consegui abrir o ZavorthControl real: ${String(error?.message || error)}`);
-      else pushSkip(report, "live-server-reachable", "Servidor local nao respondeu. Inicie com npm run start:zavorth-control ou npm run go.");
+      if (options.requireLive) pushCheck(report, "live-server-reachable", false, `Could not open the real ZavorthControl: ${String(error?.message || error)}`);
+      else pushSkip(report, "live-server-reachable", "local server did not respond. Start with npm run start:zavorth-control or npm run go.");
       return report;
     }
 
@@ -189,7 +189,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     pushCheck(report, "composer-buttons-exist-live", shellState.hasAttach && shellState.hasSkills && shellState.hasVoice, "ZavorthControl real exibe botoes de anexo, skills e voz.");
     pushCheck(report, "runtime-token-unlocked-live", shellState.authState === "unlocked" || /\bready\b/i.test(shellState.pulseLabel), `Estado de token no topo: ${shellState.authState || shellState.pulseLabel || "indefinido"}.`);
 
-    await page.locator('input[type="file"]').first().setInputFiles({ name: "qa-live-notas.txt", mimeType: "text/plain", buffer: Buffer.from("QA live: anexo textual pequeno para validar composer.", "utf8") });
+    await page.locator('input[type="file"]').first().setInputFiles({ name: "qa-live-notes.txt", mimeType: "text/plain", buffer: Buffer.from("QA live: small text attachment to validate the composer.", "utf8") });
     await page.waitForSelector(".compose-attachment-chip", { timeout: 10_000 });
     const attachmentUi = await page.evaluate(() => ({
       chips: document.querySelectorAll(".compose-attachment-chip").length,
@@ -197,19 +197,19 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       sendActive: document.getElementById("send-btn")?.classList.contains("active") || false,
     }));
     report.metrics.attachmentUi = attachmentUi;
-    pushCheck(report, "attachment-chip-visible-live", attachmentUi.chips === 1 && /qa-live-notas\.txt/i.test(attachmentUi.text), "Anexo textual aparece no composer real antes do envio.");
+    pushCheck(report, "attachment-chip-visible-live", attachmentUi.chips === 1 && /qa-live-notas\.txt/i.test(attachmentUi.text), "Anexo textual aparece no composer real before do envio.");
 
     if (options.allowSend) {
       const beforeCards = await page.evaluate(() => ({ artifacts: document.querySelectorAll(".zavorth-artifact-card").length, approvals: document.querySelectorAll(".zavorth-approval-card").length }));
-      await sendComposerMessage(page, "resuma este anexo em uma frase");
+      await sendComposerMessage(page, "summarize este anexo em uma frase");
       await page.waitForFunction(() => document.querySelectorAll(".echo-group.core .echo-bubble").length > 0, null, { timeout: 45_000 }).catch(() => undefined);
       await page.waitForTimeout(800);
       const afterAttachmentSend = await page.evaluate(() => ({ artifacts: document.querySelectorAll(".zavorth-artifact-card").length, approvals: document.querySelectorAll(".zavorth-approval-card").length, text: document.body.innerText }));
       report.metrics.afterAttachmentSend = afterAttachmentSend;
-      pushCheck(report, "attachment-send-live-does-not-fake-artifact", afterAttachmentSend.artifacts === beforeCards.artifacts && afterAttachmentSend.approvals === beforeCards.approvals, "Envio live de anexo textual nao cria artefato/approval falso por si so.");
+      pushCheck(report, "attachment-send-live-does-not-synthetic-artifact", afterAttachmentSend.artifacts === beforeCards.artifacts && afterAttachmentSend.approvals === beforeCards.approvals, "Live text attachment send does not create synthetic artifact/approval by itself.");
     } else {
       report.skipped = true;
-      pushSkip(report, "attachment-send-live-skipped", "Nao enviei anexo real. Rode com --allow-send para validar o caminho live.");
+      pushSkip(report, "attachment-send-live-skipped", "No real attachment was sent. Run with --allow-send to validate the live path.");
     }
 
     await page.locator('.compose-dock__btn[title="Habilidades"], .compose-dock__btn[title="Trace"]').click();
@@ -219,23 +219,23 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     }));
     report.metrics.skillState = skillState;
     if (skillState.options.length > 0) {
-      pushCheck(report, "skills-popover-opens-live", true, "Popover de skills abre no zavorthControl real e nao fica preso atras do chat.");
+      pushCheck(report, "skills-popover-opens-live", true, "Skills popover opens in real zavorthControl and does not get stuck behind chat.");
     } else {
-      pushSkip(report, "skills-popover-opens-live", "A UI live atual usa Trace/Tools no composer e nao expõe o popover legado de skills.");
+      pushSkip(report, "skills-popover-opens-live", "The current live UI uses Trace/Tools in the composer and does not expose the legacy skills popover.");
     }
 
     const firstSkillId = String(skillState.options[0]?.id || "");
     if (firstSkillId) {
       await page.locator(`.compose-skill-option[data-skill-id="${firstSkillId.replace(/"/g, '\\"')}"]`).click();
       const inputAfterSkill = await page.locator("#compose-input").inputValue();
-      pushCheck(report, "skill-selection-live-does-not-auto-run", inputAfterSkill.trim().length > 0, "Selecionar skill no live prepara o prompt, sem executar automaticamente.");
+      pushCheck(report, "skill-selection-live-does-not-auto-run", inputAfterSkill.trim().length > 0, "Selecting a skill no live prepares the prompt, without running automatically.");
       if (options.allowSkillSend) {
-        await sendComposerMessage(page, "use esta skill de forma segura e responda curto");
+        await sendComposerMessage(page, "use is skill de forma safe e reply curto");
         await page.waitForTimeout(1200);
         const afterSkillSend = await page.evaluate(() => ({ artifacts: document.querySelectorAll(".zavorth-artifact-card").length, approvals: document.querySelectorAll(".zavorth-approval-card").length }));
         report.metrics.afterSkillSend = afterSkillSend;
       } else {
-        pushSkip(report, "skill-send-live-skipped", "Nao enviei skill real. Use --allow-skill-send se quiser acionar o runtime com a skill selecionada.");
+        pushSkip(report, "skill-send-live-skipped", "No real skill was sent. Use --allow-skill-send if you want to trigger runtime with the selected skill.");
       }
     }
 
@@ -245,17 +245,17 @@ async function runQa(options: CliOptions): Promise<QaReport> {
 
     await installVoiceStub(page);
     await page.locator('.compose-dock__btn[title="Voz"], .compose-dock__btn[title="Voice"]').click();
-    await page.waitForFunction(() => /analise este pedido por voz/i.test((document.getElementById("compose-input") as HTMLTextAreaElement | null)?.value || ""), null, { timeout: 10_000 });
+    await page.waitForFunction(() => /analyze this voice request/i.test((document.getElementById("compose-input") as HTMLTextAreaElement | null)?.value || ""), null, { timeout: 10_000 });
     const voiceState = await page.evaluate(() => ({ value: (document.getElementById("compose-input") as HTMLTextAreaElement | null)?.value || "" }));
     report.metrics.voiceState = voiceState;
-    pushCheck(report, "voice-transcript-live-enters-composer", /analise este pedido por voz/i.test(voiceState.value), "Stub de voz valida o caminho do browser ate o composer real.");
+    pushCheck(report, "voice-transcript-live-enters-composer", /analyze this voice request/i.test(voiceState.value), "Local de voz valida o path do browser ate o composer real.");
 
     if (options.allowSend) {
       await sendComposerMessage(page);
       await page.waitForTimeout(1200);
       const afterVoiceSend = await page.evaluate(() => ({ artifacts: document.querySelectorAll(".zavorth-artifact-card").length, approvals: document.querySelectorAll(".zavorth-approval-card").length }));
       report.metrics.afterVoiceSend = afterVoiceSend;
-      pushCheck(report, "voice-send-live-does-not-fake-artifact", afterVoiceSend.artifacts === 0 && afterVoiceSend.approvals === 0, "Envio live de voz simples nao cria artefato/approval falso.");
+      pushCheck(report, "voice-send-live-does-not-synthetic-artifact", afterVoiceSend.artifacts === 0 && afterVoiceSend.approvals === 0, "Simple live voice send does not create synthetic artifact/approval.");
     }
 
     const finalScreenshot = path.join(options.outDir, "02-live-composer-final.png");

@@ -17,12 +17,12 @@ const snapshot = service.buildEnvelope({
     'src/contracts/ZavorthHandoffEnvelopeContract.ts',
   ],
   securityApprovals: ['No live execution approval granted.'],
-  remainingTodos: ['Implement .zavorth/wiki baseline in phase 3.'],
-  nextPrescribedAction: 'Review the envelope, then start phase 3 wiki baseline.',
+  remainingTodos: ['Implement .zavorth/wiki baseline in gate 3.'],
+  nextPrescribedAction: 'Review the envelope, then start gate 3 wiki baseline.',
   messages: [
     {
       role: 'user',
-      content: 'Do phase 2 and keep the next phase explicit. token=demo-secret-value',
+      content: 'Do gate 2 and keep the next phase explicit. token=demo-secret-value',
     },
     {
       role: 'tool',

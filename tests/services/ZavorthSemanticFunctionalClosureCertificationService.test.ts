@@ -177,7 +177,7 @@ describe('ZavorthSemanticFunctionalClosureCertificationService S9', () => {
           liveIoPerformed: false,
         }),
       },
-      channelMeshExpansionService: {
+      cchannelMeshExpansionService: {
         buildSnapshot: () => snapshot('passed', {
           packs: 8,
           packsReadyOrReplaced: 8,

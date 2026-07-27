@@ -25,10 +25,10 @@ describe('RecentTaskResolver', () => {
       ]),
     } as any);
 
-    const reply = resolver.resolve('user-1', 'current-task', 'cadê?');
+    const reply = resolver.resolve('user-1', 'current-task', 'where is it-');
 
     expect(reply).toContain('A ultima tarefa ainda esta em andamento.');
     expect(reply).toContain('task-run');
-    expect(reply).toContain('Coletando fontes');
+    expect(reply).toContain('Collecting sources');
   });
 });

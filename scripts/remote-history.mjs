@@ -24,7 +24,7 @@ function readHistory() {
 
 function formatWhen(value) {
   if (!value) {
-    return 'sem data';
+    return 'without data';
   }
 
   return new Date(value).toLocaleString('en-US');
@@ -37,10 +37,10 @@ function main() {
     return;
   }
 
-  console.log('[remote-history] ultimos publishes');
+  console.log('[remote-history] latests publishes');
   for (const entry of entries.slice(0, 8)) {
     console.log(
-      `- ${entry.archive?.id || 'sem-archive'} | ${formatWhen(entry.publishedAt)} | ${entry.branch || 'n/d'} | ${String(
+      `- ${entry.archive?.id || 'without-archive'} | ${formatWhen(entry.publishedAt)} | ${entry.branch || 'n/d'} | ${String(
         entry.commit || '',
       ).slice(0, 8)} | docs=${entry.targets?.docs?.productionUrl || entry.targets?.docs?.deploymentUrl || 'n/d'} | console=${
         entry.targets?.remoteConsole?.productionUrl || entry.targets?.remoteConsole?.deploymentUrl || 'n/d'

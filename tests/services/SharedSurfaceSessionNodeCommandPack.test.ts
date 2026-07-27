@@ -12,7 +12,7 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
         taskId: 'task-123',
         snapshot: {
           handoff: {
-            operatorSummary: 'Handoff pronto para continuar.',
+            operatorSummary: 'Handoff ready to continue.',
           },
         },
       })),
@@ -36,12 +36,12 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: '/sessionsend web:session-2 -- continue o plano',
+      rawText: '/sessionsend web:session-2 -- continue the plan',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
 
-    const handled = await pack.maybeHandle(ctx as any, '/sessionsend', 'web:session-2 -- continue o plano');
+    const handled = await pack.maybeHandle(ctx as any, '/sessionsend', 'web:session-2 -- continue the plan');
 
     expect(handled).toBe(true);
     expect(sessionPlaneService.sendToSession).toHaveBeenCalledWith(
@@ -49,7 +49,7 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
         platform: 'web',
         chatId: 'web:session-2',
         sessionId: 'session-2',
-        text: 'continue o plano',
+        text: 'continue the plan',
       }),
     );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Message dispatched to the session.'));
@@ -86,16 +86,16 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: '/sessionsend web:session-2 continue o plano',
+      rawText: '/sessionsend web:session-2 continue the plan',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
 
-    await pack.maybeHandle(ctx as any, '/sessionsend', 'web:session-2 continue o plano');
+    await pack.maybeHandle(ctx as any, '/sessionsend', 'web:session-2 continue the plan');
 
     expect(sessionPlaneService.sendToSession).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: 'continue o plano',
+        text: 'continue the plan',
         chatId: 'web:session-2',
       }),
     );
@@ -132,16 +132,16 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: '/sessionsend web:session-2 continue o plano',
+      rawText: '/sessionsend web:session-2 continue the plan',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
 
-    await pack.maybeHandle(ctx as any, '/sessionsend', 'web:session-2 continue o plano');
+    await pack.maybeHandle(ctx as any, '/sessionsend', 'web:session-2 continue the plan');
 
     expect(sessionPlaneService.sendToSession).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: 'continue o plano',
+        text: 'continue the plan',
         chatId: 'web:session-2',
       }),
     );
@@ -196,7 +196,7 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
       nodeMeshService: {
         buildSnapshot: jest.fn(() => ({
           narrative: {
-            headline: 'Node Mesh ativo',
+            headline: 'Node Mesh active',
             operatorSummary: 'Dois nodes pareados.',
           },
           summary: {
@@ -211,8 +211,8 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
           selectedActivity: {
             nodeId: 'oracle-node',
             narrative: {
-              headline: 'Fila com uma invocacao.',
-              operatorSummary: 'Uma invocacao aguardando claim.',
+              headline: 'Fila com uma invocation.',
+              operatorSummary: 'Uma invocation waiting for claim.',
             },
             summary: {
               pending: 1,
@@ -224,7 +224,7 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
               {
                 capabilityId: 'system.run',
                 status: 'pending',
-                resultSummary: 'aguardando agente',
+                resultSummary: 'waiting for agente',
               },
             ],
             recentInvocations: [],
@@ -256,6 +256,6 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Node Mesh queue'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('system.run (pending) :: aguardando agente'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('system.run (pending) :: waiting for agente'));
   });
 });

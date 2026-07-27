@@ -22,7 +22,7 @@ function createFlags(json: boolean) {
 
 describe('Zavorth CLI productization evidence Channel mesh6', () => {
   it('parses release readiness text after aliases', () => {
-    expect(resolveProductizationEvidenceCliText('release-readiness "auditar produto"')).toBe('auditar produto');
+    expect(resolveProductizationEvidenceCliText('release-readiness "auditar product"')).toBe('auditar product');
     expect(resolveProductizationEvidenceCliText('productization-evidence latest')).toBe('');
   });
 
@@ -80,6 +80,6 @@ describe('Zavorth CLI productization evidence Channel mesh6', () => {
     expect(text).toContain('Productization Evidence & Release Readiness - Channel mesh6');
     expect(text).toContain('noReleasePublished');
     expect(text).toContain('stable requer release real');
-    expect(text).toContain('Dashboard: /zavorthControl?runId=');
+    expect(text).toContain('Dashboard: /zavorthControl-runId=');
   });
 });

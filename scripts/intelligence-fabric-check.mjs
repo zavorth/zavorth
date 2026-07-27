@@ -64,7 +64,7 @@ const staticRules = [
     target: 'risk 0-2 are free; risk 3 local owner reversible workspace writes are allowed; risk 4/5 are gated',
     files: ['src/services/IntelligenceRiskGateService.ts'],
     needles: [
-      'risk-0-2-thinking-planning-simulation-free',
+      'risk-0-2-thinking-planning-dry-run-free',
       'Risk 5 action requires explicit owner approval before impact.',
       'Reversible workspace impact is allowed in local owner/developer fast mode.',
       'Risk 4 action requires sandbox/dry-run or explicit approval before impact.',
@@ -191,7 +191,7 @@ const staticRules = [
   ruleContainsAll({
     id: 'intelligence-fabric-risk-3-draft-guidance',
     label: 'Fabric canary attaches Risk 3 draft guidance without live impact',
-    target: 'risk 3 requests get proposal/simulation guidance while patch, tool and commit remain disabled',
+    target: 'risk 3 requests get proposal/dry-run guidance while patch, tool and commit remain disabled',
     files: ['src/runtime/agent/AgentRunIntelligenceFabricCanary.ts'],
     needles: [
       'risk-3-draft-guidance',
@@ -323,8 +323,8 @@ const staticRules = [
       'buildIntelligenceFabricDraftGuidancePrompt',
       'Intelligence Fabric context pack:',
       'Intelligence Fabric draft guidance:',
-      'nao trate como prova de execucao de ferramenta',
-      'nao afirme que patch, arquivo ou comando foi aplicado',
+      'do not treat as proof of tool execution',
+      'do not claim that a patch, file, or command was applied',
     ],
   }),
   ruleContainsAll({
@@ -334,8 +334,8 @@ const staticRules = [
     files: ['src/runtime/agent/AgentRunIntelligenceFabricDiffReceiptRenderer.ts'],
     needles: [
       'renderIntelligenceFabricDiffReceipt',
-      'Previa de alteracao',
-      'so com pedido explicito',
+      'Previa de change',
+      'so com request explicit',
     ],
   }),
   ruleContainsAll({
@@ -399,7 +399,7 @@ const staticRules = [
       'liveActionApplied',
       'Draft {preview.observability.draftReady',
       'Gate {preview.observability.riskGateDecision',
-      'sem impacto live',
+      'without impacto live',
     ],
   }),
   ruleContainsAcross({
@@ -429,8 +429,8 @@ const staticRules = [
       'scripts/intelligence-fabric-rollback-drill.ts',
     ],
     needles: [
-      'Intelligence Fabric desativado',
-      'Intelligence Fabric usou fallback atual',
+      'Intelligence Fabric desactivedo',
+      'Intelligence Fabric usou fallback current',
       'currentRuntimeFallbackRetained',
       'intelligence-fabric-rollback',
       'metadata.status === scenario.expectedStatus',
@@ -496,7 +496,7 @@ const staticRules = [
       'intelligenceFabricMode: \'disabled\'',
       'intelligenceFabricDemoteControlled',
       'onDemoteIntelligenceFabric',
-      'Desativar Fabric',
+      'Desactiver Fabric',
       'globalRuntimeChanged: false',
     ],
   }),
@@ -557,7 +557,7 @@ const dynamicRule = {
     dynamic.error ? String(dynamic.error.message || dynamic.error) : '',
     dynamic.stdout,
     dynamic.stderr,
-  ].filter(Boolean).join('\n').split(/\r?\n/).slice(0, 30),
+  ].filter(Boolean).join('\n').split(/\r...\n/).slice(0, 30),
 };
 
 const dynamicSurface = spawnSync(process.execPath, [tsxCli, 'scripts/intelligence-fabric-surface-default-gate.ts', '--json'], {
@@ -574,7 +574,7 @@ const dynamicSurfaceRule = {
     dynamicSurface.error ? String(dynamicSurface.error.message || dynamicSurface.error) : '',
     dynamicSurface.stdout,
     dynamicSurface.stderr,
-  ].filter(Boolean).join('\n').split(/\r?\n/).slice(0, 30),
+  ].filter(Boolean).join('\n').split(/\r...\n/).slice(0, 30),
 };
 
 const dynamicPromotion = spawnSync(process.execPath, [tsxCli, 'scripts/intelligence-fabric-promotion-gate.ts', '--json'], {
@@ -591,7 +591,7 @@ const dynamicPromotionRule = {
     dynamicPromotion.error ? String(dynamicPromotion.error.message || dynamicPromotion.error) : '',
     dynamicPromotion.stdout,
     dynamicPromotion.stderr,
-  ].filter(Boolean).join('\n').split(/\r?\n/).slice(0, 30),
+  ].filter(Boolean).join('\n').split(/\r...\n/).slice(0, 30),
 };
 
 const dynamicRelease = spawnSync(process.execPath, ['scripts/intelligence-fabric-release-snapshot.mjs', '--json'], {
@@ -608,7 +608,7 @@ const dynamicReleaseRule = {
     dynamicRelease.error ? String(dynamicRelease.error.message || dynamicRelease.error) : '',
     dynamicRelease.stdout,
     dynamicRelease.stderr,
-  ].filter(Boolean).join('\n').split(/\r?\n/).slice(0, 30),
+  ].filter(Boolean).join('\n').split(/\r...\n/).slice(0, 30),
 };
 
 const dynamicRollback = spawnSync(process.execPath, [tsxCli, 'scripts/intelligence-fabric-rollback-drill.ts', '--json'], {
@@ -625,7 +625,7 @@ const dynamicRollbackRule = {
     dynamicRollback.error ? String(dynamicRollback.error.message || dynamicRollback.error) : '',
     dynamicRollback.stdout,
     dynamicRollback.stderr,
-  ].filter(Boolean).join('\n').split(/\r?\n/).slice(0, 30),
+  ].filter(Boolean).join('\n').split(/\r...\n/).slice(0, 30),
 };
 
 const dynamicHealth = spawnSync(process.execPath, [tsxCli, 'scripts/intelligence-fabric-post-default-health-gate.ts', '--json'], {
@@ -642,7 +642,7 @@ const dynamicHealthRule = {
     dynamicHealth.error ? String(dynamicHealth.error.message || dynamicHealth.error) : '',
     dynamicHealth.stdout,
     dynamicHealth.stderr,
-  ].filter(Boolean).join('\n').split(/\r?\n/).slice(0, 30),
+  ].filter(Boolean).join('\n').split(/\r...\n/).slice(0, 30),
 };
 
 const dynamicOperationalCycle = spawnSync(process.execPath, [tsxCli, 'scripts/intelligence-fabric-operational-cycle-gate.ts', '--json'], {
@@ -659,7 +659,7 @@ const dynamicOperationalCycleRule = {
     dynamicOperationalCycle.error ? String(dynamicOperationalCycle.error.message || dynamicOperationalCycle.error) : '',
     dynamicOperationalCycle.stdout,
     dynamicOperationalCycle.stderr,
-  ].filter(Boolean).join('\n').split(/\r?\n/).slice(0, 30),
+  ].filter(Boolean).join('\n').split(/\r...\n/).slice(0, 30),
 };
 
 const rules = [

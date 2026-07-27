@@ -84,5 +84,5 @@ function fail(message) {
 }
 
 function stripAnsi(value) {
-  return String(value || '').replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, '');
+  return String(value || '').replace(/\u001b\[[0-9;...]*[ -/]*[@-~]/g, '');
 }

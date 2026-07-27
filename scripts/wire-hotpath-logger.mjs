@@ -77,7 +77,7 @@ function toLoggerImport(fromFile) {
 }
 
 function ensureLoggerImport(source, fromFile) {
-  if (/from\s+['"][^'"]*logger(?:\.js)?['"]/.test(source) && /\blogger\b/.test(source)) {
+  if (/from\s+['"][^'"]*logger(?:\.js)...['"]/.test(source) && /\blogger\b/.test(source)) {
     // already imports something named logger — check it is our module-ish
     if (/import\s*\{[^}]*\blogger\b[^}]*\}\s*from/.test(source)) return source;
   }
@@ -86,11 +86,11 @@ function ensureLoggerImport(source, fromFile) {
     const nl = source.indexOf('\n');
     const head = source.slice(0, nl + 1);
     const rest = source.slice(nl + 1);
-    const block = rest.match(/^(?:import[\s\S]*?;\r?\n)+/);
+    const block = rest.match(/^(?:import[\s\S]*...;\r...\n)+/);
     if (block) return head + block[0] + imp + rest.slice(block[0].length);
     return head + imp + rest;
   }
-  const block = source.match(/^(?:import[\s\S]*?;\r?\n)+/);
+  const block = source.match(/^(?:import[\s\S]*...;\r...\n)+/);
   if (block) return block[0] + imp + source.slice(block[0].length);
   return imp + source;
 }

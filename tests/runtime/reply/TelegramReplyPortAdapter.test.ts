@@ -18,11 +18,11 @@ function createRun(input: Partial<UniversalAgentRun> = {}): UniversalAgentRun {
     status: 'completed',
     createdAt: '2026-04-27T11:00:00.000Z',
     updatedAt: '2026-04-27T11:00:00.000Z',
-    summary: 'Resposta pronta.',
+    summary: 'Response ready.',
     events: [],
     toolExposure: {
       mode: 'safe',
-      summary: 'Sem ferramentas.',
+      summary: 'Sem tools.',
       tools: [],
     },
     replyPorts: [
@@ -59,13 +59,13 @@ describe('TelegramReplyPortAdapter', () => {
     const pipeline = new ReplyPipeline();
     const replies = pipeline.buildReplies({
       run: createRun(),
-      text: 'Mensagem para Telegram.',
+      text: 'Message for Telegram.',
       now: new Date('2026-04-27T11:01:00.000Z'),
     });
 
     const deliveries = await adapter.sendAll(replies);
 
-    expect(sentTexts).toEqual(['Mensagem para Telegram.']);
+    expect(sentTexts).toEqual(['Message for Telegram.']);
     expect(deliveries).toEqual([
       expect.objectContaining({
         sent: true,
@@ -95,7 +95,7 @@ describe('TelegramReplyPortAdapter', () => {
           },
         ],
       }),
-      text: 'Mensagem web.',
+      text: 'Web message.',
       now: new Date('2026-04-27T11:02:00.000Z'),
     });
 
@@ -105,7 +105,7 @@ describe('TelegramReplyPortAdapter', () => {
     expect(deliveries).toEqual([
       expect.objectContaining({
         sent: false,
-        skippedReason: 'Porta web nao e Telegram.',
+        skippedReason: 'Porta web not e Telegram.',
       }),
     ]);
   });

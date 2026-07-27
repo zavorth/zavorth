@@ -55,7 +55,7 @@ describe('SurfaceOperationalIntentService', () => {
   it('routes operational requests when tool affordances are present', () => {
     const decision = surfaceOperationalIntentService.classify({
       surface: 'telegram',
-      text: 'compare o que mudou nesta pasta e me mande um resumo',
+      text: 'compare what changed in this folder e me mande um summary',
     });
 
     expect(decision.shouldExecute).toBe(true);
@@ -77,11 +77,11 @@ describe('SurfaceOperationalIntentService', () => {
         tool: 'echo_hands',
       },
       {
-        text: 'ative o Watch Mode para observar a tela',
+        text: 'enable Watch Mode to observe the screen',
         tool: 'watchmode.control',
       },
       {
-        text: 'proponha uma auto melhoria segura para o Zavorth',
+        text: 'proponthere is uma auto melhoria segura para o Zavorth',
         tool: 'selfmod.preview',
       },
     ];
@@ -105,7 +105,7 @@ describe('SurfaceOperationalIntentService', () => {
   it('honors explicit execution even when the text is low-signal', () => {
     const decision = surfaceOperationalIntentService.classify({
       surface: 'cli',
-      text: 'olá',
+      text: 'hello',
       explicitExecution: true,
     });
 
@@ -135,7 +135,7 @@ describe('SurfaceOperationalIntentService', () => {
 
     const decision = await service.classifyWithSemantic({
       surface: 'web',
-      text: 'da uma olhada no que aconteceu nesse projeto quando puder',
+      text: 'look at what happened in this project when you can',
     });
 
     expect(semanticClassifier.chat).toHaveBeenCalled();
@@ -209,7 +209,7 @@ describe('SurfaceOperationalIntentService', () => {
   it('does not steal composer-owned contextual mentions', () => {
     const decision = surfaceOperationalIntentService.classify({
       surface: 'web',
-      text: 'compare este arquivo',
+      text: 'compare este file',
       hasContextualMentions: true,
     });
 
@@ -275,7 +275,7 @@ describe('SurfaceOperationalIntentService', () => {
 
     const decision = await service.decideResponse({
       surface: 'web',
-      text: 'analise minha ideia e me diga se faz sentido',
+      text: 'analise my ideia e me diga se faz sentido',
     });
 
     expect(semanticClassifier.chat).toHaveBeenCalled();
@@ -297,7 +297,7 @@ describe('SurfaceOperationalIntentService', () => {
 
     const decision = await service.decideResponse({
       surface: 'telegram',
-      text: 'olha isso aqui https://example.com/artigo',
+      text: 'look at this https://example.com/article',
     });
 
     expect(semanticClassifier.chat).not.toHaveBeenCalled();
@@ -324,7 +324,7 @@ describe('SurfaceOperationalIntentService', () => {
 
     const decision = await service.decideResponse({
       surface: 'web',
-      text: 'analise essa ideia e me diga o que acha',
+      text: 'analise essa ideia e me diga o que achat',
     });
 
     expect(decision).toEqual(
@@ -375,7 +375,7 @@ describe('SurfaceOperationalIntentService', () => {
 
     const decision = await service.decideResponse({
       surface: 'cli',
-      text: 'apague a pasta dist e rode npm test',
+      text: 'delete the dist folder and run npm test',
     });
 
     expect(decision).toEqual(
@@ -401,7 +401,7 @@ describe('SurfaceOperationalIntentService', () => {
 
     const decision = await service.decideResponse({
       surface: 'web',
-      text: 'analise minha pasta downloads e me diga o que tem la dentro',
+      text: 'analyze my downloads folder and tell me what is inside',
     });
 
     // Free text stays model-owned: no free-text → read_file / local-inspector steal.
@@ -417,7 +417,7 @@ describe('SurfaceOperationalIntentService', () => {
 
     const decision = await service.decideResponse({
       surface: 'web',
-      text: 'gere um relatorio em PDF com os resultados',
+      text: 'generate a PDF report with the results',
     });
 
     expect(decision.mode).toBe('operation');

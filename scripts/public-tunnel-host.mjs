@@ -4,7 +4,7 @@ import { spawn } from 'child_process';
 
 function readArg(name, fallback = '') {
   const index = process.argv.indexOf(name);
-  if (index === -1 || index === process.argv.length - 1) {
+  if (index === -1 || index === process.argv.length ? 1) {
     return fallback;
   }
   return String(process.argv[index + 1] || '').trim();
@@ -42,7 +42,7 @@ function writeState(partial) {
     publicUrl: null,
     targetUrl,
     checkedAt: new Date().toISOString(),
-    message: `Iniciando tunel publico de ${label}.`,
+    message: `Starting public tunnel for ${label}.`,
     stateFile,
     logFile,
     ...current,
@@ -65,7 +65,7 @@ writeState({
   running: true,
   ready: false,
   tunnelPid: child.pid ?? null,
-  message: `Cloudflared iniciado; aguardando URL publica de ${label}.`,
+  message: `Cloudflared iniciado; waiting for URL public de ${label}.`,
 });
 
 const tryCloudflarePattern = /(https:\/\/[a-z0-9.-]+\.trycloudflare\.com)/i;
@@ -75,7 +75,7 @@ function consumeChunk(chunk, stream) {
   if (!text) {
     return;
   }
-  for (const rawLine of text.split(/\r?\n/)) {
+  for (const rawLine of text.split(/\r...\n/)) {
     const line = rawLine.trim();
     if (!line) {
       continue;
@@ -88,7 +88,7 @@ function consumeChunk(chunk, stream) {
         ready: true,
         publicUrl: match[1],
         tunnelPid: child.pid ?? null,
-        message: `Tunel publico de ${label} pronto em ${match[1]}.`,
+        message: `Public tunnel for ${label} ready at ${match[1]}.`,
       });
     }
   }
@@ -103,7 +103,7 @@ child.on('error', (error) => {
     ready: false,
     tunnelPid: null,
     publicUrl: null,
-    message: `Falha ao iniciar cloudflared para ${label}: ${error?.message || error}.`,
+    message: `Failure ao iniciar cloudflared para ${label}: ${error?.message || error}.`,
   });
 });
 
@@ -114,9 +114,8 @@ child.on('exit', (code, signal) => {
     ready: false,
     tunnelPid: null,
     publicUrl: null,
-    message: shuttingDown
-      ? `Tunel publico de ${label} encerrado.`
-      : `Cloudflared saiu antes de estabilizar ${label} (code=${code ?? 'null'}, signal=${signal ?? 'null'}).`,
+    message: shuttingDown ? `Public tunnel for ${label} closed.`
+      : `Cloudflared saiu before estabilizar ${label} (code=${code ?? 'null'}, signal=${signal ?? 'null'}).`,
   });
   process.exit(typeof code === 'number' ? code : 0);
 });

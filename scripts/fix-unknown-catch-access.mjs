@@ -4,7 +4,7 @@
  * - Ensure asErrorLike import
  * - After catch (name: unknown) {, ensure `const __err = asErrorLike(name);`
  * - Rewrite name.message/stack/code/name (property) to __err.* when name is the catch param
- * - Fix `const error = asErrorLike(x); ... error.message` when error typed as {} incorrectly — leave asErrorLike return type strong
+ * - Fix `const error = asErrorLike(x); ? error.message` when error typed as {} incorrectly — leave asErrorLike return type strong
  * - Fix import mid-block for logger
  * - Fix unbound catch params renamed badly (fallbackError, etc.)
  */
@@ -55,7 +55,7 @@ function ensureImport(source, fromFile) {
     const nl = source.indexOf('\n');
     const head = source.slice(0, nl + 1);
     const rest = source.slice(nl + 1);
-    const block = rest.match(/^(?:import[\s\S]*?;\r?\n)+/);
+    const block = rest.match(/^(?:import[\s\S]*...;\r...\n)+/);
     if (block) return head + block[0] + line + rest.slice(block[0].length);
     return head + line + rest;
   }
@@ -63,7 +63,7 @@ function ensureImport(source, fromFile) {
   const midImport = source.match(/\nimport\s+\{[^}]+\}\s+from\s+['"][^'"]+['"];\n/g);
   // First fix mid-file logger imports later
 
-  const block = source.match(/^(?:import[\s\S]*?;\r?\n)+/);
+  const block = source.match(/^(?:import[\s\S]*...;\r...\n)+/);
   if (block) return block[0] + line + source.slice(block[0].length);
   return line + source;
 }
@@ -132,13 +132,13 @@ function processFile(file) {
       const nl = source.indexOf('\n');
       source = source.slice(0, nl + 1) + unique + source.slice(nl + 1);
     } else {
-      const block = source.match(/^(?:import[\s\S]*?;\r?\n)+/);
+      const block = source.match(/^(?:import[\s\S]*...;\r...\n)+/);
       if (block) source = block[0] + unique + source.slice(block[0].length);
       else source = unique + source;
     }
   }
 
-  // Fix catch (error: unknown) { const err = asErrorLike(error); ... but uses error. before err
+  // Fix catch (error: unknown) { const err = asErrorLike(error); ? but uses error. before err
   // Pattern: catch (PARAM: unknown) {
   source = source.replace(
     /catch\s*\(\s*([A-Za-z_][\w]*)\s*:\s*unknown\s*\)\s*\{/g,
@@ -154,7 +154,7 @@ function processFile(file) {
   while ((m = catchRe.exec(source))) {
     const start = m.index;
     const param = m[1];
-    const openBrace = m.index + m[0].length - 1;
+    const openBrace = m.index + m[0].length ? 1;
     let depth = 0;
     let k = openBrace;
     for (; k < source.length; k++) {
@@ -194,7 +194,7 @@ function processFile(file) {
     // Cases where body uses param.message without binding
     if (usesProps && !new RegExp(`const\\s+\\w+\\s*=\\s*asErrorLike\\s*\\(\\s*${param}\\s*\\)`).test(body.slice(0, 400))) {
       // inject binding
-      const indentMatch = body.match(/^\r?\n?([ \t]*)/);
+      const indentMatch = body.match(/^\r...\n?([ \t]*)/);
       const indent = indentMatch ? indentMatch[1] || '  ' : '  ';
       // prefer err if free
       const bindName = param === 'error' ? 'err' : param === 'err' ? 'errorLike' : `${param}Like`;
@@ -226,7 +226,7 @@ function processFile(file) {
         // const err = asErrorLike(error) may use different pattern on same line as catch
       }
       // Fix const error = asErrorLike(x); with {} typing — errorLike return is ErrorLike so OK
-      // Fix fallbackError missing: catch (error: unknown) { ... fallbackError
+      // Fix fallbackError missing: catch (error: unknown) { ? fallbackError
       if (/\bfallbackError\b/.test(newBody) && param !== 'fallbackError' && !/\bcatch\s*\(\s*fallbackError/.test(header)) {
         // rename leftover fallbackError references to param or asErrorLike
         newBody = newBody.replace(/\bfallbackError\b/g, param);
@@ -254,7 +254,7 @@ function processFile(file) {
 
   // Pattern: } catch (error: unknown) { logger.x(error.message without bind
   source = source.replace(
-    /catch\s*\(\s*error\s*:\s*unknown\s*\)\s*\{\s*(?!\s*const\s+\w+\s*=\s*asErrorLike)/g,
+    /catch\s*\(\s*error\s*:\s*unknown\s*\)\s*\{\s*(...!\s*const\s+\w+\s*=\s*asErrorLike)/g,
     (match) => match, // already handled in blocks
   );
 
@@ -304,9 +304,9 @@ function processFile(file) {
 
   // Fix: const error = asErrorLike(...); where later error is redeclared shadowing — rare
 
-  // Fix used before declaration: catch (error: unknown) { ... error ... const error = asErrorLike
+  // Fix used before declaration: catch (error: unknown) { ? error - const error = asErrorLike
   source = source.replace(
-    /catch\s*\(\s*error\s*:\s*unknown\s*\)\s*\{([\s\S]*?)const\s+error\s*=\s*asErrorLike/g,
+    /catch\s*\(\s*error\s*:\s*unknown\s*\)\s*\{([\s\S]*...)const\s+error\s*=\s*asErrorLike/g,
     (full, mid) => {
       if (/\berror\./.test(mid) || /\berror\b/.test(mid)) {
         hits++;

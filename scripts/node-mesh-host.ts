@@ -141,7 +141,7 @@ async function apiPost(baseUrl: string, endpoint: string, token: string | null, 
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok || payload?.ok === false) {
-    throw new Error(payload?.error || `Falha HTTP ${response.status} ao chamar ${endpoint}.`);
+    throw new Error(payload?.error || `Failure HTTP ${response.status} ao chamar ${endpoint}.`);
   }
   return payload;
 }
@@ -204,16 +204,15 @@ export async function runNodeMeshHost(
         pairingCode: options.pairingCode,
         capabilityIds: options.capabilities,
         hostHints,
-        operatorSummary: options.label
-          ? `${options.label} autenticado e aguardando workload remoto.`
+        operatorSummary: options.label ? `${options.label} autenticado e waiting for workload remote.`
           : null,
       },
     );
     sharedSecret = String(claimPayload?.claim?.sharedSecret || '').trim() || null;
     if (!sharedSecret) {
-      throw new Error('O claim nao retornou shared secret para este node host.');
+      throw new Error('The claim did not return a shared secret for this node host.');
     }
-    console.log(`[node-mesh-host] claim concluido para ${options.nodeId}.`);
+    console.log(`[node-mesh-host] claim completed para ${options.nodeId}.`);
   }
 
   let pendingResults: Array<Record<string, unknown>> = loadPendingResults(options.stateFile);
@@ -288,7 +287,7 @@ const executedAsScript =
 
 if (executedAsScript) {
   main().catch((error: unknown) => {
-    console.error(`[node-mesh-host] erro: ${error?.message || String(error)}`);
+    console.error(`[node-mesh-host] error: ${error?.message || String(error)}`);
     process.exitCode = 1;
   });
 }

@@ -46,7 +46,7 @@ describe('ZavorthSandboxCloudTool cloud adapter contract', () => {
     const tool = new ZavorthSandboxCloudTool({
       storageDir: storageDir(),
       sandboxService: {
-        execute: async (input: { provider?: string | null }) => {
+        execute: async (input: { provider-: string | null }) => {
           capturedProvider = input.provider;
           return {
             status: 'completed',

@@ -71,7 +71,7 @@ async function main(): Promise<void> {
     } else {
       console.log('=== MCP SERVERS ===');
       if (servers.length === 0) {
-        console.log('(Nenhum servidor MCP registrado)');
+        console.log('(No server MCP registrado)');
       } else {
         for (const s of servers) {
           console.log(`- ${s.id} [${s.enabled !== false ? 'ENABLED' : 'DISABLED'}]: ${s.command} ${(s.args || []).join(' ')}`);
@@ -79,7 +79,7 @@ async function main(): Promise<void> {
       }
       console.log('\n=== MCP TOOLS POLICY ===');
       if (toolsList.length === 0) {
-        console.log('(Nenhuma ferramenta registrada na politica)');
+        console.log('(No tool registered in policy)');
       } else {
         for (const t of toolsList) {
           const statusLabel = t.effectiveAllowed ? 'ALLOWED' : `BLOCKED (${t.status})`;
@@ -211,17 +211,17 @@ async function main(): Promise<void> {
   if (commandName === 'add') {
     const id = args[1];
     if (!id) {
-      throw new Error('Uso: zavorth-mcp-install add <id> --command <command> [--args <args>] [--env <KEY=VALUE>]');
+      throw new Error('usage: zavorth-mcp-install add <id> --command <command> [--args <args>] [--env <KEY=VALUE>]');
     }
-    
+
     // ID validation
     if (!/^[A-Za-z0-9._-]+$/.test(id)) {
-      throw new Error(`ID de servidor invalido "${id}". Deve corresponder ao padrao ^[A-Za-z0-9._-]+$ e nao conter ":"`);
+      throw new Error(`Invalid server ID "${id}". Must match pattern ^[A-Za-z0-9._-]+$ and must not contain ":"`);
     }
 
     const command = readFlag('--command');
     if (!command) {
-      throw new Error('O parametro --command e obrigatorio para adicionar um servidor.');
+      throw new Error('O parametro --command e required para adicionar um server.');
     }
 
     const rawArgs = readFlag('--args');
@@ -233,7 +233,7 @@ async function main(): Promise<void> {
       const persistEnv = args.includes('--persist-env-values');
       if (!persistEnv) {
         throw new Error(
-          'WARNING: Gravar segredos diretamente no manifesto nao e recomendado. Use --allowed-env para herdar variaveis do host, ou passe a flag --persist-env-values para autorizar a gravacao direta.'
+          'WARNING: Writing secrets directly to the manifest is not recommended. Use --allowed-env to inherit host variables, or pass --persist-env-values to authorize direct persistence.'
         );
       }
       rawEnv.split(',').forEach((pair) => {
@@ -323,7 +323,7 @@ async function main(): Promise<void> {
     if (args.includes('--json')) {
       console.log(JSON.stringify(result, null, 2));
     } else if (result.ok) {
-      console.log(result.summary || `MCP server ${id} adicionado ao manifesto com sucesso.`);
+      console.log(result.summary || `MCP server ${id} added to the manifest successfully.`);
     } else {
       console.error(result.errors.join('\n'));
       process.exitCode = 1;
@@ -334,10 +334,10 @@ async function main(): Promise<void> {
   if (commandName === 'remove') {
     const id = args[1];
     if (!id) {
-      throw new Error('Uso: zavorth-mcp-install remove <id>');
+      throw new Error('usage: zavorth-mcp-install remove <id>');
     }
     const result = managementService.remove(id);
-    
+
     (await getAuditLogger()).logCliAdminEvent({
       event: 'mcp_server_removed',
       actor: 'local-cli',
@@ -356,7 +356,7 @@ async function main(): Promise<void> {
   if (commandName === 'enable' || commandName === 'disable') {
     const id = args[1];
     if (!id) {
-      throw new Error(`Uso: zavorth-mcp-install ${commandName} <id>`);
+      throw new Error(`usage: zavorth-mcp-install ${commandName} <id>`);
     }
     const result = managementService.setEnabled(id, commandName === 'enable');
 
@@ -378,7 +378,7 @@ async function main(): Promise<void> {
   if (commandName === 'approve') {
     const toolId = args[1];
     if (!toolId) {
-      throw new Error('Uso: zavorth-mcp-install approve <serverId:toolName> [--fingerprint <fp>] [--description <desc>] [--force-fingerprint]');
+      throw new Error('usage: zavorth-mcp-install approve <serverId:toolName> [--fingerprint <fp>] [--description <desc>] [--force-fingerprint]');
     }
 
     const fingerprint = readFlag('--fingerprint') || undefined;
@@ -404,7 +404,7 @@ async function main(): Promise<void> {
     if (args.includes('--json')) {
       console.log(JSON.stringify({ ok: true, toolId, action: 'approved' }, null, 2));
     } else {
-      console.log(`Ferramenta "${toolId}" aprovada com sucesso e adicionada a allowlist.`);
+      console.log(`Tool "${toolId}" approved successfully and added to the allowlist.`);
     }
     return;
   }
@@ -412,7 +412,7 @@ async function main(): Promise<void> {
   if (commandName === 'block') {
     const toolId = args[1];
     if (!toolId) {
-      throw new Error('Uso: zavorth-mcp-install block <serverId:toolName>');
+      throw new Error('usage: zavorth-mcp-install block <serverId:toolName>');
     }
 
     const doc = policyFileService.readPolicy();
@@ -433,7 +433,7 @@ async function main(): Promise<void> {
     if (args.includes('--json')) {
       console.log(JSON.stringify({ ok: true, toolId, action: 'blocked' }, null, 2));
     } else {
-      console.log(`Ferramenta "${toolId}" bloqueada com sucesso e removida da allowlist.`);
+      console.log(`Tool "${toolId}" blocked successfully and removed from the allowlist.`);
     }
     return;
   }
@@ -441,7 +441,7 @@ async function main(): Promise<void> {
   if (commandName === 'forget') {
     const toolId = args[1];
     if (!toolId) {
-      throw new Error('Uso: zavorth-mcp-install forget <serverId:toolName>');
+      throw new Error('usage: zavorth-mcp-install forget <serverId:toolName>');
     }
 
     const doc = policyFileService.readPolicy();
@@ -461,12 +461,12 @@ async function main(): Promise<void> {
     if (args.includes('--json')) {
       console.log(JSON.stringify({ ok: true, toolId, action: 'forgotten' }, null, 2));
     } else {
-      console.log(`Ferramenta "${toolId}" esquecida e removida da allowlist.`);
+      console.log(`Tool "${toolId}" esquecida e removida da allowlist.`);
     }
     return;
   }
 
-  throw new Error(`Comando desconhecido: "${commandName}"`);
+  throw new Error(`Unknown command: "${commandName}"`);
 }
 
 function readFlag(name: string): string | null {

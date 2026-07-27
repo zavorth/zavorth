@@ -118,7 +118,7 @@ if (redRun.status !== 0) {
   }
 }
 
-const portugueseSensitiveRun = runCommand('npx tsx scripts/zavorth-adaptive-learning-os.ts --json --strict --observe=usuario-deprimido-ansioso-fragil');
+const portugueseSensitiveRun = runCommand('npx tsx scripts/zavorth-adaptive-learning-os.ts --json --strict --observe=sensitive-user-state-fixture');
 if (portugueseSensitiveRun.status !== 0) {
   failures.push(`Portuguese sensitive snapshot failed: ${portugueseSensitiveRun.stderr || portugueseSensitiveRun.stdout}`);
 } else {
@@ -132,7 +132,7 @@ if (portugueseSensitiveRun.status !== 0) {
   }
 }
 
-const policyRun = runCommand('npx tsx scripts/zavorth-adaptive-learning-os.ts --json --strict --observe=desativar-aprovacao-permitir-sempre-shell');
+const policyRun = runCommand('npx tsx scripts/zavorth-adaptive-learning-os.ts --json --strict --observe=unsafe-policy-change-fixture');
 if (policyRun.status !== 0) {
   failures.push(`policy snapshot failed: ${policyRun.stderr || policyRun.stdout}`);
 } else {

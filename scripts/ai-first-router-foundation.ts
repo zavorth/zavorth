@@ -20,56 +20,55 @@ function buildSampleRawPlan(userMessage: string): unknown {
     intent: {
       primary: 'configuration',
       confidence: 0.86,
-      summary: 'Ajudar o usuario a configurar uma conexao pessoal sem expor detalhes tecnicos.',
-      assumptions: ['O usuario quer ser guiado passo a passo.'],
+      summary: 'Help the user set up a personal connection without exposing technical details.',
+      assumptions: ['The user wants to be guided step by step.'],
     },
     goal: {
       userFacing: userMessage,
-      internalSummary: 'Preparar configuracao assistida com segredo privado e validacao governada.',
+      internalSummary: 'Prepare assisted setup with private secret and governed validation.',
     },
     proposedActions: [
       {
         id: 'preview-setup',
         kind: 'preview',
-        label: 'Mostrar plano simples',
-        summary: 'Explicar em linguagem simples o que sera configurado antes de salvar qualquer valor.',
+        label: 'Show simple plan',
+        summary: 'Explain in plain language what will be configured before saving any value.',
         target: { type: 'conversation' },
         sideEffect: 'none',
       },
       {
         id: 'save-secret',
         kind: 'configure',
-        label: 'Salvar segredo do usuario',
-        summary: 'Salvar o segredo fornecido pelo usuario em armazenamento controlado.',
+        label: 'Save user secret',
+        summary: 'Save the secret provided by the user in controlled storage.',
         target: { type: 'account', value: 'personal-settings' },
         requestedToolIds: ['secure-storage.write'],
         payloadPreview: {
-          token: 'xoxb-test-token-placeholder-123456',
+          token: 'redacted-slack-token-placeholder',
           destination: 'personal-settings',
         },
       },
       {
         id: 'validate-setup',
         kind: 'test',
-        label: 'Validar acesso',
-        summary: 'Testar a configuracao sem enviar mensagens reais.',
+        label: 'Validate access',
+        summary: 'Test the configuration without sending real messages.',
         target: { type: 'service', value: 'personal-channel' },
         requestedToolIds: ['connection.doctor'],
       },
     ],
     response: {
-      userFacingSummary: 'Vou guiar a configuracao, mostrar antes de salvar e pedir sua aprovacao.',
+      userFacingSummary: 'I will guide the setup, show you before saving and ask for your approval.',
     },
   };
 }
 
 async function main(): Promise<void> {
   const userMessage =
-    getArgValue('--message') ??
-    'Configure minha conta usando token xoxb-test-token-placeholder-123456 e me explique tudo de forma simples.';
+    getArgValue('--message') ??     'Configure my account using token redacted-slack-token-placeholder and explain everything in simple terms.';
   const service = new AiFirstRoutePlanContractService();
   const result = service.normalize({
-    surface: 'checkpoint-1-script',
+    surface: 'gate-1-script',
     userMessage,
     rawPlan: buildSampleRawPlan(userMessage),
   });
@@ -83,6 +82,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error('[ai-first-router-intent-model] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[ai-first-router-intent-model] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

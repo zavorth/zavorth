@@ -59,7 +59,7 @@ describe('DistributionPolicyContractService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Readiness checkpoint 0 - Editions, Plans And Distribution Policy');
-    expect(report).toContain('proximo passo recomendada: 51 - Release Bundle And Installer Distribution');
+    expect(report).toContain('next step recomendada: 51 - Release Bundle And Installer Distribution');
   });
 });
 
@@ -109,13 +109,13 @@ function policyText() {
     'Team Preview',
     'Lab',
     'local-first',
-    'Telemetry desligada por padrao',
+    'Telemetry desligada por pattern',
     'cloud obrigatoria',
     'opt-in',
     'Sem cloud obrigatoria',
     'Local-first continua funcional sem conta cloud',
     'Privacidade e dados',
-    'Atualizacoes',
+    'Atualizactions',
     'Plugins e skills externos',
     'Licenciamento inicial',
     'alpha',

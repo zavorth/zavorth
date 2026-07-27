@@ -12,13 +12,13 @@ describe('RuntimeOfficialRemoteAccessService', () => {
             appUrl: 'https://zavorth.example.com/zavorthControl',
             issues: ['O probe do /dashboard remoto falhou.'],
           },
-  nextSteps: ['Valide a URL publica e o token web com npm run ops:remote:official.'],
+  nextSteps: ['Validate the public URL and web token with npm run ops:remote:official.'],
         }),
       } as any,
       localCloudflareRolloutService: {
         inspect: jest.fn().mockReturnValue({
           readyForPlanB: true,
-          summary: 'Plano B local com Cloudflare e Gemini/Gemma pronto para rollout.',
+          summary: 'Plan B local com Cloudflare e Gemini/Gemma ready para rollout.',
           helpers: {
             guide: 'C:/repo/docs/operations.md',
           },
@@ -74,7 +74,7 @@ describe('RuntimeOfficialRemoteAccessService', () => {
       localCloudflareRolloutService: {
         inspect: jest.fn().mockReturnValue({
           readyForPlanB: false,
-          summary: 'Plano B local pendente.',
+          summary: 'Plan B local pendente.',
           helpers: {
             guide: 'C:/repo/docs/operations.md',
           },
@@ -97,7 +97,7 @@ describe('RuntimeOfficialRemoteAccessService', () => {
 
     expect(report.remote.ready).toBe(true);
     expect(report.rollout.recommendedId).toBeNull();
-    expect(report.summary).toContain('pronto');
+    expect(report.summary).toContain('ready');
   });
 
   it('persists the selected provider when applying the guided remote rollout', async () => {
@@ -117,13 +117,13 @@ describe('RuntimeOfficialRemoteAccessService', () => {
             appUrl: 'https://zavorth.example.com/zavorthControl',
             issues: ['Probe remoto pendente.'],
           },
-    nextSteps: ['Validar a URL publica e o token web com npm run ops:remote:official.'],
+    nextSteps: ['Validar a URL public e o token web com npm run ops:remote:official.'],
         }),
       } as any,
       localCloudflareRolloutService: {
         inspect: jest.fn().mockReturnValue({
           readyForPlanB: true,
-          summary: 'Plano B local com Cloudflare e Gemini/Gemma pronto para rollout.',
+          summary: 'Plan B local com Cloudflare e Gemini/Gemma ready para rollout.',
           helpers: {
             guide: 'C:/repo/docs/operations.md',
           },
@@ -185,7 +185,7 @@ describe('RuntimeOfficialRemoteAccessService', () => {
       localCloudflareRolloutService: {
         inspect: jest.fn().mockReturnValue({
           readyForPlanB: true,
-          summary: 'Plano B local com Cloudflare e Gemini/Gemma pronto para rollout.',
+          summary: 'Plan B local com Cloudflare e Gemini/Gemma ready para rollout.',
           helpers: {
             guide: 'C:/repo/docs/operations.md',
           },
@@ -242,7 +242,7 @@ describe('RuntimeOfficialRemoteAccessService', () => {
             ready: false,
             configured: false,
             appUrl: null,
-            issues: ['ZAVORTH_PUBLIC_BASE_URL ainda nao foi configurada.'],
+            issues: ['ZAVORTH_PUBLIC_BASE_URL ainda was not configurada.'],
           },
           nextSteps: ['Defina ZAVORTH_PUBLIC_BASE_URL para expor o runtime por HTTPS.'],
         }),
@@ -250,7 +250,7 @@ describe('RuntimeOfficialRemoteAccessService', () => {
       localCloudflareRolloutService: {
         inspect: jest.fn().mockReturnValue({
           readyForPlanB: false,
-          summary: 'Plano B local pendente.',
+          summary: 'Plan B local pendente.',
           helpers: {
             guide: 'C:/repo/docs/operations.md',
           },

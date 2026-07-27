@@ -17,7 +17,7 @@ function createSensitiveRun() {
     userId: 'grey',
     channel: 'cli',
     sessionId: 'session-tool-rehearsal',
-    text: 'corrija arquivos e rode npm test',
+    text: 'corrija files e rode npm test',
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
     requestedTools: ['workspace.read', 'write_file', 'shell.exec'],
     metadata: {

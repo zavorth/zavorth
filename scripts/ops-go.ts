@@ -44,7 +44,7 @@ async function main() {
 
 main().catch((error) => {
   if (cliArgs.json) {
-    console.error('[zavorth-go] falha ao executar o atalho oficial do Zavorth.');
+    console.error('[zavorth-go] failure ao run o shortcut oficial do Zavorth.');
     console.error(error instanceof Error ? error.message : String(error));
   } else {
     console.error(formatZavorthGoFailure(error));

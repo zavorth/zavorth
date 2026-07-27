@@ -64,12 +64,12 @@ export function ensureExternalSurfaceRoot(kind) {
   if (!exists) {
     throw new Error(
       kind === 'docs'
-        ? `Repositorio externo de docs nao encontrado em ${roots.docsRoot}. Configure ZAVORTH_DOCS_REPO_ROOT.`
+        ? `External docs repository not found at ${roots.docsRoot}. Configure ZAVORTH_DOCS_REPO_ROOT.`
         : kind === 'web'
-          ? `Repositorio externo web nao encontrado em ${roots.webRoot}. Configure ZAVORTH_WEB_REPO_ROOT ou restaure o repo irmao zavorth-web.`
+          ? `External web repository not found at ${roots.webRoot}. Configure ZAVORTH_WEB_REPO_ROOT or restore the sibling zavorth-web repository.`
           : kind === 'website'
-            ? `Repositorio do site publico nao encontrado em ${roots.websiteRoot}. Configure ZAVORTH_WEBSITE_REPO_ROOT ou restaure o repo irmao zavorth-website.`
-            : `Repositorio externo do sandbox UI nao encontrado em ${roots.uiSandboxRoot}. Configure ZAVORTH_UI_SANDBOX_REPO_ROOT.`,
+            ? `Public site repository not found at ${roots.websiteRoot}. Configure ZAVORTH_WEBSITE_REPO_ROOT or restore the sibling zavorth-website repository.`
+            : `External sandbox UI repository not found at ${roots.uiSandboxRoot}. Configure ZAVORTH_UI_SANDBOX_REPO_ROOT.`,
     );
   }
   return targetRoot;

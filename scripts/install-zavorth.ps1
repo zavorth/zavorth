@@ -100,7 +100,7 @@ function Start-ZavorthSpinner {
     [char]0x283C, [char]0x2834, [char]0x2826, [char]0x2827,
     [char]0x2807, [char]0x280F
   )
-  
+
   # Start the process in the background using .NET Process to easily monitor without job overhead
   $psi = New-Object System.Diagnostics.ProcessStartInfo
   $psi.FileName = $FilePath
@@ -109,10 +109,10 @@ function Start-ZavorthSpinner {
   $psi.CreateNoWindow = $true
   $psi.RedirectStandardOutput = $true
   $psi.RedirectStandardError = $true
-  
+
   $process = New-Object System.Diagnostics.Process
   $process.StartInfo = $psi
-  
+
   $started = $process.Start()
   if (-not $started) {
     Stop-ZavorthInstall "Failed to start $FilePath" $FailureExitCode

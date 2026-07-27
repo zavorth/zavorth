@@ -50,14 +50,14 @@ describe('ZavorthRemoteTransportService', () => {
             status: 'online',
             pendingInvocations: 0,
             lastSeenAt: '2026-04-02T11:59:30.000Z',
-            nextAction: 'Heartbeat estavel; pronto para invoke.',
+            nextAction: 'Heartbeat stable; ready to invoke.',
             maintenance: {
               supported: true,
               pending: 0,
               claimed: 0,
               latestStatus: 'completed',
               latestAction: 'repair',
-              latestResultSummary: 'Repair concluido.',
+              latestResultSummary: 'Repair completed.',
               recoverKind: null,
             },
           },
@@ -128,7 +128,7 @@ describe('ZavorthRemoteTransportService', () => {
         capabilities: {
           discord: {
             state: 'dormant',
-            notes: 'Perfil core nao preaquece Discord.',
+            notes: 'Perfil core not preaquece Discord.',
           },
         },
       }),
@@ -210,7 +210,7 @@ describe('ZavorthRemoteTransportService', () => {
       expect.objectContaining({
         readiness: 'disabled',
         actionHint: '/enable discord',
-        operatorSummary: expect.stringContaining('dormente no perfil atual'),
+        operatorSummary: expect.stringContaining('dormente no profile atual'),
       }),
     );
 
@@ -226,7 +226,7 @@ describe('ZavorthRemoteTransportService', () => {
         capabilities: {
           discord: {
             state: 'dormant',
-            notes: 'Perfil core nao preaquece Discord.',
+            notes: 'Perfil core not preaquece Discord.',
           },
           remote: {
             state: 'dormant',
@@ -283,7 +283,7 @@ describe('ZavorthRemoteTransportService', () => {
             status: 'online',
             pendingInvocations: 0,
             lastSeenAt: '2026-04-02T11:59:30.000Z',
-            nextAction: 'Heartbeat estavel; pronto para invoke.',
+            nextAction: 'Heartbeat stable; ready to invoke.',
             maintenance: {
               supported: false,
               pending: 0,
@@ -318,7 +318,7 @@ describe('ZavorthRemoteTransportService', () => {
     expect(zavorthBridge).toEqual(
       expect.objectContaining({
         readiness: 'disabled',
-        operatorSummary: expect.stringContaining('dormente no perfil atual'),
+        operatorSummary: expect.stringContaining('dormente no profile atual'),
         actionHint: '/enable zavorth-bridge-remote',
         telemetry: expect.objectContaining({
           lastError: null,
@@ -358,7 +358,7 @@ describe('ZavorthRemoteTransportService', () => {
             baseUrl: 'http://127.0.0.1:21128/v1',
             endpoint: 'http://127.0.0.1:21128/v1',
             pid: 13028,
-            message: 'Gateway proprio do AIGateway respondeu ao upstream.',
+            message: 'Gateway own do AIGateway respondeu ao upstream.',
           },
           ZavorthTerminal: {
             id: 'zavorth-terminal',
@@ -411,7 +411,7 @@ describe('ZavorthRemoteTransportService', () => {
       expect.objectContaining({
         readiness: 'disabled',
         actionHint: '/connect AIGateway',
-        operatorSummary: expect.stringContaining('dormente no perfil atual'),
+        operatorSummary: expect.stringContaining('dormente no profile atual'),
         telemetry: expect.objectContaining({
           lastError: null,
           statusLine: expect.stringContaining('dormente pelo lifecycle'),

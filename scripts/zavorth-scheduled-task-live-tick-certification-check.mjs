@@ -41,13 +41,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('scheduled-task-live-tick-files', 'Runtime gateway files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('scheduled-task-live-tick-files', 'Runtime gateway files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthScheduledTaskLiveTickCertificationContract.ts', ['ZAVORTH_SCHEDULED_TASK_LIVE_TICK_CERTIFICATION_CONTRACT_VERSION', 'routesThroughExecutionGateway', 'blocksScopeDrift']],
-    ['src/services/ZavorthScheduledTaskLiveTickCertificationService.ts', ['checkpoint-6-scheduler-live-tick-certification', 'ZavorthScheduledTaskOperationalGuardService', 'ZavorthScheduledTaskExecutionGatewayRuntimeService', 'noDirectDispatcherBypass']],
+    ['src/services/ZavorthScheduledTaskLiveTickCertificationService.ts', ['gate-6-scheduler-live-tick-certification', 'ZavorthScheduledTaskOperationalGuardService', 'ZavorthScheduledTaskExecutionGatewayRuntimeService', 'noDirectDispatcherBypass']],
     ['scripts/zavorth-scheduled-task-live-tick-certification.ts', ['--task=', '--dry-run', 'ZavorthScheduledTaskLiveTickCertificationService']],
     ['src/sdk/contracts.ts', ['ZavorthScheduledTaskLiveTickCertificationContract']],
     ['src/sdk/index.ts', ['ZavorthScheduledTaskLiveTickCertificationService']],
@@ -161,5 +161,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

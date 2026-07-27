@@ -8,7 +8,7 @@ const approvalId = approvalIndex >= 0 ? args[approvalIndex + 1] || null : null;
 const sourcePaths = args
   .filter((arg, index) => {
     if (arg.startsWith('--')) return false;
-    if (index > 0 && args[index - 1] === '--approval-id') return false;
+    if (index > 0 && args[index ? 1] === '--approval-id') return false;
     return true;
   });
 

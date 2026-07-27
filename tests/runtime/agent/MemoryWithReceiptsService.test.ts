@@ -13,11 +13,11 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     userId: 'grey',
     channel: 'cli',
     title: 'Memory receipts run',
-    input: 'use minha memoria do projeto',
+    input: 'use my project memory',
     status: 'completed',
     createdAt: '2026-05-03T23:00:00.000Z',
     updatedAt: '2026-05-03T23:00:00.000Z',
-    summary: 'Resposta baseada em memoria.',
+    summary: 'Response based on memory.',
     events: [],
     toolExposure: {
       mode: 'read_only',
@@ -35,16 +35,16 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     memorySignals: [
       {
         id: 'memory-project-tone',
-        title: 'Preferencia de tom',
+        title: 'Tone preference',
         layer: 'semantic',
-        summary: 'Usuario prefere respostas curtas em portugues.',
+        summary: 'User prefers short replies in English.',
         confidence: 0.88,
       },
       {
         id: 'memory-open-task',
-        title: 'Tarefa aberta',
+        title: 'Open task',
         layer: 'episodic',
-        summary: 'Memory Receipts esta focada em receipts de memoria.',
+        summary: 'Memory Receipts is focused on memory receipts.',
         confidence: 0.42,
       },
     ],
@@ -85,10 +85,10 @@ describe('MemoryWithReceiptsService Memory Receipts', () => {
       observatoryReceiptId: 'receipt:memory-project-tone',
       actions: expect.objectContaining({
         forgetCommand: 'zavorth memory forget memory-project-tone',
-        correctCommand: 'zavorth memory correct memory-project-tone "<novo valor>"',
+            correctCommand: 'zavorth memory correct memory-project-tone "<new value>"',
       }),
     }));
-    expect(snapshot.surface.sourceQuestionHint).toContain('de onde');
+    expect(snapshot.surface.sourceQuestionHint).toContain('where');
   });
 
   it('creates a receipt for canonical context memory prompts', () => {
@@ -97,7 +97,7 @@ describe('MemoryWithReceiptsService Memory Receipts', () => {
         memorySignals: [],
         metadata: {
           canonicalContext: {
-            memoryPrompt: 'Projeto Zavorth usa gateway unico e receipts auditaveis.',
+            memoryPrompt: 'Zavorth project uses a single gateway with auditable receipts.',
           },
           coldContext: {
             memoryContext: {
@@ -115,7 +115,7 @@ describe('MemoryWithReceiptsService Memory Receipts', () => {
     expect(snapshot.summary.memoryCount).toBe(1);
     expect(snapshot.receipts[0]).toEqual(expect.objectContaining({
       memoryId: 'canonical-context:run-memory-receipts-1',
-      title: 'Contexto de memoria canonico',
+      title: 'Canonical memory context',
       source: 'mnemos',
       sourceType: 'file',
       origin: expect.objectContaining({

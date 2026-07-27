@@ -39,7 +39,7 @@ describe('Web app tenant governance endpoint', () => {
               governanceStatus: 'pending_onboarding',
               scopeLabel: 'guild:1489',
               operatorSummary: 'Tenant publico ainda pede onboarding.',
-              nextAction: 'Configurar canais permitidos.',
+              nextAction: 'Configure allowed channels.',
             },
           ],
           pendingOnboarding: [
@@ -49,7 +49,7 @@ describe('Web app tenant governance endpoint', () => {
               governanceStatus: 'pending_onboarding',
               scopeLabel: 'guild:1489',
               operatorSummary: 'Tenant publico ainda pede onboarding.',
-              nextAction: 'Configurar canais permitidos.',
+              nextAction: 'Configure allowed channels.',
             },
           ],
           featuredRecipes: [
@@ -57,13 +57,13 @@ describe('Web app tenant governance endpoint', () => {
               id: 'recipe:discord-public:public-onboarding',
               tenantId: 'discord-public',
               governanceStatus: 'pending_onboarding',
-              label: 'Fechar onboarding do tenant publico',
-              summary: 'Mantenha o tenant fail-closed ate owners, allowlists e workflows refletirem o runtime oficial.',
+              label: 'Close onboarding do tenant publico',
+              summary: 'Mantenthere is o tenant fail-closed ate owners, allowlists e workflows refletirem o runtime oficial.',
               actions: [
                 {
                   id: 'inspect-tenant',
                   label: 'Trazer /tenants',
-                  description: 'Carrega o tenant filtrado na surface textual compartilhada.',
+                  description: 'Carrega o tenant filtrado na surface textual shared.',
                   command: '/tenants discord-public',
                   actionKind: 'guided',
                   emphasis: 'primary',
@@ -74,7 +74,7 @@ describe('Web app tenant governance endpoint', () => {
           narrative: {
             headline: 'Governanca de tenants com 2 tenant(s) observado(s).',
             operatorSummary: '1 shared | 1 pending onboarding',
-            nextAction: 'Fechar onboarding antes de abrir novas superficies.',
+            nextAction: 'Close onboarding antes de abrir novas superficies.',
           },
         })),
       } as any,
@@ -105,7 +105,7 @@ describe('Web app tenant governance endpoint', () => {
           featuredRecipes: expect.arrayContaining([
             expect.objectContaining({
               tenantId: 'discord-public',
-              label: 'Fechar onboarding do tenant publico',
+              label: 'Close onboarding do tenant publico',
             }),
           ]),
           narrative: expect.objectContaining({
@@ -126,7 +126,7 @@ describe('Web app tenant governance endpoint', () => {
           tenantId: 'discord-public',
           label: 'Revisar /runtime',
           command: '/runtime',
-          note: 'Runtime modes e security mesh atualizados para revisao do tenant.',
+          note: 'Runtime modes e security mesh atualizados para review do tenant.',
           targetPanel: 'inspector-panel',
           targetWorkspaceView: null,
         },
@@ -155,7 +155,7 @@ describe('Web app tenant governance endpoint', () => {
           featuredRecipes: [],
           narrative: {
             headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
-            operatorSummary: '1 compartilhado',
+            operatorSummary: '1 shared',
             nextAction: 'Revisar runtime.',
           },
         })),
@@ -229,7 +229,7 @@ describe('Web app tenant governance endpoint', () => {
         featuredRecipes: [],
         narrative: {
           headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
-          operatorSummary: '1 compartilhado',
+          operatorSummary: '1 shared',
           nextAction: 'Revisar teams.',
         },
       },
@@ -303,11 +303,11 @@ describe('Web app tenant governance endpoint', () => {
         actionId: 'start-onboarding-review',
         tenantId: 'discord-public',
         label: 'Abrir review de onboarding',
-        command: '/workflow review Fechar onboarding do tenant discord-public',
+        command: '/workflow review Close onboarding do tenant discord-public',
         note: 'Workflow de onboarding iniciado para o tenant discord-public.',
         targetPanel: 'inspector-panel',
         targetWorkspaceView: null,
-        replies: ['workflow:review Fechar onboarding do tenant discord-public'],
+        replies: ['workflow:review Close onboarding do tenant discord-public'],
       },
       tenantGovernance: {
         generatedAt: '2026-04-03T16:16:00.000Z',
@@ -317,7 +317,7 @@ describe('Web app tenant governance endpoint', () => {
         featuredRecipes: [],
         narrative: {
           headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
-          operatorSummary: '1 compartilhado',
+          operatorSummary: '1 shared',
           nextAction: 'Revisar teams.',
         },
       },
@@ -402,7 +402,7 @@ describe('Web app tenant governance endpoint', () => {
           tenantId: 'discord-public',
           label: 'Revisar /sessions',
           command: '/sessions',
-          note: 'Session plane atualizado para retomadas do tenant.',
+          note: 'Session plane atualizado para resumptions do tenant.',
           targetPanel: 'workspace-panel',
           targetWorkspaceView: 'history',
         },

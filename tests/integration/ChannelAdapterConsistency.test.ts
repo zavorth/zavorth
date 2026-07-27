@@ -207,7 +207,7 @@ describe('Channel adapter consistency', () => {
     buildMemoryPlaneSnapshot: jest.fn(async () => null),
     resolveSessionId: jest.fn(() => 'session-web-1'),
     channelMesh: {
-      buildSnapshot: jest.fn(({ selectedId }: { selectedId?: string | null } = {}) =>
+      buildSnapshot: jest.fn(({ selectedId }: { selectedId-: string | null } = {}) =>
         buildSnapshot(selectedId || null),
       ),
     },
@@ -229,7 +229,7 @@ describe('Channel adapter consistency', () => {
     tenantGovernance: null,
     writeJson: jest.fn(),
     readJsonBody: jest.fn(async () => ({
-      message: 'continuar',
+      message: 'continue',
       chatId: 'room-1',
       sourceUserId: 'room-1',
     })),

@@ -33,7 +33,7 @@ describe('ProviderInvocationService', () => {
     mockRoute = ProviderRuntimeRouter.getInstance().route as jest.Mock;
     mockCreateInvoker = ProviderRuntimeClientFactory.getInstance().createInvoker as jest.Mock;
     mockInvoke = jest.fn();
-    
+
     mockCreateInvoker.mockResolvedValue({ invoke: mockInvoke });
     loggerSpy = jest.spyOn(SecurityAuditLogger.prototype, 'logWorkspaceEvent').mockResolvedValue(undefined);
     jest.clearAllMocks();
@@ -49,9 +49,9 @@ describe('ProviderInvocationService', () => {
 
     const service = ProviderInvocationService.getInstance();
     const result = await service.invoke({ providerId: 'p-1' }, [{ content: 'SECRET_PROMPT_DO_NOT_LOG' }]);
-    
+
     expect(result.text).toBe('mock text');
-    
+
     expect(loggerSpy).toHaveBeenCalledTimes(2); // start and success
 
     // Ensure prompt is not leaked in log
@@ -65,9 +65,9 @@ describe('ProviderInvocationService', () => {
     mockInvoke.mockRejectedValue(mockError);
 
     const service = ProviderInvocationService.getInstance();
-    
+
     await expect(service.invoke({ providerId: 'p-1' }, [])).rejects.toThrow('invalid_key');
-    
+
     expect(loggerSpy).toHaveBeenCalledTimes(2); // start and fail
 
     const failCallArg = loggerSpy.mock.calls[1][0];

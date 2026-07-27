@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /**
- * Focused Plugin OS QA pack — not the entire monorepo suite.
- * Runs the Plugin OS / marketplace / SDK tests that cover phases P4–P7.
+ * Focused Plugin OS QA pack for marketplace, SDK, and runtime integration.
  */
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -38,7 +37,7 @@ const tests = [
   'tests/plugins/browser-search-pack.behavior.test.ts',
   'tests/plugins/trust-fabric-pack.behavior.test.ts',
   'tests/plugins/lifestyle-pack.behavior.test.ts',
-  'tests/plugins/ecosystem-wave8.behavior.test.ts',
+  'tests/plugins/ecosystem-group-8.behavior.test.ts',
   'tests/services/PluginOsMarketplaceService.test.ts',
   'tests/services/PluginOsAgentReadiness.test.ts',
   'tests/runtime/agent/ToolExposureProfile.test.ts',

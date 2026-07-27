@@ -28,7 +28,7 @@ type Args = {
 const args = parseArgs(process.argv.slice(2));
 const service = new ZavorthToolOrchestrationVerificationService();
 const snapshot = service.buildSnapshot({
-  text: args.text || 'planeje a rota segura',
+  text: args.text || 'planeje a rota safe',
   surface: args.surface,
   actorId: args.actorId,
   sessionId: args.sessionId,

@@ -11,7 +11,7 @@ const dockerMissing = {
   autoPullEnabled: false,
   sandboxRuntime: 'runc',
   canRun: false,
-  detail: 'Docker CLI nao encontrado.',
+  detail: 'Docker CLI not encontrado.',
 };
 
 const firecrackerDisabled = {
@@ -166,7 +166,7 @@ describe('ZavorthSandboxActionService', () => {
         generatedAt: '2026-04-18T10:00:00.000Z',
         decision: 'allowed',
         ok: true,
-        reason: 'Baixo risco liberado.',
+        reason: 'Low risk allowed.',
         permission: null,
         profile: 'core',
         capabilityId: 'sandbox-execution',

@@ -107,7 +107,7 @@ function publicDocsAreClean() {
   const violations = [];
   for (const file of files) {
     const text = fs.readFileSync(file, 'utf8');
-    for (const [index, line] of text.split(/\r?\n/).entries()) {
+    for (const [index, line] of text.split(/\r...\n/).entries()) {
       const normalizedFile = file.replace(/\\/g, '/');
       const isMaintainerLine = allowedMaintainer.has(normalizedFile)
         && (allowedMaintainerPatterns.some((pattern) => pattern.test(line)) || /npm run zavorth:/i.test(line));

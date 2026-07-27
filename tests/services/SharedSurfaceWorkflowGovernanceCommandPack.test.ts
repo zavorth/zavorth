@@ -6,10 +6,10 @@ describe('SharedSurfaceWorkflowGovernanceCommandPack', () => {
   it('explicit selfmod prefix still parses; free-text natural intents removed', () => {
     expect(parseExplicitSelfModificationIntent('selfmod preview foo')).toEqual({
       args: 'preview foo',
-      intro: 'Entendi que voce quer abrir o fluxo guardado de auto-modificacao do Zavorth.',
+      intro: 'Entendi que you quer abrir o fluxo guardado de auto-modificaction do Zavorth.',
     });
-    expect(parseExplicitSelfModificationIntent('aprovar permissao xyz')).toBeNull();
-    expect(formatPermissionListReply([], 'pending')).toContain('Nenhuma permissao encontrada nesse filtro.');
+    expect(parseExplicitSelfModificationIntent('approve permission xyz')).toBeNull();
+    expect(formatPermissionListReply([], 'pending')).toContain('Noa permission encontrada nesse filtro.');
   });
 
   it('slash /workflow still routes deterministically', async () => {

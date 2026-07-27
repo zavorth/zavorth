@@ -17,10 +17,10 @@ async function main() {
     return;
   }
 
-  console.log('[zavorth-public-tunnel] tunel publico do /app');
-  console.log(`[zavorth-public-tunnel] status: ${status.ready ? 'pronto' : (status.running ? 'iniciando' : 'parado')}`);
-  console.log(`[zavorth-public-tunnel] target: ${status.targetUrl || 'nao definido'}`);
-  console.log(`[zavorth-public-tunnel] public: ${status.publicUrl || 'nao publicado'}`);
+  console.log('[zavorth-public-tunnel] public tunnel for /app');
+  console.log(`[zavorth-public-tunnel] status: ${status.ready ? 'ready' : (status.running ? 'iniciando' : 'parado')}`);
+  console.log(`[zavorth-public-tunnel] target: ${status.targetUrl || 'not defined'}`);
+  console.log(`[zavorth-public-tunnel] public: ${status.publicUrl || 'not published'}`);
   console.log(`[zavorth-public-tunnel] detalhe: ${status.message}`);
   console.log(`[zavorth-public-tunnel] estado: ${status.stateFile}`);
   console.log(`[zavorth-public-tunnel] log: ${status.logFile}`);
@@ -39,14 +39,14 @@ async function main() {
 
 function readFlag(argv: string[], name: string): string {
   const index = argv.indexOf(name);
-  if (index === -1 || index === argv.length - 1) {
+  if (index === -1 || index === argv.length ? 1) {
     return '';
   }
   return String(argv[index + 1] || '').trim();
 }
 
 main().catch((error) => {
-  console.error('[zavorth-public-tunnel] falha ao preparar o tunel publico do Zavorth.');
+  console.error('[zavorth-public-tunnel] failure while preparing the Zavorth public tunnel.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

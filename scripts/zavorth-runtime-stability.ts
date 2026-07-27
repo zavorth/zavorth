@@ -11,7 +11,7 @@ async function main() {
   if (asJson) {
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[runtime-stability] leitura consolidada da fleet e dos transports');
+    console.log('[runtime-stability] read consolidada da fleet e dos transports');
     console.log(service.renderReport({ deepDoctor }));
   }
 
@@ -21,6 +21,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[runtime-stability] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[runtime-stability] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

@@ -18,23 +18,23 @@ async function main() {
       return;
     }
 
-    console.log('[zavorth-bootstrap] reparo seguro');
-    console.log(`[zavorth-bootstrap] resumo inicial: ${repair.initial.summary}`);
+    console.log('[zavorth-bootstrap] safe repair');
+    console.log(`[zavorth-bootstrap] initial summary: ${repair.initial.summary}`);
     if (repair.steps.length === 0) {
-      console.log('[zavorth-bootstrap] nenhuma correcao segura disponivel.');
+      console.log('[zavorth-bootstrap] no safe correction available.');
     } else {
-      console.log('[zavorth-bootstrap] acoes seguras:');
+      console.log('[zavorth-bootstrap] actions seguras:');
       for (const step of repair.steps) {
         console.log(`- ${step.title} -> ${step.command}`);
-        console.log(`  status=${step.status} | duracao=${step.durationMs}ms`);
+        console.log(`  status=${step.status} | duraction=${step.durationMs}ms`);
         if (step.error) {
-          console.log(`  erro: ${step.error}`);
+          console.log(`  error: ${step.error}`);
         } else if (step.output) {
-          console.log(`  saida: ${truncate(step.output)}`);
+          console.log(`  output: ${truncate(step.output)}`);
         }
       }
     }
-    console.log(`[zavorth-bootstrap] resumo final: ${repair.summary}`);
+    console.log(`[zavorth-bootstrap] final summary: ${repair.summary}`);
     if (repair.final.actions.length > 0) {
       console.log('[zavorth-bootstrap] passos restantes:');
       for (const action of repair.final.actions) {
@@ -54,15 +54,15 @@ async function main() {
   }
 
   console.log('[zavorth-bootstrap] estado do bootstrap');
-  console.log(`[zavorth-bootstrap] resumo: ${report.summary}`);
+  console.log(`[zavorth-bootstrap] summary: ${report.summary}`);
   console.log(
-    `[zavorth-bootstrap] .env: ${report.env.envFilePresent ? 'ok' : 'ausente'} | provider=${report.env.llmProvider} | credencial=${report.env.llmCredentialReady ? 'ok' : 'pendente'}`,
+    `[zavorth-bootstrap] .env: ${report.env.envFilePresent ? 'ok' : 'missing'} | provider=${report.env.llmProvider} | credential=${report.env.llmCredentialReady ? 'ok' : 'pending'}`,
   );
   console.log(
-    `[zavorth-bootstrap] dependencias: ${report.dependencies.installRequired ? 'npm install pendente' : 'ok'} | build=${report.dependencies.buildRequired ? 'pendente' : 'ok'}`,
+    `[zavorth-bootstrap] dependencies: ${report.dependencies.installRequired ? 'npm install pending' : 'ok'} | build=${report.dependencies.buildRequired ? 'pending' : 'ok'}`,
   );
   console.log(
-    `[zavorth-bootstrap] local: ${report.supervisedRuntime.accessReadiness.local.ready ? 'pronto' : 'pendente'} | remoto: ${report.supervisedRuntime.accessReadiness.remote.ready ? 'pronto' : 'pendente'}`,
+    `[zavorth-bootstrap] local: ${report.supervisedRuntime.accessReadiness.local.ready ? 'ready' : 'pending'} | remote: ${report.supervisedRuntime.accessReadiness.remote.ready ? 'ready' : 'pending'}`,
   );
   console.log(
     `[zavorth-bootstrap] node mesh smoke: ${
@@ -75,7 +75,7 @@ async function main() {
   );
 
   if (report.env.issues.length > 0) {
-    console.log('[zavorth-bootstrap] configuracao:');
+    console.log('[zavorth-bootstrap] configuration:');
     for (const issue of report.env.issues) {
       console.log(`- ${issue}`);
     }
@@ -100,7 +100,7 @@ function truncate(input: string, max = 160): string {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-bootstrap] falha ao inspecionar o bootstrap do runtime.');
+  console.error('[zavorth-bootstrap] failure ao inspecionar o bootstrap do runtime.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

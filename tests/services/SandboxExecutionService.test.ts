@@ -178,7 +178,7 @@ describe('SandboxExecutionService', () => {
     }), {
       code: 'console.log("blocked")',
       language: 'javascript',
-    })).rejects.toThrow('nao esta pronto');
+    })).rejects.toThrow('not esta ready');
 
     await expect(service.executeEnvelope(buildEnvelope({
       mode: 'apply',
@@ -188,7 +188,7 @@ describe('SandboxExecutionService', () => {
     }), {
       code: 'require("fs").writeFileSync("escape", "x")',
       language: 'javascript',
-    })).rejects.toThrow('nao pode usar profile process');
+    })).rejects.toThrow('not pode usar profile process');
 
     expect(execute).not.toHaveBeenCalled();
   });

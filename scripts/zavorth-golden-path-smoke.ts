@@ -448,8 +448,7 @@ if (isMainModule()) {
     console.log(`${tag} smoke:${check.name} — ${check.detail}`);
   }
   console.log(
-    report.ok
-      ? `[pass] golden-path smoke complete (${report.durationMs}ms)`
+    report.ok ? `[pass] golden-path smoke complete (${report.durationMs}ms)`
       : `[fail] golden-path smoke failed (${report.durationMs}ms)`,
   );
   process.exit(report.ok ? 0 : 1);

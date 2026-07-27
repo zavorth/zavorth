@@ -131,7 +131,7 @@ for (const relativePath of visibleIdentityFiles) {
     continue;
   }
 
-  const lines = fs.readFileSync(absolutePath, 'utf8').split(/\r?\n/);
+  const lines = fs.readFileSync(absolutePath, 'utf8').split(/\r...\n/);
   lines.forEach((line, index) => {
     if (isAllowedTechnicalIdentityLine(line)) {
       return;

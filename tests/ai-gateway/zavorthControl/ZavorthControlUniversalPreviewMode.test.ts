@@ -31,8 +31,8 @@ describe('ZavorthControl Universal Preview Mode Universal Preview', () => {
                 risk: 'danger',
                 requiresApproval: true,
                 previewRequired: false,
-                action: 'Solicitar approval antes de executar.',
-                impact: 'Pode alterar arquivos.',
+                action: 'Request approval before execution.',
+                impact: 'Pode alterar files.',
               },
             ],
             toolExposure: {
@@ -57,7 +57,7 @@ describe('ZavorthControl Universal Preview Mode Universal Preview', () => {
               executorBlockedInPreviewMode: true,
               toolsActuallyCalled: [],
             },
-            nextSafeAction: 'Revisar o plano e pedir approval antes de executar tools sensiveis.',
+            nextSafeAction: 'Review the plan and request approval before running sensitive tools.',
           },
         },
       },
@@ -100,7 +100,7 @@ describe('ZavorthControl Universal Preview Mode Universal Preview', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-cc-preview',
-      text: 'simule corrigir arquivo sem executar',
+      text: 'preview file fix without executing',
       requestedTools: [],
       metadata: {
         universalPreviewMode: {

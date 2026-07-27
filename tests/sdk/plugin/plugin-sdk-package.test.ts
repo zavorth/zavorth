@@ -17,7 +17,7 @@ describe('@zavorth/plugin-sdk package surface', () => {
       id: 'sdk-package-demo',
       kind: 'tool',
       tools: {
-        'main.run': async ({ input }: { input?: unknown }) => ({
+        'main.run': async ({ input }: { input-: unknown }) => ({
           output: { ok: true, input: input || {} },
         }),
       },

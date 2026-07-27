@@ -56,7 +56,7 @@ try {
   );
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
-    'zavorth-transaction-live-micro-rollout-certification/checkpoint-14-15',
+    'zavorth-transaction-live-micro-rollout-certification/gate-14-15',
     'ZAVORTH MICRO ROLLOUT CERTIFICATION ONLY',
     'micro-rollout-certified',
     'liveMicroRolloutAuthorized',
@@ -281,7 +281,7 @@ function rollbackArgs() {
     '--rollback-drill-performed',
     '--rollback-drill-successful',
     '--rollback-summary',
-    'Replay and rollback completed against the simulated transaction ledger.',
+    'Replay and rollback completed against the dry-run transaction ledger.',
     '--replay-command',
     'npm run zavorth:transaction-live-candidate:json -- --replay intent-model0',
     '--rollback-command',

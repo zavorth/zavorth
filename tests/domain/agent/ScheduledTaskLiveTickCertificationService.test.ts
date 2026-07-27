@@ -180,7 +180,7 @@ function fixtureGateway() {
 }
 
 class MemoryScheduler {
-  public readonly pauseTask = jest.fn((id: string, reason?: string | null): ScheduledTask | null => {
+  public readonly pauseTask = jest.fn((id: string, reason-: string | null): ScheduledTask | null => {
     const task = this.tasks.find((entry) => entry.id === id) || null;
     if (!task) return null;
     task.status = 'paused';
@@ -239,7 +239,7 @@ function makeTask(id: string, metadata: SchedulerGovernedScheduledTaskMetadata |
   return {
     id,
     command: '/status',
-    schedule: 'every 1h',
+    schedule: '{"kind":"interval","intervalMs":3600000}',
     created_at: '2026-05-12T09:00:00.000Z',
     last_run: null,
     next_run: '2026-05-12T10:00:00.000Z',
@@ -267,7 +267,7 @@ function makeTask(id: string, metadata: SchedulerGovernedScheduledTaskMetadata |
 function governedMetadata(approvalId: string, expiresAt: string): SchedulerGovernedScheduledTaskMetadata {
   return {
     contractVersion: '2026-05-12.persisted-scheduled-task-registration-checkpoint-3',
-    stage: 'checkpoint-3-persisted-scheduled-task-registration',
+    gate: 'persisted-scheduled-task-registration',
     registryStatus: 'active',
     approvalId,
     approvalExpiresAt: expiresAt,

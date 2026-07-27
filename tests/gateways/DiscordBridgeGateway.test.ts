@@ -62,7 +62,7 @@ describe('DiscordBridgeGateway', () => {
       registerGateway: jest.fn(),
       broadcast: jest.fn(),
       processMessage: jest.fn(async (ctx: any) => {
-        await ctx.reply('Resposta do Zavorth', {
+        await ctx.reply('Zavorth response', {
           components: [
             {
               type: 1,
@@ -130,7 +130,7 @@ describe('DiscordBridgeGateway', () => {
       fs.readFileSync(path.join(temp.outboxDir, outboxFiles[0]), 'utf8'),
     ) as Record<string, any>;
     expect(outbox.kind).toBe('reply');
-    expect(outbox.payload.text).toBe('Resposta do Zavorth');
+    expect(outbox.payload.text).toBe('Zavorth response');
     expect(outbox.payload.components?.[0]?.components?.[0]?.label).toBe('Status');
 
     fs.rmSync(temp.root, { recursive: true, force: true });
@@ -343,7 +343,7 @@ describe('DiscordBridgeGateway', () => {
       eventId: 'discord-event-attachment',
       message: {
         id: 'discord-msg-attachment',
-        content: 'arquivo',
+        content: 'file',
         attachments: [{ id: 'att-1' }],
       },
     });
@@ -380,7 +380,7 @@ describe('DiscordBridgeGateway', () => {
       eventId: 'discord-event-replay-1',
       message: {
         id: 'discord-msg-replay-1',
-        content: 'retome',
+        content: 'resume',
       },
     });
 
@@ -417,7 +417,7 @@ describe('DiscordBridgeGateway', () => {
     const gateway = new DiscordBridgeGateway({
       broker: {
         processMessage: jest.fn(async () => {
-          throw new Error('broker indisponivel');
+          throw new Error('broker unavailable');
         }),
       } as any,
       enabled: true,
@@ -447,7 +447,7 @@ describe('DiscordBridgeGateway', () => {
     expect(fs.readdirSync(temp.processedDir)).toHaveLength(0);
     expect(fs.readdirSync(temp.rejectedDir)).toHaveLength(1);
     const status = gateway.readStatus();
-    expect(status?.lastError).toBe('broker indisponivel');
+    expect(status?.lastError).toBe('broker unavailable');
     fs.rmSync(temp.root, { recursive: true, force: true });
   });
 });

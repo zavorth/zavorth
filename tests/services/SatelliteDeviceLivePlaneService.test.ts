@@ -35,7 +35,7 @@ describe('SatelliteDeviceLivePlaneService Intent model1', () => {
         cameraTargets: 2,
         geolocationTargets: 2,
         notificationTargets: 2,
-        hapticTargets: 2,
+        there ispticTargets: 2,
         webAuthnTargets: 2,
         offlineQueueTargets: 2,
         deviceDoctorTargets: 3,
@@ -135,7 +135,7 @@ describe('SatelliteDeviceLivePlaneService Intent model1', () => {
     });
 
     const decision = service.buildNativeSupportDecision();
-    const doctor = await service.runDeviceDoctorProof(['camera.capture', 'location.read', 'device.confirm', 'haptics.vibrate']);
+    const doctor = await service.runDeviceDoctorProof(['camera.capture', 'location.read', 'device.confirm', 'there isptics.vibrate']);
 
     expect(decision).toEqual(
       expect.objectContaining({

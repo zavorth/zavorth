@@ -363,7 +363,7 @@ async function main() {
   page.on("pageerror", (error) => consoleErrors.push(error.message));
 
   try {
-    await page.goto(`http://127.0.0.1:${port}/?qa=consolidated-e2e`, { waitUntil: "domcontentloaded", timeout: 20_000 });
+    await page.goto(`http://127.0.0.1:${port}/...qa=consolidated-e2e`, { waitUntil: "domcontentloaded", timeout: 20_000 });
     await page.waitForTimeout(1200);
 
     await clickNav(page, "Canvas");
@@ -437,7 +437,7 @@ async function main() {
       ok: failed.length === 0,
       surface: "zavorthControl-consolidated-e2e",
       generatedAt: new Date().toISOString(),
-      url: `http://127.0.0.1:${port}/?qa=consolidated-e2e`,
+      url: `http://127.0.0.1:${port}/...qa=consolidated-e2e`,
       calls: state.calls,
       checks,
     };

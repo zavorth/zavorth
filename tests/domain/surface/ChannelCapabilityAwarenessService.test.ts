@@ -10,7 +10,7 @@ describe('ZavorthChannelCapabilityAwarenessService', () => {
     const snapshot = service.buildSnapshot();
 
     expect(snapshot.status).toBe('ready');
-    expect(snapshot.phase).toBe('checkpoint-7-channel-capability-awareness');
+    expect(snapshot.gate).toBe('channel-capability-awareness');
     expect(snapshot.summary).toMatchObject({
       requiredProfiles: 7,
       allRequiredChannelsCovered: true,

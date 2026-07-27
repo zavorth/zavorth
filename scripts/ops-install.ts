@@ -19,14 +19,13 @@ async function main() {
   }
 
   printOfficialInstallReport(report);
-  console.log(`[zavorth-install] atalho oficial: ${canonicalCommand}`);
+  console.log(`[zavorth-install] shortcut oficial: ${canonicalCommand}`);
 
   if (!launcher.skipped) {
     console.log(
       `[zavorth-install] launcher: ${
-        launcher.applied
-          ? 'instalado'
-          : `falhou${launcher.error ? ` (${launcher.error})` : ''}`
+        launcher.applied ? 'installed'
+          : `failed${launcher.error ? ` (${launcher.error})` : ''}`
       }`,
     );
   }
@@ -34,9 +33,8 @@ async function main() {
   if (!appOpen.skipped) {
     console.log(
       `[zavorth-install] abrir app: ${
-        appOpen.opened
-          ? `ok (${appOpen.targetUrl})`
-          : `falhou${appOpen.error ? ` (${appOpen.error})` : ''}`
+        appOpen.opened ? `ok (${appOpen.targetUrl})`
+          : `failed${appOpen.error ? ` (${appOpen.error})` : ''}`
       }`,
     );
   }
@@ -47,7 +45,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-install] falha ao executar o caminho oficial de instalacao.');
+  console.error('[zavorth-install] failure ao run o path oficial de installation.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

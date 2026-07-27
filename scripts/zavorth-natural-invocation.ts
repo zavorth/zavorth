@@ -10,7 +10,7 @@ type Args = {
   approvalId: string | null;
   autoExecute: boolean;
   autoLiveSubagents: boolean;
-  mockLiveSubagents: boolean;
+  dryLiveSubagents: boolean;
 };
 
 const args = parseArgs(process.argv.slice(2));
@@ -29,7 +29,7 @@ async function main(): Promise<void> {
     approvalId: args.approvalId,
     autoExecute: args.autoExecute,
     autoLiveSubagents: args.autoLiveSubagents,
-    mockLiveSubagents: args.mockLiveSubagents,
+    dryLiveSubagents: args.dryLiveSubagents,
   });
   if (args.json) {
     console.log(JSON.stringify(plan, null, 2));
@@ -51,7 +51,7 @@ function parseArgs(argv: string[]): Args {
     approvalId: null,
     autoExecute: false,
     autoLiveSubagents: true,
-    mockLiveSubagents: false,
+    dryLiveSubagents: false,
   };
   const rest: string[] = [];
   for (let index = 0; index < argv.length; index += 1) {
@@ -59,7 +59,7 @@ function parseArgs(argv: string[]): Args {
     if (arg === '--json') out.json = true;
     else if (arg === '--execute' || arg === '--auto-execute') out.autoExecute = true;
     else if (arg === '--no-auto-live-subagents') out.autoLiveSubagents = false;
-    else if (arg === '--mock-live') out.mockLiveSubagents = true;
+    else if (arg === '--dry-live') out.dryLiveSubagents = true;
     else if (arg === '--text') out.text = argv[++index] || '';
     else if (arg.startsWith('--text=')) out.text = arg.slice('--text='.length);
     else if (arg === '--channel') out.channel = argv[++index] || null;

@@ -84,8 +84,7 @@ function buildPrunePreview(
         : Number.POSITIVE_INFINITY;
       const queue = nodeInvokeService.summarizeNodeQueue(entry.id);
       const eligible = ageMs >= olderThanMs && queue.pending === 0 && queue.claimed === 0;
-      const blockedReason = ageMs < olderThanMs
-        ? 'recent'
+      const blockedReason = ageMs < olderThanMs ? 'recent'
         : ((queue.pending > 0 || queue.claimed > 0) ? 'active-queue' : null);
       return {
         id: entry.id,
@@ -186,11 +185,11 @@ async function main() {
   }
 
   console.log('[nodes] doctor');
-  console.log(`[nodes] resumo: ${report.summary}`);
+  console.log(`[nodes] summary: ${report.summary}`);
   console.log(`[nodes] status: ${report.status}`);
   console.log(`[nodes] selected: ${report.selectedNodeId || 'n/d'}`);
   console.log(`[nodes] prune-preview elegiveis: ${prunePreview.eligible.length}`);
-  console.log(`[nodes] prune-preview bloqueados: ${prunePreview.blocked.length}`);
+  console.log(`[nodes] prune-preview blocked: ${prunePreview.blocked.length}`);
   for (const issue of report.issues) {
     console.log(
       `[nodes] ${issue.nodeId}: ${issue.kind} | recoverable=${issue.recoverable ? 'yes' : 'no'} | ${issue.summary}`,
@@ -202,13 +201,13 @@ async function main() {
 
   if (runRepair) {
     if (!resolvedKind) {
-      console.log('[nodes] repair: nenhum recover automatico encontrado para o estado atual.');
+      console.log('[nodes] repair: no automatic recovery found for the current state.');
     } else {
       console.log(`[nodes] repair kind: ${resolvedKind}`);
       console.log(`[nodes] repair node: ${resolvedNodeId || 'n/d'}`);
       console.log(`[nodes] repair ok: ${recover?.ok ? 'yes' : 'no'}`);
       if (recover?.action?.summary) {
-        console.log(`[nodes] repair resumo: ${recover.action.summary}`);
+        console.log(`[nodes] repair summary: ${recover.action.summary}`);
       }
       if (recover?.result) {
         console.log(`[nodes] repair result: ${JSON.stringify(recover.result, null, 2)}`);
@@ -231,7 +230,7 @@ async function main() {
       console.log(`[nodes] prune-history blocked-by-active-queue: ${prune.invocations.blockedNodeIds.join(', ')}`);
     }
   } else if (prunePreview.eligible.length > 0) {
-    console.log('[nodes] hint: use --prune-revoked-history para limpar drafts revogados antigos sem tocar no host ativo.');
+    console.log('[nodes] hint: use --prune-revoked-history para limpar drafts revogados antigos without tocar no host active.');
   }
 
   if (report.status === 'attention') {
@@ -240,6 +239,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(`[nodes] doctor falhou: ${error.message || error}`);
+  console.error(`[nodes] doctor failed: ${error.message || error}`);
   process.exitCode = 1;
 });

@@ -12,28 +12,28 @@ describe('TelegramFileDeliveryController', () => {
     const fileDeliveryService = {
       prepare: jest.fn().mockResolvedValue({
         kind: 'choices',
-        prompt: '1. relatorio.pdf\n2. contrato.pdf',
+        prompt: '1. report.pdf\n2. contract.pdf',
         entries: [],
       }),
       shouldHandleText: jest.fn().mockReturnValue(true),
     } as any;
     const controller = new TelegramFileDeliveryController(fileDeliveryService);
 
-    await controller.handleCommand(ctx, 'downloads relatorio', '42');
+    await controller.handleCommand(ctx, 'downloads report', '42');
 
     expect(fileDeliveryService.prepare).toHaveBeenCalledWith(
       '42',
-      'downloads relatorio',
+      'downloads report',
       expect.objectContaining({ extraAllowedPaths: [] }),
     );
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Encontrei mais de uma opcao');
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('1. relatorio.pdf');
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('2. contrato.pdf');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('1. report.pdf');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('2. contract.pdf');
   });
 
-  it('envia o documento e limpa o arquivo temporario quando necessario', async () => {
+  it('sends the document and cleans the temporary file when needed', async () => {
     const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-file-delivery-controller-'));
-    const archivePath = path.join(tempDir, 'evidencias.zip');
+    const archivePath = path.join(tempDir, 'evidence.zip');
     await fs.promises.writeFile(archivePath, 'zip');
 
     const ctx = {
@@ -49,10 +49,10 @@ describe('TelegramFileDeliveryController', () => {
         kind: 'send',
         entry: {
           absolutePath: archivePath,
-          baseName: 'evidencias',
+          baseName: 'evidence',
           extension: '',
           isDirectory: true,
-          relativePath: 'evidencias',
+          relativePath: 'evidence',
           rootKey: 'downloads',
           rootLabel: 'Downloads',
           score: 1000,
@@ -60,22 +60,22 @@ describe('TelegramFileDeliveryController', () => {
           modifiedAtMs: Date.now(),
         },
         sendPath: archivePath,
-        fileName: 'evidencias.zip',
-        caption: 'Arquivo pronto',
-        previewText: 'Encontrei o pacote pronto',
+        fileName: 'evidence.zip',
+        caption: 'File ready',
+        previewText: 'Encontrei o pacote ready',
         cleanupPath: archivePath,
       }),
       shouldHandleText: jest.fn().mockReturnValue(true),
     } as any;
     const controller = new TelegramFileDeliveryController(fileDeliveryService);
 
-    await controller.handleFreeForm(ctx, 'me envia a pasta evidencias', '42');
+    await controller.handleFreeForm(ctx, 'send me the evidence folder', '42');
 
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Envio pronto');
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Encontrei o pacote pronto');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Envio ready');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Encontrei o pacote ready');
     expect(ctx.api.sendChatAction).toHaveBeenCalledWith(42, 'upload_document');
     expect(ctx.replyWithDocument).toHaveBeenCalledWith(expect.anything(), {
-      caption: 'Arquivo pronto',
+      caption: 'File ready',
     });
     expect(fs.existsSync(archivePath)).toBe(false);
 
@@ -93,13 +93,13 @@ describe('TelegramFileDeliveryController', () => {
     } as any;
     const controller = new TelegramFileDeliveryController(fileDeliveryService);
 
-    await controller.handleCommand(ctx, 'downloads relatorio.pdf', '42');
+    await controller.handleCommand(ctx, 'downloads report.pdf', '42');
 
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('private chat');
     expect(fileDeliveryService.prepare).not.toHaveBeenCalled();
   });
 
-  it('abre um pedido de permissao quando a pasta fica fora das areas ja liberadas', async () => {
+  it('opens a permission request when the folder is outside already allowed areas', async () => {
     const ctx = {
       chat: { id: 42, type: 'private' },
       from: { id: 777 },
@@ -133,7 +133,7 @@ describe('TelegramFileDeliveryController', () => {
     const controller = new TelegramFileDeliveryController(fileDeliveryService, {
       permissionService,
       buildPermissionKeyboard: jest.fn().mockReturnValue({ inline_keyboard: [[{ text: 'ok', callback_data: 'x' }]] } as any),
-      formatPermissionCreatedMessage: jest.fn().mockReturnValue('Preciso da sua aprovacao para essa pasta.'),
+      formatPermissionCreatedMessage: jest.fn().mockReturnValue('I need your approval for this folder.'),
     });
 
     await controller.handleCommand(ctx, 'me envie "C:/fora/index.html"', '42');
@@ -146,12 +146,12 @@ describe('TelegramFileDeliveryController', () => {
       }),
     );
     expect(ctx.reply).toHaveBeenCalledWith(
-      'Preciso da sua aprovacao para essa pasta.',
+      'I need your approval for this folder.',
       expect.objectContaining({ reply_markup: expect.anything() }),
     );
   });
 
-  it('retoma o envio depois da permissao aprovada', async () => {
+  it('retoma o envio depois da permission approved', async () => {
     const ctx = {
       chat: { id: 42, type: 'private' },
       from: { id: 777 },
@@ -178,8 +178,8 @@ describe('TelegramFileDeliveryController', () => {
         },
         sendPath: 'C:/fora/index.html',
         fileName: 'index.html',
-        caption: 'Arquivo enviado: index.html',
-        previewText: 'Encontrei este arquivo:',
+        caption: 'File sent: index.html',
+        previewText: 'Encontrei este file:',
       }),
       shouldHandleText: jest.fn().mockReturnValue(true),
     } as any;

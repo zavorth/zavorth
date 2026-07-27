@@ -13,7 +13,7 @@ async function main() {
   if (asJson) {
     console.log(JSON.stringify(changelogOnly ? snapshot.wizard.changelog : snapshot, null, 2));
   } else if (changelogOnly) {
-    console.log('[release-ux] Changelog operacional');
+    console.log('[release-ux] Changelog operational');
     console.log(`source: ${snapshot.wizard.changelog.source}`);
     for (const entry of snapshot.wizard.changelog.entries) {
       console.log(`- ${entry}`);

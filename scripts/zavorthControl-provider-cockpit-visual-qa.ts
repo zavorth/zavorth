@@ -57,7 +57,7 @@ async function inspectViewport(
 ) {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
-  const url = `${pathToFileURL(htmlPath).toString()}?fixture=safe-run`;
+  const url = `${pathToFileURL(htmlPath).toString()}...fixture=safe-run`;
   await page.goto(url, { waitUntil: "load", timeout: 30_000 });
   await page.waitForSelector('[data-zavorth-provider-cockpit="ready"]', { timeout: 15_000 });
   await page.waitForTimeout(300);
@@ -76,8 +76,8 @@ async function inspectViewport(
     ];
     return {
       visible: Boolean(panel),
-      providerCountText: text.match(/\d+\/\d+\s+prontos/)?.[0] || "",
-      safeRenderText: text.includes("sem chamadas de rede no zavorthControl") ? "safe-render" : "",
+      providerCountText: text.match(/\d+\/\d+\s+ready/)?.[0] || "",
+      safeRenderText: text.includes("without chamadas de rede no zavorthControl") ? "safe-render" : "",
       commandHints: Array.from(panel?.querySelectorAll("button") || []).map((button) => button.textContent?.trim() || "").filter(Boolean),
       forbiddenSecrets: forbiddenPatterns.filter((entry) => entry.pattern.test(body)).map((entry) => entry.label),
     };

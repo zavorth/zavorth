@@ -158,7 +158,7 @@ describe('AgentWorkspaceToolPolicySmoke', () => {
     });
   });
 
-  // 3. Developer Mode — gating only
+  // 3. Developer Mode - gating only
   describe('developer mode is gating only', () => {
     it('allowDeveloperMode=true removes the workspace-config-denied-developer-mode block', () => {
       const workspace = buildWorkspaceMeta({ allowDeveloperMode: true });

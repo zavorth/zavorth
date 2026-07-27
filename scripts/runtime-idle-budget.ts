@@ -21,6 +21,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error('[idle-budget] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[idle-budget] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

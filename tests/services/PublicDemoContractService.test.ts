@@ -58,7 +58,7 @@ describe('PublicDemoContractService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Gate public-demo - Public Demo And Guided Story');
-    expect(report).toContain('proximo passo recomendada: 48 - Public Onboarding And First Run');
+    expect(report).toContain('next step recomendada: 48 - Public Onboarding And First Run');
   });
 });
 
@@ -92,7 +92,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
       'Guided story',
       'Um fluxo completo',
       'Estados cobertos',
-      'Build fix com aprovacao e replay',
+      'Build fix com approval e replay',
       'Chat comum',
       'Zavorth',
     ].join('\n'),

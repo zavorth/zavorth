@@ -9,7 +9,7 @@ describe('EchoCapabilityCatalogService', () => {
     const registered = service.registerTools([
       {
         name: 'os_screenshot',
-        description: 'Captura tela para vision.',
+        description: 'Captures screen for vision.',
         category: 'OS',
         dangerLevel: 'moderate',
         requiresPermission: true,
@@ -25,7 +25,7 @@ describe('EchoCapabilityCatalogService', () => {
       },
       {
         name: 'os_screen_vision',
-        description: 'Analise multimodal da tela.',
+        description: 'Multimodal screen analysis.',
         category: 'OS',
         dangerLevel: 'moderate',
         requiresPermission: true,
@@ -41,7 +41,7 @@ describe('EchoCapabilityCatalogService', () => {
       },
       {
         name: 'iot_mqtt_publish',
-        description: 'Publicacao MQTT local.',
+        description: 'Publicaction MQTT local.',
         category: 'IOT',
         dangerLevel: 'moderate',
         requiresPermission: false,

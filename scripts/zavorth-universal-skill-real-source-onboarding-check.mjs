@@ -168,7 +168,7 @@ function runRegressionFixture() {
   const historyPath = path.join(fixture.root, '.zavorth', 'reports', 'history.json');
   fs.mkdirSync(path.dirname(historyPath), { recursive: true });
   fs.writeFileSync(historyPath, JSON.stringify({
-    contractVersion: '2026-05-10.checkpoint-8',
+    contractVersion: '2026-05-10.gate-8',
     updatedAt: '2026-05-10T00:00:00.000Z',
     entries: [{
       runId: 'previous',
@@ -368,7 +368,7 @@ function read(relativePath) {
 
 function compact(...values) {
   return values
-    .flatMap((value) => String(value || '').split(/\r?\n/g))
+    .flatMap((value) => String(value || '').split(/\r...\n/g))
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 12);

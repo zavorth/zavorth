@@ -66,21 +66,21 @@ function main(): void {
       publishTagEnabled,
       globalRolloutEnabled,
       autoRolloutEnabled,
-      actorId: 'checkpoint-81-gate',
-      rolloutPlanReceiptId: 'checkpoint-81-release-rollout-plan',
-      canaryCohortId: stagedCohortsDefined ? 'checkpoint-81-canary-cohort' : null,
-      stagedCohortPlanId: stagedCohortsDefined ? 'checkpoint-81-staged-cohorts' : null,
-      rollbackRunbookId: rollbackRunbookReady ? 'checkpoint-81-rollback-runbook' : null,
-      changelogId: changelogReady ? 'checkpoint-81-changelog' : null,
-      releaseBundleId: releaseBundleReady ? 'checkpoint-81-release-bundle' : null,
-      installerSmokeReceiptId: installerSmokePassed ? 'checkpoint-81-installer-smoke' : null,
-      docsPublicationId: docsPublicationReady ? 'checkpoint-81-docs-publication' : null,
-      commsPlanId: supportCommsReady ? 'checkpoint-81-support-comms' : null,
-      telemetryZavorthControlId: telemetryZavorthControlsReady ? 'checkpoint-81-telemetry-zavorthControl' : null,
-      releaseOwnerId: releaseOwnerAssigned ? 'checkpoint-81-release-owner' : null,
-      releaseTrainSlotId: releaseTrainSlotReserved ? 'checkpoint-81-release-train-slot' : null,
-      artifactRetentionPolicyId: artifactRetentionReady ? 'checkpoint-81-artifact-retention' : null,
-      reason: 'checkpoint-81-release-rollout-plan',
+      actorId: 'gate-81-gate',
+      rolloutPlanReceiptId: 'gate-81-release-rollout-plan',
+      canaryCohortId: stagedCohortsDefined ? 'gate-81-canary-cohort' : null,
+      stagedCohortPlanId: stagedCohortsDefined ? 'gate-81-staged-cohorts' : null,
+      rollbackRunbookId: rollbackRunbookReady ? 'gate-81-rollback-runbook' : null,
+      changelogId: changelogReady ? 'gate-81-changelog' : null,
+      releaseBundleId: releaseBundleReady ? 'gate-81-release-bundle' : null,
+      installerSmokeReceiptId: installerSmokePassed ? 'gate-81-installer-smoke' : null,
+      docsPublicationId: docsPublicationReady ? 'gate-81-docs-publication' : null,
+      commsPlanId: supportCommsReady ? 'gate-81-support-comms' : null,
+      telemetryZavorthControlId: telemetryZavorthControlsReady ? 'gate-81-telemetry-zavorthControl' : null,
+      releaseOwnerId: releaseOwnerAssigned ? 'gate-81-release-owner' : null,
+      releaseTrainSlotId: releaseTrainSlotReserved ? 'gate-81-release-train-slot' : null,
+      artifactRetentionPolicyId: artifactRetentionReady ? 'gate-81-artifact-retention' : null,
+      reason: 'gate-81-release-rollout-plan',
     });
 
     if (asJson) {
@@ -95,7 +95,7 @@ function main(): void {
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
-    process.stderr.write(`[capability-autopilot-release-rollout] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.stderr.write(`[capability-autopilot-release-rollout] failure: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   }
 }

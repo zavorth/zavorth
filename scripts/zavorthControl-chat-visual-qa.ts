@@ -24,8 +24,8 @@ const report = {
   fixtureRoot: path.join('assets', 'zavorthControl'),
   checks,
   fixtures: {
-    history: 'Mensagem histórica',
-    artifact: 'Relatório em PDF',
+    history: 'Historical message',
+    artifact: 'PDF report',
     model: 'gemini-2.5-flash',
   },
 };

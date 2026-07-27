@@ -63,7 +63,7 @@ describe('ExecutionGateway', () => {
     return {
       plan_id: 'plan-1',
       task_id: 'task-1',
-      objective: 'Executar build local',
+      objective: 'Run local build',
       context: 'Teste',
       assumptions: [],
       executor_recommendation: executor,
@@ -79,12 +79,12 @@ describe('ExecutionGateway', () => {
           args: null,
           command: 'npm run build',
           file_targets: [workspace],
-          expected_output: 'Build concluido',
+          expected_output: 'Build completed',
           sensitive: false,
         },
       ],
       validation_steps: [],
-      success_condition: 'Build concluido',
+      success_condition: 'Build completed',
       rollback_condition: null,
       notes: [],
     };
@@ -392,7 +392,7 @@ describe('ExecutionGateway', () => {
     const decision = await gateway.submit(buildTask(), buildPlan('codex'));
 
     expect(decision.allowed).toBe(false);
-    expect(decision.reason).toContain("Executor 'codex' indisponivel");
+    expect(decision.reason).toContain("Executor 'codex' unavailable");
     expect(executor.executeMock).not.toHaveBeenCalled();
   });
 
@@ -473,7 +473,7 @@ describe('ExecutionGateway', () => {
         artifacts: [],
         rollback_available: false,
         error_code: 'AISTUDIO_NO_FINAL_RESPONSE',
-        error_message: 'sem resposta final',
+        error_message: 'no final response',
         metadata: {},
       })
       .mockResolvedValueOnce({
@@ -617,7 +617,7 @@ describe('ExecutionGateway', () => {
     expect(executor.executeMock).toHaveBeenCalledTimes(2);
     expect((gateway as any).healer.analyzeAndProposeFix).not.toHaveBeenCalled();
     expect(decision.execution_result?.actions_executed).not.toEqual(
-      expect.arrayContaining([expect.stringContaining('[SELF-HEALING] Tentativa rapida de correcao')]),
+      expect.arrayContaining([expect.stringContaining('[SELF-HEALING] Quick correction attempt')]),
     );
     expect(decision.execution_result?.metadata?.self_reflection).toBeUndefined();
   });
@@ -646,7 +646,7 @@ describe('ExecutionGateway', () => {
       artifacts: [],
       rollback_available: false,
       error_code: 'SANDBOX_REQUIRED_DOCKER_UNAVAILABLE',
-      error_message: 'Docker sandbox requerido, mas o Docker nao esta disponivel neste host.',
+      error_message: 'Docker sandbox requerido, mas o Docker not esta disponivel neste host.',
       metadata: {},
     });
     gateway.registerExecutor('local', executor);

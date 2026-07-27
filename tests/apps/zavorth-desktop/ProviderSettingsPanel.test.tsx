@@ -26,9 +26,9 @@ describe('ProviderSettingsPanel', () => {
       ok: true,
       json: async () => ({ data: [{ id: 'openai-1', type: 'openai', displayName: 'OpenAI', configured: true, enabled: true, secretSuffix: '***1234' }] })
     });
-    
+
     render(<ProviderSettingsPanel />);
-    
+
     expect(await screen.findByText('OpenAI')).toBeInTheDocument();
   });
 
@@ -38,26 +38,26 @@ describe('ProviderSettingsPanel', () => {
       json: async () => ({ data: [] })
     });
     render(<ProviderSettingsPanel />);
-    
+
     const addButton = await screen.findByText(/Adicionar Provider/i);
     fireEvent.click(addButton);
-    
+
     expect(document.querySelector('input[type="password"]')).toBeInTheDocument();
   });
 
-  it('campo de API key salva nunca é preenchido com valor real e exibe placeholder seguro', async () => {
+  it('saved API key field is never filled with a real value and shows a safe placeholder', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ data: [{ id: 'openai-1', type: 'openai', displayName: 'OpenAI', configured: true, enabled: true, secretRef: 'some-ref', requiresApiKey: true }] })
     });
     render(<ProviderSettingsPanel />);
-    
+
     // Simulate clicking Edit to open the modal
     const editButtons = await screen.findAllByTitle('Editar');
     fireEvent.click(editButtons[0]);
-    
+
     // Test the input placeholder in the modal
-    const passwordInput = await screen.findByPlaceholderText(/chave já configurada/i);
+    const passwordInput = await screen.findByPlaceholderText(/key already configured/i);
     expect(passwordInput).toBeInTheDocument();
     expect((passwordInput as HTMLInputElement).value).toBe('');
   });
@@ -74,14 +74,14 @@ describe('ProviderSettingsPanel', () => {
       });
 
     render(<ProviderSettingsPanel />);
-    
-    // Simular clique em Editar para abrir o modal
+
+    // Simulate clicking Edit to open the modal
     const editButtons = await screen.findAllByTitle('Editar');
     fireEvent.click(editButtons[0]);
 
-    // Procurar botão 'Remover Chave' no modal
+    // Find the 'Remove Key' button in the modal
     const deleteKeyButton = await screen.findByTitle('Remover chave configurada');
-    
+
     // For test we just mock window.confirm
     window.confirm = jest.fn().mockImplementation(() => true);
     window.alert = jest.fn();
@@ -104,8 +104,8 @@ describe('ProviderSettingsPanel', () => {
       });
 
     render(<ProviderSettingsPanel />);
-    
-    const testButtons = await screen.findAllByText('Testar Conexão');
+
+    const testButtons = await screen.findAllByText('Test Connection');
     window.alert = jest.fn();
     fireEvent.click(testButtons[0]);
 

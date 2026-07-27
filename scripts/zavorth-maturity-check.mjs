@@ -25,7 +25,7 @@ const checks = [
       'ZavorthDataLifecyclePolicyService',
       'ZavorthDashboardVisualQaService',
       'OperationalMaturityService',
-      'stub-partial-truth-ledger',
+      'local-partial-truth-ledger',
       'host-live-certification',
       'contract-vs-live-boundary',
       'privacy-data-lifecycle',

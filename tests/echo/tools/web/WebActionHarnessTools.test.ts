@@ -3,7 +3,7 @@ import { ToolSchemaHelper } from '../../../../src/echo/types/ToolSchemaHelper';
 
 // Mock the gateway so it doesn't try to load the full runtime
 jest.mock('../../../../src/runtime/actions/ZavorthActionGateway', () => ({
-  ZavorthActionGateway: class MockGateway {
+  ZavorthActionGateway: class LocalGateway {
     apply = jest.fn().mockResolvedValue({ ok: true, summary: 'mock', lines: [], data: {} });
   },
 }));

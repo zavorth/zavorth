@@ -22,7 +22,7 @@ function createFlags(json: boolean) {
 
 describe('Zavorth CLI Universal Preview Mode', () => {
   it('parses quoted preview input', () => {
-    expect(resolveUniversalPreviewCliText('"simule corrigir arquivo"')).toBe('simule corrigir arquivo');
+    expect(resolveUniversalPreviewCliText('"preview file fix"')).toBe('preview file fix');
   });
 
   it('renders preview JSON through the registry command', async () => {
@@ -33,7 +33,7 @@ describe('Zavorth CLI Universal Preview Mode', () => {
       effectiveFlags: createFlags(true),
       commandName: 'preview',
       normalized: 'preview',
-      args: 'corrija arquivo e rode testes',
+      args: 'corrija file e rode testes',
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -66,7 +66,7 @@ describe('Zavorth CLI Universal Preview Mode', () => {
     const text = formatUniversalPreviewModeSnapshot(snapshot);
 
     expect(text).toContain('Universal Preview Mode - Universal Preview');
-    expect(text).toContain('chamadas reais: 0');
-    expect(text).toContain('Dashboard: /zavorthControl?sector=overview');
+    expect(text).toContain('calls reais: 0');
+    expect(text).toContain('Dashboard: /zavorthControl-sector=overview');
   });
 });

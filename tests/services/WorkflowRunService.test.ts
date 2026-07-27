@@ -38,7 +38,7 @@ describe('WorkflowRunService', () => {
       files_written: [],
       files_deleted: [],
       commands_executed: [],
-      stdout: 'Relatorio inicial pronto',
+      stdout: 'Report inicial ready',
       stderr: null,
       diff_summary: null,
       artifacts: [
@@ -54,9 +54,9 @@ describe('WorkflowRunService', () => {
       error_code: null,
       error_message: null,
       metadata: {},
-    }, 'Relatorio inicial pronto');
+    }, 'Report inicial ready');
 
-    service.markStageStarted(run, 'synthesizer', 'Sintetizar pesquisa', 'Relatorio inicial pronto');
+    service.markStageStarted(run, 'synthesizer', 'Sintetizar pesquisa', 'Report inicial ready');
     service.markStageCompleted(run, 'synthesizer', {
       execution_id: 'exec-2',
       task_id: 'task-2',
@@ -69,7 +69,7 @@ describe('WorkflowRunService', () => {
       files_written: [],
       files_deleted: [],
       commands_executed: [],
-      stdout: 'Briefing final pronto',
+      stdout: 'Briefing final ready',
       stderr: null,
       diff_summary: null,
       artifacts: [
@@ -85,7 +85,7 @@ describe('WorkflowRunService', () => {
       error_code: null,
       error_message: null,
       metadata: {},
-    }, 'Briefing final pronto');
+    }, 'Briefing final ready');
 
     expect(run.status).toBe('completed');
     expect(run.artifacts).toHaveLength(2);
@@ -120,7 +120,7 @@ describe('WorkflowRunService', () => {
     ]));
     expect(run.resume_stage).toBeNull();
     expect(run.stages[1]).toEqual(expect.objectContaining({
-      handoff_summary: 'Relatorio inicial pronto',
+      handoff_summary: 'Report inicial ready',
       artifact_count: 1,
       status: 'completed',
       task_id: 'task-2',
@@ -138,7 +138,7 @@ describe('WorkflowRunService', () => {
         new Date('2026-04-01T12:03:00.000Z'),
       ];
       let index = 0;
-      return () => times[Math.min(index++, times.length - 1)];
+      return () => times[Math.min(index++, times.length ? 1)];
     })();
 
     const service = new WorkflowRunService({
@@ -157,28 +157,28 @@ describe('WorkflowRunService', () => {
         executor: 'external_executor',
         role: 'maker',
         label: 'ExternalExecutor Maker',
-        intro: 'Executando revisao inicial.',
-        strategy_note: 'Manter o maker atual porque o fluxo recente foi estavel.',
+        intro: 'Executando review inicial.',
+        strategy_note: 'Keep the current maker because the recent flow was stable.',
         buildObjective: ({ originalObjective }) => originalObjective,
       },
       ],
       {
         profile_summary: 'Workspace de pagamentos',
-        operational_summary: 'Existe uma aprovacao pendente na revisao atual',
+        operational_summary: 'Existe uma approval pendente na review atual',
         profile_notes: [],
         operational_notes: [],
         active_focus: null,
         recent_artifact: null,
         continuity_recommendation: {
-          label: 'Retomar revisao',
-          reason: 'A revisao pausou aguardando sua decisao.',
+          label: 'Retomar review',
+          reason: 'A review pausou waiting for sua decision.',
           executor: 'external_executor',
         },
       },
     );
 
     service.markStageStarted(run, 'maker', 'Revisar modulo de pagamentos', null, 'task-maker-1');
-    service.markStageInterrupted(run, 'maker', 'approval_pending', 'Aguardando sua decisao.');
+    service.markStageInterrupted(run, 'maker', 'approval_pending', 'Aguardando sua decision.');
 
     const restored = service.getRun(run.workflow_run_id);
     expect(restored).toEqual(expect.objectContaining({
@@ -192,8 +192,8 @@ describe('WorkflowRunService', () => {
     expect(restored?.stages[0]).toEqual(expect.objectContaining({
       status: 'approval_pending',
       objective: 'Revisar modulo de pagamentos',
-      strategy_note: 'Manter o maker atual porque o fluxo recente foi estavel.',
-      result_summary: 'Aguardando sua decisao.',
+      strategy_note: 'Keep the current maker because the recent flow was stable.',
+      result_summary: 'Aguardando sua decision.',
       task_id: 'task-maker-1',
       attempt_count: 1,
     }));
@@ -201,12 +201,12 @@ describe('WorkflowRunService', () => {
       id: 'maker',
       label: 'ExternalExecutor Maker',
       executor: 'external_executor',
-      strategy_note: 'Manter o maker atual porque o fluxo recente foi estavel.',
+      strategy_note: 'Keep the current maker because the recent flow was stable.',
       status: 'approval_pending',
       objective: 'Revisar modulo de pagamentos',
       task_id: 'task-maker-1',
-      result_summary: 'Aguardando sua decisao.',
-      reason: 'aguarda sua confirmacao para seguir',
+      result_summary: 'Aguardando sua decision.',
+      reason: 'waits for your confirmation before continuing',
     }));
     expect(restored?.actionable_stages).toEqual(
       expect.arrayContaining([
@@ -214,13 +214,13 @@ describe('WorkflowRunService', () => {
           id: 'maker',
           status: 'approval_pending',
           action: 'continue',
-          reason: 'Aguardando sua decisao.',
+          reason: 'Aguardando sua decision.',
         }),
       ]),
     );
-    expect(restored?.resume_prompt).toContain('pela etapa ExternalExecutor Maker');
+    expect(restored?.resume_prompt).toContain('at stage ExternalExecutor Maker');
     expect(restored?.resume_prompt).toContain('Objetivo: Revisar modulo de pagamentos.');
-    expect(restored?.resume_prompt).toContain('Estrategia original: Manter o maker atual porque o fluxo recente foi estavel.');
+    expect(restored?.resume_prompt).toContain('Original strategy: keep the current maker because the recent flow was stable.');
     expect(restored?.execution_lifecycle).toEqual(expect.arrayContaining([
       expect.objectContaining({
         kind: 'approval',
@@ -262,7 +262,7 @@ describe('WorkflowRunService', () => {
         executor: 'external_executor',
         role: 'reviewer',
         label: 'ExternalExecutor Reviewer',
-        intro: 'Revisao final.',
+        intro: 'Final review.',
         buildObjective: ({ originalObjective }) => originalObjective,
       },
     ]);
@@ -274,7 +274,7 @@ describe('WorkflowRunService', () => {
     }));
 
     writer.markStageStarted(run, 'review', 'Publicar entrega final', 'Checklist consolidado', 'task-review-1');
-    writer.markStageInterrupted(run, 'review', 'approval_pending', 'Aguardando aprovacao final.');
+    writer.markStageInterrupted(run, 'review', 'approval_pending', 'Waiting for approval final.');
 
     const refreshed = reader.getRun(run.workflow_run_id);
     const listed = reader.listRuns({
@@ -305,23 +305,23 @@ describe('WorkflowRunService', () => {
       persist: false,
       now: () => new Date('2026-04-05T12:00:00.000Z'),
     });
-    const run = service.createRun('ship', 'Fechar release publica', 'C:/repo', [
+    const run = service.createRun('ship', 'Close release public', 'C:/repo', [
       {
         id: 'review',
         executor: 'external_executor',
         role: 'reviewer',
         label: 'ExternalExecutor Reviewer',
-        intro: 'Revisao final.',
+        intro: 'Final review.',
         buildObjective: ({ originalObjective }) => originalObjective,
       },
     ]);
 
-    service.markStageStarted(run, 'review', 'Fechar release publica', 'Checklist consolidado', 'task-review-1');
-    service.markStageInterrupted(run, 'review', 'blocked', 'Dependencia externa indisponivel.');
+    service.markStageStarted(run, 'review', 'Close release public', 'Checklist consolidado', 'task-review-1');
+    service.markStageInterrupted(run, 'review', 'blocked', 'Dependencia externa unavailable.');
 
     const closed = service.closeRun({
       workflowRunId: run.workflow_run_id,
-      reason: 'Operador decidiu encerrar esta retomada.',
+      reason: 'Operador decidiu encerrar esta resumption.',
       surface: 'web',
     });
 
@@ -329,7 +329,7 @@ describe('WorkflowRunService', () => {
       workflow_run_id: run.workflow_run_id,
       status: 'blocked',
       operator_state: 'closed',
-      operator_close_reason: 'Operador decidiu encerrar esta retomada.',
+      operator_close_reason: 'Operador decidiu encerrar esta resumption.',
       operator_closed_by_surface: 'web',
       resume_stage: null,
       resume_prompt: null,
@@ -345,19 +345,19 @@ describe('WorkflowRunService', () => {
       now: () => new Date('2026-04-03T15:00:00.000Z'),
     });
 
-    const run = service.createRun('ship', 'Fechar release publica', 'C:/repo', [
+    const run = service.createRun('ship', 'Close release public', 'C:/repo', [
       {
         id: 'review',
         executor: 'external_executor',
         role: 'reviewer',
         label: 'ExternalExecutor Reviewer',
-        intro: 'Revisao final.',
+        intro: 'Final review.',
         buildObjective: ({ originalObjective }) => originalObjective,
       },
     ]);
 
-    service.markStageStarted(run, 'review', 'Fechar release publica', 'Checklist consolidado', 'task-review-1');
-    service.markStageInterrupted(run, 'review', 'approval_pending', 'Aguardando aprovacao final.');
+    service.markStageStarted(run, 'review', 'Close release public', 'Checklist consolidado', 'task-review-1');
+    service.markStageInterrupted(run, 'review', 'approval_pending', 'Waiting for approval final.');
 
     const safeId = run.workflow_run_id.replace(/[^a-z0-9._-]+/gi, '-');
     const runDir = path.join(storageDir, safeId);
@@ -456,26 +456,26 @@ describe('WorkflowRunService', () => {
     const service = new WorkflowRunService({
       persist: false,
     });
-    const run = service.createRun('ship', 'Fechar release', 'C:/repo', [
+    const run = service.createRun('ship', 'Close release', 'C:/repo', [
       {
         id: 'review',
         executor: 'external_executor',
         role: 'reviewer',
         label: 'ExternalExecutor Reviewer',
-        intro: 'Revisao final.',
+        intro: 'Final review.',
         buildObjective: ({ originalObjective }) => originalObjective,
       },
     ]);
 
-    service.markStageStarted(run, 'review', 'Fechar release', 'Contexto anterior', 'task-review-1');
-    service.markStageInterrupted(run, 'review', 'approval_pending', 'Aguardando sua aprovacao.');
+    service.markStageStarted(run, 'review', 'Close release', 'Previous context', 'task-review-1');
+    service.markStageInterrupted(run, 'review', 'approval_pending', 'Aguardando sua approval.');
 
     const updated = service.applyStageApprovalDecision({
       workflowRunId: run.workflow_run_id,
       stageId: 'review',
       taskId: 'task-review-1',
       action: 'approve',
-      summary: 'Aprovacao registrada pelo operador.',
+      summary: 'Approval recorded pelo operador.',
     });
 
     expect(updated).toEqual(expect.objectContaining({
@@ -489,7 +489,7 @@ describe('WorkflowRunService', () => {
       id: 'review',
       status: 'pending',
       task_id: 'task-review-1',
-      result_summary: 'Aprovacao registrada pelo operador.',
+      result_summary: 'Approval recorded pelo operador.',
     }));
   });
 
@@ -548,19 +548,19 @@ describe('WorkflowRunService', () => {
         executor: 'external_executor',
         role: 'maker',
         label: 'ExternalExecutor Maker',
-        intro: 'Revisao inicial.',
+        intro: 'Review inicial.',
         buildObjective: ({ originalObjective }) => originalObjective,
       },
     ]);
 
     service.markStageStarted(run, 'maker', 'Revisar pagamento', null, 'task-maker-1');
-    service.markStageInterrupted(run, 'maker', 'approval_pending', 'Aguardando sua aprovacao.');
+    service.markStageInterrupted(run, 'maker', 'approval_pending', 'Aguardando sua approval.');
 
     const updated = service.applyStageApprovalDecision({
       workflowRunId: run.workflow_run_id,
       taskId: 'task-maker-1',
       action: 'reject',
-      summary: 'Aprovacao rejeitada pelo operador.',
+      summary: 'Approval rejected pelo operador.',
     });
 
     expect(updated).toEqual(expect.objectContaining({
@@ -580,7 +580,7 @@ describe('WorkflowRunService', () => {
     }));
     expect(updated?.stages[0]).toEqual(expect.objectContaining({
       status: 'blocked',
-      result_summary: 'Aprovacao rejeitada pelo operador.',
+      result_summary: 'Approval rejected pelo operador.',
     }));
     expect(updated?.execution_lifecycle).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -602,24 +602,24 @@ describe('WorkflowRunService', () => {
       now: () => new Date('2026-04-03T17:00:00.000Z'),
     });
 
-    const run = service.createRun('review', 'Revisar modulo critico', 'C:/repo', [
+    const run = service.createRun('review', 'Revisar modulo critical', 'C:/repo', [
       {
         id: 'maker',
         executor: 'external_executor',
         role: 'maker',
         label: 'ExternalExecutor Maker',
-        intro: 'Revisao inicial.',
+        intro: 'Review inicial.',
         buildObjective: ({ originalObjective }) => originalObjective,
       },
     ]);
 
-    service.markStageStarted(run, 'maker', 'Revisar modulo critico', null, 'task-maker-1');
-    service.markStageInterrupted(run, 'maker', 'approval_pending', 'Aguardando aprovacao.');
+    service.markStageStarted(run, 'maker', 'Revisar modulo critical', null, 'task-maker-1');
+    service.markStageInterrupted(run, 'maker', 'approval_pending', 'Waiting for approval.');
     service.applyStageApprovalDecision({
       workflowRunId: run.workflow_run_id,
       taskId: 'task-maker-1',
       action: 'reject',
-      summary: 'Operador rejeitou a aprovacao.',
+      summary: 'The operator rejected the approval.',
     });
 
     const safeId = run.workflow_run_id.replace(/[^a-z0-9._-]+/gi, '-');

@@ -86,7 +86,7 @@ function buildSources() {
                 {
                   id: 'screenshot-1',
                   kind: 'screenshot',
-                  title: 'Tela do deploy',
+                  title: 'Deploy screen',
                   summary: 'Screenshot redigido',
                 },
               ],
@@ -194,8 +194,8 @@ describe('CanvasWorkspaceService', () => {
         id: 'plan-approval-1',
         domain: 'automation',
         actionId: 'create',
-        title: 'Criar automacao',
-        summary: 'Plano aguardando approval',
+        title: 'Criar automaction',
+        summary: 'Plan waiting for approval',
         status: 'waiting_approval',
         riskLevel: 'medium',
         approval: { required: true, status: 'pending' },
@@ -267,7 +267,7 @@ describe('CanvasWorkspaceService', () => {
       entityId: 'canvas-watch-mode',
       kind: 'screenshot',
       ref: 'watch://run-1/screenshot-1',
-      title: 'Tela redigida',
+      title: 'Redacted screen',
       requestedBy: 'ana',
     });
     expect(attached.ok).toBe(true);

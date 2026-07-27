@@ -49,8 +49,7 @@ describe('ZavorthRuntimeGuidedFixesService', () => {
 });
 
 function readinessSnapshot(status: 'ready' | 'attention'): ZavorthRuntimeReadinessSnapshot {
-  const checks = status === 'ready'
-    ? [
+  const checks = status === 'ready' ? [
       check('provider-mesh', 'Provider Mesh', 'ready', false),
       check('dashboard', 'Dashboard', 'ready', true),
     ]

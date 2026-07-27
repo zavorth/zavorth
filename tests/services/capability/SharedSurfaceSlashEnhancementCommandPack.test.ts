@@ -43,7 +43,7 @@ describe('SharedSurfaceSlashEnhancementCommandPack', () => {
   it('handles /export help when empty transcript', async () => {
     const pack = new SharedSurfaceSlashEnhancementCommandPack();
     expect(await pack.maybeHandle(ctx, '/export', 'markdown')).toBe(true);
-    expect(replies[0]).toMatch(/Session export|Nenhuma mensagem/i);
+    expect(replies[0]).toMatch(/Session export|No message/i);
   });
 
   it('handles /learn-skill usage without source', async () => {

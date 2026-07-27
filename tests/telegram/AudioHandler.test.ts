@@ -8,7 +8,7 @@ import { AudioHandler } from '../../src/telegram/AudioHandler';
 import { CapabilityUnavailableError } from '../../src/services/OptionalCapabilityGuard';
 
 describe('AudioHandler', () => {
-  it('prefere Edge-TTS para respostas curtas quando a voz local combina com o idioma', async () => {
+  it('prefers Edge-TTS for short responses when the local voice matches the language', async () => {
     const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-audio-handler-'));
     const setMetadata = jest.fn(async () => undefined);
     const toStream = jest.fn(() => ({
@@ -38,14 +38,14 @@ describe('AudioHandler', () => {
       loadEdgeTts: async () => ({ MsEdgeTTS: FakeMsEdgeTTS as any }),
     });
 
-    const output = await handler.synthesize('Resposta curta sobre as ultimas noticias.', {
+    const output = await handler.synthesize('Short response about the latest news.', {
       preferredLanguageCode: 'en-US',
       policyHint: 'short_reply',
     });
 
     expect(output).toMatch(/tts_.*\.mp3$/);
     expect(setMetadata).toHaveBeenCalledWith(config.ttsVoice, 'audio-24khz-48kbitrate-mono-mp3');
-    expect(toStream).toHaveBeenCalledWith('Resposta curta sobre as ultimas noticias.');
+    expect(toStream).toHaveBeenCalledWith('Short response about the latest news.');
     expect(geminiVoiceService.synthesizeDetailed).not.toHaveBeenCalled();
     expect(voiceTelemetryService.recordSuccess).toHaveBeenCalledWith(expect.objectContaining({
       provider: 'edge-tts',
@@ -59,12 +59,12 @@ describe('AudioHandler', () => {
     await fs.promises.rm(tempDir, { recursive: true, force: true });
   });
 
-  it('prefere Gemini para respostas longas', async () => {
+  it('prefers Gemini for long responses', async () => {
     const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-audio-handler-'));
     const geminiFile = path.join(tempDir, 'gemini.wav');
     await fs.promises.writeFile(geminiFile, 'wav');
     const loadEdgeTts = jest.fn(async () => {
-      throw new Error('edge nao deveria ser chamado para resposta longa');
+      throw new Error('edge should not be called for a long response');
     });
     const voiceTelemetryService = {
       recordSuccess: jest.fn(async () => undefined),
@@ -113,12 +113,12 @@ describe('AudioHandler', () => {
     await fs.promises.rm(tempDir, { recursive: true, force: true });
   });
 
-  it('prefere Gemini quando o idioma pedido nao tem voz Edge configurada', async () => {
+  it('prefere Gemini quando o idioma pedido not tem voz Edge configurada', async () => {
     const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-audio-handler-'));
     const geminiFile = path.join(tempDir, 'gemini.wav');
     await fs.promises.writeFile(geminiFile, 'wav');
     const loadEdgeTts = jest.fn(async () => {
-      throw new Error('edge nao deveria ser chamado sem voz compativel');
+      throw new Error('edge should not be called without a compatible voice');
     });
     const geminiVoiceService = {
       isConfigured: jest.fn(() => true),
@@ -130,7 +130,7 @@ describe('AudioHandler', () => {
         mimeType: 'audio/wav',
         sourceMimeType: 'audio/pcm',
         latencyMs: 21,
-        inputChars: 'Can you hear me clearly?'.length,
+        inputChars: 'Can you hear me clearly-'.length,
         outputBytes: 3,
       })),
       synthesize: jest.fn(async () => geminiFile),
@@ -142,13 +142,13 @@ describe('AudioHandler', () => {
       loadEdgeTts,
     });
 
-    const output = await handler.synthesize('Puedes escucharme claramente?', {
+    const output = await handler.synthesize('Can you hear me clearly-', {
       preferredLanguageCode: 'es',
       policyHint: 'short_reply',
     });
 
     expect(output).toBe(geminiFile);
-    expect(geminiVoiceService.synthesizeDetailed).toHaveBeenCalledWith('Puedes escucharme claramente?', {
+    expect(geminiVoiceService.synthesizeDetailed).toHaveBeenCalledWith('Can you hear me clearly-', {
       languageCode: 'es',
     });
     expect(loadEdgeTts).not.toHaveBeenCalled();
@@ -156,7 +156,7 @@ describe('AudioHandler', () => {
     await fs.promises.rm(tempDir, { recursive: true, force: true });
   });
 
-  it('cai para Gemini TTS quando edge-tts nao esta disponivel', async () => {
+  it('falls back to Gemini TTS when edge-tts is unavailable', async () => {
     const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-audio-handler-'));
     const geminiFile = path.join(tempDir, 'gemini.wav');
     await fs.promises.writeFile(geminiFile, 'wav');
@@ -175,7 +175,7 @@ describe('AudioHandler', () => {
         mimeType: 'audio/wav',
         sourceMimeType: 'audio/pcm',
         latencyMs: 42,
-        inputChars: 'Fale uma resposta curta.'.length,
+        inputChars: 'Say a short response.'.length,
         outputBytes: 3,
       })),
       synthesize: jest.fn(async () => geminiFile),
@@ -188,15 +188,15 @@ describe('AudioHandler', () => {
       loadEdgeTts: async () => {
         throw new CapabilityUnavailableError({
           capabilityId: 'media',
-          reason: 'edge-tts ausente',
+          reason: 'edge-tts missing',
         });
       },
     });
 
-    const output = await handler.synthesize('Fale uma resposta curta.');
+    const output = await handler.synthesize('Say a short response.');
 
     expect(output).toBe(geminiFile);
-    expect(geminiVoiceService.synthesizeDetailed).toHaveBeenCalledWith('Fale uma resposta curta.', {
+    expect(geminiVoiceService.synthesizeDetailed).toHaveBeenCalledWith('Say a short response.', {
       languageCode: 'en-US',
     });
     expect(voiceTelemetryService.recordSuccess).toHaveBeenCalledWith(expect.objectContaining({

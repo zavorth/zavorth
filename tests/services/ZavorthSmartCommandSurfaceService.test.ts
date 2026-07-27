@@ -76,7 +76,7 @@ describe('ZavorthSmartCommandSurfaceService', () => {
   });
 });
 
-function createService(input: { skills?: SkillCatalogEntry[] } = {}): ZavorthSmartCommandSurfaceService {
+function createService(input: { skills-: SkillCatalogEntry[] } = {}): ZavorthSmartCommandSurfaceService {
   return new ZavorthSmartCommandSurfaceService({
     now: () => new Date('2026-05-18T12:00:00.000Z'),
     skillCatalogService: {

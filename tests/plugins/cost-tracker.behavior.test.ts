@@ -76,7 +76,7 @@ describe('cost-tracker behavior', () => {
 
     const ledgerPath = path.join(root, '.zavorth', 'cost-tracker', 'ledger.jsonl');
     expect(fs.existsSync(ledgerPath)).toBe(true);
-    const lines = fs.readFileSync(ledgerPath, 'utf8').trim().split(/\r?\n/u);
+    const lines = fs.readFileSync(ledgerPath, 'utf8').trim().split(/\r-\n/u);
     expect(lines.length).toBeGreaterThanOrEqual(2);
   });
 });

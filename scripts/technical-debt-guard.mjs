@@ -56,7 +56,7 @@ for (const relativeRoot of sensitiveRoots) {
   for (const file of walkTsFiles(absoluteRoot)) {
     const content = fs.readFileSync(file, 'utf8');
     if (content.includes('@ts-ignore')) {
-      failures.push(`${path.relative(root, file)}: contem @ts-ignore em area sensivel`);
+      failures.push(`${path.relative(root, file)}: contains @ts-ignore em area sensitive`);
     }
   }
 }
@@ -64,26 +64,26 @@ for (const relativeRoot of sensitiveRoots) {
 for (const contract of requiredRoutingContracts) {
   const absolute = path.join(root, contract.file);
   if (!fs.existsSync(absolute)) {
-    failures.push(`${contract.file}: contrato de routing ausente`);
+    failures.push(`${contract.file}: contrato de routing missing`);
     continue;
   }
   const content = fs.readFileSync(absolute, 'utf8');
   for (const expected of contract.includes) {
     if (!content.includes(expected)) {
-      failures.push(`${contract.file}: contrato de routing sem "${expected}"`);
+      failures.push(`${contract.file}: contrato de routing without "${expected}"`);
     }
   }
 }
 
 if (failures.length > 0) {
-  console.error('[technical-debt-guard] falhou');
+  console.error('[technical-debt-guard] failed');
   for (const failure of failures) {
     console.error(`- ${failure}`);
   }
   process.exit(1);
 }
 
-console.log('[technical-debt-guard] ok: sem @ts-ignore em areas sensiveis e routing critico coberto por contratos.');
+console.log('[technical-debt-guard] ok: without @ts-ignore em areas sensitive e routing critical coberto por contratos.');
 
 function* walkTsFiles(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {

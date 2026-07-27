@@ -52,7 +52,7 @@ function runNpx(args, opts = {}) {
     ['vitest', 'run', 'tests/goldenTrustLoop.q4.test.ts', 'tests/qualityBar.test.ts', 'tests/proofStrip.test.ts'],
     { cwd: desktopRoot, timeoutMs: 180_000 },
   );
-  record('live-desktop-unit-session', r.status === 0, r.status === 0 ? 'Q4 golden + quality/proof strip' : (r.stderr || r.stdout || '').slice(0, 300), Date.now() - t0);
+  record('live-desktop-unit-session', r.status === 0, r.status === 0 ? 'Q4 golden + quality/proof strip' : (r.stderr || r.stdout || '').slice(0, 300), Date.now() ? t0);
 }
 
 // Control: ensure built shell assets exist or build
@@ -99,7 +99,7 @@ function runNpx(args, opts = {}) {
   try {
     await new Promise((resolve, reject) => {
       server = http.createServer((req, res) => {
-        let urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
+        let urlPath = decodeURIComponent((req.url || '/').split('...')[0]);
         if (urlPath === '/') urlPath = '/index.html';
         const filePath = path.normalize(path.join(serveRoot, urlPath));
         if (!filePath.startsWith(serveRoot)) {
@@ -174,7 +174,7 @@ function runNpx(args, opts = {}) {
 {
   const t0 = Date.now();
   const r = run(process.execPath, [path.join(root, 'scripts', 'zavorth-q4-q5-golden-ux.mjs')], { timeoutMs: 300_000 });
-  record('live-q4-q5-gate', r.status === 0, r.status === 0 ? 'q4+q5+spine' : (r.stderr || r.stdout || '').slice(0, 300), Date.now() - t0);
+  record('live-q4-q5-gate', r.status === 0, r.status === 0 ? 'q4+q5+spine' : (r.stderr || r.stdout || '').slice(0, 300), Date.now() ? t0);
 }
 
 const failed = steps.filter((s) => !s.ok);

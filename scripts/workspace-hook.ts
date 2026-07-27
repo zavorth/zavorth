@@ -31,7 +31,7 @@ async function main() {
   const profile = await profileService.getProfile(workspace);
 
   if (!profile) {
-    throw new Error(`Nao foi possivel resolver o workspace: ${workspace}`);
+    throw new Error(`Could not resolve workspace: ${workspace}`);
   }
 
   const hooks = event
@@ -40,7 +40,7 @@ async function main() {
 
   if (listOnly || !event) {
     if (hooks.length === 0) {
-      console.log('[workspace-hook] Nenhum hook encontrado.');
+      console.log('[workspace-hook] No hook encontrado.');
       return;
     }
 
@@ -59,7 +59,7 @@ async function main() {
   });
 
   if (report.hooks.length === 0) {
-    console.log(`[workspace-hook] Nenhum hook para o evento ${report.event}.`);
+    console.log(`[workspace-hook] No hook para o evento ${report.event}.`);
     return;
   }
 
@@ -77,6 +77,6 @@ async function main() {
 }
 
 main().catch((error: unknown) => {
-  console.error(`[workspace-hook] erro: ${error?.message || String(error)}`);
+  console.error(`[workspace-hook] error: ${error?.message || String(error)}`);
   process.exitCode = 1;
 });

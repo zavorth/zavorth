@@ -61,7 +61,7 @@ async function main(): Promise<void> {
         data: [{
           id: 'habit:turno',
           label: 'Habit ledger',
-          summary: 'Usuario costuma preparar a sala no inicio do turno.',
+          summary: 'The user usually prepares the room at the start of the shift.',
           memoryLayer: 'semantic',
           source: 'layered-memory',
           confidence: 0.91,
@@ -122,7 +122,7 @@ async function main(): Promise<void> {
           actionName: 'light_turn_on',
           actionArgs: { entity_id: 'light.sala', action: 'turn_on' },
           category: 'IOT',
-          reason: 'Padrao recente indica que o usuario deve querer a luz da sala ligada.',
+          reason: 'Recent pattern indicates the room light may be useful.',
         }),
       }),
     } as any,

@@ -76,7 +76,7 @@ describe('SkillFeedbackCollectorTool', () => {
     const result = await tool.execute({ skill_name: 'my_skill', action: 'review' });
 
     expect(result).toContain('Metricas da skill');
-    expect(result).toContain('Total de execucoes: 2');
+    expect(result).toContain('Total de executions: 2');
     expect(result).toContain('4.00');
   });
 
@@ -94,7 +94,7 @@ describe('SkillFeedbackCollectorTool', () => {
 
     expect(result).toContain('Optimization suggestions');
     expect(result).toContain('Rating medio abaixo de 3');
-    expect(result).toMatch(/Tempo|execucao|optimization|otimizacao|slow/i);
+    expect(result).toMatch(/Time|execution|optimization|slow/i);
   });
 
   it('returns insufficient data message for optimization with few executions', async () => {

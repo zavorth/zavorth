@@ -101,12 +101,12 @@ async function main(): Promise<void> {
 
   console.log(
     [
-      '[install-core] Zavorth configurado para o modo leve por padrao.',
+      '[install-core] Zavorth configured para o modo leve por default.',
       `[install-core] .env: ${envWriteReport.filePath}`,
       `[install-core] optional capabilities disabled: ${disabledSnapshots.length}`,
-      `[install-core] extra pack cleanup: ${cleanedPackIds.length} pack(s) com artefatos removidos.`,
+      `[install-core] extra pack cleanup: ${cleanedPackIds.length} pack(s) with removed artifacts.`,
       '[install-core] Use npm run pack:add -- <remote|media|qa|sandbox> para religar trilhas pesadas sob demanda.',
-      '[install-core] Reinicie o Zavorth para reaplicar todos os gates de boot.',
+      '[install-core] Restart Zavorth to reapply all boot gates.',
     ].join('\n'),
   );
 }

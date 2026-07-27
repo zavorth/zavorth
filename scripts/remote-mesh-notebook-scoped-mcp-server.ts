@@ -27,8 +27,7 @@ const enableProjectFileRead = args.includes('--enable-project-file-read') || pro
 const useDockerTestProvider = args.includes('--use-docker-test-provider');
 const useProjectFileTestProvider = args.includes('--use-project-file-test-provider');
 const allowPrivateBind = args.includes('--allow-private-bind') || process.env.ZAVORTH_NOTEBOOK_MCP_ALLOW_PRIVATE_BIND === '1';
-const authHeaderName = args.includes('--x-zavorth-token')
-  ? 'X-Zavorth-Remote-Token' as const
+const authHeaderName = args.includes('--x-zavorth-token') ? 'X-Zavorth-Remote-Token' as const
   : 'Authorization' as const;
 const host = valueFor('--host') || process.env.ZAVORTH_NOTEBOOK_MCP_HOST || '127.0.0.1';
 const port = Number(valueFor('--port') || process.env.ZAVORTH_NOTEBOOK_MCP_PORT || '8787');
@@ -51,10 +50,8 @@ const projectFileReadApprovalTtlMs = Number(valueFor('--project-file-read-approv
 const dockerCliPath = valueFor('--docker-cli') || process.env.ZAVORTH_NOTEBOOK_DOCKER_CLI || 'docker';
 const explicitToken = valueFor('--token') || process.env.ZAVORTH_NOTEBOOK_MCP_TOKEN || process.env.ZAVORTH_REMOTE_MESH_MCP_TOKEN || null;
 const authToken = explicitToken || (useGeneratedToken ? RemoteMeshNotebookScopedMcpServerService.generatedSelfTestToken() : null);
-const tokenSource = explicitToken
-  ? 'env' as const
-  : useGeneratedToken
-    ? 'generated-test' as const
+const tokenSource = explicitToken ? 'env' as const
+  : useGeneratedToken ? 'generated-test' as const
     : 'none' as const;
 
 main().catch((error) => {

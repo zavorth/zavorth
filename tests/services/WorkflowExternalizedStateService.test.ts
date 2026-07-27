@@ -52,9 +52,9 @@ describe('WorkflowExternalizedStateService', () => {
         index: 0,
         task_id: 'task-sdd-1',
         objective: 'Executar loop SDD',
-        handoff_summary: 'Spec e plan prontos',
-        result_summary: 'Aguardando aprovacao do operador',
-        reason: 'aguarda sua confirmacao para seguir',
+        handoff_summary: 'Spec e plan readys',
+        result_summary: 'Waiting for approval do operador',
+        reason: 'waits for your confirmation before continuing',
       },
       stages: [
         {
@@ -63,8 +63,8 @@ describe('WorkflowExternalizedStateService', () => {
           task_id: 'task-sdd-1',
           attempt_count: 1,
           objective: 'Executar loop SDD',
-          handoff_summary: 'Spec e plan prontos',
-          result_summary: 'Aguardando aprovacao do operador',
+          handoff_summary: 'Spec e plan readys',
+          result_summary: 'Waiting for approval do operador',
         },
       ],
     }, 'stage_interrupted');

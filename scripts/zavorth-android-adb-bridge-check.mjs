@@ -39,7 +39,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('android-adb-files', 'Android ADB bridge files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Connector registry files present', missing);
+  return rule('android-adb-files', 'Android ADB bridge files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all Connector registry files present', missing);
 }
 
 function ruleMarkers() {
@@ -64,7 +64,7 @@ function runObserveFixture() {
   const result = runTs('scripts/zavorth-android-adb-bridge.ts', [
     '--json',
     '--action', 'observe',
-    '--screen', 'Tela do app aberta sem segredo',
+    '--screen', 'Open app screen without secrets',
     '--ui-xml', '<hierarchy><node text="CHECK" /></hierarchy>',
   ]);
   return jsonRule('android-observe-fixture', 'Observe is read-only and safe', result, (snapshot) =>
@@ -79,7 +79,7 @@ function runScreenshotPlanFixture() {
   const result = runTs('scripts/zavorth-android-adb-bridge.ts', [
     '--json',
     '--action', 'screenshot',
-    '--screen', 'Tela normal',
+    '--screen', 'Normal screen',
   ]);
   return jsonRule('android-screenshot-fixture', 'Screenshot is artifact-ref oriented', result, (snapshot) =>
     snapshot.status === 'ready'
@@ -93,8 +93,8 @@ function runMutationApprovalFixture() {
     '--json',
     '--action', 'plan',
     '--target-text', 'CHECK',
-    '--payload', 'texto aprovado',
-    'toque no botao e digite o texto',
+    '--payload', 'approved text',
+    'tap the button and type the text',
   ]);
   return jsonRule('android-mutation-approval-fixture', 'Tap/type/key plans require approval', result, (snapshot) =>
     snapshot.status === 'approval-required'
@@ -111,7 +111,7 @@ function runInstallBlockFixture() {
     '--json',
     '--action', 'plan',
     '--package', 'com.example.app',
-    'instalar apk no celular',
+    'install apk on the device',
   ]);
   return jsonRule('android-install-block-fixture', 'Install/uninstall is blocked by default', result, (snapshot) =>
     snapshot.status === 'blocked'
@@ -175,5 +175,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

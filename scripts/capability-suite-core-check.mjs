@@ -16,17 +16,17 @@ const steps = [
     args: ['run', 'build'],
   },
   {
-    label: 'Contrato publico canonico',
+    label: 'Canonical public contract',
     command: commandFor('npx'),
     args: ['jest', 'tests/contracts/PublicContractsCompatibility.test.ts', '--runInBand'],
   },
   {
-    label: 'Gateway core canonico',
+    label: 'Gateway core canonical',
     command: commandFor('npx'),
     args: ['jest', 'tests/gateway/GatewayHostService.test.ts', '--runInBand'],
   },
   {
-    label: 'Reorganizacao por dominio',
+    label: 'Domain reorganization',
     command: commandFor('npx'),
     args: ['jest', 'tests/domain/DomainRegistry.test.ts', '--runInBand'],
   },
@@ -81,7 +81,7 @@ for (const step of steps) {
     )
     : spawnSync(step.command, step.args, { stdio: 'inherit' });
   if (result.error) {
-    console.error(`[gates-core-check] Falha ao executar ${step.label}:`, result.error.message);
+    console.error(`[gates-core-check] Failure ao run ${step.label}:`, result.error.message);
     process.exit(1);
   }
   if (result.status !== 0) {
@@ -89,4 +89,4 @@ for (const step of steps) {
   }
 }
 
-console.log('\n[gates-core-check] Os gates core passaram na validacao oficial.');
+console.log('\n[gates-core-check] Os gates core passaram na validation oficial.');

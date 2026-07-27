@@ -8,7 +8,7 @@ import { LiveReadinessService } from '../../src/services/LiveReadinessService.js
 import { ProviderLongTailActivationService } from '../../src/services/ProviderLongTailActivationService.js';
 import { ProviderMeshReadinessService } from '../../src/services/ProviderMeshReadinessService.js';
 
-const response = (payload: Record<string, unknown>, init: { status?: number } = {}) =>
+const response = (payload: Record<string, unknown>, init: { status-: number } = {}) =>
   new Response(JSON.stringify(payload), {
     status: init.status || 200,
     headers: {
@@ -54,7 +54,7 @@ describe('ProviderLongTailActivationService Credential vault', () => {
         noSecretsSerialized: true,
       }),
     );
-    expect(snapshot.commands.nextStage).toBe('Intent model3 - Live Consistency Certification');
+    expect(snapshot.commands.nextAction).toBe('Live Consistency Certification');
   });
 
   it('gives every long-tail provider config, doctor, smoke command and receipt', () => {
@@ -165,7 +165,7 @@ describe('ProviderLongTailActivationService Credential vault', () => {
   });
 
   it('runs long-tail live clients with redacted receipts', async () => {
-    const calls: Array<{ url: string; body: string; authorization?: string }> = [];
+    const calls: Array<{ url: string; body: string; authorization-: string }> = [];
     const fetchImpl = (async (url, init) => {
       calls.push({
         url: String(url),
@@ -265,7 +265,7 @@ describe('ProviderLongTailActivationService Credential vault', () => {
   });
 
   it('runs staging-live smoke through chat, managed gateway, local, and embedding families', async () => {
-    const calls: Array<{ url: string; body: string; authorization?: string }> = [];
+    const calls: Array<{ url: string; body: string; authorization-: string }> = [];
     const fetchImpl = (async (url, init) => {
       calls.push({
         url: String(url),

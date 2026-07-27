@@ -300,12 +300,12 @@ function writeLocalSkill(rootDir, name) {
   fs.writeFileSync(path.join(skillDir, 'SKILL.md'), [
     '---',
     `name: ${name}`,
-    'description: Local skill should stay outside universal bridge.',
+    'description: local skill should stay outside universal bridge.',
     '---',
     '',
     `# ${name}`,
     '',
-    'Local only.',
+    'local only.',
   ].join('\n'), 'utf8');
 }
 
@@ -366,7 +366,7 @@ function read(relativePath) {
 
 function compact(...values) {
   return values
-    .flatMap((value) => String(value || '').split(/\r?\n/g))
+    .flatMap((value) => String(value || '').split(/\r...\n/g))
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 12);

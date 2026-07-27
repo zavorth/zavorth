@@ -14,7 +14,7 @@ describe('Approval gate3 end-to-end flow harness', () => {
       status: 'completed',
       executor_used: 'local_executor',
     }));
-    expect(result.replies.map((reply) => reply.text).join('\n')).toContain('Concluido');
+    expect(result.replies.map((reply) => reply.text).join('\n')).toContain('Completed');
     expect(harness.executorCalls).toContainEqual(expect.objectContaining({
       taskId: result.task?.task_id,
       executor: 'local_executor',
@@ -34,7 +34,7 @@ describe('Approval gate3 end-to-end flow harness', () => {
     const approvalStart = await harness.sendTelegram(STAGE33_FLOW_FIXTURES.permissionRequest);
     const approvalId = approvalStart.task?.metadata.pendingPermissionId;
     expect(approvalStart.task?.status).toBe('waiting_approval');
-    expect(approvalStart.replies[0]?.text).toContain('Aprovacao necessaria');
+    expect(approvalStart.replies[0]?.text).toContain('Approval required');
 
     await harness.sendTelegram(`/approve ${approvalId}`);
     const approvedPermission = harness.permissions.get(approvalId);
@@ -100,7 +100,7 @@ describe('Approval gate3 end-to-end flow harness', () => {
       expect.objectContaining({ executor: 'local_executor', attempt: 1, status: 'completed' }),
     ]));
     expect(harness.eventsForTask(result.task).filter((event) => event.eventType === 'zavorthBridge.timeout')).toHaveLength(2);
-    expect(result.replies[0]?.text).toContain('fallback local concluido');
+    expect(result.replies[0]?.text).toContain('fallback local completed');
   });
 
   it('shares web session state and control approval over the same permission plane', async () => {
@@ -113,7 +113,7 @@ describe('Approval gate3 end-to-end flow harness', () => {
 
     expect(start.session.messages).toEqual(expect.arrayContaining([
       expect.objectContaining({ role: 'user', content: STAGE33_FLOW_FIXTURES.webApproval }),
-      expect.objectContaining({ role: 'assistant', content: expect.stringContaining('Aprovacao necessaria') }),
+      expect.objectContaining({ role: 'assistant', content: expect.stringContaining('Approval required') }),
     ]));
     expect(beforeApproval.approvalPlane.pending).toEqual([
       expect.objectContaining({ permission_id: approvalId, status: 'pending' }),
@@ -129,7 +129,7 @@ describe('Approval gate3 end-to-end flow harness', () => {
     }));
     expect(afterApproval.approvalPlane.pending).toEqual([]);
     expect(afterApproval.session.messages).toEqual(expect.arrayContaining([
-      expect.objectContaining({ role: 'assistant', content: expect.stringContaining('execucao retomada') }),
+      expect.objectContaining({ role: 'assistant', content: expect.stringContaining('execution resumed') }),
     ]));
     expect(harness.eventsForTask(resolved.task).map((event) => event.eventType)).toEqual(expect.arrayContaining([
       'permission.requested',

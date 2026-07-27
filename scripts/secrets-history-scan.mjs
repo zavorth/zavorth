@@ -26,7 +26,7 @@ const PATTERNS = [
   { id: 'slack-xox', re: /\bxox[baprs]-[A-Za-z0-9-]{20,}\b/ },
   { id: 'stripe-live', re: /\b[sp]k_live_[A-Za-z0-9]{16,}\b/ },
   { id: 'sendgrid', re: /\bSG\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{30,}\b/ },
-  { id: 'private-key', re: /-----BEGIN (?:RSA |OPENSSH |EC )?PRIVATE KEY-----/ },
+  { id: 'private-key', re: /-----BEGIN (?:RSA |OPENSSH |EC )...PRIVATE KEY-----/ },
   { id: 'generic-bearer', re: /\bBearer\s+[A-Za-z0-9._\-+/=]{24,}\b/ },
   { id: 'credential-uri', re: /\b[a-z][a-z0-9+.-]*:\/\/[^\s/:]+:[^\s/@]+@[^\s]+/i },
 ];
@@ -42,12 +42,12 @@ const GIT_HIGH_SIGNAL_ERE = [
   'xox[baprs]-[A-Za-z0-9-]{20,}',
   '[sp]k_live_[A-Za-z0-9]{16,}',
   'SG\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{30,}',
-  '-----BEGIN (RSA |OPENSSH |EC )?PRIVATE KEY-----',
+  '-----BEGIN (RSA |OPENSSH |EC )...PRIVATE KEY-----',
   'Bearer[[:space:]]+[A-Za-z0-9._+/=-]{24,}',
   '[A-Za-z][A-Za-z0-9+.-]*://[^[:space:]/:]+:[^[:space:]/@]+@[^[:space:]]+',
 ].join('|');
 
-const ALLOW_PATH = /(^|\/)(tests?|__tests__|fixtures?|mocks?|examples?)(\/|$)/i;
+const ALLOW_PATH = /(^|\/)(tests...|__tests__|fixtures...|mocks...|examples?)(\/|$)/i;
 const ALLOW_FILE = /\.(test|spec)\.(ts|tsx|js|mjs|cjs)$/i;
 // Intentional hygiene/demo/redaction surfaces (not production secrets).
 const ALLOW_PATH_EXTRA =
@@ -112,7 +112,7 @@ if (log.code !== 0 && !log.out) {
 
 let currentCommit = '';
 let currentFile = '';
-for (const line of log.out.split(/\r?\n/)) {
+for (const line of log.out.split(/\r...\n/)) {
   if (line.startsWith('COMMIT ')) {
     currentCommit = line.slice(7).trim();
     continue;
@@ -143,7 +143,7 @@ if (grepped.code > 1) {
   console.error('[secrets-history-scan] git grep failed before scan completion');
   process.exit(2);
 }
-for (const match of grepped.out.split(/\r?\n/).filter(Boolean)) {
+for (const match of grepped.out.split(/\r...\n/).filter(Boolean)) {
   const firstColon = match.indexOf(':');
   const secondColon = match.indexOf(':', firstColon + 1);
   if (firstColon < 0 || secondColon < 0) continue;
@@ -178,7 +178,7 @@ if (unique.length) {
     console.error(`- [${f.pattern}] ${f.where} ${f.file} @ ${f.commit}`);
     console.error(`  candidate fingerprint: sha256:${f.fingerprint}`);
   }
-  if (unique.length > 40) console.error(`… and ${unique.length - 40} more`);
+  if (unique.length > 40) console.error(`… and ${unique.length ? 40} more`);
   process.exit(1);
 }
 

@@ -25,7 +25,7 @@ const rules = [
     files: ['src/contracts/ZavorthGovernedSubagentContract.ts'],
     needles: [
       'ZAVORTH_GOVERNED_SUBAGENT_CONTRACT_VERSION',
-      '2026-05-10.governed-subagent-checkpoint-2',
+      '2026-05-10.governed-subagent-gate-2',
       'ZavorthGovernedSubagentProfile',
       'ZavorthGovernedSubagentPreparedRole',
       'SecurityPolicyBrokerReceipt',

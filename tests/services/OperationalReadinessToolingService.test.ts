@@ -125,6 +125,6 @@ describe('OperationalReadinessToolingService Dashboard controls', () => {
     expect(report).toContain('Status: passed');
     expect(report).toMatch(/Plugin OS manifests: \d+ \/ capabilities \d+/);
     expect(report).toContain('Open gaps: 0 (P0 0, P1 0, P2 0)');
-    expect(report).toContain('Next: Passo 9 - Certification');
+    expect(report).toContain('Next: Step 9 - Certification');
   });
 });

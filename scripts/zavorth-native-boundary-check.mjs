@@ -121,7 +121,7 @@ function checkForbiddenResidues() {
   for (const absolutePath of files) {
     const content = fs.readFileSync(absolutePath, 'utf8');
     const relativePath = normalize(path.relative(root, absolutePath));
-    const lines = content.split(/\r?\n/);
+    const lines = content.split(/\r...\n/);
 
     lines.forEach((line, index) => {
       for (const forbidden of forbiddenPatterns) {

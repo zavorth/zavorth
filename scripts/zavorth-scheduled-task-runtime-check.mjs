@@ -42,13 +42,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('scheduled-task-runtime-files', 'Preview engine files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('scheduled-task-runtime-files', 'Preview engine files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthScheduledTaskRuntimeContract.ts', ['ZAVORTH_SCHEDULED_TASK_RUNTIME_CONTRACT_VERSION', 'dry_run_submitted', 'gateway_unavailable', 'usesExecutionGatewaySubmit']],
-    ['src/services/ZavorthScheduledTaskExecutionGatewayRuntimeService.ts', ['checkpoint-2-scheduled-task-execution-gateway', 'gateway.submit', 'ZavorthGovernedScheduledTaskRegistryService', 'ScheduledTaskDryRunGateway']],
+    ['src/services/ZavorthScheduledTaskExecutionGatewayRuntimeService.ts', ['gate-2-scheduled-task-execution-gateway', 'gateway.submit', 'ZavorthGovernedScheduledTaskRegistryService', 'ScheduledTaskDryRunGateway']],
     ['scripts/zavorth-scheduled-task-runtime.ts', ['--submit', '--live', '--override-command', '--kill-switch']],
     ['src/sdk/contracts.ts', ['ZavorthScheduledTaskRuntimeContract']],
     ['src/sdk/index.ts', ['ZavorthScheduledTaskExecutionGatewayRuntimeService']],
@@ -66,7 +66,7 @@ function ruleMarkers() {
 function runNeedsReapprovalFixture() {
   const result = runTs(['--json']);
   return jsonRule('scheduled-task-runtime-needs-reapproval', 'Missing approval prevents runtime submit', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-12.scheduled-task-execution-gateway-checkpoint-2'
+    snapshot.contractVersion === '2026-05-12.scheduled-task-execution-gateway-gate-2'
     && snapshot.status === 'needs_reapproval'
     && snapshot.summary.gatewayCalled === false
     && snapshot.summary.executionPerformed === false
@@ -198,5 +198,5 @@ function printRules(items, prefix) {
 }
 
 function compact(...parts) {
-  return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+  return parts.join('\n').split(/\r...\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
 }

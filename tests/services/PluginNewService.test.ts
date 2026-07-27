@@ -136,7 +136,7 @@ describe('PluginNewService', () => {
     // Load and invoke soft-fail path
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const mod = require(path.join(targetDir, 'index.js')) as {
-      register: (ctx: { bindCapability: (id: string, fn: Function) => void; getLogger?: () => unknown }) => void;
+      register: (ctx: { bindCapability: (id: string, fn: Function) => void; getLogger-: () => unknown }) => void;
     };
     const handlers = new Map<string, Function>();
     mod.register({

@@ -47,15 +47,15 @@ function main(): void {
       betaFlagDefaultOff,
       globalRolloutEnabled,
       autoEnrollEnabled,
-      actorId: 'checkpoint-79-gate',
-      fieldTrialReceiptId: 'checkpoint-79-field-trial',
-      cohortId: 'checkpoint-79-limited-beta-cohort',
-      feedbackChannelId: feedbackChannelReady ? 'checkpoint-79-feedback-channel' : null,
-      supportRotationId: supportRotationReady ? 'checkpoint-79-support-rotation' : null,
-      rollbackRehearsalReceiptId: rollbackRehearsalPassed ? 'checkpoint-79-rollback-rehearsal' : null,
-      successCriteriaId: successCriteriaDefined ? 'checkpoint-79-success-criteria' : null,
-      privacyNoticeReceiptId: privacyNoticeReady ? 'checkpoint-79-privacy-notice' : null,
-      reason: 'checkpoint-79-beta-field-trial-loop',
+      actorId: 'gate-79-gate',
+      fieldTrialReceiptId: 'gate-79-field-trial',
+      cohortId: 'gate-79-limited-beta-cohort',
+      feedbackChannelId: feedbackChannelReady ? 'gate-79-feedback-channel' : null,
+      supportRotationId: supportRotationReady ? 'gate-79-support-rotation' : null,
+      rollbackRehearsalReceiptId: rollbackRehearsalPassed ? 'gate-79-rollback-rehearsal' : null,
+      successCriteriaId: successCriteriaDefined ? 'gate-79-success-criteria' : null,
+      privacyNoticeReceiptId: privacyNoticeReady ? 'gate-79-privacy-notice' : null,
+      reason: 'gate-79-beta-field-trial-loop',
     });
 
     if (asJson) {
@@ -70,7 +70,7 @@ function main(): void {
   } catch (error: unknown) {
     const err = asErrorLike(error);
 
-    process.stderr.write(`[capability-autopilot-beta-field-trial] falha: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.stderr.write(`[capability-autopilot-beta-field-trial] failure: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   }
 }

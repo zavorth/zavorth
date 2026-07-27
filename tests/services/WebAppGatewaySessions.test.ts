@@ -31,7 +31,7 @@ function createGatewayWebRuntime() {
       created_at: '2026-04-05T09:59:00.000Z',
       status: 'completed',
       raw_message: 'continue gateway',
-      result_summary: 'Snapshot pronto.',
+      result_summary: 'Snapshot ready.',
       metadata: {
         runtime_user_id: 'telegram-admin',
         surface_identity: {
@@ -50,7 +50,7 @@ function createGatewayWebRuntime() {
     getRecentTasksByUsers: jest.fn((userIds: string[], limit = 25) =>
       tasks.filter((task) => userIds.includes(task.user_id)).slice(0, limit),
     ),
-    getRecentTasks: jest.fn((limit = 25, userId?: string) =>
+    getRecentTasks: jest.fn((limit = 25, userId-: string) =>
       tasks.filter((task) => !userId || task.user_id === userId).slice(0, limit),
     ),
     getTask: jest.fn((taskId: string) => tasks.find((task) => task.task_id === taskId) || null),
@@ -149,7 +149,7 @@ describe('WebApp gateway session routes', () => {
     await service.start();
     const { status, payload } = await fetchDashboardJson(
       service.getUrl(),
-      '/api/web/gateway/sessions?sessionId=session-web-1',
+      '/api/web/gateway/sessions-sessionId=session-web-1',
       { token: 'web-secret' },
     );
     await service.stopAsync();

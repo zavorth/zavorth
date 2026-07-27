@@ -62,8 +62,8 @@ function withAlignedProfessionalPreset<T>(run: () => T): T {
       rules: [
         { sourceId: 'zavorth-native', mode: 'all', reason: 'Official Zavorth-owned native intelligence pack.' },
         { sourceId: 'workspace-agents', mode: 'all', reason: 'Fonte principal de autoria local.' },
-        { sourceId: 'workspace-library', mode: 'all', reason: 'Biblioteca local curada e mantida no proprio workspace.' },
-        { sourceId: 'workspace-imported-library', mode: 'review', reason: 'Imports permanecem em revisao ate promocao explicita para uma fonte nativa ou curada.' },
+        { sourceId: 'workspace-library', mode: 'all', reason: 'Biblioteca local curada e mantida no own workspace.' },
+        { sourceId: 'workspace-imported-library', mode: 'review', reason: 'Imports permanecem under review ate promocao explicita para uma fonte nativa ou curada.' },
       ],
     }, null, 2)}\n`,
     'utf8',
@@ -169,7 +169,7 @@ describe('OperationalSecurityDoctor', () => {
           expect.objectContaining({
             id: 'approval-signing-key',
             status: 'pass',
-            summary: expect.stringMatching(/sera criada automaticamente|será criada automaticamente|will be created automatically|ready on demand|automaticamente/i),
+            summary: expect.stringMatching(/will be created automatically|will be created automatically|will be created automatically|ready on demand|automatically/i),
           }),
         ]));
         expect(fs.existsSync(keyFile)).toBe(false);

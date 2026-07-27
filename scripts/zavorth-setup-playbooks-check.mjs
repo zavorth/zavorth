@@ -43,7 +43,7 @@ function filesExist() {
     'tests/services/ZavorthSetupPlaybooksService.test.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', missing.length === 0, `${files.length - missing.length}/${files.length} files`, missing);
+  return rule('files', missing.length === 0, `${files.length ? missing.length}/${files.length} files`, missing);
 }
 
 function markersPresent() {
@@ -52,12 +52,12 @@ function markersPresent() {
     ['src/services/ExecutionBackendPlaybookService.ts', ['dryRunWhenStrongSandboxMissing', 'mutationRequiresApproval']],
     ['src/services/DashboardSetupChecklistService.ts', [
       'Conectar Telegram',
-      'Configurar executor seguro',
-      'Revisar memoria aprendida',
+      'Configure secure executor',
+      'Review learned memory',
       'Instalar skills e MCP com preview',
       'Agendar rotina com preview',
-      'Rodar missao por perfil',
-      'Rodar avaliacoes continuas',
+      'Run mission by profile',
+      'Rodar avaliactions continuas',
     ]],
     ['package.json', ['zavorth:provider-connection-playbook:check', 'zavorth:execution-backend-playbook:check', 'zavorth:dashboard-setup-checklist:check']],
   ];

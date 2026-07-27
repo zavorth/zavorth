@@ -14,7 +14,7 @@ import { PermissionService } from '../src/services/PermissionService.js';
 import { runNodeMeshSmoke } from './node-mesh-smoke.js';
 import { asErrorLike } from '../src/utils/errorLike';
 
-type SmokeStatus = 'PASSOU' | 'FALHOU' | 'PULADO' | 'AVISO';
+type SmokeStatus = 'PASSED' | 'failed' | 'PULADO' | 'AVISO';
 
 type SmokeResult = {
   name: string;
@@ -37,13 +37,13 @@ async function runSmokeTests() {
   }
   console.log('==================================================\n');
 
-  const blockingFailures = allResults.filter((result) => result.required && result.status === 'FALHOU');
+  const blockingFailures = allResults.filter((result) => result.required && result.status === 'failed');
   if (blockingFailures.length > 0) {
-    console.log('Smoke tests finalizaram com falhas bloqueantes.');
+    console.log('Smoke tests finished with blocking failures.');
     process.exit(1);
   }
 
-  console.log('Smoke tests finalizados sem falhas bloqueantes.');
+  console.log('Smoke tests finished without blocking failures.');
   process.exit(0);
 }
 
@@ -67,13 +67,13 @@ async function smokeMcpManifest(): Promise<SmokeResult> {
     const entries = new McpManifestLoader().loadEnabled();
     const filesystem = entries.find((entry) => entry.id === 'filesystem');
     if (!filesystem) {
-      throw new Error('manifesto MCP sem servidor filesystem habilitado.');
+      throw new Error('manifest MCP without server filesystem habilitado.');
     }
 
     return {
       name: 'God-Mode MCP',
-      status: 'PASSOU',
-      detail: `${entries.length} servidor(es) habilitado(s); filesystem ativo.`,
+      status: 'PASSED',
+      detail: `${entries.length} server(es) habilitado(s); filesystem active.`,
       required: true,
     };
   } catch (error: unknown) {
@@ -81,7 +81,7 @@ async function smokeMcpManifest(): Promise<SmokeResult> {
 
     return {
       name: 'God-Mode MCP',
-      status: 'FALHOU',
+      status: 'failed',
       detail: error.message || String(error),
       required: true,
     };
@@ -100,7 +100,7 @@ async function smokeGraphRuntime(): Promise<SmokeResult> {
       getToolDefinitions: () => [
         {
           name: 'read_file',
-          description: 'Le um arquivo local.',
+          description: 'Le um file local.',
           parameters: {
             type: 'object',
             properties: {
@@ -113,7 +113,7 @@ async function smokeGraphRuntime(): Promise<SmokeResult> {
         },
       ],
       getTool: () => ({
-        execute: async () => 'conteudo smoke',
+        execute: async () => 'smoke content',
       }),
     } as any;
     const toolExecutor = new ToolExecutor(toolRegistry, { log: () => undefined } as any, telemetryRuntime);
@@ -142,7 +142,7 @@ async function smokeGraphRuntime(): Promise<SmokeResult> {
 
           if (llmCall === 2) {
             return {
-              content: 'Analise concluida.',
+              content: 'Analise completed.',
               toolCalls: [],
               finishReason: 'stop',
             };
@@ -165,16 +165,16 @@ async function smokeGraphRuntime(): Promise<SmokeResult> {
       throw new Error(`grafo terminou em ${result.status}.`);
     }
     if (!graphStarted || !toolStarted) {
-      throw new Error('telemetria do grafo ou da tool nao foi registrada.');
+      throw new Error('graph or tool telemetry was not recorded.');
     }
     if (graphStarted.traceId !== result.traceId || toolStarted.traceId !== result.traceId) {
-      throw new Error('traceId do grafo e da tool nao bate na mesma sessao.');
+      throw new Error('graph and tool traceId do not match the same session.');
     }
 
     return {
       name: 'God-Mode Graph',
-      status: 'PASSOU',
-      detail: `fluxo autonomo aprovado com trace ${result.traceId.slice(0, 8)}.`,
+      status: 'PASSED',
+      detail: `autonomous flow approved com trace ${result.traceId.slice(0, 8)}.`,
       required: true,
     };
   } catch (error: unknown) {
@@ -182,7 +182,7 @@ async function smokeGraphRuntime(): Promise<SmokeResult> {
 
     return {
       name: 'God-Mode Graph',
-      status: 'FALHOU',
+      status: 'failed',
       detail: error.message || String(error),
       required: true,
     };
@@ -214,16 +214,16 @@ async function smokeMemoryFallback(): Promise<SmokeResult> {
     const results = await runtime.searchMemory('smoke-user', 'telemetria');
 
     if (!writeMessage.includes('LocalMemory')) {
-      throw new Error('fallback local nao foi usado quando Mem0 estava indisponivel.');
+      throw new Error('local fallback was not used when Mem0 was unavailable.');
     }
     if (!results.some((entry) => entry.includes('telemetria local'))) {
-      throw new Error('memoria local nao retornou o conteudo gravado.');
+      throw new Error('local memory did not return the written content.');
     }
 
     return {
       name: 'God-Mode Memory',
-      status: 'PASSOU',
-      detail: 'fallback local-first validado sem depender de Mem0.',
+      status: 'PASSED',
+      detail: 'local-first fallback validated without depending on Mem0.',
       required: true,
     };
   } catch (error: unknown) {
@@ -231,7 +231,7 @@ async function smokeMemoryFallback(): Promise<SmokeResult> {
 
     return {
       name: 'God-Mode Memory',
-      status: 'FALHOU',
+      status: 'failed',
       detail: error.message || String(error),
       required: true,
     };
@@ -248,13 +248,13 @@ async function smokeSandboxPolicy(): Promise<SmokeResult> {
     } as any);
 
     if (!shouldSandbox) {
-      throw new Error('policy nao marcou comando de teste para sandbox.');
+      throw new Error('policy did not mark the test command for sandbox.');
     }
 
     return {
       name: 'God-Mode Sandbox',
-      status: 'PASSOU',
-      detail: 'policy de sandbox marcou execucao sensivel corretamente.',
+      status: 'PASSED',
+      detail: 'policy de sandbox marcou sensitive execution correctly.',
       required: true,
     };
   } catch (error: unknown) {
@@ -262,7 +262,7 @@ async function smokeSandboxPolicy(): Promise<SmokeResult> {
 
     return {
       name: 'God-Mode Sandbox',
-      status: 'FALHOU',
+      status: 'failed',
       detail: error.message || String(error),
       required: true,
     };
@@ -286,7 +286,7 @@ async function smokeDockerSandboxRuntime(): Promise<SmokeResult> {
     if (status.canRun) {
       return {
         name: 'God-Mode Container',
-        status: 'PASSOU',
+        status: 'PASSED',
         detail: status.detail,
         required: Boolean(config.dockerSandboxRequired),
       };
@@ -294,7 +294,7 @@ async function smokeDockerSandboxRuntime(): Promise<SmokeResult> {
 
     return {
       name: 'God-Mode Container',
-      status: config.dockerSandboxRequired ? 'FALHOU' : 'AVISO',
+      status: config.dockerSandboxRequired ? 'failed' : 'AVISO',
       detail: status.detail,
       required: Boolean(config.dockerSandboxRequired),
     };
@@ -303,7 +303,7 @@ async function smokeDockerSandboxRuntime(): Promise<SmokeResult> {
 
     return {
       name: 'God-Mode Container',
-      status: config.dockerSandboxRequired ? 'FALHOU' : 'AVISO',
+      status: config.dockerSandboxRequired ? 'failed' : 'AVISO',
       detail: error.message || String(error),
       required: Boolean(config.dockerSandboxRequired),
     };
@@ -316,7 +316,7 @@ async function smokeNodeMesh(): Promise<SmokeResult> {
     if (report.ok) {
       return {
         name: 'God-Mode NodeMesh',
-        status: 'PASSOU',
+        status: 'PASSED',
         detail: report.summary,
         required: true,
       };
@@ -324,7 +324,7 @@ async function smokeNodeMesh(): Promise<SmokeResult> {
 
     return {
       name: 'God-Mode NodeMesh',
-      status: 'FALHOU',
+      status: 'failed',
       detail: report.error || report.summary,
       required: true,
     };
@@ -333,7 +333,7 @@ async function smokeNodeMesh(): Promise<SmokeResult> {
 
     return {
       name: 'God-Mode NodeMesh',
-      status: 'FALHOU',
+      status: 'failed',
       detail: error.message || String(error),
       required: true,
     };
@@ -346,7 +346,7 @@ async function smokeChannelProviders(): Promise<SmokeResult> {
     if (report.status === 'passed') {
       return {
         name: 'God-Mode Channels',
-        status: 'PASSOU',
+        status: 'PASSED',
         detail: report.summary,
         required: false,
       };
@@ -414,15 +414,15 @@ async function smokePermissionTelemetry(): Promise<SmokeResult> {
 
     const approvedEvent = telemetryEvents.find((event) => event.eventType === 'permission.approved');
     if (!approvedEvent) {
-      throw new Error('evento de aprovacao de permissao nao foi emitido.');
+      throw new Error('permission approval event was not emitted.');
     }
     if (approvedEvent.traceId !== 'task:smoke-task') {
-      throw new Error('traceId de permissao nao foi correlacionado com a task.');
+      throw new Error('permission traceId was not correlated with the task.');
     }
 
     return {
       name: 'God-Mode Approval',
-      status: 'PASSOU',
+      status: 'PASSED',
       detail: 'approval plane gravou evento estruturado com trace da task.',
       required: true,
     };
@@ -431,7 +431,7 @@ async function smokePermissionTelemetry(): Promise<SmokeResult> {
 
     return {
       name: 'God-Mode Approval',
-      status: 'FALHOU',
+      status: 'failed',
       detail: error.message || String(error),
       required: true,
     };
@@ -439,7 +439,7 @@ async function smokePermissionTelemetry(): Promise<SmokeResult> {
 }
 
 async function runHostIntegrationSmokeTests(): Promise<SmokeResult[]> {
-  console.log('\nIntegracoes do host: validando conectividade configurada...');
+  console.log('\nIntegrations do host: validando conectividade configurada...');
 
   return [
     await smokeTelegramIntegration(),
@@ -455,7 +455,7 @@ async function smokeTelegramIntegration(): Promise<SmokeResult> {
     return {
       name: 'Telegram',
       status: 'PULADO',
-      detail: 'TELEGRAM_BOT_TOKEN nao configurado neste host.',
+      detail: 'TELEGRAM_BOT_TOKEN not configured on this host.',
       required: false,
     };
   }
@@ -465,7 +465,7 @@ async function smokeTelegramIntegration(): Promise<SmokeResult> {
     const me = await bot.api.getMe();
     return {
       name: 'Telegram',
-      status: 'PASSOU',
+      status: 'PASSED',
       detail: `autenticado como @${me.username} (ID ${me.id}).`,
       required: true,
     };
@@ -474,7 +474,7 @@ async function smokeTelegramIntegration(): Promise<SmokeResult> {
 
     return {
       name: 'Telegram',
-      status: 'FALHOU',
+      status: 'failed',
       detail: error.message || String(error),
       required: true,
     };
@@ -489,7 +489,7 @@ async function smokeStitchIntegration(): Promise<SmokeResult> {
       return {
         name: 'Google Stitch',
         status: 'PULADO',
-        detail: 'nao configurado neste host.',
+        detail: 'not configured on this host.',
         required: false,
       };
     }
@@ -497,7 +497,7 @@ async function smokeStitchIntegration(): Promise<SmokeResult> {
     const probe = await stitch.probeConnection();
     return {
       name: 'Google Stitch',
-      status: probe.ok ? 'PASSOU' : 'AVISO',
+      status: probe.ok ? 'PASSED' : 'AVISO',
       detail: probe.message,
       required: false,
     };
@@ -521,7 +521,7 @@ async function smokeAiStudioIntegration(): Promise<SmokeResult> {
       return {
         name: 'Google AI Studio',
         status: 'PULADO',
-        detail: 'nao configurado neste host.',
+        detail: 'not configured on this host.',
         required: false,
       };
     }
@@ -529,7 +529,7 @@ async function smokeAiStudioIntegration(): Promise<SmokeResult> {
     const probe = await aiStudio.probeConnection();
     return {
       name: 'Google AI Studio',
-      status: probe.ok ? 'PASSOU' : 'AVISO',
+      status: probe.ok ? 'PASSED' : 'AVISO',
       detail: probe.message,
       required: false,
     };
@@ -553,15 +553,15 @@ async function smokeExternalExecutorIntegration(): Promise<SmokeResult> {
       return {
         name: 'External Executor',
         status: 'AVISO',
-        detail: 'CLI indisponivel ou sem resposta valida neste host.',
+        detail: 'CLI unavailable ou without valid responsea on this host.',
         required: false,
       };
     }
 
     return {
       name: 'External Executor',
-      status: 'PASSOU',
-      detail: 'CLI disponivel e respondendo.',
+      status: 'PASSED',
+      detail: 'CLI available e respondendo.',
       required: false,
     };
   } catch (error: unknown) {
@@ -583,8 +583,8 @@ async function smokeZavorthBridgeIntegration(): Promise<SmokeResult> {
 
     if (status.ok || status.processFound || status.windowFound) {
       const detailParts = [
-        `processo ${status.processFound ? 'ativo' : 'inativo'}`,
-        `janela ${status.windowFound ? 'ativa' : 'inativa'}`,
+        `process ${status.processFound ? 'active' : 'inactive'}`,
+        `window ${status.windowFound ? 'active' : 'inactive'}`,
       ];
       if (status.selectedModel) {
         detailParts.push(`modelo ${status.selectedModel}`);
@@ -592,7 +592,7 @@ async function smokeZavorthBridgeIntegration(): Promise<SmokeResult> {
 
       return {
         name: 'ZavorthBridge',
-        status: 'PASSOU',
+        status: 'PASSED',
         detail: detailParts.join(', ') + '.',
         required: false,
       };
@@ -602,7 +602,7 @@ async function smokeZavorthBridgeIntegration(): Promise<SmokeResult> {
       return {
         name: 'ZavorthBridge',
         status: 'AVISO',
-        detail: 'app instalado, mas sem janela ativa neste momento.',
+        detail: 'app installed, but without an active window right now.',
         required: false,
       };
     }
@@ -610,7 +610,7 @@ async function smokeZavorthBridgeIntegration(): Promise<SmokeResult> {
     return {
       name: 'ZavorthBridge',
       status: 'AVISO',
-      detail: status.errorMessage || status.message || 'servico indisponivel neste host.',
+      detail: status.errorMessage || status.message || 'service unavailable on this host.',
       required: false,
     };
   } catch (error: unknown) {
@@ -626,6 +626,6 @@ async function smokeZavorthBridgeIntegration(): Promise<SmokeResult> {
 }
 
 runSmokeTests().catch((error) => {
-  console.error('Erro geral durante os smoke tests:', error);
+  console.error('error geral durante os smoke tests:', error);
   process.exit(1);
 });

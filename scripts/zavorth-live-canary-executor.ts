@@ -163,7 +163,7 @@ function parseArgs(argv: string[]): Args {
 
 function providerCanaryAdapter(): ZavorthLiveCanaryAdapterInput {
   return {
-    id: 'checkpoint-10-provider-live-canary',
+    id: 'gate-10-provider-live-canary',
     surface: 'api',
     actionKind: 'provider_call',
     target: 'configured provider canary',

@@ -46,7 +46,7 @@ const SMOKE_TOKEN = 'node-mesh-smoke-token';
 const RUN_MARKER = 'NODE_MESH_SMOKE_OK';
 const WRITE_MARKER = `NODE_MESH_WRITE_OK ${new Date().toISOString()}`;
 const WATCH_MARKER = `NODE_MESH_WATCH_OK ${new Date().toISOString()}`;
-const LOCATION_LABEL = 'Restaurante Smoke';
+const LOCATION_LABEL = 'Risurante Smoke';
 const WRITE_RELATIVE_PATH = path.join('artifacts', 'node-mesh-smoke.txt');
 const WATCH_RELATIVE_PATH = path.dirname(WRITE_RELATIVE_PATH);
 const CAMERA_SOURCE_RELATIVE_PATH = path.join('artifacts', 'mobile-camera-source.png');
@@ -90,7 +90,7 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
     status: 'running',
     ok: false,
     command: buildSmokeCommand(),
-    summary: 'Smoke do Node Mesh em andamento.',
+    summary: 'Smoke do Node Mesh running.',
     nodeId: null,
     baseUrl: null,
     runStdout: null,
@@ -122,11 +122,11 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
     nodeId = String(draft?.entry?.id || '').trim();
     const pairingCode = String(draft?.pairingCode || '').trim();
     if (!nodeId || !pairingCode) {
-      throw new Error('O pairing draft nao retornou nodeId/pairingCode validos.');
+      throw new Error('Pairing draft did not return valid nodeId/pairingCode.');
     }
     const selectedNodeId = nodeId;
 
-    console.log(`[node-mesh-smoke] pairing draft criado para ${nodeId}`);
+    console.log(`[node-mesh-smoke] pairing draft created para ${nodeId}`);
 
     hostAbort = new AbortController();
     hostPromise = runNodeMeshHost({
@@ -148,7 +148,7 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
 
     const pairedSnapshot = await waitFor(async () => {
       const response = await getJson(
-        `${baseUrl}/api/web/nodes?selectedId=${encodeURIComponent(selectedNodeId)}`,
+        `${baseUrl}/api/web/nodes...selectedId=${encodeURIComponent(selectedNodeId)}`,
         SMOKE_TOKEN,
       );
       const selected = response?.nodeMesh?.selected || null;
@@ -159,7 +159,7 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
     }, PAIR_WAIT_MS, 250);
 
     console.log(
-      `[node-mesh-smoke] node pareado: ${pairedSnapshot.nodeMesh.selected.id} (${pairedSnapshot.nodeMesh.selected.status})`,
+      `[node-mesh-smoke] node paired: ${pairedSnapshot.nodeMesh.selected.id} (${pairedSnapshot.nodeMesh.selected.status})`,
     );
 
     await postJson(
@@ -241,7 +241,7 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
       scheduleWatchMarker(targetFile, WATCH_TRIGGER_DELAY_MS, WATCH_TIMEOUT_MS + 15_000);
     }
 
-    console.log('[node-mesh-smoke] invocacoes device.info, system.run, files.write, browser.proxy e files.watch enfileiradas');
+    console.log('[node-mesh-smoke] device.info, system.run, files.write, browser.proxy, and files.watch invocations queued');
 
     const invocations = await waitFor(async () => {
       const state = readJsonFile<JsonRecord>(config.nodeMeshInvocationFile, { entries: {} });
@@ -253,7 +253,7 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
     }, HEADLESS_INVOCATION_WAIT_MS, 300);
 
     if (!hostPromise) {
-      throw new Error('O node host do smoke nao foi iniciado.');
+      throw new Error('Smoke node host was not started.');
     }
     hostAbort?.abort();
     await waitForHostPromise(hostPromise, 10000);
@@ -264,39 +264,39 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
     const runInvocation = invocations.find((entry) => entry.capabilityId === 'system.run');
     const writeInvocation = invocations.find((entry) => entry.capabilityId === 'files.write');
     if (!infoInvocation || !runInvocation || !writeInvocation) {
-      throw new Error('Nem todas as invocacoes apareceram como concluidas no estado do Node Mesh.');
+      throw new Error('Not all invocations appeared as completed in the Node Mesh status.');
     }
     if (infoInvocation.status !== 'completed' || String(infoInvocation.output?.data?.platform || '').trim() !== process.platform) {
-      throw new Error('device.info nao retornou a identidade esperada no smoke real.');
+      throw new Error('device.info did not return the expected identity no smoke real.');
     }
     if (runInvocation.status !== 'completed' || !String(runInvocation.output?.stdout || '').includes(RUN_MARKER)) {
-      throw new Error('system.run nao retornou o marcador esperado no smoke real.');
+      throw new Error('system.run did not return the expected marker no smoke real.');
     }
     runStdout = String(runInvocation.output?.stdout || '').trim() || null;
     const browserInvocation = invocations.find((entry) => entry.capabilityId === 'browser.proxy');
     const watchInvocation = invocations.find((entry) => entry.capabilityId === 'files.watch');
     if (writeInvocation.status !== 'completed') {
-      throw new Error(`files.write nao concluiu com sucesso: ${writeInvocation.resultSummary || 'sem detalhe'}`);
+      throw new Error(`files.write did not complete successfully: ${writeInvocation.resultSummary || 'no detail'}`);
     }
     if (!browserInvocation || browserInvocation.status !== 'completed') {
-      throw new Error('browser.proxy nao concluiu com sucesso no smoke real.');
+      throw new Error('browser.proxy did not complete successfully in real smoke.');
     }
     if (String(browserInvocation.output?.stdout || '').trim() !== 'http://127.0.0.1:9222/devtools/browser/smoke') {
-      throw new Error('browser.proxy nao devolveu o endpoint esperado no smoke real.');
+      throw new Error('browser.proxy did not return the expected endpoint in real smoke.');
     }
     if (!watchInvocation || watchInvocation.status !== 'completed') {
-      throw new Error('files.watch nao concluiu com sucesso no smoke real.');
+      throw new Error('files.watch did not complete successfully in real smoke.');
     }
     if (!Array.isArray(watchInvocation.output?.data?.changes) || watchInvocation.output.data.changes.length === 0) {
-      throw new Error('files.watch nao registrou nenhuma mudanca observada.');
+      throw new Error('files.watch did not record any observed change.');
     }
     if (!fs.existsSync(targetFile)) {
-      throw new Error(`O arquivo esperado nao foi criado pelo node host: ${targetFile}`);
+      throw new Error(`The expected file was not created by the node host: ${targetFile}`);
     }
 
     const writtenContent = fs.readFileSync(targetFile, 'utf8');
     if (!writtenContent.includes(WRITE_MARKER) || !writtenContent.includes(WATCH_MARKER)) {
-      throw new Error('O conteudo gravado/observado pelo node host nao contem os marcadores esperados.');
+      throw new Error('The content written/observed by the node host does not contain the expected markers.');
     }
 
     hostAbort = null;
@@ -315,13 +315,13 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
     const mobileNodeId = String(mobileDraft?.entry?.id || '').trim();
     const mobilePairingCode = String(mobileDraft?.pairingCode || '').trim();
     if (!mobileNodeId || !mobilePairingCode) {
-      throw new Error('O pairing draft mobile nao retornou nodeId/pairingCode validos.');
+      throw new Error('O pairing draft mobile did not return valid nodeId/pairingCode.');
     }
 
     const cameraSourcePath = path.join(workspaceRoot, CAMERA_SOURCE_RELATIVE_PATH);
     const cameraOutputPath = path.join(workspaceRoot, CAMERA_OUTPUT_RELATIVE_PATH);
     fs.mkdirSync(path.dirname(cameraSourcePath), { recursive: true });
-    fs.writeFileSync(cameraSourcePath, 'fake-mobile-camera', 'utf8');
+    fs.writeFileSync(cameraSourcePath, 'synthetic-mobile-camera', 'utf8');
 
     hostAbort = new AbortController();
     hostPromise = runNodeMeshHost({
@@ -346,7 +346,7 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
 
     await waitFor(async () => {
       const response = await getJson(
-        `${baseUrl}/api/web/nodes?selectedId=${encodeURIComponent(mobileNodeId)}`,
+        `${baseUrl}/api/web/nodes...selectedId=${encodeURIComponent(mobileNodeId)}`,
         SMOKE_TOKEN,
       );
       const selected = response?.nodeMesh?.selected || null;
@@ -408,7 +408,7 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
     }, MOBILE_INVOCATION_WAIT_MS, 300);
 
     if (!hostPromise) {
-      throw new Error('O node host mobile do smoke nao foi iniciado.');
+      throw new Error('Mobile smoke node host was not started.');
     }
     await waitForHostPromise(hostPromise, 10000);
     hostAbort = null;
@@ -418,24 +418,24 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
     const mobileLocationInvocation = mobileInvocations.find((entry) => entry.capabilityId === 'location.read');
     const mobileCameraInvocation = mobileInvocations.find((entry) => entry.capabilityId === 'camera.capture');
     if (!mobileInfoInvocation || !mobileLocationInvocation || !mobileCameraInvocation) {
-      throw new Error('Nem todas as invocacoes mobile apareceram como concluidas no estado do Node Mesh.');
+      throw new Error('Not all mobile invocations appeared as completed in the Node Mesh status.');
     }
     if (mobileInfoInvocation.status !== 'completed' || String(mobileInfoInvocation.output?.data?.deviceModel || '').trim() !== 'Smoke Phone') {
-      throw new Error('device.info mobile nao retornou a identidade esperada.');
+      throw new Error('device.info mobile did not return the expected identity.');
     }
     if (mobileLocationInvocation.status !== 'completed' || String(mobileLocationInvocation.output?.data?.label || '').trim() !== LOCATION_LABEL) {
-      throw new Error('location.read nao retornou o contexto esperado para o companion mobile.');
+      throw new Error('location.read did not return the expected context for mobile companion.');
     }
     if (mobileCameraInvocation.status !== 'completed' || !fs.existsSync(cameraOutputPath)) {
-      throw new Error('camera.capture nao produziu o artefato esperado para o companion mobile.');
+      throw new Error('camera.capture did not produce the expected artifact for mobile companion.');
     }
-    if (fs.readFileSync(cameraOutputPath, 'utf8') !== 'fake-mobile-camera') {
-      throw new Error('camera.capture nao preservou o artefato esperado para o companion mobile.');
+    if (fs.readFileSync(cameraOutputPath, 'utf8') !== 'synthetic-mobile-camera') {
+      throw new Error('camera.capture did not preserve the expected artifact for mobile companion.');
     }
 
     nodeId = `${nodeId},${mobileNodeId}`;
     const finalSnapshot = await getJson(
-      `${baseUrl}/api/web/nodes?selectedId=${encodeURIComponent(selectedNodeId)}`,
+      `${baseUrl}/api/web/nodes...selectedId=${encodeURIComponent(selectedNodeId)}`,
       SMOKE_TOKEN,
     );
     const finalNode = finalSnapshot?.nodeMesh?.selected || null;
@@ -473,15 +473,15 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
     const err = asErrorLike(error);
 
     preservedArtifacts = true;
-    console.error(`[node-mesh-smoke] FALHOU: ${error?.message || String(error)}`);
-    console.error(`[node-mesh-smoke] artefatos preservados em ${smokeRoot}`);
+    console.error(`[node-mesh-smoke] failed: ${error?.message || String(error)}`);
+    console.error(`[node-mesh-smoke] artifacts preserved at ${smokeRoot}`);
     const report: NodeMeshSmokeReport = {
       startedAt,
       finishedAt: new Date().toISOString(),
       status: 'failed',
       ok: false,
       command: buildSmokeCommand(),
-      summary: 'Smoke real do Node Mesh falhou.',
+      summary: 'Smoke real do Node Mesh failed.',
       nodeId,
       baseUrl,
       runStdout,
@@ -572,7 +572,7 @@ async function postJson(url: string, body: JsonRecord, token?: string | null): P
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok || payload?.ok === false) {
-    throw new Error(payload?.error || `Falha HTTP ${response.status} em ${url}`);
+    throw new Error(payload?.error || `Failure HTTP ${response.status} em ${url}`);
   }
   return payload;
 }
@@ -583,7 +583,7 @@ async function getJson(url: string, token?: string | null): Promise<JsonRecord> 
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok || payload?.ok === false) {
-    throw new Error(payload?.error || `Falha HTTP ${response.status} em ${url}`);
+    throw new Error(payload?.error || `Failure HTTP ${response.status} em ${url}`);
   }
   return payload;
 }
@@ -621,7 +621,7 @@ async function waitFor<T>(
   if (lastError instanceof Error) {
     throw lastError;
   }
-  throw new Error(`Timeout aguardando condicao por ${timeoutMs}ms.`);
+  throw new Error(`Timeout waiting for condition por ${timeoutMs}ms.`);
 }
 
 async function waitForHostPromise(hostPromise: Promise<void>, timeoutMs: number): Promise<void> {
@@ -629,7 +629,7 @@ async function waitForHostPromise(hostPromise: Promise<void>, timeoutMs: number)
     hostPromise,
     new Promise<void>((_, reject) => {
       setTimeout(() => {
-        reject(new Error(`Timeout aguardando node-mesh-host encerrar em ${timeoutMs}ms.`));
+        reject(new Error(`Timeout waiting for node-mesh-host encerrar em ${timeoutMs}ms.`));
       }, timeoutMs);
     }),
   ]);
@@ -708,8 +708,7 @@ function resolveTmpRoot(): string {
 }
 
 function buildSmokeCommand(): string {
-  return process.platform === 'win32'
-    ? 'npm.cmd run test:nodes:smoke'
+  return process.platform === 'win32' ? 'npm.cmd run test:nodes:smoke'
     : 'npm run test:nodes:smoke';
 }
 

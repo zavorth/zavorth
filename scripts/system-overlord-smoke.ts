@@ -15,7 +15,7 @@ async function main() {
   }
 
   console.log('[system-overlord] smoke');
-  console.log(`[system-overlord] resumo: ${report.summary}`);
+  console.log(`[system-overlord] summary: ${report.summary}`);
   console.log(`[system-overlord] status: ${report.status}`);
   if (report.probeUrl) {
     console.log(`[system-overlord] probe local: ${report.probeUrl}`);
@@ -28,7 +28,7 @@ async function main() {
       console.log(`- detalhe: ${item.detail}`);
     }
     if (item.operatorNextStep) {
-      console.log(`- proximo passo: ${item.operatorNextStep}`);
+      console.log(`- next passo: ${item.operatorNextStep}`);
     }
   }
 
@@ -38,7 +38,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[system-overlord] smoke falhou.');
+  console.error('[system-overlord] smoke failed.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

@@ -54,22 +54,22 @@ class SetupWizard {
 
     if (this.variant === 'full') {
       profile = await this.askChoice<ZavorthProfile>(
-        'Selecione o perfil do Zavorth',
+        'Selecione o profile do Zavorth',
         ['consumer', 'power-user'],
         (this.readEnv('ZAVORTH_PROFILE') as ZavorthProfile) || 'power-user'
       );
-      
+
       const profileEntries: EnvFileEntry[] = [
         { key: 'ZAVORTH_PROFILE', value: profile, overwrite: true },
-        { 
-            key: 'ZAVORTH_UI_MODE', 
-            value: profile === 'consumer' ? 'minimal' : 'operational', 
-            overwrite: true 
+        {
+            key: 'ZAVORTH_UI_MODE',
+            value: profile === 'consumer' ? 'minimal' : 'operational',
+            overwrite: true
         },
-        { 
-            key: 'ZAVORTH_CAPABILITY_POLICY', 
-            value: profile === 'consumer' ? 'ask-on-demand' : 'owner_trusted', 
-            overwrite: true 
+        {
+            key: 'ZAVORTH_CAPABILITY_POLICY',
+            value: profile === 'consumer' ? 'ask-on-demand' : 'owner_trusted',
+            overwrite: true
         }
       ];
       this.envFiles.upsertEntries(ENV_PATH, profileEntries);
@@ -196,12 +196,12 @@ class SetupWizard {
         ),
         TELEGRAM_ALLOWED_USER_IDS: await this.askRequired(
           'TELEGRAM_ALLOWED_USER_IDS',
-          'IDs de usuario permitidos no Telegram (csv)',
+          'Allowed Telegram user IDs (csv)',
           this.readEnv('TELEGRAM_ALLOWED_USER_IDS'),
         ),
         TELEGRAM_USER_ROLES: await this.askOptional(
           'TELEGRAM_USER_ROLES',
-          'Roles por usuario do Telegram (opcional, ex: 123:admin|operator)',
+          'Telegram roles by user (optional, example: 123:admin|operator)',
           this.readEnv('TELEGRAM_USER_ROLES'),
         ),
       }),
@@ -214,8 +214,7 @@ class SetupWizard {
     const mode = await this.askChoice<'none' | 'native' | 'bridge'>(
       'Preparar Discord agora',
       ['none', 'native', 'bridge'],
-      this.hasValue(this.readEnv('DISCORD_BOT_TOKEN'))
-        ? 'native'
+      this.hasValue(this.readEnv('DISCORD_BOT_TOKEN')) ? 'native'
         : (this.readEnv('DISCORD_BRIDGE_ENABLED', 'false') === 'true' ? 'bridge' : 'none'),
     );
     if (mode === 'none') {
@@ -230,12 +229,12 @@ class SetupWizard {
       ),
       DISCORD_ALLOWED_CHANNEL_IDS: await this.askOptional(
         'DISCORD_ALLOWED_CHANNEL_IDS',
-        'Channel IDs permitidos no Discord (csv, opcional)',
+        'Channel IDs permitidos no Discord (csv, optional)',
         this.readEnv('DISCORD_ALLOWED_CHANNEL_IDS'),
       ),
       DISCORD_OWNER_USER_IDS: await this.askOptional(
         'DISCORD_OWNER_USER_IDS',
-        'Owner user IDs do Discord (csv, opcional)',
+        'Owner user IDs do Discord (csv, optional)',
         this.readEnv('DISCORD_OWNER_USER_IDS'),
       ),
     };
@@ -243,7 +242,7 @@ class SetupWizard {
     if (mode === 'native') {
       values.DISCORD_BOT_TOKEN = await this.askOptional(
         'DISCORD_BOT_TOKEN',
-        'Bot token do Discord (deixe vazio para so deixar pronto para configurar)',
+        'Discord bot token (leave empty to only mark as ready to configure)',
         this.readEnv('DISCORD_BOT_TOKEN'),
       );
     }
@@ -258,11 +257,10 @@ class SetupWizard {
   }
 
   private async configureSlack(): Promise<string | null> {
-    const mode = await this.askChoice<'none' | 'stub' | 'native'>(
+    const mode = await this.askChoice<'none' | 'local' | 'native'>(
       'Preparar Slack agora',
-      ['none', 'stub', 'native'],
-      this.readEnv('SLACK_ENABLED', 'false') === 'true'
-        ? (this.readEnv('SLACK_TRANSPORT', 'stub') === 'native' ? 'native' : 'stub')
+      ['none', 'local', 'native'],
+      this.readEnv('SLACK_ENABLED', 'false') === 'true' ? (this.readEnv('SLACK_TRANSPORT', 'local') === 'native' ? 'native' : 'local')
         : 'none',
     );
     if (mode === 'none') {
@@ -277,7 +275,7 @@ class SetupWizard {
       ),
       SLACK_WORKSPACE_ID: await this.askOptional(
         'SLACK_WORKSPACE_ID',
-        'Workspace ID do Slack (opcional)',
+        'Workspace ID do Slack (optional)',
         this.readEnv('SLACK_WORKSPACE_ID'),
       ),
     };
@@ -285,12 +283,12 @@ class SetupWizard {
     if (mode === 'native') {
       values.SLACK_BOT_TOKEN = await this.askOptional(
         'SLACK_BOT_TOKEN',
-        'Bot token do Slack (deixe vazio para so deixar pronto para configurar)',
+        'Slack bot token (leave empty to only mark as ready to configure)',
         this.readEnv('SLACK_BOT_TOKEN'),
       );
       values.SLACK_SIGNING_SECRET = await this.askOptional(
         'SLACK_SIGNING_SECRET',
-        'Signing secret do Slack (deixe vazio para so deixar pronto para configurar)',
+        'Slack signing secret (leave empty to only mark as ready to configure)',
         this.readEnv('SLACK_SIGNING_SECRET'),
       );
     }
@@ -305,11 +303,11 @@ class SetupWizard {
   }
 
   private async configureWhatsApp(): Promise<string | null> {
-    const mode = await this.askChoice<'none' | 'stub' | 'cloud-api' | 'baileys'>(
+    const mode = await this.askChoice<'none' | 'local' | 'cloud-api' | 'baileys'>(
       'Preparar WhatsApp agora',
-      ['none', 'stub', 'cloud-api', 'baileys'],
+      ['none', 'local', 'cloud-api', 'baileys'],
       this.readEnv('WHATSAPP_ENABLED', 'false') === 'true'
-        ? (this.readEnv('WHATSAPP_PROVIDER', 'stub') as 'stub' | 'cloud-api' | 'baileys')
+        ? (this.readEnv('WHATSAPP_PROVIDER', 'local') as 'local' | 'cloud-api' | 'baileys')
         : 'none',
     );
     if (mode === 'none') {
@@ -365,8 +363,7 @@ class SetupWizard {
       ['none', 'signal-cli'],
       this.readEnv('SIGNAL_ENABLED', 'false') === 'true'
         || this.hasValue(this.readEnv('SIGNAL_ACCOUNT_NUMBER'))
-        || this.hasValue(this.readEnv('SIGNAL_CLI_PATH'))
-        ? 'signal-cli'
+        || this.hasValue(this.readEnv('SIGNAL_CLI_PATH')) ? 'signal-cli'
         : 'none',
     );
     if (mode === 'none') {
@@ -376,17 +373,17 @@ class SetupWizard {
     const values: Record<string, string | undefined> = {
       SIGNAL_CLI_PATH: await this.askOptional(
         'SIGNAL_CLI_PATH',
-        'CLI do Signal (signal-cli ou caminho completo)',
+        'CLI do Signal (signal-cli ou path completo)',
         this.readEnv('SIGNAL_CLI_PATH', 'signal-cli'),
       ),
       SIGNAL_JSONRPC_URL: await this.askOptional(
         'SIGNAL_JSONRPC_URL',
-        'URL JSON-RPC do Signal (opcional se voce usar signal-cli local)',
+        'URL JSON-RPC do Signal (optional se you usar signal-cli local)',
         this.readEnv('SIGNAL_JSONRPC_URL'),
       ),
       SIGNAL_ACCOUNT_NUMBER: await this.askOptional(
         'SIGNAL_ACCOUNT_NUMBER',
-        'Numero/conta dedicada do Signal (deixe vazio para so deixar pronto para configurar)',
+        'Signal number/dedicated account (leave empty to only mark as ready to configure)',
         this.readEnv('SIGNAL_ACCOUNT_NUMBER'),
       ),
       SIGNAL_ALLOWED_RECIPIENTS: await this.askOptional(
@@ -410,8 +407,7 @@ class SetupWizard {
       'Preparar iMessage agora',
       ['none', 'mac-bridge'],
       this.readEnv('IMESSAGE_ENABLED', 'false') === 'true'
-        || this.hasValue(this.readEnv('IMESSAGE_NODE_ID'))
-        ? 'mac-bridge'
+        || this.hasValue(this.readEnv('IMESSAGE_NODE_ID')) ? 'mac-bridge'
         : 'none',
     );
     if (mode === 'none') {
@@ -426,12 +422,12 @@ class SetupWizard {
     const values: Record<string, string | undefined> = {
       IMESSAGE_NODE_ID: await this.askOptional(
         'IMESSAGE_NODE_ID',
-        'Node id macOS do bridge do iMessage (deixe vazio para so deixar pronto para configurar)',
+        'macOS node id for the iMessage bridge (leave empty to only mark as ready to configure)',
         this.readEnv('IMESSAGE_NODE_ID'),
       ),
       IMESSAGE_BRIDGE_SCRIPT: await this.askOptional(
         'IMESSAGE_BRIDGE_SCRIPT',
-        'Script/atalho local do bridge do iMessage (opcional)',
+        'Script/shortcut local do bridge do iMessage (optional)',
         this.readEnv('IMESSAGE_BRIDGE_SCRIPT'),
       ),
       IMESSAGE_ALLOWED_RECIPIENTS: await this.askOptional(
@@ -456,8 +452,7 @@ class SetupWizard {
       'Preparar Microsoft Teams agora',
       ['none', 'graph-bot'],
       this.readEnv('TEAMS_ENABLED', 'false') === 'true'
-        || this.hasValue(this.readEnv('TEAMS_APP_ID'))
-        ? 'graph-bot'
+        || this.hasValue(this.readEnv('TEAMS_APP_ID')) ? 'graph-bot'
         : 'none',
     );
     if (mode === 'none') {
@@ -467,7 +462,7 @@ class SetupWizard {
     const values: Record<string, string | undefined> = {
       TEAMS_APP_ID: await this.askOptional(
         'TEAMS_APP_ID',
-        'App id do bot do Teams (deixe vazio para so deixar pronto para configurar)',
+        'Teams bot app id (leave empty to only mark as ready to configure)',
         this.readEnv('TEAMS_APP_ID'),
       ),
       TEAMS_TENANT_ID: await this.askOptional(
@@ -482,7 +477,7 @@ class SetupWizard {
       ),
       TEAMS_APP_PASSWORD: await this.askOptional(
         'TEAMS_APP_PASSWORD',
-        'App password legado do Teams (opcional)',
+        'App password legado do Teams (optional)',
         this.readEnv('TEAMS_APP_PASSWORD'),
       ),
       TEAMS_ALLOWED_CONVERSATION_IDS: await this.askOptional(
@@ -506,8 +501,7 @@ class SetupWizard {
       'Preparar Email agora',
       ['none', 'smtp-imap'],
       this.readEnv('EMAIL_ENABLED', 'false') === 'true'
-        || this.hasValue(this.readEnv('EMAIL_SMTP_HOST'))
-        ? 'smtp-imap'
+        || this.hasValue(this.readEnv('EMAIL_SMTP_HOST')) ? 'smtp-imap'
         : 'none',
     );
     if (mode === 'none') {
@@ -517,7 +511,7 @@ class SetupWizard {
     const values: Record<string, string | undefined> = {
       EMAIL_SMTP_HOST: await this.askOptional(
         'EMAIL_SMTP_HOST',
-        'Host SMTP do Email (deixe vazio para so deixar pronto para configurar)',
+        'Email SMTP host (leave empty to only mark as ready to configure)',
         this.readEnv('EMAIL_SMTP_HOST'),
       ),
       EMAIL_SMTP_PORT: await this.askOptional(
@@ -527,7 +521,7 @@ class SetupWizard {
       ),
       EMAIL_SMTP_USER: await this.askOptional(
         'EMAIL_SMTP_USER',
-        'Usuario SMTP do Email',
+        'User SMTP do Email',
         this.readEnv('EMAIL_SMTP_USER'),
       ),
       EMAIL_SMTP_PASS: await this.askOptional(
@@ -537,7 +531,7 @@ class SetupWizard {
       ),
       EMAIL_IMAP_HOST: await this.askOptional(
         'EMAIL_IMAP_HOST',
-        'Host IMAP do Email (opcional por enquanto)',
+        'Host IMAP do Email (optional por enquanto)',
         this.readEnv('EMAIL_IMAP_HOST'),
       ),
       EMAIL_ALLOWED_RECIPIENTS: await this.askOptional(
@@ -573,7 +567,7 @@ class SetupWizard {
 
   private async askRequired(key: string, label: string, currentValue = ''): Promise<string> {
     while (true) {
-      const suffix = this.hasValue(currentValue) ? ' [Enter para manter atual]' : ' [obrigatorio]';
+      const suffix = this.hasValue(currentValue) ? ' [Enter para manter current]' : ' [required]';
       const answer = await this.ask(`${label}${suffix}`);
       if (this.hasValue(answer)) {
         return answer;
@@ -581,12 +575,12 @@ class SetupWizard {
       if (this.hasValue(currentValue)) {
         return currentValue;
       }
-      console.log(`[setup] ${key} continua obrigatorio.`);
+      console.log(`[setup] ${key} continua required.`);
     }
   }
 
   private async askOptional(_key: string, label: string, currentValue = ''): Promise<string> {
-    const suffix = this.hasValue(currentValue) ? ` [atual: ${currentValue}]` : ' [opcional]';
+    const suffix = this.hasValue(currentValue) ? ` [current: ${currentValue}]` : ' [optional]';
     const answer = await this.ask(`${label}${suffix}`);
     if (this.hasValue(answer)) {
       return answer;
@@ -600,16 +594,16 @@ class SetupWizard {
     if (!answer) {
       return defaultYes;
     }
-    return answer === 's' || answer === 'sim' || answer === 'y' || answer === 'yes';
+    return answer === 'y' || answer === 'yes' || answer === '1' || answer === 'true';
   }
 
   private async askChoice<T extends string>(label: string, choices: T[], defaultValue: T): Promise<T> {
-    const answer = String(await this.ask(`${label} (${choices.join(', ')}) [padrao: ${defaultValue}]`)).toLowerCase();
+    const answer = String(await this.ask(`${label} (${choices.join(', ')}) [default: ${defaultValue}]`)).toLowerCase();
     const normalized = (answer || defaultValue) as T;
     if (choices.includes(normalized)) {
       return normalized;
     }
-    console.log(`[setup] Opcao invalida. Usando ${defaultValue}.`);
+    console.log(`[setup] Invalid option. Using ${defaultValue}.`);
     return defaultValue;
   }
 
@@ -617,21 +611,21 @@ class SetupWizard {
     console.log('');
     console.log('Zavorth setup');
     if (this.variant === 'channels-only') {
-      console.log('Este wizard prepara os canais opcionais do Zavorth: Telegram, Discord, Slack, WhatsApp, Signal, iMessage, Teams e Email.');
+      console.log('This wizard prepares optional Zavorth channels: Telegram, Discord, Slack, WhatsApp, Signal, iMessage, Teams, and Email.');
     } else {
-      console.log('Este wizard prepara o runtime oficial e, se voce quiser, ja deixa Telegram, Discord, Slack, WhatsApp, Signal, iMessage, Teams e Email prontos ou prontos para configurar.');
+      console.log('This wizard prepares the official runtime and can leave Telegram, Discord, Slack, WhatsApp, Signal, iMessage, Teams, and Email ready or ready to configure.');
     }
     console.log('');
   }
 
   private printSuccess(optionalChannels: string[]): void {
     console.log('');
-    console.log(this.variant === 'channels-only' ? '[setup] configuracao de canais concluida.' : '[setup] configuracao base concluida.');
+    console.log(this.variant === 'channels-only' ? '[setup] channel configuration complete.' : '[setup] base configuration complete.');
     console.log(`[setup] .env atualizado em ${ENV_PATH}`);
     if (optionalChannels.length > 0) {
-      console.log(`[setup] canais preparados: ${optionalChannels.join(', ')}`);
+      console.log(`[setup] channels prepared: ${optionalChannels.join(', ')}`);
     } else {
-      console.log('[setup] nenhum canal opcional foi preparado nesta rodada.');
+      console.log('[setup] no optional channel was prepared in this run.');
     }
     console.log('[setup] proximos passos:');
     if (this.variant !== 'channels-only') {
@@ -674,7 +668,7 @@ async function installZavorthAgent(options: { installStartup: boolean }): Promis
       windowsHide: true,
     });
   }
-  console.log('[setup:agent] dependencias npm instaladas.');
+  console.log('[setup:agent] npm dependencies installed.');
 
   const checks = [
     await checkCommand('edge-tts', ['--help'], 'edge-tts (TTS neural)'),
@@ -684,16 +678,16 @@ async function installZavorthAgent(options: { installStartup: boolean }): Promis
   ];
 
   for (const check of checks) {
-    console.log(`[setup:agent] ${check.ok ? 'ok' : 'opcional ausente'} - ${check.label}${check.detail ? `: ${check.detail}` : ''}`);
+    console.log(`[setup:agent] ${check.ok ? 'ok' : 'optional missing'} ? ${check.label}${check.detail ? `: ${check.detail}` : ''}`);
   }
 
   if (options.installStartup) {
     await installAgentStartupShortcut(agentDir);
   } else {
-    console.log('[setup:agent] startup automatico ignorado. Use --agent-startup para criar o atalho.');
+    console.log('[setup:agent] automatic startup ignored. Use --agent-startup to create the shortcut.');
   }
 
-  console.log('[setup:agent] pronto. Execute: npm --prefix agent start');
+  console.log('[setup:agent] ready. Execute: npm --prefix agent start');
 }
 
 async function checkCommand(command: string, args: string[], label: string): Promise<{ ok: boolean; label: string; detail?: string }> {
@@ -702,7 +696,7 @@ async function checkCommand(command: string, args: string[], label: string): Pro
       timeout: 8000,
       windowsHide: true,
     });
-    const detail = String(result.stdout || result.stderr || '').trim().split(/\r?\n/)[0];
+    const detail = String(result.stdout || result.stderr || '').trim().split(/\r...\n/)[0];
     return { ok: true, label, detail };
   } catch (error: unknown) {
     const err = asErrorLike(error);
@@ -713,7 +707,7 @@ async function checkCommand(command: string, args: string[], label: string): Pro
 
 async function installAgentStartupShortcut(agentDir: string): Promise<void> {
   if (os.platform() !== 'win32') {
-    console.log('[setup:agent] startup automatico so e suportado no Windows por enquanto.');
+    console.log('[setup:agent] automatic startup is supported only on Windows for now.');
     return;
   }
 
@@ -735,12 +729,12 @@ async function installAgentStartupShortcut(agentDir: string): Promise<void> {
     timeout: 10000,
     windowsHide: true,
   });
-  console.log(`[setup:agent] atalho de startup criado: ${String(result.stdout).trim()}`);
+  console.log(`[setup:agent] shortcut de startup created: ${String(result.stdout).trim()}`);
 }
 
 if (process.argv.includes('--install-agent')) {
   installZavorthAgent({ installStartup: process.argv.includes('--agent-startup') }).catch((error) => {
-    console.error('[setup:agent] falha ao preparar o Agent.');
+    console.error('[setup:agent] failure ao preparar o Agent.');
     console.error(error instanceof Error ? error.message : String(error));
     process.exitCode = 1;
   });
@@ -748,7 +742,7 @@ if (process.argv.includes('--install-agent')) {
 const variant: SetupVariant = process.argv.includes('--channels-only') ? 'channels-only' : 'full';
 const wizard = new SetupWizard(variant);
 wizard.run().catch((error) => {
-  console.error('[setup] falha ao preparar o ambiente do Zavorth.');
+  console.error('[setup] failure ao preparar o ambiente do Zavorth.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

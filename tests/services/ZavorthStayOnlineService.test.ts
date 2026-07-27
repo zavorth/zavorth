@@ -33,7 +33,7 @@ describe('ZavorthStayOnlineService', () => {
     expect(snapshot.heartbeat.written).toBe(true);
     expect(writtenPayload.heartbeat.written).toBe(true);
     expect(notification.shouldNotify).toBe(false);
-    expect(notification.message).toContain('sem notificacao por padrao');
+    expect(notification.message).toContain('sem notificaction por pattern');
     expect(service.renderCli(snapshot)).toContain('Zavorth Stay Online');
   });
 
@@ -59,9 +59,9 @@ describe('ZavorthStayOnlineService', () => {
 
     expect(notification.shouldNotify).toBe(true);
     expect(notification.reason).toBe('first-check');
-    expect(notification.message).toContain('PRONTO');
+    expect(notification.message).toContain('READY');
     expect(notification.message).toContain('Impacto:');
-    expect(notification.message).toContain('Proximo:');
+    expect(notification.message).toContain('Next:');
     expect(notification.compactLogLine).toContain('status=ready');
   });
 
@@ -143,7 +143,7 @@ describe('ZavorthStayOnlineService', () => {
     expect(text).toContain('ATENCAO');
     expect(text).toContain('Impacto:');
     expect(text).toContain('Aviso:');
-    expect(text).toContain('Proximo:');
+    expect(text).toContain('Next:');
     expect(text).toContain('npm run ops:remote:keepalive');
   });
 
@@ -221,7 +221,7 @@ function readyToGoSnapshot(overrides: Record<string, any> = {}) {
     status: overrides.status || 'ready',
     remoteReady: overrides.remoteReady ?? true,
     localReady: overrides.localReady ?? true,
-    headline: overrides.headline || 'Pode sair do PC: Zavorth esta pronto para uso remoto.',
+    headline: overrides.headline || 'Pode sair do PC: Zavorth esta ready para uso remoto.',
     summary,
     provider: {
       activeProvider: 'openai',

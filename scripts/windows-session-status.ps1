@@ -65,13 +65,13 @@ $lockedLikely = $desktopName -and $desktopName -ne 'Default'
 
 $message =
   if ($accessible) {
-    'A sessao do Windows esta acessivel para automacao de UI.'
+    'Windows session is accessible for UI automation.'
   } elseif ($lockedLikely) {
-    "A sessao parece estar fora do desktop interativo (desktop atual: $desktopName)."
+    "A session parece estar outside do desktop interactive (desktop current: $desktopName)."
   } elseif (-not $explorerRunning) {
-    'Nao foi encontrado explorer.exe nesta sessao; a area de trabalho pode nao estar pronta.'
+    'explorer.exe was not found in this session; the desktop may not be ready.'
   } else {
-    'Nao foi possivel confirmar que a sessao do Windows esta acessivel para automacao.'
+    'Could not confirm that the Windows session is accessible for automation.'
   }
 
 [pscustomobject]@{

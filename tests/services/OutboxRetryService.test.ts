@@ -17,8 +17,8 @@ describe('OutboxRetryService Tests', () => {
   });
 
   it('should successfully deliver an outbox message and delete its file', async () => {
-    // Setup mock gateway
-    const mockGateway = {
+    // Setup local gateway
+    const localGateway = {
       id: 'mock-channel',
       name: 'Mock Channel',
       resolveConfigured: () => true,
@@ -27,7 +27,7 @@ describe('OutboxRetryService Tests', () => {
     };
 
     const registry = new ChannelGatewayRegistry();
-    registry.registerGateway(mockGateway as any);
+    registry.registerGateway(localGateway as any);
 
     // Create a mock envelope file in the temp directory
     const envelope = {
@@ -45,12 +45,12 @@ describe('OutboxRetryService Tests', () => {
     const service = new OutboxRetryService(registry);
     await service.processOutbox();
 
-    expect(mockGateway.retrySendLive).toHaveBeenCalledWith('Hello World', ['recipient-1'], 'Hello World');
+    expect(localGateway.retrySendLive).toHaveBeenCalledWith('Hello World', ['recipient-1'], 'Hello World');
     expect(fs.existsSync(filePath)).toBe(false);
   });
 
   it('should reschedule a transient failure with backoff', async () => {
-    const mockGateway = {
+    const localGateway = {
       id: 'mock-channel-2',
       name: 'Mock Channel 2',
       resolveConfigured: () => true,
@@ -59,7 +59,7 @@ describe('OutboxRetryService Tests', () => {
     };
 
     const registry = new ChannelGatewayRegistry();
-    registry.registerGateway(mockGateway as any);
+    registry.registerGateway(localGateway as any);
 
     const envelope = {
       id: 'msg-2',
@@ -86,7 +86,7 @@ describe('OutboxRetryService Tests', () => {
   });
 
   it('should move to rejected directory after exceeding max attempts', async () => {
-    const mockGateway = {
+    const localGateway = {
       id: 'mock-channel-3',
       name: 'Mock Channel 3',
       resolveConfigured: () => true,
@@ -95,7 +95,7 @@ describe('OutboxRetryService Tests', () => {
     };
 
     const registry = new ChannelGatewayRegistry();
-    registry.registerGateway(mockGateway as any);
+    registry.registerGateway(localGateway as any);
 
     const envelope = {
       id: 'msg-3',

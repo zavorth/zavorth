@@ -55,7 +55,7 @@ function runCommand(args, label) {
   });
   if (typeof result.status === 'number' && result.status !== 0) {
     process.exitCode = result.status;
-    throw new Error(`${label} falhou com codigo ${result.status}.`);
+    throw new Error(`${label} failed with code ${result.status}.`);
   }
 }
 
@@ -92,27 +92,27 @@ async function waitForApp(appUrl, timeoutMs) {
 async function ensureHostReady() {
   let appUrl = await resolveControlUrl();
   if (await waitForApp(appUrl, 3000)) {
-    console.log('[surface-qa] host ja estava disponivel em /zavorthControl');
+    console.log('[surface-qa] host already estava available em /zavorthControl');
     return;
   }
 
-  console.log('[surface-qa] iniciando host supervisionado para a bateria surface-qa');
+  console.log('[surface-qa] iniciando host supervised para a bateria surface-qa');
   const result = spawnSync(npmCommand, ['run', 'ops:up', '--', '--allow-readonly'], {
     cwd: rootDir,
     stdio: 'inherit',
     windowsHide: true,
   });
   if (typeof result.status === 'number' && result.status !== 0) {
-    throw new Error(`ops:up falhou com codigo ${result.status}.`);
+    throw new Error(`ops:up failed with code ${result.status}.`);
   }
 
   appUrl = await resolveControlUrl();
   const ready = await waitForApp(appUrl, 60000);
   if (!ready) {
-    throw new Error(`O host supervisionado nao respondeu em ${appUrl} dentro da janela esperada.`);
+    throw new Error(`The supervised host did not respond at ${appUrl} within the expected window.`);
   }
 
-  console.log('[surface-qa] host supervisionado pronto');
+  console.log('[surface-qa] host supervised ready');
 }
 
 async function main() {
@@ -124,7 +124,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[surface-qa] falha ao executar a bateria surface-qa.');
+  console.error('[surface-qa] failure ao run a bateria surface-qa.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exit(process.exitCode || 1);
 });

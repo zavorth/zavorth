@@ -47,16 +47,16 @@ const sourceRoot = path.join(workspaceRoot, 'src');
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.next', 'coverage', '.git']);
 
 const exportRegexes = [
-  { re: /export\s+(?:default\s+)?(?:function|async\s+function)\s+(\w+)/g, kind: 'function' as const },
-  { re: /export\s+(?:default\s+)?class\s+(\w+)/g, kind: 'class' as const },
-  { re: /export\s+(?:default\s+)?(?:abstract\s+)?interface\s+(\w+)/g, kind: 'interface' as const },
-  { re: /export\s+(?:default\s+)?type\s+(\w+)/g, kind: 'type' as const },
-  { re: /export\s+(?:default\s+)?enum\s+(\w+)/g, kind: 'enum' as const },
-  { re: /export\s+(?:default\s+)?(?:const|let|var)\s+(\w+)/g, kind: 'const' as const },
+  { re: /export\s+(?:default\s+)...(?:function|async\s+function)\s+(\w+)/g, kind: 'function' as const },
+  { re: /export\s+(?:default\s+)...class\s+(\w+)/g, kind: 'class' as const },
+  { re: /export\s+(?:default\s+)...(?:abstract\s+)...interface\s+(\w+)/g, kind: 'interface' as const },
+  { re: /export\s+(?:default\s+)...type\s+(\w+)/g, kind: 'type' as const },
+  { re: /export\s+(?:default\s+)...enum\s+(\w+)/g, kind: 'enum' as const },
+  { re: /export\s+(?:default\s+)...(?:const|let|var)\s+(\w+)/g, kind: 'const' as const },
   { re: /export\s+default\s+/g, kind: 'default' as const },
 ];
 
-const importFromRegex = /import\s+(?:type\s+)?(?:{([^}]+)}|(\w+))\s+from\s+['"][^'"]+['"]/g;
+const importFromRegex = /import\s+(?:type\s+)...(?:{([^}]+)}|(\w+))\s+from\s+['"][^'"]+['"]/g;
 const reExportRegex = /export\s+(?:{[^}]+}|\*)\s+from\s+['"][^'"]+['"]/g;
 const typeRefRegex = /:\s*(\b[A-Z]\w*)\b/g;
 
@@ -78,7 +78,7 @@ function walk(dir: string): string[] {
 function collectExports(filePath: string, content: string): ExportEntry[] {
   const relPath = path.relative(workspaceRoot, filePath).replace(/\\/g, '/');
   const entries: ExportEntry[] = [];
-  const lines = content.split(/\r?\n/);
+  const lines = content.split(/\r...\n/);
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -99,11 +99,11 @@ function collectExports(filePath: string, content: string): ExportEntry[] {
 function collectImports(filePath: string, content: string): ImportEntry[] {
   const relPath = path.relative(workspaceRoot, filePath).replace(/\\/g, '/');
   const entries: ImportEntry[] = [];
-  const lines = content.split(/\r?\n/);
+  const lines = content.split(/\r...\n/);
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const importMatch = /import\s+(?:type\s+)?(?:(\{[^}]+\})|(\w+))\s+from\s+['"]([^'"]+)['"]/.exec(line);
+    const importMatch = /import\s+(?:type\s+)...(?:(\{[^}]+\})|(\w+))\s+from\s+['"]([^'"]+)['"]/.exec(line);
     if (importMatch) {
       const module = importMatch[3];
       if (importMatch[1]) {
@@ -124,7 +124,7 @@ function collectImports(filePath: string, content: string): ImportEntry[] {
 
 function collectTypeReferences(content: string): Set<string> {
   const refs = new Set<string>();
-  const lines = content.split(/\r?\n/);
+  const lines = content.split(/\r...\n/);
   for (const line of lines) {
     if (line.trimStart().startsWith('import ') || line.trimStart().startsWith('export ')) continue;
     let match: RegExpExecArray | null;
@@ -294,12 +294,12 @@ for (const imp of allImports) {
   if (!fs.existsSync(filePath)) continue;
 
   const content = fs.readFileSync(filePath, 'utf8');
-  const lines = content.split(/\r?\n/);
+  const lines = content.split(/\r...\n/);
   const importLine = lines[imp.line - 1] || '';
   const usagePattern = new RegExp(`\\b${imp.name}\\b`);
   let used = false;
   for (let i = 0; i < lines.length; i++) {
-    if (i === imp.line - 1) continue;
+    if (i === imp.line ? 1) continue;
     if (usagePattern.test(lines[i])) {
       used = true;
       break;
@@ -354,7 +354,7 @@ if (asJson) {
         console.log(`  - ${item.file}:${item.line} ${item.name}`);
       }
       if (items.length > 20) {
-        console.log(`  ... and ${items.length - 20} more`);
+        console.log(`  ? and ${items.length - 20} more`);
       }
     }
   }

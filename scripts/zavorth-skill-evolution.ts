@@ -46,7 +46,7 @@ async function main() {
     } else {
       console.log('[skill-evolution] apply oficial');
       console.log(`[skill-evolution] status=${result.status} | ok=${result.ok ? 'yes' : 'no'}`);
-      console.log(`[skill-evolution] resumo: ${result.summary}`);
+      console.log(`[skill-evolution] summary: ${result.summary}`);
       for (const detail of result.details) {
         console.log(`- ${detail}`);
       }
@@ -69,7 +69,7 @@ async function main() {
     } else {
       console.log('[skill-evolution] rollback oficial');
       console.log(`[skill-evolution] status=${result.status} | ok=${result.ok ? 'yes' : 'no'}`);
-      console.log(`[skill-evolution] resumo: ${result.summary}`);
+      console.log(`[skill-evolution] summary: ${result.summary}`);
       for (const detail of result.details) {
         console.log(`- ${detail}`);
       }
@@ -96,7 +96,7 @@ async function main() {
       console.log('[skill-evolution] preview oficial');
       console.log(`[skill-evolution] status=${result.status} | ok=${result.ok ? 'yes' : 'no'}`);
       console.log(`[skill-evolution] skill=${result.record.skillName} | draft=${result.record.id}`);
-      console.log(`[skill-evolution] resumo: ${result.summary}`);
+      console.log(`[skill-evolution] summary: ${result.summary}`);
       for (const detail of result.details) {
         console.log(`- ${detail}`);
       }
@@ -113,7 +113,7 @@ async function main() {
     console.info = originalConsole.info;
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[skill-evolution] leitura oficial de Auto-Skill Evolution');
+    console.log('[skill-evolution] read oficial de Auto-Skill Evolution');
     console.log(`[skill-evolution] postura=${snapshot.summary.posture} | total=${snapshot.summary.total}`);
     console.log(`[skill-evolution] drafts=${snapshot.summary.drafts} | waiting=${snapshot.summary.waitingApproval} | trusted=${snapshot.summary.trustedLocal} | blocked=${snapshot.summary.blocked}`);
     console.log(`[skill-evolution] target=${snapshot.policy.installTargetRoot}`);
@@ -132,6 +132,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[skill-evolution] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[skill-evolution] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

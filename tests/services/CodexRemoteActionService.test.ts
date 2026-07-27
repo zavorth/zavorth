@@ -21,7 +21,7 @@ describe('CodexRemoteActionService', () => {
     activeProfile: {
       id: 'default',
       label: 'Default Codex',
-      description: 'Perfil padrao',
+      description: 'Perfil pattern',
       codexCliPath: 'C:\\Codex\\codex.exe',
       codexHome: 'C:\\Users\\ermys\\.codex',
       workspaceRoot: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
@@ -35,7 +35,7 @@ describe('CodexRemoteActionService', () => {
       profiles: [],
       narrative: {
         headline: 'Codex Remote',
-        operatorSummary: 'Perfil padrao.',
+        operatorSummary: 'Perfil pattern.',
       },
     },
     remotePaths: [],
@@ -48,8 +48,8 @@ describe('CodexRemoteActionService', () => {
     },
     narrative: {
       headline: 'Codex Remote',
-      operatorSummary: 'Pronto.',
-      nextAction: 'Abrir sessao.',
+      operatorSummary: 'Ready.',
+      nextAction: 'Abrir session.',
     },
   };
 
@@ -142,7 +142,7 @@ describe('CodexRemoteActionService', () => {
       status: 'pending',
       executor: 'codex_remote',
       kind: 'session_control',
-      reason: 'Iniciar uma nova sessao do Codex Remote.',
+      reason: 'Iniciar uma nova session do Codex Remote.',
       metadata: {},
     }));
     const service = new CodexRemoteActionService({
@@ -202,9 +202,9 @@ describe('CodexRemoteActionService', () => {
     const resumeSession = jest.fn(async () => ({
       record: {
         sessionId: 'codex-1',
-        title: 'Sessao 1',
+        title: 'Session 1',
       },
-      operatorSummary: 'Sessao retomada.',
+      operatorSummary: 'Session resumption.',
       tail: { logLines: [] },
     }));
     const service = new CodexRemoteActionService({
@@ -243,7 +243,7 @@ describe('CodexRemoteActionService', () => {
       prompt: null,
       requestedBy: 'telegram-user',
     });
-    expect(result.action.note).toContain('aprovado e executado');
+    expect(result.action.note).toContain('approved and executed');
   });
 
   it('normalizes profile and permission identifiers copied with trailing punctuation', async () => {
@@ -310,6 +310,6 @@ describe('CodexRemoteActionService', () => {
     expect(getRequest).toHaveBeenCalledWith('perm-1');
     expect(approveRequest).toHaveBeenCalledWith('perm-1', 'telegram-user', expect.anything());
     expect(deleteProfile).toHaveBeenCalledWith('work-b');
-    expect(result.action.note).toContain('aprovado e executado');
+    expect(result.action.note).toContain('approved and executed');
   });
 });

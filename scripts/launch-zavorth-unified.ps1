@@ -44,12 +44,12 @@ function Write-LauncherLine {
 Write-LauncherLine '==========================================='
 Write-LauncherLine ' Zavorth Unified Launcher'
 Write-LauncherLine '==========================================='
-Write-LauncherLine "Projeto: $projectRoot"
-Write-LauncherLine "Log atual: $logFile"
+Write-LauncherLine "Project: $projectRoot"
+Write-LauncherLine "Log current: $logFile"
 
 if (-not (Test-Path $supervisedScript)) {
-  Write-LauncherLine "Nao encontrei o launcher supervisionado em $supervisedScript"
-  throw "Launcher supervisionado ausente."
+  Write-LauncherLine "Could not find supervised launcher at $supervisedScript"
+  throw "Launcher supervised ausente."
 }
 
 $supervisedArgs = @()
@@ -63,7 +63,7 @@ if ($NotifyChatId) { $supervisedArgs += @('-NotifyChatId', $NotifyChatId) }
 if ($RequestedBy) { $supervisedArgs += @('-RequestedBy', $RequestedBy) }
 if ($PassthroughArgs.Count -gt 0) { $supervisedArgs += $PassthroughArgs }
 
-Write-LauncherLine 'Iniciando Zavorth supervisionado...'
+Write-LauncherLine 'Iniciando Zavorth supervised...'
 & $supervisedScript @supervisedArgs
 
 if (-not $DryRun -and ($runtimeProfile -eq 'full' -or $keepaliveExplicitlyEnabled)) {
@@ -73,9 +73,9 @@ if (-not $DryRun -and ($runtimeProfile -eq 'full' -or $keepaliveExplicitlyEnable
     -RedirectStandardOutput $keepaliveLog -RedirectStandardError $keepaliveErr | Out-Null
   Write-LauncherLine "Keepalive iniciado (logs: $keepaliveLog)."
 } elseif (-not $DryRun) {
-  Write-LauncherLine "Keepalive remoto ignorado no perfil $runtimeProfile. Use ZAVORTH_PROFILE=full ou ZAVORTH_ENABLE_REMOTE_KEEPALIVE=true para habilitar."
+  Write-LauncherLine "Keepalive remote ignorado no perfil $runtimeProfile. Use ZAVORTH_PROFILE=full ou ZAVORTH_ENABLE_REMOTE_KEEPALIVE=true para habilitar."
 } else {
-  Write-LauncherLine '[dry-run] Keepalive nao iniciado.'
+  Write-LauncherLine '[dry-run] Keepalive not started.'
 }
 
-Write-LauncherLine 'Launcher unificado finalizado.'
+Write-LauncherLine 'Launcher unificado finished.'

@@ -45,7 +45,7 @@ describe('TaskManager', () => {
     const taskManager = new TaskManager(taskRepo, { log: jest.fn() } as any);
     const task = taskManager.createPendingTask('chat-1', 'user-1', '/task teste', '/task teste', '/task');
 
-    taskManager.advanceState(task, 'parsed', { reason: 'mensagem normalizada', actor: 'telegram' });
+    taskManager.advanceState(task, 'parsed', { reason: 'normalized message', actor: 'telegram' });
 
     expect(task.status).toBe('parsed');
     expect(task.metadata.lifecycle).toEqual(
@@ -60,7 +60,7 @@ describe('TaskManager', () => {
       expect.objectContaining({
         from: 'pending',
         to: 'parsed',
-        reason: 'mensagem normalizada',
+        reason: 'normalized message',
         actor: 'telegram',
       }),
     );
@@ -154,7 +154,7 @@ describe('TaskManager', () => {
       approval_status: 'not_required',
       active_controls: [],
     }));
-    expect(task.metadata.security_summary).toContain('risco low (0)');
+    expect(task.metadata.security_summary).toContain('low risk (0)');
     expect(taskRepo.save).toHaveBeenCalledWith(expect.objectContaining({
       artifacts: [
         expect.objectContaining({

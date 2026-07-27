@@ -73,7 +73,7 @@ async function probeGatewayProxy(): Promise<{ listening: boolean; upstreamReady:
     return {
       listening: false,
       upstreamReady: false,
-      message: 'Gateway proxy local ainda nao respondeu.',
+      message: 'local gateway proxy has not responded yet.',
     };
   }
 
@@ -83,7 +83,7 @@ async function probeGatewayProxy(): Promise<{ listening: boolean; upstreamReady:
     upstreamReady,
     message: upstreamReady
       ? null
-      : `Gateway proxy local ativo; upstream respondeu health ${response.status}.`,
+      : `Local gateway proxy active; upstream returned health ${response.status}.`,
   };
 }
 
@@ -229,7 +229,7 @@ async function ensureAIGatewayUpstream(processSpec: ManagedProcess, health: Proc
   try {
     const ready = await isUpstreamReady();
     if (!processSpec.manageProcess) {
-      updateHealth(health, ready, ready ? processSpec.skipReason || null : (processSpec.skipReason || 'AIGateway upstream ainda nao respondeu.'));
+      updateHealth(health, ready, ready ? processSpec.skipReason || null : (processSpec.skipReason || 'AIGateway upstream has not responded yet.'));
       return;
     }
     updateHealth(health, ready, ready ? null : health.lastError);
@@ -297,7 +297,7 @@ async function main() {
       } catch (error: unknown) {
         const err = asErrorLike(error);
 
-        console.error('[ops-keepalive] falha ao encerrar PID ' + existingLock.pid + ': ' + (error instanceof Error ? error.message : String(error)));
+        console.error('[ops-keepalive] failure ao encerrar PID ' + existingLock.pid + ': ' + (error instanceof Error ? error.message : String(error)));
       }
     }
     clearLock(lockPath);
@@ -309,7 +309,7 @@ async function main() {
       processes: {},
       notes: ['keepalive stop requested'],
     }, null, 2));
-    console.log('[ops-keepalive] keepalive interrompido.');
+    console.log('[ops-keepalive] keepalive interrupted.');
     return;
   }
 
@@ -319,18 +319,17 @@ async function main() {
   const manageLocalAIGatewayUpstream = upstreamIsLoopback && Boolean(upstreamCwd);
   const upstreamSkipReason = manageLocalAIGatewayUpstream
     ? null
-    : upstreamIsLoopback
-      ? 'Upstream local configurado, mas o worktree do AIGateway ainda nao foi provisionado.'
-      : 'Usando upstream remoto configurado; sidecar local do AIGateway nao e necessario.';
+    : upstreamIsLoopback ? 'local upstream configured, but the AIGateway worktree has not been provisioned yet.'
+      : 'Using configured remote upstream; local AIGateway sidecar is not required.';
   const nodeHostId = resolveNodeHostId();
   if (!nodeHostId) {
-    console.error('[ops-keepalive] Nenhum node host pareado encontrado.');
+    console.error('[ops-keepalive] No node host paired encontrado.');
     process.exitCode = 1;
     return;
   }
   const sharedSecret = resolveNodeHostSecret(nodeHostId);
   if (!sharedSecret) {
-    console.error('[ops-keepalive] sharedSecret nao encontrado para o node host.');
+    console.error('[ops-keepalive] sharedSecret not found for the node host.');
     process.exitCode = 1;
     return;
   }
@@ -342,7 +341,7 @@ async function main() {
       ? 0
       : Date.parse(existingLock.updatedAt);
     if (existingLock.pid !== process.pid && now - updatedAtMs < STALE_LOCK_MS) {
-      console.error('[ops-keepalive] Ja existe um keepalive ativo com PID ' + existingLock.pid + '.');
+      console.error('[ops-keepalive] already existe um keepalive active com PID ' + existingLock.pid + '.');
       process.exitCode = 1;
       return;
     }
@@ -498,7 +497,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[ops-keepalive] falha ao manter transportes remotos vivos.');
+  console.error('[ops-keepalive] failure ao manter remote transports vivos.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

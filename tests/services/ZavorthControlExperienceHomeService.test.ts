@@ -29,7 +29,7 @@ describe('ZavorthControlExperienceHomeService', () => {
     expect(snapshot.gettingStarted.steps.find((step) => step.id === 'demo')?.optional).toBe(true);
     expect(snapshot.primaryMissions.length).toBeGreaterThanOrEqual(4);
     expect(snapshot.runtimeQuestions.length).toBeGreaterThanOrEqual(4);
-    expect(snapshot.permissionPanel.title).toBe('Permissoes');
+    expect(snapshot.permissionPanel.title).toBe('permissions');
     expect(snapshot.permissionPanel.items.map((item) => item.id)).toEqual([
       'permissions',
       'auto-approvals',

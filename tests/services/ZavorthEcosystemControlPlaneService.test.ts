@@ -40,7 +40,7 @@ describe('ZavorthEcosystemControlPlaneService', () => {
       'sdk/python/pyproject.toml',
       'docs/platform/integrar-client.md',
       'docs/platform/registrar-node.md',
-      'docs/platform/publicar-plugin.md',
+      'docs/platform/publish-plugin.md',
       'docs/platform/usar-recipe.md',
       'examples/clients/simple-bot.ts',
       'examples/nodes/headless-node.ts',

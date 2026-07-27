@@ -17,13 +17,13 @@ async function main() {
     projectRoot: config.projectRoot,
   }).buildBundle(outputRoot);
 
-  console.log('[companion-package] bundle pronto');
+  console.log('[companion-package] bundle ready');
   console.log(`[companion-package] bundleDir: ${bundle.bundleDir}`);
   console.log(`[companion-package] files: ${bundle.files.length}`);
   console.log(`[companion-package] launcher: ${bundle.launcherPs1Path}`);
 }
 
 main().catch((error) => {
-  console.error('[companion-package] falhou:', error instanceof Error ? error.message : String(error));
+  console.error('[companion-package] failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

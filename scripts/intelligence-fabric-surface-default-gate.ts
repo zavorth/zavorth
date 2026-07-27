@@ -32,8 +32,8 @@ const executor: UniversalAgentExecutor = ({ request }) => {
   executorCalls.push(`${request.channel}:${request.sessionId || 'session'}`);
   return {
     status: 'completed',
-    summary: `Surface ${request.channel} respondeu pelo runtime atual.`,
-    replyText: `Resposta ${request.channel} pelo runtime atual.`,
+    summary: `Surface ${request.channel} responded through the current runtime.`,
+    replyText: `Response from ${request.channel} through the current runtime.`,
     metadata: {
       surfaceDefaultGateExecutor: true,
     },
@@ -47,11 +47,11 @@ const gateway = new ZavorthAgentGateway({
 });
 
 const scenarios: SurfaceScenario[] = [
-  { id: 'web-control', channel: 'web', text: 'oi, responda em uma frase' },
+  { id: 'web-control', channel: 'web', text: 'oi, reply em uma frase' },
   { id: 'cli-command', channel: 'cli', text: 'explique rapidamente o status do projeto' },
   { id: 'telegram-chat', channel: 'telegram', text: 'oi zavorth' },
   { id: 'discord-chat', channel: 'discord', text: 'oi zavorth' },
-  { id: 'public-api', channel: 'api', text: 'resuma a tarefa atual' },
+  { id: 'public-api', channel: 'api', text: 'summarize a task current' },
   { id: 'unknown-safe-fallback', channel: 'unknown', text: 'hello, write a short response' },
 ];
 
@@ -151,7 +151,7 @@ function validateRun(scenario: SurfaceScenario, run: UniversalAgentRun): GateRes
   expect(details, orientation.toolExecutionChanged === false, 'Tool execution must not change');
   expect(details, contextPack.source === 'IntelligenceFabricDefault', 'Context pack must be sourced from Fabric default');
   expect(details, contextPack.riskLevel === 0, 'Surface default smoke request must remain risk 0');
-  expect(details, fabricSnapshot.trustMode === 'local_owner', 'Local owner must be the default trust mode for owner-run surfaces');
+  expect(details, fabricSnapshot.trustMode === 'local_owner', 'local owner must be the default trust mode for owner-run surfaces');
   expect(details, fabricSnapshot.trustSource === 'owner_local_default', 'Owner-run surfaces must use the local owner default trust source');
   expect(details, fabricSnapshot.trustOwnerLocalDefault === true, 'Owner-run surfaces must mark owner local default');
   expect(details, run.status === 'completed', `run should complete, got ${run.status}`);

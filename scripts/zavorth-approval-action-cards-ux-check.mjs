@@ -53,8 +53,7 @@ rules.push(
   {
     id: 'smoke:actions',
     status: Array.isArray(firstCard?.actions)
-      && ['allow_once', 'deny', 'view_preview', 'view_receipt'].every((kind) => firstCard.actions.some((action) => action.kind === kind))
-      ? 'passed'
+      && ['allow_once', 'deny', 'view_preview', 'view_receipt'].every((kind) => firstCard.actions.some((action) => action.kind === kind)) ? 'passed'
       : 'failed',
     summary: 'Approval card exposes allow once, deny, preview and receipt actions.',
   },
